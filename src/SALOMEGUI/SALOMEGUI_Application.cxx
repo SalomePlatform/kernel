@@ -500,11 +500,13 @@ void SALOMEGUI_Application::onDisplay(int id)
 	MESSAGE ( " Not found " )
       }
     }
-    if ( !found && getenv("KERNEL_ROOT_DIR")  ) {
+    if ( !found && getenv( parentComp + "_ROOT_DIR")  ) {
       dir.fill('\0');
-      dir.sprintf("%s", getenv("KERNEL_ROOT_DIR"));
+      dir.sprintf("%s", getenv(parentComp + "_ROOT_DIR"));
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "lib" + parentComp.latin1() + "GUI.dll" ;
