@@ -88,7 +88,7 @@ BIN_CLIENT_IDL =
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(OCC_LIBS) $(OGL_LIBS) $(HDF5_LIBS) -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer
+LDFLAGS+=$(OCC_KERNEL_LIBS) $(OCC_OCAF_LIBS) $(OGL_LIBS) $(HDF5_LIBS) -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer
 # -L/opt/ccmalloc/lib -lccmalloc -ldl
 # -L/opt/efence/lib -lefence
 

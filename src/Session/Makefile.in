@@ -37,7 +37,7 @@ BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOM
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(OCC_LIBS) $(VTK_LIBS) -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lSalomeLoggerServer -lPlot2d
+LDFLAGS+=$(QT_MT_LIBS) $(VTK_LIBS) -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lSalomeLoggerServer -lPlot2d
 
 
 @CONCLUDE@

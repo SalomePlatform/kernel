@@ -192,7 +192,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(QWT_INCLUDES)
-LDFLAGS+=$(QT_MT_LIBS) $(OCC_LIBS) $(VTK_LIBS) $(QWT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
+LDFLAGS+=$(QT_MT_LIBS) $(OCC_KERNEL_LIBS) $(VTK_LIBS) $(QWT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
 
 LIBS+= $(PYTHON_LIBS)
 
