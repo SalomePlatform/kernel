@@ -12,7 +12,7 @@
 <component-list>
 	<component>
 		<!-- Component identification -->
-		<component-name>Salome</component-name>
+		<component-name>KERNEL</component-name>
 		<component-username>Salome</component-username>
 		<component-type>Other</component-type>
 		<component-author>NRI</component-author>

@@ -69,7 +69,7 @@ SALOMEDS_Server&
 
 echo "Starting SALOME_ModuleCatalog_Server -common ${SALOME_ROOT_DIR}/share/salome/resources/CatalogModuleGeneral.xml -personal ${HOME}/Salome/resources/CatalogModulePersonnel.xml"
 SALOME_ModuleCatalog_Server \
- -common ${SALOME_ROOT_DIR}/share/salome/resources/CatalogModuleGeneral.xml:\
+ -common ${KERNEL_ROOT_DIR}/share/salome/resources/KERNELCatalog.xml:\
 ${GEOM_ROOT_DIR}/share/salome/resources/GEOMCatalog.xml:\
 ${SUPERV_ROOT_DIR}/share/salome/resources/SUPERVCatalog.xml:\
 ${VISU_ROOT_DIR}/share/salome/resources/VISUCatalog.xml:\

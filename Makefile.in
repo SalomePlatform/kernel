@@ -20,7 +20,7 @@ RESOURCES_FILES = \
 back.xpm \
 cascade.png \
 CatalogDataType.xml \
-CatalogModuleGeneral.xml \
+KERNELCatalog.xml \
 CatalogRessources.xml \
 close.png \
 config \
