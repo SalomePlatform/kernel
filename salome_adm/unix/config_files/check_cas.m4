@@ -9,6 +9,11 @@ AC_LANG_CPLUSPLUS
 
 AC_SUBST(CAS_CPPFLAGS)
 AC_SUBST(CAS_CXXFLAGS)
+AC_SUBST(CAS_KERNEL)
+AC_SUBST(CAS_VIEWER)
+AC_SUBST(CAS_MODELER)
+AC_SUBST(CAS_OCAF)
+AC_SUBST(CAS_DATAEXCHANGE)
 AC_SUBST(CAS_LDFLAGS)
 
 CAS_CPPFLAGS=""
@@ -99,9 +104,20 @@ if test "x$occ_ok" = xno ; then
   AC_MSG_WARN(Opencascade libraries not found)
 else
   AC_MSG_RESULT(yes)
-  CAS_LDFLAGS="-L$CASROOT/$casdir/lib -lTKPAppStd -lTKFillet -lTKService -lFWOSPlugin -lTKG2d -lTKShHealing -lTKShHealingStd -lTKOpenGl -lTKG3d -lTKTopAlgo -lTKGeomAlgo -lTKV2d -lPAppStdPlugin -lTKGeomBase -lTKV3d -lPTKernel -lTKHLR -lTKVRML -lTKShapeSchema -lTKIGES -lTKXSBase -lTKStdSchema -lTKMath -lTKBRep -lTKOffset -lTKernel -lTKBool -lTKPCAF -lTKCAF -lTKPShape -lTKCDF -lTKPrim -lTKSTEP -lTKFeat -lTKSTL"
+  CAS_KERNEL="-L$CASROOT/$casdir/lib -lTKernel -lTKMath"
+  CAS_OCAF="-L$CASROOT/$casdir/lib -lPTKernel -lTKCAF -lFWOSPlugin -lTKPShape -lTKPCAF -lTKStdSchema -lTKShapeSchema -lPAppStdPlugin -lTKPAppStd -lTKCDF"
+dnl  CAS_VIEWER="-L$CASROOT/$casdir/lib -lTKOpenGl -lTKV3d -lTKV2d -lTKService"
+  CAS_VIEWER="-L$CASROOT/$casdir/lib -lTKOpenGl -lTKV3d -lTKService"
+#  CAS_MODELER="-L$CASROOT/$casdir/lib -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBool -lTKHLR -lTKFillet -lTKFeat -lTKOffset"
+  CAS_MODELER="-L$CASROOT/$casdir/lib -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBool -lTKHLR -lTKFillet -lTKOffset"
+dnl  CAS_DATAEXCHANGE="-L$CASROOT/$casdir/lib -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing -lTKShHealingStd -lTKSTL -lTKVRML "
+  CAS_DATAEXCHANGE="-L$CASROOT/$casdir/lib -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing -lTKShHealingStd"
+  CAS_LDFLAGS="$CAS_KERNEL $CAS_OCAF $CAS_VIEWER $CAS_MODELER $CAS_DATAEXCHANGE"
+
 fi
 
 AC_LANG_RESTORE
 
 ])dnl
+
+
