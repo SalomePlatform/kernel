@@ -23,10 +23,10 @@ msgid "INF_VERSION"
 msgstr "Version 2.1.0"
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright : CEA"
+msgstr "Copyright (C) 2003-2004 OPEN CASCADE, EADS/CCR, LIP6,\nCEA/DEN, CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS"
 
 msgid "INF_LICENSE"
-msgstr "  "
+msgstr "GNU LGPL"
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_TLT"
