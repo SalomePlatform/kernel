@@ -1,0 +1,77 @@
+Outil de generation du catalogue de module
+a partir des fichiers idl corba.
+version 0.1 (12/4/2002)
+
+Marc Tajchman (CEA)
+
+______________________________________________________________________
+Etat : 
+
+       Version initiale
+
+______________________________________________________________________
+A faire :
+
+       Tests supplementaires pour l'ajout et le remplacement
+       de composants
+
+       Implementation du retrait de composant
+
+       Gestion des champs du catalogue de modules non presents
+       dans les fichiers idl
+
+       Autres generations (wrappers divers ...)
+
+______________________________________________________________________
+Utilisation :
+
+       Une seule commande dans tous les cas de figure :
+
+          runIDLparser -Wbcatalog=my_catalog.xml <fichier.idl>
+
+       (appel de runIDLparser pour interpreter <fichier.idl> et 
+        mettre a jour le catalogue de module my_catalog.xml)
+
+______________________________________________________________________
+Tests d'utilisation :
+
+Pour lancer les tests, utiliser le script 'testIDLparser' depuis
+le repertoire <SALOME_BUILD>/SALOME/src/ModuleGenerator : 
+
+   sh testIDLparser <n>
+
+ou <n> vaut 1, 1b, 2, 3, 4, 5
+
+              _________________________________________
+1.  Creation d'un nouveau catalogue de composants my_catalog.xml
+    a partir d'un fichier idl <fichier.idl>
+    Le fichier idl contient un seul composant Salome.
+
+              _________________________________________
+1b. Creation d'un nouveau catalogue de composants my_catalog.xml
+    a partir d'un fichier idl <fichier.idl>
+    Le fichier idl contient un composant et une interface CORBA
+    qui n'est pas un composant Salome (i.e. ne derive pas de
+    Engines::Component).
+
+              _________________________________________
+2.  Un meme fichier idl est lu deux fois
+
+              _________________________________________
+3.  Deux fichiers idl differents sont lus, puis le premier est relu
+
+              _________________________________________
+4.  Deux fichiers idl contenant deux versions differentes du meme
+    composant sont lus. Teste aussi la 'persistance' des champs 
+    'commentaires'
+
+              _________________________________________
+5.  Test global sur les idl de Salome
+
+
+Les scripts de test se trouvent dans le repertoire 
+        <SALOME_ROOT>/SALOME/src/ModuleGenerator/tests
+
+Les fichiers idl servant aux tests se trouvent dans les repertoires 
+        <SALOME_ROOT>/idl
+        <SALOME_ROOT>/SALOME/src/ModuleGenerator/tests

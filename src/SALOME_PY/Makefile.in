@@ -1,0 +1,33 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : ven nov 16 18:12:41 CET 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+# Libraries targets
+
+LIB = libSalomePy.la
+LIB_SRC = SalomePy.cxx
+
+LIB_CLIENT_IDL = SALOMEDS.idl \
+                 SALOMEDS_Attributes.idl \
+		 SALOME_Exception.idl
+
+CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) $(OCC_INCLUDES) -DHAVE_CONFIG_H
+LDFLAGS+= $(PYTHON_LIBS) $(QT_MT_LIBS) $(OCC_LIBS) $(VTK_LIBS) $(OGL_LIBS) -lSALOME_Swigcmodule -lSalomeGUI -lVTKCommonPython -lVTKGraphicsPython -lVTKContribPython -lVTKImagingPython
+#LDFLAGS+= $(PYTHON_LIBS) $(QT_MT_LIBS) $(OCC_LIBS) $(VTK_LIBS) $(OGL_LIBS) -lSalomeGUI -lVTKCommonPython -lVTKGraphicsPython -lVTKContribPython -lVTKImagingPython
+
+
+@CONCLUDE@

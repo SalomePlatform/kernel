@@ -1,0 +1,3 @@
+#ifndef _SALOME_InteractiveObject_HeaderFile
+#include "SALOME_InteractiveObject.hxx"
+#endif

@@ -1,0 +1,31 @@
+// File: SALOME_DataTypeCatalog.idl
+// Created: Mon August 08 2001
+// Author: Estelle Deville, Paul Rascle
+// Project: SALOME
+// Copyright : CEA/DEN/DMSS/LGLS
+// $Header$
+
+module SALOME_DataTypeCatalog{
+// Type definitions
+
+// List of Data Type Names
+  typedef sequence<string> ListOfDataTypeName ;
+
+  // Exception thrown if a DataType is not found in the catalog
+  exception NotFound {};
+//--------------------------------------------------------------------------
+// Interfaces
+
+// Catalog interface :
+// methods to :
+//  - obtain the data type names of the catalog
+//  - test the compatibility between two type names
+interface DataCatalog
+{
+  ListOfDataTypeName GetDataTypeList() ;
+  boolean isDerivedFrom(in string type_in, in string type_out) raises(NotFound);
+  string GetDataInterfaceRead(in string type) raises(NotFound);
+  string GetDataInterfaceWrite(in string type)raises(NotFound);
+   ListOfDataTypeName GetDataTypeParents(in string type) raises(NotFound);
+} ;
+};

@@ -1,0 +1,66 @@
+--  File      : SALOMEDS_PythonObjectAttribute.cdl
+--  Created   : Tue Oct  8 10:13:30 2002
+--  Author    : Michael Ponikarov
+--  Project   : SALOME
+--  Module    : SALOMEDS
+--  Copyright : Open CASCADE
+--  $Header$
+
+class PythonObjectAttribute from SALOMEDS inherits Attribute from TDF
+
+	---Purpose: 
+
+
+uses Attribute          from TDF,
+     Label              from TDF,
+     GUID               from Standard,
+     DataSet            from TDF,
+     RelocationTable    from TDF,
+     Data               from TDF,
+     HArray1OfCharacter from TColStd
+
+is    
+
+
+    ---Purpose: class methods
+    --          =============
+
+    GetID (myclass)   
+    ---C++: return const &  
+    returns GUID from Standard;    
+
+    Set (myclass; label : Label from TDF)
+    returns PythonObjectAttribute from SALOMEDS;
+    
+    ---Purpose: Common methods
+    --          ============
+    
+    Create 
+    returns mutable PythonObjectAttribute from SALOMEDS;
+    
+    SetObject(me: mutable; theSequence : CString from Standard; theScript : Boolean from Standard);
+    
+    GetObject(me) returns CString from Standard;
+    
+    IsScript(me) returns Boolean from Standard;
+    
+    GetLength(me) returns Integer from Standard;
+
+    ID (me)
+    	---C++: return const & 
+    returns GUID from Standard;
+
+    Restore (me: mutable; with : Attribute from TDF);
+
+    NewEmpty (me)
+    returns mutable Attribute from TDF;
+
+    Paste (me; into : mutable Attribute from TDF;
+	       RT   : mutable RelocationTable from TDF);
+
+fields
+
+  mySequence : CString from Standard;
+  myIsScript : Boolean from Standard;
+
+end PythonObjectAttribute;

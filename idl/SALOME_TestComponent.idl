@@ -1,0 +1,20 @@
+//=============================================================================
+// File      : SALOME_TestComponent.idl
+// Created   : jeu jui 12 12:08:17 CEST 2001
+// Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+// Project   : SALOME
+// Copyright : EDF 2001 - CEA 2001
+// $Header$
+//=============================================================================
+
+#include "SALOME_Component.idl"
+
+module Engines
+{
+  
+  interface TestComponent : Component
+  {
+    string Coucou(in long L);
+  };
+
+};

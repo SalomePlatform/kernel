@@ -1,0 +1,142 @@
+## ------------------------
+## Python file handling
+## From Andrew Dalke
+## Modified by Marc Tajchman (06/2001)
+## ------------------------
+
+dnl CHECK_PYTHON([module, classes])
+dnl
+dnl Adds support for distributing Python modules or classes.
+dnl Python library files distributed as a `module' are installed
+dnl under PYTHON_SITE_PACKAGE (eg, ./python1.5/site-package/package-name)
+dnl while those distributed as `classes' are installed under PYTHON_SITE
+dnl (eg, ./python1.5/site-packages).  The default is to install as
+dnl a `module'.
+
+AC_DEFUN(CHECK_PYTHON,
+ [
+  AC_ARG_WITH(python,
+   [  --with-python=DIR root directory path of python installation ],
+   [PYTHON="$withval/bin/python"
+    AC_MSG_RESULT("select python distribution in $withval")
+   ], [
+    AC_PATH_PROG(PYTHON, python)
+    ])
+  
+  AC_CHECKING([local Python configuration])
+  PYTHON_PREFIX=`echo $PYTHON | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+  PYTHON_PREFIX=`echo $PYTHON_PREFIX | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+  PYTHONHOME=$PYTHON_PREFIX
+
+  AC_SUBST(PYTHON_PREFIX)
+  AC_SUBST(PYTHONHOME)
+
+  changequote(<<, >>)dnl
+  PYTHON_VERSION=`$PYTHON -c "import sys; print sys.version[:3]"`
+  changequote([, ])dnl
+  AC_SUBST(PYTHON_VERSION)
+
+  PY_MAKEFILE=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/config/Makefile
+  if test ! -f "$PY_MAKEFILE"; then
+     AC_MSG_ERROR([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
+*** missing the development portion of the python installation])
+  fi
+
+  AC_SUBST(PYTHON_INCLUDES)
+  AC_SUBST(PYTHON_LIBS)
+
+  PYTHON_INCLUDES=-I$PYTHON_PREFIX/include/python$PYTHON_VERSION
+  PYTHON_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
+  PYTHON_LIB=$PYTHON_LIBS
+  PYTHON_LIBA=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+
+  dnl At times (like when building shared libraries) you may want
+  dnl to know which OS Python thinks this is.
+
+  AC_SUBST(PYTHON_PLATFORM)
+  PYTHON_PLATFORM=`$PYTHON -c "import sys; print sys.platform"`
+
+  AC_SUBST(PYTHON_SITE)
+  AC_ARG_WITH(python-site,
+[  --with-python-site=DIR          Use DIR for installing platform independent
+                                  Python site-packages],
+
+dnl modification : by default, we install python script in salome root tree
+
+dnl [PYTHON_SITE="$withval"
+dnl python_site_given=yes],
+dnl [PYTHON_SITE=$PYTHON_PREFIX"/lib/python"$PYTHON_VERSION/site-packages
+dnl python_site_given=no])
+
+[PYTHON_SITE="$withval"
+python_site_given=yes],
+[PYTHON_SITE=$prefix"/lib/python"$PYTHON_VERSION/site-packages
+python_site_given=no])
+
+  AC_SUBST(PYTHON_SITE_PACKAGE)
+  PYTHON_SITE_PACKAGE=$PYTHON_SITE/$PACKAGE
+
+
+  dnl Get PYTHON_SITE from --with-python-site-exec or from
+  dnl --with-python-site or from running Python
+
+  AC_SUBST(PYTHON_SITE_EXEC)
+  AC_ARG_WITH(python-site-exec,
+[  --with-python-site-exec=DIR     Use DIR for installing platform dependent
+                                  Python site-packages],
+[PYTHON_SITE_EXEC="$withval"],
+[if test "$python_site_given" = yes; then
+  PYTHON_SITE_EXEC=$PYTHON_SITE
+else
+  PYTHON_SITE_EXEC=$PYTHON_EXEC_PREFIX"/lib/python"$PYTHON_VERSION/site-packages
+fi])
+
+  dnl Set up the install directory
+  ifelse($1, classes,
+[PYTHON_SITE_INSTALL=$PYTHON_SITE],
+[PYTHON_SITE_INSTALL=$PYTHON_SITE_PACKAGE])
+  AC_SUBST(PYTHON_SITE_INSTALL)
+
+  dnl Also lets automake think PYTHON means something.
+
+  pythondir=$PYTHON_PREFIX"/lib/python"$PYTHON_VERSION/
+  AC_SUBST(pythondir)
+
+ AC_MSG_CHECKING([if we need libdb])
+ PY_NEEDOPENDB=`nm $PYTHON_LIBA | grep dbopen | grep U`
+  if test "x$PY_NEEDOPENDB" != "x"; then
+     PYTHON_LIBS="$PYTHON_LIBS -ldb"
+     AC_MSG_RESULT(yes)
+  else
+     AC_MSG_RESULT(no)
+  fi
+
+ AC_MSG_CHECKING([if we need libdl])
+  PY_NEEDOPENDL=`nm $PYTHON_LIBA | grep dlopen | grep U`
+  if test "x$PY_NEEDOPENDL" != "x"; then
+     PYTHON_LIBS="$PYTHON_LIBS -ldl"
+     AC_MSG_RESULT(yes)
+  else
+     AC_MSG_RESULT(no)
+  fi
+
+ AC_MSG_CHECKING([if we need libutil])
+  PY_NEEDOPENPTY=`nm $PYTHON_LIBA | grep openpty | grep U`
+  if test "x$PY_NEEDOPENPTY" != "x"; then
+     PYTHON_LIBS="$PYTHON_LIBS -lutil"
+     AC_MSG_RESULT(yes)
+  else
+     AC_MSG_RESULT(no)
+  fi
+
+ AC_MSG_CHECKING([if we need tcltk])
+  PY_NEEDTCLTK=`nm $PYTHON_LIBA | grep Tcl_Init | grep U`
+  if test "x$PY_NEEDTCLTK" != "x"; then
+     PYTHON_LIBS="$PYTHON_LIBS -ltcl -ltk"
+     AC_MSG_RESULT(yes)
+  else
+     AC_MSG_RESULT(no)
+  fi
+
+  python_ok=yes
+  AC_MSG_RESULT(looks good)])

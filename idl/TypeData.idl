@@ -1,0 +1,21 @@
+#ifndef _SALOME_TYPEDATA_IDL_
+#define _SALOME_TYPEDATA_IDL_
+
+module Engines
+{
+
+  typedef sequence<double> DoubleVec ;
+  typedef sequence<long> IntVec;
+
+  typedef struct CSR {
+    unsigned long nbpos;
+    unsigned long nbval;
+    IntVec pos;
+    IntVec col;
+    DoubleVec data;
+  } CSRMatStruct;
+
+} ;
+ 
+#endif
+

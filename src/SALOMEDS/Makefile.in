@@ -1,0 +1,97 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Author    : Marc Tajchman
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
+
+
+@COMMENCE@
+
+EXPORT_HEADERS = SALOMEDS_Tool.hxx 
+
+# Libraries targets
+
+LIB = libSalomeDS.la
+LIB_SRC = 	\
+		  SALOMEDS_StudyManager_i.cxx \
+		  SALOMEDS_UseCaseBuilder_i.cxx \
+		  SALOMEDS_UseCaseIterator_i.cxx \
+		  SALOMEDS_Tool.cxx \
+		  SALOMEDS_ChildIterator_i.cxx \
+		  SALOMEDS_SComponentIterator_i.cxx \
+		  SALOMEDS_Study_i.cxx \
+		  SALOMEDS_StudyBuilder_i.cxx \
+		  SALOMEDS_SObject_i.cxx \
+		  SALOMEDS_SComponent_i.cxx \
+		  SALOMEDS_OCAFApplication.cxx \
+		  SALOMEDS_GenericAttribute_i.cxx \
+		  SALOMEDS_IORAttribute.cxx \
+	          SALOMEDS_PersRefAttribute.cxx \
+	          SALOMEDS_AttributeComment_i.cxx \
+	          SALOMEDS_AttributeIOR_i.cxx \
+	          SALOMEDS_AttributeInteger_i.cxx \
+	          SALOMEDS_AttributeName_i.cxx \
+	          SALOMEDS_AttributePersistentRef_i.cxx \
+	          SALOMEDS_AttributeReal_i.cxx \
+	          SALOMEDS_AttributeSequenceOfReal_i.cxx \
+	          SALOMEDS_AttributeSequenceOfInteger_i.cxx \
+	          SALOMEDS_AttributeDrawable_i.cxx \
+	          SALOMEDS_AttributeSelectable_i.cxx \
+	          SALOMEDS_AttributeOpened_i.cxx \
+	          SALOMEDS_AttributeExpandable_i.cxx \
+	          SALOMEDS_AttributeTextColor_i.cxx  \
+	          SALOMEDS_AttributeTextHighlightColor_i.cxx  \
+	          SALOMEDS_AttributePixMap_i.cxx  \
+		  SALOMEDS_AttributeTreeNode_i.cxx \
+		  SALOMEDS_AttributeLocalID_i.cxx \
+	          SALOMEDS_AttributeUserID_i.cxx \
+	          SALOMEDS_AttributeTarget_i.cxx \
+	          SALOMEDS_AttributeTableOfInteger_i.cxx \
+	          SALOMEDS_AttributeTableOfReal_i.cxx \
+		  SALOMEDS_AttributeTableOfString_i.cxx \
+		  SALOMEDS_AttributeStudyProperties_i.cxx \
+		  SALOMEDS_AttributePythonObject_i.cxx \
+	          SALOMEDS_SequenceOfRealAttribute.cxx \
+	          SALOMEDS_SequenceOfIntegerAttribute.cxx \
+	          SALOMEDS_DrawableAttribute.cxx \
+	          SALOMEDS_SelectableAttribute.cxx \
+	          SALOMEDS_ExpandableAttribute.cxx  \
+	          SALOMEDS_OpenedAttribute.cxx \
+	          SALOMEDS_TextColorAttribute.cxx \
+	          SALOMEDS_TextHighlightColorAttribute.cxx \
+	          SALOMEDS_PixMapAttribute.cxx \
+	          SALOMEDS_LocalIDAttribute.cxx \
+	          SALOMEDS_TargetAttribute.cxx \
+	          SALOMEDS_TableOfIntegerAttribute.cxx \
+	          SALOMEDS_TableOfRealAttribute.cxx \
+	          SALOMEDS_TableOfStringAttribute.cxx \
+		  SALOMEDS_StudyPropertiesAttribute.cxx \
+		  SALOMEDS_PythonObjectAttribute.cxx \
+		  SALOMEDS_DataMapOfIntegerString_0.cxx \
+		  SALOMEDS_DataMapIteratorOfDataMapOfIntegerString_0.cxx \
+		  SALOMEDS_DataMapNodeOfDataMapOfIntegerString_0.cxx \
+	          SALOMEDS_DataMapIteratorOfDataMapStringLabel_0.cxx \
+	          SALOMEDS_DataMapNodeOfDataMapStringLabel_0.cxx \
+	          SALOMEDS_DataMapStringLabel_0.cxx
+
+# Executables targets
+BIN = SALOMEDS_Server SALOMEDS_Client
+BIN_SRC = 
+LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl
+BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
+BIN_CLIENT_IDL = 
+
+CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
+CXXFLAGS+=$(OCC_CXXFLAGS)
+LDFLAGS+=$(OCC_LIBS) $(OGL_LIBS) $(HDF5_LIBS) -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer
+# -L/opt/ccmalloc/lib -lccmalloc -ldl
+# -L/opt/efence/lib -lefence
+
+@CONCLUDE@
+
+

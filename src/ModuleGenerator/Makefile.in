@@ -1,0 +1,21 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : 24 apr 2002
+#  Author    : Marc Tajchman
+#  Project   : SALOME
+#  Copyright : CEA
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+EXPORT_PYSCRIPTS = IDLparser.py
+
+@CONCLUDE@

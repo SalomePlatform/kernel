@@ -1,0 +1,51 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar jui  3 12:12:54 CEST 2001
+#  Author    : Marc Tajchman (CEA)
+#  Project   : SALOME
+#  Copyright : CEA 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
+
+
+@COMMENCE@
+
+# header files 
+EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
+		 VTKViewer_RenderWindowInteractor.h \
+	 	 VTKViewer_ViewFrame.h \
+		 VTKViewer_NonIsometricTransform.h 
+
+# Libraries targets
+LIB = libVTKViewer.la
+LIB_SRC= VTKViewer.cxx \
+	 VTKViewer_ViewFrame.cxx \
+	 VTKViewer_RenderWindow.cxx \
+	 VTKViewer_RenderWindowInteractor.cxx \
+	 VTKViewer_InteractorStyleSALOME.cxx \
+         VTKViewer_NonIsometricTransform.cxx 
+
+LIB_MOC = \
+	 VTKViewer.h \
+	 VTKViewer_ViewFrame.h \
+	 VTKViewer_RenderWindow.h \
+	 VTKViewer_RenderWindowInteractor.h 
+
+LIB_CLIENT_IDL = SALOMEDS.idl \
+		 SALOME_ModuleCatalog.idl \
+		 SALOME_Component.idl \
+		 SALOME_Exception.idl
+
+CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES) $(VTK_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
+CXXFLAGS+=
+LDFLAGS+=$(VTK_LIBS) $(OGL_LIBS) $(QT_MT_LIBS)
+
+@CONCLUDE@
+
+

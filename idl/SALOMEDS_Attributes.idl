@@ -1,0 +1,1356 @@
+//=====================================================
+//  File      : SALOMEDS.idl
+//  Created   : Thu Jul 4 19:25:39 2002
+//  Author    : Yves FRICAUD
+//  Project   : SALOME
+//  Copyright : Open CASCADE 2002
+//  $Header$
+//=====================================================
+//The following attributes can be assigned to SObject
+//=====================================================
+/*! \file SALOMEDS_Attributes.idl This file contains a set of interfaces
+    for the attributes which can be assigned to %SObject
+*/
+#ifndef _SALOMEDS_AttributesIDL_
+#define _SALOMEDS_AttributesIDL_
+
+#include "SALOMEDS.idl"
+
+module SALOMEDS
+{
+/*! Sequence of double values
+*/
+  typedef sequence <double> DoubleSeq;
+/*! Sequence of long values
+*/
+  typedef sequence <long>   LongSeq;
+/*! Sequence of string values
+*/
+  typedef sequence <string> StringSeq;
+/*! \struct Color 
+   This structure stores a set of elements defining the color based on RGB.
+*/
+  struct Color {
+/*! Red color
+*/  
+   double R;
+/*! Green color
+*/ 
+   double G;
+/*! Blue color
+*/ 
+   double B;
+  };
+  //==========================================================================
+/*! \brief Attribute allowing to store a real value
+
+    Attribute allowing to store a real value
+*/
+ //==========================================================================
+  interface AttributeReal : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    double Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in double value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+   const string AttributeReal__doc__ = "Attribute allowing to store a real value.";
+  //==========================================================================
+/*! \brief Attribute allowing to store an integer value
+
+   Attribute allowing to store an integer value
+*/
+  //==========================================================================
+  interface AttributeInteger : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    long   Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in long value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributeInteger__doc__ = "Attribute allowing to store an integer value.";
+  //==========================================================================
+/*! \brief Attribute - sequence of real values
+
+  Attribute - sequence of real values, indexing from 1 (like in CASCADE).
+*/
+  //==========================================================================
+  interface AttributeSequenceOfReal : GenericAttribute
+  {
+/*!
+   Initialization of the attribute with initial data.
+   \param other    Initially assigned sequence of real numbers.
+*/
+    void      Assign (in DoubleSeq other);
+    const string Assign__doc__ = "Initialization of the attribute with initial data.";
+/*!
+   Returns the sequence of real numbers stored in the attribute.
+*/
+    DoubleSeq CorbaSequence();
+    const string CorbaSequence__doc__ = "Returns the sequence of real numbers stored in the attribute.";
+/*!
+   Adds to the end of the sequence a real number.
+   \param value    A real number added to the sequence.
+
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void      Add (in double value);
+    const string Add__doc__ = "Adds to the end of the sequence a real number.";
+/*!
+    Removes a real number with a definite index
+    from the sequence of real numbers stored in the Attribute.
+*/
+    void      Remove(in long index);
+    const string Remove__doc__ = "Removes a real number with a definite index from the sequence of real numbers stored in the attribute.";
+/*!
+    Substitutes a real number with a definite index for another real number.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void      ChangeValue(in long index, in double value);
+    const string ChangeValue__doc__ = "Substitutes a real number with a definite index for another real number.";
+/*!
+  Returns a real number with a definite index
+    in the sequence of real numbers stored in the Attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    double    Value(in short index);
+    const string Value__doc__ = "Returns a real number with a definite index in the \nsequence of real numbers stored in the attribute.";
+/*!
+    Returns the length of the sequence of real numbers stored in the Attribute.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    long      Length();
+    const string Length__doc__ = "Returns the length of the sequence of real numbers stored in the attribute.";
+  };
+    const string AttributeSequenceOfReal__doc__ = "Attribute - sequence of real values.";
+  //==========================================================================
+/*! \brief Attribute - sequence of integer
+
+  Attribute - sequence of integer, indexing from 1 (like in CASCADE)
+*/
+  //==========================================================================
+  interface AttributeSequenceOfInteger : GenericAttribute
+  {
+/*!
+   Initialization of the attribute with initial data.
+   \param other    Initially assigned sequence of integer numbers.
+*/
+    void      Assign (in LongSeq other);
+    const string Assign__doc__ = "Initialization of the attribute with initial data.";
+/*!
+   Returns the sequence of integer numbers stored in the Attribute.
+*/
+    LongSeq CorbaSequence();
+    const string CorbaSequence__doc__ = "Returns the sequence of integer numbers stored in the attribute.";
+/*!
+   Adds to the end of the sequence an integer number.
+   \param value    An integer number added to the sequence.
+
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void      Add (in long value);
+    const string Add__doc__ = "Adds to the end of the sequence an integer number.";
+/*!
+    Removes an integer number with a definite index
+    from the sequence of integer numbers stored in the Attribute.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void      Remove(in long index);
+    const string Remove__doc__ = "Removes an integer number with a definite index from the sequence of integer numbers stored in the attribute.";
+/*!
+    Substitutes an integer number with a definite index for another integer number.
+*/
+    void      ChangeValue(in long index, in long value);
+    const string ChangeValue__doc__ = "Substitutes an integer number with a definite index for another integer number.";
+/*!
+   Returns an integer number with a definite index
+    in the sequence of integer numbers stored in the Attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    long      Value(in short index);
+    const string Value__doc__ = "Returns an integer number with a definite index in the \nsequence of integer numbers stored in the attribute.";
+/*!
+    Returns the length of the sequence of integer numbers stored in the Attribute.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    long      Length();
+    const string Length__doc__ = "Returns the length of the sequence of integer numbers stored in the attribute.";
+  };
+
+  //==========================================================================
+/*! \brief Name attribute
+
+   This attribute stores a string value, which corresponds to the name of the %SObject
+   or to the name of corresponding object.
+*/
+  //==========================================================================
+
+  interface AttributeName : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributeName__doc__ = "This attribute stores a string value, which corresponds to the name of the SObject \nor to the name of corresponding object.";
+
+  //==========================================================================
+/*! \brief Comment attribute
+
+    This attribute stores a string value containing supplementary information about
+    the %SObject. In particular it contains the data type of the %SComponent.
+*/
+  //==========================================================================
+  interface AttributeComment : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributeComment__doc__ = "This attribute stores a string value containing supplementary information about \nthe SObject. In particular it contains the data type of the SComponent.";
+  //==========================================================================
+/*! \brief IOR attribute
+
+    This attribute stores a string value identifying a runtime object.In particular
+    it contains CORBA Interoperable Object Reference.
+*/
+ //==========================================================================
+  interface AttributeIOR : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+   const string AttributeIOR__doc__ = "This attribute stores a string value identifying a runtime object.\nIn particular it contains CORBA Interoperable Object Reference.";
+
+  //==========================================================================
+/*! \brief Persistent reference attribute
+
+     This attribute stores a persistent identifier of the object.
+*/
+  //==========================================================================
+  interface AttributePersistentRef : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributePersistentRef__doc__ = "This attribute stores a persistent identifier of the object.";
+
+  //==========================================================================
+  //Below the list of presentation attributes for display study tree in browser
+  //==========================================================================
+
+
+  //==========================================================================
+/*! \brief Drawable flag Attribute.
+
+   This is a presentation attribute necessary for display of the study tree in the browser.
+   The item associated to SObject is created/displayed if TRUE.
+*/
+  //==========================================================================
+  interface AttributeDrawable : GenericAttribute
+  {
+/*!
+   Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.
+<BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean IsDrawable();
+    const string IsDrawable__doc__ = "Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.";
+/*!
+Sets the items to be drawable if <VAR>value</VAR> is TRUE (the default) or not to be selectable if <VAR>value</VAR>is FALSE.
+<BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetDrawable(in boolean value);
+    const string SetDrawable__doc__ = "Sets the items to be drawable if value is TRUE (the default) or not to be selectable if value is FALSE.";
+  };
+    const string AttributeDrawable__doc__ = "This is a presentation attribute necessary for display of the study tree in the browser. \nThe item associated to SObject is created/displayed if TRUE.";
+
+  //==========================================================================
+/*! \brief Selectable flag Attribute.
+
+  This is a presentation attribute necessary for display of the study tree in the browser.
+  The item is selectable by %SALOME selection mechanism if TRUE.
+*/
+  //==========================================================================
+  interface AttributeSelectable : GenericAttribute
+  {
+/*!
+   Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.
+<BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean IsSelectable();
+    const string IsSelectable__doc__ = "Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.";
+/*!
+Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not to be selectable if <VAR>value</VAR>is FALSE.
+<BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetSelectable(in boolean value);
+    const string SetSelectable__doc__ = "Sets the items to be selectable if value is TRUE (the default) or not to be selectable if value is FALSE.";
+  };
+    const string AttributeSelectable__doc__ = "This is a presentation attribute necessary for display of the study tree in the browser. \nThe item is selectable by SALOME selection mechanism if TRUE.";
+
+  //==========================================================================
+/*! \brief Expandable flag Attribute.
+
+ This is a presentation attribute necessary for display of the study tree in the browser.
+ It sets this item to be expandable even if it has no children if value is TRUE. If value is FALSE
+ expandable only if it has children.
+*/
+  //==========================================================================
+  interface AttributeExpandable : GenericAttribute
+  {
+/*!
+    Returns TRUE if this item is expandable even when it has no children.
+<BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean IsExpandable();
+    const string IsExpandable__doc__ = "Returns TRUE if this item is expandable even when it has no children.";
+/*!
+   Sets this item to be expandable even if it has no children if <VAR>value</VAR> is TRUE, and to be
+   expandable only if it has children if <VAR>value</VAR> is FALSE (the default).
+<BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetExpandable(in boolean value);
+    const string SetExpandable__doc__ = "Sets this item to be expandable even if it has no children if value is TRUE, and to be \nexpandable only if it has children if value is FALSE (the default).";
+  };
+    const string AttributeExpandable__doc__ = "This is a presentation attribute necessary for display of the study tree in the browser. \nIt sets this item to be expandable even if it has no children if value is TRUE. \nIf value is FALSE expandable only if it has children.";
+
+  //==========================================================================
+/*! \brief Opened flag Attribute.
+
+   This is a presentation attribute necessary for display of the study tree in the browser.
+   It sets this item to be open (its children are visible) if bool is TRUE, and to be closed (its children
+   are not visible) if bool is FALSE.
+*/
+  //==========================================================================
+  interface AttributeOpened : GenericAttribute
+  {
+/*!
+    Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.
+<BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean IsOpened();
+    const string IsOpened__doc__ = "Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.";
+/*!
+   Sets this item to be open (its children are visible) if <VAR>value</VAR> is TRUE, and to be closed
+(its children are not visible) if <VAR>value</VAR> is FALSE.
+<BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetOpened(in boolean value);
+    const string SetOpened__doc__ = "Sets this item to be open (its children are visible) if value is TRUE, and to be closed \n(its children are not visible) if value is FALSE.";
+  };
+    const string AttributeOpened__doc__ = "This is a presentation attribute necessary for display of the study tree in the browser. \nIt sets this item to be open (its children are visible) if bool is TRUE, and to be closed (its children \nare not visible) if bool is FALSE.";
+  //==========================================================================
+/*! \brief TextColorAttribute.
+
+     This attribute sets the color of an item.
+*/
+  //==========================================================================
+  interface AttributeTextColor : GenericAttribute
+  {
+/*!
+   Returns the color of an item.
+<BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    Color TextColor();
+    const string TextColor__doc__ = "Returns the color of an item.";
+/*!
+   Sets the color of an item.
+<BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetTextColor(in Color value);
+    const string SetTextColor__doc__ = "Sets the color of an item.";
+  };
+    const string AttributeTextColor__doc__ = "This attribute sets the color of an item.";
+
+  //==========================================================================
+  /*! \brief TextHighlightColorAttribute.
+
+     This attribute sets the highlight color of an item.
+*/
+  //==========================================================================
+  interface AttributeTextHighlightColor : GenericAttribute
+  {
+/*!
+   Returns the highlight color of an item.
+<BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    Color TextHighlightColor();
+    const string TextHighlightColor__doc__ = "Returns the highlight color of an item.";
+/*!
+   Sets the highlight color of an item.
+<BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void   SetTextHighlightColor(in Color value);
+    const string SetTextHighlightColor__doc__ = "Sets the highlight color of an item.";
+  };
+    const string AttributeTextHighlightColor__doc__ = "This attribute sets the highlight color of an item.";
+  //==========================================================================
+/*! \brief PixMapAttribute.
+
+    This attribute stores an icon which is put before the name of an item.
+*/
+  //==========================================================================
+  interface AttributePixMap : GenericAttribute
+  {
+/*!
+   Returns True if there is an icon before the name of the item.
+*/
+    boolean HasPixMap();
+    const string HasPixMap__doc__ = "Returns True if there is an icon before the name of the item.";
+/*!
+   Returns the name of the icon.
+<BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    string  GetPixMap();
+    const string GetPixMap__doc__ = "Returns the name of the icon.";
+/*!
+   Sets the name of the icon.
+<BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void    SetPixMap(in string value);
+    const string SetPixMap__doc__ = "Sets the name of the icon.";
+  };
+    const string AttributePixMap__doc__ = "This attribute stores an icon which is put before the name of an item.";
+
+  //==========================================================================
+/*! \brief TreeNodeAttribute.
+
+   A set of these attributes on the %SObjects of the %study forms an inner auxiliary
+   tree whith its own structure and identifier. The quantity of such trees with different
+   identifiers can be arbitrary.
+<BR><VAR>See also <A href=exemple/Example18.html> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
+
+*/
+  //==========================================================================
+  interface AttributeTreeNode : GenericAttribute
+  {
+/*!
+  Sets the father TreeNode to this TreeNode.
+*/
+    void              SetFather(in AttributeTreeNode value);
+    const string SetFather__doc__ = "Sets the father TreeNode to this TreeNode.";
+/*!
+  Returns True if there is the father TreeNode of this TreeNode.
+*/
+    boolean           HasFather();
+    const string HasFather__doc__ = "Returns True if there is the father TreeNode of this TreeNode.";
+/*!
+  Returns the father Treenode of this TreeNode.
+*/
+    AttributeTreeNode GetFather();
+    const string GetFather__doc__ = "Returns the father Treenode of this TreeNode.";
+/*!
+  Sets the previous brother TreeNode to this treeNode.
+*/
+    void              SetPrevious(in AttributeTreeNode value);
+    const string SetPrevious__doc__ = "Sets the previous brother TreeNode to this treeNode.";
+/*!
+  Returns True if there is the previous brother TreeNode of this TreeNode.
+*/
+    boolean           HasPrevious();
+    const string HasPrevious__doc__ = "Returns True if there is the previous brother TreeNode of this TreeNode.";
+/*!
+  Returns the previous brother TreeNode of this TreeNode.
+*/
+    AttributeTreeNode GetPrevious();
+    const string GetPrevious__doc__ = "Returns the previous brother TreeNode of this TreeNode.";
+/*!
+  Sets the next brother TreeNode to this treeNode.
+*/
+    void              SetNext(in AttributeTreeNode value);
+    const string SetNext__doc__ = "Sets the next brother TreeNode to this treeNode.";
+/*!
+  Returns True if there is the next brother TreeNode of this TreeNode.
+*/
+    boolean           HasNext();
+    const string HasNext__doc__ = "Returns True if there is the next brother TreeNode of this TreeNode.";
+/*!
+  Returns the previous brother TreeNode of this TreeNode.
+*/
+    AttributeTreeNode GetNext();
+    const string GetNext__doc__ = "Returns the previous brother TreeNode of this TreeNode.";
+/*!
+  Sets the first child TreeNode to this treeNode.
+*/
+    void              SetFirst(in AttributeTreeNode value);
+    const string SetFirst__doc__ = "Sets the first child TreeNode to this treeNode.";
+/*!
+  Returns True if there is the first child TreeNode of this TreeNode.
+*/
+    boolean           HasFirst();
+    const string HasFirst__doc__ = "Returns True if there is the first child TreeNode of this TreeNode.";
+/*!
+  Returns the first child TreeNode of this TreeNode.
+*/
+    AttributeTreeNode GetFirst();
+    const string GetFirst__doc__ = "Returns the first child TreeNode of this TreeNode.";
+/*!
+  Sets ID of the tree. TreeNodes of one tree have the same ID.
+*/
+    void              SetTreeID(in string value);
+    const string SetTreeID__doc__ = "Sets ID of the tree. TreeNodes of one tree have the same ID.";
+/*!
+  Gets ID of the tree.
+*/
+    string            GetTreeID();
+    const string GetTreeID__doc__ = "Gets ID of the tree.";
+
+/*!
+   Adds a child TreeNode to the end of the list of children of this Treenode.
+*/
+    void              Append(in AttributeTreeNode value);
+    const string Append__doc__ = "Adds a child TreeNode to the end of the list of children of this Treenode.";
+/*!
+   Adds a child TreeNode to the beginning of the list of children of this Treenode.
+
+*/
+    void              Prepend(in AttributeTreeNode value);
+    const string Prepend__doc__ = "Adds a child TreeNode to the beginning of the list of children of this Treenode.";
+/*!
+   Adds a brother TreeNode before this Treenode.
+    In this case the both TreeNodes will belong to the same father.
+*/
+    void              InsertBefore(in AttributeTreeNode value);
+    const string InsertBefore__doc__ = "Adds a brother TreeNode before this Treenode. In this case the both TreeNodes will belong to the same father.";
+/*!
+   Adds a brother TreeNode after this Treenode.
+    In this case the both TreeNodes will belong to the same father.
+*/
+    void              InsertAfter(in AttributeTreeNode value);
+    const string InsertAfter__doc__ = "Adds a brother TreeNode after this Treenode. In this case the both TreeNodes will belong to the same father.";
+/*!
+   Deletes a TreeNode.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void              Remove();
+    const string Remove__doc__ = "Deletes a TreeNode.";
+
+/*!
+   Returns  the  depth  of the TreeNode in the
+   structure, it means the  number of  fathers of the given TreeNode.
+   (i.e.: the depth of the root TreeNode is 0).
+*/
+    long              Depth();
+    const string Depth__doc__ = "Returns  the  depth  of the TreeNode in the structure, it means the  number of  fathers of the given TreeNode. \n(i.e.: the depth of the root TreeNode is 0).";
+/*!
+    Returns True if it is a root TreeNode.
+*/
+    boolean           IsRoot();
+    const string IsRoot__doc__ = "Returns True if it is a root TreeNode.";
+/*!
+    Returns True if this TreeNode is a descendant of the TreeNode.
+*/
+    boolean           IsDescendant(in AttributeTreeNode value);
+    const string IsDescendant__doc__ = "Returns True if this TreeNode is a descendant of the TreeNode.";
+/*!
+    Returns True if this TreeNode is the father of the TreeNode.
+*/
+    boolean           IsFather(in AttributeTreeNode value);
+    const string IsFather__doc__ = "Returns True if this TreeNode is the father of the TreeNode.";
+/*!
+    Returns True if this TreeNode is a child of the TreeNode.
+*/
+    boolean           IsChild(in AttributeTreeNode value);
+    const string IsChild__doc__ = "Returns True if this TreeNode is a child of the TreeNode.";
+/*!
+   Returns ID of the according %SObject.
+*/
+    string            Label();
+    const string Label__doc__ = "Returns ID of the according SObject.";
+  };
+    const string AttributeTreeNode__doc__ = "A set of these attributes on the SObjects of the study forms an inner auxiliary \ntree whith its own structure and identifier. The quantity of such trees with different \nidentifiers can be arbitrary.";
+  //==========================================================================
+/*! \brief LocalID attribute
+
+   Attribute describing the link between a %SObject and a local object in the component.
+*/
+  //==========================================================================
+  interface AttributeLocalID : GenericAttribute
+  {
+/*!
+   Returns the value of this attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    long   Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in long value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributeLocalID__doc__ = "Attribute describing the link between a SObject and a local object in the component.";
+
+  //==========================================================================
+/*! \brief Attribute storing GUID
+
+    Attribute allowing to store GUID
+*/
+  //==========================================================================
+  interface AttributeUserID : GenericAttribute
+  {
+/*!
+   Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+    const string Value__doc__ = "Returns the value of this attribute.";
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+    const string SetValue__doc__ = "Sets the value of this attribute.";
+  };
+    const string AttributeUserID__doc__ = "Attribute allowing to store GUID.";
+
+  //==========================================================================
+/*! \brief %AttributeTarget iterface
+
+   This attribute stores the list of all %SObjects that refer
+   to this %SObject. This attribute is used for inner purposes of the application.
+   It is also needed for optimization.
+*/
+  //==========================================================================
+
+  interface AttributeTarget : GenericAttribute
+  {
+/*!
+    Adds a %SObject to the list of %SObjects which refer to this %SObject.
+
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void          Add(in SObject anObject);
+    const string Add__doc__ = "Adds a SObject to the list of SObjects which refer to this SObject.";
+/*!
+    Returns the list of %SObjects which refer to this %SObject.
+*/
+    SALOMEDS::Study::ListOfSObject Get();
+    const string Get__doc__ = "Returns the list of SObjects which refer to this SObject.";
+/*!
+    Deletes a %SObject from the list of %SObjects which refer to this %SObject.
+
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void          Remove(in SObject anObject);
+    const string Remove__doc__ = "Deletes a SObject from the list of SObjects which refer to this SObject.";
+  };
+    const string AttributeTarget__doc__ = "Adds a SObject to the list of SObjects which refer to this SObject.";
+  //==========================================================================
+  /*! \brief %AttributeTableOfInteger interface
+
+   This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
+    and string titles of this table, of each row, of each column.
+<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+
+*/
+  //==========================================================================
+
+  interface AttributeTableOfInteger : GenericAttribute
+  {
+/*!
+   This exception is raised when an incorrect index is passed as parameter.
+*/
+    exception IncorrectIndex {};
+/*!
+   This exception is raised when an incorrect length of the argument is passed as parameter.
+*/
+    exception IncorrectArgumentLength {};
+
+    // titles: for table, for each row, for each column
+/*!
+   Sets the title of the table.
+*/
+    void SetTitle(in string theTitle);
+    const string SetTitle__doc__ = "Sets the title of the table.";
+/*!
+  Returns the title of the table.
+*/
+    string GetTitle();
+    const string GetTitle__doc__ = "Returns the title of the table.";
+/*!
+   Sets the title of a row with a definite index.
+*/
+    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetRowTitle__doc__ = "Sets the title of a row with a definite index.";
+/*!
+   Sets the titles for all rows of the table.
+*/
+    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetRowTitles__doc__ = "Sets the titles for all rows of the table.";
+/*!
+   Returns the titles of all rows of the table.
+*/
+    StringSeq GetRowTitles();
+    const string GetRowTitles__doc__ = "Returns the titles of all rows of the table.";
+/*!
+   Sets the title of a column with a definite index.
+*/
+    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetColumnTitle__doc__ = "Sets the title of a column with a definite index.";
+/*!
+   Sets the titles for all columns of the table.
+*/
+    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetColumnTitles__doc__ = "Sets the titles for all columns of the table.";
+/*!
+   Returns the titles of all columns of the table.
+*/
+    StringSeq GetColumnTitles();
+    const string GetColumnTitles__doc__ = "Returns the titles of all columns of the table.";
+
+    //Rows units
+/*!
+   Sets the unit of a row with a definite index.
+*/
+    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
+    const string SetRowUnit__doc__ = "Sets the unit of a row with a definite index.";
+/*!
+   Sets the units for all rows of the table.
+*/
+    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
+    const string SetRowUnits__doc__ = "Sets the units for all rows of the table.";
+/*!
+   Returns the units of all rows of the table.
+*/
+    StringSeq GetRowUnits();
+    const string GetRowUnits__doc__ = "Returns the units of all rows of the table.";
+
+    // table information
+/*!
+   Returns the number of rows of the table.
+*/
+    long GetNbRows();
+    const string GetNbRows__doc__ = "Returns the number of rows of the table.";
+/*!
+   Returns the number of columns of the table.
+*/
+    long GetNbColumns();
+    const string GetNbColumns__doc__ = "Returns the number of columns of the table.";
+
+    // operations with rows
+/*!
+   Adds a row to the end of the table.
+*/
+    void AddRow(in LongSeq theData) raises(IncorrectArgumentLength);
+    const string AddRow__doc__ = "Adds a row to the end of the table.";
+/*!
+   Sets the values of all elements of the row.
+*/
+    void SetRow(in long theRow, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetRow__doc__ = "Sets the values of all elements of the row.";
+/*!
+   Returns the row of the table.
+*/
+    LongSeq GetRow(in long theRow) raises(IncorrectIndex);
+    const string GetRow__doc__ = "Returns the row of the table.";
+
+    // operations with columns
+/*!
+   Adds a column to the end of the table.
+*/
+    void AddColumn(in LongSeq theData) raises(IncorrectArgumentLength);
+    const string AddColumn__doc__ = "Adds a column to the end of the table.";
+/*!
+   Sets the values of all elements of the column.
+*/
+    void SetColumn(in long theColumn, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetColumn__doc__ = "Sets the values of all elements of the column.";
+/*!
+   Returns the column of the table.
+*/
+    LongSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+    const string GetColumn__doc__ = "Returns the column of the table.";
+
+    // operations with elements
+/*!
+    Puts a value in the table.
+    \param theRow      The row, where the value will be placed.
+    \param theColumn   The column, where the value will be placed.
+*/
+    void PutValue(in long theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string PutValue__doc__ = "Puts a value in a definite row theRow and column theColumn of the table.";
+/*!
+    Returns True if there is a value in the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    boolean HasValue(in long theRow, in long theColumn);
+    const string HasValue__doc__ = "Returns True if there is a value in a definite row and column of the table.";
+/*!
+    Returns the value from the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    long GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string GatValue__doc__ = "Returns the value from a definite row and column of the table.";
+
+/*!
+    Sets the max number of colums in the table.
+    \note It'd better to set it before filling the table.
+*/
+    void SetNbColumns(in long theNbColumns);
+    const string SetNbColumns__doc__ = "Sets the max number of colums in the table. ";
+
+/*!
+    Returns the indices of the row where the values are defined.
+*/
+    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
+    const string GetRowSetIndices__doc__ = "Returns the indices of the row where the values are defined.";
+    // operations with files
+/*!
+   Reads a table from a file.
+*/
+    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
+    const string ReadFromFile__doc__ = "Reads a table from a file.";
+/*!
+   Saves a table into a file.
+*/
+    SALOMEDS::TMPFile SaveToFile();
+    const string SaveToFile__doc__ = "Saves a table into a file.";
+  };
+    const string AttributeTableOfInteger__doc__ = "This attribute allows to store a table of integers (indexing from 1 like in CASCADE) \nand string titles of this table, of each row, of each column.";
+
+  //==========================================================================
+/*! \brief %AttributeTableOfReal interface
+
+   This attribute allows to store a table of reals (indexing from 1 like in CASCADE)
+    and string titles of this table, of each row, of each column.
+<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+
+*/
+  //==========================================================================
+
+  interface AttributeTableOfReal : GenericAttribute
+  {
+/*!
+   This exception is raised when an incorrect index is passed as parameter.
+*/
+    exception IncorrectIndex {};
+/*!
+   This exception is raised when an incorrect length of the argument is passed as parameter.
+*/
+    exception IncorrectArgumentLength {};
+
+    // titles: for table, for each row, for each column
+/*!
+   Sets the title of the table.
+*/
+    void SetTitle(in string theTitle);
+    const string SetTitle__doc__ = "Sets the title of the table.";
+/*!
+  Returns the title of the table.
+*/
+    string GetTitle();
+    const string GetTitle__doc__ = "Returns the title of the table.";
+/*!
+   Sets the title of a row with a definite index.
+*/
+    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetRowTitle__doc__ = "Sets the title of a row with a definite index.";
+/*!
+   Sets the titles for all rows of the table.
+*/
+    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetRowTitles__doc__ = "Sets the titles for all rows of the table.";
+/*!
+   Returns the titles of all rows of the table.
+*/
+    StringSeq GetRowTitles();
+    const string GetRowTitles__doc__ = "Returns the titles of all rows of the table.";
+/*!
+   Sets the title of a column with a definite index.
+*/
+    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetColumnTitle__doc__ = "Sets the title of a column with a definite index.";
+/*!
+   Sets the titles for all columns of the table.
+*/
+    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetColumnTitles__doc__ = "Sets the titles for all columns of the table.";
+/*!
+   Returns the titles of all columns of the table.
+*/
+    StringSeq GetColumnTitles();
+    const string GetColumnTitles__doc__ = "Returns the titles of all columns of the table.";
+
+    //Rows units
+/*!
+   Sets the unit of a row with a definite index.
+*/
+    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
+    const string SetRowUnit__doc__ = "Sets the unit of a row with a definite index.";
+/*!
+   Sets the units for all rows of the table.
+*/
+    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
+    const string SetRowUnits__doc__ = "Sets the units for all rows of the table.";
+/*!
+   Returns the units of all rows of the table.
+*/
+    StringSeq GetRowUnits();
+    const string GetRowUnits__doc__ = "Returns the units of all rows of the table.";
+
+    // table information
+/*!
+   Returns the number of rows of the table.
+*/
+    long GetNbRows();
+    const string GetNbRows__doc__ = "Returns the number of rows of the table.";
+/*!
+   Returns the number of columns of the table.
+*/
+    long GetNbColumns();
+    const string GetNbColumns__doc__ = "Returns the number of columns of the table.";
+
+    // operations with rows
+/*!
+   Adds a row to the end of the table.
+*/
+    void AddRow(in DoubleSeq theData) raises(IncorrectArgumentLength);
+    const string AddRow__doc__ = "Adds a row to the end of the table.";
+/*!
+   Sets the values of all elements of the row.
+*/
+    void SetRow(in long theRow, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetRow__doc__ = "Sets the values of all elements of the row.";
+/*!
+   Returns the row of the table.
+*/
+    DoubleSeq GetRow(in long theRow) raises(IncorrectIndex);
+    const string GetRow__doc__ = "Returns the row of the table.";
+
+    // operations with columns
+/*!
+   Adds a column to the end of the table.
+*/
+    void AddColumn(in DoubleSeq theData) raises(IncorrectArgumentLength);
+    const string AddColumn__doc__ = "Adds a column to the end of the table.";
+/*!
+   Sets the values of all elements of the column.
+*/
+    void SetColumn(in long theColumn, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetColumn__doc__ = "Sets the values of all elements of the column.";
+/*!
+   Returns the column of the table.
+*/
+    DoubleSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+    const string GetColumn__doc__ = "Returns the column of the table.";
+
+    // operations with elements
+/*!
+    Puts a value in the table.
+    \param theRow      The row, where the value will be placed.
+    \param theColumn   The column, where the value will be placed.
+*/
+    void PutValue(in double theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string PutValue__doc__ = "Puts a value in a definite row theRow and column theColumn of the table.";
+/*!
+    Returns True if there is a value in the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    boolean HasValue(in long theRow, in long theColumn);
+    const string HasValue__doc__ = "Returns True if there is a value in a definite row and column of the table.";
+/*!
+    Returns the value from the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    double GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string GatValue__doc__ = "Returns the value from a definite row and column of the table.";
+
+/*!
+    Sets the max number of colums in the table.
+    \note It'd better to set it before filling the table.
+*/
+    void SetNbColumns(in long theNbColumns);
+    const string SetNbColumns__doc__ = "Sets the max number of colums in the table. ";
+
+/*!
+    Returns the indices of the row where the values are defined.
+*/
+    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
+    const string GetRowSetIndices__doc__ = "Returns the indices of the row where the values are defined.";
+    // operations with files
+/*!
+   Reads a table from a file.
+*/
+    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
+    const string ReadFromFile__doc__ = "Reads a table from a file.";
+/*!
+   Saves a table into a file.
+*/
+    SALOMEDS::TMPFile SaveToFile();
+    const string SaveToFile__doc__ = "Saves a table into a file.";
+  };
+    const string AttributeTableOfReal__doc__ = "This attribute allows to store a table of reals (indexing from 1 like in CASCADE) \nand string titles of this table, of each row, of each column.";
+
+
+
+  //==========================================================================
+/*! \brief %AttributeTableOfString interface
+
+   This attribute allows to store a table of strings (indexing from 1 like in CASCADE)
+    and string titles of this table, of each row, of each column.
+<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+
+*/
+  //==========================================================================
+
+  interface AttributeTableOfString : GenericAttribute
+  {
+/*!
+   This exception is raised when an incorrect index is passed as parameter.
+*/
+    exception IncorrectIndex {};
+/*!
+   This exception is raised when an incorrect length of the argument is passed as parameter.
+*/
+    exception IncorrectArgumentLength {};
+
+    // titles: for table, for each row, for each column
+/*!
+   Sets the title of the table.
+*/
+    void SetTitle(in string theTitle);
+    const string SetTitle__doc__ = "Sets the title of the table.";
+/*!
+  Returns the title of the table.
+*/
+    string GetTitle();
+    const string GetTitle__doc__ = "Returns the title of the table.";
+/*!
+   Sets the title of a row with a definite index.
+*/
+    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetRowTitle__doc__ = "Sets the title of a row with a definite index.";
+/*!
+   Sets the titles for all rows of the table.
+*/
+    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetRowTitles__doc__ = "Sets the titles for all rows of the table.";
+/*!
+   Returns the titles of all rows of the table.
+*/
+    StringSeq GetRowTitles();
+    const string GetRowTitles__doc__ = "Returns the titles of all rows of the table.";
+/*!
+   Sets the title of a column with a definite index.
+*/
+    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
+    const string SetColumnTitle__doc__ = "Sets the title of a column with a definite index.";
+/*!
+   Sets the titles for all columns of the table.
+*/
+    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+    const string SetColumnTitles__doc__ = "Sets the titles for all columns of the table.";
+/*!
+   Returns the titles of all columns of the table.
+*/
+    StringSeq GetColumnTitles();
+    const string GetColumnTitles__doc__ = "Returns the titles of all columns of the table.";
+
+    //Rows units
+/*!
+   Sets the unit of a row with a definite index.
+*/
+    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
+    const string SetRowUnit__doc__ = "Sets the unit of a row with a definite index.";
+/*!
+   Sets the units for all rows of the table.
+*/
+    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
+    const string SetRowUnits__doc__ = "Sets the units for all rows of the table.";
+/*!
+   Returns the units of all rows of the table.
+*/
+    StringSeq GetRowUnits();
+    const string GetRowUnits__doc__ = "Returns the units of all rows of the table.";
+
+    // table information
+/*!
+   Returns the number of rows of the table.
+*/
+    long GetNbRows();
+    const string GetNbRows__doc__ = "Returns the number of rows of the table.";
+/*!
+   Returns the number of columns of the table.
+*/
+    long GetNbColumns();
+    const string GetNbColumns__doc__ = "Returns the number of columns of the table.";
+
+    // operations with rows
+/*!
+   Adds a row to the end of the table.
+*/
+    void AddRow(in StringSeq theData) raises(IncorrectArgumentLength);
+    const string AddRow__doc__ = "Adds a row to the end of the table.";
+/*!
+   Sets the values of all elements of the row.
+*/
+    void SetRow(in long theRow, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetRow__doc__ = "Sets the values of all elements of the row.";
+/*!
+   Returns the row of the table.
+*/
+    StringSeq GetRow(in long theRow) raises(IncorrectIndex);
+    const string GetRow__doc__ = "Returns the row of the table.";
+
+    // operations with columns
+/*!
+   Adds a column to the end of the table.
+*/
+    void AddColumn(in StringSeq theData) raises(IncorrectArgumentLength);
+    const string AddColumn__doc__ = "Adds a column to the end of the table.";
+/*!
+   Sets the values of all elements of the column.
+*/
+    void SetColumn(in long theColumn, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
+    const string SetColumn__doc__ = "Sets the values of all elements of the column.";
+/*!
+   Returns the column of the table.
+*/
+    StringSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+    const string GetColumn__doc__ = "Returns the column of the table.";
+
+    // operations with elements
+/*!
+    Puts a value in the table.
+    \param theRow      The row, where the value will be placed.
+    \param theColumn   The column, where the value will be placed.
+*/
+    void PutValue(in string theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string PutValue__doc__ = "Puts a value in a definite row theRow and column theColumn of the table.";
+/*!
+    Returns True if there is a value in the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    boolean HasValue(in long theRow, in long theColumn);
+    const string HasValue__doc__ = "Returns True if there is a value in a definite row and column of the table.";
+/*!
+    Returns the value from the table.
+    \param theRow      The row containing the value
+    \param theColumn   The column containing the value
+*/
+    string GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+    const string GatValue__doc__ = "Returns the value from a definite row and column of the table.";
+
+/*!
+    Sets the max number of colums in the table.
+    \note It'd better to set it before filling the table.
+*/
+    void SetNbColumns(in long theNbColumns);
+    const string SetNbColumns__doc__ = "Sets the max number of colums in the table. ";
+
+/*!
+    Returns the indices of the row where the values are defined.
+*/
+    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
+    const string GetRowSetIndices__doc__ = "Returns the indices of the row where the values are defined.";
+    // operations with files
+/*!
+   Reads a table from a file.
+*/
+    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
+    const string ReadFromFile__doc__ = "Reads a table from a file.";
+/*!
+   Saves a table into a file.
+*/
+    SALOMEDS::TMPFile SaveToFile();
+    const string SaveToFile__doc__ = "Saves a table into a file.";
+  };
+    const string AttributeTableOfString__doc__ = "This attribute allows to store a table of string (indexing from 1 like in CASCADE) \nand string titles of this table, of each row, of each column.";
+
+
+  //==========================================================================
+/*! \brief %AttributeStudyProperties interface
+
+   This attribute allows to store study properties: user name, creation date, creation
+   mode, modified flag, locked flag.
+<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+
+*/
+  //==========================================================================
+
+  interface AttributeStudyProperties : GenericAttribute
+  {
+/*!
+   Sets the name of the author of the %Study
+*/
+    void SetUserName(in string theName);
+    const string SetUserName__doc__ = "Sets the name of the author of the study.";
+/*!
+     Returns the name of the user of the %Study.
+    \note <BR>It returns a null string, if user name is not set
+*/
+    string GetUserName();
+    const string GetUserName__doc__ = "Returns the name of the user of the study.";
+/*!
+   Sets creation date of the %Study.
+*/
+    void SetCreationDate(in long theMinute, in long theHour, in long theDay, in long theMonth, in long theYear);
+    const string SetCreationDate__doc__ = "Sets creation date of the study.";
+/*!
+     Returns creation date of the %Study and True if creation date is set.
+*/
+    boolean GetCreationDate(out long theMinute, out long theHour, out long theDay, out long theMonth, out long theYear);
+    const string GetCreationDate__doc__ = "Returns creation date of the study and True if creation date is set.";
+/*!
+   Sets creation mode of the %Study.
+   \note <BR>Creation mode must be: "from scratch" or "copy from".
+*/
+    void SetCreationMode(in string theMode);
+    const string SetCreationMode__doc__ = "Sets creation mode of the study. Creation mode must be: from scratch or copy from.";
+/*!
+   Returns creation mode: "from scratch", "copy from", or null string
+   if creation mode is not set
+*/
+    string GetCreationMode();
+    const string GetCreationMode__doc__ = "Returns creation mode of the study.";
+/*!
+   Sets the number of transactions executed after the last saving of the document.
+*/
+    void SetModified(in long theModified);
+    const string SetModified__doc__ = "Sets the number of transactions executed after the last saving of the document.";
+/*!
+    Returns True, if the document has been modified and not saved.
+*/
+    boolean IsModified();
+    const string IsModified__doc__ = "Returns True, if the document has been modified and not saved.";
+/*!
+  Returns the number of transactions executed after the last saving of the document.
+*/
+    long GetModified();
+    const string GetModified__doc__ = "Returns the number of transactions executed after the last saving of the document.";
+/*!
+    Sets the document locked for modifications if <VAR>theLocked</VAR> is True.
+*/
+    void SetLocked(in boolean theLocked);
+    const string SetLocked__doc__ = "Sets the document locked for modifications if theLocked is True.";
+/*!
+    Returns True if the document is locked for modifications.
+*/
+    boolean IsLocked();
+    const string IsLocked__doc__ = "Returns True if the document is locked for modifications.";
+/*!
+   Appends modification parameters to the modifications list.
+*/
+    void SetModification(in string theName, in long theMinute, in long theHour, in long theDay, in long theMonth, in long theYear);
+    const string SetModification__doc__ = "Appends modification parameters to the modifications list.";
+/*!
+   Returns a list of mosdifiers user names, modification dates.
+   /note <BR>If <VAR>theWithCreator</VAR> is True, then the output list will also contain the name of the author and the date of creation.
+*/
+    void GetModificationsList(out StringSeq theNames, out LongSeq theMinutes, out LongSeq theHours, out LongSeq theDays, out LongSeq theMonths, out LongSeq theYears, in boolean theWithCreator);
+    const string GetModificationsList__doc__ = "Returns a list of mosdifiers user names, modification dates.";
+  };
+    const string AttributeStudyProperties__doc__ = "This attribute allows to store properties of the study : user name, creation date, \ncreation mode, modified flag, locked flag.";
+  //==========================================================================
+/*! \brief %AttributePythonObject interface
+
+    Attribute allowing to store pyton objects as a sequence of chars.
+*/
+  //==========================================================================
+
+  interface AttributePythonObject : GenericAttribute
+  {
+/*!
+   Sets in the attribute a Python object converted into a sequence of chars.
+   \param theSequence    A sequence of chars.
+   \param IsScript       Defines (if True) whether this sequence of chars is a Python script.
+*/
+    void SetObject(in string theSequence, in boolean IsScript);
+    const string SetObject__doc__ = "Sets in the attribute a Python object converted into a sequence of chars.";
+/*!
+    Returns a Python object stored in the attribute as a sequence of chars.
+*/
+    string GetObject();
+    const string GetObject__doc__ = "Returns a Python object stored in the attribute as a sequence of chars.";
+/*!
+    Returns True if the sequence of bytes stored in the attribute corresponds
+    to a Python script.
+*/
+    boolean IsScript();
+    const string IsScript__doc__ = "Returns True if the sequence of bytes stored in the attribute corresponds to a Python script.";
+  };
+    const string AttributePythonObject__doc__ = "Attribute allowing to store pyton objects as a sequence of chars.";
+};
+#endif

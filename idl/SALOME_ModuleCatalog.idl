@@ -1,0 +1,236 @@
+// File: SALOME_ModuleCatalog.idl
+// Created: Tue June 25 2001
+// Author: Estelle Deville
+// Project: SALOME
+// Copyright : CEA/DEN/DMSS/LGLS
+// $Header$
+
+/*! \file SALOME_ModuleCatalog.idl This file conatins a set of interfaces used for  
+  creation of the catalog of components in %SALOME application
+*/
+
+/*! \ingroup Kernel 
+The main package of interfaces used for creation of the module catalog in %SALOME application.
+*/
+module SALOME_ModuleCatalog
+{
+  // Type Definitions
+/*! 
+This enumeration contains a set of definitions of %SALOME modules.
+*/
+  enum ComponentType {  GEOM,  /*!<Module %GEOM */
+                        MESH,  /*!<Module %MESH */
+                         Med,  /*!<Module %Med*/
+                      SOLVER,  /*!<Module of %SOLVER type */
+                        DATA,  /*!<Module %DATA */
+                        VISU,  /*!<Module %VISU */
+                      SUPERV,  /*!<Module %SUPERVISION */
+                       OTHER   /*!<Any other type of module */
+                     } ;
+/*! 
+This struct contains fields defining the parameters of the services.
+*/
+
+  struct ServicesParameter
+  {
+    string Parametertype; /*!<Type of the parameter.*/
+    string Parametername; /*!<Name of the parameter.*/
+  } ;
+
+  typedef sequence<ServicesParameter> ListOfServicesParameter;
+/*! 
+This struct contains fields completely defining each service.
+*/
+
+  struct Service
+  {
+    string                  ServiceName; /*!<Name of the service.*/
+    ListOfServicesParameter ServiceinParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesParameter ServiceoutParameter; /*!< List of input parameters of the services.*/
+    boolean                 Servicebydefault; /*!<True if the service is taken with its defult fields.*/
+  } ;
+/*! 
+List of services of the interface.
+*/
+  typedef sequence<Service> ListOfInterfaceService;
+/*! 
+List of services.
+*/
+  typedef sequence<string> ListOfServices ;
+/*! 
+This struct contains fields defining each interface.
+*/
+  struct DefinitionInterface
+  {
+    string                 interfacename ; /*!<Name of the interface.*/
+    ListOfInterfaceService interfaceservicelist ; /*!<List of services of the interface.*/
+  } ;
+/*! 
+List of interface definitions.
+*/
+  typedef sequence<DefinitionInterface> ListOfDefInterface ;
+/*! 
+List of interfaces.
+*/
+  typedef sequence<string> ListOfInterfaces ;
+/*! 
+List of names of components.
+*/
+  typedef sequence<string> ListOfComponents ;
+/*! 
+List of names of computers.
+*/
+  typedef sequence<string> ListOfComputers ;
+/*! 
+This struct contains GUI elements used for representation of the module in %IAPP component.
+*/
+  struct IAPP_Affich
+  {
+    string modulename; /*!<Name of the module.*/
+    string moduleicone; /*!<Icone representing the module.*/
+  };
+/*!
+List of pair GUI elements (component name, component icone)
+ used for representation of the module in %IAPP component.
+*/
+  typedef sequence<IAPP_Affich> ListOfIAPP_Affich ;
+
+/*! 
+ This exception is raised when a %component, a %service or a % pathPrefix is not found.
+*/
+  exception NotFound
+  {
+    string what ; /*!<Indicates if it's a %component, a %service or a % pathPrefix.*/
+  } ;
+
+  interface Acomponent
+  {
+    // GetInterfaceList : operation to get a list of the interfaces name of
+    //                    a component
+  /*!
+   Gets a list of names of interfaces of the component
+    \return a list of interfaces of the component 
+  */
+    ListOfInterfaces GetInterfaceList() ;
+
+    // GetInterface : operation to get one interface of a component
+  
+  /*! 
+    Gets a definite interface of the component
+    \note <BR>If the specified interface doesn't exist, Notfound exception is thrown
+    \param interfacename  Name of the interface 
+    \return Required interface
+  */
+    DefinitionInterface GetInterface(in string interfacename) raises(NotFound);
+
+    // GetServiceList : operation to get a list of the services name of
+    //                  an interface of a component
+ /*! 
+   Gets a list of names of services of a definite interface belonging to the component.
+   \note <BR>If the specified interface doesn't exist, Notfound exception is thrown.
+   \param interfacename Name of the interface 
+   \return List of services of the required interface
+ */
+    ListOfServices GetServiceList(in string interfacename) raises(NotFound);
+
+    
+    // GetService : operation to get one service of an interface of a component
+  
+ /*! 
+   Gets a definite service of an interface of the component.
+   \note <BR>If the required service or the specified interface don't exist, Notfound exception is thrown.
+   \param interfacename Name of the interface
+   \param servicename Name of the service
+   \return Required service
+ */
+
+    Service GetService(in string interfacename, 
+		       in string servicename) raises(NotFound);
+
+    // GetDefaultService : operation to get the default service
+    //                     of an interface of a component
+/*! 
+   Gets the default service of an interface of the component.
+   \note <BR>If the required service or the specified interface don't exist, Notfound exception is thrown.
+   \param interfacename Name of the interface
+   \return Required service
+ */
+
+    Service GetDefaultService(in string interfacename) raises(NotFound);
+
+    // GetPathPrefix : operation to get the PathPrefix of a computer
+ /*!  
+   Gets the prefix path of the computer containing the %component.
+   \note <BR>If the required computer doesn't exist, Notfound exception is thrown
+   \param machinename Name of the machine 
+   \return Prefix path
+ */
+
+    string GetPathPrefix(in string machinename) raises(NotFound);
+
+/*! 
+    Sets/gets the constraint affected to the component 
+    (to be resolved by LifeCycle for the computer choice)
+*/
+    readonly attribute string constraint ;
+
+/*! 
+Sets/gets the name of the component
+*/
+    readonly attribute string componentname;
+
+/*! 
+Defines whether the component can be multistudy or not
+*/
+    readonly attribute boolean multistudy;
+
+/*! 
+Defines the type of the component
+*/
+    readonly attribute ComponentType component_type ;
+
+/*! 
+Sets/gets the icone of the component (for IAPP)
+*/
+    readonly attribute string component_icone;
+  } ;
+/*! \brief %Module catalog interface
+
+This interface is used for creation of the module catalog in %SALOME application.
+*/
+  interface ModuleCatalog
+  {
+    void ping();
+
+/*! 
+ Gets a list of names of computers of the catalog 
+*/   
+    ListOfComputers GetComputerList();
+
+/*! 
+Gets the %PathPrefix of a computer
+*/
+    string GetPathPrefix(in string machinename) raises(NotFound);
+/*! 
+ Gets a list of names of components of the catalog 
+*/   
+    ListOfComponents GetComponentList();
+/*! 
+Gets a list of pair GUI elements (component name, component icone) 
+used for representation of the module in %IAPP component.
+*/
+
+    ListOfIAPP_Affich GetComponentIconeList();
+/*! 
+Gets a list of names of components of a particular type, which belong to this catalog.
+*/  
+    // GetComponentList : operation to get a list of the components name of
+    //                    a particular type of the catalog   
+    ListOfComponents GetTypedComponentList(in ComponentType _component_type);
+
+/*! 
+Gets one component of the catalog.
+*/
+    Acomponent GetComponent(in string componentname) raises(NotFound);
+  } ;
+};

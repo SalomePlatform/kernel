@@ -1,0 +1,32 @@
+//  File      : SALOMEDS_StudyPropertiesAttribute.jxx
+//  Created   : Tue Oct  8 10:13:30 2002
+//  Author    : Yves FRICAUD
+//  Project   : SALOME
+//  Module    : SALOMEDS
+//  Copyright : Open CASCADE 2001
+//  $Header$
+
+#ifndef _TColStd_HSequenceOfExtendedString_HeaderFile
+#include <TColStd_HSequenceOfExtendedString.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfInteger_HeaderFile
+#include <TColStd_HSequenceOfInteger.hxx>
+#endif
+#ifndef _Standard_GUID_HeaderFile
+#include <Standard_GUID.hxx>
+#endif
+#ifndef _TDF_Label_HeaderFile
+#include <TDF_Label.hxx>
+#endif
+#ifndef _TCollection_ExtendedString_HeaderFile
+#include <TCollection_ExtendedString.hxx>
+#endif
+#ifndef _TDF_Attribute_HeaderFile
+#include <TDF_Attribute.hxx>
+#endif
+#ifndef _TDF_RelocationTable_HeaderFile
+#include <TDF_RelocationTable.hxx>
+#endif
+#ifndef _SALOMEDS_StudyPropertiesAttribute_HeaderFile
+#include <SALOMEDS_StudyPropertiesAttribute.hxx>
+#endif

@@ -1,0 +1,109 @@
+# generic rule to put in top module Makefile 
+# (for example with module SALOME, SALOME/Makefile.in and SALOME/src/Makefile.in)
+
+# build all lib in all subdir
+lib:$(SUBDIRS:%=lib_%)
+
+$(SUBDIRS:%=lib_%):lib_%:%
+	cd $< ; $(MAKE) lib
+
+# build all bin in all subdir
+bin:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+# launch check in all subdir
+check: tests
+tests:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+# copy all header files in common directory
+inc:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+exportinc:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+# copy all idl files in common directory
+idl:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+dep: depend
+
+depend:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+# copy all resources files in common directory
+resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+$(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
+	cp -f $< $@
+
+
+install: install-resources
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+	@if test "X$(top_builddir)" = "X."; then 	\
+	   $(LT) --mode=finish $(libdir) ; 		\
+	fi
+
+uninstall: uninstall-resources
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+cleandep:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+mostlyclean:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+
+clean:
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+	-$(RM) .depend *~ *% core *.core *.bak *.new *.old
+
+distclean: clean
+	@@SETX@; for d in $(SUBDIRS); do 	\
+	   (cd $$d && $(MAKE) $@) || exit 1; 	\
+	done
+	-$(RM) $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+	-$(RM) Makefile
+
+install-resources:
+# one resources directory for all salome modules
+	$(INSTALL) -d $(datadir)/resources
+	for f in X $(RESOURCES_FILES:%=$(srcdir)/resources/%); do \
+	   if test $$f != X; then							 \
+	     ($(INSTALL_DATA) $$f $(datadir)/resources/. || exit 1);			 \
+	   fi; 										 \
+	done
+
+# Uninstall resources files
+uninstall-resources:
+	@for f in X $(RESOURCES_FILES); do 	      \
+	   if test $$f != X; then					      \
+	     $(LT_UNINSTALL) $(datadir)/resources/$$f ;			      \
+	   fi; 								      \
+	done
+

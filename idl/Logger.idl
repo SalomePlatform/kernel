@@ -1,0 +1,24 @@
+//=============================================================================
+// File      : Logger.idl
+// Created   : nov 18 10:28:17 2002
+// Author    : Vasily Rusyaev
+// Project   : SALOME/PRO
+//=============================================================================
+
+#ifndef SALOME_LOGGER_IDL
+#define SALOME_LOGGER_IDL
+
+#pragma prefix "opencascade.com"
+
+module SALOME_Logger 
+{
+	interface Logger 
+	  {
+	    //put message into one special place for all servers using Logger
+	    oneway void putMessage (in string message);
+	  };
+};
+
+
+
+#endif

@@ -1,0 +1,38 @@
+# ifndef __registry_idl__
+# define __registry_idl__
+
+module Registry
+{
+	struct Infos
+	{
+		string  name;
+		long 	pid;
+		string  machine;
+		string  adip;
+		long 	uid;
+		string  pwname;
+		long 	tc_start;
+		long 	tc_hello;
+		long 	tc_end;
+		long 	difftime;
+		string 	cdir;
+		long 	status;
+		string  ior;		//  client 
+	};
+
+	typedef sequence<Infos> AllInfos;
+
+	interface Components
+	{
+		void ping();
+		unsigned long add ( in Infos lesInfos ) ;
+		void remove ( in unsigned long id ) ;
+		unsigned long size() ;
+		AllInfos getall () ;
+		AllInfos history () ;
+		oneway void end() ;
+		oneway void hello( in unsigned long id ) ;
+	} ;
+} ;
+
+# endif

@@ -1,0 +1,38 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar jui  3 12:58:13 CEST 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl:../Logger
+
+
+@COMMENCE@
+
+EXPORT_PYSCRIPTS =
+
+EXPORT_HEADERS = \
+	RegistryConnexion.hxx
+
+# Libraries targets
+
+LIB = libRegistry.la 
+LIB_SRC = RegistryConnexion.cxx
+LIB_CLIENT_IDL = SALOME_Registry.idl
+
+# Executables targets
+BIN = SALOME_Registry_Server
+BIN_SRC = RegistryService.cxx
+BIN_SERVER_IDL = SALOME_Registry.idl
+
+LDFLAGS+= -lSalomeNS -lOpUtil -lSalomeLoggerServer
+CPPFLAGS+= -I../Logger
+
+@CONCLUDE@
