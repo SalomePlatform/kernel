@@ -47,6 +47,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 {
   _NS = ns;
   //add try catch
+  _NS->Change_Directory("/"); // mpv 250105: current directory may be not root (in SALOMEDS for an example)
   CORBA::Object_var obj=_NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
   ASSERT( !CORBA::is_nil(obj));
   _ContManager=Engines::ContainerManager::_narrow(obj);
