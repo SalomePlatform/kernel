@@ -103,7 +103,7 @@ bool SALOME_ResourcesCatalog_Handler::startElement(const QString&,
   for(int i=0;i<attrs.count();i++)
     {
       QString qName(attrs.localName(i));
-      std::string content(attrs.value(i));
+      std::string content(attrs.value(i).latin1());
       if((qName.compare(QString(test_hostname))==0))
 	_resource.DataForSort._hostName = content;
       if((qName.compare(QString(test_alias))==0))
