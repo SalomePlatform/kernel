@@ -409,6 +409,41 @@ class SessionServer(Server):
       
 # ---
 
+class ContainerManagerServer(Server):
+    def __init__(self,args):
+        self.args=args
+        self.initArgs()
+        self.SCMD1=['SALOME_ContainerManagerServer']
+        self.SCMD2=[]
+        if 'registry' in self.args['embedded']:
+            self.SCMD1+=['--with','Registry',
+                         '(','--salome_session','theSession',')']
+        if 'moduleCatalog' in self.args['embedded']:
+            self.SCMD1+=['--with','ModuleCatalog','(','-common']
+            self.SCMD2+=['-personal',
+                         '${HOME}/Salome/resources/CatalogModulePersonnel.xml',')']
+        if 'study' in self.args['embedded']:
+            self.SCMD2+=['--with','SALOMEDS','(',')']
+        if 'cppContainer' in self.args['embedded']:
+            self.SCMD2+=['--with','Container','(','FactoryServer',')']
+        
+    def setpath(self,modules_list,modules_root_dir):
+        cata_path=[]
+        list_modules = modules_list[:]
+        list_modules.reverse()
+        for module in ["KERNEL"] + list_modules:
+            module_root_dir=modules_root_dir[module]
+            module_cata=module+"Catalog.xml"
+            print "   ", module_cata
+            cata_path.extend(
+                glob.glob(os.path.join(module_root_dir,"share",
+                                       self.args['appname'],"resources",
+                                       module_cata)))
+        if 'moduleCatalog' in self.args['embedded']:
+            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+        else:
+            self.CMD=self.SCMD1 + self.SCMD2
+
 class NotifyServer(Server):
     def __init__(self,args,modules_root_dir):
         self.args=args
@@ -520,6 +555,14 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=SalomeDSServer(args)
         myServer.run()
         clt.waitNS("/myStudyManager")
+
+    #
+    # Lancement ContainerManagerServer
+    #
+    
+    myCmServer = ContainerManagerServer(args)
+    myCmServer.setpath(modules_list,modules_root_dir)
+    myCmServer.run()
 
     #
     # Lancement Session Server

@@ -48,7 +48,7 @@ endif
 
 ifeq (@WITHIHM@,no)
 SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch \
-          GenericObj NamingService Registry \
+          GenericObj MEDWrapper NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
 	  ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist Prs \

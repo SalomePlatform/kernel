@@ -332,8 +332,8 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
 
 // Get the PID of the Container
 
-long Engines_Container_i::getPID() {
-    return (long)getpid();
+CORBA::Long Engines_Container_i::getPID() {
+    return (CORBA::Long)getpid();
 }
 
 // Get the hostName of the Container

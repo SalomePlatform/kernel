@@ -13,7 +13,6 @@
 #include <TColStd_HSequenceOfExtendedString.hxx>
 
 #include <Standard_Failure.hxx>
-#include <Standard_ErrorHandler.hxx>
 
 #include <strstream>
 #include <string>

@@ -33,7 +33,6 @@
 #include "Session_ServerThread.hxx"
 
 #include "SALOME_Container_i.hxx"
-#include "SALOME_ContainerManager.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "RegistryService.hxx"
@@ -51,13 +50,12 @@
 
 using namespace std;
 
-const int Session_ServerThread::NB_SRV_TYP = 6;
+const int Session_ServerThread::NB_SRV_TYP = 5;
 const char* Session_ServerThread::_serverTypes[NB_SRV_TYP] = {"Container",
 							      "ModuleCatalog",
 							      "Registry",
 							      "SALOMEDS",
-							      "Session",
-                                                              "ContainerManager"};
+							      "Session"};
 
 //=============================================================================
 /*! 
@@ -156,12 +154,6 @@ void Session_ServerThread::Init()
 	      containerName = containerName + "/FactoryServer";
 	      NamingService_WaitForServerReadiness(_NS,containerName);
 	      ActivateSession(_argc, _argv);
-	      break;
-	    }
-	  case 5: // Container Manager
-	    {
-	      NamingService_WaitForServerReadiness(_NS,"");
-	      ActivateContainerManager(_argc, _argv);
 	      break;
 	    }
 	  default:
@@ -324,44 +316,6 @@ void Session_ServerThread::ActivateRegistry(int argc,
     {
       INFOS( "Communication Error : " << ex.what() );
       ASSERT(0);
-    }
-}
-
-//=============================================================================
-/*! 
- *  
- */
-//=============================================================================
-
-void Session_ServerThread::ActivateContainerManager(int argc,
-					     char ** argv)
-{
-  try
-    {
-      PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
-      cout << "ActivateContainerManager ......!!!! " << endl;
-      SALOME_ContainerManager * myContainer 
-      	= new SALOME_ContainerManager(_orb);
-    }
-  catch(CORBA::SystemException&)
-    {
-      INFOS("Caught CORBA::SystemException.");
-    }
-  catch(PortableServer::POA::WrongPolicy&)
-    {
-      INFOS("Caught CORBA::WrongPolicyException.");
-    }
-  catch(PortableServer::POA::ServantAlreadyActive&)
-    {
-      INFOS("Caught CORBA::ServantAlreadyActiveException");
-    }
-  catch(CORBA::Exception&)
-    {
-      INFOS("Caught CORBA::Exception.");
-    }
-  catch(...)
-    {
-      INFOS("Caught unknown exception.");
     }
 }
 

@@ -12,7 +12,6 @@
 #include <TColStd_HSequenceOfInteger.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_ErrorHandler.hxx>
 
 #include "SALOMEDS_AttributeTableOfInteger_i.hxx"
 #include "SALOMEDS.hxx"

@@ -192,6 +192,7 @@ CXXFLAGS+= $(CORBA_CXXFLAGS)
 # add corba libs when link salome application ! 
 #LDFLAGS+= $(CORBA_LIBS)
 LIBS+=$(CORBA_LIBS)
+LIBSFORBIN+=$(CORBA_LIBS)
 
 DOXYGEN = @DOXYGEN@
 
