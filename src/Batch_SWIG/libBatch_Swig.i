@@ -36,7 +36,6 @@
 #include "Batch_BatchManager.hxx"
 #include "Batch_BatchManagerCatalog.hxx"
 #include "Batch_FactBatchManager.hxx"
-using namespace Batch;
 %}
 
 /* Les classes exportees en Python */

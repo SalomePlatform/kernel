@@ -66,13 +66,6 @@ EXPORT_HEADERS = \
 	Batch_TypeMismatchException.hxx \
 	Batch_Versatile.hxx
 
-# Specialisation pour OpenPBS
-EXPORT_HEADERS += \
-	Batch_BatchManager_PBS.hxx \
-	Batch_FactBatchManager_PBS.hxx \
-	Batch_JobInfo_PBS.hxx \
-	Batch_Job_PBS.hxx
-
 
 # Libraries targets
 
@@ -109,22 +102,58 @@ LIB_SRC = \
 	Batch_TypeMismatchException.cxx \
 	Batch_Versatile.cxx
 
+LIB_SERVER_IDL = 
+
+
+CPPFLAGS += $(PYTHON_INCLUDES)
+CXXFLAGS += $(PYTHON_INCLUDES)
+LDFLAGS  += 
+LIBS     += -lSALOMELocalTrace
+
+
+
 # Specialisation pour OpenPBS
+ifeq (@WITHOPENPBS@,yes)
+EXPORT_HEADERS += \
+	Batch_BatchManager_PBS.hxx \
+	Batch_FactBatchManager_PBS.hxx \
+	Batch_JobInfo_PBS.hxx \
+	Batch_Job_PBS.hxx
+
 LIB_SRC += \
 	Batch_BatchManager_PBS.cxx \
 	Batch_FactBatchManager_PBS.cxx \
 	Batch_JobInfo_PBS.cxx \
 	Batch_Job_PBS.cxx
 
-LIB_SERVER_IDL = 
+CPPFLAGS += $(OPENPBS_INCLUDES)
+CXXFLAGS += $(OPENPBS_INCLUDES)
+LDFLAGS  += $(OPENPBS_LIBDIR)
+LIBS     += $(OPENPBS_LIBS)
+endif
 
 
-CPPFLAGS += $(PYTHON_INCLUDES) $(OPENPBS_INCLUDES)
 
-CXXFLAGS += $(PYTHON_INCLUDES) $(OPENPBS_INCLUDES)
 
-LDFLAGS += $(OPENPBS_LIBDIR)
+# Specialisation pour LSF
+ifeq (@WITH_LSF@,yes)
+EXPORT_HEADERS += \
+	Batch_BatchManager_LSF.hxx \
+	Batch_FactBatchManager_LSF.hxx \
+	Batch_JobInfo_LSF.hxx \
+	Batch_Job_LSF.hxx
 
-LIBS += $(OPENPBS_LIBS) -lSALOMELocalTrace
+LIB_SRC += \
+	Batch_BatchManager_LSF.cxx \
+	Batch_FactBatchManager_LSF.cxx \
+	Batch_JobInfo_LSF.cxx \
+	Batch_Job_LSF.cxx
+
+CPPFLAGS += $(LSF_INCLUDES)
+CXXFLAGS += $(LSF_INCLUDES)
+LDFLAGS  += $(LSF_LIBDIR)
+LIBS     += $(LSF_LIBS)
+endif
+
 
 @CONCLUDE@

@@ -29,7 +29,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "utilities.h"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 #include "Utils_SINGLETON.hxx"
 
 #ifdef CHECKTIME
@@ -41,7 +41,7 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;

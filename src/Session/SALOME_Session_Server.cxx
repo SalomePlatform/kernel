@@ -55,7 +55,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #include "utilities.h"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 
 #include "SALOME_Session_i.hxx"
 
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   int orbArgc = 1;
   CORBA::ORB_var &orb = init( orbArgc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try
     {
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");

@@ -11,8 +11,8 @@
     try {
       $action
     }
-    catch (GenericException & ex) {
-      string msg = ex.type + " : " + ex.message;
+    catch (Batch::GenericException & ex) {
+      std::string msg = ex.type + " : " + ex.message;
       PyErr_SetString(PyExc_RuntimeWarning, msg.c_str());
       return NULL;
     }

@@ -186,6 +186,22 @@ openpbs_ok=no
 CHECK_OPENPBS
 dnl openpbs_ok is set to yes by CHECK_OPENPBS
 
+dnl
+dnl ---------------------------------------------
+dnl testing LSF
+dnl ---------------------------------------------
+dnl
+
+echo
+echo ---------------------------------------------
+echo testing LSF
+echo ---------------------------------------------
+echo
+
+lsf_ok=no
+CHECK_LSF
+dnl lsf_ok is set to yes by CHECK_LSF
+
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC
@@ -340,7 +356,7 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok openpbs_ok"
+variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok openpbs_ok lsf_ok"
  
 for var in $variables
 do

@@ -193,6 +193,10 @@ void Engines_Component_i::beginService(const char *serviceName)
 	{
 	  const char* value;
 	  (*it).second >>= value;
+	  // --- todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC...
+#if defined __GNUC__
+	  int ret = setenv(cle.c_str(), value, overwrite);
+#else
 	  //CCRT porting : setenv not defined in stdlib.h
 	  std::string s(cle);
 	  s+='=';
@@ -200,7 +204,7 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
 	  int ret=putenv((char *)s.c_str());
 	  //End of CCRT porting
-	  //int ret = setenv(cle.c_str(), value, overwrite);
+#endif
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
 	}
     }

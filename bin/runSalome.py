@@ -121,6 +121,8 @@ def set_env(args, modules_list, modules_root_dir):
     # special path for logger lib if needeed
     
     os.environ["SALOME_trace"]="local"
+    if args['file']:
+        os.environ["SALOME_trace"]=args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
         locdir=os.environ['PWD']

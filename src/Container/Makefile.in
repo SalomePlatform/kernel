@@ -54,7 +54,7 @@ BIN_SERVER_IDL = SALOME_Component.idl
 CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
 
-LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
+LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSALOMETraceCollector
 
 LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
 

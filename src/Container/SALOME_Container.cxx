@@ -35,7 +35,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   // Initialise the ORB.
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
     

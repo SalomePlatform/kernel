@@ -31,7 +31,6 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
-#include <strstream>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>

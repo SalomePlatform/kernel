@@ -30,7 +30,7 @@ namespace Batch {
   }
 
   // Functor
-  BatchManager_PBS * FactBatchManager_PBS::operator() (const char * hostname) const
+  BatchManager * FactBatchManager_PBS::operator() (const char * hostname) const
   {
     MESSAGE("Building new BatchManager_PBS on host '" << hostname << "'");
     return new BatchManager_PBS(this, hostname);

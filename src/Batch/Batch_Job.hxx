@@ -21,21 +21,21 @@ namespace Batch {
   public:
     // Constructeurs et destructeur
     Job();
-    Job(Parametre param);
-    Job(Environnement env);
-    Job(Parametre param, Environnement env);
+    Job(Batch::Parametre param);
+    Job(Batch::Environnement env);
+    Job(Batch::Parametre param, Batch::Environnement env);
     virtual ~Job() {}
     
     // Operateur pour l'affichage sur un stream
     friend std::ostream & operator <<(std::ostream & os, const Job & job);
 
     // Accesseurs
-    Parametre getParametre() const;
-    void setParametre(const Parametre &);
+    Batch::Parametre getParametre() const;
+    void setParametre(const Batch::Parametre &);
     
     // Accesseurs
-    Environnement getEnvironnement() const;
-    void setEnvironnement(const Environnement &);
+    Batch::Environnement getEnvironnement() const;
+    void setEnvironnement(const Batch::Environnement &);
     
     // Methodes pour l'interfacage avec Python (SWIG)
     // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
@@ -43,8 +43,8 @@ namespace Batch {
     std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
-    Parametre _param; // table des parametres batch du job
-    Environnement _env; // table des variables d'environnement
+    Batch::Parametre _param; // table des parametres batch du job
+    Batch::Environnement _env; // table des variables d'environnement
 
   private:
 

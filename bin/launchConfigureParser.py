@@ -159,9 +159,12 @@ else:
 for aKey in ("containers","embedded","key","modules","standalone"):
     if not args.has_key(aKey):
         args[aKey]=[]
-for aKey in ("gui","logger","xterm","portkill","killall"):
+for aKey in ("gui","logger","file","xterm","portkill","killall"):
     if not args.has_key(aKey):
         args[aKey]=0
+if args["file"]:
+    afile=args["file"]
+    args["file"]=[afile]
 args["appname"] = appname
 
 ### searching for my port
@@ -237,7 +240,7 @@ except:
 
 opterror=0
 for opt in opts:
-    if not opt in ("h","g","l","x","m","e","s","c","p","k","t"):
+    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t"):
         print "command line error: -", opt
         opterror=1
 
@@ -250,7 +253,8 @@ if opts.has_key("h"):
     --help or -h                  : print this help
     --gui or -g                   : lancement du GUI
     --terminal -t                 : launching without gui (to deny --gui)
-    --logger or -l                : redirection des messages dans un fichier
+    --logger or -l                : redirection des messages via CORBA
+    --file=filename or -l=filename: redirection des messages dans un fichier
     --xterm or -x                 : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
     --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
     or -m=module1,module2,...
@@ -279,6 +283,8 @@ for opt in opts:
         args['gui'] = 1
     elif opt == 'l':
         args['logger'] = 1
+    elif opt == 'f':
+        args['file'] = opts['f']
     elif opt == 'x':
         args['xterm'] = 1
     elif opt == 'm':

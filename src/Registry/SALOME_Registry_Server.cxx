@@ -36,7 +36,7 @@ extern "C"
 }
 
 #include "utilities.h"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
@@ -54,7 +54,7 @@ int main( int argc , char **argv )
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 
     SCRUTE(argc) 

@@ -26,9 +26,9 @@ namespace Batch {
     // Destructeur
     virtual ~BatchManagerCatalog();
 
-    static FactBatchManager * getFactBatchManager(const char * type);
-    static void addFactBatchManager(const char * type, FactBatchManager * pFBM);
-    virtual FactBatchManager * operator() (const char * type) const;
+    static Batch::FactBatchManager * getFactBatchManager(const char * type);
+    static void addFactBatchManager(const char * type, Batch::FactBatchManager * pFBM);
+    virtual Batch::FactBatchManager * operator() (const char * type) const;
 
     virtual std::map<std::string, FactBatchManager *> * dict() const;
     virtual std::string __repr__() const;

@@ -18,7 +18,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 
 //! CORBA client for SALOME Session server : launch GUI
 /*!
@@ -32,7 +32,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
   CORBA::ORB_ptr orb = CORBA::ORB_init(argc,argv) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 //VRV: T2.4 - Trace management improvement
   QApplication myQApp(argc, argv) ;
   InquireServersGUI myIS;

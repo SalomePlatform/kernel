@@ -22,13 +22,13 @@
 
 
 # // construction d'un dictionnaire Python a partir d'un objet BatchManagerCatalog C++
-%typemap(out) map<string, Batch::FactBatchManager *> *
+%typemap(out) std::map<std::string, Batch::FactBatchManager *> *
 {
   $result = PyDict_New();
 
   // on itere sur toutes les clefs de la map
-  for(map<string, FactBatchManager *>::const_iterator it=(* $1).begin(); it!=(* $1).end(); it++) {
-    string key = (*it).first;
+  for(std::map<std::string, Batch::FactBatchManager *>::const_iterator it=(* $1).begin(); it!=(* $1).end(); it++) {
+    std::string key = (*it).first;
     PyObject * obj  = SWIG_NewPointerObj((void *) (*it).second, SWIGTYPE_p_Batch__FactBatchManager, 0);
     PyDict_SetItem($result, PyString_FromString(key.c_str()), obj);
   }
@@ -36,22 +36,22 @@
 
 
 # // construction d'un dictionnaire Python a partir d'un objet Parametre C++
-%typemap(out) Parametre
+%typemap(out) Batch::Parametre
 {
   $result = PyDict_New();
 
   // on itere sur toutes les clefs de la map, et on passe par la classe PyVersatile
 	// qui convertit un Versatile en PyObject et vice versa
-  for(Parametre::const_iterator it=$1.begin(); it!=$1.end(); it++) {
-    string key = (*it).first;
-    PyVersatile PyV = (*it).second;
+  for(Batch::Parametre::const_iterator it=$1.begin(); it!=$1.end(); it++) {
+    std::string key = (*it).first;
+    Batch::PyVersatile PyV = (*it).second;
     PyDict_SetItem($result, PyString_FromString(key.c_str()), PyV);
   }
 }
 
 
 # // construction d'un objet Parametre C++ a partir d'un dictionnaire Python
-%typemap(in) Parametre & (Parametre PM)
+%typemap(in) Batch::Parametre & (Batch::Parametre PM)
 {
   if (!PyDict_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a dictionnary");
@@ -64,16 +64,16 @@
 	PyObject *key, *value;
 	int pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
-		string mk = PyString_AsString(key);
-		PyVersatile PyV = value;
+		std::string mk = PyString_AsString(key);
+		Batch::PyVersatile PyV = value;
 		PyV.setName(mk);
 		PM[mk] = PyV;
 	}
 
   $1 = &PM; // $1 est une reference donc on lui passe une adresse
   }
-  catch (GenericException & ex) {
-      string msg = ex.type + " : " + ex.message;
+  catch (Batch::GenericException & ex) {
+      std::string msg = ex.type + " : " + ex.message;
       PyErr_SetString(PyExc_RuntimeWarning, msg.c_str());
       return NULL;
   }
@@ -85,7 +85,7 @@
 
 
 # // construction d'un objet Parametre C++ a partir d'un dictionnaire Python
-%typemap(in) Parametre (Parametre PM)
+%typemap(in) Batch::Parametre (Batch::Parametre PM)
 {
   if (!PyDict_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a dictionnary");
@@ -98,16 +98,16 @@
 	PyObject *key, *value;
 	int pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
-		string mk = PyString_AsString(key);
-		PyVersatile PyV = value;
+		std::string mk = PyString_AsString(key);
+		Batch::PyVersatile PyV = value;
 		PyV.setName(mk);
 		PM[mk] = PyV;
 	}
 
   $1 = PM;
   }
-  catch (GenericException & ex) {
-      string msg = ex.type + " : " + ex.message;
+  catch (Batch::GenericException & ex) {
+      std::string msg = ex.type + " : " + ex.message;
       PyErr_SetString(PyExc_RuntimeWarning, msg.c_str());
       return NULL;
   }
@@ -119,14 +119,14 @@
 
 
 # // construction d'un dictionnaire Python a partir d'un objet Environnement C++
-%typemap(out) Environnement
+%typemap(out) Batch::Environnement
 {
   $result = PyDict_New();
 
   // on itere sur toutes les clefs de la map
-  for(Environnement::const_iterator it=$1.begin(); it!=$1.end(); it++) {
-    string key = (*it).first;
-    string val = (*it).second;
+  for(Batch::Environnement::const_iterator it=$1.begin(); it!=$1.end(); it++) {
+    std::string key = (*it).first;
+    std::string val = (*it).second;
     PyDict_SetItem($result, 
 		   PyString_FromString(key.c_str()),
 		   PyString_FromString(val.c_str()));
@@ -135,7 +135,7 @@
 
 
 # // construction d'un objet Environnement C++ a partir d'un dictionnaire Python
-%typemap(in) Environnement & (Environnement E)
+%typemap(in) Batch::Environnement & (Batch::Environnement E)
 {
   if (!PyDict_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a dictionnary");
@@ -146,8 +146,8 @@
 	PyObject *key, *value;
 	int pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
-		string mk  = PyString_AsString(key);
-		string val = PyString_AsString(value);
+		std::string mk  = PyString_AsString(key);
+		std::string val = PyString_AsString(value);
 		E[mk] = val;
 	}
   
@@ -157,7 +157,7 @@
 
 
 # // construction d'un objet Environnement C++ a partir d'un dictionnaire Python
-%typemap(in) Environnement (Environnement E)
+%typemap(in) Batch::Environnement (Batch::Environnement E)
 {
   if (!PyDict_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a dictionnary");
@@ -168,8 +168,8 @@
 	PyObject *key, *value;
 	int pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
-		string mk  = PyString_AsString(key);
-		string val = PyString_AsString(value);
+		std::string mk  = PyString_AsString(key);
+		std::string val = PyString_AsString(value);
 		E[mk] = val;
 	}
   
@@ -179,7 +179,7 @@
 
 
 # // construction d'une string Python a partir d'une string STL
-%typemap(python,out) string
+%typemap(python,out) std::string
 {
 	$result = PyString_FromString($1.c_str());
 }

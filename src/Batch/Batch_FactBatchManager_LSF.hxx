@@ -1,5 +1,5 @@
 /*
- * FactBatchManager_PBS.hxx : 
+ * FactBatchManager_LSF.hxx : 
  *
  * Auteur : Ivan DUTKA-MALEN - EDF R&D
  * Date   : Septembre 2004
@@ -7,21 +7,24 @@
  *
  */
 
-#ifndef _FACTBATCHMANAGER_PBS_H_
-#define _FACTBATCHMANAGER_PBS_H_
+#ifndef _FACTBATCHMANAGER_LSF_H_
+#define _FACTBATCHMANAGER_LSF_H_
 
+using namespace std;
+#include <string>
+#include <map>
 #include "Batch_FactBatchManager.hxx"
 
 namespace Batch {
   
-  class BatchManager_PBS;
+  class BatchManager_LSF;
 
-  class FactBatchManager_PBS : public FactBatchManager
+  class FactBatchManager_LSF : public FactBatchManager
   {
   public:
     // Constructeur et destructeur
-    FactBatchManager_PBS();
-    virtual ~FactBatchManager_PBS();
+    FactBatchManager_LSF();
+    virtual ~FactBatchManager_LSF();
 
     virtual BatchManager * operator() (const char * hostname) const;
 

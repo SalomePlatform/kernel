@@ -19,34 +19,36 @@
 //
 //
 //
-//  File   : LocalTraceCollector.hxx
+//  File   : SALOMETraceCollector.hxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
 
-#ifndef _LOCALTRACECOLLECTOR_HXX_
-#define _LOCALTRACECOLLECTOR_HXX_
+#ifndef _SALOMETRACECOLLECTOR_HXX_
+#define _SALOMETRACECOLLECTOR_HXX_
 
 #include <string>
+#include <CORBA.h>
 #include "LocalTraceBufferPool.hxx"
 
-class LocalTraceCollector
+class SALOMETraceCollector
 {
  public:
-  static LocalTraceCollector* instance(int typeTrace=0);
+  static SALOMETraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);
   static void *run(void *bid);
-  ~LocalTraceCollector();
+  ~SALOMETraceCollector();
 
  protected:
-  LocalTraceCollector();
+  SALOMETraceCollector();
 
  private:
   static int _threadToClose;
   static int _toFile;
-  static LocalTraceCollector* _singleton;
+  static SALOMETraceCollector* _singleton;
   static pthread_mutex_t _singletonMutex;
   static pthread_t _threadId;
   static std::string _fileName;
+  static CORBA::ORB_ptr _orb;
 };
 
 #endif

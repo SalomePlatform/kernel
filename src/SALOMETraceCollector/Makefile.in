@@ -1,4 +1,4 @@
-#  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
+#  SALOMELocalTrace : log on local machine
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -22,7 +22,7 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Paul RASCLE, EDF
+#  Author : Paul RASCLE (EDF)
 #  Module : SALOME
 #  $Header$
 
@@ -34,34 +34,19 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_PYSCRIPTS = SALOME_TestModuleCatalog.py
-EXPORT_HEADERS = \
-		SALOME_ModuleCatalog_impl.hxx \
-		SALOME_ModuleCatalog_Acomponent_impl.hxx \
-		PathPrefix.hxx \
-		SALOME_ModuleCatalog_Parser.hxx \
-		SALOME_ModuleCatalog_Parser_IO.hxx \
-                SALOME_ModuleCatalog_Handler.hxx 
+# header files  
+EXPORT_HEADERS= SALOMETraceCollector.hxx \
+		LocalTrace_WaitForServerReadiness.hxx
+
+EXPORT_PYSCRIPTS = 
 
 # Libraries targets
-LIB = libSalomeCatalog.la
-LIB_SRC = \
-		  SALOME_ModuleCatalog_Handler.cxx  \
-		  SALOME_ModuleCatalog_Parser_IO.cxx \
-		  SALOME_ModuleCatalog_impl.cxx \
-		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 
-CXXFLAGS+=@CXXTMPDPTHFLAGS@
+LIB = libSALOMETraceCollector.la 
+LIB_SRC = SALOMETraceCollector.cxx \
+	  LocalTrace_WaitForServerReadiness.cxx
 
-# Executables targets
-# trouble we have client and serveur and build don't known about this with rule
-# in fact client is a test ! So it may go away BIN !
-BIN = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
-BIN_SRC = 
-LIB_CLIENT_IDL = SALOME_ModuleCatalog.idl
-BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
-
-CPPFLAGS+= $(QT_MT_INCLUDES) 
-LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
+LIB_CLIENT_IDL = Logger.idl 
+LDFLAGS+= 
 
 @CONCLUDE@

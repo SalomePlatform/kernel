@@ -28,13 +28,13 @@ namespace Batch {
     virtual ~JobId();
 
     // Constructeur avec le pointeur sur le BatchManager associe et avec une reference
-    JobId(BatchManager *, std::string ref);
+    JobId(Batch::BatchManager *, std::string ref);
 
     // Operateur d'affectation entre objets
-    virtual JobId & operator =(const JobId &);
+    virtual JobId & operator =(const Batch::JobId &);
 
     // Constructeur par recopie
-    JobId(const JobId &);
+    JobId(const Batch::JobId &);
 
     // Accesseur pour la reference interne
     virtual std::string getReference() const;
@@ -43,11 +43,11 @@ namespace Batch {
     virtual void deleteJob() const; // retire un job du gestionnaire
     virtual void holdJob() const; // suspend un job en file d'attente
     virtual void releaseJob() const; // relache un job suspendu
-    virtual void alterJob(const Parametre & param, const Environnement & env) const; // modifie un job en file d'attente
-    virtual void alterJob(const Parametre & param) const; // modifie un job en file d'attente
-    virtual void alterJob(const Environnement & env) const; // modifie un job en file d'attente
-    virtual void setParametre(const Parametre & param) { return alterJob(param); } // modifie un job en file d'attente
-    virtual void setEnvironnement(const Environnement & env) { return alterJob(env); } // modifie un job en file d'attente
+    virtual void alterJob(const Batch::Parametre & param, const Batch::Environnement & env) const; // modifie un job en file d'attente
+    virtual void alterJob(const Batch::Parametre & param) const; // modifie un job en file d'attente
+    virtual void alterJob(const Batch::Environnement & env) const; // modifie un job en file d'attente
+    virtual void setParametre(const Batch::Parametre & param) { return alterJob(param); } // modifie un job en file d'attente
+    virtual void setEnvironnement(const Batch::Environnement & env) { return alterJob(env); } // modifie un job en file d'attente
     virtual Batch::JobInfo queryJob() const; // renvoie l'etat du job
 
     // Methodes pour l'interfacage avec Python (SWIG)
@@ -56,7 +56,7 @@ namespace Batch {
     std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
-    BatchManager * _p_batchmanager; // pointeur sur le BatchManager qui controle le job
+    Batch::BatchManager * _p_batchmanager; // pointeur sur le BatchManager qui controle le job
     std::string _reference; // reference du job au sein du BatchManager
 
   private:

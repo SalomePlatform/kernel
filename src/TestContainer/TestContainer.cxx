@@ -39,7 +39,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 static ostream& operator<<(ostream& os, const CORBA::Exception& e)
@@ -66,7 +66,7 @@ int main (int argc, char * argv[])
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 
   try
     {

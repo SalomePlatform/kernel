@@ -53,15 +53,15 @@ no) enable_production=no ;;
 esac],
 enable_production=AC_ENABLE_PRODUCTION_DEFAULT)dnl
 
-# supprimer car ne marche qu'avec compilo gnu
-# CXXVERSION=`$CXX --version`
-# if test "X$CXXVERSION" != "X2.95.3"; then
-#  CXXFLAGS="${CXXFLAGS} -fmessage-length=0 "
-# fi
+AC_CXX_OPTION(-Wno-deprecated,CXXFLAGS)
+AC_CXX_OPTION(-Wparentheses,CXXFLAGS)
+AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
+AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)
+AC_CXX_OPTION(-fmessage-length=0,CXXFLAGS)
+AC_CXX_OPTION(-Wunused,CXXFLAGS)
 
 if test "X$enable_production" = "Xyes"; then
   CFLAGS="$CFLAGS -O"
-#  CXXFLAGS="$CXXFLAGS -O -Wuninitialized "
   AC_CXX_OPTION(-Wuninitialized,CXXFLAGS)
   CXXFLAGS="$CXXFLAGS -O "
 fi

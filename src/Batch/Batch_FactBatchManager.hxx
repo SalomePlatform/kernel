@@ -24,7 +24,7 @@ namespace Batch {
     FactBatchManager(const std::string & type);
     virtual ~FactBatchManager();
 
-    virtual BatchManager * operator() (const char * hostname) const = 0;
+    virtual Batch::BatchManager * operator() (const char * hostname) const = 0;
     std::string getType() const;
     std::string __repr__() const;
 
