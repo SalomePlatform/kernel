@@ -78,8 +78,8 @@ void QAD_PyInterp::initContext()
   if(m == NULL)
     {
       MESSAGE("problem...");
-      ASSERT(0);
       PyErr_Print();
+      ASSERT(0);
       salomeReleaseLock(); 
       return;
     }  
@@ -90,21 +90,31 @@ void QAD_PyInterp::initContext()
     {
       PyDict_SetItemString(_g, "__builtins__", builtinmodule); // assign singleton __builtin__ module
     }
+// Debut modif CCAR
   /*
-   * Call salome_shared_modules to import salome shared modules that must not be initialized twice
-   * so import_shared_modules makes only a copy of the modules in _tstate->interp->modules
-   * (sys.modules)
+   * Import special module to change the import mechanism
    */
-  m= PyObject_CallMethod(salome_shared_modules_module,
-			 "import_shared_modules","O",
-			 _tstate->interp->modules);
-  if (m == NULL)
-    {
-      /*
-       * Problem  , print it
-       */
-      MESSAGE("problem...");
-      ASSERT(0);
+  m =PyImport_ImportModule("import_hook");
+  if(m == NULL){
+      MESSAGE("initContext: problem with import_hook import");
       PyErr_Print();
-    }
+      PyErr_Clear();
+      ASSERT(0);
+  }
+  /*
+   * Call init_shared_modules to initialize the shared import mechanism for modules 
+   * that must not be imported twice
+   */
+  if(m != NULL){
+      m= PyObject_CallMethod(m,
+			 "init_shared_modules","O",salome_shared_modules_module);
+      if (m == NULL){
+          MESSAGE("initContext: problem with init_shared_modules call");
+          PyErr_Print();
+          PyErr_Clear();
+          ASSERT(0);
+      }
+  }
+// Fin   modif CCAR
+
 }

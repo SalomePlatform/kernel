@@ -22,7 +22,9 @@ LIB = libSALOME_Swigcmodule.la
 LIB_SRC = 
 
 SWIG_DEF = libSALOME_Swig.i
-EXPORT_PYSCRIPTS = libSALOME_Swig.py Help.py PyInterp.py salome.py examplevtk1.py supervisionexample.py supervisiongeomexample.py salome_shared_modules.py batchmode_salome.py test_table.py test_big_table.py test_many_objects.py
+EXPORT_PYSCRIPTS = libSALOME_Swig.py Help.py PyInterp.py salome.py examplevtk1.py supervisionexample.py supervisiongeomexample.py salome_shared_modules.py batchmode_salome.py test_table.py test_big_table.py test_many_objects.py import_hook.py
+
+EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
 
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Exception.idl
