@@ -36,15 +36,14 @@ using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
 
-// class SALOME_LoggerClient : public SALOME_Log
-// {
-// protected:
-//   SALOME_Logger::Logger_var m_pInterfaceLogger; // object reference on Logger server
-// };
-
 SALOME_Logger::Logger_ptr m_pInterfaceLogger; // object reference on Logger server
 
-SALOME_Log::SALOME_Log()
+SALOME_Log* SALOME_Log::_singleton = 0;
+
+// log line size: if too short, log line is truncated, without crash...
+char SALOME_LogStr[1024]; 
+
+SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
 {
   cout << "SALOME_LoggerClient: constructor" << endl;
   //get reference on object reference from NS
@@ -131,10 +130,10 @@ SALOME_Log::~SALOME_Log()
 {
 }
 
-SALOME_Log& SALOME_Log::Instance()
+SALOME_Log* SALOME_Log::Instance()
 {
-  static SALOME_Log instance;
-  return instance;
+  if (_singleton == 0) _singleton = new SALOME_Log();
+  return _singleton;
 }
 
 void SALOME_Log::putMessage(std::ostream& msg)
@@ -143,8 +142,8 @@ void SALOME_Log::putMessage(std::ostream& msg)
 
   char* adt = str();
   CORBA::String_var LogMsg = CORBA::string_dup(adt);
-  rdbuf()->freeze(false);
-  seekp(0);
+//   rdbuf()->freeze(false);
+//   seekp(0);
 
   if (CORBA::is_nil(m_pInterfaceLogger))
     cout << LogMsg << std::flush;

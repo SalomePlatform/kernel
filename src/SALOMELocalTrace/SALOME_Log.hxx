@@ -69,16 +69,16 @@ using namespace std;
 
 class SALOME_Log : public ostrstream
 {
-public:
-  virtual ~SALOME_Log();
-  static Standard_EXPORT SALOME_Log& Instance();
-  Standard_EXPORT void putMessage(std::ostream& msg);
-
+private:
+  static SALOME_Log* _singleton;
 protected:
   //disable creation of instances: force use static SALOME_Log& Instance()
   SALOME_Log();
+public:
+  virtual ~SALOME_Log();
+  static Standard_EXPORT SALOME_Log* Instance();
+  Standard_EXPORT void putMessage(std::ostream& msg);
 };
-
 
 #define SLog SALOME_Log::Instance()
 

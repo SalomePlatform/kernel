@@ -37,8 +37,8 @@
 
 /* ---  INFOS is always defined (without _DEBUG_): to be used for warnings, with release version --- */
 
-#define INFOS(msg)    {SLog.putMessage(SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl);}
-#define PYSCRIPT(msg) {SLog.putMessage(SLog<<"---PYSCRIPT--- "<<msg<<endl);}
+#define INFOS(msg)    {SLog->putMessage(*SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl);}
+#define PYSCRIPT(msg) {SLog->putMessage(*SLog<<"---PYSCRIPT--- "<<msg<<endl);}
 
 /* --- To print date and time of compilation of current source --- */
 
@@ -59,8 +59,8 @@
 #endif
 
 #define INFOS_COMPILATION { \
-			   SLog.putMessage(\
-					   SLog<<__FILE__<<" ["<< __LINE__<<"] : "\
+			   SLog->putMessage(\
+					   *SLog<<__FILE__<<" ["<< __LINE__<<"] : "\
 					   << "COMPILED with " << COMPILER \
 					   << ", " << __DATE__ \
 					   << " at " << __TIME__ <<endl); }
@@ -69,12 +69,12 @@
 
 /* --- the following MACROS are useful at debug time --- */
 
-#define MYTRACE SLog << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " 
+#define MYTRACE *SLog << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " 
 
-#define MESSAGE(msg) {SLog.putMessage( MYTRACE <<msg<<endl<<ends); }
-#define SCRUTE(var)  {SLog.putMessage( MYTRACE << #var << "=" << var <<endl<<ends); }
+#define MESSAGE(msg) {SLog->putMessage( MYTRACE <<msg<<endl<<ends); }
+#define SCRUTE(var)  {SLog->putMessage( MYTRACE << #var << "=" << var <<endl<<ends); }
 
-#define REPERE SLog << "   --------------" << endl 
+#define REPERE *SLog << "   --------------" << endl 
 #define BEGIN_OF(msg) {REPERE;MYTRACE<<"Begin of: "     <<msg<<endl;REPERE;} 
 #define END_OF(msg)   {REPERE;MYTRACE<<"Normal end of: "<<msg<<endl;REPERE;} 
 
