@@ -282,13 +282,17 @@ void ActSigIntHandler() {
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
-  if ( sigaction( SIGINT | SIGUSR1 , &SigIntAct, NULL ) ) {
+// DEBUG 03.02.2005 : the first parameter of sigaction is not a mask of signals (SIGINT | SIGUSR1) :
+// it must be only one signal ===> one call for SIGINT and an other one for SIGUSR1
+  if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
-  else {
-    INFOS(pthread_self() << "SigIntHandler activated") ;
+  if ( sigaction( SIGUSR1 , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container main ") ;
+    exit(0) ;
   }
+  INFOS(pthread_self() << "SigIntHandler activated") ;
 }
 
 void SetCpuUsed() ;
