@@ -142,8 +142,8 @@ void SALOME_Log::putMessage(std::ostream& msg)
 
   char* adt = str();
   CORBA::String_var LogMsg = CORBA::string_dup(adt);
-//   rdbuf()->freeze(false);
-//   seekp(0);
+  rdbuf()->freeze(false);
+  seekp(0);
 
   if (CORBA::is_nil(m_pInterfaceLogger))
     cout << LogMsg << std::flush;
