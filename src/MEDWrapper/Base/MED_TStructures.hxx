@@ -60,7 +60,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTMeshInfo: TMeshInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTMeshInfo: 
+    virtual TMeshInfo, 
+    virtual TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
@@ -99,7 +101,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTFamilyInfo: TFamilyInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTFamilyInfo: 
+    virtual TFamilyInfo, 
+    virtual TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
@@ -302,7 +306,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTNodeInfo: TNodeInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTNodeInfo: 
+    virtual TNodeInfo, 
+    virtual TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
@@ -400,7 +406,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTPolygoneInfo: TPolygoneInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTPolygoneInfo: 
+    virtual TPolygoneInfo, 
+    virtual TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
@@ -458,9 +466,12 @@ namespace MED{
       myIndex = theIndexes;
     }
   };
+  
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTPolyedreInfo: TPolyedreInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTPolyedreInfo: 
+    virtual TPolyedreInfo, 
+    virtual TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
@@ -529,7 +540,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTCellInfo: TCellInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTCellInfo: 
+    virtual TCellInfo, 
+    virtual TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
@@ -604,7 +617,9 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTFieldInfo: TFieldInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  struct TTFieldInfo: 
+    virtual TFieldInfo, 
+    virtual TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
     typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
@@ -670,7 +685,7 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTTimeStampInfo: TTimeStampInfo
+  struct TTTimeStampInfo: virtual TTimeStampInfo
   {
     TTTimeStampInfo(const PFieldInfo& theFieldInfo, const PTimeStampInfo& theInfo)
     {
@@ -738,7 +753,7 @@ namespace MED{
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
-  struct TTTimeStampVal: TTimeStampVal
+  struct TTTimeStampVal: virtual TTimeStampVal
   {
     TTTimeStampVal(const PTimeStampInfo& theTimeStampInfo, const PTimeStampVal& theInfo)
     {
