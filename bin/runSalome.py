@@ -300,7 +300,8 @@ def startSalome():
   # Lancement Session Loader
   #
 
-  SessionLoader().run()
+  if with_gui:
+     SessionLoader().run()
 
   #
   # Initialisation ORB et Naming Service
