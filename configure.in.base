@@ -15,8 +15,8 @@
 # Created from configure.in.base
 #
 
-AC_INIT(SALOME)
-AC_CONFIG_AUX_DIR(adm/unix/config_files)
+AC_INIT(src)
+AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 
 PACKAGE=salome
@@ -37,6 +37,10 @@ cd $ROOT_BUILDDIR
 
 AC_SUBST(ROOT_SRCDIR)
 AC_SUBST(ROOT_BUILDDIR)
+dnl ##########################################################
+AC_SUBST(KERNEL_ROOT_DIR)
+dnl ##########################################################
+
 
 echo
 echo Source root directory : $ROOT_SRCDIR
@@ -82,7 +86,7 @@ dnl Fix up the INSTALL macro if it s a relative path. We want the
 dnl full-path to the binary instead.
 case "$INSTALL" in
    *install-sh*)
-      INSTALL='\${top_srcdir}'/adm/unix/config_files/install-sh
+      INSTALL='\${top_srcdir}'/salome_adm/unix/config_files/install-sh
       ;;
 esac
 
@@ -191,7 +195,7 @@ CHECK_CORBA
 
 AC_SUBST_FILE(CORBA)
 corba=make_$ORB
-CORBA=adm/unix/$corba
+CORBA=salome_adm/unix/$corba
 
 echo
 echo ---------------------------------------------
@@ -294,12 +298,12 @@ echo
 
 dnl generals files which could be included in every makefile
 
-AC_SUBST_FILE(COMMENCE) COMMENCE=adm/unix/make_commence
-AC_SUBST_FILE(CONCLUDE) CONCLUDE=adm/unix/make_conclude
-AC_SUBST_FILE(MODULE) MODULE=adm/unix/make_module
+AC_SUBST_FILE(COMMENCE) COMMENCE=salome_adm/unix/make_commence
+AC_SUBST_FILE(CONCLUDE) CONCLUDE=salome_adm/unix/make_conclude
+AC_SUBST_FILE(MODULE) MODULE=salome_adm/unix/make_module
 
 dnl les dependences
-AC_SUBST_FILE(DEPEND) DEPEND=adm/unix/depend
+AC_SUBST_FILE(DEPEND) DEPEND=salome_adm/unix/depend
 
 dnl We don t need to say when we re entering directories if we re using
 dnl GNU make becuase make does it for us.
@@ -310,7 +314,7 @@ else
 fi
 
 # make other build directories
-for rep in adm bin include lib share/salome/resources share/salome/idl
+for rep in salome_adm adm_local doc bin/salome include/salome lib/salome share/salome/resources share/salome/doc idl
 do
 #   if test ! -d $rep ; then
 #      eval mkdir $rep
@@ -355,7 +359,7 @@ do
 done
 cd $ROOT_BUILDDIR
 
-AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=adm/unix/envScript
+AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=salome_adm/unix/envScript
 
 dnl copy xml files to the build tree (lib directory)
 dnl pourquoi ????
