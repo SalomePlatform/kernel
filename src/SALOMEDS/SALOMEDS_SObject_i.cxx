@@ -535,20 +535,9 @@ SALOMEDS_SObject_i::_FindGenAttribute(const Handle(TDF_Attribute)& theAttr)
   Standard_GUID aGUID = theAttr->ID();
 
   TGUID2AttrIDMap::const_iterator anIter = __GUID2AttrIDMap__.find(aGUID);
-  if(anIter != __GUID2AttrIDMap__.end())
-  {
-    const ::TAttributeID& anAttributeID = anIter->second;
-    TAttrMap::const_iterator anIter = myAttrMap.find(anAttributeID);
-    if(anIter != myAttrMap.end())
-      anGenAttr = anIter->second;
-
-    SALOMEDS_GenericAttribute_i* anAttr = anGenAttr.first;
-    if(anAttr != NULL){
-      if(anAttr->GetAttribute() != theAttr)
-	anAttr->SetAttribute(theAttr);
-    }else{
-      anGenAttr = _CreateGenAttribute(theAttr,anAttributeID.c_str());
-    }
+  if(anIter != __GUID2AttrIDMap__.end()){
+    const TAttributeID& anAttributeID = anIter->second;
+    anGenAttr = _FindGenAttribute(anAttributeID.c_str());
   }
 
   return anGenAttr;
