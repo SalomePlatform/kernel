@@ -27,13 +27,28 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../..
+top_builddir=../../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
 
 @COMMENCE@
 
-SUBDIRS = Base V2_1 V2_2 Factory
+# Libraries targets
 
-@MODULE@
+LIB = libMEDWrapper.la
+LIB_SRC = \
+	MED_Factory.cxx
+
+EXPORT_HEADERS = \
+	MED_Factory.hxx
+
+# Executables targets
+BIN = MED_Test
+BIN_SRC = 
+
+CPPFLAGS+= $(BOOST_CPPFLAGS) $(MED2_INCLUDES)
+
+LDFLAGS+= -lMEDWrapper_V2_2 -lMEDWrapper_V2_1
+
+@CONCLUDE@
