@@ -1,3 +1,4 @@
+dnl Copyright (C) 2003  CEA/DEN, EDF R&D
 
 AC_DEFUN([CHECK_SIP],[
 AC_REQUIRE([CHECK_PYTHON])dnl

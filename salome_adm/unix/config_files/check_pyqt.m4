@@ -1,10 +1,11 @@
+dnl Copyright (C) 2003  CEA/DEN, EDF R&D
 
 AC_DEFUN([CHECK_PYQT],[
 AC_REQUIRE([CHECK_PYTHON])dnl
 
 AC_CHECKING(for pyqt)
 
-pyqt_ok=no
+pyqt_ok=yes
 
 PYTHON_SITE_PACKPYQT=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
 AC_CHECK_FILES($PYTHON_SITE_PACKPYQT/qt.py $PYTHON_SITE_PACKPYQT/libqtcmodule.so,pyqt_ok=yes,pyqt_ok=no)
@@ -92,8 +93,6 @@ else
     [  --with-pyuic=EXEC pyuic executable ],
     [PYUIC="$withval"
       AC_MSG_RESULT("select $withval as pyqt executable")
-    ], [
-      AC_PATH_PROG(PYUIC, pyuic)
     ])
 
   if test "x$PYUIC" = "x"

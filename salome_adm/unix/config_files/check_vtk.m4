@@ -1,3 +1,25 @@
+dnl  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+dnl  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+dnl 
+dnl  This library is free software; you can redistribute it and/or 
+dnl  modify it under the terms of the GNU Lesser General Public 
+dnl  License as published by the Free Software Foundation; either 
+dnl  version 2.1 of the License. 
+dnl 
+dnl  This library is distributed in the hope that it will be useful, 
+dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+dnl  Lesser General Public License for more details. 
+dnl 
+dnl  You should have received a copy of the GNU Lesser General Public 
+dnl  License along with this library; if not, write to the Free Software 
+dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+dnl 
+dnl  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+dnl
+dnl
+dnl
+
 AC_DEFUN([CHECK_VTK],[
 AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_CXX])dnl
@@ -28,33 +50,33 @@ fi
 
 
 LOCAL_INCLUDES="$OGL_INCLUDES"
-LOCAL_LIBS="-lVTKCommon -lVTKGraphics -lVTKImaging -lVTKContrib $OGL_LIBS -L$x_libraries -lX11 -lXt"
-TRY_LINK_LIBS="-lVTKCommon $OGL_LIBS -L$x_libraries -lX11 -lXt"
+LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkPatented -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS -L$x_libraries -lX11 -lXt"
+TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS -L$x_libraries -lX11 -lXt"
 
 if test -z $VTKHOME
 then 
    AC_MSG_WARN(undefined VTKHOME variable which specify where vtk was compiled)
 else
-   LOCAL_INCLUDES="-I$VTKHOME/common -I$VTKHOME/imaging -I$VTKHOME/graphics -I$VTKHOME/contrib $LOCAL_INCLUDES"
-   LOCAL_LIBS="-L$VTKHOME/lib -L$VTKHOME/common -L$VTKHOME/graphics -L$VTKHOME/imaging -L$VTKHOME/contrib $LOCAL_LIBS"
-   TRY_LINK_LIBS="-L$VTKHOME/lib -L$VTKHOME/common $TRY_LINK_LIBS"
+   LOCAL_INCLUDES="-I$VTKHOME/include/vtk $LOCAL_INCLUDES"
+   LOCAL_LIBS="-L$VTKHOME/lib/vtk $LOCAL_LIBS"
+   TRY_LINK_LIBS="-L$VTKHOME/lib/vtk $TRY_LINK_LIBS"
 fi
 
 dnl vtk headers
 CPPFLAGS_old="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES -Wno-deprecated"
 
-AC_CHECK_HEADER(vtk.h,vtk_ok="yes",vtk_ok="no")
+AC_CHECK_HEADER(vtkPlane.h,vtk_ok="yes",vtk_ok="no")
 
-CPPFLAGS="$CPPFLAGS_old"
+ CPPFLAGS="$CPPFLAGS_old"
 
-if  test "x$vtk_ok" = "xyes"
-then
-  VTK_INCLUDES="$LOCAL_INCLUDES"
+ if  test "x$vtk_ok" = "xyes"
+ then
+   VTK_INCLUDES="$LOCAL_INCLUDES"
 
-dnl vtk libraries
+ dnl vtk libraries
 
-  AC_MSG_CHECKING(linking VTK library)
+   AC_MSG_CHECKING(linking VTK library)
 
   LIBS_old="$LIBS"
 #  LIBS="$LIBS $TRY_LINK_LIBS"
@@ -62,11 +84,11 @@ dnl vtk libraries
   CPPFLAGS_old="$CPPFLAGS"
   CPPFLAGS="$CPPFLAGS $VTK_INCLUDES -Wno-deprecated"
 
-dnl  VTKPY_MODULES="$VTKHOME/python"
+ dnl  VTKPY_MODULES="$VTKHOME/python"
 
-  AC_CACHE_VAL(salome_cv_lib_vtk,[
-    AC_TRY_LINK(
-#include <vtk.h>
+   AC_CACHE_VAL(salome_cv_lib_vtk,[
+     AC_TRY_LINK(
+#include "vtkPlane.h"
 ,   vtkPlane *p = vtkPlane::New();,
     eval "salome_cv_lib_vtk=yes",eval "salome_cv_lib_vtk=no")
   ])
@@ -94,3 +116,5 @@ AC_LANG_RESTORE
 AC_CACHE_SAVE
 
 ])dnl
+
+
