@@ -188,7 +188,7 @@ namespace SALOMEDS{
     TAttrID2FunMap::const_iterator anEnd = __AttrID2FunMap__.end();
     for(; anIter != anEnd; anIter++){
       const TAttrID2FunMap::key_type& aKey = anIter->first;
-      const TAttrID2FunMap::data_type& aValue = anIter->second;
+      const TAttrID2FunMap::mapped_type& aValue = anIter->second;
       __GUID2AttrIDMap__[aValue.myGetGUID()] = aKey;
     };
 
