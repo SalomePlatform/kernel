@@ -30,10 +30,6 @@
 
 #include "utilities.h"
 
-#include "SALOME_RessourcesCatalog_Handler.hxx"
-
-#include "utilities.h"
-
 using namespace std;
 
 ListOfParserressources _ressources_list;

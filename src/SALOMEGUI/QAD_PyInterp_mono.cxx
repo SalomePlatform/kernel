@@ -12,8 +12,6 @@
 
 
 
-
-
 #include "QAD_PyInterp_mono.h"
 #include "utilities.h"
 
