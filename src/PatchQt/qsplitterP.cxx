@@ -131,10 +131,6 @@ QSplitterPHandle::QSplitterPHandle( Qt::Orientation o,
   left->setCursor( arrowCursor );	right->setCursor( arrowCursor );
   unleft->setCursor( arrowCursor ); unright->setCursor( arrowCursor );
 
-// VSR 21/11/02 -> ================================
-  setMinimumSize( 1, 1 );
-// VSR 21/11/02 <- ================================
-
   connect(left,    SIGNAL(clicked()), this, SLOT(onBeforeCompress()));
   connect(right,   SIGNAL(clicked()), this, SLOT(onAfterCompress()));
   connect(unleft,  SIGNAL(clicked()), this, SLOT(onBeforeUnCompress()));
@@ -855,8 +851,8 @@ void QSplitterP::moveAfter( int pos, int id, bool upLeft )
 	}
     } else {
 	int right = pick( w->geometry().bottomRight() );
-
-       	int dd = right - pos + 1;
+	int ddd = pick( QSize(contentsRect().width(), contentsRect().height() ) ) - pos;
+       	int dd = QMIN(right - pos + 1, ddd);
 	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(maxSize(w))));
 	int newRight = pos+dd-1;
 	setG( w, pos, dd );
