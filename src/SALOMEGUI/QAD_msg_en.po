@@ -473,6 +473,10 @@ msgstr "An exception has been caught. Click <OK> to continue."
 msgid "ERR_ONLY_PLOT2D_VIEWER"
 msgstr "This function is available only in Plot2d viewer"
 
+#: QAD_Desktop.cxx:2339
+msgid "ERR_LIBGUI"
+msgstr "lib%1.so has not been found. Check LD_LIBRARY_PATH environment variable"
+
 #---------------
 # QUESTION
 #---------------

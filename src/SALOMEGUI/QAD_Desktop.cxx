@@ -249,9 +249,9 @@ myQueryClose( true )
     QString modulename = strdup(list_composants[ind].modulename) ;
     QString moduleusername = strdup(list_composants[ind].moduleusername) ;
 
-    MESSAGE ( " MODULE = " << modulename )
-    MESSAGE ( " MODULE icon = " << iconfile )
-    MESSAGE ( " MODULE username = " << moduleusername )
+    //    MESSAGE ( " MODULE = " << modulename )
+    //    MESSAGE ( " MODULE icon = " << iconfile )
+    //    MESSAGE ( " MODULE username = " << moduleusername )
 
     if ( mapComponentName.contains( moduleusername ) ) {
       QMessageBox::warning( this, tr("WRN_WARNING"), QString( moduleusername + " is already associated with " + mapComponentName[moduleusername] + ".\nPlease, change the component username of " + modulename) , tr ("BUT_OK") );
@@ -2314,8 +2314,9 @@ bool QAD_Desktop::loadComponent(QString Component)
   QString dir;
 
   if ( libs = getenv("LD_LIBRARY_PATH")) {
-    MESSAGE ( " LD_LIBRARY_PATH : " << libs )
+    //    MESSAGE ( " LD_LIBRARY_PATH : " << libs )
     QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
+    bool found = false;
     for ( int i = dirList.count()-1; i >= 0; i-- ) {
       dir = dirList[ i ];
 #ifdef WNT
@@ -2326,51 +2327,19 @@ bool QAD_Desktop::loadComponent(QString Component)
     
       fileInfo.setFile(fileString) ;
       if (fileInfo.exists()) {
-	MESSAGE ( " GUI library = " << fileString )
+	//	MESSAGE ( " GUI library = " << fileString )
 	ComponentLib = fileInfo.fileName() ;
+	found = true;
 	break;
       }
     }
-    MESSAGE ( " GUI library not found " )
+    if ( !found ) {
+      QMessageBox::critical( this,
+			     tr("ERR_ERROR"),
+			     tr("ERR_LIBGUI" ).arg(Component) );
+      return false;
+    }
   }
-//    bool found = false;
-//    if ( dir = getenv("SALOME_SITE_DIR")) {
-//      dir = QAD_Tools::addSlash(dir) ;
-//      dir = dir + "lib" ;
-//      dir = QAD_Tools::addSlash(dir) ;
-//      dir = dir + "salome" ;
-//      dir = QAD_Tools::addSlash(dir) ;
-//  #ifdef WNT
-//      dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
-//  #else
-//      dir = dir + "lib" + Component.latin1() + "GUI.so" ;
-//  #endif
-//      MESSAGE ( " GUI library = " << dir )
-//      fileInfo.setFile(dir) ;
-//      if (fileInfo.exists()) {
-//        ComponentLib = fileInfo.fileName() ;
-//        found = true;
-//      }
-//    }
-  
-//    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-//      dir = QAD_Tools::addSlash(dir) ;
-//      dir = dir + "lib" ;
-//      dir = QAD_Tools::addSlash(dir) ;
-//      dir = dir + "salome" ;
-//      dir = QAD_Tools::addSlash(dir) ;
-//  #ifdef WNT
-//      dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
-//  #else
-//      dir = dir + "lib" + Component.latin1() + "GUI.so" ;
-//  #endif
-//      MESSAGE ( " GUI library = " << dir )
-//      fileInfo.setFile(dir) ;
-//      if (fileInfo.exists()) {
-//        ComponentLib = fileInfo.fileName() ;
-//        found = true;
-//      }
-//    }
 
   mySharedLibrary.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
   ok = mySharedLibrary.DlOpen(OSD_RTLD_LAZY);

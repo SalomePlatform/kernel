@@ -447,6 +447,11 @@ msgstr "L'étude est en lecture seule"
 msgid "ERR_ERROR"
 msgstr "Erreur"
 
+
+#: QAD_Desktop.cxx:2339
+msgid "ERR_LIBGUI"
+msgstr "La lib%1.so n'a pas été trouvée. Verifier la variable d'environnement LD_LIBRARY_PATH"
+
 #---------------
 # QUESTION
 #---------------
