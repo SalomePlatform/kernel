@@ -172,6 +172,16 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
   char *stContainer=strdup(containerName);
   string st2Container(stContainer);
   int rg=st2Container.find("/");
+  if(rg>=0)
+    {
+      stContainer[rg]='\0';
+      if(strcmp(stContainer,"localhost")==0)
+	{
+	  Engines::Component_ptr ret=FindOrLoad_Component(stContainer+rg+1,componentName);
+	  free(stContainer);
+	  return ret;
+	}
+    }
   if(rg<0) {
     //containerName doesn't contain "/" => Local container
     free(stContainer);

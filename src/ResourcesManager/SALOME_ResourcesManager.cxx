@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+#include <string.h>
 #include <map>
 
 #include <sys/types.h>
@@ -202,7 +203,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
     tempOutputFile << "SALOME_Container ";
   tempOutputFile << containerName << " -";
   AddOmninamesParams(tempOutputFile);
-  tempOutputFile << " > /tmp/" << containerName << "_" << machine << ".log 2>&1 &" << endl;//" &" << endl;
+  tempOutputFile << " > /tmp/" << "/" << containerName << "_" << machine << ".log 2>&1 &" << endl;//" &" << endl;
   //tempOutputFile << "EOF" << endl;
   //tempOutputFile << "&" << endl;
   tempOutputFile.flush();
@@ -359,7 +360,15 @@ void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
 string SALOME_ResourcesManager::BuildTemporaryFileName() const
 {
   //build more complex file name to support multiple salome session
-  return "/tmp/command.sh";
+  string command( "/tmp/" );
+  char *temp=new char[14];
+  strcpy(temp,"command");
+  strcat(temp,"XXXXXX");
+  mkstemp(temp);
+  command += temp;
+  delete [] temp;
+  command += ".sh";
+  return command;
 }
 
 
