@@ -1052,6 +1052,15 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
   if ( myStudy->_is_nil() || !UCItem ) 
     return;
 
+  // --- VSR: 01/02/05 --- start
+  // skip all 'Interface Applicative' objects
+  SALOMEDS::SComponent_var SCO = UCObject->GetFatherComponent();
+  CORBA::String_var aCorbaString = SCO->ComponentDataType();
+  QString dataType = aCorbaString.in();
+  if ( dataType.compare("Interface Applicative") == 0 )
+    return;
+  // --- VSR: 01/02/05 --- finish
+
   /* Creating SObjects item */
   SALOMEDS::SObject_var                      RefSO;
   SALOMEDS::GenericAttribute_var             anAttr;
