@@ -23,14 +23,14 @@ msgid "INF_VERSION"
 msgstr "Version 2.0.0"
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright : CEA"
+msgstr "  "
 
 msgid "INF_LICENSE"
 msgstr "  "
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_TLT"
-msgstr "About PAL/SALOME"
+msgstr "About SALOME"
 
 #: QAD_Config.cxx:84
 msgid "MEN_APPNAME"
