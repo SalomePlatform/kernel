@@ -1,9 +1,0 @@
-#! /bin/sh
-
-@ENVSCRIPT@
-cd ${SALOME_HOME_DIR}/bin
-
-# ---- test
-
-./TestComponentPy.py
-

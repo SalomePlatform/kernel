@@ -1,6 +1,0 @@
-#! /bin/sh
-
-@ENVSCRIPT@
-cd ${SALOME_HOME_DIR}/bin
-
-./SALOME_DataTypeCatalog_Client
