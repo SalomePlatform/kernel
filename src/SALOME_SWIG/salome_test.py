@@ -266,7 +266,7 @@ if father is None:
         father = myBuilder.NewComponent("SUPERV")
         A1 = myBuilder.FindOrCreateAttribute(father, "AttributeName");
         FName = A1._narrow(SALOMEDS.AttributeName)
-        FName.SetValue("Supervision")
+        FName.SetValue( salome.sg.getComponentUserName("SUPERV") )
       	A2 = myBuilder.FindOrCreateAttribute(father, "AttributePixMap");
       	aPixmap = A2._narrow(SALOMEDS.AttributePixMap);
 	aPixmap.SetPixMap( "ICON_OBJBROWSER_Supervision" );
@@ -304,7 +304,7 @@ import os
 dir= os.getenv("SUPERV_ROOT_DIR")
 if dir == None:
 	raise RuntimeError, "SUPERV_ROOT_DIR is not defined"
-xmlfile = dir +"/examples/GraphEssai.xml"
+xmlfile = dir +"/examples/GraphGeomEssai.xml"
 print "Load dataflow from the file : "
 print xmlfile
 print
@@ -316,18 +316,6 @@ print "myGraph.IsValid() = ", myGraph.IsValid()
 
 # Get Nodes
 myGraph.PrintNodes()
-Add,Sub,Mul,Div = myGraph.Nodes()
-
-# Load Datas
-Addx = Add.Input("x",3.)
-Addy = Add.Input("y",4.5)
-Subx = Sub.Input("x",1.5)
-
-# Get Output Port
-Addz = Add.Port('z')
-Subz = Sub.Port('z')
-Mulz = Mul.Port('z')
-Divz = Div.Port('z')
 
 # This DataFlow is "executable" : all pending Ports are defined with Datas
 print myGraph.IsExecutable()
@@ -348,14 +336,6 @@ print "myGraph.IsDone() = ",myGraph.IsDone()
 # Wait for Completion (but it is already done after event loop ...)
 print "Done : ",myGraph.DoneW()
 
-# Get result
-print "Result : ",Divz.ToString()
-
-# Intermediate results :
-print "Intermediate Result Add\z : ",Addz.ToString()
-print "Intermediate Result Sub\z : ",Subz.ToString()
-print "Intermediate Result Mul\z : ",Mulz.ToString()
-
 print " "
 #print "Type : print myGraph.IsDone()"
 #print "       If execution is finished ==> 1 (true)"
@@ -364,28 +344,9 @@ if res != 1:
 	raise RuntimeError, "myGraph.Run() is not done"
 
 print " "
-print "Type : print Divz.ToString()"
-print "       You will get the result"
-Divz.ToString()
-
-print " "
 print "Type : myGraph.PrintPorts()"
 print "       to see input and output values of the graph"
 myGraph.PrintPorts()
-
-print " "
-print "Type : Add.PrintPorts()"
-Add.PrintPorts()
-
-print "Type : Sub.PrintPorts()"
-Sub.PrintPorts()
-
-print "Type : Mul.PrintPorts()"
-Mul.PrintPorts()
-
-print "Type : Div.PrintPorts()"
-print "       to see input and output values of nodes"
-Div.PrintPorts()
 
 # Export will create newsupervisionexample.xml and the corresponding .py file
 tmpdir=os.getenv("TmpDir")
@@ -409,24 +370,77 @@ for node in nodes:
 	names.append(node.Name())
 print names
 
-print "Load FactorialComponent component, create dataflow using its services and run execution"
-myPy = Graph('myPy')
+# Graph creation 
+GraphInLines = Graph( 'GraphInLines' )
+GraphInLines.SetName( 'GraphInLines' )
+GraphInLines.SetAuthor( '' )
+GraphInLines.SetComment( '' )
+GraphInLines.Coords( 0 , 0 )
 
-eval = myPy.Node('FactorialComponent','FactorialComponent','eval')
-eval.SetContainer('FactoryServerPy')
+# Creation of InLine Nodes
+PyAdd = []
+PyAdd.append( 'def Add(a,b) :  ' )
+PyAdd.append( '    return a+b  ' )
+PyAdd.append( '' )
+Add = GraphInLines.INode( 'Add' , PyAdd )
+Add.InPort( 'a' , 'long' )
+Add.InPort( 'b' , 'long' )
+Add.OutPort( 'f' , 'long' )
+Add.SetName( 'Add' )
+Add.SetAuthor( '' )
+Add.SetComment( 'Python function' )
+Add.Coords( 351 , 77 )
+PySub = []
+PySub.append( 'def Sub(a,b) : ' )
+PySub.append( '    return a-b ' )
+PySub.append( '' )
+Sub = GraphInLines.INode( 'Sub' , PySub )
+Sub.InPort( 'a' , 'long' )
+Sub.InPort( 'b' , 'long' )
+Sub.OutPort( 'f' , 'long' )
+Sub.SetName( 'Sub' )
+Sub.SetAuthor( '' )
+Sub.SetComment( 'Python function' )
+Sub.Coords( 86 , 333 )
+PyMul = []
+PyMul.append( 'def Mul(a,b) : ' )
+PyMul.append( '    return a*b ' )
+Mul = GraphInLines.INode( 'Mul' , PyMul )
+Mul.InPort( 'a' , 'long' )
+Mul.InPort( 'b' , 'long' )
+Mul.OutPort( 'Result' , 'long' )
+Mul.SetName( 'Mul' )
+Mul.SetAuthor( '' )
+Mul.SetComment( 'Python function' )
+Mul.Coords( 616 , 247 )
 
-myPy.IsValid()
+# Creation of intermediate Output variables and of Control Links
+Addf = Add.Port( 'f' )
+Mula = GraphInLines.Link( Addf , Mul.Port( 'a' ) )
+Mula.AddCoord( 1 , 570 , 356 )
+Mula.AddCoord( 2 , 570 , 186 )
+Subf = Sub.Port( 'f' )
+Mulb = GraphInLines.Link( Subf , Mul.Port( 'b' ) )
+Mulb.AddCoord( 1 , 282 , 376 )
+Mulb.AddCoord( 2 , 282 , 442 )
+Addb = GraphInLines.Link( Subf , Add.Port( 'b' ) )
+Addb.AddCoord( 1 , 283 , 209 )
+Addb.AddCoord( 2 , 283 , 374 )
+Addb.AddCoord( 3 , 283 , 442 )
 
-myPy.PrintPorts()
+# Creation of Input datas
+Adda = Add.Input( 'a' , 1)
+Suba = Sub.Input( 'a' , 3)
+Subb = Sub.Input( 'b' , 4)
 
-myPy.Run( 3 )
+# Creation of Output variables
+MulResult = Mul.Port( 'Result' )
 
-myPy.DoneW()
+GraphInLines.Run()
 
-myPy.State()
+GraphInLines.DoneW()
 
-myPy.PrintPorts()
-
+GraphInLines.PrintPorts()
 
 sg.updateObjBrowser(1);
 
