@@ -19,33 +19,35 @@ dnl  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencasc
 dnl
 dnl
 dnl
-#@synonpsis CHECK_PTHREADS
-dnl  check for pthreads system interfaces.
-dnl  set CFLAGS_PTHREADS,  CXXFLAGS_PTHREADS and LIBS_PTHREADS to
-dnl  flags to compiler flags for multithread program compilation (if exists),
-dnl  and library, if one required.
-dnl
-dnl@author   (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
-dnl@id $Id$
-dnl ----------------------------------------------------------------
-dnl CHECK_PTHREADS
-AC_DEFUN(CHECK_PTHREADS,[
-AC_REQUIRE([AC_CANONICAL_SYSTEM])dnl
-AC_CHECK_HEADER(pthread.h,AC_DEFINE(HAVE_PTHREAD_H))
-AC_CHECK_LIB(posix4,nanosleep, LIBS_PTHREADS="-lposix4",LIBS_PTHREADS="")
-AC_CHECK_LIB(pthread,pthread_mutex_lock, 
-             LIBS_PTHREADS="-lpthread $LIBS_PTHREADS")
-AC_MSG_CHECKING([parameters for using pthreads])
-case $build_os in
-  freebsd*)
-    CFLAGS_PTHREADS="-pthread"
-    CXXFLAGS_PTHREADS="-pthread"
-    ;;
-  *)
-    ;;
-esac
-AC_MSG_RESULT(["flags: $CFLAGS_PTHREADS\;libs: $LIBS_PTHREADS"])
-threads_ok=yes
+AC_DEFUN([CHECK_BOOST],[
+
+AC_CHECKING(for BOOST Library)
+
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+
+AC_SUBST(BOOST_CPPFLAGS)
+BOOST_CPPFLAGS=""
+boost_ok=no
+
+if test -z ${BOOSTDIR}; then
+  AC_MSG_WARN(You must provide BOOSTDIR variable)
+else
+  AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
+  AC_CHECKING(for boost/shared_ptr.hpp header file)
+  dnl BOOST headers
+  CPPFLAGS_old="${CPPFLAGS}"
+  BOOST_CPPFLAGS="-ftemplate-depth-32 -I${BOOSTDIR}"
+  CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
+
+  AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
+
+  CPPFLAGS="${CPPFLAGS_old}"
+  boost_ok=yes
+fi
+
+AC_LANG_RESTORE
+
 ])dnl
-dnl
-dnl
+
+

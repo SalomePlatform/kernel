@@ -48,16 +48,10 @@ then
    AC_MSG_WARN(vtk needs OpenGL correct configuration, check configure output)
 fi
 
-if test "x$x_libraries" != "x"
-then
-   LXLIB="-L$x_libraries"
-else
-   LXLIB=""
-fi
 
 LOCAL_INCLUDES="$OGL_INCLUDES"
-LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS $LXLIB -lX11 -lXt"
-TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS $LXLIB -lX11 -lXt"
+LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS -L$x_libraries -lX11 -lXt"
+TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS -L$x_libraries -lX11 -lXt"
 
 if test -z $VTKHOME
 then 
@@ -70,7 +64,7 @@ fi
 
 dnl vtk headers
 CPPFLAGS_old="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
+CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES -Wno-deprecated"
 
 AC_CHECK_HEADER(vtkPlane.h,vtk_ok="yes",vtk_ok="no")
 
@@ -88,7 +82,7 @@ AC_CHECK_HEADER(vtkPlane.h,vtk_ok="yes",vtk_ok="no")
 #  LIBS="$LIBS $TRY_LINK_LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $VTK_INCLUDES"
+  CPPFLAGS="$CPPFLAGS $VTK_INCLUDES -Wno-deprecated"
 
  dnl  VTKPY_MODULES="$VTKHOME/python"
 

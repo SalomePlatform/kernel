@@ -52,15 +52,13 @@ if test "$WITHMPICH" = yes; then
   if test "$WITHMPICH" = "yes";then
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPICH_LIBS $LDFLAGS"
-    AC_CHECK_LIB(mpich,MPI_Init,WITHMPICH="yes",WITHMPICH="no")
+    AC_CHECK_LIB(mpich,MPI_Init,
+               AC_CHECK_LIB(pmpich, PMPI_Init,WITHMPICH="yes",WITHMPICH="no"),
+               WITHMPICH="no")
     LDFLAGS="$LDFLAGS_old"
   fi
 
-  if test "$WITHMPICH" = "yes";then
-    mpich_ok=yes
-    MPICH_LIBS="$MPICH_LIBS -lmpich"
-  fi
-
+  MPICH_LIBS="$MPICH_LIBS -lpmpich -lmpich"
 
 fi
 AC_SUBST(MPICH_INCLUDES)

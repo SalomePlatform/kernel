@@ -10,7 +10,7 @@ AC_CHECKING(for Kernel)
 Kernel_ok=no
 
 AC_ARG_WITH(kernel,
-	    [  --with-kernel=DIR               root directory path of KERNEL installation ],
+	    [  --with-kernel=DIR               root directory path of KERNEL build or installation],
 	    KERNEL_DIR="$withval",KERNEL_DIR="")
 
 if test "x$KERNEL_DIR" == "x" ; then
@@ -51,7 +51,7 @@ if test -f ${KERNEL_DIR}/bin/salome/runSalome ; then
 else
    AC_MSG_WARN("Cannot find compiled Kernel module distribution")
 fi
-  
+
 AC_MSG_RESULT(for Kernel: $Kernel_ok)
  
 ])dnl
