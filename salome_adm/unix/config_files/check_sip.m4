@@ -1,3 +1,4 @@
+dnl Copyright (C) 2003  CEA/DEN, EDF R&D
 
 AC_DEFUN([CHECK_SIP],[
 AC_REQUIRE([CHECK_PYTHON])dnl
@@ -17,9 +18,14 @@ then
     sip_ok=no
     AC_MSG_RESULT(sip not in PATH variable)
 else
-	SIP_ROOT="$SIPDIR"
-	SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}"
-	SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -L${SIPDIR} -lsip"
+	if test $SIPDIR ; then
+		SIP_ROOT="$SIPDIR"
+		SIP_INCLUDES="-I${SIPDIR}"
+		SIP_LIBS="-L${SIPDIR} -lsip"
+	else
+		SIP_INCLUDES="${PYTHON_INCLUDES}"
+		SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -lsip"
+	fi
 fi
 
 AC_SUBST(SIP)

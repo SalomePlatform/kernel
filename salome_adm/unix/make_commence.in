@@ -1,5 +1,5 @@
 # common directories to put headerfiles
-inc_builddir=$(top_builddir)/include/salome
+inc_builddir=$(top_builddir)/include
 
 @SET_MAKE@
 SHELL=/bin/sh
@@ -10,7 +10,7 @@ HAVE_SSTREAM=@HAVE_SSTREAM@
 
 
 LIBS=@LIBS@ 
-LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker $(top_builddir)/lib/salome
+LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib -Xlinker -rpath-link -Xlinker $(top_builddir)/lib
 # add libstdc++ to link c++ library with libtool !
 LDFLAGS+= -lstdc++
 
@@ -101,7 +101,11 @@ MED2_MT_LIBS=@MED2_MT_LIBS@
 OCC_INCLUDES=@CAS_CPPFLAGS@
 OCC_CXXFLAGS=@CAS_CXXFLAGS@
 OCC_LIBS=@CAS_LDFLAGS@
-
+CAS_KERNEL=@CAS_KERNEL@
+CAS_OCAF=@CAS_OCAF@
+CAS_VIEWER=@CAS_VIEWER@
+CAS_MODELER=@CAS_MODELER@
+CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
 # MPICH
 
 MPICH_INCLUDES=@MPICH_INCLUDES@
@@ -121,7 +125,7 @@ OMNIORB_CXXFLAGS    = @OMNIORB_CXXFLAGS@
 
 OMNIORB_IDL         = @OMNIORB_IDL@
 OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/idl
+OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_srcdir)/share/salome/idl
 
 OMNIORB_IDL_CLN_H   = @OMNIORB_IDL_CLN_H@
 OMNIORB_IDL_CLN_CXX = @OMNIORB_IDL_CLN_CXX@
@@ -138,7 +142,7 @@ CORBA_INCLUDES    = @CORBA_INCLUDES@
 CORBA_LIBS        = @CORBA_LIBS@
 CORBA_CXXFLAGS    = @CORBA_CXXFLAGS@
 
-IDLCXXFLAGS = @IDLCXXFLAGS@ -I$(top_builddir)/idl 
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/share/salome/idl -I$(srcdir) 
 IDLPYFLAGS  = @IDLPYFLAGS@
 
 IDL = @IDL@
@@ -181,15 +185,15 @@ LN_S=@LN_S@
 ## Installation points
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-bindir=@bindir@/salome
-libdir=@libdir@/salome
+bindir=@bindir@
+libdir=@libdir@
 # warning : if user give this path in configure we could have salome/salome :-(
 includedir=@includedir@/salome
 datadir=@datadir@/salome
-idldir=$(datadir)/idl/salome
+idldir=$(datadir)/idl
 sharedpydir=@libdir@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
 
-docdir=$(datadir)/doc
+docdir=@exec_prefix@/doc
 
 #
 # begin of package rules
@@ -239,6 +243,6 @@ ac_cxx_typename.m4                check_pthreads.m4  check_cas.m4	\
 ac_cc_warnings.m4                 check_qt.m4        check_med2.m4      \
 check_swig.m4 
 
-$(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files/%)
-	cd $(top_srcdir) ; aclocal --acdir=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files
+$(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=$(top_srcdir)/adm/unix/config_files/%)
+	cd $(top_srcdir) ; aclocal --acdir=./adm/unix/config_files
 

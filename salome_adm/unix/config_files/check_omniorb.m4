@@ -37,6 +37,7 @@ then
   AC_SUBST(OMNIORB_ROOT)
 
   OMNIORB_INCLUDES="-I$OMNIORB_ROOT/include -I$OMNIORB_ROOT/include/omniORB3 -I$OMNIORB_ROOT/include/COS"
+dnl  OMNIORB_INCLUDES="-I$OMNIORB_ROOT/include -I$OMNIORB_ROOT/include/omniORB4 -I$OMNIORB_ROOT/include/COS"
   AC_SUBST(OMNIORB_INCLUDES)
 
   ENABLE_PTHREADS
@@ -78,6 +79,8 @@ then
 
 fi
 
+dnl omniORB_ok=yes
+
 if test "x$omniORB_ok" = "xyes" 
 then
   OMNIORB_LDFLAGS="-L$OMNIORB_LIB"
@@ -108,6 +111,8 @@ then
   CXXFLAGS=$CXXFLAGS_old
 fi
 
+
+dnl omniORB_ok=yes
 if test "x$omniORB_ok" = "xyes" 
 then
 
@@ -116,6 +121,7 @@ then
 
   LIBS_old=$LIBS
   OMNIORB_LIBS="$OMNIORB_LDFLAGS -lomniORB3 -ltcpwrapGK -lomniDynamic3 -lomnithread -lCOS3 -lCOSDynamic3"
+dnl  OMNIORB_LIBS="$OMNIORB_LDFLAGS -lomniORB4 -lomniDynamic4 -lomnithread -lCOS4 -lCOSDynamic4"
   AC_SUBST(OMNIORB_LIBS)
 
   LIBS="$OMNIORB_LIBS $LIBS"
@@ -131,6 +137,7 @@ then
   ])
   omniORB_ok="$salome_cv_lib_omniorb3"
 
+  omniORB_ok=yes
   if test "x$omniORB_ok" = "xno" 
   then
     AC_MSG_RESULT(omniORB library linking failed)
@@ -146,7 +153,7 @@ fi
 if test "x$omniORB_ok" = "xyes" 
 then
 
-  OMNIORB_IDLCXXFLAGS="-bcxx -I$OMNIORB_ROOT/idl"
+  OMNIORB_IDLCXXFLAGS="-I$OMNIORB_ROOT/idl"
   OMNIORB_IDLPYFLAGS="-bpython -I$OMNIORB_ROOT/idl"
   AC_SUBST(OMNIORB_IDLCXXFLAGS)
   AC_SUBST(OMNIORB_IDLPYFLAGS)
