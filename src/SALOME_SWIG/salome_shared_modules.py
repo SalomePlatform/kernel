@@ -25,7 +25,6 @@
 from SALOME_utilities import *
 
 """
-"""
 This module with help of import_hook and *_shared_modules
 filters imports when using the embedded Python interpretor.
 
