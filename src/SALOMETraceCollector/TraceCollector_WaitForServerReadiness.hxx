@@ -24,13 +24,13 @@
 //  Module : KERNEL
 //  $Header$
 
-#ifndef _LOCALTRACE_WAITFORSERVERREADINESS_HXX_
-#define _LOCALTRACE_WAITFORSERVERREADINESS_HXX_
+#ifndef _TRACECOLLECTOR_WAITFORSERVERREADINESS_HXX_
+#define _TRACECOLLECTOR_WAITFORSERVERREADINESS_HXX_
 
 #include <CORBA.h> 
 #include <string>
 
-CORBA::Object_ptr  LocalTrace_WaitForServerReadiness(CORBA::ORB_ptr theOrb,
-						     std::string serverName);
+CORBA::Object_ptr  TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr theOrb,
+							 std::string serverName);
 
 #endif

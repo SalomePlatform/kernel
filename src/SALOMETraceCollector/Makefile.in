@@ -36,7 +36,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 # header files  
 EXPORT_HEADERS= SALOMETraceCollector.hxx \
-		LocalTrace_WaitForServerReadiness.hxx
+		TraceCollector_WaitForServerReadiness.hxx
 
 EXPORT_PYSCRIPTS = 
 
@@ -44,7 +44,7 @@ EXPORT_PYSCRIPTS =
 
 LIB = libSALOMETraceCollector.la 
 LIB_SRC = SALOMETraceCollector.cxx \
-	  LocalTrace_WaitForServerReadiness.cxx
+	  TraceCollector_WaitForServerReadiness.cxx
 
 LIB_CLIENT_IDL = Logger.idl 
 LDFLAGS+= 

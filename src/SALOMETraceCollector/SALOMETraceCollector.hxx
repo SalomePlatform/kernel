@@ -31,6 +31,8 @@
 #include <CORBA.h>
 #include "LocalTraceBufferPool.hxx"
 
+//! See LocalTraceCollector instead of SALOMETraceCollector for usage without CORBA
+
 class SALOMETraceCollector
 {
  public:

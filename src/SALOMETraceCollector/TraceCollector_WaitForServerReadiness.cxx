@@ -19,12 +19,12 @@
 //
 //
 //
-//  File   : LocalTrace_WaitForServerReadiness.cxx
+//  File   : TraceCollector_WaitForServerReadiness.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
 
-#include "LocalTrace_WaitForServerReadiness.hxx"
+#include "TraceCollector_WaitForServerReadiness.hxx"
 #include <iostream>
 #include <ctime>
 
@@ -43,10 +43,10 @@ using namespace std;
  */
 // ============================================================================
 
-CORBA::Object_ptr LocalTrace_WaitForServerReadiness(CORBA::ORB_ptr orb,
-						    string serverName)
+CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
+							string serverName)
 {
-  long TIMESleep = 250000000;
+  long TIMESleep = 500000000;
   int NumberOfTries = 40;
 
   timespec ts_req;
@@ -68,7 +68,7 @@ CORBA::Object_ptr LocalTrace_WaitForServerReadiness(CORBA::ORB_ptr orb,
       CosNaming::Name name;
       name.length(1);
       name[0].id = CORBA::string_dup(serverName.c_str());
-      CORBA::Object_var theObj;
+      CORBA::Object_var theObj=CORBA::Object::_nil();
 
       for (int itry=0; itry < NumberOfTries; itry++)
 	{
@@ -81,28 +81,36 @@ CORBA::Object_ptr LocalTrace_WaitForServerReadiness(CORBA::ORB_ptr orb,
 	    }  
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      cout << "LocalTrace_WaitForServerReadiness: "
+	      cout << "TraceCollector_WaitForServerReadiness: "
 		   << "CORBA::COMM_FAILURE: "
 		   << "Unable to contact the Naming Service" << endl;
 	    }
           catch(...)
 	    {
-	      cout << "LocalTrace_WaitForServerReadiness: "
+	      cout << "TraceCollector_WaitForServerReadiness: "
 		   << "Unknown exception dealing with Naming Service" << endl;
 	    }
 	  
+	  obj=CORBA::Object::_nil();
 	  if(!CORBA::is_nil(inc))
 	    {
-	      obj = inc->resolve(name);
-	      if (!CORBA::is_nil(obj))
+	      try
 		{
-		  cout << "LocalTrace_WaitForServerReadiness: "
-		       << serverName << " found in CORBA Name Service" << endl;
-		  break;
+		  obj = inc->resolve(name);
+		  if (!CORBA::is_nil(obj))
+		    {
+		      cout << "TraceCollector_WaitForServerReadiness: "
+			   << serverName << " found in CORBA Name Service" << endl;
+		      break;
+		    }
+		}
+	      catch (const CosNaming::NamingContext::NotFound&)
+		{
+		  cout << "Caught exception: Naming Service can't found Logger";
 		}
 	    }
 	  int a = nanosleep(&ts_req,&ts_rem);
-	  cout << "LocalTrace_WaitForServerReadiness: retry look for"
+	  cout << "TraceCollector_WaitForServerReadiness: retry look for"
 	       << serverName << endl;
 	}	   
     }

@@ -33,7 +33,7 @@
 using namespace std;
 
 #include "SALOMETraceCollector.hxx"
-#include "LocalTrace_WaitForServerReadiness.hxx"
+#include "TraceCollector_WaitForServerReadiness.hxx"
 //#include "SALOME_Log.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
@@ -50,6 +50,9 @@ CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
 
 // ============================================================================
 /*!
+ *  This class replaces LocalTraceCollector, which is to use outside SALOME,
+ *  without CORBA.
+ *
  *  guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
  *  \param typeTrace 0=standard out, 1=file(/tmp/tracetest.log), 2=CORBA log
@@ -155,7 +158,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  }
 	  break;
 	case 2 :  // --- trace collection via CORBA
-	  obj = LocalTrace_WaitForServerReadiness(_orb,"Logger");
+	  obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
 	  if (!CORBA::is_nil(obj))
 	    m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
 	  if (CORBA::is_nil(m_pInterfaceLogger))
