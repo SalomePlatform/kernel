@@ -47,7 +47,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch Pat
 endif
 
 ifeq (@WITHIHM@,no)
-SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils CASCatch \
+SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch \
           GenericObj NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
 	  Notification  NOTIFICATION_SWIG \
