@@ -48,7 +48,7 @@ namespace MED{
   };
 };
 
-
+//#define _DEBUG_
 #ifdef _DEBUG_
   #define MSG(deb,msg) if(deb) std::cout<<MED::PrefixPrinter::GetPrefix()<<msg<<" ("<<__FILE__<<" ["<<__LINE__<<"])\n"
   #define BEGMSG(deb,msg) if(deb) std::cout<<MED::PrefixPrinter::GetPrefix()<<msg

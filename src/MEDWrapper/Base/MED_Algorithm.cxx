@@ -159,9 +159,8 @@ namespace MED{
     INITMSG(MYDEBUG,"GetNbFields() = "<<aNbFields<<"\n");
     for(TInt iField = 1; iField <= aNbFields; iField++){
       PFieldInfo aFieldInfo = theWrapper.GetPFieldInfo(theMeshInfo,iField);
-      TInt aNbComp = aFieldInfo->GetNbComp();
-      string aName = aFieldInfo->GetName();
-      INITMSG(MYDEBUG,"aFieldName = '"<<aName<<"'; aNbComp = "<<aNbComp<<"; ");
+      INITMSG(MYDEBUG,"aFieldName = '"<<aFieldInfo->GetName()<<
+	      "'; aNbComp = "<<aFieldInfo->GetNbComp()<<"; ");
       MED::TGeom aGeom;
       EEntiteMaillage anEntity = EEntiteMaillage(-1);
       TInt aNbTimeStamps = theWrapper.GetNbTimeStamps(aFieldInfo,theEntityInfo,anEntity,aGeom);

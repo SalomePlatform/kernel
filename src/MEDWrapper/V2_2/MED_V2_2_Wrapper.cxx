@@ -720,10 +720,11 @@ namespace MED{
       
       TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
       
-      if(theErr && !*theErr)
+      if(theErr && *theErr < 0)
 	return anInfo;
       
-      if(TInt aNbElem = GetNbNodes(theMeshInfo)){
+      TInt aNbElem = GetNbNodes(theMeshInfo);
+      if(aNbElem > 0){
 	anInfo[eNOEUD][ePOINT1] = aNbElem;
 	const TEntity2GeomSet& anEntity2GeomSet = GetEntity2GeomSet();
 	TEntity2GeomSet::const_iterator anIter = anEntity2GeomSet.begin();
@@ -735,10 +736,9 @@ namespace MED{
 	  TGeomSet::const_iterator anIterEnd2 = aGeomSet.end();
 	  for(; anIter2 != anIterEnd2; anIter2++){
 	    const EGeometrieElement& aGeom = *anIter2;
-	    TInt aNb = GetNbCells(theMeshInfo,anEntity,aGeom,theTConn,theErr);
-	    if(aNb>0){
-	      anInfo[anEntity][aGeom] = aNb;
-	    }
+	    aNbElem = GetNbCells(theMeshInfo,anEntity,aGeom,theTConn,theErr);
+	    if(aNbElem > 0)
+	      anInfo[anEntity][aGeom] = aNbElem;
 	  }
 	}
       }
@@ -759,9 +759,9 @@ namespace MED{
       
       MED::TMeshInfo& aMeshInfo = const_cast<MED::TMeshInfo&>(theMeshInfo);
       
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
-      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
-      med_connectivite& aConn = static_cast<med_connectivite>(theTConn);
+      med_entite_maillage anEntity = med_entite_maillage(theTEntity);
+      med_geometrie_element aGeom = med_geometrie_element(theTGeom);
+      med_connectivite aConn = med_connectivite(theTConn);
 
       return MEDnEntMaa(myFile->Id(),
 			&aMeshInfo.myName[0],
