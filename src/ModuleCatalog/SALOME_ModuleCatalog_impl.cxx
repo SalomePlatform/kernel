@@ -165,7 +165,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
        _list_components[ind]=(_personal_module_list[ind].Parsercomponentname).c_str();
-       //SCRUTE(_list_components[ind]) ;
+       SCRUTE(_list_components[ind]) ;
     }
 
   int indice = _personal_module_list.size() ;
@@ -185,18 +185,19 @@ SALOME_ModuleCatalogImpl::GetComponentList()
 	}
       if (!_find)
 	{
-	  //MESSAGE("A new component " << _general_module_list[ind].Parsercomponentname << " has to be to added in the list");
+	  MESSAGE("A new component " << _general_module_list[ind].Parsercomponentname << " has to be to added in the list");
           _list_components->length(indice+1);
 	  // The component is not already defined => has to be taken
 	  _list_components[indice]=(_general_module_list[ind].Parsercomponentname).c_str();   
-	  //SCRUTE(_list_components[indice]) ;
+	  SCRUTE(_list_components[indice]) ;
 
 	  indice++;
 	}
-      // else 
-	//MESSAGE("The component " <<_general_module_list[ind].Parsercomponentname << " was already defined in the personal catalog") ;
+      else 
+	MESSAGE("The component " <<_general_module_list[ind].Parsercomponentname << " was already defined in the personal catalog") ;
      }
 
+  MESSAGE ( "End of GetComponentList" )
   return _list_components._retn();
 }
 
@@ -222,6 +223,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
        _list_components_icone[ind].modulename=(_personal_module_list[ind].Parsercomponentname).c_str();
+       _list_components_icone[ind].moduleusername=(_personal_module_list[ind].Parsercomponentusername).c_str();
        _list_components_icone[ind].moduleicone=(_personal_module_list[ind].Parsercomponenticone).c_str();
        //SCRUTE(_list_components_icone[ind].modulename); 
        //SCRUTE(_list_components_icone[ind].moduleicone);
@@ -248,6 +250,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
           _list_components_icone->length(indice+1);
 	  // The component is not already defined => has to be taken
 	  _list_components_icone[indice].modulename=(_general_module_list[ind].Parsercomponentname).c_str();  
+	  _list_components_icone[indice].moduleusername=(_general_module_list[ind].Parsercomponentusername).c_str();  
 	  _list_components_icone[indice].moduleicone=(_general_module_list[ind].Parsercomponenticone).c_str(); 
 	  //SCRUTE(_list_components_icone[indice].modulename) ;
 	  //SCRUTE(_list_components_icone[indice].moduleicone);
@@ -370,6 +373,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
   _list_interfaces.length(0);
   char* _constraint = NULL;
   char* _icone = NULL;
+  char* _componentusername = NULL;
   SALOME_ModuleCatalog::ComponentType _componenttype = SALOME_ModuleCatalog::OTHER; // default initialisation
   CORBA::Boolean _componentmultistudy = false ; // default initialisation
   ListOfPathPrefix _pathes ;
@@ -430,6 +434,9 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 	  // get component icone
 	  _icone = CORBA::string_dup(_personal_module_list[ind].Parsercomponenticone.c_str());
 
+	  // get component user name
+	  _componentusername = CORBA::string_dup(_personal_module_list[ind].Parsercomponentusername.c_str());
+
 	  // get component interfaces
 	  _list_interfaces = duplicate_interfaces(_personal_module_list[ind].ParserListInterface);
 
@@ -443,6 +450,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
     {
       SALOME_ModuleCatalog_AcomponentImpl* aComponentImpl = 
 	new SALOME_ModuleCatalog_AcomponentImpl(componentname,
+						_componentusername,
 						_constraint,
 						_componenttype,
 						_componentmultistudy,
@@ -502,6 +510,9 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 	      // get component icone
 	      _icone = CORBA::string_dup(_general_module_list[ind].Parsercomponenticone.c_str());
 
+	      // get component user name
+	      _componentusername = CORBA::string_dup(_general_module_list[ind].Parsercomponentusername.c_str());
+
 	      // get component interfaces
 	      _list_interfaces = duplicate_interfaces(_general_module_list[ind].ParserListInterface);
 
@@ -514,6 +525,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 	{
 	  SALOME_ModuleCatalog_AcomponentImpl* aComponentImpl = 
 	    new SALOME_ModuleCatalog_AcomponentImpl(componentname,
+						    _componentusername,
 						    _constraint,
 						    _componenttype,
 						    _componentmultistudy,

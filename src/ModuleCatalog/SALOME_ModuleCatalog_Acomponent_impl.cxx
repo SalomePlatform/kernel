@@ -19,6 +19,7 @@ using namespace std;
 //----------------------------------------------------------------------  
 SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
                    const char* name,
+                   const char* username,
 		   const char* constraint,  
 		   SALOME_ModuleCatalog::ComponentType componenttype,
 		   CORBA::Boolean componentmultistudy,
@@ -30,6 +31,10 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
   // Affect component name
   _component_name = new char[strlen(name)+1];
  strcpy(_component_name, name);
+
+  // Affect component user name
+  _component_user_name = new char[strlen(username)+1];
+ strcpy(_component_user_name, username);
 
  // Affect constraint
  _constraint =new char[strlen(constraint)+1];
@@ -63,6 +68,7 @@ SALOME_ModuleCatalog_AcomponentImpl::~SALOME_ModuleCatalog_AcomponentImpl()
   MESSAGE("Component destruction")
   // empty memory
   delete [] _component_name;
+  delete [] _component_user_name;
   delete [] _constraint;
 }
 
@@ -367,6 +373,15 @@ char* SALOME_ModuleCatalog_AcomponentImpl::constraint()
 char* SALOME_ModuleCatalog_AcomponentImpl::componentname()
 {
   return CORBA::string_dup(_component_name);
+}
+
+//----------------------------------------------------------------------
+// Function : componentusername
+// Purpose  : obtain the componentusername
+//----------------------------------------------------------------------
+char* SALOME_ModuleCatalog_AcomponentImpl::componentusername()
+{
+  return CORBA::string_dup(_component_user_name);
 }
 
 //----------------------------------------------------------------------

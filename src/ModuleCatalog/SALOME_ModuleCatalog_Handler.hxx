@@ -90,6 +90,7 @@ private:
   const char* test_path_prefix ;
 
   const char* test_component_name;
+  const char* test_component_username;
   const char* test_component_type ;
   const char* test_component_multistudy ;
   const char* test_component_icone ;

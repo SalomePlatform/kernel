@@ -20,6 +20,7 @@ class SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acom
 public:
   //! standard constructor
   SALOME_ModuleCatalog_AcomponentImpl(const char* name, 
+				      const char* username, 
 				      const char* constraint, 
 				      SALOME_ModuleCatalog::ComponentType componenttype, 
 				      CORBA::Boolean componentmultistudy,
@@ -96,6 +97,12 @@ public:
   */
   virtual char* componentname();
 
+  //! method to obtain the componentusername
+  /*!
+    \return the component user name
+  */
+  virtual char* componentusername();
+
   //! method to define if a component can be multistudy or not
   /*!
     \return true if the component supports multistudy
@@ -116,6 +123,7 @@ public:
 
 private :
   char* _component_name ;
+  char* _component_user_name ;
   char* _constraint;
   char* _icone;
   SALOME_ModuleCatalog::ComponentType _componenttype;
