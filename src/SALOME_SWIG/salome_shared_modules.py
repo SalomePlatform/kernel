@@ -46,9 +46,10 @@ import glob,os,sys
 repertoire=os.path.dirname(__file__)
 path=[repertoire,]
 
-KERNEL_ROOT_DIR = os.getenv("KERNEL_ROOT_DIR")
-if KERNEL_ROOT_DIR != None:
-	path.append(os.path.join(KERNEL_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
+# KERNEL is defined in KERNELCatalog
+#KERNEL_ROOT_DIR = os.getenv("KERNEL_ROOT_DIR")
+#if KERNEL_ROOT_DIR != None:
+#	path.append(os.path.join(KERNEL_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
 
 
 #
