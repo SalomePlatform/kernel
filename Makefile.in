@@ -9,12 +9,12 @@
 top_srcdir=@top_srcdir@
 top_builddir=.
 srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/bin:@top_srcdir@/resources:./bin:@top_srcdir@/idl
+VPATH=.:@srcdir@:@top_srcdir@/bin:./bin/salome:@top_srcdir@/resources:./bin:@top_srcdir@/idl
 
 
 @COMMENCE@
 
-SUBDIRS = idl src examples salome_adm
+SUBDIRS = idl src examples doc salome_adm
 
 RESOURCES_FILES = \
 back.xpm \
@@ -91,8 +91,13 @@ VERSION \
 orbmodule.py \
 runSalome.py \
 killSalome.py \
+killSalomeWithPort.py \
 runSalome \
-runNS.sh
+runSalome.csh \
+runNS.sh \
+launchConfigureParser.py \
+salome.launch \
+showNS.py
 
 # copy header files in common directory
 ifeq ($(HAVE_SSTREAM),yes)
@@ -151,11 +156,7 @@ install-include: $(include_list)
 # install script in $(bindir) :
 install-bin: $(BIN_SCRIPT)
 	$(INSTALL) -d  $(bindir)
-	for f in X $(BIN_SCRIPT); do				\
-	   if test $$f != X; then				\
-	     (cp -p ./bin/$$f $(bindir) || exit 1);		\
-	   fi;							\
-	done
+	$(INSTALL_PROGRAM) $^ $(bindir)
 
 uninstall: uninstall-idl
 
