@@ -2478,7 +2478,9 @@ void QAD_Desktop::onOpenWith()
 	} else if ( list_type_composants->length() > 1 ) {
 	  SALOMEGUI_OpenWith* aDlg = new SALOMEGUI_OpenWith( this );
 	  for (unsigned int ind = 0; ind < list_type_composants->length();ind++) {
-	    aDlg->addComponent( strdup(list_type_composants[ind]) );
+	    QString compusername = getComponentUserName(strdup(list_type_composants[ind]));
+	    if ( compusername.compare("") != 0 )
+	      aDlg->addComponent( compusername );
 	  }
 	  
 	  int retVal = aDlg->exec();
