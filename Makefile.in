@@ -86,35 +86,13 @@ Plugin \
 SALOMEDS_Resources
 
 BIN_SCRIPT= \
-README \
-allkill \
-allkillWithPort \
-insertComputerRessourcesCatalog.sh \
-runClientDataTypeCatalog \
-runClientModuleCatalog \
-runClientRessourcesCatalog \
-runDataTypeCatalog \
-runModuleCatalog \
-runNS.sh \
-runNSWithPort.sh \
-runRessourcesCatalog \
-runSALOMEDS_Client \
-runSalome \
 runIDLparser \
-runSalomeWithPort \
-runSalomeServers \
-runSalomeDesktop \
-runSession \
-runLoader \
-runTestContainer \
-runTestContainerPy2 \
-runTestContainerPy \
-runTestLifeCycle \
-runTestMED \
-runTestNotification \
-showNS \
-VERSION
-#SuperVision.py
+VERSION \
+orbmodule.py \
+runSalome.py \
+killSalome.py \
+runSalome \
+runNS.sh
 
 # copy header files in common directory
 ifeq ($(HAVE_SSTREAM),yes)
