@@ -175,8 +175,10 @@ if the selected name is valid ( see 'acceptData()' )
 void QAD_FileDlg::accept()
 {
 //  mySelectedFile = QFileDialog::selectedFile().simplifyWhiteSpace(); //VSR- 06/12/02
-  mySelectedFile = QFileDialog::selectedFile(); //VSR+ 06/12/02
-  addExtension();
+  if ( mode() != ExistingFiles ) {
+    mySelectedFile = QFileDialog::selectedFile(); //VSR+ 06/12/02
+    addExtension();
+  }
 //  mySelectedFile = mySelectedFile.simplifyWhiteSpace(); //VSR- 06/12/02
 
   /* Qt 2.2.2 BUG: accept() is called twice if you validate 
@@ -209,7 +211,17 @@ bool QAD_FileDlg::acceptData()
   if ( myValidator )
   {
     if ( isOpenDlg() )
-      return myValidator->canOpen( selectedFile() );
+      if ( mode() == ExistingFiles ) {
+	QStringList fileNames = selectedFiles();
+	for ( int i = 0; i < fileNames.count(); i++ ) {
+	  if ( !myValidator->canOpen( fileNames[i] ) )
+	    return false;
+	}
+	return true;
+      }
+      else {
+	return myValidator->canOpen( selectedFile() );
+      }
     else 
       return myValidator->canSave( selectedFile() );
   }
@@ -289,6 +301,7 @@ bool QAD_FileDlg::processPath( const QString& path )
     else {
       if ( QFileInfo( fi.dirPath() ).exists() ) {
 	setDir( fi.dirPath() );
+	setSelection( path );
 	return true;
       }
     }
@@ -317,9 +330,9 @@ void QAD_FileDlg::quickDir(const QString& dirPath)
 */
 QString QAD_FileDlg::getFileName( QWidget*           parent, 
 				  const QString&     initial, 
-                                  const QStringList& filters, 
-                                  const QString&     caption,
-                                  bool               open,
+				  const QStringList& filters, 
+				  const QString&     caption,
+				  bool               open,
 				  bool               showQuickDir, 
 				  QAD_FileValidator* validator )
 {            
@@ -337,6 +350,34 @@ QString QAD_FileDlg::getFileName( QWidget*           parent,
   delete fd;
   qApp->processEvents();
   return filename;
+}
+
+
+/*!
+  Returns the list of files to be opened [ static ]
+*/
+QStringList QAD_FileDlg::getOpenFileNames( QWidget*           parent, 
+					   const QString&     initial, 
+					   const QStringList& filters, 
+					   const QString&     caption,
+					   bool               showQuickDir, 
+					   QAD_FileValidator* validator )
+{            
+  QAD_FileDlg* fd = new QAD_FileDlg( parent, true, showQuickDir, true );    
+  fd->setMode( ExistingFiles );     
+  if ( !caption.isEmpty() )
+    fd->setCaption( caption );
+  if ( !initial.isEmpty() ) { 
+    fd->processPath( initial ); // VSR 24/03/03 check for existing of directory has been added to avoid QFileDialog's bug
+  }
+  fd->setFilters( filters );        
+  if ( validator )
+    fd->setValidator( validator );
+  fd->exec();
+  QStringList filenames = fd->selectedFiles();
+  delete fd;
+  qApp->processEvents();
+  return filenames;
 }
 
 /*!
@@ -362,3 +403,4 @@ QString QAD_FileDlg::getExistingDirectory ( QWidget*       parent,
   return dirname;
   
 }
+

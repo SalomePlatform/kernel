@@ -217,9 +217,9 @@ int main(int argc, char **argv)
 		}
 	    }
 	  //aCatch.Deactivate();
-	  QString confMsg = "Settings create $HOME/." 
-	    + QObject::tr("MEN_APPNAME") + "/" + QObject::tr("MEN_APPNAME") + ".conf";
-	  MESSAGE (confMsg );
+	  QString confMsg = "Settings create " 
+	    + QAD_CONFIG->getConfigDir().absPath() + "/" + QObject::tr("MEN_APPNAME") + ".conf";
+	  MESSAGE (confMsg);
 	  QAD_CONFIG->createConfigFile(true);
 	}
       //orb->shutdown(0);

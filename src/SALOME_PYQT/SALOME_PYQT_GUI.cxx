@@ -272,9 +272,9 @@ void SALOME_PYQT_GUI::DefinePopup( QString & theContext,
 				   QString & theObject )
 {
   MESSAGE("SALOME_PYQT_GUI::DefinePopup");
-  //theContext = "";
-  //theObject = "";
-  //theParent = "";
+  theContext = "";
+  theObject = "";
+  theParent = "";
   
   PyLockWrapper aLock = interp->GetLockWrapper();
 

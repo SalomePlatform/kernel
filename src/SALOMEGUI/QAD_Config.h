@@ -60,6 +60,7 @@ public:
   /** Gets directory of KERNEL_ROOT. */
   QDir           getPrgDir() const { return prgDir; }
 
+  void           setDefaultConfigDir();
   bool           createConfigFile( bool overwrite=false );
   bool           readConfigFile();
 

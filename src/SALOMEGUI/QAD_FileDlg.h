@@ -38,6 +38,12 @@ public:
 				    bool               open,
 				    bool               showQuickDir = true,
 				    QAD_FileValidator* validator = 0);
+    static QStringList getOpenFileNames( QWidget*           parent, 
+					 const QString&     initial, 
+					 const QStringList& filters, 
+					 const QString&     caption,
+					 bool               showQuickDir = true, 
+					 QAD_FileValidator* validator = 0);
     static QString     getExistingDirectory ( QWidget*       parent,
 					      const QString& initial,
 					      const QString& caption, 

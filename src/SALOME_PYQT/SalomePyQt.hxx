@@ -30,21 +30,26 @@ public:
 
   static void              updateObjBrowser( int studyId, bool updateSelection);
 
-  static void addStringSetting(QString _name, QString _value, bool _autoValue);
-  static void addIntSetting(QString _name, int _value, bool _autoValue);
-  static void addDoubleSetting(QString _name, double _value, bool _autoValue);
-  static bool removeSettings(QString name);
-  static QString getSetting(QString name);
+  static void              addStringSetting(QString _name, QString _value, bool _autoValue);
+  static void              addIntSetting(QString _name, int _value, bool _autoValue);
+  static void              addDoubleSetting(QString _name, double _value, bool _autoValue);
+  static bool              removeSettings(QString name);
+  static QString           getSetting(QString name);
 
-  static QString getFileName(QWidget*           parent, 
-                             const QString&     initial, 
-                             const QStringList& filters, 
-                             const QString&     caption,
-                             bool               open);
-  static QString getExistingDirectory(QWidget*       parent,
-                                      const QString& initial,
-                                      const QString& caption);
-  static void helpContext(const QString& source, const QString& context);
+  static QString           getFileName(QWidget*           parent, 
+                                       const QString&     initial, 
+                                       const QStringList& filters, 
+                                       const QString&     caption,
+                                       bool               open);
+  static QStringList       getOpenFileNames(QWidget*           parent, 
+                                            const QString&     initial, 
+                                            const QStringList& filters, 
+                                            const QString&     caption);
+  static QString           getExistingDirectory(QWidget*       parent,
+                                                const QString& initial,
+                                                const QString& caption);
+  static void              helpContext(const QString& source, const QString& context);
+  static bool              dumpView(const QString& filename);
 };
 
 #endif

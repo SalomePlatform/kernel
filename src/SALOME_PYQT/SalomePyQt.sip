@@ -44,6 +44,8 @@ public:
   static void addDoubleSetting(QString, double, bool);
 
   static QString getFileName(QWidget*, const QString&, const QStringList&, const QString&, bool);
+  static QStringList getOpenFileNames(QWidget*, const QString&, const QStringList&, const QString&);
   static QString getExistingDirectory(QWidget*, const QString&, const QString&);
   static void helpContext(const QString&, const QString&);
+  static bool dumpView(const QString&);
 };

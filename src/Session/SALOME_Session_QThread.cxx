@@ -62,7 +62,7 @@ SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread
   _argc = argc ;
   _argv = argv ;
   _NS = 0 ;
-} ;
+}
 
 
 //=============================================================================
@@ -163,11 +163,12 @@ void SALOME_Session_QThread::run()
       }
       
       aCatch.Deactivate();
-      QString confMsg = "Settings create $HOME/." + QObject::tr("MEN_APPNAME") + "/" + QObject::tr("MEN_APPNAME") + ".conf";
-      MESSAGE (confMsg )
+      QString confMsg = "Settings create "
+        + QAD_CONFIG->getConfigDir().absPath() + "/" + QObject::tr("MEN_APPNAME") + ".conf";
+      MESSAGE (confMsg);
       QAD_CONFIG->createConfigFile(true);
     }
-} ;
+}
 
 //=============================================================================
 /*! setNamingService

@@ -86,17 +86,33 @@ void QAD_Config::ini()
 
 
 /*!
+    Set default directory for config files.
+*/
+void QAD_Config::setDefaultConfigDir()
+{
+#ifdef DEF_WINDOWS
+  setConfigDir(QDir(prgDir.absPath()));
+#else
+  QString vers = tr("INF_VERSION");
+  int first_dot = vers.find('.');
+  int blanc_before = vers.findRev(' ', first_dot) + 1;
+  int blanc_after = vers.find(' ', first_dot);
+  if (blanc_after == -1) blanc_after = vers.length();
+  int vers_len = blanc_after - blanc_before;
+  vers.truncate(blanc_after);
+  QString vers_nb = vers.right(vers_len);
+  setConfigDir(QDir(QDir::home().absPath() + "/." + tr("MEN_APPNAME") + "_" + vers_nb));
+#endif
+}
+
+/*!
     Creates not existing config files.
 */
 bool QAD_Config::createConfigFile( bool overwrite )
 {
-  bool ret=true;
+  bool ret = true;
 
-#ifdef DEF_WINDOWS
-  setConfigDir(QDir(prgDir.absPath()));
-#else
-  setConfigDir(QDir(QDir::home().absPath() + "/." + tr("MEN_APPNAME") ));
-#endif
+  setDefaultConfigDir();
 
   // Create config directory:
   if(!configDir.exists()) {
@@ -166,11 +182,7 @@ bool QAD_Config::createConfigFile( bool overwrite )
 */
 bool QAD_Config::readConfigFile()
 {
-#ifdef DEF_WINDOWS
-  setConfigDir(QDir(prgDir.absPath()));
-#else
-  setConfigDir(QDir(QDir::home().absPath() + "/." + tr("MEN_APPNAME") ));
-#endif
+  setDefaultConfigDir();
 
   QString configPath;
   configPath = configDir.absPath() + "/" + tr("MEN_APPNAME") + ".conf";
