@@ -523,8 +523,8 @@ bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 #include <fstream>
 bool SALOME_ModuleCatalog_Handler::endDocument()
 {
-  ofstream f("/tmp/logs/xxx.log", std::ofstream::app);
-  f << "---------------------------------------------------------" << std::endl;
+//  ofstream f("/tmp/logs/xxx.log", std::ofstream::app);
+//  f << "---------------------------------------------------------" << std::endl;
   BEGIN_OF("endDocument");
   //_pathlist
   for (unsigned int ind = 0; ind < _pathList.size(); ind++)
@@ -536,10 +536,10 @@ bool SALOME_ModuleCatalog_Handler::endDocument()
 
    // _moduleList
 //  SCRUTE(_moduleList.size());
-  for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
-    {
-      f << _moduleList[ind] << std::endl;
-    }
+//  for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
+//    {
+//      f << _moduleList[ind] << std::endl;
+//    }
 
   MESSAGE("Document parsed");
   END_OF("endDocument");

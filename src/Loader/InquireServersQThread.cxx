@@ -547,6 +547,27 @@ QString findFile( QString filename )
   QString dir;
   char* cenv;
   
+  // Try ${SALOME_SITE_DIR}/share/${SALOME_SITE_NAME}/resources directory
+  cenv = getenv( "SALOME_SITE_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = addSlash(dir) ;
+      cenv = getenv( "SALOME_SITE_NAME" );
+      if ( cenv ) 
+	dir = dir + cenv ;
+      else
+	dir = dir + "salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QFileInfo fileInfo( dir + filename );
+      if ( fileInfo.isFile() && fileInfo.exists() )
+	return fileInfo.filePath();
+    }
+  }
   // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
   cenv = getenv( "KERNEL_ROOT_DIR" );
   if ( cenv ) {

@@ -13,7 +13,7 @@ install:
 bin:
 
 resources :
-	cp -rf @top_srcdir@/salome_adm @top_builddir@
+	cp -rf @top_srcdir@/salome_adm $(top_builddir)
 
 inc:
 

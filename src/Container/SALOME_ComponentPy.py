@@ -31,6 +31,7 @@
 import os
 import sys
 import time
+import string
 from omniORB import CORBA, PortableServer
 import Engines, Engines__POA
 import Registry
@@ -73,7 +74,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._Executed = 0
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
-        Component_path = "/Containers/" +  os.getenv( "HOSTNAME" ) + "/" + self._containerName + "/" + self._interfaceName
+        myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+        Component_path = "/Containers/" + myMachine[0] + "/" + self._containerName + "/" + self._interfaceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         naming_service.Register(self._this(), Component_path)
 

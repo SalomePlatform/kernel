@@ -54,7 +54,13 @@ med_int MED::GetNbConn(med_entite_maillage theMedEntity,
 
 //---------------------------------------------------------------
 TNameInfo::TNameInfo(const string& theValue):
-  myName('\0',MED_TAILLE_NOM+1) 
+#if defined __GNUC_2__
+  // _CS_phb Attention, il s'agit dans ce cas (gcc2.*) d'un vector.
+  // L'appel des arguments est inversé.
+  myName(MED_TAILLE_NOM+1,'\0')
+#else
+  myName('\0',MED_TAILLE_NOM+1)
+#endif
 {
   if(theValue != "") SetName(theValue);
 }
@@ -85,11 +91,21 @@ TFamilyInfo::TFamilyInfo(const PMeshInfo& theMeshInfo,
   myMeshInfo(theMeshInfo),
   myId(theId),
   myNbGroup(theNbGroup),
+#if defined __GNUC_2__
+  // _CS_phb Attention, il s'agit dans ce cas (gcc2.*) d'un vector
+  // L'appel des arguments est inversé.
+  myGroupNames(theNbGroup*MED_TAILLE_LNOM+1,'\0'),
+#else
   myGroupNames('\0',theNbGroup*MED_TAILLE_LNOM+1),
+#endif
   myNbAttr(theNbAttr), 
   myAttrId(theNbAttr), 
   myAttrVal(theNbAttr),
+#if defined __GNUC_2__
+  myAttrDesc(theNbAttr*MED_TAILLE_DESC+1,'\0')
+#else
   myAttrDesc('\0',theNbAttr*MED_TAILLE_DESC+1)
+#endif
 {}  
 
 TFamilyInfo::TFamilyInfo(const PMeshInfo& theMeshInfo,
@@ -103,11 +119,22 @@ TFamilyInfo::TFamilyInfo(const PMeshInfo& theMeshInfo,
   myMeshInfo(theMeshInfo),
   myId(theId),
   myNbGroup(theGroupNames.size()),
+#if defined __GNUC_2__
+  // _CS_phb Attention, il s'agit dans ce cas (gcc2.*) d'un vector
+  // L'appel des arguments est inversé.
+  myGroupNames(theGroupNames.size()*MED_TAILLE_LNOM+1,'\0'),
+#else
   myGroupNames('\0',theGroupNames.size()*MED_TAILLE_LNOM+1),
+#endif
   myNbAttr(theAttrDescs.size()), 
   myAttrId(theAttrDescs.size()), 
   myAttrVal(theAttrDescs.size()),
+#if defined __GNUC_2__
+  myAttrDesc(theAttrDescs.size()*MED_TAILLE_DESC+1,'\0')
+#else
   myAttrDesc('\0',theAttrDescs.size()*MED_TAILLE_DESC+1)
+#endif
+
 {
   if(myNbGroup){
     TStringSet::const_iterator anIter = theGroupNames.begin();
@@ -154,7 +181,11 @@ TElemInfo::TElemInfo(const PMeshInfo& theMeshInfo,
   myIsElemNum(theIsElemNum), 
   myElemNum(theIsElemNum == MED_FAUX? 0: theNbElem),
   myIsElemNames(theIsElemNames),
+#if defined __GNUC_2__
+  myElemNames((theIsElemNames == MED_FAUX? 0: theNbElem)*MED_TAILLE_PNOM+1,'\0')
+#else
   myElemNames('\0',(theIsElemNames == MED_FAUX? 0: theNbElem)*MED_TAILLE_PNOM+1)
+#endif
 {}
 
 TElemInfo::TElemInfo(const PMeshInfo& theMeshInfo, 
@@ -167,7 +198,11 @@ TElemInfo::TElemInfo(const PMeshInfo& theMeshInfo,
   myIsElemNum(theElemNums.size()? MED_VRAI: MED_FAUX), 
   myElemNum(theElemNums.size()),
   myIsElemNames(theElemNames.size()? MED_VRAI: MED_FAUX),
+#if defined __GNUC_2__
+  myElemNames(theElemNames.size()*MED_TAILLE_PNOM+1,'\0')
+#else
   myElemNames('\0',theElemNames.size()*MED_TAILLE_PNOM+1)
+#endif
 {
   if(myNbElem){
     for(med_int anId = 0; anId < myNbElem; anId++){
@@ -205,8 +240,13 @@ TNodeInfo::TNodeInfo(const PMeshInfo& theMeshInfo,
   TElemInfo(theMeshInfo,theNbElem,theIsElemNum,theIsElemNames),
   myCoord(theNbElem*theMeshInfo->myDim), 
   mySystem(theSystem), 
+#if defined __GNUC_2__
+  myCoordNames(theMeshInfo->myDim*MED_TAILLE_PNOM+1,'\0'),
+  myCoordUnits(theMeshInfo->myDim*MED_TAILLE_PNOM+1,'\0')
+#else
   myCoordNames('\0',theMeshInfo->myDim*MED_TAILLE_PNOM+1),
   myCoordUnits('\0',theMeshInfo->myDim*MED_TAILLE_PNOM+1)
+#endif
 {}
 
 TNodeInfo::TNodeInfo(const PMeshInfo& theMeshInfo, 
@@ -220,8 +260,13 @@ TNodeInfo::TNodeInfo(const PMeshInfo& theMeshInfo,
   TElemInfo(theMeshInfo,theFamilyNums,theElemNums,theElemNames),
   myCoord(theNodeCoords.size()), 
   mySystem(theSystem), 
+#if defined __GNUC_2__
+  myCoordNames(theMeshInfo->myDim*MED_TAILLE_PNOM+1,'\0'),
+  myCoordUnits(theMeshInfo->myDim*MED_TAILLE_PNOM+1,'\0')
+#else
   myCoordNames('\0',theMeshInfo->myDim*MED_TAILLE_PNOM+1),
   myCoordUnits('\0',theMeshInfo->myDim*MED_TAILLE_PNOM+1)
+#endif
 {
   if(myCoord.size() == myNbElem*theMeshInfo->myDim){
     for(med_int anId = 0, anEnd = myCoord.size(); anId < anEnd; anId++){
@@ -315,8 +360,13 @@ TFieldInfo::TFieldInfo(const PMeshInfo& theMeshInfo,
   myMeshInfo(theMeshInfo), 
   myNbComp(theNbComp),
   myType(theType),
+#if defined __GNUC_2__
+  myCompNames(theNbComp*MED_TAILLE_PNOM + 1,'\0'),
+  myUnitNames(theNbComp*MED_TAILLE_PNOM + 1,'\0')
+#else
   myCompNames('\0',theNbComp*MED_TAILLE_PNOM + 1),
   myUnitNames('\0',theNbComp*MED_TAILLE_PNOM + 1)
+#endif
 {}
 
 string TFieldInfo::GetCompName(med_int theId) const { 
@@ -343,7 +393,11 @@ TTimeStampInfo::TTimeStampInfo(const PFieldInfo& theFieldInfo,
   myFieldInfo(theFieldInfo), 
   myEntity(theEntity), 
   myGeom(theGeom), 
+#if defined __GNUC_2__
+  myUnitDt(MED_TAILLE_PNOM+1,'\0')
+#else
   myUnitDt('\0',MED_TAILLE_PNOM+1)
+#endif
 {}
 
 string TTimeStampInfo::GetUnitDt() const { 
@@ -358,7 +412,11 @@ void TTimeStampInfo::SetUnitDt(const string& theValue){
 //---------------------------------------------------------------
 TTimeStampVal::TTimeStampVal(const PTimeStampInfo& theTimeStampInfo):
   myTimeStampInfo(theTimeStampInfo),
+#if defined __GNUC_2__
+  myPflName(MED_TAILLE_NOM+1,'\0')
+#else
   myPflName('\0',MED_TAILLE_NOM+1)
+#endif
 {
   med_int aNbComp = theTimeStampInfo->myFieldInfo->myNbComp;
   med_int aNbGauss = theTimeStampInfo->myNbGauss;

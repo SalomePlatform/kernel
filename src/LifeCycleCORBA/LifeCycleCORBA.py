@@ -29,6 +29,7 @@
 import os
 import sys
 import time
+import string
 from omniORB import CORBA
 import CosNaming
 import Engines
@@ -133,7 +134,8 @@ class LifeCycleCORBA:
         aContainer = self.FindContainer( theComputer + "/" + theContainer )
         if aContainer is None :
             if (theContainer == "FactoryServer") | (theContainer == "FactoryServerPy") :
-                if theComputer == os.getenv("HOSTNAME") :
+                myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+                if theComputer == myMachine[0] :
                     rshstr = ""
                 else :
                     rshstr = "rsh -n " + theComputer + " "
