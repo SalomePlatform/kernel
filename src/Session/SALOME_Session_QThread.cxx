@@ -48,6 +48,8 @@ using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
+SALOME_Session_QThread* SALOME_Session_QThread::_singleton = 0;
+
 //=============================================================================
 /*! SALOME_Session_QThread
  *  constructor
@@ -56,12 +58,26 @@ using namespace std;
 
 SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread()
 {
+  INFOS("Creation SALOME_Session_QThread");
   _qappl = 0 ;
   _mw = 0 ;
   _argc = argc ;
   _argv = argv ;
   _NS = 0 ;
 } ;
+
+//=============================================================================
+/*!
+ *  
+ */
+//=============================================================================
+
+  SALOME_Session_QThread* SALOME_Session_QThread::Instance(int argc, char ** argv)
+{
+  if (_singleton == 0) _singleton = new SALOME_Session_QThread(argc, argv);
+  return _singleton;
+
+}
 
 //=============================================================================
 /*! run

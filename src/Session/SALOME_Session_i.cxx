@@ -52,7 +52,7 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
 {
   _argc = argc ;
   _argv = argv ;
-  _IAPPThread = new SALOME_Session_QThread(_argc, _argv) ;
+  _IAPPThread = SALOME_Session_QThread::Instance(_argc, _argv);
   _isGUI = FALSE ;
   _runningStudies= 0 ;
   _orb = CORBA::ORB::_duplicate(orb) ;
