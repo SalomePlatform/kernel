@@ -44,10 +44,16 @@ else
 
     if test "x$sip_vers" = "xnew"
     then
-        sip_ok=yes
-	SIP_ROOT="$SIPDIR"
-	SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}/include"
-	SIP_LIBS="-L${SIPDIR}/lib -lsip"
+	if test -z ${SIPDIR}/include ; then
+	   sip_ok=yes
+	   SIP_ROOT="$SIPDIR"
+	   SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}/include"
+	   SIP_LIBS="-L${SIPDIR}/lib -lsip"
+	else
+	   SIP_ROOT="$SIPDIR"
+	   SIP_INCLUDES="-I${SIPDIR}"
+	   SIP_LIBS="-L${SIPDIR} -lsip"
+        fi
     fi
 
 fi
