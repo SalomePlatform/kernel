@@ -50,6 +50,6 @@ BIN = SALOME_Registry_Server
 BIN_SRC = RegistryService.cxx
 BIN_SERVER_IDL = SALOME_Registry.idl
 
-LDFLAGS+= -lSalomeNS -lOpUtil -lSalomeLoggerServer
+LDFLAGS+= -lSalomeNS -lOpUtil -lSALOMELocalTrace 
 
 @CONCLUDE@

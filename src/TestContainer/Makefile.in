@@ -45,7 +45,7 @@ LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl
 BIN = TestContainer TestLogger
 BIN_SRC = 
 
-LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSalomeLoggerServer
+LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace
 
 
 @CONCLUDE@

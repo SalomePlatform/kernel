@@ -276,6 +276,46 @@ module SALOMEDS
   };
 
   //==========================================================================
+/*! \brief External File definition
+
+     This attribute stores a path to an External File.
+*/
+  //==========================================================================
+  interface AttributeExternalFileDef: GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+  };
+
+  //==========================================================================
+/*! \brief File Type definition
+
+     This attribute stores an external File Type (see ExternalFileDef attribute).
+*/
+  //==========================================================================
+  interface AttributeFileType: GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    string Value();
+/*!
+   Sets the value of this attribute
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void   SetValue(in string value);
+  };
+
+  //==========================================================================
   //Below the list of presentation attributes for display study tree in browser
   //==========================================================================
 

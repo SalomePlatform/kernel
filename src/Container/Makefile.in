@@ -53,7 +53,7 @@ BIN_SERVER_IDL = SALOME_Component.idl
 
 CPPFLAGS+= $(PYTHON_INCLUDES)
 
-LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSalomeLoggerServer
+LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
 LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS)
 

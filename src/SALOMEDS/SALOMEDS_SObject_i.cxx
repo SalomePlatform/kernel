@@ -44,6 +44,8 @@ using namespace std;
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include "SALOMEDS_AttributeIOR_i.hxx"
 #include "SALOMEDS_AttributeComment_i.hxx"
+#include "SALOMEDS_AttributeExternalFileDef_i.hxx"
+#include "SALOMEDS_AttributeFileType_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
@@ -84,6 +86,8 @@ SALOMEDS_SObject_i::ReturnGUIDForAttribute(const char* aTypeOfAttribute)
    else if (strcmp(aTypeOfAttribute, "AttributeSequenceOfInteger") == 0 )  return SALOMEDS_SequenceOfIntegerAttribute::GetID();
    else if (strcmp(aTypeOfAttribute, "AttributeName") == 0 )               return TDataStd_Name::GetID();
    else if (strcmp(aTypeOfAttribute, "AttributeComment") == 0 )            return TDataStd_Comment::GetID();
+   else if (strcmp(aTypeOfAttribute, "AttributeExternalFileDef") == 0 )    return SALOMEDS_ExternalFileDef::GetID();
+   else if (strcmp(aTypeOfAttribute, "AttributeFileType") == 0 )           return SALOMEDS_FileType::GetID();
    else if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0 )                return SALOMEDS_IORAttribute::GetID();
    else if (strcmp(aTypeOfAttribute, "AttributePersistentRef") == 0 )      return SALOMEDS_PersRefAttribute::GetID();
    else if (strcmp(aTypeOfAttribute, "AttributeDrawable") == 0 )           return SALOMEDS_DrawableAttribute::GetID();
@@ -121,6 +125,8 @@ char* SALOMEDS_SObject_i::AttributeIDToType(Standard_GUID ID)
 {
   if      (ID == TDataStd_Name::GetID())                        return "AttributeName";
   else if (ID == TDataStd_Comment::GetID())                     return "AttributeComment";
+  else if (ID == SALOMEDS_ExternalFileDef::GetID())             return "AttributeExternalFileDef";
+  else if (ID == SALOMEDS_FileType::GetID())                    return "AttributeFileType";
   else if (ID == SALOMEDS_IORAttribute::GetID())                return "AttributeIOR"; 
   else if (ID == SALOMEDS_PersRefAttribute::GetID())            return "AttributePersistentRef";
   else if (ID == TDataStd_Real::GetID())                        return "AttributeReal";
@@ -283,6 +289,16 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
       anAttribute = Attr->AttributeComment::_this();
       return Standard_True;
     }
+    else if (strcmp(aTypeOfAttribute, "AttributeExternalFileDef") == 0 ) {
+      SALOMEDS_AttributeExternalFileDef_i* Attr = new SALOMEDS_AttributeExternalFileDef_i(Handle(SALOMEDS_ExternalFileDef)::DownCast(anAttr), _orb);
+      anAttribute = Attr->AttributeExternalFileDef::_this();
+      return Standard_True;
+    }
+    else if (strcmp(aTypeOfAttribute, "AttributeFileType") == 0 ) {
+      SALOMEDS_AttributeFileType_i* Attr = new SALOMEDS_AttributeFileType_i(Handle(SALOMEDS_FileType)::DownCast(anAttr), _orb);
+      anAttribute = Attr->AttributeFileType::_this();
+      return Standard_True;
+    }
     else if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0 ) {
       SALOMEDS_AttributeIOR_i* Attr = new SALOMEDS_AttributeIOR_i(Handle(SALOMEDS_IORAttribute)::DownCast(anAttr), _orb);
       anAttribute = Attr->AttributeIOR::_this();
@@ -415,6 +431,14 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
       else if (ReturnGUIDForAttribute("AttributeComment") == anAttr->ID()) {
         SALOMEDS_AttributeComment_i* Attr= new SALOMEDS_AttributeComment_i(Handle(TDataStd_Comment)::DownCast(anAttr), _orb);
         anAttribute = Attr->AttributeComment::_this();
+      } 
+      else if (ReturnGUIDForAttribute("AttributeExternalFileDef") == anAttr->ID()) {
+        SALOMEDS_AttributeExternalFileDef_i* Attr= new SALOMEDS_AttributeExternalFileDef_i(Handle(SALOMEDS_ExternalFileDef)::DownCast(anAttr), _orb);
+        anAttribute = Attr->AttributeExternalFileDef::_this();
+      } 
+      else if (ReturnGUIDForAttribute("AttributeFileType") == anAttr->ID()) {
+        SALOMEDS_AttributeFileType_i* Attr= new SALOMEDS_AttributeFileType_i(Handle(SALOMEDS_FileType)::DownCast(anAttr), _orb);
+        anAttribute = Attr->AttributeFileType::_this();
       } 
       else if (ReturnGUIDForAttribute("AttributeIOR") == anAttr->ID()) {
         SALOMEDS_AttributeIOR_i* Attr= new SALOMEDS_AttributeIOR_i(Handle(SALOMEDS_IORAttribute)::DownCast(anAttr), _orb);

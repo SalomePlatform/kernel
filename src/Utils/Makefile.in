@@ -57,7 +57,7 @@ LIB_SRC = OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \
 	Utils_DESTRUCTEUR_GENERIQUE.cxx
 
-LDFLAGS+= -lSalomeLoggerServer
+LDFLAGS+= 
 
 @CONCLUDE@
 

@@ -255,6 +255,20 @@ add_path(os.path.join(kernel_root_dir,"bin","salome"))
 for module in liste_modules:
     module_root_dir=modules_root_dir[module]
     add_ld_library_path(os.path.join(module_root_dir,"lib","salome"))
+
+if with_logger:
+   locdir=os.environ['PWD']
+   libtracedir=os.path.join(locdir,"libSalomeTrace")
+   libtrace = os.path.join(kernel_root_dir,"lib","salome","libSALOMELoggerClient.so.0.0.0")
+   libtraceln = os.path.join(libtracedir,"libSALOMELocalTrace.so")
+   aCommand = 'rm -rf ' + libtracedir + "; "
+   aCommand += 'mkdir ' + libtracedir + "; "
+   aCommand += 'ln -s ' + libtrace + " " + libtraceln + "; "
+   aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0; "
+   aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0.0.0; "
+   os.system(aCommand)
+   add_ld_library_path(libtracedir)
+   
 #print "LD_LIBRARY_PATH=",os.environ["LD_LIBRARY_PATH"]
 
 #
@@ -376,6 +390,11 @@ def startSalome():
   import SALOME
   session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
+
+  theComputer = os.getenv("HOSTNAME")
+  computerSplitName = theComputer.split('.')
+  theComputer = computerSplitName[0]
+  
   #
   # Lancement Container C++ local
   #
@@ -385,10 +404,6 @@ def startSalome():
 	  #
 	  # Attente de la disponibilité du Container C++ local dans le Naming Service
 	  #
-
-	  theComputer = os.getenv("HOSTNAME")
-	  computerSplitName = theComputer.split('.')
-	  theComputer = computerSplitName[0]
 
 	  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 

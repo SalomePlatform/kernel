@@ -47,7 +47,7 @@ LIB_SRC = NOTIFICATION.cxx          \
           NOTIFICATION_Supplier.cxx \
           NOTIFICATION_Consumer.cxx
 
-LDFLAGS+= -lOpUtil
+LDFLAGS+= -lOpUtil -lSALOMELocalTrace
 OMNIORB_IDLCXXFLAGS+= -Wbtp
 
 @CONCLUDE@

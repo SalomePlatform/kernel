@@ -50,8 +50,12 @@ LIB_SRC = 	\
 		  SALOMEDS_OCAFApplication.cxx \
 		  SALOMEDS_GenericAttribute_i.cxx \
 		  SALOMEDS_IORAttribute.cxx \
+		  SALOMEDS_ExternalFileDef.cxx \
+		  SALOMEDS_FileType.cxx \
 	          SALOMEDS_PersRefAttribute.cxx \
 	          SALOMEDS_AttributeComment_i.cxx \
+	          SALOMEDS_AttributeExternalFileDef_i.cxx \
+	          SALOMEDS_AttributeFileType_i.cxx \
 	          SALOMEDS_AttributeIOR_i.cxx \
 	          SALOMEDS_AttributeInteger_i.cxx \
 	          SALOMEDS_AttributeName_i.cxx \
@@ -107,7 +111,7 @@ BIN_CLIENT_IDL =
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer $(CAS_LDPATH) -lTKCAF
+LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF
 
 @CONCLUDE@
 

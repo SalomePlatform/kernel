@@ -13,6 +13,7 @@ using namespace std;
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Session)
+#include CORBA_CLIENT_HEADER(Logger)
 
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"

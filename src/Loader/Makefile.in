@@ -31,7 +31,7 @@ BIN_CLIENT_IDL = SALOME_Session.idl \
 
 CPPFLAGS+=$(QT_MT_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSalomeLoggerServer
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
 
 @CONCLUDE@

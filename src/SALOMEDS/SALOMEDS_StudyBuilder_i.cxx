@@ -50,6 +50,8 @@ using namespace std;
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include "SALOMEDS_AttributeIOR_i.hxx"
 #include "SALOMEDS_AttributeComment_i.hxx"
+#include "SALOMEDS_AttributeExternalFileDef_i.hxx"
+#include "SALOMEDS_AttributeFileType_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
@@ -601,6 +603,26 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
     SALOMEDS::AttributeComment_var aCA = aCommentAttr->AttributeComment::_this();
     return  aCA._retn();
   }
+  else if (strcmp(aTypeOfAttribute, "AttributeExternalFileDef") == 0 ) {
+    Handle(SALOMEDS_ExternalFileDef) anAttr;
+    if (!Lab.FindAttribute(SALOMEDS_ExternalFileDef::GetID(), anAttr)) {
+      anAttr = new SALOMEDS_ExternalFileDef;
+      Lab.AddAttribute(anAttr); 
+    }
+    SALOMEDS_AttributeExternalFileDef_i* anExternalFileDefAttr = new SALOMEDS_AttributeExternalFileDef_i(anAttr, _orb);
+    SALOMEDS::AttributeExternalFileDef_var aCA = anExternalFileDefAttr->AttributeExternalFileDef::_this();
+    return  aCA._retn();
+  }
+  else if (strcmp(aTypeOfAttribute, "AttributeFileType") == 0 ) {
+    Handle(SALOMEDS_FileType) anAttr;
+    if (!Lab.FindAttribute(SALOMEDS_FileType::GetID(), anAttr)) {
+      anAttr = new SALOMEDS_FileType;
+      Lab.AddAttribute(anAttr); 
+    }
+    SALOMEDS_AttributeFileType_i* anFileTypeAttr = new SALOMEDS_AttributeFileType_i(anAttr, _orb);
+    SALOMEDS::AttributeFileType_var aCA = anFileTypeAttr->AttributeFileType::_this();
+    return  aCA._retn();
+  }
   else if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0 ) {
     Handle(SALOMEDS_IORAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr)) {
@@ -834,6 +856,16 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anOb
     else if (strcmp(aTypeOfAttribute, "AttributeComment") == 0 ) {
       SALOMEDS_AttributeComment_i* Attr= new SALOMEDS_AttributeComment_i(Handle(TDataStd_Comment)::DownCast(anAttr), _orb);
       anAttribute = Attr->AttributeComment::_this();
+      return Standard_True;
+    }
+    else if (strcmp(aTypeOfAttribute, "AttributeExternalFileDef") == 0 ) {
+      SALOMEDS_AttributeExternalFileDef_i* Attr= new SALOMEDS_AttributeExternalFileDef_i(Handle(SALOMEDS_ExternalFileDef)::DownCast(anAttr), _orb);
+      anAttribute = Attr->AttributeExternalFileDef::_this();
+      return Standard_True;
+    }
+    else if (strcmp(aTypeOfAttribute, "AttributeFileType") == 0 ) {
+      SALOMEDS_AttributeFileType_i* Attr= new SALOMEDS_AttributeFileType_i(Handle(SALOMEDS_FileType)::DownCast(anAttr), _orb);
+      anAttribute = Attr->AttributeFileType::_this();
       return Standard_True;
     }
     else if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0 ) {

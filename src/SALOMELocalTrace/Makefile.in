@@ -1,4 +1,4 @@
-#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
+#  SALOMELocalTrace : log on local machine
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -22,7 +22,7 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Paul RASCLE, EDF - Marc Tajchman, CEA
+#  Author : Paul RASCLE (EDF)
 #  Module : SALOME
 #  $Header$
 
@@ -34,24 +34,16 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
+# header files  
+EXPORT_HEADERS= SALOME_Log.hxx
 
-EXPORT_PYSCRIPTS = LifeCycleCORBA.py
+EXPORT_PYSCRIPTS = 
 
 # Libraries targets
 
-LIB = libSalomeLifeCycleCORBA.la
-LIB_SRC = SALOME_LifeCycleCORBA.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl
+LIB = libSALOMELocalTrace.la 
+LIB_SRC = SALOME_Log.cxx
 
-# Executables targets
-BIN = TestLifeCycleCORBA
-BIN_SRC =
-BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl
-
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace
+LDFLAGS+= 
 
 @CONCLUDE@
-

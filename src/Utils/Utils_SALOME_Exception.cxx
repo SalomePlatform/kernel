@@ -42,7 +42,7 @@ const char* duplicate( const char *const str ) ;
 
 SALOME_Exception::SALOME_Exception( void ): exception() , _text(0)
 {
-	MESSAGE( "You must user the standard builder : SALOME_Exception::SALOME_Exception( const char *text )" ) ;
+	MESSAGE( "You must use the standard builder: SALOME_Exception::SALOME_Exception( const char *text )" ) ;
 	INTERRUPTION(1) ;
 }
 
