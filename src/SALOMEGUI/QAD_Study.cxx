@@ -1,15 +1,32 @@
-using namespace std;
-//  File      : QAD_Study.cxx
-//  Created   : UI team, 05.09.00
-//  Descr     : Study for QAD-based application
-
-//  Modified  : Mon Dec 03 14:20:05 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_Study.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_Study QAD_Study.h
   \brief Study for QAD-based application.
@@ -98,7 +115,6 @@ QAD_Study::~QAD_Study ()
   close();
   //SRN: added - clear selection in case the study will be loaded again so the title will coincide
   SALOME_Selection::RemoveSelection( QString(myTitle + "_" + mySelection) );
-
 }
 
 /*!
@@ -944,8 +960,8 @@ QAD_StudyFrame* QAD_Study::newWindow3d(QString name, ViewType theViewType, bool 
 }
 
 void QAD_Study::showFrame(QAD_StudyFrame* theFrame){
-  theFrame->resize(0.64*QAD_Application::getDesktop()->getMainFrame()->width(),
-	     0.64*QAD_Application::getDesktop()->getMainFrame()->height());
+  theFrame->resize( (int)(0.64*QAD_Application::getDesktop()->getMainFrame()->width()),
+ 		    (int)(0.64*QAD_Application::getDesktop()->getMainFrame()->height()));
   theFrame->show();
 
 }

@@ -1,13 +1,12 @@
-#==============================================================================
-#  File      : Makefile.in
-#  Created   : ven sep 28 17:32:46 CEST 2001
-#  Author    : Nicolas REJNERI
-#  Project   : SALOME
-#  Copyright : EDF 2001
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : Makefile.in
+#  Author : Nicolas REJNERI
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
-# source path
 top_srcdir=@top_srcdir@
 top_builddir=../..
 srcdir=@srcdir@
@@ -50,8 +49,8 @@ EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
 LIB_CLIENT_IDL = SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES)
-LIBS+= $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
-LDFLAGS+= -lSalomeGUI
+LIBS+= $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(OCC_LIBS) $(VTK_LIBS) $(OGL_LIBS)
+LDFLAGS+= -lSalomeGUI -lqtcmodule
 
 
 # Custom build step: generate C++ wrapping according to $(SIP_FILES)

@@ -1,12 +1,32 @@
-using namespace std;
-//  File      : QAD_RightFrame.cxx
-//  Created   : Thu Jun 14 14:51:52 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_RightFrame.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_RightFrame.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -54,8 +74,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libOCCViewer.dll" ;
 #else
@@ -74,8 +92,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libOCCViewer.dll" ;
@@ -118,8 +134,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libVTKViewer.dll" ;
 #else
@@ -138,8 +152,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libVTKViewer.dll" ;
@@ -181,8 +193,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libSUPERVGraph.dll" ;
 #else
@@ -201,8 +211,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libSUPERVGraph.dll" ;
@@ -244,8 +252,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libPlot2d.dll" ;
 #else
@@ -264,8 +270,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libPlot2d.dll" ;
@@ -341,12 +345,12 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
   myMessage  = new QAD_Message( vsplitter ,"Message");  
   myMessage->setMinimumSize( 1, 1 );
 
-  sizes.append( 0.48 * DesktopHeight );
-  sizes.append( 0.16 * DesktopHeight );
+  sizes.append( (int)(0.48 * DesktopHeight) );
+  sizes.append( (int)(0.16 * DesktopHeight) );
   setSizes( sizes );
   sizes.clear();
-  sizes.append( 0.25 * DesktopWidth );
-  sizes.append( 0.25 * DesktopWidth );
+  sizes.append( (int)(0.25 * DesktopWidth) );
+  sizes.append( (int)(0.25 * DesktopWidth) );
   vsplitter->setSizes( sizes );
 }
 

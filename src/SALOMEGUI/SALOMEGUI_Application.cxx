@@ -1,12 +1,32 @@
-using namespace std;
-//  File      : SALOMEGUI_Application.cxx
-//  Created   : Thu Jun 14 12:01:00 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEGUI_Application.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_Application.h"
 #include "SALOMEGUI_Desktop.h"
 #include "SALOMEGUI_ImportOperation.h"
@@ -50,7 +70,7 @@ QAD_Application( format, description, filters )
     if ( !palette) palette = QAD_Desktop::createPalette();
     //	  if ( !palette) palette->loadPalette();
 
-    myViewActions.setAutoDelete( true );
+  //myViewActions.setAutoDelete( true );
 
     /*	We need to know that the desktop is created to have
 	some additional internal initialization */
@@ -83,7 +103,7 @@ void SALOMEGUI_Application::createActions()
     QAD_ResourceMgr* rmgr = QAD_Desktop::getResourceManager();
 #define CREATE_ACTION(ID,NAME) \
     if(!myViewActions.at(ID)){ \
-      QAction* action = new QAction(tr("TOT_APP_VIEW_" #NAME), \
+      QActionP* action = new QActionP(tr("TOT_APP_VIEW_" #NAME), \
       			    rmgr->loadPixmap("SALOMEGUI", tr("ICON_APP_VIEW_" #NAME)), \
       			    tr("MEN_APP_VIEW_" #NAME), 0, QAD_Application::getDesktop()); \
       action->setStatusTip(tr("PRP_APP_VIEW_" #NAME)); \
@@ -266,9 +286,9 @@ void SALOMEGUI_Application::connectToViewer( QAD_ViewFrame* vf )
 
   if ( vf ) {
     QToolBar* tbView = getToolBar( ViewToolBarId );
-    QListIterator<QAction> it( myViewActions );
-    for( ; it.current(); ++it )
-      it.current()->removeFrom( tbView );
+    for ( int cmd = ViewDumpId; cmd <= ViewResetId; cmd++ )
+      if ( myViewActions.at( cmd ) )
+	myViewActions.at( cmd )->removeFrom(tbView);
     if( vf->getTypeView() == VIEW_GRAPHSUPERV ) {
       //myViewActions.at(ViewDumpId)->addTo(tbView);
       //myViewActions.at(ViewFitAllId)->addTo(tbView);
@@ -288,9 +308,9 @@ void SALOMEGUI_Application::connectToViewer( QAD_ViewFrame* vf )
       //myViewActions.at(ViewResetId)->addTo(tbView);
     }
     else {
-      it.toFirst();
-      for( ; it.current(); ++it )
-	it.current()->addTo(tbView);
+      for ( int cmd = ViewDumpId; cmd <= ViewResetId; cmd++ )
+	if ( myViewActions.at( cmd ) )
+	  myViewActions.at( cmd )->addTo(tbView);
     }
     //CONNECT_ACTION(Mu4Id)
     CONNECT_ACTION(Dump);

@@ -1,13 +1,32 @@
-using namespace std;
-//  File      : QAD_ObjectBrowser.cxx
-//  Created   : Thu Jun 14 15:42:10 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_ObjectBrowser.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
-
+using namespace std;
 #include "QAD_ObjectBrowserItem.h"
 #include "QAD_ObjectBrowser.h"
 #include "QAD_Application.h"
@@ -646,15 +665,15 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	// TextColor
         if ( CSO->FindAttribute(anAttr, "AttributeTextColor") ) {
           aTextColor = SALOMEDS::AttributeTextColor::_narrow(anAttr);
-	  QColor aColor(aTextColor->TextColor().R, aTextColor->TextColor().G, aTextColor->TextColor().B) ;
+	  QColor aColor((int)(aTextColor->TextColor().R), (int)(aTextColor->TextColor().G), (int)(aTextColor->TextColor().B)) ;
           Item->setTextColor(aColor);
         }
 	// TextHighlightColor
         if ( CSO->FindAttribute(anAttr, "AttributeTextHighlightColor") ) {
           aTextHighlightColor = SALOMEDS::AttributeTextHighlightColor::_narrow(anAttr);
-	  QColor aColor(aTextHighlightColor->TextHighlightColor().R, 
-			aTextHighlightColor->TextHighlightColor().G, 
-			aTextHighlightColor->TextHighlightColor().B) ;
+	  QColor aColor((int)(aTextHighlightColor->TextHighlightColor().R), 
+			(int)(aTextHighlightColor->TextHighlightColor().G), 
+			(int)(aTextHighlightColor->TextHighlightColor().B)) ;
           Item->setTextHighlightColor(aColor);
         }
 	// Pixmap
@@ -783,15 +802,15 @@ void QAD_ObjectBrowser::Update()
       // TextColor
       if ( SC->FindAttribute(anAttr, "AttributeTextColor") ) {
 	aTextColor = SALOMEDS::AttributeTextColor::_narrow(anAttr);
-	QColor aColor(aTextColor->TextColor().R, aTextColor->TextColor().G, aTextColor->TextColor().B) ;
+	QColor aColor((int)(aTextColor->TextColor().R), (int)(aTextColor->TextColor().G), (int)(aTextColor->TextColor().B)) ;
 	Item->setTextColor(aColor);
       }
       // TextHighlightColor
       if ( SC->FindAttribute(anAttr, "AttributeTextHighlightColor") ) {
 	aTextHighlightColor = SALOMEDS::AttributeTextHighlightColor::_narrow(anAttr);
-	QColor aColor(aTextHighlightColor->TextHighlightColor().R, 
-		      aTextHighlightColor->TextHighlightColor().G, 
-		      aTextHighlightColor->TextHighlightColor().B) ;
+	QColor aColor((int)(aTextHighlightColor->TextHighlightColor().R), 
+		      (int)(aTextHighlightColor->TextHighlightColor().G), 
+		      (int)(aTextHighlightColor->TextHighlightColor().B)) ;
 	Item->setTextHighlightColor(aColor);
       }
       
@@ -1006,17 +1025,17 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
 // TextColor
       if ( UCObject->FindAttribute(anAttr, "AttributeTextColor" ) ) {
 	aTextColor = SALOMEDS::AttributeTextColor::_narrow( anAttr );
-	QColor aColor( aTextColor->TextColor().R, 
-		       aTextColor->TextColor().G, 
-		       aTextColor->TextColor().B );
+	QColor aColor( (int)(aTextColor->TextColor().R), 
+		       (int)(aTextColor->TextColor().G), 
+		       (int)(aTextColor->TextColor().B) );
 	UCSubItem->setTextColor( aColor );
       }
       // TextHighlightColor
       if ( UCObject->FindAttribute( anAttr, "AttributeTextHighlightColor" ) ) {
 	aTextHighlightColor = SALOMEDS::AttributeTextHighlightColor::_narrow( anAttr );
-	QColor aColor( aTextHighlightColor->TextHighlightColor().R, 
-		       aTextHighlightColor->TextHighlightColor().G, 
-		       aTextHighlightColor->TextHighlightColor().B );
+	QColor aColor( (int)(aTextHighlightColor->TextHighlightColor().R), 
+		       (int)(aTextHighlightColor->TextHighlightColor().G), 
+		       (int)(aTextHighlightColor->TextHighlightColor().B) );
 	UCSubItem->setTextHighlightColor( aColor );
       }
       // Pixmap
