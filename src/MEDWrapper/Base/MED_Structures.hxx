@@ -238,6 +238,7 @@ namespace MED{
     
     TElemNum myIndex; // Table de indexes
     TElemNum GetIndex() {return myIndex;}
+    TInt GetNbConn(TInt theElemId) const;
   };
 
   //---------------------------------------------------------------

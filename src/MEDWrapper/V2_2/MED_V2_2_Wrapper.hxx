@@ -123,6 +123,71 @@ namespace MED{
       
       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       virtual
+      void
+      GetNames(TElemInfo& theInfo,
+	       TInt nb,
+	       EEntiteMaillage theTEntity, 
+	       EGeometrieElement theTGeom,
+	       TErr* theErr = NULL);
+
+      virtual
+      void
+      GetNumeration(TElemInfo& theInfo,
+		    TInt nb,
+		    EEntiteMaillage theTEntity, 
+		    EGeometrieElement theTGeom,
+		    TErr* theErr = NULL);
+
+      virtual
+      void
+      GetFamilies(TElemInfo& theInfo,
+		  TInt nb,
+		  EEntiteMaillage theTEntity, 
+		  EGeometrieElement theTGeom,
+		  TErr* theErr = NULL);
+
+      virtual
+      void
+      SetNames(const TElemInfo& theInfo,
+	       EEntiteMaillage theTEntity, 
+	       EGeometrieElement theTGeom,
+	       TErr* theErr = NULL);
+
+      void
+      SetNames(const TElemInfo& theInfo,
+	       EModeAcces theMode,
+	       EEntiteMaillage theTEntity, 
+	       EGeometrieElement theTGeom,
+	       TErr* theErr = NULL);
+      
+      virtual
+      void
+      SetNumeration(const TElemInfo& theInfo,
+		    EEntiteMaillage theTEntity, 
+		    EGeometrieElement theTGeom,
+		    TErr* theErr = NULL);
+      void
+      SetNumeration(const TElemInfo& theInfo,
+		    EModeAcces theMode,
+		    EEntiteMaillage theTEntity, 
+		    EGeometrieElement theTGeom,
+		    TErr* theErr = NULL);
+      
+      virtual
+      void
+      SetFamilies(const TElemInfo& theInfo,
+		  EEntiteMaillage theTEntity, 
+		  EGeometrieElement theTGeom,
+		  TErr* theErr = NULL);
+      void
+      SetFamilies(const TElemInfo& theInfo,
+		  EModeAcces theMode,
+		  EEntiteMaillage theTEntity, 
+		  EGeometrieElement theTGeom,
+		  TErr* theErr = NULL);
+
+      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      virtual
       TInt
       GetNbNodes(const MED::TMeshInfo& theMeshInfo,
 		 TErr* theErr = NULL);

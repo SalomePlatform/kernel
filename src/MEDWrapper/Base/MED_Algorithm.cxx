@@ -60,23 +60,12 @@ namespace MED{
 	  {
 	    PPolygoneInfo aPolygoneInfo = theWrapper.GetPPolygoneInfo(theMeshInfo,anEntity,aGeo);
 	    aElemSet.insert(aPolygoneInfo);
-	    TElemNum aConn  = aPolygoneInfo->GetConnectivite();
-	    TElemNum aIndex = aPolygoneInfo->GetIndex();
-	    TInt aNbIndex = aIndex.size();
-	    TInt aIndex0 = aIndex[0];
-	    INITMSG(MYDEBUG,"aGeo = "<<aGeo<<"; aNbElem = "<<aNbIndex-1<<": ");
-	    for(TInt iElem = 1; iElem < aNbIndex; iElem++){
-	      for (TInt i = aIndex0; i < aIndex[iElem];i++)
-		ADDMSG(MYVALUEDEBUG,aConn[i-1]<<",");
-	      ADDMSG(MYDEBUG," ");
-	      aIndex0 = aIndex[iElem];
-	    }
-	    ADDMSG(MYDEBUG,endl);
-	    ADDMSG(MYDEBUG,"           Indexes :");
-	    for(TInt iElem = 0; iElem < aIndex.size(); iElem++){
-	      ADDMSG(MYVALUEDEBUG,aIndex[iElem]<<",");
-	    }
-	    ADDMSG(MYDEBUG,endl);
+	    break;
+	  }
+	case ePOLYEDRE:
+	  {
+	    PPolyedreInfo aPolyedreInfo = theWrapper.GetPPolyedreInfo(theMeshInfo,anEntity,aGeo);
+	    aElemSet.insert(aPolyedreInfo);
 	    break;
 	  }
 	default:

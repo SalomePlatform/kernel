@@ -123,6 +123,57 @@ namespace MED{
 		   TInt theId,
 		   TErr* theErr = NULL);
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    virtual
+    void
+    GetNames(TElemInfo& theInfo,
+	     TInt nb,
+	     EEntiteMaillage theTEntity, 
+	     EGeometrieElement theTGeom,
+	     TErr* theErr = NULL)
+    {}
+
+    virtual
+    void
+    GetNumeration(TElemInfo& theInfo,
+		  TInt nb,
+		  EEntiteMaillage theTEntity, 
+		  EGeometrieElement theTGeom,
+		  TErr* theErr = NULL)
+    {}
+
+    virtual
+    void
+    GetFamilies(TElemInfo& theInfo,
+		TInt nb,
+		EEntiteMaillage theTEntity, 
+		EGeometrieElement theTGeom,
+		TErr* theErr = NULL)
+    {}
+
+    virtual
+    void
+    SetNames(const TElemInfo& theInfo,
+	     EEntiteMaillage theTEntity, 
+	     EGeometrieElement theTGeom,
+	     TErr* theErr = NULL)
+    {}
+
+    virtual
+    void
+    SetNumeration(const TElemInfo& theInfo,
+		  EEntiteMaillage theTEntity, 
+		  EGeometrieElement theTGeom,
+		  TErr* theErr = NULL)
+    {}
+
+    virtual
+    void
+    SetFamilies(const TElemInfo& theInfo,
+		EEntiteMaillage theTEntity, 
+		EGeometrieElement theTGeom,
+		TErr* theErr = NULL)
+    {}
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     virtual

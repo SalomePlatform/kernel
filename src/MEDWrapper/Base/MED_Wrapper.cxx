@@ -104,6 +104,25 @@ namespace MED{
     TInt aNbConn = GetNbPolygoneConn(*theMeshInfo,theEntity,theGeom,theConn);
     PPolygoneInfo anInfo = CrPolygoneInfo(theMeshInfo,aNbElem,aNbConn,theEntity,theGeom,theConn);
     GetPolygoneInfo(*anInfo);
+#ifdef _DEBUG_
+    TElemNum aConn  = anInfo->GetConnectivite();
+    TElemNum aIndex = anInfo->GetIndex();
+    TInt aNbIndex = aIndex.size();
+    TInt aIndex0 = aIndex[0];
+    INITMSG(MYDEBUG,"theGeom = "<<theGeom<<"; aNbElem = "<<aNbIndex-1<<": ");
+    for(TInt iElem = 1; iElem < aNbIndex; iElem++){
+      for (TInt i = aIndex0; i < aIndex[iElem];i++)
+	ADDMSG(MYVALUEDEBUG,aConn[i-1]<<",");
+      ADDMSG(MYDEBUG," ");
+      aIndex0 = aIndex[iElem];
+    }
+    ADDMSG(MYDEBUG,endl);
+    ADDMSG(MYDEBUG,"           Indexes :");
+    for(TInt iElem = 0; iElem < aIndex.size(); iElem++){
+      ADDMSG(MYVALUEDEBUG,aIndex[iElem]<<",");
+    }
+    ADDMSG(MYDEBUG,endl);
+#endif
     return anInfo;
   }
   
@@ -119,6 +138,28 @@ namespace MED{
     GetNbPolyedreConnF(*theMeshInfo,theConn,aNbFaces,aNbConn);
     PPolyedreInfo anInfo = CrPolyedreInfo(theMeshInfo,aNbElem,aNbConn,aNbFaces,theEntity,theGeom,theConn);
     GetPolyedreInfo(*anInfo);
+#ifdef _DEBUG_
+    TElemNum aConn        = anInfo->GetConnectivite();
+    TElemNum aFacesIndex  = anInfo->GetFacesIndex();
+    TElemNum aIndex       = anInfo->GetIndex();
+    
+    TInt aNbIndex      = aIndex.size();
+    
+    for (int aNp = 0; aNp < aNbIndex-1;aNp++){
+      if (anInfo->IsElemNames())
+	ADDMSG(MYDEBUG,anInfo->GetElemName(aNp)<<endl);
+      else 
+	ADDMSG(MYDEBUG,"POLYEDRE "<<aNp+1<<endl);
+      
+      for (int aNf = aIndex[aNp]-1;aNf < aIndex[aNp+1]-1;aNf++){
+	ADDMSG(MYDEBUG,"Face "<<aNf-aIndex[aNp]+2<<": [");
+	for (int aNc = aFacesIndex[aNf]-1; aNc < aFacesIndex[aNf+1]-1;aNc++){
+	  ADDMSG(MYDEBUG," "<<aConn[aNc]);
+	}
+	ADDMSG(MYDEBUG," ]"<<endl;);
+      }
+    }
+#endif
     return anInfo;
   }
   

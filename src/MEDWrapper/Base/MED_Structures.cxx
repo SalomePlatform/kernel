@@ -146,6 +146,18 @@ TInt TPolygoneInfo::GetNbConn(TInt theElemId) const {
 }
 
 //---------------------------------------------------------------
+TInt TPolyedreInfo::GetNbConn(TInt theElemId) const {
+  TInt ind1 = GETINDEX(myIndex,theElemId);
+  TInt ind2 = GETINDEX(myIndex,theElemId+1);
+
+  TInt inf1 = GETINDEX(myFacesIndex,ind1-1);
+  TInt inf2 = GETINDEX(myFacesIndex,ind2-1);
+
+  TInt ret = inf2-inf1;
+  return ret;
+}
+
+//---------------------------------------------------------------
 TFloat TTimeStampVal::GetVal(EGeometrieElement theGeom, TInt theId, 
 			     TInt theComp, TInt theGauss) const {
   TInt aNbComp = myTimeStampInfo->myFieldInfo->myNbComp;

@@ -36,9 +36,9 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 0;
 #endif
 
-static int MYVALUEDEBUG = 1;
+static int MYVALUEDEBUG = 0;
 
-static int MYWRITEDEBUG = 1;
+static int MYWRITEDEBUG = 0;
 
 using namespace MED;
 

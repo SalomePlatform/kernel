@@ -322,7 +322,219 @@ namespace MED{
 	SetFamilyInfo(theInfo,eLECTURE_AJOUT,theErr);
     }
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    void TVWrapper::GetNames(TElemInfo& theInfo,
+			     TInt nb,
+			     EEntiteMaillage theTEntity, 
+			     EGeometrieElement theTGeom,
+			     TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+      
+      MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
+
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+
+      TErr aRet = MEDnomLire(myFile->Id(),
+			     &aMeshInfo.myName[0],
+			     &theInfo.myElemNames[0],
+			     nb,
+			     anEntity,
+			     aGeom);
+
+      theInfo.myIsElemNames = (theInfo.myElemNames).empty()? EBooleen(0) : EBooleen(1) ;
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetNames - MEDnomLire(...)");
+    }
+
+    void TVWrapper::GetNumeration(TElemInfo& theInfo,
+				  TInt nb,
+				  EEntiteMaillage theTEntity, 
+				  EGeometrieElement theTGeom,
+				  TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+      
+      MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
+      
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+
+      TErr aRet = MEDnumLire(myFile->Id(),
+			     &aMeshInfo.myName[0],
+			     &theInfo.myElemNum[0],
+			     nb,
+			     anEntity,
+			     aGeom);
+
+      theInfo.myIsElemNum = (theInfo.myElemNum).empty()? EBooleen(0) : EBooleen(1) ;
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetNumeration - MEDnumLire(...)");
+    }
+
+    void TVWrapper::GetFamilies(TElemInfo& theInfo,
+				TInt nb,
+				EEntiteMaillage theTEntity, 
+				EGeometrieElement theTGeom,
+				TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+      
+      MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
+      
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+
+      TErr aRet = MEDfamLire(myFile->Id(),
+			     &aMeshInfo.myName[0],
+			     &theInfo.myFamNum[0],
+			     nb,
+			     anEntity,
+			     aGeom);
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetFamilies - MEDfamLire(...)");
+    }
+
+    void TVWrapper::SetNames(const TElemInfo& theInfo,
+			     EEntiteMaillage theTEntity, 
+			     EGeometrieElement theTGeom,
+			     TErr* theErr)
+    { 
+      SetNames(theInfo,eLECTURE_ECRITURE,theTEntity,theTGeom,theErr);
+    }
+
+    void TVWrapper::SetNames(const TElemInfo& theInfo,
+			     EModeAcces theMode,
+			     EEntiteMaillage theTEntity, 
+			     EGeometrieElement theTGeom,
+			     TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,theMode,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+
+      MED::TElemInfo& anInfo = const_cast<MED::TElemInfo&>(theInfo);
+      MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
+
+      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+      
+      TErr aRet = 0;
+      if (anIsElemNames){
+	aRet  = MEDnomEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNames[0],
+			  anInfo.myElemNames.size(),
+			  anEntity,
+			  aGeom);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetNames - MEDnomEcr(...)");
+      }
+    }
+
+    void TVWrapper::SetNumeration(const TElemInfo& theInfo,
+				  EEntiteMaillage theTEntity, 
+				  EGeometrieElement theTGeom,
+				  TErr* theErr)
+    { 
+      SetNumeration(theInfo,eLECTURE_ECRITURE,theTEntity,theTGeom,theErr);
+    }
+
+    void TVWrapper::SetNumeration(const TElemInfo& theInfo,
+				  EModeAcces theMode,
+				  EEntiteMaillage theTEntity, 
+				  EGeometrieElement theTGeom,
+				  TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,theMode,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+
+      MED::TElemInfo& anInfo = const_cast<MED::TElemInfo&>(theInfo);
+      MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
+
+      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+      
+      TErr aRet = 0;
+      if (anIsElemNum){
+	aRet  = MEDnumEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNum[0],
+			  anInfo.myElemNum.size(),
+			  anEntity,
+			  aGeom);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetNumeration - MEDnumEcr(...)");
+      }
+    }
+
+    void TVWrapper::SetFamilies(const TElemInfo& theInfo,
+				EEntiteMaillage theTEntity, 
+				EGeometrieElement theTGeom,
+				TErr* theErr)
+    { 
+      SetFamilies(theInfo,eLECTURE_ECRITURE,theTEntity,theTGeom,theErr);
+    }
+
+    void TVWrapper::SetFamilies(const TElemInfo& theInfo,
+				EModeAcces theMode,
+				EEntiteMaillage theTEntity, 
+				EGeometrieElement theTGeom,
+				TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,theMode,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+
+      MED::TElemInfo& anInfo = const_cast<MED::TElemInfo&>(theInfo);
+      MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
+
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theTGeom);
+      
+      TErr aRet = MEDfamEcr(myFile->Id(),
+			    &aMeshInfo.myName[0],
+			    &anInfo.myFamNum[0],
+			    anInfo.myFamNum.size(),
+			    anEntity,
+			    aGeom);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"SetFamilies - MEDfamEcr(...)");
+    }
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     TInt TVWrapper::GetNbNodes(const MED::TMeshInfo& theMeshInfo,
 			      TErr* theErr)
     {
@@ -452,6 +664,19 @@ namespace MED{
 	*theErr = aRet;
       else if(aRet < 0)
 	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolygoneInfo(...)");
+
+
+      GetNames(theInfo,aNbElem,theInfo.myTEntity,ePOLYGONE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
+
+      GetNumeration(theInfo,aNbElem,theInfo.myTEntity,ePOLYGONE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
+
+      GetFamilies(theInfo,aNbElem,theInfo.myTEntity,ePOLYGONE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
     }
     
     void TVWrapper::SetPolygoneInfo(const MED::TPolygoneInfo& theInfo,
@@ -472,8 +697,6 @@ namespace MED{
       MED::TPolygoneInfo& anInfo = const_cast<MED::TPolygoneInfo&>(theInfo);
       MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
 
-      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
-      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
       med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
       med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
       
@@ -490,43 +713,17 @@ namespace MED{
       else if(aRet < 0)
 	EXCEPTION(runtime_error,"SetPolygoneInfo - MEDpolygoneConnEcr(...)");
       
-      if (anIsElemNames){
-	aRet  = MEDnomEcr(myFile->Id(),
-			  &aMeshInfo.myName[0],
-			  &anInfo.myElemNames[0],
-			  anInfo.myElemNames.size(),
-			  anEntity,
-			  MED_POLYGONE);
-	if(theErr) 
-	  *theErr = aRet;
-	else if(aRet < 0)
-	  EXCEPTION(runtime_error,"SetPolygoneInfo - MEDnomEcr(...)");
-      }
-      
-      if (anIsElemNum){
-	aRet  = MEDnumEcr(myFile->Id(),
-			  &aMeshInfo.myName[0],
-			  &anInfo.myElemNum[0],
-			  anInfo.myElemNum.size(),
-			  anEntity,
-			  MED_POLYGONE);
-	if(theErr) 
-	  *theErr = aRet;
-	else if(aRet < 0)
-	  EXCEPTION(runtime_error,"SetPolygoneInfo - MEDnumEcr(...)");
-      }
-      
-      aRet = MEDfamEcr(myFile->Id(),
-		       &aMeshInfo.myName[0],
-		       &anInfo.myFamNum[0],
-		       anInfo.myFamNum.size(),
-		       anEntity,
-		       MED_POLYGONE);
-      
+      SetNames(anInfo,theInfo.myTEntity,ePOLYGONE,&aRet);
       if(theErr) 
 	*theErr = aRet;
-      else if(aRet < 0)
-	EXCEPTION(runtime_error,"SetPolygoneInfo - MEDfamEcr(...)");
+      
+      SetNumeration(anInfo,theInfo.myTEntity,ePOLYGONE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
+      
+      SetFamilies(anInfo,theInfo.myTEntity,ePOLYGONE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
     }
 
     TInt TVWrapper::GetNbPolygones(const MED::TMeshInfo& theMeshInfo, 
@@ -598,6 +795,18 @@ namespace MED{
 	*theErr = aRet;
       else if(aRet < 0)
 	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolyedreConnLire(...)");
+
+      GetNames(theInfo,aNbElem,theInfo.myTEntity,ePOLYEDRE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
+
+      GetNumeration(theInfo,aNbElem,theInfo.myTEntity,ePOLYEDRE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
+
+      GetFamilies(theInfo,aNbElem,theInfo.myTEntity,ePOLYEDRE,&aRet);
+      if(theErr) 
+	*theErr = aRet;
     }
 
     void TVWrapper::SetPolyedreInfo(const TPolyedreInfo& theInfo,
@@ -948,8 +1157,9 @@ namespace MED{
 				   TGeom& theGeom,
 				   TErr* theErr)
     {
+      theEntity = EEntiteMaillage(-1);
       TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
-      
+
       if(theErr){
 	*theErr &= !theEntityInfo.empty();
 	if(!*theErr)
@@ -971,9 +1181,12 @@ namespace MED{
 	  const med_geometrie_element& aGeom = static_cast<const med_geometrie_element>(anGeomIter->first);
 	  TInt aTmp = MEDnPasdetemps(myFile->Id(),&anInfo.myName[0],anEntity,aGeom);
 	  aNbTimeStamps = max(aTmp,aNbTimeStamps);
+	  if (aNbTimeStamps<1)
+	    continue;
 	  BEGMSG(MYDEBUG,"GetNbTimeStamps aNbTimeStamps="<<aTmp<<"; aGeom="<<aGeom<<"; anEntity="<<anEntity<<"\n");
 	  if(aTmp){
 	    theEntity = EEntiteMaillage(anEntity);
+	    ADDMSG(MYDEBUG,"theEntity="<<theEntity<<"\n");
 	    theGeom[EGeometrieElement(aGeom)] = anGeomIter->second;
 	  }
 	}
@@ -1102,8 +1315,9 @@ namespace MED{
 	  if(aRet >= 0) 
 	    for(TInt i = 0; i < iEnd; i++) {
 	      aValue[i] = anArray[i];
-	      MSG(MYDEBUG," "<<anArray[i]);
+	      ADDMSG(MYDEBUG," "<<anArray[i]);
 	    }
+	  ADDMSG(MYDEBUG,endl);
 	  break;
 	}
 	default: {

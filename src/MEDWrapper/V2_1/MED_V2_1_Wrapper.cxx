@@ -618,8 +618,8 @@ namespace MED{
     
     
     void TVWrapper::SetFieldInfo(const MED::TFieldInfo& theInfo,
-				EModeAcces theMode,
-				TErr* theErr)
+				 EModeAcces theMode,
+				 TErr* theErr)
     {
       TFileWrapper aFileWrapper(myFile,theMode,theErr);
       
@@ -665,10 +665,10 @@ namespace MED{
     
     
     TInt TVWrapper::GetNbTimeStamps(const MED::TFieldInfo& theInfo, 
-				   const MED::TEntityInfo& theEntityInfo,
-				   EEntiteMaillage& theEntity,
-				   TGeom& theGeom,
-				   TErr* theErr)
+				    const MED::TEntityInfo& theEntityInfo,
+				    EEntiteMaillage& theEntity,
+				    TGeom& theGeom,
+				    TErr* theErr)
     {
       TFileWrapper aFileWrapper(myFile,eLECT,theErr);
       
