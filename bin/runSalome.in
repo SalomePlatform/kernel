@@ -35,20 +35,16 @@ then
   export LD_LIBRARY_PATH=$HOME/Salome/lib/salome:${LD_LIBRARY_PATH}
 fi
 
-#export ORB_ROOT_DIR=/export/home/LGLS/omni
-
-
-#PYVTK_PATH=
-#export PYTHONPATH=${PYTHONPATH}:${SALOME_ROOT_DIR}/idl:${SALOME_ROOT_DIR}/bin:${SALOME_ROOT_DIR}/lib:${PYVTK_PATH}:${EXEC_DIR}
-
-#export MICORC=/dev/null
-
-#cd ${SALOME_ROOT_DIR}/bin
-
-# OCAF
-export CSF_PluginDefaults=${SALOME_ROOT_DIR}/share/salome/resources
-export CSF_ResourcesDefaults=${SALOME_ROOT_DIR}/share/salome/resources
+# Open CASCADE Application Framework - OCAF
+export CSF_PluginDefaults=${KERNEL_ROOT_DIR}/share/salome/resources
+export CSF_SALOMEDS_ResourcesDefaults=${KERNEL_ROOT_DIR}/share/salome/resources
+#export CSF_ResourceVerbose=1
 #export CSF_RepeatServerRequest=10
+
+if test -n $GEOM_ROOT_DIR
+then
+  export CSF_GEOMDS_ResourcesDefaults=${GEOM_ROOT_DIR}/share/salome/resources
+fi
 
 export tmp=/tmp
 
@@ -77,7 +73,8 @@ SALOME_ModuleCatalog_Server \
 ${GEOM_ROOT_DIR}/share/salome/resources/GEOMCatalog.xml:\
 ${SUPERV_ROOT_DIR}/share/salome/resources/SUPERVCatalog.xml:\
 ${VISU_ROOT_DIR}/share/salome/resources/VISUCatalog.xml:\
-${MED_ROOT_DIR}/share/salome/resources/MEDCatalog.xml \
+${MED_ROOT_DIR}/share/salome/resources/MEDCatalog.xml:\
+${SMESH_ROOT_DIR}/share/salome/resources/SMESHCatalog.xml \
  -personal ${HOME}/Salome/resources/CatalogModulePersonnel.xml &
 #sleep 2
 

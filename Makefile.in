@@ -83,7 +83,6 @@ uc_new.png \
 uc_clear.png \
 channel.cfg \
 Plugin \
-Resources \
 SALOMEDS_Resources
 
 BIN_SCRIPT= \
