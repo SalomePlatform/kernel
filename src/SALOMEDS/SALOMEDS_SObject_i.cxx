@@ -537,17 +537,8 @@ char* SALOMEDS_SObject_i::GetIOR() {
 SALOMEDS_SObject_i::TAttrHolder 
 SALOMEDS_SObject_i::_FindGenAttribute(const Handle(TDF_Attribute)& theAttr)
 {
-  TAttrHolder anGenAttr;
-
-  Standard_GUID aGUID = theAttr->ID();
-
-  TGUID2AttrIDMap::const_iterator anIter = __GUID2AttrIDMap__.find(aGUID);
-  if(anIter != __GUID2AttrIDMap__.end()){
-    const TAttributeID& anAttributeID = anIter->second;
-    anGenAttr = _FindGenAttribute(anAttributeID.c_str());
-  }
-
-  return anGenAttr;
+  std::string aType = GetType(theAttr);
+  return _FindGenAttribute(aType.c_str());
 }
 
 
@@ -695,7 +686,6 @@ Handle(TDF_Attribute)
     if(!_lab.FindAttribute(aGUID,anAttr)){
       _study->CheckLocked();
       anAttr = TDataStd_TreeNode::Set(_lab,aGUID);
-      _lab.AddAttribute(anAttr);
       return anAttr;
     }
   }
@@ -705,7 +695,6 @@ Handle(TDF_Attribute)
     if(!_lab.FindAttribute(aGUID,anAttr)){
       _study->CheckLocked();
       anAttr = TDataStd_UAttribute::Set(_lab,aGUID);
-      _lab.AddAttribute(anAttr);
       return anAttr;
     }
   }
