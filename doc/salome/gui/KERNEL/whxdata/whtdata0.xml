@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='windows-1252' ?>
+<tocdata>
+<item name="Welcome to SALOME" url="kernel/introduction.htm" />
+<book name="Using this reference manual" >
+  <item name="About SALOME help system" url="kernel/about_salome_pro_help_system.htm" />
+  <item name="Navigating topics" url="kernel/navigating_topics.htm" />
+  <item name="Using left-hand tabs" url="kernel/using_left-hand_tabs.htm" />
+</book>
+<book name="About SALOME" >
+  <item name="Introduction to SALOME" url="kernel/introduction_to_salome_pro.htm" />
+  <item name="About SALOME architecture" url="kernel/about_salome_pro_architecture.htm" />
+  <item name="Installing SALOME" url="kernel/readme.html" />
+  <item name="Running SALOME" url="kernel/running_salome_pro.htm" />
+</book>
+<book name="IAPP module" >
+  <item name="Introduction to IAPP" url="kernel/introduction_to_iapp.htm" />
+  <item name="Getting started" url="kernel/getting_started2.htm" />
+  <item name="SALOME desktop" url="kernel/salome_pro_desktop.htm" />
+  <item name="Displaying/hiding toolbars" url="kernel/displaying_hiding_toolbars.htm" />
+  <book name="Study management" >
+    <item name="Creating a new study" url="kernel/creating_a_new_study.htm" />
+    <item name="Opening studies" url="kernel/opening_studies.htm" />
+    <item name="Saving and closing studies" url="kernel/saving_a_study.htm" />
+    <item name="Editing studies" url="kernel/editing_studies.htm" />
+    <item name="Displaying studies" url="kernel/displaying_studies.htm" />
+    <item name="Getting and setting study properties" url="kernel/getting_properties_of_the_study.htm" />
+  </book>
+  <item name="Using Object Browser" url="kernel/using_object_browser.htm" />
+  <item name="Using UseCase Browser" url="kernel/using_usecase_browser.htm" />
+  <item name="Using Registry tool" url="kernel/using_registry.htm" />
+  <item name="Using Catalog Generator" url="kernel/using_catalog_generator.htm" />
+  <item name="Setting preferences" url="kernel/setting_preferences.htm" />
+</book>
+
+</tocdata>
