@@ -9,6 +9,7 @@
 
 
 //***//#include "VISU_Gen.idl"
+#include "SALOME_Component.idl"
 /*! \defgroup Kernel SALOME KERNEL module
 */
 
@@ -69,6 +70,7 @@ module SALOME
 */
     void GetInterface(); 
     //***//    VISU::VISU_Gen GetVisuGen();
+    Engines::Component GetVisuComponent();
 
 /*! 
   Stops the %Session (It must be idle)

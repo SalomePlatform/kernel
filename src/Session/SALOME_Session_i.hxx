@@ -13,6 +13,7 @@
 #include <qthread.h> 
 
 #include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOME_Component)
 //***//#include CORBA_SERVER_HEADER(VISU_Gen)
 #include CORBA_SERVER_HEADER(SALOME_Session)
 class SALOME_NamingService;
@@ -30,6 +31,7 @@ public:
   //! Launch Graphical User Interface
   void GetInterface();
   //***//VISU::VISU_Gen_ptr GetVisuGen();
+  Engines::Component_ptr GetVisuComponent();
 
   //! Stop the Session (must be idle): kill servant & server
   void StopSession();

@@ -51,6 +51,18 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
 //***//  return VISU::VISU_Gen::_nil();
 //***//} 
 
+typedef Engines::Component_ptr VisuGen(CORBA::ORB_var,PortableServer::POA_ptr,QMutex*);
+Engines::Component_ptr SALOME_Session_i::GetVisuComponent() {
+  MESSAGE("SALOME_Session_i::GetVisuGen");
+  OSD_SharedLibrary  visuSharedLibrary("libVISUEngine.so");
+  if(visuSharedLibrary.DlOpen(OSD_RTLD_LAZY))
+    if(OSD_Function osdFun = visuSharedLibrary.DlSymb("GetVisuGen"))
+      return ((VisuGen (*)) osdFun)(_orb,_poa,&_GUIMutex);
+
+  MESSAGE ( "nil" )
+  return Engines::Component::_nil();
+}
+
 //=============================================================================
 /*! ~SALOME_Session_i
  *  destructor
