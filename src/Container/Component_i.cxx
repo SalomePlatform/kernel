@@ -35,7 +35,6 @@ using namespace std;
 #include "utilities.h"
 
 extern bool _Sleeping ;
-static Engines_Component_i * theEngines_Component ;
 
 Engines_Component_i::Engines_Component_i()
 {
@@ -48,10 +47,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 					 const char *instanceName,
 					 const char *interfaceName,
                                          bool notif) :
-  _instanceName(instanceName),
-  _interfaceName(interfaceName),
-  _myConnexionToRegistry(0),
-  _ThreadId(0) , _ThreadCpuUsed(0) , _Executed(false) , _graphName("") , _nodeName("") {
+  _instanceName(instanceName), _interfaceName(interfaceName),
+  _myConnexionToRegistry(0), _ThreadId(0) , _graphName("") , _nodeName("") {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
@@ -74,7 +71,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   : _instanceName(instanceName),
     _interfaceName(interfaceName),
     _myConnexionToRegistry(0),
-    _ThreadId(0) , _ThreadCpuUsed(0) , _Executed(false) , _graphName("") , _nodeName("") {
+    _ThreadId(0)
+{
 //  MESSAGE("Component constructor with instanceName "<< _instanceName);
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
@@ -136,13 +134,11 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
-  MESSAGE(pthread_self() << "Send BeginService notification for " << serviceName << endl
+  MESSAGE("Send BeginService notification for " << serviceName << endl
 	  << "Component instance : " << _instanceName << endl << endl);
   _ThreadId = pthread_self() ;
   _StartUsed = 0 ;
   _StartUsed = CpuUsed_impl() ;
-  _ThreadCpuUsed = 0 ;
-  _Executed = true ;
   _serviceName = serviceName ;
   if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS , NULL ) ) {
     perror("pthread_setcanceltype ") ;
@@ -152,17 +148,15 @@ void Engines_Component_i::beginService(const char *serviceName)
     perror("pthread_setcancelstate ") ;
     exit(0) ;
   }
-//  MESSAGE(pthread_self() << " Return from BeginService for " << serviceName
-//          << " ThreadId " << _ThreadId << " StartUsed " << _StartUsed
-//          << " _graphName " << _graphName << " _nodeName " << _nodeName );
+  MESSAGE("Return from BeginService for " << serviceName
+          << " ThreadId " << _ThreadId
+          << " _graphName " << _graphName << " _nodeName " << _nodeName );
 }
 
 void Engines_Component_i::endService(const char *serviceName)
 {
-  _ThreadCpuUsed = CpuUsed_impl() ;
-  MESSAGE(pthread_self() << " Send EndService notification for " << serviceName << endl
-	  << " Component instance : " << _instanceName << " StartUsed " << _StartUsed << " _ThreadCpuUsed "
-          << _ThreadCpuUsed << endl << endl);
+  MESSAGE("Send EndService notification for " << serviceName << endl
+	  << "Component instance : " << _instanceName << endl << endl);
   _ThreadId = 0 ;
 }
 
@@ -182,7 +176,7 @@ char* Engines_Component_i::nodeName() {
   return CORBA::string_dup( _nodeName.c_str() ) ;
 }
 
-bool Engines_Component_i::Killer( int ThreadId , int signum ) {
+bool Killer( int ThreadId , int signum ) {
   if ( ThreadId ) {
     if ( signum == 0 ) {
       if ( pthread_cancel( ThreadId ) ) {
@@ -190,7 +184,7 @@ bool Engines_Component_i::Killer( int ThreadId , int signum ) {
         return false ;
       }
       else {
-        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_canceled") ;
+        MESSAGE("Killer : ThreadId " << ThreadId << " pthread_canceled") ;
       }
     }
     else {
@@ -199,7 +193,7 @@ bool Engines_Component_i::Killer( int ThreadId , int signum ) {
         return false ;
       }
       else {
-        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_killed("
+        MESSAGE("Killer : ThreadId " << ThreadId << " pthread_killed("
                 << signum << ")") ;
       }
     }
@@ -208,12 +202,12 @@ bool Engines_Component_i::Killer( int ThreadId , int signum ) {
 }
 
 bool Engines_Component_i::Kill_impl() {
-//  MESSAGE("Engines_Component_i::Kill_i() pthread_t "<< pthread_self()
-//          << " pid " << getpid() << " instanceName "
-//          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-//          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
-//          << dec << " _ThreadId " << _ThreadId << " this " << hex << this
-//          << dec ) ;
+  MESSAGE("Engines_Component_i::Kill_i() pthread_t "<< pthread_self()
+          << " pid " << getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId << " this " << hex << this
+          << dec ) ;
   bool RetVal = false ;
   if ( _ThreadId > 0 && pthread_self() != _ThreadId ) {
     RetVal = Killer( _ThreadId , 0 ) ;
@@ -274,68 +268,21 @@ bool Engines_Component_i::Resume_impl() {
 
 }
 
-void SetCpuUsed() {
-  theEngines_Component->SetCurCpu() ;
-}
-void Engines_Component_i::SetCurCpu() {
-  _ThreadCpuUsed =  CpuUsed() ;
-//  MESSAGE(pthread_self() << " Engines_Component_i::SetCurCpu() _ThreadCpuUsed " << _ThreadCpuUsed) ;
-}
-
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
-long Engines_Component_i::CpuUsed() {
-  long cpu = 0 ;
-  struct rusage usage ;
-  if ( _ThreadId || _Executed ) {
-    if ( getrusage( RUSAGE_SELF , &usage ) == -1 ) {
-      perror("Engines_Component_i::CpuUsed") ;
-      return 0 ;
-    }
-    cpu = usage.ru_utime.tv_sec - _StartUsed ;
-//    cout << pthread_self() << " Engines_Component_i::CpuUsed " << " " << _serviceName
-//         << usage.ru_utime.tv_sec << " - " << _StartUsed << " = " << cpu << endl ;
-  }
-  else {
-//    cout << pthread_self() << "Engines_Component_i::CpuUsed _ThreadId " << _ThreadId << " " << _serviceName
-//         << " _StartUsed " << _StartUsed << endl ;
-  }
-  return cpu ;
-}
-
 long Engines_Component_i::CpuUsed_impl() {
-  long cpu = 0 ;
-  if ( _ThreadId || _Executed ) {
-    if ( _ThreadId > 0 ) {
-      if ( pthread_self() != _ThreadId ) {
-        if ( _Sleeping ) {
-        }
-        else {
-// Get Cpu in the appropriate thread with that object !...
-          theEngines_Component = this ;
-          Killer( _ThreadId ,SIGUSR1 ) ;
-        }
-        cpu = _ThreadCpuUsed ;
-      }
-      else {
-        _ThreadCpuUsed = CpuUsed() ;
-        cpu = _ThreadCpuUsed ;
-//        cout << pthread_self() << " Engines_Component_i::CpuUsed_impl " << _serviceName << " " << cpu
-//             << endl ;
-      }
-    }
-    else {
-      cpu = _ThreadCpuUsed ;
-//      cout << pthread_self() << " Engines_Component_i::CpuUsed_impl " << _serviceName << " " << cpu
-//           << endl ;
-    }
+  struct rusage usage ;
+  long cpu ;
+  if ( getrusage( RUSAGE_SELF , &usage ) == -1 ) {
+    perror("GraphBase::CpuUsed") ;
+    return 0 ;
   }
-  else {
-//    cout << pthread_self() << "Engines_Component_i::CpuUsed_impl _ThreadId " << _ThreadId << " "
-//         << _serviceName << " _StartUsed " << _StartUsed << endl ;
-  }
+//  return usage.ru_utime.__time_t tv_sec ;
+  cout << "CpuUsed " << usage.ru_utime.tv_sec << " " << usage.ru_utime.tv_usec << " "
+       << usage.ru_stime.tv_sec << " " << usage.ru_stime.tv_usec << endl ;
+  cpu = usage.ru_utime.tv_sec - _StartUsed ;
   return cpu ;
 }
 

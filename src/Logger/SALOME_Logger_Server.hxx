@@ -29,7 +29,6 @@ public:
 	virtual ~Logger();
 	//put message into one special place for all servers
 	void putMessage(const char* message);
-        void ping();
 private:
 	//if m_putIntoFile is true all messages will be put into special 
 	//otherwise all messages will be put into terminal via cout 

@@ -280,7 +280,7 @@ import os
 dir= os.getenv("SALOME_ROOT_DIR")
 if dir == None:
 	raise RuntimeError, "SALOME_ROOT_DIR is not defined"
-xmlfile = dir +"/data/GraphEssai.xml"
+xmlfile = dir +"/../SALOME_ROOT/SuperVisionTest/resources/GraphEssai.xml"
 print "Load dataflow from the file : "
 print xmlfile
 print
@@ -418,7 +418,7 @@ import VISU
 import visu_gui
 
 medFile = "pointe.med"
-medFile = os.getenv('SALOME_ROOT_DIR') + '/data/' + medFile
+medFile = os.getenv('SALOME_ROOT_DIR') + '/../SALOME_ROOT/data/' + medFile
 print "Load ", medFile
 
 studyCurrent = salome.myStudyName
@@ -433,23 +433,28 @@ try:
            med_obj = visu_gui.visu.getMedObjectFromStudy()
            print "med_obj - ", med_obj
 
-           myField1 = visu_gui.visu.getFieldObjectFromStudy(2,1)
-           aMeshName = "maa1"
+           myField = visu_gui.visu.getFieldObjectFromStudy(2,1)
+           aMeshName = "FILED_DOUBLE_MESH"
            anEntity = VISU.NODE
-	   aTimeStampId = -1
-           	   
-           myResult1 = myVisu.ImportMedField(myField1)
+           aTimeStampId = 0
+           
+           myResult1 = myVisu.ImportMedField(myField)
            aMesh1 = myVisu.MeshOnEntity(myResult1, aMeshName, anEntity);
            
-	   aScalarMap1= myVisu.ScalarMapOnField(myResult1, aMeshName, anEntity, myField1.getName(), aTimeStampId)
-	   
-	   myResult2 = myVisu.ImportFile(medFile);
-	   aMesh2 = myVisu.MeshOnEntity(myResult2, aMeshName, anEntity);
-           
-	   aTimeStampId = 3
-	   aScalarMap2= myVisu.ScalarMapOnField(myResult2, aMeshName, anEntity, myField1.getName(), aTimeStampId)
-    	       	   
-	   sg.updateObjBrowser(0)
+           aScalarMap1= myVisu.ScalarMapOnField(myResult1, aMeshName, anEntity, myField.getName(), aTimeStampId)
+           if(myField.getNumberOfComponents() > 1) :
+               aVectors = myVisu.VectorsOnField(myResult1, aMeshName, anEntity, myField.getName(), aTimeStampId)
+
+           myResult2 = myVisu.ImportFile(medFile)
+           aMeshName = "maa1"
+           anEntity = VISU.NODE
+           aMesh2 = myVisu.MeshOnEntity(myResult2, aMeshName, anEntity)
+
+           aScalarMap2 = myVisu.ScalarMapOnField(myResult2, aMeshName, anEntity, myField.getName(), aTimeStampId)
+           if(myField.getNumberOfComponents() > 1) :
+             aCutPlanes = myVisu.CutPlanesOnField(myResult2, aMeshName, anEntity, myField.getName(), aTimeStampId)
+
+           sg.updateObjBrowser(0)
        else :  print "We have no permission to rewrite medFile, so readStructFileWithFieldType can't open this file";
     else :  print  "We have no permission to read medFile, it will not be opened"; 
 

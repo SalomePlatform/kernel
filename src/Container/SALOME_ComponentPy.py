@@ -40,8 +40,6 @@ from libNOTIFICATION import *
 
 from SALOME_utilities import *
 
-from thread import *
-
 #=============================================================================
 
 #define an implementation of the component interface
@@ -68,8 +66,6 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._nodeName = ''
         self._ThreadId = 0
         self._StartUsed = 0
-        self._ThreadCpuUsed = 0
-        self._Executed = 0
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         Component_path = "/Containers/" +  os.getenv( "HOSTNAME" ) + "/" + self._containerName + "/" + self._interfaceName
@@ -131,21 +127,15 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     #-------------------------------------------------------------------------
 
     def beginService(self , serviceName ):
-        MESSAGE(  "Send BeginService notification for " + str(serviceName) + " for graph/node " + str(self._graphName) + " " + str(self._nodeName) )
+        MESSAGE(  "Send BeginService notification for " + str(serviceName) + "for graph/node" + str(self._graphName) + str(self._nodeName) )
         MESSAGE(  "Component instance : " + str ( self._instanceName ) )
-        self._serviceName = str(serviceName)
-        self._ThreadId = get_ident()
         self._StartUsed = 0
         self._StartUsed = self.CpuUsed_impl()
-        self._ThreadCpuUsed = 0
-        self._Executed = 1
-        MESSAGE( "SALOME_ComponentPy_i::beginService _StartUsed " + str( self._ThreadId ) + " " + str( self._StartUsed ) )
-        
 
     #-------------------------------------------------------------------------
 
     def endService(self , serviceName ):
-        MESSAGE(  "Send EndService notification for " + str( self._ThreadId ) + " " + str(serviceName) + " for graph/node " + str(self._graphName) + " " + str(self._nodeName) + " CpuUsed " + str( self.CpuUsed_impl() ) )
+        MESSAGE(  "Send EndService notification for " + str(serviceName) + "for graph/node" + str(self._graphName) + str(self._nodeName) )
         MESSAGE(  "Component instance : " + str(self._instanceName) )
 
     #-------------------------------------------------------------------------
@@ -193,16 +183,10 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     #-------------------------------------------------------------------------
 
     def CpuUsed_impl(self):
-        if ( self._ThreadId | self._Executed ) :
-            if self._ThreadId == get_ident() :
-                cpu = time.clock()
-                self._ThreadCpuUsed = int(cpu) - self._StartUsed
-                MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( int(cpu) ) + " - " + str( self._StartUsed ) + " = " + str( self._ThreadCpuUsed ) )
-                return self._ThreadCpuUsed
-            MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( self._ThreadCpuUsed ) )
-            return self._ThreadCpuUsed
-        MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl self._StartUsed " + self._serviceName + " " + str(self._StartUsed) )
-        return 0
+        cpu = time.clock()
+        cpuL = int(cpu) - self._StartUsed
+        print "SALOME_ComponentPy_i::CpuUsed_impl ",cpuL,type(cpuL)
+        return cpuL
 
     #-------------------------------------------------------------------------
 

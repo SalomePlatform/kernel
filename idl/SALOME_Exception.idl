@@ -24,31 +24,25 @@
 //  $Header$
 
 /*! \file SALOME_Exception.idl This file contains the objects defining the main exception used
-in %SALOME application. The idl SALOME_Exception provides a generic CORBA exception for SALOME,
- with an attribute that gives an exception type,a message, plus optional source file name and line number. 
-This idl is intended to serve for all user CORBA exceptions raised in SALOME code, as IDL specification 
-does not support exception inheritance. So, all the user CORBA exceptions from SALOME could be 
-handled in a single catch. 
-
+in %SALOME application.
 */ 
 #ifndef _SALOME_EXCEPTION_IDL_
 #define _SALOME_EXCEPTION_IDL_
 
 /*! 
-Module %SALOME regroups all idl definitions for %SALOME Kernel component
+Module SALOME regroups all idl definitions for SALOME Kernel
 */ 
 
 module SALOME
 {
 /*! 
-This enumeration contains the elements indicating the type of the exception 
-which can be raised during %SALOME session.
+This enumeration contains the elements indicating the type of the exception.
 */  
   enum ExceptionType
     { 
       COMM,             /*!< Communication problem */
       BAD_PARAM,        /*!< Bad User parameters */
-      INTERNAL_ERROR    /*!< Application level problem, irrecoverable */ 
+      INTERNAL_ERROR    /*!< SALOME Bug, irrecoverable */ 
     };
 /*! 
 This struct contains a set of fields defining the structure of the exception.
