@@ -1,0 +1,34 @@
+
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+EXPORT_PYSCRIPTS = 
+
+EXPORT_HEADERS = \
+	ReceiverFactory.hxx \
+	SenderFactory.hxx \
+	SALOMEMultiComm.hxx \
+	MultiCommException.hxx
+# Libraries targets
+
+LIB = libSalomeCommunication.la 
+LIB_SRC = SALOME_Comm_i.cxx  SenderFactory.cxx Receiver.cxx MultiCommException.cxx SALOMEMultiComm.cxx ReceiverFactory.cxx
+LIB_SERVER_IDL = SALOME_Comm.idl SALOME_Exception.idl
+
+# Executables targets
+BIN = 
+BIN_SRC =
+BIN_SERVER_IDL = 
+
+CPPFLAGS+= $(PYTHON_INCLUDES)  $(MPI_INCLUDES) 
+
+LDFLAGS+= -lOpUtil -lSALOMELocalTrace
+
+LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(MPI_LIBS)
+
+@CONCLUDE@

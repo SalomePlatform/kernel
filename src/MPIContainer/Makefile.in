@@ -51,8 +51,8 @@ BIN = SALOME_MPIContainer
 BIN_SRC = 
 BIN_SERVER_IDL = TypeData.idl MPIObject.idl MPIContainer.idl
 
-CXXFLAGS+=${MPICH_INCLUDES}
-CXX_DEPEND_FLAG+=${MPICH_INCLUDES}
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil ${MPICH_LIBS} 
+CXXFLAGS+=${MPI_INCLUDES}
+CXX_DEPEND_FLAG+=${MPI_INCLUDES}
+LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil ${MPI_LIBS} 
 
 @CONCLUDE@

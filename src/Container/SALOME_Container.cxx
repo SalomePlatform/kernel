@@ -40,6 +40,10 @@
 #include <Utils_Timer.hxx>
 #endif
 
+#ifdef HAVE_MPI2
+#include <mpi.h>
+#endif
+
 #include <Python.h>
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
@@ -58,6 +62,9 @@ int main(int argc, char* argv[])
   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
   
   try{
+#ifdef HAVE_MPI2
+      MPI_Init(&argc,&argv);
+#endif
     // Initialise the ORB.
     ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
     ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
@@ -199,6 +206,9 @@ int main(int argc, char* argv[])
   }catch(...){
     INFOS("Caught unknown exception.");
   }
+#ifdef HAVE_MPI2
+  MPI_Finalize();
+#endif
   END_OF(argv[0]);
 }
 

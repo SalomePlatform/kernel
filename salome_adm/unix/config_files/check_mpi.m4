@@ -50,21 +50,54 @@ if test "$WITHMPI" = yes; then
   CPPFLAGS="$CPPFLAGS_old"
 
   if test "$WITHMPI" = "yes";then
+    LIBS_old="$LIBS"
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPI_LIBS $LDFLAGS"
     AC_CHECK_LIB(elan,elan_init,MPI_LIBS="$MPI_LIBS -lelan")
     AC_CHECK_LIB(mpi,MPI_Init,WITHMPI="yes",WITHMPI="no")
+    AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
     LDFLAGS="$LDFLAGS_old"
+    LIBS="$LIBS_old"
   fi
 
   if test "$WITHMPI" = "yes";then
     mpi_ok=yes
     MPI_LIBS="$MPI_LIBS -lmpi"
+  else
+    mpi_ok=no
   fi
 
 fi
+
+if test "$WITHMPI" = no; then
+dnl
+dnl ---------------------------------------------
+dnl testing MPICH
+dnl ---------------------------------------------
+dnl
+
+  CHECK_MPICH
+
+  if test "$WITHMPICH" = no; then
+dnl
+dnl ---------------------------------------------
+dnl testing LAM
+dnl ---------------------------------------------
+dnl
+
+    CHECK_LAM
+
+  fi
+
+fi
+
+if test "$WITHMPI2" = "yes";then
+  CPPFLAGS="-DHAVE_MPI2 $CPPFLAGS"
+  CORBA_IDLCXXFLAGS="-DHAVE_MPI2 $CORBA_IDLCXXFLAGS"
+  CORBA_IDLPYFLAGS="-DHAVE_MPI2 $CORBA_IDLPYFLAGS"
+fi
+
 AC_SUBST(MPI_INCLUDES)
 AC_SUBST(MPI_LIBS)
-AC_SUBST(WITHMPI)
-
+AC_SUBST(mpi_ok)
 ])dnl

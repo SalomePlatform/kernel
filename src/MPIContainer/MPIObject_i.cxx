@@ -85,14 +85,14 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_var pobj,
 
     // Process 0 recupere les ior de l'object sur les autres process
     for(ip=1;ip<_nbproc;ip++){
-      err = MPI_Recv(&n,1,MPI_INTEGER,ip,ip,MPI_COMM_WORLD,&status);
+      err = MPI_Recv(&n,1,MPI_INT,ip,ip,MPI_COMM_WORLD,&status);
       if(err){
 	MESSAGE("[" << _numproc << "] MPI_RECV error");
 	exit(1);
       }
       // Allocation de la chaine de longueur n
       ior = (char*)calloc(n,sizeof(char));
-      err = MPI_Recv(ior,n,MPI_CHARACTER,ip,2*ip,MPI_COMM_WORLD,&status);
+      err = MPI_Recv(ior,n,MPI_CHAR,ip,2*ip,MPI_COMM_WORLD,&status);
       if(err){
 	MESSAGE("[" << _numproc << "] MPI_RECV error");
 	exit(1);
@@ -110,12 +110,12 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_var pobj,
   else{
     // On envoie l'IOR au process 0
     n = strlen((char*)sior);
-    err = MPI_Send(&n,1,MPI_INTEGER,0,_numproc,MPI_COMM_WORLD);
+    err = MPI_Send(&n,1,MPI_INT,0,_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);
     }
-    err = MPI_Send((char*)sior,n,MPI_CHARACTER,0,2*_numproc,MPI_COMM_WORLD);
+    err = MPI_Send((char*)sior,n,MPI_CHAR,0,2*_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);

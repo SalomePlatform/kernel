@@ -35,7 +35,7 @@ MPIContainer_i::MPIContainer_i(int nbproc, int numproc,
 			       CORBA::ORB_ptr orb, 
 			       PortableServer::POA_ptr poa,
 			       char * containerName) 
-  : Engines_Container_i(orb,poa,containerName,0), MPIObject_i(nbproc,numproc)
+  : Engines_Container_i(orb,poa,containerName,0,0), MPIObject_i(nbproc,numproc)
 {
   _id = _poa->activate_object(this);
 

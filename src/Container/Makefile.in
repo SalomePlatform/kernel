@@ -51,11 +51,11 @@ BIN = SALOME_Container
 BIN_SRC = SALOME_Container_SignalsHandler.cxx
 BIN_SERVER_IDL = SALOME_Component.idl
 
-CPPFLAGS+= $(PYTHON_INCLUDES) $(OCC_INCLUDES)
+CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
 
 LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
-LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) -lCASCatch
+LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
 
 @CONCLUDE@

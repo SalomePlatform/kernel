@@ -1,0 +1,81 @@
+#include "SALOME_Exception.idl"
+
+module SALOME {
+  
+  enum TypeOfDataTransmitted { _DOUBLE_,_INT_ };
+
+  enum TypeOfCommunication { CORBA_ , MPI_ , SOCKET_ };
+
+  typedef sequence<double> vectorOfDouble;
+  
+  typedef sequence<long> vectorOfLong;
+  
+  interface MultiCommClass {
+    void setProtocol(in TypeOfCommunication typ);
+  };
+
+  interface ServantLifeCycle {
+    void release();
+  };
+
+  interface Sender {
+    TypeOfDataTransmitted getTypeOfDataTransmitted();
+    Sender buildOtherWithProtocol(in TypeOfCommunication type);
+    void release();
+  };
+
+  //No compulsory copy between double and CORBA::Double
+  interface CorbaDoubleNCSender : Sender {
+    unsigned long getSize();
+    vectorOfDouble sendPart(in unsigned long n1,in unsigned long n2);
+    vectorOfDouble send();
+  };
+
+  //Compulsory copy between double and CORBA::Double
+  interface CorbaDoubleCSender : Sender {
+    unsigned long getSize();
+    //unsigned long getSize2();
+    vectorOfDouble sendPart(in unsigned long n1,in unsigned long n2);
+  };
+
+  //No compulsory copy between int and CORBA::Long
+  interface CorbaLongNCSender : Sender {
+    unsigned long getSize();
+    vectorOfLong sendPart(in unsigned long n1,in unsigned long n2);
+    vectorOfLong send();
+  };
+
+  //Compulsory copy between int and CORBA::Long
+  interface CorbaLongCSender : Sender {
+    unsigned long getSize();
+    vectorOfLong sendPart(in unsigned long n1,in unsigned long n2);
+  };
+
+  interface MPISender : Sender {
+    typedef struct Parameter {
+      unsigned long myproc;
+      unsigned long tag1;
+      unsigned long tag2;
+      string service;
+    } param;
+    param getParam();
+    void send();
+    void close(in param p);
+  };
+
+  interface SocketSender : Sender {
+    typedef struct Parameter {
+      unsigned long lstart;
+      unsigned long lend;
+      unsigned long myport;
+     string internet_address;
+    } param;
+    param getParam();
+    void initCom() raises(SALOME_Exception);
+    void acceptCom() raises(SALOME_Exception);
+    void closeCom();
+    void endOfCom() raises(SALOME_Exception);
+    void send();
+  };
+
+};

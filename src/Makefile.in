@@ -42,14 +42,14 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils SALOMELogger CASCatch PatchQt \
           SALOMEGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
 	  Session SALOME_SWIG TOOLSGUI SALOME_PY \
-          RegistryDisplay ModuleGenerator SALOME_PYQT Loader
+          RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
+
+ifeq (@mpi_ok@,yes)
+  SUBDIRS+= MPIContainer
+endif
 
 ifeq (@WITHOPENPBS@,yes)
   SUBDIRS += Batch Batch_SWIG
-endif
-
-ifeq (@WITHMPICH@,yes)
-  SUBDIRS+= MPIContainer
 endif
 
 @MODULE@

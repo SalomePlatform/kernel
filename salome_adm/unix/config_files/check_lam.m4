@@ -20,52 +20,55 @@ dnl
 dnl
 dnl
 
-AC_DEFUN([CHECK_MPICH],[
+AC_DEFUN([CHECK_LAM],[
 
 AC_REQUIRE([AC_PROG_CC])dnl
 
-AC_ARG_WITH(mpich,
-	    --with-mpich=DIR root directory path of MPICH installation,
-	    WITHMPICH="yes",WITHMPICH="no")
+AC_ARG_WITH(lam,
+	    --with-lam=DIR root directory path of LAM installation,
+	    WITHLAM="yes",WITHLAM="no")
 
 MPI_INCLUDES=""
 MPI_LIBS=""
-if test "$WITHMPICH" = yes; then
+if test "$WITHLAM" = yes; then
 
   echo
   echo ---------------------------------------------
-  echo testing mpich
+  echo testing lam
   echo ---------------------------------------------
   echo
-  MPICH_HOME=$withval
+  LAM_HOME=$withval
 
-  if test "$MPICH_HOME"; then
-    MPI_INCLUDES="-I$MPICH_HOME/include"
-    MPI_LIBS="-L$MPICH_HOME/lib"
+  if test "$LAM_HOME"; then
+    MPI_INCLUDES="-I$LAM_HOME/include"
+    MPI_LIBS="-L$LAM_HOME/lib"
   fi
 
   CPPFLAGS_old="$CPPFLAGS"
   CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
-  AC_CHECK_HEADER(mpi.h,WITHMPICH="yes",WITHMPICH="no")
+  AC_CHECK_HEADER(mpi.h,WITHLAM="yes",WITHLAM="no")
   CPPFLAGS="$CPPFLAGS_old"
 
-  if test "$WITHMPICH" = "yes";then
+  if test "$WITHLAM" = "yes";then
+    AC_CHECK_LIB(util,openpty,,WITHLAM="no")
+    LIBS_old="$LIBS"
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPI_LIBS $LDFLAGS"
-    AC_CHECK_LIB(mpich,MPI_Init,
-               AC_CHECK_LIB(pmpich, PMPI_Init,WITHMPICH="yes",WITHMPICH="no"),
-               WITHMPICH="no")
-    AC_CHECK_LIB(mpich,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
+    AC_CHECK_LIB(lam,lam_mp_init,,WITHLAM="no")
+    AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
+    AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
     LDFLAGS="$LDFLAGS_old"
+    LIBS="$LIBS_old"
   fi
 
-  if test "$WITHMPICH" = "yes";then
+  if test "$WITHLAM" = "yes";then
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -lpmpich -lmpich"
+     MPI_LIBS="$MPI_LIBS -lmpi -llam"
   else
      mpi_ok=no
   fi
 
 fi
+
 
 ])dnl
