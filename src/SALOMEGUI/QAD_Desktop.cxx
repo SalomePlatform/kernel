@@ -2221,6 +2221,7 @@ void QAD_Desktop::onOpenWith()
 }
 
 typedef bool OneDim1(QAD_Desktop*);
+typedef bool OneDim2(QAD_Desktop*, char*);
 
 /*!
   Called to define settings of component.
@@ -2229,10 +2230,18 @@ void QAD_Desktop::setSettings()
 {
   if (!myActiveComp.isEmpty())	{
     OSD_Function osdF = mySharedLibrary.DlSymb("SetSettings");
-    if ( osdF != NULL ) {
-      OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
-      (*f1)(this);
-    }
+    if ( osdF != NULL )
+      if (_islibso)
+	{
+	  OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
+	  (*f1)(this);
+	}
+      else
+	{
+	  QString Component =mapComponentName[myActiveComp];
+	  OneDim2 (*f1) = (bool (*) (QAD_Desktop*, char*)) osdF;
+	  (*f1)(this, (char*)Component.latin1());
+	}
   }
 }
 
@@ -2306,6 +2315,7 @@ bool QAD_Desktop::loadComponent(QString Component)
     nbToolbars = myActiveMenus->getToolBarList().count();
   /* Open Shared Library */
   mySharedLibrary = OSD_SharedLibrary();
+  _islibso = false;
 
   QString ComponentLib;
   QCString libs;
@@ -2314,9 +2324,8 @@ bool QAD_Desktop::loadComponent(QString Component)
   QString dir;
 
   if ( libs = getenv("LD_LIBRARY_PATH")) {
-    //    MESSAGE ( " LD_LIBRARY_PATH : " << libs )
+    //    MESSAGE ( " LD_LIBRARY_PATH : " << libs );
     QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
-    bool found = false;
     for ( int i = dirList.count()-1; i >= 0; i-- ) {
       dir = dirList[ i ];
 #ifdef WNT
@@ -2327,19 +2336,46 @@ bool QAD_Desktop::loadComponent(QString Component)
     
       fileInfo.setFile(fileString) ;
       if (fileInfo.exists()) {
-	//	MESSAGE ( " GUI library = " << fileString )
+	//	MESSAGE ( " GUI library = " << fileString );
 	ComponentLib = fileInfo.fileName() ;
-	found = true;
+	_islibso = true;
 	break;
       }
     }
-    if ( !found ) {
-      QMessageBox::critical( this,
-			     tr("ERR_ERROR"),
-			     tr("ERR_LIBGUI" ).arg(Component) );
-      return false;
-    }
   }
+
+  if (!_islibso) // component GUI could be in PyQt, use generic library
+    {
+      MESSAGE("GUI library not found, trying generic library for PyQt GUI");
+      bool found = false;
+      if (dir = getenv("KERNEL_ROOT_DIR"))
+	{
+	  dir = QAD_Tools::addSlash(dir) ;
+	  dir = dir + "lib" ;
+	  dir = QAD_Tools::addSlash(dir) ;
+	  dir = dir + "salome" ;
+	  dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+	  dir = dir + "libSalomePyQtcmodule.dll" ;
+#else
+	  dir = dir + "libSalomePyQtcmodule.so" ;
+#endif
+	  MESSAGE ( " GUI library = " << dir );
+	  fileInfo.setFile(dir) ;
+	  if (fileInfo.exists())
+	    {
+	      ComponentLib = fileInfo.fileName() ;
+	      found = true;
+	    }
+	}
+      if ( !found )
+	{
+	  QMessageBox::critical( this,
+				 tr("ERR_ERROR"),
+				 tr("ERR_LIBGUI" ).arg(Component) );
+	  return false;
+	}
+    }
 
   mySharedLibrary.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
   ok = mySharedLibrary.DlOpen(OSD_RTLD_LAZY);
@@ -2353,10 +2389,19 @@ bool QAD_Desktop::loadComponent(QString Component)
 
   /* SETTINGS */
   OSD_Function osdF = mySharedLibrary.DlSymb("SetSettings");
-  if ( osdF != NULL ) {
-    OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
-    (*f1)(this);
-  }
+  if ( osdF != NULL )
+    if (_islibso)
+      {
+	OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
+	(*f1)(this);
+      }
+    else
+      {
+	OneDim2 (*f1) = (bool (*) (QAD_Desktop*, char*)) osdF;
+	(*f1)(this, (char*)Component.latin1());
+      }
+
+  
 
   /* COMPONENT INTERFACE */
   SALOME_ModuleCatalog::Acomponent_ptr aComponent =

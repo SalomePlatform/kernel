@@ -345,6 +345,7 @@ private:
     SALOME_LifeCycleCORBA *		    myEnginesLifeCycle;
     QComboBox *				    myCombo;
     bool                                    myQueryClose;
+    bool                                    _islibso;
 };
 
 /********************************************************************
