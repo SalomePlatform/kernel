@@ -135,9 +135,6 @@ protected:
   TAttrHolder 
   _FindGenAttribute(const char* theTypeOfAttribute);
 
-  SALOMEDS::GenericAttribute_ptr 
-  _FindCORBAAttribute(const char* theTypeOfAttribute);
-
   Handle(TDF_Attribute) 
     _AddAttribute(const char* theTypeOfAttribute);
 

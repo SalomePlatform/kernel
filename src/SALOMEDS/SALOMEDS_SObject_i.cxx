@@ -577,8 +577,8 @@ SALOMEDS_SObject_i::_CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
   if(anIter != __AttrID2FunMap__.end()){
     const TAttrID2FunMap::mapped_type& aValue = anIter->second;
     
-    if(aValue.myIsCheckLockedStudy())
-      _study->CheckLocked();
+    //if(aValue.myIsCheckLockedStudy()) // mpv 03.02.05: creation of CORBA objects does not modify the study
+    //  _study->CheckLocked();
     
     anAttr = aValue.myNewInstance(theAttr,this);
     return TAttrHolder(anAttr,anAttr->_this());
@@ -631,25 +631,17 @@ SALOMEDS_SObject_i::_FindGenAttribute(const char* theType)
 }
 
 
-SALOMEDS::GenericAttribute_ptr 
-SALOMEDS_SObject_i::_FindCORBAAttribute(const char* theType)
-{
-  TAttrHolder anAttr = _FindGenAttribute(theType);
-  SALOMEDS::GenericAttribute_var anGenAttr = anAttr.second;
-  if(!CORBA::is_nil(anGenAttr)){
-    return anGenAttr._retn();
-  }
-
-  return SALOMEDS::GenericAttribute::_nil();
-}
-
-
 CORBA::Boolean 
 SALOMEDS_SObject_i::FindAttribute(SALOMEDS::GenericAttribute_out theAttribute, 
 				  const char* theType)
 {
-  theAttribute = _FindCORBAAttribute(theType);
-  return !CORBA::is_nil(theAttribute);
+  TAttrHolder anAttr = _FindGenAttribute(theType);
+  SALOMEDS::GenericAttribute_var anGenAttr = anAttr.second;
+  if(!CORBA::is_nil(anGenAttr)){
+    theAttribute = SALOMEDS::GenericAttribute::_duplicate(anGenAttr);
+    return true;
+  }
+  return false;
 }
 
 
