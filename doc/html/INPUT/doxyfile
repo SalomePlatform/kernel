@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------
 # General configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "SALOME PRO v.1.2"
+PROJECT_NAME           = "SALOME v.1.2"
 PROJECT_NUMBER         = id#1.1
 OUTPUT_DIRECTORY       = ../
 OUTPUT_LANGUAGE        = English
@@ -61,7 +61,11 @@ INPUT                  = ../../../share/salome/idl/SALOME_ModuleCatalog.idl \
                          ../../../share/salome/idl/SALOME_Exception.idl \
                          ../../../share/salome/idl/SALOMEDS_Attributes.idl \
                          ../../../share/salome/idl/SALOME_Session.idl \
-                         ../../../share/salome/idl/SALOME_Component.idl
+                         ../../../share/salome/idl/SALOME_Component.idl \
+                         ../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.hxx \
+                         ../../../share/salome/src/NamingService/SALOME_NamingService.hxx \
+                         ../../../share/salome/src/NamingService/SALOME_NamingService.cxx \
+                         ../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.cxx
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 
@@ -101,11 +105,11 @@ GENERATE_HTMLHELP      = NO
 CHM_FILE               = 
 HHC_LOCATION           = 
 GENERATE_CHI           = NO
-BINARY_TOC             = NO
-TOC_EXPAND             = NO
-DISABLE_INDEX          = NO
+BINARY_TOC             = YES
+TOC_EXPAND             = YES
+DISABLE_INDEX          = YES
 ENUM_VALUES_PER_LINE   = 4
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 TREEVIEW_WIDTH         = 250
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output

@@ -10,7 +10,6 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = SALOME_InteractiveObject.hxx \
 		 Handle_SALOME_InteractiveObject.hxx \
 		 SALOME_Actor.h \
-		 SALOME_Transform.h \
 		 SALOME_AISShape.hxx \
 		 Handle_SALOME_AISShape.hxx \
 		 SALOME_AISObject.hxx \
@@ -23,7 +22,6 @@ EXPORT_HEADERS = SALOME_InteractiveObject.hxx \
 LIB = libSalomeObject.la
 LIB_SRC =	 SALOME_InteractiveObject.cxx \
 		 SALOME_Actor.cxx \
-		 SALOME_Transform.cxx \
 		 SALOME_AISShape.cxx\
 		 SALOME_AISObject.cxx
 
@@ -34,7 +32,7 @@ BIN =
 BIN_SRC	=
 
 CPPFLAGS+=$(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES)
-LDFLAGS+=$(OCC_KERNEL_LIBS) $(OCC_VIEWER_LIBS) $(VTK_LIBS) $(OGL_LIBS) $(PYTHON_LIBS)
+LDFLAGS+= $(VTK_LIBS) $(OGL_LIBS) $(PYTHON_LIBS) $(CAS_LDPATH) -lTKV3d -lSalomeVTKFilter
 
 
 @CONCLUDE@

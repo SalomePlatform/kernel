@@ -38,23 +38,23 @@ VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
 	 	 VTKViewer_ViewFrame.h \
 		 VTKViewer_RenderWindowInteractor.h \
-	         VTKViewer_InteractorStyleSALOME.h
-
+	         VTKViewer_InteractorStyleSALOME.h 
+		     
 # Libraries targets
 LIB = libVTKViewer.la
 LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_ViewFrame.cxx \
 	 VTKViewer_RenderWindow.cxx \
 	 VTKViewer_RenderWindowInteractor.cxx \
-	 VTKViewer_InteractorStyleSALOME.cxx 
+	 VTKViewer_InteractorStyleSALOME.cxx \
+	 VTKViewer_VectorText.cxx
 
 LIB_MOC = \
 	 VTKViewer.h \
 	 VTKViewer_ViewFrame.h \
 	 VTKViewer_RenderWindowInteractor.h \
 	 VTKViewer_RenderWindow.h 
-
-
+	 
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
@@ -62,7 +62,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 
 CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES) $(VTK_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS+=
-LDFLAGS+=$(VTK_LIBS) $(OGL_LIBS) $(QT_MT_LIBS)
+LDFLAGS+=$(VTK_LIBS) $(OGL_LIBS) $(QT_MT_LIBS) -lSalomeGUI
 
 @CONCLUDE@
 

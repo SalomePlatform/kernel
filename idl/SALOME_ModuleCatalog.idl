@@ -27,14 +27,15 @@
   creation of the catalog of components in %SALOME application
 */
 
-/*! \ingroup Kernel 
+/*!  
 The main package of interfaces used for creation of the module catalog in %SALOME application.
 */
 module SALOME_ModuleCatalog
 {
   // Type Definitions
 /*! 
-This enumeration contains a set of definitions of %SALOME modules.
+This enumeration contains a set of definitions of the components integrated
+into %SALOME application.
 */
   enum ComponentType {  GEOM,  /*!<Module %GEOM */
                         MESH,  /*!<Module %MESH */

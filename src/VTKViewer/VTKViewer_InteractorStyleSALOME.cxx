@@ -31,6 +31,7 @@ using namespace std;
 #include "VTKViewer_RenderWindow.h"
 
 #include <qapplication.h>
+#include "QAD_Config.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 
@@ -51,6 +52,7 @@ using namespace std;
 #include <vtkPolyDataMapper.h>
 #include <vtkDataSetCollection.h>
 #include <vtkImageData.h>
+#include <vtkFollower.h>
 
 
 //VRV: porting on Qt 3.0.5
@@ -145,6 +147,71 @@ void VTKViewer_InteractorStyleSALOME::PanXY(int x, int y, int oldX, int oldY)
 }
 
 //----------------------------------------------------------------------------
+void VTKViewer_InteractorStyleSALOME::ControlLblSize(double aOldScale, double aNewScale) {
+  m_Triedron->InitTraversal();
+  vtkActor *ac = m_Triedron->GetNextActor();
+  bool IsConeActor = true;
+  while(!(ac==NULL)) {
+    float aMaxXRange;
+    float aMaxYRange;
+    float aMaxZRange;
+    if(ac->IsA("vtkFollower")) {
+      float aScale[3];
+      ac->GetScale(aScale);
+      
+      float aPosition[3];
+      ac->GetPosition(aPosition);
+      
+      float aPercent = (aOldScale-aNewScale)/aOldScale;
+      ac->SetScale(aScale[0]*(1-aPercent),aScale[1]*(1-aPercent),aScale[2]*(1-aPercent));
+           
+      //Set new position
+      float aLength = ac->GetLength();
+      if (aPosition[0]!=0) {
+	//x
+	aPosition[0] = aMaxXRange;
+      } else if (aPosition[1]!=0) {
+	//y
+	aPosition[1] = aMaxYRange;
+      } else if (aPosition[2]!=0) {
+	//z
+	aPosition[2] = aMaxZRange;
+      }
+      ac->SetPosition(aPosition);
+      
+      IsConeActor = true;
+    }
+    else {
+      if (IsConeActor) {
+	//coneActor is the first in the list (see m_Triedron->AddItem(...) in VTKViewer_ViewFrame::AddVector(...))
+	IsConeActor = false;
+	
+	float aPosition[3];
+	ac->GetPosition(aPosition);
+	
+	if (aPosition[0]!=0) {
+	  //x
+	  float* aXRange = ac->GetXRange();
+	  if (aXRange[0] < aXRange[1]) aMaxXRange = aXRange[1];
+	  else aMaxXRange = aXRange[0];
+	} else if (aPosition[1]!=0) {
+	  //y
+	  float* aYRange = ac->GetYRange();
+	  if (aYRange[0] < aYRange[1]) aMaxYRange = aYRange[1];
+	  else aMaxYRange = aYRange[0];
+	} else if (aPosition[2]!=0) {
+	  //z
+	  float* aZRange = ac->GetZRange();
+	  if (aZRange[0] < aZRange[1]) aMaxZRange = aZRange[1];
+	  else aMaxZRange = aZRange[0];
+	}
+      } 
+    }
+    ac = m_Triedron->GetNextActor();
+  }
+}
+
+//----------------------------------------------------------------------------
 void VTKViewer_InteractorStyleSALOME::DollyXY(int dx, int dy)
 {
   vtkCamera *cam;
@@ -161,9 +228,14 @@ void VTKViewer_InteractorStyleSALOME::DollyXY(int dx, int dy)
   cam = this->CurrentRenderer->GetActiveCamera();
     if (cam->GetParallelProjection())
     {
+      double aOldScale = cam->GetParallelScale();
       cam->SetParallelScale(cam->GetParallelScale()/zoomFactor);
+      double aNewScale = cam->GetParallelScale();
+
+      // for controlling label size
+      ControlLblSize(aOldScale,aNewScale);
     }
-  else
+    else
     {
       cam->Dolly(zoomFactor);
       this->CurrentRenderer->ResetCameraClippingRange();
@@ -1318,6 +1390,7 @@ void VTKViewer_InteractorStyleSALOME::Place(const int theX, const int theY)
     }*/
   //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
   if (myGUIWindow) myGUIWindow->update();
+
 }
 
 

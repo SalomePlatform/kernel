@@ -34,28 +34,54 @@ SALOME_Trace::SALOME_Trace()
 
       //Initialize the ORB
       CORBA::ORB_var orb = CORBA::ORB_init(argc,argv) ;
-      //Get initial naming context
-      CORBA::Object_var theObj = orb->resolve_initial_references("NameService");
-      //Narrow to NamingContext
-      CosNaming::NamingContext_var inc = CosNaming::NamingContext::_narrow(theObj);
-
+      long TIMESleep = 250000000;
+      int NumberOfTries = 40;
+      int a;
+      timespec ts_req;
+      ts_req.tv_nsec=TIMESleep;
+      ts_req.tv_sec=0;
+      timespec ts_rem;
+      ts_rem.tv_nsec=0;
+      ts_rem.tv_sec=0;
+      CosNaming::NamingContext_var inc;
+      CORBA::Object_var theObj;
+      CORBA::Object_var obj;
       CosNaming::Name name;
       name.length(1);
       name[0].id = CORBA::string_dup("Logger");
-      
-      CORBA::Object_var obj;
-      obj = inc->resolve(name);
-      
-      m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj) ;
-
+      for (int i = 1; i<=NumberOfTries; i++){
+	if (i!=1) 
+	    a=nanosleep(&ts_req,&ts_rem);
+	  try{ 
+	    if(!CORBA::is_nil(orb)) 
+	      theObj = orb->resolve_initial_references("NameService");
+	    if (!CORBA::is_nil(theObj))
+	      inc = CosNaming::NamingContext::_narrow(theObj);
+	  }  
+	  catch( CORBA::COMM_FAILURE& )
+	    {
+	      cout<<"SALOME_TRACE: CORBA::COMM_FAILURE: Unable to contact the Naming Service" <<endl;
+	    }
+          catch(...){ cout<< "SALOME_TRACE: Unknown exception dealed with Naming Service" <<endl; }
+	  
+	  if(!CORBA::is_nil(inc)) {
+	    obj = inc->resolve(name);
+	    m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
+	    if (!CORBA::is_nil(m_pInterfaceLogger))
+	      cout<<"SALOME_TRACE: Logger Server was found"<<endl;
+	    break;
+	    
+	  }
+      }
+	   
     }
-  catch (const CosNaming::NamingContext::NotFound&)
-    {
-//       cout << "Caught exception: Naming Service can't found Logger";
-    }
-  catch (CORBA::COMM_FAILURE&)
-    {
-//       cout << "Caught CORBA::SystemException CommFailure.";
+      catch (const CosNaming::NamingContext::NotFound&)
+	{
+	  //       cout << "Caught exception: Naming Service can't found Logger";
+	}
+      catch (CORBA::COMM_FAILURE&)
+	{
+	  //       cout << "Caught CORBA::SystemException CommFailure.";
     }
   catch (CORBA::SystemException&)
     {

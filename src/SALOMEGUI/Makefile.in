@@ -43,7 +43,6 @@ EXPORT_HEADERS = \
                   QAD_FileDlg.h \
                   QAD_FileValidator.h \
 		  QAD_Help.h \
-		  QAD_HelpWindow.h \
 		  QAD_PyInterp.h \
 		  QAD_LeftFrame.h \
 		  QAD_ListMenuIdAction.h \
@@ -99,7 +98,7 @@ EXPORT_HEADERS = \
                   SALOMEGUI_SetValueDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
                   SALOMEGUI_CloseDlg.h
-                  
+
 
 # .po files to transform in .qm
 PO_FILES = \
@@ -124,7 +123,6 @@ LIB_SRC = 	  \
                   QAD_FileDlg.cxx \
                   QAD_FileValidator.cxx \
 		  QAD_Help.cxx \
-		  QAD_HelpWindow.cxx \
 		  PyInterp_base.cxx \
 		  QAD_PyInterp.cxx \
 		  QAD_PyInterp_mono.cxx \
@@ -175,13 +173,14 @@ LIB_SRC = 	  \
 		  SALOME_DataMapNodeOfDataMapOfIOMapOfInteger_0.cxx \
 		  SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger_0.cxx \
 		  SALOMEGUI_TrihedronSizeDlg.cxx \
+		  SALOMEGUI_ExternalBrowserDlg.cxx \
 		  SALOMEGUI_LoadStudiesDlg.cxx \
                   SALOMEGUI_TableDlg.cxx \
                   SALOMEGUI_NameDlg.cxx \
                   SALOMEGUI_SetValueDlg.cxx \
                   SALOMEGUI_SetupCurveDlg.cxx \
-                  SALOMEGUI_CloseDlg.cxx
-
+                  SALOMEGUI_CloseDlg.cxx \
+		  SALOMEGUI_ActivateComponentDlg.cxx    
 LIB_MOC = \
 		  SALOMEGUI_Application.h \
 		  SALOMEGUI_Desktop.h \
@@ -190,7 +189,6 @@ LIB_MOC = \
 		  QAD_Desktop.h \
                   QAD_DirListDlg.h \
                   QAD_FileDlg.h \
-		  QAD_HelpWindow.h \
 		  QAD_ListView.h \
 		  QAD_ObjectBrowser.h \
 		  QAD_Operation.h \
@@ -204,22 +202,23 @@ LIB_MOC = \
 		  SALOMEGUI_OpenWith.h \
 		  SALOMEGUI_StudyPropertiesDlg.h \
 		  SALOMEGUI_TrihedronSizeDlg.h  \
+		  SALOMEGUI_ExternalBrowserDlg.h \
 		  SALOME_Selection.h \
 		  SALOMEGUI_LoadStudiesDlg.h \
 		  SALOMEGUI_ViewChoiceDlg.h \
                   SALOMEGUI_TableDlg.h \
                   SALOMEGUI_NameDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
-                  SALOMEGUI_CloseDlg.h
-
+                  SALOMEGUI_CloseDlg.h \
+                  SALOMEGUI_ActivateComponentDlg.h    
 LIB_CLIENT_IDL = SALOMEDS.idl \
                  SALOMEDS_Attributes.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
 		 SALOME_Exception.idl
 
-CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(QWT_INCLUDES)
-LDFLAGS+=$(QT_MT_LIBS) $(OCC_KERNEL_LIBS) $(VTK_LIBS) $(QWT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
+CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES)
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
 
 LIBS+= $(PYTHON_LIBS)
 

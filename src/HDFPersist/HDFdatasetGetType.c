@@ -34,14 +34,12 @@ HDFdatasetGetType(hdf_idt id)
 {
   hdf_idt type_id;
   hdf_type type;
-  hdf_class_type hdf_type;
   hdf_size_type size;
 
   if ((type_id = H5Dget_type(id)) < 0)
     return HDF_NONE;
 
-  hdf_type = H5Tget_class(type_id);
-  switch (hdf_type)
+  switch (H5Tget_class(type_id))
     {
     case H5T_INTEGER :
       size = H5Tget_size(type_id);

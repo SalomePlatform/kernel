@@ -14,7 +14,7 @@ VPATH=.:@srcdir@:@top_srcdir@/bin:@top_srcdir@/resources:./bin:@top_srcdir@/idl
 
 @COMMENCE@
 
-SUBDIRS = idl src salome_adm
+SUBDIRS = idl src examples salome_adm
 
 RESOURCES_FILES = \
 back.xpm \

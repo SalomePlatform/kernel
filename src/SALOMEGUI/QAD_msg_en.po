@@ -175,6 +175,14 @@ msgstr "&About ..."
 msgid "QAD_Desktop::MEN_DESK_HELP_CONTENTS"
 msgstr "&Contents"
 
+#: QAD_Desktop.cxx:265
+msgid "QAD_Desktop::MEN_DESK_HELP_GUICONTENTS"
+msgstr "&GUI Reference"
+
+#: QAD_Desktop.cxx:265
+msgid "QAD_Desktop::MEN_DESK_HELP_TUICONTENTS"
+msgstr "&TUI Reference"
+
 #: QAD_Desktop.cxx:273
 msgid "QAD_Desktop::MEN_DESK_HELP_SEARCH"
 msgstr "&Search ..."
@@ -202,6 +210,10 @@ msgstr "Viewer background"
 #: QAD_Config.cxx:376
 msgid "MEN_DESK_PREF_VIEWER_TRIHEDRON"
 msgstr "Trihedron size"
+
+#: QAD_Desktop.cxx:747
+msgid "MEN_DESK_PREF_EXTERNAL_BROWSER"
+msgstr "External browser"
 
 msgid "MEN_DESK_PREF_DEFAULT_VIEWER"
 msgstr "Default viewer"
@@ -364,6 +376,14 @@ msgstr "Shows \'About\' dialog"
 msgid "QAD_Desktop::PRP_DESK_HELP_CONTENTS"
 msgstr "Shows the whole help contents"
 
+#: QAD_Desktop.cxx:266
+msgid "QAD_Desktop::PRP_DESK_HELP_GUICONTENTS"
+msgstr "Shows the GUI help contents"
+
+#: QAD_Desktop.cxx:266
+msgid "QAD_Desktop::PRP_DESK_HELP_TUICONTENTS"
+msgstr "Shows the TUI help contents"
+
 #: QAD_Desktop.cxx:274
 msgid "QAD_Desktop::PRP_DESK_HELP_SEARCH"
 msgstr "Searches help for a topic"
@@ -414,21 +434,6 @@ msgstr "Sketch a rectangular area to fit the view"
 #---------------
 # TOOL TIP
 #---------------
-
-#: QAD_HelpWindow.cxx:57
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_BACKWARD"
-msgstr "Backward"
-
-#: QAD_HelpWindow.cxx:60
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_FORWARD"
-msgstr "Forward"
-
-#: QAD_HelpWindow.cxx:63
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_HOME"
-msgstr "Home"
-
-msgid "QAD_HelpWindow::QAD_HELP_CONTENTS"
-msgstr "Contents"
 
 #: QAD_Application.cxx:173
 msgid "QAD_Application::TOT_APP_EDIT_REDO"
@@ -543,10 +548,6 @@ msgstr "The study %1 is not saved.\nDo you want to save it ?"
 #: *.cxx:709
 msgid "WRN_WARNING"
 msgstr "Warning"
-
-#: QAD_Desktop.cxx:1072
-msgid "QAD_Desktop::WRN_LOAD_COMPONENT"
-msgstr "Creates or opens before a study"
 
 msgid "WRN_STUDY_LOCKED"
 msgstr "This study is locked and therefore cannot be modified"

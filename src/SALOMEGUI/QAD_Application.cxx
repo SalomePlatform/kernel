@@ -464,7 +464,7 @@ void QAD_Application::helpAbout()
 void QAD_Application::helpSearch()
 {
   /* just calls QAD_Desktop::helpSearch() but can have own implementation */
-  getDesktop()->helpSearch();
+ //  getDesktop()->helpSearch();
 }
 
 /*!
@@ -473,7 +473,7 @@ void QAD_Application::helpSearch()
 void QAD_Application::helpContents()
 {
   /* just calls QAD_Desktop::helpContents() but can have own implementation */
-  getDesktop()->helpContents();
+ //  getDesktop()->helpContents();
 }
 
 /*!

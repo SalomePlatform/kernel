@@ -344,14 +344,12 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
     }
     else {
       QString command = "";
-      if ( getenv("SALOME_ROOT_DIR")  )
-	command = QString( getenv( "SALOME_ROOT_DIR" ) ) + "/bin/runIDLparser -Wbcatalog=" + XmlFile;
-      else if ( getenv("KERNEL_ROOT_DIR")  )
+      if ( getenv("KERNEL_ROOT_DIR")  )
 	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/runIDLparser -Wbcatalog=" + XmlFile;
       else {
 	QAD_MessageBox::error1( this, 
 				tr("TOOLS_ERR_ERROR"), 
-				tr("SALOME_ROOT_DIR or KERNEL_ROOT_DIR variables are not defined"), 
+				tr("KERNEL_ROOT_DIR variable is not defined"), 
 				tr("TOOLS_BUT_OK") );
       }
       if (!Author.isEmpty()) command += ",author=" + Author; 

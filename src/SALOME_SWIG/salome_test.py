@@ -15,9 +15,21 @@ from salome import sg
 import SALOMEDS
 import os
 
+import SALOME_ModuleCatalog
+
+print "======================================================================"
+print "           Get Catalog "
+print "======================================================================"
+obj = salome.naming_service.Resolve('Kernel/ModulCatalog')
+catalog = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
+
 print "======================================================================"
 print "           Create Study "
 print "======================================================================"
+
+comp = catalog.GetComponent("GEOM")
+if comp is None:
+	raise RuntimeError,"Component GEOM not found in Module Catalog."
 
 import geompy
 
@@ -47,10 +59,18 @@ print
 print "=============  Test SMESH  ============================="
 print
 
+comp = catalog.GetComponent("SMESH")
+if comp is None:
+	raise RuntimeError,"Component SMESH not found in Module Catalog."
+
+comp = catalog.GetComponent("MED")
+if comp is None:
+	raise RuntimeError,"Component MED not found in Module Catalog."
+
 import SMESH
 import smeshpy
 
-geom = salome.lcc.FindOrLoadComponent("FactoryServer", "Geometry")
+geom = salome.lcc.FindOrLoadComponent("FactoryServer", "GEOM")
 myBuilder = salome.myStudy.NewBuilder()
 
 smeshgui = salome.ImportComponentGUI("SMESH")
@@ -231,12 +251,16 @@ print
 print "=============  Test  Supervisor  ============================="
 print
 
+comp = catalog.GetComponent("SUPERV")
+if comp is None:
+	raise RuntimeError,"Component SUPERV not found in Module Catalog."
+
 from SuperV import *
 import SALOMEDS
 myStudy = salome.myStudy
 myBuilder = myStudy.NewBuilder()
 
-SuperVision = lcc.FindOrLoadComponent("SuperVisionContainer","Supervision")
+SuperVision = lcc.FindOrLoadComponent("SuperVisionContainer","SUPERV")
 father = myStudy.FindComponent("SUPERV")
 if father is None:
         father = myBuilder.NewComponent("SUPERV")
@@ -277,10 +301,10 @@ def addStudy(ior):
     anIOR.SetValue(dataflow.getIOR())
 
 import os
-dir= os.getenv("SALOME_ROOT_DIR")
+dir= os.getenv("SUPERV_ROOT_DIR")
 if dir == None:
-	raise RuntimeError, "SALOME_ROOT_DIR is not defined"
-xmlfile = dir +"/../SALOME_ROOT/SuperVisionTest/resources/GraphEssai.xml"
+	raise RuntimeError, "SUPERV_ROOT_DIR is not defined"
+xmlfile = dir +"/examples/GraphEssai.xml"
 print "Load dataflow from the file : "
 print xmlfile
 print
@@ -409,6 +433,11 @@ sg.updateObjBrowser(1);
 print
 print "=============  Test  VISU  and MED ============================="
 print
+
+comp = catalog.GetComponent("VISU")
+if comp is None:
+	raise RuntimeError,"Component VISU not found in Module Catalog."
+
 import sys
 import SALOMEDS
 import SALOME
@@ -418,13 +447,13 @@ import VISU
 import visu_gui
 
 medFile = "pointe.med"
-medFile = os.getenv('SALOME_ROOT_DIR') + '/../SALOME_ROOT/data/' + medFile
+medFile = os.getenv('KERNEL_ROOT_DIR') + '/examples/' + medFile
 print "Load ", medFile
 
 studyCurrent = salome.myStudyName
 
-med_comp = salome.lcc.FindOrLoadComponent("FactoryServer", "Med")
-myVisu = salome.lcc.FindOrLoadComponent("FactoryServer", "Visu")
+med_comp = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
+myVisu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
 
 try:
     if os.access(medFile, os.R_OK) :
@@ -433,28 +462,23 @@ try:
            med_obj = visu_gui.visu.getMedObjectFromStudy()
            print "med_obj - ", med_obj
 
-           myField = visu_gui.visu.getFieldObjectFromStudy(2,1)
-           aMeshName = "FILED_DOUBLE_MESH"
-           anEntity = VISU.NODE
-           aTimeStampId = 0
-           
-           myResult1 = myVisu.ImportMedField(myField)
-           aMesh1 = myVisu.MeshOnEntity(myResult1, aMeshName, anEntity);
-           
-           aScalarMap1= myVisu.ScalarMapOnField(myResult1, aMeshName, anEntity, myField.getName(), aTimeStampId)
-           if(myField.getNumberOfComponents() > 1) :
-               aVectors = myVisu.VectorsOnField(myResult1, aMeshName, anEntity, myField.getName(), aTimeStampId)
-
-           myResult2 = myVisu.ImportFile(medFile)
+           myField1 = visu_gui.visu.getFieldObjectFromStudy(2,1)
            aMeshName = "maa1"
            anEntity = VISU.NODE
-           aMesh2 = myVisu.MeshOnEntity(myResult2, aMeshName, anEntity)
-
-           aScalarMap2 = myVisu.ScalarMapOnField(myResult2, aMeshName, anEntity, myField.getName(), aTimeStampId)
-           if(myField.getNumberOfComponents() > 1) :
-             aCutPlanes = myVisu.CutPlanesOnField(myResult2, aMeshName, anEntity, myField.getName(), aTimeStampId)
-
-           sg.updateObjBrowser(0)
+	   aTimeStampId = -1
+           	   
+           myResult1 = myVisu.ImportMedField(myField1)
+           aMesh1 = myVisu.MeshOnEntity(myResult1, aMeshName, anEntity);
+           
+	   aScalarMap1= myVisu.ScalarMapOnField(myResult1, aMeshName, anEntity, myField1.getName(), aTimeStampId)
+	   
+	   myResult2 = myVisu.ImportFile(medFile);
+	   aMesh2 = myVisu.MeshOnEntity(myResult2, aMeshName, anEntity);
+           
+	   aTimeStampId = 3
+	   aScalarMap2= myVisu.ScalarMapOnField(myResult2, aMeshName, anEntity, myField1.getName(), aTimeStampId)
+    	       	   
+	   sg.updateObjBrowser(0)
        else :  print "We have no permission to rewrite medFile, so readStructFileWithFieldType can't open this file";
     else :  print  "We have no permission to read medFile, it will not be opened"; 
 

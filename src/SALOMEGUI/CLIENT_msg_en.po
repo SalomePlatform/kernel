@@ -20,7 +20,7 @@ msgstr ""
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.2"
+msgstr "Version 1.2c"
 
 msgid "INF_COPYRIGHT"
 msgstr "  "

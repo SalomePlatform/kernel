@@ -24,11 +24,8 @@
 //  $Header$
 
 #include "SALOME_Component.idl"
-/*! \defgroup Kernel SALOME KERNEL module
-*/
 
-/*!  \ingroup Kernel 
-   
+/*!   
   This package contains interfaces used for management of the session in %SALOME application.
 */
 module SALOME

@@ -16,6 +16,7 @@ module SALOME_Logger
 	  {
 	    //put message into one special place for all servers using Logger
 	    oneway void putMessage (in string message);
+            void ping (); 
 	  };
 };
 

@@ -26,13 +26,16 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class SALOME_Actor SALOME_Actor.h
   \brief Abstract class of SALOME Objects in VTK.
 */
 
 #include "SALOME_Actor.h"
+#include "SALOME_Transform.h"
+#include "SALOME_TransformFilter.h"
+#include "SALOME_PassThroughFilter.h"
+#include "SALOME_GeometryFilter.h"
  
 // SALOME Includes
 #include "utilities.h"
@@ -41,8 +44,11 @@ using namespace std;
 #include <vtkObjectFactory.h>
 #include <vtkDataSetMapper.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkGeometryFilter.h>
 #include <vtkTransformPolyDataFilter.h>
+
+using namespace std;
+
+int SALOME_POINT_SIZE = 3;
 
 void SALOME_Actor::Render(vtkRenderer *ren, vtkMapper *Mapper )
 {
@@ -122,13 +128,14 @@ void SALOME_Actor::ReleaseGraphicsResources(vtkWindow *renWin)
   this->Mapper->ReleaseGraphicsResources(renWin);
 }
 
+
 void SALOME_Actor::AddToRender(vtkRenderer* theRenderer){
   theRenderer->AddActor(this);
 }
-
 void SALOME_Actor::RemoveFromRender(vtkRenderer* theRenderer){
   theRenderer->RemoveActor(this);
 }
+
 
 vtkPolyData* SALOME_Actor::GetPolyDataInput(){
   return myPassFilter[3]->GetPolyDataOutput();
@@ -137,16 +144,12 @@ vtkPolyData* SALOME_Actor::GetPolyDataInput(){
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
   if(theMapper){
     myPassFilter[0]->SetInput(theMapper->GetInput());
-    // myPassFilter[0]->Update();  -------- This and other three lines must be comment or removed to fix the regression in SMESH
     myPassFilter[1]->SetInput(myPassFilter[0]->GetPolyDataOutput());
-    // myPassFilter[1]->Update();
     myTransformFilter->SetInput(myPassFilter[1]->GetPolyDataOutput());
     myPassFilter[2]->SetInput(myTransformFilter->GetOutput());
-    // myPassFilter[2]->Update();
     myPassFilter[3]->SetInput(myPassFilter[2]->GetPolyDataOutput());
-    // myPassFilter[3]->Update();
     if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
-      aMapper->SetInput(myPassFilter[3]->GetOutput());
+      aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
     else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
       aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
   }
@@ -158,8 +161,29 @@ void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
   myTransformFilter->Modified();
 }
 
+
+void SALOME_Actor::SetRepresentation(int theMode) { 
+  myRepresentation = theMode;
+  switch(theMode){
+  case 3 : 
+    myPassFilter[0]->SetInside(true);
+    GetProperty()->SetRepresentation(1);
+    break;
+  case 0 : 
+    GetProperty()->SetPointSize(SALOME_POINT_SIZE);  
+  default :
+    GetProperty()->SetRepresentation(myRepresentation);
+    myPassFilter[0]->SetInside(false);
+  }
+}
+int SALOME_Actor::GetRepresentation(){ 
+  return myRepresentation;
+}
+
+
 SALOME_Actor::SALOME_Actor(){
   PreviewProperty = NULL;
+  myRepresentation = 2;
   myTransformFilter = SALOME_TransformFilter::New();
   myPassFilter.push_back(SALOME_PassThroughFilter::New());
   myPassFilter.push_back(SALOME_PassThroughFilter::New());
@@ -168,6 +192,7 @@ SALOME_Actor::SALOME_Actor(){
 }
 
 SALOME_Actor::~SALOME_Actor(){
+  myTransformFilter->Delete();
   SetPreviewProperty(NULL);
   for(int i = 0, iEnd = myPassFilter.size(); i < iEnd; i++)
     if(myPassFilter[i] != NULL) 

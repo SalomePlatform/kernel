@@ -547,7 +547,7 @@ QString findFile( QString filename )
   QString dir;
   char* cenv;
   
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
+  // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
   cenv = getenv( "KERNEL_ROOT_DIR" );
   if ( cenv ) {
     dir.sprintf( "%s", cenv );
@@ -584,40 +584,6 @@ QString findFile( QString filename )
     if ( !dir.isEmpty() ) {
       dir = addSlash(dir) ;
       dir = dir + ".salome" ;
-      dir = addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = addSlash(dir) ;
-      QFileInfo fileInfo( dir + filename );
-      if ( fileInfo.isFile() && fileInfo.exists() )
-	return fileInfo.filePath();
-    }
-  }
-  // Try ${SALOME_SITE_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_SITE_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = addSlash(dir) ;
-      QFileInfo fileInfo( dir + filename );
-      if ( fileInfo.isFile() && fileInfo.exists() )
-	return fileInfo.filePath();
-    }
-  }
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_ROOT_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = addSlash(dir) ;
       dir = dir + "resources" ;
       dir = addSlash(dir) ;

@@ -73,6 +73,32 @@ msgstr "Size :"
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON"
 msgstr "Trihedron"
 
+#: SALOMEGUI_ExternalBrowserDlg.cxx:26
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER"
+msgstr "Choose external browser"
+
+#: SALOMEGUI_ExternalBrowserDlg.cxx:42
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER_APP"
+msgstr "Application:"
+
+#: SALOMEGUI_ExternalBrowserDlg.cxx:50
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER_PARAMS"
+msgstr "Parameters:"
+
+#: SALOMEGUI_ExternalBrowserDlg.cxx:58
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER_BROWSE"
+msgstr "&Browse"
+
+#: SALOMEGUI_ExternalBrowserDlg.cxx:95
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER_CHOOSEAPP"
+msgstr "Choose application"
+
+#: SALOMEGUI_ExternalBrowserDlg.cxx:126
+msgid "SALOMEGUI_ExternalBrowserDlg::MEN_EXTERNAL_BROWSER_NOTEXECUTABLE"
+msgstr "The file is not executable!"
+
+
+
 #: SALOMEGUI_OpenWith.cxx:37
 msgid "SALOMEGUI_OpenWith::MEN_COMPONENT_CHOICE1"
 msgstr "Always use this component to open this type of object"
@@ -651,6 +677,24 @@ msgstr "&Cancel"
 
 msgid "SALOMEGUI_CloseDlg::CLOSE_DESCRIPTION"
 msgstr "Do you want to close or only unload the study ?"
+
+msgid "SALOMEGUI_ActivateComponentDlg::CAPTION"
+msgstr "Activate module"
+
+msgid "SALOMEGUI_ActivateComponentDlg::NEW"
+msgstr "&New"
+
+msgid "SALOMEGUI_ActivateComponentDlg::OPEN"
+msgstr "&Open"
+
+msgid "SALOMEGUI_ActivateComponentDlg::LOAD"
+msgstr "&Load"
+
+msgid "SALOMEGUI_ActivateComponentDlg::CANCEL"
+msgstr "&Cancel"
+
+msgid "SALOMEGUI_ActivateComponentDlg::ActivateComponent_DESCRIPTION"
+msgstr "You need to create, open or load study before."
 
 msgid "SALOMEGUI_HELP_TITLE"
 msgstr "SALOME Help"

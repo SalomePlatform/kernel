@@ -296,16 +296,14 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   return Engines::Container::_nil() ;
 }
 
-Engines::Component_ptr Engines_Container_i::load_impl
-         (const char* nameToRegister,
-	  const char* componentName)
-{
-  BEGIN_OF("Container_i::load_impl");
+Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegister,
+	                                               const char* componentName ) {
 
   _numInstanceMutex.lock() ; // lock on the instance number
+  BEGIN_OF( "Container_i::load_impl " << componentName ) ;
   _numInstance++ ;
   char _aNumI[12];
-  sprintf(_aNumI,"%d",_numInstance) ;
+  sprintf( _aNumI , "%d" , _numInstance ) ;
 
   string _impl_name = componentName;
   string _nameToRegister = nameToRegister;
@@ -313,17 +311,16 @@ Engines::Component_ptr Engines_Container_i::load_impl
   //SCRUTE(instanceName);
 
   //string absolute_impl_name = _library_path + "lib" + _impl_name + ".so";
-  string absolute_impl_name(_impl_name);
-  //  SCRUTE(absolute_impl_name);
+  string absolute_impl_name( _impl_name ) ;
+  SCRUTE(absolute_impl_name);
   void* handle;
-  handle = dlopen(absolute_impl_name.c_str(), RTLD_LAZY);
-  if (!handle)
-    {
-      INFOS("Can't load shared library : " << absolute_impl_name);
-      INFOS("error dlopen: " << dlerror());
-      _numInstanceMutex.unlock() ;
-      return Engines::Component::_nil() ;
-    }
+  handle = dlopen( absolute_impl_name.c_str() , RTLD_LAZY ) ;
+  if ( !handle ) {
+    INFOS("Can't load shared library : " << absolute_impl_name);
+    INFOS("error dlopen: " << dlerror());
+    _numInstanceMutex.unlock() ;
+    return Engines::Component::_nil() ;
+  }
   
   string factory_name = _nameToRegister + string("Engine_factory");
   //  SCRUTE(factory_name) ;
@@ -334,61 +331,47 @@ Engines::Component_ptr Engines_Container_i::load_impl
 			     PortableServer::ObjectId *, 
 			     const char *, 
 			     const char *) ; 
-//  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION_SUPERV)
-//                            (CORBA::ORB_ptr,
-//			     PortableServer::POA_ptr, 
-//			     PortableServer::ObjectId *, 
-//			     const char *, 
-//			     const char * ,
-//                             int , char ** ) ; 
-
   FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
-//  FACTORY_FUNCTION_SUPERV Component_factory_superv = (FACTORY_FUNCTION_SUPERV) Component_factory ;
-
-//   PortableServer::ObjectId * (*Component_factory) (CORBA::ORB_ptr,
-// 						   PortableServer::POA_ptr,
-// 						   PortableServer::ObjectId *,
-// 						   const char *,
-// 						   const char *) =
-//     (PortableServer::ObjectId * (*) (CORBA::ORB_ptr,
-// 				     PortableServer::POA_ptr, 
-// 				     PortableServer::ObjectId *, 
-// 				     const char *, 
-// 				     const char *)) 
-//     dlsym(handle, factory_name.c_str());
 
   char *error ;
-  if ((error = dlerror()) != NULL)
-    {
+  if ( (error = dlerror() ) != NULL) {
       INFOS("Can't resolve symbol: " + factory_name);
       SCRUTE(error);
       _numInstanceMutex.unlock() ;
       return Engines::Component::_nil() ;
     }
 
-  // Instanciate required CORBA object
-  PortableServer::ObjectId * id ;
-//  if ( factory_name == "SupervisionEngine_factory" ) { // for Python ...
-//    id = (Component_factory_superv) (_orb, _poa, _id, instanceName.c_str(),
-//                                     _nameToRegister.c_str(), _argc , _argv );
-//  }
-//  else {
-    id = (Component_factory) (_orb, _poa, _id, instanceName.c_str(),
-                              _nameToRegister.c_str());
-//  }
+  string component_registerName = _containerName + "/" + _nameToRegister;
+  Engines::Component_var iobject = Engines::Component::_nil() ;
+  try {
+    CORBA::Object_var obj = _NS->Resolve( component_registerName.c_str() ) ;
+    if ( CORBA::is_nil( obj ) ) {
+// Instanciate required CORBA object
+      PortableServer::ObjectId * id ;
+      id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str() ,
+                                 _nameToRegister.c_str() ) ;
   // get reference from id
-  CORBA::Object_var o = _poa->id_to_reference(*id);
-  Engines::Component_var iobject = Engines::Component::_narrow(o) ;
+      obj = _poa->id_to_reference(*id);
+      iobject = Engines::Component::_narrow( obj ) ;
 
 //  _numInstanceMutex.lock() ; // lock on the add on handle_map (necessary ?)
   // register the engine under the name containerName.dir/nameToRegister.object
-  string component_registerName = _containerName + "/" + _nameToRegister;
-  _NS->Register(iobject, component_registerName.c_str()) ;
+      _NS->Register( iobject , component_registerName.c_str() ) ;
+      MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " bound" ) ;
+    }
+    else { // JR : No ReBind !!!
+      MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " already bound" ) ;
+      iobject = Engines::Component::_narrow( obj ) ;
+    }
+  }
+  catch (...) {
+    MESSAGE( "Container_i::load_impl catched" ) ;
+  }
 
 //Jr  _numInstanceMutex.lock() ; // lock on the add on handle_map (necessary ?)
   handle_map[instanceName] = handle;
+  END_OF("Container_i::load_impl");
   _numInstanceMutex.unlock() ;
-//  END_OF("Container_i::load_impl");
   return Engines::Component::_duplicate(iobject);
 }
 
@@ -435,18 +418,20 @@ void ActSigIntHandler() {
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
-  if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
+  if ( sigaction( SIGINT | SIGUSR1 , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
   else {
-    INFOS("SigIntHandler activated") ;
+    INFOS(pthread_self() << "SigIntHandler activated") ;
   }
 }
 
+void SetCpuUsed() ;
+
 void SigIntHandler(int what , siginfo_t * siginfo ,
                                         void * toto ) {
-  MESSAGE("SigIntHandler what     " << what << endl
+  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
           << "              si_signo " << siginfo->si_signo << endl
           << "              si_code  " << siginfo->si_code << endl
           << "              si_pid   " << siginfo->si_pid) ;
@@ -458,16 +443,21 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
   }
   else {
     ActSigIntHandler() ;
-    _Sleeping = true ;
-    INFOS("SigIntHandler BEGIN sleeping.")
-    MESSAGE("SigIntHandler BEGIN sleeping.") ;
-    int count = 0 ;
-    while( _Sleeping ) {
-      sleep( 1 ) ;
-      count += 1 ;
+    if ( siginfo->si_signo == SIGUSR1 ) {
+      SetCpuUsed() ;
     }
-    INFOS("SigIntHandler LEAVE sleeping after " << count << " s.")
-    MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+    else {
+      _Sleeping = true ;
+      INFOS("SigIntHandler BEGIN sleeping.")
+      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+      int count = 0 ;
+      while( _Sleeping ) {
+        sleep( 1 ) ;
+        count += 1 ;
+      }
+      INFOS("SigIntHandler LEAVE sleeping after " << count << " s.")
+      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+    }
     return ;
   }
 }

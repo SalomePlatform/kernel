@@ -240,11 +240,10 @@ QString QAD_ResourceMgr::resources( const char* prefix ) const
   Collects list of directories, separated by ';' where resources for module 'prefix'
   can be situated
   The order is following : 
+  - <prefix>_ROOT_DIR/share/salome/resources directory
   - CSF_<prefix>Resources env.var directory ( or directory list )
-  - CSF_ResourcesDefaults env.var directory ( or directory list )
   - ${HOME}/.salome/resources directory
-  - ${SALOME_SITE_DIR}/share/salome/resources directory
-  - ${SALOME_ROOT_DIR}/share/salome/resources directory
+  - KERNEL_ROOT_DIR/share/salome/resources directory
 */
 QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
 {
@@ -281,13 +280,6 @@ QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
 	dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
     }
   }
-  // Try CSF_ResourcesDefaults env.var directory ( or directory list )
-  cenv = getenv( "CSF_ResourcesDefaults" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() )
-      dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
-  }
   // Try ${HOME}/.salome/resources directory
   cenv = getenv( "HOME" );
   if ( cenv ) {
@@ -295,36 +287,6 @@ QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
     if ( !dir.isEmpty() ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + ".salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
-    }
-  }
-  // Try ${SALOME_SITE_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_SITE_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
-    }
-  }
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_ROOT_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "resources" ;
       dir = QAD_Tools::addSlash(dir) ;

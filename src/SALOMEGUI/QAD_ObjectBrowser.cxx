@@ -712,6 +712,9 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 */
 void QAD_ObjectBrowser::Update()
 {
+  int x = myListView->contentsX();
+  int y = myListView->contentsY();
+
   myListView->clear();
   myListViewMap.clear();
 
@@ -844,6 +847,8 @@ void QAD_ObjectBrowser::Update()
   }
   /* Updating UseCase Browser ============================================= */
   UpdateUseCaseBrowser();
+
+  myListView->setContentsPos(x,y);
 }
 
 /*!

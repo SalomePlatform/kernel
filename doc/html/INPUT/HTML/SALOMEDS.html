@@ -271,8 +271,16 @@
 <td bgcolor= "lightgreen"><div align="center"><b>Save ( aStudy, theMultiFile )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SaveASCII ( in Study aStudy, in boolean theMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SaveASCII ( aStudy, theMultiFile )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>void SaveAs ( in URL aUrl, in Study aStudy, in boolean theMultiFile )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>SaveAs ( aUrl, aStudy, theMultiFile )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SaveAsASCII ( in URL aUrl, in Study aStudy, in boolean theMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SaveAsASCII ( aUrl, aStudy, theMultiFile )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>ListOfOpenStudies  GetOpenStudies (  )</b></div></td>
@@ -539,8 +547,16 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = Save ( theComponent, theURL, isMultiFile )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>TMPFile  SaveASCII ( in SComponent theComponent, in string theURL, in boolean isMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SaveASCII ( theComponent, theURL, isMultiFile )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>boolean  Load ( in SComponent theComponent, in TMPFile theStream, in string theURL, in boolean isMultiFile )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = Load ( theComponent, theStream, theURL, isMultiFile )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  LoadASCII ( in SComponent theComponent, in TMPFile theStream, in string theURL, in boolean isMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LoadASCII ( theComponent, theStream, theURL, isMultiFile )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>void Close ( in SComponent aSComponent )</b></div></td>
@@ -551,12 +567,12 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = ComponentDataType (  )</b></div></td>
 </tr>
 <tr>
-<td bgcolor= "lightgreen"><div align="center"><b>string  IORToLocalPersistentID ( in SObject theSObject, in string IORString, in boolean isMultiFile )</b></div></td>
-<td bgcolor= "lightgreen"><div align="center"><b>return_value = IORToLocalPersistentID ( theSObject, IORString, isMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>string  IORToLocalPersistentID ( in SObject theSObject, in string IORString, in boolean isMultiFile, in boolean isASCII )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IORToLocalPersistentID ( theSObject, IORString, isMultiFile, isASCII )</b></div></td>
 </tr>
 <tr>
-<td bgcolor= "lightgreen"><div align="center"><b>string  LocalPersistentIDToIOR ( in SObject theSObject, in string aLocalPersistentID, in boolean isMultiFile )</b></div></td>
-<td bgcolor= "lightgreen"><div align="center"><b>return_value = LocalPersistentIDToIOR ( theSObject, aLocalPersistentID, isMultiFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>string  LocalPersistentIDToIOR ( in SObject theSObject, in string aLocalPersistentID, in boolean isMultiFile, in boolean isASCII )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LocalPersistentIDToIOR ( theSObject, aLocalPersistentID, isMultiFile, isASCII )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>boolean  CanPublishInStudy ( in Object theIOR )</b></div></td>

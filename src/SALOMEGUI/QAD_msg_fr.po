@@ -398,18 +398,6 @@ msgstr "Sélectionner une zone d'affichage"
 # TOOL TIP
 #---------------
 
-#: QAD_HelpWindow.cxx:57
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_BACKWARD"
-msgstr "Avant"
-
-#: QAD_HelpWindow.cxx:60
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_FORWARD"
-msgstr "Apres"
-
-#: QAD_HelpWindow.cxx:63
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_HOME"
-msgstr "Home"
-
 #: QAD_Application.cxx:173
 msgid "QAD_Application::TOT_APP_EDIT_REDO"
 msgstr "Répéter l'opération"
