@@ -4,6 +4,22 @@ PYTHON_VERSION=python@PYTHON_VERSION@
 
 # you must define SALOME_ROOT_DIR and SALOME_SITE_DIR (if you need it)
 
+if test -n KERNEL_ROOT_DIR
+then
+  export PATH=$KERNEL_ROOT_DIR/bin/salome:${PATH}
+  export LD_LIBRARY_PATH=$KERNEL_ROOT_DIR/lib/salome:${LD_LIBRARY_PATH}
+  export PYTHONPATH=${KERNEL_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/$PYTHON_VERSION/site-packages/salome:${KERNEL_ROOT_DIR}/share/salome/resources:${PYTHONPATH}
+  # add bin, because some script are in (KERNEL_SWIG) !!!!
+  export PYTHONPATH=${KERNEL_ROOT_DIR}/bin/salome:${PYTHONPATH}
+   echo "#############################################"
+   echo $PATH
+   echo "------------------------"
+   echo $LD_LIBRARY_PATH
+   echo "------------------------"
+   echo $PYTHONPATH
+   echo "#############################################"
+fi
+
 if test -n $SALOME_ROOT_DIR
 then
   export PATH=$SALOME_ROOT_DIR/bin/salome:${PATH}
@@ -83,7 +99,7 @@ SALOME_Session_Server&
 #sleep 2
 
 echo "Starting runNotify.sh"
-notifd -c ${SALOME_ROOT_DIR}/share/salome/resources/channel.cfg -DFactoryIORFileName=/tmp/${LOGNAME}_rdifact.ior -DChannelIORFileName=/tmp/${LOGNAME}_rdichan.ior&
+notifd -c ${KERNEL_ROOT_DIR}/share/salome/resources/channel.cfg -DFactoryIORFileName=/tmp/${LOGNAME}_rdifact.ior -DChannelIORFileName=/tmp/${LOGNAME}_rdichan.ior&
 
 echo "SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost"
 SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost &

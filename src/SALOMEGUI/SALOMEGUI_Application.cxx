@@ -480,6 +480,27 @@ void SALOMEGUI_Application::onDisplay(int id)
 	MESSAGE ( " Not found " )
       }
     }
+    if ( !found && getenv("KERNEL_ROOT_DIR")  ) {
+      dir.fill('\0');
+      dir.sprintf("%s", getenv("KERNEL_ROOT_DIR"));
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "lib" + parentComp.latin1() + "GUI.dll" ;
+#else
+      dir = dir + "lib" + parentComp.latin1() + "GUI.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir )
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName() ;
+	found = true;
+	MESSAGE ( " found " )
+      } else {
+	MESSAGE ( " Not found " )
+      }
+    }
     
     if (ComponentLib.isEmpty()) {
       waitCursor.stop();

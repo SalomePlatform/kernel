@@ -91,6 +91,27 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       } else
 	MESSAGE (" Not found ")
     }
+    
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "libOCCViewer.dll" ;
+#else
+      dir = dir + "libOCCViewer.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir )
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName();
+	found = true;
+	MESSAGE (" Found ")
+      } else
+	MESSAGE (" Not found ")
+    }
   } else if (myViewType == VIEW_VTK) {
     
     if ( dir = getenv("SALOME_SITE_DIR")) {
@@ -115,6 +136,27 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     }
         
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "libVTKViewer.dll" ;
+#else
+      dir = dir + "libVTKViewer.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir );
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName();
+	found = true;
+	MESSAGE (" Found ");
+      } else
+	MESSAGE (" Not found ");
+    }
+        
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
@@ -176,6 +218,27 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       } else
 	MESSAGE (" Not found ")
     }
+    
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "libSUPERVGraph.dll" ;
+#else
+      dir = dir + "libSUPERVGraph.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir )
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName() ;
+	found = true;
+	MESSAGE (" Found ")
+      } else
+	MESSAGE (" Not found ")
+    }
   } else if (myViewType == VIEW_PLOT2D) {
     if ( dir = getenv("SALOME_SITE_DIR")){
       dir = QAD_Tools::addSlash(dir) ;
@@ -199,6 +262,27 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     }
     
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "libPlot2d.dll" ;
+#else
+      dir = dir + "libPlot2d.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir )
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName() ;
+	found = true;
+	MESSAGE (" Found ")
+      } else
+	MESSAGE (" Not found ")
+    }
+    
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;

@@ -2520,6 +2520,25 @@ void QAD_Desktop::onDispatchTools(int id)
 	found = true;
       }
     }
+    
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "libToolsGUI.dll" ;
+#else
+      dir = dir + "libToolsGUI.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir );
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ToolsLib = fileInfo.fileName() ;
+	found = true;
+      }
+    }
   }
   else {
     libToolsGUI = false;
@@ -2540,6 +2559,21 @@ void QAD_Desktop::onDispatchTools(int id)
     }
     
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
+      MESSAGE ( " GUI library = " << dir );
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ToolsLib = fileInfo.fileName() ;
+	found = true;
+      }
+    }
+    
+    if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
