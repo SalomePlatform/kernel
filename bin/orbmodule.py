@@ -118,9 +118,9 @@ class client:
 
    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=70):
+   def waitNS(self,name,typobj=None,maxcount=40):
       count=0
-      delta=0.3
+      delta=0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
@@ -161,9 +161,9 @@ class client:
    
    # --------------------------------------------------------------------------
 
-   def waitLogger(self,name,typobj=None,maxcount=10):
+   def waitLogger(self,name,typobj=None,maxcount=40):
       count=0
-      delta=0.3
+      delta=0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1

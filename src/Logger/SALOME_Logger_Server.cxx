@@ -67,7 +67,7 @@ int main(int argc, char **argv)
   try
     {
       //Initialize the ORB
-      const long TIMESleep = 250000000;
+      const long TIMESleep = 500000000;
       const int NumberOfTries = 40;
       int i;
       timespec ts_req = {0, TIMESleep};

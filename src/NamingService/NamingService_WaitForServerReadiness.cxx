@@ -37,7 +37,7 @@ using namespace std;
  * \param serverName name of the server to find.
  * \param NS SALOME_NamingService object
  * Wait until the given server is ready i.e. is name is found in namingService.
- * Try 40 times, with 250 ms sleep between each try.
+ * Try 40 times, with 500 ms sleep between each try.
  * If Logger is used for traces, it must be ready before this call, because
  * SALOME_NamingService client uses SALOME traces. So, Logger readiness must be
  * checked in Launch script before execution of WaitForServerReadiness.
@@ -48,8 +48,8 @@ using namespace std;
 void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 					  string serverName)
 {
-  long TIMESleep = 250000000; // 250 ms.
-  int NumberOfTries = 40;     // total wait = 10 s.
+  long TIMESleep = 500000000; // 500 ms.
+  int NumberOfTries = 40;     // total wait = 20 s.
   int found = 0;
 
   timespec ts_req;

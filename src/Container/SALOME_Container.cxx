@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     // Obtain a reference to the root POA.
     // obtain the root poa manager
     //
-    long TIMESleep = 250000000;
+    long TIMESleep = 500000000;
     int NumberOfTries = 40;
     int a;
     timespec ts_req;

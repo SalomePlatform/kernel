@@ -57,7 +57,7 @@ int main(int argc, char** argv)
       omniORB::MaxMessageSize(100 * 1024 * 1024);
       // Obtain a reference to the root POA.
       //
-      long TIMESleep = 250000000;
+      long TIMESleep = 500000000;
       int NumberOfTries = 40;
       int a;
       timespec ts_req;
