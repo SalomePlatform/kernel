@@ -141,7 +141,112 @@ namespace MED{
 			theInfo));
     }
     
-    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+					 TInt theNbElem,
+					 TInt theNbConn,
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn = eNOD,
+					 EBooleen theIsElemNum = eVRAI,
+					 EBooleen theIsElemNames = eVRAI)
+    {
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theNbElem,
+			    theNbConn,
+			    theTEntity,
+			    theTGeom,
+			    theTConn,
+			    theIsElemNum,
+			    theIsElemNames));
+    }
+
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn,
+					 const TIntVector& theConnectivities,
+					 const TIntVector& theIndexes,
+					 const TIntVector& theFamilyNums,
+					 const TIntVector& theElemNums,
+					 const TStringVector& theElemNames = TStringVector())
+    {
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theTEntity,
+			    theTGeom,
+			    theTConn,
+			    theConnectivities,
+			    theIndexes,
+			    theFamilyNums,
+			    theElemNums,
+			    theElemNames));
+    }
+
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo,
+					 const PPolygoneInfo& theInfo)
+    {
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theInfo));
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+					 TInt theNbElem,
+					 TInt theNbConn,
+					 TInt theNbFaces,
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn = eNOD,
+					 EBooleen theIsElemNum = eVRAI,
+					 EBooleen theIsElemNames = eVRAI)
+    {
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theNbElem,
+			    theNbConn,
+			    theNbFaces,
+			    theTEntity,
+			    theTGeom,
+			    theTConn,
+			    theIsElemNum,
+			    theIsElemNames));
+    }
+
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn,
+					 const TIntVector& theConnectivities,
+					 const TIntVector& theFacesIndexes,
+					 const TIntVector& theIndexes,
+					 const TIntVector& theFamilyNums,
+					 const TIntVector& theElemNums,
+					 const TStringVector& theElemNames = TStringVector())
+    {
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theTEntity,
+			    theTGeom,
+			    theTConn,
+			    theConnectivities,
+			    theFacesIndexes,
+			    theIndexes,
+			    theFamilyNums,
+			    theElemNums,
+			    theElemNames));
+    }
+
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo,
+					 const PPolyedreInfo& theInfo)
+    {
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+			   (theMeshInfo,
+			    theInfo));
+    }
+
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     virtual PCellInfo CrCellInfo(const PMeshInfo& theMeshInfo, 
 				 TInt theNbElem,

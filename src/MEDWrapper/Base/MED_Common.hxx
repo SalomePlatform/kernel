@@ -121,6 +121,12 @@ namespace MED{
   struct TNodeInfo;
   typedef MED::shared_ptr<TNodeInfo> PNodeInfo;
 
+  struct TPolygoneInfo;
+  typedef MED::shared_ptr<TPolygoneInfo> PPolygoneInfo;
+
+  struct TPolyedreInfo;
+  typedef MED::shared_ptr<TPolyedreInfo> PPolyedreInfo;
+
   struct TCellInfo;
   typedef MED::shared_ptr<TCellInfo> PCellInfo;
 

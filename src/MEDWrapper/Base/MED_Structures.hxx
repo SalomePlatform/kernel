@@ -107,12 +107,12 @@ namespace MED{
     TInt GetNbAttr() const { return myNbAttr;}
 
     TFamAttr myAttrId;
-    TInt GetAttrId(TInt theId) const { return myAttrId[theId];}
-    void SetAttrId(TInt theId, TInt theVal) { myAttrId[theId] = theVal;}
+    TInt GetAttrId(TInt theId) const;
+    void SetAttrId(TInt theId, TInt theVal);
 
     TFamAttr myAttrVal;
-    TInt GetAttrVal(TInt theId) const { return myAttrVal[theId];}
-    void SetAttrVal(TInt theId, TInt theVal) { myAttrVal[theId] = theVal;}
+    TInt GetAttrVal(TInt theId) const;
+    void SetAttrVal(TInt theId, TInt theVal);
 
     TString myAttrDesc;
     virtual std::string GetAttrDesc(TInt theId) const = 0;
@@ -132,15 +132,15 @@ namespace MED{
     TInt GetNbElem() const { return myNbElem;}
     
     TElemNum myFamNum;
-    TInt GetFamNum(TInt theId) const { return myFamNum[theId];}
-    void SetFamNum(TInt theId, TInt theVal) { myFamNum[theId] = theVal;}
+    TInt GetFamNum(TInt theId) const;
+    void SetFamNum(TInt theId, TInt theVal);
 
     EBooleen myIsElemNum;
     EBooleen IsElemNum() const { return myIsElemNum;}
 
     TElemNum myElemNum;
-    TInt GetElemNum(TInt theId) const { return myElemNum[theId];}
-    void SetElemNum(TInt theId, TInt theVal) { myElemNum[theId] = theVal;}
+    TInt GetElemNum(TInt theId) const;
+    void SetElemNum(TInt theId, TInt theVal);
 
     EBooleen myIsElemNames;
     EBooleen IsElemNames() const { return myIsElemNames;}
@@ -157,12 +157,8 @@ namespace MED{
   struct TNodeInfo: virtual TElemInfo
   {
     TNodeCoord myCoord;
-    TFloat GetNodeCoord(TInt theId, TInt theComp) const {
-      return myCoord[myMeshInfo->myDim*theId + theComp];
-    }
-    void SetNodeCoord(TInt theId, TInt theComp, TFloat theVal){
-      myCoord[myMeshInfo->myDim*theId + theComp] = theVal;
-    }
+    TFloat GetNodeCoord(TInt theId, TInt theComp) const;
+    void SetNodeCoord(TInt theId, TInt theComp, TFloat theVal);
 
     ERepere mySystem;
     ERepere GetSystem() const { return mySystem;}
@@ -194,14 +190,60 @@ namespace MED{
     TInt GetConnDim() const { return myConnDim;}
 
     TElemNum myConn;
-    TInt GetConn(TInt theElemId, TInt theConnId) const {
-      return myConn[myConnDim*theElemId + theConnId];
-    }
-    void SetConn(TInt theElemId, TInt theConnId, TInt theVal){
-      myConn[myConnDim*theElemId + theConnId] = theVal;
-    }
+    TInt GetConn(TInt theElemId, TInt theConnId) const;
+    void SetConn(TInt theElemId, TInt theConnId, TInt theVal);
   };
 
+  //---------------------------------------------------------------
+  struct TPolygoneInfo: virtual TElemInfo
+  {
+    EEntiteMaillage myTEntity; // MED_FACE|MED_MAILLE
+    EEntiteMaillage GetEntity() const { return myTEntity;}
+
+    EGeometrieElement myTGeom; // ePOLYGONE
+    EGeometrieElement GetGeom() const { return ePOLYGONE;}
+
+    EConnectivite myTConn; // eNOD|eDESC(eDESC not used)
+    EConnectivite GetConn() const { return myTConn;}
+
+    TInt myConnDim;
+    TInt GetConnDim() const { return myConnDim;}
+
+    TElemNum myConn; // Table de connectivities
+    TElemNum GetConnectivite() const { return myConn;}
+
+    TElemNum myIndex; // Table de indexes
+    TElemNum GetIndex() {return myIndex;}
+    TInt GetNbConn(TInt theElemId) const;
+  };
+
+  //---------------------------------------------------------------
+  struct TPolyedreInfo: virtual TElemInfo
+  {
+    EEntiteMaillage myTEntity; // MED_FACE|MED_MAILLE
+    EEntiteMaillage GetEntity() const { return myTEntity;}
+
+    EGeometrieElement myTGeom; // ePOLYEDRE
+    EGeometrieElement GetGeom() const { return ePOLYEDRE;}
+
+    EConnectivite myTConn; // eNOD|eDESC(eDESC not used)
+    EConnectivite GetConn() const { return myTConn;}
+
+    TInt myNbConn;
+    TInt GetNbConn() const { return myNbConn;}
+
+    TElemNum myConn; // Table de connectivities
+    TElemNum GetConnectivite() const { return myConn;}
+    
+    TInt myNbFacesIndex;
+    TInt GetNbFacesIndex() const { return myNbFacesIndex;}
+    
+    TElemNum myFacesIndex; // Table de faces indexes
+    TElemNum GetFacesIndex() {return myFacesIndex;}
+    
+    TElemNum myIndex; // Table de indexes
+    TElemNum GetIndex() {return myIndex;}
+  };
 
   //---------------------------------------------------------------
   struct TFieldInfo: virtual TNameInfo
@@ -272,24 +314,10 @@ namespace MED{
 
     TMeshValue myMeshValue;
     TFloat GetVal(EGeometrieElement theGeom, TInt theId, 
-		  TInt theComp, TInt theGauss = 0) const
-    {
-      TInt aNbComp = myTimeStampInfo->myFieldInfo->myNbComp;
-      TInt aNbGauss = myTimeStampInfo->myNbGauss;
-      TInt aStep = aNbComp*aNbGauss;
-      TMeshValue::const_iterator anIter = myMeshValue.find(theGeom);
-      if(anIter != myMeshValue.end())
-	return anIter->second[theId*aStep + theComp*aNbGauss + theGauss];
-      return TFloat();
-    }
+		  TInt theComp, TInt theGauss = 0) const;
+
     void SetVal(EGeometrieElement theGeom, TInt theId, 
-		TInt theComp, TFloat theVal, TInt theGauss = 0)
-    {
-      TInt aNbComp = myTimeStampInfo->myFieldInfo->myNbComp;
-      TInt aNbGauss = myTimeStampInfo->myNbGauss;
-      TInt aStep = aNbComp*aNbGauss;
-      myMeshValue[theGeom][theId*aStep + theComp*aNbGauss + theGauss] = theVal;
-    }
+		TInt theComp, TFloat theVal, TInt theGauss = 0);
     EModeProfil myPflMode;
     EModeProfil GetPflMode() const { return myPflMode;}
     void GetPflMode(EModeProfil theVal) { myPflMode = theVal;}

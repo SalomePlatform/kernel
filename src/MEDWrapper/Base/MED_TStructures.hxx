@@ -398,6 +398,134 @@ namespace MED{
     }
   };
 
+  //---------------------------------------------------------------
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  struct TTPolygoneInfo: TPolygoneInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  {
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TElemInfoBase;
+
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, const PPolygoneInfo& theInfo):
+      TElemInfoBase(theMeshInfo,theInfo)
+    {
+      myTEntity = theInfo->GetEntity();
+      myTGeom = theInfo->GetGeom();
+      myTConn  = theInfo->GetConn();
+      myConnDim = theInfo->GetConnDim();
+      myConn = theInfo->GetConnectivite();
+      myIndex = theInfo->GetIndex();
+    }
+
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI):
+      TElemInfoBase(theMeshInfo,
+		    theNbElem,
+		    theIsElemNum,
+		    theIsElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myConnDim = theNbConn;
+      myConn.resize(myConnDim);
+      myIndex.resize(theNbElem+1);
+    }
+    
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector()):
+      TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>(theMeshInfo,
+						theFamilyNums,
+						theElemNums,
+						theElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myConnDim = theConnectivities.size();
+      myConn = theConnectivities;
+      myIndex = theIndexes;
+    }
+  };
+  //---------------------------------------------------------------
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  struct TTPolyedreInfo: TPolyedreInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  {
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TElemInfoBase;
+
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, const PPolyedreInfo& theInfo):
+      TElemInfoBase(theMeshInfo,theInfo)
+    {
+      myTEntity = theInfo->GetEntity();
+      myTGeom = theInfo->GetGeom();
+      myTConn  = theInfo->GetConn();
+      myNbConn = theInfo->GetNbConn();
+      myNbFacesIndex = theInfo->GetNbFacesIndex();
+      myConn = theInfo->GetConnectivite();
+      myFacesIndex = theInfo->GetFacesIndex();
+      myIndex = theInfo->GetIndex();
+    }
+
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   TInt theNbFacesIndex,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI):
+      TElemInfoBase(theMeshInfo,
+		    theNbElem,
+		    theIsElemNum,
+		    theIsElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myNbConn = theNbConn;
+      myNbFacesIndex = theNbFacesIndex;
+      myConn.resize(myNbConn);
+      myFacesIndex.resize(myNbFacesIndex);
+      myIndex.resize(theNbElem+1);
+    }
+    
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theFacesIndexes,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector()):
+      TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>(theMeshInfo,
+						theFamilyNums,
+						theElemNums,
+						theElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myNbConn = theConnectivities.size();
+      myNbFacesIndex = theFacesIndexes.size();
+      myConn = theConnectivities;
+      myFacesIndex = theFacesIndexes;
+      myIndex = theIndexes;
+    }
+  };
 
   //---------------------------------------------------------------
   template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>

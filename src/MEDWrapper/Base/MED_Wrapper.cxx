@@ -39,7 +39,34 @@ namespace MED{
     return anInfo;
   }
 
-
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  PPolygoneInfo TWrapper::GetPPolygoneInfo(const PMeshInfo& theMeshInfo,
+					   EEntiteMaillage theEntity, 
+					   EGeometrieElement theGeom, 
+					   EConnectivite theConn)
+  {
+    TInt aNbElem = GetNbPolygones(*theMeshInfo,theEntity,theGeom,theConn);
+    TInt aNbConn = GetNbPolygoneConn(*theMeshInfo,theEntity,theGeom,theConn);
+    PPolygoneInfo anInfo = CrPolygoneInfo(theMeshInfo,aNbElem,aNbConn,theEntity,theGeom,theConn);
+    GetPolygoneInfo(*anInfo);
+    return anInfo;
+  }
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  PPolyedreInfo TWrapper::GetPPolyedreInfo(const PMeshInfo& theMeshInfo,
+					   EEntiteMaillage theEntity, 
+					   EGeometrieElement theGeom, 
+					   EConnectivite theConn)
+  {
+    TInt aNbElem  = GetNbPolyedres(*theMeshInfo,theEntity,theGeom,theConn);
+    TInt aNbConn = 0;
+    TInt aNbFaces = 0;
+    GetNbPolyedreConnF(*theMeshInfo,theConn,aNbFaces,aNbConn);
+    PPolyedreInfo anInfo = CrPolyedreInfo(theMeshInfo,aNbElem,aNbConn,aNbFaces,theEntity,theGeom,theConn);
+    GetPolyedreInfo(*anInfo);
+    return anInfo;
+  }
+  
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   PCellInfo TWrapper::GetPCellInfo(const PMeshInfo& theMeshInfo,
 				   EEntiteMaillage theEntity, 

@@ -36,10 +36,10 @@
 
 namespace MED{
   //---------------------------------------------------------------
-  typedef std::set<PCellInfo> TCellSet;
-  typedef std::map<EEntiteMaillage,TCellSet> TCellGroup;
+  typedef std::set<PElemInfo> TElemSet;
+  typedef std::map<EEntiteMaillage,TElemSet> TElemGroup;
 
-  TCellGroup GetCellsByEntity(TWrapper& theWrapper, 
+  TElemGroup GetElemsByEntity(TWrapper& theWrapper, 
 			      const PMeshInfo& theMeshInfo,
 			      const MED::TEntityInfo& theEntityInfo);
 
@@ -56,7 +56,7 @@ namespace MED{
   
   TFamilyByEntity GetFamiliesByEntity(TWrapper& theWrapper, 
 				      const PNodeInfo& theNodeInfo, 
-				      const TCellGroup& theCellGroup,
+				      const TElemGroup& theElemGroup,
 				      const TFamilyGroup& theFamilyGroup);
 
 

@@ -46,7 +46,9 @@ EXPORT_HEADERS = \
 # Libraries targets
 
 LIB = libMEDWrapperBase.la
-LIB_SRC = MED_Wrapper.cxx MED_Algorithm.cxx MED_Utilities.cxx
+LIB_SRC = \
+	MED_Structures.cxx MED_Wrapper.cxx \
+	MED_Algorithm.cxx MED_Utilities.cxx
 
 # Executables targets
 BIN = 

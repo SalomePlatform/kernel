@@ -122,6 +122,110 @@ namespace MED{
 
     PNodeInfo GetPNodeInfo(const PMeshInfo& theMeshInfo);
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    virtual void GetPolygoneInfo(TPolygoneInfo& theInfo,
+				 TErr* theErr = NULL) {};
+    virtual void SetPolygoneInfo(const TPolygoneInfo& theInfo,
+				 TErr* theErr = NULL) {};
+    virtual TInt GetNbPolygones(const TMeshInfo& theMeshInfo,
+				EEntiteMaillage,
+				EGeometrieElement,
+				EConnectivite,
+				TErr* theErr = NULL) { return 0;};
+
+    virtual TInt GetNbPolygoneConn(const TMeshInfo& theMeshInfo,
+				   EEntiteMaillage,
+				   EGeometrieElement,
+				   EConnectivite,
+				   TErr* theErr = NULL){ return 0;};
+
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+					 TInt theNbElem,
+					 TInt theNbConn,
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn = eNOD,
+					 EBooleen theIsElemNum = eVRAI,
+					 EBooleen theIsElemNames = eVRAI)
+    {
+      return PPolygoneInfo();
+    };
+
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn,
+					 const TIntVector& theConnectivities,
+					 const TIntVector& theFamilyNums,
+					 const TIntVector& theElemNums,
+					 const TStringVector& theElemNames = TStringVector())
+    {
+      return PPolygoneInfo();
+    };
+
+    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo,
+					 const PPolygoneInfo& theInfo)
+    {
+      return PPolygoneInfo();
+    };
+    
+    PPolygoneInfo GetPPolygoneInfo(const PMeshInfo& theMeshInfo,
+				   EEntiteMaillage theEntity, 
+				   EGeometrieElement theGeom, 
+				   EConnectivite theConn = eNOD);
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    virtual void GetPolyedreInfo(TPolyedreInfo& theInfo,
+				 TErr* theErr = NULL) {};
+    virtual void SetPolyedreInfo(const TPolyedreInfo& theInfo,
+				 TErr* theErr = NULL) {};
+    virtual TInt GetNbPolyedres(const TMeshInfo& theMeshInfo,
+				EEntiteMaillage,
+				EGeometrieElement,
+				EConnectivite,
+				TErr* theErr = NULL) { return 0;};
+
+    virtual void GetNbPolyedreConnF(const TMeshInfo& theMeshInfo,
+				    EConnectivite theConn,
+				    TInt& nf,
+				    TInt& nc,
+				    TErr* theErr = NULL){};
+    
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+					 TInt theNbElem,
+					 TInt theNbConn,
+					 TInt theNbFaces,
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn = eNOD,
+					 EBooleen theIsElemNum = eVRAI,
+					 EBooleen theIsElemNames = eVRAI)
+    {
+      return PPolyedreInfo();
+    };
+
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+					 EEntiteMaillage theTEntity, 
+					 EGeometrieElement theTGeom,
+					 EConnectivite theTConn,
+					 const TIntVector& theConnectivities,
+					 const TIntVector& theFamilyNums,
+					 const TIntVector& theElemNums,
+					 const TStringVector& theElemNames = TStringVector())
+    {
+      return PPolyedreInfo();
+    };
+
+    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo,
+					 const PPolyedreInfo& theInfo)
+    {
+      return PPolyedreInfo();
+    };
+    
+    PPolyedreInfo GetPPolyedreInfo(const PMeshInfo& theMeshInfo,
+				   EEntiteMaillage theEntity, 
+				   EGeometrieElement theGeom, 
+				   EConnectivite theConn = eNOD);
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     virtual TEntityInfo GetEntityInfo(const TMeshInfo& theMeshInfo,

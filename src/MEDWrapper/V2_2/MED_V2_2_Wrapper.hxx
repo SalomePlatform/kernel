@@ -118,6 +118,51 @@ namespace MED{
 		       EModeAcces theMode,
 		       TErr* theErr = NULL);
 
+      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      virtual void GetPolygoneInfo(TPolygoneInfo& theInfo,
+				   TErr* theErr = NULL);
+
+      virtual void SetPolygoneInfo(const TPolygoneInfo& theInfo,
+				   TErr* theErr = NULL);
+      
+      void SetPolygoneInfo(const MED::TPolygoneInfo& theInfo,
+		       EModeAcces theMode,
+		       TErr* theErr = NULL);
+
+      virtual TInt GetNbPolygones(const TMeshInfo& theMeshInfo,
+				  EEntiteMaillage,
+				  EGeometrieElement,
+				  EConnectivite,
+				  TErr* theErr = NULL);
+      
+      virtual TInt GetNbPolygoneConn(const TMeshInfo& theMeshInfo,
+				     EEntiteMaillage,
+				     EGeometrieElement,
+				     EConnectivite,
+				     TErr* theErr = NULL);
+
+      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      virtual void GetPolyedreInfo(TPolyedreInfo& theInfo,
+				   TErr* theErr = NULL);
+
+      virtual void SetPolyedreInfo(const TPolyedreInfo& theInfo,
+				   TErr* theErr = NULL);
+      
+      void SetPolyedreInfo(const MED::TPolyedreInfo& theInfo,
+			   EModeAcces theMode,
+			   TErr* theErr = NULL);
+
+      virtual TInt GetNbPolyedres(const TMeshInfo& theMeshInfo,
+				  EEntiteMaillage,
+				  EGeometrieElement,
+				  EConnectivite,
+				  TErr* theErr = NULL);
+      
+      virtual void GetNbPolyedreConnF(const TMeshInfo& theMeshInfo,
+				      EConnectivite,
+				      TInt& nf,
+				      TInt& nc,
+				      TErr* theErr = NULL);
       
       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       virtual TEntityInfo GetEntityInfo(const MED::TMeshInfo& theMeshInfo,

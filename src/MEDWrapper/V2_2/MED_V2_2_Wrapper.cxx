@@ -424,6 +424,293 @@ namespace MED{
 	SetNodeInfo(theInfo,eLECTURE_AJOUT,theErr);
     }
     
+    void TVWrapper::GetPolygoneInfo(MED::TPolygoneInfo& theInfo,
+				    TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+
+      if(theErr && !*theErr)
+	return;
+
+      MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
+      TInt aNbElem = theInfo.myElemNum.size();
+
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
+      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      
+      TErr aRet = 0;
+      
+      aRet = MEDpolygoneConnLire(myFile->Id(), 
+				 &aMeshInfo.myName[0],
+				 &theInfo.myIndex[0],
+				 aNbElem+1,
+				 &theInfo.myConn[0],
+				 anEntity,
+				 aConn);
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolygoneInfo(...)");
+    }
+    
+    void TVWrapper::SetPolygoneInfo(const MED::TPolygoneInfo& theInfo,
+				    TErr* theErr)
+    {
+      SetPolygoneInfo(theInfo,eLECTURE_ECRITURE,theErr);
+    }
+    
+    void TVWrapper::SetPolygoneInfo(const MED::TPolygoneInfo& theInfo,
+				    EModeAcces theMode,
+				    TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,theMode,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+
+      MED::TPolygoneInfo& anInfo = const_cast<MED::TPolygoneInfo&>(theInfo);
+      MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
+
+      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
+      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      
+      TErr aRet = MEDpolygoneConnEcr(myFile->Id(),
+				     &aMeshInfo.myName[0],
+				     &anInfo.myIndex[0],
+				     anInfo.myNbElem+1,
+				     &anInfo.myConn[0],
+				     anEntity,
+				     aConn);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"SetPolygoneInfo - MEDpolygoneConnEcr(...)");
+      
+      if (anIsElemNames){
+	aRet  = MEDnomEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNames[0],
+			  anInfo.myElemNames.size(),
+			  anEntity,
+			  MED_POLYGONE);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetPolygoneInfo - MEDnomEcr(...)");
+      }
+      
+      if (anIsElemNum){
+	aRet  = MEDnumEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNum[0],
+			  anInfo.myElemNum.size(),
+			  anEntity,
+			  MED_POLYGONE);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetPolygoneInfo - MEDnumEcr(...)");
+      }
+      
+      aRet = MEDfamEcr(myFile->Id(),
+		       &aMeshInfo.myName[0],
+		       &anInfo.myFamNum[0],
+		       anInfo.myFamNum.size(),
+		       anEntity,
+		       MED_POLYGONE);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"SetPolygoneInfo - MEDfamEcr(...)");
+    }
+
+    TInt TVWrapper::GetNbPolygones(const MED::TMeshInfo& theMeshInfo, 
+				   EEntiteMaillage theTEntity, 
+				   EGeometrieElement theTGeom, 
+				   EConnectivite theTConn,
+				   TErr* theErr)
+    {
+      return GetNbCells(theMeshInfo,theTEntity,theTGeom,theTConn,theErr);
+    }
+    
+    TInt TVWrapper::GetNbPolygoneConn(const MED::TMeshInfo& theMeshInfo, 
+				      EEntiteMaillage theTEntity, 
+				      EGeometrieElement theTGeom, 
+				      EConnectivite theTConn,
+				      TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+
+      if(theErr && !*theErr)
+	return 0;
+
+      MED::TMeshInfo& aMeshInfo = const_cast<MED::TMeshInfo&>(theMeshInfo);
+      
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theTEntity);
+      med_connectivite& aConn = static_cast<med_connectivite>(theTConn);
+
+      med_int taille = 0;
+
+      TErr aRet = MEDpolygoneInfo(myFile->Id(), 
+				  &aMeshInfo.myName[0], 
+				  anEntity, 
+				  aConn,
+				  &taille);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolygoneInfo(...)");
+
+      return TInt(taille);
+    }
+
+    void TVWrapper::GetPolyedreInfo(TPolyedreInfo& theInfo,
+				    TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+
+      if(theErr && !*theErr)
+	return;
+
+      MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
+      TInt aNbElem = theInfo.myElemNum.size();
+
+      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      
+      TErr aRet = 0;
+      
+      aRet = MEDpolyedreConnLire(myFile->Id(), 
+				 &aMeshInfo.myName[0],
+				 &theInfo.myIndex[0],
+				 aNbElem+1,
+				 &theInfo.myFacesIndex[0],
+				 theInfo.myNbFacesIndex,
+				 &theInfo.myConn[0],
+				 aConn);
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolyedreConnLire(...)");
+    }
+
+    void TVWrapper::SetPolyedreInfo(const TPolyedreInfo& theInfo,
+				    TErr* theErr)
+    {
+      SetPolyedreInfo(theInfo,eLECTURE_ECRITURE,theErr);
+    }
+    
+    void TVWrapper::SetPolyedreInfo(const MED::TPolyedreInfo& theInfo,
+				    EModeAcces theMode,
+				    TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,theMode,theErr);
+      
+      if(theErr && !*theErr)
+	return;
+
+      MED::TPolyedreInfo& anInfo = const_cast<MED::TPolyedreInfo&>(theInfo);
+      MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
+
+      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
+      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
+      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      
+      TErr aRet = MEDpolyedreConnEcr(myFile->Id(),
+				     &aMeshInfo.myName[0],
+				     &anInfo.myIndex[0],
+				     anInfo.myNbElem+1,
+				     &anInfo.myFacesIndex[0],
+				     anInfo.myNbFacesIndex,
+				     &anInfo.myConn[0],
+				     aConn);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"SetPolyedreInfo - MEDpolyedreConnEcr(...)");
+      
+      if (anIsElemNames){
+	aRet  = MEDnomEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNames[0],
+			  anInfo.myElemNames.size(),
+			  anEntity,
+			  MED_POLYEDRE);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetPolyedreInfo - MEDnomEcr(...)");
+      }
+      
+      if (anIsElemNum){
+	aRet  = MEDnumEcr(myFile->Id(),
+			  &aMeshInfo.myName[0],
+			  &anInfo.myElemNum[0],
+			  anInfo.myElemNum.size(),
+			  anEntity,
+			  MED_POLYEDRE);
+	if(theErr) 
+	  *theErr = aRet;
+	else if(aRet < 0)
+	  EXCEPTION(runtime_error,"SetPolyedreInfo - MEDnumEcr(...)");
+      }
+      
+      
+      aRet = MEDfamEcr(myFile->Id(),
+		       &aMeshInfo.myName[0],
+		       &anInfo.myFamNum[0],
+		       anInfo.myFamNum.size(),
+		       anEntity,
+		       MED_POLYEDRE);
+      
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"SetPolyedreInfo - MEDfamEcr(...)");
+    }
+
+    TInt TVWrapper::GetNbPolyedres(const MED::TMeshInfo& theMeshInfo, 
+				   EEntiteMaillage theTEntity, 
+				   EGeometrieElement theTGeom, 
+				   EConnectivite theTConn,
+				   TErr* theErr)
+    {
+      return GetNbCells(theMeshInfo,theTEntity,theTGeom,theTConn,theErr);
+    }
+
+    void TVWrapper::GetNbPolyedreConnF(const MED::TMeshInfo& theMeshInfo, 
+				       EConnectivite theTConn,
+				       TInt& nf,
+				       TInt& nc,
+				       TErr* theErr)
+    {
+      TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
+
+      if(theErr && !*theErr) EXCEPTION(runtime_error,"GetPolyedreInfo - (...)");
+
+      MED::TMeshInfo& aMeshInfo = const_cast<MED::TMeshInfo&>(theMeshInfo);
+      med_connectivite& aConn = static_cast<med_connectivite>(theTConn);
+      
+      TErr aRet = MEDpolyedreInfo(myFile->Id(), 
+				  &aMeshInfo.myName[0], 
+				  aConn,
+				  &nf,
+				  &nc);
+
+      if(theErr) 
+	*theErr = aRet;
+      else if(aRet < 0)
+	EXCEPTION(runtime_error,"GetPolygoneInfo - MEDpolyedreInfo(...)");
+
+    }
     
     TEntityInfo TVWrapper::GetEntityInfo(const MED::TMeshInfo& theMeshInfo,
 					EConnectivite theTConn,
@@ -448,7 +735,8 @@ namespace MED{
 	  TGeomSet::const_iterator anIterEnd2 = aGeomSet.end();
 	  for(; anIter2 != anIterEnd2; anIter2++){
 	    const EGeometrieElement& aGeom = *anIter2;
-	    if(TInt aNb = GetNbCells(theMeshInfo,anEntity,aGeom,theTConn,theErr)){
+	    TInt aNb = GetNbCells(theMeshInfo,anEntity,aGeom,theTConn,theErr);
+	    if(aNb>0){
 	      anInfo[anEntity][aGeom] = aNb;
 	    }
 	  }
@@ -485,7 +773,7 @@ namespace MED{
     
     
     void TVWrapper::GetCellInfo(MED::TCellInfo& theInfo,
-			       TErr* theErr)
+				TErr* theErr)
     {
       TFileWrapper aFileWrapper(myFile,eLECTURE,theErr);
 
@@ -558,7 +846,7 @@ namespace MED{
       if(theErr) 
 	*theErr = aRet;
       else if(aRet < 0)
-	EXCEPTION(runtime_error,"GetCellInfo - MEDelementsLire(...)");
+	EXCEPTION(runtime_error,"SetCellInfo - MEDelementsLire(...)");
     }
     
 
@@ -681,13 +969,15 @@ namespace MED{
 	TGeom::const_iterator anGeomIter = aTGeom.begin();
 	for(; anGeomIter != aTGeom.end(); anGeomIter++){
 	  const med_geometrie_element& aGeom = static_cast<const med_geometrie_element>(anGeomIter->first);
-	  aNbTimeStamps = MEDnPasdetemps(myFile->Id(),&anInfo.myName[0],anEntity,aGeom);
-	  if(aNbTimeStamps){
+	  TInt aTmp = MEDnPasdetemps(myFile->Id(),&anInfo.myName[0],anEntity,aGeom);
+	  aNbTimeStamps = max(aTmp,aNbTimeStamps);
+	  BEGMSG(MYDEBUG,"GetNbTimeStamps aNbTimeStamps="<<aTmp<<"; aGeom="<<aGeom<<"; anEntity="<<anEntity<<"\n");
+	  if(aTmp){
 	    theEntity = EEntiteMaillage(anEntity);
 	    theGeom[EGeometrieElement(aGeom)] = anGeomIter->second;
 	  }
 	}
-	if(aNbTimeStamps) 
+	if(!theGeom.empty()) 
 	  break;
       }
       return aNbTimeStamps;
@@ -810,8 +1100,10 @@ namespace MED{
 			      aTimeStampInfo.myNumDt,
 			      aTimeStampInfo.myNumOrd);
 	  if(aRet >= 0) 
-	    for(TInt i = 0; i < iEnd; i++) 
+	    for(TInt i = 0; i < iEnd; i++) {
 	      aValue[i] = anArray[i];
+	      MSG(MYDEBUG," "<<anArray[i]);
+	    }
 	  break;
 	}
 	default: {

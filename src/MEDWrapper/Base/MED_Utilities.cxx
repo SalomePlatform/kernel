@@ -77,6 +77,7 @@ bool InitEntity2GeomSet()
   aGeomFACESet.insert(eQUAD4);
   aGeomFACESet.insert(eTRIA6);
   aGeomFACESet.insert(eQUAD8);
+  aGeomFACESet.insert(ePOLYGONE);
 
   TGeomSet& aGeomMAILLESet = Entity2GeomSet[eMAILLE];
   aGeomMAILLESet.insert(ePOINT1);
@@ -90,6 +91,7 @@ bool InitEntity2GeomSet()
   aGeomMAILLESet.insert(ePYRA13);
   aGeomMAILLESet.insert(ePENTA15);
   aGeomMAILLESet.insert(eHEXA20);
+  aGeomMAILLESet.insert(ePOLYEDRE);
   
   return true;
 }
