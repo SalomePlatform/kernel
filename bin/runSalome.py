@@ -35,18 +35,19 @@ def add_path(directory, variable_name):
         os.environ[variable_name] = ""
         pass
     if os.path.exists(directory):
+        newpath=[]
         for _dir in os.environ[variable_name].split(":"):
             if os.path.exists(_dir):
-                if os.path.samefile(_dir, directory):
-                    return
+                if not os.path.samefile(_dir, directory):
+                  newpath.append(_dir)
             else:
-                if os.path.abspath(_dir) == os.path.abspath(directory):
-                    return
+                if os.path.abspath(_dir) != os.path.abspath(directory):
+                  newpath.append(_dir)
             pass
-        if os.environ[variable_name] == "":
-            os.environ[variable_name] = directory
-        else:
-            os.environ[variable_name] = directory + ":" + os.environ[variable_name]
+        import string
+        newpath[:0] = [ directory ]
+        newpath = string.join(newpath,":")
+        os.environ[variable_name] = newpath
         if variable_name == "PYTHONPATH":
             sys.path[:0] = [directory]
 
