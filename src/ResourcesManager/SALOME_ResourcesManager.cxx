@@ -189,7 +189,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
       tempOutputFile << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
       tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
       tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
+      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
       tempOutputFile << curModulePath << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
     }
   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
@@ -203,9 +203,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
     tempOutputFile << "SALOME_Container ";
   tempOutputFile << containerName << " -";
   AddOmninamesParams(tempOutputFile);
-  tempOutputFile << " > /tmp/" << "/" << containerName << "_" << machine << ".log 2>&1 &" << endl;//" &" << endl;
-  //tempOutputFile << "EOF" << endl;
-  //tempOutputFile << "&" << endl;
+  tempOutputFile << " &" << endl;
   tempOutputFile.flush();
   tempOutputFile.close();
   chmod(_TmpFileName.c_str(),0x1ED);
@@ -230,7 +228,12 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   _CommandForRemAccess=command;
   command+=" ";
   command+=_TmpFileName;
-  command+=" & ";
+  command += " > ";
+  command += "/tmp/";
+  command += containerName;
+  command += "_";
+  command += machine;
+  command += ".log &";
   cout << "Command is ... " << command << endl;
   return command;
 }
@@ -261,7 +264,12 @@ void SALOME_ResourcesManager::RmTmpFile()
     {
       string command="rm ";
       command+=_TmpFileName;
-      system(command.c_str());
+      char *temp=strdup(command.c_str());
+      int lgthTemp=strlen(temp);
+      temp[lgthTemp-3]='*';
+      temp[lgthTemp-2]='\0';
+      system(temp);
+      free(temp);
     }
 }
 
@@ -360,12 +368,11 @@ void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
 string SALOME_ResourcesManager::BuildTemporaryFileName() const
 {
   //build more complex file name to support multiple salome session
-  string command( "/tmp/" );
-  char *temp=new char[14];
-  strcpy(temp,"command");
+  char *temp=new char[19];
+  strcpy(temp,"/tmp/command");
   strcat(temp,"XXXXXX");
   mkstemp(temp);
-  command += temp;
+  string command(temp);
   delete [] temp;
   command += ".sh";
   return command;
