@@ -56,6 +56,8 @@ void SALOME_Log::putMessage(std::ostream& msg)
 {
   cout << std::flush;
   cerr <<str() << std::flush;
+  rdbuf()->freeze(false);
+  seekp(0);
 }
 
 
