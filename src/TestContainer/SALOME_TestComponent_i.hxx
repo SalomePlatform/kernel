@@ -1,16 +1,35 @@
-//=============================================================================
-// File      : SALOME_TestComponent_i.hxx
-// Created   : jeu jui 12 12:28:30 CEST 2001
-// Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
-// Project   : SALOME
-// Copyright : EDF 2001
-// $Header$
-//=============================================================================
+//  SALOME TestContainer : test of container creation and its life cycle
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOME_TestComponent_i.hxx
+//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+//  Module : SALOME
+//  $Header$
 
 #ifndef _SALOME_TESTCOMPONENT_I_HXX_
 #define _SALOME_TESTCOMPONENT_I_HXX_
 
-#include <iostream.h>
+#include <iostream>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_TestComponent)
 #include "SALOME_Component_i.hxx"

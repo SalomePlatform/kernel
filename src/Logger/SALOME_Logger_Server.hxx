@@ -1,13 +1,12 @@
-//=============================================================================
-// File      : SALOME_Logger_Server.hxx
-// Created   : nov 18 10:28:17 2002
-// Author    : Vasily Rusyaev
-// Project   : SALOME/PRO
-//=============================================================================
-
-// SALOME_Logger_Server.hxx: interface for the SALOME_Logger_Server class.
+//  SALOME Logger : CORBA server managing trace output
 //
-//////////////////////////////////////////////////////////////////////
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOME_Logger_Server.hxx
+//  Author : Vasily Rusyaev
+//  Module : SALOME
 
 #if !defined SALOME_Logger_Server_include
 #define SALOME_Logger_Server_include

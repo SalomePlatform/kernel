@@ -1,10 +1,29 @@
-//  File      : SALOMEDS_StudyManager_i.hxx
-//  Created   : Wed Nov 28 16:27:08 2001
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEDS_StudyManager_i.hxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
 #ifndef __SALOMEDS_STUDYMANAGER_I_H__
@@ -48,7 +67,10 @@ private:
   Handle(TDocStd_Document) _clipboard;
 
   // _SaveAs private function called by Save and SaveAs
-  virtual void _SaveAs(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual void _SaveAs(const char* aUrl,
+		       SALOMEDS::Study_ptr aStudy,
+		       CORBA::Boolean theMultiFile,
+		       CORBA::Boolean theASCII);
   // _SaveObject private function called by _SaveAs
   virtual void _SaveObject(SALOMEDS::Study_ptr aStudy, 
 			   SALOMEDS::SObject_ptr SC, 
@@ -99,12 +121,15 @@ public:
   */
   virtual void Save( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
+  virtual void SaveASCII( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+
   //! method to save a Study to the persistent reference aUrl
   /*!
     \param char* arguments, the new URL of the study
     \param Study_ptr arguments
   */
   virtual void SaveAs(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual void SaveAsASCII(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
  //! method to Get name list of open studies in the session
   /*!

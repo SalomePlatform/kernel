@@ -1,12 +1,14 @@
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_Tool.cxx
+//  Author : Sergey RUIN
+//  Module : SALOME
+
 using namespace std;
-//  File      : SALOMEDS_Tool.cxx
-//  Created   : Mon Oct 21 16:24:34 2002
-//  Author    : Sergey RUIN
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-
 #include "SALOMEDS_Tool.hxx"
 
 #include "utilities.h"
@@ -239,6 +241,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 
   unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
 
+  if(aBuffer == NULL) return NULL;
 
   long aBufferSize = theStream.length();
   long aFileSize, aCurrentPos = 4;
@@ -287,7 +290,7 @@ char* SALOMEDS_Tool::GetNameFromPath(const char* thePath) {
   if (thePath == NULL) return strdup("");
   OSD_Path aPath = OSD_Path(TCollection_AsciiString(strdup(thePath)));
   TCollection_AsciiString aNameString(aPath.Name());
-  return aNameString.ToCString();
+  return CORBA::string_dup(aNameString.ToCString());
 }
 
 //============================================================================
@@ -299,5 +302,5 @@ char* SALOMEDS_Tool::GetDirFromPath(const char* thePath) {
   OSD_Path aPath = OSD_Path(TCollection_AsciiString(strdup(thePath)));
   TCollection_AsciiString aDirString(aPath.Trek());
   aDirString.ChangeAll('|','/');
-  return aDirString.ToCString();
+  return CORBA::string_dup(aDirString.ToCString());
 }

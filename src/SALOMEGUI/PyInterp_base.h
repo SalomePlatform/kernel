@@ -1,11 +1,13 @@
-//=============================================================================
-// File      : PyInterp_base.h
-// Created   : ven fév  7 10:01:36 CET 2003
-// Author    : Christian CAREMOLI, Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2003
-// $Header$
-//=============================================================================
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : PyInterp_base.h
+//  Author : Christian CAREMOLI, Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
 #ifndef _PYINTERP_BASE_H_
 #define _PYINTERP_BASE_H_

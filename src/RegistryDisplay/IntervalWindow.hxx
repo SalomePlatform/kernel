@@ -1,8 +1,12 @@
-// File:	IntervalWindow.hxx
-// Created:	Thu Apr  3 10:31:10 2003
-// Author:	Oksana TCHEBANOVA
-//		<ota@parcex.nnov.matra-dtv.fr>
-
+//  SALOME RegistryDisplay : GUI for Registry server implementation
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : IntervalWindow.hxx
+//  Author : Oksana TCHEBANOVA
+//  Module : SALOME
 
 #ifndef IntervalWindow_HeaderFile
 #define IntervalWindow_HeaderFile

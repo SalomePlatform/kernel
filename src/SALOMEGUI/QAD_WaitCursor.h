@@ -1,11 +1,12 @@
-//  File      : QAD_WaitCursor.h
-//  Created   : 02/10/2002
-//  Descr     : Use this class to set wait cursor on long operatins
-
-//  Author    : Vadim SANDLER
-//  Project   : SALOME Pro
-//  Module    : SALOMEGUI 
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_WaitCursor.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef QAD_WAITCURSOR_H

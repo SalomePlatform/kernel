@@ -1,15 +1,35 @@
-using namespace std;
-//  File      : VTKViewer_ViewFrame.cxx
-//  Created   : Wed Mar 20 11:29:40 2002
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : VTKViewer
-//  Copyright : Open CASCADE 2002
+//  SALOME VTKViewer : build VTK viewer into Salome desktop
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : VTKViewer_ViewFrame.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "VTKViewer_ViewFrame.h"
 #include "VTKViewer_RenderWindow.h"
-#include "VTKViewer_InteractorStyleSALOME.h"
+//#include "VTKViewer_InteractorStyleSALOME.h"
 
 #include "QAD_Settings.h"
 #include "QAD_Config.h"
@@ -17,6 +37,7 @@ using namespace std;
 #include "QAD_Desktop.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
+#include "VTKViewer_InteractorStyleSALOME.h"
 
 #include "utilities.h"
 
@@ -27,6 +48,11 @@ using namespace std;
 #include <qapplication.h>
 
 // VTK Includes
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkTransform.h>
+#include <vtkPolyDataMapper.h> 
+
 #include <vtkMath.h>
 #include <vtkTextSource.h>
 #include <vtkLine.h>
@@ -36,9 +62,8 @@ using namespace std;
 #include <vtkActor2D.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkTIFFWriter.h>
-
-#include <vtkTransformPolyDataFilter.h>
-#include <vtkDataSetMapper.h> 
+#include <vtkVectorText.h>
+#include <vtkFollower.h>
 
 /*!
     Constructor
@@ -48,37 +73,26 @@ VTKViewer_ViewFrame::VTKViewer_ViewFrame(QWidget* parent, const char* name)
 {
   m_ViewUp[0] = 0; m_ViewUp[1] = 0; m_ViewUp[2] = -1;
   m_ViewNormal[0] = 0; m_ViewNormal[1] = 0; m_ViewNormal[2] = 1;
+  m_Transform = SALOME_Transform::New();
 
   //  m_InitialSetupDone = false ;
   InitialSetup();
-
-  m_NonIsometricTransform = NULL;
-
 }
 
 
-static vtkActor* CreateTextActor(char *text) {
-    
-  vtkTextSource* XLabel = vtkTextSource::New();
-  XLabel->SetForegroundColor(1,1,1);
-  XLabel->SetBackgroundColor(0,0,0);
-  XLabel->SetText(text);
-
-  vtkActor* XLabelActor =  vtkActor::New();
-  
-  vtkPolyDataMapper* text1Mapper = vtkPolyDataMapper::New();
-  text1Mapper->SetInput(XLabel->GetOutput());
-
-  XLabelActor->SetMapper(text1Mapper);
-  XLabelActor->SetScale(1,1,1);
-
-  return XLabelActor;
+vtkFollower* CreateTextActor(char *text, float aSize) {
+  vtkVectorText* aTxt = vtkVectorText::New();
+  aTxt->SetText(text);
+  vtkPolyDataMapper* textMapper = vtkPolyDataMapper::New();
+  textMapper->SetInput(aTxt->GetOutput());
+  vtkFollower* textActor = vtkFollower::New();
+  textActor->SetMapper(textMapper);
+  float aScale = 6 * aSize/100;
+  textActor->SetScale(aScale, aScale, aScale);
+  return textActor;
 }
 
-void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer) {
-  
-  // Create line
-
+void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer, float aSize) {
   vtkPoints* myPoints = vtkPoints::New();
   vtkLine* myLine = vtkLine::New();
 
@@ -109,13 +123,7 @@ void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer) {
 
   vtkConeSource* acone =  vtkConeSource::New();
 
-  float dim;
-  QString Size = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
-  if( Size.isEmpty() ) {
-    dim = 100;
-  } else {
-    dim = Size.toFloat();
-  }
+  float dim = aSize;
 
   acone->SetResolution(2);
   //  acone->SetAngle(70);
@@ -131,28 +139,25 @@ void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer) {
   float rot[3];
   rot[0]=0; rot[1]=0; rot[2]=0;
 
+  vtkFollower* aTextActor;
+
+  coneActor->AddPosition(p);
   if(p[0]!=0) {
     // x
-    coneActor->AddPosition(p);
+    aTextActor = CreateTextActor("X", dim);
+  } else if(p[1]!=0) {
+    // y
+    rot[2]=90;
+    coneActor->AddOrientation(rot);
+    aTextActor = CreateTextActor("Y", dim);
+  } else if(p[2]!=0) {
+    // z
+    rot[1]=-90;
+    coneActor->AddOrientation(rot);
+    aTextActor = CreateTextActor("Z", dim);
   }
-  else {
-    if(p[1]!=0) {
-      // y
-      coneActor->AddPosition(p);
-      rot[2]=90;
-      coneActor->AddOrientation(rot);
-    }
-    else {
-      if(p[2]!=0) {
-	// z
-	coneActor->AddPosition(p);   
-	rot[1]=-90;
-	coneActor->AddOrientation(rot);
-      }
-    }
-  }
-
-  // Create 2d TEXT
+  aTextActor->AddPosition(p);
+  aTextActor->SetCamera(renderer->GetActiveCamera());
 
   coneActor->GetProperty()->SetInterpolation(1);
   coneActor->GetProperty()->SetRepresentationToSurface();
@@ -167,19 +172,26 @@ void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer) {
   lineActor->GetProperty()->SetAmbientColor(1,1,1);
   lineActor->GetProperty()->SetDiffuseColor(0.7,0.7,0.7);
   lineActor->GetProperty()->SetSpecularColor(0.7,0.7,0.7);
+
+  aTextActor->GetProperty()->SetAmbient(1);
+  aTextActor->GetProperty()->SetAmbientColor(1,1,1);
+  aTextActor->GetProperty()->SetDiffuseColor(0.7,0.7,0.7);
+  aTextActor->GetProperty()->SetSpecularColor(0.7,0.7,0.7);
      
   coneActor->PickableOff();
   lineActor->PickableOff();
+  aTextActor->PickableOff();
   
   m_Triedron->AddItem(coneActor);
   m_Triedron->AddItem(lineActor);
+  m_Triedron->AddItem(aTextActor);
 
   renderer->AddActor(coneActor);
   renderer->AddActor(lineActor);
+  renderer->AddActor(aTextActor);
 }  
 
-bool VTKViewer_ViewFrame::isTrihedronDisplayed()
-{
+bool VTKViewer_ViewFrame::isTrihedronDisplayed() {
   m_Triedron->InitTraversal();
   vtkActor *ac = m_Triedron->GetNextActor();
   while(!(ac==NULL)) {
@@ -200,12 +212,11 @@ void VTKViewer_ViewFrame::SetTrihedronSize(int size)
 
   m_Triedron->RemoveAllItems();
   AddAxis(m_Renderer);
-  m_RW->updateGL();
+  m_RW->update();
 }
 
 
-void VTKViewer_ViewFrame::AddAxis(vtkRenderer* renderer) {
-  
+void VTKViewer_ViewFrame::AddAxis(vtkRenderer* renderer) {  
   float origine[3];
   float X[3];
   float Y[3];
@@ -224,9 +235,9 @@ void VTKViewer_ViewFrame::AddAxis(vtkRenderer* renderer) {
   Y[0]=origine[0];     Y[1]=origine[0]+dim; Y[2]=origine[0];
   Z[0]=origine[0];     Z[1]=origine[0];     Z[2]=origine[0]+dim;
 
-  AddVector(origine,X,renderer);
-  AddVector(origine,Y,renderer);
-  AddVector(origine,Z,renderer);
+  AddVector(origine,X,renderer, dim);
+  AddVector(origine,Y,renderer, dim);
+  AddVector(origine,Z,renderer, dim);
  
 }
 
@@ -235,72 +246,49 @@ void VTKViewer_ViewFrame::AddAxis(vtkRenderer* renderer) {
 */
 QWidget* VTKViewer_ViewFrame::getViewWidget() 
 {
-  return (QWidget*)getRW();
-}
-
-
-void VTKViewer_ViewFrame::setRW(VTKViewer_RenderWindow* rw) {
-  m_RW = rw;
+  return m_RW;
 }
 
 
 void VTKViewer_ViewFrame::InitialSetup() {
-  //
-  // Create a render window.
-  //
-  m_RW = new VTKViewer_RenderWindow(this,"");
-  //
-  // Create a renderer for this widget.
-  //
   m_Renderer = vtkRenderer::New() ;
-  m_RW->AddRenderer(m_Renderer) ;
 
+  m_RW = new VTKViewer_RenderWindow(this, "RenderWindow");
+  m_RW->getRenderWindow()->AddRenderer(m_Renderer);
 
-  vtkCamera* camera = vtkCamera::New();
-  camera->SetPosition(1,-1,1);
-  camera->SetParallelProjection(true);
-  camera->SetRoll(-60);
+  m_Renderer->GetActiveCamera()->ParallelProjectionOn();
+  m_Renderer->LightFollowCameraOn();
 
+  // Set BackgroundColor
+  QString BgrColorRed   = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorRed");
+  QString BgrColorGreen = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorGreen");
+  QString BgrColorBlue  = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorBlue");
+
+  if( !BgrColorRed.isEmpty() && !BgrColorGreen.isEmpty() && !BgrColorBlue.isEmpty() ) 
+    m_Renderer->SetBackground( BgrColorRed.toInt()/255., BgrColorGreen.toInt()/255., BgrColorBlue.toInt()/255. );
+  else
+    m_Renderer->SetBackground( 0, 0, 0 );
+ 
   // CREATE AXIS
   m_Triedron = vtkActorCollection::New();
   AddAxis(m_Renderer);
  
-  // Set BackgroundColor
-  QString BackgroundColorRed   = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorRed");
-  QString BackgroundColorGreen = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorGreen");
-  QString BackgroundColorBlue  = QAD_CONFIG->getSetting("VTKViewer:BackgroundColorBlue");
-
-  if( !BackgroundColorRed.isEmpty() && !BackgroundColorGreen.isEmpty() && !BackgroundColorBlue.isEmpty() ) 
-    m_Renderer->SetBackground( BackgroundColorRed.toInt()/255., BackgroundColorGreen.toInt()/255., BackgroundColorBlue.toInt()/255. );
-  else
-    m_Renderer->SetBackground( 0, 0 , 0 );
-
-  //
   // Create an interactor.
-  //
-  m_RWInteractor = VTKViewer_RenderWindowInteractor::New() ;
-  m_RWInteractor->SetRenderWindow(m_RW) ;
-  //
-  // :TRICKY: Tue May  2 19:29:36 2000 Pagey
-  // The order of the next two statements is very 
-  // important. The interactor must be initialized
-  // before rendering. 
-  //
-  m_RWInteractor->Initialize();
-  m_Renderer->Render() ;
-  m_Renderer->SetActiveCamera(camera);
-  m_Renderer->ResetCamera();  
-  camera->Zoom(0.3);
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS) {
-    RWS->setTriedron( m_Triedron );
-    //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
-    RWS->FindPokedRenderer(0, 0);
-  }
+  m_RWInteractor = VTKViewer_RenderWindowInteractor::New();
+  m_RWInteractor->setGUIWindow(m_RW);
+  m_RWInteractor->SetRenderWindow(m_RW->getRenderWindow());
 
-  m_RW->updateGL() ;
+  VTKViewer_InteractorStyleSALOME* RWS = VTKViewer_InteractorStyleSALOME::New();
+  RWS->setGUIWindow(m_RW);
+  m_RWInteractor->SetInteractorStyle(RWS); 
+
+  m_RWInteractor->Initialize();
+  RWS->setTriedron( m_Triedron );
+  //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
+  RWS->FindPokedRenderer(0, 0);
 
   setCentralWidget( m_RW );
+  onViewReset();
 }
 
 VTKViewer_ViewFrame::~VTKViewer_ViewFrame() {
@@ -309,16 +297,14 @@ VTKViewer_ViewFrame::~VTKViewer_ViewFrame() {
   // this RenderWindow, we assign a NULL RenderWindow to 
   // it before deleting it.
   //
-  if ( m_NonIsometricTransform )
-    m_NonIsometricTransform->Delete() ;
+  m_Transform->Delete() ;
     
   m_RWInteractor->SetRenderWindow(NULL) ;
   m_RWInteractor->Delete() ;
   
-  m_RW->Delete() ;
+  //m_RW->Delete() ;
 
-  // NRI : BugID 1137.
-  //  m_Renderer->Delete() ;
+  // NRI : BugID 1137:  m_Renderer->Delete() ;
 }
 
 
@@ -344,20 +330,20 @@ void VTKViewer_ViewFrame::onViewTrihedron()
     }
     m_TriedronVisible = true;
   }  
-  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
   Provides top projection of the active view
 */
 void VTKViewer_ViewFrame::onViewTop() {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
+  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,0,1);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetViewUp(0,1,0);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -365,13 +351,13 @@ void VTKViewer_ViewFrame::onViewTop() {
 */
 void VTKViewer_ViewFrame::onViewBottom()
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
+  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,0,-1);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetViewUp(0,1,0);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -379,13 +365,13 @@ void VTKViewer_ViewFrame::onViewBottom()
 */
 void VTKViewer_ViewFrame::onViewLeft()    
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera(); 
+  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,1,0);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetViewUp(0,0,1);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL(); 
+  m_RW->update(); 
 }
 
 /*!
@@ -393,13 +379,13 @@ void VTKViewer_ViewFrame::onViewLeft()
 */
 void VTKViewer_ViewFrame::onViewRight()
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
+  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,-1,0);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetViewUp(0,0,1);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -407,13 +393,13 @@ void VTKViewer_ViewFrame::onViewRight()
 */
 void VTKViewer_ViewFrame::onViewBack()
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
   camera->SetPosition(-1,0,0);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
+  camera->SetViewUp(0,0,1);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -421,13 +407,13 @@ void VTKViewer_ViewFrame::onViewBack()
 */
 void VTKViewer_ViewFrame::onViewFront()
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
   camera->SetPosition(1,0,0);
-  camera->SetParallelProjection(true);
-  m_Renderer->SetActiveCamera(camera);
-//  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
+  camera->SetViewUp(0,0,1);
+  m_Renderer->ResetCamera();  
   onViewFitAll();
-//  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -435,15 +421,14 @@ void VTKViewer_ViewFrame::onViewFront()
 */
 void VTKViewer_ViewFrame::onViewReset()    
 {
-  vtkCamera* camera = vtkCamera::New();
+  vtkCamera* camera = m_Renderer->GetActiveCamera();
   camera->SetPosition(1,-1,1);
-  camera->SetParallelProjection(true);
-  camera->SetRoll(-60);
-  m_Renderer->SetActiveCamera(camera);
+  camera->SetFocalPoint(0,0,0);
+  camera->SetViewUp(0,0,1);
   m_Renderer->ResetCamera();  
+  camera->SetParallelScale(500);
   m_Renderer->ResetCameraClippingRange();
-  camera->Zoom(0.3);
-  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -491,7 +476,6 @@ void VTKViewer_ViewFrame::onViewPan()
 */
 void VTKViewer_ViewFrame::onViewFitArea()
 {
-
   VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
   if (RWS)
     RWS->startFitArea();
@@ -627,7 +611,7 @@ static void ResetCamera(vtkRenderer* theRenderer){
 
   // update the camera
   theRenderer->GetActiveCamera()->SetFocalPoint(center[0],center[1],center[2]);
-  theRenderer->GetActiveCamera()->SetPosition(center[0]+distance*vn[0],
+ theRenderer->GetActiveCamera()->SetPosition(center[0]+distance*vn[0],
                                   center[1]+distance*vn[1],
                                   center[2]+distance*vn[2]);
   // setup default parallel scale
@@ -663,7 +647,7 @@ void VTKViewer_ViewFrame::onViewFitAll()
       ResetCamera(m_Renderer); 
   }
   //m_Renderer->ResetCameraClippingRange();
-  m_RW->updateGL();
+  m_RW->update();
 }
 
 /*!
@@ -710,7 +694,6 @@ void VTKViewer_ViewFrame::highlight( const Handle(SALOME_InteractiveObject)& IOb
 {
   QAD_Study* ActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
   SALOME_Selection* Sel = SALOME_Selection::Selection( ActiveStudy->getSelection() );
-
   if ( Sel->SelectionMode() == 4 )
     m_RWInteractor->highlight(IObject, highlight, update);
   else if ( Sel->SelectionMode() == 3 ) {
@@ -766,9 +749,9 @@ void VTKViewer_ViewFrame::undo(SALOMEDS::Study_var aStudy,
       if ( anActor->hasIO() ) {
 	Handle(SALOME_InteractiveObject) IO = anActor->getIO();
 	if ( IO->hasEntry() ) { 
-	  if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry)) {
+	  /*if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry)) {
 	    m_RWInteractor->Erase(IO);
-	  }
+	    }*/
 	}
       }
     }
@@ -794,8 +777,8 @@ void VTKViewer_ViewFrame::redo(SALOMEDS::Study_var aStudy,
 	  if ( anActor->hasIO() ) {
 	    Handle(SALOME_InteractiveObject) IO = anActor->getIO();
 	    if ( IO->hasEntry() ) { 
-	      if ( strcmp(IO->getEntry(),RefSO->GetID()) == 0 )
-		m_RWInteractor->Display(IO);
+	      /*if ( strcmp(IO->getEntry(),RefSO->GetID()) == 0 )
+		m_RWInteractor->Display(IO);*/
 	    }
 	  }
 	}
@@ -936,51 +919,36 @@ void VTKViewer_ViewFrame::EraseAll()
 
 void VTKViewer_ViewFrame::Repaint()
 {
-  m_RWInteractor->Render();
-  m_RW->updateGL();
+  // m_RWInteractor->Render();
+  m_RW->update();
 }
 
-void VTKViewer_ViewFrame::AddActor( SALOME_Actor* theActor, bool update /*=false*/ )
-{
-  m_Renderer->AddActor( theActor );
-  if (m_NonIsometricTransform != NULL)
-    {
-      vtkPolyDataMapper* mapper = NULL;
-      vtkMapper* initialMapper = theActor->GetInitialMapper();
-      if ( initialMapper == NULL )
-	initialMapper =   theActor->GetMapper();
-      if ( initialMapper->IsA("vtkDataSetMapper") )
-	{
-	  mapper = vtkDataSetMapper::SafeDownCast( initialMapper )->GetPolyDataMapper ();
-	  if (!mapper)
-	    {
-	      initialMapper->Render(m_Renderer,theActor);
-	      mapper = vtkDataSetMapper::SafeDownCast( initialMapper )->GetPolyDataMapper ();
-	    }
-	}
-      else
-	mapper = vtkPolyDataMapper::SafeDownCast( initialMapper );
-      if (mapper)
-	{
-	  //create Filter
-	  vtkTransformPolyDataFilter *aTransformFilter = vtkTransformPolyDataFilter::New();
-	  aTransformFilter->SetInput ( mapper->GetInput() );
-	  aTransformFilter->SetTransform (m_NonIsometricTransform);
+void VTKViewer_ViewFrame::GetScale(double theScale[3]){
+  m_Transform->GetScale(theScale);
+}
 
-	  //create new mapper
-	  vtkPolyDataMapper *aMapper = vtkPolyDataMapper::New();
-	  aMapper->SetInput (aTransformFilter->GetOutput());
-	  aMapper->ShallowCopy ( theActor->GetMapper());
+void VTKViewer_ViewFrame::SetScale(double theScale[3]){
+  m_Transform->SetScale(theScale[0], theScale[1], theScale[2]);
+  m_Transform->Modified();
+  Repaint();
+}
 
-	  //set new mapper
-	  theActor->SetMapper (aMapper);
-		  
-	  aTransformFilter->Delete();
-	  aMapper->Delete();
-	}
-    } 
-  theActor->SetVisibility( true );
-  
-  if (update)
+void VTKViewer_ViewFrame::AddActor( SALOME_Actor* theActor, bool update /*=false*/ ){
+  theActor->SetVisibility(true);
+  theActor->AddToRender(m_Renderer);
+  theActor->SetTransform(m_Transform);
+  if(update){
+    m_Renderer->ResetCameraClippingRange();
     m_RWInteractor->Render();
+  }
 }
+
+void VTKViewer_ViewFrame::RemoveActor( SALOME_Actor* theActor, bool update /*=false*/ ){
+  theActor->RemoveFromRender(m_Renderer);
+  if(update){
+    m_Renderer->ResetCameraClippingRange();
+    m_RWInteractor->Render();
+  }
+}
+
+

@@ -1,13 +1,15 @@
-using namespace std;
-//  File      : SALOMEDS_GenericAttribute_i.cxx
-//  Created   : Fri Jul 05 15:49:37 2002
-//  Author    : Mikhail PONIKAROV
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2002
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_GenericAttribute_i.cxx
+//  Author : Mikhail PONIKAROV
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_StudyBuilder_i.hxx"
 
 void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) {

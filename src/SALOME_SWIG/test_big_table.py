@@ -1,15 +1,12 @@
-#==============================================================================
-#  File      : test_big_table.py
-#  Created   : 20/01/03
-#  Author    : Vadim SANDLER
-#  Project   : SALOME
-#  Copyright : Open CASCADE
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : test_big_table.py
+#  Author : Vadim SANDLER
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
-# ============================================================================
-# Test large tables : ~200 curves ( 100 points in each )
-# ============================================================================
 import salome
 import math
 import SALOMEDS

@@ -1,13 +1,12 @@
-//=============================================================================
-// File      : SALOME_Trace.cxx
-// Created   : nov 18 10:28:17 2002
-// Author    : Vasily Rusyaev
-// Project   : SALOME/PRO
-//=============================================================================
-
-// SALOME_Trace.hxx: interface for the SALOME_Trace class.
+//  SALOME Logger : CORBA server managing trace output
 //
-//////////////////////////////////////////////////////////////////////
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOME_Trace.cxx
+//  Author : Vasily Rusyaev
+//  Module : SALOME
 
 #if !defined(AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_)
 #define AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_
@@ -43,6 +42,8 @@
 
 # endif  /* WNT */
 
+using namespace std;
+
 #include <strstream.h>
 #include "Logger.hh"
 
@@ -51,7 +52,7 @@ class SALOME_Trace : public ostrstream
 public:
 	virtual ~SALOME_Trace();
         static Standard_EXPORT SALOME_Trace& Instance();
-	Standard_EXPORT void putMessage(ostream& msg);
+	Standard_EXPORT void putMessage(std::ostream& msg);
 protected:
 	//disable creation of instances. It's necessary to use static SALOME_Logger& Instance()
 	SALOME_Trace();

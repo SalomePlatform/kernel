@@ -1,11 +1,12 @@
-//  File      : QAD_DirListDlg.h
-//  Created   : 10/10/2002
-//  Descr     : Dialog box for editing of directory list
-
-//  Author    : Vadim SANDLER
-//  Project   : SALOME Pro
-//  Module    : SALOMEGUI 
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_DirListDlg.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #if !defined(QAD_DirListDlg_h)

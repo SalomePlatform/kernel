@@ -1,12 +1,32 @@
-using namespace std;
-//  File      : VTKViewer_InteractorStyleSALOME.cxx
-//  Created   : Wed Mar 20 11:37:34 2002
-//  Author    : Christophe ATTANASIO
-//  Project   : SALOME
-//  Module    : VTKViewer
-//  Copyright : Open CASCADE 2002
+//  SALOME VTKViewer : build VTK viewer into Salome desktop
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : VTKViewer_InteractorStyleSALOME.cxx
+//  Author : Christophe ATTANASIO
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "VTKViewer_InteractorStyleSALOME.h"
 #include "VTKViewer_RenderWindow.h"
 
@@ -30,6 +50,8 @@ using namespace std;
 #include <vtkExtractEdges.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkDataSetCollection.h>
+#include <vtkImageData.h>
+
 
 //VRV: porting on Qt 3.0.5
 #if QT_VERSION >= 0x030005
@@ -98,12 +120,12 @@ void VTKViewer_InteractorStyleSALOME::RotateXY(int dx, int dy)
   cam->OrthogonalizeViewUp();
   this->CurrentRenderer->ResetCameraClippingRange();
   vtkRenderWindowInteractor *rwi = this->Interactor;
-  if (this->CurrentLight)
+  /* VSV Light follows camera: if (this->CurrentLight)
     {
       // get the first light
       this->CurrentLight->SetPosition(cam->GetPosition());
       this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-    }	
+      }	*/
   rwi->Render();
 }
 
@@ -111,24 +133,23 @@ void VTKViewer_InteractorStyleSALOME::RotateXY(int dx, int dy)
 void VTKViewer_InteractorStyleSALOME::PanXY(int x, int y, int oldX, int oldY)
 {
   TranslateView(x, y, oldX, oldY);   
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  if (this->CurrentLight)
+  //vtkRenderWindowInteractor *rwi = this->Interactor;
+  /* VSV Light follows camera: if (this->CurrentLight)
     {
-      /* get the first light */
       vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
       this->CurrentLight->SetPosition(cam->GetPosition());
       this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-    }
+      }*/
     
-  rwi->Render();
+  this->Interactor->Render();
 }
 
 //----------------------------------------------------------------------------
 void VTKViewer_InteractorStyleSALOME::DollyXY(int dx, int dy)
 {
   vtkCamera *cam;
-  double dxf = this->MotionFactor * (double)(dx) / (double)(this->Center[1]);
-  double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
+  double dxf = this->MotionFactor * (double)(dx) / (double)(this->CurrentRenderer->GetCenter()[1]);
+  double dyf = this->MotionFactor * (double)(dy) / (double)(this->CurrentRenderer->GetCenter()[1]);
 
   double zoomFactor = pow((double)1.1, dxf + dyf);
   
@@ -148,12 +169,11 @@ void VTKViewer_InteractorStyleSALOME::DollyXY(int dx, int dy)
       this->CurrentRenderer->ResetCameraClippingRange();
     }
   
-  if (this->CurrentLight)
-    {
-      /* get the first light */
+  /* VSV Light follows camera: if (this->CurrentLight)
+    {      
       this->CurrentLight->SetPosition(cam->GetPosition());
       this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-    }
+      }*/
   
   this->Interactor->Render();
 }
@@ -169,10 +189,10 @@ void VTKViewer_InteractorStyleSALOME::SpinXY(int x, int y, int oldX, int oldY)
       return;
     }
 
-  double newAngle = atan2((double)(y - this->Center[1]),
-			  (double)(x - this->Center[0]));
-  double oldAngle = atan2((double)(oldY -this->Center[1]),
-			  (double)(oldX - this->Center[0]));
+  double newAngle = atan2((double)(y - this->CurrentRenderer->GetCenter()[1]),
+			  (double)(x - this->CurrentRenderer->GetCenter()[0]));
+  double oldAngle = atan2((double)(oldY -this->CurrentRenderer->GetCenter()[1]),
+			  (double)(oldX - this->CurrentRenderer->GetCenter()[0]));
   
   newAngle *= this->RadianToDegree;
   oldAngle *= this->RadianToDegree;
@@ -202,16 +222,14 @@ void VTKViewer_InteractorStyleSALOME::OnMouseMove(int vtkNotUsed(ctrl),
 void VTKViewer_InteractorStyleSALOME::OnLeftButtonDown(int ctrl, int shift, 
 						       int x, int y) 
 {
-  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
-    {
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) {
     this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     return;
-    }
+  }
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
-    {
+  if (this->CurrentRenderer == NULL) {
     return;
-    }
+  }
   myShiftState = shift;
   // finishing current viewer operation
   if (State != VTK_INTERACTOR_STYLE_CAMERA_NONE) {
@@ -221,8 +239,7 @@ void VTKViewer_InteractorStyleSALOME::OnLeftButtonDown(int ctrl, int shift,
   myOtherPoint = myPoint = QPoint(x, y);
   if (ForcedState != VTK_INTERACTOR_STYLE_CAMERA_NONE) {
     startOperation(ForcedState);
-  }
-  else {
+  } else {
     if (ctrl)
       startOperation(VTK_INTERACTOR_STYLE_CAMERA_ZOOM);
     else
@@ -433,8 +450,8 @@ void VTKViewer_InteractorStyleSALOME::loadCursors()
 // event filter - controls mouse and keyboard events during viewer operations
 bool VTKViewer_InteractorStyleSALOME::eventFilter(QObject* object, QEvent* event)
 {
-  VTKViewer_RenderWindow* wnd = dynamic_cast<VTKViewer_RenderWindow*>(GetInteractor()->GetRenderWindow());
-  if ( (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::KeyPress) && object != wnd)
+  if (!myGUIWindow) return false;
+  if ( (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::KeyPress) && object != myGUIWindow)
   {
     qApp->removeEventFilter(this);
     startOperation(VTK_INTERACTOR_STYLE_CAMERA_NONE);
@@ -546,8 +563,8 @@ void VTKViewer_InteractorStyleSALOME::startGlobalPan()
       ac = m_Triedron->GetNextActor();
     }
   }
-  VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
-  if (aRW) aRW->updateGL();
+  //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
+  if (myGUIWindow) myGUIWindow->update();
   
   qApp->installEventFilter(this);
 }
@@ -572,7 +589,7 @@ void VTKViewer_InteractorStyleSALOME::fitRect(const int left,
     return;
   }
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
-
+ 
   // move camera
   int x = (left + right)/2;
   int y = (top + bottom)/2;
@@ -580,6 +597,7 @@ void VTKViewer_InteractorStyleSALOME::fitRect(const int left,
   int oldX = aSize[0]/2;
   int oldY = aSize[1]/2;
   TranslateView(oldX, oldY, x, y);
+
       
   // zoom camera
   double dxf = (double)(aSize[0]) / (double)(abs(right - left));
@@ -593,15 +611,14 @@ void VTKViewer_InteractorStyleSALOME::fitRect(const int left,
     this->CurrentRenderer->ResetCameraClippingRange();
   }
   
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  if (this->CurrentLight) {
-    /* get the first light */
+  //vtkRenderWindowInteractor *rwi = this->Interactor;
+  /* VSV Light follows camera: if (this->CurrentLight) {
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-  }
+    }*/
   //  rwi->Render();
-  VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(rwi->GetRenderWindow());
-  if (aRW) aRW->updateGL();
+  //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(rwi->GetRenderWindow());
+  myGUIWindow->update();
 }
 
 
@@ -636,37 +653,37 @@ void VTKViewer_InteractorStyleSALOME::startOperation(int operation)
 // sets proper cursor for window when viewer operation is activated
 void VTKViewer_InteractorStyleSALOME::setCursor(const int operation)
 {
-   VTKViewer_RenderWindow* wnd = dynamic_cast< VTKViewer_RenderWindow*>(GetInteractor()->GetRenderWindow());
+  if (!myGUIWindow) return;
   switch (operation)
   {
     case VTK_INTERACTOR_STYLE_CAMERA_ZOOM:
-      wnd->setCursor(myZoomCursor); 
+      myGUIWindow->setCursor(myZoomCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_PAN:
-      wnd->setCursor(myPanCursor); 
+      myGUIWindow->setCursor(myPanCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_ROTATE:
-      wnd->setCursor(myRotateCursor); 
+      myGUIWindow->setCursor(myRotateCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_SPIN:
-      wnd->setCursor(mySpinCursor); 
+      myGUIWindow->setCursor(mySpinCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_GLOBAL_PAN:
-      wnd->setCursor(myGlobalPanCursor); 
+      myGUIWindow->setCursor(myGlobalPanCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_FIT:
     case VTK_INTERACTOR_STYLE_CAMERA_SELECT:
-      wnd->setCursor(myHandCursor); 
+      myGUIWindow->setCursor(myHandCursor); 
       myCursorState = true;
       break;
     case VTK_INTERACTOR_STYLE_CAMERA_NONE:
     default:
-      wnd->setCursor(myDefCursor); 
+      myGUIWindow->setCursor(myDefCursor); 
       myCursorState = false;
       break;
   }
@@ -675,12 +692,12 @@ void VTKViewer_InteractorStyleSALOME::setCursor(const int operation)
 // called when viewer operation started (!put necessary initialization here!)
 void VTKViewer_InteractorStyleSALOME::onStartOperation()
 {
-   VTKViewer_RenderWindow* wnd = dynamic_cast< VTKViewer_RenderWindow*>(GetInteractor()->GetRenderWindow());
+  if (!myGUIWindow) return;
   switch (State) {
     case VTK_INTERACTOR_STYLE_CAMERA_SELECT:
     case VTK_INTERACTOR_STYLE_CAMERA_FIT:
     {
-      QPainter p(wnd);
+      QPainter p(myGUIWindow);
       p.setPen(Qt::lightGray);
       p.setRasterOp(Qt::XorROP);
       p.drawRect(QRect(myPoint, myOtherPoint));
@@ -698,9 +715,10 @@ void VTKViewer_InteractorStyleSALOME::onStartOperation()
 // called when viewer operation finished (!put necessary post-processing here!)
 void VTKViewer_InteractorStyleSALOME::onFinishOperation() 
 {
+  if (!myGUIWindow) return;
+
   QAD_Study* aActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
   SALOME_Selection* aSel    = SALOME_Selection::Selection( aActiveStudy->getSelection() );
-  VTKViewer_RenderWindow* wnd = dynamic_cast< VTKViewer_RenderWindow*>(GetInteractor()->GetRenderWindow());
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   int aSelectionMode = aSel->SelectionMode();
@@ -712,7 +730,7 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
     case VTK_INTERACTOR_STYLE_CAMERA_SELECT:
     case VTK_INTERACTOR_STYLE_CAMERA_FIT:
     {
-      QPainter p(wnd);
+      QPainter p(myGUIWindow);
       p.setPen(Qt::lightGray);
       p.setRasterOp(Qt::XorROP);
       QRect rect(myPoint, myOtherPoint);
@@ -784,55 +802,50 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 	          }
                   //Edge selection ////////////////////////// NB
                   else if ( aSelectionMode == 2 ) {
-                    if ( SActor->hasIO() ) {
+                    if(SActor->hasIO()){
                       Handle(SALOME_InteractiveObject) IO = SActor->getIO();
                       float pickPosition[3],pcoords[3],closestPoint[3],weights[3],dist1=1000000.0,dist2=0;
-                      int subId,edgeId,pickedID,result;
+                      int subId,edgeId=-10,pickedID,result;
                       pickedID = picker->GetCellId();
                       picker->GetPickPosition(pickPosition);
-                       MESSAGE("Position = "<<pickPosition[0]<<" "<<pickPosition[1]<<" "<<pickPosition[2]);
-                      vtkUnstructuredGrid* UGrid = vtkUnstructuredGrid::SafeDownCast( SActor->GetMapper()->GetInput());
-		      if (!UGrid) break;
-                      vtkCell* pickedCell = UGrid->GetCell(pickedID);
-		      if (!pickedCell) break;
-                      vtkCell* edge;
-                      vtkLine* line;
-                      for (int i=0;i<pickedCell->GetNumberOfEdges();i++) {
-                        edge = pickedCell->GetEdge(i);
-                        if (edge->GetCellType() == 3) { //3 for VTK_LINE
-                          line = (vtkLine*)edge;
-                          result = line->EvaluatePosition(pickPosition,closestPoint,subId,pcoords,dist2,weights);
-                          MESSAGE("edge "<< i <<" dist = " << dist2);
-                          if (dist2 < dist1) {
-                            dist1  = dist2;
-                            edgeId = i;
-                          }
-                        }
-                      }
-                      MESSAGE("edgeID transformed = "<<edgeId);
-                      // Look in the current selection
-                      SALOME_ListIteratorOfListIO It(aSel->StoredIObjects());
-                      Standard_Boolean IsSelected = false;
-                      for(;It.More();It.Next()) {
-                        Handle(SALOME_InteractiveObject) IOS = It.Value();
-                        if(IO->isSame(IOS)) {
-			  IO = IOS; //Added by SRN, fix SAL1307
-                          IsSelected = true;
-                          break;
-                        }
-                      }
-                      if(!myShiftState) {
-                        this->HighlightProp( NULL );
-                        aSel->ClearIObjects();
-                      }
-                      aSel->SetSelectionMode(3, true);
-                      bool add = aSel->AddOrRemoveIndex( IO, pickedID, 0 );
-                      aSel->SetSelectionMode(2, true);
-		      edgeId = -edgeId;
-                      add = aSel->AddOrRemoveIndex( IO, edgeId, 0, false );
-                      aSel->AddIObject( IO, false );
-                    }
-                  }
+		      if (vtkDataSet* UGrid = SActor->GetMapper()->GetInput()){
+			if (vtkCell* pickedCell = UGrid->GetCell(pickedID)){
+			  edgeId = -1;
+			  for (int i = 0, iEnd = pickedCell->GetNumberOfEdges(); i < iEnd; i++){
+			    vtkCell* edge = pickedCell->GetEdge(i);
+			    if(vtkLine* line = vtkLine::SafeDownCast(edge)){
+			      result = line->EvaluatePosition(pickPosition,closestPoint,subId,pcoords,dist2,weights);
+			      if (dist2 < dist1) {
+				dist1  = dist2;
+				edgeId = i;
+			      }
+			    }
+			  }
+			  MESSAGE("edgeID transformed = "<<edgeId);
+			  // Look in the current selection
+			  SALOME_ListIteratorOfListIO It(aSel->StoredIObjects());
+			  Standard_Boolean IsSelected = false;
+			  for(;It.More();It.Next()) {
+			    Handle(SALOME_InteractiveObject) IOS = It.Value();
+			    if(IO->isSame(IOS)) {
+			      IO = IOS; //Added by SRN, fix SAL1307
+			      IsSelected = true;
+			      break;
+			    }
+			  }
+			  if(!myShiftState) {
+			    this->HighlightProp( NULL );
+			    aSel->ClearIObjects();
+			  }
+			  aSel->SetSelectionMode(2, true);
+			  bool add = aSel->AddOrRemoveIndex( IO, pickedID, true, false);
+			  if(edgeId >= 0)
+			    add = aSel->AddOrRemoveIndex( IO, -edgeId-1, true, true );
+			  aSel->AddIObject( IO, false );
+			}
+		      }
+		    }
+		  }
                 } else {
                   this->HighlightProp( NULL );
                   aSel->ClearIObjects();
@@ -1018,72 +1031,37 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 	  case 2: // edges selection
 	  case 3: // triangles selection
 	    {
-	      if (! rwi->GetPicker()->IsA("vtkCellPicker") ) break;
+	      aSel->SetSelectionMode(aSelectionMode,true);
+	      if (!rwi->GetPicker()->IsA("vtkCellPicker") ) break;
 	      vtkCellPicker* aCellPicker = vtkCellPicker::SafeDownCast(rwi->GetPicker());
 	      vtkActorCollection* aListActors = this->CurrentRenderer->GetActors();
 	      aListActors->InitTraversal();
 	      vtkActor* aActor;
-	      for (int k = 0; k < aListActors->GetNumberOfItems(); k++) {
-		aActor = aListActors->GetNextActor();
-		if (aActor != NULL) {
-		  if (aActor->GetVisibility() == 0) 
-		    continue;
-		  vtkAbstractMapper3D* aMapper3D = aActor->GetMapper();
-		  if ((aMapper3D != NULL) && (aActor->IsA("SALOME_Actor"))) {
-		    SALOME_Actor* SActor = SALOME_Actor::SafeDownCast(aActor);
-
-		    if ((SActor != NULL) && (SActor->hasIO())) {
+	      for (int k = 0, kEnd = aListActors->GetNumberOfItems(); k < kEnd; k++){
+		vtkActor* aActor = aListActors->GetNextActor();
+		if (vtkActor* aActor = aListActors->GetNextActor()){
+		  if (aActor->GetVisibility() == 0) continue;
+		  if(SALOME_Actor* SActor = SALOME_Actor::SafeDownCast(aActor)) {
+		    if(SActor->hasIO()) {
 		      Handle(SALOME_InteractiveObject) IO = SActor->getIO();
-		      if (IO.IsNull()) 
-			continue;
-		      if (aSelActiveCompOnly && 
-                              strcmp(aActiveComponent->ComponentDataType(), IO->getComponentDataType()) != 0) {
-			continue;
-		      }
-
-		      vtkMapper*       aMapper;
-		      vtkVolumeMapper* aVolumeMapper;
-		      vtkDataSet*      aDataSet;
-		      
-		      if ( (aMapper = vtkMapper::SafeDownCast(aMapper3D)) != NULL ) {
-			aDataSet = aMapper->GetInput();
-		      } else if ((aVolumeMapper = vtkVolumeMapper::SafeDownCast(aMapper3D)) != NULL ){
-			aDataSet = aVolumeMapper->GetInput();
-		      } else {
-			continue;
-		      }
-		      if (aDataSet) {
-			for (int i=0; i < aDataSet->GetNumberOfCells(); i++) {
-			  vtkCell* aCell = aDataSet->GetCell(i);
-			  if (aCell != NULL) {
-			    if (IsInRect(aCell,  x1, y1, x2, y2)) {
+		      if(IO.IsNull()) continue;
+		      if(aSelActiveCompOnly)
+			if(strcmp(aActiveComponent->ComponentDataType(),IO->getComponentDataType()) != 0)
+			  continue;
+		      if(vtkDataSet* aDataSet = SActor->GetMapper()->GetInput()){
+			for(int i = 0, iEnd = aDataSet->GetNumberOfCells(); i < iEnd; i++){
+			  if(vtkCell* aCell = aDataSet->GetCell(i)){
+			    if(IsInRect(aCell,  x1, y1, x2, y2)){
 			      float* aBounds = aCell->GetBounds();
 			      float aCenter[3];
 			      aCenter[0] =(aBounds[0] + aBounds[1])/2; // Center X
 			      aCenter[1] =(aBounds[2] + aBounds[3])/2; // Center Y
 			      aCenter[2] =(aBounds[4] + aBounds[5])/2; // Center Z
 			      float aDisp[3];
-			      ComputeWorldToDisplay(aCenter[0],
-						    aCenter[1],
-						    aCenter[2], aDisp);
+			      ComputeWorldToDisplay(aCenter[0],aCenter[1],aCenter[2],aDisp);
 			      aCellPicker->Pick(aDisp[0], aDisp[1], 0.0, CurrentRenderer);
-			      if (aSelectionMode == 3) {
-				if ( aCellPicker->GetCellId() >= 0 && 
-				    (!aSel->IsIndexSelected(IO, aCellPicker->GetCellId()))) {
-				  aSel->AddOrRemoveIndex( IO, aCellPicker->GetCellId(), true, false);
-				  aSel->AddIObject( IO, false );
-				}
-			      } else {
-				vtkCell* aTriangleCell = aDataSet->GetCell(aCellPicker->GetCellId());
-				vtkCell* aEdge;
-				if (!aSel->IsIndexSelected(IO, aCellPicker->GetCellId())) {
-				  aSel->SetSelectionMode(3, true);
-				  aSel->AddOrRemoveIndex(IO, aCellPicker->GetCellId(), true, false);
-				}
-				aSel->SetSelectionMode(2, true);
-				for (int i=0; i < aTriangleCell->GetNumberOfEdges(); i++) {
-				  aSel->AddOrRemoveIndex( IO, i, true, false);
-				}
+			      if(aCellPicker->GetCellId() >= 0 && !aSel->IsIndexSelected(IO,aCellPicker->GetCellId())){
+				aSel->AddOrRemoveIndex( IO, aCellPicker->GetCellId(), true, false);
 				aSel->AddIObject( IO, false );
 			      }
 			    }
@@ -1173,14 +1151,14 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 // called during viewer operation when user moves mouse (!put necessary processing here!)
 void VTKViewer_InteractorStyleSALOME::onOperation(QPoint mousePos) 
 {
+  if (!myGUIWindow) return;
   int w, h;
   GetInteractor()->GetSize(w, h);
-   VTKViewer_RenderWindow* wnd = dynamic_cast< VTKViewer_RenderWindow*>(GetInteractor()->GetRenderWindow());
   switch (State) {
   case VTK_INTERACTOR_STYLE_CAMERA_PAN: 
     {
       // processing panning
-      this->FindPokedCamera(mousePos.x(), mousePos.y());
+      //this->FindPokedCamera(mousePos.x(), mousePos.y());
       this->PanXY(mousePos.x(), myPoint.y(), myPoint.x(), mousePos.y());
       myPoint = mousePos;
       break;
@@ -1188,7 +1166,7 @@ void VTKViewer_InteractorStyleSALOME::onOperation(QPoint mousePos)
   case VTK_INTERACTOR_STYLE_CAMERA_ZOOM: 
     {    
       // processing zooming
-      this->FindPokedCamera(mousePos.x(), mousePos.y());
+      //this->FindPokedCamera(mousePos.x(), mousePos.y());
       this->DollyXY(mousePos.x() - myPoint.x(), mousePos.y() - myPoint.y());
       myPoint = mousePos;
       break;
@@ -1196,7 +1174,7 @@ void VTKViewer_InteractorStyleSALOME::onOperation(QPoint mousePos)
   case VTK_INTERACTOR_STYLE_CAMERA_ROTATE: 
     {
       // processing rotation
-      this->FindPokedCamera(mousePos.x(), mousePos.y());
+      //this->FindPokedCamera(mousePos.x(), mousePos.y());
       this->RotateXY(mousePos.x() - myPoint.x(), myPoint.y() - mousePos.y());
       myPoint = mousePos;
       break;
@@ -1204,7 +1182,7 @@ void VTKViewer_InteractorStyleSALOME::onOperation(QPoint mousePos)
   case VTK_INTERACTOR_STYLE_CAMERA_SPIN: 
     {
       // processing spinning
-      this->FindPokedCamera(mousePos.x(), mousePos.y());
+      //this->FindPokedCamera(mousePos.x(), mousePos.y());
       this->SpinXY(mousePos.x(), mousePos.y(), myPoint.x(), myPoint.y());
       myPoint = mousePos;
       break;
@@ -1220,7 +1198,7 @@ void VTKViewer_InteractorStyleSALOME::onOperation(QPoint mousePos)
     }
   case VTK_INTERACTOR_STYLE_CAMERA_FIT:
     {
-      QPainter p(wnd);
+      QPainter p(myGUIWindow);
       p.setPen(Qt::lightGray);
       p.setRasterOp(Qt::XorROP);
       p.drawRect(QRect(myPoint, myOtherPoint));
@@ -1334,12 +1312,12 @@ void VTKViewer_InteractorStyleSALOME::Place(const int theX, const int theY)
   cam->SetParallelScale(myScale);
   this->CurrentRenderer->ResetCameraClippingRange();
 
-  if (this->CurrentLight) {
+  /* VSV Light follows camera: if (this->CurrentLight) {
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-  }
-  VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
-  if (aRW) aRW->updateGL();
+    }*/
+  //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
+  if (myGUIWindow) myGUIWindow->update();
 }
 
 

@@ -1,9 +1,10 @@
-//  File      : Plot2d_ViewFrame.h
-//  Created   : Wed Jun 27 16:38:42 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d_ViewFrame.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef Plot2d_ViewFrame_H
@@ -11,10 +12,10 @@
 
 #include "QAD_ViewFrame.h"
 #include "QAD_Popup.h"
+#include "QAD_Action.h"
 #include "Plot2d_Curve.h"
 #include "Plot2d_CurveContainer.h"
 #include <qmainwindow.h>
-#include <qaction.h>
 #include <qmap.h>
 #include <qintdict.h>
 #include <qwt_plot.h>
@@ -33,7 +34,7 @@ class QAD_EXPORT Plot2d_ViewFrame : public QAD_ViewFrame, public QAD_PopupClient
 
   enum { NoOpId, FitAllId, FitAreaId, ZoomId, PanId, DumpId, 
 	 ModeXLinearId, ModeXLogarithmicId, ModeYLinearId, ModeYLogarithmicId,
-	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId };
+	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId };
 public:
   /* Construction/destruction */
   Plot2d_ViewFrame( QWidget* parent, const QString& title = "" );
@@ -143,6 +144,7 @@ public slots:
   void    onLegend();
   void    onCurves();
   void    onSettings();
+  void    onFitData();
 
 protected slots:
   void    onLegendClicked( long key );
@@ -152,7 +154,7 @@ protected slots:
 
 private:
   Plot2d_Plot2d*               myPlot;
-  QMap<int, QAction*>          myActions;
+  ActionMap                    myActions;
   int                          myOperation;
   QPoint                       myPnt;
   CurveDict                    myCurves;

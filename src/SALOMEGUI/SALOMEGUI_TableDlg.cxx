@@ -1,14 +1,15 @@
-using namespace std;
-//  File      : SALOMEGUI_TableDlg.cxx
-//  Created   : Wed Dec 25 12:00:00 2002
-//  Descr     : Dialog box for displaying/editing of table
-
-//  Author    : Vadim SANDLER
-//  Project   : SALOME for ALLIANCES
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_TableDlg.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_TableDlg.h"
 #include "QAD_Tools.h"
 #include "QAD_MessageBox.h"

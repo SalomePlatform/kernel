@@ -1,12 +1,14 @@
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_UseCaseIterator_i.cxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
+
 using namespace std;
-//  File      : SALOMEDS_UseCaseIterator_i.cxx
-//  Created   : Mon Oct 7 16:15:25 2002
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2002
-
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"

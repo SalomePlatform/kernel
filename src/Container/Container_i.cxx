@@ -1,13 +1,32 @@
-using namespace std;
-//=============================================================================
-// File      : Container_i.cxx
-// Created   : jeu jui 12 08:04:40 CEST 2001
-// Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA 
-// Project   : SALOME
-// Copyright : EDF 2001 - CEA 2001
-// $Header$
-//=============================================================================
+//  SALOME Container : implementation of container and engine for Kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : Container_i.cxx
+//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA 
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "SALOME_Container_i.hxx"
@@ -21,6 +40,11 @@ using namespace std;
 #include "utilities.h"
 
 bool _Sleeping = false ;
+
+// Needed by multi-threaded Python
+int _ArgC ;
+char ** _ArgV ;
+
 
 // Containers with name FactoryServer are started via rsh in LifeCycleCORBA
 // Other Containers are started via start_impl of FactoryServer
@@ -37,6 +61,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   ActSigIntHandler() ;
 
+  _ArgC = argc ;
+  _ArgV = argv ;
+
   _argc = argc ;
   _argv = argv ;
   int i = strlen( _argv[ 0 ] ) - 1 ;
@@ -49,7 +76,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   }
   string hostname = GetHostname();
   MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
-          << _argc) ;
+          << _argc << " Thread " << pthread_self() ) ;
   i = 0 ;
   while ( _argv[ i ] ) {
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;

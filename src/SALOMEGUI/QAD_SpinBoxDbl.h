@@ -1,12 +1,12 @@
-//  File      : QAD_SpinBoxDbl.h
-//  Created   : UI team, 21.11.02
-//  Descr     : Spin box for double values
-
-//  Modified  : Fri Nov 22 09:30:11 2002
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2002
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_SpinBoxDbl.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef QAD_SPINBOXDBL_H
@@ -23,7 +23,7 @@ public:
                     double lineStep, double pageStep, 
                     double value,
 		    int    precision = 6, 
-		    double dblPrecision = 10e-6,
+		    double dblPrecision = 1e-6,
 		    char   cFlag = 'g');
   virtual       ~QDblRangeControl();
   double        value() const;
@@ -92,7 +92,7 @@ public:
                   double      maxValue, 
                   double      step, 
 		  int         precision = 6, 
-		  double      dblPrecision = 10e-6,
+		  double      dblPrecision = 1e-6,
 		  char        cFlag = 'g',
                   const char* name = 0 );
   ~QAD_SpinBoxDbl();

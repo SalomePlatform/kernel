@@ -1,11 +1,28 @@
-// -*- Mode: C++; -*-
-
-// This file includes the four relevant .hh files and shorthands
-// for the 4 module names and the elts of the modules.
-
-// The shortdhands allow us to avoid the use of M::x to name elt
-// x of module M (we use M_x instead).  This is needed to deal with
-// compilers that do not support namespaces. 
+//  SALOME Notification : wrapping of Notification service services
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : CosNotifyShorthands.h
+//  Module : SALOME
 
 #ifndef _COS_NOTIFY_H_
 #define _COS_NOTIFY_H_

@@ -1,9 +1,10 @@
-//  File      : Plot2d_SetupPlot2dDlg.h
-//  Created   : Wed Jun 27 16:38:42 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d_SetupPlot2dDlg.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef Plot2d_SetupPlot2dDlg_H

@@ -1,9 +1,10 @@
-//  File      : Plot2d.h
-//  Created   : Wed Mar 20 11:56:18 2002
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : OCCViewer
-//  Copyright : Open CASCADE 2002
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
 #ifndef Plot2d_HeaderFile

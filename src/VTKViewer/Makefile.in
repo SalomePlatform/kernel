@@ -1,15 +1,33 @@
-#==============================================================================
-#  File      : Makefile.in
-#  Created   : mar jui  3 12:12:54 CEST 2001
-#  Author    : Marc Tajchman (CEA)
-#  Project   : SALOME
-#  Copyright : CEA 2001
+#  SALOME VTKViewer : build VTK viewer into Salome desktop
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : Makefile.in
+#  Author : Marc Tajchman (CEA)
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
-# source path
 top_srcdir=@top_srcdir@
-top_builddir=../..
+top_builddir=../../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 
@@ -18,9 +36,9 @@ VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 
 # header files 
 EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
-		 VTKViewer_RenderWindowInteractor.h \
 	 	 VTKViewer_ViewFrame.h \
-		 VTKViewer_NonIsometricTransform.h 
+		 VTKViewer_RenderWindowInteractor.h \
+	         VTKViewer_InteractorStyleSALOME.h
 
 # Libraries targets
 LIB = libVTKViewer.la
@@ -28,14 +46,14 @@ LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_ViewFrame.cxx \
 	 VTKViewer_RenderWindow.cxx \
 	 VTKViewer_RenderWindowInteractor.cxx \
-	 VTKViewer_InteractorStyleSALOME.cxx \
-         VTKViewer_NonIsometricTransform.cxx 
+	 VTKViewer_InteractorStyleSALOME.cxx 
 
 LIB_MOC = \
 	 VTKViewer.h \
 	 VTKViewer_ViewFrame.h \
-	 VTKViewer_RenderWindow.h \
-	 VTKViewer_RenderWindowInteractor.h 
+	 VTKViewer_RenderWindowInteractor.h \
+	 VTKViewer_RenderWindow.h 
+
 
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \

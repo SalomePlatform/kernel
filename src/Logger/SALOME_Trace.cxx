@@ -1,15 +1,14 @@
-using namespace std;
-//=============================================================================
-// File      : SALOME_Logger.cxx
-// Created   : nov 18 10:28:17 2002
-// Author    : Vasily Rusyaev
-// Project   : SALOME/PRO
-//=============================================================================
-
-// SALOME_Trace.cxx: implementation of the SALOME_Logger class.
+//  SALOME Logger : CORBA server managing trace output
 //
-//////////////////////////////////////////////////////////////////////
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOME_Logger.cxx
+//  Author : Vasily Rusyaev
+//  Module : SALOME
 
+using namespace std;
 #include "SALOME_Trace.hxx"
 #include <memory.h>
 #include <string>

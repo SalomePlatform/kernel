@@ -1,42 +1,57 @@
-//  File      : VTKViewer_ViewFrame.h
-//  Created   : Wed Mar 20 11:27:26 2002
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : VTKViewer
-//  Copyright : Open CASCADE 2002
+//  SALOME VTKViewer : build VTK viewer into Salome desktop
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : VTKViewer_ViewFrame.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
 #ifndef VTKViewer_ViewFrame_H
 #define VTKViewer_ViewFrame_H
 
-#include "VTKViewer_RenderWindowInteractor.h"
-#include "VTKViewer_RenderWindow.h"
-#include "VTKViewer_NonIsometricTransform.h"
-
 #include "QAD.h"
 #include "QAD_ViewFrame.h"
 
+#include "VTKViewer_RenderWindowInteractor.h"
+#include "VTKViewer_RenderWindow.h"
+
 // VTK Includes
-#include <vtkAxes.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderer.h>
+class vtkRenderer;
+class vtkActorCollection;
+class vtkTransform;
 
-class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame
-{
-  Q_OBJECT
-
-    public:
+class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
+  Q_OBJECT;
+ public:
   VTKViewer_ViewFrame(QWidget* parent, const char* name=0 );
   ~VTKViewer_ViewFrame();
-
+  
   ViewType                       getTypeView() const{ return VIEW_VTK;};
   QWidget*                       getViewWidget();
   vtkRenderer*                   getRenderer() {return m_Renderer;}
 
-  void                               setRW(VTKViewer_RenderWindow* rw);
-  VTKViewer_RenderWindow*	     getRW() {return m_RW;}
-  VTKViewer_RenderWindowInteractor*  getRWInteractor() {return m_RWInteractor;}
+  VTKViewer_RenderWindow*	 getRW() {return m_RW;}
+  VTKViewer_RenderWindowInteractor* getRWInteractor() {return m_RWInteractor;}
 
   bool                           isTrihedronDisplayed();
   void                           SetTrihedronSize( int dim );
@@ -76,22 +91,14 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame
   void           EraseAll();
   void           Repaint();
 
-  /* non-isometric transformation */
-  void setNonIsometricTransform (VTKViewer_NonIsometricTransform *NonIsometricTransform)
-    {
-      m_NonIsometricTransform = NonIsometricTransform;
-    }
-  VTKViewer_NonIsometricTransform * getNonIsometricTransform () 
-    { 
-      if ( m_NonIsometricTransform == NULL )
-	m_NonIsometricTransform = VTKViewer_NonIsometricTransform::New();
-      return m_NonIsometricTransform; 
-    }
   //apply existing transformation on adding SALOME_Actor
+  void SetScale(double theScale[3]);
+  void GetScale(double theScale[3]);
   void AddActor(SALOME_Actor*, bool update = false);
+  void RemoveActor(SALOME_Actor*, bool update = false);
 
  private:
-  void AddVector(float* o,float* p,vtkRenderer* renderer);
+  void AddVector(float* o,float* p,vtkRenderer* renderer, float aSize);
   void AddAxis(vtkRenderer* renderer);
  
  public slots:
@@ -123,7 +130,6 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame
   Standard_Boolean              m_TriedronVisible;
   vtkActorCollection*           m_Triedron;  
 
-  VTKViewer_NonIsometricTransform *m_NonIsometricTransform;
-
+  SALOME_Transform *m_Transform;
 };
 #endif

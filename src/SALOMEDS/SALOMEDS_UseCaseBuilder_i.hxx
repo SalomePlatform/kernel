@@ -1,10 +1,12 @@
-//  File      : SALOMEDS_UseCaseBuilder_i.hxx
-//  Created   : Mon Oct 7 16:20:12 2002
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2002
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_UseCaseBuilder_i.hxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 
 #ifndef __SALOMEDS_USECaseBuilder_I_H__
 #define __SALOMEDS_USECaseBuilder_I_H__

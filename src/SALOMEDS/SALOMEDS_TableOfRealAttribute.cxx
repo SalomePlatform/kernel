@@ -1,13 +1,15 @@
-using namespace std;
-//  File      : SALOMEDS_TableOfRealAttribute.cxx
-//  Created   : Tue Oct  8 10:13:30 2002
-//  Author    : Michael Ponikarov
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-//  Modified by: Sergey Ruin 
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_TableOfRealAttribute.cxx
+//  Author : Michael Ponikarov
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <SALOMEDS_TableOfRealAttribute.ixx>
 #include <Standard_Failure.hxx>
 #include <TColStd_DataMapIteratorOfDataMapOfIntegerReal.hxx>

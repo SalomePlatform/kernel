@@ -1,14 +1,15 @@
-using namespace std;
-//  File      : QAD_DirListDlg.cxx
-//  Created   : 10/10/2002
-//  Descr     : Dialog box for editing of directory list
-
-//  Author    : Vadim SANDLER
-//  Project   : SALOME Pro
-//  Module    : SALOMEGUI 
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_DirListDlg.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_DirListDlg.h"
 #include "QAD_Desktop.h"
 #include "QAD_FileDlg.h"

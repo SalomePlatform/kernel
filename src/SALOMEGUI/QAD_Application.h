@@ -1,14 +1,30 @@
-//  File      : QAD_Application.h
-//  Created   : UI team, 22.09.00
-//  Descr     : Study manager of QAD-based application
-
-//  Modified  : Mon Dec 03 13:21:50 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_Application.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
-
 
 #ifndef QAD_Application_H
 #define QAD_Application_H
@@ -16,12 +32,12 @@
 #include "QAD.h"
 #include "QAD_Popup.h"
 #include "QAD_Study.h"
+#include "QAD_Action.h"
 
 #include "SALOME_NamingService.hxx"
 
 // QT Includes
 #include <qlist.h>
-#include <qaction.h>
 #include <qpixmap.h>
 #include <qstringlist.h>
 #include <qtranslator.h>
@@ -174,9 +190,9 @@ private:
     void                removeStudy( QAD_Study* study );    
 
 private :
-    QList<QAction>       myEditActions;
-    QList<QAction>       myViewActions;
-    QList<QAction>       myHelpActions;
+    ActionMap            myEditActions;
+    ActionMap            myViewActions;
+    ActionMap            myHelpActions;
     QMap<int, QToolBar*> myToolBars;
 };
 

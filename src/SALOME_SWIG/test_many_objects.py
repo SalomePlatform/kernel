@@ -1,15 +1,12 @@
-#==============================================================================
-#  File      : visu_many_objects.py
-#  Created   : 28/02/03
-#  Author    : Vadim SANDLER
-#  Project   : SALOME
-#  Copyright : Open CASCADE
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : visu_many_objects.py
+#  Author : Vadim SANDLER
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
-# ============================================================================
-# Check performance for many objects creations
-# ============================================================================
 import salome
 import SALOMEDS
 

@@ -1,9 +1,12 @@
-//  File      : Handle_SALOMEDS_PythonObjectAttribute.hxx
-//  Created   : Tue Oct  8 10:13:30 2002
-//  Author    : Michael Ponikarov
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Handle_SALOMEDS_PythonObjectAttribute.hxx
+//  Author : Michael Ponikarov
+//  Module : SALOME
 //  $Header$
 
 #ifndef _Handle_SALOMEDS_PythonObjectAttribute_HeaderFile

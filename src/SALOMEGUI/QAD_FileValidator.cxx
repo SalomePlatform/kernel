@@ -1,15 +1,15 @@
-using namespace std;
-//  File      : QAD_FileValidator.cxx
-//  Created   : UI team, 17.09.02
-//  Descr     : File validator for QFileDlg class
-
-//  Modified  : Tue Sep 17 10:47:01 2002
-//  Author    : 
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_FileValidator.cxx
+//  Author : 
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_FileValidator.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"

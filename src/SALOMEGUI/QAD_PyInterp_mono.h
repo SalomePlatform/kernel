@@ -1,11 +1,13 @@
-//=============================================================================
-// File      : QAD_PyInterp_mono.h
-// Created   : ven fév  7 10:01:36 CET 2003
-// Author    : Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2003
-// $Header$
-//=============================================================================
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_PyInterp_mono.h
+//  Author : Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
 #ifndef _QAD_PYINTERP_MONO_H_
 #define _QAD_PYINTERP_MONO_H_

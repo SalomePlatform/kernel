@@ -1,11 +1,30 @@
-#==============================================================================
-#  File      : LifeCycleCORBA.py
-#  Created   : mer oct 17 08:42:01 CEST 2001
-#  Author    : Paul RASCLE, EDF
-#  Project   : SALOME
-#  Copyright : EDF 2001
+#  SALOME LifeCycleC RBA : implementation of containers and engines life cycle both in Python and C++
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : LifeCycleCORBA.py
+#  Author : Paul RASCLE, EDF
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
 import os
 import sys
@@ -60,6 +79,7 @@ class LifeCycleCORBA:
     #-------------------------------------------------------------------------
 
     def ContainerName(self, containerName):
+        theComputer = ""
         try:
             theComputer , theContainer = containerName.split('/')
         except:
@@ -120,14 +140,13 @@ class LifeCycleCORBA:
                 if path != "" :
                     rshstr = rshstr + path + "/../bin/"
                 else :
-                    rshstr = rshstr + os.getenv( "PWD" ) + "/"
+                    rshstr = rshstr + os.getenv( "SALOME_ROOT_DIR" ) + "/bin/"
                 if theContainer == "FactoryServer" :
                     rshstr = rshstr + "./runSession ./SALOME_Container "
                 else :
                     rshstr = rshstr + "./runSession ./SALOME_ContainerPy.py '"
                 rshstr = rshstr + theContainer + " -"
-                omniORBcfg = os.getenv( "HOME" ) + "/omniORB.cfg"
-#                omniORBcfg = os.getenv( "HOME" ) + "/.omniORB.cfg"
+		omniORBcfg = os.getenv( "OMNIORB_CONFIG" )
                 file = os.open( omniORBcfg , os.O_RDONLY )
                 ORBInitRef = os.read(file,132)
                 if ORBInitRef[len(ORBInitRef)-1] == '\n' :
@@ -152,7 +171,7 @@ class LifeCycleCORBA:
             while aContainer is None :
                 time.sleep(1)
                 count = count - 1
-                MESSAGE( count + ". Waiting for " + theComputer + "/" + theContainer )
+                MESSAGE( str(count) + ". Waiting for " + theComputer + "/" + theContainer )
                 aContainer = self.FindContainer( theComputer + "/" + theContainer )
                 if count == 0 :
                     return aContainer

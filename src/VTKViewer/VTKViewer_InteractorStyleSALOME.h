@@ -1,11 +1,30 @@
-//  File      : VTKViewer_InteractorStyleSALOME.h
-//  Created   : Wed Mar 20 11:36:07 2002
-//  Author    : Christophe ATTANASIO
-//  Project   : SALOME
-//  Module    : VTKViewer
-//  Copyright : Open CASCADE 2002
+//  SALOME VTKViewer : build VTK viewer into Salome desktop
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : VTKViewer_InteractorStyleSALOME.h
+//  Author : Christophe ATTANASIO
+//  Module : SALOME
 //  $Header$
-
 
 #ifndef __VTKViewer_InteractorStyleSALOME_h
 #define __VTKViewer_InteractorStyleSALOME_h
@@ -87,6 +106,8 @@ public:
   void startFitArea();
   void startSpin();
   bool needsRedrawing();
+  QWidget* getGUIWindow() {return myGUIWindow;}
+  void setGUIWindow(QWidget* theWin) { myGUIWindow = theWin;}
 
 protected:
   void loadCursors();
@@ -111,6 +132,13 @@ protected:
   bool         myShiftState;
   int ForcedState;
   vtkActorCollection* m_Triedron;  
+
+  QWidget*     myGUIWindow;
+
+  //  members from old version
+  double DeltaElevation;
+  double DeltaAzimuth;
+  int LastPos[2];
 };
 
 #endif

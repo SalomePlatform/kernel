@@ -1,11 +1,12 @@
-//  File      : SALOMEGUI_StudyPropertiesDlg.h
-//  Created   : Tue Oct 22 12:28:23 2002
-//  Descr     : Dialog box for editing of study properties
-
-//  Author    : Sergey ANIKIN
-//  Project   : SALOME Pro
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_StudyPropertiesDlg.h
+//  Author : Sergey ANIKIN
+//  Module : SALOME
 //  $Header$
 
 #ifndef SALOMEGUI_STUDY_PROPERTIES_DLG_H

@@ -1,14 +1,32 @@
-using namespace std;
-//  File      : SALOMEDS_StudyManager_i.cxx
-//  Created   : Wed Nov 28 13:45:43 2001
-//  Author    : Yves FRICAUD 
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEDS_StudyManager_i.cxx
+//  Author : Yves FRICAUD 
+//  Module : SALOME
 //  $Header$
-//  Modified by : Estelle DEVILLE : Implementation of Save methods
 
+using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
@@ -103,7 +121,7 @@ static void ReadAttributes(Handle(TDF_Data)& DF,
     } else {
 
       int size =  hdf_dataset->GetSize();
-      char current_string[size];
+      char* current_string = new char[size];
       hdf_dataset->ReadFromDisk(current_string);
 
       if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {      
@@ -352,7 +370,8 @@ static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr        study,
 					   SALOMEDS::StudyBuilder_ptr SB,
 					   SALOMEDS::SObject_ptr      so,
 					   SALOMEDS::Driver_ptr       engine,
-					   CORBA::Boolean             isMultiFile)
+					   CORBA::Boolean             isMultiFile,
+					   CORBA::Boolean             isASCII)
 {
   MESSAGE("In Translate_IOR_to_persistentID");
   SALOMEDS::ChildIterator_var itchild = study->NewChildIterator(so);
@@ -363,14 +382,13 @@ static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr        study,
   for (; itchild->More(); itchild->Next()) {
     SALOMEDS::SObject_var current = itchild->Value();
     SCRUTE(current->GetID());
-    SCRUTE(ior_string);
     SALOMEDS::GenericAttribute_var SObj;
     if (current->FindAttribute(SObj, "AttributeIOR")) {
       SALOMEDS::AttributeIOR_var IOR = SALOMEDS::AttributeIOR::_narrow(SObj);
       ior_string = IOR->Value();
       SCRUTE(ior_string);
       
-      persistent_string = engine->IORToLocalPersistentID (current,ior_string,isMultiFile);
+      persistent_string = engine->IORToLocalPersistentID (current,ior_string,isMultiFile, isASCII);
       
 //       SB->AddAttribute (current, SALOMEDS::PersistentRef,persistent_string);
       SALOMEDS::AttributePersistentRef_var Pers = SALOMEDS::AttributePersistentRef::_narrow(SB->FindOrCreateAttribute (current, "AttributePersistentRef"));
@@ -382,7 +400,7 @@ static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr        study,
       persistent_string = 0;
       curid = 0;
     }
-    Translate_IOR_to_persistentID (study,SB,current,engine,isMultiFile);
+    Translate_IOR_to_persistentID (study,SB,current,engine,isMultiFile, isASCII);
   }
   CORBA::string_free(persistent_string);
   CORBA::string_free(curid);
@@ -526,7 +544,19 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   HDFfile *hdf_file =0;         
   HDFgroup *hdf_group_study_structure =0;
 
-  hdf_file = new HDFfile((char *)aUrl);
+  char* aHDFUrl;
+  bool isASCII = false;
+  if (HDFascii::isASCII(aUrl)) {
+    isASCII = true;
+    char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl);
+    aHDFUrl = new char[strlen(aResultPath) + 19];
+    sprintf(aHDFUrl, "%shdf_from_ascii.hdf", aResultPath);
+    delete(aResultPath);
+  } else {
+    aHDFUrl = strdup(aUrl);
+  }
+
+  hdf_file = new HDFfile(aHDFUrl);
   try {
     hdf_file->OpenOnDisk(HDF_RDONLY);// mpv: was RDWR, but opened file can be write-protected too
   }
@@ -534,6 +564,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
     {
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
+      delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
@@ -584,6 +615,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   SALOMEDS_PersRefAttribute::Set(Doc->Main(),strdup(aUrl)); 
 
   if (!hdf_file->ExistInternalObject("STUDY_STRUCTURE")) {
+    delete aHDFUrl;
     MESSAGE("SALOMEDS_StudyManager::Open : the study is empty");
     return Study;
   }
@@ -600,14 +632,22 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
     {
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
+      delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
     } 
   
   hdf_file->CloseOnDisk();
-  delete hdf_file; // all related hdf objects will be deleted
 
+  if (isASCII) {
+    SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
+    aFilesToRemove->length(1);
+    aFilesToRemove[0] = strdup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
+    SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+  }
+  delete aHDFUrl;
+  delete hdf_file; // all related hdf objects will be deleted
   return Study;
 }
 
@@ -643,10 +683,20 @@ void SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr aStudy, CORBA::Boolean th
     MESSAGE( "No path specified to save the study. Nothing done")
   else
     {
-      _SaveAs(url,aStudy, theMultiFile);
+      _SaveAs(url,aStudy, theMultiFile, false);
     }
 }
 
+void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+{
+  CORBA::String_var url = aStudy->URL();
+  if (url==NULL)
+    MESSAGE( "No path specified to save the study. Nothing done")
+  else
+    {
+      _SaveAs(url,aStudy, theMultiFile, true);
+    }
+}
 
 //=============================================================================
 /*! Function : SaveAs
@@ -658,7 +708,16 @@ void SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr aStud
   // Save the URL of the Study => to be used with the function "Save"
   aStudy->URL(aUrl);
   
-  _SaveAs(aUrl,aStudy,theMultiFile);
+  _SaveAs(aUrl,aStudy,theMultiFile, false);
+
+}
+
+void SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+{
+  // Save the URL of the Study => to be used with the function "Save"
+  aStudy->URL(aUrl);
+  
+  _SaveAs(aUrl,aStudy,theMultiFile, true);
 }
 
 //============================================================================
@@ -1120,7 +1179,10 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
       TNsize[0]=5;
       TNsize[1]=maxSize+1;
       char Data[5][maxSize+1];
-      for(index=0;index<5;index++) strcpy(Data[index],Val[index]);
+      for(index=0;index<5;index++) {
+	strcpy(Data[index],Val[index]);
+	for(int a = strlen(Data[index]) + 1; a < maxSize; a++) Data[index][a] = ' '; // mpv: for ASCII format
+      }
       
       char* aDataSetName = new char[60];
       sprintf(aDataSetName, "AttributeTreeNodeGUID%s",TNRef->GetTreeID());
@@ -1209,7 +1271,8 @@ void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgro
 //============================================================================
 void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl, 
 				      SALOMEDS::Study_ptr aStudy,
-				      CORBA::Boolean theMultiFile)
+				      CORBA::Boolean theMultiFile,
+				      CORBA::Boolean theASCII)
 {
   // HDF File will be composed of differents part :
   // * For each ComponentDataType, all data created by the component
@@ -1280,9 +1343,10 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 		  MESSAGE ( "Save the data of type:"<< componentDataType);
 		  MESSAGE("Engine :"<<Engine->ComponentDataType());
 
-                  SALOMEDS::TMPFile_var aStream = Engine->Save(sco,
-							       SALOMEDS_Tool::GetDirFromPath(aUrl),
-							       theMultiFile);
+		  SALOMEDS::TMPFile_var aStream;
+                  if (theASCII) aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
+		  else aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
+
 		  HDFdataset *hdf_dataset;
 		  hdf_size aHDFSize[1];
 		  if(aStream->length() > 0) {  //The component saved some auxiliary files, then put them into HDF file 
@@ -1302,7 +1366,15 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 		  hdf_dataset->CloseOnDisk();
 		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
 
-		  Translate_IOR_to_persistentID (aStudy,SB,sco,Engine,theMultiFile);
+		  // store ASCII state
+		  aHDFSize[0] = 2;
+		  hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+		  hdf_dataset->CreateOnDisk();
+		  hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
+		  hdf_dataset->CloseOnDisk();
+		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
+
+		  Translate_IOR_to_persistentID (aStudy,SB,sco,Engine,theMultiFile, theASCII);
 		  MESSAGE("After Translate_IOR_to_persistentID");
 		  
 		  // Creation of the persistance reference  attribute
@@ -1387,7 +1459,10 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
   catch (HDFexception)
     {
       MESSAGE( "HDFexception ! " )
-    } 
+    }
+  if (theASCII) { // save file in ASCII format
+    HDFascii::ConvertFromHDFToASCII(aUrl, true);
+  }
 }
 
 //============================================================================
@@ -1481,17 +1556,20 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 //============================================================================
 Handle(TDocStd_Document) SALOMEDS_StudyManager_i::GetDocumentOfStudy(SALOMEDS::Study_ptr theStudy) {
   int a;
-  int aNbDocs = _OCAFApp->NbDocuments();
-  Handle(TDocStd_Document) aDocument;
+  int aNbDocs = _OCAFApp->NbDocuments(); 
+  Handle(TDocStd_Document) aDocument;  
   for(a = 1; a <= aNbDocs ; a++) {
     _OCAFApp->GetDocument(a, aDocument);
     if (!aDocument.IsNull()) {
       SALOMEDS_SObject_i *  aSOServant = new SALOMEDS_SObject_i (aDocument->Main(),_orb);
       SALOMEDS::SObject_var aSO = SALOMEDS::SObject::_narrow(aSOServant->_this()); 
-      if (aSO->GetStudy() == theStudy) break;
+      SALOMEDS::Study_var aStudy = aSO->GetStudy();
+      if(CORBA::is_nil(aStudy)) continue;  //The clipboard document ( hopefully :) )
+      if (aStudy->StudyId() == theStudy->StudyId()) break;
       aDocument.Nullify();
     }
   }
+
   return aDocument;
 }
 
@@ -1660,6 +1738,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
 					      const TDF_Label& theDestinationStart,
 					      const int theCopiedStudyID,
 					      const bool isFirstElement) {
+
   // get corresponding source, target and auxiliary labels
   TDF_Label aTargetLabel = theDestinationStart;
   TDF_Label aAuxSourceLabel = theSource.Root().FindChild(2);
@@ -1725,7 +1804,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
   // check auxiliary label for Comment => reference or name attribute of the referenced object
   Handle(TDataStd_Comment) aCommentAttribute;
   if (aAuxSourceLabel.FindAttribute(TDataStd_Comment::GetID(), aCommentAttribute)) {
-    char * anEntry = new char[aCommentAttribute->Get().Length()];
+    char * anEntry = new char[aCommentAttribute->Get().Length() + 1];
     strcpy(anEntry, TCollection_AsciiString(aCommentAttribute->Get()).ToCString());
     char* aNameStart = strchr(anEntry, ' ');
     if (aNameStart) {
@@ -1743,6 +1822,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
     }
     delete(anEntry);
   }
+
   return aTargetLabel;
 }
 //============================================================================
@@ -1754,32 +1834,35 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
      throw(SALOMEDS::StudyBuilder::LockProtection)
 {
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
+
   // if study is locked, then paste can't be done
   if (aStudy->GetProperties()->IsLocked())
     throw SALOMEDS::StudyBuilder::LockProtection();
+
   // if there is no component name, then paste only SObjects and attributes: without component help
   Handle(TDataStd_Comment) aComponentName;
   bool aStructureOnly = !_clipboard->Main().Root().FindAttribute(TDataStd_Comment::GetID(), aComponentName);
 
   // get copied study ID
   Handle(TDataStd_Integer) aStudyIDAttribute;
-  if (!_clipboard->Main().Root().FindAttribute(TDataStd_Integer::GetID(), aStudyIDAttribute)) return NULL;
+  if (!_clipboard->Main().Root().FindAttribute(TDataStd_Integer::GetID(), aStudyIDAttribute))
+    return SALOMEDS::SObject::_nil();
   int aCStudyID = aStudyIDAttribute->Get();
 
   // get component-engine
-
   SALOMEDS::Driver_var Engine;
   SALOMEDS::SComponent_var aComponent;
   if (!aStructureOnly) {
     aComponent = theObject->GetFatherComponent();
     CORBA::String_var IOREngine;
-    if (!aComponent->ComponentIOR(IOREngine)) return NULL;
+    if (!aComponent->ComponentIOR(IOREngine)) return SALOMEDS::SObject::_nil();
     CORBA::Object_var obj = _orb->string_to_object(IOREngine);
     Engine = SALOMEDS::Driver::_narrow(obj) ;
   }
+
   // CAF document of current study usage
   Handle(TDocStd_Document) aDocument = GetDocumentOfStudy(aStudy);
-  if (aDocument.IsNull()) return NULL; 
+  if (aDocument.IsNull()) return SALOMEDS::SObject::_nil();
   // fill root inserted SObject
   TDF_Label aStartLabel;
   if (aStructureOnly) {
@@ -1791,6 +1874,7 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
     TDF_Tool::Label(aDocument->GetData(), aComponent->GetID(), aComponentLabel);
     aStartLabel = PasteLabel(aStudy, Engine, _clipboard->Main(), aComponentLabel, aCStudyID, true);
   }
+
   // paste all sublebels
   TDF_ChildIterator anIterator(_clipboard->Main(), Standard_True);
   for(; anIterator.More(); anIterator.Next()) {
@@ -1799,5 +1883,6 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
 
   SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aStartLabel, _orb);
   SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so;
+
+  return so._retn();
 }

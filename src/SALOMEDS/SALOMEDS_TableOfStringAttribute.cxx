@@ -1,11 +1,14 @@
-using namespace std;
-//  File      : SALOMEDS_TableOfStringAttribute.cxx
-//  Created   : Mon Apr  7 10:13:30 2003
-//  Author    : Sergey Ruin
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_TableOfStringAttribute.cxx
+//  Author : Sergey Ruin
+//  Module : SALOME
 
+using namespace std;
 #include <SALOMEDS_TableOfStringAttribute.ixx>
 #include <Standard_Failure.hxx>
 #include <SALOMEDS_DataMapIteratorOfDataMapOfIntegerString.hxx>
@@ -293,7 +296,6 @@ Handle_TColStd_HSequenceOfInteger SALOMEDS_TableOfStringAttribute::GetSetColumnI
 void SALOMEDS_TableOfStringAttribute::ConvertToString(ostrstream& theStream)
 {
   int i, j, l;
-cout << "########## ConvertToString BEGIN " << endl;
   
   //Title
   l = myTitle.Length();
@@ -328,14 +330,15 @@ cout << "########## ConvertToString BEGIN " << endl;
   theStream << l << "\n";
   SALOMEDS_DataMapIteratorOfDataMapOfIntegerString anIterator(myTable);
   for(; anIterator.More(); anIterator.Next()) {
-    theStream << anIterator.Key() << "\n";
-    theStream << anIterator.Value() << "\n";
-//    l = anIterator.Value().Length();
-//    theStream << l << "\n";
-//    for(j=1; j<=l; j++)
-//      theStream << anIterator.Value().Value(j) << "\n";
+    if (anIterator.Value().Length()) { // check empty string in the value table
+      theStream << anIterator.Key() << "\n";
+      unsigned long aValueSize = anIterator.Value().Length();
+      theStream.write((char*)&aValueSize, sizeof(unsigned long));
+      theStream.write((TCollection_AsciiString(anIterator.Value()).ToCString()),aValueSize);
+    } else { // write index only of kind: "0key"; "05", for an example
+      theStream << "0" << anIterator.Key() << "\n";
+    }
   }
-cout << "########## ConvertToString END " << endl;  
   return;
 }
 
@@ -343,7 +346,12 @@ bool SALOMEDS_TableOfStringAttribute::RestoreFromString(istrstream& theStream)
 {
   Backup();
 
+  theStream.seekg(0, ios::end);
+  long aSize = theStream.tellg();
+  theStream.seekg(0, ios::beg);
+
   int i, j, l;
+  char *aValueString = new char[aSize];
 
   Standard_ExtCharacter anExtChar;
   TCollection_ExtendedString aStr;
@@ -391,19 +399,23 @@ bool SALOMEDS_TableOfStringAttribute::RestoreFromString(istrstream& theStream)
   TCollection_AsciiString aValue;
   theStream >> l;
   myTable.Clear();
+  theStream.getline(aValueString,aSize,'\n');
   for(i=1; i<=l; i++) {
     Standard_Integer aKey;
-    theStream >> aKey;
-    theStream >> aValue;
-    myTable.Bind(aKey, aValue);
-//    theStream >> l;
-//    aStr = TCollection_ExtendedString(l,0);
-//    for(j=1; j<=l; j++) {
-//      theStream >> anExtChar;
-//      aStr.SetValue(j, anExtChar);
-//    }
-//    myTable.Bind(aKey, aStr);
-  }
 
+    theStream.getline(aValueString,aSize,'\n');
+    aValue = aValueString;
+    aKey = aValue.IntegerValue();
+    if (aValue.Value(1) == '0')
+      aValue = "";
+    else {
+      unsigned long aValueSize;
+      theStream.read((char*)&aValueSize, sizeof(unsigned long));
+      theStream.read(aValueString, aValueSize);
+      aValue = aValueString;
+    }
+    myTable.Bind(aKey, aValue);
+  }
+  delete(aValueString);
   return true;
 }

@@ -1,12 +1,12 @@
-//  File      : QAD_FileDlg.h
-//  Created   : UI team, 17.09.02
-//  Descr     : Open/Save File dialog
-
-//  Modified  : Tue Sep 17 11:02:12 2002
-//  Author    : 
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_FileDlg.h
+//  Author : 
+//  Module : SALOME
 //  $Header$
 
 #ifndef QAD_FILEDIALOG_H

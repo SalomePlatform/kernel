@@ -1,23 +1,43 @@
-//  File      : SALOME_Actor.h
-//  Created   : Wed Feb 20 17:24:59 2002
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOME
-//  Copyright : Open CASCADE 2002
+//  SALOME OBJECT : implementation of interactive object visualization for OCC and VTK viewers
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOME_Actor.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
-
 
 #ifndef SALOME_ACTOR_H
 #define SALOME_ACTOR_H
 
 // SALOME Includes
-#ifndef _Handle_SALOME_InteractiveObject_HeaderFile
-#include <Handle_SALOME_InteractiveObject.hxx>
-#endif
+#include "SALOME_Transform.h"
 #include "SALOME_InteractiveObject.hxx"
+#ifndef _Handle_SALOME_InteractiveObject_HeaderFile
+#include "Handle_SALOME_InteractiveObject.hxx"
+#endif
 
-//VTK Includes
-#include <vtkLODActor.h>
+#include <vector.h>
+#include "VTKViewer_Common.h"
 
 class SALOME_Actor : public vtkLODActor 
 {
@@ -45,19 +65,15 @@ class SALOME_Actor : public vtkLODActor
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
-  virtual void ShallowCopy(vtkProp *prop);
-
   virtual Standard_Boolean hasIO() { return !myIO.IsNull(); }
   virtual Handle_SALOME_InteractiveObject getIO() { return myIO; } 
-  void setIO(const Handle(SALOME_InteractiveObject)& io) { myIO = io; }
+  virtual void setIO(const Handle(SALOME_InteractiveObject)& io) { myIO = io; }
 
   virtual Standard_CString getName()     { return myName; }
-  virtual void setName(Standard_CString aName)
-    {
-      myName = aName;
-      if ( hasIO() )
-	myIO->setName(aName);
-    }
+  virtual void setName(Standard_CString aName){
+    myName = aName;
+    if(hasIO())	myIO->setName(aName);
+  }
 
   virtual int getDisplayMode() { return myDisplayMode; }
   virtual void setDisplayMode(int mode) { myDisplayMode = mode; }
@@ -72,16 +88,19 @@ class SALOME_Actor : public vtkLODActor
   virtual void SetColor(float r,float g,float b) {};
   virtual void GetColor(float& r,float& g,float& b) {};
 
-  virtual void SetPreviewProperty(vtkProperty* Prop) { PreviewProperty = Prop; }
+  vtkSetObjectMacro(PreviewProperty,vtkProperty);
 
   virtual void SetPreSelected(Standard_Boolean presel = Standard_False)   { ispreselected = presel; }
 
   // Used to obtain all dependent actors
   virtual void GetChildActors(vtkActorCollection*) {};
   
-  //virtual void ApplyScaling ( vtkMapper*  newMapper, bool recover = false ); 
-  virtual void SetMapper ( vtkMapper*  newMapper ); 
-  virtual vtkMapper* GetInitialMapper() { return m_Initial; } 
+  virtual void AddToRender(vtkRenderer* theRenderer); 
+  virtual void RemoveFromRender(vtkRenderer* theRenderer);
+
+  virtual vtkPolyData* GetPolyDataInput(); 
+  virtual void SetMapper(vtkMapper* theMapper); 
+  virtual void SetTransform(SALOME_Transform* theTransform); 
 
  protected:
   vtkProperty         *PreviewProperty;
@@ -94,6 +113,8 @@ class SALOME_Actor : public vtkLODActor
   Standard_Boolean    ishighlighted;
   int myDisplayMode;
 
-  vtkMapper*   m_Initial;
+  SALOME_Transform *myTransform;
+  std::vector<SALOME_PassThroughFilter*> myPassFilter;
+  SALOME_TransformFilter *myTransformFilter;
 };
 #endif // SALOME_ACTOR_H

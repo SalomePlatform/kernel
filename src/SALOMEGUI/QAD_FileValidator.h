@@ -1,12 +1,12 @@
-//  File      : QAD_FileValidator.h
-//  Created   : UI team, 17.09.02
-//  Descr     : File validator for QFileDlg class
-
-//  Modified  : Tue Sep 17 10:40:50 2002
-//  Author    : 
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_FileValidator.h
+//  Author : 
+//  Module : SALOME
 //  $Header$
 
 #ifndef QAD_FILEVALIDATOR_H
