@@ -340,8 +340,11 @@ void QAD_ObjectBrowser::setupListView()
 
 /*!
   Event filter
+  We can use the following static variables for drag-n-drop operations because it is impossible
+  to perform several dragging operation at one time.
 */
-
+static bool dragged = false;
+static QStringList draggedlist;
 bool QAD_ObjectBrowser::eventFilter( QObject* o, QEvent* e )
 {
   QAD_Desktop* Desktop     = (QAD_Desktop*) QAD_Application::getDesktop();
@@ -357,7 +360,7 @@ bool QAD_ObjectBrowser::eventFilter( QObject* o, QEvent* e )
       // Test if clicked on selection and start drag if necessary
       QMouseEvent* me = ( QMouseEvent* )e;
       QAD_ObjectBrowserItem* item = ( QAD_ObjectBrowserItem* )( myUseCaseView->itemAt( me->pos() ) );
-      if ( item && item->isSelected() && me->button() == LeftButton) {
+      if ( item && item->isSelected() && me->button() == LeftButton && !(me->state() & (ControlButton | ShiftButton)) ) {
 	if ( me->pos().x() > myUseCaseView->header()->sectionPos( myUseCaseView->header()->mapToIndex( 0 ) ) +
 	                     myUseCaseView->treeStepSize() * ( item->depth() + ( myUseCaseView->rootIsDecorated() ? 1 : 0 ) ) + 
 			     myUseCaseView->itemMargin() ||
@@ -378,11 +381,38 @@ bool QAD_ObjectBrowser::eventFilter( QObject* o, QEvent* e )
 	    }
 	  }
 	  if ( done && !entryList.isEmpty() ) {
-	    QTextDrag *d = new QTextDrag( entryList.join("*"), myUseCaseView->viewport() );
-	    d->dragMove();
+	    draggedlist = entryList;
+	    // vsr 03/03/05 - start dragging only if mouse starts moving after pressing left button (see below)
+	    //QTextDrag *d = new QTextDrag( entryList.join("*"), myUseCaseView->viewport() );
+	    //d->dragMove();
+	    dragged = true;
 	    return true;
 	  }
 	}
+      }
+    }
+    else if ( e->type() == QEvent::MouseMove ) {
+      // vsr 03/03/05 - start dragging only if mouse starts moving
+      if ( dragged ) {
+	if ( !draggedlist.isEmpty() ) {
+	  QTextDrag *d = new QTextDrag( draggedlist.join("*"), myUseCaseView->viewport() );
+	  d->dragMove();
+	}
+	dragged = false;
+	draggedlist.clear();
+      }
+    }
+    else if ( e->type() == QEvent::MouseButtonRelease ) {
+      // vsr 03/03/05 - if dragging was not performed (mouse was not moved after mouse press)
+      // simulate the ordinary mouse click that means just selection of the one item
+      QMouseEvent* me = ( QMouseEvent* )e;
+      if ( dragged ) {
+	draggedlist.clear();
+	dragged = false;
+	QAD_ObjectBrowserItem* item = ( QAD_ObjectBrowserItem* )( myUseCaseView->itemAt( me->pos() ) );
+	myUseCaseView->clearSelection();
+	myUseCaseView->setSelected( item, true );
+	myUseCaseView->setCurrentItem( item );
       }
     }
     else if ( e->type() == QEvent::DragMove ) {
@@ -1423,9 +1453,6 @@ void QAD_ObjectBrowser::showUseCasePopupMenu(QListViewItem* theItem)
 */
 void QAD_ObjectBrowser::onSelectedItem()
 {
-  if (currentPage()==myListView)
-    myUseCaseView->clearSelection();
-
   QListView* whoIs;
   if ( sender()->inherits("QListView") )
     whoIs = (QListView*)sender();
