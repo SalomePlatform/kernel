@@ -66,6 +66,20 @@ void SALOME_PYQT_GUI::importModule()
 {
   PyLockWrapper aLock = interp->GetLockWrapper();
 
+  PyObjWrapper amod = PyImport_ImportModule("salome");
+  if(!amod){
+    MESSAGE ( " Problem import salome... " );
+    PyErr_Print();
+    return;
+  }
+
+  PyObjWrapper res(PyObject_CallMethod(amod,"salome_init",""));
+  if(!res){
+    MESSAGE ( " Problem... " );
+    PyErr_Print();
+    return;
+  }
+
   _module=PyImport_ImportModule((char*)_moduleName.c_str());
   if(!_module){
     MESSAGE ( " Problem... " );
