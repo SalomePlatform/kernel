@@ -40,14 +40,14 @@ using namespace std;
  */
 //============================================================================
 SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(SALOMEDS_Study_i* theStudy,
-						   const TDF_Label& theLabel): 
-  _it(theLabel),
+						   const TDF_Label& theLabel,
+						   bool theIsAllLevels): 
+  _it(theLabel,theIsAllLevels),
   _lab(theLabel),
   _study(theStudy)
 {
   TCollection_AsciiString anEntry;
   TDF_Tool::Entry(theLabel,anEntry);
-  //cout<<"SALOMEDS_ChildIterator_i::New - "<<anEntry.ToCString()<<endl;
 }
 
 //============================================================================
@@ -99,7 +99,6 @@ void SALOMEDS_ChildIterator_i::Next()
   _it.Next();
   TCollection_AsciiString anEntry;
   TDF_Tool::Entry(_it.Value(),anEntry);
-  //cout<<"SALOMEDS_ChildIterator_i::Next - "<<anEntry.ToCString()<<endl;
 }
 
 
@@ -111,6 +110,6 @@ void SALOMEDS_ChildIterator_i::Next()
 
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
-  return SALOMEDS_SObject_i::New(_study,_it.Value())->_this();
+  return SALOMEDS_SObject_i::NewRef(_study,_it.Value())._retn();
 }
 

@@ -97,6 +97,6 @@ void SALOMEDS_SComponentIterator_i::Next()
 //============================================================================
 SALOMEDS::SComponent_ptr SALOMEDS_SComponentIterator_i::Value()
 {
-  return SALOMEDS_SComponent_i::New(_study,_it.Value())->_this();
+  return SALOMEDS_SComponent_i::NewRef(_study,_it.Value())._retn();
 }
 

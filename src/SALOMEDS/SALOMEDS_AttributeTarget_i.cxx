@@ -57,8 +57,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() {
   SALOMEDS_Study_i* aStudy = _mySObject->GetStudyServant();
   for(int index = 0; anIter.More(); anIter.Next(), index++){
     const TDF_Label& aLabel = anIter.Value();
-    SALOMEDS_SObject_i* anSO = SALOMEDS_SObject_i::New(aStudy,aLabel);
-    aSList[index] = anSO->_this();
+    aSList[index] = SALOMEDS_SObject_i::NewRef(aStudy,aLabel)._retn();
   }
   return aSList._retn();
 }

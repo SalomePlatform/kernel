@@ -52,10 +52,13 @@ private:
 
 public:
   SALOMEDS_ChildIterator_i(SALOMEDS_Study_i* theStudy,
-			   const TDF_Label& theLabel);
+			   const TDF_Label& theLabel,
+			   bool theIsAllLevels = false);
 
   ~SALOMEDS_ChildIterator_i();
   
+  TDF_Label GetValue() { return _it.Value();}
+
   virtual void Init();
   virtual void InitEx(CORBA::Boolean);
   virtual CORBA::Boolean More();

@@ -319,7 +319,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetCurrentObject()
   TDF_Label aCurrent = aRef->Get();  
   if(aCurrent.IsNull()) return NULL;
 
-  return SALOMEDS_SObject_i::New(_study,aCurrent)->_this();
+  return SALOMEDS_SObject_i::NewRef(_study,aCurrent)._retn();
 }
 
 //============================================================================
@@ -388,7 +388,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::AddUseCase(const char* theName)
   aFatherNode->Append(aNode);
   TDataStd_Name::Set(aChild, TCollection_ExtendedString(const_cast<char*>(theName)));
 
-  return SALOMEDS_SObject_i::New(_study,aChild)->_this();
+  return SALOMEDS_SObject_i::NewRef(_study,aChild)._retn();
 }
 
 //============================================================================

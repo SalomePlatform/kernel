@@ -33,22 +33,41 @@
 
 using namespace std;
 
-SALOMEDS_SComponent_i* SALOMEDS_SComponent_i::New(SALOMEDS_Study_i* theStudy,
-						  const TDF_Label& theLabel)
+SALOMEDS_Study_i::TSObjectHolder 
+SALOMEDS_SComponent_i::New(SALOMEDS_Study_i* theStudy,
+			   const TDF_Label& theLabel)
 {
-  SALOMEDS_SComponent_i* aSComponent = NULL;
+  SALOMEDS_Study_i::TSObjectHolder aSObjectHolder;
   SALOMEDS_Study_i::TSObjectMap& anSObjectMap = theStudy->GetSObjectMap();
   SALOMEDS_Study_i::TSObjectMap::const_iterator anIter = anSObjectMap.find(theLabel);
-  //cout<<"SALOMEDS_SComponent_i::New - "<<theLabel.Tag()<<" - "<<anSObjectMap.size()<<endl;
   if(anIter != anSObjectMap.end()){
-    SALOMEDS_SObject_i* aSObject = anIter->second;
-    aSComponent = dynamic_cast<SALOMEDS_SComponent_i*>(aSObject);
+    aSObjectHolder = anIter->second;
+    SALOMEDS_SObject_i* aSObject = aSObjectHolder.first;
+    if(dynamic_cast<SALOMEDS_SComponent_i*>(aSObject))
+      return aSObjectHolder;
   }
-  if(aSComponent == NULL){
-    aSComponent = new SALOMEDS_SComponent_i(theStudy,theLabel);
-    anSObjectMap[theLabel] = aSComponent;
-  }
-  return aSComponent;
+  TCollection_AsciiString anEntry;
+  TDF_Tool::Entry(theLabel,anEntry);
+  SALOMEDS_SComponent_i* aSComponent = new SALOMEDS_SComponent_i(theStudy,theLabel);
+  aSObjectHolder.first = aSComponent;
+  aSObjectHolder.second = aSComponent->_this();
+  anSObjectMap[theLabel] = aSObjectHolder;
+
+  return aSObjectHolder;
+}
+
+SALOMEDS_SComponent_i*
+SALOMEDS_SComponent_i::NewPtr(SALOMEDS_Study_i* theStudy,
+			      const TDF_Label& theLabel)
+{
+  return dynamic_cast<SALOMEDS_SComponent_i*>(New(theStudy,theLabel).first);
+}
+
+SALOMEDS::SComponent_var
+SALOMEDS_SComponent_i::NewRef(SALOMEDS_Study_i* theStudy,
+			      const TDF_Label& theLabel)
+{
+  return SALOMEDS::SComponent::_narrow(New(theStudy,theLabel).second);
 }
 
 //============================================================================

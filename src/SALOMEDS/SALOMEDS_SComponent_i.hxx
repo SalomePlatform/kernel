@@ -41,9 +41,22 @@ class SALOMEDS_SComponent_i: public virtual POA_SALOMEDS::SComponent,
 			const TDF_Label& theLabel);
   
 public:
-  static SALOMEDS_SComponent_i* New(SALOMEDS_Study_i* theStudy,
-				    const TDF_Label& theLabel);
-  
+
+  static 
+  SALOMEDS_Study_i::TSObjectHolder 
+  New(SALOMEDS_Study_i* theStudy,
+      const TDF_Label& theLabel);
+
+  static 
+  SALOMEDS_SComponent_i* 
+  NewPtr(SALOMEDS_Study_i* theStudy,
+	 const TDF_Label& theLabel);
+
+  static 
+  SALOMEDS::SComponent_var 
+  NewRef(SALOMEDS_Study_i* theStudy,
+	 const TDF_Label& theLabel);
+
   ~SALOMEDS_SComponent_i();
   
   virtual char* ComponentDataType();

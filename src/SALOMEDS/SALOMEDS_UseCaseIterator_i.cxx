@@ -82,6 +82,6 @@ void SALOMEDS_UseCaseIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_UseCaseIterator_i::Value()
 {
   TDF_Label L = _it.Value()->Label();
-  return SALOMEDS_SObject_i::New(_study,L)->_this();
+  return SALOMEDS_SObject_i::NewRef(_study,L)._retn();
 }
 

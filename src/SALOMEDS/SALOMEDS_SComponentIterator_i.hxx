@@ -57,6 +57,8 @@ public:
   
   ~SALOMEDS_SComponentIterator_i();
   
+  TDF_Label GetValue() { return _it.Value();}
+
   virtual void Init();
   virtual CORBA::Boolean More();
   virtual void Next();

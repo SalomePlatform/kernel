@@ -63,7 +63,7 @@ class SALOMEDS_Study_i: public virtual POA_SALOMEDS::Study,
 {
 public:
   typedef TDF_Label TSObjectID;
-  typedef SALOMEDS_SObject_i* TSObjectHolder;
+  typedef std::pair<SALOMEDS_SObject_i*,SALOMEDS::SObject_var> TSObjectHolder;
   typedef std::map<TSObjectID,TSObjectHolder> TSObjectMap;
 
   SALOMEDS_Study_i(SALOMEDS_StudyManager_i* theStudyManager,
@@ -336,12 +336,12 @@ private:
   TDF_Label                _current;
   bool                     _autoFill;  
 
-  SALOMEDS::SObject_ptr    _FindObject(SALOMEDS::SObject_ptr SO,
-				       const char* anObjectName,
-				       bool& _find);
-  SALOMEDS::SObject_ptr    _FindObjectIOR(SALOMEDS::SObject_ptr SO,
-					  const char* anObjectIOR,
-					  bool& _find);
+  SALOMEDS::SObject_ptr    _FindObject(TDF_Label theLabel,
+				       const char* theObjectIOR, 
+				       bool& theIsFound);
+  SALOMEDS::SObject_ptr    _FindObjectIOR(TDF_Label theLabel,
+					  const char* theObjectIOR, 
+					  bool& theIsFound);
 
   SALOMEDS_Study_i(); // Not implemented
   void operator=(const SALOMEDS_Study_i&); // Not implemented

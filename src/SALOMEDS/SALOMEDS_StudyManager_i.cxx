@@ -1343,7 +1343,5 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
     PasteLabel(aStudy,anEngine,anIterator.Value(),aStartLabel,aCStudyID,false);
   }
 
-  SALOMEDS_SObject_i* aSObjectServant = SALOMEDS_SObject_i::New(aStudy,aStartLabel);
-
-  return aSObjectServant->_this();
+  return SALOMEDS_SObject_i::NewRef(aStudy,aStartLabel)._retn();
 }

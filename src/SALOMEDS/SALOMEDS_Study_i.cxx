@@ -44,6 +44,8 @@
 
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Callback_i.hxx"
+
+#include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 
 #include "SALOMEDS_StudyBuilder_i.hxx"
@@ -67,46 +69,45 @@
 
 using namespace std;
 
-
 bool operator<(const TDF_Label& theLeft, const TDF_Label& theRight)
 {
   TColStd_ListOfInteger aTagLeftList;
   TDF_Tool::TagList(theLeft,aTagLeftList);
   TColStd_ListIteratorOfListOfInteger anLeftIter(aTagLeftList);
-
+  
   TColStd_ListOfInteger aTagRightList;
   TDF_Tool::TagList(theRight,aTagRightList);
   TColStd_ListIteratorOfListOfInteger anRightIter(aTagRightList);
-
+  
   for(;;){
     Standard_Boolean aLeftMore = anLeftIter.More();
     Standard_Boolean aRightMore = anRightIter.More();
     
     if(!aLeftMore && !aRightMore)
       return Standard_False;
-
+    
     if(!aLeftMore)
       return Standard_True;
-
+    
     if(!aRightMore)
       return Standard_False;
-
+    
     Standard_Integer aLeftTag = anLeftIter.Value();
     anLeftIter.Next();
-
+    
     Standard_Integer aRightTag = anRightIter.Value();
     anRightIter.Next();
-
+    
     if(aLeftTag == aRightTag)
       continue;
-
+    
     return aLeftTag < aRightTag;
   }
-
+  
   return Standard_False;
 }
 
-
+  
 //============================================================================
 /*! Function : SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i constructor
@@ -272,26 +273,21 @@ CORBA::Boolean SALOMEDS_Study_i::IsEmpty()
  *  Purpose  : Find a Component with ComponentDataType = aComponentName
  */
 //============================================================================
-SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponent (const char* aComponentName)
+SALOMEDS::SComponent_ptr 
+SALOMEDS_Study_i::FindComponent(const char* theComponentName)
 {
-  bool _find = false;
-  Standard_CString name;
-  SALOMEDS::SComponentIterator_var itcomp = NewComponentIterator();
-  SALOMEDS::SComponent_var compo;
-
-  for (; itcomp->More(); itcomp->Next()) {
-    SALOMEDS::SComponent_var SC = itcomp->Value();
-    name = SC->ComponentDataType();
-    if(strcmp(aComponentName,name) == 0){
-      _find = true;
-      return SALOMEDS::SComponent::_narrow(SC); 
+  bool anIsFound = false;
+  SALOMEDS::SComponent_var aSComponent;
+  SALOMEDS_SComponentIterator_i aComponentIter(this,_doc);
+  for(; aComponentIter.More() && !anIsFound; aComponentIter.Next()){
+    SALOMEDS::SComponent_var aSComp = aComponentIter.Value();
+    CORBA::String_var aName = aSComp->ComponentDataType();
+    if(strcmp(theComponentName,aName.in()) == 0){
+      aSComponent = aSComp;
+      anIsFound = true;
     }
   }
-  if(!_find)
-    {
-      return SALOMEDS::SComponent::_nil();
-    }
-  return compo;
+  return aSComponent._retn();
 }
 
 //============================================================================
@@ -307,9 +303,9 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
   char *ID;
   SALOMEDS::SComponent_ptr compo;
 
-  SALOMEDS::SComponentIterator_var itcomp = NewComponentIterator();
-  for (; itcomp->More(); itcomp->Next()) {
-    SALOMEDS::SComponent_var SC = itcomp->Value();
+  SALOMEDS_SComponentIterator_i itcomp(this,_doc);
+  for (; itcomp.More(); itcomp.Next()) {
+    SALOMEDS::SComponent_var SC = itcomp.Value();
     ID = SC->GetID();
     if(strcmp(aComponentID,ID)==0)
       {
@@ -330,34 +326,29 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
  *  Purpose  : Find an Object with SALOMEDS::Name = anObjectName
  */
 //============================================================================
-SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* anObjectName)
+SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* theObjectName)
 {
   // Iterate to all components defined in the study
   // After testing the component name, iterate in all objects defined under
   // components (function _FindObject)
-  bool _find = false;
-  SALOMEDS::SObject_ptr RefSO = SALOMEDS::SObject::_nil();
-
-  SALOMEDS::SComponentIterator_var it = NewComponentIterator();
-  for (; it->More();it->Next()){
-    if(!_find)
-      {
-	SALOMEDS::SComponent_var SC = it->Value();
-	SALOMEDS::GenericAttribute_var anAttr;
-	if (SC->FindAttribute(anAttr,"AttributeName")) 
-	{
-	  SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
-	  CORBA::String_var Val = Name->Value();
-	  if (strcmp(Val, anObjectName) == 0)
-	    {
-	      _find = true;
-	      RefSO = SALOMEDS::SObject::_narrow(SC);
-	    }
-	}
-	if (!_find) RefSO =  _FindObject(SC,anObjectName, _find);
+  bool aIsFound = false;
+  SALOMEDS::SObject_var aRefSO;
+  SALOMEDS_SComponentIterator_i aComponentIter(this,_doc);
+  for(; aComponentIter.More() && !aIsFound; aComponentIter.Next()){
+    TDF_Label aLab = aComponentIter.GetValue();
+    Handle(TDataStd_Name) anAttr;
+    if(aLab.FindAttribute(TDataStd_Name::GetID(),anAttr)){
+      TCollection_AsciiString aString(anAttr->Get());
+      if(strcmp(aString.ToCString(),theObjectName) == 0){
+	aRefSO = SALOMEDS_SComponent_i::NewRef(this,aLab)._retn();
+	aIsFound = true;
       }
+    }
+    if(!aIsFound) 
+      aRefSO = _FindObject(aLab,theObjectName,aIsFound);
   }
-  return RefSO;
+
+  return aRefSO._retn();
 }
 
 //============================================================================
@@ -374,7 +365,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
   if (Lab.IsNull()) 
     return SALOMEDS::SObject::_nil();
 
-  return SALOMEDS_SObject_i::New(this,Lab)->_this();
+  return SALOMEDS_SObject_i::NewRef(this,Lab)._retn();
 
 }
 
@@ -392,7 +383,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
   if (Lab.IsNull()) 
     return SALOMEDS::SObject::_nil();
 
-  return SALOMEDS_SObject_i::New(this,Lab)->_this();
+  return SALOMEDS_SObject_i::NewRef(this,Lab)._retn();
 }
 
 //============================================================================
@@ -401,53 +392,44 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
  *           : with ComponentDataType = aComponentName
  */
 //============================================================================
-SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* anObjectName,
-								    const char* aComponentName )
+SALOMEDS::Study::ListOfSObject* 
+SALOMEDS_Study_i::FindObjectByName(const char* theObjectName,
+				   const char* theComponentName)
 {
-  SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject ;
-  listSO->length(0);
-  
-  SALOMEDS::SComponent_ptr compo = FindComponent(aComponentName) ;
-  if ( compo->_is_nil() ) {
-    MESSAGE ("In FindObjectByName() :  Component named " << aComponentName << " not found ");
-    return listSO._retn();
+  SALOMEDS::Study::ListOfSObject_var aListOfSObj = new SALOMEDS::Study::ListOfSObject ;
+  aListOfSObj->length(0);
+
+  SALOMEDS::SComponent_ptr aSComponent = FindComponent(theComponentName) ;
+  if(aSComponent->_is_nil()){
+    MESSAGE ("In FindObjectByName() :  Component named " << theComponentName << " not found ");
+    return aListOfSObj._retn();
   }
 
   // Iterate on each object and subobject of the component
   // If objectName is found add it to the list of SObjects 
-  char *name;
-  SALOMEDS::SObject_ptr addSO = SALOMEDS::SObject::_nil();
-
-  CORBA::String_var compoId = compo->GetID();
-  SALOMEDS::ChildIterator_var it = NewChildIterator(compo);
-  int length = 0 ;
-  for ( ; it->More();it->Next() ) {
-    
-    SALOMEDS::SObject_var CSO = it->Value();
-    SALOMEDS::GenericAttribute_var anAttr;
-    SALOMEDS::AttributeName_var    aName;
-    if ( CSO->FindAttribute(anAttr, "AttributeName") ) {
-      aName = SALOMEDS::AttributeName::_narrow(anAttr);
-      name = aName->Value();
-      if ( strcmp( name, anObjectName ) == 0) {
-	addSO = SALOMEDS::SObject::_narrow(CSO);
+  TDF_Label aLabel;
+  CORBA::String_var anEntry = aSComponent->GetID();
+  TDF_Tool::Label(_doc->GetData(),const_cast<char*>(anEntry.in()),aLabel);
+  
+  int aLength = 0 ;
+  SALOMEDS::SObject_var aRefSO;
+  TDF_ChildIterator aChildIter(aLabel,true);
+  for(; aChildIter.More(); aChildIter.Next()){
+    TDF_Label aLab = aChildIter.Value();
+    Handle(TDataStd_Name) anAttr;
+    if(aLab.FindAttribute(TDataStd_Name::GetID(),anAttr)){
+      TCollection_AsciiString aString(anAttr->Get());
+      if(strcmp(aString.ToCString(),theObjectName) == 0){
+	aRefSO = SALOMEDS_SObject_i::NewRef(this,aLab)._retn();
 	/* add to list */
-	length++ ;
-	listSO->length(length);
-	listSO[length-1] = addSO ;
-      }
-      
-      /* looks also for eventual children */
-      bool found;
-      addSO = _FindObject( CSO, anObjectName, found ) ;
-      if( found) {
-	length++ ;
-	listSO->length(length);
-	listSO[length-1] = addSO ;
+	aLength++ ;
+	aListOfSObj->length(aLength);
+	aListOfSObj[aLength-1] = aRefSO;
       }
     }
   }
-  return listSO._retn() ;
+
+  return aListOfSObj._retn() ;
 }
 
 
@@ -462,40 +444,39 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* theObjectIOR)
   // firstly searching in the datamap for optimization
   char* anIOR = const_cast<char*>(theObjectIOR);
   if (myIORLabels.IsBound(anIOR)) {
-    SALOMEDS_SObject_i* aResult = SALOMEDS_SObject_i::New(this,myIORLabels.Find(anIOR));
+    SALOMEDS::SObject_var aResult = SALOMEDS_SObject_i::NewRef(this,myIORLabels.Find(anIOR));
     // 11 oct 2002: forbidden attributes must be checked here
     SALOMEDS::GenericAttribute_var anAttr;
     if (!aResult->FindAttribute(anAttr,"AttributeIOR")) {
       myIORLabels.UnBind(anIOR);
     } else 
-      return aResult->_this();
+      return aResult._retn();
   }
+
   // Iterate to all components defined in the study
   // After testing the component name, iterate in all objects defined under
   // components (function _FindObject)
-  bool _find = false;
-  SALOMEDS::SObject_ptr RefSO = SALOMEDS::SObject::_nil();
-
-  SALOMEDS::SComponentIterator_var it = NewComponentIterator();
-  for (; it->More();it->Next()){
-    if(!_find){
-      SALOMEDS::SComponent_var SC = it->Value();
-      SALOMEDS::GenericAttribute_var anAttr;
-      if(SC->FindAttribute(anAttr,"AttributeIOR")){
-	SALOMEDS::AttributeIOR_var IOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-	CORBA::String_var aVal = IOR->Value();
-	if (strcmp(aVal,theObjectIOR) == 0){
-	  _find = true;
-	  RefSO = SALOMEDS::SObject::_narrow(SC);
-	}
+  bool aIsFound = false;
+  SALOMEDS::SObject_var aRefSO;
+  SALOMEDS_SComponentIterator_i aComponentIter(this,_doc);
+  for(; aComponentIter.More() && !aIsFound; aComponentIter.Next()){
+    TDF_Label aLab = aComponentIter.GetValue();
+    Handle(SALOMEDS_IORAttribute) anAttr;
+    if(aLab.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr)){
+      TCollection_AsciiString aString(anAttr->Get());
+      if(strcmp(aString.ToCString(),theObjectIOR) == 0){
+	aRefSO = SALOMEDS_SComponent_i::NewRef(this,aLab);
+	aIsFound = true;
       }
-      if (!_find) 
-	RefSO =  _FindObjectIOR(SC,theObjectIOR,_find);
     }
+    if(!aIsFound) 
+      aRefSO = _FindObjectIOR(aLab,theObjectIOR,aIsFound);
   }
-  if (!RefSO->_is_nil()) MESSAGE("SALOMEDS_Study_i::FindObjectIOR: found label with old methods");
 
-  return RefSO;
+  if(!aRefSO->_is_nil()) 
+    MESSAGE("SALOMEDS_Study_i::FindObjectIOR: found label with old methods");
+
+  return aRefSO._retn();
 }
 
 //============================================================================
@@ -511,7 +492,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
   bool isRelative = false;
 
   if(aLength == 0) {  //Empty path - return the current context
-    return SALOMEDS_SObject_i::New(this,_current)->_this();
+    return SALOMEDS_SObject_i::NewRef(this,_current)._retn();
   }
 
   if(aPath.Value(1) != '/')  //Relative path 
@@ -527,7 +508,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
   }
   else {
     if(aPath.Length() == 1 && aPath.Value(1) == '/') {    //Root
-      return SALOMEDS_SObject_i::New (this,_doc->Main())->_this();
+      return SALOMEDS_SObject_i::NewRef(this,_doc->Main())._retn();
     }
     anIterator.Initialize(_doc->Main(), Standard_False);
   }
@@ -543,7 +524,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 	if(anAttr->Get() == aToken) {
 	  aToken = aPath.Token("/", i+1); //Check if it was the last part of the path
 	  if(aToken.Length() == 0) {  //The searched label is found (no part of the path is left)
-	    return SALOMEDS_SObject_i::New(this,aLabel)->_this();
+	    return SALOMEDS_SObject_i::NewRef(this,aLabel)._retn();
 	  }
 
 	  anIterator.Initialize(aLabel, Standard_False);
@@ -648,8 +629,8 @@ char* SALOMEDS_Study_i::GetContext()
 {
   if(_current.IsNull()) 
     throw SALOMEDS::Study::StudyInvalidContext();   
-  SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(this,_current);
-  SALOMEDS::SObject_var aSObject = aServant->_this(); 
+
+  SALOMEDS::SObject_var aSObject = SALOMEDS_SObject_i::NewRef(this,_current);
   return GetObjectPath(aSObject);
 }
 
@@ -942,35 +923,28 @@ void SALOMEDS_Study_i::URL(const char* url)
  *  Purpose  : Find an Object with SALOMEDS::Name = anObjectName
  */
 //============================================================================
-SALOMEDS::SObject_ptr SALOMEDS_Study_i::_FindObject(SALOMEDS::SObject_ptr SO,
-						    const char* anObjectName, 
-						    bool& _find)
+SALOMEDS::SObject_ptr 
+SALOMEDS_Study_i::_FindObject(TDF_Label theLabel,
+			      const char* theObjectName, 
+			      bool& theIsFound)
 {
-  _find = false;
+  theIsFound = false;
   // Iterate on each objects and subobjects of the component
   // If objectName find, stop the loop and get the object reference
-  SALOMEDS::SObject_ptr RefSO = SALOMEDS::SObject::_nil();
-  CORBA::String_var soid = SO->GetID();
-  SALOMEDS::ChildIterator_var it = NewChildIterator(SO);
-  for (; it->More();it->Next()){
-    if(!_find)
-      {
-	SALOMEDS::SObject_var CSO = it->Value();
-	SALOMEDS::GenericAttribute_var anAttr;
-	if (CSO->FindAttribute(anAttr,"AttributeName")) 
-	{
-	  SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
-          CORBA::String_var Val = Name->Value();
-	  if (strcmp(Val, anObjectName) == 0)
-	    {
-	      RefSO = SALOMEDS::SObject::_narrow(CSO);
-	      _find = true;
-	    }
-	}
-	if (!_find) RefSO =  _FindObject(CSO, anObjectName, _find);
+  SALOMEDS::SObject_var aRefSO;
+  TDF_ChildIterator aChildIter(theLabel,true);
+  for(; aChildIter.More() && !theIsFound; aChildIter.Next()){
+    TDF_Label aLab = aChildIter.Value();
+    Handle(TDataStd_Name) anAttr;
+    if(aLab.FindAttribute(TDataStd_Name::GetID(),anAttr)){
+      TCollection_AsciiString aString(anAttr->Get());
+      if(strcmp(aString.ToCString(),theObjectName) == 0){
+	aRefSO = SALOMEDS_SObject_i::NewRef(this,aLab);
+	theIsFound = true;
       }
+    }
   }
-  return RefSO;
+  return aRefSO._retn();
 }
 
 //============================================================================
@@ -979,34 +953,26 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::_FindObject(SALOMEDS::SObject_ptr SO,
  */
 //============================================================================
 SALOMEDS::SObject_ptr 
-SALOMEDS_Study_i::_FindObjectIOR(SALOMEDS::SObject_ptr SO,
-			      const char* anObjectIOR, 
-			      bool& _find)
+SALOMEDS_Study_i::_FindObjectIOR(TDF_Label theLabel,
+				 const char* theObjectIOR, 
+				 bool& theIsFound)
 {
   // Iterate on each objects and subobjects of the component
   // If objectName find, stop the loop and get the object reference
-  SALOMEDS::SObject_ptr RefSO = SALOMEDS::SObject::_nil();
-
-  SALOMEDS::ChildIterator_var it = NewChildIterator(SO);
-  for (; it->More();it->Next()){
-    if(!_find)
-      {
-	SALOMEDS::SObject_var CSO = it->Value();
-	SALOMEDS::GenericAttribute_var anAttr;
-	if (CSO->FindAttribute(anAttr,"AttributeIOR")) 
-	{
-	  SALOMEDS::AttributeIOR_var IOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-          CORBA::String_var Val = IOR->Value();
-	  if (strcmp(Val, anObjectIOR) == 0)
-	    {
-	      RefSO = SALOMEDS::SObject::_narrow(CSO);
-	      _find = true;
-	    }
-	}
-	if (!_find) RefSO =  _FindObjectIOR(CSO, anObjectIOR, _find);
+  SALOMEDS::SObject_var aRefSO;
+  TDF_ChildIterator aChildIter(theLabel,true);
+  for(; aChildIter.More() && !theIsFound; aChildIter.Next()){
+    TDF_Label aLab = aChildIter.Value();
+    Handle(SALOMEDS_IORAttribute) anAttr;
+    if(aLab.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr)){
+      TCollection_AsciiString aString(anAttr->Get());
+      if(strcmp(aString.ToCString(),theObjectIOR) == 0){
+	aRefSO = SALOMEDS_SObject_i::NewRef(this,aLab);
+	theIsFound = true;
       }
+    }
   }
-  return RefSO;
+  return aRefSO._retn();
 }
 
 CORBA::Short SALOMEDS_Study_i::StudyId()
@@ -1107,11 +1073,11 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate() {
 //============================================================================
 void SALOMEDS_Study_i::Close()
 {
-  SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
+  SALOMEDS_SComponentIterator_i itcomponent(this,_doc);
 
   const CORBA::ORB_var& anORB = GetORB();
-  for (; itcomponent->More(); itcomponent->Next()) {
-    SALOMEDS::SComponent_var sco = itcomponent->Value();
+  for (; itcomponent.More(); itcomponent.Next()) {
+    SALOMEDS::SComponent_var sco = itcomponent.Value();
 	  
     MESSAGE ( "Look for an engine for data type :"<< sco->ComponentDataType());
     // if there is an associated Engine call its method for closing

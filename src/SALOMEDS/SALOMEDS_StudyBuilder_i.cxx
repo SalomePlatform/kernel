@@ -131,8 +131,7 @@ SALOMEDS_StudyBuilder_i::NewComponent(const char* DataType)
    TDataStd_Comment::Set(NL,Standard_CString(DataType));
    //  TDataStd_Comment::Set(NL,Standard_CString(CORBA::string_dup(DataType)));
 
-  SALOMEDS_SComponent_i* aServant = SALOMEDS_SComponent_i::New(_study,NL);
-  SALOMEDS::SComponent_var aSComponent = aServant->_this(); 
+  SALOMEDS::SComponent_var aSComponent = SALOMEDS_SComponent_i::NewRef(_study,NL); 
 
   OnAddSObject(aSComponent);
 
@@ -204,8 +203,7 @@ SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr theFatherObject)
   imax++;
   TDF_Label aNewLabel = aLabel.FindChild(imax);
   
-  SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(_study,aNewLabel);
-  SALOMEDS::SObject_var aSObject = aServant->_this(); 
+  SALOMEDS::SObject_var aSObject = SALOMEDS_SObject_i::NewRef(_study,aNewLabel); 
 
   OnAddSObject(aSObject);
 
@@ -234,8 +232,7 @@ SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
   //Create or find label
   TDF_Label aNewLab = Lab.FindChild(theTag,1);
 
-  SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(_study,aNewLab);
-  SALOMEDS::SObject_var aSObject = aServant->_this(); 
+  SALOMEDS::SObject_var aSObject = SALOMEDS_SObject_i::NewRef(_study,aNewLab); 
 
   OnAddSObject(aSObject);
 
@@ -353,8 +350,7 @@ static void  Translate_persistentID_to_IOR(TDF_Label theLabel,
       TCollection_ExtendedString res = Handle(TDataStd_Comment)::DownCast(anAttr)->Get();
       TCollection_AsciiString ch(res);
       
-      SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(theStudy,aCurrentLabel);
-      SALOMEDS::SObject_var aSObject = aServant->_this(); 
+      SALOMEDS::SObject_var aSObject = SALOMEDS_SObject_i::NewRef(theStudy,aCurrentLabel); 
 
       CORBA::String_var anIOR = 
 	theDriver->LocalPersistentIDToIOR(aSObject,ch.ToCString(),theIsMultiFile,theIsASCII);
@@ -671,8 +667,7 @@ void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath)
   TCollection_AsciiString aPath(CORBA::string_dup(thePath)), aContext(""), aFatherPath;
   Handle(TDataStd_Name) aName;
   TDF_Label aLabel;
-  SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(_study,_doc->Main());
-  SALOMEDS::SObject_var anObject = aServant->_this(); 
+  SALOMEDS::SObject_var anObject = SALOMEDS_SObject_i::NewRef(_study,_doc->Main()); 
   SALOMEDS::Study_var aStudy = anObject->GetStudy();
 
   try { 

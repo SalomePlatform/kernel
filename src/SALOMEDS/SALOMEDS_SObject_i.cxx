@@ -276,22 +276,38 @@ namespace SALOMEDS{
 }  
   
 //============================================================================
-SALOMEDS_SObject_i* SALOMEDS_SObject_i::New(SALOMEDS_Study_i* theStudy,
-					    const TDF_Label& theLabel)
+SALOMEDS_Study_i::TSObjectHolder
+SALOMEDS_SObject_i::New(SALOMEDS_Study_i* theStudy,
+			const TDF_Label& theLabel)
 {
-  SALOMEDS_SObject_i* aSObject = NULL;
+  SALOMEDS_Study_i::TSObjectHolder aSObjectHolder;
   SALOMEDS_Study_i::TSObjectMap& anSObjectMap = theStudy->GetSObjectMap();
   SALOMEDS_Study_i::TSObjectMap::const_iterator anIter = anSObjectMap.find(theLabel);
   if(anIter != anSObjectMap.end())
-    aSObject = anIter->second;
+    aSObjectHolder = anIter->second;
   else{
     TCollection_AsciiString anEntry;
     TDF_Tool::Entry(theLabel,anEntry);
-    //cout<<"SALOMEDS_SObject_i::New - "<<anEntry.ToCString()<<endl;
-    aSObject = new SALOMEDS_SObject_i(theStudy,theLabel);
-    anSObjectMap[theLabel] = aSObject;
+    SALOMEDS_SObject_i* aSObject = new SALOMEDS_SObject_i(theStudy,theLabel);
+    aSObjectHolder.first = aSObject;
+    aSObjectHolder.second = aSObject->_this();
+    anSObjectMap[theLabel] = aSObjectHolder;
   }
-  return aSObject;
+  return aSObjectHolder;
+}
+
+SALOMEDS_SObject_i*
+SALOMEDS_SObject_i::NewPtr(SALOMEDS_Study_i* theStudy,
+			   const TDF_Label& theLabel)
+{
+  return New(theStudy,theLabel).first;
+}
+
+SALOMEDS::SObject_var
+SALOMEDS_SObject_i::NewRef(SALOMEDS_Study_i* theStudy,
+			   const TDF_Label& theLabel)
+{
+  return New(theStudy,theLabel).second;
 }
 
 //============================================================================
@@ -353,7 +369,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
   while(!SALOMEDS_SComponent_i::IsA(aSCompLabel) && !aSCompLabel.IsRoot()){
     aSCompLabel = aSCompLabel.Father();
   }
-  return SALOMEDS_SComponent_i::New(_study,aSCompLabel)->_this();
+  return SALOMEDS_SComponent_i::NewRef(_study,aSCompLabel)._retn();
 }
   
 //============================================================================
@@ -363,7 +379,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 {
-  return SALOMEDS_SObject_i::New(_study,_lab.Father())->_this();
+  return SALOMEDS_SObject_i::NewRef(_study,_lab.Father())._retn();
 }
 
 //============================================================================
@@ -387,7 +403,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out theSOb
   if (!_lab.FindAttribute(TDF_Reference::GetID(),aRef))
     return false;
   
-  theSObject = SALOMEDS_SObject_i::New(_study,aRef->Get())->_this(); 
+  theSObject = SALOMEDS_SObject_i::NewRef(_study,aRef->Get())._retn(); 
   return true;
 }
 
@@ -402,7 +418,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long theTag, SALOMEDS::S
   if(aLabel.IsNull()) 
     return false;
   
-  theSObject = SALOMEDS_SObject_i::New(_study,aLabel)->_this(); 
+  theSObject = SALOMEDS_SObject_i::NewRef(_study,aLabel)._retn(); 
   return true;
 }  
 

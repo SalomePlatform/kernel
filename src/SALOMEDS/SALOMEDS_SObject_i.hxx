@@ -37,11 +37,12 @@
 #include <TDocStd_Document.hxx>
 #include <Standard_GUID.hxx>
 
+#include "SALOMEDS_Study_i.hxx"
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDS_Study_i;
 class SALOMEDS_GenericAttribute_i;
 
 
@@ -60,8 +61,20 @@ class SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
 			  public virtual PortableServer::RefCountServantBase 
 {
 public:
-  static SALOMEDS_SObject_i* New(SALOMEDS_Study_i* theStudy,
-				 const TDF_Label& theLabel);
+  static 
+  SALOMEDS_Study_i::TSObjectHolder 
+  New(SALOMEDS_Study_i* theStudy,
+      const TDF_Label& theLabel);
+
+  static 
+  SALOMEDS_SObject_i* 
+  NewPtr(SALOMEDS_Study_i* theStudy,
+	 const TDF_Label& theLabel);
+
+  static 
+  SALOMEDS::SObject_var 
+  NewRef(SALOMEDS_Study_i* theStudy,
+	 const TDF_Label& theLabel);
 
   virtual SALOMEDS::SObject_ptr GetFather() ;
   virtual SALOMEDS::SComponent_ptr GetFatherComponent();
