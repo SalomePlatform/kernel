@@ -61,6 +61,39 @@ SALOME_ExtractUnstructuredGrid::SALOME_ExtractUnstructuredGrid():
 SALOME_ExtractUnstructuredGrid::~SALOME_ExtractUnstructuredGrid(){}
 
 
+void 
+SALOME_ExtractUnstructuredGrid::
+SetModeOfChanging(SALOME_ExtractUnstructuredGrid::EChanging theChangeMode)
+{
+  if(theChangeMode != myChangeMode){
+    myChangeMode = theChangeMode; 
+    Modified();
+  }
+}
+
+
+void
+SALOME_ExtractUnstructuredGrid::
+SetModeOfExtraction(SALOME_ExtractUnstructuredGrid::EExtraction theExtractionMode)
+{
+  if(theExtractionMode != myExtractionMode){
+    myExtractionMode = theExtractionMode; 
+    Modified();
+  }
+}
+
+
+void
+SALOME_ExtractUnstructuredGrid::
+ClearRegisteredCellsWithType()
+{ 
+  if(IsCellsWithTypeRegistered()){
+    myCellTypes.clear();
+    Modified();
+  }
+}
+
+
 void SALOME_ExtractUnstructuredGrid::RegisterCell(vtkIdType theCellId){
   if(0 && MYDEBUG) MESSAGE("RegisterCell - theCellId = "<<theCellId);
   myCellIds.insert(theCellId);

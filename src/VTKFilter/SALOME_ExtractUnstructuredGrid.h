@@ -42,16 +42,11 @@ public:
   static SALOME_ExtractUnstructuredGrid *New();
 
   enum EExtraction{ eCells, ePoints};
-  void SetModeOfExtraction(EExtraction theExtractionMode){
-    myExtractionMode = theExtractionMode; Modified();
-  }
+  void SetModeOfExtraction(EExtraction theExtractionMode);
   EExtraction GetModeOfExtraction(){ return myExtractionMode;}
 
   enum EChanging{ ePassAll, eAdding, eRemoving};
-  void SetModeOfChanging(EChanging theChangeMode){
-    myChangeMode = theChangeMode; 
-    Modified();
-  }
+  void SetModeOfChanging(EChanging theChangeMode);
   EChanging GetModeOfChanging(){ return myChangeMode;}
 
   // Remove the cell from the output
@@ -65,10 +60,7 @@ public:
   // Remove every cells with the type from the output
   void RegisterCellsWithType(vtkIdType theCellType);
   int IsCellsWithTypeRegistered() { return !myCellTypes.empty();}
-  void ClearRegisteredCellsWithType() { 
-    myCellTypes.clear();
-    Modified();
-  }
+  void ClearRegisteredCellsWithType();
 
   // Do the filter do some real work
   int IsChanging() { return IsCellsRegistered() || IsCellsWithTypeRegistered();}
