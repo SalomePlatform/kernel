@@ -48,6 +48,7 @@ public:
 					      const char *componentName);
   Engines::Component_ptr FindOrLoad_Component(const char *containerName,
 					      const char *componentName);
+  bool isKnownComponentClass(const char *componentName);
 protected:
   //! Establish if a component called "componentName" in a container called "containerName" exists among the list of resources
   //! in "listOfMachines". This method uses Naming Service to find the component.

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const char *SALOME_ContainerManager::_ContainerManagerNameInNS="ContainerManager";
+const char *SALOME_ContainerManager::_ContainerManagerNameInNS="/ContainerManager";
 
 SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 {
@@ -41,6 +41,7 @@ void SALOME_ContainerManager::ShutdownContainers()
   vector<string> vec=_NS->list_directory_recurs();
   for(vector<string>::iterator iter=vec.begin();iter!=vec.end();iter++)
     {
+      SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
       if(!CORBA::is_nil(cont))
@@ -79,6 +80,7 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char 
       if ( count != 10 )
 	MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);
       string containerNameInNS=BuildContainerNameInNS(containerName,theMachine.c_str());
+      SCRUTE(containerNameInNS);
       CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
       ret=Engines::Container::_narrow(obj);
     }
@@ -110,6 +112,7 @@ char* SALOME_ContainerManager::FindBest(const Engines::MachineList& possibleComp
 Engines::Container_ptr SALOME_ContainerManager::FindContainer(const char *containerName,const char *theMachine)
 {
   string containerNameInNS(BuildContainerNameInNS(containerName,theMachine));
+  SCRUTE(containerNameInNS);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   if( !CORBA::is_nil(obj) )
     return Engines::Container::_narrow(obj);

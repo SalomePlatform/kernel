@@ -48,6 +48,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
   _NS = ns;
   //add try catch
   CORBA::Object_var obj=_NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
+  ASSERT( !CORBA::is_nil(obj));
   _ContManager=Engines::ContainerManager::_narrow(obj);
 }
 
@@ -88,6 +89,34 @@ string SALOME_LifeCycleCORBA::ContainerName(
   return theComputerContainer ;
 }
 
+bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
+{
+
+  try
+    {
+      CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+      SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
+	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+      SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
+	Catalog->GetComponent(componentName);
+      if (CORBA::is_nil (compoInfo)) 
+	{
+	  INFOS("Catalog Error : Component not found in the catalog");
+	  return false;
+	}
+      else return true;
+    }
+  catch (ServiceUnreachable&)
+    {
+      INFOS("Caught exception: Naming Service Unreachable");
+    }
+  catch (...)
+    {
+      INFOS("Caught unknown exception.");
+    }
+  return false;
+}
+
 string SALOME_LifeCycleCORBA::ComputerPath(
                                          const char * theComputer ) {
   CORBA::String_var path;
@@ -109,6 +138,7 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
                                   (const char *containerName,
 				   const char *componentName)
 {
+  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
   char *stContainer=strdup(containerName);
   string st2Container(stContainer);
   int rg=st2Container.find("/");
@@ -139,6 +169,7 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
 Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& params,
 								   const char *componentName)
 {
+  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
   Engines::MachineList_var listOfMachine=_ContManager->GetFittingResources(params,componentName);
   Engines::Component_ptr ret=FindComponent(params.container_name,componentName,listOfMachine);
   if(CORBA::is_nil(ret))
@@ -151,6 +182,7 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindComponent(const char *containe
 								 const char *componentName,
 								 const Engines::MachineList& listOfMachines)
 {
+  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
   if(containerName[0]!='\0')
     {
       Engines::MachineList_var machinesOK=new Engines::MachineList;
