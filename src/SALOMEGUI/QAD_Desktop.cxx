@@ -253,6 +253,10 @@ myQueryClose( true )
     MESSAGE ( " MODULE icon = " << iconfile )
     MESSAGE ( " MODULE username = " << moduleusername )
 
+    if ( mapComponentName.contains( moduleusername ) ) {
+      QMessageBox::warning( this, tr("WRN_WARNING"), QString( moduleusername + " is already associated with " + mapComponentName[moduleusername] + ".\nPlease, change the component username of " + modulename) , tr ("BUT_OK") );
+      continue;
+    }
     mapComponentName.insert( moduleusername, modulename );
       
     resDir = resMgr->findFile(iconfile,modulename) ;
