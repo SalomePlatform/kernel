@@ -15,8 +15,16 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 {
   _NS=new SALOME_NamingService(orb);
   PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
-  PortableServer::ObjectId_var id=root_poa->activate_object(this);
-  CORBA::Object_var obj=root_poa->id_to_reference(id);
+  PortableServer::POAManager_var pman = root_poa->the_POAManager();
+  PortableServer::POA_var my_poa;
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol=root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
+  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+  my_poa=root_poa->create_POA("SThreadPOA",pman,policies);
+  threadPol->destroy();
+  PortableServer::ObjectId_var id=my_poa->activate_object(this);
+  CORBA::Object_var obj=my_poa->id_to_reference(id);
   Engines::ContainerManager_var refContMan = Engines::ContainerManager::_narrow(obj);
   _NS->Register(refContMan,_ContainerManagerNameInNS);
 }
