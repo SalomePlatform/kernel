@@ -30,6 +30,8 @@
 #include <string>
 #include "LocalTraceBufferPool.hxx"
 
+//! See SALOMETraceCollector instead of LocalTraceCollector for SALOME usage
+
 class LocalTraceCollector
 {
  public:

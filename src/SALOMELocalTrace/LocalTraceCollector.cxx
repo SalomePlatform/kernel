@@ -44,6 +44,9 @@ std::string LocalTraceCollector::_fileName = "";
 
 // ============================================================================
 /*!
+ *  This class is for use without CORBA, outside SALOME.
+ *  SALOME uses SALOMETraceCollector, to allow trace collection via CORBA.
+ *
  *  guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
  *  \param typeTrace 0=standard out, 1=file(/tmp/tracetest.log)
