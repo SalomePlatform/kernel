@@ -42,7 +42,7 @@ fi
 
 dnl vtk headers
 CPPFLAGS_old="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
+CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES -Wno-deprecated"
 
 AC_CHECK_HEADER(vtk.h,vtk_ok="yes",vtk_ok="no")
 
@@ -60,7 +60,7 @@ dnl vtk libraries
 #  LIBS="$LIBS $TRY_LINK_LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $VTK_INCLUDES"
+  CPPFLAGS="$CPPFLAGS $VTK_INCLUDES -Wno-deprecated"
 
 dnl  VTKPY_MODULES="$VTKHOME/python"
 
