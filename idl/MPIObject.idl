@@ -1,0 +1,13 @@
+#ifndef _SALOME_MPIOBJECT_IDL_
+#define _SALOME_MPIOBJECT_IDL_
+
+module Engines
+{
+  typedef sequence<Object> IORTab;
+  interface MPIObject
+  {
+    attribute IORTab tior;
+  } ;
+} ;
+
+#endif

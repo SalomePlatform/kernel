@@ -1,0 +1,44 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mer jui 11 06:50:44 CEST 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+EXPORT_HEADERS = \
+		SALOME_ModuleCatalog_impl.hxx \
+		SALOME_ModuleCatalog_Acomponent_impl.hxx \
+		PathPrefix.hxx \
+		SALOME_ModuleCatalog_Parser.hxx \
+                SALOME_ModuleCatalog_Handler.hxx 
+
+# Libraries targets
+LIB = libSalomeCatalog.la
+LIB_SRC = \
+		  SALOME_ModuleCatalog_Handler.cxx  \
+		  SALOME_ModuleCatalog_impl.cxx \
+		  SALOME_ModuleCatalog_Acomponent_impl.cxx
+
+# Executables targets
+# trouble we have client and serveur and build don't known about this with rule
+# in fact client is a test ! So it may go away BIN !
+BIN = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
+BIN_SRC = 
+BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
+
+CPPFLAGS+= $(QT_MT_INCLUDES) 
+CXXFLAGS+= -ftemplate-depth-42
+LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSalomeLoggerServer
+
+@CONCLUDE@

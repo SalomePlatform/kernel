@@ -1,0 +1,33 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar jui  3 12:58:13 CEST 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+@COMMENCE@
+
+# Libraries targets
+
+EXPORT_HEADERS = 
+
+LIB = libNOTIFICATIONcmodule.la
+LIB_SRC = NOTIFICATION_Swig.cxx
+
+SWIG_DEF = NOTIFICATION.i
+EXPORT_PYSCRIPTS = libNOTIFICATION.py
+SWIG_FLAGS += -I$(srcdir)
+
+CPPFLAGS+=$(PYTHON_INCLUDES) -DHAVE_CONFIG_H
+LIBS+= $(PYTHON_LIBS)
+LDFLAGS+= -lSalomeNotification
+
+@CONCLUDE@

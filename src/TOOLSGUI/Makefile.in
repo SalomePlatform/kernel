@@ -1,0 +1,45 @@
+# -* Makefile *- 
+#
+# Author : Marc Tajchman (CEA)
+# Date : 5/07/2001
+# $Header$
+#
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+# header files 
+EXPORT_HEADERS=
+
+# .po files to transform in .qm
+PO_FILES = \
+	   ToolsGUI_icons.po \
+	   ToolsGUI_msg_en.po
+
+# Libraries targets
+LIB = libToolsGUI.la
+
+LIB_SRC = ToolsGUI.cxx \
+	  ToolsGUI_CatalogGeneratorDlg.cxx
+
+LIB_MOC = ToolsGUI_moc.cxx \
+	  ToolsGUI_CatalogGeneratorDlg_moc.cxx
+
+LIB_CLIENT_IDL = SALOME_Exception.idl
+
+# additionnal information to compil and link file
+
+CPPFLAGS += $(QT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
+CXXFLAGS += $(OCC_CXXFLAGS)
+
+LDFLAGS += -lSalomeGUI $(OCC_LIBS)
+
+
+@CONCLUDE@
+

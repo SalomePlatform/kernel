@@ -1,0 +1,9 @@
+#ifndef _SALOME_InteractiveObject_HeaderFile
+#include "SALOME_InteractiveObject.hxx"
+#endif
+#ifndef _TopoDS_Shape_HeaderFile
+#include <TopoDS_Shape.hxx>
+#endif
+#ifndef _SALOME_AISShape_HeaderFile
+#include "SALOME_AISShape.hxx"
+#endif

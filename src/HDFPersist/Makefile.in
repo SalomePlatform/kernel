@@ -1,0 +1,80 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar aug  10 12:58:13 CEST 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+EXPORT_HEADERS = \
+	HDFattribute.hxx \
+	HDFcontainerObject.hxx \
+	HDFdataset.hxx \
+	HDFexplorer.hxx \
+	HDFexception.hxx \
+	HDFfile.hxx \
+	HDFgroup.hxx \
+	HDFinternalObject.hxx \
+	HDFobject.hxx \
+	HDFOI.hxx \
+	HDFtypes.h \
+	HDFconvert.hxx \
+	hdfi.h
+
+# Libraries targets
+
+LIB = libSalomeHDFPersist.la 
+LIB_SRC =  \
+	HDFfileCreate.c \
+	HDFfileClose.c \
+	HDFfileOpen.c \
+	HDFfileMount.c \
+	HDFfileUmount.c \
+	HDFgroupCreate.c \
+	HDFgroupOpen.c \
+	HDFgroupClose.c \
+	HDFdatasetOpen.c \
+	HDFdatasetClose.c \
+	HDFdatasetCreate.c \
+	HDFdatasetWrite.c \
+	HDFdatasetRead.c \
+	HDFdatasetGetDim.c \
+	HDFdatasetGetSize.c \
+	HDFdatasetGetType.c \
+	HDFdatasetGetnDim.c \
+	HDFattrOpen.c \
+	HDFattrClose.c \
+	HDFattrWrite.c \
+	HDFattrCreate.c \
+	HDFattrRead.c \
+	HDFerrorModeLock.c \
+	HDFnObjects.c \
+	HDFobjectIdentify.c \
+	HDFobjectType.c \
+	HDFobject.cc \
+	HDFinternalObject.cc \
+	HDFattribute.cc \
+	HDFcontainerObject.cc \
+	HDFdataset.cc \
+	HDFfile.cc \
+	HDFgroup.cc \
+	HDFexplorer.cc \
+	HDFconvert.cc
+
+#BIN = test9 test8
+
+CPPFLAGS+=-c -ansi $(HDF5_INCLUDES)
+LDFLAGS+= $(HDF5_LIBS)
+
+
+@CONCLUDE@

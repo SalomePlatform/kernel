@@ -1,0 +1,22 @@
+//=============================================================================
+// File      : AddComponent.idl
+// Created   : jeu jui 12 12:08:17 CEST 2001
+// Author    : 
+// Project   : SALOME
+// /export/home/CVS/SALOME_ROOT/idl/AddComponent.idl,v 1.2 2001/12/11 16:27:31 rahuel Exp
+//=============================================================================
+
+#ifndef _ADDCOMPONENT_IDL
+#define _ADDCOMPONENT_IDL
+
+#include "SALOME_Component.idl"
+
+interface AddComponent : Engines::Component
+{
+  double Add( in double x , in double y , out double z ) ;
+  double XXX( in double x , out double y , out double z ) ;
+};
+
+
+
+#endif

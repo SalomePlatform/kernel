@@ -1,0 +1,46 @@
+//  File      : SALOMEDS.cdl
+//  Created   : Wed Nov 28 12:08:48 2001
+//  Author    : Yves FRICAUD
+//  Project   : SALOME
+//  Module    : SALOMEDS
+//  Copyright : Open CASCADE
+//  $Header$
+
+
+
+package SALOMEDS
+
+uses TDocStd,
+     TDF,
+     TCollection,
+     TColStd,
+     TDataStd
+
+
+is
+
+	class OCAFApplication ;
+	class IORAttribute    ; 
+	class PersRefAttribute;
+	class SequenceOfRealAttribute;
+	class SequenceOfIntegerAttribute; 
+	class DrawableAttribute;
+	class SelectableAttribute;
+	class ExpandableAttribute;
+	class OpenedAttribute;
+	class PixMapAttribute;
+	class TextColorAttribute;
+	class TextHighlightColorAttribute;
+	class LocalIDAttribute;
+	class UserIDAttribute;
+        class TableOfIntegerAttribute;
+        class TableOfRealAttribute;
+        class StudyPropertiesAttribute;
+	class PythonObjectAttribute;
+
+        class DataMapStringLabel instantiates DataMap from TCollection
+	    (ExtendedString from TColleciton,
+             Label from TDF,
+             ExtendedString from TCollection);
+
+end SALOMEDS;

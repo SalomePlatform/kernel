@@ -1,0 +1,28 @@
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+@COMMENCE@
+
+EXPORT_HEADERS = \
+	qsplitterP.h \
+  	qworkspaceP.h
+
+# Libraries targets
+
+LIB = libqsplitterP.la 
+LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx qworkspaceP.cxx qworkspaceP_moc.cxx
+qsplitterP_moc.cxx: $(inc_builddir)/qsplitterP.h
+	$(MOC) $(inc_builddir)/qsplitterP.h -o qsplitterP_moc.cxx
+
+qworkspaceP_moc.cxx: $(inc_builddir)/qworkspaceP.h
+	$(MOC) $(inc_builddir)/qworkspaceP.h -o qworkspaceP_moc.cxx
+
+CPPFLAGS+=$(QT_INCLUDES) -I${QTDIR}/src/kernel -I$(QTDIR)/mkspecs/linux-g++
+CXXFLAGS+=
+LDFLAGS+=$(QT_MT_LIBS) 
+
+@CONCLUDE@

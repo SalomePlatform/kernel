@@ -1,0 +1,29 @@
+-- File:	SALOMEDS_OCAFApplication.cdl
+-- Created:	Fri Jun 29 12:19:49 2001
+-- Author:	Yves FRICAUD
+--		<yfr@claquox.paris1.matra-dtv.fr>
+---Copyright:	 OPEN CASCADE 2001
+
+
+class OCAFApplication from SALOMEDS  inherits Application from TDocStd
+
+	---Purpose: 
+
+uses
+    Label                    from TDF,
+    SequenceOfExtendedString from TColStd,
+    CString                  from Standard,
+    Document                 from TDocStd
+
+
+is
+
+    Create 
+    returns mutable OCAFApplication from SALOMEDS;
+    
+    Formats(me: mutable; Formats: out SequenceOfExtendedString from TColStd) 
+    is redefined;    
+
+    ResourcesName (me: mutable) returns CString from Standard;
+
+end OCAFApplication;

@@ -1,0 +1,17 @@
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+@COMMENCE@
+
+# Executables targets
+BIN = msg2qm
+BIN_SRC	= 
+
+CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES)
+LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS)
+
+
+@CONCLUDE@

@@ -1,0 +1,8 @@
+
+#ifndef F77_FUNC
+
+#define F77_FUNC(name,NAME)  @F77_FUNC_NAME@
+#define F77_FUNC_(name,NAME) @F77_FUNC_NAME_@
+
+#endif
+

@@ -1,0 +1,26 @@
+//  File      : SALOMEDS_PythonObjectAttribute.jxx
+//  Created   : Tue Oct  8 10:13:30 2002
+//  Author    : Michael Ponikarov
+//  Project   : SALOME
+//  Module    : SALOMEDS
+//  Copyright : Open CASCADE
+//  $Header$
+
+#ifndef _TColStd_HArray1OfCharacter_HeaderFile
+#include <TColStd_HArray1OfCharacter.hxx>
+#endif
+#ifndef _Standard_GUID_HeaderFile
+#include <Standard_GUID.hxx>
+#endif
+#ifndef _TDF_Label_HeaderFile
+#include <TDF_Label.hxx>
+#endif
+#ifndef _TDF_Attribute_HeaderFile
+#include <TDF_Attribute.hxx>
+#endif
+#ifndef _TDF_RelocationTable_HeaderFile
+#include <TDF_RelocationTable.hxx>
+#endif
+#ifndef _SALOMEDS_PythonObjectAttribute_HeaderFile
+#include "SALOMEDS_PythonObjectAttribute.hxx"
+#endif

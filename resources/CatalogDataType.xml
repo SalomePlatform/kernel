@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='us-ascii' ?>
+
+<!-- XML data type catalog -->
+
+<DataType-list>
+	<DataType>
+		<DataType-name>Matrice</DataType-name>
+		<DataType-comment>Matrice</DataType-comment>
+		<DataType-interface-read>read_matrice</DataType-interface-read>
+		<DataType-interface-write>write_matrice</DataType-interface-write>
+	</DataType>
+
+	<DataType>
+		<DataType-name>Vector</DataType-name>
+		<DataType-comment>Vecteur</DataType-comment>
+		<DataType-interface-read>read_vector</DataType-interface-read>
+		<DataType-interface-write>write_vector</DataType-interface-write>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceCarree</DataType-name>
+		<DataType-comment>Matrice carrée</DataType-comment>
+		<DataType-interface-read>read_matrice_carree</DataType-interface-read>
+		<DataType-interface-write>write_matrice_carree</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>Matrice</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceStockagePlein</DataType-name>
+		<DataType-comment>Matrice stockage plein</DataType-comment>
+		<DataType-interface-read>read_matrice_sp</DataType-interface-read>
+		<DataType-interface-write>write_matrice_sp</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>Matrice</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceCarreeStockagePlein</DataType-name>
+		<DataType-comment>Matrice carree stockage plein</DataType-comment>
+		<DataType-interface-read>read_matrice_carree_sp</DataType-interface-read>
+		<DataType-interface-write>write_matrice_carree_sp</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceCarree</Parent-name>
+		          <Parent-name>MatriceStockagePlein</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceTriangleStockageU</DataType-name>
+		<DataType-comment>Matrice triangle stockage U</DataType-comment>
+		<DataType-interface-read>read_matrice_triangle_U</DataType-interface-read>
+		<DataType-interface-write>write_matrice_triangle_U</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceCarree</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceTriangleStockageL</DataType-name>
+		<DataType-comment>Matrice triangle stockage L</DataType-comment>
+		<DataType-interface-read>read_matrice_triangle_L</DataType-interface-read>
+		<DataType-interface-write>write_matrice_triangle_L</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceCarree</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceSDP</DataType-name>
+		<DataType-comment>Matrice SDP</DataType-comment>
+		<DataType-interface-read>read_matrice_sdp</DataType-interface-read>
+		<DataType-interface-write>write_matrice_sdp</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceCarree</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceSDPStockagePlein</DataType-name>
+		<DataType-comment>Matrice SDP stockage plein</DataType-comment>
+		<DataType-interface-read>read_matrice_sdp_sp</DataType-interface-read>
+		<DataType-interface-write>write_matrice_sdp_sp</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceSDP</Parent-name>
+		          <Parent-name>MatriceStockagePlein</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceSDPStockageU</DataType-name>
+		<DataType-comment>Matrice SDP stockage U</DataType-comment>
+		<DataType-interface-read>read_matrice_sdp_U</DataType-interface-read>
+		<DataType-interface-write>write_matrice_sdp_U</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceTriangleStockageU</Parent-name>
+		          <Parent-name>MatriceSDP</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+	<DataType>
+		<DataType-name>DataDiodore</DataType-name>
+		<DataType-comment>Data generees pour Diodore</DataType-comment>
+		<DataType-interface-read>read_DataDiodore</DataType-interface-read>
+		<DataType-interface-write>write_DataDiodore</DataType-interface-write>
+	</DataType>
+
+	<DataType>
+		<DataType-name>MatriceSDPStockageL</DataType-name>
+		<DataType-comment>Matrice SDP stockage L</DataType-comment>
+		<DataType-interface-read>read_matrice_sdp_L</DataType-interface-read>
+		<DataType-interface-write>write_matrice_sdp_L</DataType-interface-write>
+		<DataType-Parents-list>
+		          <Parent-name>MatriceTriangleStockageL</Parent-name>
+		          <Parent-name>MatriceSDP</Parent-name>
+		</DataType-Parents-list>
+	</DataType>
+
+</DataType-list>

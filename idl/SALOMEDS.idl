@@ -1,0 +1,1476 @@
+//=====================================================
+//  File      : SALOMEDS.idl
+//  Created   : Thu Nov 29 21:25:39 2001
+//  Author    : Yves FRICAUD
+//  Project   : SALOME
+//  Copyright : Open CASCADE 2001
+//  $Header$
+//=====================================================
+
+
+/*! \mainpage 
+    \image html Application-About.png
+    
+*/
+/*! \page page1 Mapping of IDL definitions to Python language.
+\section Intro Introduction
+%SALOME PRO is a distributed client/server application using the Common Object Request Broker Architecture (CORBA).
+CORBA architecture uses the Interface Definition Language (IDL), which specifies interfaces between CORBA objects. So with help of IDL 
+CORBA's language independence is ensured . Because interfaces described in IDL can be mapped to the most of currently used programming languages, CORBA applications and components are thus
+independent of the language(s) used to implement them. In other words, a client written in C++ can communicate with a server written in Java, which in turn can communicate with
+another server written in COBOL, and so forth.
+
+One important thing to remember about IDL is that it is not an implementation language. That is, applications can't be written in IDL. The sole purpose of IDL is to define interfaces;
+providing implementations for these interfaces is performed using some other language.
+ 
+This page contains an abridged reference manual for mapping of IDL definitions to Python language. It will be useful for Python programmers who are not familiar 
+with IDL language. All examples are taken from %SALOME PRO source files.
+The complete version of Python Language Mapping Specification can be found <A HREF="http://www.omg.org">here.</A>
+
+<BR><STRONG>CONTENTS:</STRONG>
+- \ref subsection1
+- \ref subsection2
+- \ref subsection3
+- \ref subsection4
+- \ref subsection5
+- \ref subsection6
+- \ref subsection7
+
+\subsection subsection1 Using Scoped Names
+
+Python implements a module concept that is similar to the IDL scoping mechanisms,
+except that it does not allow for nested modules. In addition, Python requires each
+object to be implemented in a module; globally visible objects are not supported.
+
+Because of these constraints, scoped names are translated into Python using the
+following rules:
+
+• An IDL module mapped into a Python module. Modules containing modules are
+mapped to packages (i.e., directories with an <STRONG>__init__</STRONG> module containing all
+definitions excluding the nested modules). An implementation can chose to map toplevel
+definitions (including the module CORBA) to modules in an implementationdefined
+package, to allow concurrent installations of different CORBA runtime
+libraries. In that case, the implementation must provide additional modules so that
+toplevel modules can be used without importing them from a package.
+
+• For all other scopes, a Python class is introduced that contains all the definitions
+inside this scope.
+
+• Other global definitions (except modules) appear in a module whose name is
+implementation dependent. Implementations are encouraged to use the name of the
+IDL file when defining the name of that module.
+
+For instance,
+
+\verbatim
+module SALOMEDS {
+ interface StudyManager {
+  void  Close(in Study aStudy);
+ };
+};
+\endverbatim 
+
+would introduce a module SALOMEDS.py, which contains the following definitions:
+
+\verbatim
+# module SALOMEDS.py
+class StudyManager:
+  def _Close(self,aStudy):
+   pass #interfaces are discussed later
+\endverbatim
+
+To avoid conflicts, IDL names that are also Python identifiers are prefixed with an underscore (‘_’).
+
+\subsection subsection2 Mapping for Template and Array Types
+
+Both the bounded and the unbounded string type of IDL are mapped to the Python
+string type. Wide strings are represented by an implementation-defined type with the
+following properties:
+
+• For the wide string X and the integer n, X[n] returns the nth character, which is a
+wide string of length 1.
+
+• len(X) returns the number of characters of wide string X.
+
+• CORBA.wstr(c) returns a wide character with the code point c in an
+implementation-defined encoding.
+
+• X+Y returns the concatenation of wide strings X and Y.
+
+• CORBA.word(CORBA.wstr(c)) == c
+
+The sequence template is mapped to sequence objects (e.g., tuples or lists).
+Applications should not assume that values of a sequence type are mutable. Sequences
+and arrays of octets and characters are mapped to the string type for efficiency reasons.
+
+For example, given the IDL definitions
+
+\verbatim
+module SALOMEDS {
+  typedef sequence <string> StringSeq;
+   
+   interface AttributeTableOfInteger : GenericAttribute {
+
+    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
+ };
+};
+\endverbatim
+
+a client could invoke the operation
+
+\verbatim
+print My_AttributeTableOfInteger.SetRowTitles(["X","F"])
+\endverbatim
+
+Array types are mapped like sequence templates. The application in this example also expects an
+IncorrectArgumentLength exception if it passes sequences that violate the bounds constraint or
+arrays of wrong size.
+
+Another example with arrays. The following IDL definition
+
+\verbatim
+module SALOMEDS {
+ typedef sequence<GenericAttribute> ListOfAttributes;
+ interface SObject {
+  ListOfAttributes     GetAllAttributes();
+ };
+};
+\endverbatim
+
+is equal to 
+
+\verbatim
+import SALOMEDS
+
+attributes=[]
+ 
+attributes = My_SObject.GetAllAttributes()
+
+length = len(attributes)
+
+print "Attributes number = ", length
+print attributes
+\endverbatim
+
+\subsection subsection3 Mapping for Objects and Operations
+
+A CORBA object reference is represented as a Python object at run-time. This object
+provides all the operations that are available on the interface of the object. Although
+this specification does not mandate the use of classes for stub objects, the following
+discussion uses classes to indicate the interface.
+
+The nil object is represented by <STRONG>None</STRONG>.
+
+If an operation expects parameters of the IDL Object type, any Python object
+representing an object reference might be passed as actual argument.
+
+If an operation expects a parameter of an abstract interface, either an object
+implementing that interface, or a value supporting this interface may be passed as
+actual argument. The semantics of abstract values then define whether the argument is
+passed by value or by reference.
+
+Operations of an interface map to methods available on the object references.
+Parameters with a parameter attribute of <STRONG>in</STRONG> or <STRONG>inout</STRONG> 
+are passed from left to right tothe method, skipping <STRONG>out</STRONG> parameters.
+The return value of a method depends on the number of <STRONG>out</STRONG> parameters 
+and the return type. If the operation returns a value, this
+value forms the first <VAR>result value</VAR>. All <STRONG>inout</STRONG> or <STRONG>out</STRONG> 
+parameters form consecutive <VAR>result values</VAR>. The method result depends then on the number
+of <VAR>result values</VAR>:
+
+• If there is no <VAR>result value</VAR>, the method returns None.
+
+• If there is exactly one <VAR>result value</VAR>, it is returned as a single value.
+
+• If there is more than one <VAR>result value</VAR>, all of them are packed into a tuple, and this
+tuple is returned.
+
+Assuming the IDL definition
+
+\verbatim
+module SALOMEDS{
+ interface StudyBuilder{
+  boolean FindAttribute  ( in SObject anObject, 
+                           out GenericAttribute anAttribute, 
+                           in string aTypeOfAttribute );
+ };
+};
+\endverbatim
+                                          
+a client could write
+
+\verbatim
+from SALOMEDS import StudyBuilder;
+my_StudyBuilder=...
+  
+  res,A=my_StudyBuilder.FindAttribute(Sobj, "AttributeSequenceOfReal")
+\endverbatim
+
+In this example <STRONG>A</STRONG> corresponds to the return value <STRONG>anAttribute</STRONG> and  
+<STRONG>res</STRONG> to the <STRONG>boolean</STRONG> return value. 
+
+If an interface defines an <STRONG>attribute name</STRONG>, for example, the attribute is mapped into an
+operation <STRONG>_get_name</STRONG>. If the attribute is not <STRONG>readonly</STRONG>, there is an
+additional operation <STRONG>_set_name</STRONG>.
+
+The IDL definition
+
+\verbatim
+module SALOMEDS{
+ interface Study{
+  attribute string Name;
+ };
+};
+\endverbatim
+
+is equal to the following
+
+\verbatim
+from SALOMEDS import Study
+My_Study=...
+  Name=My_Study._get_name();
+  Name=My_Study._set_name();
+\endverbatim
+
+\subsection subsection4 Narrowing Object References
+
+Python objects returned from CORBA operations or pseudo-operations (such as
+string_to_object) might have a dynamic type, which is more specific than the
+static type as defined in the operation signature.
+
+Since there is no efficient and reliable way of automatically creating the most specific
+type, explicit narrowing is necessary. To narrow an object reference <STRONG>A</STRONG> to an interface
+class <STRONG>AttributeSequenceOfReal</STRONG>, the client can use the following operation 
+
+\verbatim
+A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
+\endverbatim
+
+\subsection subsection5 Mapping for Exceptions
+
+An   IDL   exception   is   translated   into   a   Python  class  derived  from
+CORBA.UserException.  System  exceptions are derived from CORBA.SystemException.
+Both  base  classes  are  derived  from  CORBA.Exception.  The parameters of the
+exception  are mapped in the same way as the fields of a struct definition. When
+raising  an  exception,  a new instance of the class is created; the constructor
+expects the exception parameters. For example, the definition
+
+\verbatim
+module SALOMEDS{
+ interface StudyBuilder{
+  exception LockProtection {};
+  void CommitCommand() raises(LockProtection);
+ };
+};
+\endverbatim
+
+could be used caught as
+
+\verbatim
+from SALOMEDS import StudyBuilder;
+my_StudyBuilder=...
+try:
+  my_StudyBuilder.CommitCommand();
+except StudyBuilder.LockProtection,value:
+  print "Error! Study is locked for modifications"
+\endverbatim
+
+
+\subsection subsection6 Mapping for Enumeration Types
+
+An enumeration is mapped into a number of constant objects in the name space where
+the enumeration is defined. An application may only test for equivalence of two
+enumeration values, and not assume that they behave like numbers.
+For example, the definition
+
+\verbatim
+module VISU {
+ interface PrsObject{
+ 
+  enum PrsObjType{ TCURVE, TTABLE, TMESH, TCONTAINER,
+                   TSCALARMAP, TISOSURFACE, TDEFORMEDSHAPE,
+                   TCUTPLANES, TVECTORS };
+ };
+};
+\endverbatim
+
+introduces the objects
+
+\verbatim
+from VISU import PrsObject
+VISU.PrsObjType.TCURVE,VISU.PrsObjType.TTABLE,VISU.PrsObjType.TMESH,VISU.PrsObjType.TCONTAINER,
+VISU.PrsObjType.TSCALARMAP,VISU.PrsObjType.TISOSURFACE,VISU.PrsObjType.TDEFORMEDSHAPE,VISU.PrsObjType.TCUTPLANES,
+VISU.PrsObjType.TVECTORS
+\endverbatim
+
+\subsection subsection7 Mapping for Structured Types
+
+An IDL struct definition is mapped into a Python class or type. For each field in the
+struct, there is a corresponding attribute in the class with the same name as the field.
+The constructor of the class expects the field values, from left to right.
+For example, the IDL definition
+
+\verbatim
+struct SDate {
+               short Second;
+               short Minute;
+               short Hour;
+               short Day;
+               short Month;
+               short Year;
+             };
+\endverbatim
+
+could be used in the Python statements
+
+\verbatim
+Date=SDate(30, 12, 15, 26, 1, 79)
+print Date.Second,Date.Minute,Date.Hour,Date.Day,Date.Month,Date.Year
+\endverbatim
+*/
+/*! \page page2 Mapping of SALOME IDL definitions to Python language.
+
+
+  - <B>%SALOME STUDY module</B>
+     - <A href=HTML/SALOMEDS.html>Mapping of %SALOMEDS functions</A>
+     - <A href=HTML/SALOMEDS_Attributes.html>Mapping of SALOMEDS_Attributes functions</A>
+  - <B>%SAlOME KERNEL module</B>
+     - <A href=HTML/Med_Gen.html>Mapping of %Med_Gen functions</A>
+     - <A href=HTML/SALOME_Session.html>Mapping of %SALOME_Session functions</A>
+     - <A href=HTML/SALOME_ModuleCatalog.html>Mapping of %SALOME_ModuleCatalog functions</A>
+     - <A href=HTML/SALOME_Exception.html>Mapping of %SALOME_Exception functions</A>
+     - <A href=HTML/SALOME_Component.html>Mapping of %SALOME_Component functions</A>
+  - <B>%SALOME MED component</B>
+     - <A href=HTML/MED.html>Mapping of %Med functions</A>
+  - <B>%SALOME SUPERVISION module</B>
+     - <A href=HTML/SUPERV.html>Mapping of %SUPERV functions</A>
+  - <B>%SALOME %VISU module</B>
+     - <A href=HTML/VISU_Gen.html>Mapping of %VISU_Gen functions</A>
+
+*/
+
+/*! \defgroup Study SALOME STUDY module
+*/
+
+/*!
+  \file SALOMEDS.idl This file contains a set of interfaces used for creation, managment
+  and modification of the %Study
+*/
+
+#ifndef _SALOMEDS_IDL_
+#define _SALOMEDS_IDL_
+
+#include "SALOME_Exception.idl"
+
+/*! \ingroup Study
+     This package contains the interfaces used for creation, managment
+     and modification of the %Study
+*/
+module SALOMEDS
+{
+   const string SALOMEDS__doc__ = "This package contains the interfaces used for creation, \nmanagment and modification of the study.";
+/*! \typedef URL
+    Name of the file in which the %Study is saved.
+
+*/
+  typedef string URL;
+
+/*! Main identifier of an object in %SALOME application
+*/
+  typedef string ID;
+
+/*! While saving the data, IOR is transformed into persistent reference
+*/
+  typedef string PersistentReference;
+
+/*! IOR of the study in %SALOME application
+*/
+  typedef string SalomeReference;
+/*! List of names of open studies in a %SALOME session
+*/
+  typedef sequence<string> ListOfOpenStudies;
+/*! List of file names
+*/
+  typedef sequence<string> ListOfFileNames;
+/*! List of modification dates of the study
+*/
+  typedef sequence<string> ListOfDates ;
+/*! An unbounded sequence of strings
+*/
+  typedef sequence<string> ListOfStrings ;
+/*! A byte stream which is used for binary data transfer between components
+*/
+  typedef sequence<octet> TMPFile;
+
+  // Reference to other objects is treated with function AddReference
+  // and ReferencedObject
+  // All other type of attributes defined in AttributeType enum are
+  // treated with AddAdttribute and GetAttribute
+  // The difference is made because Reference attribute don't contain
+  // strings but reference to ID of other objects
+
+  interface GenericAttribute;
+  interface Study;
+  interface StudyManager;
+  interface StudyBuilder;
+  interface SObject;
+  interface SComponent;
+  interface SComponentIterator;
+  interface ChildIterator;
+  interface Driver;
+  interface AttributeStudyProperties;
+  interface UseCaseIterator;
+  interface UseCaseBuilder;
+  interface Callback;
+/*! List of attributes
+*/
+  typedef sequence<GenericAttribute> ListOfAttributes;
+/*! Exception indicating that this feature hasn't been implemented
+*/
+  exception NotImplemented {};
+
+
+  //===========================================================================
+ /*! \brief %Study Interface
+
+    The purpose of the %Study is to manage the data produced by various components of %SALOME platform.
+   Most of the %Study operations are handled by the StudyManager and the StudyBuilder.
+   What is left in the %Study interface are elementary inquiries.
+   (Incidentally, we recall that a CORBA attribute is implemented as a pair of get
+      and set methods.) A %Study is explored by a set of tools, mainly iterators
+    , which are described further. Nevertheless, the %Study
+     interface allows the search of an object by name or by ID.
+     \note
+     <BR><VAR>The Path </VAR>of an object in %SALOME application is much alike a standard path of a file.
+    In general it's a string of names of directories divided by a slash '/'.
+     <BR><VAR>The Context</VAR> is the current directory of an object.</P>
+*/
+
+  interface Study
+  {
+    exception StudyInvalidContext {};
+    exception StudyInvalidComponent {};
+/*! Invalid directory of the %study exception
+*/
+    exception StudyInvalidDirectory {};
+/*! Exception pointing that this name of the study has already been used.
+*/
+    exception StudyNameAlreadyUsed {};
+    exception StudyObjectAlreadyExists {};
+/*! Invalid name of the %study exception
+*/
+    exception StudyNameError {};
+    exception StudyCommentError {};
+/*! \brief The name of the %Study
+
+   This is equivalent to the methods setName() & getName()
+*/
+    attribute string     Name; // equivalent to setName() & getName()
+/*! \brief The ID of the %Study
+
+   This is equivalent to the methods setID() & getID()
+*/
+    attribute short      StudyId;
+/*! Sequence containing %SObjects
+*/
+    typedef sequence<SObject> ListOfSObject;
+/*!
+  Gets a persistent reference to the %Study.
+*/
+    PersistentReference  GetPersistentReference();
+    const string GetPersistentReference__doc__ = "Gets a persistent reference to the study.";
+/*!
+  Gets a transient reference to the %Study.
+*/
+    SalomeReference      GetTransientReference();
+    const string GetTransientReference__doc__ = "Gets a transient reference to the study.";
+
+/*!
+    Returns True if the %Study is empty
+*/
+    boolean IsEmpty();
+    const string IsEmpty__doc__ = "Returns True if the study is empty.";
+/*!
+    Allows to find a %SComponent by its name.
+   \param aComponentName    It's a string value in the Comment Attribute of the Component,
+    which is looked for, defining the data type of this Component.
+
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    SComponent FindComponent  (in string aComponentName);
+    const string FindComponent__doc__ = "Allows to find a SComponent by its name.";
+/*!
+    Allows to find a %SComponent by ID of the according %SObject
+*/
+    SComponent FindComponentID(in ID aComponentID);
+    const string FindComponentID__doc__ = "Allows to find a SComponent by ID of the according SObject.";
+/*!
+    Allows to find a %SObject by the Name Attribute of this %SObject
+<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    SObject       FindObject      (in string anObjectName);
+    const string FindObject__doc__ = "Allows to find a SObject by the Name Attribute of this SObject.";
+/*!
+    Allows to find a %SObject by its ID
+*/
+    SObject       FindObjectID    (in ID aObjectID);
+    const string FindObjectID__doc__ = "Allows to find a SObject by its ID";
+/*!
+    Allows to find a %SObject by IOR of the object belonging to this %SObject.
+*/
+    SObject       FindObjectIOR   (in ID aObjectIOR);
+    const string FindObjectIOR__doc__ = "Allows to find a SObject by IOR of the object belonging to this SObject.";
+/*!
+    Returns a list of %SObjects belonging to this %Component. The Name Attribute
+    of these %SObjects should correspond to <VAR>anObjectName</VAR>.
+*/
+    ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName);
+    const string FindObjectByName__doc__ = "Returns a list of SObjects belonging to this Component.";
+/*!
+    Allows to find a %SObject by the path to it.
+*/
+    SObject FindObjectByPath(in string thePath);
+    const string FindObjectByPath__doc__ = "Allows to find a SObject by the path to it.";
+/*!
+    Returns the path to the %SObject.
+*/
+    string  GetObjectPath(in Object theObject);
+    const string GetObjectPath__doc__ = "Returns the path to the SObject";
+
+/*!
+    Sets the context of the %Study.
+<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void SetContext(in string thePath);
+    const string SetContext__doc__ = "Sets the context of the study";
+/*!
+    Gets the context of the %Study
+<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    string GetContext();
+    const string GetContext__doc__ = "Gets the context of the study";
+/*!
+   Returns a list of names of objects corresponding to the context.
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetObjectNames(in string theContext);
+    const string GetObjectNames__doc__ = "Returns a list of names of objects corresponding to the context.";
+/*!
+   Returns a list of names of directories and subdirectories corresponding to the context.
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetDirectoryNames(in string theContext);
+    const string GetDirectoryNames__doc__ = "Returns a list of names of directories and subdirectories corresponding to the context.";
+/*!
+   Returns a list of names of Files corresponding to the context.
+    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetFileNames(in string theContext);
+    const string GetFileNames__doc__ = "Returns a list of names of Files corresponding to the context.";
+/*!
+   Returns a list of names of Components corresponding to the context.
+   \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
+*/
+    ListOfStrings GetComponentNames(in string theContext);
+    const string GetComponentNames__doc__ = "Returns a list of names of Components corresponding to the context.";
+/*! \brief Creation of a new iterator of child levels
+
+    Creates a new iterator of child levels of the %SObject
+*/
+    ChildIterator      NewChildIterator(in SObject aSO);
+    const string NewChildIterator__doc__ = "Creates a new iterator of child levels of the SObject";
+/*! \brief Creation of a new iterator of the %SComponent
+
+    Creates a new iterator of the %SComponent.
+*/
+    SComponentIterator NewComponentIterator();
+    const string NewComponentIterator__doc__ = "Creates a new iterator of the SComponent.";
+/*! \brief Creation of a %StudyBuilder
+
+   Creates a new %StudyBuilder to add or modify an object in the study.
+<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    StudyBuilder NewBuilder() ;
+    const string NewBuilder__doc__ = "Creates a new StudyBuilder to add or modify an object in the study.";
+/*! \brief Labels dependency
+
+    Updates the map with IOR attribute. It's an inner method used for optimization.
+*/
+    void UpdateIORLabelMap(in string anIOR, in string anEntry);
+    const string UpdateIORLabelMap__doc__ = "Updates the map with IOR attribute. It's an inner method used for optimization.";
+
+/*! \brief Getting properties of the study
+
+   Returns the attriubte, which contains the properties of this study.
+<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    AttributeStudyProperties GetProperties();
+    const string GetProperties__doc__ = "Returns the attriubte, which contains the properties of this study.";
+/*!
+   Determines whether the %study has been saved
+*/
+    attribute boolean IsSaved;
+    const string IsSaved__doc__ = "Determines whether the study has been saved.";
+/*!
+  Returns True if the %study has been modified and not saved.
+*/
+    boolean IsModified();
+    const string IsModified__doc__ = "Returns True if the study has been modified and not saved.";
+/*!
+   Determines the file where the %study has been saved
+*/
+    attribute string  URL;
+
+/*! \brief List of %SObjects
+
+    Returns the list of %SObjects which refers to %anObject.
+*/
+    ListOfSObject FindDependances(in SObject anObject);
+    const string FindDependances__doc__ = "Returns the list of SObjects which refers to anObject.";
+
+/*! \brief The date of the last saving of the study
+
+    Returns the date of the last saving of study with format: "DD/MM/YYYY HH:MM"
+*/
+    string GetLastModificationDate();
+    const string GetLastModificationDate__doc__ = "Returns the date of the last saving of study with format: DD/MM/YYYY HH:MM";
+/*! \brief The list of modification dates of the study
+
+    Returns the list of modification dates (without creation date) with format "DD/MM/YYYY HH:MM".
+      Note : the first modification begins the list.
+*/
+    ListOfDates GetModificationsDate();
+    const string GetModificationsDate__doc__ = "Returns the list of modification dates (without creation date) with format DD/MM/YYYY HH:MM.";
+/*! \brief Object conversion.
+
+    Converts an object into IOR.
+    \return    IOR
+*/
+    string ConvertObjectToIOR(in Object theObject);
+    const string ConvertObjectToIOR__doc__ = "Converts an object into IOR.";
+/*! \brief Object conversion.
+
+    Converts IOR into an object.
+    \return    An object
+*/
+    Object ConvertIORToObject(in string theIOR);
+    const string ConvertIORToObject__doc__ = "Converts IOR into an object.";
+/*!
+    Gets a new %UseCaseBuilder.
+*/
+    UseCaseBuilder  GetUseCaseBuilder();
+    const string GetUseCaseBuilder__doc__ = "Gets a new UseCaseBuilder.";
+
+/*!
+    Closes the components in the study, removes itself from the %StudyManager.
+*/
+    void Close();
+    const string Close__doc__ = "Closes the components in the study, removes itself from the StudyManager.";
+
+/*!
+    Enables(if isEnabled = True)/disables automatic addition of new %SObjects to the use case.
+*/
+    void EnableUseCaseAutoFilling(in boolean isEnabled);
+    const string EnableUseCaseAutoFilling__doc__ = "Enables(if isEnabled = True)/disables automatic addition of new SObjects to the use case.";
+  };
+    const string Study__doc__ = "The Study interface contains a set of mrthods used for management of \nthe data produced by various components of SALOME platform.";
+
+  //==========================================================================
+/*! \brief %Study Builder Interface
+
+  The purpose of the Builder is to add and/or remove objects and attributes.
+  A %StudyBuilder is linked to a %Study. A
+  command management is provided for the undo/redo functionalities.
+  \note
+  <BR><VAR>The Tag</VAR> of an item in %SALOME application is a symbolic description of
+  item's position in the tree-type structure of the browser. In general it has the following
+  form: <TT>0:2:1:1</TT>
+*/
+  //==========================================================================
+
+  interface StudyBuilder
+  {
+/*! \brief %LockProtection Exception
+
+    This exception is raised while attempting to modify a locked %study.
+*/
+    exception LockProtection {};
+/*! \brief Creation of a new %SComponent.
+
+   Creates a new %SComponent
+   \param ComponentDataType    Data type of the %SComponent which will be created.
+
+<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    SComponent NewComponent(in string ComponentDataType);
+    const string NewComponent__doc__ = "Creates a new SComponent.";
+/*! \brief Definition of the instance to the %SComponent
+
+    Defines the instance to the %SComponent.
+*/
+    void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR);
+    const string DefineComponentInstance__doc__ = "Defines the instance to the SComponent.";
+/*! \brief Deletion of the %SComponent
+
+  Removes the %SComponent.
+*/
+    void       RemoveComponent(in SComponent aComponent);
+    const string RemoveComponent__doc__ = "Removes the SComponent.";
+
+/*! \brief Creation of a new %SObject
+
+   Creates a new %SObject.
+<BR><VAR>See also <A href=exemple/Example18.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    SObject NewObject      (in SObject theFatherObject);
+    const string NewObject__doc__ = "Creates a new SObject.";
+/*! \brief Creation of a new %SObject with a definite %tag
+
+   Creates a new %SObject with a definite %tag.
+*/
+    SObject NewObjectToTag (in SObject theFatherObject, in long atag);
+    const string NewObjectToTag__doc__ = "Creates a new SObject with a definite tag.";
+/*! \brief Deletion of the %SObject
+
+  Removes a %SObject from the %StudyBuilder.
+*/
+    void    RemoveObject   (in SObject anObject);
+    const string RemoveObject__doc__ = "Removes a SObject from the StudyBuilder.";
+/*! \brief Deletion of the %SObject with all his child objects.
+
+  Removes the %SObject with all his child objects.
+*/
+    void    RemoveObjectWithChildren(in SObject anObject);
+    const string RemoveObjectWithChildren__doc__ = "Removes the SObject with all his child objects.";
+
+/*!
+   Loads a %SComponent.
+<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void  LoadWith (in SComponent sco, in Driver Engine) raises (SALOME::SALOME_Exception);
+    const string LoadWith__doc__ = "Loads a SComponent.";
+/*!
+   Loads a %SObject.
+*/
+    void  Load (in SObject sco);
+    const string Load__doc__ = "Loads a SObject.";
+
+/*! \brief Looking for or creating an attribute assigned to the %SObject
+
+    Allows to find or create an attribute of a specific type which is assigned to the object.
+    \param anObject        The %SObject corresponding to the attribute which is looked for.
+    \param aTypeOfAttribute     Type of the attribute.
+
+  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+
+    GenericAttribute FindOrCreateAttribute(in  SObject        anObject,
+	                                 in  string         aTypeOfAttribute);
+    const string FindOrCreateAttribute__doc__ = "Allows to find or create an attribute of a specific type which is assigned to the object.";
+
+/*! \brief Looking for an attribute assigned to %SObject
+
+    Allows to find an attribute of a specific type which is assigned to the object.
+    \param anObject        The %SObject corresponding to the attribute which is looked for.
+    \param aTypeOfAttribute     Type of the attribute.
+    \param anAttribute       Where the attribute is placed if it's found.
+    \return True if it finds an attribute.
+ */
+
+    boolean FindAttribute(in  SObject        anObject,
+				 out GenericAttribute anAttribute,
+				 in  string         aTypeOfAttribute);
+    const string FindAttribute__doc__ = "Allows to find an attribute of a specific type which is assigned to the object.";
+/*! \brief Deleting the attribute assigned to the %SObject
+
+    Removes the attribute of a specific type which is assigned to the object.
+    \param anObject        The %SObject corresponding to the attribute.
+    \param aTypeOfAttribute     Type of the attribute.
+
+<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void RemoveAttribute(in  SObject        anObject,
+				in  string         aTypeOfAttribute);
+    const string RemoveAttribute__doc__ = "Removes the attribute of a specific type which is assigned to the object.";
+/*! \brief Addition of a reference
+
+    Adds a reference between %anObject and %theReferencedObject.
+*/
+
+    void Addreference(in SObject anObject,
+		      in SObject theReferencedObject) ;
+    const string Addreference__doc__ = "Adds a reference between anObject and theReferencedObject.";
+/*!
+   Adds a directory in the %Study.
+<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void AddDirectory(in string theName);
+    const string AddDirectory__doc__ = "Adds a directory in the Study.";
+
+/*! \brief Identification of the %SObject's substructure.
+
+      Identification of the %SObject's substructure by GUID.
+      It has the following format "00000000-0000-0000-0000-000000000000"
+*/
+
+     void SetGUID(in SObject anObject, in string theGUID);
+     const string SetGUID__doc__ = "Identification of the %SObject's substructure by GUID. \nIt has the following format: 00000000-0000-0000-0000-000000000000.";
+/*!
+
+   Returns True if the %SObject has GUID.
+*/
+     boolean IsGUID(in SObject anObject, in string theGUID);
+     const string IsGUID__doc__ = "Returns True if the SObject has GUID.";
+
+/*! \brief Creation of a new command
+
+   Creates a new command which can contain several different actions.
+<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void NewCommand(); // command management
+    const string NewCommand__doc__ = "Creates a new command which can contain several different actions.";
+/*! \brief Execution of the command
+
+   Commits all actions declared within this command.
+<BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void CommitCommand() raises(LockProtection); // command management
+    const string CommitCommand__doc__ = "Commits all actions declared within this command.";
+/*!
+    Returns True if at this moment there is a command under execution.
+*/
+    boolean HasOpenCommand();
+    const string HasOpenCommand__doc__ = "Returns True if at this moment there is a command under execution.";
+/*! \brief Cancelation of the command
+
+    Cancels all actions declared within the command.
+<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void AbortCommand(); // command management
+    const string AbortCommand__doc__ = "Cancels all actions declared within the command.";
+/*! \brief Undolimit
+
+    The number of actions which can be undone
+*/
+    attribute long  UndoLimit;
+/*! \brief Undo method
+
+    Cancels all actions of the last command.
+<BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void Undo() raises (LockProtection);
+    const string Undo__doc__ = "Cancels all actions of the last command.";
+/*! \brief Redo method
+
+    Redoes all actions of the last command.
+ <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void Redo() raises (LockProtection);
+    const string Redo__doc__ = "Redoes all actions of the last command.";
+/*!
+    Returns True if at this moment there are any actions which can be canceled.
+   <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean GetAvailableUndos();
+    const string GetAvailableUndos__doc__ = "Returns True if at this moment there are any actions which can be canceled.";
+/*!
+    Returns True if at this moment there are any actions which can be redone.
+   <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    boolean GetAvailableRedos();
+    const string GetAvailableRedos__doc__ = "Returns True if at this moment there are any actions which can be redone.";
+/*!
+    Sets the callback for addition of the given %SObject. Returns the previous callback.
+*/
+    Callback SetOnAddSObject(in Callback theCallback);
+    const string SetOnAddSObject__doc__ = "Sets the callback for addition of the given SObject.";
+/*!
+    Sets the callback for removal of the given %SObject. Returns the previous callback.
+*/
+    Callback SetOnRemoveSObject(in Callback theCallback);
+    const string SetOnRemoveSObject__doc__ = " Sets the callback for removal of the given SObject.";
+
+  };
+    const string StudyBuilder__doc__ = "The Study Builder Interface contains a set of methods used for adding and/or removing objects and attributes.";
+
+  //==========================================================================
+/*! \brief %Study Manager interface
+
+    The purpose of the Manager is to manipulate the %Studies. You will find in this
+    interface the methods to create, open,
+    close, and save a %Study. Since a %SALOME session is multi-document, you will
+    also find the methods allowing to navigate
+    through the collection of studies present in a session.
+*/
+  //==========================================================================
+
+  interface StudyManager
+  {
+/*!
+    Determines whether the server has already been loaded or not.
+*/
+    void ping();
+    const string ping__doc__ = "Determines whether the server has already been loaded or not.";
+
+/*! \brief Creation of a new %Study
+
+     Creates a new %Study with a definite name.
+<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    Study NewStudy(in string study_name);
+    const string NewStudy__doc__ = "Creates a new study with a definite name.";
+
+/*! \brief Open a study
+
+     Reads and activates the structure of the study %Objects.
+    \warning This method doesn't activate the corba objects. Only a component can do it.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    Study Open (in URL aStudyUrl) raises (SALOME::SALOME_Exception);
+    const string Open__doc__ = "Reads and activates the structure of the study objects.";
+
+/*! \brief Closing the study
+
+    Closes the study.
+*/
+    void  Close(in Study aStudy);
+    const string Close__doc__ = "Closes the study.";
+/*! \brief Saving the study
+
+    Saves the study.
+<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    void  Save(in  Study aStudy, in boolean theMultiFile);
+    const string Save__doc__ = "Saves the study.";
+/*! \brief Saving the study in a file
+
+    Saves the study in a specified file.
+ <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    void  SaveAs(in URL   aUrl, // if the file already exists
+		in Study aStudy,
+		in boolean theMultiFile); // overwrite (as option)
+    const string SaveAs__doc__ = "Saves the study in a specified file.";
+/*! \brief List of open studies.
+
+    Returns the list of open studies in the current session.
+*/
+    ListOfOpenStudies GetOpenStudies();
+    const string GetOpenStudies__doc__ = "Returns the list of open studies in the current session.";
+
+/*! \brief Getting a particular %Study picked by name
+
+    Activates a particular %Study
+    amongst the session collection picking it by name.
+*/
+    Study GetStudyByName  (in string aStudyName);
+    const string GetStudyByName__doc__ = "Activates a particular study amongst the session collection picking it by name.";
+
+/*! \brief Getting a particular %Study picked by ID
+
+    Activates a particular %Study
+    amongst the session collection picking it by ID.
+*/
+    Study GetStudyByID  (in short aStudyID);
+    const string GetStudyByID__doc__ = "Activates a particular study amongst the session collection picking it by ID.";
+
+    // copy/paste methods
+
+/*!
+    Returns True, if the given %SObject can be copied to the clipboard.
+*/
+    boolean CanCopy(in SObject theObject);
+    const string CanCopy__doc__ = "Returns True, if the given SObject can be copied to the clipboard.";
+/*!
+    Returns True, if the given %SObject is copied to the clipboard.
+*/
+    boolean Copy(in SObject theObject);
+    const string Copy__doc__ = "Returns True, if the given SObject is copied to the clipboard.";
+/*!
+    Returns True, if the object from the clipboard can be pasted to the given %SObject.
+*/
+    boolean CanPaste(in SObject theObject);
+    const string CanPaste__doc__ = "Returns True, if the object from the clipboard can be pasted to the given SObject.";
+/*!
+    Returns the %SObject in which the object from the clipboard was pasted to.
+*/
+    SObject Paste(in SObject theObject) raises (SALOMEDS::StudyBuilder::LockProtection);
+    const string Paste__doc__ = "Returns the SObject in which the object from the clipboard was pasted to.";
+  };
+    const string StudyManager__doc__ = "The purpose of the Manager is to manipulate the studies. \nThe StudyManager interface contains a set of methods to create, open,close and save a study.";
+
+
+  //==========================================================================
+/*! \brief %SObject interface
+
+   The objects in the %study are built by the %StudyBuilder. The %SObject interface
+   provides methods for elementary inquiries, like getting an object %ID or its attribuites.
+ \note
+   <BR><VAR>Tag</VAR> of an item in %SALOME application is an integer value uniquely defining an item
+   in the tree-type data structure.
+   <BR><VAR>ID</VAR> of an item is a description of item's position in the tree-type data structure.
+   ID is a list of tags and it has the following form: <TT>0:2:1:1</TT>.
+*/
+  //==========================================================================
+
+  interface SObject
+  {
+/*! Name of the %SObject
+*/
+    attribute string Name; // equivalent to setName() & getName()
+/*! \brief Getting an object %ID
+
+   Returns ID of the %SObject.
+*/
+    ID GetID();
+    const string GetID__doc__ = "Returns ID of the SObject.";
+/*! \brief Acquisition of the father %Component of the %SObject
+
+  Returns the father %Component of the %SObject.
+*/
+    SComponent GetFatherComponent();
+    const string GetFatherComponent__doc__ = "Returns the father Component of the SObject.";
+/*! \brief Acquisition of the father %SObject of the %SObject
+
+   Returns the father %SObject of the given %SObject.
+*/
+    SObject    GetFather();
+    const string GetFather__doc__ = "Returns the father SObject of the given SObject.";
+/*! \brief %Tag of %SObject
+
+    Returns the %tag of the %SObject.
+*/
+    short      Tag();
+    const string Tag__doc__ = "Returns the tag of the SObject.";
+/*! \brief Looking for subobjects of an object.
+
+    Returns True if it finds a subobject of the %SObject with a definite tag.
+*/
+
+    boolean FindSubObject (in long atag, out SObject obj);
+    const string FindSubObject__doc__ = "Returns True if it finds a subobject of the SObject with a definite tag.";
+/*! \brief Looking for attributes of the %SObject
+
+   Returns True if it finds an attribute of a definite type of the %SObject.
+<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+*/
+    boolean FindAttribute(out GenericAttribute anAttribute,
+				  in  string         aTypeOfAttribute);
+    const string FindAttribute__doc__ = "Returns True if it finds an attribute of a definite type of the given SObject.";
+/*!
+    Returns the object which this %SObject refers to. It also returns True if it finds
+    this object.
+*/
+    boolean ReferencedObject(out SObject obj); // A REVOIR
+    const string ReferencedObject__doc__ = "Returns the object which this given SObject refers to. \nIt also returns True if it finds this object.";
+/*! \brief Getting all attributes of the %SObject
+
+    Returns the list of all attributes of the %SObject.
+<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    ListOfAttributes     GetAllAttributes();
+    const string GetAllAttributes__doc__ = "Returns the list of all attributes of the given SObject.";
+/*! \brief Returning the study
+
+    Returns the study containing the given %SObject.
+*/
+    Study GetStudy();
+    const string GetStudy__doc__ = "Returns the study containing the given SObject.";
+  };
+    const string SObject__doc__ = "The objects in the study are built by the StudyBuilder. \nThe SObject interface provides methods for elementary inquiries, \nlike getting an object ID or its attribuites.";
+
+
+  //==========================================================================
+/*! \brief %Generic attribute interface
+
+   %Generic attribute is a base interface for all attributes which inherit
+   its methods.
+*/
+  //==========================================================================
+  interface GenericAttribute
+  {
+/*! \brief Exception locking all changes
+
+    This exception locks all modifications in attributes.
+*/
+    exception LockProtection {};
+/*! \brief Method CheckLocked
+
+   Checks whether the %Study is protected for modifications.
+   \note <BR>This exception is raised only outside the transaction.
+*/
+    void CheckLocked() raises (LockProtection);
+    const string CheckLocked__doc__ = "Checks whether the study is protected for modifications.";
+  };
+    const string GenericAttribute__doc__ = "GenericAttribute is a base interface for all attributes which inherit its methods.";
+
+
+
+  //==========================================================================
+/*! \brief %SComponent interface
+
+   The %SComponent interface is a specialization of the %SObject interface.
+   It inherits the most of its methods from the %SObject interface.
+*/
+  //==========================================================================
+  interface SComponent : SObject
+  {
+/*! \brief Data type of the %SComponent
+
+    Returns the data type of the %SComponent.
+*/
+    string  ComponentDataType();
+    const string ComponentDataType__doc__ = "Returns the data type of the SComponent.";
+/*!
+  Returns IOR of the according component.
+*/
+    boolean ComponentIOR (out ID theID); //returns True if there is an instance
+                                         //In this case ID identifies this one
+    const string ComponentIOR__doc__ = "Returns IOR of the according component.";
+  };
+    const string SComponent__doc__ = "The SComponent interface is a specialization of the SObject interface. \nIt inherits the most of its methods from the SObject interface.";
+
+
+  //==========================================================================
+/*! \brief %SComponentIterator interface
+
+  This interface contains the methods allowing to iterate over all components in the list.
+  The search is started from the first %SComponent in the list.
+*/
+  //==========================================================================
+  interface SComponentIterator
+  {
+/*! \brief Initialization of the Iterator
+
+Activates the %SComponentIterator.
+*/
+    void Init();
+    const string Init__doc__ = "Activates the SComponentIterator.";
+/*! \brief Method More
+
+   Returns True if there is one more %SComponent in the list.
+*/
+    boolean More();
+    const string More__doc__ = "Returns True if there is one more SComponent in the list.";
+/*! \brief Moving the iterator to the next %SComponent
+
+Moves the iterator to the next %SComponent in the list.
+*/
+    void Next();
+    const string Next__doc__ = "Moves the iterator to the next SComponent in the list.";
+/*!
+    Returns the %SComponent corresponding to the current %SComponent found by the iterator.
+ <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+*/
+    SComponent Value();
+    const string Value__doc__ = "Returns the SComponent corresponding to the current SComponent found by the iterator.";
+  };
+    const string SComponentIterator__doc__ = "This interface contains the methods allowing to iterate over all components in the list. \nThe search is started from the first SComponent in the list.";
+
+  //==========================================================================
+/*! \brief %ChildIterator interface
+
+    This interface contains methods which allow to iterate over all child
+    levels.
+*/
+  //==========================================================================
+  interface ChildIterator
+  {
+/*! \brief Initialization of the Iterator.
+
+Activates the %ChildIterator.
+*/
+    void Init();
+    const string Init__doc__ = "Activates the ChildIterator.";
+/*! \brief Initialization of the Iterator for all child levels.
+
+Activates the %ChildIterator (if True) for all child levels.
+*/
+    void InitEx(in boolean allLevels);
+    const string InitEx__doc__ = "Activates the ChildIterator (if True) for all child levels.";
+/*! \brief Method More
+
+    Returns True if the %ChildIterator finds one more child level.
+*/
+    boolean More();
+    const string More__doc__ = "Returns True if the ChildIterator finds one more child level.";
+/*!
+    Passes the iterator to the next level.
+*/
+    void Next();
+    const string Next__doc__ = "Passes the iterator to the next level.";
+/*!
+    Returns the %SObject corresponding to the current object found by the iterator.
+*/
+    SObject Value();
+    const string Value__doc__ = "Returns the SObject corresponding to the current object found by the iterator.";
+  };
+    const string ChildIterator__doc__ = "This interface contains methods which allow to iterate over all child levels.";
+
+  //==========================================================================
+  //==========================================================================
+/*! \brief Interface of the %UseCaseIterator.
+
+   This interface contains a set of methods used for iteration over the objects in the use case.
+*/
+  interface UseCaseIterator
+  {
+/*! \brief Initialization of the Iterator.
+
+Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is activated for all subobjects.
+*/
+    void Init(in boolean allLevels);
+    const string Init__doc__ = "Activates the UseCaseIterator. \nIf the value of the parameter allLevels is True the Iterator is activated for all subobjects.";
+/*! \brief Method More
+
+    Returns True if the %UseCaseIterator finds one more object.
+*/
+    boolean More();
+    const string More__doc__ = "Returns True if the UseCaseIterator finds one more object.";
+/*!
+    Passes the iterator to the next object.
+*/
+    void Next();
+    const string Next__doc__ = "Passes the iterator to the next object.";
+/*!
+    Returns the %SObject corresponding to the current object found by the Iterator.
+*/
+    SObject Value();
+    const string Value__doc__ = "Returns the SObject corresponding to the current object found by the Iterator.";
+  };
+    const string UseCaseIterator__doc__ = "This interface contains a set of methods used for \niteration over the objects in the use case.";
+
+  //==========================================================================
+  //==========================================================================
+/*! \brief Interface of the %UseCaseBuilder
+
+   Use case in the study represents a user-managed subtree, containing all or some of the objects which exist in the study.
+   The %UseCaseBuilder interface contains a set of methods used for management of the use case in the study.
+*/
+  interface UseCaseBuilder
+  {
+/*!
+   Adds to the use case an object <VAR>theObject</VAR> as a child of the current object of the use case.
+*/
+    boolean Append(in SObject theObject);
+    const string Append__doc__ = "Adds to the use case an object as a child of the current object of the use case.";
+/*!
+   Removes an object <VAR>theObject</VAR> from the use case.
+*/
+    boolean Remove(in SObject theObject);
+    const string Remove__doc__ = "Removes an object from the use case.";
+/*!
+   Adds a child object <VAR>theObject</VAR> to the given father <VAR>theFather</VAR> object in the use case.
+*/
+    boolean AppendTo(in SObject theFather, in SObject theObject);
+    const string AppendTo__doc__ = "Adds a child object to the given father object in the use case.";
+/*!
+    Inserts in the use case the object <VAR>theFirst</VAR> before the object <VAR>theNext</VAR>.
+*/
+    boolean InsertBefore(in SObject theFirst, in SObject theNext);
+    const string InsertBefore__doc__ = "Inserts in the use case an object before another object.";
+/*!
+    Sets the current object of the use case.
+*/
+    boolean SetCurrentObject(in SObject theObject);
+    const string SetCurrentObject__doc__ = "Sets the current object of the use case.";
+/*!
+    Makes the root object to be the current object of the use case.
+*/
+    boolean SetRootCurrent();
+    const string SetRootCurrent__doc__ = "Makes the root object to be the current object of the use case.";
+/*!
+   Returns True if the given object <VAR>theObject</VAR> of the use case has child objects.
+*/
+    boolean HasChildren(in SObject theObject);
+    const string HasChildren__doc__ = "Returns True if the given object of the use case has child objects.";
+/*!
+   Sets the name of the use case.
+*/
+    boolean SetName(in string theName);
+    const string SetName__doc__ = "Sets the name of the use case.";
+/*!
+   Gets the name of the use case.
+*/
+    string GetName();
+    const string GetName__doc__ = "Gets the name of the use case.";
+/*!
+   Returns True if the given object <VAR>theObject</VAR> represents a use case.
+*/
+    boolean IsUseCase(in SObject theObject);
+    const string IsUseCase__doc__ = "Returns True if the given object represents a use case.";
+/*!
+    Gets the current object of the use case.
+*/
+    SObject GetCurrentObject();
+    const string GetCurrentObject__doc__ = "Gets the current object of the use case.";
+/*!
+    Creates a new use case in the use case browser.
+*/
+    SObject AddUseCase(in string theName);
+    const string AddUseCase__doc__ = "Creates a new use case in the use case browser.";
+/*!
+    Returns the %UseCaseIterator for the given object <VAR>theObject</VAR> in the use case.
+*/
+    UseCaseIterator GetUseCaseIterator(in SObject theObject);
+    const string GetUseCaseIterator__doc__ = "Returns the UseCaseIterator for the given object in the use case.";
+  };
+    const string UseCaseBuilder__doc__ = "The UseCaseBuilder interface contains a set of methods \nused for management of the use case in the study.";
+  //==========================================================================
+  //==========================================================================
+/*! \brief The callback interface  
+
+  The %StudyBuilder can be created with the method <VAR>NewBuilder</VAR>. While invocation of this method a new object of the class <VAR>Callback</VAR> is created
+  and this object is assigned to the newly created Builder as callback which should be called when adding and removing of the ojects.
+*/
+  interface Callback
+  {
+/*!
+     Invokes the corresponding method <VAR>Append</VAR> of the %UseCaseBuilder.
+*/
+     void OnAddSObject(in SObject theObject);
+     const string OnAddSObject__doc__ = "Invokes the corresponding method Append of the UseCaseBuilder.";
+/*!
+     Invokes the corresponding method <VAR>Remove</VAR> of the %UseCaseBuilder.
+*/
+     void OnRemoveSObject(in SObject theObject);
+     const string OnRemoveSObject__doc__ = "Invokes the corresponding method Remove of the UseCaseBuilder.";
+  };
+     const string Callback__doc__ = "The callback interface contains a set of methods which are called \nwhen adding or removing of the objects by the StudyBuilder.";
+
+  //==========================================================================
+/*! \brief %Driver interface
+
+    This interface contains a set of methods used for the management
+     of the object produced in the %study by a component.
+*/
+  //==========================================================================
+  interface Driver
+  {
+
+    /*! \brief Saving the data.
+
+        This method is called by the StudyManager when saving a study.
+       \param theComponent    %SComponent corresponding to this Component
+       \return A byte stream TMPFile that contains all saved data
+
+<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+     */
+
+
+    TMPFile Save(in SComponent theComponent, in string theURL, in boolean isMultiFile);
+    const string Save__doc__ = "This method is called  by the StudyManager when saving a study.";
+
+
+    /*! \brief Loading the data.
+
+       This method is called by the StudyManager when opening a study.
+       \param theComponent      %SComponent corresponding to this Component
+       \param theStream   The file which contains all data saved by the component on Save method
+     */
+
+    boolean Load(in SComponent theComponent, in TMPFile theStream, in string theURL, in boolean isMultiFile);
+    const string Load__doc__ = "This method is called  by the StudyManager when opening a study.";
+
+
+    /*! \brief Closing of the study
+
+      This method Close is called by the StudyManager when closing a study.
+
+     */
+
+    void Close (in SComponent aSComponent);
+    const string Close__doc__ = "This method Close is called by the StudyManager when closing a study.";
+    //void Close ( in string  aIORSComponent);
+
+    /*! \brief The type of the data
+
+        Returns the type of data produced by the Component in the study.
+     */
+
+     string ComponentDataType();
+     const string ComponentDataType__doc__ = "Returns the type of data produced by the Component in the study.";
+
+    // Driver Transient -> persistent called for each object in study
+/*!
+   Transforms IOR into PersistentID of the object. It is called for each
+   object in the %study.
+*/
+    string IORToLocalPersistentID (in SObject theSObject, in string IORString, in boolean isMultiFile);
+    const string IORToLocalPersistentID__doc__ = "Transforms IOR into PersistentID of the object.";
+/*!
+  Transforms PersistentID into IOR of the object. It is called for each
+   object in the %study.
+*/
+    string LocalPersistentIDToIOR (in SObject theSObject, in string aLocalPersistentID, in boolean isMultiFile)
+      raises (SALOME::SALOME_Exception);
+    const string LocalPersistentIDToIOR__doc__ = "Transforms PersistentID into IOR of the object.";
+
+    // Publishing in the study
+/*! \brief Publishing in the study
+
+    Returns True if the given %Component can publish the %object in the %study.
+*/
+    boolean CanPublishInStudy(in Object theIOR) raises (SALOME::SALOME_Exception);
+    const string CanPublishInStudy__doc__ = "Returns True if the given Component can publish the object in the study.";
+/*! \brief Publishing in the study
+
+   Publishes the given object in the %study, using the algorithm of this component.
+    \param theStudy     The %study in which the object is published
+    \param theSObject     If this parameter is null the object is published for the first time. Otherwise
+    this parameter should contain a reference to the object published earlier
+    \param theObject      The object which is published
+    \param theName      The name of the published object. If this parameter is empty, the name is generated
+    automatically by the component.
+*/
+    SObject PublishInStudy(in Study theStudy, in SObject theSObject, in Object theObject, in string theName);
+    const string PublishInStudy__doc__ = "Publishes the given object in the study, using the algorithm of this component.";
+
+    // copy/paste methods
+
+/*!
+    Returns True, if the given %SObject can be copied to the clipboard.
+*/
+    boolean CanCopy(in SObject theObject);
+    const string CanCopy__doc__ = "Returns True, if the given SObject can be copied to the clipboard.";
+/*!
+    Returns the object %ID and the %TMPFile of the object from the given %SObject.
+*/
+    TMPFile CopyFrom(in SObject theObject, out long theObjectID);
+    const string CopyFrom__doc__ = "Returns the object ID and the TMPFile of the object from the given SObject.";
+/*!
+    Returns True, if the component can paste the object with given %ID of the component with name <VAR>theComponentName</VAR>.
+*/
+    boolean CanPaste(in string theComponentName, in long theObjectID);
+    const string CanPaste__doc__ = "Returns True, if the component can paste the object with given ID of the component with name <VAR>theComponentName</VAR>.";
+/*!
+    Returns the %SObject of the pasted object.
+*/
+    SObject PasteInto(in TMPFile theStream, in long theObjectID, in SObject theObject);
+    const string PasteInto__doc__ = "Returns the SObject of the pasted object.";
+
+  };
+    const string Driver__doc__ = "This interface contains a set of methods used for the management \nof the object produced in the study by a component.";
+};
+ 
+#endif

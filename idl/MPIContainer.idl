@@ -1,0 +1,15 @@
+#ifndef _SALOME_MPICONTAINER_IDL_
+#define _SALOME_MPICONTAINER_IDL_
+
+#include "SALOME_Component.idl"
+#include "MPIObject.idl"
+
+module Engines
+{
+  interface MPIContainer:Container,MPIObject
+  {
+  } ;
+} ;
+
+#endif
+

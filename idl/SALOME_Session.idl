@@ -1,0 +1,88 @@
+//=============================================================================
+// File      : SALOME_Session.idl
+// Created   : mar jun 19 09:15:07 CEST 2001
+// Author    : Paul RASCLE, EDF
+// Project   : SALOME
+// Copyright : EDF 2001
+// $Header$
+//=============================================================================
+
+
+//***//#include "VISU_Gen.idl"
+/*! \defgroup Kernel SALOME KERNEL module
+*/
+
+/*!  \ingroup Kernel 
+   
+  This package contains interfaces used for management of the session in %SALOME application.
+*/
+module SALOME
+{
+/*! \brief State of the session
+   
+   This enumeration contains values defining the state of the session
+  
+*/ 
+  enum SessionState {asleep, running} ;
+
+/*! \brief %Session State and Statistics
+
+
+    This struct contains a field list with general information about the session 
+*/
+   
+  struct StatSession
+  {
+/*! \brief State of the session
+  
+   It can be:
+   *     -# asleep  : no running study
+   *     -# running : one or more running studies
+*/
+    SessionState state ; 
+/*! Number of running studies
+*/
+    short        runningStudies ;
+/*! It is True if GUI is active in the session
+*/
+    boolean      activeGUI ;
+  } ;
+/*! \brief Interface of the session
+
+    The %session Server launches and stops GUI (Graphical User Interface).
+    The %session can be active without GUI (It can contain one or more running studies)
+*/
+
+  interface Session
+  {
+/*! 
+   This exception is raised when trying to stop the %session with active GUI
+*/
+    exception GUIActive {} ;
+/*! 
+   This exception is raised when trying to stop the %session with a number of running studies.
+*/
+    exception RunningStudies {} ;  
+
+/*! 
+   Launches GUI in the session
+*/
+    void GetInterface(); 
+    //***//    VISU::VISU_Gen GetVisuGen();
+
+/*! 
+  Stops the %Session (It must be idle)
+*/
+    void StopSession() raises(GUIActive, RunningStudies) ;
+
+/*! 
+  Gets Session State
+*/
+    StatSession GetStatSession() ;
+/*! 
+    Determines whether the server has already been loaded or not.
+*/ 
+    void ping();
+  } ;
+
+} ;

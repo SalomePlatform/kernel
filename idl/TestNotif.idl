@@ -1,0 +1,10 @@
+# ifndef __TESTNOTIF_IDL_
+# define __TESTNOTIF_IDL_
+
+interface Solver
+{
+  boolean Connect();
+  oneway void Start() ;
+  oneway void ReStart() ;
+} ;
+# endif

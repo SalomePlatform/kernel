@@ -1,0 +1,46 @@
+// File: SALOME_RessourcesCatalog.idl
+// Created: Mon Sep 10 2001
+// Author: Estelle Deville
+// Project: SALOME
+// Copyright : CEA/DEN/DMSS/LGLS
+// $Header$
+
+module SALOME_RessourcesCatalog{
+  // Type Definitions
+
+  //Proc_info : information about a processor
+  struct proc_info{
+    long number;
+    string model_name;
+    float cpu_mhz;
+    float cache_size;
+  };
+
+  typedef sequence<proc_info> ListOfProc;
+
+  //Computer_info : information about a computer
+  // Os and informations about processors
+  struct computer_info{
+    string name;
+    string OS;
+    string OS_version;
+    ListOfProc procs;
+  };
+
+  enum ContainerType {Cpp, python, NP};
+  typedef sequence<ContainerType> ListOfContainerType;
+
+  typedef sequence<string> ListOfComputer;
+
+  // exception thrown if a computer is not found in the catalog 
+
+  exception NotFound {};
+
+  //------------------------------------------------------------------
+  //Interface
+  interface RessourcesCatalog {
+    ListOfComputer GetComputerList();
+    ListOfContainerType GetContainerTypeList (in string computer) raises(NotFound);
+    computer_info GetComputerInfo(in string computer) raises(NotFound);
+  };
+};

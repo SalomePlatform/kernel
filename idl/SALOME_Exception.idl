@@ -1,0 +1,51 @@
+//=============================================================================
+// File      : SALOME_Exception.idl
+// Created   : mar déc 18 17:57:27 CET 2001
+// Author    : Paul RASCLE, EDF
+// Project   : SALOME
+// Copyright : EDF 2001
+// $Header$
+//=============================================================================
+
+/*! \file SALOME_Exception.idl This file contains the objects defining the main exception used
+in %SALOME application.
+*/ 
+#ifndef _SALOME_EXCEPTION_IDL_
+#define _SALOME_EXCEPTION_IDL_
+
+/*! 
+Module SALOME regroups all idl definitions for SALOME Kernel
+*/ 
+
+module SALOME
+{
+/*! 
+This enumeration contains the elements indicating the type of the exception.
+*/  
+  enum ExceptionType
+    { 
+      COMM,             /*!< Communication problem */
+      BAD_PARAM,        /*!< Bad User parameters */
+      INTERNAL_ERROR    /*!< SALOME Bug, irrecoverable */ 
+    };
+/*! 
+This struct contains a set of fields defining the structure of the exception.
+*/
+  struct ExceptionStruct
+  {
+    ExceptionType type; /*!<Type of the exception.*/
+    string        text; /*!<Message which is shown when the exception is raised.*/
+    string        sourceFile; /*!<The source file where the exception is raised.*/
+    unsigned long lineNumber; /*!<Number of the line of the source file where the exception is raised.*/
+  };
+/*!
+The main exception in %SALOME application.
+*/
+  exception SALOME_Exception
+  {
+    ExceptionStruct details;
+  };
+
+};
+
+#endif

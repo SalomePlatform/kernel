@@ -1,0 +1,33 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar jui  3 12:58:13 CEST 2001
+#  Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+#  Project   : SALOME
+#  Copyright : EDF 2001 - CEA 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+@COMMENCE@
+
+EXPORT_PYSCRIPTS = SALOME_TestComponentPy.py TestComponentPy.py
+
+# Libraries targets
+
+LIB = libSalomeTestComponentEngine.la 
+LIB_SRC = SALOME_TestComponent_i.cxx
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl
+
+# Executables targets
+BIN = TestContainer
+BIN_SRC = 
+
+LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSalomeLoggerServer
+CPPFLAGS+= -I../Logger
+
+@CONCLUDE@

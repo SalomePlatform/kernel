@@ -1,0 +1,3 @@
+#ifndef _SALOME_NumberFilter_HeaderFile
+#include "SALOME_NumberFilter.hxx"
+#endif
