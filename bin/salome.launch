@@ -11,6 +11,7 @@
 	        <module name="SMESH">
 			<plugin name="NETGENPlugin"/>
 	        </module>
+		<module name="DATA"/>
 	        <module name="VISU"/>
 	        <module name="SUPERV"/>
 	        <module name="MED"/>
