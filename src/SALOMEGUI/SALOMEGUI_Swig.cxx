@@ -44,14 +44,26 @@
 
 using namespace std;
 
+// asv : 3.12.04 : added checking for NULL GUI objects in almost all methods.  In the scope 
+// of fixing bug PAL6869.  Instance of this class is created every time "import salome" line 
+// is typed in stand-alone (Python console) or embedded (InLine nodes in Supervisor) python.
+// SALOME GUI may not be created at this time (desktop and other objects), so checking if they
+// are equal to NULL is neccessary.
+
 namespace SALOME{
-  QAD_ViewFrame* GetViewFrame(QAD_Study* theStudy){
-    return theStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame();
+  QAD_ViewFrame* GetViewFrame( QAD_Study* theStudy ) {
+    if ( theStudy )
+      if ( QAD_StudyFrame* aSF = theStudy->getActiveStudyFrame() )
+	if ( QAD_RightFrame* aRF = aSF->getRightFrame() )
+	  return aRF->getViewFrame();
+    return 0;
   }
 
-  Handle(SALOME_InteractiveObject) FindIObject(QAD_Study* theStudy, const char *theEntry)
+  Handle(SALOME_InteractiveObject) FindIObject( QAD_Study* theStudy, const char *theEntry )
   {
-    return GetViewFrame(theStudy)->FindIObject(theEntry);
+    if ( QAD_ViewFrame* aVF = GetViewFrame( theStudy ) )
+      return aVF->FindIObject( theEntry );
+    return Handle(SALOME_InteractiveObject)(); // NULL Handle 
   }
 }
 
@@ -77,8 +89,9 @@ SALOMEGUI_Swig::~SALOMEGUI_Swig()
 */
 QAD_Study* SALOMEGUI_Swig::getActiveStudy()
 {
-  if(QAD_Application* app = QAD_Application::getDesktop()->getActiveApp()) 
-    return app->getActiveStudy();
+  if ( QAD_Desktop* aDT = QAD_Application::getDesktop() )       
+    if ( QAD_Application* anApp = aDT->getActiveApp() )
+      return anApp->getActiveStudy();
   return 0;
 }
 
@@ -87,9 +100,9 @@ QAD_Study* SALOMEGUI_Swig::getActiveStudy()
 */
 void SALOMEGUI_Swig::updateObjBrowser( bool updateSelection )
 {
-  if(QAD_Study* myActiveStudy = getActiveStudy())
-    ProcessVoidEvent(new TVoidMemFun1ArgEvent<QAD_Study,bool>
-		     (myActiveStudy,&QAD_Study::updateObjBrowser,updateSelection));
+  if ( QAD_Study* aStudy = getActiveStudy() )
+    ProcessVoidEvent( new TVoidMemFun1ArgEvent<QAD_Study,bool>
+		     ( aStudy, &QAD_Study::updateObjBrowser,updateSelection) );
 }
 
 /*!
@@ -97,8 +110,8 @@ void SALOMEGUI_Swig::updateObjBrowser( bool updateSelection )
 */
 int SALOMEGUI_Swig::getActiveStudyId()
 {
-  if(QAD_Study* myActiveStudy = getActiveStudy())
-    return myActiveStudy->getStudyId();
+  if ( QAD_Study* aStudy = getActiveStudy() )
+    return aStudy->getStudyId();
   return 0;
 }
 
@@ -107,9 +120,9 @@ int SALOMEGUI_Swig::getActiveStudyId()
 */
 const char *SALOMEGUI_Swig::getActiveStudyName()
 {
-  if(QAD_Study* myActiveStudy = getActiveStudy())
-    return myActiveStudy->getTitle().latin1();
-  return QString::null;
+  if ( QAD_Study* aStudy = getActiveStudy() )
+    return aStudy->getTitle().latin1();
+  return NULL;
 }
 
 /*!
@@ -117,14 +130,18 @@ const char *SALOMEGUI_Swig::getActiveStudyName()
 */
 const char* SALOMEGUI_Swig::getComponentName( const char* ComponentUserName )
 {
-  return QAD_Application::getDesktop()->getComponentName( ComponentUserName );
+  if ( QAD_Desktop* aDT = QAD_Application::getDesktop() )
+    return aDT->getComponentName( ComponentUserName );
+  return NULL;
 }
 /*!
   Returns the user name of component.
 */
 const char* SALOMEGUI_Swig::getComponentUserName( const char* ComponentName )
 {
-  return QAD_Application::getDesktop()->getComponentUserName( ComponentName );
+  if ( QAD_Desktop* aDT = QAD_Application::getDesktop() )
+    return aDT->getComponentUserName( ComponentName );
+  return NULL;
 }
 
 /*!
@@ -132,8 +149,8 @@ const char* SALOMEGUI_Swig::getComponentUserName( const char* ComponentName )
 */
 int SALOMEGUI_Swig::SelectedCount()
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    SALOME_Selection* Sel = SALOME_Selection::Selection(myStudy->getSelection());
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    SALOME_Selection* Sel = SALOME_Selection::Selection( aStudy->getSelection() );
     return Sel->IObjectCount();
   }
   return 0;
@@ -142,13 +159,13 @@ int SALOMEGUI_Swig::SelectedCount()
 /*!
   Returns the selected object at index i.
 */
-const char* SALOMEGUI_Swig::getSelected(int i)
+const char* SALOMEGUI_Swig::getSelected( int i )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    SALOME_Selection* Sel = SALOME_Selection::Selection( myStudy->getSelection() );
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    SALOME_Selection* Sel = SALOME_Selection::Selection( aStudy->getSelection() );
     SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
     int index = 0;
-    for(;It.More();It.Next()){
+    for( ;It.More();It.Next() ) {
 	Handle(SALOME_InteractiveObject) IObject = It.Value();
 	if( i == index++ ){
 	  if ( IObject->hasEntry() )
@@ -162,17 +179,17 @@ const char* SALOMEGUI_Swig::getSelected(int i)
 /*!
   Add object with Entry into selection.
 */
-void SALOMEGUI_Swig::AddIObject(const char *theEntry)
+void SALOMEGUI_Swig::AddIObject( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    SALOME_Selection* aSel = SALOME_Selection::Selection( myStudy->getSelection() );
-    if(IsInCurrentView(theEntry)){
-      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject(myStudy,theEntry);
-      if(anIO.IsNull())	return;
-      ProcessEvent(new TMemFun2ArgEvent<SALOME_Selection,int,
-		   const Handle(SALOME_InteractiveObject)&,bool,
-		   Handle(SALOME_InteractiveObject)>
-      		   (aSel,&SALOME_Selection::AddIObject,anIO,true));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    SALOME_Selection* aSel = SALOME_Selection::Selection( aStudy->getSelection() );
+    if ( IsInCurrentView( theEntry ) ) {
+      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject( aStudy,theEntry );
+      if ( anIO.IsNull() )  return;
+      ProcessEvent( new TMemFun2ArgEvent<SALOME_Selection,int,
+	            const Handle(SALOME_InteractiveObject)&,bool,
+		    Handle(SALOME_InteractiveObject)>
+      		    ( aSel, &SALOME_Selection::AddIObject, anIO, true ) );
     }
   }
 }
@@ -181,17 +198,17 @@ void SALOMEGUI_Swig::AddIObject(const char *theEntry)
 /*!
   Removes object with Entry into selection.
 */
-void SALOMEGUI_Swig::RemoveIObject(const char *theEntry)
+void SALOMEGUI_Swig::RemoveIObject( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    SALOME_Selection* aSel = SALOME_Selection::Selection( myStudy->getSelection() );
-    if(IsInCurrentView(theEntry)){
-      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject(myStudy,theEntry);
-      if(anIO.IsNull())	return;
-      ProcessEvent(new TMemFun2ArgEvent<SALOME_Selection,int,
-		   const Handle(SALOME_InteractiveObject)&,bool,
-		   Handle(SALOME_InteractiveObject)>
-      		   (aSel,&SALOME_Selection::RemoveIObject,anIO,true));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    SALOME_Selection* aSel = SALOME_Selection::Selection( aStudy->getSelection() );
+    if ( IsInCurrentView( theEntry ) ) {
+      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject( aStudy,theEntry );
+      if ( anIO.IsNull() ) return;
+      ProcessEvent( new TMemFun2ArgEvent<SALOME_Selection,int,
+		    const Handle(SALOME_InteractiveObject)&, bool,
+		    Handle(SALOME_InteractiveObject)>
+      		    ( aSel, &SALOME_Selection::RemoveIObject, anIO, true ) );
     }
   }
 }
@@ -202,27 +219,27 @@ void SALOMEGUI_Swig::RemoveIObject(const char *theEntry)
 */
 void SALOMEGUI_Swig::ClearIObjects()
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    SALOME_Selection* aSel = SALOME_Selection::Selection( myStudy->getSelection() );
-    ProcessVoidEvent(new TVoidMemFunEvent<SALOME_Selection>
-		     (aSel,&SALOME_Selection::ClearIObjects));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    SALOME_Selection* aSel = SALOME_Selection::Selection( aStudy->getSelection() );
+    ProcessVoidEvent( new TVoidMemFunEvent<SALOME_Selection>
+		     ( aSel, &SALOME_Selection::ClearIObjects ) );
   }
 }
 
 /*!
   Display
 */		
-void SALOMEGUI_Swig::Display(const char *theEntry)
+void SALOMEGUI_Swig::Display( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    if(IsInCurrentView(theEntry)){
-      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject(myStudy,theEntry);
-      if(anIO.IsNull())	return;
-      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame(myStudy);
-      ProcessVoidEvent(new TVoidMemFun2ArgEvent<QAD_ViewFrame,
-		       const Handle(SALOME_InteractiveObject)&,bool,
-		       Handle(SALOME_InteractiveObject)>
-		       (aViewFrame,&QAD_ViewFrame::Display,anIO,true));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    if ( IsInCurrentView( theEntry ) ) {
+      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject( aStudy, theEntry );
+      if ( anIO.IsNull() )  return;
+      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame( aStudy );
+      ProcessVoidEvent( new TVoidMemFun2ArgEvent<QAD_ViewFrame,
+		        const Handle(SALOME_InteractiveObject)&, bool,
+		        Handle(SALOME_InteractiveObject)>
+		        ( aViewFrame, &QAD_ViewFrame::Display, anIO, true ) );
     }
   }
 }
@@ -230,17 +247,17 @@ void SALOMEGUI_Swig::Display(const char *theEntry)
 /*!
   Display only
 */
-void SALOMEGUI_Swig::DisplayOnly(const char *theEntry)
+void SALOMEGUI_Swig::DisplayOnly( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    if(IsInCurrentView(theEntry)){
-      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject(myStudy,theEntry);
-      if(anIO.IsNull())	return;
-      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame(myStudy);
-      ProcessVoidEvent(new TVoidMemFun1ArgEvent<QAD_ViewFrame,
-		       const Handle(SALOME_InteractiveObject)&,
-		       Handle(SALOME_InteractiveObject)>
-		       (aViewFrame,&QAD_ViewFrame::DisplayOnly,anIO));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    if ( IsInCurrentView( theEntry ) ) {
+      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject( aStudy, theEntry );
+      if ( anIO.IsNull() )  return;
+      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame( aStudy );
+      ProcessVoidEvent( new TVoidMemFun1ArgEvent<QAD_ViewFrame,
+		        const Handle(SALOME_InteractiveObject)&,
+		        Handle(SALOME_InteractiveObject)>
+		        ( aViewFrame, &QAD_ViewFrame::DisplayOnly, anIO ) );
     }
   }
 }
@@ -248,17 +265,17 @@ void SALOMEGUI_Swig::DisplayOnly(const char *theEntry)
 /*!
   Erase
 */
-void SALOMEGUI_Swig::Erase(const char *theEntry)
+void SALOMEGUI_Swig::Erase( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    if(IsInCurrentView(theEntry)){
-      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject(myStudy,theEntry);
-      if(anIO.IsNull())	return;
-      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame(myStudy);
-      ProcessVoidEvent(new TVoidMemFun2ArgEvent<QAD_ViewFrame,
-		       const Handle(SALOME_InteractiveObject)&,bool,
-		       Handle(SALOME_InteractiveObject)>
-		       (aViewFrame,&QAD_ViewFrame::Erase,anIO,true));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    if ( IsInCurrentView( theEntry ) ) {
+      Handle(SALOME_InteractiveObject) anIO = SALOME::FindIObject( aStudy, theEntry );
+      if ( anIO.IsNull() )  return;
+      QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame( aStudy );
+      ProcessVoidEvent( new TVoidMemFun2ArgEvent<QAD_ViewFrame,
+		        const Handle(SALOME_InteractiveObject)&, bool,
+		        Handle(SALOME_InteractiveObject)>
+		        ( aViewFrame, &QAD_ViewFrame::Erase, anIO, true ) );
     }
   }
 }
@@ -268,10 +285,10 @@ void SALOMEGUI_Swig::Erase(const char *theEntry)
 */
 void SALOMEGUI_Swig::DisplayAll()
 {
-  if(QAD_Study* myStudy = getActiveStudy()){
-    QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame(myStudy);
-    ProcessVoidEvent(new TVoidMemFunEvent<QAD_ViewFrame>
-		     (aViewFrame,&QAD_ViewFrame::DisplayAll));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame( aStudy );
+    ProcessVoidEvent( new TVoidMemFunEvent<QAD_ViewFrame>
+		      ( aViewFrame, &QAD_ViewFrame::DisplayAll ) );
   }
 }
 
@@ -281,19 +298,19 @@ void SALOMEGUI_Swig::DisplayAll()
 void SALOMEGUI_Swig::EraseAll()
 {
   ClearIObjects();
-  if(QAD_Study* myStudy = getActiveStudy()){
-    QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame(myStudy);
-    ProcessVoidEvent(new TVoidMemFunEvent<QAD_ViewFrame>
-		     (aViewFrame,&QAD_ViewFrame::EraseAll));
+  if ( QAD_Study* aStudy = getActiveStudy() ) {
+    QAD_ViewFrame* aViewFrame = SALOME::GetViewFrame( aStudy );
+    ProcessVoidEvent ( new TVoidMemFunEvent<QAD_ViewFrame>
+		      ( aViewFrame, &QAD_ViewFrame::EraseAll ) );
   }
 }
 
 /*!
   Checks if object is displayed in current viewer
 */
-bool SALOMEGUI_Swig::IsInCurrentView(const char *theEntry)
+bool SALOMEGUI_Swig::IsInCurrentView( const char *theEntry )
 {
-  if(QAD_Study* myStudy = getActiveStudy())
-    return myStudy->isInViewer( theEntry, myStudy->getActiveStudyFrame()->entry() );
+  if ( QAD_Study* aStudy = getActiveStudy() )
+    return aStudy->isInViewer( theEntry, aStudy->getActiveStudyFrame()->entry() );
   return false;
 }
