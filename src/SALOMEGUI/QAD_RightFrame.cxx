@@ -118,8 +118,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libOCCViewer.dll" ;
 #else
@@ -181,8 +179,6 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
     if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
