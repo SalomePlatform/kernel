@@ -81,6 +81,8 @@ using namespace std;
 #include <OSD_Function.hxx>
 #include <TCollection_AsciiString.hxx>
 
+static const char* SEPARATOR    = ":";
+
 extern "C"
 {
 # include <string.h>
@@ -245,14 +247,23 @@ myQueryClose( true )
     /* find component icon */
     QString iconfile = strdup(list_composants[ind].moduleicone) ;
     QString modulename = strdup(list_composants[ind].modulename) ;
+    QString moduleusername = strdup(list_composants[ind].moduleusername) ;
+
+    MESSAGE ( " MODULE = " << modulename )
+    MESSAGE ( " MODULE icon = " << iconfile )
+    MESSAGE ( " MODULE username = " << moduleusername )
+
+    mapComponentName.insert( moduleusername, modulename );
+      
     resDir = resMgr->findFile(iconfile,modulename) ;
     if (resDir)
       {
+	MESSAGE ( "resDir" << resDir )
 	//resDir = QAD_Tools::addSlash(resDir) ;
 	//QPixmap Icone(resDir+iconfile) ;
 	QPixmap Icone( QAD_Tools::addSlash( resDir ) + iconfile );
 	QToolButton * toolb = 
-	  new QToolButton( QIconSet( Icone ), modulename, QString::null, this, 
+	  new QToolButton( QIconSet( Icone ), moduleusername, QString::null, this, 
 			   SLOT( onButtonActiveComponent () ),tbComponent );
 	toolb->setToggleButton( true );
 	myComponentButton.append(toolb);
@@ -265,7 +276,7 @@ myQueryClose( true )
       }
 
     if ( !QString(list_composants[ind].modulename).isEmpty() )
-      myCombo->insertItem( strdup(list_composants[ind].modulename) );
+      myCombo->insertItem( strdup(list_composants[ind].moduleusername) );
 
   }
 
@@ -757,7 +768,7 @@ void QAD_Desktop::createActions()
     
     myPrefPopup.insertSeparator();
 
-    QAction* dirAction = new QAction( "", tr("MEN_DESK_PREF_DIRICTORIES"), 0, this );
+    QAction* dirAction = new QAction( "", tr("MEN_DESK_PREF_DIRICTORIES"), ALT+Key_D, this );
     QAD_ASSERT(connect( dirAction, SIGNAL(activated()), this, SLOT(onDirList() )));
     dirAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefDirsId, dirAction );
@@ -774,17 +785,17 @@ void QAD_Desktop::createActions()
     //NRI : SAL2214
     myWindowPopup.insertItem( tr("MEN_DESK_WINDOW_NEW3D"), &myNewViewPopup, WindowNew3dId );
     
-    QAction* viewOCCAction = new QAction( "", tr("MEN_DESK_VIEW_OCC"), 0, this );
+    QAction* viewOCCAction = new QAction( "", tr("MEN_DESK_VIEW_OCC"), ALT+Key_O, this );
     QAD_ASSERT(connect( viewOCCAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewOCCAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewOCCId, viewOCCAction );
 
-    QAction* viewVTKAction = new QAction( "", tr("MEN_DESK_VIEW_VTK"), 0, this );
+    QAction* viewVTKAction = new QAction( "", tr("MEN_DESK_VIEW_VTK"), ALT+Key_V, this );
     QAD_ASSERT(connect( viewVTKAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewVTKAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewVTKId, viewVTKAction );
 
-    QAction* viewPlot2dAction = new QAction( "", tr("MEN_DESK_VIEW_PLOT2D"), 0, this );
+    QAction* viewPlot2dAction = new QAction( "", tr("MEN_DESK_VIEW_PLOT2D"), ALT+Key_P, this );
     QAD_ASSERT(connect( viewPlot2dAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewPlot2dAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewPlot2dId, viewPlot2dAction );
@@ -819,7 +830,7 @@ void QAD_Desktop::createActions()
     /* 'Help' actions
      */
     /* contents */
-    QAction* helpContentsAction = new QAction( "", tr("MEN_DESK_HELP_CONTENTS"), 0, this );
+    QAction* helpContentsAction = new QAction( "", tr("MEN_DESK_HELP_CONTENTS"), Key_F1, this );
     helpContentsAction->setStatusTip ( tr("PRP_DESK_HELP_CONTENTS") );
     QAD_ASSERT(connect( helpContentsAction, SIGNAL(activated()),
 			this, SLOT( onHelpContents() )));
@@ -1115,6 +1126,23 @@ Engines::Component_var QAD_Desktop::getEngine(const char *containerName,
     myEnginesLifeCycle->FindOrLoad_Component(containerName,
 					     componentName);
   return eng._retn();
+}
+
+QString QAD_Desktop::getComponentName(const char *componentUserName)
+{
+  if ( mapComponentName.contains(componentUserName) )
+    return mapComponentName[ componentUserName ] ;
+  else
+    return "";
+}
+
+QString QAD_Desktop::getComponentUserName(const char *componentName)
+{
+  QMap<QString,QString>::Iterator it;
+  for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it )
+    if (it.data() == componentName )
+      return it.key();
+  return "";
 }
 
 /*!
@@ -1415,7 +1443,7 @@ void QAD_Desktop::onOpenStudy()
 				      tr("BUT_OK") );
 	    } else if (myActiveComp != "") {
 	      QApplication::setOverrideCursor( Qt::waitCursor );
-	      loadComponentData(myActiveComp);
+	      loadComponentData(mapComponentName[myActiveComp]);
 	      openStudy->updateObjBrowser(true);
 	      QApplication::restoreOverrideCursor();
 	    }
@@ -2106,7 +2134,7 @@ void QAD_Desktop::onOpenWith()
     if (SCO->FindAttribute(anAttr, "AttributeName")) {
       aName = SALOMEDS::AttributeName::_narrow(anAttr);
       name = aName->Value();
-      SALOME_ModuleCatalog::Acomponent_var Comp = myCatalogue->GetComponent( name );
+      SALOME_ModuleCatalog::Acomponent_var Comp = myCatalogue->GetComponent( mapComponentName[name] );
       if ( !Comp->_is_nil() ) {
 	
 	SALOME_ModuleCatalog::ListOfComponents_var list_type_composants =
@@ -2184,7 +2212,7 @@ bool QAD_Desktop::loadComponent(QString Component)
   QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
   if ( resMgr ) {
     QString msg;
-    if (!resMgr->loadResources( Component + "GUI", msg ))
+    if (!resMgr->loadResources( Component, msg ))
       {
 	//NRI	QCString errMsg;
 	//	errMsg.sprintf( "Do not load all resources for module %sGUI.\n" ,
@@ -2198,14 +2226,14 @@ bool QAD_Desktop::loadComponent(QString Component)
   /* Parse xml file */
   myXmlHandler = new QAD_XmlHandler();
   myXmlHandler->setMainWindow(this);
-  if (!myXmlHandler->setComponent(resMgr->resources(Component + "GUI"))) return false;
+  if (!myXmlHandler->setComponent(resMgr->resources( Component ))) return false;
 
-  QString language = resMgr->language( Component + "GUI" );
+  QString language = resMgr->language( Component );
 
   QString ComponentXml = Component + "_" + language + ".xml";
   //ComponentXml = resMgr->resources(Component + "GUI") ;
   //ComponentXml = QAD_Tools::addSlash(ComponentXml) ;
-  ComponentXml = QAD_Tools::addSlash( resMgr->findFile( ComponentXml, Component + "GUI" ) ) + ComponentXml;
+  ComponentXml = QAD_Tools::addSlash( resMgr->findFile( ComponentXml, Component ) ) + ComponentXml;
   QFile file( ComponentXml );
 
   if ( !file.exists() || !file.open( IO_ReadOnly ) )  {
@@ -2245,42 +2273,69 @@ bool QAD_Desktop::loadComponent(QString Component)
   mySharedLibrary = OSD_SharedLibrary();
 
   QString ComponentLib;
-  QCString dir;
+  QCString libs;
   QFileInfo fileInfo ;
-  bool found = false;
-  if ( dir = getenv("SALOME_SITE_DIR")) {
-    dir = QAD_Tools::addSlash(dir) ;
-    dir = dir + "lib" ;
-    dir = QAD_Tools::addSlash(dir) ;
+  QString fileString ;
+  QString dir;
+
+  if ( libs = getenv("LD_LIBRARY_PATH")) {
+    MESSAGE ( " LD_LIBRARY_PATH : " << libs )
+    QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
+    for ( int i = dirList.count()-1; i >= 0; i-- ) {
+      dir = dirList[ i ];
 #ifdef WNT
-    dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
+      fileString = QAD_Tools::addSlash( dir ) + "lib" + Component + "GUI.dll" ;
 #else
-    dir = dir + "lib" + Component.latin1() + "GUI.so" ;
+      fileString = QAD_Tools::addSlash( dir ) + "lib" + Component + "GUI.so" ;
 #endif
-    MESSAGE ( " GUI library = " << dir )
-    fileInfo.setFile(dir) ;
-    if (fileInfo.exists()) {
-      ComponentLib = fileInfo.fileName() ;
-      found = true;
+    
+      fileInfo.setFile(fileString) ;
+      if (fileInfo.exists()) {
+	MESSAGE ( " GUI library = " << fileString )
+	ComponentLib = fileInfo.fileName() ;
+	break;
+      }
     }
+    MESSAGE ( " GUI library not found " )
   }
+//    bool found = false;
+//    if ( dir = getenv("SALOME_SITE_DIR")) {
+//      dir = QAD_Tools::addSlash(dir) ;
+//      dir = dir + "lib" ;
+//      dir = QAD_Tools::addSlash(dir) ;
+//      dir = dir + "salome" ;
+//      dir = QAD_Tools::addSlash(dir) ;
+//  #ifdef WNT
+//      dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
+//  #else
+//      dir = dir + "lib" + Component.latin1() + "GUI.so" ;
+//  #endif
+//      MESSAGE ( " GUI library = " << dir )
+//      fileInfo.setFile(dir) ;
+//      if (fileInfo.exists()) {
+//        ComponentLib = fileInfo.fileName() ;
+//        found = true;
+//      }
+//    }
   
-  if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-    dir = QAD_Tools::addSlash(dir) ;
-    dir = dir + "lib" ;
-    dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-    dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
-#else
-    dir = dir + "lib" + Component.latin1() + "GUI.so" ;
-#endif
-    MESSAGE ( " GUI library = " << dir )
-    fileInfo.setFile(dir) ;
-    if (fileInfo.exists()) {
-      ComponentLib = fileInfo.fileName() ;
-      found = true;
-    }
-  }
+//    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
+//      dir = QAD_Tools::addSlash(dir) ;
+//      dir = dir + "lib" ;
+//      dir = QAD_Tools::addSlash(dir) ;
+//      dir = dir + "salome" ;
+//      dir = QAD_Tools::addSlash(dir) ;
+//  #ifdef WNT
+//      dir = dir + "lib" + Component.latin1() + "GUI.dll" ;
+//  #else
+//      dir = dir + "lib" + Component.latin1() + "GUI.so" ;
+//  #endif
+//      MESSAGE ( " GUI library = " << dir )
+//      fileInfo.setFile(dir) ;
+//      if (fileInfo.exists()) {
+//        ComponentLib = fileInfo.fileName() ;
+//        found = true;
+//      }
+//    }
 
   mySharedLibrary.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
   ok = mySharedLibrary.DlOpen(OSD_RTLD_LAZY);
@@ -2309,7 +2364,7 @@ bool QAD_Desktop::loadComponent(QString Component)
   }
 
   myActiveStudy->setMessage(QString("Component : ") +
-			    aComponent->componentname() + " created " );
+			    aComponent->componentusername() + " created " );
   myActiveStudy->setMessage(QString("Type : ") +
 			    QString::number(aComponent->component_type()));
   myActiveStudy->setMessage(QString("Constraint : ") +
@@ -2401,6 +2456,8 @@ void QAD_Desktop::onDispatchTools(int id)
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libToolsGUI.dll" ;
 #else
@@ -2417,6 +2474,8 @@ void QAD_Desktop::onDispatchTools(int id)
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
       dir = dir + "libToolsGUI.dll" ;
@@ -2438,6 +2497,8 @@ void QAD_Desktop::onDispatchTools(int id)
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
       dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
       dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
       MESSAGE ( " GUI library = " << dir );
       fileInfo.setFile(dir) ;
@@ -2450,6 +2511,8 @@ void QAD_Desktop::onDispatchTools(int id)
     if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
       MESSAGE ( " GUI library = " << dir );
@@ -2533,7 +2596,7 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	}
 
 	myActiveStudy->Selection( component );
-	if ( !loadComponent(component) ) {
+	if ( !loadComponent(mapComponentName[component]) ) {
 	  myCombo->setCurrentItem (0);
 	  for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
 	    aButton->setOn(false);
@@ -2554,7 +2617,7 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	}
 
 	// Open new component's data in active study if any
-	if(isLoadData) loadComponentData(component);
+	if(isLoadData) loadComponentData(mapComponentName[component]);
 
 	oldSel->Clear();
 	myActiveStudy->updateObjBrowser(true);

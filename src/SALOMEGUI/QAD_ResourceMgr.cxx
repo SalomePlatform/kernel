@@ -234,6 +234,24 @@ QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
   QString dir;
   char* cenv;
   
+  if ( !prefix.isEmpty() ) {
+    envVar = prefix.latin1() + QCString( "_ROOT_DIR" );
+    cenv = getenv( ( const char* ) envVar );
+    if ( cenv ) {
+      dir.sprintf( "%s", cenv );
+      if ( !dir.isEmpty() ) {
+	dir = QAD_Tools::addSlash(dir) ;
+	dir = dir + "share" ;
+	dir = QAD_Tools::addSlash(dir) ;
+	dir = dir + "salome" ;
+	dir = QAD_Tools::addSlash(dir) ;
+	dir = dir + "resources" ;
+	dir = QAD_Tools::addSlash(dir) ;
+	dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
+      }
+    }
+  }
+
   // Try CSF_<prefix>Resources env.var directory ( or directory list )
   if ( !prefix.isEmpty() ) {
     envVar = QCString( "CSF_" ) + prefix.latin1() + QCString( "Resources" );
@@ -281,6 +299,22 @@ QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
   }
   // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
   cenv = getenv( "SALOME_ROOT_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dirList.append( dirList.isEmpty() ? dir : ( QString( SEPARATOR ) + dir ) );
+    }
+  }
+
+  // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
+  cenv = getenv( "KERNEL_ROOT_DIR" );
   if ( cenv ) {
     dir.sprintf( "%s", cenv );
     if ( !dir.isEmpty() ) {

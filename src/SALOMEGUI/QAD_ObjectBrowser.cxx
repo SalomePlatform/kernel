@@ -669,8 +669,8 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	      QString msg;
 	      QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	      if ( resMgr ) {
-		if(resMgr->loadResources( QString(aFatherName->Value()) + "GUI", msg )) {
-		  QPixmap icon ( resMgr->loadPixmap( QString(aFatherName->Value()) + "GUI",
+		if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aFatherName->Value())), msg )) {
+		  QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aFatherName->Value())),
 						     tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
 		  Item->setPixmap( 0, icon );
 		}
@@ -804,8 +804,8 @@ void QAD_ObjectBrowser::Update()
 	  if ( resMgr ) {
 	    MESSAGE ( " Component " << aName->Value() )
 	      MESSAGE ( " Icon " << aPixmap->GetPixMap() )
-	    if(resMgr->loadResources( QString(aName->Value()) + "GUI", msg )) {
-	      QPixmap icon ( resMgr->loadPixmap( QString(aName->Value()) + "GUI",
+	    if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())), msg )) {
+	      QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())),
 						 tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
 	      Item->setPixmap( 0, icon );
 	    }
@@ -1030,8 +1030,8 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
 	    QAD_ResourceMgr* resMgr = QAD_Desktop::getResourceManager();
 	    if ( resMgr ) {
 	      QString msg;
-	      if( resMgr->loadResources( QString( aFatherName->Value() ) + "GUI", msg ) ) {
-		QPixmap icon ( resMgr->loadPixmap( QString( aFatherName->Value() ) + "GUI",
+	      if( resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString( aFatherName->Value() )), msg ) ) {
+		QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString( aFatherName->Value() )),
 						   tr( aPixmap->GetPixMap() ) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ) );
 		UCSubItem->setPixmap( 0, icon );
 	      }

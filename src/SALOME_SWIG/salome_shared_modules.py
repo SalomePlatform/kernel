@@ -46,21 +46,37 @@ import glob,os,sys
 repertoire=os.path.dirname(__file__)
 path=[repertoire,]
 
-SALOME_ROOT_DIR = os.getenv("SALOME_ROOT_DIR")
-if SALOME_ROOT_DIR != None:
-	path.append(os.path.join(SALOME_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
+KERNEL_ROOT_DIR = os.getenv("KERNEL_ROOT_DIR")
+if KERNEL_ROOT_DIR != None:
+	path.append(os.path.join(KERNEL_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
 
-SALOME_SITE_DIR = os.getenv("SALOME_SITE_DIR")
-if SALOME_SITE_DIR != None:
-        SALOME_SITE_NAME = os.getenv("SALOME_SITE_NAME")
-        if SALOME_SITE_NAME != None:
-		path.append(os.path.join(SALOME_SITE_DIR,"lib","python"+sys.version[:3],"site-packages",SALOME_SITE_NAME))
 
-#path=[repertoire,
-#      os.path.join(repertoire,"..","lib","python"+sys.version[:3],"site-packages","salome"),
-#      os.path.join(SALOME_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"),
-#      os.path.join(SALOME_SITE_DIR,"lib","python"+sys.version[:3],"site-packages","salome"),
-#     ]
+#
+import SALOME_ModuleCatalog
+from SALOME_NamingServicePy import * 
+orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+ns = SALOME_NamingServicePy_i(orb)
+modulecatalog = ns.Resolve('/Kernel/ModulCatalog')
+compos = []
+compos = modulecatalog.GetComponentList()
+
+for name in compos:
+	print name
+	MODULE_ROOT_DIR = os.getenv( name + "_ROOT_DIR" )
+	print MODULE_ROOT_DIR
+
+	if MODULE_ROOT_DIR != None:
+		path.append(os.path.join(MODULE_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
+
+#SALOME_ROOT_DIR = os.getenv("SALOME_ROOT_DIR")
+#if SALOME_ROOT_DIR != None:
+#	path.append(os.path.join(SALOME_ROOT_DIR,"lib","python"+sys.version[:3],"site-packages","salome"))
+
+#SALOME_SITE_DIR = os.getenv("SALOME_SITE_DIR")
+#if SALOME_SITE_DIR != None:
+#        SALOME_SITE_NAME = os.getenv("SALOME_SITE_NAME")
+#        if SALOME_SITE_NAME != None:
+#		path.append(os.path.join(SALOME_SITE_DIR,"lib","python"+sys.version[:3],"site-packages",SALOME_SITE_NAME))
 
 MESSAGE( str(path) )
 

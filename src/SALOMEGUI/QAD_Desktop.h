@@ -192,6 +192,9 @@ public:
     Engines::Component_var getEngine(const char *containerName,
 				     const char *componentName);
 
+    QString getComponentName(const char *componentUserName);
+    QString getComponentUserName(const char *componentName);
+    
     QAD_HelpWindow*   getHelpWindow();
 
     void	      onMouseMove(QMouseEvent*);
@@ -326,6 +329,8 @@ protected:
     QAD_HelpWindow*    myHelpWindow;
 
     QList<QToolButton> myComponentButton;
+
+    QMap<QString,QString> mapComponentName;
 
 private:
     static QAD_ResourceMgr*		    resourceMgr;

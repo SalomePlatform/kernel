@@ -60,4 +60,7 @@ class SALOMEGUI_Swig
 /* check */
   bool IsInCurrentView(const char *Entry);
 
+/* component name */
+  const char* getComponentName( const char* ComponentUserName );
+  const char* getComponentUserName( const char* ComponentName );
 };
