@@ -1,4 +1,4 @@
-//  SALOME Utils : general SALOME's definitions and tools
+//  SALOME FILTER : interactive object for VISU entities implementation
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,29 +21,39 @@
 //
 //
 //
-//  File   : Utils_Timer.hxx
+//  File   : SALOME_PassThroughFilter.h
+//  Author : Laurent CORNABE with help of Nicolas REJNERI
 //  Module : SALOME
 
-#include <stdlib.h>
-#include <time.h>
 
-# include <sys/times.h>
-# include <sys/time.h>
-# include <unistd.h>
+#ifndef SALOME_PassThroughFilter_HeaderFile
+#define SALOME_PassThroughFilter_HeaderFile
 
-class Utils_Timer {
+#include <vtkDataSetToDataSetFilter.h>
+
+class SALOME_GeometryFilter;
+
+class SALOME_PassThroughFilter : public vtkDataSetToDataSetFilter{
  public:
-  Utils_Timer();
-  virtual ~Utils_Timer();
-  void Start();
-  void Stop();
-  void Reset();
-  void Show();
-  void ShowAbsolute();
+  vtkTypeMacro(SALOME_PassThroughFilter,vtkDataSetToDataSetFilter);
+  static SALOME_PassThroughFilter *New();
+
+  void SetInput(vtkDataSet *input);
+  vtkPolyData *GetPolyDataOutput();
+
+  void SetInside(int theShowInside);
+  int GetInside();
+
  protected:
-  double Cumul_user;
-  double Cumul_sys;
-  bool Stopped;
-  tms *RefToCurrentTMS, *RefToInitialTMS;
-  timeval *RefToCurrentTimeB, *RefToInitialTimeB;
+  SALOME_PassThroughFilter();
+  virtual ~SALOME_PassThroughFilter();
+  void Execute();
+
+  SALOME_GeometryFilter* myGeomFilter;
+
+ private:
+  SALOME_PassThroughFilter(const SALOME_PassThroughFilter&);  // Not implemented.
+  void operator=(const SALOME_PassThroughFilter&);  // Not implemented.
 };
+
+#endif

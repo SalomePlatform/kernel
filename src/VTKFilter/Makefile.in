@@ -1,4 +1,4 @@
-#  SALOME TOOLSGUI : implementation of desktop "Tools" optioins
+#  VISU OBJECT : interactive object for VISU entities implementation
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -22,9 +22,7 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Marc Tajchman (CEA)
-#  Module : SALOME
-#  $Header$
+#  Module : VISU
 
 top_srcdir=@top_srcdir@
 top_builddir=../../..
@@ -34,32 +32,25 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-# header files 
-EXPORT_HEADERS=
-
-# .po files to transform in .qm
-PO_FILES = \
-	   ToolsGUI_icons.po \
-	   ToolsGUI_msg_en.po
+EXPORT_HEADERS = SALOME_Transform.h \
+	         SALOME_TransformFilter.h \
+	         SALOME_PassThroughFilter.h \
+		 SALOME_GeometryFilter.h
 
 # Libraries targets
-LIB = libToolsGUI.la
 
-LIB_SRC = ToolsGUI.cxx \
-	  ToolsGUI_CatalogGeneratorDlg.cxx
+LIB = libSalomeVTKFilter.la
+LIB_SRC = SALOME_Transform.cxx \
+          SALOME_TransformFilter.cxx \
+	  SALOME_PassThroughFilter.cxx \
+	  SALOME_GeometryFilter.cxx
 
-LIB_MOC = ToolsGUI_moc.cxx \
-	  ToolsGUI_CatalogGeneratorDlg_moc.cxx
+# Executables targets
 
-LIB_CLIENT_IDL = SALOME_Exception.idl
+BIN = 
+BIN_SRC	= 
 
-# additionnal information to compil and link file
-
-CPPFLAGS += $(QT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
-CXXFLAGS += $(OCC_CXXFLAGS)
-
-LDFLAGS += -lSalomeGUI 
-
+CPPFLAGS+= $(VTK_INCLUDES)
+LDFLAGS+= $(VTK_LIBS)
 
 @CONCLUDE@
-

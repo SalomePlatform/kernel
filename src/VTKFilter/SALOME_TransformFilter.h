@@ -1,4 +1,4 @@
-//  SALOME Utils : general SALOME's definitions and tools
+//  SALOME FILTER : interactive object for VISU entities implementation
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,29 +21,27 @@
 //
 //
 //
-//  File   : Utils_Timer.hxx
+//  File   : SALOME_TransformFilter.h
+//  Author : Laurent CORNABE with help of Nicolas REJNERI
 //  Module : SALOME
 
-#include <stdlib.h>
-#include <time.h>
 
-# include <sys/times.h>
-# include <sys/time.h>
-# include <unistd.h>
+#ifndef SALOME_TransformFilter_HeaderFile
+#define SALOME_TransformFilter_HeaderFile
 
-class Utils_Timer {
+#include <vtkTransformFilter.h>
+
+class VTK_EXPORT SALOME_TransformFilter : public vtkTransformFilter{
  public:
-  Utils_Timer();
-  virtual ~Utils_Timer();
-  void Start();
-  void Stop();
-  void Reset();
-  void Show();
-  void ShowAbsolute();
- protected:
-  double Cumul_user;
-  double Cumul_sys;
-  bool Stopped;
-  tms *RefToCurrentTMS, *RefToInitialTMS;
-  timeval *RefToCurrentTimeB, *RefToInitialTimeB;
+  static SALOME_TransformFilter *New();
+  vtkTypeMacro(SALOME_TransformFilter,vtkTransformFilter);
+
+protected:
+  SALOME_TransformFilter() {}
+  ~SALOME_TransformFilter() {}
+  SALOME_TransformFilter(const SALOME_TransformFilter&) {}
+  void operator=(const SALOME_TransformFilter&) {}
+  void Execute();
 };
+
+#endif

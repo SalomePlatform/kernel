@@ -59,7 +59,11 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
       break;
 
     case HDF_INT32 :
+#ifdef PCLINUX
+      type_hdf = H5T_STD_I32BE;  
+#else
       type_hdf = H5T_NATIVE_INT;
+#endif
       break;
  
     case HDF_INT64 :

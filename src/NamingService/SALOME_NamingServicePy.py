@@ -29,6 +29,7 @@
 #  $Header$
 
 import sys
+import time
 from omniORB import CORBA
 import CosNaming
 from string import *
@@ -48,15 +49,28 @@ class SALOME_NamingServicePy_i:
         MESSAGE ( "SALOME_NamingServicePy_i::__init__" )
         self._orb = orb
         # initialize root context and current context
-        obj =self._orb.resolve_initial_references("NameService")
-        self._root_context =obj._narrow(CosNaming.NamingContext)
-        self._current_context = self._root_context
+	ok = 0
+	steps = 40
+	while steps > 0 and ok == 0:
+	  try:
+            obj =self._orb.resolve_initial_references("NameService")
+            self._root_context =obj._narrow(CosNaming.NamingContext)
+            self._current_context = self._root_context
 
         
-        if self._root_context is None :
-            MESSAGE ( "Name Service Reference is invalid" )
-            sys.exit(1)
- 
+            if self._root_context is None :
+              #MESSAGE ( "Name Service Reference is invalid" )
+              #sys.exit(1)
+	      MESSAGE(" Name service not found")
+	    else:
+	      ok = 1
+	  except CORBA.COMM_FAILURE, ex:
+	    MESSAGE(" Name service not found")
+	  time.sleep(0.25)
+	  steps = steps - 1
+        if steps == 0: 
+          MESSAGE ( "Name Service Reference is invalid" )
+          sys.exit(1)
     #-------------------------------------------------------------------------
     def Register(self,ObjRef, Path):
         MESSAGE ( "SALOME_NamingServicePy_i::Register" )

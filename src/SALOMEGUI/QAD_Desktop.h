@@ -80,7 +80,7 @@ protected:
 	  //VRV: T2.5 - add default viewer
 	  PrefViewerTrihedronId, PrefConsoleFontId, PrefObjectBrowserEntryId, 
 	  PrefObjectBrowserIAPPId, PrefObjectBrowserValueId, PrefObjectBrowserCHRONO_SORTId, 
-	  PrefDirsId, PrefMultiFileSave, PrefASCIISave, PrefSaveId,
+	  PrefDirsId, PrefMultiFileSave, PrefASCIISave, PrefExternalBrowserId, PrefSaveId,
 	  //NRI : SAL2214
 	  WindowNew3dId, ViewOCCId, ViewVTKId, ViewPlot2dId,
 	  //NRI : SAL2214
@@ -233,11 +233,14 @@ protected slots:
     void	      onObjectBrowser();
     void              onMultiFileSave();
     void              onASCIISave();
+    void	      onExternalBrowser();	
 
     void	      onActivateApp(QAD_Application* app);
     void	      onDeactivateApp(QAD_Application* app);
 
     void	      onHelpContents();
+    void	      onHelpContentsGUI();
+    void	      onHelpContentsTUI();
     void	      onHelpSearch();
     void	      onHelpAbout();
 

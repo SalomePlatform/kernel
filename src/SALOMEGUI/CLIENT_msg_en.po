@@ -20,10 +20,10 @@ msgstr ""
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.2"
+msgstr "Version 1.2c"
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright (C) 2002, OPEN CASCADE"
+msgstr "Copyright (C) 2003, CEA/DEN, EDF R&D"
 
 msgid "INF_LICENSE"
 msgstr "All rights reserved"
@@ -38,8 +38,8 @@ msgstr "salome"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "SALOME Professional 1.2"
+msgstr "SALOME Professional 1.2c"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "SALOME Professional 1.2"
+msgstr "SALOME Professional 1.2c"

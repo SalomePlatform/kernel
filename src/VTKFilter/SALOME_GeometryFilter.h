@@ -1,4 +1,4 @@
-//  SALOME Utils : general SALOME's definitions and tools
+//  SALOME OBJECT : kernel of SALOME component
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,29 +21,34 @@
 //
 //
 //
-//  File   : Utils_Timer.hxx
+//  File   : SALOME_GeometryFilter.h
+//  Author : Michael ZORIN
 //  Module : SALOME
+//  $Header: /dn05/salome/CVS/SALOME_ROOT/SALOME/src/OBJECT/SALOME_GeometryFilter.h
 
-#include <stdlib.h>
-#include <time.h>
 
-# include <sys/times.h>
-# include <sys/time.h>
-# include <unistd.h>
+#ifndef __SALOME_GeometryFilter_h
+#define __SALOME_GeometryFilter_h
 
-class Utils_Timer {
- public:
-  Utils_Timer();
-  virtual ~Utils_Timer();
-  void Start();
-  void Stop();
-  void Reset();
-  void Show();
-  void ShowAbsolute();
- protected:
-  double Cumul_user;
-  double Cumul_sys;
-  bool Stopped;
-  tms *RefToCurrentTMS, *RefToInitialTMS;
-  timeval *RefToCurrentTimeB, *RefToInitialTimeB;
+#include <vtkGeometryFilter.h>
+
+class SALOME_GeometryFilter : public vtkGeometryFilter 
+{
+public:
+  static SALOME_GeometryFilter *New();
+  vtkTypeRevisionMacro(SALOME_GeometryFilter, vtkGeometryFilter);
+  void SetInside(int theShowInside);
+  int GetInside();
+
+protected:
+  SALOME_GeometryFilter();
+  ~SALOME_GeometryFilter();
+  
+  void Execute();
+  void UnstructuredGridExecute();
+    
+private:
+  int myShowInside;      
 };
+
+#endif

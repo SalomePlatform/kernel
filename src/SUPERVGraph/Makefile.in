@@ -51,7 +51,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 
 
 CPPFLAGS+=$(QT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) 
-LDFLAGS+=$(QT_MT_LIBS) $(OCC_LIBS) -L$(top_builddir)/lib -lSalomeGUI
+LDFLAGS+=$(QT_MT_LIBS) -L$(top_builddir)/lib -lSalomeGUI
 
 
 @CONCLUDE@

@@ -42,8 +42,12 @@ hdf_err HDFattrRead(hdf_idt id,void *val)
 {
   hdf_err ret = -1;
   hdf_idt type_hdf;
-
+  
   if ((type_hdf = H5Aget_type(id)) >= 0) {
+#ifdef PCLINUX    
+    if ((H5Tget_class(type_hdf) == H5T_INTEGER) && (H5Tget_size(type_hdf) == 4)) 
+      type_hdf = H5T_NATIVE_INT;
+#endif 
     ret = H5Aread(id, type_hdf, val);
   }
 

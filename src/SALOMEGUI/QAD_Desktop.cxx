@@ -35,6 +35,8 @@ using namespace std;
 # include "Utils_SINGLETON.hxx"
 
 #define	 INCLUDE_MENUITEM_DEF
+#define  DEFAULT_BROWSER "mozilla"
+
 
 #include "QAD.h"
 #include "QAD_Help.h"
@@ -57,6 +59,7 @@ using namespace std;
 #include "SALOMEGUI_OpenWith.h"
 #include "SALOMEGUI_StudyPropertiesDlg.h"
 #include "SALOMEGUI_TrihedronSizeDlg.h"
+#include "SALOMEGUI_ExternalBrowserDlg.h"
 #include "SALOMEGUI_LoadStudiesDlg.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
@@ -66,6 +69,7 @@ using namespace std;
 #include "utilities.h"
 
 #include "SALOMEGUI_CloseDlg.h"
+#include "SALOMEGUI_ActivateComponentDlg.h"
 
 // QT Includes
 #include <qlabel.h>
@@ -87,6 +91,7 @@ using namespace std;
 #include <qfontdialog.h>
 #include <qlineedit.h>
 #include <qdatetime.h>
+#include <qthread.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -349,9 +354,17 @@ const int IdSelectAll = 1004;
 */
 bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 {
-  if ( e->type() == QEvent::ContextMenu ) {
-    QContextMenuEvent* ce = (QContextMenuEvent*)e;
-    if ( o->inherits("QRenameEdit") ) {
+  if (e->type() == 2000   ) {
+    QMessageBox::information (this, tr ( "Help Information" ), tr ( "Can't run choosen browser.\nRunning default browser (Mozilla). "));
+    return TRUE;
+  }
+  else if (e->type() == 2001 ) {
+    QMessageBox::critical(this, tr ( "Help Error" ), tr ( "Can't run the default browser.") );
+    return TRUE;
+  }
+    else if ( e->type() == QEvent::ContextMenu ) {
+      QContextMenuEvent* ce = (QContextMenuEvent*)e;
+      if ( o->inherits("QRenameEdit") ) {
       return TRUE;
     }
     else if ( o->inherits("QLineEdit") ) {
@@ -730,6 +743,13 @@ void QAD_Desktop::createActions()
 
     myPrefPopup.insertSeparator();
     
+    /* External Browser */
+    QActionP* externalBrowserAction = new QActionP( "", tr("MEN_DESK_PREF_EXTERNAL_BROWSER"), 0, this );
+    QAD_ASSERT(connect( externalBrowserAction, SIGNAL(activated()), this, SLOT(onExternalBrowser() )));
+    externalBrowserAction->addTo( &myPrefPopup );
+    myStdActions.insert( PrefExternalBrowserId, externalBrowserAction );
+        
+    myPrefPopup.insertSeparator();
     /* BrowserPopup */
     myPrefPopup.insertItem( tr("MEN_DESK_PREF_OBJECTBROWSER"), &myObjBrowserPopup );
     
@@ -856,6 +876,24 @@ void QAD_Desktop::createActions()
 			this, SLOT( onHelpContents() )));
     helpContentsAction->addTo( &myHelpPopup );
     myStdActions.insert( HelpContentsId , helpContentsAction );
+				
+    id = myHelpPopup.insertSeparator();
+						   
+    /* GUI contents */
+    QActionP* helpContentsActionGUI = new QActionP( "", tr("MEN_DESK_HELP_GUICONTENTS"), 0, this );
+    helpContentsActionGUI->setStatusTip ( tr("PRP_DESK_HELP_GUICONTENTS") );
+    QAD_ASSERT(connect( helpContentsActionGUI, SIGNAL(activated()),
+			this, SLOT( onHelpContentsGUI() )));
+    helpContentsActionGUI->addTo( &myHelpPopup );
+    myStdActions.insert( HelpContentsId , helpContentsActionGUI );
+
+    /* TUI contents */
+    QActionP* helpContentsActionTUI = new QActionP( "", tr("MEN_DESK_HELP_TUICONTENTS"), 0, this );
+    helpContentsActionTUI->setStatusTip ( tr("PRP_DESK_HELP_TUICONTENTS") );
+    QAD_ASSERT(connect( helpContentsActionTUI, SIGNAL(activated()),
+			this, SLOT( onHelpContentsTUI() )));
+    helpContentsActionTUI->addTo( &myHelpPopup );
+    myStdActions.insert( HelpContentsId , helpContentsActionTUI );						   
 
     /* search */
 //    QActionP* helpSearchAction = new QActionP( "", tr("MEN_DESK_HELP_SEARCH"), 0, this );
@@ -986,6 +1024,7 @@ void QAD_Desktop::updateCaption( UpdateCommand cmd )
     else
     {	/* default icon and title */
 	setIcon( myDefaultIcon );
+	qApp->processEvents();
 	setCaption( myDefaultTitle );
     }
 }
@@ -1921,15 +1960,179 @@ void QAD_Desktop::onNewWindow3d()
   //NRI : SAL2214
 }
 
+// Helps to execute command
+class RunBrowser: public QThread {
+public:
+  
+  RunBrowser(QString theApp, QString theParams, QString theHelpFile): 
+    myApp(theApp), myParams(theParams), myHelpFile(theHelpFile), myStatus(0) {};
+ 
+  virtual void run()
+  {
+    QString aCommand;
+    
+    if ( !myApp.isEmpty())
+      {
+	aCommand.sprintf("%s %s %s",myApp.latin1(),myParams.latin1(),myHelpFile.latin1());
+	myStatus = system(aCommand);
+	if(myStatus != 0)
+	  {
+	    QCustomEvent* ce2000 = new QCustomEvent (2000);
+	    postEvent (qApp, ce2000);
+	  }
+      }
+    
+    if( myStatus != 0 || myApp.isEmpty())
+      {
+	myParams = "";
+	aCommand.sprintf("%s %s %s", QString(DEFAULT_BROWSER).latin1(),myParams.latin1(), myHelpFile.latin1());	
+	myStatus = system(aCommand);
+	if(myStatus != 0)
+	  {
+	    QCustomEvent* ce2001 = new QCustomEvent (2001);
+	    postEvent (qApp, ce2001);
+	  }
+      }
+  }
+
+private:
+  QString myApp;
+  QString myParams;
+  QString myHelpFile;
+  int myStatus;
+  
+};
+
 /*!
     Called on 'help\contents'
 */
 void QAD_Desktop::onHelpContents()
 {
-  if (myActiveApp)
-    myActiveApp->helpContents();
-  else
-    helpContents();
+
+  // look for main.html and set homeDir
+  // 1. $(SALOME_ROOT_DIR)/doc/main.html
+  // 2. $(SALOME_ROOT_DIR)/doc/html/main.html
+  // 3. $(SALOME_ROOT_DIR)/doc/html/html/main.html
+  // 4. /usr/local/doc/html/main.html
+  
+  QCString dir;
+  QString root;
+  QString homeDir;
+  
+  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
+    if ( QFileInfo( root + "main.html" ).exists() ) {
+      homeDir = root;
+    }
+    else {
+      root = QAD_Tools::addSlash( root + "html" );
+      if ( QFileInfo( root + "main.html" ).exists() ) {
+	homeDir = root;
+      }
+      else {
+	root = QAD_Tools::addSlash( root + "html" );
+	if ( QFileInfo( root + "main.html" ).exists() ) {
+	  homeDir = root;
+	}
+      }
+    }
+  }
+  if ( root.isEmpty() ) {
+    if ( QFileInfo( "/usr/local/doc/html/main.html" ).exists() ) {
+      homeDir = "/usr/local/doc/html/";
+    }
+  }
+  if ( root.isEmpty() ) 
+    root = "./doc/";
+  
+  QString helpFile = QFileInfo( homeDir + "main.html" ).absFilePath(); 
+  
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
+    
+}
+
+/*!
+    Called on 'help\GUI Reference'
+*/
+void QAD_Desktop::onHelpContentsGUI()
+{
+
+  // look for main.html and set homeDir
+  // 1. $(SALOME_ROOT_DIR)/doc/guihtml/guihtml/salomedoc.html
+  // 2. /usr/local/doc/guihtml/salomedoc.html
+  
+  QCString dir;
+  QString root;
+  QString homeDir;
+  
+  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
+    root = QAD_Tools::addSlash( root + "guihtml" );
+    root = QAD_Tools::addSlash( root + "guihtml" );
+    if ( QFileInfo( root + "salomedoc.html" ).exists() ) {
+      homeDir = root;
+    }
+  }
+  if ( root.isEmpty() ) {
+    if ( QFileInfo( "/usr/local/doc/guihtml/salomedoc.html" ).exists() ) {
+      homeDir = "/usr/local/doc/guihtml/";
+    }
+  }
+  if ( root.isEmpty() ) 
+    root = "./doc/";
+  
+  QString helpFile = QFileInfo( homeDir + "salomedoc.html" ).absFilePath(); 
+  
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
+    
+}
+
+/*!
+    Called on 'help\TUI Reference'
+*/
+void QAD_Desktop::onHelpContentsTUI()
+{
+
+  // look for main.html and set homeDir
+  // 1. $(SALOME_ROOT_DIR)/doc/html/html/index.html
+  // 2. /usr/local/doc/html/index.html
+  
+  QCString dir;
+  QString root;
+  QString homeDir;
+  
+  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
+    root = QAD_Tools::addSlash( root + "html" );
+    root = QAD_Tools::addSlash( root + "html" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      homeDir = root;
+    }
+  }
+  if ( root.isEmpty() ) {
+    if ( QFileInfo( "/usr/local/doc/html/index.html" ).exists() ) {
+      homeDir = "/usr/local/doc/html/";
+    }
+  }
+  if ( root.isEmpty() ) 
+    root = "./doc/";
+  
+  QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath(); 
+  
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
+    
 }
 
 /*!
@@ -2648,15 +2851,35 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	  aButton->setOn(true);
       }
     }
-  } else {
-    QMessageBox::critical( 0,
-			   tr( "ERR_ERROR" ),
-			   tr( "WRN_LOAD_COMPONENT" ) );
-    myCombo->setCurrentItem (0);	
-    for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
-      aButton->setOn(false);
-    }
-  }
+  } else if (component.compare(QString("Salome"))!= 0) {
+  
+      SALOMEGUI_ActivateComponentDlg aDlg( this );
+      int res = aDlg.exec();
+      
+      switch ( res )
+	{
+	case 1:
+	  onNewStudy();
+	  onComboActiveComponent(component,true);            	  
+	  break;
+	case 2:
+          onOpenStudy();	
+	  onComboActiveComponent(component,true);
+	  break;
+	case 3:
+	  onLoadStudy();
+	  onComboActiveComponent(component,true);;
+	  break;
+	case 0:
+	default:
+	  putInfo( tr("INF_CANCELLED") );
+	  myCombo->setCurrentItem (0);	
+	  for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
+          aButton->setOn(false);
+          // return;
+	  }
+	}
+      }
 }
 
 /*!
@@ -3002,6 +3225,33 @@ void QAD_Desktop::onViewerTrihedron()
     }
   }
 }
+
+void QAD_Desktop::onExternalBrowser()
+{
+ 
+  QString theApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString theParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  SALOMEGUI_ExternalBrowserDlg *Dlg = new SALOMEGUI_ExternalBrowserDlg(this);
+  
+  if (!theApp.isEmpty())
+    {
+      QString theParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+      Dlg->setSettings(theApp, theParams);
+    }
+  int r = Dlg->exec();
+  QString theAppFromDialog = Dlg->getApp();
+  QString theParamsFromDialog = Dlg->getParams();
+  delete Dlg;
+  
+  if (r == QDialog::Accepted) 
+    {
+      QAD_CONFIG->addSetting("ExternalBrowser:Application", theAppFromDialog );
+      QAD_CONFIG->addSetting("ExternalBrowser:Parameters", theParamsFromDialog );
+    }
+  
+}
+
 
 void QAD_Desktop::onDirList() 
 {

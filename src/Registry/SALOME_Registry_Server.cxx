@@ -74,76 +74,133 @@ int main( int argc , char **argv )
 	ASSERT(ptrSessionName) ;
 	ASSERT(strlen( ptrSessionName )>0) ;
 	const char *registryName = "Registry" ;
-
-
+        ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+	CORBA::ORB_var &orb = init( argc , argv ) ;
+	//
+	long TIMESleep = 250000000;
+	int NumberOfTries = 40;
+	int a;
+	timespec ts_req;
+	ts_req.tv_nsec=TIMESleep;
+	ts_req.tv_sec=0;
+	timespec ts_rem;
+	ts_rem.tv_nsec=0;
+	ts_rem.tv_sec=0;
+	CosNaming::NamingContext_var inc;
+	PortableServer::POA_var poa;
+	CORBA::Object_var theObj;
+	CORBA::Object_var obj;
+	CORBA::Object_var object;
+	SALOME_Logger::Logger_var log;
+	SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
+	Registry::Components_var varComponents;
+	int REGISTRY=0;
+	const char * Env = getenv("USE_LOGGER");
+        int EnvL =0;
+	if ((Env!=NULL) && (strlen(Env)))
+	  EnvL=1;
+	CosNaming::Name name;
+	name.length(1);
+	name[0].id=CORBA::string_dup("Logger");  
+	PortableServer::POAManager_var manager; 
+	for (int i = 1; i<=NumberOfTries; i++){
+	  if (i!=1) 
+	    a=nanosleep(&ts_req,&ts_rem);
+	  try{ 
+	    obj = orb->resolve_initial_references("RootPOA");
+	    if(!CORBA::is_nil(obj))
+	      poa = PortableServer::POA::_narrow(obj);
+	    if(!CORBA::is_nil(poa))
+	      manager = poa->the_POAManager();
+	    if(!CORBA::is_nil(orb)) 
+	      theObj = orb->resolve_initial_references("NameService");
+	    if (!CORBA::is_nil(theObj))
+	      inc = CosNaming::NamingContext::_narrow(theObj);
+	    }
+	  catch( CORBA::COMM_FAILURE& )
+	    {
+	      MESSAGE( "Registry Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
+		}
+	  if(!CORBA::is_nil(inc)) {
+	    MESSAGE( "Registry Server: Naming Service was found" )
+	      if(EnvL==1){
+		for(int j=1; j<=NumberOfTries; j++){
+		  if (j!=1) 
+		    a=nanosleep(&ts_req, &ts_rem);
+		  try{
+		    object = inc->resolve(name);
+		  }
+		  catch(CosNaming::NamingContext::NotFound){ MESSAGE( "Registry Server: Logger Server wasn't found" ) }
+		  catch(...){ MESSAGE( "Registry Server: Unknown exception" ) }
+                 
+		  if (!CORBA::is_nil(object))
+		    log = SALOME_Logger::Logger::_narrow(object);
+		  if (!CORBA::is_nil(log)){
+		    MESSAGE( "Registry Server: Logger Server was found" )
+		      log->ping();
+                    REGISTRY=1;
+		    break;
+		  }
+		}}
+	  }
+	  if ((REGISTRY==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
+            break;
+	      }
+        //
 	try
-	{
-		ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-		CORBA::ORB_var &orb = init( argc , argv ) ;
-
-
-		SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-		naming.init_orb( orb ) ;
-
-		RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance() ;
-		ptrRegistry->SessionName( ptrSessionName ) ;
-		Registry::Components_var varComponents = ptrRegistry->_this() ;
-
-		// The RegistryService must not already exist.
-
-		try
-		{
-        		CORBA::Object_var pipo = naming.Resolve( registryName ) ;
-			if (CORBA::is_nil(pipo) )  throw ServiceUnreachable() ;
-			MESSAGE("RegistryService servant already existing" ) ;
-			exit( EXIT_FAILURE ) ;
-		}
-		catch( const ServiceUnreachable &ex )
-		{
-		}
-		catch( const CORBA::Exception &exx )
-		{
-		}
-		string absoluteName = string("/") + registryName;
-		naming.Register( varComponents , absoluteName.c_str() ) ;
-
-
-		CORBA::Object_var poaObj = orb->resolve_initial_references( "RootPOA" ) ;
-		PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj) ;
-		PortableServer::POAManager_var manager = poa->the_POAManager() ;
-
-
-		MESSAGE("On attend les requetes des clients") ;
-		try
-		{
-			// Activation du POA
-			MESSAGE("Activation du POA") ;
-			manager->activate() ;
-
-			// Lancement de l'ORB
-			MESSAGE("Lancement de l'ORB") ;
+	  {
+	    naming.init_orb( orb ) ;
+	    RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance() ;
+	    ptrRegistry->SessionName( ptrSessionName ) ;
+	    varComponents = ptrRegistry->_this() ;
+	    // The RegistryService must not already exist.
+	    
+	    try
+	      {
+		CORBA::Object_var pipo = naming.Resolve( registryName ) ;
+		if (CORBA::is_nil(pipo) )  throw ServiceUnreachable() ;
+		MESSAGE("RegistryService servant already existing" ) ;
+		exit( EXIT_FAILURE ) ;
+	      }
+	    catch( const ServiceUnreachable &ex )
+	      {
+	      }
+	    catch( const CORBA::Exception &exx )
+	      {
+	      }
+	    string absoluteName = string("/") + registryName;
+	    naming.Register( varComponents , absoluteName.c_str() ) ;
+	    MESSAGE("On attend les requetes des clients") ;
+	    try
+	      {
+		// Activation du POA
+		MESSAGE("Activation du POA") ;
+		manager->activate() ;
+		
+		// Lancement de l'ORB
+		MESSAGE("Lancement de l'ORB") ;
 #ifdef CHECKTIME
-			Utils_Timer timer;
-			timer.Start();
-			timer.Stop();
-			MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
-			timer.ShowAbsolute();
+		Utils_Timer timer;
+		timer.Start();
+		timer.Stop();
+		MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
+		timer.ShowAbsolute();
 #endif
-			orb->run() ;
-		}
-		catch( const CORBA::Exception &ex )
-		{
-			MESSAGE("Erreur systeme") ;
-			return EXIT_FAILURE ;
-		}
-
-	}
-	catch( const SALOME_Exception &ex )
-	{
-		MESSAGE( "Communication Error : " << ex.what() )
+		orb->run() ;
+	      }
+	    catch( const CORBA::Exception &ex )
+	      {
+		MESSAGE("Erreur systeme") ;
 		return EXIT_FAILURE ;
-	}
-
+	      }
+	    
+	  }
+	catch( const SALOME_Exception &ex )
+	  {
+	    MESSAGE( "Communication Error : " << ex.what() )
+	      return EXIT_FAILURE ;
+	  }
+	
 	END_OF( argv[0] ) ;
 	return 0 ;
 }

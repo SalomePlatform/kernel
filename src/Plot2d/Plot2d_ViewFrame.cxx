@@ -299,7 +299,17 @@ void Plot2d_ViewFrame::rename( const Handle(SALOME_InteractiveObject)& IObject, 
 */
 bool Plot2d_ViewFrame::isInViewer( const Handle(SALOME_InteractiveObject)& IObject ) 
 {
-  return ( getCurveByIO( IObject ) != NULL );
+  if( getCurveByIO( IObject ) != NULL )
+    return 1;
+  else{
+    if(!IObject.IsNull()){
+      QIntDictIterator<Plot2d_Curve> it(myCurves);
+      for(; it.current();++it){
+	if(it.current()->hasIO() && it.current()->getTableIO()->isSame(IObject))
+	  return 1;
+      }}
+  }
+  return 0;
 }
 /*!
   Returns true if interactive object is presented in the viewer and displayed

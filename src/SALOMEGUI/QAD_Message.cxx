@@ -111,9 +111,9 @@ void QAD_Message::mousePressEvent(QMouseEvent* event)
     id = popup->insertItem( tr( "EDIT_SELECTALL_CMD" ) );
     idMap.insert(IdSelectAll, id);
     popup->setItemEnabled( idMap[ IdCopy ], hasMarkedText() );
-    popup->setItemEnabled( idMap[ IdSelectAll ],
-			  (bool)text().length() && !allSelected );
-    
+    popup->setItemEnabled( idMap[ IdSelectAll ], !allSelected );
+    popup->setItemEnabled( idMap[ IdClear ], textLine(1)!=myPrompt );
+        
     int r = popup->exec( event->globalPos() );
     delete popup;
     

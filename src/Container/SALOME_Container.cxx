@@ -32,7 +32,7 @@ using namespace std;
 
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
-
+#include "SALOME_NamingService.hxx"
 #include "SALOME_Container_i.hxx"
 #include <iostream>
 #include <string>
@@ -67,21 +67,87 @@ int main(int argc, char* argv[])
     CORBA::ORB_var &orb = init( argc , argv ) ;
  
     // Obtain a reference to the root POA.
-    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
-    PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
-
     // obtain the root poa manager
-    PortableServer::POAManager_var pman = root_poa->the_POAManager();
+    //
+    long TIMESleep = 250000000;
+    int NumberOfTries = 40;
+    int a;
+    timespec ts_req;
+    ts_req.tv_nsec=TIMESleep;
+    ts_req.tv_sec=0;
+    timespec ts_rem;
+    ts_rem.tv_nsec=0;
+    ts_rem.tv_sec=0;
+    CosNaming::NamingContext_var inc;
+    PortableServer::POA_var root_poa;
+    CORBA::Object_var theObj;
+    CORBA::Object_var obj;
+    CORBA::Object_var object;
+    SALOME_Logger::Logger_var log;
+    SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
+    int CONTAINER=0;
+    const char * Env = getenv("USE_LOGGER");
+    int EnvL =0;
+    if ((Env!=NULL) && (strlen(Env)))
+      EnvL=1;
 
+    CosNaming::Name name;
+    name.length(1);
+    name[0].id=CORBA::string_dup("Logger");    
+    PortableServer::POAManager_var pman; 
+    for (int i = 1; i<=NumberOfTries; i++){
+      if (i!=1) 
+	a=nanosleep(&ts_req,&ts_rem);
+      try{ 
+	obj = orb->resolve_initial_references("RootPOA");
+	if(!CORBA::is_nil(obj))
+	  root_poa = PortableServer::POA::_narrow(obj);
+	if(!CORBA::is_nil(root_poa))
+	  pman = root_poa->the_POAManager();
+	if(!CORBA::is_nil(orb)) 
+	  theObj = orb->resolve_initial_references("NameService");
+	if (!CORBA::is_nil(theObj))
+	  inc = CosNaming::NamingContext::_narrow(theObj);
+      }
+      catch( CORBA::COMM_FAILURE& )
+	{
+	  MESSAGE( "Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
+	    }
+      if(!CORBA::is_nil(inc)) {
+	MESSAGE( "Container: Naming Service was found" )
+	  if(EnvL==1){
+	    for(int j=1; j<=NumberOfTries; j++){
+	      if (j!=1) 
+		a=nanosleep(&ts_req, &ts_rem);
+	      try{
+		    object = inc->resolve(name);
+		  }
+		  catch(CosNaming::NamingContext::NotFound){ MESSAGE( "Container: Logger Server wasn't found" ) }
+		  catch(...){ MESSAGE( "Container: Unknown exception" ) }
+		  if (!CORBA::is_nil(object))
+		    log = SALOME_Logger::Logger::_narrow(object);
+		  if (!CORBA::is_nil(log)){
+		    MESSAGE( "Container: Logger Server was found" )
+		      log->ping();
+                    CONTAINER=1;
+		    break;
+		  }
+		}}
+	  }
+      if ((CONTAINER==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
+            break;
+	      }    
+
+     // 
     // define policy objects     
     PortableServer::ImplicitActivationPolicy_var implicitActivation =
       root_poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION) ;
 
-      // default = NO_IMPLICIT_ACTIVATION
+    // default = NO_IMPLICIT_ACTIVATION
     PortableServer::ThreadPolicy_var threadPolicy =
       root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL) ;
-      // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
-
+    // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
+    
     // create policy list
     CORBA::PolicyList policyList;
     policyList.length(2);
