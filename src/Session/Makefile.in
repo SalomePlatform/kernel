@@ -54,7 +54,7 @@ BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOM
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
 LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent -lSalomePrs $(CAS_LDPATH) -lTKBO -lCASCatch -lSalomeResourcesManager
-LDFLAGSFORBIN+= $(LDFLAGS) -lSALOMETraceCollector
+LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
 
 @CONCLUDE@
 

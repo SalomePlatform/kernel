@@ -129,7 +129,7 @@ LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOME
 #
 LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
 LDFLAGS+=$(LDXMUFLAGS)
-LDFLAGSFORBIN+= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
+LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
 
 @CONCLUDE@
 

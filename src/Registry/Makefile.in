@@ -55,6 +55,6 @@ BIN_SERVER_IDL = SALOME_Registry.idl
 
 LDFLAGS+= -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
-LDFLAGSFORBIN+= $(LDFLAGS) -lSALOMETraceCollector
+LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
 
 @CONCLUDE@
