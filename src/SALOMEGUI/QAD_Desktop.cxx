@@ -2647,7 +2647,8 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
       if (!myXmlHandler->myIdList.IsEmpty()) clearMenus();
       if ( myCombo->currentText() != component )
 	myCombo->setCurrentText( component );
-      if (component.compare(QString("Salome"))!= 0) {
+      //NRI if (component.compare(QString("Salome"))!= 0) {
+      if (component.compare( getComponentUserName( "KERNEL" ) )!= 0) {
 //	QApplication::setOverrideCursor( Qt::waitCursor );
 	myActiveComp = component;
 
@@ -2691,7 +2692,8 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 
       } else {  // component == "Salome"
 	myActiveComp = "";
-	myActiveStudy->Selection( "Salome" );
+	//NRI	myActiveStudy->Selection( "Salome" );
+	myActiveStudy->Selection( getComponentUserName( "KERNEL" ) );
 	SALOME_Selection* Sel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
 	Sel->ClearIObjects();
 	for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
@@ -3283,7 +3285,7 @@ void QAD_Desktop::helpSearch()
 void QAD_Desktop::helpContents()
 {
   if (myActiveComp == "")
-    myActiveComp = "Salome";
+    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
 
   QCString dir;
   QString root;

@@ -77,7 +77,8 @@ myPath( path )
     SCRUTE(_interp);
 
     /* create default selection */
-    Selection( "Salome" );
+    //NRI    Selection( "Salome" );
+    Selection( QAD_Application::getDesktop()->getComponentUserName( "KERNEL" ) );
 
     /* create study frame */
     myResult = true;
