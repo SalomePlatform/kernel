@@ -220,7 +220,6 @@ all:
 	$(MAKE) bin
 	$(MAKE) resources
 	$(MAKE) data
-	$(MAKE) doc
 
 #
 # add target to build administrative files
