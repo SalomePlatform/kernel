@@ -1,9 +1,10 @@
-//  File      : Plot2d_ViewFrame.cxx
-//  Created   : Wed Jun 27 16:38:42 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d_ViewFrame.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #include "Plot2d_ViewFrame.h"
@@ -17,6 +18,7 @@
 #include "SALOME_Selection.h"
 #include "Plot2d_CurveContainer.h"
 #include "Plot2d_Curve.h"
+#include "Plot2d_FitDataDlg.h"
 #include "utilities.h"
 #include "qapplication.h"
 #include <qtoolbar.h>
@@ -24,6 +26,13 @@
 #include <qcursor.h>
 #include <qwt_math.h>
 #include <qwt_plot_canvas.h>
+#include <stdlib.h>
+#include "utilities.h"
+
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
 #define DEFAULT_LINE_WIDTH     0     // (default) line width
 #define DEFAULT_MARKER_SIZE    9     // default marker size
@@ -91,9 +100,6 @@ Plot2d_ViewFrame::Plot2d_ViewFrame( QWidget* parent, const QString& title )
        myXMode( 0 ), myYMode( 0 )
        
 {
-  setCaption( tr( "PLOT_2D_TLT" ) );
-  setDockMenuEnabled( false );
-
   myCurves.setAutoDelete( true );
   /* Plot 2d View */
   myPlot = new Plot2d_Plot2d( this );
@@ -128,7 +134,7 @@ Plot2d_ViewFrame::Plot2d_ViewFrame( QWidget* parent, const QString& title )
   myPlot->replot();
 
   if ( parent ) {
-    resize( 0.8 * parent->width(), 0.8 * parent->height() );
+    resize( (int)(0.8 * parent->width()), (int)(0.8 * parent->height()) );
   }
 }
 /*!
@@ -136,6 +142,7 @@ Plot2d_ViewFrame::Plot2d_ViewFrame( QWidget* parent, const QString& title )
 */
 Plot2d_ViewFrame::~Plot2d_ViewFrame()
 {
+  myActions.clear();
   qApp->removeEventFilter( this );
 }
 /*!
@@ -146,41 +153,41 @@ void Plot2d_ViewFrame::createActions()
   QAD_ResourceMgr* rmgr = QAD_Desktop::getResourceManager();
   /* Linear/logarithmic mode */
   // Horizontal axis
-  QActionGroup* modeHorGrp = new QActionGroup( this );
+  QActionPGroup* modeHorGrp = new QActionPGroup( this );
   modeHorGrp->setExclusive( TRUE );
-  QAction* linearXAction = new QAction ( tr( "TOT_PLOT2D_MODE_LINEAR_HOR"),
+  QActionP* linearXAction = new QActionP ( tr( "TOT_PLOT2D_MODE_LINEAR_HOR"),
 				         rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_MODE_LINEAR_HOR") ) ,
 				         tr( "MEN_PLOT2D_MODE_LINEAR_HOR" ), 0, modeHorGrp );
   linearXAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LINEAR_HOR" ) );
   linearXAction->setToggleAction( true );
   myActions.insert( ModeXLinearId, linearXAction );
-  QAction* logXAction = new QAction ( tr( "TOT_PLOT2D_MODE_LOGARITHMIC_HOR"),
+  QActionP* logXAction = new QActionP ( tr( "TOT_PLOT2D_MODE_LOGARITHMIC_HOR"),
 				      rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_MODE_LOGARITHMIC_HOR") ) ,
 				      tr( "MEN_PLOT2D_MODE_LOGARITHMIC_HOR" ), 0, modeHorGrp );
   logXAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LOGARITHMIC_HOR" ) );
   logXAction->setToggleAction( true );
   myActions.insert( ModeXLogarithmicId, logXAction );
-  connect( modeHorGrp, SIGNAL( selected( QAction* ) ), this, SLOT( onHorMode() ) );
+  connect( modeHorGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onHorMode() ) );
 
   // Vertical axis
-  QActionGroup* modeVerGrp = new QActionGroup( this );
+  QActionPGroup* modeVerGrp = new QActionPGroup( this );
   modeVerGrp->setExclusive( TRUE );
-  QAction* linearYAction = new QAction ( tr( "TOT_PLOT2D_MODE_LINEAR_VER"),
+  QActionP* linearYAction = new QActionP ( tr( "TOT_PLOT2D_MODE_LINEAR_VER"),
 				         rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_MODE_LINEAR_VER") ) ,
 				         tr( "MEN_PLOT2D_MODE_LINEAR_VER" ), 0, modeVerGrp );
   linearYAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LINEAR_VER" ) );
   linearYAction->setToggleAction( true );
   myActions.insert( ModeYLinearId, linearYAction );
-  QAction* logYAction = new QAction ( tr( "TOT_PLOT2D_MODE_LOGARITHMIC_VER"),
+  QActionP* logYAction = new QActionP ( tr( "TOT_PLOT2D_MODE_LOGARITHMIC_VER"),
 				      rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_MODE_LOGARITHMIC_VER") ) ,
 				      tr( "MEN_PLOT2D_MODE_LOGARITHMIC_VER" ), 0, modeVerGrp );
   logYAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LOGARITHMIC_VER" ) );
   logYAction->setToggleAction( true );
   myActions.insert( ModeYLogarithmicId, logYAction );
-  connect( modeVerGrp, SIGNAL( selected( QAction* ) ), this, SLOT( onVerMode() ) );
+  connect( modeVerGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onVerMode() ) );
 
   /* Legend */
-  QAction* legendAction = new QAction ( tr( "TOT_PLOT2D_SHOW_LEGEND"),
+  QActionP* legendAction = new QActionP ( tr( "TOT_PLOT2D_SHOW_LEGEND"),
 				        rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_SHOW_LEGEND") ) ,
 				        tr( "MEN_PLOT2D_SHOW_LEGEND" ), 0, this );
   legendAction->setStatusTip ( tr( "PRP_PLOT2D_SHOW_LEGEND" ) );
@@ -189,35 +196,43 @@ void Plot2d_ViewFrame::createActions()
   connect( legendAction, SIGNAL( activated() ), this, SLOT( onLegend() ) );
 
   /* Curve type */
-  QActionGroup* curveGrp = new QActionGroup( this );
+  QActionPGroup* curveGrp = new QActionPGroup( this );
   curveGrp->setExclusive( TRUE );
-  QAction* pointsAction = new QAction ( tr( "TOT_PLOT2D_CURVES_POINTS"),
+  QActionP* pointsAction = new QActionP ( tr( "TOT_PLOT2D_CURVES_POINTS"),
 				        rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_CURVES_POINTS") ) ,
 				        tr( "MEN_PLOT2D_CURVES_POINTS" ), 0, curveGrp );
   pointsAction->setStatusTip ( tr( "PRP_PLOT2D_CURVES_POINTS" ) );
   pointsAction->setToggleAction( true );
   myActions.insert( CurvePointsId, pointsAction );
-  QAction* linesAction = new QAction ( tr( "TOT_PLOT2D_CURVES_LINES"),
+  QActionP* linesAction = new QActionP ( tr( "TOT_PLOT2D_CURVES_LINES"),
 				       rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_CURVES_LINES") ) ,
 				       tr( "MEN_PLOT2D_CURVES_LINES" ), 0, curveGrp );
   linesAction->setStatusTip ( tr( "PRP_PLOT2D_CURVES_LINES" ) );
   linesAction->setToggleAction( true );
   myActions.insert( CurveLinesId, linesAction );
-  QAction* splinesAction = new QAction ( tr( "TOT_PLOT2D_CURVES_SPLINES"),
+  QActionP* splinesAction = new QActionP ( tr( "TOT_PLOT2D_CURVES_SPLINES"),
 				         rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_CURVES_SPLINES") ) ,
 				         tr( "MEN_PLOT2D_CURVES_SPLINES" ), 0, curveGrp );
   splinesAction->setStatusTip ( tr( "PRP_PLOT2D_CURVES_SPLINES" ) );
   splinesAction->setToggleAction( true );
   myActions.insert( CurveSplinesId, splinesAction );
-  connect( curveGrp, SIGNAL( selected( QAction* ) ), this, SLOT( onCurves() ) );
+  connect( curveGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onCurves() ) );
 
   // Settings
-  QAction* settingsAction = new QAction ( tr( "TOT_PLOT2D_SETTINGS"),
+  QActionP* settingsAction = new QActionP ( tr( "TOT_PLOT2D_SETTINGS"),
 					  rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_SETTINGS") ) ,
 					  tr( "MEN_PLOT2D_SETTINGS" ), 0, this );
   settingsAction->setStatusTip ( tr( "PRP_PLOT2D_SETTINGS" ) );
   myActions.insert( SettingsId, settingsAction );
   connect( settingsAction, SIGNAL( activated() ), this, SLOT( onSettings() ) );
+
+  // Fit Data
+  QActionP* fitDataAction = new QActionP ( tr( "TOT_PLOT2D_FITDATA"),
+					 rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_FITDATA") ) ,
+					 tr( "MEN_PLOT2D_FITDATA" ), 0, this );
+  fitDataAction->setStatusTip ( tr( "PRP_PLOT2D_FITDATA" ) );
+  myActions.insert( FitDataId, fitDataAction );
+  connect( fitDataAction, SIGNAL( activated() ), this, SLOT( onFitData() ) );
 }
 /*!
   Gets window's central widget
@@ -245,6 +260,7 @@ void Plot2d_ViewFrame::onCreatePopup()
     scalingPopup->insertSeparator();
     myActions[ ModeYLinearId ]->addTo( scalingPopup );
     myActions[ ModeYLogarithmicId ]->addTo( scalingPopup );
+    myActions[ FitDataId ]->addTo( myPopup );
     myPopup->insertItem( tr( "SCALING_POPUP" ), scalingPopup );
     // curve type
     QPopupMenu* curTypePopup = new QPopupMenu( myPopup );
@@ -276,6 +292,7 @@ void Plot2d_ViewFrame::rename( const Handle(SALOME_InteractiveObject)& IObject, 
 //	myPlot->getLegend()->setText( legendIndex, aSymbol );
     }
   }
+  updateTitles();
 }
 /*!
   Returns true if interactive object is presented in the viewer
@@ -497,11 +514,119 @@ void Plot2d_ViewFrame::writePreferences()
 QString Plot2d_ViewFrame::getInfo( const QPoint& pnt ) 
 {
   QString info;
-  info.sprintf( "%g - %g",
+  info.sprintf( "X : %g\tY : %g",
 	        myPlot->invTransform( QwtPlot::xBottom, pnt.x() ),
 	        myPlot->invTransform( QwtPlot::yLeft,   pnt.y() ) );
   info = tr( "INF_COORDINATES" ) + " : " + info;
   return info;
+}
+/*!
+  Converts Plot2d_Curve's marker style to Qwt marker style [ static ]
+*/
+static QwtSymbol::Style plot2qwtMarker( Plot2d_Curve::MarkerType m )
+{
+  QwtSymbol::Style ms = QwtSymbol::None;  
+  switch ( m ) {
+  case Plot2d_Curve::Circle:
+    ms = QwtSymbol::Ellipse;   break;
+  case Plot2d_Curve::Rectangle:
+    ms = QwtSymbol::Rect;      break;
+  case Plot2d_Curve::Diamond:
+    ms = QwtSymbol::Diamond;   break;
+  case Plot2d_Curve::DTriangle:
+    ms = QwtSymbol::DTriangle; break;
+  case Plot2d_Curve::UTriangle:
+    ms = QwtSymbol::UTriangle; break;
+  case Plot2d_Curve::LTriangle: // Qwt confuses LTriangle and RTriangle :(((
+    ms = QwtSymbol::RTriangle; break;
+  case Plot2d_Curve::RTriangle: // Qwt confuses LTriangle and RTriangle :(((
+    ms = QwtSymbol::LTriangle; break;
+  case Plot2d_Curve::Cross:
+    ms = QwtSymbol::Cross;     break;
+  case Plot2d_Curve::XCross:
+    ms = QwtSymbol::XCross;    break;
+  case Plot2d_Curve::None:
+  default:
+    ms = QwtSymbol::None;      break;
+  }
+  return ms;
+}
+/*!
+  Converts Qwt marker style to Plot2d_Curve's marker style [ static ]
+*/
+static Plot2d_Curve::MarkerType qwt2plotMarker( QwtSymbol::Style m )
+{
+  Plot2d_Curve::MarkerType ms = Plot2d_Curve::None;  
+  switch ( m ) {
+  case QwtSymbol::Ellipse:
+    ms = Plot2d_Curve::Circle;    break;
+  case QwtSymbol::Rect:
+    ms = Plot2d_Curve::Rectangle; break;
+  case QwtSymbol::Diamond:
+    ms = Plot2d_Curve::Diamond;   break;
+  case QwtSymbol::DTriangle:
+    ms = Plot2d_Curve::DTriangle; break;
+  case QwtSymbol::UTriangle:
+    ms = Plot2d_Curve::UTriangle; break;
+  case QwtSymbol::RTriangle: // Qwt confuses LTriangle and RTriangle :(((
+    ms = Plot2d_Curve::LTriangle; break;
+  case QwtSymbol::LTriangle: // Qwt confuses LTriangle and RTriangle :(((
+    ms = Plot2d_Curve::RTriangle; break;
+  case QwtSymbol::Cross:
+    ms = Plot2d_Curve::Cross;     break;
+  case QwtSymbol::XCross:
+    ms = Plot2d_Curve::XCross;    break;
+  case QwtSymbol::None:
+  default:
+    ms = Plot2d_Curve::None;      break;
+  }
+  return ms;
+}
+/*!
+  Converts Plot2d_Curve's line style to Qwt line style [ static ]
+*/
+static Qt::PenStyle plot2qwtLine( Plot2d_Curve::LineType p )
+{
+  Qt::PenStyle ps = Qt::NoPen;
+  switch ( p ) {
+  case Plot2d_Curve::Solid:
+    ps = Qt::SolidLine;      break;
+  case Plot2d_Curve::Dash:
+    ps = Qt::DashLine;       break;
+  case Plot2d_Curve::Dot:
+    ps = Qt::DotLine;        break;
+  case Plot2d_Curve::DashDot:
+    ps = Qt::DashDotLine;    break;
+  case Plot2d_Curve::DashDotDot:
+    ps = Qt::DashDotDotLine; break;
+  case Plot2d_Curve::NoPen:
+  default:
+    ps = Qt::NoPen;          break;
+  }
+  return ps;
+}
+/*!
+  Converts Qwt line style to Plot2d_Curve's line style [ static ]
+*/
+static Plot2d_Curve::LineType qwt2plotLine( Qt::PenStyle p )
+{
+  Plot2d_Curve::LineType ps = Plot2d_Curve::NoPen;
+  switch ( p ) {
+  case Qt::SolidLine:
+    ps = Plot2d_Curve::Solid;      break;
+  case Qt::DashLine:
+    ps = Plot2d_Curve::Dash;       break;
+  case Qt::DotLine:
+    ps = Plot2d_Curve::Dot;        break;
+  case Qt::DashDotLine:
+    ps = Plot2d_Curve::DashDot;    break;
+  case Qt::DashDotDotLine:
+    ps = Plot2d_Curve::DashDotDot; break;
+  case Qt::NoPen:
+  default:
+    ps = Plot2d_Curve::NoPen;      break;
+  }
+  return ps;
 }
 /*!
   Adds curve into view
@@ -526,48 +651,13 @@ void Plot2d_ViewFrame::displayCurve( Plot2d_Curve* curve, bool update )
 						   QBrush( color ), 
 						   QPen( color ), 
 						   QSize( myMarkerSize, myMarkerSize ) ) );
+      curve->setColor( color );
+      curve->setLine( qwt2plotLine( typeLine ) );
+      curve->setMarker( qwt2plotMarker( typeMarker ) );
     }
     else {
-      Qt::PenStyle     ps = Qt::NoPen;
-      QwtSymbol::Style ms = QwtSymbol::None;
-      switch ( curve->getLine() ) {
-      case Plot2d_Curve::Solid:
-	ps = Qt::SolidLine;      break;
-      case Plot2d_Curve::Dash:
-	ps = Qt::DashLine;       break;
-      case Plot2d_Curve::Dot:
-	ps = Qt::DotLine;        break;
-      case Plot2d_Curve::DashDot:
-	ps = Qt::DashDotLine;    break;
-      case Plot2d_Curve::DashDotDot:
-	ps = Qt::DashDotDotLine; break;
-      case Plot2d_Curve::NoPen:
-      default:
-	ps = Qt::NoPen;          break;
-      }
-      switch ( curve->getMarker() ) {
-      case Plot2d_Curve::Circle:
-	ms = QwtSymbol::Ellipse;   break;
-      case Plot2d_Curve::Rectangle:
-	ms = QwtSymbol::Rect;      break;
-      case Plot2d_Curve::Diamond:
-	ms = QwtSymbol::Diamond;   break;
-      case Plot2d_Curve::DTriangle:
-	ms = QwtSymbol::DTriangle; break;
-      case Plot2d_Curve::UTriangle:
-	ms = QwtSymbol::UTriangle; break;
-      case Plot2d_Curve::LTriangle: // Qwt confuses LTriangle and RTriangle :(((
-	ms = QwtSymbol::RTriangle; break;
-      case Plot2d_Curve::RTriangle: // Qwt confuses LTriangle and RTriangle :(((
-	ms = QwtSymbol::LTriangle; break;
-      case Plot2d_Curve::Cross:
-	ms = QwtSymbol::Cross;     break;
-      case Plot2d_Curve::XCross:
-	ms = QwtSymbol::XCross;    break;
-      case Plot2d_Curve::None:
-      default:
-	ms = QwtSymbol::None;      break;
-      }
+      Qt::PenStyle     ps = plot2qwtLine( curve->getLine() );
+      QwtSymbol::Style ms = plot2qwtMarker( curve->getMarker() );
       myPlot->setCurvePen( curveKey, QPen( curve->getColor(), curve->getLineWidth(), ps ) );
       myPlot->setCurveSymbol( curveKey, QwtSymbol( ms, 
 						   QBrush( curve->getColor() ), 
@@ -582,7 +672,7 @@ void Plot2d_ViewFrame::displayCurve( Plot2d_Curve* curve, bool update )
       myPlot->setCurveStyle( curveKey, QwtCurve::Spline );
     myPlot->setCurveData( curveKey, curve->horData(), curve->verData(), curve->nbPoints() );
   }
-//  updateTitles();
+  updateTitles();
   if ( update )
     myPlot->replot();
 }
@@ -591,10 +681,12 @@ void Plot2d_ViewFrame::displayCurve( Plot2d_Curve* curve, bool update )
 */
 void Plot2d_ViewFrame::displayCurves( Plot2d_CurveContainer& curves, bool update )
 {
+  myPlot->setUpdatesEnabled( false );
   for ( int i = 0; i < curves.count(); i++ ) {
     displayCurve( curves.curve( i ), false );
   }
 //  fitAll();
+  myPlot->setUpdatesEnabled( true );
   if ( update )
     myPlot->replot();
 }
@@ -609,6 +701,7 @@ void Plot2d_ViewFrame::eraseCurve( Plot2d_Curve* curve, bool update )
   if ( curveKey ) {
     myPlot->removeCurve( curveKey );
     myCurves.remove( curveKey );
+    updateTitles();
     if ( update )
       myPlot->replot();
   }
@@ -626,7 +719,7 @@ void Plot2d_ViewFrame::eraseCurves( Plot2d_CurveContainer& curves, bool update )
     myPlot->replot();
 }
 /*!
-  Udpates curves attributes
+  Updates curves attributes
 */
 void Plot2d_ViewFrame::updateCurve( Plot2d_Curve* curve, bool update )
 {
@@ -635,54 +728,17 @@ void Plot2d_ViewFrame::updateCurve( Plot2d_Curve* curve, bool update )
   int curveKey = hasCurve( curve );
   if ( curveKey ) {
     if ( !curve->isAutoAssign() ) {
-      Qt::PenStyle     ps = Qt::NoPen;
-      QwtSymbol::Style ms = QwtSymbol::None;
-      switch ( curve->getLine() ) {
-      case Plot2d_Curve::Solid:
-	ps = Qt::SolidLine;      break;
-      case Plot2d_Curve::Dash:
-	ps = Qt::DashLine;       break;
-      case Plot2d_Curve::Dot:
-	ps = Qt::DotLine;        break;
-      case Plot2d_Curve::DashDot:
-	ps = Qt::DashDotLine;    break;
-      case Plot2d_Curve::DashDotDot:
-	ps = Qt::DashDotDotLine; break;
-      case Plot2d_Curve::NoPen:
-      default:
-	ps = Qt::NoPen;          break;
-      }
-      switch ( curve->getMarker() ) {
-      case Plot2d_Curve::Circle:
-	ms = QwtSymbol::Ellipse;   break;
-      case Plot2d_Curve::Rectangle:
-	ms = QwtSymbol::Rect;      break;
-      case Plot2d_Curve::Diamond:
-	ms = QwtSymbol::Diamond;   break;
-      case Plot2d_Curve::DTriangle:
-	ms = QwtSymbol::DTriangle; break;
-      case Plot2d_Curve::UTriangle:
-	ms = QwtSymbol::UTriangle; break;
-      case Plot2d_Curve::LTriangle: // Qwt confuses LTriangle and RTriangle :(((
-	ms = QwtSymbol::RTriangle; break;
-      case Plot2d_Curve::RTriangle: // Qwt confuses LTriangle and RTriangle :(((
-	ms = QwtSymbol::LTriangle; break;
-      case Plot2d_Curve::Cross:
-	ms = QwtSymbol::Cross;     break;
-      case Plot2d_Curve::XCross:
-	ms = QwtSymbol::XCross;    break;
-      case Plot2d_Curve::None:
-      default:
-	ms = QwtSymbol::None;      break;
-      }
-	myPlot->setCurvePen( curveKey, QPen( curve->getColor(), curve->getLineWidth(), ps ) );
-	myPlot->setCurveSymbol( curveKey, QwtSymbol( ms, 
-						     QBrush( curve->getColor() ), 
-						     QPen( curve->getColor() ), 
-						     QSize( myMarkerSize, myMarkerSize ) ) );
+      Qt::PenStyle     ps = plot2qwtLine( curve->getLine() );
+      QwtSymbol::Style ms = plot2qwtMarker( curve->getMarker() );
+      myPlot->setCurvePen( curveKey, QPen( curve->getColor(), curve->getLineWidth(), ps ) );
+      myPlot->setCurveSymbol( curveKey, QwtSymbol( ms, 
+						   QBrush( curve->getColor() ), 
+						   QPen( curve->getColor() ), 
+						   QSize( myMarkerSize, myMarkerSize ) ) );
     }
     myPlot->setCurveTitle( curveKey, curve->getVerTitle() );
     myPlot->curve( curveKey )->setEnabled( true );
+    updateTitles();
     if ( update )
       myPlot->replot();
   }
@@ -723,32 +779,72 @@ int Plot2d_ViewFrame::getCurves( QList<Plot2d_Curve>& clist )
   }
   return clist.count();
 }
+
 /*!
   Updates titles according to curves
 */
+#define BRACKETIZE(x) QString( "[ " ) + x + QString( " ]" )
 void Plot2d_ViewFrame::updateTitles() 
 {
+  QAD_Study* activeStudy = QAD_Application::getDesktop()->getActiveStudy();
   QIntDictIterator<Plot2d_Curve> it( myCurves );
-  if ( it.current() ) {
-    // update axes title
-    QString xTitle = it.current()->getHorTitle();
-    QString yTitle = it.current()->getVerTitle();
-    QString xUnits = it.current()->getHorUnits();
-    QString yUnits = it.current()->getVerUnits();
+  QStringList aXTitles;
+  QStringList aYTitles;
+  QStringList aXUnits;
+  QStringList aYUnits;
+  QStringList aTables;
+  int i = 0;
+  while ( it.current() ) {
+    // collect titles and units from all curves...
+    QString xTitle = it.current()->getHorTitle().stripWhiteSpace();
+    QString yTitle = it.current()->getVerTitle().stripWhiteSpace();
+    QString xUnits = it.current()->getHorUnits().stripWhiteSpace();
+    QString yUnits = it.current()->getVerUnits().stripWhiteSpace();
     
-    xUnits = QString( "[ " ) + xUnits + QString( " ]" );
-    xTitle = xTitle + ( xTitle.isEmpty() ? QString("") : QString(" ") ) + xUnits;
-    yUnits = QString( "[ " ) + yUnits + QString( " ]" );
-    yTitle = yTitle + ( yTitle.isEmpty() ? QString("") : QString(" ") ) + yUnits;
-    setXTitle( myXTitleEnabled, xTitle );
-    if ( myCurves.count() == 1 ) {
-      setYTitle( myYTitleEnabled, yTitle );
+    aYTitles.append( yTitle );
+    if ( aXTitles.find( xTitle ) == aXTitles.end() )
+      aXTitles.append( xTitle );
+    if ( aXUnits.find( xUnits ) == aXUnits.end() )
+      aXUnits.append( xUnits );
+    if ( aYUnits.find( yUnits ) == aYUnits.end() )
+      aYUnits.append( yUnits );
+
+    if ( activeStudy && it.current()->hasTableIO() ) { 
+      SALOMEDS::SObject_var SO = activeStudy->getStudyDocument()->FindObjectID( it.current()->getTableIO()->getEntry() );
+      if ( !SO->_is_nil() ) {
+	SALOMEDS::GenericAttribute_var anAttr;
+	if ( SO->FindAttribute( anAttr, "AttributeName" ) ) {
+	  SALOMEDS::AttributeName_var aNameAttr = SALOMEDS::AttributeName::_narrow( anAttr );
+	  QString aName = aNameAttr->Value();
+	  if ( !aName.isEmpty() && aTables.find( aName ) == aTables.end() )
+	    aTables.append( aName );
+	}
+      }
     }
-    else {
-      setYTitle( myYTitleEnabled, yUnits );
-    }
-    setTitle( "" );
+
+    ++it;
+    ++i;
   }
+  // ... and update plot 2d view
+  QString xUnits, yUnits;
+  if ( aXUnits.count() == 1 && !aXUnits[0].isEmpty() )
+    xUnits = BRACKETIZE( aXUnits[0] );
+  if ( aYUnits.count() == 1 && !aYUnits[0].isEmpty())
+    yUnits = BRACKETIZE( aYUnits[0] );
+  QString xTitle, yTitle;
+  if ( aXTitles.count() == 1 && aXUnits.count() == 1 )
+    xTitle = aXTitles[0];
+  if ( aYTitles.count() == 1 )
+    yTitle = aYTitles[0];
+
+  if ( !xTitle.isEmpty() && !xUnits.isEmpty() )
+    xTitle += " ";
+  if ( !yTitle.isEmpty() && !yUnits.isEmpty() )
+    yTitle += " ";
+
+  setXTitle( myXTitleEnabled, xTitle + xUnits );
+  setYTitle( myYTitleEnabled, yTitle + yUnits );
+  setTitle( aTables.join("; ") );
 }
 /*!
   Fits the view to see all data
@@ -843,6 +939,51 @@ void Plot2d_ViewFrame::onCurves()
 */
 void Plot2d_ViewFrame::onSettings()
 {
+#ifdef TEST_AUTOASSIGN
+  typedef QMap<int,int> IList;
+  typedef QMap<QString,int> SList;
+  IList mars, lins;
+  SList cols;
+  cols[ "red-min" ]   = 1000;
+  cols[ "red-max" ]   = -1;
+  cols[ "green-min" ] = 1000;
+  cols[ "green-max" ] = -1;
+  cols[ "blue-min" ]  = 1000;
+  cols[ "blue-max" ]  = -1;
+  for ( unsigned i = 0; i < 10000; i++ ) {
+    QwtSymbol::Style typeMarker;
+    QColor           color;
+    Qt::PenStyle     typeLine;
+    myPlot->getNextMarker( typeMarker, color, typeLine );
+    if ( mars.contains(typeMarker) )
+      mars[ typeMarker ] = mars[ typeMarker ]+1;
+    else
+      mars[ typeMarker ] = 0;
+    if ( lins.contains(typeLine) )
+      lins[ typeLine ] = lins[ typeLine ]+1;
+    else
+      lins[ typeLine ] = 0;
+    if ( cols[ "red-max" ] < color.red() )
+      cols[ "red-max" ] = color.red();
+    if ( cols[ "red-min" ] > color.red() )
+      cols[ "red-min" ] = color.red();
+    if ( cols[ "green-max" ] < color.green() )
+      cols[ "green-max" ] = color.green();
+    if ( cols[ "green-min" ] > color.green() )
+      cols[ "green-min" ] = color.green();
+    if ( cols[ "blue-max" ] < color.blue() )
+      cols[ "blue-max" ] = color.blue();
+    if ( cols[ "blue-min" ] > color.blue() )
+      cols[ "blue-min" ] = color.blue();
+  }
+  for (IList::Iterator it = mars.begin();  it != mars.end(); ++it)
+    MESSAGE("markers( " << it.key() << ") = " << it.data() );
+  for (IList::Iterator it = lins.begin();  it != lins.end(); ++it)
+    MESSAGE("lines( " << it.key() << ") = " << it.data() );
+  for (SList::Iterator it = cols.begin();  it != cols.end(); ++it)
+    MESSAGE("colors( " << it.key() << ") = " << it.data() );
+#endif
+  
   Plot2d_SetupViewDlg* dlg = new Plot2d_SetupViewDlg( this, true );
   dlg->setMainTitle( myTitleEnabled, myTitle );
   dlg->setXTitle( myXTitleEnabled, myXTitle );
@@ -902,6 +1043,32 @@ void Plot2d_ViewFrame::onSettings()
     // update preferences
     if ( dlg->isSetAsDefault() ) 
       writePreferences();
+  }
+  delete dlg;
+}
+/*!
+  "Fit Data" command slot
+*/
+void Plot2d_ViewFrame::onFitData()
+{
+  Plot2d_FitDataDlg* dlg = new Plot2d_FitDataDlg( this );
+  int ixMin = myPlot->canvasMap( QwtPlot::xBottom ).i1();
+  int ixMax = myPlot->canvasMap( QwtPlot::xBottom ).i2();
+  int iyMin = myPlot->canvasMap( QwtPlot::yLeft ).i1();
+  int iyMax = myPlot->canvasMap( QwtPlot::yLeft ).i2();
+  double xMin = myPlot->invTransform(QwtPlot::xBottom, ixMin);
+  double xMax = myPlot->invTransform(QwtPlot::xBottom, ixMax);
+  double yMin = myPlot->invTransform(QwtPlot::yLeft, iyMin);
+  double yMax = myPlot->invTransform(QwtPlot::yLeft, iyMax);
+  
+  dlg->setRange( xMin, xMax, yMin, yMax );
+  if ( dlg->exec() == QDialog::Accepted ) {
+    int mode = dlg->getRange( xMin, xMax, yMin, yMax );
+    if ( mode == 0 || mode == 2 ) 
+      myPlot->setAxisScale( QwtPlot::yLeft, yMax, yMin );
+    if ( mode == 0 || mode == 1 ) 
+      myPlot->setAxisScale( QwtPlot::xBottom, xMin, xMax ); 
+    myPlot->replot();
   }
   delete dlg;
 }
@@ -994,7 +1161,16 @@ void Plot2d_ViewFrame::setMarkerSize( const int size, bool update )
 void Plot2d_ViewFrame::setBackgroundColor( const QColor& color )
 {
   myBackground = color;
-  myPlot->setCanvasBackground( myBackground );
+  //myPlot->setCanvasBackground( myBackground );
+  myPlot->canvas()->setPalette( myBackground );
+  myPlot->setPalette( myBackground );
+  QPalette aPal = myPlot->getLegend()->palette();
+  for ( int i = 0; i < QPalette::NColorGroups; i++ ) {
+    QPalette::ColorGroup cg = (QPalette::ColorGroup)i;
+    aPal.setColor( cg, QColorGroup::Base, myBackground );
+    aPal.setColor( cg, QColorGroup::Background, myBackground );
+  }
+  myPlot->getLegend()->setPalette( aPal );
 }
 /*!
   Gets background color
@@ -1336,10 +1512,44 @@ void Plot2d_Plot2d::replot()
   QwtPlot::replot(); 
 }
 /*!
+  Checks if two colors are close to each other [ static ]
+  uses COLOR_DISTANCE variable as max tolerance for comparing of colors
+*/
+const long COLOR_DISTANCE = 100;
+const int  MAX_ATTEMPTS   = 10;
+static bool closeColors( const QColor& color1, const QColor& color2 )
+{
+  long tol = abs( color2.red()   - color1.red() ) + 
+             abs( color2.green() - color1.green() ) +
+	     abs( color2.blue()  - color1.blue() );
+
+  return ( tol <= COLOR_DISTANCE );
+}
+/*!
   Gets new unique marker for item if possible
 */
 void Plot2d_Plot2d::getNextMarker( QwtSymbol::Style& typeMarker, QColor& color, Qt::PenStyle& typeLine ) 
 {
+  bool bOk = false;
+  int cnt = 1;
+  while ( !bOk ) {
+    int aRed    = (int)( 256.0 * random() / RAND_MAX);    // generate random color
+    int aGreen  = (int)( 256.0 * random() / RAND_MAX);    // ...
+    int aBlue   = (int)( 256.0 * random() / RAND_MAX);    // ...
+    int aMarker = (int)( 9.0 * random() / RAND_MAX) + 1;  // 9 markers types ( not including empty )
+    int aLine   = (int)( 5.0 * random() / RAND_MAX) + 1;  // 5 line types ( not including empty )
+
+    typeMarker = ( QwtSymbol::Style )aMarker;
+    color      = QColor( aRed, aGreen, aBlue );
+    typeLine   = ( Qt::PenStyle )aLine;
+
+    cnt++;
+    if ( cnt == MAX_ATTEMPTS )
+      bOk = true;
+    else
+      bOk = !existMarker( typeMarker, color, typeLine );
+  }
+/*
   static int aMarker = -1;
   static int aColor  = -1;
   static int aLine   = -1;
@@ -1398,6 +1608,7 @@ void Plot2d_Plot2d::getNextMarker( QwtSymbol::Style& typeMarker, QColor& color, 
       }
     }
   }
+*/
 }
 /*!
   Checks if marker belongs to any enitity
@@ -1408,16 +1619,18 @@ bool Plot2d_Plot2d::existMarker( const QwtSymbol::Style typeMarker, const QColor
   QArray<long> keys = curveKeys();
   QColor aRgbColor;
 
+  if ( closeColors( color, backgroundColor() ) )
+      return true;
   for ( int i = 0; i < keys.count(); i++ ) {
     QwtPlotCurve* crv = curve( keys[i] );
     if ( crv ) {
       QwtSymbol::Style aStyle = crv->symbol().style();
       QColor           aColor = crv->pen().color();
       Qt::PenStyle     aLine  = crv->pen().style();
-      if ( aStyle == typeMarker && aColor == color && aLine == typeLine )
+//      if ( aStyle == typeMarker && aColor == color && aLine == typeLine )
+      if ( aStyle == typeMarker && closeColors( aColor,color ) && aLine == typeLine )
 	return true;
     }
   }
   return false;
 }
-

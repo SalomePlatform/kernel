@@ -1,9 +1,14 @@
-using namespace std;
-// File      : SALOMEGUI_CloseDlg.cxx
-// Created   : Wed Feb 26 11:40:52 2003
-// Author    : Vasily RUSYAEV (vrv)
-// Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_CloseDlg.cxx
+//  Author : Vasily RUSYAEV (vrv)
+//  Module : SALOME
 
+using namespace std;
 #include "SALOMEGUI_CloseDlg.h"
 
 #include <qpushbutton.h>

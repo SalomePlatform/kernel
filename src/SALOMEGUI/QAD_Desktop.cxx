@@ -1,13 +1,29 @@
-using namespace std;
-//  File      : QAD_Desktop.cxx
-//  Created   : UI team, 02.10.00
-//  Descr     : Main desktop of QAD-based application
-
-//  Modified  : Mon Dec 03 13:40:28 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_Desktop.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
 /*!
@@ -70,6 +86,7 @@ using namespace std;
 #include <qiconset.h>
 #include <qfontdialog.h>
 #include <qlineedit.h>
+#include <qdatetime.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -171,7 +188,7 @@ myQueryClose( true )
   /* default background icon */
   QPixmap backgroundicon ( QAD_Desktop::getResourceManager()->loadPixmap( "CLIENT",
 									  tr("ICON_DESK_BACKGROUNDICON") ));
-  myToolBarAction.setAutoDelete( true );
+//myToolBarAction.setAutoDelete( true );
 
   /* default icon and title */
   QPixmap icon ( QAD_Desktop::getResourceManager()->loadPixmap( "CLIENT",
@@ -278,6 +295,11 @@ myQueryClose( true )
   
   /* VSR 13/01/03 : installing global event filter for the application */
   qApp->installEventFilter( this );
+
+  /* init pseudo random numbers generator */
+  QTime cTime = QTime::currentTime();
+  int secs = cTime.second() + 1;
+  for ( int s = 0; s < secs; s++ ) random();
 }
 
 /*!
@@ -435,7 +457,7 @@ void QAD_Desktop::createActions()
     /*	'File' actions */
     /* new */
     QAD_ResourceMgr* rmgr = QAD_Desktop::getResourceManager();
-    QAction* fileNewAction = new QAction ( tr("TOT_DESK_FILE_NEW"),
+    QActionP* fileNewAction = new QActionP ( tr("TOT_DESK_FILE_NEW"),
 					   rmgr->loadPixmap( "QAD", tr("ICON_FILE_NEW") ) ,
 					   tr("MEN_DESK_FILE_NEW"), CTRL+Key_N, this );
     fileNewAction->setStatusTip ( tr("PRP_DESK_FILE_NEW") );
@@ -446,7 +468,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert ( FileNewId, fileNewAction );
 
     /* open */
-    QAction* fileOpenAction = new QAction( tr("TOT_DESK_FILE_OPEN"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_OPEN") ),
+    QActionP* fileOpenAction = new QActionP( tr("TOT_DESK_FILE_OPEN"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_OPEN") ),
 					   tr("MEN_DESK_FILE_OPEN"), CTRL+Key_O, this );
     fileOpenAction->setStatusTip ( tr("PRP_DESK_FILE_OPEN") );
     fileOpenAction->setEnabled ( true );
@@ -456,7 +478,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert ( FileOpenId, fileOpenAction );
 
     /* load */
-    QAction* fileLoadAction = new QAction( tr("TOT_DESK_FILE_LOAD"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_LOAD") ),
+    QActionP* fileLoadAction = new QActionP( tr("TOT_DESK_FILE_LOAD"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_LOAD") ),
 					   tr("MEN_DESK_FILE_LOAD"), CTRL+Key_L, this );
     fileLoadAction->setStatusTip ( tr("PRP_DESK_FILE_LOAD") );
     fileLoadAction->setEnabled ( true );
@@ -465,7 +487,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert ( FileLoadId, fileLoadAction );
 
     /* close */
-    QAction* fileCloseAction = new QAction( "", rmgr->loadPixmap( "QAD", tr("ICON_FILE_CLOSE") ),
+    QActionP* fileCloseAction = new QActionP( "", rmgr->loadPixmap( "QAD", tr("ICON_FILE_CLOSE") ),
 					    tr("MEN_DESK_FILE_CLOSE"), CTRL+Key_W, this );
     fileCloseAction->setStatusTip ( tr("PRP_DESK_FILE_CLOSE") );
     QAD_ASSERT ( connect( fileCloseAction, SIGNAL( activated() ), this, SLOT( onCloseStudy() )));
@@ -476,7 +498,7 @@ void QAD_Desktop::createActions()
     myFilePopup.insertSeparator();
 
     /* save */
-    QAction* fileSaveAction = new QAction( tr("TOT_DESK_FILE_SAVE"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_SAVE") ),
+    QActionP* fileSaveAction = new QActionP( tr("TOT_DESK_FILE_SAVE"), rmgr->loadPixmap( "QAD", tr("ICON_FILE_SAVE") ),
 					   tr("MEN_DESK_FILE_SAVE"), CTRL+Key_S, this );
     fileSaveAction->setStatusTip ( tr("PRP_DESK_FILE_SAVE") );
     QAD_ASSERT ( connect( fileSaveAction, SIGNAL( activated() ), this, SLOT( onSaveStudy() )));
@@ -485,7 +507,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert ( FileSaveId, fileSaveAction );
 
     /* save as */
-    QAction* fileSaveAsAction = new QAction( "", tr("MEN_DESK_FILE_SAVEAS"), 0, this );
+    QActionP* fileSaveAsAction = new QActionP( "", tr("MEN_DESK_FILE_SAVEAS"), 0, this );
     fileSaveAsAction->setStatusTip ( tr("PRP_DESK_FILE_SAVEAS") );
     QAD_ASSERT ( connect( fileSaveAsAction, SIGNAL( activated() ),
 			  this, SLOT( onSaveAsStudy() )));
@@ -497,7 +519,7 @@ void QAD_Desktop::createActions()
     myFilePopup.insertSeparator();
 
     // Study properties
-    QAction* filePropsAction = new QAction( "", QPixmap(), tr("MEN_DESK_FILE_PROPERTIES"), 0, this );
+    QActionP* filePropsAction = new QActionP( "", QPixmap(), tr("MEN_DESK_FILE_PROPERTIES"), 0, this );
     filePropsAction->setStatusTip ( tr("PRP_DESK_FILE_PROPERTIES") );
     filePropsAction->setEnabled(false);
     QAD_ASSERT ( connect( filePropsAction, SIGNAL( activated() ), this, SLOT( onStudyProperties() )));
@@ -512,7 +534,7 @@ void QAD_Desktop::createActions()
     myFilePos = myFilePopup.indexOf( id ) + 1;
 
     /* exit application */
-    QAction* exitAction = new QAction( "", tr("MEN_DESK_FILE_EXIT"),
+    QActionP* exitAction = new QActionP( "", tr("MEN_DESK_FILE_EXIT"),
 				       CTRL+Key_X, this );
     exitAction->setStatusTip ( tr("PRP_DESK_FILE_EXIT") );
     QAD_ASSERT ( connect( exitAction, SIGNAL( activated() ),
@@ -530,7 +552,7 @@ void QAD_Desktop::createActions()
 			  this, SLOT(onToolBarPopupAboutToShow()) ));
 
     /*	status bar */
-    QAction* viewStatusBarAction = new QAction( "",
+    QActionP* viewStatusBarAction = new QActionP( "",
 						tr("MEN_DESK_VIEW_STATUSBAR"),
 						0, this, 0, true );
     viewStatusBarAction->setStatusTip ( tr("PRP_DESK_VIEW_STATUSBAR") );
@@ -541,22 +563,22 @@ void QAD_Desktop::createActions()
 
 //    myViewPopup.insertItem( tr("MEN_DESK_SELECTION_MODE"), &mySelectionModePopup );
 
-    QAction* SelectionPointAction = new QAction( "", tr("MEN_DESK_SELECTION_POINT"), 0, this, 0, true  );
+    QActionP* SelectionPointAction = new QActionP( "", tr("MEN_DESK_SELECTION_POINT"), 0, this, 0, true  );
     QAD_ASSERT(connect( SelectionPointAction, SIGNAL(activated()), this, SLOT(onSelectionMode() )));
     SelectionPointAction->addTo( &mySelectionModePopup );
     myStdActions.insert( SelectionPointId, SelectionPointAction );
 
-    QAction* SelectionEdgeAction = new QAction( "", tr("MEN_DESK_SELECTION_EDGE"), 0, this, 0, true  );
+    QActionP* SelectionEdgeAction = new QActionP( "", tr("MEN_DESK_SELECTION_EDGE"), 0, this, 0, true  );
     QAD_ASSERT(connect( SelectionEdgeAction, SIGNAL(activated()), this, SLOT(onSelectionMode() )));
     SelectionEdgeAction->addTo( &mySelectionModePopup );
     myStdActions.insert( SelectionEdgeId, SelectionEdgeAction );
 
-    QAction* SelectionCellAction = new QAction( "", tr("MEN_DESK_SELECTION_CELL"), 0, this, 0, true  );
+    QActionP* SelectionCellAction = new QActionP( "", tr("MEN_DESK_SELECTION_CELL"), 0, this, 0, true  );
     QAD_ASSERT(connect( SelectionCellAction, SIGNAL(activated()), this, SLOT(onSelectionMode() )));
     SelectionCellAction->addTo( &mySelectionModePopup );
     myStdActions.insert( SelectionCellId, SelectionCellAction );
 
-    QAction* SelectionActorAction = new QAction( "", tr("MEN_DESK_SELECTION_ACTOR"), 0, this, 0, true );
+    QActionP* SelectionActorAction = new QActionP( "", tr("MEN_DESK_SELECTION_ACTOR"), 0, this, 0, true );
     QAD_ASSERT(connect( SelectionActorAction, SIGNAL(activated()), this, SLOT(onSelectionMode() )));
     SelectionActorAction->addTo( &mySelectionModePopup );
     myStdActions.insert( SelectionActorId, SelectionActorAction );
@@ -620,22 +642,22 @@ void QAD_Desktop::createActions()
     /* Viewer BackgroundColor */
     myPrefPopup.insertItem( tr("MEN_DESK_PREF_VIEWER"), &myViewerPopup );
     
-    QAction* viewerOCCAction = new QAction( "", tr("MEN_DESK_PREF_VIEWER_OCC"), 0, this );
+    QActionP* viewerOCCAction = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_OCC"), 0, this );
     QAD_ASSERT(connect( viewerOCCAction, SIGNAL(activated()), this, SLOT(onViewerOCC() )));
     viewerOCCAction->addTo( &myViewerPopup );
     myStdActions.insert( PrefViewerOCCId, viewerOCCAction );
 
-    QAction* viewerVTKAction = new QAction( "", tr("MEN_DESK_PREF_VIEWER_VTK"), 0, this );
+    QActionP* viewerVTKAction = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_VTK"), 0, this );
     QAD_ASSERT(connect( viewerVTKAction, SIGNAL(activated()), this, SLOT(onViewerVTK() )));
     viewerVTKAction->addTo( &myViewerPopup );
     myStdActions.insert( PrefViewerVTKId, viewerVTKAction );
 
-    QAction* graphSupervisorAction = new QAction( "", tr("MEN_DESK_PREF_GRAPH_SUPERVISOR"), 0, this );
+    QActionP* graphSupervisorAction = new QActionP( "", tr("MEN_DESK_PREF_GRAPH_SUPERVISOR"), 0, this );
     QAD_ASSERT(connect( graphSupervisorAction, SIGNAL(activated()), this, SLOT(onGraphSupervisor() )));
     graphSupervisorAction->addTo( &myViewerPopup );
     myStdActions.insert( PrefGraphSupervisorId, graphSupervisorAction );
 
-    QAction* viewerPlot2dAction = new QAction( "", tr("MEN_DESK_PREF_VIEWER_PLOT2D"), 0, this );
+    QActionP* viewerPlot2dAction = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_PLOT2D"), 0, this );
     QAD_ASSERT(connect( viewerPlot2dAction, SIGNAL(activated()), this, SLOT(onPlot2d() )));
     viewerPlot2dAction->addTo( &myViewerPopup );
     myStdActions.insert( PrefViewerPlot2dId, viewerPlot2dAction );
@@ -648,48 +670,48 @@ void QAD_Desktop::createActions()
       aViewerValue = VIEW_VTK;
 
     myPrefPopup.insertItem( tr("MEN_DESK_PREF_DEFAULT_VIEWER"), &myDefaultViewer );
-    QActionGroup* myQAG = new QActionGroup ( this);
-    QAction* viewerOCCAction1 = new QAction( "", tr("MEN_DESK_PREF_VIEWER_OCC"), 0, this );
+    QActionPGroup* myQAG = new QActionPGroup ( this);
+    QActionP* viewerOCCAction1 = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_OCC"), 0, this );
     viewerOCCAction1->setToggleAction ( true);
     viewerOCCAction1->setOn ( aViewerValue == VIEW_OCC );
     myQAG->insert( viewerOCCAction1 );
     myStdActions.insert( DefaultViewerOCCId, viewerOCCAction1 );
 
-    QAction* viewerVTKAction1 = new QAction( "", tr("MEN_DESK_PREF_VIEWER_VTK"), 0, this );
+    QActionP* viewerVTKAction1 = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_VTK"), 0, this );
     viewerVTKAction1->setToggleAction ( true);
     viewerVTKAction1->setOn ( aViewerValue == VIEW_VTK );
     myQAG->insert( viewerVTKAction1 );
     myStdActions.insert( DefaultViewerVTKId, viewerVTKAction1 );
 
 /*    Remove Supervisor viewer from setting the background */
-//    QAction* graphSupervisorAction1 = new QAction( "", tr("MEN_DESK_PREF_GRAPH_SUPERVISOR"), 0, this );
+//    QActionP* graphSupervisorAction1 = new QActionP( "", tr("MEN_DESK_PREF_GRAPH_SUPERVISOR"), 0, this );
 //    graphSupervisorAction1->setToggleAction ( true);
 //    graphSupervisorAction1->setOn ( aViewerValue == VIEW_GRAPHSUPERV );
 //    myQAG->insert( graphSupervisorAction1 );
 //    myStdActions.insert( DefaultGraphSupervisorId, graphSupervisorAction1 );
 
-    QAction* viewerPlot2dAction1 = new QAction( "", tr("MEN_DESK_PREF_VIEWER_PLOT2D"), 0, this );
+    QActionP* viewerPlot2dAction1 = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_PLOT2D"), 0, this );
     viewerPlot2dAction1->setToggleAction ( true);
     viewerPlot2dAction1->setOn ( aViewerValue == VIEW_PLOT2D );
     myQAG->insert( viewerPlot2dAction1 );
     myStdActions.insert( DefaultPlot2dId, viewerPlot2dAction1 );
 
     myQAG->addTo( &myDefaultViewer );
-    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QAction * )), this, SLOT(onDefaultViewer(QAction *) )));
+    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP * )), this, SLOT(onDefaultViewer(QActionP *) )));
     //VRV: T2.5 - add default viewer
 
-    QAction* viewerTrihedronAction = new QAction( "", tr("MEN_DESK_PREF_VIEWER_TRIHEDRON"), 0, this );
+    QActionP* viewerTrihedronAction = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_TRIHEDRON"), 0, this );
     QAD_ASSERT(connect( viewerTrihedronAction, SIGNAL(activated()), this, SLOT(onViewerTrihedron() )));
     viewerTrihedronAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefViewerTrihedronId, viewerTrihedronAction );
 
-    QAction* consoleFontAction = new QAction( "", tr("MEN_DESK_PREF_CONSOLE_FONT"), 0, this );
+    QActionP* consoleFontAction = new QActionP( "", tr("MEN_DESK_PREF_CONSOLE_FONT"), 0, this );
     QAD_ASSERT(connect( consoleFontAction, SIGNAL(activated()), this, SLOT(onConsoleFontAction() )));
     consoleFontAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefConsoleFontId, consoleFontAction );
 
     /* MultiFile save */
-    QAction* multiFileSaveAction = new QAction( "", tr("MEN_DESK_PREF_MULTI_FILE_SAVE"), 0, this, 0, true );
+    QActionP* multiFileSaveAction = new QActionP( "", tr("MEN_DESK_PREF_MULTI_FILE_SAVE"), 0, this, 0, true );
     QAD_ASSERT(connect( multiFileSaveAction, SIGNAL(activated()), this, SLOT(onMultiFileSave() )));
     multiFileSaveAction->setToggleAction( true );
     QString MultiSave = QAD_CONFIG->getSetting("Desktop:MultiFileSave");
@@ -697,12 +719,21 @@ void QAD_Desktop::createActions()
     multiFileSaveAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefMultiFileSave, multiFileSaveAction );
 
+    /* ASCII save */
+    QActionP* ASCIISaveAction = new QActionP( "", tr("MEN_DESK_PREF_ASCII_SAVE"), 0, this, 0, true );
+    QAD_ASSERT(connect( ASCIISaveAction, SIGNAL(activated()), this, SLOT(onASCIISave() )));
+    ASCIISaveAction->setToggleAction( true );
+    QString ASCIISave = QAD_CONFIG->getSetting("Desktop:ASCIISave");
+    ASCIISaveAction->setOn( ASCIISave.compare( aTrueQString ) == 0 );
+    ASCIISaveAction->addTo( &myPrefPopup );
+    myStdActions.insert( PrefASCIISave, ASCIISaveAction );
+
     myPrefPopup.insertSeparator();
     
     /* BrowserPopup */
     myPrefPopup.insertItem( tr("MEN_DESK_PREF_OBJECTBROWSER"), &myObjBrowserPopup );
     
-    QAction* objectBrowserEntryAction = new QAction( "", tr("MEN_DESK_PREF_OBJECTBROWSER_ENTRY"), 0, this, 0, true );
+    QActionP* objectBrowserEntryAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_ENTRY"), 0, this, 0, true );
     QAD_ASSERT(connect( objectBrowserEntryAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
     objectBrowserEntryAction->setToggleAction(true);
     QString AddColumn = QAD_CONFIG->getSetting("ObjectBrowser:AddColumn");
@@ -715,7 +746,7 @@ void QAD_Desktop::createActions()
     objectBrowserEntryAction->addTo( &myObjBrowserPopup );
     myStdActions.insert( PrefObjectBrowserEntryId, objectBrowserEntryAction );
 
-    QAction* objectBrowserValueAction = new QAction( "", tr("MEN_DESK_PREF_OBJECTBROWSER_VALUE"), 0, this, 0, true );
+    QActionP* objectBrowserValueAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_VALUE"), 0, this, 0, true );
     QAD_ASSERT(connect( objectBrowserValueAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
     objectBrowserValueAction->setToggleAction(true);
     QString ValueColumn = QAD_CONFIG->getSetting("ObjectBrowser:ValueColumn");
@@ -728,7 +759,7 @@ void QAD_Desktop::createActions()
     objectBrowserValueAction->addTo( &myObjBrowserPopup );
     myStdActions.insert( PrefObjectBrowserValueId, objectBrowserValueAction );
 
-    QAction* objectBrowserIAPPAction = new QAction( "", tr("MEN_DESK_PREF_OBJECTBROWSER_IAPP"), 0, this, 0, true );
+    QActionP* objectBrowserIAPPAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_IAPP"), 0, this, 0, true );
     QAD_ASSERT(connect( objectBrowserIAPPAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
     objectBrowserIAPPAction->setToggleAction(true);
     QString showIAPP = QAD_CONFIG->getSetting("ObjectBrowser:IAPP");
@@ -742,7 +773,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert( PrefObjectBrowserIAPPId, objectBrowserIAPPAction );
     
     /* Chronological sorting of shapes on the entry creation */
-    QAction* objectBrowserCHRONO_SORTAction = new QAction( "", tr("MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"), 0, this, 0, true );
+    QActionP* objectBrowserCHRONO_SORTAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"), 0, this, 0, true );
     QAD_ASSERT(connect( objectBrowserCHRONO_SORTAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
     objectBrowserCHRONO_SORTAction->setToggleAction(true);
     QString showSORT = QAD_CONFIG->getSetting("ObjectBrowser:CHRONO_SORT");
@@ -757,14 +788,14 @@ void QAD_Desktop::createActions()
     
     myPrefPopup.insertSeparator();
 
-    QAction* dirAction = new QAction( "", tr("MEN_DESK_PREF_DIRICTORIES"), 0, this );
+    QActionP* dirAction = new QActionP( "", tr("MEN_DESK_PREF_DIRICTORIES"), ALT+Key_D, this );
     QAD_ASSERT(connect( dirAction, SIGNAL(activated()), this, SLOT(onDirList() )));
     dirAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefDirsId, dirAction );
     
     myPrefPopup.insertSeparator();
 
-    QAction* saveAction = new QAction( "", tr("MEN_DESK_PREF_SAVE"), 0, this );
+    QActionP* saveAction = new QActionP( "", tr("MEN_DESK_PREF_SAVE"), 0, this );
     QAD_ASSERT(connect( saveAction, SIGNAL(activated()), this, SLOT(onSavePref() )));
     saveAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefSaveId, saveAction );
@@ -774,22 +805,22 @@ void QAD_Desktop::createActions()
     //NRI : SAL2214
     myWindowPopup.insertItem( tr("MEN_DESK_WINDOW_NEW3D"), &myNewViewPopup, WindowNew3dId );
     
-    QAction* viewOCCAction = new QAction( "", tr("MEN_DESK_VIEW_OCC"), 0, this );
+    QActionP* viewOCCAction = new QActionP( "", tr("MEN_DESK_VIEW_OCC"), ALT+Key_O, this );
     QAD_ASSERT(connect( viewOCCAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewOCCAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewOCCId, viewOCCAction );
 
-    QAction* viewVTKAction = new QAction( "", tr("MEN_DESK_VIEW_VTK"), 0, this );
+    QActionP* viewVTKAction = new QActionP( "", tr("MEN_DESK_VIEW_VTK"), ALT+Key_K, this );
     QAD_ASSERT(connect( viewVTKAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewVTKAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewVTKId, viewVTKAction );
 
-    QAction* viewPlot2dAction = new QAction( "", tr("MEN_DESK_VIEW_PLOT2D"), 0, this );
+    QActionP* viewPlot2dAction = new QActionP( "", tr("MEN_DESK_VIEW_PLOT2D"), ALT+Key_P, this );
     QAD_ASSERT(connect( viewPlot2dAction, SIGNAL(activated()), this, SLOT(onNewWindow3d() )));
     viewPlot2dAction->addTo( &myNewViewPopup );
     myStdActions.insert( ViewPlot2dId, viewPlot2dAction );
     
-    //  QAction* windowNew3dAction = new QAction( "",/* rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_NEW3D") ), */
+    //  QActionP* windowNew3dAction = new QActionP( "",/* rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_NEW3D") ), */
     /*tr("MEN_DESK_WINDOW_NEW3D"), 0, this );
       windowNew3dAction->addTo( &myWindowPopup );
       QAD_ASSERT( connect( windowNew3dAction, SIGNAL(activated()), this ,
@@ -800,7 +831,7 @@ void QAD_Desktop::createActions()
     //NRI : SAL2214
 
     /* cascaded */
-    QAction* windowCascadeAction = new QAction( "", rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_CASCADE") ),
+    QActionP* windowCascadeAction = new QActionP( "", rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_CASCADE") ),
 						tr("MEN_DESK_WINDOW_CASCADE"), 0, this );
     windowCascadeAction->setStatusTip ( tr("PRP_DESK_WINDOW_CASCADE") );
     QAD_ASSERT( connect( windowCascadeAction, SIGNAL(activated()), this,
@@ -808,7 +839,7 @@ void QAD_Desktop::createActions()
     myStdActions.insert( WindowCascadeId, windowCascadeAction );
 
     /* tiled */
-    QAction* windowTileAction = new QAction( "", rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_TILE") ),
+    QActionP* windowTileAction = new QActionP( "", rmgr->loadPixmap( "QAD", tr("ICON_DESK_WINDOW_TILE") ),
 					     tr("MEN_DESK_WINDOW_TILE"), 0, this );
     windowTileAction->setStatusTip ( tr("PRP_DESK_WINDOW_TILE") );
     QAD_ASSERT( connect( windowTileAction, SIGNAL(activated()), myWorkspace, SLOT( tile() )));
@@ -819,7 +850,7 @@ void QAD_Desktop::createActions()
     /* 'Help' actions
      */
     /* contents */
-    QAction* helpContentsAction = new QAction( "", tr("MEN_DESK_HELP_CONTENTS"), 0, this );
+    QActionP* helpContentsAction = new QActionP( "", tr("MEN_DESK_HELP_CONTENTS"), Key_F1, this );
     helpContentsAction->setStatusTip ( tr("PRP_DESK_HELP_CONTENTS") );
     QAD_ASSERT(connect( helpContentsAction, SIGNAL(activated()),
 			this, SLOT( onHelpContents() )));
@@ -827,14 +858,14 @@ void QAD_Desktop::createActions()
     myStdActions.insert( HelpContentsId , helpContentsAction );
 
     /* search */
-//    QAction* helpSearchAction = new QAction( "", tr("MEN_DESK_HELP_SEARCH"), 0, this );
+//    QActionP* helpSearchAction = new QActionP( "", tr("MEN_DESK_HELP_SEARCH"), 0, this );
 //    helpSearchAction->setStatusTip ( tr("PRP_DESK_HELP_SEARCH") );
 //    QAD_ASSERT( connect( helpSearchAction, SIGNAL(activated()), this, SLOT( onHelpSearch() )));
 //    helpSearchAction->addTo( &myHelpPopup );
 //    myStdActions.insert( HelpSearchId, helpSearchAction );
 
     /* What's This */
-//    QAction* helpWhatsThisAction = new QAction( "", tr("MEN_DESK_HELP_WHATSTHIS"), SHIFT+Key_F1, this );
+//    QActionP* helpWhatsThisAction = new QActionP( "", tr("MEN_DESK_HELP_WHATSTHIS"), SHIFT+Key_F1, this );
 //    helpWhatsThisAction->setStatusTip ( tr("PRP_DESK_HELP_WHATSTHIS" ));
 //    QAD_ASSERT( connect( helpWhatsThisAction, SIGNAL(activated()), this, SLOT( whatsThis() )));
 //    helpWhatsThisAction->addTo( &myHelpPopup );
@@ -845,7 +876,7 @@ void QAD_Desktop::createActions()
     myHelpPos = myHelpPopup.indexOf( id );
 
     /* about */
-    QAction* helpAboutAction = new QAction( "", tr("MEN_DESK_HELP_ABOUT"), 0, this );
+    QActionP* helpAboutAction = new QActionP( "", tr("MEN_DESK_HELP_ABOUT"), 0, this );
     helpAboutAction->setStatusTip ( tr("PRP_DESK_HELP_ABOUT") );
     QAD_ASSERT( connect( helpAboutAction, SIGNAL(activated()), this, SLOT( onHelpAbout() )));
     helpAboutAction->addTo( &myHelpPopup );
@@ -898,7 +929,8 @@ void QAD_Desktop::closeDesktop( bool forceClose )
 void QAD_Desktop::putInfo ( const QString& msg )
 {
   if ( myStatusBar )
-    myStatusBar->message ( msg );
+    //NRI : bug 1209. message is now displayed during 3000 ms
+    myStatusBar->message ( msg, 3000 );
 }
 
 /*!
@@ -1325,6 +1357,40 @@ void QAD_Desktop::onLoadStudy()
   putInfo ( tr("INF_READY") );
 }
 
+
+
+QAD_Study* QAD_Desktop::loadStudy(QString theStudyName) {
+  QString studyname("");
+
+  CORBA::Object_var obj = myNameService->Resolve("/myStudyManager");
+  SALOMEDS::StudyManager_var myStudyMgr = SALOMEDS::StudyManager::_narrow(obj);
+  ASSERT(! CORBA::is_nil(myStudyMgr));
+
+  SALOMEDS::ListOfOpenStudies_var List = myStudyMgr->GetOpenStudies();
+  for (unsigned int ind = 0; ind < List->length();ind++) {
+    if (theStudyName == QString(List[ind])) {
+      studyname = theStudyName;
+      break;
+    }
+  }
+  if (studyname == "") {
+    return NULL;
+  }
+  bool appFound = false;
+  for ( QAD_Application* app = myApps.first(); app; app = myApps.next() ) {
+    appFound = true;
+    QAD_Study* openStudy = app->loadStudy( studyname );
+    if (openStudy) {
+      //      if (myActiveApp == 0)
+      //myActiveApp = app;
+      return openStudy;
+    }
+    break;
+  }
+  return NULL;
+}
+
+
 /*!
     Opens the existing study.
     Displays select file dialog and calls corresponding function of
@@ -1675,7 +1741,7 @@ void QAD_Desktop::onCascade()
   QWidgetListIt it(wList);
 
   for(;it.current(); ++it)
-      it.current()->resize(0.8*w, 0.8*h);
+      it.current()->resize((int)(0.8*w), (int)(0.8*h));
 }
 
 /*!
@@ -1730,7 +1796,7 @@ void QAD_Desktop::onToolBarPopupAboutToShow()
 */
 void QAD_Desktop::onSelectionMode()
 {
-  const QAction* obj = (QAction*) sender();
+  const QActionP* obj = (QActionP*) sender();
   
   int SelectionMode = 4;
 
@@ -1844,7 +1910,7 @@ void QAD_Desktop::onNewWindow3d()
     }
     //VRV: T2.5 - add default viewer
   */
-  const QAction* obj = (QAction*) sender();
+  const QActionP* obj = (QActionP*) sender();
   if ( obj == myStdActions.at(ViewOCCId) ) {
     myActiveApp->getActiveStudy()->newWindow3d(QString(""),(ViewType)(0));
   } else if ( obj == myStdActions.at(ViewVTKId) ) {
@@ -1946,6 +2012,12 @@ void QAD_Desktop::updateActions()
 //    myPrefPopup.setEnabled ( myActiveStudy != NULL );
 
     mySelectionModePopup.setEnabled ( myActiveStudy != NULL );
+
+    // VSR ==> SAL2982
+    myStdActions.at( ViewOCCId )->setEnabled( myActiveStudy != NULL );
+    myStdActions.at( ViewVTKId )->setEnabled( myActiveStudy != NULL );
+    myStdActions.at( ViewPlot2dId )->setEnabled( myActiveStudy != NULL );
+    // VSR <== SAL2982
 }
 
 /*!
@@ -2924,7 +2996,7 @@ void QAD_Desktop::onViewerTrihedron()
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
 	int nbSf = study->getStudyFramesCount();
 	for ( int i = 0; i < nbSf; i++ ) {
-	  study->getStudyFrame(i)->getRightFrame()->getViewFrame()->SetTrihedronSize(dim);
+	  study->getStudyFrame(i)->getRightFrame()->getViewFrame()->SetTrihedronSize((int)dim);
 	}
       }
     }
@@ -2974,7 +3046,7 @@ void QAD_Desktop::onSavePref()
 }
 
 //VRV: T2.5 - add default viewer
-void QAD_Desktop::onDefaultViewer(QAction * theAction)
+void QAD_Desktop::onDefaultViewer(QActionP * theAction)
 {
   int type = VIEW_TYPE_MAX;
   
@@ -3176,6 +3248,15 @@ void QAD_Desktop::onMultiFileSave()
     QAD_CONFIG->addSetting( "Desktop:MultiFileSave", "true");
   else
     QAD_CONFIG->addSetting( "Desktop:MultiFileSave", "false");
+}
+
+/* Preferences/ASCII Save */
+void QAD_Desktop::onASCIISave()
+{
+  if ( myStdActions.at( PrefASCIISave )->isOn() )
+    QAD_CONFIG->addSetting( "Desktop:ASCIISave", "true");
+  else
+    QAD_CONFIG->addSetting( "Desktop:ASCIISave", "false");
 }
 
 /*********************************************************************

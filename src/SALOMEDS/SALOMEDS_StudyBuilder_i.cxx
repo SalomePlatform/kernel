@@ -1,13 +1,32 @@
-using namespace std;
-//  File      : SALOMEDS_StudyBuilder_i.cxx
-//  Created   : Wed Nov 28 16:26:28 2001
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEDS_StudyBuilder_i.cxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
@@ -52,13 +71,15 @@ using namespace std;
 #include "SALOMEDS_AttributeUserID_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS_AttributePythonObject_i.hxx"
+#include "SALOMEDS_Tool.hxx"
 #include "Utils_CorbaException.hxx"
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
 
 #define USE_CASE_LABEL_TAG            2
-#define DIRECTORYID "DIRECTORY:"
+#define DIRECTORYID 16661
+#define FILELOCALID 26662 
 
 //============================================================================
 /*! Function : constructor
@@ -219,6 +240,14 @@ void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr anObject)
   TDF_Label Lab;
   ASSERT(!CORBA::is_nil(anObject));
   TDF_Tool::Label(_doc->GetData(),anObject->GetID(),Lab);
+
+  Handle(TDF_Reference) aReference;
+  if (Lab.FindAttribute(TDF_Reference::GetID(), aReference)) {
+    Handle(SALOMEDS_TargetAttribute) aTarget;
+    if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
+      aTarget->Remove(Lab);
+  }
+
   Lab.ForgetAllAttributes();
 }
 
@@ -234,6 +263,24 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
   TDF_Label Lab;
   ASSERT(!CORBA::is_nil(anObject));
   TDF_Tool::Label(_doc->GetData(),anObject->GetID(),Lab);
+
+  Handle(TDF_Reference) aReference;
+  if (Lab.FindAttribute(TDF_Reference::GetID(), aReference)) {
+    Handle(SALOMEDS_TargetAttribute) aTarget;
+    if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
+      aTarget->Remove(Lab);
+  }
+
+  TDF_ChildIterator it(Lab);
+  for(;it.More();it.Next()) {
+    TDF_Label aLabel = it.Value();
+    if (aLabel.FindAttribute(TDF_Reference::GetID(), aReference)) {
+      Handle(SALOMEDS_TargetAttribute) aTarget;
+      if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
+	aTarget->Remove(aLabel);
+    }
+  }
+
   Lab.ForgetAllAttributes(Standard_True);
 }
 
@@ -245,7 +292,8 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
 static void  Translate_persistentID_to_IOR(TDF_Label                  Lab,
 					   SALOMEDS::Driver_ptr       driver,
 					   CORBA::ORB_ptr             orb,
-					   CORBA::Boolean             isMultiFile)
+					   CORBA::Boolean             isMultiFile,
+					   CORBA::Boolean             isASCII)
 {
   TDF_ChildIterator  itchild (Lab);
   
@@ -253,6 +301,11 @@ static void  Translate_persistentID_to_IOR(TDF_Label                  Lab,
     TDF_Label current = itchild.Value();
     Handle(TDF_Attribute) Att;
     if (current.FindAttribute(SALOMEDS_PersRefAttribute::GetID(),Att)) {  
+
+      Handle(SALOMEDS_LocalIDAttribute) anID;
+      if (current.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anID)) 
+	if (anID->Get() == FILELOCALID) continue;        //SRN: This attribute store a file name, skip it 
+
       TCollection_ExtendedString res;   
       res = Handle(TDataStd_Comment)::DownCast(Att)->Get();
       TCollection_AsciiString ch(res);
@@ -262,17 +315,16 @@ static void  Translate_persistentID_to_IOR(TDF_Label                  Lab,
       SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (current,orb);
       SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
 
-      CORBA::String_var ior_string = driver->LocalPersistentIDToIOR(so, persistent_string, isMultiFile);
+      CORBA::String_var ior_string = driver->LocalPersistentIDToIOR(so, persistent_string, isMultiFile, isASCII);
 
       TCollection_ExtendedString value(strdup(ior_string )); 
       SALOMEDS_IORAttribute::Set (current,value,orb); 
       
-      TCollection_AsciiString anEntry;TDF_Tool::Entry (current,anEntry);
-      
+      //TCollection_AsciiString anEntry;TDF_Tool::Entry (current,anEntry); //SRN: No use here
       //delete persistent_string;
       //delete ior_string;
     }
-    Translate_persistentID_to_IOR (current,driver,orb,isMultiFile);
+    Translate_persistentID_to_IOR (current,driver,orb,isMultiFile, isASCII);
   }
 }
 
@@ -315,11 +367,25 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
     }
     DefineComponentInstance (anSCO, aDriver);
 
-    //Open the Study HDF file 
     TCollection_AsciiString aHDFPath(Res);
-    HDFfile *hdf_file = new HDFfile(aHDFPath.ToCString()); 
+
+    char* aHDFUrl;
+    bool isASCII = false;
+    if (HDFascii::isASCII(aHDFPath.ToCString())) {
+      isASCII = true;
+      char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aHDFPath.ToCString());
+      aHDFUrl = new char[strlen(aResultPath) + 19];
+      sprintf(aHDFUrl, "%shdf_from_ascii.hdf", aResultPath);
+      delete(aResultPath);
+    } else {
+      aHDFUrl = strdup(aHDFPath.ToCString());
+    }
+
+    //Open the Study HDF file 
+    HDFfile *hdf_file = new HDFfile(aHDFUrl); 
 
     char aMultifileState[2];
+    char ASCIIfileState[2];
     try {
       CORBA::String_var scoid = anSCO->GetID();
       hdf_file->OpenOnDisk(HDF_RDONLY);
@@ -345,6 +411,9 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
       multifile_hdf_dataset->OpenOnDisk();
       multifile_hdf_dataset->ReadFromDisk(aMultifileState);
 
+      HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
+      ascii_hdf_dataset->OpenOnDisk();
+      ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
 
       // set path without file name from URL 
       int aFileNameSize = Res.Length();
@@ -356,7 +425,18 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
 	  break;
 	}
 
-      if(!aDriver->Load(anSCO, aStreamFile.in(), aDir, aMultifileState[0]=='M')) {
+      CORBA::Boolean aResult = (ASCIIfileState[0]=='A')?
+	aDriver->LoadASCII(anSCO, aStreamFile.in(), aDir, aMultifileState[0]=='M'):
+	aDriver->Load(anSCO, aStreamFile.in(), aDir, aMultifileState[0]=='M');
+      if(!aResult) {
+	RemoveAttribute( anSCO, "AttributeIOR" );
+	if (isASCII) {
+	  SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
+	  aFilesToRemove->length(1);
+	  aFilesToRemove[0] = strdup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
+	  SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+	}
+	delete aHDFUrl;
 	MESSAGE("Can't load component");
 	THROW_SALOME_CORBA_EXCEPTION("Unable to load component data",SALOME::BAD_PARAM);
 //  	throw HDFexception("Unable to load component");
@@ -366,22 +446,39 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
 
       multifile_hdf_dataset->CloseOnDisk();
       multifile_hdf_dataset = 0;
+      ascii_hdf_dataset->CloseOnDisk();
+      ascii_hdf_dataset = 0;
       hdf_sco_group->CloseOnDisk();
       hdf_sco_group = 0;
       hdf_group->CloseOnDisk();
       hdf_group = 0;
       hdf_file->CloseOnDisk();
       delete hdf_file;
+
+      if (isASCII) {
+	SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
+	aFilesToRemove->length(1);
+	aFilesToRemove[0] = strdup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
+	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+      }
+      delete aHDFUrl;
     }
     catch (HDFexception) {
       MESSAGE("No persistent file Name");
       delete hdf_file;
+      if (isASCII) {
+	SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
+	aFilesToRemove->length(1);
+	aFilesToRemove[0] = strdup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
+	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+      }
+      delete aHDFUrl;
       if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
       return;
     }
     
     try {
-      Translate_persistentID_to_IOR (Lab,aDriver,_orb, aMultifileState[0]=='M');
+      Translate_persistentID_to_IOR (Lab,aDriver,_orb, aMultifileState[0]=='M', ASCIIfileState[0] == 'A');
     } catch (SALOME::SALOME_Exception) {
       MESSAGE("Can't translate PersRef to IOR");
       if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
@@ -930,9 +1027,9 @@ void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath)
 
   TDataStd_Name::Set(aLabel, aPath.Token("/", i-1));
 
-  //Set PersistentRef attribute to identify the directory object
-  SALOMEDS::GenericAttribute_var anAttr = FindOrCreateAttribute(aNewObject, "AttributePersistentRef");
-  SALOMEDS::AttributePersistentRef_var aPersRef = SALOMEDS::AttributePersistentRef::_narrow(anAttr);
+  //Set LocalID attribute to identify the directory object
+  SALOMEDS::GenericAttribute_var anAttr = FindOrCreateAttribute(aNewObject, "AttributeLocalID");
+  SALOMEDS::AttributeLocalID_var aPersRef = SALOMEDS::AttributeLocalID::_narrow(anAttr);
   if(aPersRef->_is_nil()) throw SALOMEDS::Study::StudyInvalidDirectory();
 
   aPersRef->SetValue(DIRECTORYID);

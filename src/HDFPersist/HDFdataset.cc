@@ -1,3 +1,29 @@
+//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : HDFdataset.cc
+//  Module : SALOME
+
 using namespace std;
 extern "C"
 {
@@ -9,6 +35,13 @@ extern "C"
 #include "HDFexception.hxx"
 
 #include <iostream.h>
+
+herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+{
+  *(char**)operator_data = new char[strlen(attr_name)+1];
+  strcpy(*(char**)operator_data, attr_name);
+  return 1;
+}
 
 HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
 		       hdf_size dim[], int dimsize)
@@ -23,12 +56,14 @@ HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type,
   _ndim = dimsize;
   _dim = new hdf_size[dimsize];
   _size = 1;
+  _attribute = NULL;
   for (i=0;i<dimsize;i++)
     {
       _dim[i] = dim[i];
       _size = _size * _dim[i];
     }
 }
+
 
 HDFdataset::HDFdataset(char *name,HDFcontainerObject *father)
   : HDFinternalObject(name)
@@ -40,6 +75,7 @@ HDFdataset::HDFdataset(char *name,HDFcontainerObject *father)
   _ndim = -1;
   _dim = 0;
   _size = -1;
+  _attribute = NULL;
 }
 
 HDFdataset::~HDFdataset()
@@ -166,3 +202,21 @@ hdf_object_type HDFdataset::GetObjectType()
 {
   return HDF_DATASET;
 }
+
+
+int HDFdataset::nAttributes()
+{
+  int nbAttrs = H5Aget_num_attrs(_id);
+  if(nbAttrs <= 0) nbAttrs = 0;
+  return nbAttrs; 
+}
+
+
+char* HDFdataset::GetAttributeName(unsigned idx)
+{
+  int nbAttrs = nAttributes();
+  if(nbAttrs == 0) return NULL;
+  H5Aiterate(_id, &idx, dataset_attr, &_attribute);
+  return _attribute;
+}
+

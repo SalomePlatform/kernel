@@ -1,16 +1,35 @@
-using namespace std;
-//=============================================================================
-// File      : SALOME_LifeCycleCORBA.cxx
-// Created   : jeu jui 12 14:55:50 CEST 2001
-// Author    : Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2001
-// $Header$
-//=============================================================================
+//  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOME_LifeCycleCORBA.cxx
+//  Author : Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include <iostream>
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <iomanip>
 
 #include "OpUtil.hxx"
@@ -165,8 +184,7 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
         rsh += "SALOME_Container " ;
         rsh += "FactoryServer -" ;
       }
-      string omniORBcfg( getenv( "HOME" ) ) ;
-      omniORBcfg += "/.omniORB.cfg" ;
+      string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
       ifstream omniORBfile( omniORBcfg.c_str() ) ;
       char ORBInitRef[12] ;
       char nameservice[132] ;

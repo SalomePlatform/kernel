@@ -1,7 +1,12 @@
-// File      : SALOMEGUI_CloseDlg.h
-// Created   : Wed Feb 26 11:40:52 2003
-// Author    : Vasily RUSYAEV (vrv)
-// Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_CloseDlg.h
+//  Author : Vasily RUSYAEV (vrv)
+//  Module : SALOME
 
 #ifndef SALOMEGUI_CloseDlg_H
 #define SALOMEGUI_CloseDlg_H

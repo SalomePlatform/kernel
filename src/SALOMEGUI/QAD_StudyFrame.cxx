@@ -1,12 +1,32 @@
-using namespace std;
-//  File      : QAD_StudyFrame.cxx
-//  Created   : Sun Jul 22 15:31:59 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_StudyFrame.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_StudyFrame QAD_StudyFrame.h
   \brief Frame window which contains QAD_LeftFrame and QAD_RightFrame.
@@ -46,8 +66,8 @@ QAD_StudyFrame::QAD_StudyFrame(QAD_Study* study, QWidget* parent, const QString&
   myRightFrm = new QAD_RightFrame( s1, title, _interp, myTypeView);
 
   QValueList<int> sizes;
-  sizes.append( 0.30*QAD_Application::getDesktop()->getMainFrame()->width() );
-  sizes.append( 0.50*QAD_Application::getDesktop()->getMainFrame()->width() );
+  sizes.append( (int)(0.30*QAD_Application::getDesktop()->getMainFrame()->width()) );
+  sizes.append( (int)(0.50*QAD_Application::getDesktop()->getMainFrame()->width()) );
   s1->setSizes( sizes );
 
   QAD_ASSERT_DEBUG_ONLY ( parent->inherits("QWorkspaceP") );

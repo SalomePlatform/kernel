@@ -1,17 +1,41 @@
-using namespace std;
-//  File      : SALOMEDS_Server.cxx
-//  Created   : Wed Nov 28 16:26:15 2001
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEDS_Server.cxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
+
+//#define CHECKTIME
+#ifdef CHECKTIME
+#include <Utils_Timer.hxx>
+#endif
 
 // extern "C"
 // { // for ccmalloc memory debug
@@ -28,6 +52,7 @@ int main(int argc, char** argv)
   try {
     // Initialise the ORB.
     CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
+    omniORB::MaxMessageSize(100 * 1024 * 1024);
     
     // Obtain a reference to the root POA.
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
@@ -49,6 +74,13 @@ int main(int argc, char** argv)
     PortableServer::POAManager_var pman = poa->the_POAManager();
     pman->activate();
 
+#ifdef CHECKTIME
+    Utils_Timer timer;
+    timer.Start();
+    timer.Stop();
+    MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
+    timer.ShowAbsolute();
+#endif
     orb->run();
     orb->destroy();
   }
@@ -69,4 +101,3 @@ int main(int argc, char** argv)
   }
   return 0;
 }
-

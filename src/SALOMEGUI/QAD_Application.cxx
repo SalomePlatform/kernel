@@ -1,15 +1,32 @@
-using namespace std;
-//  File      : QAD_Application.cxx
-//  Created   : UI team, 22.09.00
-//  Descr     : Study manager of QAD-based application
-
-//  Modified  : Mon Dec 03 13:21:50 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_Application.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_Application QAD_Application.h
   \brief Study manager for QAD-based application.
@@ -37,7 +54,6 @@ using namespace std;
 #include <qdialog.h>
 #include <qstring.h>
 #include <qpixmap.h>
-#include <qaction.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qmessagebox.h> 
@@ -207,9 +223,6 @@ myStudyExtension( extension ),
 myStudyDescription( description )
 {        
   /* actions are stored in vectors only */
-  myEditActions.setAutoDelete ( true );
-  myViewActions.setAutoDelete ( true );
-  myHelpActions.setAutoDelete ( true );    
   
   /* studies are managed by me */
   myStudies.setAutoDelete( true );   
@@ -270,7 +283,7 @@ void QAD_Application::createActions()
   // Undo
   if ( !myEditActions.at( EditUndoId ) )
     {        
-      QAction* editUndo = new QAction ( tr("TOT_APP_EDIT_UNDO"), 
+      QActionP* editUndo = new QActionP( tr("TOT_APP_EDIT_UNDO"), 
 					rmgr->loadPixmap( "QAD",
 							  tr("ICON_APP_EDIT_UNDO") ), 
 					tr("MEN_APP_EDIT_UNDO"),
@@ -282,7 +295,7 @@ void QAD_Application::createActions()
   // Redo
   if ( !myEditActions.at( EditRedoId ) )
     {               
-      QAction* editRedo = new QAction ( tr("TOT_APP_EDIT_REDO"), 
+      QActionP* editRedo = new QActionP ( tr("TOT_APP_EDIT_REDO"), 
 					rmgr->loadPixmap( "QAD",  tr("ICON_APP_EDIT_REDO") ), 
 					tr("MEN_APP_EDIT_REDO"), CTRL+Key_Y, desktop );
       editRedo->setStatusTip ( tr("PRP_APP_EDIT_REDO") );
@@ -292,7 +305,7 @@ void QAD_Application::createActions()
   // Copy
   if ( !myEditActions.at( EditCopyId ) )
     {        
-      QAction* editCopy = new QAction ( tr("TOT_APP_EDIT_COPY"), 
+      QActionP* editCopy = new QActionP ( tr("TOT_APP_EDIT_COPY"), 
 					rmgr->loadPixmap( "QAD",
 							  tr("ICON_APP_EDIT_COPY") ), 
 					tr("MEN_APP_EDIT_COPY"),
@@ -304,7 +317,7 @@ void QAD_Application::createActions()
   // Paste
   if ( !myEditActions.at( EditPasteId ) )
     {        
-      QAction* editPaste = new QAction ( tr("TOT_APP_EDIT_PASTE"), 
+      QActionP* editPaste = new QActionP ( tr("TOT_APP_EDIT_PASTE"), 
 					rmgr->loadPixmap( "QAD",
 							  tr("ICON_APP_EDIT_PASTE") ), 
 					tr("MEN_APP_EDIT_PASTE"),
@@ -663,10 +676,10 @@ int QAD_Application::onUpdateEditActions ( QPopupMenu* popup, bool add, int inde
 {
     QAD_ASSERT_DEBUG_ONLY( !myEditActions.isEmpty() );
     QToolBar* tb = getDesktop()->getStdToolBar();
-    QAction* undo  = myEditActions.at( EditUndoId );
-    QAction* redo  = myEditActions.at( EditRedoId );
-    QAction* copy  = myEditActions.at( EditCopyId );
-    QAction* paste = myEditActions.at( EditPasteId );
+    QActionP* undo  = myEditActions.at( EditUndoId );
+    QActionP* redo  = myEditActions.at( EditRedoId );
+    QActionP* copy  = myEditActions.at( EditCopyId );
+    QActionP* paste = myEditActions.at( EditPasteId );
     if ( add ) 
     {         
       undo->addTo( popup );	
@@ -852,22 +865,22 @@ QAD_Study* QAD_Application::loadStudy( const QString& fileName )
   QAD_Study* loadStudy = 0;
   QApplication::setOverrideCursor( Qt::waitCursor );
   try {        
-    /* create QAD study */            
+    /* create QAD study */  
     loadStudy = new QAD_Study( this, aStudy, aStudy->Name() );
     
     if ( loadStudy->getResult() ) {
       addStudy( loadStudy );
       
-      /* activate */
+     /* activate */
       onStudyActivated( loadStudy );
       
       /* customisation on load ( called only once ) */
       onStudyOpened( loadStudy );       
       
-      /* show */
+     /* show */
       loadStudy->show();
       
-      /* customization on show ( called only once ) */
+     /* customization on show ( called only once ) */
       onStudyShown( loadStudy );        
     }
 
@@ -945,11 +958,13 @@ QAD_Study* QAD_Application::openStudy( const QString& fileName )
 bool QAD_Application::saveStudy( QAD_Study* study )
 {
     bool MultiSave = QAD_CONFIG->getSetting("Desktop:MultiFileSave") == "true";
+    bool ASCIISave = QAD_CONFIG->getSetting("Desktop:ASCIISave") == "true";
     bool success = true;
     QApplication::setOverrideCursor( Qt::waitCursor );
     try {
       /* save StudyDS */
-      myStudyMgr->Save(study->getStudyDocument(), MultiSave);
+      if (ASCIISave) myStudyMgr->SaveASCII(study->getStudyDocument(), MultiSave);
+      else myStudyMgr->Save(study->getStudyDocument(), MultiSave);
       study->updateCaptions();
     } 
     catch ( Standard_Failure ) {        
@@ -966,6 +981,7 @@ bool QAD_Application::saveStudy( QAD_Study* study )
 bool QAD_Application::saveAsStudy( QAD_Study* study, const QString& fileName )
 {   
     bool MultiSave = QAD_CONFIG->getSetting("Desktop:MultiFileSave") == "true";
+    bool ASCIISave = QAD_CONFIG->getSetting("Desktop:ASCIISave") == "true";
     bool success = false;
 #ifdef WNT
     /*  Qt uses UNIX-like slashes even on WIN platform */        
@@ -982,7 +998,8 @@ bool QAD_Application::saveAsStudy( QAD_Study* study, const QString& fileName )
         TCollection_ExtendedString fileNameExt ( (char*) name.latin1() );
         try {
 	  /* save as StudyDS */
-	  myStudyMgr->SaveAs(name.latin1(), study->getStudyDocument(), MultiSave);
+	  if (ASCIISave) myStudyMgr->SaveAsASCII(name.latin1(), study->getStudyDocument(), MultiSave);
+	  else myStudyMgr->SaveAs(name.latin1(), study->getStudyDocument(), MultiSave);
 
 	  study->setTitle( fileName );
 	  study->updateCaptions();

@@ -1,3 +1,10 @@
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : batchmode_salome.py
+#  Module : SALOME
+
 import salome_shared_modules
 
 from omniORB import CORBA
@@ -25,6 +32,14 @@ def SalomeGUIgetAllSelected(self):
         listSelected.append(self.getSelected(i))
     return listSelected
     #--------------------------------------------------------------------------
+
+def generateName(prefix = None):
+    import whrandom;
+    int = whrandom.randint(1,1000);
+    if prefix is None:
+        return "Study" + str(int)
+    else :
+        return prefix + str(int)
 
 from libSALOME_Swig import *
 ###from SalomePyQt import *

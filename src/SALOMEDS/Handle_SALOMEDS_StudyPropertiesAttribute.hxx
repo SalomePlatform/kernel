@@ -1,9 +1,12 @@
-//  File      : Handle_SALOMEDS_StudyPropertiesAttribute.hxx
-//  Created   : Tue Oct  8 10:13:30 2002
-//  Author    : Yves FRICAUD
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Handle_SALOMEDS_StudyPropertiesAttribute.hxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
 #ifndef _Handle_SALOMEDS_StudyPropertiesAttribute_HeaderFile

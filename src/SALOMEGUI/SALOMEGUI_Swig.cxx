@@ -1,17 +1,32 @@
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEGUI_Swig.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
+//  $Header$
+
 using namespace std;
-//=============================================================================
-// File      : SALOMEGUI_Swig.cxx
-// Created   : ven oct 12 15:44:16 CEST 2001
-// Author    : Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2001
-
-// Modified  : Mon Jul 29 21:38:07 2002
-// Author    : Nicolas REJNERI
-// Copyright : OPEN CASCADE 2002
-// $Header$
-//=============================================================================
-
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
@@ -28,7 +43,8 @@ using namespace std;
 /*!
   Constructor
 */
-SALOMEGUI_Swig::SALOMEGUI_Swig(): _studyId(0)
+SALOMEGUI_Swig::SALOMEGUI_Swig()
+// VSR 06-05-03 : _studyId(0)
 {
   //  MESSAGE("Constructeur");
 }
@@ -42,11 +58,25 @@ SALOMEGUI_Swig::~SALOMEGUI_Swig()
 }
 
 /*!
+  Gets active study or 0 if no study opened
+*/
+QAD_Study* SALOMEGUI_Swig::getActiveStudy()
+{
+  QAD_Application* app = QAD_Application::getDesktop()->getActiveApp();
+  if ( app ) return app->getActiveStudy();
+  return 0;
+}
+
+/*!
   Call when updated object browser.
 */
 void SALOMEGUI_Swig::updateObjBrowser( bool updateSelection )
 {
-  QAD_Study* myActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myActiveStudy = getActiveStudy();
+  if ( !myActiveStudy) return;
+  // end of VSR 06-05-03 =====================================================
   myActiveStudy->updateObjBrowser( updateSelection );
 }
 
@@ -60,8 +90,14 @@ int SALOMEGUI_Swig::getActiveStudyId()
   //    {
   //  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
   //  _name = myStudy->getTitle();
-  _studyId = QAD_Application::getDesktop()->getActiveStudy()->getStudyId();
-  SCRUTE(_studyId);
+
+  // VSR 06-05-03 ============================================================
+  // _studyId = QAD_Application::getDesktop()->getActiveStudy()->getStudyId();
+  int _studyId = 0;
+  QAD_Study* myActiveStudy = getActiveStudy();
+  if ( myActiveStudy) _studyId = myActiveStudy->getStudyId();
+  // SCRUTE(_studyId);
+  // end of VSR 06-05-03 =====================================================
   //    }
   return _studyId;
 }
@@ -71,8 +107,14 @@ int SALOMEGUI_Swig::getActiveStudyId()
 */
 const char *SALOMEGUI_Swig::getActiveStudyName()
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
-  _name = myStudy->getTitle();
+  // VSR 06-05-03 ============================================================
+  // QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // _name = myStudy->getTitle();
+  QString _name = QString::null;
+  QAD_Study* myActiveStudy = getActiveStudy();
+  if ( myActiveStudy) _name = myActiveStudy->getTitle();
+  // end of VSR 06-05-03 =====================================================
+
   // NRI 24-02-03 :
   //if (_studyId ==0) 
   //  getActiveStudyId();
@@ -84,7 +126,11 @@ const char *SALOMEGUI_Swig::getActiveStudyName()
 */
 int SALOMEGUI_Swig::SelectedCount()
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return 0;
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel
     = SALOME_Selection::Selection( myStudy->getSelection() );
   return Sel->IObjectCount();
@@ -95,7 +141,11 @@ int SALOMEGUI_Swig::SelectedCount()
 */
 const char* SALOMEGUI_Swig::getSelected(int i)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return "";
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel
     = SALOME_Selection::Selection( myStudy->getSelection() );
   SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
@@ -117,11 +167,15 @@ const char* SALOMEGUI_Swig::getSelected(int i)
 */
 void SALOMEGUI_Swig::AddIObject(const char *Entry)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel
     = SALOME_Selection::Selection( myStudy->getSelection() );
 
-  if ( !SALOMEGUI_Swig::IsInCurrentView( Entry ) )
+  if ( !IsInCurrentView( Entry ) )
     return;
   
   Handle(SALOME_InteractiveObject) IO = 
@@ -135,12 +189,15 @@ void SALOMEGUI_Swig::AddIObject(const char *Entry)
 */
 void SALOMEGUI_Swig::RemoveIObject(const char *Entry)
 {
-  QAD_Study* myStudy
-    = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel
     = SALOME_Selection::Selection( myStudy->getSelection() );
 
-  if ( !SALOMEGUI_Swig::IsInCurrentView( Entry ) )
+  if ( !IsInCurrentView( Entry ) )
     return;
 
   Handle(SALOME_InteractiveObject) IO = 
@@ -154,7 +211,11 @@ void SALOMEGUI_Swig::RemoveIObject(const char *Entry)
 */
 void SALOMEGUI_Swig::ClearIObjects()
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel
     = SALOME_Selection::Selection( myStudy->getSelection() );
   Sel->ClearIObjects();
@@ -165,9 +226,13 @@ void SALOMEGUI_Swig::ClearIObjects()
 */		
 void SALOMEGUI_Swig::Display(const char *Entry)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
 
-  if ( !SALOMEGUI_Swig::IsInCurrentView( Entry ) )
+  if ( !IsInCurrentView( Entry ) )
     return;
 
   Handle(SALOME_InteractiveObject) IO = 
@@ -181,10 +246,14 @@ void SALOMEGUI_Swig::Display(const char *Entry)
 */
 void SALOMEGUI_Swig::DisplayOnly(const char *Entry)
 {
-  if ( !SALOMEGUI_Swig::IsInCurrentView( Entry ) )
-    return;
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
 
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  if ( !IsInCurrentView( Entry ) )
+    return;
 
   Handle(SALOME_InteractiveObject) IO = 
     myStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame()->FindIObject( Entry );
@@ -199,10 +268,14 @@ void SALOMEGUI_Swig::DisplayOnly(const char *Entry)
 */
 void SALOMEGUI_Swig::Erase(const char *Entry)
 {
-  if ( !SALOMEGUI_Swig::IsInCurrentView( Entry ) )
-    return;
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
 
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  if ( !IsInCurrentView( Entry ) )
+    return;
 
   Handle(SALOME_InteractiveObject) IO = 
     myStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame()->FindIObject( Entry );
@@ -215,16 +288,24 @@ void SALOMEGUI_Swig::Erase(const char *Entry)
 */
 void SALOMEGUI_Swig::DisplayAll()
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
   myStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame()->DisplayAll();
 }
 
 /*!
-  Erse only
+  Erase only
 */
 void SALOMEGUI_Swig::EraseAll()
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return;
+  // end of VSR 06-05-03 =====================================================
   SALOME_Selection* Sel 
     = SALOME_Selection::Selection( myStudy->getSelection() );
   
@@ -233,17 +314,31 @@ void SALOMEGUI_Swig::EraseAll()
 }
 
 /*!
-  Check
+  Checks if object is displayed in current viewer
 */
 bool SALOMEGUI_Swig::IsInCurrentView(const char *Entry)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Study* myStudy = getActiveStudy();
+  if ( !myStudy) return false;
+  // end of VSR 06-05-03 =====================================================
   return myStudy->isInViewer( Entry, myStudy->getActiveStudyFrame()->entry() );
 }
 
-vtkRenderer *SALOMEGUI_Swig::getRenderer(int viewId)
+/*!
+  Gets VTK renderer if available
+*/
+//san:T3.13 - move getRenderer() implementation from here to SalomePy.cxx
+/*vtkRenderer *SALOMEGUI_Swig::getRenderer(int viewId)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  // VSR 06-05-03 ============================================================
+  //QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
+  QAD_Application* app = QAD_Application::getDesktop()->getActiveApp();
+  if ( !app ) return NULL;
+  QAD_Study* myStudy = app->getActiveStudy();
+  if ( !myStudy) return NULL;
+  // end of VSR 06-05-03 =====================================================
   int nbStudyFrames = myStudy->getStudyFramesCount();
   vtkRenderer *myRenderer = NULL;
   if (viewId == -1) // find the first frame with VTK viewer & get renderer
@@ -267,3 +362,5 @@ vtkRenderer *SALOMEGUI_Swig::getRenderer(int viewId)
   if (myRenderer == NULL) INFOS("No VTK Renderer available !");
   return myRenderer;
 }
+*/
+

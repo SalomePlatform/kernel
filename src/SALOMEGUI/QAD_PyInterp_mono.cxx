@@ -1,14 +1,16 @@
-using namespace std;
-using namespace std;
-//=============================================================================
-// File      : QAD_PyInterp_mono.cxx
-// Created   : ven fév  7 10:01:36 CET 2003
-// Author    : Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2003
-// $Header$
-//=============================================================================
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_PyInterp_mono.cxx
+//  Author : Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
+using namespace std;
 #include "QAD_PyInterp_mono.h"
 #include "utilities.h"
 

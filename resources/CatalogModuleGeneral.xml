@@ -1666,6 +1666,34 @@
 				</component-service>
 				<component-service>
 					<!-- service-identification -->
+					<service-name>PutToStudy</service-name>
+					<service-author>mpv</service-author>
+					<service-version>1.0</service-version>
+					<service-comment>Put field to the study stucture</service-comment>
+					<service-by-default>1</service-by-default>
+					<!-- service-connexion -->
+					<inParameter-list>
+						<inParameter>
+							<inParameter-type>FIELDDOUBLE</inParameter-type>
+							<inParameter-name>field1</inParameter-name>
+							<inParameter-comment>field to put to study</inParameter-comment>
+						</inParameter>
+						<inParameter>
+							<inParameter-type>long</inParameter-type>
+							<inParameter-name>StudyId</inParameter-name>
+							<inParameter-comment>the ID of the study</inParameter-comment>
+						</inParameter>
+					</inParameter-list>
+                                        <outParameter-list>
+                                                 <outParameter>
+                                                        <outParameter-type>FIELDDOUBLE</outParameter-type>
+                                                        <outParameter-name>return</outParameter-name>
+                                                        <outParameter-comment>the same field like in input</outParameter-comment>
+                                                 </outParameter>
+                                        </outParameter-list>
+				</component-service>
+				<component-service>
+					<!-- service-identification -->
 					<service-name>writeMEDfile</service-name>
 					<service-author>LD</service-author>
 					<service-version>1.0</service-version>

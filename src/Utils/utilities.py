@@ -1,3 +1,12 @@
+#  SALOME Utils : general SALOME's definitions and tools
+#
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : utilities.py
+#  Module : SALOME
+
 import SALOME_Trace
 GLogger = SALOME_Trace.SALOME_Trace()
 

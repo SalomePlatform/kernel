@@ -1,10 +1,12 @@
-//  File      : SALOMEDS_DataMapOfIntegerString.hxx
-//  Created   : Mon Apr  7 10:13:30 2003
-//  Author    : Sergey Ruin
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_DataMapOfIntegerString.hxx
+//  Author : Sergey Ruin
+//  Module : SALOME
 
 #ifndef _SALOMEDS_DataMapOfIntegerString_HeaderFile
 #define _SALOMEDS_DataMapOfIntegerString_HeaderFile

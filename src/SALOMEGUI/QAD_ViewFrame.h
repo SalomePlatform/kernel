@@ -1,14 +1,30 @@
-//  File      : QAD_ViewFrame.cxx
-//  Created   : UI team, 05.09.00
-//  Descrip   : Frame window for viewport in QAD-based application
-
-//  Modified  : Mon Dec 03 15:41:43 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_ViewFrame.cxx
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
-
 
 #ifndef QAD_ViewFrame_H
 #define QAD_ViewFrame_H
@@ -21,7 +37,7 @@
 // QT Include
 #include <qmainwindow.h>
 
-class vtkRenderer;
+//class vtkRenderer;
 
 class QAD_EXPORT QAD_ViewFrame : public QMainWindow
 {
@@ -36,7 +52,7 @@ public:
 
   virtual ViewType       getTypeView() const = 0; 
   virtual QWidget*       getViewWidget() = 0;
-  virtual vtkRenderer*   getRenderer();
+//  virtual vtkRenderer*   getRenderer();
 
   virtual void           setBackgroundColor( const QColor& ) = 0;
   virtual QColor         backgroundColor() const = 0;

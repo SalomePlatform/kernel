@@ -1,13 +1,15 @@
-using namespace std;
-//=============================================================================
-// File      : PyInterp_base.cxx
-// Created   : ven fév  7 10:01:36 CET 2003
-// Author    : Christian CAREMOLI, Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2003
-// $Header$
-//=============================================================================
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : PyInterp_base.cxx
+//  Author : Christian CAREMOLI, Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include "PyInterp_base.h"
 #include "utilities.h"
 #include <string>

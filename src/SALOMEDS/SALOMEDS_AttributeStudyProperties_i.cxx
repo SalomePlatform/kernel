@@ -1,14 +1,15 @@
-using namespace std;
-//  File      : SALOMEDS_AttributeStudyProperties_i.cxx
-//  Created   : Tue Oct  8 10:13:30 2002
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2002
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_AttributeStudyProperties_i.cxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
-
+using namespace std;
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfExtendedString.hxx>

@@ -1,15 +1,12 @@
-#==============================================================================
-#  File      : test_table.py
-#  Created   : 20/01/03
-#  Author    : Vadim SANDLER
-#  Project   : SALOME
-#  Copyright : Open CASCADE
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : test_table.py
+#  Author : Vadim SANDLER
+#  Module : SALOME
 #  $Header$
-#==============================================================================
 
-# ============================================================================
-# Check attributes creation : Integer, Real, Comment, Tables
-# ============================================================================
 import salome
 import math
 import SALOMEDS

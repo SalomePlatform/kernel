@@ -1,15 +1,15 @@
-using namespace std;
-//  File      : QAD_SpinBoxDbl.cxx
-//  Created   : UI team, 21.11.02
-//  Descr     : Spin box for double values
-
-//  Modified  : Fri Nov 22 09:30:11 2002
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2002
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_SpinBoxDbl.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_SpinBoxDbl.h"
 #include <qpushbutton.h>
 #include <qpainter.h>

@@ -1,13 +1,32 @@
-using namespace std;
-//=============================================================================
-// File      : Component_i.cxx
-// Created   : jeu jui 12 08:04:40 CEST 2001
-// Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
-// Project   : SALOME
-// Copyright : EDF 2001 - CEA 2001
-// $Header$
-//=============================================================================
+//  SALOME Container : implementation of container and engine for Kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : Component_i.cxx
+//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include "SALOME_Component_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
@@ -118,6 +137,8 @@ void Engines_Component_i::beginService(const char *serviceName)
   MESSAGE("Send BeginService notification for " << serviceName << endl
 	  << "Component instance : " << _instanceName << endl << endl);
   _ThreadId = pthread_self() ;
+  _StartUsed = 0 ;
+  _StartUsed = CpuUsed_impl() ;
   _serviceName = serviceName ;
   if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS , NULL ) ) {
     perror("pthread_setcanceltype ") ;
@@ -163,7 +184,7 @@ bool Killer( int ThreadId , int signum ) {
         return false ;
       }
       else {
-        MESSAGE("Killer : ThreadId " << ThreadId << " pthread_cancel") ;
+        MESSAGE("Killer : ThreadId " << ThreadId << " pthread_canceled") ;
       }
     }
     else {
@@ -245,6 +266,24 @@ bool Engines_Component_i::Resume_impl() {
   }
   return RetVal ;
 
+}
+
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+
+long Engines_Component_i::CpuUsed_impl() {
+  struct rusage usage ;
+  long cpu ;
+  if ( getrusage( RUSAGE_SELF , &usage ) == -1 ) {
+    perror("GraphBase::CpuUsed") ;
+    return 0 ;
+  }
+//  return usage.ru_utime.__time_t tv_sec ;
+  cout << "CpuUsed " << usage.ru_utime.tv_sec << " " << usage.ru_utime.tv_usec << " "
+       << usage.ru_stime.tv_sec << " " << usage.ru_stime.tv_usec << endl ;
+  cpu = usage.ru_utime.tv_sec - _StartUsed ;
+  return cpu ;
 }
 
 // Send message to event channel

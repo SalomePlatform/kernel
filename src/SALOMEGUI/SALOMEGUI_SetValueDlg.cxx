@@ -1,12 +1,15 @@
-using namespace std;
-//  File      : SALOMEGUI_SetValueDlg.cxx
-//  Created   : Wed Jun 27 16:39:06 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_SetValueDlg.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_SetValueDlg.h"
 #include "QAD_Tools.h"
 

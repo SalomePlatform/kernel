@@ -1,9 +1,17 @@
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SalomePyQt.cxx
+//  Module : SALOME
+
 using namespace std;
 #include "SalomePyQt.hxx"
 
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
+#include "QAD_FileDlg.h"
 
 #include "QAD_Config.h"
 #include "QAD_Settings.h"
@@ -25,12 +33,12 @@ QMenuBar* SalomePyQt::getMainMenuBar()
 
 int SalomePyQt::getStudyId()
 {
-  return QAD_Application::getDesktop()->getActiveStudy()->getStudyId();
+  return QAD_Application::getDesktop()->getActiveApp()->getActiveStudy()->getStudyId();
 }
 
 SALOME_Selection* SalomePyQt::getSelection()
 {
-  return SALOME_Selection::Selection(QAD_Application::getDesktop()->getActiveStudy()->getSelection());
+  return SALOME_Selection::Selection(QAD_Application::getDesktop()->getActiveApp()->getActiveStudy()->getSelection());
 }
 
 void SalomePyQt::putInfo( const QString& msg )
@@ -82,4 +90,20 @@ bool SalomePyQt::removeSettings(QString name)
 QString SalomePyQt::getSetting(QString name)
 {
   return QAD_CONFIG->getSetting(name);
+}
+
+QString SalomePyQt::getFileName(QWidget*           parent, 
+				const QString&     initial, 
+				const QStringList& filters, 
+				const QString&     caption,
+				bool               open)
+{
+  return QAD_FileDlg::getFileName(parent, initial, filters, caption, open);
+}
+
+QString SalomePyQt::getExistingDirectory(QWidget*       parent,
+					 const QString& initial,
+					 const QString& caption)
+{
+  return QAD_FileDlg::getExistingDirectory(parent, initial, caption);
 }

@@ -1,11 +1,11 @@
-//=============================================================================
-// File      : InquireServersQThread.h
-// Created   : Mon Oct 21 17:26:42 2002
-// Author    : Vasily RUSYAEV
-// Project   : SALOME
-// Copyright : EDF 2001
-// $Header$
-//=============================================================================
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : InquireServersQThread.h
+//  Author : Vasily RUSYAEV
+//  Module : SALOME
+//  $Header$
 
 #include <qapplication.h>
 #include <qthread.h> 

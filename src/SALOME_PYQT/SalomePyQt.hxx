@@ -1,3 +1,10 @@
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SalomePyQt.hxx
+//  Module : SALOME
+
 #ifndef _SALOME_PYQT_H
 #define _SALOME_PYQT_H
 
@@ -28,6 +35,15 @@ public:
   static void addDoubleSetting(QString _name, double _value, bool _autoValue);
   static bool removeSettings(QString name);
   static QString getSetting(QString name);
+
+  static QString getFileName(QWidget*           parent, 
+                             const QString&     initial, 
+                             const QStringList& filters, 
+                             const QString&     caption,
+                             bool               open);
+  static QString getExistingDirectory(QWidget*       parent,
+                                      const QString& initial,
+                                      const QString& caption);
 };
 
 #endif

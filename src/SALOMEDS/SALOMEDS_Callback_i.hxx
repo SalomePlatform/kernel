@@ -1,9 +1,12 @@
-//  File      : SALOMEDS_Study_i.hxx
-//  Created   : Wed Feb 26 11:27:37 2003
-//  Author    : Yves FRICAUD
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2003
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_Study_i.hxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 
 #ifndef __SALOMEDS_CALLBACK_I_H__
 #define __SALOMEDS_CALLBACK_I_H__

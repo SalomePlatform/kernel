@@ -1,12 +1,29 @@
-//  File      : QAD_Desktop.h
-//  Created   : UI team, 02.10.00
-//  Descr     : Main desktop of QAD-based application
-
-//  Modified  : Mon Dec 03 13:40:28 2001
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : QAD_Desktop.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
 #ifndef QAD_DESKTOP_H
@@ -18,6 +35,7 @@
 #include "QAD_OperatorMenus.h"
 #include "QAD_Menus.h"
 #include "QAD_HelpWindow.h"
+#include "QAD_Action.h"
 
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
@@ -30,7 +48,6 @@
 
 // QT Includes
 #include <qlist.h>
-#include <qaction.h>
 #include <qmap.h>
 #include <qmenubar.h>
 #include <qtoolbar.h>
@@ -44,47 +61,6 @@
 
 // Open CASCADE Includes
 #include <OSD_SharedLibrary.hxx>
-
-class ActionMap {
- public:
-     ActionMap() {}
-     ~ActionMap() 
-     { 
-       QMapIterator<unsigned int, QAction*> it;
-       for ( it = myMap.begin(); it != myMap.end(); it++ ) delete (QAction*)it.data();
-       myMap.clear();
-     }
-     bool isEmpty()                                           { return myMap.isEmpty(); }
-     void insert( const unsigned int id, QAction* action )    { myMap[id] = action;     }
-     QAction* at( const unsigned int id )                     { return myMap[id];       }
-     void clear()                                             { myMap.clear();          }
-     QAction*& operator[] (const unsigned int id)             { return myMap[id];       }
-
- private:
-     QMap<unsigned int, QAction*> myMap;
-
-};
-
-class ToggleAction : public QAction {
-  Q_OBJECT
- public:
-  ToggleAction( const QString& text,     const QString& menuText, 
-	        QKeySequence   accel,    QObject*       parent, 
-	        const char*    name = 0, bool           toggle = FALSE)
-    : QAction( text, menuText, accel, parent, name, toggle ) 
-      {
-	connect( this, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
-      }
- private slots:
-  void onToggled( bool on)
-    {
-      on ? emit( toggledOn() ) : emit( toggledOff() );
-    }
-  
- signals:
-  void toggledOn();
-  void toggledOff();
-};
 
 class QAD_XmlHandler;
 
@@ -104,7 +80,7 @@ protected:
 	  //VRV: T2.5 - add default viewer
 	  PrefViewerTrihedronId, PrefConsoleFontId, PrefObjectBrowserEntryId, 
 	  PrefObjectBrowserIAPPId, PrefObjectBrowserValueId, PrefObjectBrowserCHRONO_SORTId, 
-	  PrefDirsId, PrefMultiFileSave, PrefSaveId,
+	  PrefDirsId, PrefMultiFileSave, PrefASCIISave, PrefSaveId,
 	  //NRI : SAL2214
 	  WindowNew3dId, ViewOCCId, ViewVTKId, ViewPlot2dId,
 	  //NRI : SAL2214
@@ -198,6 +174,8 @@ public:
     bool	      onMousePress(QMouseEvent*);
     void	      onKeyPress(QKeyEvent*);
 
+    virtual QAD_Study* loadStudy(QString theStudyName);
+
 protected:
     bool	      closeAllStudies( QAD_Application* );
     void	      closeEvent( QCloseEvent* );
@@ -248,12 +226,13 @@ protected slots:
     void              onPlot2d();
     void              onConsoleFontAction();
   //VRV: T2.5 - add default viewer
-    void	      onDefaultViewer( QAction * theAction);
+    void	      onDefaultViewer( QActionP * theAction);
   //VRV: T2.5 - add default viewer
 
     void	      onViewerTrihedron();
     void	      onObjectBrowser();
     void              onMultiFileSave();
+    void              onASCIISave();
 
     void	      onActivateApp(QAD_Application* app);
     void	      onDeactivateApp(QAD_Application* app);

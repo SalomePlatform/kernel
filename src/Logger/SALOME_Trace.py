@@ -1,3 +1,12 @@
+#  SALOME Logger : CORBA server managing trace output
+#
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : SALOME_Trace.py
+#  Module : SALOME
+
 import sys
 import CosNaming
 from omniORB import CORBA

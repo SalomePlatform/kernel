@@ -1,15 +1,15 @@
-using namespace std;
-//  File      : QAD_FileDlg.cxx
-//  Created   : UI team, 17.09.02
-//  Descr     : Open/Save File dialog
-
-//  Modified  : Tue Sep 17 11:15:23 2002
-//  Author    : 
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : QAD_FileDlg.cxx
+//  Author : 
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <qapplication.h>
 #include <qdir.h>
 #include <qlabel.h>

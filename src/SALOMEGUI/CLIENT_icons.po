@@ -1,6 +1,12 @@
-# This is a Qt message file in .po format.  Each msgid starts with
-# a scope.  This scope should *NOT* be translated - eg. "Foo::Bar"
-# would be translated to "Pub", not "Foo::Pub".
+#  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+#
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : CLIENT_icons.po
+#  Module : SALOME
+
 msgid ""
 msgstr ""
 "Project-Id-Version: example-Qt-message-extraction\n"

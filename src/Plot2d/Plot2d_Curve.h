@@ -1,12 +1,10 @@
-//  File      : Plot2d_Curve.h
-//  Created   : UI team, 05.09.00
-//  Descrip   : Curve class
-
-//  Modified  : Mon Dec 03 15:37:21 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : Plot2d
-//  Copyright : Open CASCADE 2001
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d_Curve.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef Plot2d_Curve_h
@@ -62,9 +60,14 @@ public:
   virtual bool                             hasIO() { return !myIO.IsNull(); }
   virtual Handle(SALOME_InteractiveObject) getIO() { return myIO; }
   virtual void                             setIO( const Handle(SALOME_InteractiveObject)& io ) { myIO = io; }
+
+  virtual bool                             hasTableIO() { return !myTableIO.IsNull(); }
+  virtual Handle(SALOME_InteractiveObject) getTableIO() { return myTableIO; }
+  virtual void                             setTableIO( const Handle(SALOME_InteractiveObject)& io ) { myTableIO = io; }
   
 private:
   Handle(SALOME_InteractiveObject) myIO;
+  Handle(SALOME_InteractiveObject) myTableIO;
 
   bool        myAutoAssign;
   QString     myHorTitle;

@@ -1,12 +1,12 @@
-//  File      : qworkspaceP.h
-//  Created   : UI team, 21.11.02
-//  Descr     : Patch for QWorkspace class (Qt 3.0.5)
-
-//  Modified  : Mon Nov 25 09:30:11 2002
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : PatchQt
-//  Copyright : Open CASCADE 2002
+//  SALOME PatchQt : patch for Qt
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : qworkspaceP.h
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
 #ifndef QWORKSPACEP_H

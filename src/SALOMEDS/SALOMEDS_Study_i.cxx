@@ -1,13 +1,32 @@
-using namespace std;
-//  File      : SALOMEDS_Study_i.cxx
-//  Created   : Wed Nov 28 16:27:23 2001
-//  Author    : Yves FRICAUD
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE 2001
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOMEDS_Study_i.cxx
+//  Author : Yves FRICAUD
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 
@@ -21,11 +40,13 @@ using namespace std;
 #include <CDM_Document.hxx>
 #include <CDM_Application.hxx>
 #include "SALOMEDS_LocalIDAttribute.hxx"
+#include "SALOMEDS_PersRefAttribute.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 
 
-#define DIRECTORYID "DIRECTORY:"
+#define DIRECTORYID 16661
 #define FILEID "FILE: "
+#define FILELOCALID 26662 
 
 //============================================================================
 /*! Function : SALOMEDS_Study_i
@@ -530,19 +551,15 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theCont
   TDF_ChildIterator anIter(aLabel, Standard_False); // iterate first-level children at all sublevels
   for(; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
-//      Handle(TDF_Attribute) anAttribute;
-//      if (!aLabel.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttribute) &&
-//  	!aLabel.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anAttribute)) {
-    Handle(SALOMEDS_PersRefAttribute) anID;
-    if (aLabel.FindAttribute(SALOMEDS_PersRefAttribute::GetID(), anID)) {
-      if (anID->Get().Search(TCollection_ExtendedString(DIRECTORYID)) == 1) {
+    Handle(SALOMEDS_LocalIDAttribute) anID;
+    if (aLabel.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anID)) {
+      if (anID->Get() == DIRECTORYID) {
 	Handle(TDataStd_Name) aName;
 	if (aLabel.FindAttribute(TDataStd_Name::GetID(), aName)) {
 	  aResultSeq.Append(aName->Get());
 	}
       }
     }
-//      }
   }
   // fill the result table
   int anIndex, aLength = aResultSeq.Length();
@@ -574,13 +591,15 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext) 
   TDF_ChildIterator anIter(aLabel, Standard_False); // iterate all subchildren at all sublevels
   for(; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
-//      Handle(TDF_Attribute) anAttribute;
-//      if (aLabel.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttribute) ||
-//  	aLabel.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anAttribute)) {
-    Handle(SALOMEDS_PersRefAttribute) aName;
-    if (aLabel.FindAttribute(SALOMEDS_PersRefAttribute::GetID(), aName)) {
-      if (aName->Get().Search(TCollection_ExtendedString(FILEID)) == 1) {
-	aResultSeq.Append(aName->Get().Split(strlen(FILEID)));
+    Handle(SALOMEDS_LocalIDAttribute) anID;
+    if (aLabel.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anID)) {
+      if (anID->Get() == FILELOCALID) {
+	Handle(SALOMEDS_PersRefAttribute) aName;
+	if(aLabel.FindAttribute(SALOMEDS_PersRefAttribute::GetID(), aName)) {
+	  TCollection_ExtendedString aFileName = aName->Get();
+	  if(aFileName.Length() > 0)
+	    aResultSeq.Append(aFileName.Split(strlen(FILEID)));
+	}
       }
     }
 //      }
@@ -733,6 +752,10 @@ CORBA::Boolean  SALOMEDS_Study_i::IsModified()
 //============================================================================
 char* SALOMEDS_Study_i::URL()
 {
+  if(!_URL) {
+    _URL = new char[1];
+    _URL[0] = (char)0;
+  }
   return CORBA::string_dup(_URL);
 }
 

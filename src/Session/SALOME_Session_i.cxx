@@ -1,13 +1,32 @@
-using namespace std;
-//=============================================================================
-// File      : SALOME_Session_i.cxx
-// Created   : mar jun 19 14:02:45 CEST 2001
-// Author    : Paul RASCLE, EDF
-// Project   : SALOME
-// Copyright : EDF 2001
-// $Header$
-//=============================================================================
+//  SALOME Session : implementation of Session.idl
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOME_Session_i.cxx
+//  Author : Paul RASCLE, EDF
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include "utilities.h"
 
 #include "SALOME_Session_i.hxx"
@@ -41,15 +60,16 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
   MESSAGE("constructor end");
 }
   
-//***//VISU::VISU_Gen_ptr SALOME_Session_i::GetVisuGen(){
-//***//  typedef VISU::VISU_Gen_ptr VisuGen(CORBA::ORB_var,PortableServer::POA_var,QMutex*);
-//***//  MESSAGE("SALOME_Session_i::GetVisuGen");
-//***//  OSD_SharedLibrary  visuSharedLibrary("libVisuEngine.so");
-//***//  if(visuSharedLibrary.DlOpen(OSD_RTLD_LAZY))
-//***//    if(OSD_Function osdFun = visuSharedLibrary.DlSymb("GetVisuGen"))
-//***//      return ((VisuGen (*)) osdFun)(_orb,_poa,&_GUIMutex);
-//***//  return VISU::VISU_Gen::_nil();
-//***//} 
+Engines::Component_ptr SALOME_Session_i::GetVisuGen(){
+  typedef Engines::Component_ptr VisuGen(CORBA::ORB_ptr, PortableServer::POA_ptr,
+					 SALOME_NamingService*, QMutex*);
+  MESSAGE("SALOME_Session_i::GetVisuGen");
+  OSD_SharedLibrary  visuSharedLibrary("libVisuEngine.so");
+  if(visuSharedLibrary.DlOpen(OSD_RTLD_LAZY))
+    if(OSD_Function osdFun = visuSharedLibrary.DlSymb("GetVisuGen"))
+      return ((VisuGen (*)) osdFun)(_orb,_poa,_NS,&_GUIMutex);
+  return Engines::Component::_nil();
+}
 
 //=============================================================================
 /*! ~SALOME_Session_i

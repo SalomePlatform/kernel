@@ -1,11 +1,12 @@
-//  File      : SALOMEDS_Tool.hxx
-//  Created   : Mon Oct 21 16:24:50 2002
-//  Author    : Sergey RUIN
-
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_Tool.hxx
+//  Author : Sergey RUIN
+//  Module : SALOME
 
 #ifndef __SALOMEDS_Tool_H__
 #define __SALOMEDS_Tool_H__

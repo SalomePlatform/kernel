@@ -1,12 +1,14 @@
+//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEDS_AttributeTableOfString_i.cxx
+//  Author : Sergey Ruin
+//  Module : SALOME
+
 using namespace std;
-//  File      : SALOMEDS_AttributeTableOfString_i.cxx
-//  Created   : Mon Apr  7 10:13:30 2003
-//  Author    : Sergey Ruin
-//  Project   : SALOME
-//  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-
-
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
 
@@ -307,22 +309,10 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfString_i::SaveToFile()
   Handle(SALOMEDS_TableOfStringAttribute) aTable = Handle(SALOMEDS_TableOfStringAttribute)::DownCast(_myAttr);
 
   ostrstream ostr;
-  string aString;
   aTable->ConvertToString(ostr);
-
-  aString = ostr.rdbuf()->str();
-
-  cout << " ######## STRLEN " << aString.size() << endl;
-
-  char* aBuffer = (char*)CORBA::string_dup(aString.c_str());
-  int aBufferSize = strlen((char*)aBuffer);
-
-  cout << " ####### STRLEN " << aBufferSize  << endl;
-
-  CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
-
-  SALOMEDS::TMPFile_var aStreamFile = new SALOMEDS::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1);
-
+  CORBA::Octet* anOctetBuf =  (CORBA::Octet*)ostr.rdbuf()->str();
+  unsigned long aSize = ostr.pcount();
+  SALOMEDS::TMPFile_var aStreamFile = new SALOMEDS::TMPFile(aSize, aSize, anOctetBuf, 1);
   return aStreamFile._retn();
 }
 

@@ -1,3 +1,29 @@
+//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : HDFgroup.cc
+//  Module : SALOME
+
 using namespace std;
 extern "C"
 {
@@ -7,6 +33,13 @@ extern "C"
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
 
+herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+{
+   *(char**)operator_data = new char[strlen(attr_name)+1];
+   strcpy(*(char**)operator_data, attr_name);
+   return 1;
+}
+
 HDFgroup::HDFgroup(char *name, HDFcontainerObject *father)
   : HDFcontainerObject(name)
 {
@@ -14,11 +47,12 @@ HDFgroup::HDFgroup(char *name, HDFcontainerObject *father)
   _fid = _father->GetId();
   _father->AddSon(this);
   _mid = -1;
+  _attribute = NULL;
 };
 
 void HDFgroup::CreateOnDisk()
 {
-  if ((_id = HDFgroupCreate(_fid,_name)) < 0)
+  if ((_id = HDFgroupCreate(_fid,_name)) < 0) 
     throw HDFexception("Can't create group");
 }
   
@@ -122,3 +156,21 @@ void HDFgroup::FileUnMount()
 
   _mid = -1;
 }
+
+int HDFgroup::nAttributes()
+{
+  int nbAttrs = H5Aget_num_attrs(_id);
+  if(nbAttrs <= 0) nbAttrs = 0;
+  return nbAttrs; 
+}
+
+char* HDFgroup::GetAttributeName(unsigned idx)
+{
+  int nbAttrs = nAttributes();
+  if(nbAttrs == 0) return NULL;
+  H5Aiterate(_id, &idx, group_attr, &_attribute);
+  return _attribute;
+}
+
+
+ 

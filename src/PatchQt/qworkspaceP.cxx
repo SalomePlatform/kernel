@@ -1,15 +1,15 @@
-using namespace std;
-//  File      : qworkspaceP.cxx
-//  Created   : UI team, 21.11.02
-//  Descr     : Patch for QWorkspace class (Qt 3.0.5)
-
-//  Modified  : Mon Nov 25 09:35:34 2002
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : PatchQt
-//  Copyright : Open CASCADE 2002
+//  SALOME PatchQt : patch for Qt
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : qworkspaceP.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "qworkspaceP.h"
 
 #include <qapplication.h>
@@ -3180,8 +3180,9 @@ void QTitleBarP::paintEvent(QPaintEvent *)
 	ctrls ^= under_mouse;
     }
 
-    QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
-    buffer.begin( this, rect() );
+    // QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
+    // buffer.begin( this, rect() );
+    QSharedDoubleBuffer buffer( this, rect() );
     style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
 			       colorGroup(),
 			       isEnabled() ? QStyle::Style_Enabled :

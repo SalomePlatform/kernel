@@ -1,12 +1,15 @@
-using namespace std;
-//  File      : SALOMEGUI_SetupCurveDlg.cxx
-//  Created   : Wed Jun 27 16:38:42 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : SALOMEGUI
-//  Copyright : Open CASCADE
+//  SALOME SALOMEGUI : implementation of desktop and GUI kernel
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : SALOMEGUI_SetupCurveDlg.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_SetupCurveDlg.h"
 #include "QAD_Tools.h"
 #include <qlayout.h>

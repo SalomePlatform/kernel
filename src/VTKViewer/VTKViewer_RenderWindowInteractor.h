@@ -1,9 +1,29 @@
-//  File      : VTKViewer_RenderWindowInteractor.h
-//  Created   : Wed Mar 20 11:31:36 2002
-//  Author    : Nicolas REJNERI
-//  Project   : SALOME
-//  Module    : VTKViewer
-//  Copyright : Open CASCADE 2002
+//  SALOME VTKViewer : build VTK viewer into Salome desktop
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : VTKViewer_RenderWindowInteractor.h
+//  Author : Nicolas REJNERI
+//  Module : SALOME
 //  $Header$
 
 #ifndef VTKViewer_RenderWindowInteractor_h
@@ -22,13 +42,14 @@
 // VTK Includes
 #include <vtkVersion.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkUnstructuredGrid.h>
 
 // Open CASCADE Includes
 #include <TColStd_MapOfInteger.hxx>
 #include <TColStd_MapIteratorOfMapOfInteger.hxx>
 
-class VTKViewer_RenderWindow ;
+class VTKViewer_RenderWindow;
+class vtkPolyData;
+class vtkPolyDataMapper;
 
 // ------------------------------------------------------------
 // :TRICKY: Fri Apr 21 22:19:27 2000 Pagey
@@ -152,10 +173,20 @@ public:
 
   vtkRenderer* GetRenderer();
 
+  QWidget* getGUIWindow() {return myGUIWindow;}
+  void setGUIWindow(QWidget* theWin) { myGUIWindow = theWin;}
+
+  typedef void (*TCreateMapperFun)(vtkPolyData *theSourcePolyData, 
+					   vtkPolyDataMapper* theMapper, 
+					   const TColStd_MapOfInteger& theMapIndex);
  protected:
 
   VTKViewer_RenderWindowInteractor();
   ~VTKViewer_RenderWindowInteractor();
+
+  bool highlight(const Handle(SALOME_InteractiveObject)& IObject, 
+		 const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
+		 vtkActor *theActor, bool hilight, bool update );
   //
   // Timer used during various mouse events to figure 
   // out mouse movements. 
@@ -205,6 +236,9 @@ public:
     void TimerFunc() ;
  signals:
   void RenderWindowModified() ;
+
+ private:
+  QWidget*     myGUIWindow;  
 };
 
 #endif

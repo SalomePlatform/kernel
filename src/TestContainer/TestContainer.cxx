@@ -1,13 +1,32 @@
-using namespace std;
-//=============================================================================
-// File      : TestContainer.cxx
-// Created   : jeu jui 12 13:11:27 CEST 2001
-// Author    : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
-// Project   : SALOME
-// Copyright : EDF 2001
-// $Header$
-//=============================================================================
+//  SALOME TestContainer : test of container creation and its life cycle
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : TestContainer.cxx
+//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+//  Module : SALOME
+//  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include <iostream>
 #include <unistd.h>
@@ -39,7 +58,7 @@ int main (int argc, char * argv[])
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
       string hostName = GetHostname();
-      containerName += hostName;
+      containerName += hostName + "/FactoryServer";
 
       obj = _NS.Resolve(containerName.c_str()) ;
       Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
@@ -48,14 +67,14 @@ int main (int argc, char * argv[])
     
       for (int iter = 0; iter < 3 ; iter++)
 	{
-	  MESSAGE("----------------------------------------------------" << iter);   
-    
-	  obj = iGenFact->load_impl("SalomeTestComponent",
-				    "../lib/libSalomeTestComponentEngine.so");
+	  INFOS("----------------------------------------------------" << iter);   
+          string dirn = getenv("SALOME_ROOT_DIR");
+          dirn += "/lib/libSalomeTestComponentEngine.so";
+          obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
-	  MESSAGE("recup m1");
+	  INFOS("recup m1");
 	  SCRUTE(m1->instanceName());
-	  MESSAGE("Coucou " << m1->Coucou(1L));
+	  INFOS("Coucou " << m1->Coucou(1L));
 	  iGenFact->remove_impl(m1) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
           sleep(5);

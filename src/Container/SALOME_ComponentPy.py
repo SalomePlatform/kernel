@@ -1,16 +1,36 @@
 #! /usr/bin/env python
-
-#=============================================================================
-# File      : SALOME_ComponentPy.py
-# Created   : lun sep  3 17:54:13 CEST 2001
-# Author    : Paul RASCLE, EDF
-# Project   : SALOME
-# Copyright : EDF 2001
-# $Header$
-#=============================================================================
+#
+#  SALOME Container : implementation of container and engine for Kernel
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : SALOME_ComponentPy.py
+#  Author : Paul RASCLE, EDF
+#  Module : SALOME
+#  $Header$
 
 import os
 import sys
+import time
 from omniORB import CORBA, PortableServer
 import Engines, Engines__POA
 import Registry
@@ -45,6 +65,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._graphName = ''
         self._nodeName = ''
         self._ThreadId = 0
+        self._StartUsed = 0
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         Component_path = "/Containers/" +  os.getenv( "HOSTNAME" ) + "/" + self._containerName + "/" + self._interfaceName
@@ -108,6 +129,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     def beginService(self , serviceName ):
         MESSAGE(  "Send BeginService notification for " + str(serviceName) + "for graph/node" + str(self._graphName) + str(self._nodeName) )
         MESSAGE(  "Component instance : " + str ( self._instanceName ) )
+        self._StartUsed = 0
+        self._StartUsed = self.CpuUsed_impl()
 
     #-------------------------------------------------------------------------
 
@@ -156,4 +179,14 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def Resume(self):
         MESSAGE(  "SALOME_ComponentPy_i::Resume not yet implemented" )
+
+    #-------------------------------------------------------------------------
+
+    def CpuUsed_impl(self):
+        cpu = time.clock()
+        cpuL = int(cpu) - self._StartUsed
+        print "SALOME_ComponentPy_i::CpuUsed_impl ",cpuL,type(cpuL)
+        return cpuL
+
+    #-------------------------------------------------------------------------
 

@@ -1,3 +1,29 @@
+//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : HDFfile.cc
+//  Module : SALOME
+
 using namespace std;
 extern "C"
 {
@@ -9,9 +35,18 @@ extern "C"
 #include "HDFfile.hxx"
 #include "HDFexception.hxx"
 
+herr_t file_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+{
+   *(char**)operator_data = new char[strlen(attr_name)+1];
+   strcpy(*(char**)operator_data, attr_name);
+   return 1;
+}
+
 HDFfile::HDFfile(char *name)
   : HDFcontainerObject(name) 
-{}
+{
+  _attribute = NULL;
+}
 
 void HDFfile::CreateOnDisk()
 {
@@ -113,4 +148,19 @@ hdf_object_type HDFfile::InternalObjectType(char *object_name)
     throw HDFexception("Can't determine internal object type");
 
   return type;
+}
+
+int HDFfile::nAttributes()
+{
+  int nbAttrs = H5Aget_num_attrs(_id);
+  if(nbAttrs <= 0) nbAttrs = 0;
+  return nbAttrs; 
+}
+
+char* HDFfile::GetAttributeName(unsigned idx)
+{
+  int nbAttrs = nAttributes();
+  if(nbAttrs == 0) return NULL;
+  H5Aiterate(_id, &idx, file_attr, &_attribute);
+  return _attribute;
 }

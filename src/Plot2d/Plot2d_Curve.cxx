@@ -1,15 +1,13 @@
-using namespace std;
-//  File      : Plot2d_Curve.cxx
-//  Created   : UI team, 05.09.00
-//  Descrip   : Curve class
-
-//  Modified  : Mon Dec 03 15:37:21 2001
-//  Author    : Vadim SANDLER
-//  Project   : SALOME
-//  Module    : Plot2d
-//  Copyright : Open CASCADE 2001
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Plot2d_Curve.cxx
+//  Author : Vadim SANDLER
+//  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "Plot2d_Curve.h"
 #include "utilities.h"
 
