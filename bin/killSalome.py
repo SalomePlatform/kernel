@@ -34,3 +34,7 @@ process_id=pickle.load(fpid)
 fpid.close()
 
 killSalome()
+
+os.remove(filedict)
+
+
