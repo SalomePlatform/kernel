@@ -38,7 +38,7 @@ static int MYDEBUG = 0;
 
 static int MYVALUEDEBUG = 0;
 
-static int MYWRITEDEBUG = 0;
+static int MYWRITEDEBUG = 1;
 
 using namespace MED;
 
@@ -57,21 +57,36 @@ void CheckMed(const std::string& theFileName)
 
       //continue;
 
-      PNodeInfo aNodeInfo = aMed->GetPNodeInfo(aMeshInfo);
-      
       TEntityInfo aEntityInfo = aMed->GetEntityInfo(aMeshInfo);
       
       TElemGroup aElemGroup = GetElemsByEntity(aMed,aMeshInfo,aEntityInfo);
       
       TFamilyGroup aFamilyGroup = GetFamilies(aMed,aMeshInfo);
       
-      TFamilyByEntity aFamilyByEntity = GetFamiliesByEntity(aMed,aNodeInfo,aElemGroup,aFamilyGroup);
+      TFamilyByEntity aFamilyByEntity = GetFamiliesByEntity(aMed,aElemGroup,aFamilyGroup);
       
       TGroupInfo aGroupInfo = GetFamiliesByGroup(aFamilyGroup);
       
       TTimeStampGroup aTimeStampGroup = GetFieldsByEntity(aMed,aMeshInfo,aEntityInfo);
       
       TFieldGroup aFieldGroup = GetFieldsByEntity(aTimeStampGroup);
+
+      TFieldGroup::const_iterator aFieldGroupIter = aFieldGroup.begin();
+      for(; aFieldGroupIter != aFieldGroup.end(); aFieldGroupIter++){
+	const TTimeStampGroup& aTTimeStampGroup = aFieldGroupIter->second;
+	TTimeStampGroup::const_iterator aTTimeStampGroupIter = aTTimeStampGroup.begin();
+	for(; aTTimeStampGroupIter != aTTimeStampGroup.end(); aTTimeStampGroupIter++){
+	  PFieldInfo aFieldInfo = aTTimeStampGroupIter->first;
+	  const TTimeStampSet& aTimeStampSet = aTTimeStampGroupIter->second;
+	  TTimeStampSet::const_iterator aTTimeStampSetIter = aTimeStampSet.begin();
+	  for(; aTTimeStampSetIter != aTimeStampSet.end(); aTTimeStampSetIter++){
+	    PTimeStampInfo aTimeStampInfo = *aTTimeStampSetIter;
+	    TErr anErr;
+	    PTimeStampVal aTimeStampVal = aMed->GetPTimeStampVal(aTimeStampInfo,&anErr);
+	  }
+	}
+      }
+
     }
   }
   MSG(MYDEBUG,"OK");

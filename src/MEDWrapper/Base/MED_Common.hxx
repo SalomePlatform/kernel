@@ -53,14 +53,36 @@ namespace MED{
     SharedPtr() {}
 
     template<class Y>
-    explicit SharedPtr(Y * p): boost::shared_ptr<T>(p) {}
+    explicit SharedPtr(Y * p): 
+      boost::shared_ptr<T>(p) 
+    {}
 
     template<class Y>
-    SharedPtr(SharedPtr<Y> const & r): boost::shared_ptr<T>(r) {}
+    SharedPtr(SharedPtr<Y> const & r):
+      boost::shared_ptr<T>(r,boost::detail::polymorphic_cast_tag())
+    {}
 
-    operator const T& () const { return *get();}
+    template<class Y>
+    SharedPtr& operator=(SharedPtr<Y> const & r)
+    {
+      boost::shared_ptr<T>(r,boost::detail::polymorphic_cast_tag()).swap(*this);
+      return *this;
+    }
 
-    operator T& () { return *get();}
+    template<class Y> SharedPtr& operator()(Y * p) // Y must be complete
+    {
+      return operator=<Y>(SharedPtr<Y>(p));
+    }
+
+    operator const T& () const 
+    { 
+      return *get();
+    }
+
+    operator T& () 
+    { 
+      return *get();
+    }
   };
 
 

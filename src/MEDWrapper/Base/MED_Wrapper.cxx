@@ -40,9 +40,10 @@ namespace MED{
 
 #ifdef _DEBUG_
     string aName = anInfo->GetName();
-    INITMSG(MYDEBUG,
-	    "aFamilyName = '"<<aName<<"'; andId = "<<anInfo->GetId()<<
-	    "; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<"\n");
+    INITMSG(MYDEBUG,"GetPFamilyInfo - aFamilyName = '"<<aName<<
+	    "'; andId = "<<anInfo->GetId()<<
+	    "; aNbAttr = "<<aNbAttr<<
+	    "; aNbGroup = "<<aNbGroup<<"\n");
     for(TInt iGroup = 0; iGroup < aNbGroup; iGroup++){
       aName = anInfo->GetGroupName(iGroup);
       INITMSG(MYDEBUG,"aGroupName = '"<<aName<<"'\n");
@@ -104,6 +105,7 @@ namespace MED{
     TInt aNbConn = GetNbPolygoneConn(*theMeshInfo,theEntity,theGeom,theConn);
     PPolygoneInfo anInfo = CrPolygoneInfo(theMeshInfo,aNbElem,aNbConn,theEntity,theGeom,theConn);
     GetPolygoneInfo(*anInfo);
+
 #ifdef _DEBUG_
     TElemNum aConn  = anInfo->GetConnectivite();
     TElemNum aIndex = anInfo->GetIndex();
@@ -117,12 +119,13 @@ namespace MED{
       aIndex0 = aIndex[iElem];
     }
     ADDMSG(MYDEBUG,endl);
-    ADDMSG(MYDEBUG,"           Indexes :");
+    BEGMSG(MYDEBUG,"Indexes: ");
     for(TInt iElem = 0; iElem < aIndex.size(); iElem++){
       ADDMSG(MYVALUEDEBUG,aIndex[iElem]<<",");
     }
     ADDMSG(MYDEBUG,endl);
 #endif
+
     return anInfo;
   }
   
@@ -138,6 +141,7 @@ namespace MED{
     GetNbPolyedreConnF(*theMeshInfo,theConn,aNbFaces,aNbConn);
     PPolyedreInfo anInfo = CrPolyedreInfo(theMeshInfo,aNbElem,aNbConn,aNbFaces,theEntity,theGeom,theConn);
     GetPolyedreInfo(*anInfo);
+
 #ifdef _DEBUG_
     TElemNum aConn        = anInfo->GetConnectivite();
     TElemNum aFacesIndex  = anInfo->GetFacesIndex();
@@ -160,6 +164,7 @@ namespace MED{
       }
     }
 #endif
+
     return anInfo;
   }
   
@@ -199,7 +204,6 @@ namespace MED{
       }
       ADDMSG(MYDEBUG,endl);
     }
-
     ADDMSG(MYDEBUG,endl);
 #endif
     
@@ -215,6 +219,13 @@ namespace MED{
     TInt aNbComp = GetNbComp(theId);
     PFieldInfo anInfo = CrFieldInfo(theMeshInfo,aNbComp);
     GetFieldInfo(theId,*anInfo,theErr);
+
+#ifdef _DEBUG_
+    INITMSG(MYDEBUG,
+	    "GetPFieldInfo - aNbComp = "<<aNbComp<<
+	    "; aType = "<<anInfo->GetType()<<"\n");
+#endif
+    
     return anInfo;
   }
 
@@ -228,6 +239,13 @@ namespace MED{
   {
     PTimeStampInfo anInfo = CrTimeStampInfo(theFieldInfo,theEntity,theGeom);
     GetTimeStampInfo(theId,*anInfo,theErr);
+
+#ifdef _DEBUG_
+    INITMSG(MYDEBUG,
+	    "GetPTimeStampInfo - aNbGauss = "<<anInfo->GetNbGauss()<<
+	    "; aNumDt = "<<anInfo->GetNumDt()<<"\n");
+#endif
+
     return anInfo;
   }
 
@@ -238,6 +256,33 @@ namespace MED{
   {
     PTimeStampVal anInfo = CrTimeStampVal(theTimeStampInfo);
     GetTimeStampVal(*anInfo,theErr);
+
+#ifdef _DEBUG_
+    TInt aNbGauss = theTimeStampInfo->GetNbGauss();
+    PFieldInfo aFieldInfo = theTimeStampInfo->GetFieldInfo();
+    TInt aNbComp = aFieldInfo->GetNbComp();
+    INITMSG(MYDEBUG,"GetPTimeStampVal\n");
+    TMeshValue& aMeshValue = anInfo->myMeshValue;
+    TMeshValue::const_iterator aMeshValueIter = aMeshValue.begin();
+    for(; aMeshValueIter != aMeshValue.end(); aMeshValueIter++){
+      const EGeometrieElement& aGeom = aMeshValueIter->first;
+      const TValue& aValue = aMeshValueIter->second;
+      TInt iElemEnd = aValue.size() / aNbComp / aNbGauss;
+      INITMSG(MYDEBUG,"aGeom = "<<aGeom<<" - "<<iElemEnd<<": ");
+      for(TInt iElem = 0, anId = 0; iElem < iElemEnd; iElem++){
+	ADDMSG(MYVALUEDEBUG,"{");
+	for(TInt iComp = 0; iComp < aNbComp; iComp++){
+	  for(TInt iGauss = 0; iGauss < aNbGauss; iGauss++){
+	    ADDMSG(MYVALUEDEBUG,aValue[anId++]<<" ");
+	  }
+	  ADDMSG(MYVALUEDEBUG,"| ");
+	}
+	ADDMSG(MYVALUEDEBUG,"} ");
+      }
+      ADDMSG(MYDEBUG,"\n");
+    }
+#endif
+
     return anInfo;
   }
 }

@@ -31,10 +31,8 @@
  
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
-static int MYVALUEDEBUG = 0;
 #else
 static int MYDEBUG = 0;
-static int MYVALUEDEBUG = 0;
 #endif
 
 namespace MED{
@@ -49,31 +47,30 @@ namespace MED{
     MED::TEntityInfo::const_iterator anIter = theEntityInfo.begin();
     for(; anIter != theEntityInfo.end(); anIter++){
       const EEntiteMaillage& anEntity = anIter->first;
-      if(anEntity == eNOEUD) continue;
       const MED::TGeom& aGeom = anIter->second;
-      TElemSet& aElemSet = aGroup[anEntity];
+      TElemMap& anElemMap = aGroup[anEntity];
+
+      if(anEntity == eNOEUD){
+	anElemMap[ePOINT1] = theWrapper.GetPNodeInfo(theMeshInfo);
+	continue;
+      }
+
       MED::TGeom::const_iterator anGeomIter = aGeom.begin();
       for(; anGeomIter != aGeom.end(); anGeomIter++){
 	const EGeometrieElement& aGeo = anGeomIter->first;
 	switch(aGeo){
-	case ePOLYGONE:
-	  {
-	    PPolygoneInfo aPolygoneInfo = theWrapper.GetPPolygoneInfo(theMeshInfo,anEntity,aGeo);
-	    aElemSet.insert(aPolygoneInfo);
-	    break;
-	  }
-	case ePOLYEDRE:
-	  {
-	    PPolyedreInfo aPolyedreInfo = theWrapper.GetPPolyedreInfo(theMeshInfo,anEntity,aGeo);
-	    aElemSet.insert(aPolyedreInfo);
-	    break;
-	  }
-	default:
-	  {
-	    PCellInfo aCellInfo = theWrapper.GetPCellInfo(theMeshInfo,anEntity,aGeo);
-	    aElemSet.insert(aCellInfo);
-	  }
+	case ePOLYGONE: {
+	  anElemMap[ePOLYGONE] = theWrapper.GetPPolygoneInfo(theMeshInfo,anEntity,aGeo);
+	  break;
 	}
+	case ePOLYEDRE: {
+	  anElemMap[ePOLYEDRE] = theWrapper.GetPPolyedreInfo(theMeshInfo,anEntity,aGeo);
+	  break;
+	}
+	default: {
+	  anElemMap[aGeo] = theWrapper.GetPCellInfo(theMeshInfo,anEntity,aGeo);
+	}}
+
       }
     }
     ADDMSG(MYDEBUG,"\n");
@@ -186,7 +183,6 @@ namespace MED{
 
   TFamilyByEntity
   GetFamiliesByEntity(TWrapper& theWrapper, 
-		      const PNodeInfo& theNodeInfo,
 		      const TElemGroup& theElemGroup,
 		      const TFamilyGroup& theFamilyGroup)
   {
@@ -206,24 +202,15 @@ namespace MED{
       typedef map<EEntiteMaillage,TFamilyIdSet> TFamilyIdByEntity;
       TFamilyIdByEntity aFamilyIdByEntity;
       
-      if(theNodeInfo!=0){
-	if(TInt aNbElem = theNodeInfo->GetNbElem()){
-	  TFamilyIdSet& aFamilyIdSet = aFamilyIdByEntity[eNOEUD];
-	  for(TInt i = 0; i < aNbElem; i++){
-	    aFamilyIdSet.insert(theNodeInfo->GetFamNum(i));
-	  }
-	}
-      }
-      
       if(!theElemGroup.empty()){
 	TElemGroup::const_iterator anIter = theElemGroup.begin();
 	for(; anIter != theElemGroup.end(); anIter++){
 	  const EEntiteMaillage& anEntity = anIter->first;
 	  TFamilyIdSet& aFamilyIdSet = aFamilyIdByEntity[anEntity];
-	  const TElemSet& aElemSet = anIter->second;
-	  TElemSet::const_iterator anElemIter = aElemSet.begin();
-	  for(; anElemIter != aElemSet.end(); anElemIter++){
-	    const PElemInfo& aElemInfo = *anElemIter;
+	  const TElemMap& anElemMap = anIter->second;
+	  TElemMap::const_iterator anElemIter = anElemMap.begin();
+	  for(; anElemIter != anElemMap.end(); anElemIter++){
+	    const PElemInfo& aElemInfo = anElemIter->second;
 	    if(TInt aNbElem = aElemInfo->GetNbElem()){
 	      for(TInt i = 0; i < aNbElem; i++){
 		aFamilyIdSet.insert(aElemInfo->GetFamNum(i));
@@ -246,10 +233,10 @@ namespace MED{
 	      anFamilyByIdMapIter = aFamilyByIdMap.find(aFamilyId);
 	    if(anFamilyByIdMapIter != aFamilyByIdMap.end()){
 	      const PFamilyInfo& aFamilyInfo = anFamilyByIdMapIter->second;
-	    aFamilyByEntity[anEntity].insert(aFamilyInfo);
-	    INITMSG(MYDEBUG,
-		    "aFamilyName = '"<<aFamilyInfo->GetName()<<
-		    "' anId = "<<aFamilyInfo->GetId()<<"\n");
+	      aFamilyByEntity[anEntity].insert(aFamilyInfo);
+	      INITMSG(MYDEBUG,
+		      "aFamilyName = '"<<aFamilyInfo->GetName()<<
+		      "' anId = "<<aFamilyInfo->GetId()<<"\n");
 	    }
 	  }
 	}

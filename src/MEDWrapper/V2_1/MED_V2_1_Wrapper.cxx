@@ -673,12 +673,11 @@ namespace MED{
       TFileWrapper aFileWrapper(myFile,eLECT,theErr);
       
       if(theErr){
-	*theErr &= !theEntityInfo.empty();
-	if(!*theErr)
+	if(theEntityInfo.empty())
+	  *theErr = -1;
+	if(*theErr < 0)
 	  return -1;
-      }
-      
-      if(theEntityInfo.empty()) 
+      }else if(theEntityInfo.empty()) 
 	EXCEPTION(runtime_error,"GetNbTimeStamps - There is no any Entity on the Mesh");
       
       theGeom.clear();
@@ -713,12 +712,11 @@ namespace MED{
       TGeom& aTGeom = theInfo.myGeom;
       
       if(theErr){
-	*theErr &= !aTGeom.empty();
-	if(!*theErr)
+	if(aTGeom.empty())
+	  *theErr = -1;
+	if(*theErr < 0)
 	  return;
-      }
-      
-      if(aTGeom.empty())
+      }else if(aTGeom.empty())
 	EXCEPTION(runtime_error,"GetTimeStampInfo - There is no any cell");
       
       MED::TFieldInfo& aFieldInfo = *theInfo.myFieldInfo;
@@ -740,13 +738,14 @@ namespace MED{
 				    &theInfo.myUnitDt[0],
 				    &theInfo.myDt,
 				    &theInfo.myNumOrd);
+
       if(theErr) 
 	*theErr = aRet;
       else if(aRet < 0)
 	EXCEPTION(runtime_error,"GetTimeStampInfo - MEDpasdetempsInfo(...)");
       
       static TInt MAX_NB_GAUSS_POINTS = 32;
-      if(theInfo.myNbGauss > MAX_NB_GAUSS_POINTS) 
+      if(theInfo.myNbGauss <= 0 || theInfo.myNbGauss > MAX_NB_GAUSS_POINTS)
 	theInfo.myNbGauss = 1;
     }
     
@@ -792,7 +791,12 @@ namespace MED{
 	    *theErr = -1;
 	    return;
 	  }
-	  EXCEPTION(runtime_error,"GetTimeStampInfo - iEnd == "<<iEnd<<" != aValue.size() == "<<aValue.size());
+	  EXCEPTION(runtime_error,
+		    "GetTimeStampInfo - iEnd("<<iEnd<<
+		    ") != aValue.size()("<<aValue.size()<<
+		    "); aNbVal = "<<aNbVal<<
+		    "; anEntity = "<<anEntity<<
+		    "; aGeom = "<<aGeom);
 	}
 	
 	TErr aRet;

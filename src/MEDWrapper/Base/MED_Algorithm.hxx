@@ -36,8 +36,8 @@
 
 namespace MED{
   //---------------------------------------------------------------
-  typedef std::set<PElemInfo> TElemSet;
-  typedef std::map<EEntiteMaillage,TElemSet> TElemGroup;
+  typedef std::map<EGeometrieElement,PElemInfo> TElemMap;
+  typedef std::map<EEntiteMaillage,TElemMap> TElemGroup;
 
   TElemGroup GetElemsByEntity(TWrapper& theWrapper, 
 			      const PMeshInfo& theMeshInfo,
@@ -55,7 +55,6 @@ namespace MED{
   typedef std::map<EEntiteMaillage,TFamilyGroup> TFamilyByEntity;
   
   TFamilyByEntity GetFamiliesByEntity(TWrapper& theWrapper, 
-				      const PNodeInfo& theNodeInfo, 
 				      const TElemGroup& theElemGroup,
 				      const TFamilyGroup& theFamilyGroup);
 
