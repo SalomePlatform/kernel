@@ -37,6 +37,11 @@ using namespace std;
 #include <Utils_Timer.hxx>
 #endif
 
+//#define CHECKTIME
+#ifdef CHECKTIME
+#include <Utils_Timer.hxx>
+#endif
+
 int main(int argc,char **argv)
 {
   try {

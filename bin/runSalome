@@ -1,0 +1,15 @@
+#!/bin/sh
+
+python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python --killall
+#python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
+#python -i runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
+#python -i runSalome.py --help
+
+# -----------------------------------------------------------------------------
+#
+# l'option -i permet de garder l'interpreteur python ouvert :
+# par defaut, les differents serveurs ouvrent des fenêtres xterm
+# (cf. runSalome.py)
+# le serveur Logger n'est pas obligatoire (commenté dans runSalome.py)
+# 
+# -----------------------------------------------------------------------------

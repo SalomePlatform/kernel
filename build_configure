@@ -89,6 +89,11 @@ then
 fi
 chmod u-w configure.in.base 
 
+#############################################
+echo '' >> configure.in_tmp1
+echo 'export TEMPO=${KERNEL_ROOT_DIR}' >> configure.in_tmp1
+echo 'export KERNEL_ROOT_DIR=${ROOT_SRCDIR}' >> configure.in_tmp1
+#############################################
 
 echo  "" >> configure.in_tmp1
 echo "AC_OUTPUT([ \\" >> configure.in_tmp1
@@ -99,24 +104,30 @@ echo "AC_OUTPUT([ \\" >> configure.in_tmp1
 # put them "manually"
 #
 
-echo "	./adm/unix/SALOMEconfig.h \\" >> configure.in_tmp1
-echo "	./adm/unix/F77config.h \\" >> configure.in_tmp1
-echo "	./adm/unix/sstream \\" >> configure.in_tmp1
-echo "	./adm/unix/depend \\" >> configure.in_tmp1
-echo "	./adm/unix/make_omniorb \\" >> configure.in_tmp1
-echo "	./adm/unix/envScript \\" >> configure.in_tmp1
-echo "	./adm/unix/make_commence \\" >> configure.in_tmp1
-echo "	./adm/unix/make_conclude \\" >> configure.in_tmp1
-echo "	./adm/unix/make_module \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/SALOMEconfig.h \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/F77config.h \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/sstream \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/depend \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/make_omniorb \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/envScript \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/make_commence \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/make_conclude \\" >> configure.in_tmp1
+echo "	./salome_adm/unix/make_module \\" >> configure.in_tmp1
+echo "  ./salome_adm/Makefile \\" >> configure.in_tmp1
 
 \rm -f configure.in_tmp2 configure.in_tmp3
 touch configure.in_tmp2
 find_in . configure.in_tmp2
-sed '/^...adm/d' configure.in_tmp2 >  configure.in_tmp3
+sed '/^...salome_adm/d' configure.in_tmp2 >  configure.in_tmp3
 sed '/configure.in/d' configure.in_tmp3 >  configure.in_tmp2
 sed 's/.in / /' configure.in_tmp2 >> configure.in_tmp1
 
 echo  "])" >> configure.in_tmp1
+
+#############################################
+echo 'export KERNEL_ROOT_DIR=${TEMPO}' >> configure.in_tmp1
+#############################################
+
 \mv configure.in_tmp1 configure.in_new
 \rm  -f configure.in_tmp2 configure.in_tmp3
 
@@ -172,7 +183,7 @@ else
 	echo -n "Creating 'configure' script ...  "
 fi
 
-aclocal --acdir=adm/unix/config_files
+aclocal --acdir=adm_local/unix/config_files -I salome_adm/unix/config_files
 if autoconf
 then
 	echo "done"

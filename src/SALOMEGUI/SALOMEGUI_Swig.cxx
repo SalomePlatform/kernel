@@ -122,6 +122,21 @@ const char *SALOMEGUI_Swig::getActiveStudyName()
 }
 
 /*!
+  Returns the name of component.
+*/
+const char* SALOMEGUI_Swig::getComponentName( const char* ComponentUserName )
+{
+  return QAD_Application::getDesktop()->getComponentName( ComponentUserName );
+}
+/*!
+  Returns the user name of component.
+*/
+const char* SALOMEGUI_Swig::getComponentUserName( const char* ComponentName )
+{
+  return QAD_Application::getDesktop()->getComponentUserName( ComponentName );
+}
+
+/*!
   Returns the number of selected objects.
 */
 int SALOMEGUI_Swig::SelectedCount()

@@ -138,7 +138,7 @@ int main (int argc, char * argv[])
 	{
 	  INFOS("----------------------------------------------------" << iter);   
           string dirn = getenv("SALOME_ROOT_DIR");
-          dirn += "/lib/libSalomeTestComponentEngine.so";
+          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
 	  INFOS("recup m1");

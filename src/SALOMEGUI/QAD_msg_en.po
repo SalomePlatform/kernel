@@ -435,21 +435,6 @@ msgstr "Sketch a rectangular area to fit the view"
 # TOOL TIP
 #---------------
 
-#: QAD_HelpWindow.cxx:57
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_BACKWARD"
-msgstr "Backward"
-
-#: QAD_HelpWindow.cxx:60
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_FORWARD"
-msgstr "Forward"
-
-#: QAD_HelpWindow.cxx:63
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_HOME"
-msgstr "Home"
-
-msgid "QAD_HelpWindow::QAD_HELP_CONTENTS"
-msgstr "Contents"
-
 #: QAD_Application.cxx:173
 msgid "QAD_Application::TOT_APP_EDIT_REDO"
 msgstr "Redo last operation"
@@ -515,6 +500,10 @@ msgstr "An exception has been caught. Click <OK> to continue."
 
 msgid "ERR_ONLY_PLOT2D_VIEWER"
 msgstr "This function is available only in Plot2d viewer"
+
+#: QAD_Desktop.cxx:2339
+msgid "ERR_LIBGUI"
+msgstr "lib%1.so has not been found. Check LD_LIBRARY_PATH environment variable"
 
 #---------------
 # QUESTION

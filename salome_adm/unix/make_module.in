@@ -53,6 +53,15 @@ resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
 	cp -f $< $@
 
+data:
+	@if test "X$(top_builddir)" = "X."; then							 \
+	((cd examples && $(MAKE) $@) || exit 1);			 \
+	fi;
+	
+doc:	
+	@if test "X$(top_builddir)" = "X."; then \
+	((cd doc && $(MAKE) $@) || exit 1); \
+	fi;	
 
 install: install-resources
 	@@SETX@; for d in $(SUBDIRS); do 	\

@@ -34,7 +34,7 @@
 #include "QAD_Application.h"
 #include "QAD_OperatorMenus.h"
 #include "QAD_Menus.h"
-#include "QAD_HelpWindow.h"
+//NRI #include "QAD_HelpWindow.h"
 #include "QAD_Action.h"
 
 #include "SALOME_NamingService.hxx"
@@ -69,7 +69,7 @@ class QAD_EXPORT QAD_Desktop : public QMainWindow
   Q_OBJECT
 
 protected:
-  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
+  //NRI - unused - :  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
 
   enum {  FileNewId = 0, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FilePropsId, FileExitId,
 	  ViewStatusBarId,
@@ -147,9 +147,9 @@ public:
 
     /* help actions */
     virtual void      helpAbout();    
-    virtual void      helpSearch();
-    virtual void      helpContents();
-    virtual void      helpContext(const QString& path, const QString& dir = QString::null);
+/*     virtual void      helpSearch(); */
+/*     virtual void      helpContents(); */
+/*     virtual void      helpContext(const QString& path, const QString& dir = QString::null); */
 
     bool	      loadComponent(QString);
     void	      activateComponent(const QString& theName, bool isLoadData = true);
@@ -168,7 +168,10 @@ public:
     Engines::Component_var getEngine(const char *containerName,
 				     const char *componentName);
 
-    QAD_HelpWindow*   getHelpWindow();
+    QString getComponentName(const char *componentUserName);
+    QString getComponentUserName(const char *componentName);
+    
+    //NRI    QAD_HelpWindow*   getHelpWindow();
 
     void	      onMouseMove(QMouseEvent*);
     bool	      onMousePress(QMouseEvent*);
@@ -241,7 +244,7 @@ protected slots:
     void	      onHelpContents();
     void	      onHelpContentsGUI();
     void	      onHelpContentsTUI();
-    void	      onHelpSearch();
+/*     void	      onHelpSearch(); */
     void	      onHelpAbout();
 
     void	      onNewWindow3d();
@@ -257,7 +260,7 @@ protected slots:
     void	      onComboActiveComponent( const QString & , bool isLoadData);
     void              onCascade(); 
 
-    void              onHelpWindowClosed();
+    //NRI    void              onHelpWindowClosed();
 
 protected:
     QMenuBar*	      myMainMenu;	    /* the main menu bar */
@@ -305,9 +308,11 @@ protected:
     QList<QAD_Menus>   myMenusList;
     QAD_Menus*	       myActiveMenus;
 
-    QAD_HelpWindow*    myHelpWindow;
+    //NRI    QAD_HelpWindow*    myHelpWindow;
 
     QList<QToolButton> myComponentButton;
+
+    QMap<QString,QString> mapComponentName;
 
 private:
     static QAD_ResourceMgr*		    resourceMgr;
@@ -322,6 +327,7 @@ private:
     SALOME_LifeCycleCORBA *		    myEnginesLifeCycle;
     QComboBox *				    myCombo;
     bool                                    myQueryClose;
+    bool                                    _islibso;
 };
 
 /********************************************************************

@@ -66,13 +66,13 @@ msgstr "La vue appropriée doit étre créée pour afficher l'objet choisi"
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.0"
+msgstr "Version 1.1a"
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright (C) 2002"
+msgstr ""
 
 msgid "INF_LICENSE"
-msgstr "All rights reserved"
+msgstr ""
 
 
 #---------------
@@ -316,7 +316,7 @@ msgstr "VTK Viewer"
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_SALOME_TLT"
-msgstr "About SALOME Professional"
+msgstr "About SALOME "
 
 msgid "SALOMEGUI_OpenWith::OPEN_WITH_TLT"
 msgstr "Open With"

@@ -27,14 +27,15 @@
   creation of the catalog of components in %SALOME application
 */
 
-/*! \ingroup Kernel 
+/*!  
 The main package of interfaces used for creation of the module catalog in %SALOME application.
 */
 module SALOME_ModuleCatalog
 {
   // Type Definitions
 /*! 
-This enumeration contains a set of definitions of %SALOME modules.
+This enumeration contains a set of definitions of the components integrated
+into %SALOME application.
 */
   enum ComponentType {  GEOM,  /*!<Module %GEOM */
                         MESH,  /*!<Module %MESH */
@@ -105,6 +106,7 @@ This struct contains GUI elements used for representation of the module in %IAPP
   struct IAPP_Affich
   {
     string modulename; /*!<Name of the module.*/
+    string moduleusername; /*!<UserName of the module.*/
     string moduleicone; /*!<Icone representing the module.*/
   };
 /*!
@@ -196,6 +198,11 @@ List of pair GUI elements (component name, component icone)
 Sets/gets the name of the component
 */
     readonly attribute string componentname;
+
+/*! 
+Sets/gets the user name of the component
+*/
+    readonly attribute string componentusername;
 
 /*! 
 Defines whether the component can be multistudy or not

@@ -103,8 +103,14 @@ void init_python()
    */
 
   PyInterp_base::salome_shared_modules_module =PyImport_ImportModule("salome_shared_modules");
+  if(PyInterp_base::salome_shared_modules_module == NULL){
+      MESSAGE("init_python: problem with salome_shared_modules import");
+      PyErr_Print();
+      PyErr_Clear();
+      salomeReleaseLock();
+      return;
+  }
   SCRUTE(PyInterp_base::salome_shared_modules_module->ob_refcnt);
-
   salomeReleaseLock();
 }
 
@@ -135,9 +141,17 @@ int compile_command(const char *command,PyObject *context)
   if (v == NULL)
     {
       /*
-       * Error encountered. It could be SyntaxError
+       * Error encountered. It should be SyntaxError
+       * so we don't write out traceback
        */
-      PyErr_Print();
+      PyObject *exception,*value,*tb;
+      PyErr_Fetch(&exception, &value, &tb);
+      PyErr_NormalizeException(&exception, &value, &tb);
+      PyErr_Display(exception, value, NULL);
+      Py_XDECREF(exception);
+      Py_XDECREF(value);
+      Py_XDECREF(tb);
+
       return -1;
     }
   else if (v == Py_None)
@@ -213,8 +227,8 @@ void PyInterp_base::initialize()
   if(m == NULL)
     {
       MESSAGE("Problem...");
-      ASSERT(0);
       PyErr_Print();
+      ASSERT(0);
       salomeReleaseLock(); 
       return;
     }   

@@ -1,5 +1,5 @@
 # common directories to put headerfiles
-inc_builddir=$(top_builddir)/include
+inc_builddir=$(top_builddir)/include/salome
 
 @SET_MAKE@
 SHELL=/bin/sh
@@ -10,7 +10,7 @@ HAVE_SSTREAM=@HAVE_SSTREAM@
 
 
 LIBS=@LIBS@ 
-LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib -Xlinker -rpath-link -Xlinker $(top_builddir)/lib
+LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
 # add libstdc++ to link c++ library with libtool !
 LDFLAGS+= -lstdc++
 
@@ -47,9 +47,8 @@ PYTHONHOME = @PYTHONHOME@
 PYTHON_INCLUDES = @PYTHON_INCLUDES@
 PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_VERSION = @PYTHON_VERSION@
-PYTHON_SITE = @PYTHON_SITE@
-PYTHON_SITE_INSTALL = @PYTHON_SITE_INSTALL@
-
+PYTHON_SITE = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages
+PYTHON_SITE_INSTALL = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome
 # QT
 
 QT_ROOT = @QT_ROOT@
@@ -100,12 +99,19 @@ MED2_MT_LIBS=@MED2_MT_LIBS@
 
 OCC_INCLUDES=@CAS_CPPFLAGS@
 OCC_CXXFLAGS=@CAS_CXXFLAGS@
-OCC_LIBS=@CAS_LDFLAGS@
+
+#OCC_KERNEL_LIBS=@CAS_KERNEL@
+#OCC_OCAF_LIBS=@CAS_OCAF@
+#OCC_VIEWER_LIBS=@CAS_VIEWER@
+#OCC_MODELER_LIBS=@CAS_MODELER@
+#OCC_DATAEXCHANGE_LIBS=@CAS_DATAEXCHANGE@
+#OCC_LIBS=@CAS_LDFLAGS@
 CAS_KERNEL=@CAS_KERNEL@
 CAS_OCAF=@CAS_OCAF@
 CAS_VIEWER=@CAS_VIEWER@
 CAS_MODELER=@CAS_MODELER@
 CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
+CAS_LDPATH=@CAS_LDPATH@
 # MPICH
 
 MPICH_INCLUDES=@MPICH_INCLUDES@
@@ -125,7 +131,7 @@ OMNIORB_CXXFLAGS    = @OMNIORB_CXXFLAGS@
 
 OMNIORB_IDL         = @OMNIORB_IDL@
 OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_srcdir)/share/salome/idl
+OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/idl
 
 OMNIORB_IDL_CLN_H   = @OMNIORB_IDL_CLN_H@
 OMNIORB_IDL_CLN_CXX = @OMNIORB_IDL_CLN_CXX@
@@ -142,7 +148,7 @@ CORBA_INCLUDES    = @CORBA_INCLUDES@
 CORBA_LIBS        = @CORBA_LIBS@
 CORBA_CXXFLAGS    = @CORBA_CXXFLAGS@
 
-IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/share/salome/idl -I$(srcdir) 
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/idl
 IDLPYFLAGS  = @IDLPYFLAGS@
 
 IDL = @IDL@
@@ -161,6 +167,8 @@ CXXFLAGS+= $(CORBA_CXXFLAGS)
 # add corba libs when link salome application ! 
 #LDFLAGS+= $(CORBA_LIBS)
 LIBS+=$(CORBA_LIBS)
+
+DOXYGEN = @DOXYGEN@
 
 ## Shared libraries
 LT_STATIC_EXEC=@LT_STATIC_EXEC@
@@ -185,21 +193,22 @@ LN_S=@LN_S@
 ## Installation points
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-bindir=@bindir@
-libdir=@libdir@
+bindir=@bindir@/salome
+libdir=@libdir@/salome
 # warning : if user give this path in configure we could have salome/salome :-(
 includedir=@includedir@/salome
 datadir=@datadir@/salome
-idldir=$(datadir)/idl
+idldir=${prefix}/idl/salome
 sharedpydir=@libdir@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
+incmakedir=${prefix}/salome_adm/unix
 
-docdir=@exec_prefix@/doc
+docdir=$(datadir)/doc
 
 #
 # begin of package rules
 #
 
-.PHONY: all lib bin inc resources tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
+.PHONY: all lib bin inc resources data doc tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
 
 .SUFFIXES: .cxx .cc .c .f .o .lo .idl .py .i .ui .po .qm
 
@@ -210,6 +219,7 @@ all:
 	$(MAKE) lib
 	$(MAKE) bin
 	$(MAKE) resources
+	$(MAKE) data
 
 #
 # add target to build administrative files
@@ -243,6 +253,5 @@ ac_cxx_typename.m4                check_pthreads.m4  check_cas.m4	\
 ac_cc_warnings.m4                 check_qt.m4        check_med2.m4      \
 check_swig.m4 
 
-$(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=$(top_srcdir)/adm/unix/config_files/%)
-	cd $(top_srcdir) ; aclocal --acdir=./adm/unix/config_files
-
+$(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files/%)
+	cd $(top_srcdir) ; aclocal --acdir=adm_local/unix/config_files -I @KERNEL_ROOT_DIR@/salome_adm/unix/config_files

@@ -24,11 +24,8 @@
 //  $Header$
 
 #include "SALOME_Component.idl"
-/*! \defgroup Kernel SALOME KERNEL module
-*/
 
-/*!  \ingroup Kernel 
-   
+/*!   
   This package contains interfaces used for management of the session in %SALOME application.
 */
 module SALOME
@@ -83,7 +80,8 @@ module SALOME
    Launches GUI in the session
 */
     void GetInterface(); 
-    Engines::Component GetVisuGen();
+    //***//    VISU::VISU_Gen GetVisuGen();
+    Engines::Component GetVisuComponent();
 
 /*! 
   Stops the %Session (It must be idle)

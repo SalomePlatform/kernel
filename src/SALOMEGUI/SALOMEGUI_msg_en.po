@@ -697,7 +697,7 @@ msgid "SALOMEGUI_ActivateComponentDlg::ActivateComponent_DESCRIPTION"
 msgstr "You need to create, open or load study before."
 
 msgid "SALOMEGUI_HELP_TITLE"
-msgstr "SALOME Professional Help"
+msgstr "SALOME Help"
 
 msgid "TOT_PLOT2D_FITDATA"
 msgstr "Fit range"

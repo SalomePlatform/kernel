@@ -188,7 +188,7 @@ def FindFileInDataDir(filename):
             file = dir + "/" + filename
             if os.path.exists(file):
                 return file;
-    datadir = os.getenv("SALOME_ROOT_DIR") + "/data/"
+    datadir = os.getenv("KERNEL_ROOT_DIR") + "/examples/"
     file = datadir + filename
     if os.path.exists(file):
         return file;

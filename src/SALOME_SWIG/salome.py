@@ -79,7 +79,7 @@ def ImportComponentGUI(ComponentName):
     libName = "lib" + ComponentName + "_Swig"
     command = "from " + libName + " import *"
     exec ( command )
-    constructor = ComponentName + "GUI_Swig()"
+    constructor = ComponentName + "_Swig()"
     command = "gui = " + constructor
     exec ( command )
     return gui

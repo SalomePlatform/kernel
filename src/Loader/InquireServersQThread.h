@@ -94,6 +94,9 @@ public:
   void getArgs(  int& _argc, char *** _argv);
   //return exit status: 0 - OK, >0 - BAD (some servers doesn't exists or user click cancel button) 
   int getExitStatus();
+  //launch IAPP
+  bool withGUI() { return myGUI; }
+  void withGUI(bool gui) { myGUI = gui; }
 
 protected:
   virtual void customEvent( QCustomEvent* ); 
@@ -104,6 +107,7 @@ private:
   QProgressBar* myPrgBar;
   //this string contains description of currently asked server
   QLabel* myLabel;
+  bool myGUI;
 
 private slots:
 

@@ -52,6 +52,7 @@ static QString addSlash( const QString& path );
 InquireServersGUI::InquireServersGUI()
      : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder )
 {
+  myGUI = false;
   myThread = new InquireServersQThread(this);
 
   // 1. Polish the appearance
@@ -139,6 +140,7 @@ void InquireServersGUI::ClickOnCancel()
 {
   //it's necessary to stop asking servers
   myThread->stop();
+  myGUI = false;
   //Also we should send QCloseEvent in order to close this widget (and remove from screen) 
   //QThread::postEvent ( this, new QCloseEvent() );
   qApp->exit(1);
@@ -199,7 +201,7 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
   char* cenv;
 
   IsChecking = true;
-  myServersCount = 8;
+  myServersCount = 5;
   //how many times we should repeat attempts to get response from all needed for launching SALOME servers
   myRepeat = 30; // default value, user can change it by setting CSF_RepeatServerRequest env.variable
   cenv = getenv( "CSF_RepeatServerRequest" );
@@ -213,23 +215,51 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
   QString str = "Loading: ";
   myMessages[0] = "Checking naming service...";
   myMessages[1] = str + "SALOME_Registry_Server" + "...";
-  myMessages[2] = str + "SALOME_Container SuperVisionContainer" + "...";
+  myMessages[2] = str + "SALOMEDS_Server" + "...";
   myMessages[3] = str + "SALOME_ModuleCatalog_Server" + "...";
-  myMessages[4] = str + "SALOME_ContainerPy.py FactoryServerPy" + "...";
-  myMessages[5] = str + "SALOME_Container FactoryServer" + "...";
-  myMessages[6] = str + "SALOMEDS_Server" + "...";
-  myMessages[7] = str + "SALOME_Session_Server" + "...";
+  myMessages[4] = str + "SALOME_Session_Server" + "...";
+  myMessages[5] = "";
+  myMessages[6] = "";
+  myMessages[7] = "";
 
   r->getArgs( _argc, &_argv);
 
+  // NRI : Temporary solution for SuperVisionContainer
+  for ( int i=1; i<=(_argc-1); i++) {
+    if (strcmp(_argv[i],"CPP")==0) {
+      myMessages[5] = str + "SALOME_Container FactoryServer" + "...";
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"PYTHON")==0) {
+      myMessages[6] = str + "SALOME_ContainerPy.py FactoryServerPy" + "...";
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"SUPERV")==0) {
+      myMessages[7] = str + "SALOME_Container SuperVisionContainer" + "...";
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"GUI")==0) {
+      r->withGUI(true);
+    }
+  }
 }
 
 void InquireServersQThread::run()
 {
 while (IsChecking)
   {
-    for (int i=1; i<=myServersCount; i++)
+    for (int i=1; i<=8; i++)
       {
+	if ( myMessages[i-1].isEmpty() ) {
+	  if (i==8) {
+	    IsChecking = false;
+	    //myExitStatus should be 0 because all servers exist and work
+	    myExitStatus = 0;
+	    //we should send QCloseEvent in order to close this widget (and remove from screen) 
+	    QThread::postEvent ( receiver , new QCloseEvent() );
+	  } else
+	    continue;
+	}
 	QString *message = new QString(myMessages[i-1]);
 	QThread::postEvent( receiver, new InquireEvent( ( QEvent::Type )InquireEvent::ProgressEventLabel, message ) );
 	QThread::usleep(200000);
@@ -238,7 +268,7 @@ while (IsChecking)
 	if (result)
 	  {
 	    QThread::postEvent( receiver, new InquireEvent( ( QEvent::Type )InquireEvent::ProgressEvent, new int( i ) ) );
-	    if (i==myServersCount)
+	    if (i==8)
 	      {
 		IsChecking = false;
 		//myExitStatus should be 0 because all servers exist and work
@@ -297,18 +327,18 @@ bool InquireServersQThread::AskServer(int iteration, QString ** errMessage)
     case 2:
       //checking - existence of SALOME_Registry_Server
     case 3:
-      //checking - existence of SALOME_Container SuperVisionContainer
+      //checking - existence of SALOMEDS_Server
     case 4:
       //checking - existence of SALOME_ModuleCatalog_Server
     case 5:
-      //checking - existence of SALOME_ContainerPy.py FactoryServerPy
+      //checking - existence of SALOME_Session_Server
     case 6:
       //checking - existence of SALOME_Container FactoryServer
     case 7:
-      //checking - existence of SALOMEDS_Server
+      //checking - existence of SALOME_ContainerPy.py FactoryServerPy
     case 8:
-      //checking - existence of SALOME_Session_Server
-      
+      //checking - existence of SALOME_Container SuperVisionContainer
+
 
       IsPassed = pingServer(iteration, errDescription);
       if (!IsPassed)
@@ -347,20 +377,21 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 		  }
 	      }
 	      break;
-	    case 3:	
-              {
-		string hostname = GetHostname();
-		string containerName = "/Containers/";
-		containerName += hostname;
-		containerName += "/SuperVisionContainer";
-		
-		CORBA::Object_var obj = NS.Resolve(containerName.c_str());
-		Engines::Container_var SVcontainer = Engines::Container::_narrow(obj) ;
-		if (!CORBA::is_nil(SVcontainer))
+	    case 3:
+	      {
+		CORBA::Object_var obj = NS.Resolve("/myStudyManager");
+		SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(obj) ;
+		if (!CORBA::is_nil(studyManager))
+
+
+
+
+
 		  {
-		    SVcontainer->ping();
+		    MESSAGE("/myStudyManager is found");
+		    studyManager->ping();
 		    result = true;
-		    MESSAGE("SuperVisionContainer container was activated");
+		    MESSAGE("StudyManager was activated");
 		    return result;
 		  }
 	      }
@@ -379,7 +410,7 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 		  }
 	      }
 	      break;
-	    case 8:
+	    case 5:
 	      {
 		CORBA::Object_var obj = NS.Resolve("Kernel/Session");
 		SALOME::Session_var session = SALOME::Session::_narrow(obj) ;
@@ -411,7 +442,7 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 		  }
 	      }
 	      break;
-	    case 5:
+	    case 7:
 	      {
 		string hostname = GetHostname();
 		string containerName = "/Containers/";
@@ -429,16 +460,21 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 		  }
 	      }
 	      break;
-	    case 7:
-              {
-		CORBA::Object_var obj = NS.Resolve("/myStudyManager");
-		SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(obj) ;
-		if (!CORBA::is_nil(studyManager))
+	    case 8:
+	      {
+		string hostname = GetHostname();
+		string containerName = "/Containers/";
+		containerName += hostname;
+		containerName += "/SuperVisionContainer";
+		
+		CORBA::Object_var obj = NS.Resolve(containerName.c_str());
+		Engines::Container_var SVcontainer = Engines::Container::_narrow(obj) ;
+		if (!CORBA::is_nil(SVcontainer))
 		  {
-		    MESSAGE("/myStudyManager is found");
-		    studyManager->ping();
+		    SVcontainer->ping();
+
 		    result = true;
-		    MESSAGE("StudyManager was activated");
+		    MESSAGE("SuperVisionContainer container was activated");
 		    return result;
 		  }
 	      }
@@ -480,22 +516,22 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 	case 2:
 	  serverName = "SALOME_Registry_Server is not loaded. ";
 	  break;
-	case 7:
+	case 3:
 	  serverName = "SALOMEDS_Server is not loaded. ";
 	  break;
 	case 4:
 	  serverName = "SALOME_ModuleCatalog_Server is not loaded. ";
 	  break;
-	case 8:
+	case 5:
 	  serverName = "SALOME_Session_Server is not loaded. ";
 	  break;
 	case 6:
 	  serverName = "SALOME_Container FactoryServer is not loaded. ";
 	  break;
-	case 5:
+	case 7:
 	  serverName = "SALOME_ContainerPy.py FactoryServerPy is not loaded. ";
 	  break;
-	case 3:
+	case 8:
 	  serverName = "SALOME_Container SuperVisionContainer is not loaded. ";
 	  break;
 	}
@@ -511,6 +547,23 @@ QString findFile( QString filename )
   QString dir;
   char* cenv;
   
+  // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
+  cenv = getenv( "KERNEL_ROOT_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QFileInfo fileInfo( dir + filename );
+      if ( fileInfo.isFile() && fileInfo.exists() )
+	return fileInfo.filePath();
+    }
+  }
   // Try CSF_ResourcesDefaults env.var directory ( or directory list )
   cenv = getenv( "CSF_ResourcesDefaults" );
   if ( cenv ) {
@@ -531,40 +584,6 @@ QString findFile( QString filename )
     if ( !dir.isEmpty() ) {
       dir = addSlash(dir) ;
       dir = dir + ".salome" ;
-      dir = addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = addSlash(dir) ;
-      QFileInfo fileInfo( dir + filename );
-      if ( fileInfo.isFile() && fileInfo.exists() )
-	return fileInfo.filePath();
-    }
-  }
-  // Try ${SALOME_SITE_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_SITE_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = addSlash(dir) ;
-      QFileInfo fileInfo( dir + filename );
-      if ( fileInfo.isFile() && fileInfo.exists() )
-	return fileInfo.filePath();
-    }
-  }
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_ROOT_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = addSlash(dir) ;
-      dir = dir + "salome" ;
       dir = addSlash(dir) ;
       dir = dir + "resources" ;
       dir = addSlash(dir) ;
