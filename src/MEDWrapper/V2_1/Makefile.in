@@ -153,7 +153,9 @@ LIB_SRC = \
 	MED_V2_1_Wrapper.cxx
 
 EXPORT_HEADERS = \
-	MED_V2_1_Wrapper.hxx
+	MED_V2_1_Wrapper.hxx \
+	med.hxx \
+	med_proto.hxx
 
 # Executables targets
 BIN = mdump_V2_1 test1_V2_1
