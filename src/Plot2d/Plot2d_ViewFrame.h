@@ -15,6 +15,7 @@
 #include "QAD_Action.h"
 #include "Plot2d_Curve.h"
 #include "Plot2d_CurveContainer.h"
+#include "SALOME_Selection.h"
 #include <qmainwindow.h>
 #include <qmap.h>
 #include <qintdict.h>
@@ -34,7 +35,7 @@ class QAD_EXPORT Plot2d_ViewFrame : public QAD_ViewFrame, public QAD_PopupClient
 
   enum { NoOpId, FitAllId, FitAreaId, ZoomId, PanId, DumpId, 
 	 ModeXLinearId, ModeXLogarithmicId, ModeYLinearId, ModeYLogarithmicId,
-	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId };
+	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId, ChangeBackgroundId };
 public:
   /* Construction/destruction */
   Plot2d_ViewFrame( QWidget* parent, const QString& title = "" );
@@ -44,7 +45,7 @@ public:
   /* inherited */
   ViewType          getTypeView() const { return VIEW_PLOT2D; }
   QWidget*          getViewWidget();
-  void              SetSelectionMode( int mode ) {}
+  void              SetSelectionMode( Selection_Mode mode ) {}
   void              onAdjustTrihedron( ) {}
 
   /* popup management */
@@ -145,6 +146,7 @@ public slots:
   void    onCurves();
   void    onSettings();
   void    onFitData();
+  void    onChangeBackground();
 
 protected slots:
   void    onLegendClicked( long key );

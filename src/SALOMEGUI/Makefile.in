@@ -92,13 +92,13 @@ EXPORT_HEADERS = \
 		  Handle_SALOME_NumberFilter.hxx \
 		  SALOME_DataMapOfIOMapOfInteger.hxx \
 		  Handle_SALOME_DataMapNodeOfDataMapOfIOMapOfInteger.hxx \
+		  SALOMEGUI.h \
 		  SALOMEGUI_LoadStudiesDlg.h \
                   SALOMEGUI_TableDlg.h \
                   SALOMEGUI_NameDlg.h \
                   SALOMEGUI_SetValueDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
                   SALOMEGUI_CloseDlg.h
-
 
 # .po files to transform in .qm
 PO_FILES = \
@@ -150,6 +150,7 @@ LIB_SRC = 	  \
 		  QAD_StudyFrame.cxx \
 		  QAD_Tools.cxx \
 		  QAD_ViewFrame.cxx \
+		  SALOMEGUI.cxx \
 		  SALOMEGUI_Application.cxx \
 		  SALOMEGUI_Desktop.cxx \
 		  SALOMEGUI_ImportOperation.cxx \
@@ -182,6 +183,7 @@ LIB_SRC = 	  \
                   SALOMEGUI_CloseDlg.cxx \
 		  SALOMEGUI_ActivateComponentDlg.cxx    
 LIB_MOC = \
+		  SALOMEGUI.h \
 		  SALOMEGUI_Application.h \
 		  SALOMEGUI_Desktop.h \
 		  QAD_Application.h \
@@ -218,7 +220,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES)
-LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject -lEvent
 
 LIBS+= $(PYTHON_LIBS)
 

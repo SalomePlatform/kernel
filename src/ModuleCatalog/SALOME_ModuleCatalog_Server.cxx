@@ -23,8 +23,8 @@
 //
 //  File   : SALOME_ModuleCatalog_Server.cxx
 //  Module : SALOME
-
 /* $Header$ */
+
 #include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
@@ -87,14 +87,14 @@ int main(int argc,char **argv)
 	    }
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      MESSAGE( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
 	    }
 	  if (!CORBA::is_nil(theObj))
 	    {
 	      inc = CosNaming::NamingContext::_narrow(theObj);
 	      if(!CORBA::is_nil(inc))
 		{
-		  MESSAGE( "Module Catalog Server: Naming Service was found" );
+		  INFOS( "Module Catalog Server: Naming Service was found" );
 		  if(EnvL==1)
 		    {
 		      CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
@@ -108,15 +108,15 @@ int main(int argc,char **argv)
 			    object = inc->resolve(name);}
 			  catch(CosNaming::NamingContext::NotFound)
 			    {
-			      MESSAGE( "Logger Server wasn't found" );
+			      INFOS( "Logger Server wasn't found" );
 			    }
 			  catch(...)
 			    {
-			      MESSAGE( "Module Catalog Server: Unknown exception" ) ;
+			      INFOS( "Module Catalog Server: Unknown exception" ) ;
 			    }
 			  if (!CORBA::is_nil(object))
 			    {
-			      MESSAGE( "Module Catalog Server: Logger Server was found" );
+			      INFOS( "Module Catalog Server: Logger Server was found" );
 			      MODULE_CATALOG=1;
 			      break;
 			    }
@@ -130,13 +130,13 @@ int main(int argc,char **argv)
   
       // Active catalog
 
-      SALOME_ModuleCatalogImpl* Catalogue_i = new SALOME_ModuleCatalogImpl(argc, argv);
-      poa->activate_object (Catalogue_i);
+      SALOME_ModuleCatalogImpl Catalogue_i(argc, argv, orb);
+      poa->activate_object (&Catalogue_i);
 
       mgr->activate();
 
   
-      CORBA::Object_ptr myCata = Catalogue_i->_this();
+      CORBA::Object_ptr myCata = Catalogue_i._this();
 
       // initialise Naming Service
       SALOME_NamingService *_NS;
@@ -155,8 +155,9 @@ int main(int argc,char **argv)
 #endif
       orb->run();
  
+      mgr->deactivate(true,true);
       poa->destroy(1,1);
- 
+
     }
   catch(CORBA::SystemException&) {
     INFOS("Caught CORBA::SystemException.")

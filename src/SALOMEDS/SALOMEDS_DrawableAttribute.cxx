@@ -24,11 +24,11 @@
 //  File   : SALOMEDS_DrawableAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header:  
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_DrawableAttribute.ixx"
 #include <TDataStd_Integer.hxx>
-using namespace std;
 
 //=======================================================================
 //function : GetID

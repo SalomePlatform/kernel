@@ -9,6 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_ListView.h"
 
 #include <qheader.h>
@@ -24,7 +25,6 @@
 
 #include <TColStd_ListIteratorOfListOfInteger.hxx>
 #include <TColStd_ListIteratorOfListOfReal.hxx>
-using namespace std;
 
 //////////////////////////////////////////////////////////////////////
 // QAD_ListView class implementation

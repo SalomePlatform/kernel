@@ -31,6 +31,7 @@
 
 #include "OCCViewer_ViewPort.h"
 #include "QAD_ViewFrame.h"
+#include "SALOME_Selection.h"
 
 class OCCViewer_Viewer3d;
 class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
@@ -64,7 +65,7 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   void              setCursor( const QCursor& );
   QCursor           cursor() const;
 
-  void              SetSelectionMode( int mode ) {};
+  void              SetSelectionMode( Selection_Mode mode ) {};
   
   /*  popup management */
   void              setPopupServer( QAD_Application* );

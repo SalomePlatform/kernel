@@ -19,13 +19,12 @@ class PyInterp_PyQt : public PyInterp_base
  public:
   PyInterp_PyQt();
   ~PyInterp_PyQt();
-  void enter();
-  void quit();
+
   void run(const char *command);
 
  protected:
-  void initState();
-  void initContext();  
+  virtual void initState();
+  virtual void initContext();  
 };
 
 #endif

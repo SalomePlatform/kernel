@@ -32,6 +32,17 @@ for management of %MED component in %SALOME application.
 */
 module Engines
 {
+/*!
+    General Key Value Structure to set or get properties, for component
+*/
+  struct KeyValuePair
+  {
+    string key;
+    any value;
+  };
+
+  typedef sequence<KeyValuePair> FieldsDict;
+
   interface Component ;
 
 /*! \brief Interface of the %Container
@@ -119,6 +130,18 @@ module Engines
     Returns the container that the %Component refers to.
 */
     Container GetContainerRef() ;
+/*!
+    Gives a sequence of (key=string,value=any) to the component. 
+    Base class component stores the sequence in a map.
+    The map is cleared before.
+    This map is for use by derived classes. 
+*/
+    void setProperties(in FieldsDict dico);
+/*!
+    returns a previously stored map (key=string,value=any) as a sequence.
+    See setProperties(in FieldsDict dico).
+*/
+    FieldsDict getProperties();
 /*!
    This method is used by the %SUPERVISOR component. It sets the names of the graph and of the node.
    \param aGraphName Name of graph

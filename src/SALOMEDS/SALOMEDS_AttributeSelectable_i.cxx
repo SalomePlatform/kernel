@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeSelectable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeSelectable_i::IsSelectable() {
   return (Handle(SALOMEDS_SelectableAttribute)::DownCast(_myAttr)->Get() == 1);
@@ -38,4 +38,12 @@ void SALOMEDS_AttributeSelectable_i::SetSelectable(CORBA::Boolean value) {
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
+}
+
+char* SALOMEDS_AttributeSelectable_i::Store() {
+  return strdup(IsSelectable()?"1":"0");
+}
+
+void SALOMEDS_AttributeSelectable_i::Restore(const char* value) {
+  SetSelectable(value[0] == '1');
 }

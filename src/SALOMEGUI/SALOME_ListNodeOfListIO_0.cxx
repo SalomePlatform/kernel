@@ -24,6 +24,7 @@
 //  File   : SALOME_ListNodeOfListIO_0.cxx
 //  Module : SALOME
 
+using namespace std;
 #include "SALOME_ListNodeOfListIO.hxx"
 
 #ifndef _Standard_TypeMismatch_HeaderFile
@@ -39,9 +40,6 @@
 #ifndef _SALOME_ListIteratorOfListIO_HeaderFile
 #include "SALOME_ListIteratorOfListIO.hxx"
 #endif
-using namespace std;
-
-
 SALOME_ListNodeOfListIO::~SALOME_ListNodeOfListIO() {}
  
 

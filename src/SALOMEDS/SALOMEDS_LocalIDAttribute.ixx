@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_LocalIDAttribute.ixx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #include "SALOMEDS_LocalIDAttribute.jxx"
 

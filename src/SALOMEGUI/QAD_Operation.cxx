@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_Operation QAD_Operation.h
   \brief Base class for OCAF operations in QAD-based application.
@@ -38,7 +39,6 @@
 
 // QT Include
 #include <qapplication.h>
-using namespace std;
 
 /*!
     Constructor 

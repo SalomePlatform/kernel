@@ -7,6 +7,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "InquireServersQThread.h"
 
 #include <qlabel.h>
@@ -35,7 +36,6 @@
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
 #include "OpUtil.hxx"
-using namespace std;
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
@@ -50,7 +50,7 @@ static QString findFile( QString filename );
 static QString addSlash( const QString& path );
 
 InquireServersGUI::InquireServersGUI()
-     : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder )
+     : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | WType_TopLevel | WStyle_StaysOnTop | WX11BypassWM  )
 {
   myGUI = false;
   myThread = new InquireServersQThread(this);
@@ -193,7 +193,6 @@ void InquireServersGUI::customEvent( QCustomEvent* pe )
 int InquireServersGUI::getExitStatus()
 {
   myThread->getExitStatus();
-  return 0;
 }
 
 InquireServersQThread::InquireServersQThread( InquireServersGUI* r )

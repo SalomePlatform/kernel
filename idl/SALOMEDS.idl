@@ -197,6 +197,13 @@ during each working session.
 */
     SObject       FindObjectID    (in ID aObjectID);
 /*!
+    Allows to create a %SObject by its ID
+    \param aObjectID This parameter defines the ID of the required object
+    \return The created %SObject
+
+*/
+    SObject       CreateObjectID    (in ID aObjectID);
+/*!
     Allows to find a %SObject by IOR of the object belonging to this %SObject.
     \param anObjectName This parameter defines the IOR of the object
     \return The obtained %SObject
@@ -495,6 +502,14 @@ during each working session.
 
     void Addreference(in SObject anObject,
 		      in SObject theReferencedObject) ;
+
+/*!
+    Removes a reference from %anObject to another object.
+    \param anObject The %SObject which contains a reference
+*/
+
+    void RemoveReference(in SObject anObject) ;
+
 /*!
    Adds a directory in the %Study.
    \param theName String parameter defining the name of the directory.
@@ -606,6 +621,29 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     Callback SetOnRemoveSObject(in Callback theCallback);
 
+/*!
+    Puts name attribute with the given string value to the given %SObject
+
+    \param theSO Existing SObject to set name attribute.
+    \param theValue The value to be set to the name attribute.
+*/
+    void SetName(in SObject theSO, in string theValue) raises (LockProtection);
+
+/*!
+    Puts comment attribute with the given string value to the given %SObject
+
+    \param theSO Existing SObject to set comment attribute.
+    \param theValue The value to be set to the comment attribute.
+*/
+    void SetComment(in SObject theSO, in string theValue) raises (LockProtection);
+
+/*!
+    Puts IOR attribute with the given string value to the given %SObject
+
+    \param theSO Existing SObject to set IOR attribute.
+    \param theValue The value to be set to the IOR attribute.
+*/
+    void SetIOR(in SObject theSO, in string theValue) raises (LockProtection);
   };
 
   //==========================================================================
@@ -817,6 +855,31 @@ Gets the list of open studies
     /return The study containing the given %SObject.
 */
     Study GetStudy();
+
+/*! Gets the CORBA object by its own IOR attribute.
+    Returns nil, if can't.
+
+    /return The CORBA object of the %SObject.
+*/
+    Object GetObject();
+
+/*!
+    Returns the name attribute value of this SObject.
+    Returns empty string if there is no name attribute.
+*/
+    string GetName();
+
+/*!
+    Returns the comment attribute value of this SObject.
+    Returns empty string if there is no comment attribute.
+*/
+    string GetComment();
+
+/*!
+    Returns the IOR attribute value of this SObject.
+    Returns empty string if there is no IOR attribute.
+*/
+    string GetIOR();
   };
 
 
@@ -840,6 +903,14 @@ Gets the list of open studies
    \note <BR>This exception is raised only outside a transaction.
 */
     void CheckLocked() raises (LockProtection);
+
+    string Store();
+
+    void Restore(in string theData);
+
+    string Type();
+
+    SObject GetSObject();
   };
 
 

@@ -24,8 +24,9 @@
 //  File   : SALOMEDS_DataMapIteratorOfDataMapStringLabel_0.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 
 #ifndef _Standard_NoSuchObject_HeaderFile
@@ -43,7 +44,6 @@
 #ifndef _SALOMEDS_DataMapNodeOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx"
 #endif
-using namespace std;
  
 
 #define TheKey TCollection_ExtendedString

@@ -1,3 +1,4 @@
+using namespace std;
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
@@ -18,7 +19,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
-using namespace std;
 
 bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp);
 bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp);

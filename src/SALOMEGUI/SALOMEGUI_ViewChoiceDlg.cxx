@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_ViewChoiceDlg.h"
 #include "QAD_Config.h"
 #include "QAD_StudyFrame.h"
@@ -38,7 +39,6 @@
 #include <qvariant.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
-using namespace std;
 
 /* 
  *  Constructs a SALOMEGUI_ViewChoiceDlg which is a child of 'parent', with the 

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
@@ -37,7 +38,6 @@
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
-using namespace std;
 
 
 /*!
@@ -374,7 +374,7 @@ bool SALOMEGUI_Swig::IsInCurrentView(const char *Entry)
       if ((viewId >=0) && (viewId <nbStudyFrames))
 	myRenderer = myStudy->getStudyFrame(viewId)->getRightFrame()->getViewFrame()->getRenderer();
     }
-  if (myRenderer == NULL) INFOS("No VTK Renderer available !");
+  if (myRenderer == NULL) MESSAGE("No VTK Renderer available !");
   return myRenderer;
 }
 */

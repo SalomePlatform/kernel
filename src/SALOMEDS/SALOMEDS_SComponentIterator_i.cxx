@@ -26,8 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_SComponentIterator_i.hxx"
 using namespace std;
+#include "SALOMEDS_SComponentIterator_i.hxx"
+
 
 //============================================================================
 /*! Function : constructor

@@ -9,6 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_SetupCurveDlg.h"
 #include "QAD_Tools.h"
 #include <qlayout.h>
@@ -19,7 +20,6 @@
 #include <qtoolbutton.h>
 #include <qgroupbox.h>
 #include <qcolordialog.h>
-using namespace std;
 
 #define MARGIN_SIZE      11
 #define SPACING_SIZE     6

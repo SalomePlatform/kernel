@@ -24,10 +24,10 @@
 //  File   : SALOMEDS_SequenceOfIntegerAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
-#include "SALOMEDS_SequenceOfIntegerAttribute.ixx"
 using namespace std;
+#include "SALOMEDS_SequenceOfIntegerAttribute.ixx"
 
 //=======================================================================
 //function : GetID

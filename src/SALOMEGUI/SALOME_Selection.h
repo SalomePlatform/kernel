@@ -43,11 +43,23 @@
 // Open CASCADE Include
 #include <TColStd_MapOfInteger.hxx>
 
+#include <vector>
+
+enum Selection_Mode { 
+ NodeSelection, 
+ CellSelection,
+ EdgeOfCellSelection,
+ EdgeSelection, 
+ FaceSelection, 
+ VolumeSelection, 
+ ActorSelection };
+
 class SALOME_Selection : public QObject
 {
   Q_OBJECT
     
 public:
+
 	SALOME_Selection(const QString& aName);
 	~SALOME_Selection();
 
@@ -78,8 +90,8 @@ public:
 	bool                       IsOk( const Handle(SALOME_InteractiveObject)& IObject ) ;
 
 
-	void                       SetSelectionMode(int mode, bool activeCompOnly = false);
-	int                        SelectionMode();
+	void                       SetSelectionMode(Selection_Mode mode, bool activeCompOnly = false);
+	Selection_Mode             SelectionMode();
         bool                       IsSelectActiveCompOnly() const;
 	
 	bool                        HasIndex( const Handle(SALOME_InteractiveObject)& IObject );
@@ -87,6 +99,8 @@ public:
 					     TColStd_MapOfInteger& theIndex );
 	
 	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index, bool modeShift, bool update=true );
+	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, const TColStd_MapOfInteger& theIndices, bool modeShift, bool update=true );
+	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, const std::vector<int>& theIndices, bool modeShift, bool update=true );
 	void                        RemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index );
 	bool                        IsIndexSelected(const Handle(SALOME_InteractiveObject)& IObject, int index);
 
@@ -100,7 +114,7 @@ private:
 
 	SALOME_DataMapOfIOMapOfInteger myMapIOSubIndex;
 
-	int                   mySelectionMode;
+	Selection_Mode        mySelectionMode;
         bool                  mySelActiveCompOnly;
 };
 

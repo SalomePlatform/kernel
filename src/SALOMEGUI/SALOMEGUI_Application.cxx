@@ -29,6 +29,7 @@
 #include "SALOMEGUI_Application.h"
 #include "SALOMEGUI_Desktop.h"
 #include "SALOMEGUI_ImportOperation.h"
+#include "SALOMEGUI.h"
 #include "SALOME_Selection.h"
 #include "SALOME_ListIO.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
@@ -429,104 +430,26 @@ void SALOMEGUI_Application::onDisplay(int id)
     return;
   }
 
-  // Obtain the component's GUI library  
-  // Library cashing will be implemented soon in QAD_Desktop to increase performance
-  OSD_Function osdF, osdViewTypeFunc;
-  OSD_SharedLibrary foreignGUI;
-  void (*builder)(const Handle(SALOME_InteractiveObject)&); 
-  bool isForeignGUIUsed = false;
   bool isViewTypeOK     = true;
   int  viewTypes[VIEW_TYPE_MAX];
 
   for (int i = 0; i < VIEW_TYPE_MAX; i++)
     viewTypes[i] = -1;
 
-  if (parentComp.compare(desktop->getActiveComponent()) == 0) { // use active GUI library
-    const OSD_SharedLibrary& compGUI = desktop->getHandle();
-    osdF = compGUI.DlSymb("buildPresentation");
-    if ( osdF == NULL ) {
-      MESSAGE("BuildPresentation method not found in component's GUI")
-      return;
-    }
-    osdViewTypeFunc = compGUI.DlSymb("supportedViewType");
-    if ( osdViewTypeFunc == NULL ) {
-      MESSAGE("supportedViewType method not found in component's GUI")
-    }
-    MESSAGE("onDisplay(): using active GUI to build presentations")
-  } else { // use native GUI library
-    QString ComponentLib;
-    QCString dir;
-    QFileInfo fileInfo ;
-    bool found = false;
-    if ( getenv( QAD_Application::getDesktop()->getComponentName(parentComp) + "_ROOT_DIR")  ) {
-      dir.fill('\0');
-      dir.sprintf("%s", getenv( QAD_Application::getDesktop()->getComponentName(parentComp) + "_ROOT_DIR"));
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.dll" ;
-#else
-      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.so" ;
-#endif
-      MESSAGE ( " GUI library = " << dir )
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ComponentLib = fileInfo.fileName() ;
-	found = true;
-	MESSAGE ( " found " )
-      } else {
-	MESSAGE ( " Not found " )
-      }
-    }
-    
-    if (ComponentLib.isEmpty()) {
-      waitCursor.stop();
-      QMessageBox::critical( desktop,
-			    tr("ERR_ERROR"),
-			    "Empty name of component "+ parentComp + " library");
-      return;
-    }
-
-    foreignGUI.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
-   
-    bool ok = foreignGUI.DlOpen(OSD_RTLD_LAZY);
-    if (!ok) {
-      waitCursor.stop();
-      QMessageBox::critical( desktop,
-			   tr("ERR_ERROR"),
-			   tr( foreignGUI.DlError() ) );
-      return;
-    }
-    
-    osdF = foreignGUI.DlSymb("buildPresentation");
-    if ( osdF == NULL ) {
-      MESSAGE("BuildPresentation method not found in component's GUI")
-      foreignGUI.DlClose();
-      return;
-    } 
-    osdViewTypeFunc = foreignGUI.DlSymb("supportedViewType");
-    if ( osdViewTypeFunc == NULL ) {
-      MESSAGE("supportedViewType method not found in component's GUI")
-    }
-    isForeignGUIUsed = true;
-    MESSAGE("onDisplay(): using parent component's GUI to build presentations")
-  }
+  // Obtain the component's GUI 
+  SALOMEGUI* aGUI = desktop->getComponentGUI( parentComp );
+  if ( !aGUI )
+    return;
 
   // Check if another view type is required (if viewToActivate < 0 then any type of view is acceptable)
-  if (osdViewTypeFunc) {
-    void (*viewTypeChecker)(int*, int) = (void (*)(int*, int)) osdViewTypeFunc; 
-    (*viewTypeChecker)(viewTypes, VIEW_TYPE_MAX);
-    if (viewTypes[0] >= 0) { // not all the view types are supported
-      for (int i = 0; i < VIEW_TYPE_MAX; i++) {
-	if (viewTypes[i] < 0) // no more types supported
-	  break;
-	isViewTypeOK = ((int)myActiveStudy->getActiveStudyFrame()->getTypeView() == viewTypes[i]);
-	if (isViewTypeOK) // one of supported views is already active
-	  break;
-      }
+  aGUI->SupportedViewType(viewTypes, VIEW_TYPE_MAX);
+  if (viewTypes[0] >= 0) { // not all the view types are supported
+    for (int i = 0; i < VIEW_TYPE_MAX; i++) {
+      if (viewTypes[i] < 0) // no more types supported
+	break;
+      isViewTypeOK = ((int)myActiveStudy->getActiveStudyFrame()->getTypeView() == viewTypes[i]);
+      if (isViewTypeOK) // one of supported views is already active
+	break;
     }
   }
 
@@ -557,7 +480,6 @@ void SALOMEGUI_Application::onDisplay(int id)
   QAD_ViewFrame* viewFrame = myActiveStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame();
 
   // Build the graphic presentation (it is stored in the corresponding viewer)
-  builder = (void (*) (const Handle(SALOME_InteractiveObject)&)) osdF;
 
   // Copy the selection
   SALOME_ListIteratorOfListIO itInit( Sel->StoredIObjects() );
@@ -598,13 +520,13 @@ void SALOMEGUI_Application::onDisplay(int id)
 	childIObject->setEntry(child->GetID());
 
 	// Ensure that proper 3D presentation exists for IObject
-	(*builder)(childIObject);
+	aGUI->BuildPresentation(childIObject);
 	viewFrame->Display(childIObject, false);
 	needRepaint = true;
       }
     } else { // for child object -> simply display it (no children are displayed)
       // Ensure that proper 3D presentation exists for IObject
-      (*builder)(IObject);
+      aGUI->BuildPresentation(IObject);
       viewFrame->Display(IObject, false);
       needRepaint = true;
     }
@@ -614,8 +536,6 @@ void SALOMEGUI_Application::onDisplay(int id)
   if (needRepaint)
     viewFrame->Repaint();
 
-  if (isForeignGUIUsed)
-    ;//foreignGUI.DlClose(); // VSR: Fix crash on Display objects from non-parent components
   myActiveStudy->updateObjBrowser(true);
 }
 

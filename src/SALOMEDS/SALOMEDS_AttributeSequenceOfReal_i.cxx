@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfReal.hxx>
-using namespace std;
 
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
 {
@@ -78,4 +78,33 @@ CORBA::Double SALOMEDS_AttributeSequenceOfReal_i::Value(CORBA::Short index)
 CORBA::Long SALOMEDS_AttributeSequenceOfReal_i::Length() 
 {
   return Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Length();
+}
+
+char* SALOMEDS_AttributeSequenceOfReal_i::Store() {
+  Handle(SALOMEDS_SequenceOfRealAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr);
+  Standard_Integer aLength = CasCadeSeq->Length();
+  char* aResult = new char[aLength * 25];
+  aResult[0] = 0;
+  Standard_Integer aPosition = 0;
+  for (int i = 1; i <= aLength; i++) {
+    sprintf(aResult + aPosition , "%f ", CasCadeSeq->Value(i));
+    aPosition += strlen(aResult + aPosition);
+  }
+  return aResult;
+}
+
+void SALOMEDS_AttributeSequenceOfReal_i::Restore(const char* value) {
+  Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
+  
+  char* aCopy = strdup(value);
+  char* adr = strtok(aCopy, " ");
+  char *err = NULL;
+  while (adr) {
+    CORBA::Double r =  strtod(adr, &err);
+    if (err == adr) break;
+    else CasCadeSeq->Append(r);
+    adr = strtok(NULL, " ");
+  }
+  delete(aCopy);
+  Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Assign(CasCadeSeq);
 }

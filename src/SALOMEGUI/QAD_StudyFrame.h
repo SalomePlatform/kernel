@@ -30,17 +30,18 @@
 #define QAD_StudyFrame_H
 
 #include "QAD.h" 
-#include "QAD_Splitter.h" 
-#include "QAD_PyInterp.h"
 
 // QT Includes
 #include <qwidget.h>
 #include <qmainwindow.h>
 
+class QMutex;
+
 class QAD_RightFrame;
 class QAD_LeftFrame;
 class QAD_Splitter;
 class QAD_Study;
+class QAD_PyInterp;
 
 enum ViewType {
   VIEW_OCC,
@@ -55,11 +56,9 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
   Q_OBJECT
 
  public:
-  QAD_StudyFrame(QAD_Study* study,
-		 QWidget* parent, const QString& title, 
-		 QAD_PyInterp* interp, ViewType typeView);
-  QAD_StudyFrame(QAD_Study*,
-		 QWidget* parent = 0);
+  QAD_StudyFrame(QAD_Study* theStudy, QWidget* theParent, 
+		 const QString& theTitle, ViewType theTypeView,
+		 QAD_PyInterp*& theInterp, QMutex* theMutex);
   virtual ~QAD_StudyFrame();
 
   QAD_Study*          getStudy() { return myStudy; }
@@ -77,7 +76,6 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
   const QString&      entry() const;
 
   void                setVisible( bool isVisible = true );
-  void                closeEvent(QCloseEvent* e);
 
   void                compressLeft();
   void                compressRight();
@@ -90,6 +88,9 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
 
  public slots:
   void      	      onStudyFrameActivated ( QWidget* );
+
+ protected:
+  virtual void        closeEvent ( QCloseEvent* );
 	
 
  private:
@@ -99,9 +100,9 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
   ViewType            myTypeView;
   QAD_LeftFrame*      myLeftFrm;
   QAD_RightFrame*     myRightFrm;
-  QAD_Splitter*       s1; 
-  QAD_PyInterp*       _interp;
+  QAD_Splitter*       mySplitter; 
   QAD_Study*          myStudy;
+  QAD_PyInterp*&      myInterp;
 };
 
 #endif

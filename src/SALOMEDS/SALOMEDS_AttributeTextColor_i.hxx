@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributeTextColor_i.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef SALOMEDS_AttributeTextColor_i_HeaderFile
 #define SALOMEDS_AttributeTextColor_i_HeaderFile
@@ -48,6 +48,10 @@ public:
 
   SALOMEDS::Color TextColor();
   void SetTextColor(const SALOMEDS::Color& value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

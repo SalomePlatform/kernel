@@ -9,11 +9,11 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
-using namespace std;
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1
@@ -22,8 +22,7 @@ using namespace std;
 void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  CORBA::String_var Str = CORBA::string_dup(theName);
-  aProp->SetFirstName(TCollection_ExtendedString(Str));
+  aProp->SetFirstName(TCollection_ExtendedString(strdup(theName)));
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName() {
@@ -112,7 +111,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 							  CORBA::Long theYear) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  aProp->SetUserName(CORBA::string_dup(theName));
+  aProp->SetUserName(strdup(theName));
   aProp->SetModificationDate((int)theMinute, (int)theHour, (int)theDay, (int)theMonth, (int)theYear);
 }
 void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringSeq_out theNames,
@@ -152,4 +151,81 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
       (*theMonths)[a] = aMonths->Value(a + 1 + ((theWithCreator)?0:1));
       (*theYears)[a] = aYears->Value(a + 1 + ((theWithCreator)?0:1));
     }
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::Store() {
+  Handle(TColStd_HSequenceOfExtendedString) aNames;
+  Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
+  Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
+  aNames = aProp->GetUserNames();
+  aProp->GetModificationDates(aMinutes, aHours, aDays, aMonths, aYears);
+
+  int aLength, anIndex;
+  for(aLength = 0, anIndex = aNames->Length(); anIndex > 0; anIndex--) aLength += aNames->Value(anIndex).Length() + 1;
+
+  char* aProperty = new char[3 + aLength + 12 * aNames->Length()];
+
+  sprintf(aProperty,"%c%c", strlen(GetCreationMode())?GetCreationMode()[0]:'0', IsLocked()?'l':'u');
+
+  aLength = aNames->Length();
+  int a = 2;
+  for(anIndex = 1; anIndex  <= aLength; anIndex++) {
+    sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
+	    (int)(aMinutes->Value(anIndex)),
+	    (int)(aHours->Value(anIndex)),
+	    (int)(aDays->Value(anIndex)),
+	    (int)(aMonths->Value(anIndex)),
+	    (int)(aYears->Value(anIndex)),
+	    (char*)(TCollection_AsciiString(aNames->Value(anIndex)).ToCString()));
+    a = strlen(aProperty);
+    aProperty[a++] = 1;
+  }
+  aProperty[a] = 0;
+  return aProperty;
+}
+
+void SALOMEDS_AttributeStudyProperties_i::Restore(const char* value) {
+  char* aCopy = strdup(value);
+  if (aCopy[0] == 'f') SetCreationMode("from scratch");
+  else if (aCopy[0] == 'c') SetCreationMode("copy from");
+  else SetCreationMode("none");
+
+  int anIndex;
+  for(anIndex = 2; anIndex + 2 < strlen(value) ;) {
+    char str[10];
+    Standard_Integer aMinute, aHour, aDay, aMonth, aYear;
+    str[0] = aCopy[anIndex++];
+    str[1] = aCopy[anIndex++];
+    str[2] = 0;
+    aMinute = atoi(str);
+    str[0] = aCopy[anIndex++];
+    str[1] = aCopy[anIndex++];
+    aHour =  atoi(str);
+    str[0] = aCopy[anIndex++];
+    str[1] = aCopy[anIndex++];
+    aDay =  atoi(str);
+    str[0] = aCopy[anIndex++];
+    str[1] = aCopy[anIndex++];
+    aMonth =  atoi(str);
+    str[0] = aCopy[anIndex++];
+    str[1] = aCopy[anIndex++];
+    str[2] = aCopy[anIndex++];
+    str[3] = aCopy[anIndex++];
+    str[4] = 0;
+    aYear = atoi(str);
+    
+    int aNameSize;
+    for(aNameSize = 0; aCopy[anIndex+aNameSize]!=1; aNameSize++);
+    char *aName = new char[aNameSize+1];
+    strncpy(aName, &(aCopy[anIndex]), aNameSize);
+    aName[aNameSize] = 0;
+    SetModification(aName, aMinute,aHour,aDay,aMonth,aYear);
+    delete(aName);
+    anIndex += aNameSize + 1;
+  }
+  if (aCopy[1] == 'l') {
+    SetLocked(Standard_True);
+  }
+  SetModified(0);
+  delete(aCopy);
 }

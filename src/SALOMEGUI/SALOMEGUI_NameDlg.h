@@ -34,6 +34,9 @@ public:
     
   static QString  getName( QWidget* parent = 0, const QString& oldName = QString::null );
     
+protected slots:
+  void accept();
+  
 private:
   QPushButton*    myButtonOk;
   QPushButton*    myButtonCancel;

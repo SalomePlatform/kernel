@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeExpandable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable() {
   return (Handle(SALOMEDS_ExpandableAttribute)::DownCast(_myAttr)->Get() == 1);
@@ -38,4 +38,12 @@ void SALOMEDS_AttributeExpandable_i::SetExpandable(CORBA::Boolean value) {
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
+}
+
+char* SALOMEDS_AttributeExpandable_i::Store() {
+  return strdup(IsExpandable()?"1":"0");
+}
+
+void SALOMEDS_AttributeExpandable_i::Restore(const char* value) {
+  SetExpandable(value[0] == '1');
 }

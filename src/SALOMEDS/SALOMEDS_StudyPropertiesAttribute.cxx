@@ -9,8 +9,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include <SALOMEDS_StudyPropertiesAttribute.ixx>
 using namespace std;
+#include <SALOMEDS_StudyPropertiesAttribute.ixx>
 
 const Standard_GUID& SALOMEDS_StudyPropertiesAttribute::GetID() 
 {

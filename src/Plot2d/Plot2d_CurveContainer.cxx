@@ -7,8 +7,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include "Plot2d_CurveContainer.h"
 using namespace std;
+#include "Plot2d_CurveContainer.h"
 
 /*!
   Constructor

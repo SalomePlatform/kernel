@@ -70,8 +70,8 @@ ou <n> vaut 1, 1b, 2, 3, 4, 5
 
 
 Les scripts de test se trouvent dans le repertoire 
-        <SALOME_ROOT>/SALOME/src/ModuleGenerator/tests
+        <KERNEL_SRC>/src/ModuleGenerator/tests
 
 Les fichiers idl servant aux tests se trouvent dans les repertoires 
-        <SALOME_ROOT>/idl
-        <SALOME_ROOT>/SALOME/src/ModuleGenerator/tests
+        <KERNEL_SRC>/idl
+        <KERNEL_SRC>/src/ModuleGenerator/tests

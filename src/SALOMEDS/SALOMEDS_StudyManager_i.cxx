@@ -78,6 +78,11 @@ using namespace std;
 
 #include "SALOME_GenericObj_i.hh"
 
+#include "Utils_ExceptHandlers.hxx"
+
+UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
+UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
+
 #define USE_CASE_LABEL_ID             "0:2"
 #define AUTO_SAVE_GUID                "128268A3-71C9-4036-89B1-F81BD6A4FCF2"
 #define AUTO_SAVE_TAG                 "0:8"
@@ -85,292 +90,37 @@ using namespace std;
 //===========================================================================
 //Function : LoadAttributes
 //===========================================================================
-static void ReadAttributes(Handle(TDF_Data)& DF,
-			   TDF_Label& Lab, 
+static void ReadAttributes(SALOMEDS::Study_ptr theStudy,
+			   SALOMEDS::SObject_ptr aSO,
 			   HDFdataset* hdf_dataset)
 {
   hdf_dataset->OpenOnDisk();
-  
-  if (hdf_dataset->GetType() == HDF_STRING) {
 
-    if (!strncmp(hdf_dataset->GetName(),"AttributeTreeNode",17)) {
-      MESSAGE("Create a Attribute :     AttributeTreeNode");
-      char current_strings[5][hdf_dataset->GetSize()/5];
-//       char **current_strings = new (char*)[5];
-//       for(int i=0;i<5;i++)
-//         current_strings[i] = new char[hdf_dataset->GetSize()/5+1];
-      hdf_dataset->ReadFromDisk(current_strings);
+  SALOMEDS::GenericAttribute_var anAttr;
 
-      MESSAGE("Create an Attribute :     AttributeTreeNode"); 
-      Standard_GUID aGUID(current_strings[4]);
-      Handle(TDataStd_TreeNode) aNewNode = TDataStd_TreeNode::Set(Lab,aGUID);
-      TDF_Label aLabel;
-      Handle(TDataStd_TreeNode) aNode;
-      if (current_strings[0][0]) {
-        TDF_Tool::Label(DF,current_strings[0],aLabel,1);
-        if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
-        aNewNode->SetFather(aNode);
-      }
-      if (current_strings[1][0]) {
-        TDF_Tool::Label(DF,current_strings[1],aLabel,1);
-       if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
-        aNewNode->SetPrevious(aNode);
-      }
-      if (current_strings[2][0]) {
-        TDF_Tool::Label(DF,current_strings[2],aLabel,1);
-        if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
-        aNewNode->SetNext(aNode);
-      }
-      if (current_strings[3][0]) {
-        TDF_Tool::Label(DF,current_strings[3],aLabel,1);
-        if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
-        aNewNode->SetFirst(aNode);
-      }
-//       for(int i=0;i<5;i++)
-//         delete[] current_strings[i];
-//       delete[] current_strings;
-    } else {
+  char* current_string = new char[hdf_dataset->GetSize()];
+  hdf_dataset->ReadFromDisk(current_string);
 
-      int size =  hdf_dataset->GetSize();
-      char* current_string = new char[size];
-      hdf_dataset->ReadFromDisk(current_string);
-
-      if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {      
-        MESSAGE("Create a OCAF Attribute :    COMPONENTDATATYPE");
-        TDataStd_Comment::Set         (Lab,current_string); 
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeComment")) {
-        MESSAGE("Create an Attribute :     AttributeComment"); 
-        TDataStd_Comment::Set         (Lab,current_string); 
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeName")) {
-        MESSAGE("Create an  Attribute :     AttributeName");       
-        TDataStd_Name::Set            (Lab,current_string);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributePersistentRef")) { 
-        MESSAGE("Create an Attribute :     AttributePersistentRef"); 
-        SALOMEDS_PersRefAttribute::Set(Lab,current_string);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"Reference")) {
-        MESSAGE("Create a OCAF Attribute :     Reference"); 
-        TDF_Label RefLab;
-        TDF_Tool::Label(DF,current_string,RefLab,1);
-        TDF_Reference::Set(Lab,RefLab);
-	SALOMEDS_TargetAttribute::Set(RefLab)->Append(Lab);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeReal")) {
-        MESSAGE("Create a Attribute :     AttributeReal");
-        char * err = NULL;
-        CORBA::Double r =  strtod(current_string, &err);
-        SCRUTE(r);
-        if (err == current_string) {
-	  MESSAGE("AtttributeReal : conversion impossible");
-        }
-        else TDataStd_Real::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeInteger")) {
-        MESSAGE("Create a Attribute :     AttributeInteger");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        TDataStd_Integer::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributePixMap")) {
-        MESSAGE("Create an  Attribute :     AttributePixMap");       
-        SALOMEDS_PixMapAttribute::Set (Lab,current_string);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeDrawable")) {
-        MESSAGE("Create a Attribute :     DrawableAttribute");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        SALOMEDS_DrawableAttribute::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeSelectable")) {
-        MESSAGE("Create a Attribute :     AttributeSelectable");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        SALOMEDS_SelectableAttribute::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeExpandable")) {
-        MESSAGE("Create a Attribute :     AttributeExpandable");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        SALOMEDS_ExpandableAttribute::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeOpened")) {
-        MESSAGE("Create a Attribute :     AttributeOpened");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        SALOMEDS_OpenedAttribute::Set (Lab,r);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeLocalID")) {
-        MESSAGE("Create a Attribute :     AttributeLocalID");
-        CORBA::Long r =  atol(current_string);
-        SCRUTE(r);
-        SALOMEDS_LocalIDAttribute::Set (Lab,r);
-      }
-      else if (!strncmp(hdf_dataset->GetName(),"AttributeUserID",15)) {
-        MESSAGE("Create an  Attribute :     AttributeUserID");       
-        TDataStd_UAttribute::Set       (Lab,Standard_GUID(current_string));
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeTableOfInteger")) {
-	MESSAGE("Create a Attribute :     AttributeTableOfInteger");
-	int size = hdf_dataset->GetSize();
-	Handle(SALOMEDS_TableOfIntegerAttribute) Attr = SALOMEDS_TableOfIntegerAttribute::Set(Lab);
-	unsigned char* aBuffer = new unsigned char[size];
-	if(aBuffer == NULL) throw HDFexception("Unable to open dataset AttributeTableOfInteger");
-	hdf_dataset->ReadFromDisk(aBuffer);
-	SALOMEDS::TMPFile_var aTMPFile = new SALOMEDS::TMPFile(size, size, aBuffer, 1);
-	istrstream aStream((char*)&aTMPFile[0], aTMPFile->length());
-	Attr->RestoreFromString(aStream);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeTableOfReal")) {
-	MESSAGE("Create a Attribute :     AttributeTableOfReal");
-	int size = hdf_dataset->GetSize();
-	Handle(SALOMEDS_TableOfRealAttribute) Attr = SALOMEDS_TableOfRealAttribute::Set(Lab);
-	unsigned char* aBuffer = new unsigned char[size];
-	if(aBuffer == NULL) throw HDFexception("Unable to open dataset AttributeTableOfReal");
-	hdf_dataset->ReadFromDisk(aBuffer);
-	SALOMEDS::TMPFile_var aTMPFile = new SALOMEDS::TMPFile(size, size, aBuffer, 1);
-	istrstream aStream((char*)&aTMPFile[0], aTMPFile->length());
-	Attr->RestoreFromString(aStream);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeTableOfString")) {
-	MESSAGE("Create a Attribute :     AttributeTableOfString");
-	int size = hdf_dataset->GetSize();
-	Handle(SALOMEDS_TableOfStringAttribute) Attr = SALOMEDS_TableOfStringAttribute::Set(Lab);
-	unsigned char* aBuffer = new unsigned char[size];
-	if(aBuffer == NULL) throw HDFexception("Unable to open dataset AttributeTableOfString");
-	hdf_dataset->ReadFromDisk(aBuffer);
-	SALOMEDS::TMPFile_var aTMPFile = new SALOMEDS::TMPFile(size, size, aBuffer, 1);
-	istrstream aStream((char*)&aTMPFile[0], aTMPFile->length());
-	Attr->RestoreFromString(aStream);
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributeStudyProperties")) {
-        MESSAGE("Create an  Attribute :     AttributeStudyProperties");     
-//  	MESSAGE("current string :"<<current_string);
-        Handle(SALOMEDS_StudyPropertiesAttribute) aProp = SALOMEDS_StudyPropertiesAttribute::Set (Lab);
-	switch (current_string[0]) {
-	case 'f': aProp->SetCreationMode(1);break;
-	case 'c': aProp->SetCreationMode(2);break;
-	}
-
-	int anIndex;
-	for(anIndex = 2; anIndex + 2 < size ;) {
-	  char str[10];
-	  Standard_Integer aMinute, aHour, aDay, aMonth, aYear;
-	  str[0] = current_string[anIndex++];
-	  str[1] = current_string[anIndex++];
-	  str[2] = 0;
-	  aMinute = atoi(str);
-	  str[0] = current_string[anIndex++];
-	  str[1] = current_string[anIndex++];
-	  aHour =  atoi(str);
-	  str[0] = current_string[anIndex++];
-	  str[1] = current_string[anIndex++];
-	  aDay =  atoi(str);
-	  str[0] = current_string[anIndex++];
-	  str[1] = current_string[anIndex++];
-	  aMonth =  atoi(str);
-	  str[0] = current_string[anIndex++];
-	  str[1] = current_string[anIndex++];
-	  str[2] = current_string[anIndex++];
-	  str[3] = current_string[anIndex++];
-	  str[4] = 0;
-	  aYear = atoi(str);
-	  aProp->SetModificationDate(aMinute,aHour,aDay,aMonth,aYear);
-
-	  int aNameSize;
-	  for(aNameSize = 0; current_string[anIndex+aNameSize]!=1; aNameSize++);
-	  char *aName = new char[aNameSize+1];
-	  strncpy(aName, &(current_string[anIndex]), aNameSize);
-	  aName[aNameSize] = 0;
-	  aProp->SetUserName(TCollection_ExtendedString(aName));
-	  delete(aName);
-	  anIndex += aNameSize + 1;
-	  if (current_string[1] == 'l') {
-	    aProp->SetLocked(Standard_True);
-	    aProp->IsLockChanged(true);
-	  }
-	  aProp->SetModified(0);
-	}
-      }
-      else if (!strcmp(hdf_dataset->GetName(),"AttributePythonObject")) {
-        MESSAGE("Create an  Attribute :     AttributePythonObject");       
-	Handle(SALOMEDS_PythonObjectAttribute) anObj = SALOMEDS_PythonObjectAttribute::Set(Lab);
-	Standard_Boolean aScript = (current_string[0] == 's')?Standard_True:Standard_False;
-	anObj->SetObject((char *)(current_string+1), aScript);
-      }
-      else {
-        MESSAGE(hdf_dataset->GetName());
-        MESSAGE("LoadAttributes: unknown types");
-      }
-    }
+  if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
+    anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
+  } else if (!strcmp(hdf_dataset->GetName(),"Reference")) {
+    theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
+    delete(current_string);
+    hdf_dataset->CloseOnDisk();
+    return;
+  } else {
+    MESSAGE("Read attribute "<<hdf_dataset->GetName())
+    anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, hdf_dataset->GetName());
   }
-  if (hdf_dataset->GetType() == HDF_FLOAT64) {
-    if (!strcmp(hdf_dataset->GetName(),"AttributeSequenceOfReal")) {
-      MESSAGE("Create a Attribute :     AttributeSequenceOfReal");
-      int size = hdf_dataset->GetSize();
-      hdf_float64* val = new hdf_float64[size];
-      hdf_dataset->ReadFromDisk(val);
-      Handle(TColStd_HSequenceOfReal) SeqReal = new TColStd_HSequenceOfReal;
-      for (Standard_Integer i = 0; i < size; i++) {
-        SeqReal->Append(val[i]);
-//          MESSAGE( val[i] << " restored"   );
-      }
-      SALOMEDS_SequenceOfRealAttribute::Set (Lab);
-      Handle(SALOMEDS_SequenceOfRealAttribute) Attr;
-      Handle(TDF_Attribute) Att;
-      Lab.FindAttribute(SALOMEDS_SequenceOfRealAttribute::GetID(),Att);
-      Attr = Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(Att);
-      Attr->Assign(SeqReal);
-    } else
-    if (!strcmp(hdf_dataset->GetName(),"AttributeTextColor")) {
-      MESSAGE("Create a Attribute :     AttributeTextColor");
-      hdf_float64 val[3];
-      hdf_dataset->ReadFromDisk(val);
-      Handle(SALOMEDS_TextColorAttribute) TC = new SALOMEDS_TextColorAttribute;
-      Lab.AddAttribute(TC); 
-      TC->SetValue(1, val[0]);
-      TC->SetValue(2, val[1]);
-      TC->SetValue(3, val[2]);
-    } else
-    if (!strcmp(hdf_dataset->GetName(),"AttributeTextHighlightColor")) {
-      MESSAGE("Create a Attribute :     AttributeTextHighlightColor");
-      hdf_float64 val[3];
-      hdf_dataset->ReadFromDisk(val);
-      Handle(SALOMEDS_TextHighlightColorAttribute) TC = new SALOMEDS_TextHighlightColorAttribute;
-      Lab.AddAttribute(TC); 
-      TC->SetValue(1, val[0]);
-      TC->SetValue(2, val[1]);
-      TC->SetValue(3, val[2]);
-    }else {
-      MESSAGE(hdf_dataset->GetName());
-      MESSAGE("LoadAttributes: unknown types");
-    }
+
+  if (!CORBA::is_nil(anAttr)) {
+    anAttr->Restore(current_string);
+    MESSAGE("Restoring attribute "<<hdf_dataset->GetName()<<" by string '"<<current_string<<"' done")
+  } else {
+    MESSAGE(hdf_dataset->GetName());
+    MESSAGE("LoadAttributes: unknown types");
   }
-  if (hdf_dataset->GetType() == HDF_INT32) {
-    if (!strcmp(hdf_dataset->GetName(),"AttributeSequenceOfInteger")) {
-      MESSAGE("Create a OCAF Attribute :     AttributeSequenceOfInteger");
-      int size = hdf_dataset->GetSize();
-      hdf_int32* val = new hdf_int32[size];
-      hdf_dataset->ReadFromDisk(val);
-      Handle(TColStd_HSequenceOfInteger) SeqInt = new TColStd_HSequenceOfInteger;
-      for (Standard_Integer i = 0; i < size; i++) {
-        SeqInt->Append(val[i]);
-//          MESSAGE( val[i] << " restored"   );
-      }
-      SALOMEDS_SequenceOfIntegerAttribute::Set (Lab);
-      Handle(SALOMEDS_SequenceOfIntegerAttribute) Attr;
-      Handle(TDF_Attribute) Att;
-      Lab.FindAttribute(SALOMEDS_SequenceOfIntegerAttribute::GetID(),Att);
-      Attr = Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(Att);
-      Attr->Assign(SeqInt);
-    } 
-    else {
-      MESSAGE(hdf_dataset->GetName());
-      MESSAGE("LoadAttributes: unknown types");
-    }
-  }
+  delete(current_string);
   hdf_dataset->CloseOnDisk();
 }
 
@@ -420,18 +170,18 @@ static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr        study,
 //============================================================================
 //Function : BuildlTree
 //============================================================================
-static void BuildTree  (Handle(TDF_Data)& DF,HDFgroup* hdf_current_group)
+static void BuildTree (SALOMEDS::Study_ptr theStudy,HDFgroup* hdf_current_group)
 {
   hdf_current_group->OpenOnDisk();
   
-  TDF_Label Lab;
-  Standard_CString Entry = hdf_current_group->GetName();
+  SALOMEDS::SObject_var aSO;
+  char* Entry = hdf_current_group->GetName();
   if (strcmp(Entry,"STUDY_STRUCTURE") == 0) {
     MESSAGE("find the root of the document");
-    Lab =  DF->Root().FindChild(1,Standard_True);
+    aSO = theStudy->CreateObjectID("0:1");
   }
   else {
-    TDF_Tool::Label  (DF,Entry,Lab,1);
+    aSO = theStudy->CreateObjectID(Entry);
     MESSAGE("BuildTree : Create a new label"<<Entry);
   }
   char name[HDF_NAME_MAX_LEN+1];
@@ -445,14 +195,14 @@ static void BuildTree  (Handle(TDF_Data)& DF,HDFgroup* hdf_current_group)
     if  (type == HDF_DATASET) {
       MESSAGE("--> Dataset: Internal Object Name : " << name);
       HDFdataset* new_dataset = new HDFdataset(name,hdf_current_group);
-      ReadAttributes   (DF,Lab,new_dataset);      
+      ReadAttributes(theStudy,aSO,new_dataset);      
       new_dataset = 0; // will be deleted by father destructor
 
     }
     else if (type == HDF_GROUP)   {
       MESSAGE( "--> Group: Internal Object Name : " << name);
       HDFgroup* new_group = new HDFgroup(name,hdf_current_group);
-      BuildTree (DF,new_group);
+      BuildTree (theStudy, new_group);
       new_group = 0; // will be deleted by father destructor
     }
   }
@@ -550,6 +300,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
      throw(SALOME::SALOME_Exception)
 {
+  Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
   // open the HDFFile 
   HDFfile *hdf_file =0;         
@@ -577,9 +328,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
-//      char *eStr = new char[strlen(aUrl)+17+1];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
+      
     } 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
@@ -617,7 +368,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   Handle(TDF_Data) DF = Doc->GetData();
 
   try {
-    BuildTree (DF,hdf_group_study_structure);
+    BuildTree (Study,hdf_group_study_structure);
   }
   catch (HDFexception)
     {
@@ -625,7 +376,6 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
-//      char *eStr = new char[strlen(aUrl)+17+1];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
     } 
@@ -826,372 +576,33 @@ SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
  */
 //============================================================================
 static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject) {
-  HDFdataset *hdf_dataset = 0;
+  int a;
   hdf_size size[1];
-  hdf_int32 name_len = 0;
-  SALOMEDS::GenericAttribute_var SObj;
-  if(SO->FindAttribute(SObj, "AttributeComment"))
-    {
-      SALOMEDS::AttributeComment_var Comment = SALOMEDS::AttributeComment::_narrow(SObj);
-        CORBA::String_var Val = Comment->Value();
-        name_len = (hdf_int32) strlen(Val);
-        size[0] = name_len +1 ; 
-        hdf_dataset = new HDFdataset("AttributeComment",hdf_group_sobject,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk(Val);
-        MESSAGE("attribute comment " <<  Val << " wrote on file");
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-  // Attribute  SALOMEDS::PersistentRef
-  if(SO->FindAttribute(SObj, "AttributePersistentRef"))
-    {
-      SALOMEDS::AttributePersistentRef_var PersRef = SALOMEDS::AttributePersistentRef::_narrow(SObj);
-        CORBA::String_var Val = PersRef->Value();
-        name_len = (hdf_int32) strlen(Val);
-        size[0] = name_len +1 ; 
-        hdf_dataset = new HDFdataset("AttributePersistentRef",hdf_group_sobject,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk(Val);
-        MESSAGE("attribute persistentref " <<  Val << " wrote on file");
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-  // Attribute  SALOMEDS::Name
-  if(SO->FindAttribute(SObj, "AttributeName"))
-    {
-      SALOMEDS::AttributeName_var NameRef = SALOMEDS::AttributeName::_narrow(SObj);
-        CORBA::String_var Val = NameRef->Value();
-        name_len = (hdf_int32) strlen(Val);
-        size[0] = name_len +1 ; 
-        hdf_dataset = new HDFdataset("AttributeName",hdf_group_sobject,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk(Val);
-        MESSAGE("attribute name " <<  Val << " wrote on file");
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-  if(SO->FindAttribute(SObj, "AttributeReal"))
-    {
-      char RealVal[25];
-      SALOMEDS::AttributeReal_var RealRef = SALOMEDS::AttributeReal::_narrow(SObj);
-      sprintf(RealVal, "%f", RealRef->Value());
-      name_len = (hdf_int32) strlen(RealVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeReal",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(RealVal);
-      MESSAGE("attribute Real " <<  RealVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }
-  if(SO->FindAttribute(SObj, "AttributeInteger"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeInteger_var IntRef = SALOMEDS::AttributeInteger::_narrow(SObj);
-      sprintf(IntVal, "%d", IntRef->Value());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeInteger",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      MESSAGE("attribute Real " <<  IntVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  
-  if(SO->FindAttribute(SObj, "AttributeSequenceOfReal"))
-    {
-      SALOMEDS::AttributeSequenceOfReal_var RealSeq = SALOMEDS::AttributeSequenceOfReal::_narrow(SObj);
-        size[0] = RealSeq->Length();
-        SALOMEDS::DoubleSeq_var DS = RealSeq->CorbaSequence();
-        hdf_dataset = new HDFdataset("AttributeSequenceOfReal",hdf_group_sobject,HDF_FLOAT64,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_float64 *data = new hdf_float64[RealSeq->Length()];
-        for (Standard_Integer i = 0; i < RealSeq->Length(); i++) {
-          MESSAGE("Value =  " << i << " = " << DS[i]  << " wrote on file");
-          data[i] = DS[i];
-        }
-        hdf_dataset->WriteOnDisk(data);
-        //               delete data;
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-  if(SO->FindAttribute(SObj, "AttributeSequenceOfInteger"))
-    {
-      SALOMEDS::AttributeSequenceOfInteger_var IntSeq = SALOMEDS::AttributeSequenceOfInteger::_narrow(SObj);
-        size[0] = IntSeq->Length();
-        SALOMEDS::LongSeq_var LS = IntSeq->CorbaSequence();
-        hdf_dataset = new HDFdataset("AttributeSequenceOfInteger",hdf_group_sobject,HDF_INT32,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_int32 *data = new hdf_int32[IntSeq->Length()];
-        for (Standard_Integer i = 0; i < IntSeq->Length(); i++) {
-          MESSAGE("Value =  " << i << " = " << LS[i]  << " wrote on file");
-          data[i] = LS[i];
-        }
-        hdf_dataset->WriteOnDisk(data);
-        hdf_dataset->CloseOnDisk();
-        //               delete data;
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-    if(SO->FindAttribute(SObj, "AttributeDrawable"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeDrawable_var DrRef = SALOMEDS::AttributeDrawable::_narrow(SObj);
-      sprintf(IntVal, "%d", DrRef->IsDrawable());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeDrawable",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      MESSAGE("attribute Drawable " <<  IntVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  if(SO->FindAttribute(SObj, "AttributeSelectable"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeSelectable_var SelRef = SALOMEDS::AttributeSelectable::_narrow(SObj);
-      sprintf(IntVal, "%d", SelRef->IsSelectable());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeSelectable",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      MESSAGE("attribute Selectable " <<  IntVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  if(SO->FindAttribute(SObj, "AttributeExpandable"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeExpandable_var ExRef = SALOMEDS::AttributeExpandable::_narrow(SObj);
-      sprintf(IntVal, "%d", ExRef->IsExpandable());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeExpandable",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      MESSAGE("attribute Expandable " <<  IntVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  if(SO->FindAttribute(SObj, "AttributeOpened"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeOpened_var OpRef = SALOMEDS::AttributeOpened::_narrow(SObj);
-      sprintf(IntVal, "%d", OpRef->IsOpened());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeOpened",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      MESSAGE("attribute Opened " <<  IntVal << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  if(SO->FindAttribute(SObj, "AttributeTextColor"))
-    {
-      SALOMEDS::AttributeTextColor_var TextRef = SALOMEDS::AttributeTextColor::_narrow(SObj);
-      size[0] = 3;
-      hdf_float64 data[3];
-      SALOMEDS::Color C = TextRef->TextColor();
-      data[0] = C.R;
-      data[1] = C.G;
-      data[2] = C.B;
-      hdf_dataset = new HDFdataset("AttributeTextColor",hdf_group_sobject,HDF_FLOAT64,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(data);
-      MESSAGE("attribute  AttributeTextColor wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-    if(SO->FindAttribute(SObj, "AttributeTextHighlightColor"))
-    {
-      SALOMEDS::AttributeTextHighlightColor_var TextRef = SALOMEDS::AttributeTextHighlightColor::_narrow(SObj);
-      size[0] = 3;
-      hdf_float64 data[3];
-      SALOMEDS::Color C = TextRef->TextHighlightColor();
-      data[0] = C.R;
-      data[1] = C.G;
-      data[2] = C.B;
-      hdf_dataset = new HDFdataset("AttributeTextHighlightColor",hdf_group_sobject,HDF_FLOAT64,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(data);
-      MESSAGE("attribute  AttributeTextHighlightColor wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-    }	  
-  if(SO->FindAttribute(SObj, "AttributePixMap"))
-    {
-      SALOMEDS::AttributePixMap_var PMRef = SALOMEDS::AttributePixMap::_narrow(SObj);
-      if (PMRef->HasPixMap()) {
-	CORBA::String_var Val = PMRef->GetPixMap();
-	name_len = (hdf_int32) strlen(Val);
-	size[0] = name_len +1 ; 
-	hdf_dataset = new HDFdataset("AttributePixMap",hdf_group_sobject,HDF_STRING,size,1);
-	hdf_dataset->CreateOnDisk();
-	hdf_dataset->WriteOnDisk(Val);
-          MESSAGE("attribute PixMap " <<  Val << " wrote on file");
-	hdf_dataset->CloseOnDisk();
-	hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      }
-    }
-  if(SO->FindAttribute(SObj, "AttributeLocalID"))
-    {
-      char IntVal[25];
-      SALOMEDS::AttributeLocalID_var LIDRef = SALOMEDS::AttributeLocalID::_narrow(SObj);
-      sprintf(IntVal, "%d", LIDRef->Value());
-      name_len = (hdf_int32) strlen(IntVal);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("AttributeLocalID",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(IntVal);
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      MESSAGE("attribute  AttributeLocalID wrote on file");
-    }	  
-  if(SO->FindAttribute(SObj, "AttributeTableOfInteger"))
-    {
-      SALOMEDS::AttributeTableOfInteger_var IntTab = SALOMEDS::AttributeTableOfInteger::_narrow(SObj);
-      SALOMEDS::TMPFile_var aStream = IntTab->SaveToFile();
-      
-      hdf_size aHDFSize[1];
-      aHDFSize[0] = aStream->length();
-      
-      HDFdataset *hdf_dataset = new HDFdataset("AttributeTableOfInteger",hdf_group_sobject, HDF_STRING, aHDFSize, 1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk((unsigned char*) &aStream[0]);  //Save the stream in the HDF file
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      
-      MESSAGE("attribute  AttributeTableOfInteger wrote on file");
-    }
-  if(SO->FindAttribute(SObj, "AttributeTableOfReal"))
-    {
-      SALOMEDS::AttributeTableOfReal_var RealTab = SALOMEDS::AttributeTableOfReal::_narrow(SObj);
-      SALOMEDS::TMPFile_var aStream = RealTab->SaveToFile();
-      
-      hdf_size aHDFSize[1];
-      aHDFSize[0] = aStream->length();
-      
-      HDFdataset *hdf_dataset = new HDFdataset("AttributeTableOfReal",hdf_group_sobject, HDF_STRING, aHDFSize, 1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk((unsigned char*) &aStream[0]);  //Save the stream in the HDF file
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-
-      MESSAGE("attribute  AttributeTableOfReal wrote on file")
-    }
-  if(SO->FindAttribute(SObj, "AttributeTableOfString"))
-    {
-      SALOMEDS::AttributeTableOfString_var StrTab = SALOMEDS::AttributeTableOfString::_narrow(SObj);
-      SALOMEDS::TMPFile_var aStream = StrTab->SaveToFile();
-      
-      hdf_size aHDFSize[1];
-      aHDFSize[0] = aStream->length();
-      
-      HDFdataset *hdf_dataset = new HDFdataset("AttributeTableOfString",hdf_group_sobject, HDF_STRING, aHDFSize, 1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk((unsigned char*) &aStream[0]);  //Save the stream in the HDF file
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-
-      MESSAGE("attribute  AttributeTableOfString wrote on file")
-    }
-  if(SO->FindAttribute(SObj, "AttributePythonObject"))
-    {
-      SALOMEDS::AttributePythonObject_var anObj = SALOMEDS::AttributePythonObject::_narrow(SObj);
-      char* aSeq = CORBA::string_dup(anObj->GetObject());
-      int aLen = strlen(aSeq);
-      char* aString = new char[aLen+2];
-      aString[0] = anObj->IsScript()?'s':'n';
-      for(int i = 0; i < aLen; i++) aString[i+1] = aSeq[i];
-      aString[aLen+1] = 0;
-      size[0] = aLen+2 ; 
-      hdf_dataset = new HDFdataset("AttributePythonObject",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(aString);
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      MESSAGE("attribute  AttributePythonObject wrote on file");
-    }	  
-
-// Reference
-  SALOMEDS::SObject_var RefSO;
-  if(SO->ReferencedObject(RefSO))
-    {
-      CORBA::String_var attribute_reference = strdup(RefSO->GetID());
-      name_len = (hdf_int32) strlen(attribute_reference);
-      size[0] = name_len +1 ; 
-      hdf_dataset = new HDFdataset("Reference",hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(attribute_reference);
-      MESSAGE("attribute reference " <<  attribute_reference << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset =0; // will be deleted by father hdf object destructor
-    }
-
-// TreeNodeAttributes with not constant GUID
   SALOMEDS::ListOfAttributes_var anAttrList = SO->GetAllAttributes();
-  int anIndex, aLength = anAttrList->length();
-  for(anIndex = 0; anIndex<aLength; anIndex++) {
-    SALOMEDS::AttributeUserID_var UAttr = SALOMEDS::AttributeUserID::_narrow(anAttrList[anIndex]);
-    if (!UAttr->_is_nil()) {
-      char* Val = UAttr->Value();
-      name_len = (hdf_int32) strlen(Val);
-      size[0] = name_len + 1;
-      char* aDataSetName = new char[60];
-      sprintf(aDataSetName, "AttributeUserID_%s",Val);
-      hdf_dataset = new HDFdataset(aDataSetName,hdf_group_sobject,HDF_STRING,size,1);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(Val);
-      MESSAGE("attribute UesrID " <<  Val << " wrote on file");
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      delete(aDataSetName);
-      continue;
-    }
+  for(a = anAttrList->length() - 1; a >= 0; a--) {
+    if (strcmp(anAttrList[a]->Type(), "AttributeIOR") == 0) continue; // never write AttributeIOR to file
+    if (strcmp(anAttrList[a]->Type(), "AttributeExternalFileDef") == 0) continue; // never write ExternalFileDef to file
+    if (strcmp(anAttrList[a]->Type(), "AttributeFileType") == 0) continue; // never write FileType to file
+    CORBA::String_var aSaveStr = strdup(anAttrList[a]->Store());
+    size[0] = (hdf_int32) strlen(aSaveStr) + 1;
+    HDFdataset *hdf_dataset = new HDFdataset(anAttrList[a]->Type(),hdf_group_sobject,HDF_STRING,size,1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk(aSaveStr);
+    hdf_dataset->CloseOnDisk();
+    //cout<<"********** Write Attribute "<<anAttrList[a]->Type()<<" : "<<aSaveStr<<" done"<<endl;
+    hdf_dataset=0; //will be deleted by hdf_sco_group destructor
+  }
 
-    SALOMEDS::AttributeTreeNode_var TNRef = SALOMEDS::AttributeTreeNode::_narrow(anAttrList[anIndex]);
-    if (!TNRef->_is_nil()) {
-      hdf_size TNsize[2];
-      int maxSize,index;
-      CORBA::String_var Val[5];
-      
-      if (TNRef->HasFather()) Val[0] = TNRef->GetFather()->Label(); else Val[0] = "\0";
-      maxSize = strlen(Val[0]);
-      if (TNRef->HasPrevious()) Val[1] = TNRef->GetPrevious()->Label(); else Val[1] = "\0";
-      maxSize = Max(maxSize,strlen(Val[1]));
-      if (TNRef->HasNext()) Val[2] = TNRef->GetNext()->Label(); else Val[2] = "\0";
-      maxSize = Max(maxSize,strlen(Val[2]));
-      if (TNRef->HasFirst()) Val[3] = TNRef->GetFirst()->Label(); else Val[3] = "\0";
-      maxSize = Max(maxSize,strlen(Val[3]));
-      Val[4] = TNRef->GetTreeID();
-      maxSize = Max(maxSize,strlen(Val[4]));
-      
-      TNsize[0]=5;
-      TNsize[1]=maxSize+1;
-      char Data[5][maxSize+1];
-      for(index=0;index<5;index++) {
-	strcpy(Data[index],Val[index]);
-	for(int a = strlen(Data[index]) + 1; a < maxSize; a++) Data[index][a] = ' '; // mpv: for ASCII format
-      }
-      
-      char* aDataSetName = new char[60];
-      sprintf(aDataSetName, "AttributeTreeNodeGUID%s",TNRef->GetTreeID());
-      hdf_dataset = new HDFdataset(aDataSetName,hdf_group_sobject,HDF_STRING,TNsize,2);
-      hdf_dataset->CreateOnDisk();
-      hdf_dataset->WriteOnDisk(Data);
-      hdf_dataset->CloseOnDisk();
-      hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-      MESSAGE("attribute AttributeTreeNode with various GUID wrote on file:");
-      MESSAGE(aDataSetName);
-      delete(aDataSetName);
-//       for(int i=0;i<5;i++)
-// 	delete[] Data[i];
-//       delete[] Data;
-    }
+  // Reference attribute has no CORBA attribute representation, so, GetAllAttributes can not return this attribute
+  SALOMEDS::SObject_var RefSO;
+  if(SO->ReferencedObject(RefSO)) {
+    CORBA::String_var attribute_reference = strdup(RefSO->GetID());
+    size[0] = strlen(attribute_reference) + 1 ; 
+    HDFdataset *hdf_dataset = new HDFdataset("Reference",hdf_group_sobject,HDF_STRING,size,1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk(attribute_reference);
+    hdf_dataset->CloseOnDisk();
+    hdf_dataset =0; // will be deleted by father hdf object destructor
   }
 }
 
@@ -1580,7 +991,7 @@ void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS::Study_ptr aStudy,
       SALOMEDS::SObject_var SO = itchild->Value();
 
       // mpv: don't save empty labels
-      if (SO->GetAllAttributes()->length() == 0) {
+      if (SO->GetAllAttributes()->length() == 0 && !SO->ReferencedObject(RefSO)) {
 	SALOMEDS::ChildIterator_var subchild = aStudy->NewChildIterator(SC);
 	if (!subchild->More()) {
 	  continue;
@@ -1588,7 +999,8 @@ void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS::Study_ptr aStudy,
 	subchild->InitEx(true);
 	bool anEmpty = true;
 	for (; subchild->More() && anEmpty; subchild->Next()) 
-	  if (subchild->Value()->GetAllAttributes()->length() != 0) anEmpty = false;
+	  if (subchild->Value()->GetAllAttributes()->length() != 0 ||
+              subchild->Value()->ReferencedObject(RefSO)) anEmpty = false;
 	if (anEmpty) {
 	  continue;
 	}
@@ -1926,6 +1338,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
 SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theObject)
      throw(SALOMEDS::StudyBuilder::LockProtection)
 {
+  Unexpect aCatch(LockProtection);
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
 
   // if study is locked, then paste can't be done

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 
@@ -43,7 +44,6 @@
 #include "SALOMEDS_LocalIDAttribute.hxx"
 #include "SALOMEDS_PersRefAttribute.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
-using namespace std;
 
 
 #define DIRECTORYID 16661
@@ -226,7 +226,25 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 {
   // Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
-  TDF_Tool::Label(_doc->GetData(), strdup(anObjectID), Lab);
+  TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab);
+  
+  if (Lab.IsNull()) return SALOMEDS::SObject::_nil();
+  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (Lab,_orb);
+  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  return so;
+
+}
+
+//============================================================================
+/*! Function : CreateObjectID
+ *  Purpose  : Creates an Object with ID = anObjectID
+ */
+//============================================================================
+SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
+{
+  // Convert aSO->GetID in TDF_Label.
+  TDF_Label Lab;
+  TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab, Standard_True);
   
   if (Lab.IsNull()) return SALOMEDS::SObject::_nil();
   SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (Lab,_orb);
@@ -336,7 +354,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
 	  RefSO =  _FindObjectIOR(SC,anObjectIOR, _find);
       }
   }
-  if (!RefSO->_is_nil()) INFOS("SALOMEDS_Study_i::FindObjectIOR: found label with old methods");
+  if (!RefSO->_is_nil()) MESSAGE("SALOMEDS_Study_i::FindObjectIOR: found label with old methods");
 
   return RefSO;
 }
@@ -649,7 +667,7 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   //Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
-  TDF_Tool::Label(_doc->GetData(), strdup(aSO->GetID()), Lab);
+  TDF_Tool::Label(_doc->GetData(), aSO->GetID(), Lab);
 
   //Create iterator
   SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(Lab,_orb);
@@ -887,7 +905,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::
     ASSERT(!CORBA::is_nil(aStudy));
     return SALOMEDS::Study::_duplicate(aStudy);
   } else {
-    INFOS("GetStudy: Problem to get study");
+    MESSAGE("GetStudy: Problem to get study");
   }
   return SALOMEDS::Study::_nil();
 }
@@ -1013,7 +1031,7 @@ void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
     if (!CORBA::is_nil(obj)) {
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
       if (!CORBA::is_nil(aGeneric)) {
-	TCollection_AsciiString anIOR(strdup(theIOR));
+	TCollection_AsciiString anIOR((char*)theIOR);
 	anIOR.Prepend("d");
 	myPostponedIORs.Append(anIOR); // add prefix: deleted
 	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
@@ -1029,7 +1047,7 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
     if (!CORBA::is_nil(obj)) {
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
       if (!CORBA::is_nil(aGeneric)) {
-	TCollection_AsciiString anIOR(strdup(theIOR));
+	TCollection_AsciiString anIOR((char*)theIOR);
 	anIOR.Prepend("c");
 	myPostponedIORs.Append(anIOR); // add prefix: created
 	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
@@ -1059,7 +1077,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
     for(anIndex = anOld + 1; anIndex <= aNew; anIndex++) {
       TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
       if (anIOR.Value(1) == 'c') {
-	CORBA::Object_var obj = _orb->string_to_object(strdup(anIOR.Split(1).ToCString()));
+	CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
       }
@@ -1077,7 +1095,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
     for(anIndex = 1; anIndex <= anOld; anIndex++) {
       TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
       if (anIOR.Value(1) == 'd') {
-	CORBA::Object_var obj = _orb->string_to_object(strdup(anIOR.Split(1).ToCString()));
+	CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
       }
@@ -1090,7 +1108,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
     TDF_ChildIDIterator anIter(_doc->GetData()->Root(), SALOMEDS_IORAttribute::GetID(), Standard_True);
     for(; anIter.More(); anIter.Next()) {
       Handle(SALOMEDS_IORAttribute) anAttr = Handle(SALOMEDS_IORAttribute)::DownCast(anIter.Value());
-      CORBA::String_var anIOR = strdup(TCollection_AsciiString(anAttr->Get()).ToCString());
+      CORBA::String_var anIOR = CORBA::string_dup(TCollection_AsciiString(anAttr->Get()).ToCString());
       try {
 	CORBA::Object_var obj = _orb->string_to_object(anIOR);
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);

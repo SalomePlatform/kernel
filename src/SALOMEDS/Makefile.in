@@ -33,6 +33,10 @@ VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
 @COMMENCE@
 
+EXPORT_HEADERS= \
+	SALOMEDS_StudyManager_i.hxx \
+	SALOMEDS_OCAFApplication.hxx \
+	Handle_SALOMEDS_OCAFApplication.hxx
 
 # Libraries targets
 

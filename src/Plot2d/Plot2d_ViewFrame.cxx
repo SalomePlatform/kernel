@@ -24,6 +24,7 @@
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qcursor.h>
+#include <qcolordialog.h>
 #include <qwt_math.h>
 #include <qwt_plot_canvas.h>
 #include <stdlib.h>
@@ -233,6 +234,13 @@ void Plot2d_ViewFrame::createActions()
   fitDataAction->setStatusTip ( tr( "PRP_PLOT2D_FITDATA" ) );
   myActions.insert( FitDataId, fitDataAction );
   connect( fitDataAction, SIGNAL( activated() ), this, SLOT( onFitData() ) );
+
+  // Change background
+  QActionP* changeBGAction = new QActionP ( tr( "TOT_PLOT2D_CHANGE_BACKGROUND"),
+					    tr( "MEN_PLOT2D_CHANGE_BACKGROUND" ), 0, this );
+  fitDataAction->setStatusTip ( tr( "PRP_PLOT2D_CHANGE_BACKGROUND" ) );
+  myActions.insert( ChangeBackgroundId, changeBGAction );
+  connect( changeBGAction, SIGNAL( activated() ), this, SLOT( onChangeBackground() ) );
 }
 /*!
   Gets window's central widget
@@ -274,6 +282,9 @@ void Plot2d_ViewFrame::onCreatePopup()
     // settings
     myPopup->insertSeparator();
     myActions[ SettingsId ]->addTo( myPopup );
+    // Change background
+    myPopup->insertSeparator();
+    myActions[ ChangeBackgroundId ]->addTo( myPopup );
   }
 }
 /*!
@@ -523,11 +534,59 @@ void Plot2d_ViewFrame::writePreferences()
 */
 QString Plot2d_ViewFrame::getInfo( const QPoint& pnt ) 
 {
-  QString info;
-  info.sprintf( "X : %g\tY : %g",
-	        myPlot->invTransform( QwtPlot::xBottom, pnt.x() ),
-	        myPlot->invTransform( QwtPlot::yLeft,   pnt.y() ) );
-  info = tr( "INF_COORDINATES" ) + " : " + info;
+  bool xFound = false, yFound = false;
+  double xCoord, yCoord;
+  const QwtScaleDiv* aXscale = myPlot->axisScale( QwtPlot::xBottom );
+  for ( int i = 0; i < aXscale->majCnt(); i++ ) {
+    double majXmark = aXscale->majMark( i );
+    int xmark = myPlot->transform( QwtPlot::xBottom, majXmark );
+    if ( xmark-2 == pnt.x() ) {
+      xCoord = majXmark; 
+      xFound = true;
+      MESSAGE("Plot2d_ViewFrame::getInfo : close maj X mark("<<i<<") = "<<majXmark<<" "<<xmark<<" "<<pnt.x());
+      break;
+    }
+  }
+  if ( !xFound ) {
+    for ( int i = 0; i < aXscale->minCnt(); i++ ) {
+      double minXmark = aXscale->minMark( i );
+      int xmark = myPlot->transform( QwtPlot::xBottom, minXmark );
+      if ( xmark-2 == pnt.x() ) {
+	xCoord = minXmark; 
+	xFound = true;
+	MESSAGE("Plot2d_ViewFrame::getInfo : close min X mark("<<i<<") = "<<minXmark<<" "<<xmark<<" "<<pnt.x());
+	break;
+      }
+    }
+  }  
+  const QwtScaleDiv* aYscale = myPlot->axisScale( QwtPlot::yLeft );
+  for ( int i = 0; i < aYscale->majCnt(); i++ ) {
+    double majYmark = aYscale->majMark( i );
+    int ymark = myPlot->transform( QwtPlot::yLeft, majYmark );
+    if ( ymark-2 == pnt.y() ) {
+      yCoord = majYmark; 
+      yFound = true;
+      break;
+    }
+  }
+  if ( !yFound ) {
+    for ( int i = 0; i < aYscale->minCnt(); i++ ) {
+      double minYmark = aYscale->minMark( i );
+      int ymark = myPlot->transform( QwtPlot::yLeft, minYmark );
+      if ( ymark-2 == pnt.y() ) {
+	yCoord = minYmark; 
+	yFound = true;
+	break;
+      }
+    }
+  }  
+  QString strX = QString::number( xFound ? xCoord : myPlot->invTransform( QwtPlot::xBottom, pnt.x() ) ).stripWhiteSpace();
+  if ( strX == "-0" )
+    strX = "0";
+  QString strY = QString::number( yFound ? yCoord : myPlot->invTransform( QwtPlot::yLeft, pnt.y() ) ).stripWhiteSpace();
+  if ( strY == "-0" )
+    strY = "0";
+  QString info = tr("INF_COORDINATES").arg( strX ).arg( strY );
   return info;
 }
 /*!
@@ -1081,6 +1140,16 @@ void Plot2d_ViewFrame::onFitData()
     myPlot->replot();
   }
   delete dlg;
+}
+/*!
+  Change background color
+*/
+void Plot2d_ViewFrame::onChangeBackground()
+{
+  QColor selColor = QColorDialog::getColor ( backgroundColor(), this );	
+  if ( selColor.isValid() ) {
+    setBackgroundColor( selColor );
+  }
 }
 /*!
   Sets curve type

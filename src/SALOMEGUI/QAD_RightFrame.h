@@ -31,15 +31,19 @@
 
 #include "QAD_ViewFrame.h"
 #include "QAD_Message.h"
-#include "QAD_PyEditor.h"
 #include "QAD_Splitter.h"
-#include "QAD_PyInterp.h"
+
+class QMutex;
+
+class QAD_PyEditor;
+class QAD_PyInterp;
 
 class QAD_EXPORT QAD_RightFrame : public QAD_Splitter
 {
  public:
-  QAD_RightFrame(QWidget *parent, const char *name,
-		 QAD_PyInterp* interp, ViewType vt);
+  QAD_RightFrame(QWidget *theParent, 
+		 const char *theTitle, ViewType theTypeView,
+		 QAD_PyInterp*& theInterp, QMutex* theMutex);
   ~QAD_RightFrame();
 
   QAD_ViewFrame*    getViewFrame() const;
@@ -58,8 +62,8 @@ protected:
   QAD_ViewFrame*    myViewFrame; 
   QAD_PyEditor*     myPyEditor;
   QAD_Message*      myMessage;
-  QAD_Splitter*     vsplitter;
-  QAD_PyInterp*     _interp;
+  QAD_Splitter*     mySplitter;
+  QAD_PyInterp*&    myInterp;
 };
 
 #endif

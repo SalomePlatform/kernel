@@ -6,7 +6,7 @@
 top_srcdir=@top_srcdir@
 top_builddir=..
 srcdir=@srcdir@
-VPATH=.:$(srcdir)
+VPATH=.
 
 @COMMENCE@
 
@@ -21,20 +21,24 @@ IDL_FILES = \
   SALOME_Component.idl \
   SALOME_TestComponent.idl \
   SALOME_Registry.idl \
-  SALOME_MPIObject.idl \
-  SALOME_MPIContainer.idl \
-  SALOME_TestMPIComponent.idl \
+  TypeData.idl \
+  MPIObject.idl \
+  MPIContainer.idl \
   Logger.idl \
-  SALOME_GenericObj.idl
+  SALOME_GenericObj.idl \
+  SALOME_TestModuleCatalog.idl
 
 PY_CLIENT_IDL = $(IDL_FILES)
 
 # we copy all idl file in $(top_builddir)/idl
-inc: $(IDL_FILES:%=$(top_builddir)/idl/%)
+inc: $(top_builddir)/idl/salome $(IDL_FILES:%=$(top_builddir)/idl/salome/%)
 
-$(IDL_FILES:%=$(top_builddir)/idl/%):$(top_builddir)/idl/%:%
+$(top_builddir)/idl/salome:
+	mkdir $@
+
+$(IDL_FILES:%=$(top_builddir)/idl/salome/%):$(IDL_FILES:%=$(top_srcdir)/idl/%)
 #	$(CP) $< $@
-	cp -f $< $@
+	cp -f $^ $(top_builddir)/idl/salome
 
 
 lib: pyidl
@@ -46,7 +50,7 @@ pyidl: $(PYTHON_BUILD_SITE) $(IDL_FILES:%.idl=$(PYTHON_BUILD_SITE)/%_idl.py)
 $(PYTHON_BUILD_SITE):
 	$(INSTALL) -d  $@
 
-$(PYTHON_BUILD_SITE)/%_idl.py: %.idl
+$(PYTHON_BUILD_SITE)/%_idl.py: $(top_builddir)/idl/salome/%.idl
 	$(OMNIORB_IDL) $(OMNIORB_IDLPYFLAGS) -C$(PYTHON_BUILD_SITE) $<
 
 
@@ -54,12 +58,12 @@ $(PYTHON_BUILD_SITE)/%_idl.py: %.idl
 install: install-pyidl install-idl
 
 # create directory $(idldir) and copy idl files into it
-install-idl: $(IDL_FILES)
+install-idl: $(IDL_FILES:%=$(top_builddir)/idl/salome/%)
 	$(INSTALL) -d  $(idldir)
-	cp -p $^ $(idldir)
+	cp -p -f $^ $(idldir)
 
 
-install-pyidl: $(IDL_FILES)
+install-pyidl: $(IDL_FILES:%=$(top_builddir)/idl/salome/%)
 	$(INSTALL) -d  $(PYTHON_SITE_INSTALL)
 	@for file in $^ dummy; do \
 	  if [ $$file != "dummy" ]; then \
@@ -74,6 +78,6 @@ cleandep:
 
 distclean:
 	-$(RM) *.py
-	-$(RM) $(IDL_FILES:%=$(top_builddir)/idl/%)
+	-$(RM) $(IDL_FILES:%=$(top_builddir)/idl/salome/%)
 	-$(RM) Makefile
 

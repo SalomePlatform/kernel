@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "OCCViewer_ViewPort3d.h"
 
 #include "QAD.h"
@@ -45,7 +46,6 @@
 #if !defined WNT
 #include <Xw.hxx>
 #endif
-using namespace std;
 
 /*!
     Constructor
@@ -295,10 +295,11 @@ void OCCViewer_ViewPort3d::setBackgroundColor( const QColor& color)
       myActiveView->SetBackgroundColor( Quantity_TOC_RGB, color.red()/255., 
 					color.green()/255., color.blue()/255.);
 
+      /* VSR : PAL5420 ---------------------------------------------------
       QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorRed",   color.red() );
       QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorGreen", color.green() );
       QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorBlue",  color.blue() );
-      
+      VSR : PAL5420 --------------------------------------------------- */
       myActiveView->Update();
     }
 }

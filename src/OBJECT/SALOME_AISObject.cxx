@@ -26,5 +26,5 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOME_AISObject.ixx"
 using namespace std;
+#include "SALOME_AISObject.ixx"

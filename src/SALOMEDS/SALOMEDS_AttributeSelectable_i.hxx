@@ -48,6 +48,10 @@ public:
   ~SALOMEDS_AttributeSelectable_i() {};
   CORBA::Boolean IsSelectable();
   void SetSelectable(CORBA::Boolean value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

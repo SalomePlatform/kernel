@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-# include <stdlib.h>
-# include <iostream>
-# include <fstream>
+#include <stdlib.h>
+#include <iostream.h>
+#include <fstream.h>
 
 extern "C"
 {
@@ -48,11 +48,6 @@ extern "C"
 #include <Utils_Timer.hxx>
 #endif
 using namespace std;
-
-//#define CHECKTIME
-#ifdef CHECKTIME
-#include <Utils_Timer.hxx>
-#endif
 
 int main( int argc , char **argv )
 {

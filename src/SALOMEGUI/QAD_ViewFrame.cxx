@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD.h"
 #include "QAD_ViewFrame.h"
 #include "QAD_Application.h"
@@ -36,7 +37,6 @@
 #include <qapplication.h>
 #include <qimage.h>
 #include "utilities.h"
-using namespace std;
 
 /*!
     Constructor

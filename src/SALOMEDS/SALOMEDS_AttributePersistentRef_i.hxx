@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributePersistentRef_i.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef SALOMEDS_AttributePersistentRef_i_HeaderFile
 #define SALOMEDS_AttributePersistentRef_i_HeaderFile
@@ -47,6 +47,9 @@ public:
 
   char* Value();
   void SetValue(const char* value);
+
+  char* Store();
+  void Restore(const char*);
   
 };
 

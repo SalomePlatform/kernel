@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_ParserSettings.h"
 
 #include <stdio.h>
@@ -34,7 +35,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
-using namespace std;
+
 
 /*!
     Constructor.

@@ -37,19 +37,19 @@ class ActionMap {
      ActionMap() {}
      ~ActionMap() 
      { 
-       QMapIterator<unsigned int, QActionP*> it;
+       QMapIterator<int, QActionP*> it;
        for ( it = myMap.begin(); it != myMap.end(); it++ ) delete (QActionP*)it.data();
        myMap.clear();
      }
-     bool isEmpty()                                           { return myMap.isEmpty(); }
-     void insert( const unsigned int id, QActionP* action )   { myMap[id] = action;     }
-     QActionP* at( const unsigned int id )                    { return myMap[id];       }
+     bool isEmpty()                                  { return myMap.isEmpty(); }
+     void insert( const int id, QActionP* action )   { myMap[id] = action;     }
+     QActionP* at( const int id )                    { return myMap[id];       }
      void clear()                                             { myMap.clear();          }
-     QActionP*& operator[] (const unsigned int id)            { return myMap[id];       }
-     bool hasAction( const unsigned int id )                  { return myMap.contains(id); }
+     QActionP*& operator[] (const int id)            { return myMap[id];       }
+     bool hasAction( const int id )                  { return myMap.contains(id); }
 
  private:
-     QMap<unsigned int, QActionP*> myMap;
+     QMap<int, QActionP*> myMap;
 
 };
 

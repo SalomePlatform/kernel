@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_MessageBox QAD_MessageBox.h
   \brief Message dialog box for QAD-based application.
@@ -36,7 +37,6 @@
 // QT Includes
 #include <qmessagebox.h>
 #include <qapplication.h>
-using namespace std;
 
 /*!
     Shows info message box with one button [ static ]

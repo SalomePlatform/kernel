@@ -8,6 +8,7 @@
 //  Author : Vasily RUSYAEV (vrv)
 //  Module : SALOME
 
+using namespace std;
 #include "SALOMEGUI_CloseDlg.h"
 
 #include <qpushbutton.h>
@@ -15,7 +16,6 @@
 #include <qlayout.h> 
 #include <qlabel.h> 
 #include <qmessagebox.h>
-using namespace std;
 
 
 SALOMEGUI_CloseDlg::SALOMEGUI_CloseDlg ( QWidget * parent, const char * name, bool modal, WFlags f )

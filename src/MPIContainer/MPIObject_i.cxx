@@ -24,10 +24,10 @@
 //  File   : MPIObject_i.cxx
 //  Module : SALOME
 
+using namespace std;
 #include "MPIObject_i.hxx"
 #include "utilities.h"
 #include <mpi.h>
-using namespace std;
 
 MPIObject_i::MPIObject_i()
 {
@@ -109,21 +109,18 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_var pobj,
   }
   else{
     // On envoie l'IOR au process 0
-    ior = sior._retn();
-    n = strlen(ior) + 1;
+    n = strlen((char*)sior);
     err = MPI_Send(&n,1,MPI_INTEGER,0,_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);
     }
-    err = MPI_Send(ior,n,MPI_CHARACTER,0,2*_numproc,MPI_COMM_WORLD);
+    err = MPI_Send((char*)sior,n,MPI_CHARACTER,0,2*_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);
     }
   }
-
-  MPI_Barrier(MPI_COMM_WORLD);
 
 }
 

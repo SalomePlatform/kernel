@@ -33,7 +33,8 @@
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
-#include <vector>
+#include <stack>
+#include <map>
 
 class SALOME_ModuleCatalog_Handler : public QXmlDefaultHandler 
 {
@@ -54,9 +55,9 @@ public:
 
   //! method to overload handler function startElement
   /*! 
-   \param Qstring argument by value
-   \param Qstring argument by value
-   \param Qstring argument by value
+   \param QString argument by value
+   \param QString argument by value
+   \param QString argument by value
    \param QXmlAttributes argument by value
    \return true if no error was detected
   */
@@ -65,9 +66,9 @@ public:
 
   //! method to overload handler function endElement
   /*!
-   \param Qstring argument by value
-   \param Qstring argument by value
-   \param Qstring argument by value
+   \param QString argument by value
+   \param QString argument by value
+   \param QString argument by value
    \return true if no error was detected
    \sa _Find
   */   
@@ -77,7 +78,7 @@ public:
 
   //! method to overload handler function characters
   /*!
-   \param Qstring argument by value
+   \param QString argument by value
    \return true if no error was detected
   */
   virtual bool characters(const QString& chars);
@@ -106,50 +107,76 @@ private:
 
   string content;
 
-  const char* test_path_prefix_name ;
-  const char* test_computer_name ;
-  const char* test_path_prefix ;
+  QString test_path_prefix_name ;
+  QString test_computer_name ;
+  QString test_path_prefix ;
 
-  const char* test_component_name;
-  const char* test_component_username;
-  const char* test_component_type ;
-  const char* test_component_multistudy ;
-  const char* test_component_icone ;
+  QString test_component_name;
+  QString test_component_username;
+  QString test_component_type ;
+  QString test_component_multistudy ;
+  QString test_component_icon ;
+  QString test_component_impltype;
 
-  const char* test_interface_name;
+  QString test_interface_name;
 
-  const char* test_service_name;
-  const char* test_defaultservice;
+  QString test_service_name;
+  QString test_defaultservice;
+  QString test_typeofnode;
 
-  const char* test_inParameter_type;
-  const char* test_inParameter_name;
-  const char* test_inParameter;
-  const char* test_inParameter_list;
-  const char* test_outParameter_type;
-  const char* test_outParameter_name;
-  const char* test_outParameter;
-  const char* test_outParameter_list;
+  QString test_inParameter_type;
+  QString test_inParameter_name;
+  QString test_inParameter;
+  QString test_inParameter_list;
 
-  const char* test_service;
-  const char* test_service_list;
-  const char* test_interface_list;
-  const char* test_constraint;
+  QString test_outParameter_type;
+  QString test_outParameter_name;
+  QString test_outParameter;
+  QString test_outParameter_list;
+
+  QString test_inDataStreamParameter_type;
+  QString test_inDataStreamParameter_name;
+  QString test_inDataStreamParameter_dependency;
+  QString test_inDataStreamParameter;
+  QString test_inDataStreamParameter_list;
+
+  QString test_outDataStreamParameter_type;
+  QString test_outDataStreamParameter_name;
+  QString test_outDataStreamParameter_dependency;
+  QString test_outDataStreamParameter;
+  QString test_outDataStreamParameter_list;
+
+  QString test_service;
+  QString test_service_list;
+  QString test_interface_list;
+  QString test_constraint;
   
-  const char* test_component;
+  QString test_component;
 
-  ParserPathPrefix _path_prefix;
+  ParserPathPrefix _pathPrefix;
 
-  ParserComponent _amodule;
+  ParserComponent _aModule;
 
 
-  ListOfDefinitionInterface _interfacelist;
-  ParserDefInterface _aInterface;
-  ListOfParserServices _servicelist;
-  ParserService _aService;
-  ParserServParam _inparam;
-  ParserServParam _outparam;
-  ListOfParserServicesParameter _inparamlist;
-  ListOfParserServicesParameter _outparamlist;
+  ParserInterfaces _interfaceList;
+  ParserInterface  _aInterface;
+
+  ParserServices   _serviceList;
+  ParserService    _aService;
+
+  ParserParameters _inParamList;
+  ParserParameter  _inParam;
+
+  ParserParameters _outParamList;
+  ParserParameter  _outParam;
+
+  ParserDataStreamParameters _inDataStreamParamList;
+  ParserDataStreamParameter  _inDataStreamParam;
+
+  ParserDataStreamParameters _outDataStreamParamList;
+  ParserDataStreamParameter  _outDataStreamParam;
+
+  std::stack<QString> _xml_pile;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H

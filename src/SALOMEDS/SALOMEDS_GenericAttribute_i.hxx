@@ -34,7 +34,6 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include <TDF_Attribute.hxx>
 #include "SALOMEDS_SObject_i.hxx"
-#include "SALOMEDS_IORAttribute.hxx"
 
 class SALOMEDS_GenericAttribute_i: public POA_SALOMEDS::GenericAttribute,
 				   public PortableServer::RefCountServantBase {
@@ -45,16 +44,51 @@ public:
   SALOMEDS_GenericAttribute_i() {};
   
   void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
+
+  char* Store() {return "";};
+
+  void Restore(const char*) {};
   
+  char* Type();
+
+  SALOMEDS::SObject_ptr GetSObject();
+
   ~SALOMEDS_GenericAttribute_i() {};
 
-//  CORBA::Boolean  GetPtr(SALOMEDS::SObject_out so) {
-//    SALOMEDS_SObject_i* sob_impl = new  SALOMEDS_SObject_i(_myAttr->Label(), _myOrb);
-//    SALOMEDS::SObject_var sob = sob_impl->_this();
-//    return sob._retn();
-//  };
+  static Standard_GUID GetGUID(const char* theType);
 
-
+  static SALOMEDS::GenericAttribute_ptr CreateAttribute(CORBA::ORB_ptr theOrb, const Handle(TDF_Attribute)& theAttr);
 };
+
+// defines for creation attributes objects
+
+//cout<<"*** Create new CORBA attribute for "<<#CORBA_Name<<endl;
+#define __ReturnCORBAAttribute(OCAF_Name, CORBA_Name) if (theAttr->ID() == OCAF_Name::GetID()) { \
+    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(Handle(OCAF_Name)::DownCast(theAttr), theOrb); \
+    return Attr->CORBA_Name::_this(); \
+  }
+
+//cout<<"Create New Attribute "<<#CORBA_Name<<endl;
+#define __FindOrCreateAttribute(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+    Handle(OCAF_Name) anAttr; \
+    if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \
+      anAttr = new OCAF_Name; \
+      Lab.AddAttribute(anAttr); \
+    } \
+    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(anAttr, _orb); \
+    return Attr->CORBA_Name::_this(); \
+  }
+
+//cout<<"Create New Attribute "<<#CORBA_Name<<endl;
+#define __FindOrCreateAttributeLocked(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+    Handle(OCAF_Name) anAttr; \
+    if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \
+      CheckLocked(); \
+      anAttr = new OCAF_Name; \
+      Lab.AddAttribute(anAttr); \
+    } \
+    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(anAttr, _orb); \
+    return Attr->CORBA_Name::_this(); \
+  }
 
 #endif

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class OCCViewer_AISSelector OCCViewer_AISSelector.h
   \brief Selector for AIS interactive context.
@@ -34,7 +35,6 @@
 */
 
 #include "OCCViewer_AISSelector.h"
-using namespace std;
 
 /*!
     Constructor

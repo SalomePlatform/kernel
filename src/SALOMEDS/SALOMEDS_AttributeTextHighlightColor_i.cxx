@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HArray1OfReal.hxx>
-using namespace std;
 
 SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() {
   SALOMEDS::Color TextHighlightColor;
@@ -54,4 +54,21 @@ void SALOMEDS_AttributeTextHighlightColor_i::SetTextHighlightColor(const SALOMED
   anArray->SetValue(2, value.G);
   anArray->SetValue(3, value.B);
   Handle(SALOMEDS_TextHighlightColorAttribute)::DownCast(_myAttr)->ChangeArray(anArray);
+}
+
+char* SALOMEDS_AttributeTextHighlightColor_i::Store() {
+  SALOMEDS::Color aColor = TextHighlightColor();
+  char *Val = new char[75];
+  sprintf(Val, "%f %f %f", (float)aColor.R, (float)aColor.G, (float)aColor.B);
+  return Val;
+}
+
+void SALOMEDS_AttributeTextHighlightColor_i::Restore(const char* value) {
+  SALOMEDS::Color aColor;
+  float r, g, b;
+  sscanf(value, "%f %f %f", &r, &g, &b);
+  aColor.R = r;
+  aColor.G = g;
+  aColor.B = b;
+  SetTextHighlightColor(aColor);
 }

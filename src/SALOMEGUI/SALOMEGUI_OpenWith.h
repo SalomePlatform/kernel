@@ -32,6 +32,7 @@
 #include <qdialog.h>
 
 class QListBox;
+class QListBoxItem;
 class QCheckBox;
 class QPushButton;
 
@@ -49,10 +50,11 @@ public:
   
 protected slots:
   void      onSelectionChanged();
+  void      onDoubleClickEvent( QListBoxItem* item );
 
 protected:
   void      updateButtonState();
-
+ 
 protected:
   QListBox*    ListComponent;
   QCheckBox*   AllwaysCheckBox; 

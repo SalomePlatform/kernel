@@ -26,13 +26,14 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOME_Component_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
 #include <stdio.h>
 #include <dlfcn.h>
+#include <cstdlib>
 #include "utilities.h"
-using namespace std;
 
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
@@ -134,6 +135,31 @@ PortableServer::ObjectId * Engines_Component_i::getId()
   return _id ;
 }
 
+void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
+{
+  _fieldsDict.clear();
+  for (CORBA::ULong i=0; i<dico.length(); i++)
+    {
+      std::string cle(dico[i].key);
+      _fieldsDict[cle] = dico[i].value;
+    }
+}
+
+Engines::FieldsDict* Engines_Component_i::getProperties()
+{
+  Engines::FieldsDict_var copie = new Engines::FieldsDict;
+  copie->length(_fieldsDict.size());
+  map<std::string,CORBA::Any>::iterator it;
+  CORBA::ULong i = 0;
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
+    {
+      std::string cle((*it).first);
+      copie[i].key = CORBA::string_dup(cle.c_str());
+      copie[i].value = _fieldsDict[cle];
+    }
+  return copie._retn();
+}
+
 void Engines_Component_i::beginService(const char *serviceName)
 {
   MESSAGE(pthread_self() << "Send BeginService notification for " << serviceName << endl
@@ -155,6 +181,22 @@ void Engines_Component_i::beginService(const char *serviceName)
 //  MESSAGE(pthread_self() << " Return from BeginService for " << serviceName
 //          << " ThreadId " << _ThreadId << " StartUsed " << _StartUsed
 //          << " _graphName " << _graphName << " _nodeName " << _nodeName );
+
+  // --- for supervisor : all strings given with setProperties
+  //     are set in environment
+  bool overwrite = true;
+  map<std::string,CORBA::Any>::iterator it;
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
+    {
+      std::string cle((*it).first);
+      if ((*it).second.type()->kind() == CORBA::tk_string)
+	{
+	  const char* value;
+	  (*it).second >>= value;
+	  int ret = setenv(cle.c_str(), value, overwrite);
+	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
+	}
+    }
 }
 
 void Engines_Component_i::endService(const char *serviceName)
@@ -182,7 +224,7 @@ char* Engines_Component_i::nodeName() {
   return CORBA::string_dup( _nodeName.c_str() ) ;
 }
 
-bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
+bool Engines_Component_i::Killer( int ThreadId , int signum ) {
   if ( ThreadId ) {
     if ( signum == 0 ) {
       if ( pthread_cancel( ThreadId ) ) {
@@ -305,7 +347,7 @@ long Engines_Component_i::CpuUsed() {
   return cpu ;
 }
 
-CORBA::Long Engines_Component_i::CpuUsed_impl() {
+long Engines_Component_i::CpuUsed_impl() {
   long cpu = 0 ;
   if ( _ThreadId || _Executed ) {
     if ( _ThreadId > 0 ) {

@@ -24,6 +24,7 @@
 //  File   : msg2qm.cxx
 //  Module : SALOME
 
+using namespace std;
 /****************************************************************************
 ** $Id$
 **
@@ -41,7 +42,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-using namespace std;
 
 static QString* defaultScope = 0;
 

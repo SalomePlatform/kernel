@@ -30,8 +30,9 @@
 #define ACOMPONENT_IMPL_H
 
 #include "utilities.h"
-#include "PathPrefix.hxx"
+#include "SALOME_ModuleCatalog_Parser.hxx"
 #include <SALOMEconfig.h>
+
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
 class SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent,
@@ -39,14 +40,7 @@ class SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acom
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalog_AcomponentImpl(const char* name, 
-				      const char* username, 
-				      const char* constraint, 
-				      SALOME_ModuleCatalog::ComponentType componenttype, 
-				      CORBA::Boolean componentmultistudy,
-				      const char* icone,
-				      SALOME_ModuleCatalog::ListOfDefInterface list_interfaces,
-				      ListOfPathPrefix pathes);
+  SALOME_ModuleCatalog_AcomponentImpl(SALOME_ModuleCatalog::Component &C);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_AcomponentImpl();
@@ -137,27 +131,53 @@ public:
 
   //! method to obtain the component icone (for IAPP)
   /*!
-    \return the component icone
+    \return the component icon
   */
   virtual char* component_icone();
 
+  //! method to define if a component is implemented in C++ or Python
+  /*!
+    \return true if it's a C++ component 
+  */
+  virtual CORBA::Boolean implementation_type();
+
 private :
-  char* _component_name ;
-  char* _component_user_name ;
-  char* _constraint;
-  char* _icone;
-  SALOME_ModuleCatalog::ComponentType _componenttype;
-  CORBA::Boolean _componentmultistudy;
-  SALOME_ModuleCatalog::ListOfDefInterface _list_interfaces;
-  ListOfPathPrefix _pathes ;
-  
+
+  SALOME_ModuleCatalog::Component _Component;
+
+ //! method to duplicate an interface
+  /*!
+    \param service SALOME_ModuleCatalog::DefinitionInterface arguments
+    \return the interface
+  */
+  void duplicate(SALOME_ModuleCatalog::DefinitionInterface &I_out,
+		 const SALOME_ModuleCatalog::DefinitionInterface &I_in);
 
  //! method to duplicate a service
   /*!
     \param service SALOME_ModuleCatalog::Service arguments
     \return the service
   */
-  virtual SALOME_ModuleCatalog::Service_var _duplicate_service(SALOME_ModuleCatalog::Service service);
+  void duplicate(SALOME_ModuleCatalog::Service & S_out,
+		 const SALOME_ModuleCatalog::Service &S_in);
+
+ //! method to duplicate a parameter
+  /*!
+    \param parameter SALOME_ModuleCatalog::ServicesParameter arguments
+    \return the parameter
+  */
+  void duplicate(SALOME_ModuleCatalog::ServicesParameter & P_out,
+		 const SALOME_ModuleCatalog::ServicesParameter & P_in);
+
+ //! method to duplicate a parameter
+  /*!
+    \param parameter SALOME_ModuleCatalog::ServicesDataStreamParameter arguments
+    \return the parameter
+  */
+  void duplicate(SALOME_ModuleCatalog::ServicesDataStreamParameter & P_out,
+		 const SALOME_ModuleCatalog::ServicesDataStreamParameter &P_in);
+
 };
+
 
 #endif // ACOMPONENT_IMPL_H

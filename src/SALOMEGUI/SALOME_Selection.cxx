@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class SALOME_Selection SALOME_Selection.h
   \brief Selection Mechanism of Interactive Object.
@@ -39,7 +40,8 @@
 
 #include "QAD_Desktop.h"
 #include "utilities.h"
-using namespace std;
+
+#include <TColStd_MapIteratorOfMapOfInteger.hxx>
 
 static QList<SALOME_Selection>&  SALOME_Sel_GetSelections()
 {
@@ -59,7 +61,7 @@ SALOME_Selection::SALOME_Selection(const QString& aName) :
 {
   myFilters.Clear();
   myIObjects.Clear();
-  mySelectionMode = 4; /*Actor*/
+  mySelectionMode = ActorSelection; /*4*/
   mySelActiveCompOnly = false;
   
   QAD_Desktop* aDesktop = QAD_Application::getDesktop();
@@ -328,13 +330,13 @@ bool SALOME_Selection::IsOk(const Handle(SALOME_InteractiveObject)& anObj)
   return true;
 }
 
-void SALOME_Selection::SetSelectionMode(int mode, bool activeCompOnly)
+void SALOME_Selection::SetSelectionMode(Selection_Mode mode, bool activeCompOnly)
 {
   mySelectionMode = mode;
   mySelActiveCompOnly = activeCompOnly;
 }
 
-int SALOME_Selection::SelectionMode()
+Selection_Mode SALOME_Selection::SelectionMode()
 {
   return mySelectionMode;
 }
@@ -378,7 +380,7 @@ bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)&
 					 bool modeShift,
 					 bool update)
 {
-  MESSAGE ( " SALOME_Selection::AddOrRemoveIndex " << index << " - " << modeShift )
+  MESSAGE ( " SALOME_Selection::AddOrRemoveIndex " << index << " - " << modeShift );
   QAD_Desktop*   myDesktop = (QAD_Desktop*) QAD_Application::getDesktop();
   QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
 
@@ -410,6 +412,86 @@ bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)&
 
   emit currentSelectionChanged();
   return false;
+}
+
+bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, 
+					 const TColStd_MapOfInteger& theIndices, 
+					 bool modeShift,
+					 bool update)
+{
+  QAD_Desktop*   myDesktop = (QAD_Desktop*) QAD_Application::getDesktop();
+  QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
+  
+  if ( !myMapIOSubIndex.IsBound( IObject ) ) {
+    TColStd_MapOfInteger Empty;
+    myMapIOSubIndex.Bind( IObject, Empty );
+  }
+  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+  TColStd_MapIteratorOfMapOfInteger It;
+  It.Initialize(theIndices);
+  
+  bool add = true;
+  
+  if (MapIndex.Contains(It.Key()))
+    {
+      if (!modeShift) return add;
+      add = false;
+    }
+  else if (!modeShift)
+    MapIndex.Clear();
+  
+  if (add) 
+    for(;It.More();It.Next())
+      MapIndex.Add(It.Key());
+  else
+    for(;It.More();It.Next())
+      MapIndex.Remove(It.Key());
+  
+  
+  myActiveStudy->highlight( IObject, true, update );	
+  if ( MapIndex.IsEmpty() )  myMapIOSubIndex.UnBind( IObject );
+  emit currentSelectionChanged();
+  
+  return add;
+}
+
+bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, 
+					 const std::vector<int>& theIndices, 
+					 bool modeShift,
+					 bool update)
+{
+  QAD_Desktop*   myDesktop = (QAD_Desktop*) QAD_Application::getDesktop();
+  QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
+  
+  if ( !myMapIOSubIndex.IsBound( IObject ) ) {
+    TColStd_MapOfInteger Empty;
+    myMapIOSubIndex.Bind( IObject, Empty );
+  }
+  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+      
+  bool add = true;
+  
+  if (MapIndex.Contains(theIndices[0]))
+    {
+      if (!modeShift) return add;
+      add = false;
+    }
+  else if (!modeShift)
+    MapIndex.Clear();
+  
+  if (add) 
+    for (int i=0; i<theIndices.size();i++)
+      MapIndex.Add(theIndices[i]); 
+  else
+    for (int i=0; i<theIndices.size();i++)
+      MapIndex.Remove(theIndices[i]);
+  
+  myActiveStudy->highlight( IObject, true, update );	
+  if ( MapIndex.IsEmpty() )  
+    myMapIOSubIndex.UnBind( IObject );
+  emit currentSelectionChanged();
+  
+  return add;
 }
 
 void SALOME_Selection::RemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index )

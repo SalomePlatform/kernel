@@ -55,9 +55,9 @@ public:
   /** Gets directory of the local configuration file. */
   QDir           getConfigDir() const { return configDir; }
 
-  /** Sets directory of SALOME_ROOT. */
+  /** Sets directory of KERNEL_ROOT. */
   void           setPrgDir(QDir _prgDir) { prgDir=_prgDir; }
-  /** Gets directory of SALOME_ROOT. */
+  /** Gets directory of KERNEL_ROOT. */
   QDir           getPrgDir() const { return prgDir; }
 
   bool           createConfigFile( bool overwrite=false );

@@ -122,6 +122,8 @@ public:
 
   virtual void Addreference(SALOMEDS::SObject_ptr me, SALOMEDS::SObject_ptr thereferencedObject);
 
+  virtual void RemoveReference(SALOMEDS::SObject_ptr me);
+
   virtual void SetGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID);
   virtual bool IsGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID);
 
@@ -142,5 +144,9 @@ public:
 
   virtual SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
   virtual SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
+
+  virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
 };
 #endif

@@ -24,10 +24,10 @@
 //  File   : SALOMEDS_TextColorAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
-#include "SALOMEDS_TextColorAttribute.ixx"
 using namespace std;
+#include "SALOMEDS_TextColorAttribute.ixx"
 
 //=======================================================================
 //function : GetID

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "OCCViewer_VService.h"
 
 // Open CASCADE Includes
@@ -50,7 +51,6 @@
 #include <Xdps_Driver.hxx>
 #include <Xw_TypeOfMapping.hxx>
 #endif
-using namespace std;
 
 // For 2d
 #define LOPTIM

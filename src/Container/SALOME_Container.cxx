@@ -35,6 +35,7 @@
 #include <iostream>
 #include <string>
 #include "utilities.h"
+#include "Utils_CatchSignals.h"
 using namespace std;
 
 #ifdef CHECKTIME
@@ -198,8 +199,12 @@ int main(int argc, char* argv[])
       MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
       timer.ShowAbsolute();
 #endif
+      Utils_CatchSignals aCatch;
+      aCatch.Activate();
+
       orb->run();
 
+      aCatch.Deactivate();
       orb->destroy();
     }
   catch(CORBA::SystemException&)

@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_FileType.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #include "SALOMEDS_FileType.ixx"
 #include <TDataStd_Comment.hxx>

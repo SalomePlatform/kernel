@@ -33,23 +33,19 @@ VPATH=.:@srcdir@
 @COMMENCE@
 
 SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils PatchQt \
-          GenericObj NamingService Registry \
+          GenericObj MEDWrapper NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist \
 	  VTKFilter OBJECT \
-          TOOLSDS SALOMEDS \
+          TOOLSDS SALOMEDS Event \
           SALOMEGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
 	  Session SALOME_SWIG TOOLSGUI SALOME_PY \
           RegistryDisplay ModuleGenerator SALOME_PYQT Loader
 
-ifeq (@WITHMPI@,yes)
-  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
-endif
-
 ifeq (@WITHMPICH@,yes)
-  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
+  SUBDIRS+= MPIContainer
 endif
 
 @MODULE@

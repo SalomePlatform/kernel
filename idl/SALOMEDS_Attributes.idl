@@ -63,6 +63,7 @@ module SALOMEDS
     Attribute allowing to store a real value
 */
  //==========================================================================
+
   interface AttributeReal : GenericAttribute
   {
 /*!
@@ -77,6 +78,7 @@ module SALOMEDS
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in double value);
+
   };
   //==========================================================================
 /*! \brief Attribute allowing to store an integer value

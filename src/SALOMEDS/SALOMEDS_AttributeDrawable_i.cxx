@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeDrawable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeDrawable_i::IsDrawable() {
   return (Handle(SALOMEDS_DrawableAttribute)::DownCast(_myAttr)->Get() == 1);
@@ -39,4 +39,12 @@ void SALOMEDS_AttributeDrawable_i::SetDrawable(CORBA::Boolean value) {
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
+}
+
+char* SALOMEDS_AttributeDrawable_i::Store() {
+  return strdup(IsDrawable()?"1":"0");
+}
+
+void SALOMEDS_AttributeDrawable_i::Restore(const char* value) {
+  SetDrawable(value[0] == '1');
 }

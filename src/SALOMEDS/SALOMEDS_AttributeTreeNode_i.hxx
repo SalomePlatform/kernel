@@ -71,6 +71,10 @@ public:
   CORBA::Boolean IsFather(SALOMEDS::AttributeTreeNode_ptr value);
   CORBA::Boolean IsChild(SALOMEDS::AttributeTreeNode_ptr value);
   char* Label();
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 #endif

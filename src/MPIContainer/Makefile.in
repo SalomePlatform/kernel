@@ -44,24 +44,15 @@ EXPORT_HEADERS = \
 
 LIB = libSalomeMPIContainer.la 
 LIB_SRC = MPIObject_i.cxx  MPIContainer_i.cxx
-LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
+LIB_SERVER_IDL = TypeData.idl MPIObject.idl MPIContainer.idl
 
 # Executables targets
 BIN = SALOME_MPIContainer
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
+BIN_SERVER_IDL = TypeData.idl MPIObject.idl MPIContainer.idl
 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
-ifeq (@WITHMPICH@,yes)
-  CXXFLAGS+=${MPICH_INCLUDES}
-  CXX_DEPEND_FLAG+=${MPICH_INCLUDES}
-  LDFLAGS+= ${MPICH_LIBS}
-endif
-
-ifeq (@WITHMPI@,yes)
-  CXXFLAGS+=${MPI_INCLUDES}
-  CXX_DEPEND_FLAG+=${MPI_INCLUDES}
-  LDFLAGS+= ${MPI_LIBS}
-endif
+CXXFLAGS+=${MPICH_INCLUDES}
+CXX_DEPEND_FLAG+=${MPICH_INCLUDES}
+LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil ${MPICH_LIBS} 
 
 @CONCLUDE@

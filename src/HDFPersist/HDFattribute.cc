@@ -24,6 +24,7 @@
 //  File   : HDFattribute.cc
 //  Module : SALOME
 
+using namespace std;
 extern "C"
 {
 #include "hdfi.h"
@@ -31,7 +32,6 @@ extern "C"
 #include "HDFexception.hxx"
 #include "HDFattribute.hxx"
 #include "HDFinternalObject.hxx"
-using namespace std;
 
 HDFattribute::HDFattribute(char *name,HDFinternalObject *father,hdf_type type, size_t size)
   : HDFobject(name)
@@ -101,12 +101,9 @@ hdf_type HDFattribute::GetType()
 
 size_t HDFattribute::GetSize()
 {
-  int size;
   if(_size == 0) {
-    if((size = HDFattrGetSize(_id)) < 0)
+    if((_size = HDFattrGetSize(_id)) < 0)
       throw HDFexception("Can't determine the size of data in the attribute");
-    else
-      _size = size;
   }
   return _size;
 }

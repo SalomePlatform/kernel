@@ -1,31 +1,52 @@
+//  SALOME MPIContainer : implemenation of container based on MPI libraries
+//
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//
+//
+//  File   : SALOME_MPIContainer.cxx
+//  Module : SALOME
+
+using namespace std;
 #include <iostream>
 #include "MPIContainer_i.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
 #include "utilities.h"
 #include <mpi.h>
-using namespace std;
 
 int main(int argc, char* argv[])
 {
   int nbproc, numproc;
-  int flag;
-  Engines_MPIContainer_i * myContainer=NULL;
+  MPIContainer_i * myContainer;
 
   BEGIN_OF(argv[0])
   try {
     
     MESSAGE("Connection MPI");
+
     MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD,&nbproc);
     MPI_Comm_rank(MPI_COMM_WORLD,&numproc);
 
-    MESSAGE("[" << numproc << "] Initialisation CORBA");
+    MESSAGE("Initialisation CORBA");
     // Initialise the ORB.
-    //    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-    ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-    ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-    CORBA::ORB_var &orb = init( argc , argv ) ;
+    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
  
     // Obtain a reference to the root POA.
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
@@ -65,37 +86,35 @@ int main(int argc, char* argv[])
 	containerName = argv[1] ;
     }
 
-    MESSAGE("[" << numproc << "] Chargement container");
-    myContainer = new Engines_MPIContainer_i(nbproc,numproc,orb,factory_poa, containerName,argc,argv);
+    MESSAGE("Chargement container sur proc: " << numproc);
+    myContainer = new MPIContainer_i(nbproc,numproc,orb,factory_poa, containerName);
+    MESSAGE("Fin chargement container");
 
     pman->activate();
 
     orb->run();
     orb->destroy();
 
-  }
-  catch(CORBA::SystemException&){
-    INFOS("Caught CORBA::SystemException.");
-  }
-  catch(PortableServer::POA::WrongPolicy&){
-    INFOS("Caught CORBA::WrongPolicyException.");
-  }
-  catch(PortableServer::POA::ServantAlreadyActive&){
-    INFOS("Caught CORBA::ServantAlreadyActiveException");
-  }
-  catch(CORBA::Exception&){
-    INFOS("Caught CORBA::Exception.");
-  }
-  catch(...){
-    INFOS("Caught unknown exception.");
-  }
-
-  if(myContainer)
     delete myContainer;
-  MPI_Initialized(&flag);
-  if(flag)
     MPI_Finalize();
-
+  }
+  catch(CORBA::SystemException&) {
+    INFOS("Caught CORBA::SystemException.")
+  }
+  catch(PortableServer::POA::WrongPolicy&)
+  {
+    INFOS("Caught CORBA::WrongPolicyException.")
+  }
+  catch(PortableServer::POA::ServantAlreadyActive&)
+  {
+    INFOS("Caught CORBA::ServantAlreadyActiveException")
+  }
+  catch(CORBA::Exception&) {
+    INFOS("Caught CORBA::Exception.")
+  }
+  catch(...) {
+    INFOS("Caught unknown exception.")
+   }
   END_OF(argv[0]);
 }
 

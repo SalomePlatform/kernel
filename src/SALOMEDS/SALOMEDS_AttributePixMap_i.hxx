@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributePixMap_i.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef SALOMEDS_AttributePixMap_i_HeaderFile
 #define SALOMEDS_AttributePixMap_i_HeaderFile
@@ -48,6 +48,10 @@ public:
   CORBA::Boolean HasPixMap();
   char* GetPixMap();
   void SetPixMap(const char* value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "OCCViewer_ViewFrame.h"
 #include "OCCViewer_Viewer3d.h"
 #include "OCCViewer_ViewPort.h"
@@ -51,7 +52,6 @@
 #include <V3d_View.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
 #include <Visual3d_View.hxx>
-using namespace std;
 
 /*!
     Constructor

@@ -28,7 +28,16 @@
 
 #include "QAD_PyInterp.h"
 #include "utilities.h"
+
 using namespace std;
+
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
 
 /*!
  * constructor : multi Python interpreter, one per SALOME study.
@@ -37,7 +46,6 @@ using namespace std;
  */
 QAD_PyInterp::QAD_PyInterp(): PyInterp_base()
 {
-  initialize();
 }
 
 QAD_PyInterp::~QAD_PyInterp()
@@ -64,71 +72,58 @@ QAD_PyInterp::~QAD_PyInterp()
 
 void QAD_PyInterp::initState()
 {
-  MESSAGE("QAD_PyInterp::initState");
-  salomeAcquireLock();           //acquire python global lock (one for all interpreters)
-  _tstate = Py_NewInterpreter(); //create an interpreter and save current state
-  SCRUTE(_tstate);
-  SCRUTE(PyInterp_base::_argc);
-  SCRUTE(PyInterp_base::_argv[0]);
-  PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv);    // initialize sys.argv
+  _tstate = Py_NewInterpreter(); // create an interpreter and save current state
+  PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv); // initialize sys.argv
+  if(MYDEBUG) MESSAGE("QAD_PyInterp::initState - this = "<<this<<"; _tstate = "<<_tstate);
 
-  if(builtinmodule == NULL)return;
   /*
    * If builtinmodule has been initialized all the sub interpreters
    * will have the same __builtin__ module
    */
-  PyObject *m=PyImport_GetModuleDict();
-  PyDict_SetItemString(m, "__builtin__", builtinmodule);
-  SCRUTE(builtinmodule->ob_refcnt);                            // builtinmodule reference counter
-  _tstate->interp->builtins = PyModule_GetDict(builtinmodule);
-  Py_INCREF(_tstate->interp->builtins);
+  if(builtinmodule){ 
+    PyObject *m = PyImport_GetModuleDict();
+    PyDict_SetItemString(m, "__builtin__", builtinmodule);
+    SCRUTE(builtinmodule->ob_refcnt); // builtinmodule reference counter
+    _tstate->interp->builtins = PyModule_GetDict(builtinmodule);
+    Py_INCREF(_tstate->interp->builtins);
+  }
 }
+
 
 void QAD_PyInterp::initContext()
 {
-  MESSAGE("QAD_PyInterp::initContext");
-  PyObject *m;
-  m=PyImport_AddModule("__main__");  // interpreter main module (module context)
-  if(m == NULL)
-    {
-      MESSAGE("problem...");
-      PyErr_Print();
-      ASSERT(0);
-      salomeReleaseLock(); 
-      return;
-    }  
+  PyObject *m = PyImport_AddModule("__main__");  // interpreter main module (module context)
+  if(!m){
+    if(MYDEBUG) MESSAGE("problem...");
+    PyErr_Print();
+    ASSERT(0);
+    return;
+  }  
   _g = PyModule_GetDict(m);          // get interpreter dictionnary context
-  SCRUTE(_g);
+  if(MYDEBUG) MESSAGE("QAD_PyInterp::initContext - this = "<<this<<"; _g = "<<_g);
 
-  if(builtinmodule)
-    {
-      PyDict_SetItemString(_g, "__builtins__", builtinmodule); // assign singleton __builtin__ module
-    }
-// Debut modif CCAR
-  /*
-   * Import special module to change the import mechanism
-   */
-  m =PyImport_ImportModule("import_hook");
-  if(m == NULL){
-      MESSAGE("initContext: problem with import_hook import");
+  if(builtinmodule){
+    PyDict_SetItemString(_g, "__builtins__", builtinmodule); // assign singleton __builtin__ module
+  }
+
+  // Debut modif CCAR
+  // Import special module to change the import mechanism
+  PyObjWrapper m1(PyImport_ImportModule("import_hook"));
+  if(!m1){
+    MESSAGE("initContext: problem with import_hook import");
+    PyErr_Print();
+    PyErr_Clear();
+    ASSERT(0);
+  }else{
+    // Call init_shared_modules to initialize the shared import mechanism for modules 
+    //that must not be imported twice
+    PyObjWrapper m2(PyObject_CallMethod(m1,"init_shared_modules","O",salome_shared_modules_module));
+    if(!m2){
+      MESSAGE("initContext: problem with init_shared_modules call");
       PyErr_Print();
       PyErr_Clear();
       ASSERT(0);
+    }
   }
-  /*
-   * Call init_shared_modules to initialize the shared import mechanism for modules 
-   * that must not be imported twice
-   */
-  if(m != NULL){
-      m= PyObject_CallMethod(m,
-			 "init_shared_modules","O",salome_shared_modules_module);
-      if (m == NULL){
-          MESSAGE("initContext: problem with init_shared_modules call");
-          PyErr_Print();
-          PyErr_Clear();
-          ASSERT(0);
-      }
-  }
-// Fin   modif CCAR
-
+  // Fin   modif CCAR
 }

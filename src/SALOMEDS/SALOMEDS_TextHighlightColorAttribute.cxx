@@ -24,10 +24,10 @@
 //  File   : SALOMEDS_TextHighlightColorAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
-#include "SALOMEDS_TextHighlightColorAttribute.ixx"
 using namespace std;
+#include "SALOMEDS_TextHighlightColorAttribute.ixx"
 
 //=======================================================================
 //function : GetID

@@ -31,6 +31,9 @@
 #include "QAD_Desktop.h"
 #include "QAD_StudyFrame.h"
 #include "QAD_Tools.h"
+#include "QAD_PyEditor.h"
+#include "QAD_PyInterp.h"
+
 #include <qvaluelist.h>
 
 // QT Include
@@ -38,6 +41,7 @@
 
 // Open CASCADE Include
 #include <OSD_SharedLibrary.hxx>
+
 using namespace std;
 
 /*!
@@ -51,18 +55,18 @@ typedef QAD_ViewFrame* View(QAD_RightFrame*);
 /*!
     Constructor
 */
-QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
-			       QAD_PyInterp* interp, ViewType vt)
-  : QAD_Splitter( Qt::Vertical, parent, name )
+QAD_RightFrame::QAD_RightFrame(QWidget *theParent, 
+			       const char *theTitle, ViewType theTypeView,
+			       QAD_PyInterp*& theInterp, QMutex* theMutex): 
+  QAD_Splitter( Qt::Vertical, theParent, theTitle ),
+  myViewType(theTypeView),
+  myInterp(theInterp)
 {
   this->setCompressEnabled( true );
-  myViewType  = vt;
 
   QAD_Desktop* Desktop = QAD_Application::getDesktop();
   int DesktopHeight = Desktop->getMainFrame()->width();
   int DesktopWidth  = Desktop->getMainFrame()->height();
-
-  _interp = interp;
 
   OSD_SharedLibrary SharedLib = OSD_SharedLibrary();
   QString ComponentLib;
@@ -184,12 +188,15 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
   QValueList<int> sizes;
 
   myViewFrame->setMinimumSize( 1, 1 );
-  vsplitter = new QAD_Splitter( Qt::Horizontal, this );
-  vsplitter->setMinimumSize( 1, 1 );
-  vsplitter->setCompressEnabled( true );
-  myPyEditor = new QAD_PyEditor(_interp, vsplitter ,"Python Interpreter");
+  mySplitter = new QAD_Splitter( Qt::Horizontal, this );
+  mySplitter->setMinimumSize( 1, 1 );
+  mySplitter->setCompressEnabled( true );
+
+  myPyEditor = new QAD_PyEditor(myInterp, theMutex, mySplitter ,"Python Interpreter");
   myPyEditor->setMinimumSize( 1, 1 );
-  myMessage  = new QAD_Message( vsplitter ,"Message");  
+  myPyEditor->Init();
+
+  myMessage  = new QAD_Message( mySplitter ,"Message");  
   myMessage->setMinimumSize( 1, 1 );
 
   sizes.append( (int)(0.48 * DesktopHeight) );
@@ -198,7 +205,7 @@ QAD_RightFrame::QAD_RightFrame(QWidget *parent, const char *name,
   sizes.clear();
   sizes.append( (int)(0.25 * DesktopWidth) );
   sizes.append( (int)(0.25 * DesktopWidth) );
-  vsplitter->setSizes( sizes );
+  mySplitter->setSizes( sizes );
 }
 
 /*!
@@ -226,7 +233,7 @@ QAD_Message* QAD_RightFrame::getMessage() const
 */
 QAD_PyInterp* QAD_RightFrame::get_PyInterp(void)
 {
-  return _interp;
+  return myInterp;
 }
 
 /*!

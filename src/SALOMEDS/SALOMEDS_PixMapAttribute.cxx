@@ -24,12 +24,12 @@
 //  File   : SALOMEDS_PixMapAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_PixMapAttribute.ixx"
 #include <TDataStd_Comment.hxx>
 #include <TCollection_ExtendedString.hxx>
-using namespace std;
 
 //=======================================================================
 //function : GetID

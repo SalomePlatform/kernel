@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_ExternalFileDef.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #include "SALOMEDS_ExternalFileDef.ixx"
 #include <TDataStd_Comment.hxx>

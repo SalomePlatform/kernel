@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "QAD_ObjectBrowserItem.h"
 
 #include <qcolor.h>
@@ -33,7 +34,6 @@
 #include <qpixmap.h>
 #include <qstringlist.h>
 #include <qpainter.h>
-using namespace std;
 
 /*!
   Constructors

@@ -24,8 +24,8 @@
 //  File   : HDFconvert.cc
 //  Module : SALOME
 
-#include "HDFconvert.hxx"
 using namespace std;
+#include "HDFconvert.hxx"
 
 int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)
 {
@@ -68,10 +68,10 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
 #endif
   
   // Creation du Dataset utilisateur 
-  hdf_dataset = new HDFdataset( (char *) nomdataset.c_str(),            /*discard const */
-				(HDFcontainerObject*) &hdf_container,   /*discard const, pas de constructeur par référence */
-				HDF_STRING,
-				&length_long,1);
+  hdf_dataset = new HDFdataset::HDFdataset( (char *) nomdataset.c_str(),            /*discard const */
+                                            (HDFcontainerObject*) &hdf_container,   /*discard const, pas de constructeur par référence */
+                                            HDF_STRING,
+                                            &length_long,1);
   // Cree le Dataset sur le disk
   hdf_dataset->CreateOnDisk();
   
@@ -98,7 +98,5 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
     perror("HDFConvert::FromAscii");
     return -1;
   };
-
-  return 0;
     
 };

@@ -9,6 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_StudyPropertiesDlg.h"
 
 #include "QAD_Desktop.h"
@@ -18,7 +19,6 @@
 
 #include <qpushbutton.h>
 #include <qlayout.h>
-using namespace std;
 
 #define  DEFAULT_MARGIN 11
 #define DEFAULT_SPACING 6

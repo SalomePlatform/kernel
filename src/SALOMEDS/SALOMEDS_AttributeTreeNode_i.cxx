@@ -24,12 +24,14 @@
 //  File   : SALOMEDS_AttributeTreeNode_i.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeTreeNode_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
-using namespace std;
+#include <TDocStd_Document.hxx>
+#include <TDF_Tool.hxx>
 
 static Handle(TDataStd_TreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
 					 const Handle(TDataStd_TreeNode)& aNode) {
@@ -181,4 +183,57 @@ char* SALOMEDS_AttributeTreeNode_i::Label() {
   TCollection_AsciiString aLabelName;
   TDF_Tool::Entry(_myAttr->Label(),aLabelName);
   return CORBA::String_var(CORBA::string_dup(aLabelName.ToCString()))._retn();
+}
+
+char* SALOMEDS_AttributeTreeNode_i::Store() {
+  char* aStr[4];
+
+  if (HasFather()) aStr[0] = GetFather()->Label(); else aStr[0] = "!";
+  if (HasPrevious()) aStr[1] = GetPrevious()->Label(); else aStr[1] = "!";
+  if (HasNext()) aStr[2] = GetNext()->Label(); else aStr[2] = "!";
+  if (HasFirst()) aStr[3] = GetFirst()->Label(); else aStr[3] = "!";
+
+  int aLength = 4;
+  aLength += strlen(aStr[0]) + strlen(aStr[1]) + strlen(aStr[2]) + strlen(aStr[3]);
+  CORBA::String_var aResult = new char[aLength];
+  sprintf(aResult, "%s %s %s %s", aStr[0], aStr[1], aStr[2], aStr[3]);
+  return aResult._retn();
+}
+
+void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
+  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
+  Handle(TDF_Data) DF = TDocStd_Document::Get(_myAttr->Label())->GetData();
+  
+  char* aCopy = strdup(value);
+  char* adr = strtok(aCopy, " ");
+  
+  TDF_Label aLabel;
+  Handle(TDataStd_TreeNode) aDepNode;
+
+  if (adr && adr[0] != '!') {
+    TDF_Tool::Label(DF, adr, aLabel, 1);
+    if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
+    aNode->SetFather(aDepNode);
+  }
+
+  adr = strtok(NULL, " ");
+  if (adr && adr[0] != '!') {
+    TDF_Tool::Label(DF, adr, aLabel, 1);
+    if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
+    aNode->SetPrevious(aDepNode);
+  }
+
+  adr = strtok(NULL, " ");
+  if (adr && adr[0] != '!') {
+    TDF_Tool::Label(DF, adr, aLabel, 1);
+    if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
+    aNode->SetNext(aDepNode);
+  }
+
+  adr = strtok(NULL, " ");
+  if (adr && adr[0] != '!') {
+    TDF_Tool::Label(DF, adr, aLabel, 1);
+    if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
+    aNode->SetFirst(aDepNode);
+  }
 }

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_Config QAD_Config.h
   \brief Settings file management for QAD-based application.
@@ -39,7 +40,6 @@
 #include <qfile.h>
 #include <qregexp.h>
 #include <qtextstream.h>
-using namespace std;
 
 
 /*!

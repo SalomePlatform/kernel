@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOME_NumberFilter.ixx"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
@@ -33,7 +34,6 @@
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
-using namespace std;
 
 SALOME_NumberFilter::SALOME_NumberFilter(NumberFilter TheKind, Standard_Integer aValue):
 myKind(TheKind),

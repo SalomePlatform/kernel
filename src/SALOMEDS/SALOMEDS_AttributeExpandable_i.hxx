@@ -48,6 +48,10 @@ public:
   ~SALOMEDS_AttributeExpandable_i() {};
   CORBA::Boolean IsExpandable();
   void SetExpandable(CORBA::Boolean value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

@@ -48,6 +48,10 @@ public:
   ~SALOMEDS_AttributeDrawable_i() {};
   CORBA::Boolean IsDrawable();
   void SetDrawable(CORBA::Boolean value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

@@ -48,6 +48,10 @@ public:
   ~SALOMEDS_AttributeOpened_i() {};
   CORBA::Boolean IsOpened();
   void SetOpened(CORBA::Boolean value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

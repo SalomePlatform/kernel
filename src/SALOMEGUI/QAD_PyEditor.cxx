@@ -33,12 +33,11 @@
 #include "QAD_Config.h"
 #include "QAD_Tools.h"
 #include "QAD_MessageBox.h"
-//#include "QAD_RightFrame.h"
-using namespace std;
 
 #include <qapplication.h>
 #include <qmap.h>
 #include <qclipboard.h>
+#include <qthread.h>
 
 // NRI : Temporary added
 // IDL Headers
@@ -47,39 +46,175 @@ using namespace std;
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 //NRI
 
+using namespace std;
+
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
+
 #define SIZEPR 4
 enum { IdCopy, IdPaste, IdClear, IdSelectAll };
+
+
+static QString PROMPT = ">>> ";
+
+
+class TInitEditorThread : public QThread
+{
+public:
+  TInitEditorThread(QAD_PyInterp*& theInterp, 
+		    QMutex* theStudyMutex, QMutex* theMutex,
+		    QAD_PyEditor* theListener):
+    myInterp(theInterp), 
+    myMutex(theMutex),
+    myStudyMutex(theStudyMutex),
+    myListener(theListener)
+  {
+    // san - commented as inefficient: sometimes event is processed significant period of time after this moment
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+  }
+
+  virtual ~TInitEditorThread(){}
+
+protected:
+  virtual void run(){
+    ThreadLock anEditorLock(myMutex,"TInitEditorThread::anEditorLock");
+    ThreadLock aStudyLock(myStudyMutex,"TInitEditorThread::aStudyLock");
+    ThreadLock aPyLock = GetPyThreadLock("TInitEditorThread::aPyLock");
+    if(MYDEBUG) MESSAGE("TInitEditorThread::run() - myInterp = "<<myInterp<<"; myMutex = "<<myMutex);
+    myListener->myBanner = myInterp->getbanner().c_str();
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::INITIALIZE));
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::PYTHON_OK));
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
+  }
+
+private:
+  QMutex* myMutex;
+  QMutex* myStudyMutex;
+  QAD_PyInterp*& myInterp;
+  QAD_PyEditor* myListener;
+};
+
+
+class TExecCommandThread : public QThread
+{
+public:
+  TExecCommandThread(QAD_PyInterp*& theInterp, 
+		     QMutex* theStudyMutex, QMutex* theMutex,
+		     QAD_PyEditor* theListener): 
+    myInterp(theInterp), 
+    myMutex(theMutex),
+    myStudyMutex(theStudyMutex),
+    myListener(theListener), 
+    myCommand("")
+  {
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+  }
+
+  virtual ~TExecCommandThread() {}
+
+  void exec(const char* theCommand){
+    myCommand = theCommand;
+    start();
+  }
+
+protected:
+  virtual void run(){
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+    int anId = QAD_PyEditor::PYTHON_OK;
+    if(myCommand != ""){
+      ThreadLock anEditorLock(myMutex,"TExecCommandThread::anEditorLock");
+      //ThreadLock aStudyLock(myStudyMutex,"TExecCommandThread::aStudyLock");
+      ThreadLock aPyLock = GetPyThreadLock("TExecCommandThread::aPyLock");
+      int ret = myInterp->run( myCommand.latin1() );
+      if(MYDEBUG) MESSAGE("TExecCommand::run() - myInterp = "<<myInterp<<"; myCommand = '"<<myCommand.latin1()<<"' - "<<ret);
+      if(ret < 0)
+	anId = QAD_PyEditor::PYTHON_ERROR;
+      if(ret > 0)
+	anId = QAD_PyEditor::PYTHON_INCOMPLETE;
+      myListener->myError = myInterp->getverr().c_str();
+      myListener->myOutput = myInterp->getvout().c_str();
+    }else{
+      myListener->myError = "";
+      myListener->myOutput = "";
+    }
+    QThread::postEvent(myListener, new QCustomEvent(anId));
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
+  }
+
+private:
+  QMutex* myMutex;
+  QMutex* myStudyMutex;
+  QAD_PyInterp*& myInterp;
+  QAD_PyEditor* myListener;
+  QString myCommand;
+};
+
 
 /*!
     Constructor
 */
-QAD_PyEditor::QAD_PyEditor(QAD_PyInterp* interp, 
-			   QWidget *parent, const char *name)
-  : QMultiLineEdit(parent,name)
+QAD_PyEditor::QAD_PyEditor(QAD_PyInterp*& theInterp, QMutex* theMutex,
+			   QWidget *theParent, const char* theName): 
+  QTextEdit(theParent,theName),
+  myStudyMutex(theMutex),
+  myInitEditorMutex(new QMutex),
+  myExecCommandMutex(new QMutex),
+  myInterp(theInterp),
+  myInitEditorThread(0),
+  myExecCommandThread(0)
 {
   QString fntSet = QAD_CONFIG->getSetting("Viewer:ConsoleFont");
   QFont myFont = QAD_Tools::stringToFont( fntSet );
 //  QFont myFont("Courier",11);
   setFont(myFont);
-  _interp = interp;
-  string banner = _interp->getbanner();
-  setText(banner.c_str());
-  _isInHistory = false;
-  _currentPrompt = ">>> ";
-  // put error messages of interpreter if they exist.
-  _buf.truncate(0);
-  setText(_interp->getverr());
-  setText(_currentPrompt);
+  setTextFormat(QTextEdit::PlainText);
+
+  // san - This is necessary for troubleless initialization
+  setReadOnly( true );
+  viewport()->setCursor( waitCursor );
+
+  myInitEditorThread = new TInitEditorThread(myInterp,myStudyMutex,myInitEditorMutex,this);
+  myExecCommandThread = new TExecCommandThread(myInterp,myStudyMutex,myExecCommandMutex,this);
+
+  _currentPrompt = PROMPT;
   setPalette( QAD_Application::getPalette(true) );
   setWordWrap(NoWrap);
+
   connect(this,SIGNAL(returnPressed()),this,SLOT(handleReturn()) );
 }
+
+
+void QAD_PyEditor::Init()
+{
+  myInitEditorThread->start();
+}
+
 
 /*!
     Destructor
 */
 QAD_PyEditor::~QAD_PyEditor()
 {
+  if(MYDEBUG) MESSAGE("QAD_PyEditor::~QAD_PyEditor()");
+  {
+    {
+      ThreadLock aLock(myInitEditorMutex,"myInitEditorMutex");
+      delete myInitEditorThread;
+    }
+    delete myInitEditorMutex;
+  }
+  {
+    {
+      ThreadLock aLock(myExecCommandMutex,"myExecCommandMutex");
+      delete myExecCommandThread;
+    }
+    delete myExecCommandMutex;
+  }
 }
 
 /*!
@@ -87,12 +222,11 @@ QAD_PyEditor::~QAD_PyEditor()
 */
 void QAD_PyEditor::setText(QString s)
 {
-//   MESSAGE("setText");
-  int line=numLines()-1;
-  int col=lineLength(line);
-  insertAt(s,line,col);
-  int n = numLines()-1;  
-  setCursorPosition( n, textLine(n).length()); 
+  int para=paragraphs()-1;
+  int col=paragraphLength(para);
+  insertAt(s,para,col);
+  int n = paragraphs()-1;  
+  setCursorPosition( n, paragraphLength(n)); 
 }
 
 /*!
@@ -100,9 +234,8 @@ void QAD_PyEditor::setText(QString s)
 */
 void QAD_PyEditor::handleReturn()
 {
-  QApplication::setOverrideCursor( Qt::waitCursor );
   int ret;
-  int line=numLines()-2;
+  int para=paragraphs()-2;
 
   // NRI : Temporary added
   SALOMEDS::Study_var aStudy = QAD_Application::getDesktop()->getActiveStudy()->getStudyDocument();
@@ -121,24 +254,11 @@ void QAD_PyEditor::handleReturn()
   }  
   // NRI
 
-  _buf.append(textLine(line).remove(0,SIZEPR));
-  ret = _interp->run(_buf);
-  if(ret <= 0)
-    {
-      _buf.truncate(0);
-      setText(_interp->getvout());
-      setText(_interp->getverr());
-      _currentPrompt = ">>> ";
-      setText(_currentPrompt);
-    }
-  if(ret == 1)
-    {
-      _buf.append("\n");
-      _currentPrompt = "... ";
-      setText(_currentPrompt);
-    }
-  _isInHistory = false;
-  QApplication::restoreOverrideCursor();
+  _buf.append(text(para).remove(0,SIZEPR));
+  _buf.truncate( _buf.length() - 1 );
+  setReadOnly( true );
+  viewport()->setCursor( waitCursor );
+  myExecCommandThread->exec(_buf.latin1());
 }
 
 /*
@@ -150,10 +270,10 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     QPopupMenu *popup = new QPopupMenu( this );
     QMap<int, int> idMap;
 
-    int line1, col1, line2, col2;
-    getMarkedRegion(&line1, &col1, &line2, &col2);
-    bool allSelected = getMarkedRegion(&line1, &col1, &line2, &col2) &&
-      line1 == 0 && line2 == numLines()-1 && col1 == 0 && col2 == lineLength(line2);
+    int para1, col1, para2, col2;
+    getSelection(&para1, &col1, &para2, &col2);
+    bool allSelected = hasSelectedText() &&
+      para1 == 0 && para2 == paragraphs()-1 && col1 == 0 && para2 == paragraphLength(para2);
     int id;
     id = popup->insertItem( tr( "EDIT_COPY_CMD" ) );
     idMap.insert(IdCopy, id);
@@ -164,7 +284,7 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     popup->insertSeparator();
     id = popup->insertItem( tr( "EDIT_SELECTALL_CMD" ) );
     idMap.insert(IdSelectAll, id);
-    popup->setItemEnabled( idMap[ IdCopy ],  hasMarkedText() );
+    popup->setItemEnabled( idMap[ IdCopy ],  hasSelectedText() );
     popup->setItemEnabled( idMap[ IdPaste ],
 			  !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
     popup->setItemEnabled( idMap[ IdSelectAll ],
@@ -181,8 +301,7 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     }
     else if ( r == idMap[ IdClear ] ) {
       clear();
-      string banner = _interp->getbanner();
-      setText(banner.c_str());
+      setText(myBanner);
       setText(_currentPrompt);
     }
     else if ( r == idMap[ IdSelectAll ] ) {
@@ -191,7 +310,7 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     return;
   }
   else {
-    QMultiLineEdit::mousePressEvent(event);
+    QTextEdit::mousePressEvent(event);
   }
 }
 
@@ -201,14 +320,14 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
 void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
 {
   //  MESSAGE("mouseReleaseEvent");
-  int curLine, curCol; // for cursor position
-  int endLine, endCol; // for last edited line
-  getCursorPosition(&curLine, &curCol);
-  endLine = numLines() -1;
+  int curPara, curCol; // for cursor position
+  int endPara, endCol; // for last edited line
+  getCursorPosition(&curPara, &curCol);
+  endPara = paragraphs() -1;
   if (e->button() != MidButton)
-    QMultiLineEdit::mouseReleaseEvent(e);
-  else if ((curLine == endLine) && (curCol >= SIZEPR))
-    QMultiLineEdit::mouseReleaseEvent(e);
+    QTextEdit::mouseReleaseEvent(e);
+  else if ((curPara == endPara) && (curCol >= SIZEPR))
+    QTextEdit::mouseReleaseEvent(e);
 }
 
 /*!
@@ -216,7 +335,7 @@ void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
 */
   void QAD_PyEditor::dropEvent (QDropEvent *e)
 {
-  INFOS("dropEvent : not handled");
+  MESSAGE("dropEvent : not handled");
 }
 
 /*!
@@ -239,7 +358,7 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
   int curLine, curCol; // for cursor position
   int endLine, endCol; // for last edited line
   getCursorPosition(&curLine, &curCol);
-  endLine = numLines() -1;
+  endLine = paragraphs() -1;
   //MESSAGE("current position " << curLine << ", " << curCol);
   //MESSAGE("last line " << endLine);
   //MESSAGE(e->key());
@@ -257,34 +376,30 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
     {
     case 0 :
       {
-	if (curLine <endLine)
-	  {
-	    setCursorPosition(endLine, SIZEPR);
-	    end();
-	  }
-	QMultiLineEdit::keyPressEvent( e );
+	if (curLine <endLine || curCol < SIZEPR )
+	  moveCursor(QTextEdit::MoveEnd, false);
+	QTextEdit::keyPressEvent( e );
 	break;
       }
     case Key_Return:
     case Key_Enter:
       {
 	if (curLine <endLine)
-	  {
-	    setCursorPosition(endLine, SIZEPR);
-	  }
-	end();
-	QMultiLineEdit::keyPressEvent( e );
+	  moveCursor(QTextEdit::MoveEnd, false);
+	else
+	  moveCursor(QTextEdit::MoveLineEnd, false);
+	QTextEdit::keyPressEvent( e );
 	break;
       }
     case Key_Up:
       {
 	// if Cntr+Key_Up event then move cursor up
 	if (ctrlPressed) {
-	  QMultiLineEdit::cursorUp( );
+	    moveCursor(QTextEdit::MoveUp, false);
         }
 	// if Shift+Key_Up event then move cursor up and select the text
 	else if ( shftPressed && curLine > 0 ){
-	   setCursorPosition(curLine-1, curCol, true);
+	    moveCursor(QTextEdit::MoveUp, true);
 	}
 	// scroll the commands stack up
 	else { 
@@ -292,18 +407,18 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
 	  if (! _isInHistory)
 	    {
 	      _isInHistory = true;
-	      _currentCommand = textLine(endLine).remove(0,SIZEPR);
+	      _currentCommand = text(endLine).remove(0,SIZEPR);
+	      _currentCommand.truncate( _currentCommand.length() - 1 );
 	      SCRUTE(_currentCommand);
 	    }
-	  QString previousCommand = _interp->getPrevious();
+	  QString previousCommand = myInterp->getPrevious();
 	  if (previousCommand.compare(BEGIN_HISTORY_PY) != 0)
 	    {
-	      removeLine(endLine);
+	      removeParagraph(endLine);
 	      histLine.append(previousCommand);
-	      insertLine(histLine);
+	      insertParagraph(histLine, -1);
 	    }
-	  endLine = numLines() -1;
-	  setCursorPosition(endLine, lineLength(endLine));
+	  moveCursor(QTextEdit::MoveEnd, false);
 	}
 	break;
       }
@@ -311,74 +426,91 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
       {
 	// if Cntr+Key_Down event then move cursor down
 	if (ctrlPressed) {
-	  QMultiLineEdit::cursorDown( );
+	  moveCursor(QTextEdit::MoveDown, false);
 	}
 	// if Shift+Key_Down event then move cursor down and select the text
 	else if ( shftPressed && curLine < endLine ) {
-	   setCursorPosition(curLine+1, curCol, true);
+	  moveCursor(QTextEdit::MoveDown, true);
 	}
 	// scroll the commands stack down
 	else {
 	QString histLine = _currentPrompt;
-	  QString nextCommand = _interp->getNext();
+	  QString nextCommand = myInterp->getNext();
 	  if (nextCommand.compare(TOP_HISTORY_PY) != 0)
 	    {
-	      removeLine(endLine);
+	      removeParagraph(endLine);
 	      histLine.append(nextCommand);
-	      insertLine(histLine);
+	      insertParagraph(histLine, -1);
 	    }
 	  else
 	    if (_isInHistory)
 	      {
 		_isInHistory = false;
-		removeLine(endLine);
+		removeParagraph(endLine);
 		histLine.append(_currentCommand);
-		insertLine(histLine);
+		insertParagraph(histLine, -1);
 	      }
-	  endLine = numLines() -1;
-	  setCursorPosition(endLine, lineLength(endLine));
+	  moveCursor(QTextEdit::MoveEnd, false);
 	}
 	break;
       }
     case Key_Left:
       {
-	if (!shftPressed && isCommand(textLine(curLine)) && curCol <= SIZEPR )
+	if (!shftPressed && isCommand(text(curLine)) && curCol <= SIZEPR )
 	  {
 	    setCursorPosition((curLine -1), SIZEPR);
-	    end();
+	    moveCursor(QTextEdit::MoveLineEnd, false);
 	  }
-	else QMultiLineEdit::keyPressEvent( e );
+	else QTextEdit::keyPressEvent( e );
 	break;
       }
     case Key_Right:
       {
-	if (!shftPressed && isCommand(textLine(curLine)) 
-	    && curCol < SIZEPR) setCursorPosition(curLine, SIZEPR-1);
-	QMultiLineEdit::keyPressEvent( e );
+	if (!shftPressed && isCommand(text(curLine)) 
+	    && curCol < SIZEPR) setCursorPosition(curLine, SIZEPR);
+	QTextEdit::keyPressEvent( e );
 	break;
       }
     case Key_Home: 
       {
-	if (isCommand(textLine(curLine)) && curCol <= SIZEPR)
-	  setCursorPosition(curLine, SIZEPR, shftPressed);
-	else setCursorPosition(curLine, 0, shftPressed);
+	horizontalScrollBar()->setValue( horizontalScrollBar()->minValue() );
+	if (isCommand(text(curLine))) {
+	  setCursorPosition(curLine, SIZEPR);
+	  if ( curCol > SIZEPR && shftPressed )
+	    setSelection( curLine, SIZEPR, curLine, curCol );
+	  else
+	    selectAll( false );
+	}
+	else moveCursor(QTextEdit::MoveLineStart, shftPressed);
 	break;
       }
     case Key_End:
       {
-	setCursorPosition(curLine, textLine(curLine).length(), shftPressed);
+	moveCursor(QTextEdit::MoveLineEnd, shftPressed);
 	break;
       }  
     case Key_Backspace :
       {
 	if ((curLine == endLine) && (curCol > SIZEPR))
-	  QMultiLineEdit::keyPressEvent( e );
+	  QTextEdit::keyPressEvent( e );
 	break;
       }
     case Key_Delete :
       {
 	if ((curLine == endLine) && (curCol > SIZEPR-1))
-	  QMultiLineEdit::keyPressEvent( e );
+	  QTextEdit::keyPressEvent( e );
+	break;
+      }
+    case Key_Insert :
+      {
+	if ( ctrlPressed )
+	  copy();
+	else if ( shftPressed ) {
+	  moveCursor(QTextEdit::MoveEnd, false);
+	  paste();
+	}
+	else
+	  QTextEdit::keyPressEvent( e );
 	break;
       }
     }
@@ -397,4 +529,49 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
       ( e->key() == Key_Escape))
     QAD_Application::getDesktop()->onKeyPress( e );
   // NRI //
+}
+
+void QAD_PyEditor::customEvent(QCustomEvent *e)
+{
+  switch( e->type() ) {
+  case PYTHON_OK:
+  case PYTHON_ERROR:
+    {
+      _buf.truncate(0);
+      setText(myOutput);
+      setText(myError);
+      _currentPrompt = ">>> ";
+      setText(_currentPrompt);
+      break;
+    }
+  case PYTHON_INCOMPLETE:
+    {
+      _buf.append("\n");
+      _currentPrompt = "... ";
+      setText(_currentPrompt);
+      break;
+    }
+  case INITIALIZE:
+    {
+      setText(myInterp->getbanner().c_str());
+      _buf.truncate(0);
+      QApplication::restoreOverrideCursor();
+      break;
+    }  
+  case SET_WAIT_CURSOR:
+    {
+      viewport()->setCursor( waitCursor );
+      break;
+    }  
+  case UNSET_CURSOR:
+    {
+      viewport()->unsetCursor();
+      break;
+    }  
+  default:
+    QTextEdit::customEvent( e );
+  }
+
+  setReadOnly( false );
+  _isInHistory = false;
 }

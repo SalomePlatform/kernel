@@ -34,55 +34,51 @@
 #include "QAD_StudyFrame.h"
 #include "QAD_RightFrame.h"
 #include "QAD_LeftFrame.h"
+#include "QAD_Splitter.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
 #include "QAD_ObjectBrowser.h"
+#include "QAD_PyInterp.h"
+
 #include <qvaluelist.h>
+
 using namespace std;
 
 /*!
     Constructor
 */
-QAD_StudyFrame::QAD_StudyFrame(QAD_Study* study, QWidget* parent, const QString& title, 
-			       QAD_PyInterp* interp, ViewType typeView) :
-  QMainWindow( parent , title,  WStyle_NormalBorder | 
+QAD_StudyFrame::QAD_StudyFrame(QAD_Study* theStudy, QWidget* theParent, 
+			       const QString& theTitle, ViewType theTypeView,
+			       QAD_PyInterp*& theInterp, QMutex* theMutex):
+  QMainWindow( theParent , theTitle,  WStyle_NormalBorder | 
 	       WStyle_MinMax | WStyle_SysMenu | WDestructiveClose),
-  myStudy(study)
+  myTitle(theTitle),
+  myEntry(""),
+  myTypeView(theTypeView),
+  myStudy(theStudy), 
+  myInterp(theInterp)
 {
-  myTypeView = typeView;
-  myTitle = title;
   setCaption( myTitle );
   setPalette(QAD_Application::getPalette());
 
-  myEntry = "";
-  _interp = interp;
+  mySplitter = new QAD_Splitter( Qt::Horizontal, this);
+  mySplitter->setCompressEnabled( true );
 
-  s1 = new QAD_Splitter( Qt::Horizontal, this);
-  s1->setCompressEnabled( true );
-
-  setCentralWidget( s1 );
-  myLeftFrm = new QAD_LeftFrame(study->getStudyDocument(), s1 , title );
-  myRightFrm = new QAD_RightFrame( s1, title, _interp, myTypeView);
+  setCentralWidget(mySplitter);
+  myLeftFrm = new QAD_LeftFrame(myStudy->getStudyDocument(), mySplitter, theTitle );
+  myRightFrm = new QAD_RightFrame( mySplitter, theTitle, myTypeView, myInterp, theMutex);
 
   QValueList<int> sizes;
   sizes.append( (int)(0.30*QAD_Application::getDesktop()->getMainFrame()->width()) );
   sizes.append( (int)(0.50*QAD_Application::getDesktop()->getMainFrame()->width()) );
-  s1->setSizes( sizes );
+  mySplitter->setSizes( sizes );
 
-  QAD_ASSERT_DEBUG_ONLY ( parent->inherits("QWorkspaceP") );
-  QAD_ASSERT ( QObject::connect( (QWorkspaceP*)parent, SIGNAL(windowActivated(QWidget*)), 
+  QAD_ASSERT_DEBUG_ONLY ( theParent->inherits("QWorkspaceP") );
+  QAD_ASSERT ( QObject::connect( (QWorkspaceP*)theParent, SIGNAL(windowActivated(QWidget*)), 
 				 this, SLOT(onStudyFrameActivated(QWidget*))) );
 }
 
-/*!
-    Constructor
-*/
-QAD_StudyFrame::QAD_StudyFrame(QAD_Study* study, QWidget* parent  ) :
-  QMainWindow ( parent ),
-  myStudy(study)
-{
-}
 
 /*!
     Destructor
@@ -124,6 +120,11 @@ void QAD_StudyFrame::setVisible( bool visible )
 */
 void QAD_StudyFrame::closeEvent(QCloseEvent* e)
 {
+  if ( IsPyLocked() ) {
+    e->ignore();
+    return;
+  }
+
   emit sfStudyFrameClosing(this); 
 }
 
@@ -132,22 +133,22 @@ void QAD_StudyFrame::closeEvent(QCloseEvent* e)
  */
 void QAD_StudyFrame::compressLeft()
 {
-  s1->compress(myLeftFrm);
+  mySplitter->compress(myLeftFrm);
 }
 
 void QAD_StudyFrame::compressRight()
 {
-  s1->compress(myRightFrm);  
+  mySplitter->compress(myRightFrm);  
 }
 
 void QAD_StudyFrame::unCompressLeft()
 {
-  s1->unCompress(myLeftFrm);
+  mySplitter->unCompress(myLeftFrm);
 }
 
 void QAD_StudyFrame::unCompressRight()
 {
-  s1->unCompress(myRightFrm);  
+  mySplitter->unCompress(myRightFrm);  
 }
 
 /*!
@@ -201,5 +202,5 @@ void QAD_StudyFrame::onStudyFrameActivated ( QWidget* activeWindow )
 */
 QAD_PyInterp* QAD_StudyFrame::get_PyInterp(void)
 {
-  return _interp;
+  return myInterp;
 }

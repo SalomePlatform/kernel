@@ -83,11 +83,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if container is None:
                 MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(containerName) + ".object exists but is not a Container" )
             else :
-                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without runSession" )
+                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without new launch" )
             return container
         #shstr = os.getenv( "PWD" ) + "/"
         #shstr += "runSession ./SALOME_ContainerPy.py "
-        shstr = "runSession SALOME_ContainerPy.py "
+        shstr = os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/SALOME_ContainerPy.py ";
+        #shstr = "runSession SALOME_ContainerPy.py "
         shstr += ContainerName
 
         # mpv: fix for SAL4731 - allways create new file to write log of server

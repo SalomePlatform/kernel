@@ -24,6 +24,7 @@
 //  File   : SALOME_DataMapOfIOMapOfInteger_0.cxx
 //  Module : SALOME
 
+using namespace std;
 #include "SALOME_DataMapOfIOMapOfInteger.hxx"
 
 #ifndef _Standard_DomainError_HeaderFile
@@ -47,7 +48,6 @@
 #ifndef _SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger_HeaderFile
 #include "SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger.hxx"
 #endif
-using namespace std;
  
 
 #define TheKey Handle_SALOME_InteractiveObject

@@ -24,11 +24,11 @@
 //  File   : SALOMEDS_SequenceOfRealAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_SequenceOfRealAttribute.ixx"
 #include <TDataStd_Real.hxx>
-using namespace std;
 
 //=======================================================================
 //function : GetID

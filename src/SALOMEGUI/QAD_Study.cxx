@@ -42,6 +42,7 @@
 #include "QAD_ObjectBrowser.h"
 #include "QAD_PyInterp.h"
 #include "QAD_Config.h"
+#include "QAD_PyInterp.h"
  
 #include "utilities.h"
 
@@ -58,58 +59,103 @@
 
 // QT Include
 #include <qapplication.h>
+#include <qthread.h>
+#include <qmutex.h>
+
 using namespace std;
+
+
+#ifdef _DEBUG_
+static int MYDEBUG = 1;
+#else
+static int MYDEBUG = 0;
+#endif
+
+
+class TInitStudyThread : public QThread{
+  TInitStudyThread();
+  TInitStudyThread(const TInitStudyThread&);
+
+public:
+  TInitStudyThread(QAD_PyInterp*& theInterp, QMutex* theMutex): 
+    myInterp(theInterp),
+    myStudyLock(new ThreadLock(theMutex,"TInitStudyThread::TInitStudyThread"))
+  {}
+  virtual ~TInitStudyThread() {
+    if(myStudyLock)
+    delete myStudyLock;
+  }
+
+protected:
+  virtual void run(){
+    {
+      ThreadLock aPyLock = GetPyThreadLock("TInitStudyThread::aPyLock");
+      if(MYDEBUG) MESSAGE("TInitStudyThread::run()");
+      myInterp = new QAD_PyInterp();
+      myInterp->initialize();
+    }
+    delete myStudyLock;
+    myStudyLock = NULL;
+  }
+  
+private:
+  QAD_PyInterp*& myInterp;
+  ThreadLock* myStudyLock;
+};
+
 
 /*!
     Constructor
 */
-QAD_Study::QAD_Study(QAD_Application* app,
-		     SALOMEDS::Study_var aStudy,
-		     const QString& path ) :
-myOperationState( Undef ),
-myApp( app ),
-myActiveStudyFrame( 0 ),
-myStudyFrameCount( 0 ),
-myPath( path )
+QAD_Study::QAD_Study(QAD_Application* theApp,
+		     SALOMEDS::Study_var theStudy,
+		     const QString& thePath):
+  myStudy(theStudy),
+  myOperationState(Undef),
+  myApp(theApp),
+  myActiveStudyFrame(0),
+  myStudyFrameCount(0),
+  myPath(thePath),
+  myTitle(QAD_Tools::getFileNameFromPath(thePath,true)),
+  myIsActive(false),
+  myIsSaved(false),
+  myIsModified(false),
+  myIsReadOnly(false),
+  myResult(true),
+  myInterp(0),
+  myInitStudyThread(0),
+  myMutex(new QMutex())
 {
-    myStudy = aStudy;
+  myStudyFrames.setAutoDelete( true );
+  myOperations.setAutoDelete( true );
+  myChildWidgets.setAutoDelete( true );
+  
+  /* create default selection */
+  //NRI    Selection( "Salome" );
+  Selection( QAD_Application::getDesktop()->getComponentUserName( "KERNEL" ) );
+  
+  /* create python interpreter */
+  myInitStudyThread = new TInitStudyThread(myInterp,myMutex);
+  myInitStudyThread->start();
 
-    myTitle = QAD_Tools::getFileNameFromPath( path, true );
-
-    myIsActive = false;
-    myIsSaved = false;
-    myIsModified = false;
-    myIsReadOnly = false;
-
-    myStudyFrames.clear();
-    myOperations.clear();
-
-    myStudyFrames.setAutoDelete( true );
-    myOperations.setAutoDelete( true );
-    myChildWidgets.setAutoDelete( true );
-
-    /* create python interpreter */
-    _interp = new QAD_PyInterp();
-    SCRUTE(_interp);
-
-    /* create default selection */
-    //NRI    Selection( "Salome" );
-    Selection( QAD_Application::getDesktop()->getComponentUserName( "KERNEL" ) );
-
-    /* create study frame */
-    myResult = true;
-    createStudyFrame( getNextStudyFrameName() );
-
-    /* set default Undo/Redo limit */
-    QAD_ASSERT_DEBUG_ONLY( !myStudy->_is_nil() );
-    SALOMEDS::StudyBuilder_var SB = myStudy->NewBuilder();
-
-    int aLocked = myStudy->GetProperties()->IsLocked();
-    if (aLocked) myStudy->GetProperties()->SetLocked(false);
-    SB->UndoLimit(QAD_Desktop::getUndoLevel());
-    if (aLocked) myStudy->GetProperties()->SetLocked(true);
-
+  /* create study frame */
+  createStudyFrame( getNextStudyFrameName() );
+  
+  /* set default Undo/Redo limit */
+  QAD_ASSERT_DEBUG_ONLY( !myStudy->_is_nil() );
+  SALOMEDS::StudyBuilder_var SB = myStudy->NewBuilder();
+  
+  int aLocked = myStudy->GetProperties()->IsLocked();
+  if (aLocked) myStudy->GetProperties()->SetLocked(false);
+  SB->UndoLimit(QAD_Desktop::getUndoLevel());
+  if (aLocked) myStudy->GetProperties()->SetLocked(true);
 }
+
+
+void QAD_Study::Init()
+{
+}
+
 
 /*!
     Destructor
@@ -119,6 +165,14 @@ QAD_Study::~QAD_Study ()
   close();
   //SRN: added - clear selection in case the study will be loaded again so the title will coincide
   SALOME_Selection::RemoveSelection( QString(myTitle + "_" + mySelection) );
+  {
+    {
+      ThreadLock aLock(myMutex,"QAD_Study::~QAD_Study()");
+      delete myInitStudyThread;
+    }
+    delete myMutex;
+    delete myInterp;
+  }
 }
 
 /*!
@@ -344,10 +398,10 @@ void QAD_Study::setReadOnly(bool state)
 */
 void QAD_Study::onStudyFrameActivated( QAD_StudyFrame* activeStudyFrame )
 {
-  static int IS_FIRST_STUDY = 1;  
-  if(IS_FIRST_STUDY){ //for normally initialize "salome.py and ..."
-    _interp->run("");  IS_FIRST_STUDY = 0;
-  }
+//  static int IS_FIRST_STUDY = 1;  
+//  if(IS_FIRST_STUDY){ //for normally initialize "salome.py and ..."
+//    _interp->run("");  IS_FIRST_STUDY = 0;
+//  }
 //  bool found = false;
   for ( QAD_StudyFrame* studyframe = myStudyFrames.first(); studyframe; studyframe = myStudyFrames.next() ) {
     if ( studyframe == activeStudyFrame) {		/* one of my study frames */
@@ -591,7 +645,8 @@ QAD_StudyFrame* QAD_Study::createStudyFrame( const QString& title, ViewType theV
   if ( theViewType == VIEW_OCC) {
     //      MESSAGE ("Create Study Frame for OCC viewer");
     sf = new QAD_StudyFrame ( this, parent->getMainFrame(),
-			      title, _interp, VIEW_OCC );
+			      title, VIEW_OCC,
+			      myInterp, myMutex );
     
     Standard_CString name = strdup(sf->title().latin1());
     anAttr = aStudyBuilder->FindOrCreateAttribute(newObj, "AttributeName");
@@ -608,7 +663,8 @@ QAD_StudyFrame* QAD_Study::createStudyFrame( const QString& title, ViewType theV
   else if ( theViewType == VIEW_VTK) {
     //      MESSAGE ("Create Study Frame for VTK viewer");
     sf = new QAD_StudyFrame ( this, parent->getMainFrame(),
-			      title, _interp, VIEW_VTK );
+			      title, VIEW_VTK,
+			      myInterp, myMutex );
     Standard_CString name = strdup(sf->title().latin1());
     anAttr = aStudyBuilder->FindOrCreateAttribute(newObj, "AttributeName");
     aName = SALOMEDS::AttributeName::_narrow(anAttr);
@@ -624,7 +680,8 @@ QAD_StudyFrame* QAD_Study::createStudyFrame( const QString& title, ViewType theV
   else if ( theViewType == VIEW_GRAPHSUPERV) { 
     //MESSAGE ("Create Study Frame for SUPER`VISOR Graph");
     sf = new QAD_StudyFrame ( this, parent->getMainFrame(),
-			      title, _interp, VIEW_GRAPHSUPERV );
+			      title, VIEW_GRAPHSUPERV,
+			      myInterp, myMutex );
     Standard_CString name = strdup(sf->title().latin1());
     anAttr = aStudyBuilder->FindOrCreateAttribute(newObj, "AttributeName");
     aName = SALOMEDS::AttributeName::_narrow(anAttr);
@@ -639,7 +696,8 @@ QAD_StudyFrame* QAD_Study::createStudyFrame( const QString& title, ViewType theV
   }
   else if ( theViewType == VIEW_PLOT2D ) {
     sf = new QAD_StudyFrame ( this, parent->getMainFrame(),
-			      title, _interp, VIEW_PLOT2D );
+			      title, VIEW_PLOT2D,
+			      myInterp, myMutex );
     Standard_CString name = strdup(sf->title().latin1());
     anAttr = aStudyBuilder->FindOrCreateAttribute(newObj, "AttributeName");
     aName = SALOMEDS::AttributeName::_narrow(anAttr);
@@ -1245,7 +1303,7 @@ QString QAD_Study::getNextStudyFrameName()
 */
 QAD_PyInterp* QAD_Study::get_PyInterp(void)
 {
-  return _interp;
+  return myInterp;
 }
 
 /*!

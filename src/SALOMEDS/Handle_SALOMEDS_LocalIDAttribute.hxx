@@ -24,7 +24,7 @@
 //  File   : Handle_SALOMEDS_LocalIDAttribute.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef _Handle_SALOMEDS_LocalIDAttribute_HeaderFile
 #define _Handle_SALOMEDS_LocalIDAttribute_HeaderFile

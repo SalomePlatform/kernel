@@ -10,18 +10,17 @@
 //  $Header$
 
 #include "PyInterp_PyQt.h"
-
 #include "utilities.h"
+
 using namespace std;
 
-extern "C" PyObject * PyEval_EvalCode(PyObject *co, PyObject *g, PyObject *l);
 
 /*!
  * constructor : the main SALOME Python interpreter is used for PyQt GUI.
  * calls initialize method defined in base class, which calls virtual methods
  * initstate & initcontext redefined here
  */
-PyInterp_PyQt::PyInterp_PyQt()
+PyInterp_PyQt::PyInterp_PyQt(): PyInterp_base()
 {
   initialize();
 }
@@ -32,7 +31,6 @@ PyInterp_PyQt::~PyInterp_PyQt()
 
 void PyInterp_PyQt::initState()
 {
-  salomeAcquireLock();           //acquire python global lock (one for all interpreters)
   SCRUTE(PyInterp_base::_gtstate);
   _tstate=PyInterp_base::_gtstate;
   PyThreadState_Swap(_tstate);
@@ -47,49 +45,23 @@ void PyInterp_PyQt::initContext()
   Py_DECREF(bimod);
 }
 
-void PyInterp_PyQt::enter()
-{
-  PyThreadState *oldstate;
-  SCRUTE(_tstate);
-  salomeAcquireLock();
-  oldstate=PyThreadState_Swap(_tstate);
-  SCRUTE(oldstate);
-}
-
-void PyInterp_PyQt::quit()
-{
-  MESSAGE("quit");
-  salomeReleaseLock();
-  MESSAGE("fin quit");
-}
-
 void PyInterp_PyQt::run(const char *command)
 {
-  PyObject *code,*r;
-  enter();
   MESSAGE("compile");
-  code=Py_CompileString((char *)command,"PyGUI",Py_file_input);
-  if (code == NULL)
-    {
-      /*
-	Une erreur s est produite en general SyntaxError
-      */
-      PyErr_Print();
-      quit();
-      return;
-    }
-  r  = PyEval_EvalCode(code,_g,_g);
+  PyLockWrapper aLock(_tstate);
+  PyObject *code = Py_CompileString((char *)command,"PyGUI",Py_file_input);
+  if(!code){
+    // Une erreur s est produite en general SyntaxError
+    PyErr_Print();
+    return;
+  }
+  PyObject *r = PyEval_EvalCode(code,_g,_g);
   Py_DECREF(code);
-  if (r==NULL)
-    {
-      /*
-	Une erreur s est produite a l execution
-      */
-      PyErr_Print();
-      quit();
-      return;
-    }
+  if(!r){
+    // Une erreur s est produite a l execution
+    PyErr_Print();
+    return;
+  }
   Py_DECREF(r);
-  quit();
 }
 

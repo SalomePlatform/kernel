@@ -54,6 +54,9 @@ public:
   void ChangeValue(CORBA::Long index, CORBA::Double value);
   CORBA::Double Value(CORBA::Short index);
   CORBA::Long Length();
+
+  char* Store();
+  void Restore(const char*);
 };
 
 

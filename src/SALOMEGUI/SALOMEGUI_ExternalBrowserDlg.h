@@ -1,7 +1,7 @@
 //  File   : SALOMEGUI_ExternalBrowserDlg.h
 //  Author : Michael Zorin
 //  Module : SALOME
-//  $Header: /dn05/salome/CVS/SALOME_ROOT/SALOME/src/SALOMEGUI/SALOMEGUI_ExternalBrowserDlg.h
+//  $Header$
 
 #ifndef SALOMEGUI_EXTERNAL_BROWSER_DLG_H
 #define SALOMEGUI_EXTERNAL_BROWSER_DLG_H

@@ -149,6 +149,13 @@ public:
   */  
   virtual SALOMEDS::SObject_ptr FindObjectID(const char* anObjectID);
 
+  //! method to Create an Object with ID = anObjectID 
+  /*!
+    \param anObjectID char* arguments
+    \return SObject_ptr arguments, the object found
+  */  
+  virtual SALOMEDS::SObject_ptr CreateObjectID(const char* anObjectID);
+
   //! method to Find an Object with ID = anObjectIOR 
   /*!
     \param anObjectIOR char* arguments
@@ -260,7 +267,6 @@ public:
     \param url char* arguments, the study URL
   */
   virtual void  URL(const char* url);
-
 
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);

@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_ResourceMgr QAD_ResourceMgr.h
   \brief ResourceMgr QAD-based application.
@@ -45,7 +46,6 @@
 #include <qfileinfo.h>
 
 #include <Standard.hxx>
-using namespace std;
 
 /* configuration file */
 static const char* CONFIG_FILE = "config";
@@ -56,6 +56,7 @@ static const char* RES_DOCS     = "docs";
 static const char* RES_PIXMAPS  = "icons";
 static const char* RES_STRINGS  = "strings";
 static const char* RES_LANGUAGE = "language";
+static const char* RES_FILES    = "resources";
 
 static const char* SEPARATOR    = ":";
 
@@ -125,8 +126,11 @@ bool QAD_ResourceMgr::loadResources( const char* prefix, QString &msg )
     */
     QString resDirs = collectDirs( prefix );
     conf.insert( RES_DIR, new QString( resDirs ) );
-    QString fileConfig = path( CONFIG_FILE, prefix, 0 ) ;
+    QString fileConfig = QString( prefix ) + QString( "." ) + QString( CONFIG_FILE );
+    fileConfig = path( fileConfig, prefix, 0 ) ;
     //MESSAGE("QAD_ResourceMgr::loadresources : config : "<<fileConfig);
+    if ( fileConfig.isEmpty() )
+      fileConfig = path( CONFIG_FILE, prefix, 0 ) ;
     if ( !fileConfig.isEmpty() ) {
       QFile configFile( fileConfig );
       if ( !configFile.exists() || !configFile.open( IO_ReadOnly ) ) {
@@ -168,20 +172,37 @@ bool QAD_ResourceMgr::loadResources( const char* prefix, QString &msg )
     bool bLoadString = false;
     bool bLoadImages = false;
 
-    QStringList dirList = QStringList::split( SEPARATOR, resDirs, false ); // skip empty entries
-    for ( int i = dirList.count()-1; i >= 0; i-- ) {
-      QString dir = dirList[ i ];
-      QString fileString = QAD_Tools::addSlash( dir ) + stFile;
-      QString fileImage  = QAD_Tools::addSlash( dir ) + imagesFile;
-      
-      if ( settings->load( fileString ) ) {
-	bLoadString = true;
-      }
-      if ( settings->load( fileImage ) ) {
-	bLoadImages = true;
-      }
-    }
+    QStringList resFiles = conf[ RES_FILES ] ? QStringList::split( SEPARATOR, *( conf[ RES_FILES ] ), false ) : QStringList();
     
+    // first load main module's resources
+    QString fileString = path( stFile, prefix, 0 );
+    QString fileImage  = path( imagesFile, prefix, 0 );
+    
+    if ( !fileString.isEmpty() && settings->load( fileString ) ) {
+      bLoadString = true;
+    }
+    if ( !fileImage.isEmpty() && settings->load( fileImage ) ) {
+      bLoadImages = true;
+    }
+
+    // then load additional module's resources if any are given
+    for ( int j = 0; j < resFiles.count(); j++ ) {
+      QString stFileAdd = resFiles[j] + "_msg_" +  *( conf[ RES_LANGUAGE ] ) + ".qm" ;
+      QString imagesFileAdd = resFiles[j] + "_" + RES_PIXMAPS + ".qm";
+      if ( conf[ RES_STRINGS ] && !conf[ RES_STRINGS ]->isEmpty() )
+	stFileAdd = QAD_Tools::addSlash( *conf[ RES_STRINGS ] ) + stFileAdd;
+      if ( conf[ RES_PIXMAPS ] && !conf[ RES_PIXMAPS ]->isEmpty() )
+	imagesFileAdd = QAD_Tools::addSlash( *conf[ RES_PIXMAPS ] ) + imagesFileAdd;
+      
+      QString fileStringAdd = path( stFileAdd, prefix, 0 );
+      QString fileImageAdd  = path( imagesFileAdd, prefix, 0 );
+      
+      if ( !fileStringAdd.isEmpty() )
+	settings->load( fileStringAdd );
+      if ( !fileImageAdd.isEmpty() )
+	settings->load( fileImageAdd );
+    }
+
     if ( !bLoadString ) {
       QString warnMsg;
       warnMsg.sprintf( "String resources for module %s not found.\n"
@@ -241,14 +262,14 @@ QString QAD_ResourceMgr::resources( const char* prefix ) const
   can be situated
   The order is following : 
   - <prefix>_ROOT_DIR/share/salome/resources directory
-  - CSF_<prefix>Resources env.var directory ( or directory list )
+  - SALOME_<prefix>Resources env.var directory ( or directory list )
   - ${HOME}/.salome/resources directory
   - KERNEL_ROOT_DIR/share/salome/resources directory
 */
 QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
 {
   QString dirList;
-  QCString envVar( "CSF_" );
+  QCString envVar;
   QString dir;
   char* cenv;
   
@@ -270,9 +291,9 @@ QString QAD_ResourceMgr::collectDirs( const QString& prefix ) const
     }
   }
 
-  // Try CSF_<prefix>Resources env.var directory ( or directory list )
+  // Try SALOME_<prefix>Resources env.var directory ( or directory list )
   if ( !prefix.isEmpty() ) {
-    envVar = QCString( "CSF_" ) + prefix.latin1() + QCString( "Resources" );
+    envVar = QCString( "SALOME_" ) + prefix.latin1() + QCString( "Resources" );
     cenv = getenv( ( const char* ) envVar );
     if ( cenv ) {
       dir.sprintf( "%s", cenv );
@@ -357,8 +378,6 @@ QString QAD_ResourceMgr::findFile( const QString& filename, const char* prefix )
 */
 QString QAD_ResourceMgr::path( const QString& filename, const char* prefix, const char* key ) const
 {   
-  QString filePath;
-
   ResourceSettings* rs = myRes[ prefix ];
   if ( rs ) {
     StringDict& conf = rs->config();
@@ -369,22 +388,20 @@ QString QAD_ResourceMgr::path( const QString& filename, const char* prefix, cons
       for ( int i = 0; i < dirList.count(); i++ ) {
 	QString dir = dirList[ i ];
 	dir = QAD_Tools::addSlash( dir );
-	if ( key ) {
-	  QString* where = conf[ key ];
-	  if ( where )
-	    dir = dir + QAD_Tools::addSlash( *where );
+	if ( key && conf[ key ] ) {
+	  dir = dir + QString( *( conf[ key ] ) );
+	  dir = QAD_Tools::addSlash( dir );
 	}
 	dir = dir + filename;
 	QFileInfo fileInfo( dir );
 	if ( fileInfo.isFile() && fileInfo.exists() ) {
-	  filePath = fileInfo.filePath();
-	  break;
+	  return fileInfo.filePath();
 	}
       }
     }
   }
   //MESSAGE("QAD_ResourceMgr::path : <"<<filename.latin1()<<"> : "<<filePath.latin1()) ;
-  return filePath;
+  return QString::null;
 }
 
 /*!

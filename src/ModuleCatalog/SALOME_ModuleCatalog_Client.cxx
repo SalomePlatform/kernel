@@ -33,9 +33,17 @@
 #include "utilities.h"
 using namespace std;
 
+void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
+		  const string & InterfaceName,
+		  const string & ServiceName);
+
+void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
+		    const string & InterfaceName);
+
+void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C);
+
 int main(int argc,char **argv)
 {
-  char* name_to_find = "Geometry";
 
   CORBA::ORB_var orb;
   CosNaming::NamingContext_var _rootContext;
@@ -51,26 +59,31 @@ int main(int argc,char **argv)
   SALOME_NamingService NS(orb);
   CORBA::Object_var objVarN = NS.Resolve("/Kernel/ModulCatalog");
 
-   SALOME_ModuleCatalog::ModuleCatalog_var Catalogue  = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objVarN); 
+   SALOME_ModuleCatalog::ModuleCatalog_var Catalogue 
+     = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objVarN); 
    MESSAGE("Distant catalog of component found")
 
      // Get component list
-   SALOME_ModuleCatalog::ListOfComponents_var list_composants = Catalogue->GetComponentList();
+   SALOME_ModuleCatalog::ListOfComponents_var list_composants 
+     = Catalogue->GetComponentList();
 
 
    // Typed component list
    MESSAGE("Get Typed Component list (GEOM Type)");
-   SALOME_ModuleCatalog::ListOfComponents_var list_typed_composants = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::GEOM);
+   SALOME_ModuleCatalog::ListOfComponents_var list_typed_composants 
+     = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::GEOM);
    for (unsigned int ind = 0; ind < list_typed_composants->length();ind++)
      MESSAGE("Component GEOM list : " << list_typed_composants[ind]);      
 
    MESSAGE("Get Typed Component list (SUPERV Type)");
-   SALOME_ModuleCatalog::ListOfComponents_var list_styped_composants = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::SUPERV);
-   for (unsigned int ind = 0; ind < list_styped_composants->length();ind++)
-      MESSAGE("Component SUPERV list : " << list_styped_composants[ind]);
+   list_typed_composants 
+     = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::SUPERV);
+   for (unsigned int ind = 0; ind < list_typed_composants->length();ind++)
+      MESSAGE("Component SUPERV list : " << list_typed_composants[ind]);
 
    // Get list of couple (component name, component icone)
-   SALOME_ModuleCatalog::ListOfIAPP_Affich_var list_composants_icone = Catalogue->GetComponentIconeList();
+   SALOME_ModuleCatalog::ListOfIAPP_Affich_var list_composants_icone 
+     = Catalogue->GetComponentIconeList();
    for (unsigned int ind = 0; ind < list_composants_icone->length();ind++)
      {
        MESSAGE("Component name: " << list_composants_icone[ind].modulename);
@@ -85,10 +98,7 @@ int main(int argc,char **argv)
       exit (-1);
    }
  
-   MESSAGE("Component of name : " <<  Geom->componentname() << " created ");
-   MESSAGE("Component type : " << Geom->component_type() << " multistudy : " <<Geom->multistudy());
-   MESSAGE("Component constraint : " << Geom->constraint());
-   MESSAGE("Component icone : " << Geom->component_icone());
+   PrintComponent(Geom);
 
      // Obtain another component
    SALOME_ModuleCatalog::Acomponent_ptr Superv = Catalogue->GetComponent("Supervision");
@@ -97,11 +107,7 @@ int main(int argc,char **argv)
      INFOS("Catalog Error : Component Supervision not found in the catalog")
       exit (-1);
    }
- 
-   MESSAGE("Component of name : " <<  Superv->componentname() << " created ");
-   MESSAGE("Component type : " << Superv->component_type() << " multistudy : " <<Superv->multistudy());
-   MESSAGE("Component constraint : " << Superv->constraint());
-   MESSAGE("Component icone : " << Superv->component_icone());
+   PrintComponent(Superv);
 
      // obtain prefix path for a computer
    char* path;
@@ -111,93 +117,6 @@ int main(int argc,char **argv)
    // obtain prefix path for a computer
    path =Geom->GetPathPrefix("eri");
    MESSAGE("Path prefix pour eri : " << path);
-
-   // obtain interfaces list of the component
-   SALOME_ModuleCatalog::ListOfInterfaces_var _list = new SALOME_ModuleCatalog::ListOfInterfaces;
-   _list = Geom->GetInterfaceList();
-   for (unsigned int ind = 0; ind < _list->length();ind++)
-     MESSAGE("Interface name : " << _list[ind]);
-
-   // obtain interfaces list of the component
-   SALOME_ModuleCatalog::ListOfInterfaces_var _list1 = new SALOME_ModuleCatalog::ListOfInterfaces;
-   _list1 = Superv->GetInterfaceList();
-   for (unsigned int ind = 0; ind < _list1->length();ind++)
-     MESSAGE("Interface name : " << _list1[ind])
-
-   	
-   // Obtain one interface of a component
-   SALOME_ModuleCatalog::DefinitionInterface_var _interf = new SALOME_ModuleCatalog::DefinitionInterface;
-   _interf = Geom->GetInterface("Geometry");
-   MESSAGE ("Interface " << _interf->interfacename << " getted")
-   for (unsigned int ind = 0; ind < _interf->interfaceservicelist.length();ind++)
-     MESSAGE("Service name : " << _interf->interfaceservicelist[ind].ServiceName)
-
-
-   // obtain services list of the component
-   	
-   SALOME_ModuleCatalog::ListOfServices_var list_services_component = new SALOME_ModuleCatalog::ListOfServices;
-   list_services_component = Geom->GetServiceList("Geometry");
-   for (unsigned int ind = 0; ind < list_services_component->length();ind++)
-       MESSAGE("Service name : " << list_services_component[ind])
-
-
-    // Get a service of the component
-
-   SALOME_ModuleCatalog::Service_var second_service = new SALOME_ModuleCatalog::Service;
-    second_service = Geom->GetDefaultService("Geometry");
-
-    MESSAGE("Default Service name: " << second_service->ServiceName)
-   for (unsigned int ind1 = 0; ind1 <second_service->ServiceinParameter.length();ind1++)
-     {
-       MESSAGE("Type of the in Parameter of this service : " << second_service->ServiceinParameter[ind1].Parametertype)
-       MESSAGE("Name of the in Parameter of this service : " << second_service->ServiceinParameter[ind1].Parametername)
-     }
-   for (unsigned int ind1 = 0; ind1 <second_service->ServiceoutParameter.length();ind1++)
-     {
-       MESSAGE("Type of the out Parameter of this service : " << second_service->ServiceoutParameter[ind1].Parametertype)
-       MESSAGE("Name of the out Parameter of this service : " << second_service->ServiceoutParameter[ind1].Parametername)
-     }
-
-
-
-    second_service = Geom->GetDefaultService("Geometry");
-
-    MESSAGE("Default Service name: " << second_service->ServiceName)
-   for (unsigned int ind1 = 0; ind1 <second_service->ServiceinParameter.length();ind1++)
-     {
-       MESSAGE("Type of the in Parameter of this service : " << second_service->ServiceinParameter[ind1].Parametertype)
-       MESSAGE("Name of the in Parameter of this service : " << second_service->ServiceinParameter[ind1].Parametername)
-     }
-   for (unsigned int ind1 = 0; ind1 <second_service->ServiceoutParameter.length();ind1++)
-     {
-       MESSAGE("Type of the out Parameter of this service : " << second_service->ServiceoutParameter[ind1].Parametertype)
-       MESSAGE("Name of the out Parameter of this service : " << second_service->ServiceoutParameter[ind1].Parametername)
-     }
-
-
-
-   // Get service of the component
-   	
-   SALOME_ModuleCatalog::Service_var service_1 = new SALOME_ModuleCatalog::Service;
-
-   service_1 = Geom->GetService("Geometry","MakeSphere") ;
-
-   MESSAGE("Service name: " << service_1->ServiceName)
-   for (unsigned int ind1 = 0; ind1 <service_1->ServiceinParameter.length();ind1++)
-     {
-       MESSAGE("Type of the in Parameter of this service : " << service_1->ServiceinParameter[ind1].Parametertype)
-       MESSAGE("Name of the in Parameter of this service : " << service_1->ServiceinParameter[ind1].Parametername)
-     }
-
-   for (unsigned int ind1 = 0; ind1 <service_1->ServiceoutParameter.length();ind1++)
-     {
-       MESSAGE("Type of the out Parameter of this service : " << service_1->ServiceoutParameter[ind1].Parametertype)
-       MESSAGE("Name of the out Parameter of this service : " << service_1->ServiceoutParameter[ind1].Parametername)
-     }
-
-   // Test levée exception
-   service_1 = Geom->GetService("BOX","makeBox") ;
-
 
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){
@@ -231,16 +150,101 @@ int main(int argc,char **argv)
   return 0;
 }
 
+void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
+{
+  const char *_name = C->componentname();
+
+  MESSAGE("Name : " <<  C->componentname());
+  MESSAGE("Type : " << C->component_type() << " multistudy : " << C->multistudy());
+  MESSAGE("Constraint : " << C->constraint());
+  MESSAGE("Icon : " << C->component_icone());
+
+  // obtain interfaces list of the component
+
+  SALOME_ModuleCatalog::ListOfInterfaces_var _list = C->GetInterfaceList();
+  for (unsigned int i = 0; i < _list->length();i++) {
+    const char * s =  _list[i];
+    PrintInterface(C, s);
+  }
+}
 
 
+void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
+		    const string & InterfaceName)
+{
+  unsigned int i, n;
+   	
+   SALOME_ModuleCatalog::DefinitionInterface_var _interf 
+     = C->GetInterface(InterfaceName.c_str());
+   MESSAGE ("Interface : " << _interf->interfacename);
 
+   SALOME_ModuleCatalog::ListOfInterfaceService S = _interf->interfaceservicelist;
+   n = S.length();
+   for (i = 0; i < n; i++) {
+     const char * _S = S[i].ServiceName;
+     PrintService(C, InterfaceName, _S);
+   }
+}
 
+void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
+		  const string & InterfaceName,
+		  const string & ServiceName)
+{
+  int i, n;
 
+   SALOME_ModuleCatalog::Service_var Service 
+     = (ServiceName.compare("") == 0)
+     ? C->GetDefaultService(InterfaceName.c_str())
+     : C->GetService(InterfaceName.c_str(), ServiceName.c_str());
 
+   MESSAGE("Service : " << Service->ServiceName);
+   
+   MESSAGE("In Parameter(s):");
+   n = Service->ServiceinParameter.length();
+   for (i = 0; i<n; i++)
+     {
+       MESSAGE("  Parameter       " 
+	       << Service->ServiceinParameter[i].Parametername);
+       MESSAGE("  Type          : "
+	       << Service->ServiceinParameter[i].Parametertype);
+     }
+   
+   MESSAGE("Out Parameter(s):");
+   n = Service->ServiceoutParameter.length();
+   for (i = 0; i<n; i++)
+     {
+       MESSAGE("  Parameter       " 
+	       << Service->ServiceoutParameter[i].Parametername);
+       MESSAGE("  Type          : "
+	       << Service->ServiceoutParameter[i].Parametertype);
+     }
+   
+   MESSAGE("In DataStreamParameter(s):");
+   n = Service->ServiceinDataStreamParameter.length();
+   for (i = 0; i<n; i++)
+     {
+       MESSAGE("  Parameter " 
+	       << Service->ServiceinDataStreamParameter[i].Parametername);
+       MESSAGE("  Type          : "
+	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+       MESSAGE("  Dependency    : "
+	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+     }
+   
+   MESSAGE("Out DataStreamParameter(s):");
+   n = Service->ServiceoutDataStreamParameter.length();
+   for (i = 0; i<n; i++)
+     {
+       MESSAGE("  Parameter " 
+	       << Service->ServiceoutDataStreamParameter[i].Parametername);
+       MESSAGE("  Type          : "
+	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+       MESSAGE("  Dependency    : "
+	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+     }
+   
 
-
-
-
+}
 
 
 

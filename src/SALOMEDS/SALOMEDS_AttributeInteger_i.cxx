@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() {
@@ -38,4 +38,16 @@ CORBA::Long SALOMEDS_AttributeInteger_i::Value() {
 void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) {
   CheckLocked();
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(value);
+}
+
+char* SALOMEDS_AttributeInteger_i::Store() {
+  char* IntVal = new char[25];
+  sprintf(IntVal, "%d", Value());
+  return IntVal;
+}
+
+void SALOMEDS_AttributeInteger_i::Restore(const char* value) {
+  char *err = NULL;
+  CORBA::Long l =  atol(value);
+  SetValue(l);
 }

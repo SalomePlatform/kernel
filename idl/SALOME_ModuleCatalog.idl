@@ -58,11 +58,34 @@ This struct contains fields defining the parameter of the service.
     string Parametername; /*!<Name of the parameter.*/
   } ;
 
+  enum DataStreamDependency {
+    DATASTREAM_UNDEFINED,
+    DATASTREAM_TEMPORAL,
+    DATASTREAM_ITERATIVE
+  } ;
+
+  enum DataStreamType {
+    DATASTREAM_UNKNOWN,
+    DATASTREAM_INTEGER,
+    DATASTREAM_FLOAT,
+    DATASTREAM_DOUBLE,
+    DATASTREAM_STRING,
+    DATASTREAM_BOOLEAN
+  } ;
+
+  struct ServicesDataStreamParameter
+  {
+    DataStreamType Parametertype; /*!<Type of the parameter.*/
+    string Parametername;         /*!<Name of the parameter.*/
+    DataStreamDependency Parameterdependency; /*!<Temporal or iterative dependency.*/
+  } ;
+
 /*! 
 The list of the parameters of service.
 */
 
   typedef sequence<ServicesParameter> ListOfServicesParameter;
+  typedef sequence<ServicesDataStreamParameter> ListOfServicesDataStreamParameter;
 
 /*! 
 This struct contains fields completely defining each service.
@@ -70,10 +93,13 @@ This struct contains fields completely defining each service.
 
   struct Service
   {
-    string                  ServiceName; /*!<Name of the service.*/
-    ListOfServicesParameter ServiceinParameter; /*!< List of input parameters of the services.*/
-    ListOfServicesParameter ServiceoutParameter; /*!< List of output parameters of the services.*/
-    boolean                 Servicebydefault; /*!<True if the service is taken with its defult fields.*/
+    string                            ServiceName; /*!<Name of the service.*/
+    ListOfServicesParameter           ServiceinParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesParameter           ServiceoutParameter; /*!< List of output parameters of the services.*/
+    ListOfServicesDataStreamParameter ServiceinDataStreamParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesDataStreamParameter ServiceoutDataStreamParameter; /*!< List of output parameters of the services.*/
+    boolean                           Servicebydefault; /*!<True if the service is taken with its default fields.*/
+    boolean                           TypeOfNode; /*!<True is the service is a factory node. Otherwise, it's a compute node.*/
   } ;
 /*! 
 List of services of the interface.
@@ -99,6 +125,37 @@ List of interface definitions.
 List of names of interfaces.
 */
   typedef sequence<string> ListOfInterfaces ;
+
+/*!
+PathPrefix : association of a machine name and
+a path to a component
+*/
+  struct PathPrefix {
+    string             machine;
+    string             path;
+  };
+
+/*! 
+List of path prefixes
+*/
+  typedef sequence<PathPrefix> PathPrefixes;
+
+/*!
+Description of a component
+*/
+  struct Component
+  {
+    ComponentType      type;
+    string             name;
+    string             username;
+    boolean            multistudy;
+    boolean            implementationType;
+    string             icon;
+    string             constraint;
+    ListOfDefInterface interfaces;
+    PathPrefixes       paths;
+  };
+
 /*! 
 List of names of components.
 */
@@ -200,36 +257,42 @@ List of pair GUI elements (component name, component icone)
     string GetPathPrefix(in string machinename) raises(NotFound);
 
 /*! 
-    Sets/gets the constraint affected to the component 
+    Get the constraint affected to the component 
     (to be resolved by LifeCycle for the computer choice)
 */
     readonly attribute string constraint ;
 
 /*! 
-Sets/gets the name of the component
+Get the name of the component
 */
     readonly attribute string componentname;
 
 /*!
-Sets/gets the user name of the component
+Get the user name of the component
 */
     readonly attribute string componentusername;
 
 /*! 
-Defines whether the component is multistudy or not
+Ask whether the component is multistudy or not
 */
     readonly attribute boolean multistudy;
 
 /*! 
-Defines the type of the component
+Ask the type of the component
 */
     readonly attribute ComponentType component_type ;
 
 /*! 
-Sets/gets the icone of the component (for IAPP)
+Gets the icone of the component (for IAPP)
 */
     readonly attribute string component_icone;
+
+/*! 
+Gets the implementation type of the component : C++ or Python (for IAPP)
+*/
+    readonly attribute boolean implementation_type;
   } ;
+
 /*! \brief %Module catalog interface
 
 This interface is used for creation of the module catalog in %SALOME application.
@@ -268,5 +331,18 @@ Gets a list of names of components of a particular type, which belong to this ca
 Gets one component of the catalog.
 */
     Acomponent GetComponent(in string componentname) raises(NotFound);
+
+/*! 
+Gets the description of a component of the catalog.
+*/
+    Component GetComponentInfo(in string componentName) raises(NotFound);
+
+/*!
+Reads a xml file and imports new components from this file.
+New components replace existing components with the same name.
+*/
+    void ImportXmlCatalogFile(in string filename) raises(NotFound);
+
+    void shutdown();
   } ;
 };

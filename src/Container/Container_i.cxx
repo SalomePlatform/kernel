@@ -120,7 +120,6 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   // Pour les containers paralleles: il ne faut pas enregistrer le container generique, mais le container specialise
   if(regist){
-
     //   _NS = new SALOME_NamingService(_orb);
     _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
     ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
@@ -131,7 +130,6 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str()); 
   }
-
 }
 
 Engines_Container_i::~Engines_Container_i()
@@ -156,7 +154,7 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
-  // Kill current container
+//! Kill current container
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
           << _containerName.c_str() << " machineName "
@@ -164,7 +162,7 @@ bool Engines_Container_i::Kill_impl() {
   exit( 0 ) ;
 }
 
-// Launch a new container from the current container
+//! Launch a new container from the current container
 Engines::Container_ptr Engines_Container_i::start_impl(
                                       const char* ContainerName ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
@@ -354,7 +352,7 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
     }
   }
   catch (...) {
-    MESSAGE( "Container_i::load_impl catched" ) ;
+    INFOS( "Container_i::load_impl catched" ) ;
   }
 
 //Jr  _numInstanceMutex.lock() ; // lock on the add on handle_map (necessary ?)
@@ -426,7 +424,6 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
           << "              si_pid   " << siginfo->si_pid) ;
   if ( _Sleeping ) {
     _Sleeping = false ;
-    INFOS("SigIntHandler END sleeping.")
     MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
@@ -437,14 +434,12 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     else {
       _Sleeping = true ;
-      INFOS("SigIntHandler BEGIN sleeping.")
       MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
       }
-      INFOS("SigIntHandler LEAVE sleeping after " << count << " s.")
       MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
     return ;

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 char* SALOMEDS_AttributePersistentRef_i::Value()
 {
@@ -43,4 +43,12 @@ void SALOMEDS_AttributePersistentRef_i::SetValue(const char* value)
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
+}
+
+char* SALOMEDS_AttributePersistentRef_i::Store() {
+  return Value();
+}
+
+void SALOMEDS_AttributePersistentRef_i::Restore(const char* value) {
+  SetValue(value);
 }

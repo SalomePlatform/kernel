@@ -53,6 +53,10 @@ public:
 				    SALOMEDS::LongSeq_out theMonths,
 				    SALOMEDS::LongSeq_out theYears,
 				    CORBA::Boolean theWithCreator);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

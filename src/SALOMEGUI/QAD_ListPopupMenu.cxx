@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include "QAD_ListPopupMenu.h"
 using namespace std;
+#include "QAD_ListPopupMenu.h"
 
 /*!
   Constructor.

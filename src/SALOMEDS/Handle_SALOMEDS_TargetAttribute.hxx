@@ -24,7 +24,7 @@
 //  File   : Handle_SALOMEDS_TargetAttribute.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef _Handle_SALOMEDS_TargetAttribute_HeaderFile
 #define _Handle_SALOMEDS_TargetAttribute_HeaderFile

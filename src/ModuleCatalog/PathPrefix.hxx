@@ -25,6 +25,7 @@
 //  Author : Estelle Deville
 //  Module : SALOME
 //  $Header$
+//  
 
 #ifndef PATH_PREFIX_H
 #define PATH_PREFIX_H
@@ -35,7 +36,7 @@
 struct PathPrefix
 {
   string path ;
-  vector<string> ListOfComputer ;
+  vector<string> listOfComputer ;
 } ;
 
 typedef vector<PathPrefix> ListOfPathPrefix ;

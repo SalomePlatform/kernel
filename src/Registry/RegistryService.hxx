@@ -34,6 +34,7 @@
 
 # include <map>
 
+using namespace std;
 
 class RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {
@@ -87,10 +88,10 @@ protected :
 
 	const char		*_SessionName ;
 	int			 _Compteur ;
-	std::map<int,client_infos *>	 _reg ;
-	std::map<int,client_infos *>	 _fin ;
+	map<int,client_infos *>	 _reg ;
+	map<int,client_infos *>	 _fin ;
 
-	Registry::AllInfos* makeseq(std::map<int,client_infos *> &mymap );
+	Registry::AllInfos* makeseq(map<int,client_infos *> &mymap );
 
 } ;
 

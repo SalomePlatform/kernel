@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class OCCViewer_Viewer3d OCCViewer_Viewer3d.h
   \brief Open CASCADE Viewer 3D with viewport 3D and selection.
@@ -55,7 +56,6 @@
 #include <Geom_Axis2Placement.hxx>
 #include <AIS_ListOfInteractive.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
-using namespace std;
 
 /*!
     Constructor

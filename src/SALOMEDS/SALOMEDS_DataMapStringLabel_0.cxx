@@ -24,8 +24,9 @@
 //  File   : SALOMEDS_DataMapStringLabel_0.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_DataMapStringLabel.hxx"
 
 #ifndef _Standard_DomainError_HeaderFile
@@ -46,7 +47,6 @@
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 #endif
-using namespace std;
  
 
 #define TheKey TCollection_ExtendedString

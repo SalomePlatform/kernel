@@ -74,6 +74,10 @@ public:
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 #endif

@@ -18,19 +18,20 @@
 class QAD_EXPORT QAD_WaitCursor {
  public:
 // constructor
-     QAD_WaitCursor() : myStarted(false) { start(); }
+     QAD_WaitCursor() : myStarted( false ), myDepth( 1 ) { start(); }
 // destructor
-     ~QAD_WaitCursor()   { stop();  }
+     ~QAD_WaitCursor()   { if ( !myStarted ) { myDepth--; start(); } else { QApplication::restoreOverrideCursor(); } }
 
 // sets WAIT cursor if not set yet
-     void    start()     { if (!myStarted) { QApplication::setOverrideCursor(Qt::waitCursor); myStarted = true; } }
+     void    start()     { if ( !myStarted ) { while( myDepth-- ) QApplication::setOverrideCursor( Qt::waitCursor ); myStarted = true; } myDepth = 0; }
 // clears WAIT cursor if set
-     void    stop()      { if (myStarted)  { QApplication::restoreOverrideCursor(); myStarted = false; } } 
+     void    stop()      { if ( myStarted )  { while( QApplication::overrideCursor() ) { QApplication::restoreOverrideCursor(); myDepth++; } myStarted = false; } } 
 // returns true if WAIT cursor is active
      bool    isStarted() { return myStarted; }
 
  private:
      bool  myStarted;
+     int   myDepth;
 };
 
 #endif

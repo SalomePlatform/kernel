@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeOpened_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() {
   return (Handle(SALOMEDS_OpenedAttribute)::DownCast(_myAttr)->Get() == 1);
@@ -38,4 +38,12 @@ void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) {
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
+}
+
+char* SALOMEDS_AttributeOpened_i::Store() {
+  return strdup(IsOpened()?"1":"0");
+}
+
+void SALOMEDS_AttributeOpened_i::Restore(const char* value) {
+  SetOpened(value[0] == '1');
 }

@@ -34,6 +34,9 @@ public:
   virtual char* GetObject();
   virtual CORBA::Boolean IsScript();
 
+  virtual char* Store();
+  virtual void Restore(const char*);
+
 };
 
 

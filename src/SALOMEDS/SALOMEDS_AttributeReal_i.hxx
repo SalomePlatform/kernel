@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributeReal_i.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef SALOMEDS_AttributeReal_i_HeaderFile
 #define SALOMEDS_AttributeReal_i_HeaderFile
@@ -48,6 +48,10 @@ public:
 
   CORBA::Double Value();
   void SetValue(CORBA::Double value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

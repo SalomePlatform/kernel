@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_TargetAttribute.jxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef _Standard_GUID_HeaderFile
 #include <Standard_GUID.hxx>

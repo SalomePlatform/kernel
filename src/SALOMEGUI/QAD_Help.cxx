@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include "QAD_Help.h"
 using namespace std;
+#include "QAD_Help.h"
 
 /*!
   \class QAD_Help QAD_HelpL.h

@@ -87,7 +87,7 @@ int main(int argc,char **argv)
 	    }
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      MESSAGE( "Ressources Catalog: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Ressources Catalog: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
 	    }
 	  if(!CORBA::is_nil(inc)) 
 	    {
@@ -103,11 +103,11 @@ int main(int argc,char **argv)
 		      }
 		      catch(CosNaming::NamingContext::NotFound)
 			{ 
-			  MESSAGE( "Ressources Catalog: Logger Server wasn't found" );
+			  INFOS( "Ressources Catalog: Logger Server wasn't found" );
 			}
 		      catch(...)
 			{ 
-			  MESSAGE( "Ressources Catalog: Unknown exception" );
+			  INFOS( "Ressources Catalog: Unknown exception" );
 			}
 		      if (!CORBA::is_nil(object))
 			{

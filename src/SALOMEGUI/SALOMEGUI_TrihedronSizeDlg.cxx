@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_TrihedronSizeDlg.h"
 
 #include <qbuttongroup.h>
@@ -33,7 +34,6 @@
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qlayout.h>
-using namespace std;
 
 #define MARGIN_SIZE      11
 #define SPACING_SIZE      6

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeName_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 char* SALOMEDS_AttributeName_i::Value() {
   TCollection_ExtendedString S = Handle(TDataStd_Name)::DownCast(_myAttr)->Get();
@@ -41,4 +41,12 @@ void SALOMEDS_AttributeName_i::SetValue(const char* value) {
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
+}
+
+char* SALOMEDS_AttributeName_i::Store() {
+  return Value();
+}
+
+void SALOMEDS_AttributeName_i::Restore(const char* value) {
+  SetValue(value);
 }

@@ -26,12 +26,16 @@
 //  Module : SALOME
 //  $Header$
 
+
 #ifndef MODULECATALOG_IMPL_H
 #define MODULECATALOG_IMPL_H
 
 #include "utilities.h"
+#include <string>
+#include <map>
+
 #include "SALOME_ModuleCatalog_Handler.hxx"
-#include "PathPrefix.hxx"
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
@@ -40,7 +44,7 @@ class SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalogImpl(int artgc, char** argv);
+  SALOME_ModuleCatalogImpl(int artgc, char** argv, CORBA::ORB_ptr orb = NULL);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalogImpl();
@@ -57,6 +61,12 @@ public:
    \return the prefix path
  */
   virtual char* GetPathPrefix(const char* machinename);
+
+  //! method to read a XML file and import new components into the component list
+ /*! If the XML file doesn't exist or is not readable, the Notfound exception is thrown
+   \param  const char* xmlFileName 
+ */
+  virtual void ImportXmlCatalogFile(const char* xmlFileName);
 
   //! method to get a component list
   /*!
@@ -84,41 +94,90 @@ public:
   */
   virtual SALOME_ModuleCatalog::Acomponent_ptr 
     GetComponent(const char* componentname);
+  
+  //! method to get a component description
+  /*!
+    \param componentname const char* arguments 
+    \return the wanted component description
+  */
+  virtual SALOME_ModuleCatalog::Component *
+    GetComponentInfo(const char *name);
 
   void ping(){};
+
+  void shutdown() { if (_orb) _orb->shutdown(1); };
 
 private:
   //! method to parse one module catalog
   /*! 
     \param file const char* arguments
-    \param modulelist ListOfParserComponent arguments
-    \param pathlist ListOfParserPathPrefix arguments
+    \param modulelist ParserComponents arguments
+    \param pathlist ParserPathPrefixes arguments
   */
   virtual void _parse_xml_file(const char* file, 
-			  ListOfParserComponent& modulelist, 
-			  ListOfParserPathPrefix& pathlist);
+			  ParserComponents & modulelist, 
+			  ParserPathPrefixes & pathlist);
 
- //! method to create a list of interfaces from the parsing of the catalog
+  //! method to find component in the parser list
   /*!
-    \param list_interface ListOfDefinitionInterface arguments
-    \return the interfaces list
+    \param name  string argument
+    \return pointer on a component, NULL if not found
   */
-  virtual SALOME_ModuleCatalog::ListOfDefInterface 
-          duplicate_interfaces(ListOfDefinitionInterface list_interface);
-  
- //! method to create the path prefix structures from the catalog parsing
+  ParserComponent *findComponent(const string & name);
+
+  //! method to create a CORBA component description from parser
   /*!
-    \param pathes ListOfParserPathPrefix arguments
+    \param C_corba  Component argument
+    \param C_parser const ParserComponent argument
+  */
+  void duplicate(SALOME_ModuleCatalog::Component & C_corba,
+		 const ParserComponent & C_parser);
+    
+  //! method to create a CORBA interface description from parser
+  /*!
+    \param I_corba  DefinitionInterface argument
+    \param I_parser const ParserInterface argument
+  */
+  void duplicate(SALOME_ModuleCatalog::DefinitionInterface & I_corba,
+		 const ParserInterface & I_parser);
+  
+  //! method to create a CORBA service description from parser
+  /*!
+    \param S_corba  Service argument
+    \param S_parser const ParserService argument
+  */
+  void duplicate(SALOME_ModuleCatalog::Service & S_corba,
+		 const ParserService & service);
+  
+  //! method to create a CORBA parameter description from parser
+  /*!
+    \param P_corba  ServicesParameter argument
+    \param P_parser const ParserParameter argument
+  */
+  void duplicate(SALOME_ModuleCatalog::ServicesParameter & P_corba,
+		 const ParserParameter & P_parser);
+  
+  //! method to create a CORBA datastream parameter description from parser
+  /*!
+    \param P_corba  ServicesDataStreamParameter argument
+    \param P_parser const ParserDataStreamParameter argument
+  */
+  void duplicate(SALOME_ModuleCatalog::ServicesDataStreamParameter & P_corba,
+		 const ParserDataStreamParameter & P_parser);
+  
+  //! method to create the path prefix structures from the catalog parsing
+  /*!
+    \param pathes ParserPathPrefixes arguments
     \return the pathes
   */
-  virtual ListOfPathPrefix duplicate_pathes(ListOfParserPathPrefix pathes);
+  void duplicate(ParserPathPrefixes & p_out, const ParserPathPrefixes & P_in);
 
  //! method to verify path prefix content
   /*!
     \param pathlist ListOfParserPathPrefix arguments
     \return true if verfication is OK
   */
-  virtual bool _verify_path_prefix(ListOfParserPathPrefix pathlist);
+  virtual bool _verify_path_prefix(ParserPathPrefixes & pathlist);
 
 
  //! method to parse arguments to get general and personal catalog files
@@ -138,13 +197,23 @@ private:
 
 
   // These variables will contain the informations on the general common catalog
-  ListOfParserComponent _general_module_list ;
-  ListOfParserPathPrefix _general_path_list ;
+  ParserComponents    _general_module_list ;
+  ParserPathPrefixes  _general_path_list ;
 
   // These variables will contain the informations on the personal catalog
-  ListOfParserComponent _personal_module_list ;
-  ListOfParserPathPrefix _personal_path_list ; 
+  ParserComponents    _personal_module_list ;
+  ParserPathPrefixes  _personal_path_list ; 
 
+  std::map <std::string, SALOME_ModuleCatalog::DataStreamType> 
+  DataStreamTypeConvert;
+
+  std::map <std::string, SALOME_ModuleCatalog::DataStreamDependency> 
+  DataStreamDepConvert;
+
+  std::map <ParserComponentType, SALOME_ModuleCatalog::ComponentType> 
+  ComponentTypeConvert;
+
+  CORBA::ORB_ptr _orb;
 };
 
 #endif // MODULECATALOG_IMPL_H

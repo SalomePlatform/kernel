@@ -33,6 +33,7 @@
 #include "QAD_Application.h"
 #include "QAD_StudyFrame.h"
 #include "SALOME_InteractiveObject.hxx"
+#include "SALOME_Selection.h"
 
 // QT Include
 #include <qmainwindow.h>
@@ -57,7 +58,7 @@ public:
   virtual void           setBackgroundColor( const QColor& ) = 0;
   virtual QColor         backgroundColor() const = 0;
 
-  virtual void           SetSelectionMode( int mode ) = 0;
+  virtual void           SetSelectionMode( Selection_Mode mode ) = 0;
   
   virtual void           onAdjustTrihedron() = 0; 
 

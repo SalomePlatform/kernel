@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 # include <qpushbutton.h>
 # include <qlistview.h>
 # include <qtabwidget.h> 
@@ -48,7 +49,6 @@
 # include "RegWidget.hxx"
 # include "HelpWindow.hxx" 
 # include "IntervalWindow.hxx"
-using namespace std;
 
 typedef int PIXELS;
 RegWidget* RegWidget::myRegWidgetPtr = 0;
@@ -621,8 +621,8 @@ QString findFile( QString filename )
 	return fileInfo.filePath();
     }
   }
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_ROOT_DIR" );
+  // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
+  cenv = getenv( "KERNEL_ROOT_DIR" );
   if ( cenv ) {
     dir.sprintf( "%s", cenv );
     if ( !dir.isEmpty() ) {

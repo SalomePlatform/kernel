@@ -49,6 +49,10 @@ public:
 
   CORBA::Long Value();
   void SetValue(CORBA::Long value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

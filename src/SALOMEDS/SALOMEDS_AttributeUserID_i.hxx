@@ -54,6 +54,10 @@ public:
     static Standard_GUID SALOMEDS_DefaultUserAttributeID ("FFFFFFFF-D9CD-11d6-945D-1050DA506788");
     return SALOMEDS_DefaultUserAttributeID;
   }
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

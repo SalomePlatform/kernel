@@ -26,10 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
-using namespace std;
+
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 
 {
@@ -78,4 +79,31 @@ CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Value(CORBA::Short index)
 CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Length() 
 {
   return Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Length();
+}
+
+char* SALOMEDS_AttributeSequenceOfInteger_i::Store() {
+  Handle(SALOMEDS_SequenceOfIntegerAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr);
+  Standard_Integer aLength = CasCadeSeq->Length();
+  char* aResult = new char[aLength * 25];
+  aResult[0] = 0;
+  Standard_Integer aPosition = 0;
+  for (int i = 1; i <= aLength; i++) {
+    sprintf(aResult + aPosition , "%d ", CasCadeSeq->Value(i));
+    aPosition += strlen(aResult + aPosition);
+  }
+  return aResult;
+}
+
+void SALOMEDS_AttributeSequenceOfInteger_i::Restore(const char* value) {
+  Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
+  
+  char* aCopy = strdup(value);
+  char* adr = strtok(aCopy, " ");
+  while (adr) {
+    CORBA::Long l =  atol(adr);
+    CasCadeSeq->Append(l);
+    adr = strtok(NULL, " ");
+  }
+  delete(aCopy);
+  Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Assign(CasCadeSeq);
 }

@@ -24,8 +24,9 @@
 //  File   : Handle_SALOMEDS_DataMapNodeOfDataMapStringLabel_0.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
+using namespace std;
 #include "SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx"
 
 #ifndef _Standard_TypeMismatch_HeaderFile
@@ -44,7 +45,6 @@
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 #endif
-using namespace std;
 SALOMEDS_DataMapNodeOfDataMapStringLabel::~SALOMEDS_DataMapNodeOfDataMapStringLabel() {}
  
 

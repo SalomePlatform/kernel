@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
 CORBA::Double SALOMEDS_AttributeReal_i::Value() {
   return Handle(TDataStd_Real)::DownCast(_myAttr)->Get();
@@ -37,4 +37,16 @@ CORBA::Double SALOMEDS_AttributeReal_i::Value() {
 void SALOMEDS_AttributeReal_i::SetValue(CORBA::Double value) {
   CheckLocked();
   Handle(TDataStd_Real)::DownCast(_myAttr)->Set(value);
+}
+
+char* SALOMEDS_AttributeReal_i::Store() {
+  char* RealVal = new char[25];
+  sprintf(RealVal, "%f", Value());
+  return RealVal;
+}
+
+void SALOMEDS_AttributeReal_i::Restore(const char* value) {
+  char *err = NULL;
+  CORBA::Double r =  strtod(value, &err);
+  if (err != value) SetValue(r);
 }

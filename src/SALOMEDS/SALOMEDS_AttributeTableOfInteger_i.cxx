@@ -9,17 +9,22 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEDS_AttributeTableOfInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_ErrorHandler.hxx>
+#include "Utils_ExceptHandlers.hxx"
 
+#include <stdexcept>
 #include <strstream>
 #include <string>
-using namespace std;
 
 #define SEPARATOR '\1'
+
+UNEXPECT_CATCH(ATI_IncorrectIndex, SALOMEDS::AttributeTableOfInteger::IncorrectIndex);
+UNEXPECT_CATCH(ATI_IncorrectArgumentLength, SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength);
 
 static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
 {
@@ -57,6 +62,7 @@ char* SALOMEDS_AttributeTableOfInteger_i::GetTitle() {
 void SALOMEDS_AttributeTableOfInteger_i::SetRowTitle(CORBA::Long theIndex, const char* theTitle)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch (ATI_IncorrectIndex);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theIndex <= 0 || theIndex > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
@@ -74,6 +80,7 @@ void SALOMEDS_AttributeTableOfInteger_i::SetRowTitle(CORBA::Long theIndex, const
 void SALOMEDS_AttributeTableOfInteger_i::SetRowTitles(const SALOMEDS::StringSeq& theTitles)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength)
 {
+  Unexpect aCatch (ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theTitles.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -94,6 +101,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfInteger_i::GetRowTitles() {
 void SALOMEDS_AttributeTableOfInteger_i::SetColumnTitle(CORBA::Long theIndex, const char* theTitle)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch (ATI_IncorrectIndex);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theIndex <= 0 || theIndex > aTable->GetNbColumns()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
@@ -104,6 +112,7 @@ void SALOMEDS_AttributeTableOfInteger_i::SetColumnTitle(CORBA::Long theIndex, co
 void SALOMEDS_AttributeTableOfInteger_i::SetColumnTitles(const SALOMEDS::StringSeq& theTitles)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength)
 {
+  Unexpect aCatch(ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theTitles.length() != aTable->GetNbColumns()) throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -125,6 +134,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfInteger_i::GetColumnTitles() {
 void SALOMEDS_AttributeTableOfInteger_i::SetRowUnit(CORBA::Long theIndex, const char* theUnit)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+ Unexpect aCatch (ATI_IncorrectIndex);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theIndex <= 0 || theIndex > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
@@ -139,6 +149,7 @@ void SALOMEDS_AttributeTableOfInteger_i::SetRowUnit(CORBA::Long theIndex, const 
 void SALOMEDS_AttributeTableOfInteger_i::SetRowUnits(const SALOMEDS::StringSeq& theUnits)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength)
 {
+  Unexpect aCatch (ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theUnits.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -166,6 +177,7 @@ CORBA::Long SALOMEDS_AttributeTableOfInteger_i::GetNbColumns() {
 void SALOMEDS_AttributeTableOfInteger_i::AddRow(const SALOMEDS::LongSeq& theData)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength)
 {
+  Unexpect aCatch(ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   
@@ -182,6 +194,7 @@ void SALOMEDS_AttributeTableOfInteger_i::AddRow(const SALOMEDS::LongSeq& theData
 void SALOMEDS_AttributeTableOfInteger_i::SetRow(CORBA::Long theRow, const SALOMEDS::LongSeq& theData)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength, SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   
@@ -198,6 +211,7 @@ void SALOMEDS_AttributeTableOfInteger_i::SetRow(CORBA::Long theRow, const SALOME
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::GetRow(CORBA::Long theRow)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectIndex);
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theRow <= 0 || theRow > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
 
@@ -213,6 +227,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::GetRow(CORBA::Long theRow
 void SALOMEDS_AttributeTableOfInteger_i::AddColumn(const SALOMEDS::LongSeq& theData)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength)
 {
+  Unexpect aCatch(ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   
@@ -229,6 +244,7 @@ void SALOMEDS_AttributeTableOfInteger_i::AddColumn(const SALOMEDS::LongSeq& theD
 void SALOMEDS_AttributeTableOfInteger_i::SetColumn(CORBA::Long theColumn, const SALOMEDS::LongSeq& theData)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength, SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectArgumentLength);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   
@@ -245,6 +261,7 @@ void SALOMEDS_AttributeTableOfInteger_i::SetColumn(CORBA::Long theColumn, const 
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::GetColumn(CORBA::Long theColumn)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectIndex);
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theColumn <= 0 || theColumn > aTable->GetNbColumns()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
 
@@ -260,6 +277,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::GetColumn(CORBA::Long the
 void SALOMEDS_AttributeTableOfInteger_i::PutValue(CORBA::Long theValue, CORBA::Long theRow, CORBA::Long theColumn)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectIndex);
   CheckLocked();
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
 
@@ -278,6 +296,7 @@ CORBA::Boolean SALOMEDS_AttributeTableOfInteger_i::HasValue(CORBA::Long theRow, 
 CORBA::Long SALOMEDS_AttributeTableOfInteger_i::GetValue(CORBA::Long theRow, CORBA::Long theColumn)
      throw (SALOMEDS::AttributeTableOfInteger::IncorrectIndex)
 {
+  Unexpect aCatch(ATI_IncorrectIndex);
   Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
   if (theRow > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
 
@@ -341,3 +360,20 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfInteger_i::SaveToFile()
   return aStreamFile._retn();
 }
 
+char* SALOMEDS_AttributeTableOfInteger_i::Store() {
+  Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
+
+  ostrstream ostr;
+  aTable->ConvertToString(ostr);
+  string aString = ostr.rdbuf()->str();
+
+  CORBA::String_var aBuffer = CORBA::string_dup(aString.c_str());
+  return aBuffer._retn();
+}
+
+void SALOMEDS_AttributeTableOfInteger_i::Restore(const char* value) {
+  Handle(SALOMEDS_TableOfIntegerAttribute) aTable = Handle(SALOMEDS_TableOfIntegerAttribute)::DownCast(_myAttr);
+
+  istrstream aStream(value, strlen(value));
+  aTable->RestoreFromString(aStream);
+}

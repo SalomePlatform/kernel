@@ -49,6 +49,10 @@ public:
 
   char* Value();
   void SetValue(const char* value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

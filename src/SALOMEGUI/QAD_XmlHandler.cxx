@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #define  INCLUDE_MENUITEM_DEF 
 
 #include "QAD_Desktop.h"
@@ -40,7 +41,6 @@
 #include <qaccel.h>
 #include <qstringlist.h>
 #include <qfileinfo.h>
-using namespace std;
 
 map<int,QString>	      QAD_XmlHandler::_bibmap;
 

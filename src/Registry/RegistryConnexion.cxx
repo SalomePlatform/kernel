@@ -26,6 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
+using namespace std;
 # include "Utils_ORB_INIT.hxx"
 # include "RegistryConnexion.hxx"
 # include "SALOME_NamingService.hxx"

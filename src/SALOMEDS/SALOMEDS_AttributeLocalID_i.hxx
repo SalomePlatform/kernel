@@ -48,6 +48,10 @@ public:
   ~SALOMEDS_AttributeLocalID_i() {};
   CORBA::Long Value();
   void SetValue(CORBA::Long value);
+
+  char* Store();
+  void Restore(const char*);
+
 };
 
 

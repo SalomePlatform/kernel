@@ -31,6 +31,7 @@ module Engines
   interface TestComponent : Component
   {
     string Coucou(in long L);
+    void Setenv();
   };
 
 };

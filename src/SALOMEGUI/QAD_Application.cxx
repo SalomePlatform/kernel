@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_Application QAD_Application.h
   \brief Study manager for QAD-based application.
@@ -61,7 +62,6 @@
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_Failure.hxx>
-using namespace std;
 
 static bool checkPermission(QString fileName) {
   if ( QFile::exists( fileName ) ) {
@@ -823,6 +823,8 @@ QAD_Study* QAD_Application::newStudy()
 	newStudy = new QAD_Study( this, aStudy, StudyName);
       }
 
+    newStudy->Init();
+
     if ( newStudy->getResult() ) {
       addStudy( newStudy );
       
@@ -1243,11 +1245,13 @@ void QAD_Application::onStudyActivated(QAD_Study* study)
   
   myActiveStudy = study;
 
-  /* notification */
-  onActiveStudyChanged( oldActiveStudy, myActiveStudy );
-  
+  // VSR : call app activate before informing modules that active study is changed ===>
   /* application activated */
   emit appActivated( this );
+
+  /* notification */
+  onActiveStudyChanged( oldActiveStudy, myActiveStudy );
+  // VSR : call app activate before informing modules that active study is changed <===
 }
 
 /*!
@@ -1257,8 +1261,8 @@ void QAD_Application::onStudyDeactivated(QAD_Study* study)
 {
   //  MESSAGE ("QAD_Application::onStudyDeactivated init. "); 
   QAD_ASSERT_DEBUG_ONLY ( myActiveStudy == study );
-  myActiveStudy->onStudyDeactivated();
-  myActiveStudy = 0;
+  if ( study )
+    study->onStudyDeactivated();
   //  MESSAGE ("QAD_Application::onStudyDeactivated done. "); 
 }
 

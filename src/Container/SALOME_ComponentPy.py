@@ -49,6 +49,7 @@ from thread import *
 class SALOME_ComponentPy_i (Engines__POA.Component):
     _orb = None
     _poa = None
+    _fieldsDict = []
     
     #-------------------------------------------------------------------------
 
@@ -116,6 +117,16 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     def ping(self):
         MESSAGE(  "SALOME_ComponentPy_i::ping" )
         
+    #-------------------------------------------------------------------------
+
+    def setProperties(self, dico):
+        self._fieldsDict = dico
+    
+    #-------------------------------------------------------------------------
+
+    def getProperties(self):
+        return self._fieldsDict
+
     #-------------------------------------------------------------------------
 
     def destroy(self):

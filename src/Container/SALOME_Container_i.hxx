@@ -55,14 +55,15 @@ public:
 		      bool activ = true);
   virtual ~Engines_Container_i();
 
-  // Launch a new container from the current container
+
+  //! Launch a new container from the current container
   Engines::Container_ptr start_impl(const char* ContainerName);
 
-  // Load component in current container
+  //! Load component in current container
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
 
-  // Unload component from current container
+  //! Unload component from current container
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 
@@ -70,8 +71,9 @@ public:
   char* machineName();
   void ping();
 
-  // Kill current container
+  //! Kill current container
   bool Kill_impl() ;
+
   char* getHostName();
   long getPID();
 
@@ -88,7 +90,7 @@ protected:
   std::map<std::string, void *> remove_map ;
   omni_mutex _numInstanceMutex ; // if several threads on the same object
 
-  //private: 
+private: 
 
   int   _argc ;
   char** _argv ;

@@ -9,6 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SALOMEGUI_NameDlg.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -19,7 +20,6 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-using namespace std;
 
 /*!
   Constructor
@@ -97,7 +97,8 @@ SALOMEGUI_NameDlg::~SALOMEGUI_NameDlg()
 void SALOMEGUI_NameDlg::setName( const QString& name )
 {
   myLineEdit->setText( name );
-  myLineEdit->selectAll();
+  myLineEdit->end(false);
+  myLineEdit->home(true);
 }
 
 /*!
@@ -106,6 +107,13 @@ void SALOMEGUI_NameDlg::setName( const QString& name )
 QString SALOMEGUI_NameDlg::name()
 {
   return myLineEdit->text();
+}
+
+void SALOMEGUI_NameDlg::accept()
+{
+  if ( name().stripWhiteSpace().isEmpty() )
+    return;
+  QDialog::accept();
 }
 
 /*!

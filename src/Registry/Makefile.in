@@ -37,17 +37,20 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_PYSCRIPTS =
 
 EXPORT_HEADERS = \
-	RegistryConnexion.hxx
+	RegistryConnexion.hxx \
+	RegistryService.hxx
 
 # Libraries targets
 
 LIB = libRegistry.la 
-LIB_SRC = RegistryConnexion.cxx
+LIB_SRC = \
+	RegistryConnexion.cxx \
+	RegistryService.cxx
 LIB_CLIENT_IDL = SALOME_Registry.idl
 
 # Executables targets
 BIN = SALOME_Registry_Server
-BIN_SRC = RegistryService.cxx
+BIN_SRC = 
 BIN_SERVER_IDL = SALOME_Registry.idl
 
 LDFLAGS+= -lSalomeNS -lOpUtil -lSALOMELocalTrace 

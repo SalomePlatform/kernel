@@ -12,23 +12,32 @@
 #define SALOMEGUI_ActivateComponentDlg_H
 
 #include <qdialog.h> 
+#include <qpixmap.h>
+
+class QFrame;
+class QLabel;
+class QPushButton;
 
 class SALOMEGUI_ActivateComponentDlg: public QDialog
 {
   Q_OBJECT
 
 public:
-  SALOMEGUI_ActivateComponentDlg ( QWidget * parent = 0, const char * name = 0, bool modal = FALSE, WFlags f = 0 ) ;
+  SALOMEGUI_ActivateComponentDlg ( QWidget* parent, const QString& component, const QPixmap icon = QPixmap() ) ;
   ~SALOMEGUI_ActivateComponentDlg ( ) { };
 
 private slots:
   void onButtonClicked();
 
 private:
-  QPushButton* m_pb1;
-  QPushButton *m_pb2;
-  QPushButton *m_pb3;
-  QPushButton *m_pb4;
+    QFrame*      myComponentFrame;
+    QLabel*      myComponentLab;
+    QLabel*      myComponentIcon;
+    QLabel*      myInfoLabel;
+    QPushButton* myNewBtn;
+    QPushButton* myOpenBtn;
+    QPushButton* myLoadBtn;
+    QPushButton* myCancelBtn;
 };
 
 #endif

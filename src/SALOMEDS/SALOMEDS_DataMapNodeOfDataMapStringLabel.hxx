@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #ifndef _SALOMEDS_DataMapNodeOfDataMapStringLabel_HeaderFile
 #define _SALOMEDS_DataMapNodeOfDataMapStringLabel_HeaderFile

@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_OCAFApplication.ixx"
 using namespace std;
+#include "SALOMEDS_OCAFApplication.ixx"
 
 //=======================================================================
 //function : SALOMEDS_OCAFApplication

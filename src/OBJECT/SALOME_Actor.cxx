@@ -33,9 +33,9 @@
 
 #include "SALOME_Actor.h"
 #include "SALOME_Transform.h"
+#include "SALOME_GeometryFilter.h"
 #include "SALOME_TransformFilter.h"
 #include "SALOME_PassThroughFilter.h"
-#include "SALOME_GeometryFilter.h"
  
 // SALOME Includes
 #include "utilities.h"
@@ -44,48 +44,140 @@
 #include <vtkObjectFactory.h>
 #include <vtkDataSetMapper.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkTransformPolyDataFilter.h>
-
-// For test
-#include <vtkMapperCollection.h>
-#include "vtkTimerLog.h"
 
 using namespace std;
+
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
 
 int SALOME_POINT_SIZE = 3;
 
 
 vtkStandardNewMacro(SALOME_Actor);
 
+
+SALOME_Actor::SALOME_Actor(){
+  PreviewProperty = NULL;
+  ispreselected = Standard_False;
+  myProperty = vtkProperty::New();
+
+  myRepresentation = 2;
+
+  myIsInfinite = false;
+
+  myStoreMapping = false;
+  myGeomFilter = SALOME_GeometryFilter::New();
+
+  myTransformFilter = SALOME_TransformFilter::New();
+
+  for(int i = 0; i < 6; i++)
+    myPassFilter.push_back(SALOME_PassThroughFilter::New());
+}
+
+
+SALOME_Actor::~SALOME_Actor(){
+  SetPreviewProperty(NULL);
+
+  myGeomFilter->UnRegisterAllOutputs(); 
+  myGeomFilter->Delete();
+
+  myTransformFilter->UnRegisterAllOutputs();
+  myTransformFilter->Delete();
+
+  for(int i = 0, iEnd = myPassFilter.size(); i < iEnd; i++){
+    if(myPassFilter[i]){
+      myPassFilter[i]->UnRegisterAllOutputs(); 
+      myPassFilter[i]->Delete();
+    }
+  }
+
+  myProperty->Delete();
+}
+
+
 void SALOME_Actor::AddToRender(vtkRenderer* theRenderer){
   theRenderer->AddActor(this);
 }
+
 void SALOME_Actor::RemoveFromRender(vtkRenderer* theRenderer){
   theRenderer->RemoveActor(this);
 }
 
 
-vtkPolyData* SALOME_Actor::GetPolyDataInput(){
-  return myPassFilter[3]->GetPolyDataOutput();
+void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
+  myTransformFilter->SetTransform(theTransform);
 }
 
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
   if(theMapper){
-    myPassFilter[0]->SetInput(theMapper->GetInput());
-    myPassFilter[1]->SetInput(myPassFilter[0]->GetPolyDataOutput());
-    myTransformFilter->SetInput(myPassFilter[1]->GetPolyDataOutput());
-    myPassFilter[2]->SetInput(myTransformFilter->GetOutput());
-    myPassFilter[3]->SetInput(myPassFilter[2]->GetPolyDataOutput());
+    int anId = 0;
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(theMapper->GetInput());
+#else
+    myPassFilter.at(anId)->SetInput(theMapper->GetInput());
+#endif
+    myGeomFilter->SetStoreMapping(myStoreMapping);
+#if defined __GNUC_2__
+    myGeomFilter->SetInput(myPassFilter[anId]->GetOutput());
+#else
+    myGeomFilter->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
+
+    anId++;
+
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(myGeomFilter->GetOutput());
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
+    myPassFilter.at(anId)->SetInput(myGeomFilter->GetOutput());
+    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
+
+    anId++;
+#if defined __GNUC_2__
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
+    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
+
+    anId++;
+#if defined __GNUC_2__
+    myTransformFilter->SetInput(myPassFilter[anId]->GetPolyDataOutput());
+#else
+    myTransformFilter->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
+#endif
+
+    anId++;
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(myTransformFilter->GetOutput());
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
+    myPassFilter.at(anId)->SetInput(myTransformFilter->GetOutput());
+    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
+
+    anId++;
     if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
-      aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
+#if defined __GNUC_2__
+      aMapper->SetInput(myPassFilter[anId]->GetOutput());
+#else
+      aMapper->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
     else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
-      aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
+#if defined __GNUC_2__
+      aMapper->SetInput(myPassFilter[anId]->GetPolyDataOutput());
+#else
+      aMapper->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
+#endif
   }
   vtkLODActor::SetMapper(theMapper);
 }
 
-void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
-  myTransformFilter->SetTransform(theTransform);
+vtkPolyData* SALOME_Actor::GetPolyDataInput(){
+  return myPassFilter.back()->GetPolyDataOutput();
 }
 
 
@@ -93,6 +185,10 @@ unsigned long int SALOME_Actor::GetMTime(){
   unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time = myTransformFilter->GetMTime();
   mTime = ( time > mTime ? time : mTime );
+  if(vtkDataSet *aDataSet = myPassFilter[0]->GetInput()){
+    time = aDataSet->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+  }
   return mTime;
 }
 
@@ -109,47 +205,71 @@ void SALOME_Actor::SetRepresentation(int theMode) {
     GetProperty()->DeepCopy(myProperty);
     break;
   default:
+    break;
     GetProperty()->SetAmbient(1.0);
     GetProperty()->SetDiffuse(0.0);
     GetProperty()->SetSpecular(0.0);
   }
   switch(theMode){
   case 3 : 
-    myPassFilter[0]->SetInside(true);
+    myGeomFilter->SetInside(true);
     GetProperty()->SetRepresentation(1);
     break;
   case 0 : 
     GetProperty()->SetPointSize(SALOME_POINT_SIZE);  
   default :
     GetProperty()->SetRepresentation(theMode);
-    myPassFilter[0]->SetInside(false);
+    myGeomFilter->SetInside(false);
   }
   myRepresentation = theMode;
 }
+
 int SALOME_Actor::GetRepresentation(){ 
   return myRepresentation;
 }
 
-
-SALOME_Actor::SALOME_Actor(){
-  PreviewProperty = NULL;
-  ispreselected = Standard_False;
-  myProperty = vtkProperty::New();
-  myRepresentation = 2;
-  myTransformFilter = SALOME_TransformFilter::New();
-  myPassFilter.push_back(SALOME_PassThroughFilter::New());
-  myPassFilter.push_back(SALOME_PassThroughFilter::New());
-  myPassFilter.push_back(SALOME_PassThroughFilter::New());
-  myPassFilter.push_back(SALOME_PassThroughFilter::New());
-}
-
-SALOME_Actor::~SALOME_Actor(){
-  myTransformFilter->Delete();
-  SetPreviewProperty(NULL);
-  for(int i = 0, iEnd = myPassFilter.size(); i < iEnd; i++)
-    if(myPassFilter[i] != NULL){
-      myPassFilter[i]->UnRegisterAllOutputs(); 
-      myPassFilter[i]->Delete();
+//=================================================================================
+// function : GetObjDimension
+// purpose  : Return object dimension.
+//            Virtual method shoulb be redifined by derived classes
+//=================================================================================
+int SALOME_Actor::GetObjDimension( const int theObjId )
+{
+  if ( theObjId < 0 )
+    return 0;
+    
+  std::vector<int> aVtkList = GetVtkId( theObjId );
+  int nbVtk = aVtkList.size();
+  
+  if ( nbVtk == 0 )
+    return 0;
+  else if ( nbVtk > 1 )
+    return 3;
+  else //  nbVtk = 1
+  {
+    if ( vtkDataSet* aGrid = GetMapper()->GetInput() )
+    {
+      if ( vtkCell* aCell = aGrid->GetCell( aVtkList.front() ) )
+        return aCell->GetCellDimension();
     }
-  myProperty->Delete();
+  }
+  return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

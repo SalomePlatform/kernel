@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 /*!
   \class QAD_HelpWindow QAD_HelpWindow.h
   \brief Html browser for help.
@@ -45,7 +46,6 @@
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qfileinfo.h>
-using namespace std;
 
 /*!
   Constructor
@@ -111,9 +111,9 @@ QAD_HelpWindow::QAD_HelpWindow()
 
   /*
   // look for index.html and set homeDir
-  // 1. $(SALOME_ROOT_DIR)/doc/index.html
-  // 2. $(SALOME_ROOT_DIR)/doc/html/index.html
-  // 3. $(SALOME_ROOT_DIR)/doc/html/html/index.html
+  // 1. $(KERNEL_ROOT_DIR)/doc/index.html
+  // 2. $(KERNEL_ROOT_DIR)/doc/html/index.html
+  // 3. $(KERNEL_ROOT_DIR)/doc/html/html/index.html
   // 4. /usr/local/doc/html/index.html
 
   QCString dir;

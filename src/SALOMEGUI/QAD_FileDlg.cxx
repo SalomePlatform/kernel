@@ -9,6 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <qapplication.h>
 #include <qdir.h>
 #include <qlabel.h>
@@ -21,7 +22,6 @@
 #include "QAD_FileDlg.h"
 #include "QAD_MessageBox.h"
 #include "QAD_Tools.h"   
-using namespace std;
 
 #define MIN_COMBO_SIZE     100
 

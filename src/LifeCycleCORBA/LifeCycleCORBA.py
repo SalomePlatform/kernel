@@ -97,10 +97,6 @@ class LifeCycleCORBA:
     #-------------------------------------------------------------------------
 
     def ComputerPath(self, ComputerName ):
-        # Modification provisoire B. Secher en attendant
-        # le gestionnaire de ressources 21/10/2003
-        # Le KERNEL_ROOT_DIR sera a lire dans le catalogue de machines
-        # en attendant on suppose qu'il est identique au KERNEL_ROOT_DIR local
         try:
             #path = self._catalog.GetPathPrefix( ComputerName )
             path = os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/"

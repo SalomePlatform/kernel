@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-#include "QAD_Splitter.h"
 using namespace std;
+#include "QAD_Splitter.h"
 
 /*!
   Constructs an horizontal splitter.

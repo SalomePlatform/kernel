@@ -44,7 +44,10 @@
 #include <qstring.h>
 
 class QAD_Application;
+
+class QMutex;
 class QAD_PyInterp;
+class TInitStudyThread;
 
 class QAD_EXPORT QAD_Study : public QObject
 {
@@ -54,6 +57,7 @@ public:
   QAD_Study(QAD_Application* app,
 	    SALOMEDS::Study_var aStudy,
 	    const QString& title);
+  virtual void Init(); 
   ~QAD_Study();
 
   /* Event filter */
@@ -189,7 +193,10 @@ private:
   bool			    myIsModified;
   bool			    myIsReadOnly;
   bool			    myResult;
-  QAD_PyInterp*		    _interp;
+
+  QMutex*                   myMutex;
+  QAD_PyInterp*		    myInterp;
+  TInitStudyThread*         myInitStudyThread;
 };
 
 #endif

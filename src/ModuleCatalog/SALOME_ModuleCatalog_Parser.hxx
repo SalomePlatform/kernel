@@ -25,7 +25,7 @@
 //  Author : Estelle Deville
 //  Module : SALOME
 //  $Header$
-
+//
 #ifndef SALOME_CATALOG_PARSER_H
 #define SALOME_CATALOG_PARSER_H
 
@@ -35,64 +35,81 @@
 // Type Definitions
 struct ParserPathPrefix
 {
-  string         path;
-  vector<string> ListOfComputer ;
+  std::string         path;
+  std::vector<std::string> listOfComputer ;
 };
 
-typedef vector<ParserPathPrefix> ListOfParserPathPrefix ;
+typedef std::vector<ParserPathPrefix> ParserPathPrefixes ;
 
 enum ParserComponentType {GEOM, MESH, Med, SOLVER, DATA, VISU, SUPERV, OTHER} ;
 
-struct ParserServParam
+struct ParserParameter
 {
-  string ParserParamtype;
-  string ParserParamname;
+  std::string type;
+  std::string name;
 } ;
 
-typedef vector<ParserServParam> ListOfParserServicesParameter;
+
+struct ParserDataStreamParameter
+{
+  std::string type;
+  std::string name;
+  std::string dependency;
+} ;
+
+typedef std::vector<ParserParameter> ParserParameters;
+typedef std::vector<ParserDataStreamParameter> ParserDataStreamParameters;
 
 struct ParserService
 {
-  string                        ParserServiceName;
-  ListOfParserServicesParameter ParserServiceinParameter;
-  ListOfParserServicesParameter ParserServiceoutParameter;
-  bool                          ParserServicebydefault;
+  ParserService() {
+    typeOfNode = 1;
+    byDefault = 1;
+  }
+  std::string                name;
+  ParserParameters           inParameters;
+  ParserParameters           outParameters;
+  ParserDataStreamParameters inDataStreamParameters;
+  ParserDataStreamParameters outDataStreamParameters;
+  bool                       byDefault;
+  bool                       typeOfNode;
 } ;
 
-typedef vector<ParserService> ListOfParserServices ;
+typedef std::vector<ParserService> ParserServices ;
 
-struct ParserDefInterface
+struct ParserInterface
 {
-  string               Parserinterfacename ;
-  ListOfParserServices Parserinterfaceservicelist ;
+  std::string    name ;
+  ParserServices services ;
 } ;
 
-typedef vector<ParserDefInterface> ListOfDefinitionInterface;
+typedef std::vector<ParserInterface> ParserInterfaces;
 
 struct ParserComponent
 {
-  string Parsercomponentname;
-  string Parsercomponentusername;
-  ParserComponentType Parsercomponenttype;
-  bool Parsercomponentmultistudy ;
-  string Parsercomponenticone;
-  ListOfDefinitionInterface ParserListInterface;
-  string Parserconstraint ;
+  std::string         name;
+  std::string         username;
+  ParserComponentType type;
+  bool                multistudy;
+  std::string         icon;
+  std::string         constraint;
+  ParserInterfaces    interfaces;
+  ParserPathPrefixes  prefixes;
+  bool                implementationType;
 };
 
-typedef vector<ParserComponent> ListOfParserComponent ;
+typedef std::vector<ParserComponent> ParserComponents ;
 
 #ifdef WRITE_CATA_COMPONENT
-// contains all the paths and the computers defined in the catalog
-ListOfParserPathPrefix _pathlist;
+// contains all the paths and the computers defined in the catalog 
+       ParserPathPrefixes  _pathList;
   
 // contains all the modules defined in the catalog
-ListOfParserComponent _modulelist; 
+       ParserComponents    _moduleList; 
 #else
-extern ListOfParserPathPrefix _pathlist;
-extern ListOfParserComponent _modulelist; 
+extern ParserPathPrefixes _pathList;
+extern ParserComponents   _moduleList; 
 #endif
-
 
 
 #endif // SALOME_CATALOG_PARSER_H

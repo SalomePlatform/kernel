@@ -26,9 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOME_DataTypeCatalog_impl.hxx"
-#include <fstream>
 using namespace std;
+#include "SALOME_DataTypeCatalog_impl.hxx"
+#include "Utils_ExceptHandlers.hxx"
+#include <fstream>
+
+UNEXPECT_CATCH(DTC_NotFound, SALOME_DataTypeCatalog::NotFound);
 
 //----------------------------------------------------------------------
 // Function : SALOME_DataTypeCatalogImpl
@@ -103,7 +106,7 @@ SALOME_DataTypeCatalogImpl::isDerivedFrom(const char* type_in,
 					  const char* type_out)
                             throw(SALOME_DataTypeCatalog::NotFound)
 {
-  
+  Unexpect aCatch(DTC_NotFound);
   CORBA::Boolean _return_value = false ;
   bool _found_in = false;
   bool _found_out = false;
@@ -143,6 +146,7 @@ char*
 SALOME_DataTypeCatalogImpl::GetDataInterfaceRead(const char* type)
                             throw(SALOME_DataTypeCatalog::NotFound)
 {
+  Unexpect aCatch(DTC_NotFound);
   char* return_value = NULL;
   bool _find = false;
   for (unsigned int ind=0; ind < _datatype_list.size();ind++)
@@ -172,6 +176,7 @@ char*
 SALOME_DataTypeCatalogImpl::GetDataInterfaceWrite(const char* type)
                             throw(SALOME_DataTypeCatalog::NotFound)
 {
+  Unexpect aCatch(DTC_NotFound);
   char* return_value = NULL;
   bool _find = false;
   for (unsigned int ind=0; ind < _datatype_list.size();ind++)
@@ -199,6 +204,8 @@ SALOME_DataTypeCatalogImpl::GetDataInterfaceWrite(const char* type)
 SALOME_DataTypeCatalog::ListOfDataTypeName* 
 SALOME_DataTypeCatalogImpl::GetDataTypeParents(const char* type) throw(SALOME_DataTypeCatalog::NotFound)
 {
+  Unexpect aCatch(DTC_NotFound);
+
   bool _find = false ;
 
   SALOME_DataTypeCatalog::ListOfDataTypeName_var _list_data = 
@@ -347,7 +354,7 @@ SALOME_DataTypeCatalogImpl::_parseArguments(int argc, char **argv,
 
       if (strcmp(argv[ind],"-help") == 0)
 	{
-	  INFOS( "Usage: " << argv[0] << " -common 'path to data type catalog' -ORBInitRef NameService=corbaname::localhost");
+	  MESSAGE( "Usage: " << argv[0] << " -common 'path to data type catalog' -ORBInitRef NameService=corbaname::localhost");
 	    _return_value = false ;
 	}
       if (strcmp(argv[ind],"-common") == 0)

@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_TargetAttribute.ixx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 #include "SALOMEDS_TargetAttribute.jxx"
 

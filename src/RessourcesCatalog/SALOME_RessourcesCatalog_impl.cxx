@@ -25,9 +25,12 @@
 //  Author : Estelle Deville
 //  Module : SALOME
 
+using namespace std;
 #include "SALOME_RessourcesCatalog_impl.hxx"
 #include <fstream>
-using namespace std;
+
+#include "Utils_ExceptHandlers.hxx"
+UNEXPECT_CATCH(RC_NotFound, SALOME_RessourcesCatalog::NotFound);
 
 //----------------------------------------------------------------------
 // Function : SALOME_RessourcesCatalogImpl
@@ -95,6 +98,7 @@ SALOME_RessourcesCatalog::ListOfContainerType*
 SALOME_RessourcesCatalogImpl::GetContainerTypeList(const char* computer) 
                               throw(SALOME_RessourcesCatalog::NotFound)
 {
+  Unexpect aCatch(RC_NotFound);
   MESSAGE("Begin of GetContainerTypeList");
   SALOME_RessourcesCatalog::ListOfContainerType_var _list = 
     new SALOME_RessourcesCatalog::ListOfContainerType;
@@ -149,6 +153,7 @@ SALOME_RessourcesCatalogImpl::GetComputerInfo(const char* computer)
                             throw(SALOME_RessourcesCatalog::NotFound)
 {
   MESSAGE("Begin of GetComputerInfo");
+  Unexpect aCatch(RC_NotFound);
   SALOME_RessourcesCatalog::computer_info_var _computer_info = 
     new SALOME_RessourcesCatalog::computer_info;
 
@@ -253,7 +258,7 @@ SALOME_RessourcesCatalogImpl::_parseArguments(int argc, char **argv,
 
       if (strcmp(argv[ind],"-help") == 0)
 	{
-	  INFOS( "Usage: " << argv[0] << " -common 'path to ressources catalog' -ORBInitRef NameService=corbaname::localhost");
+	  MESSAGE( "Usage: " << argv[0] << " -common 'path to ressources catalog' -ORBInitRef NameService=corbaname::localhost");
 	    _return_value = false ;
 	}
       if (strcmp(argv[ind],"-common") == 0)
