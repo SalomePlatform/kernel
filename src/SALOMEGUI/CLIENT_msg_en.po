@@ -23,7 +23,7 @@ msgid "INF_VERSION"
 msgstr "Version 2.0.0"
 
 msgid "INF_COPYRIGHT"
-msgstr ""
+msgstr "  "
 
 msgid "INF_LICENSE"
 msgstr "  "
