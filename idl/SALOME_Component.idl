@@ -25,7 +25,7 @@
 
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
-/*!  \ingroup Kernel 
+/*!  
 
 This is a package of interfaces used for connecting new components to %SALOME application. It also contains a set of interfaces used
 for management of %MED component in %SALOME application.
@@ -37,7 +37,7 @@ module Engines
 /*! \brief Interface of the %Container
 
    This interface defines the process of loading and registration
-    of new components in SALOME application
+    of new components in %SALOME application
 */
   interface Container
   {
