@@ -59,7 +59,7 @@ $(LIB_BUILD): $(top_builddir)/lib/salome/%.la: %.la
 	      $(patsubst %.la, %.so, $@).0 || true
 
 	if ! test -z $(LIB_SWIG) ; then \
-	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/_$(LIB_SWIG) || true;\
+	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/salome/_$(LIB_SWIG) || true;\
 	fi;
 
 $(LIB_BUILD_A): $(top_builddir)/lib/salome/%.a: %.a

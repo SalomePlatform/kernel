@@ -29,9 +29,7 @@ BIN_CLIENT_IDL =
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(CAS_KERNEL) -lOpUtil -lSalomeLoggerServer
-# -L/opt/ccmalloc/lib -lccmalloc -ldl
-# -L/opt/efence/lib -lefence
+LDFLAGS+=$(OCC_KERNEL_LIBS) -lOpUtil -lSalomeLoggerServer
 
 @CONCLUDE@
 

@@ -10,16 +10,20 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = SALOME_InteractiveObject.hxx \
 		 Handle_SALOME_InteractiveObject.hxx \
 		 SALOME_Actor.h \
+		 SALOME_Transform.h \
 		 SALOME_AISShape.hxx \
 		 Handle_SALOME_AISShape.hxx \
 		 SALOME_AISObject.hxx \
-		 Handle_SALOME_AISObject.hxx
+		 Handle_SALOME_AISObject.hxx \
+		 VTKViewer_Common.h
+
 
 # Libraries targets
 
 LIB = libSalomeObject.la
 LIB_SRC =	 SALOME_InteractiveObject.cxx \
 		 SALOME_Actor.cxx \
+		 SALOME_Transform.cxx \
 		 SALOME_AISShape.cxx\
 		 SALOME_AISObject.cxx
 

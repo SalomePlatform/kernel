@@ -33,9 +33,6 @@
 #include <unistd.h>
 using namespace std;
 
-// #include <qapplication.h>
-// #include "Qtappl_example.hxx"
-
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Session)
 
@@ -65,25 +62,19 @@ int main(int argc, char **argv)
     CORBA::ORB_var &orb = init( argc , argv ) ;
 
     CORBA::Object_var obj =orb->resolve_initial_references("RootPOA") ;
-    //MESSAGE("orb->resolve_initial_references('Root_POA')")
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
-    //MESSAGE("POA::_narrow(obj)")
 
     // servant
-
     SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, poa) ;
     PortableServer::ObjectId_var mySALOME_Sessionid = poa->activate_object(mySALOME_Session) ;
     MESSAGE("poa->activate_object(mySALOME_Session)")
 
     obj = mySALOME_Session->_this() ;
     CORBA::String_var sior(orb->object_to_string(obj)) ;
-    // MESSAGE("sior(orb->object-to-string(obj))")
-    // cerr << "'" << (char*) sior << "'" << endl ;
 
     mySALOME_Session->NSregister();
 
     mySALOME_Session->_remove_ref() ;
-    //MESSAGE("mySALOME_Session->_remove_ref()")
 
     PortableServer::POAManager_var pman = poa->the_POAManager() ;
     pman->activate() ;
