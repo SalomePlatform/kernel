@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <assert.h>
 #include "Batch_GenericType.hxx"
 using namespace std;
 

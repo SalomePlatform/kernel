@@ -49,7 +49,8 @@ namespace Batch {
 
   protected:
     std::string _hostname; // serveur ou tourne le BatchManager
-    std::map< const std::string, const Batch::JobId * > jobid_map; // table des jobs deja soumis
+    // std::map< const std::string, const Batch::JobId * > jobid_map; // table des jobs deja soumis
+    std::map< std::string, const Batch::JobId * > jobid_map; // table des jobs deja soumis
     const Batch::FactBatchManager * _parent;
 
   private:

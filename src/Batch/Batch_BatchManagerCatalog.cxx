@@ -17,7 +17,7 @@ using namespace std;
 namespace Batch {
 
   pthread_mutex_t BatchManagerCatalog::_mutex = PTHREAD_MUTEX_INITIALIZER;
-  map<string, FactBatchManager *> * BatchManagerCatalog::_p_catalog = 0;
+  std::map<string, FactBatchManager *> * BatchManagerCatalog::_p_catalog = 0;
 
   // Constructeur
   BatchManagerCatalog::BatchManagerCatalog()
@@ -42,7 +42,7 @@ namespace Batch {
     if (pFBM) { // *** section critique ***
       pthread_mutex_lock(&_mutex);
 
-      if (! BatchManagerCatalog::_p_catalog) BatchManagerCatalog::_p_catalog = new map<string, FactBatchManager *>;
+      if (! BatchManagerCatalog::_p_catalog) BatchManagerCatalog::_p_catalog = new std::map<string, FactBatchManager *>;
       (*BatchManagerCatalog::_p_catalog)[type] = pFBM;
 
       pthread_mutex_unlock(&_mutex);
@@ -54,7 +54,7 @@ namespace Batch {
     return BatchManagerCatalog::getFactBatchManager(type);
   }
 
-  map<string, FactBatchManager *> * BatchManagerCatalog::dict() const
+  std::map<string, FactBatchManager *> * BatchManagerCatalog::dict() const
   {
     return _p_catalog;
   }
@@ -64,7 +64,7 @@ namespace Batch {
     ostringstream oss;
     oss << "<BatchManagerCatalog contains {";
     string sep;
-    for(map<string, FactBatchManager *>::const_iterator it = (*_p_catalog).begin(); it != (*_p_catalog).end(); it++, sep=", ") {
+    for(std::map<string, FactBatchManager *>::const_iterator it = (*_p_catalog).begin(); it != (*_p_catalog).end(); it++, sep=", ") {
       oss << sep << "'" << (*it).first << "' : '" << (*it).second->__repr__() << "'";
     }
     oss << "}>";

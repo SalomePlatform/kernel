@@ -17,7 +17,8 @@ namespace Batch {
 
   Date::Date(const long l)
   {
-    struct tm * p_tm = localtime(&l);
+    time_t l_t = l;
+    struct tm * p_tm = localtime(&l_t);
     _day   = p_tm->tm_mday;
     _month = p_tm->tm_mon  + 1;
     _year  = p_tm->tm_year + 1900;
@@ -30,7 +31,8 @@ namespace Batch {
   { 
     if ((s == "now") ||	(s == "Now") || (s == "NOW")) {
       long l = time(0);
-      struct tm * p_tm = localtime(&l);
+      time_t l_t = l;
+      struct tm * p_tm = localtime(&l_t);
       _day   = p_tm->tm_mday;
       _month = p_tm->tm_mon  + 1;
       _year  = p_tm->tm_year + 1900;
@@ -53,7 +55,8 @@ namespace Batch {
 
   Date & Date::operator =(long l)
   {
-    struct tm * p_tm = localtime(&l);
+    time_t l_t = l;
+    struct tm * p_tm = localtime(&l_t);
     _day   = p_tm->tm_mday;
     _month = p_tm->tm_mon  + 1;
     _year  = p_tm->tm_year + 1900;
@@ -92,7 +95,8 @@ namespace Batch {
   {
     if ((s == "now") ||	(s == "Now") || (s == "NOW")) {
       long l = time(0);
-      struct tm * p_tm = localtime(&l);
+      time_t l_t = l;
+      struct tm * p_tm = localtime(&l_t);
       _day   = p_tm->tm_mday;
       _month = p_tm->tm_mon  + 1;
       _year  = p_tm->tm_year + 1900;

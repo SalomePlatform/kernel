@@ -146,8 +146,8 @@ namespace Batch {
 
 	  } else {
 	    struct xFile xf;
-	    strncpy(xf.subFn,  local.c_str(),  MAXFILENAMELEN); xf.subFn[MAXFILENAMELEN]  = 0;
-	    strncpy(xf.execFn, remote.c_str(), MAXFILENAMELEN); xf.execFn[MAXFILENAMELEN] = 0;
+	    strncpy(xf.subFn,  local.c_str(),  MAXFILENAMELEN - 1); xf.subFn[MAXFILENAMELEN - 1]  = 0;
+	    strncpy(xf.execFn, remote.c_str(), MAXFILENAMELEN - 1); xf.execFn[MAXFILENAMELEN - 1] = 0;
 	    xf.options = XF_OP_SUB2EXEC;
 	    xf_tab.push_back(xf);
 	  }
@@ -200,8 +200,8 @@ namespace Batch {
 
 	  } else {
 	    struct xFile xf;
-	    strncpy(xf.subFn,  local.c_str(),  MAXFILENAMELEN); xf.subFn[MAXFILENAMELEN]  = 0;
-	    strncpy(xf.execFn, remote.c_str(), MAXFILENAMELEN); xf.execFn[MAXFILENAMELEN] = 0;
+	    strncpy(xf.subFn,  local.c_str(),  MAXFILENAMELEN - 1); xf.subFn[MAXFILENAMELEN - 1]  = 0;
+	    strncpy(xf.execFn, remote.c_str(), MAXFILENAMELEN - 1); xf.execFn[MAXFILENAMELEN - 1] = 0;
 	    xf.options = XF_OP_EXEC2SUB;
 	    xf_tab.push_back(xf);
 	  }

@@ -10,6 +10,7 @@
 #include "Batch_JobId.hxx"
 #include "Batch_BatchManager.hxx"
 #include <sstream>
+#include <assert.h>
 //#include "MEDMEM_STRING.hxx"
 using namespace std;
 

@@ -11,6 +11,7 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <assert.h>
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_GenericType.hxx"
 #include "Batch_IntType.hxx"

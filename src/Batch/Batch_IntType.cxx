@@ -9,6 +9,7 @@
 
 #include <string>
 #include <sstream>
+#include <assert.h>
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_IntType.hxx"
 using namespace std;

@@ -60,7 +60,7 @@ ifeq (@mpi_ok@,yes)
   SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
 endif
 
-ifeq (@WITHOPENPBS@,yes)
+ifeq (@WITH_BATCH@,yes)
   SUBDIRS += Batch Batch_SWIG
 endif
 

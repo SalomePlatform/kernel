@@ -202,6 +202,18 @@ lsf_ok=no
 CHECK_LSF
 dnl lsf_ok is set to yes by CHECK_LSF
 
+dnl
+dnl ---------------------------------------------
+dnl testing Batch
+dnl ---------------------------------------------
+dnl
+
+WITH_BATCH=no
+test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
+AC_SUBST(WITH_BATCH)
+
+
+
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC

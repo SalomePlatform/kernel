@@ -8,6 +8,7 @@
  */
 
 #include <string>
+#include <assert.h>
 #include "Batch_StringType.hxx"
 using namespace std;
 

@@ -8,6 +8,7 @@
  *
  */
 
+#include <assert.h>
 #include "Batch_CoupleType.hxx"
 using namespace std;
 

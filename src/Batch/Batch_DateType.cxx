@@ -10,6 +10,7 @@
 extern "C" {
 #include <time.h>
 }
+#include <assert.h>
 #include "Batch_DateType.hxx"
 using namespace std;
 

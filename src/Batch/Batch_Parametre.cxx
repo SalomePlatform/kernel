@@ -11,20 +11,22 @@
 #include "Batch_Versatile.hxx"
 #include "Batch_InvalidKeyException.hxx"
 #include "Batch_Parametre.hxx"
-using namespace std;
 
 // Definition des membres constants statiques
 // Definition des noms globaux pour les clefs en tant que references
 // TODO : supprimer les declarations statiques des clefs de la map
 def_static_MapKey(ACCOUNT);
+def_static_MapKey(ARGUMENTS);
 def_static_MapKey(CHECKPOINT);
 def_static_MapKey(CKPTINTERVAL);
 def_static_MapKey(CREATIONTIME);
 def_static_MapKey(EGROUP);
 def_static_MapKey(ELIGIBLETIME);
+def_static_MapKey(ENDTIME);
 def_static_MapKey(EUSER);
 def_static_MapKey(EXECUTABLE);
 def_static_MapKey(EXECUTIONHOST);
+def_static_MapKey(EXITCODE);
 def_static_MapKey(HOLD);
 def_static_MapKey(ID);
 def_static_MapKey(INFILE);
@@ -35,12 +37,13 @@ def_static_MapKey(MAXRAMSIZE);
 def_static_MapKey(MAXWALLTIME);
 def_static_MapKey(MODIFICATIONTIME);
 def_static_MapKey(NAME);
+def_static_MapKey(NBPROC);
 def_static_MapKey(OUTFILE);
 def_static_MapKey(PID);
 def_static_MapKey(QUEUE);
 def_static_MapKey(QUEUEDTIME);
 def_static_MapKey(SERVER);
-def_static_MapKey(STARTDATE);
+def_static_MapKey(STARTTIME);
 def_static_MapKey(STATE);
 def_static_MapKey(TEXT);
 def_static_MapKey(TMPDIR);
@@ -62,6 +65,9 @@ namespace Batch {
     TypeMap[ACCOUNT].type = STRING;
     TypeMap[ACCOUNT].maxelem = 1;
 
+    TypeMap[ARGUMENTS].type = STRING;
+    TypeMap[ARGUMENTS].maxelem = 0;
+
     TypeMap[CHECKPOINT].type = LONG;
     TypeMap[CHECKPOINT].maxelem = 1;
 
@@ -77,6 +83,9 @@ namespace Batch {
     TypeMap[ELIGIBLETIME].type = LONG;
     TypeMap[ELIGIBLETIME].maxelem = 1;
 
+    TypeMap[ENDTIME].type = LONG;
+    TypeMap[ENDTIME].maxelem = 1;
+
     TypeMap[EUSER].type = STRING;
     TypeMap[EUSER].maxelem = 1;
 
@@ -85,6 +94,9 @@ namespace Batch {
 
     TypeMap[EXECUTIONHOST].type = STRING;
     TypeMap[EXECUTIONHOST].maxelem = 0;
+
+    TypeMap[EXITCODE].type = LONG;
+    TypeMap[EXITCODE].maxelem = 1;
 
     TypeMap[HOLD].type = LONG;
     TypeMap[HOLD].maxelem = 1;
@@ -116,6 +128,9 @@ namespace Batch {
     TypeMap[NAME].type = STRING;
     TypeMap[NAME].maxelem = 1;
 
+    TypeMap[NBPROC].type = LONG;
+    TypeMap[NBPROC].maxelem = 1;
+
     TypeMap[OUTFILE].type = COUPLE;
     TypeMap[OUTFILE].maxelem = 0;
 
@@ -131,8 +146,8 @@ namespace Batch {
     TypeMap[SERVER].type = STRING;
     TypeMap[SERVER].maxelem = 1;
 
-    TypeMap[STARTDATE].type = LONG;
-    TypeMap[STARTDATE].maxelem = 1;
+    TypeMap[STARTTIME].type = LONG;
+    TypeMap[STARTTIME].maxelem = 1;
 
     TypeMap[STATE].type = STRING;
     TypeMap[STATE].maxelem = 1;
