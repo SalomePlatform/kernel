@@ -1,26 +1,55 @@
+dnl Copyright (C) 2003  CEA/DEN, EDF R&D
+
 AC_DEFUN([CHECK_QWT],[
 AC_REQUIRE([CHECK_QT])dnl
 
 AC_CHECKING(for qwt)
 
-qwt_ok=no
+qwt_ok=yes
 
 dnl were is qwt ?
+
+AC_ARG_WITH(qwt,
+    [  --with-qwt=DIR     directory path to QWT installation ],
+    [QWTHOME="$withval"
+      AC_MSG_RESULT("select $withval as path to QWT")
+    ])
+
+AC_ARG_WITH(qwt_inc,
+    [  --with-qwt_inc=DIR   directory path to QWT includes ],
+    [QWT_INCLUDES="$withval"
+      AC_MSG_RESULT("select $withval as path to QWT includes")
+    ])
+
 if test -z $QWTHOME; then
-  AC_MSG_WARN(You must provide QWTHOME variable)
+  exits_ok=no	
+  AC_CHECK_FILE("/usr/local/lib/libqwt.so",exits_ok=yes,exits_ok=no)
+  if test "x$exits_ok" = "xyes"; then
+     QWTHOME="/usr/local/lib"    
+     if test -z $QWT_INCLUDES; then
+        QWT_INCLUDES="/usr/local/include/qwt"
+     fi
+  else
+     QWTHOME="/usr/lib"   
+     if test -z $QWT_INCLUDES; then
+        QWT_INCLUDES="/usr/include/qwt"
+     fi
+  fi	
 else
-  qwt_ok=yes
+  if test -z $QWT_INCLUDES; then
+     QWT_INCLUDES="$QWTHOME/include"
+  fi   	
 fi
 
 if test "x$qwt_ok" = xno -o ! -d "$QWTHOME" ; then
   AC_MSG_RESULT(no)
   AC_MSG_WARN(qwt not found)
+  qwt_ok=no
 else
-  
    AC_LANG_SAVE
    AC_LANG_CPLUSPLUS
    CPPFLAGS_old=$CPPFLAGS
-   CPPFLAGS="$CPPFLAGS -I$QWTHOME/include"
+   CPPFLAGS="$CPPFLAGS -I$QWT_INCLUDES"
    CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
 
    AC_CHECK_HEADER(qwt.h,qwt_ok=yes,qwt_ok=no) 
@@ -41,7 +70,7 @@ then
   LIBS="$LIBS -L$QTDIR/lib -lqt-mt -L$QWTHOME/lib -lqwt"
 
   CXXFLAGS_old=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS -I$QTDIR/include -I$QWTHOME/include"
+  CXXFLAGS="$CXXFLAGS -I$QTDIR/include -I$QWT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qwt,[
     AC_TRY_LINK(
@@ -62,7 +91,7 @@ then
     AC_MSG_RESULT(unable to link with qwt library)
     AC_MSG_RESULT(QWTHOME environment variable may be wrong)
   else
-    QWT_INCLUDES="-I$QWTHOME/include"
+    QWT_INCLUDES="-I$QWT_INCLUDES"
     QWT_LIBS="-L$QWTHOME/lib -lqwt"
 
     AC_SUBST(QWT_INCLUDES)

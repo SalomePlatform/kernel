@@ -25,7 +25,7 @@ $(srcdir)/Dependencies: .depend
 	    echo '## This file is machine generated on GNU systems.' >$@;     \
 	    echo '## Only temporary changes may be made here.' >>$@;	      \
 	    echo >>$@;					      		      \
-	    perl -p $(top_srcdir)/bin/salome/distdep .depend >>$@;		      \
+	    perl -p $(top_srcdir)/bin/distdep .depend >>$@;		      \
 	else								      \
 	    echo 'Dependencies cannot be built when $$srcdir == $$builddir';  \
 	fi

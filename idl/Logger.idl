@@ -1,9 +1,9 @@
-//=============================================================================
-// File      : Logger.idl
-// Created   : nov 18 10:28:17 2002
-// Author    : Vasily Rusyaev
-// Project   : SALOME/PRO
-//=============================================================================
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Logger.idl
+//  Author : Vasily Rusyaev
 
 #ifndef SALOME_LOGGER_IDL
 #define SALOME_LOGGER_IDL

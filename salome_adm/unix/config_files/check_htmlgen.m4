@@ -1,3 +1,5 @@
+dnl Copyright (C) 2003  CEA/DEN, EDF R&D
+
 AC_DEFUN([CHECK_HTML_GENERATORS],[
 
 #AC_CHECKING(for html generators)
