@@ -1,5 +1,5 @@
-#LyX 1.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 218
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
 \textclass linuxdoc
 \language english
 \inputencoding default
@@ -11,6 +11,8 @@
 \paperpackage a4
 \use_geometry 0
 \use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
@@ -30,7 +32,7 @@ SALOME Kernel resources for developer
 Antoine Yessayan, Paul Rascle 
 \layout Date
 
-Version 0.1 January 16, 2002
+Version 0.2 January 28, 2005
 \layout Abstract
 
 ABSTRACT 
@@ -98,7 +100,7 @@ C++ Macros for trace and debug
 SALOME provides C++ macros for trace and debug.
  These macros are in 
 \family typewriter 
-SALOME/src/utils/utilities.h
+SALOME/src/SALOMELocalTrace/utilities.h
 \family default 
  and this file must be included in C++ source.
  Some macros are activated only in debug mode, others are always activated.
@@ -112,18 +114,26 @@ _DEBUG_
 \family typewriter 
 _DEBUG_
 \family default 
- is undefined (release mode), the debug mode macros are defined empty (they
- do nothing).
+ is undefined (release mode: 
+\family typewriter 
+configure --disable-debug --enable-production
+\family default 
+), the debug mode macros are defined empty (they do nothing).
  So, when switching from debug to release, it is possible (and recommended)
  to let the macro calls unchanged in the source.
 \layout Standard
 
-All the macros writing on the standard output start by flushing the standard
- error.
- At the end of the display those macros flush the standard output.
+All the macros generate trace messages, stored in a circular buffer pool.
+ A separate thread reads the messages in the buffer pool, and, depending
+ on options given at SALOME start, writes the messages on the standard output,
+ a file, or send them via CORBA, in case of a multi machine configuration.
 \layout Standard
 
-Two informations are systematically added in front of the information displayed:
+Three informations are systematically added in front of the information
+ displayed:
+\layout Itemize
+
+the thread number from which the message come from;
 \layout Itemize
 
 the name of the source file in which the macros is set;
@@ -142,7 +152,7 @@ The C++ macro
 \family typewriter 
 INFOS_COMPILATION
 \family default 
- writes on the standard output informations about the compiling process:
+ writes on the trace buffer pool informations about the compiling process:
  
 \layout Itemize
 
@@ -208,7 +218,7 @@ _RELEASE_
 \family typewriter 
 INFOS
 \family default 
- writes on the standard output the string which has been passed in argument
+ writes on the trace buffer pool the string which has been passed in argument
  by the user.
 \layout Standard
 
@@ -241,6 +251,53 @@ displays :
 \layout Verbatim
 
 main.cxx [5] : NORMAL END OF THE PROCESS
+\layout Verbatim
+
+\layout Paragraph
+
+
+\family roman 
+INTERRUPTION(str)
+\layout Standard
+
+In both compiling mode 
+\family typewriter 
+_DEBUG_
+\family default 
+ and 
+\family typewriter 
+_RELEASE_
+\family default 
+, The C++ macro 
+\family typewriter 
+INTERRUPTION
+\family default 
+ writes on the trace buffer pool the string, with a special 
+\family typewriter 
+ABORT
+\family default 
+ type.
+ When the thread in charge of collecting messages finds this message, it
+ terminates the application, after message treatment.
+\layout Paragraph
+
+IMMEDIATE_ABORT(str)
+\layout Standard
+
+In both compiling mode 
+\family typewriter 
+_DEBUG_
+\family default 
+ and 
+\family typewriter 
+_RELEASE_
+\family default 
+, The C++ macro 
+\family typewriter 
+IMMEDIATE_ABORT
+\family default 
+ writes the message immediately on standard error and exits the application.
+ Remaining messages not treated by the message collector thread are lost.
 \layout Subsubsection
 
 Macros defined only in debug mode
@@ -257,7 +314,7 @@ _DEBUG_
 \family typewriter 
 MESSAGE
 \family default 
- writes on the standard output the string which has been passed in argument
+ writes on the trace buffer pool the string which has been passed in argument
  by the user.
  In 
 \family typewriter 
@@ -335,7 +392,7 @@ BEGIN_OF
 "Begin of "
 \family default 
  to the one passed in argument by the user and displays the result on the
- standard output.
+ trace buffer pool.
  In 
 \family typewriter 
 _RELEASE_
@@ -386,7 +443,7 @@ END_OF
 "Normal end of "
 \family default 
  to the one passed in argument by the user and displays the result on the
- standard output.
+ trace buffer pool.
  In 
 \family typewriter 
 _RELEASE_
@@ -483,8 +540,12 @@ _DEBUG_
 ASSERT
 \family default 
  checks the expression passed in argument to be not NULL.
- If it is NULL the process is stopped and the condition is written on the
- standard output.
+ If it is NULL the condition is written with the macro 
+\family typewriter 
+INTERRUPTION
+\family default 
+ (see above).
+ The process exits after trace of this last message.
  In 
 \family typewriter 
 _RELEASE_
