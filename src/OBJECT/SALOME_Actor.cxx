@@ -137,14 +137,14 @@ vtkPolyData* SALOME_Actor::GetPolyDataInput(){
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
   if(theMapper){
     myPassFilter[0]->SetInput(theMapper->GetInput());
-    myPassFilter[0]->Update();
+    // myPassFilter[0]->Update();  -------- This and other three lines must be comment or removed to fix the regression in SMESH
     myPassFilter[1]->SetInput(myPassFilter[0]->GetPolyDataOutput());
-    myPassFilter[1]->Update();
+    // myPassFilter[1]->Update();
     myTransformFilter->SetInput(myPassFilter[1]->GetPolyDataOutput());
     myPassFilter[2]->SetInput(myTransformFilter->GetOutput());
-    myPassFilter[2]->Update();
+    // myPassFilter[2]->Update();
     myPassFilter[3]->SetInput(myPassFilter[2]->GetPolyDataOutput());
-    myPassFilter[3]->Update();
+    // myPassFilter[3]->Update();
     if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
       aMapper->SetInput(myPassFilter[3]->GetOutput());
     else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
