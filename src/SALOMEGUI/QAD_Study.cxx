@@ -419,8 +419,8 @@ void QAD_Study::onStudyFrameActivated( QAD_StudyFrame* activeStudyFrame )
 //    _interp->run("");  IS_FIRST_STUDY = 0;
 //  }
 //  bool found = false;
-  for ( QAD_StudyFrame* studyframe = myStudyFrames.first(); studyframe; studyframe = myStudyFrames.next() ) {
-    if ( studyframe == activeStudyFrame) {		/* one of my study frames */
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    if ( it.current() == activeStudyFrame) {		/* one of my study frames */
 //      found = true;
 //      if ( !myActiveStudyFrame || myActiveStudyFrame != activeStudyFrame ) {
 	myActiveStudyFrame =  activeStudyFrame;
@@ -464,8 +464,8 @@ void QAD_Study::close()
     for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.first() ) {
       sf->disconnect();
       sf->close();
-      qApp->processEvents();
-      qApp->processEvents();
+      // SAL2200
+      QApplication::sendPostedEvents();
       removeStudyFrame(sf);
     }
 
@@ -774,8 +774,8 @@ void QAD_Study::updateCaptions()
     }
   }
 
-  for (myStudyFrames.first(); myStudyFrames.current(); myStudyFrames.next()) {
-    myStudyFrames.current()->setCaption(myStudyFrames.current()->title() + appendix);
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->setCaption(it.current()->title() + appendix);
   }
   
 }
@@ -786,8 +786,8 @@ void QAD_Study::updateCaptions()
 */
 void QAD_Study::show()
 {
-  for (myStudyFrames.first(); myStudyFrames.current(); myStudyFrames.next()) {
-    myStudyFrames.current()->show();
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->show();
   }
 }
 
@@ -834,9 +834,9 @@ bool QAD_Study::undo()
     /* Update Object Browser */
     updateObjBrowser( true );
 
-    for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
+    for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
       /* Update Viewer */
-      sf->getRightFrame()->getViewFrame()->undo( this, sf->entry() );
+      it.current()->getRightFrame()->getViewFrame()->undo( this, it.current()->entry() );
     }
     updateCaptions();
 
@@ -870,8 +870,8 @@ bool QAD_Study::redo()
     updateObjBrowser( true );
 
     /* Update Viewer */
-    for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-      sf->getRightFrame()->getViewFrame()->redo( this, sf->entry() );
+    for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+      it.current()->getRightFrame()->getViewFrame()->redo( this, it.current()->entry() );
     }
     updateCaptions();
 
@@ -1055,8 +1055,8 @@ void QAD_Study::showFrame(QAD_StudyFrame* theFrame){
 */
 void QAD_Study::setMessage(const char* message)
 {
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-    sf->getRightFrame()->getMessage()->setMessage(message);
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->getRightFrame()->getMessage()->setMessage(message);
   }
 }
 
@@ -1070,8 +1070,8 @@ void QAD_Study::updateObjBrowser( bool updateSelection )
 
   QString ActiveComp = parent->getActiveComponent();
 
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-    sf->getLeftFrame()->getObjectBrowser()->Update();
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->getLeftFrame()->getObjectBrowser()->Update();
   }
 
   /* update selection */
@@ -1093,8 +1093,8 @@ void QAD_Study::updateObjBrowser( bool updateSelection )
 */
 void QAD_Study::updateUseCaseBrowser( bool updateSelection )
 {
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-    sf->getLeftFrame()->getObjectBrowser()->UpdateUseCaseBrowser();
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->getLeftFrame()->getObjectBrowser()->UpdateUseCaseBrowser();
   }
   /* update selection */
   if ( updateSelection && (myStudyFrames.count() > 0) ) {
@@ -1115,12 +1115,12 @@ void QAD_Study::updateUseCaseBrowser( bool updateSelection )
 */
 void QAD_Study::unHighlightAll() 
 {
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
     /* Device = Viewers */
-    sf->getRightFrame()->getViewFrame()->unHighlightAll();
+    it.current()->getRightFrame()->getViewFrame()->unHighlightAll();
 
     /* Device = ObjectBrowser */
-    sf->getLeftFrame()->getObjectBrowser()->unHighlightAll();
+    it.current()->getLeftFrame()->getObjectBrowser()->unHighlightAll();
   }
 }
 
@@ -1225,29 +1225,29 @@ void QAD_Study::highlight( const Handle(SALOME_InteractiveObject)& IObject, bool
   //    MESSAGE ( " QAD_Study::highlight : " << highlight )
   int typeIO = typeIObject( IObject );
 
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
     switch ( typeIO ) {
     case 1:
       {
 	/* Device = Viewer */
-	if (sf->getTypeView() >= 0 ) { /* Device = Viewers */
-	  sf->getRightFrame()->getViewFrame()->highlight(IObject, highlight, immediatly);
+	if (it.current()->getTypeView() >= 0 ) { /* Device = Viewers */
+	  it.current()->getRightFrame()->getViewFrame()->highlight(IObject, highlight, immediatly);
 	}
 	/* Device = ObjectBrowser */
-	sf->getLeftFrame()->getObjectBrowser()->highlight(IObject, highlight);
+	it.current()->getLeftFrame()->getObjectBrowser()->highlight(IObject, highlight);
 	break;
       }
     case 2:
       {
 	/* Device = ObjectBrowser */
-	sf->getLeftFrame()->getObjectBrowser()->highlight(IObject, highlight); 
+	it.current()->getLeftFrame()->getObjectBrowser()->highlight(IObject, highlight); 
 	break;
       }
     case 3:
       {
 	/* Device = Viewer */
-	if (sf->getTypeView() >= 0) { /* Device = Viewers */
-	  sf->getRightFrame()->getViewFrame()->highlight(IObject, highlight, immediatly);
+	if (it.current()->getTypeView() >= 0) { /* Device = Viewers */
+	  it.current()->getRightFrame()->getViewFrame()->highlight(IObject, highlight, immediatly);
 	} 
 	break;
       }
@@ -1255,7 +1255,7 @@ void QAD_Study::highlight( const Handle(SALOME_InteractiveObject)& IObject, bool
       {
 	QString ActiveComp = QAD_Application::getDesktop()->getActiveComponent();
 	if ( !ActiveComp.isEmpty() ) {
-	  sf->getLeftFrame()->getObjectBrowser()->highlight(IObject,highlight);
+	  it.current()->getLeftFrame()->getObjectBrowser()->highlight(IObject,highlight);
 	}
 	break;
       }
@@ -1277,8 +1277,8 @@ bool QAD_Study::isInStudy( const Handle(SALOME_InteractiveObject)& IObject )
 bool QAD_Study::isInViewer( const Handle(SALOME_InteractiveObject)& IObject ) 
 {
   bool found = false;
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-    found = sf->getRightFrame()->getViewFrame()->isInViewer(IObject);
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    found = it.current()->getRightFrame()->getViewFrame()->isInViewer(IObject);
     if ( found )
       return true;
   }
@@ -1353,8 +1353,8 @@ int QAD_Study::getStudyId()
 
 void QAD_Study::update3dViewers() 
 {
-  for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-    sf->getRightFrame()->getViewFrame()->Repaint();
+  for ( QPtrListIterator<QAD_StudyFrame> it( myStudyFrames ); it.current(); ++it ) {
+    it.current()->getRightFrame()->getViewFrame()->Repaint();
   }
 }
 
