@@ -35,32 +35,28 @@ from SALOME_utilities import MESSAGE
 # A Python CORBA module has 2 associated Python packages 
 # These packages are named : <module_name> and <module_name>__POA
 #
-# That module is normally installed in shared_modules
-# So we should find CORBA shared modules in ..
-repertoire=os.path.join(os.path.dirname(__file__),'..')
-path=[repertoire,]
+# Get the SALOMEPATH if set or else use KERNEL_ROOT_DIR that should be set.
+salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
+
+# Register all CORBA modules in the path and python modules in shared_modules
+path=salome_path.split(":")
 #
 for rep in path:
-   # Add rep directory in the Python path to be able to import modules 
-   listdir=glob.glob(os.path.join(rep,"*__POA"))
-   for elem in listdir:
+   rep_salome=os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome")
+   # Find all the *__POA packages in the path
+   for elem in glob.glob(os.path.join(rep_salome,"*__POA")):
       if os.path.isdir(elem):
          # Found a directory (Python package) named *__POA 
          module__POA=os.path.basename(elem)
          module=module__POA[:-5]
-         MESSAGE( "Import CORBA module: " + module + ".\n Directory: " + os.path.abspath(elem)[:-5] )
+         MESSAGE( "Register CORBA module: " + module + ". Directory: " + os.path.abspath(elem)[:-5] )
          register_name(module)
 
    # Now we import modules found in shared_modules directory
-   r=os.path.join(rep,"shared_modules")
-   if os.path.isdir(r):
-      listfich=glob.glob(os.path.join(r,"*.py"))
-      MESSAGE( str(listfich) )
-      for m in listfich:
-         module=os.path.basename(m)[:-3]
-         MESSAGE( "Import module: " + module + ".\n Location: " + os.path.abspath(m) )
-         register_name(module)
-
+   for elem in glob.glob(os.path.join(rep_salome,"shared_modules","*.py")):
+       module=os.path.basename(elem)[:-3]
+       MESSAGE( "Register Python module: " + module + ". Location: " + os.path.abspath(elem) )
+       register_name(module)
 
 def init_shared_modules():
    """
