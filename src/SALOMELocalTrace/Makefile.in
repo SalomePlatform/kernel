@@ -47,6 +47,8 @@ LIB = libSALOMELocalTrace.la
 LIB_SRC = LocalTraceCollector.cxx \
 	  LocalTraceBufferPool.cxx
 
-LDFLAGS+= 
+LIBS= @LIBS@ 
+#LDFLAGS+= 
+
 
 @CONCLUDE@

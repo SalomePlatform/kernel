@@ -60,4 +60,6 @@ LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSA
 
 LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS)
 
+LDFLAGSFORBIN+= $(LDFLAGS) -lSALOMETraceCollector
+LIBSFORBIN+= $(LIBS)
 @CONCLUDE@

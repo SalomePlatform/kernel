@@ -53,7 +53,8 @@ BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 
 CPPFLAGS += $(QT_MT_INCLUDES)
 
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager -lRegistry -lSalomeNotification -lSALOMETraceCollector
+LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
+LDFLAGSFORBIN+= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
 
 @CONCLUDE@
 

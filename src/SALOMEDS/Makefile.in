@@ -120,7 +120,7 @@ LIB_CLIENT_IDL = SALOME_Component.idl SALOME_GenericObj.idl
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA -lSalomeContainer -lSalomeResourcesManager -lRegistry -lSalomeNotification -lSALOMETraceCollector
+LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA -lSalomeContainer -lSalomeResourcesManager
 
 # _CS_gbo_090604 Ajout Spécifique Calibre 3, pour l'utilisation de la version 5.12 de la bibliothèque OCC.
 # La bibliothèque OCC5.12 a été compilée sur Calibre 3 avec l'extention Xmu (impossible de compiler sans).
@@ -129,7 +129,7 @@ LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOME
 #
 LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
 LDFLAGS+=$(LDXMUFLAGS)
-
+LDFLAGSFORBIN+= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
 
 @CONCLUDE@
 

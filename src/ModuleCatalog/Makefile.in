@@ -62,6 +62,7 @@ LIB_CLIENT_IDL = SALOME_ModuleCatalog.idl
 BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
-LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
+LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
+LDFLAGSFORBIN+= $(LDFLAGS) -lSALOMETraceCollector
 @CONCLUDE@

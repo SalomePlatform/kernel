@@ -95,7 +95,7 @@ $(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/
 	ln -sf $(CURDIR)/$< $@
 
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGSFORBIN) $(LIBSFORBIN)
 
 # copy python scripts in $(top_builddir)/bin/salome
 #
