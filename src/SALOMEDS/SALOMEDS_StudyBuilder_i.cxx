@@ -412,7 +412,7 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr theSComponent,
       
       // set path without file name from URL 
       std::string aDir(aHDFPath.ToCString());
-      aDir.substr(0,aDir.find('/'));
+      aDir = aDir.substr(0,aDir.rfind('/') + 1);
       
       CORBA::Boolean aResult = (ASCIIfileState[0]=='A')?
 	theDriver->LoadASCII(theSComponent, aStreamFile.in(), aDir.c_str(), aMultifileState[0]=='M'):
