@@ -589,7 +589,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # additionnal external python interpreters
     #
 
-    nbaddi = int(args['interp'][0])
+    nbaddi = int(args['interp'])
     print "additional external python interpreters: ", nbaddi
     if nbaddi:
         for i in range(nbaddi):
