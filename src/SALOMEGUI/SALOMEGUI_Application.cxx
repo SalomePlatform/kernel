@@ -509,9 +509,9 @@ void SALOMEGUI_Application::onDisplay(int id)
       dir = dir + "salome" ;
       dir = QAD_Tools::addSlash(dir) ;
 #ifdef WNT
-      dir = dir + "lib" + parentComp.latin1() + "GUI.dll" ;
+      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.dll" ;
 #else
-      dir = dir + "lib" + parentComp.latin1() + "GUI.so" ;
+      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.so" ;
 #endif
       MESSAGE ( " GUI library = " << dir )
       fileInfo.setFile(dir) ;
