@@ -33,6 +33,7 @@ import string
 from omniORB import CORBA
 import CosNaming
 import Engines
+reload(Engines)
 import SALOME_ModuleCatalog
 
 from SALOME_utilities import *
