@@ -41,7 +41,7 @@ LIB = libSalomePyQtcmodule.la
 
 MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
 
-LIB_SRC += SalomePyQt.cxx $(SIP_SRC) $(MOC_SRC) 
+LIB_SRC += SalomePyQt.cxx SALOME_PYQT_GUI.cxx $(SIP_SRC) $(MOC_SRC) 
 
 #LIB_MOC += sipSalomePyQtProxySalomePyQt.h
 
