@@ -1,10 +1,12 @@
-# -* Makefile *- 
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
 #
-# Author : Vasily Rusyaev (Open Cascade NN)
-# Date : 13/02/2003
-# $Header: 
 #
-# source path
+#
+#  File   : Makefile.in
+#  Author : Vasily Rusyaev (Open Cascade NN)
+#  Module : doc
+#  $Header: 
+
 top_srcdir=@top_srcdir@
 top_builddir=../..
 srcdir=@srcdir@

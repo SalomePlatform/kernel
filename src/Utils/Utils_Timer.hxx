@@ -24,6 +24,9 @@
 //  File   : Utils_Timer.hxx
 //  Module : SALOME
 
+#include <stdlib.h>
+#include <time.h>
+
 # include <sys/times.h>
 # include <sys/time.h>
 # include <unistd.h>

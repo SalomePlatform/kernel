@@ -194,7 +194,7 @@ idldir=${prefix}/idl/salome
 sharedpydir=@libdir@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
 incmakedir=${prefix}/salome_adm/unix
 
-docdir=@exec_prefix@/doc
+docdir=$(datadir)/doc
 
 #
 # begin of package rules
