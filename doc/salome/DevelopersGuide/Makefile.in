@@ -49,13 +49,14 @@ install:
 
 #implicits rules
 .tex.dvi: clean
-	latex $<
-	latex $<
-.dvi.ps:
-	dvips $< -o $@
+	@[ "x@LATEX@" != "x" ] && [ latex $< ] || \
+	echo "Can'not execute .tex.dvi rule"
 
+.dvi.ps:
+	@[ "x@DVIPS@" != "x" ] && [ dvips $< -o $@ ] || \
+	echo "Can'not execute .dvi.ps rule"
 
 .tex.pdf: clean
-	pdflatex $<
-	pdflatex $<
+	@[ "x@PDFLATEX@" != "x" ] && [ pdflatex $< ] || \
+	echo "Can'not execute .tex.pdf rule"
 
