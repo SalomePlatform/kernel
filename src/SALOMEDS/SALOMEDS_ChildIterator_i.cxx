@@ -28,6 +28,7 @@
 
 #include <TDF_Tool.hxx>
 
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_ChildIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
@@ -64,6 +65,8 @@ SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 //============================================================================
 void SALOMEDS_ChildIterator_i::Init()
 { 
+  SALOMEDS::Locker lock;
+
   _it.Initialize(_lab);
 }
 
@@ -74,6 +77,8 @@ void SALOMEDS_ChildIterator_i::Init()
 //============================================================================
 void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean theIsAllLevels)
 { 
+  SALOMEDS::Locker lock;
+
   _it.Initialize(_lab,theIsAllLevels);
 }
 
@@ -84,6 +89,8 @@ void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean theIsAllLevels)
 //============================================================================
 CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 {
+  SALOMEDS::Locker lock;
+
   return _it.More();
 }
 
@@ -94,6 +101,8 @@ CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 //============================================================================
 void SALOMEDS_ChildIterator_i::Next()
 {
+  SALOMEDS::Locker lock;
+
   _it.Next();
 }
 
@@ -106,6 +115,8 @@ void SALOMEDS_ChildIterator_i::Next()
 
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
+  SALOMEDS::Locker lock;
+
   return SALOMEDS_SObject_i::NewRef(_study,_it.Value())._retn();
 }
 

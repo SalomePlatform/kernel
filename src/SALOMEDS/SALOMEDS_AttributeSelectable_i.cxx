@@ -27,23 +27,32 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeSelectable_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeSelectable_i::IsSelectable() {
+  SALOMEDS::Locker lock;
+
   return (Handle(SALOMEDS_SelectableAttribute)::DownCast(_myAttr)->Get() == 1);
 }
                                                            
 void SALOMEDS_AttributeSelectable_i::SetSelectable(CORBA::Boolean value) {
+  SALOMEDS::Locker lock;
+
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
 
 char* SALOMEDS_AttributeSelectable_i::Store() {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(IsSelectable()?"1":"0");
 }
 
 void SALOMEDS_AttributeSelectable_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetSelectable(value[0] == '1');
 }

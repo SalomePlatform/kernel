@@ -12,6 +12,7 @@
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
@@ -42,18 +43,24 @@ void SALOMEDS_GenericAttribute_i::Restore(const char*)
 
 char* SALOMEDS_GenericAttribute_i::Type() 
 {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(SALOMEDS::GetType(_myBasicAttr).c_str());
 }
 
 
 SALOMEDS::SObject_ptr SALOMEDS_GenericAttribute_i::GetSObject()
 {
-  return _mySObject->_this();;
+  SALOMEDS::Locker lock;
+
+  return _mySObject->_this();
 }
 
 
 void SALOMEDS_GenericAttribute_i::CheckLocked() 
   throw (SALOMEDS::GenericAttribute::LockProtection) 
 {
+  SALOMEDS::Locker lock;
+
   _mySObject->GetStudyServant()->CheckLocked();
 }

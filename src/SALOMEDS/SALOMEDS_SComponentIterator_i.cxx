@@ -28,6 +28,7 @@
 
 #include "SALOMEDS_SComponentIterator_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
@@ -61,6 +62,8 @@ SALOMEDS_SComponentIterator_i::~SALOMEDS_SComponentIterator_i()
 //============================================================================
 void SALOMEDS_SComponentIterator_i::Init()
 { 
+  SALOMEDS::Locker lock;
+
   _it.Initialize (_lab);
 }
 
@@ -71,6 +74,8 @@ void SALOMEDS_SComponentIterator_i::Init()
 //============================================================================
 CORBA::Boolean SALOMEDS_SComponentIterator_i::More()
 {
+  SALOMEDS::Locker lock;
+
   if (!_it.More())
     return false;
   TDF_Label L = _it.Value();
@@ -86,6 +91,8 @@ CORBA::Boolean SALOMEDS_SComponentIterator_i::More()
 //============================================================================
 void SALOMEDS_SComponentIterator_i::Next()
 {
+  SALOMEDS::Locker lock;
+
   _it.Next();
 }
 
@@ -97,6 +104,8 @@ void SALOMEDS_SComponentIterator_i::Next()
 //============================================================================
 SALOMEDS::SComponent_ptr SALOMEDS_SComponentIterator_i::Value()
 {
+  SALOMEDS::Locker lock;
+
   return SALOMEDS_SComponent_i::NewRef(_study,_it.Value())._retn();
 }
 

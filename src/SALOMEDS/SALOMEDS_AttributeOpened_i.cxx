@@ -27,23 +27,32 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeOpened_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() {
+  SALOMEDS::Locker lock;
+
   return (Handle(SALOMEDS_OpenedAttribute)::DownCast(_myAttr)->Get() == 1);
 }
                                                            
 void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) {
+  SALOMEDS::Locker lock;
+
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
 
 char* SALOMEDS_AttributeOpened_i::Store() {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(IsOpened()?"1":"0");
 }
 
 void SALOMEDS_AttributeOpened_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetOpened(value[0] == '1');
 }

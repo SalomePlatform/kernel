@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeIOR_i.hxx"
+#include "SALOMEDS.hxx"
 
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
@@ -36,6 +37,8 @@ using namespace std;
 
 char* SALOMEDS_AttributeIOR_i::Value()
 {
+  SALOMEDS::Locker lock;
+
   TCollection_ExtendedString S = Handle(SALOMEDS_IORAttribute)::DownCast(_myAttr)->Get();
   CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
   return c_s._retn();
@@ -43,6 +46,8 @@ char* SALOMEDS_AttributeIOR_i::Value()
 
 void SALOMEDS_AttributeIOR_i::SetValue(const char* value) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   SALOMEDS_Study_i* aStudy = _mySObject->GetStudyServant();

@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeGraphic_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
@@ -37,6 +38,8 @@ using namespace std;
 void SALOMEDS_AttributeGraphic_i::SetVisibility( CORBA::Long    theViewId,
                                                  CORBA::Boolean theValue )
 {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_GraphicAttribute) anAttr =
     Handle(SALOMEDS_GraphicAttribute)::DownCast( _myAttr );
   if ( !anAttr.IsNull() )
@@ -49,6 +52,8 @@ void SALOMEDS_AttributeGraphic_i::SetVisibility( CORBA::Long    theViewId,
 //=======================================================================                                     
 CORBA::Boolean SALOMEDS_AttributeGraphic_i::GetVisibility( CORBA::Long theViewId )
 {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_GraphicAttribute) anAttr =
     Handle(SALOMEDS_GraphicAttribute)::DownCast( _myAttr );
   return !anAttr.IsNull() ? anAttr->GetVisibility( theViewId ) : false;

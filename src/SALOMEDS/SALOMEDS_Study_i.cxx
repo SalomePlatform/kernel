@@ -40,6 +40,7 @@
 #include <TColStd_ListIteratorOfListOfInteger.hxx>
 #include <TColStd_ListOfInteger.hxx>
 
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_Study_i.hxx"
 
 #include "SALOMEDS_StudyManager_i.hxx"
@@ -216,6 +217,8 @@ void SALOMEDS_Study_i::OnRemoveSObject(SALOMEDS::SObject_ptr theObject)
 //============================================================================
 void SALOMEDS_Study_i::CheckLocked()
 {
+  SALOMEDS::Locker lock;
+
   if(_doc->HasOpenCommand()) 
     return;
 
@@ -247,6 +250,8 @@ CORBA::Object_ptr SALOMEDS_Study_i::ConvertIORToObject(const char* theIOR)
 //============================================================================
 char* SALOMEDS_Study_i::GetPersistentReference()
 {
+  SALOMEDS::Locker lock;
+
   return URL();
 }
 //============================================================================
@@ -256,6 +261,8 @@ char* SALOMEDS_Study_i::GetPersistentReference()
 //============================================================================
 char* SALOMEDS_Study_i::GetTransientReference()
 {
+  SALOMEDS::Locker lock;
+
   CORBA::String_var IOR;
 
   Handle(SALOMEDS_IORAttribute) Att;
@@ -277,6 +284,8 @@ char* SALOMEDS_Study_i::GetTransientReference()
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::IsEmpty()
 {
+  SALOMEDS::Locker lock;
+
   if (_doc.IsNull()) return true;
   return _doc->IsEmpty();
 }
@@ -289,6 +298,8 @@ CORBA::Boolean SALOMEDS_Study_i::IsEmpty()
 SALOMEDS::SComponent_ptr 
 SALOMEDS_Study_i::FindComponent(const char* theComponentName)
 {
+  SALOMEDS::Locker lock;
+
   bool anIsFound = false;
   SALOMEDS::SComponent_var aSComponent;
   SALOMEDS_SComponentIterator_i aComponentIter(this,_doc);
@@ -310,6 +321,8 @@ SALOMEDS_Study_i::FindComponent(const char* theComponentName)
 //============================================================================
 SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponentID)
 {
+  SALOMEDS::Locker lock;
+
   // Iterate on each components defined in the study
   // Get the component ID and compare with aComponentID 
   bool _find = false;
@@ -341,6 +354,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* theObjectName)
 {
+  SALOMEDS::Locker lock;
+
   // Iterate to all components defined in the study
   // After testing the component name, iterate in all objects defined under
   // components (function _FindObject)
@@ -371,6 +386,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* theObjectName)
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 {
+  SALOMEDS::Locker lock;
+
   // Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
   TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab);
@@ -389,6 +406,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
 {
+  SALOMEDS::Locker lock;
+
   // Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
   TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab, Standard_True);
@@ -409,6 +428,8 @@ SALOMEDS::Study::ListOfSObject*
 SALOMEDS_Study_i::FindObjectByName(const char* theObjectName,
 				   const char* theComponentName)
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::Study::ListOfSObject_var aListOfSObj = new SALOMEDS::Study::ListOfSObject ;
   aListOfSObj->length(0);
 
@@ -454,6 +475,8 @@ SALOMEDS_Study_i::FindObjectByName(const char* theObjectName,
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* theObjectIOR)
 {
+  SALOMEDS::Locker lock;
+
   // firstly searching in the datamap for optimization
   char* anIOR = const_cast<char*>(theObjectIOR);
   if(myIORLabels.IsBound(anIOR)){
@@ -503,6 +526,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* theObjectIOR)
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 {
+  SALOMEDS::Locker lock;
+
   TCollection_AsciiString aPath(CORBA::string_dup(thePath)), aToken;
   SALOMEDS::SObject_var aSO = SALOMEDS::SObject::_nil();
   int i = 1, aLength = aPath.Length();
@@ -563,6 +588,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 //============================================================================
 char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 {
+  SALOMEDS::Locker lock;
+
   TCollection_AsciiString aPath("");
   if(CORBA::is_nil(theObject)) 
     return CORBA::string_dup(aPath.ToCString());
@@ -607,6 +634,8 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 //============================================================================
 void SALOMEDS_Study_i::SetContext(const char* thePath) 
 {
+  SALOMEDS::Locker lock;
+
   if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
   TCollection_AsciiString aPath(CORBA::string_dup(thePath)), aContext("");
   bool isInvalid = false;
@@ -644,6 +673,8 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 //============================================================================
 char* SALOMEDS_Study_i::GetContext() 
 {
+  SALOMEDS::Locker lock;
+
   if(_current.IsNull()) 
     throw SALOMEDS::Study::StudyInvalidContext();   
 
@@ -657,6 +688,8 @@ char* SALOMEDS_Study_i::GetContext()
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext) {
+  SALOMEDS::Locker lock;
+
   TColStd_SequenceOfExtendedString aResultSeq;
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
   TDF_Label aLabel;
@@ -694,6 +727,8 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theContext) {
+  SALOMEDS::Locker lock;
+
   TColStd_SequenceOfExtendedString aResultSeq;
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
   TDF_Label aLabel;
@@ -734,6 +769,8 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theCont
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext) {
+  SALOMEDS::Locker lock;
+
   TColStd_SequenceOfExtendedString aResultSeq;
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
   TDF_Label aLabel;
@@ -777,6 +814,8 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext) 
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theContext) {
+  SALOMEDS::Locker lock;
+
   TColStd_SequenceOfExtendedString aResultSeq;
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
   TDF_ChildIterator anIter(_doc->Main(), Standard_False); // iterate all subchildren at first level
@@ -802,6 +841,8 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
 SALOMEDS::ChildIterator_ptr 
 SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject_ptr theSObject)
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_ChildIterator_i* aServant = 
     new SALOMEDS_ChildIterator_i(GetChildIterator(theSObject));
 
@@ -824,6 +865,8 @@ SALOMEDS_Study_i::GetChildIterator(SALOMEDS::SObject_ptr theSObject)
 SALOMEDS::SComponentIterator_ptr 
 SALOMEDS_Study_i::NewComponentIterator()
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_SComponentIterator_i* aServant = 
     new SALOMEDS_SComponentIterator_i(GetComponentIterator());
 
@@ -843,6 +886,8 @@ SALOMEDS_Study_i::GetComponentIterator()
 //============================================================================
 SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder() 
 {
+  SALOMEDS::Locker lock;
+
   return _UseCaseBuilder->_this();
 }
 
@@ -858,6 +903,8 @@ SALOMEDS_StudyBuilder_i* SALOMEDS_Study_i::GetBuilder()
  
 SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 {
+  SALOMEDS::Locker lock;
+
   return GetBuilder()->_this();
 }
  
@@ -868,6 +915,8 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 //============================================================================
 char* SALOMEDS_Study_i::Name()
 {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(_name);
 }
 
@@ -878,6 +927,8 @@ char* SALOMEDS_Study_i::Name()
 //============================================================================
 void SALOMEDS_Study_i::Name(const char* name)
 {
+  SALOMEDS::Locker lock;
+
   _name = new char[strlen(name) +1];
   strcpy(_name,name);
 }
@@ -889,6 +940,8 @@ void SALOMEDS_Study_i::Name(const char* name)
 //============================================================================
 CORBA::Boolean  SALOMEDS_Study_i::IsSaved()
 {
+  SALOMEDS::Locker lock;
+
   return _isSaved;
 }
 
@@ -899,6 +952,8 @@ CORBA::Boolean  SALOMEDS_Study_i::IsSaved()
 //============================================================================
 void SALOMEDS_Study_i::IsSaved(CORBA::Boolean save)
 {
+  SALOMEDS::Locker lock;
+
   _isSaved = save;
 }
 
@@ -909,6 +964,8 @@ void SALOMEDS_Study_i::IsSaved(CORBA::Boolean save)
 //============================================================================
 CORBA::Boolean  SALOMEDS_Study_i::IsModified()
 {
+  SALOMEDS::Locker lock;
+
   // True if is modified and not saved
   if (_doc->IsModified())
     if (!_isSaved) return true;
@@ -923,6 +980,8 @@ CORBA::Boolean  SALOMEDS_Study_i::IsModified()
 //============================================================================
 char* SALOMEDS_Study_i::URL()
 {
+  SALOMEDS::Locker lock;
+
   if(!_URL) {
     _URL = new char[1];
     _URL[0] = (char)0;
@@ -937,6 +996,8 @@ char* SALOMEDS_Study_i::URL()
 //============================================================================
 void SALOMEDS_Study_i::URL(const char* url)
 {
+  SALOMEDS::Locker lock;
+
   if (_URL) delete [] _URL;
   _URL = new char[strlen(url) +1];
   strcpy(_URL,url);
@@ -1013,15 +1074,21 @@ SALOMEDS_Study_i::_FindObjectIOR(TDF_Label theLabel,
 
 CORBA::Short SALOMEDS_Study_i::StudyId()
 {
+  SALOMEDS::Locker lock;
+
   return _StudyId;
 }
 
 void SALOMEDS_Study_i::StudyId(CORBA::Short id)
 {
+  SALOMEDS::Locker lock;
+
   _StudyId = id;
 }
 
 void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR,const char* anEntry) {
+  SALOMEDS::Locker lock;
+
   TDF_Label aLabel;
   CORBA::String_var anEn = CORBA::string_dup(anEntry);
   CORBA::String_var IOR = CORBA::string_dup(anIOR);
@@ -1038,6 +1105,8 @@ void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribu
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObject_ptr anObject) {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::GenericAttribute_ptr aTarget;
   if (anObject->FindAttribute(aTarget,"AttributeTarget")) {
     return SALOMEDS::AttributeTarget::_narrow(aTarget)->Get();
@@ -1049,6 +1118,8 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObj
 
 
 SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties(){
+  SALOMEDS::Locker lock;
+
   SALOMEDS::SObject_var aSObject = FindObjectID("0:1");
 
   SALOMEDS::GenericAttribute_var anAttr =  
@@ -1058,6 +1129,8 @@ SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties(){
 }
 
 char* SALOMEDS_Study_i::GetLastModificationDate() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::AttributeStudyProperties_var aProp = GetProperties();
   SALOMEDS::StringSeq_var aNames;
   SALOMEDS::LongSeq_var aMinutes, aHours, aDays, aMonths, aYears;
@@ -1071,6 +1144,8 @@ char* SALOMEDS_Study_i::GetLastModificationDate() {
 }
 
 SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::AttributeStudyProperties_var aProp = GetProperties();
   SALOMEDS::StringSeq_var aNames;
   SALOMEDS::LongSeq_var aMinutes, aHours, aDays, aMonths, aYears;
@@ -1098,6 +1173,8 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate() {
 //============================================================================
 void SALOMEDS_Study_i::Close()
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_SComponentIterator_i itcomponent(this,_doc);
 
   const CORBA::ORB_var& anORB = GetORB();
@@ -1114,8 +1191,11 @@ void SALOMEDS_Study_i::Close()
       if (!CORBA::is_nil(obj)) {
 	SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
 	
-	if (!anEngine->_is_nil())  
+	if (!anEngine->_is_nil()){
+	  SALOMEDS::unlock();
 	  anEngine->Close(sco);
+	  SALOMEDS::lock();
+	}
       }
     }
   }
@@ -1136,6 +1216,8 @@ void SALOMEDS_Study_i::Close()
  */
  //============================================================================
 void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
+  SALOMEDS::Locker lock;
+
   if (!GetBuilder()->HasOpenCommand()) return;
   try {
     CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
@@ -1152,6 +1234,8 @@ void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
 }
 
 void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
+  SALOMEDS::Locker lock;
+
   if (!GetBuilder()->HasOpenCommand()) return;
   try {
     CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
@@ -1173,6 +1257,8 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
  */
 //============================================================================
 void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
+  SALOMEDS::Locker lock;
+
   int anIndex;
   int anOld;
 
@@ -1236,6 +1322,8 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
  */
 //============================================================================
 void SALOMEDS_Study_i::UndoPostponed(const CORBA::Long theWay) {
+  SALOMEDS::Locker lock;
+
   myNbUndos += theWay;
   // remove current postponed
   if (myNbPostponed.Last() > 0)

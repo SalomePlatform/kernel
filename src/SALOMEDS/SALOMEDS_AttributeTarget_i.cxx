@@ -33,17 +33,22 @@
 
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject)
 {
+  SALOMEDS::Locker lock;
+
   TDF_Label aLabel;
   TDF_Tool::Label(_myAttr->Label().Data(),anObject->GetID(),aLabel,1);
   _myAttr->Append(aLabel);
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() {
+  SALOMEDS::Locker lock;
+
   TDF_LabelList aLList;
 
   _myAttr->Get(aLList);
@@ -63,6 +68,8 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() {
 }
 
 void SALOMEDS_AttributeTarget_i::Remove(SALOMEDS::SObject_ptr anObject) {
+  SALOMEDS::Locker lock;
+
   TDF_Label aLabel;
   CORBA::String_var anID = anObject->GetID();
   TDF_Tool::Label(_myAttr->Label().Data(),anID.inout(),aLabel,1);

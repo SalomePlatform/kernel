@@ -27,28 +27,38 @@
 //  $Header$
 
 #include "SALOMEDS_AttributePixMap_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TCollection_AsciiString.hxx>
 
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap() {
+  SALOMEDS::Locker lock;
+
   TCollection_ExtendedString S = Handle(SALOMEDS_PixMapAttribute)::DownCast(_myAttr)->Get();
   if (strcmp(TCollection_AsciiString(S).ToCString(), "None") == 0) return Standard_False;
   return Standard_True;
 }
 
 char* SALOMEDS_AttributePixMap_i::GetPixMap() {
- CORBA::String_var S = CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDS_PixMapAttribute)::DownCast(_myAttr)->Get()).ToCString());
- return S._retn();
+  SALOMEDS::Locker lock;
+
+  CORBA::String_var S = CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDS_PixMapAttribute)::DownCast(_myAttr)->Get()).ToCString());
+  return S._retn();
 }
 
 void SALOMEDS_AttributePixMap_i::SetPixMap(const char* value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
 
 char* SALOMEDS_AttributePixMap_i::Store() {
+  SALOMEDS::Locker lock;
+
   return GetPixMap();
 }
 

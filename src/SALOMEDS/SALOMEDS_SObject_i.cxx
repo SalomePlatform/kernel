@@ -44,6 +44,7 @@
 #include "SALOMEDS_SObject_i.hxx"
 
 //SALOMEDS Headers
+#include <SALOMEDS.hxx>
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
@@ -102,7 +103,6 @@ inline bool operator<(const Standard_GUID& theLeft, const Standard_GUID& theRigh
 
 
 namespace SALOMEDS{
-
   const char* Str(const TCollection_ExtendedString& theString)
   {
     return TCollection_AsciiString(theString).ToCString();
@@ -274,6 +274,8 @@ namespace SALOMEDS{
   }
   
 }  
+
+//static SALOMEDS::Mutex SObjMutex;
   
 //============================================================================
 SALOMEDS_Study_i::TSObjectHolder
@@ -355,6 +357,8 @@ PortableServer::POA_var SALOMEDS_SObject_i::GetPOA() const
 //============================================================================
 char* SALOMEDS_SObject_i::GetID()
 {
+  Locker lock;
+
   TCollection_AsciiString anEntry;
   TDF_Tool::Entry(_lab,anEntry);
   return CORBA::string_dup(anEntry.ToCString());
@@ -376,6 +380,8 @@ TDF_Label SALOMEDS_SObject_i::GetFatherComponentLabel()
 
 SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 {
+  Locker lock;
+
   TDF_Label aSCompLabel = GetFatherComponentLabel();
 
   return SALOMEDS_SComponent_i::NewRef(_study,aSCompLabel)._retn();
@@ -388,6 +394,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 {
+  Locker lock;
+
   return SALOMEDS_SObject_i::NewRef(_study,_lab.Father())._retn();
 }
 
@@ -408,6 +416,8 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out theSObject)
 {
+  Locker lock;
+
   Handle(TDF_Reference) aRef;
   if (!_lab.FindAttribute(TDF_Reference::GetID(),aRef))
     return false;
@@ -423,6 +433,8 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out theSOb
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long theTag, SALOMEDS::SObject_out theSObject)
 {
+  Locker lock;
+
   TDF_Label aLabel = _lab.FindChild(theTag,false);
   if(aLabel.IsNull()) 
     return false;
@@ -438,6 +450,8 @@ CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long theTag, SALOMEDS::S
 //============================================================================
 char* SALOMEDS_SObject_i::Name()
 {
+  Locker lock;
+
   return CORBA::string_dup(_name.c_str());
 }
   
@@ -448,6 +462,8 @@ char* SALOMEDS_SObject_i::Name()
 //============================================================================
 void  SALOMEDS_SObject_i::Name(const char* theName)
 {
+  Locker lock;
+
   _name = theName;
 }
   
@@ -458,6 +474,8 @@ void  SALOMEDS_SObject_i::Name(const char* theName)
 //============================================================================
 CORBA::Short SALOMEDS_SObject_i::Tag()
 {
+  Locker lock;
+
   return _lab.Tag();
 }
 
@@ -468,6 +486,8 @@ CORBA::Short SALOMEDS_SObject_i::Tag()
 //============================================================================
 CORBA::Short SALOMEDS_SObject_i::Depth()
 {
+  Locker lock;
+
   return _lab.Depth();
 }
 
@@ -478,6 +498,8 @@ CORBA::Short SALOMEDS_SObject_i::Depth()
 //============================================================================
 CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
 {
+  Locker lock;
+
   try {
     Handle(SALOMEDS_IORAttribute) anAttr;
     if(_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr)){
@@ -495,6 +517,8 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetName() {
+  Locker lock;
+
   Handle(TDataStd_Name) anAttr;
   if(_lab.FindAttribute(TDataStd_Name::GetID(),anAttr))
     return CORBA::string_dup(Str(anAttr->Get()));
@@ -508,6 +532,8 @@ char* SALOMEDS_SObject_i::GetName() {
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetComment() {
+  Locker lock;
+
   Handle(TDataStd_Comment) anAttr;
   if(_lab.FindAttribute(TDataStd_Comment::GetID(), anAttr))
     return CORBA::string_dup(Str(anAttr->Get()));
@@ -521,6 +547,8 @@ char* SALOMEDS_SObject_i::GetComment() {
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetIOR() {
+  Locker lock;
+
   Handle(SALOMEDS_IORAttribute) anAttr;
   if(_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr))
     return CORBA::string_dup(Str(anAttr->Get()));
@@ -544,6 +572,8 @@ SALOMEDS_SObject_i::_FindGenAttribute(const Handle(TDF_Attribute)& theAttr)
 
 SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 {
+  Locker lock;
+
   SALOMEDS::ListOfAttributes_var aSeqOfAttr = new SALOMEDS::ListOfAttributes;
   if(_lab.NbAttributes() > 0){
     Standard_Integer i = 0;
@@ -635,6 +665,8 @@ CORBA::Boolean
 SALOMEDS_SObject_i::FindAttribute(SALOMEDS::GenericAttribute_out theAttribute, 
 				  const char* theType)
 {
+  Locker lock;
+
   TAttrHolder anAttr = _FindGenAttribute(theType);
   SALOMEDS::GenericAttribute_var anGenAttr = anAttr.second;
   if(!CORBA::is_nil(anGenAttr)){
@@ -699,6 +731,8 @@ Handle(TDF_Attribute)
 SALOMEDS::GenericAttribute_ptr 
 SALOMEDS_SObject_i::FindOrCreateAttribute(const char* theType)
 {
+  Locker lock;
+
   TAttrHolder anAttrHolder = _FindGenAttribute(theType);
   SALOMEDS::GenericAttribute_var anGenAttr = anAttrHolder.second;
   if(!anGenAttr->_is_nil())
@@ -723,6 +757,8 @@ SALOMEDS_SObject_i::FindOrCreateAttribute(const char* theType)
 //============================================================================
 void SALOMEDS_SObject_i::RemoveAttribute(const char* theType)
 {
+  Locker lock;
+
   _study->CheckLocked();
   if(strcmp(theType, "AttributeIOR") == 0) { // postponed removing of CORBA objects
     Handle(SALOMEDS_IORAttribute) anAttr;

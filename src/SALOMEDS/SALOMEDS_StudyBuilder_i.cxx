@@ -41,6 +41,7 @@
 #include "SALOMEDS_StudyPropertiesAttribute.hxx"
 
 #include "SALOMEDS_Tool.hxx"
+#include "SALOMEDS.hxx"
 
 #include "Utils_CorbaException.hxx"
 #include "Utils_ExceptHandlers.hxx"
@@ -115,6 +116,8 @@ PortableServer::POA_var SALOMEDS_StudyBuilder_i::GetPOA() const
 SALOMEDS::SComponent_ptr 
 SALOMEDS_StudyBuilder_i::NewComponent(const char* DataType)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   //Always create component under main label.
   TDF_Label L  = _doc->Main();
@@ -147,6 +150,8 @@ SALOMEDS_StudyBuilder_i::NewComponent(const char* DataType)
 void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr theComponent,
 						      CORBA::Object_ptr theObject)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   if(CORBA::is_nil(theComponent) || CORBA::is_nil(theObject))
@@ -170,6 +175,8 @@ void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr t
 void 
 SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr theComponent)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   RemoveObject(theComponent);
 }
@@ -182,6 +189,8 @@ SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr theComponent)
 SALOMEDS::SObject_ptr 
 SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr theFatherObject)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   if(CORBA::is_nil(theFatherObject)) 
@@ -220,6 +229,8 @@ SALOMEDS::SObject_ptr
 SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
 					CORBA::Long theTag)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   if(CORBA::is_nil(theFatherObject)) 
@@ -247,6 +258,8 @@ SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
 //============================================================================
 void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr theSObject)
 {
+  SALOMEDS::Locker lock;
+
   RemoveSObject(theSObject);
 }
 
@@ -276,6 +289,8 @@ SALOMEDS_StudyBuilder_i::RemoveSObject(SALOMEDS::SObject_ptr theSObject,
 //============================================================================
 void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr theSObject)
 {
+  SALOMEDS::Locker lock;
+
   if(SALOMEDS_SObject_i* aSObject = RemoveSObject(theSObject,false)){
     SALOMEDS_ChildIterator_i aChildIter(_study,aSObject->GetLabel(),true);
     for(; aChildIter.More(); aChildIter.Next()){
@@ -313,9 +328,14 @@ static void  Translate_persistentID_to_IOR(TDF_Label theLabel,
       TCollection_AsciiString ch(res);
       
       SALOMEDS::SObject_var aSObject = SALOMEDS_SObject_i::NewRef(theStudy,aCurrentLabel); 
-
+      
+      // PAL8065: san - Translate_persistentID_to_IOR() should always be called from some CORBA method 
+      // protected with a lock
+      SALOMEDS::unlock();
       CORBA::String_var anIOR = 
 	theDriver->LocalPersistentIDToIOR(aSObject,ch.ToCString(),theIsMultiFile,theIsASCII);
+      SALOMEDS::lock();
+
       SALOMEDS_IORAttribute::Set(aCurrentLabel,const_cast<char*>(anIOR.in()),theStudy); 
     }
 
@@ -334,6 +354,8 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr theSComponent,
 				       SALOMEDS::Driver_ptr theDriver) 
   throw(SALOME::SALOME_Exception)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBSalomeException);
 
   if(CORBA::is_nil(theSComponent))
@@ -414,9 +436,12 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr theSComponent,
       std::string aDir(aHDFPath.ToCString());
       aDir = aDir.substr(0,aDir.rfind('/') + 1);
       
+      SALOMEDS::unlock();
       CORBA::Boolean aResult = (ASCIIfileState[0]=='A')?
 	theDriver->LoadASCII(theSComponent, aStreamFile.in(), aDir.c_str(), aMultifileState[0]=='M'):
 	  theDriver->Load(theSComponent, aStreamFile.in(), aDir.c_str(), aMultifileState[0]=='M');
+      SALOMEDS::lock();
+
       if(!aResult) {
 	RemoveAttribute( theSComponent, "AttributeIOR" );
 	if (isASCII) {
@@ -498,6 +523,8 @@ SALOMEDS::GenericAttribute_ptr
 SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SALOMEDS::SObject_ptr theObject, 
 					       const char* theTypeOfAttribute)
 {
+  SALOMEDS::Locker lock;
+
   if(SALOMEDS_SObject_i* aSObject = _study->DownCast(theObject))
     return aSObject->FindOrCreateAttribute(theTypeOfAttribute);
 
@@ -514,6 +541,8 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr theO
 						      SALOMEDS::GenericAttribute_out theAttr, 
 						      const char* theTypeOfAttribute)
 {
+  SALOMEDS::Locker lock;
+
   if(SALOMEDS_SObject_i* aSObject = _study->DownCast(theObject))
     return aSObject->FindAttribute(theAttr,theTypeOfAttribute);
 
@@ -529,6 +558,8 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr theO
 void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr theSObject, 
 					      const char* aTypeOfAttribute)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   if(CORBA::is_nil(theSObject))
@@ -558,6 +589,8 @@ void
 SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me, 
 				      SALOMEDS::SObject_ptr theReferencedObject)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   if(CORBA::is_nil(me) || CORBA::is_nil(theReferencedObject))
     return;
@@ -584,6 +617,8 @@ SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me,
 //============================================================================
 void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::SObject_var theReferencedObject;
   if(!me->ReferencedObject(theReferencedObject)) return;  //No reference is found
 
@@ -613,6 +648,8 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
 //============================================================================
 void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
 
@@ -679,6 +716,8 @@ void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath)
 //============================================================================
 void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
 
   if(CORBA::is_nil(anObject))
@@ -697,6 +736,8 @@ void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char
 //============================================================================
 bool SALOMEDS_StudyBuilder_i::IsGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID)
 {
+  SALOMEDS::Locker lock;
+
   if(CORBA::is_nil(anObject))
     return false;
 
@@ -714,6 +755,8 @@ bool SALOMEDS_StudyBuilder_i::IsGUID(SALOMEDS::SObject_ptr anObject, const char*
 //============================================================================
 void SALOMEDS_StudyBuilder_i::NewCommand()
 {
+  SALOMEDS::Locker lock;
+
   // mpv: for SAL2114 - unset "lock changed" flag at the operation start
   Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
   if (!_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
@@ -732,6 +775,8 @@ void SALOMEDS_StudyBuilder_i::NewCommand()
 //============================================================================
 void SALOMEDS_StudyBuilder_i::CommitCommand() throw (SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
   if (!_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
@@ -759,6 +804,8 @@ void SALOMEDS_StudyBuilder_i::CommitCommand() throw (SALOMEDS::StudyBuilder::Loc
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyBuilder_i::HasOpenCommand()
 {
+  SALOMEDS::Locker lock;
+
   return _doc->HasOpenCommand();
 }
 
@@ -769,6 +816,8 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::HasOpenCommand()
 //============================================================================
 void SALOMEDS_StudyBuilder_i::AbortCommand()
 {
+  SALOMEDS::Locker lock;
+
   _study->UndoPostponed(0);
   
   _doc->AbortCommand();
@@ -781,6 +830,8 @@ void SALOMEDS_StudyBuilder_i::AbortCommand()
 //============================================================================
 void SALOMEDS_StudyBuilder_i::Undo() throw (SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
   if (!_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
@@ -803,7 +854,9 @@ void SALOMEDS_StudyBuilder_i::Undo() throw (SALOMEDS::StudyBuilder::LockProtecti
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::Redo() throw (SALOMEDS::StudyBuilder::LockProtection)
-{
+{  
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
   if (!_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
@@ -828,6 +881,8 @@ void SALOMEDS_StudyBuilder_i::Redo() throw (SALOMEDS::StudyBuilder::LockProtecti
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyBuilder_i::GetAvailableUndos()
 {
+  SALOMEDS::Locker lock;
+
   return _doc->GetAvailableUndos();
 }
 
@@ -838,6 +893,8 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::GetAvailableUndos()
 //============================================================================
 CORBA::Boolean  SALOMEDS_StudyBuilder_i::GetAvailableRedos()
 {
+  SALOMEDS::Locker lock;
+
   return _doc->GetAvailableRedos();
 }
 
@@ -848,6 +905,8 @@ CORBA::Boolean  SALOMEDS_StudyBuilder_i::GetAvailableRedos()
 //============================================================================
 CORBA::Long  SALOMEDS_StudyBuilder_i::UndoLimit()
 {
+  SALOMEDS::Locker lock;
+
   return _doc->GetUndoLimit();
 }
 
@@ -858,6 +917,8 @@ CORBA::Long  SALOMEDS_StudyBuilder_i::UndoLimit()
 //============================================================================
 void  SALOMEDS_StudyBuilder_i::UndoLimit(CORBA::Long n)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _doc->SetUndoLimit (n);
 }
@@ -909,6 +970,8 @@ void SALOMEDS_StudyBuilder_i::CheckLocked() throw (SALOMEDS::StudyBuilder::LockP
 void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* theValue)
      throw(SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
 
@@ -930,6 +993,8 @@ void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* t
 void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue)
  throw(SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
 
@@ -951,6 +1016,8 @@ void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char
 void SALOMEDS_StudyBuilder_i::SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue)
  throw(SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
 

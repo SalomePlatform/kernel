@@ -27,11 +27,15 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TColStd_HArray1OfReal.hxx>
 
 using namespace std;
 
 SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::Color TextHighlightColor;
   Handle(TColStd_HArray1OfReal) anArray = Handle(SALOMEDS_TextHighlightColorAttribute)::DownCast(_myAttr)->Array();
   if (anArray.IsNull() || anArray->Length()!=3) { 
@@ -48,6 +52,8 @@ SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() {
 }
 
 void SALOMEDS_AttributeTextHighlightColor_i::SetTextHighlightColor(const SALOMEDS::Color& value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TColStd_HArray1OfReal) anArray = new TColStd_HArray1OfReal(1,3);
   anArray->SetValue(1,  value.R);
@@ -57,6 +63,8 @@ void SALOMEDS_AttributeTextHighlightColor_i::SetTextHighlightColor(const SALOMED
 }
 
 char* SALOMEDS_AttributeTextHighlightColor_i::Store() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::Color aColor = TextHighlightColor();
   char *Val = new char[75];
   sprintf(Val, "%f %f %f", (float)aColor.R, (float)aColor.G, (float)aColor.B);
@@ -64,6 +72,8 @@ char* SALOMEDS_AttributeTextHighlightColor_i::Store() {
 }
 
 void SALOMEDS_AttributeTextHighlightColor_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::Color aColor;
   float r, g, b;
   sscanf(value, "%f %f %f", &r, &g, &b);

@@ -27,11 +27,15 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeUserID_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TCollection_ExtendedString.hxx>
 
 using namespace std;
 
 char* SALOMEDS_AttributeUserID_i::Value() {
+  SALOMEDS::Locker lock;
+
   char aGUID[40];
   Handle(TDataStd_UAttribute)::DownCast(_myAttr)->ID().ToCString(aGUID);
   CORBA::String_var c_s = CORBA::string_dup(aGUID);
@@ -39,6 +43,8 @@ char* SALOMEDS_AttributeUserID_i::Value() {
 }
 
 void SALOMEDS_AttributeUserID_i::SetValue(const char* value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_UAttribute)::DownCast(_myAttr)->SetID(Standard_GUID(Standard_CString(Str)));

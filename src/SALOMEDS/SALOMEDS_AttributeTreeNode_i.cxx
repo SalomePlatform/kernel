@@ -30,6 +30,7 @@
 #include <TDF_Tool.hxx>
 
 #include "SALOMEDS_AttributeTreeNode_i.hxx"
+#include "SALOMEDS.hxx"
 
 #include "utilities.h"
 
@@ -55,118 +56,166 @@ static Handle(TDataStd_TreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetFather(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->SetFather(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasFather() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->HasFather();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFather() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_AttributeTreeNode_i* aTreeNode = 
     new SALOMEDS_AttributeTreeNode_i(_myAttr->Father(),_mySObject);
   return aTreeNode->_this();
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetPrevious(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->SetPrevious(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasPrevious() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->HasPrevious();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetPrevious() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_AttributeTreeNode_i* aTreeNode = 
     new SALOMEDS_AttributeTreeNode_i(_myAttr->Previous(),_mySObject);
   return aTreeNode->_this();
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetNext(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->SetNext(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasNext() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->HasNext();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetNext() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_AttributeTreeNode_i* aTreeNode = 
     new SALOMEDS_AttributeTreeNode_i(_myAttr->Next(),_mySObject);
   return aTreeNode->_this();
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetFirst(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->SetFirst(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasFirst() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->HasFirst();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFirst() {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_AttributeTreeNode_i* aTreeNode = 
     new SALOMEDS_AttributeTreeNode_i(_myAttr->First(),_mySObject);
   return aTreeNode->_this();
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetTreeID(const char* value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->SetTreeID(Standard_GUID(_myAttr->ID()));
 }
 
 char* SALOMEDS_AttributeTreeNode_i::GetTreeID() {
+  SALOMEDS::Locker lock;
+
   char aGUID[40];
   _myAttr->ID().ToCString(aGUID);
   return CORBA::string_dup(aGUID);
 }
 
 void SALOMEDS_AttributeTreeNode_i::Append(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->Append(GetNode(theValue,_myAttr));
 }
 
 void SALOMEDS_AttributeTreeNode_i::Prepend(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->Prepend(GetNode(theValue,_myAttr));
 }
 
 void SALOMEDS_AttributeTreeNode_i::InsertBefore(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->InsertBefore(GetNode(theValue,_myAttr));
 }
 
 void SALOMEDS_AttributeTreeNode_i::InsertAfter(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->InsertAfter(GetNode(theValue,_myAttr));
 }
 
 void SALOMEDS_AttributeTreeNode_i::Remove() {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   _myAttr->Remove();
 }
 
 CORBA::Long SALOMEDS_AttributeTreeNode_i::Depth() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->Depth();
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsRoot() {
+  SALOMEDS::Locker lock;
+
   return _myAttr->IsRoot();
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsDescendant(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   return _myAttr->IsDescendant(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsFather(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   return _myAttr->IsFather(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsChild(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  SALOMEDS::Locker lock;
+
   return _myAttr->IsChild(GetNode(theValue,_myAttr));
 }
 
@@ -177,6 +226,8 @@ char* SALOMEDS_AttributeTreeNode_i::Label() {
 }
 
 char* SALOMEDS_AttributeTreeNode_i::Store() {
+  SALOMEDS::Locker lock;
+
   char* aStr[4];
 
   if (HasFather()) aStr[0] = GetFather()->Label(); else aStr[0] = "!";
@@ -192,6 +243,8 @@ char* SALOMEDS_AttributeTreeNode_i::Store() {
 }
 
 void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
   Handle(TDF_Data) DF = TDocStd_Document::Get(_myAttr->Label())->GetData();
   

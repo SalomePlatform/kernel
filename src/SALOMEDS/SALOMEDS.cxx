@@ -21,45 +21,33 @@
 //
 //
 //
-//  File   : SALOMEDS_AttributeComment_i.cxx
-//  Author : Yves FRICAUD
+//  File   : SALOMEDS.cxx
+//  Author : Sergey ANIKIN
 //  Module : SALOME
 //  $Header$
 
-#include <TCollection_ExtendedString.hxx>
-#include <TCollection_AsciiString.hxx>
 
-#include "SALOMEDS_AttributeComment_i.hxx"
-#include "SALOMEDS.hxx"
+#include <SALOMEDS.hxx>
 
-using namespace std;
+using namespace SALOMEDS;
 
-char* SALOMEDS_AttributeComment_i::Value()
+// PAL8065: san -- Global recursive mutex for SALOMEDS methods
+Utils_Mutex Locker::MutexDS;
+
+// PAL8065: san -- Global SALOMEDS locker
+Locker::Locker()
+: Utils_Locker( &MutexDS )
+{}
+
+Locker::~Locker()
+{}
+
+void SALOMEDS::lock()
 {
-  SALOMEDS::Locker lock;
-
-  TCollection_ExtendedString S = Handle(TDataStd_Comment)::DownCast(_myAttr)->Get();
-  CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
-  return c_s._retn();
+  Locker::MutexDS.lock();
 }
 
-void SALOMEDS_AttributeComment_i::SetValue(const char* value) 
+void SALOMEDS::unlock()
 {
-  SALOMEDS::Locker lock;
-
-  CheckLocked();
-  CORBA::String_var Str = CORBA::string_dup(value);
-  Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
-}
-
-char* SALOMEDS_AttributeComment_i::Store() {
-  SALOMEDS::Locker lock;
-
-  return Value();
-}
-
-void SALOMEDS_AttributeComment_i::Restore(const char* value) {
-  SALOMEDS::Locker lock;
-
-  SetValue(value);
+  Locker::MutexDS.unlock();
 }

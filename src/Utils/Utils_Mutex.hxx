@@ -1,4 +1,4 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
+//  SALOME Utils : general SALOME's definitions and tools
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -19,43 +19,41 @@
 // 
 //  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
-//
-//
-//  File   : SALOMEDS_AttributeInteger_i.cxx
-//  Author : Yves FRICAUD
-//  Module : SALOME
+//  File:	Utils_Mutex.hxx
+//  Author:	Sergey ANIKIN
+//  Module :    SALOME
 //  $Header$
 
-#include "SALOMEDS_AttributeInteger_i.hxx"
-#include "SALOMEDS.hxx"
 
-using namespace std;
+#ifndef Utils_Mutex_HeaderFile
+#define Utils_Mutex_HeaderFile
 
-CORBA::Long SALOMEDS_AttributeInteger_i::Value() {
-  SALOMEDS::Locker lock;
+#include <pthread.h>
 
-  return Handle(TDataStd_Integer)::DownCast(_myAttr)->Get();
-}
+class Utils_Mutex
+{
+public:
+  Utils_Mutex();
+  ~Utils_Mutex();
 
-void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) {
-  SALOMEDS::Locker lock;
+  void lock();
+  void unlock();
+    
+private:
+  pthread_mutex_t myMutex;
+  pthread_mutex_t myHelperMutex;
+  pthread_t       myThread;
+  int             myCount;
+};
 
-  CheckLocked();
-  Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(value);
-}
+class Utils_Locker
+{
+public:
+  Utils_Locker( Utils_Mutex* );
+  virtual ~Utils_Locker();
 
-char* SALOMEDS_AttributeInteger_i::Store() {
-  SALOMEDS::Locker lock;
+private:
+  Utils_Mutex* myMutex;
+};
 
-  char* IntVal = new char[25];
-  sprintf(IntVal, "%d", Value());
-  return IntVal;
-}
-
-void SALOMEDS_AttributeInteger_i::Restore(const char* value) {
-  SALOMEDS::Locker lock;
-
-  char *err = NULL;
-  CORBA::Long l =  atol(value);
-  SetValue(l);
-}
+#endif

@@ -1279,7 +1279,9 @@ void QAD_Application::onStudyClosed(QAD_Study* study)
 void QAD_Application::onActiveStudyChanged( QAD_Study* oldActiveStudy, 
 					    QAD_Study* newActiveStudy )
 {
-  getDesktop()->onActiveStudyChanged();
+  // san -- Check added: see comment by P.Rascle to PAL8065 about poor performance
+  if ( oldActiveStudy != newActiveStudy )
+    getDesktop()->onActiveStudyChanged();
 
   if ( oldActiveStudy )
     QAD_ASSERT( disconnect( oldActiveStudy, SIGNAL(docOperationTerminated( bool )),

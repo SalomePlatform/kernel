@@ -47,6 +47,7 @@
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
 
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 
@@ -284,6 +285,8 @@ void SALOMEDS_StudyManager_i::register_name(char * theName) {
 //============================================================================
 SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* theStudyName) 
 {
+  SALOMEDS::Locker lock;
+   
   Handle(TDocStd_Document) aDocument;
   _OCAFApp->NewDocument("SALOME_STUDY",aDocument); 
 
@@ -331,6 +334,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* theStudyName)
 SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* theURL)
      throw(SALOME::SALOME_Exception)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
@@ -433,6 +438,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* theURL)
 //============================================================================
 void  SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
 {
+  SALOMEDS::Locker lock;
+
   if(aStudy->_is_nil()) return;
   
   aStudy->RemovePostponed(-1);
@@ -453,6 +460,8 @@ void  SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
 //============================================================================
 void SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr theStudy, CORBA::Boolean theMultiFile)
 {
+  SALOMEDS::Locker lock;
+
   CORBA::String_var anURL = theStudy->URL();
   if(strcmp(anURL.in(),"") == 0){
     MESSAGE( "No path specified to save the study. Nothing done");
@@ -463,6 +472,8 @@ void SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr theStudy, CORBA::Boolean 
 
 void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr theStudy, CORBA::Boolean theMultiFile)
 {
+  SALOMEDS::Locker lock;
+
   CORBA::String_var anURL = theStudy->URL();
   if(strcmp(anURL.in(),"") == 0){
     MESSAGE( "No path specified to save the study. Nothing done");
@@ -478,12 +489,16 @@ void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr theStudy, CORBA::Boo
 //============================================================================
 void SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr theStudy, CORBA::Boolean theMultiFile)
 {
+  SALOMEDS::Locker lock;
+
   _SaveAs(aUrl,theStudy,theMultiFile, false);
 
 }
 
 void SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr theStudy, CORBA::Boolean theMultiFile)
 {
+  SALOMEDS::Locker lock;
+
   _SaveAs(aUrl,theStudy,theMultiFile, true);
 }
 
@@ -726,7 +741,10 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	      if(!aComp->_is_nil()){
 		SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(aComp);
 		if (!CORBA::is_nil(aDriver)) {
+		  // PAL8065: san - _SaveAs() should always be called from some CORBA method protected with a lock
+		  SALOMEDS::unlock();
 		  SB->LoadWith(sco, aDriver);
+		  SALOMEDS::lock();
 		}
 	      }
 	    }
@@ -1007,23 +1025,27 @@ std::string SALOMEDS_StudyManager_i::_SubstituteSlash(const char *theUrl)
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject) {
-  SALOMEDS::SComponent_var aComponent = theObject->GetFatherComponent();
+  SALOMEDS::Driver_var Engine;
+  { // Guarded block of code
+    SALOMEDS::Locker lock;
 
-  if(aComponent->_is_nil()) 
-    return false;
+    SALOMEDS::SComponent_var aComponent = theObject->GetFatherComponent();
 
-  if(aComponent == theObject) 
-    return false;
+    if(aComponent->_is_nil()) 
+      return false;
 
-  CORBA::String_var IOREngine;
-  if(!aComponent->ComponentIOR(IOREngine)) 
-    return false;
+    if(aComponent == theObject) 
+      return false;
 
-  CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-  SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
-  if (CORBA::is_nil(Engine)) 
-    return false;
+    CORBA::String_var IOREngine;
+    if(!aComponent->ComponentIOR(IOREngine)) 
+      return false;
 
+    CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+    Engine = SALOMEDS::Driver::_narrow(obj);
+    if (CORBA::is_nil(Engine)) 
+      return false;
+  } // End of guarded block of code
   return Engine->CanCopy(theObject);
 }
 
@@ -1069,24 +1091,31 @@ void SALOMEDS_StudyManager_i::CopyLabel(SALOMEDS_Study_i* theSourceStudy,
       continue;
     }
     
-    if (!Handle(SALOMEDS_IORAttribute)::DownCast(anAttr).IsNull()) { // IOR => ID and TMPFile of Engine
-      TCollection_AsciiString anEntry;
-      TDF_Tool::Entry(theSource, anEntry);
-      SALOMEDS::SObject_var aSO = theSourceStudy->FindObjectID(anEntry.ToCString());
-      CORBA::Long anObjID;
-      SALOMEDS::TMPFile_var aStream = theEngine->CopyFrom(aSO, anObjID);
-      int aLen = aStream->length();
-      TCollection_ExtendedString aResStr("");
-      for(a = 0; a < aLen; a++) {
-	aResStr += TCollection_ExtendedString(ToExtCharacter((Standard_Character)aStream[a]));
-      }
-      TDataStd_Integer::Set(aAuxTargetLabel, anObjID);
-      TDataStd_Name::Set(aAuxTargetLabel, aResStr);
+    if (Handle(SALOMEDS_IORAttribute)::DownCast(anAttr).IsNull()) { // IOR => ID and TMPFile of Engine
+      Handle(TDF_Attribute) aNewAttribute = anAttr->NewEmpty();
+      aTargetLabel.AddAttribute(aNewAttribute);
+      anAttr->Paste(aNewAttribute, aRT);
       continue;
     }
-    Handle(TDF_Attribute) aNewAttribute = anAttr->NewEmpty();
-    aTargetLabel.AddAttribute(aNewAttribute);
-    anAttr->Paste(aNewAttribute, aRT);
+
+    TCollection_AsciiString anEntry;
+    TDF_Tool::Entry(theSource, anEntry);
+    SALOMEDS::SObject_var aSO = theSourceStudy->FindObjectID(anEntry.ToCString());
+    CORBA::Long anObjID;
+
+    // PAL8065: san - CopyLabel() should always be called from some CORBA method protected with a lock
+    SALOMEDS::unlock();
+    SALOMEDS::TMPFile_var aStream = theEngine->CopyFrom(aSO, anObjID);
+    SALOMEDS::lock();
+
+    int aLen = aStream->length();
+    TCollection_ExtendedString aResStr("");
+    for(a = 0; a < aLen; a++) {
+      aResStr += TCollection_ExtendedString(ToExtCharacter((Standard_Character)aStream[a]));
+    }
+    TDataStd_Integer::Set(aAuxTargetLabel, anObjID);
+    TDataStd_Name::Set(aAuxTargetLabel, aResStr);
+
 //      aRT->SetRelocation(anAttr, aNewAttribute);
   }
 }
@@ -1097,6 +1126,8 @@ void SALOMEDS_StudyManager_i::CopyLabel(SALOMEDS_Study_i* theSourceStudy,
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject) {
+  SALOMEDS::Locker lock;
+   
   // adoptation for alliances datamodel copy: without IOR attributes !!!
   // copy only SObjects and attributes without component help
   SALOMEDS::GenericAttribute_var anAttribute;
@@ -1170,28 +1201,37 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject) {
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject) {
-  if (_clipboard.IsNull()) return false;
+  CORBA::String_var aName;
+  Standard_Integer anID;
+  SALOMEDS::Driver_var Engine;
+  { // Guarded block of code
+    SALOMEDS::Locker lock;
 
-  Handle(TDataStd_Comment) aCompName;
-  if (!_clipboard->Main().Root().FindAttribute(TDataStd_Comment::GetID(), aCompName)) return false;
-  Handle(TDataStd_Integer) anObjID;
-  if (!_clipboard->Main().Father().FindChild(2).FindAttribute(TDataStd_Integer::GetID(), anObjID))
-    return false;
+    if (_clipboard.IsNull()) return false;
 
-  SALOMEDS::SComponent_var aComponent = theObject->GetFatherComponent();
-  if(aComponent->_is_nil()) 
-    return false;
+    Handle(TDataStd_Comment) aCompName;
+    if (!_clipboard->Main().Root().FindAttribute(TDataStd_Comment::GetID(), aCompName)) return false;
+    Handle(TDataStd_Integer) anObjID;
+    if (!_clipboard->Main().Father().FindChild(2).FindAttribute(TDataStd_Integer::GetID(), anObjID))
+      return false;
+
+    SALOMEDS::SComponent_var aComponent = theObject->GetFatherComponent();
+    if(aComponent->_is_nil()) 
+      return false;
   
-  CORBA::String_var IOREngine;
-  if(!aComponent->ComponentIOR(IOREngine)) 
-    return false;
+    CORBA::String_var IOREngine;
+    if(!aComponent->ComponentIOR(IOREngine)) 
+      return false;
   
-  CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-  SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
-  if (CORBA::is_nil(Engine)) 
-    return false;
+    CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+    Engine = SALOMEDS::Driver::_narrow(obj) ;
+    if (CORBA::is_nil(Engine)) 
+      return false;
 
-  return Engine->CanPaste(TCollection_AsciiString(aCompName->Get()).ToCString(),anObjID->Get());
+    aName = CORBA::string_dup( TCollection_AsciiString(aCompName->Get()).ToCString() );
+    anID   = anObjID->Get();
+  } // End of guarded block of code
+  return Engine->CanPaste(aName.in(),anID);
 }
 //============================================================================
 /*! Function : PasteLabel
@@ -1241,13 +1281,19 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
       TDF_Tool::Entry(aTargetLabel, anEntry);
       SALOMEDS::SObject_var aPastedSO = theDestinationStudy->FindObjectID(anEntry.ToCString());
       if(isFirstElement){
+	// PAL8065: san - PasteLabel() should always be called from some CORBA method protected with a lock
+	SALOMEDS::unlock();
 	SALOMEDS::SObject_var aDestSO =
 	  theEngine->PasteInto(aTMPFil.in(),
 			       anObjID->Get(),
 			       aPastedSO->GetFatherComponent());
+	SALOMEDS::lock();
 	TDF_Tool::Label(theDestinationStart.Data(), aDestSO->GetID(), aTargetLabel);
       }else 
+	// PAL8065: san - PasteLabel() should always be called from some CORBA method protected with a lock
+	SALOMEDS::unlock();
 	theEngine->PasteInto(aTMPFil.in(),anObjID->Get(),aPastedSO);
+	SALOMEDS::lock();
     }
   }
 
@@ -1299,6 +1345,8 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
 SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theObject)
      throw(SALOMEDS::StudyBuilder::LockProtection)
 {
+  SALOMEDS::Locker lock;
+
   Unexpect aCatch(LockProtection);
 
   PortableServer::ServantBase_var aServant = GetServant(theObject,_poa);

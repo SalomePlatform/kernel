@@ -27,6 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeReal_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <sstream>
 
 using namespace std;
@@ -56,15 +58,21 @@ static double read_double(const char* str)
 }
 
 CORBA::Double SALOMEDS_AttributeReal_i::Value() {
+  SALOMEDS::Locker lock;
+
   return Handle(TDataStd_Real)::DownCast(_myAttr)->Get();
 }
 
 void SALOMEDS_AttributeReal_i::SetValue(CORBA::Double value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TDataStd_Real)::DownCast(_myAttr)->Set(value);
 }
 
 char* SALOMEDS_AttributeReal_i::Store() {
+  SALOMEDS::Locker lock;
+
   //  char* RealVal = new char[35];
   //  sprintf(RealVal, "%.20f", Value());
   //return RealVal;
@@ -72,6 +80,8 @@ char* SALOMEDS_AttributeReal_i::Store() {
 }
 
 void SALOMEDS_AttributeReal_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   //char *err = NULL;
   //CORBA::Double r =  strtod(value, &err);
   //if (err != value) SetValue(r);

@@ -28,6 +28,7 @@
 
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS.hxx"
 
 #include "utilities.h"
 
@@ -98,6 +99,8 @@ SALOMEDS_SComponent_i::~SALOMEDS_SComponent_i()
 //============================================================================
 char* SALOMEDS_SComponent_i::ComponentDataType()
 {
+  SALOMEDS::Locker lock;
+
   //DEB
   //    MESSAGE("In SALOMEDS_SComponent_i::ComponentDataType");
   //    TCollection_AsciiString anEntry;
@@ -123,6 +126,8 @@ char* SALOMEDS_SComponent_i::ComponentDataType()
 //============================================================================
 CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
 {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_IORAttribute) ior;
   if (!_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),ior) )
       return false;

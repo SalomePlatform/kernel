@@ -15,6 +15,7 @@
 #include <TCollection_AsciiString.hxx>
 
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
+#include "SALOMEDS.hxx"
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1
@@ -23,12 +24,16 @@
 using namespace std;
 
 void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
   aProp->SetFirstName(const_cast<char*>(theName));
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName() {
+  SALOMEDS::Locker lock;
+
   TCollection_ExtendedString S = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->GetCreatorName();
   CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
   return c_s._retn();
@@ -39,6 +44,8 @@ void SALOMEDS_AttributeStudyProperties_i::SetCreationDate(CORBA::Long theMinute,
 							  CORBA::Long theDay,
 							  CORBA::Long theMonth,
 							  CORBA::Long theYear) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
   int aTmp;
@@ -51,6 +58,8 @@ CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::GetCreationDate(CORBA::Long&
 								    CORBA::Long& theDay,
 								    CORBA::Long& theMonth,
 								    CORBA::Long& theYear) {
+  SALOMEDS::Locker lock;
+
   Standard_Integer aMinute;
   Standard_Integer aHour;
   Standard_Integer aDay;
@@ -69,6 +78,8 @@ CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::GetCreationDate(CORBA::Long&
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetCreationMode(const char* theMode) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
   if (strcmp(theMode,"from scratch")==0) aProp->SetCreationMode(CREATION_MODE_SCRATCH);
@@ -77,6 +88,8 @@ void SALOMEDS_AttributeStudyProperties_i::SetCreationMode(const char* theMode) {
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetCreationMode() {
+  SALOMEDS::Locker lock;
+
   CORBA::String_var c_s;
   switch (Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->GetCreationMode()) {
   case CREATION_MODE_SCRATCH: c_s = "from scratch"; break;
@@ -87,22 +100,32 @@ char* SALOMEDS_AttributeStudyProperties_i::GetCreationMode() {
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetModified(CORBA::Long theModified) {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->SetModified(theModified);
 }
 
 CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::IsModified() {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->IsModified();
 }
 
 CORBA::Long SALOMEDS_AttributeStudyProperties_i::GetModified() {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->GetModified();
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetLocked(CORBA::Boolean theLocked) {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->SetLocked(theLocked);
 }
 
 CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::IsLocked() {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr)->IsLocked();
 }
 
@@ -112,6 +135,8 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 							  CORBA::Long theDay,
 							  CORBA::Long theMonth,
 							  CORBA::Long theYear) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
   aProp->SetUserName(const_cast<char*>(theName));
@@ -124,6 +149,8 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
 							       SALOMEDS::LongSeq_out theMonths,
 							       SALOMEDS::LongSeq_out theYears,
 							       CORBA::Boolean theWithCreator) {
+  SALOMEDS::Locker lock;
+
   Handle(TColStd_HSequenceOfExtendedString) aNames;
   Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
@@ -157,6 +184,8 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::Store() {
+  SALOMEDS::Locker lock;
+
   Handle(TColStd_HSequenceOfExtendedString) aNames;
   Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
@@ -188,6 +217,8 @@ char* SALOMEDS_AttributeStudyProperties_i::Store() {
 }
 
 void SALOMEDS_AttributeStudyProperties_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   char* aCopy = strdup(value);
   if (aCopy[0] == 'f') SetCreationMode("from scratch");
   else if (aCopy[0] == 'c') SetCreationMode("copy from");

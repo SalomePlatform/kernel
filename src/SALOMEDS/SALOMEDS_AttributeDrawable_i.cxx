@@ -27,14 +27,19 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeDrawable_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeDrawable_i::IsDrawable() {
+  SALOMEDS::Locker lock;
+
   return (Handle(SALOMEDS_DrawableAttribute)::DownCast(_myAttr)->Get() == 1);
 }
                                                            
 void SALOMEDS_AttributeDrawable_i::SetDrawable(CORBA::Boolean value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Standard_Integer val = 0;
   if (value != 0) val = 1;
@@ -42,9 +47,13 @@ void SALOMEDS_AttributeDrawable_i::SetDrawable(CORBA::Boolean value) {
 }
 
 char* SALOMEDS_AttributeDrawable_i::Store() {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(IsDrawable()?"1":"0");
 }
 
 void SALOMEDS_AttributeDrawable_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetDrawable(value[0] == '1');
 }

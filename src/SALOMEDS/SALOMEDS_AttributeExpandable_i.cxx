@@ -27,23 +27,32 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeExpandable_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable() {
+  SALOMEDS::Locker lock;
+
   return (Handle(SALOMEDS_ExpandableAttribute)::DownCast(_myAttr)->Get() == 1);
 }
                                                            
 void SALOMEDS_AttributeExpandable_i::SetExpandable(CORBA::Boolean value) {
+  SALOMEDS::Locker lock;
+
   Standard_Integer val = 0;
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
 
 char* SALOMEDS_AttributeExpandable_i::Store() {
+  SALOMEDS::Locker lock;
+
   return CORBA::string_dup(IsExpandable()?"1":"0");
 }
 
 void SALOMEDS_AttributeExpandable_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetExpandable(value[0] == '1');
 }

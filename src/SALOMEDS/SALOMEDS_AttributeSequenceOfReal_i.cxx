@@ -27,12 +27,16 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TColStd_HSequenceOfReal.hxx>
 
 using namespace std;
 
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
   for (int i = 0; i < other.length(); i++) {
@@ -43,6 +47,8 @@ void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other
  
 SALOMEDS::DoubleSeq* SALOMEDS_AttributeSequenceOfReal_i::CorbaSequence()
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::DoubleSeq_var CorbaSeq = new SALOMEDS::DoubleSeq;
   Handle(SALOMEDS_SequenceOfRealAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr);
   CorbaSeq->length(CasCadeSeq->Length());
@@ -54,33 +60,45 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeSequenceOfReal_i::CorbaSequence()
  
 void SALOMEDS_AttributeSequenceOfReal_i::Add(CORBA::Double value) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Add(value);
 }
 
 void SALOMEDS_AttributeSequenceOfReal_i::Remove(CORBA::Long index) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Remove(index);
 }
  
 void SALOMEDS_AttributeSequenceOfReal_i::ChangeValue(CORBA::Long index, CORBA::Double value)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->ChangeValue(index, value);
 }
  
 CORBA::Double SALOMEDS_AttributeSequenceOfReal_i::Value(CORBA::Short index) 
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Value(index);
 }
 
 CORBA::Long SALOMEDS_AttributeSequenceOfReal_i::Length() 
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Length();
 }
 
 char* SALOMEDS_AttributeSequenceOfReal_i::Store() {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_SequenceOfRealAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr);
   Standard_Integer aLength = CasCadeSeq->Length();
   char* aResult = new char[aLength * 25];
@@ -94,6 +112,8 @@ char* SALOMEDS_AttributeSequenceOfReal_i::Store() {
 }
 
 void SALOMEDS_AttributeSequenceOfReal_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
   
   char* aCopy = strdup(value);

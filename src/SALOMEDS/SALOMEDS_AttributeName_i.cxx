@@ -27,26 +27,36 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeName_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
 
 using namespace std;
 
 char* SALOMEDS_AttributeName_i::Value() {
+  SALOMEDS::Locker lock;
+
   TCollection_ExtendedString S = Handle(TDataStd_Name)::DownCast(_myAttr)->Get();
   CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
   return c_s._retn();
 }
 
 void SALOMEDS_AttributeName_i::SetValue(const char* theValue) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString((char*)theValue));
 }
 
 char* SALOMEDS_AttributeName_i::Store() {
+  SALOMEDS::Locker lock;
+
   return Value();
 }
 
 void SALOMEDS_AttributeName_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetValue(value);
 }

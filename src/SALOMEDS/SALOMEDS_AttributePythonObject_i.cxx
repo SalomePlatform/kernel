@@ -10,27 +10,37 @@
 //  $Header$
 
 #include "SALOMEDS_AttributePythonObject_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HArray1OfCharacter.hxx>
 
 using namespace std;
 
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->SetObject(const_cast<char*>(theSequence), IsScript);
 }
 
 char* SALOMEDS_AttributePythonObject_i::GetObject() {
+  SALOMEDS::Locker lock;
+
   char* aSeq = Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->GetObject();
   CORBA::String_var aStr = CORBA::string_dup(aSeq);
   return aStr._retn();
 }
 
 CORBA::Boolean SALOMEDS_AttributePythonObject_i::IsScript() {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->IsScript();
 }
 
 char* SALOMEDS_AttributePythonObject_i::Store() {
+  SALOMEDS::Locker lock;
+
   CORBA::String_var aString = GetObject();
   char* aResult = new char[strlen(aString) + 2];
   aResult[0] = IsScript()?'s':'n';
@@ -39,5 +49,7 @@ char* SALOMEDS_AttributePythonObject_i::Store() {
 }
 
 void SALOMEDS_AttributePythonObject_i::Restore(const char* theValue) {
+  SALOMEDS::Locker lock;
+
   SetObject(&theValue[1], theValue[0]=='s');
 }

@@ -27,12 +27,16 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
+#include "SALOMEDS.hxx"
+
 #include <TColStd_HSequenceOfInteger.hxx>
 
 using namespace std;
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
   for (int i = 0; i < other.length(); i++) {
@@ -43,6 +47,8 @@ void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& othe
  
 SALOMEDS::LongSeq* SALOMEDS_AttributeSequenceOfInteger_i::CorbaSequence()
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
   Handle(SALOMEDS_SequenceOfIntegerAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr);
   CorbaSeq->length(CasCadeSeq->Length());
@@ -54,33 +60,45 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeSequenceOfInteger_i::CorbaSequence()
  
 void SALOMEDS_AttributeSequenceOfInteger_i::Add(CORBA::Long value) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Add(value);
 }
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Remove(CORBA::Long index) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Remove(index);
 }
  
 void SALOMEDS_AttributeSequenceOfInteger_i::ChangeValue(CORBA::Long index, CORBA::Long value)
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->ChangeValue(index, value);
 }
  
 CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Value(CORBA::Short index) 
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Value(index);
 }
 
 CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Length() 
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Length();
 }
 
 char* SALOMEDS_AttributeSequenceOfInteger_i::Store() {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_SequenceOfIntegerAttribute) CasCadeSeq = Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr);
   Standard_Integer aLength = CasCadeSeq->Length();
   char* aResult = new char[aLength * 25];
@@ -94,6 +112,8 @@ char* SALOMEDS_AttributeSequenceOfInteger_i::Store() {
 }
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
   
   char* aCopy = strdup(value);

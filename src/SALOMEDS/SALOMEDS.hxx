@@ -21,45 +21,47 @@
 //
 //
 //
-//  File   : SALOMEDS_AttributeComment_i.cxx
-//  Author : Yves FRICAUD
+//  File   : SALOMEDS.hxx
+//  Author : Sergey ANIKIN
 //  Module : SALOME
 //  $Header$
 
-#include <TCollection_ExtendedString.hxx>
-#include <TCollection_AsciiString.hxx>
 
-#include "SALOMEDS_AttributeComment_i.hxx"
-#include "SALOMEDS.hxx"
+#ifndef SALOMEDS_HeaderFile
+#define SALOMEDS_HeaderFile
 
-using namespace std;
+#include <Utils_Mutex.hxx>
 
-char* SALOMEDS_AttributeComment_i::Value()
+namespace SALOMEDS
 {
-  SALOMEDS::Locker lock;
+  // PAL8065: san -- Implementation of convenient locker based on simple recursive 
+  // mutex for POSIX platforms.
+  // This class is to protect SALOMEDS CORBA methods which deal with OCC calls from 
+  // parallel access by several threads
+  // To protect some method, an instance of Locker class should be created
+  // on the stack at the beginning of guarded code:
+  //
+  //    Locker lock;
+  //
+  class Locker : public Utils_Locker
+  {
+  public:
+    Locker();
+    virtual ~Locker();
 
-  TCollection_ExtendedString S = Handle(TDataStd_Comment)::DownCast(_myAttr)->Get();
-  CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
-  return c_s._retn();
-}
+  private:
+    static Utils_Mutex MutexDS;
 
-void SALOMEDS_AttributeComment_i::SetValue(const char* value) 
-{
-  SALOMEDS::Locker lock;
+    friend void lock();
+    friend void unlock();
+  };
 
-  CheckLocked();
-  CORBA::String_var Str = CORBA::string_dup(value);
-  Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
-}
+  // Convenient functions to lock/unlock the global SALOMEDS mutex temporarily.
+  // In particular, "unlock-dosomething-lock" scheme should be used, when some non-SALOMEDS
+  // CORBA interface is called (component's engine), to avoid deadlocks in case of 
+  // indirect recursion.
+  void lock();
+  void unlock();
+};
 
-char* SALOMEDS_AttributeComment_i::Store() {
-  SALOMEDS::Locker lock;
-
-  return Value();
-}
-
-void SALOMEDS_AttributeComment_i::Restore(const char* value) {
-  SALOMEDS::Locker lock;
-
-  SetValue(value);
-}
+#endif

@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeFlags_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
@@ -36,6 +37,8 @@ using namespace std;
 //=======================================================================
 CORBA::Long SALOMEDS_AttributeFlags_i::GetFlags()
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_FlagsAttribute)::DownCast( _myAttr )->Get();
 }
 
@@ -45,6 +48,8 @@ CORBA::Long SALOMEDS_AttributeFlags_i::GetFlags()
 //=======================================================================
 void SALOMEDS_AttributeFlags_i::SetFlags( CORBA::Long theFlags )
 {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_FlagsAttribute)::DownCast( _myAttr )->Set( theFlags );
 }
 
@@ -54,6 +59,8 @@ void SALOMEDS_AttributeFlags_i::SetFlags( CORBA::Long theFlags )
 //=======================================================================
 CORBA::Boolean SALOMEDS_AttributeFlags_i::Get( CORBA::Long theFlag )
 {
+  SALOMEDS::Locker lock;
+
   return Handle(SALOMEDS_FlagsAttribute)::DownCast( _myAttr )->Get() & theFlag ? true : false;
 }
 
@@ -63,6 +70,8 @@ CORBA::Boolean SALOMEDS_AttributeFlags_i::Get( CORBA::Long theFlag )
 //=======================================================================
 void SALOMEDS_AttributeFlags_i::Set( CORBA::Long theFlag, CORBA::Boolean theValue )
 {
+  SALOMEDS::Locker lock;
+
   Handle(SALOMEDS_FlagsAttribute) anAttr =
     Handle(SALOMEDS_FlagsAttribute)::DownCast( _myAttr );
   if ( theValue )
