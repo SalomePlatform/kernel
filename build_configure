@@ -183,7 +183,7 @@ else
 	echo -n "Creating 'configure' script ...  "
 fi
 
-aclocal --acdir=salome_adm/unix/config_files
+aclocal --acdir=adm_local/unix/config_files -I salome_adm/unix/config_files
 if autoconf
 then
 	echo "done"
