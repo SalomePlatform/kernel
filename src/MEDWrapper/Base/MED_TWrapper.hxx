@@ -34,36 +34,42 @@
 
 namespace MED{
 
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
   class TTWrapper: public TWrapper{
   public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PMeshInfo CrMeshInfo(TInt theDim = 0,
-				 const std::string& theValue = "",
-				 EMaillage theType = eNON_STRUCTURE,
-				 const std::string& theDesc = "")
+    virtual 
+    PMeshInfo
+    CrMeshInfo(TInt theDim = 0,
+	       const std::string& theValue = "",
+	       EMaillage theType = eNON_STRUCTURE,
+	       const std::string& theDesc = "")
     {
-      return PMeshInfo(new TTMeshInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PMeshInfo(new TTMeshInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theDim,
 			theValue,
 			theType,
 			theDesc));
     }
 
-    virtual PMeshInfo CrMeshInfo(const PMeshInfo& theInfo)
+    virtual 
+    PMeshInfo
+    CrMeshInfo(const PMeshInfo& theInfo)
     {
-      return PMeshInfo(new TTMeshInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>(theInfo));
+      return PMeshInfo(new TTMeshInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>(theInfo));
     }
-
+    
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PFamilyInfo CrFamilyInfo(const PMeshInfo& theMeshInfo,
-				     TInt theNbGroup = 0, 
-				     TInt theNbAttr = 0,
-				     TInt theId = 0,
-				     const std::string& theValue = "")
+    virtual
+    PFamilyInfo
+    CrFamilyInfo(const PMeshInfo& theMeshInfo,
+		 TInt theNbGroup = 0, 
+		 TInt theNbAttr = 0,
+		 TInt theId = 0,
+		 const std::string& theValue = "")
     {
-      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			 (theMeshInfo,
 			  theNbGroup,
 			  theNbAttr,
@@ -71,15 +77,17 @@ namespace MED{
 			  theValue));
     }
 
-    virtual PFamilyInfo CrFamilyInfo(const PMeshInfo& theMeshInfo,
-				     const std::string& theValue,
-				     TInt theId,
-				     const MED::TStringSet& theGroupNames, 
-				     const MED::TStringVector& theAttrDescs = MED::TStringVector(), 
-				     const MED::TIntVector& theAttrIds = MED::TIntVector(), 
-				     const MED::TIntVector& theAttrVals = MED::TIntVector())
+    virtual
+    PFamilyInfo
+    CrFamilyInfo(const PMeshInfo& theMeshInfo,
+		 const std::string& theValue,
+		 TInt theId,
+		 const MED::TStringSet& theGroupNames, 
+		 const MED::TStringVector& theAttrDescs = MED::TStringVector(), 
+		 const MED::TIntVector& theAttrIds = MED::TIntVector(), 
+		 const MED::TIntVector& theAttrVals = MED::TIntVector())
     {
-      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			 (theMeshInfo,
 			  theValue,
 			  theId,
@@ -89,23 +97,27 @@ namespace MED{
 			  theAttrVals));
     }
 
-    virtual PFamilyInfo CrFamilyInfo(const PMeshInfo& theMeshInfo,
-    				     const PFamilyInfo& theInfo)
+    virtual
+    PFamilyInfo
+    CrFamilyInfo(const PMeshInfo& theMeshInfo,
+		 const PFamilyInfo& theInfo)
     {
-      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PFamilyInfo(new TTFamilyInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			 (theMeshInfo,
 			  theInfo));
     }
 
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PNodeInfo CrNodeInfo(const PMeshInfo& theMeshInfo, 
-				 TInt theNbElem,
-				 ERepere theSystem = eCART, 
-				 EBooleen theIsElemNum = eVRAI,
-				 EBooleen theIsElemNames = eVRAI)
+    virtual
+    PNodeInfo
+    CrNodeInfo(const PMeshInfo& theMeshInfo, 
+	       TInt theNbElem,
+	       ERepere theSystem = eCART, 
+	       EBooleen theIsElemNum = eVRAI,
+	       EBooleen theIsElemNames = eVRAI)
     {
-      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theNbElem,
 			theSystem,
@@ -113,16 +125,18 @@ namespace MED{
 			theIsElemNames));
     }
 
-    virtual PNodeInfo CrNodeInfo(const PMeshInfo& theMeshInfo, 
-				 ERepere theSystem, 
-				 const TFloatVector& theNodeCoords,
-				 const TStringVector& theCoordNames,
-				 const TStringVector& theCoordUnits,
-				 const TIntVector& theFamilyNums,
-				 const TIntVector& theElemNums,
-				 const TStringVector& theElemNames = TStringVector())
+    virtual 
+    PNodeInfo
+    CrNodeInfo(const PMeshInfo& theMeshInfo, 
+	       ERepere theSystem, 
+	       const TFloatVector& theNodeCoords,
+	       const TStringVector& theCoordNames,
+	       const TStringVector& theCoordUnits,
+	       const TIntVector& theFamilyNums,
+	       const TIntVector& theElemNums,
+	       const TStringVector& theElemNames = TStringVector())
     {
-      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theSystem,
 			theNodeCoords,
@@ -133,25 +147,29 @@ namespace MED{
 			theElemNames));
     }
 
-    virtual PNodeInfo CrNodeInfo(const PMeshInfo& theMeshInfo,
-				 const PNodeInfo& theInfo)
+    virtual 
+    PNodeInfo
+    CrNodeInfo(const PMeshInfo& theMeshInfo,
+	       const PNodeInfo& theInfo)
     {
-      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PNodeInfo(new TTNodeInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theInfo));
     }
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
-					 TInt theNbElem,
-					 TInt theNbConn,
-					 EEntiteMaillage theTEntity, 
-					 EGeometrieElement theTGeom,
-					 EConnectivite theTConn = eNOD,
-					 EBooleen theIsElemNum = eVRAI,
-					 EBooleen theIsElemNames = eVRAI)
+    virtual
+    PPolygoneInfo
+    CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI)
     {
-      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theNbElem,
 			    theNbConn,
@@ -162,17 +180,19 @@ namespace MED{
 			    theIsElemNames));
     }
 
-    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
-					 EEntiteMaillage theTEntity, 
-					 EGeometrieElement theTGeom,
-					 EConnectivite theTConn,
-					 const TIntVector& theConnectivities,
-					 const TIntVector& theIndexes,
-					 const TIntVector& theFamilyNums,
-					 const TIntVector& theElemNums,
-					 const TStringVector& theElemNames = TStringVector())
+    virtual
+    PPolygoneInfo
+    CrPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector())
     {
-      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theTEntity,
 			    theTGeom,
@@ -184,26 +204,30 @@ namespace MED{
 			    theElemNames));
     }
 
-    virtual PPolygoneInfo CrPolygoneInfo(const PMeshInfo& theMeshInfo,
-					 const PPolygoneInfo& theInfo)
+    virtual
+    PPolygoneInfo
+    CrPolygoneInfo(const PMeshInfo& theMeshInfo,
+		   const PPolygoneInfo& theInfo)
     {
-      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolygoneInfo(new TTPolygoneInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theInfo));
     }
-
+    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
-					 TInt theNbElem,
-					 TInt theNbConn,
-					 TInt theNbFaces,
-					 EEntiteMaillage theTEntity, 
-					 EGeometrieElement theTGeom,
-					 EConnectivite theTConn = eNOD,
-					 EBooleen theIsElemNum = eVRAI,
-					 EBooleen theIsElemNames = eVRAI)
+    virtual
+    PPolyedreInfo
+    CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   TInt theNbFaces,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI)
     {
-      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theNbElem,
 			    theNbConn,
@@ -215,18 +239,20 @@ namespace MED{
 			    theIsElemNames));
     }
 
-    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
-					 EEntiteMaillage theTEntity, 
-					 EGeometrieElement theTGeom,
-					 EConnectivite theTConn,
-					 const TIntVector& theConnectivities,
-					 const TIntVector& theFacesIndexes,
-					 const TIntVector& theIndexes,
-					 const TIntVector& theFamilyNums,
-					 const TIntVector& theElemNums,
-					 const TStringVector& theElemNames = TStringVector())
+    virtual
+    PPolyedreInfo
+    CrPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theFacesIndexes,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector())
     {
-      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theTEntity,
 			    theTGeom,
@@ -239,24 +265,28 @@ namespace MED{
 			    theElemNames));
     }
 
-    virtual PPolyedreInfo CrPolyedreInfo(const PMeshInfo& theMeshInfo,
-					 const PPolyedreInfo& theInfo)
+    virtual
+    PPolyedreInfo
+    CrPolyedreInfo(const PMeshInfo& theMeshInfo,
+		   const PPolyedreInfo& theInfo)
     {
-      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PPolyedreInfo(new TTPolyedreInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theMeshInfo,
 			    theInfo));
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PCellInfo CrCellInfo(const PMeshInfo& theMeshInfo, 
-				 TInt theNbElem,
-				 EEntiteMaillage theTEntity, 
-				 EGeometrieElement theTGeom,
-				 EConnectivite theTConn = eNOD,
-				 EBooleen theIsElemNum = eVRAI,
-				 EBooleen theIsElemNames = eVRAI)
+    virtual
+    PCellInfo
+    CrCellInfo(const PMeshInfo& theMeshInfo, 
+	       TInt theNbElem,
+	       EEntiteMaillage theTEntity, 
+	       EGeometrieElement theTGeom,
+	       EConnectivite theTConn = eNOD,
+	       EBooleen theIsElemNum = eVRAI,
+	       EBooleen theIsElemNames = eVRAI)
     {
-      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theNbElem,
 			theTEntity,
@@ -266,16 +296,18 @@ namespace MED{
 			theIsElemNames));
     }
 
-    virtual PCellInfo CrCellInfo(const PMeshInfo& theMeshInfo, 
-				 EEntiteMaillage theTEntity, 
-				 EGeometrieElement theTGeom,
-				 EConnectivite theTConn,
-				 const TIntVector& theConnectivities,
-				 const TIntVector& theFamilyNums,
-				 const TIntVector& theElemNums,
-				 const TStringVector& theElemNames = TStringVector())
+    virtual
+    PCellInfo
+    CrCellInfo(const PMeshInfo& theMeshInfo, 
+	       EEntiteMaillage theTEntity, 
+	       EGeometrieElement theTGeom,
+	       EConnectivite theTConn,
+	       const TIntVector& theConnectivities,
+	       const TIntVector& theFamilyNums,
+	       const TIntVector& theElemNums,
+	       const TStringVector& theElemNames = TStringVector())
     {
-      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theTEntity,
 			theTGeom,
@@ -286,24 +318,28 @@ namespace MED{
 			theElemNames));
     }
 
-    virtual PCellInfo CrCellInfo(const PMeshInfo& theMeshInfo,
-				 const PCellInfo& theInfo)
+    virtual
+    PCellInfo
+    CrCellInfo(const PMeshInfo& theMeshInfo,
+	       const PCellInfo& theInfo)
     {
-      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PCellInfo(new TTCellInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 		       (theMeshInfo,
 			theInfo));
     }
     
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PFieldInfo CrFieldInfo(const PMeshInfo& theMeshInfo, 
-				   TInt theNbComp = 0,
-				   ETypeChamp theType = eFLOAT64,
-				   const std::string& theValue = "",
-				   EBooleen theIsLocal = eVRAI,
-				   TInt theNbRef = 1)
+    virtual
+    PFieldInfo
+    CrFieldInfo(const PMeshInfo& theMeshInfo, 
+		TInt theNbComp = 0,
+		ETypeChamp theType = eFLOAT64,
+		const std::string& theValue = "",
+		EBooleen theIsLocal = eVRAI,
+		TInt theNbRef = 1)
     {
-      return PFieldInfo(new TTFieldInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PFieldInfo(new TTFieldInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			(theMeshInfo,
 			 theNbComp,
 			 theType,
@@ -312,27 +348,31 @@ namespace MED{
 			 theNbRef));
     }
 
-    virtual PFieldInfo CrFieldInfo(const PMeshInfo& theMeshInfo,
-				   const PFieldInfo& theInfo)
+    virtual
+    PFieldInfo
+    CrFieldInfo(const PMeshInfo& theMeshInfo,
+		const PFieldInfo& theInfo)
     {
-      return PFieldInfo(new TTFieldInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PFieldInfo(new TTFieldInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			(theMeshInfo,
 			 theInfo));
     }
     
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PTimeStampInfo CrTimeStampInfo(const PFieldInfo& theFieldInfo, 
-					   EEntiteMaillage theEntity,
-					   const TGeom& theGeom,
-					   TInt theNbGauss = 0,
-					   TInt theNumDt = 0,
-					   TInt theNumOrd = 0,
-					   TFloat theDt = 0,
-					   const std::string& theUnitDt = "",
-					   const std::string& theGaussName = "")
+    virtual
+    PTimeStampInfo
+    CrTimeStampInfo(const PFieldInfo& theFieldInfo, 
+		    EEntiteMaillage theEntity,
+		    const TGeom& theGeom,
+		    TInt theNbGauss = 0,
+		    TInt theNumDt = 0,
+		    TInt theNumOrd = 0,
+		    TFloat theDt = 0,
+		    const std::string& theUnitDt = "",
+		    const std::string& theGaussName = "")
     {
-      return PTimeStampInfo(new TTTimeStampInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PTimeStampInfo(new TTTimeStampInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			    (theFieldInfo,
 			     theEntity,
 			     theGeom,
@@ -344,30 +384,36 @@ namespace MED{
 			     theGaussName));
     }
 
-    virtual PTimeStampInfo CrTimeStampInfo(const PFieldInfo& theFieldInfo,
-					   const PTimeStampInfo& theInfo)
+    virtual
+    PTimeStampInfo
+    CrTimeStampInfo(const PFieldInfo& theFieldInfo,
+		    const PTimeStampInfo& theInfo)
     {
-      return PTimeStampInfo(new TTTimeStampInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PTimeStampInfo(new TTTimeStampInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			    (theFieldInfo,
 			     theInfo));
     }
     
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    virtual PTimeStampVal CrTimeStampVal(const PTimeStampInfo& theTimeStampInfo,
-					 const std::string& thePflName = "",
-					 EModeProfil thePflMode = eCOMPACT)
+    virtual
+    PTimeStampVal
+    CrTimeStampVal(const PTimeStampInfo& theTimeStampInfo,
+		   const std::string& thePflName = "",
+		   EModeProfil thePflMode = eCOMPACT)
     {
-      return PTimeStampVal(new TTTimeStampVal<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PTimeStampVal(new TTTimeStampVal<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theTimeStampInfo,
 			    thePflName,
 			    thePflMode));
     }
 
-    virtual PTimeStampVal CrTimeStampVal(const PTimeStampInfo& theTimeStampInfo,
-					 const PTimeStampVal& theInfo)
+    virtual
+    PTimeStampVal
+    CrTimeStampVal(const PTimeStampInfo& theTimeStampInfo,
+		   const PTimeStampVal& theInfo)
     {
-      return PTimeStampVal(new TTTimeStampVal<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+      return PTimeStampVal(new TTTimeStampVal<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
 			   (theTimeStampInfo,
 			    theInfo));
     }

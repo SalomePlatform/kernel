@@ -36,19 +36,19 @@ namespace MED{
 
     const TInt PNOM = 8;
 
-    typedef MED::TTMeshInfo<PNOM,DESC,IDENT,NOM,LNOM> TVMeshInfo;
+    typedef MED::TTMeshInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVMeshInfo;
 
-    typedef MED::TTFamilyInfo<PNOM,DESC,IDENT,NOM,LNOM> TVFamilyInfo;
+    typedef MED::TTFamilyInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVFamilyInfo;
 
-    typedef MED::TTNodeInfo<PNOM,DESC,IDENT,NOM,LNOM> TVNodeInfo;
+    typedef MED::TTNodeInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVNodeInfo;
 
-    typedef MED::TTCellInfo<PNOM,DESC,IDENT,NOM,LNOM> TVCellInfo;
+    typedef MED::TTCellInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVCellInfo;
 
-    typedef MED::TTFieldInfo<PNOM,DESC,IDENT,NOM,LNOM> TVFieldInfo;
+    typedef MED::TTFieldInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVFieldInfo;
 
-    typedef MED::TTTimeStampInfo<PNOM,DESC,IDENT,NOM,LNOM> TVTimeStampInfo;
+    typedef MED::TTTimeStampInfo<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVTimeStampInfo;
 
-    typedef MED::TTTimeStampVal<PNOM,DESC,IDENT,NOM,LNOM> TVTimeStampVal;
+    typedef MED::TTTimeStampVal<PNOM,DESC,IDENT,NOM,LNOM,eV2_1> TVTimeStampVal;
 
     //---------------------------------------------------------------
     class TFile;
@@ -57,7 +57,8 @@ namespace MED{
     typedef enum {eLECT, eECRI, eREMP} EModeAcces; 
 
     //---------------------------------------------------------------
-    class TVWrapper: public MED::TTWrapper<PNOM,DESC,IDENT,NOM,LNOM>{
+    class TVWrapper: public MED::TTWrapper<PNOM,DESC,IDENT,NOM,LNOM,eV2_1>
+    {
       TVWrapper();
       TVWrapper(const TVWrapper&);
       TVWrapper& operator=(const TVWrapper&);

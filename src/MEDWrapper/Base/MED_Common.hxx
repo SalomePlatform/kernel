@@ -97,14 +97,21 @@ namespace MED{
 
   const TEntity2GeomSet& GetEntity2GeomSet();
 
-  inline TInt GetNbConn(EEntiteMaillage theEntity, 
-			EGeometrieElement theElem,
-			TInt theMeshDim)
-  {
-    TInt anElemDim = theElem / 100, nsup = 0;
-    if(theEntity == eMAILLE && anElemDim < theMeshDim) nsup = 1;
-    return nsup + theElem % 100;
-  }
+  enum EVersion {eVUnknown = -1, eV2_1, eV2_2};
+  
+  TInt GetNbConnectivities(EGeometrieElement typmai);
+
+  template<int EVersion>
+  TInt GetNbConn(EGeometrieElement typmai,
+		 TInt mdim);
+  
+  template<>
+  TInt GetNbConn<eV2_1>(EGeometrieElement typmai,
+			TInt mdim);
+
+  template<>
+  TInt GetNbConn<eV2_2>(EGeometrieElement typmai,
+			TInt mdim);
 
   struct TNameInfo;
   typedef MED::shared_ptr<TNameInfo> PNameInfo;

@@ -33,8 +33,6 @@
 
 namespace MED{
 
-  enum EVersion {eVUnknown = -1, eV2_1, eV2_2};
-
   EVersion GetVersionId(const std::string& theFileName);
 
   PWrapper CrWrapper(const std::string& theFileName);

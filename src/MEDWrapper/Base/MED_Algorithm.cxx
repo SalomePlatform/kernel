@@ -83,18 +83,6 @@ namespace MED{
 	  {
 	    PCellInfo aCellInfo = theWrapper.GetPCellInfo(theMeshInfo,anEntity,aGeo);
 	    aElemSet.insert(aCellInfo);
-	    if(MYDEBUG){
-	      TInt aNbElem = aCellInfo->GetNbElem();
-	      INITMSG(MYDEBUG,"aGeo = "<<aGeo<<"; aNbElem = "<<aNbElem<<": ");
-	      for(TInt iElem = 0; iElem < aNbElem; iElem++){
-		TInt iConnEnd = aCellInfo->GetConnDim();
-		for(TInt iConn = 0; iConn < iConnEnd; iConn++){
-		  ADDMSG(MYVALUEDEBUG,aCellInfo->GetConn(iElem,iConn)<<",");
-		}
-		ADDMSG(MYVALUEDEBUG," ");
-	      }
-	      ADDMSG(MYDEBUG,"\n");
-	    }
 	  }
 	}
       }
@@ -110,24 +98,14 @@ namespace MED{
 	      const PMeshInfo& theMeshInfo)
   {
     MSG(MYDEBUG,"GetFamilies(...)");
+    TErr anErr;
     TFamilyGroup aGroup;
     TInt aNbFam = theWrapper.GetNbFamilies(*theMeshInfo);
     INITMSG(MYDEBUG,"GetNbFamilies() = "<<aNbFam<<"\n");
     for(TInt iFam = 1; iFam <= aNbFam; iFam++){
-      PFamilyInfo aFamilyInfo = theWrapper.GetPFamilyInfo(theMeshInfo,iFam);
-      aGroup.insert(aFamilyInfo);
-      if(MYDEBUG){
-	string aName = aFamilyInfo->GetName();
-	TInt aNbAttr = aFamilyInfo->GetNbAttr();
-	TInt aNbGroup = aFamilyInfo->GetNbGroup();
-	INITMSG(MYDEBUG,
-		"aFamilyName = '"<<aName<<"'; andId = "<<aFamilyInfo->GetId()<<
-		"; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<"\n");
-	for(TInt iGroup = 0; iGroup < aNbGroup; iGroup++){
-	  aName = aFamilyInfo->GetGroupName(iGroup);
-	  INITMSG(MYDEBUG,"aGroupName = '"<<aName<<"'\n");
-	}
-      }
+      PFamilyInfo aFamilyInfo = theWrapper.GetPFamilyInfo(theMeshInfo,iFam,&anErr);
+      if(anErr >= 0)
+	aGroup.insert(aFamilyInfo);
     }
     ADDMSG(MYDEBUG,"\n");
     return aGroup;
@@ -147,6 +125,8 @@ namespace MED{
 	aGroup[aFamilyInfo->GetGroupName(iGroup)].insert(aFamilyInfo);
       } 
     }
+
+#ifdef _DEBUG_
     if(MYDEBUG){
       TGroupInfo::const_iterator anIter = aGroup.begin();
       for(; anIter != aGroup.end(); anIter++){
@@ -161,6 +141,8 @@ namespace MED{
       }
       ADDMSG(MYDEBUG,"\n");
     }
+#endif
+
     return aGroup;
   }
 

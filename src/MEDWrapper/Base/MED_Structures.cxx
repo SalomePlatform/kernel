@@ -22,6 +22,60 @@ using namespace MED;
 #define GETINDEX(anArray,ind) anArray.at(ind)
 #endif
 
+namespace MED{
+
+  TInt GetNbConnectivities(EGeometrieElement typmai)
+  {
+    TInt taille = typmai%100;
+    return taille;
+  }
+
+  template<>
+  TInt GetNbConn<eV2_1>(EGeometrieElement typmai,
+			TInt mdim)
+  {
+    TInt edim = typmai / 100;
+    TInt nsup = 0;
+
+    if (mdim  == 2 || mdim == 3)
+      if (edim == 1)
+	nsup = 1;
+    
+    if (mdim == 3)
+      if (edim == 2)
+	nsup = 1;
+    
+    TInt taille = nsup+typmai%100;
+    return taille;
+  }
+
+  template<>
+  TInt GetNbConn<eV2_2>(EGeometrieElement typmai,
+			TInt mdim)
+  {
+    TInt taille = typmai%100;
+    return taille;
+  }
+
+  std::string GetString(TInt theId, TInt theStep, 
+			const TString& theString)
+  {
+    const char* aPos = &GETINDEX(theString,theId*theStep);
+    TInt aSize = std::min(TInt(strlen(aPos)),theStep);
+    return std::string(aPos,aSize);
+  }
+
+  void SetString(TInt theId, TInt theStep, 
+		 TString& theString, 
+		 const std::string& theValue)
+  {
+    TInt aSize = std::min(TInt(theValue.size()+1),theStep);
+    char* aPos = &GETINDEX(theString,theId*theStep);
+    strncpy(aPos,theValue.c_str(),aSize);
+  }
+
+}
+
 //---------------------------------------------------------------
 TInt TFamilyInfo::GetAttrId(TInt theId) const {
   return GETINDEX(myAttrId,theId);
@@ -63,11 +117,11 @@ void TNodeInfo::SetNodeCoord(TInt theId,TInt theComp,TFloat theVal) {
 
 //---------------------------------------------------------------
 TInt TCellInfo::GetConn(TInt theElemId, TInt theConnId) const {
-  return GETINDEX(myConn,myConnDim*theElemId + theConnId);
+  return GETINDEX(myConn,GetConnDim()*theElemId + theConnId);
 }
 
 void TCellInfo::SetConn(TInt theElemId, TInt theConnId, TInt theVal){
-  GETINDEX(myConn,myConnDim*theElemId + theConnId) = theVal;
+  GETINDEX(myConn,GetConnDim()*theElemId + theConnId) = theVal;
 }
 //---------------------------------------------------------------
 TInt TPolygoneInfo::GetNbConn(TInt theElemId) const {

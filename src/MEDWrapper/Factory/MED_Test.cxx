@@ -166,6 +166,9 @@ void CopyMed(const PWrapper& theMed,
       TInt aNbGroup = aFamilyInfo->GetNbGroup();
       TInt aNbAttr = aFamilyInfo->GetNbAttr();
       TInt anId = aFamilyInfo->GetId();
+      if(anId == 0)
+	continue;
+
       aName = aFamilyInfo->GetName();
       INITMSG(MYDEBUG,"aName = '"<<aName<<"'; anId = "<<anId<<
 	      "; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<"\n");
@@ -193,17 +196,6 @@ void CopyMed(const PWrapper& theMed,
       INITMSG(MYDEBUG,"anEntity = "<<anEntity<<"\n");
       if(anEntity == eNOEUD){
 	PNodeInfo aNodeInfo = theMed->GetPNodeInfo(aMeshInfo);
-	TInt aNbNodes = aNodeInfo->GetNbElem();
-	INITMSG(MYDEBUG,"GetNodeInfo - aNbNodes = "<<aNbNodes<<": ");
-	TNodeCoord& aCoord = aNodeInfo->myCoord;
-	for(TInt iNode = 0; iNode < aNbNodes; iNode++){
-	  for(TInt iDim = 0, anId = iNode*aDim; iDim < aDim; iDim++, anId++){
-	    ADDMSG(MYVALUEDEBUG,aCoord[anId]<<",");
-	    aCoord[anId] += theIncr;
-	  }
-	  ADDMSG(MYVALUEDEBUG," ");
-	}
-	ADDMSG(MYDEBUG,endl);
 	PNodeInfo aNodeInfo2 = theMed->CrNodeInfo(aMeshInfo2,aNodeInfo);
 	if(MYWRITEDEBUG) theMed2->SetNodeInfo(aNodeInfo2);
 	continue;
@@ -268,15 +260,7 @@ void CopyMed(const PWrapper& theMed,
 	  }
 	default:
 	  PCellInfo aCellInfo = theMed->GetPCellInfo(aMeshInfo,anEntity,aGeom);
-	  TInt aConnDim = aCellInfo->GetConnDim();
-	  for(TInt iElem = 0; iElem < aNbElem; iElem++){
-	    for(TInt iConn = 0; iConn < aConnDim; iConn++){
-	      ADDMSG(MYVALUEDEBUG,aCellInfo->GetConn(iElem,iConn)<<",");
-	    }
-	    ADDMSG(MYVALUEDEBUG," ");
-	  }
-	  ADDMSG(MYDEBUG,endl);
-	  PCellInfo aCellInfo2 = theMed->CrCellInfo(aMeshInfo2,aCellInfo);
+	  PCellInfo aCellInfo2 = theMed2->CrCellInfo(aMeshInfo2,aCellInfo);
 	  if(MYWRITEDEBUG) theMed2->SetCellInfo(aCellInfo2);
 	}
       }
@@ -292,7 +276,7 @@ void CopyMed(const std::string& theFileName,
 	     MED::EVersion theVersion,
 	     int theNbCopy)
 {
-  MSG(MYDEBUG,"CopyMed - theFileName = '"<<theFileName<<"'; theFileName2 = '"<<theFileName2<<"'");
+  MSG(MYDEBUG,"CopyMed - theFileName = '"<<theFileName<<"'; theFileName2 = '"<<theFileName2<<"', theVersion = "<<theVersion);
 
   PWrapper aMed = CrWrapper(theFileName);
 
@@ -331,7 +315,7 @@ int main(int argc, char** argv){
   }catch(std::exception& exc){
     MSG(MYDEBUG,"Follow exception was accured :\n"<<exc.what());
   }catch(...){
-    MSG(MYDEBUG,"Unknown exception was accured in VISU_Convertor_impl");
+    MSG(MYDEBUG,"Unknown exception was accured");
   } 
   return 1;
 }

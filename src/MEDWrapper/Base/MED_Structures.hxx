@@ -36,22 +36,12 @@ namespace MED{
   //---------------------------------------------------------------
   typedef std::vector<char> TString;
 
-  inline std::string GetString(TInt theId, TInt theStep, 
-			       const TString& theString)
-  {
-    const char* aPos = &theString[theId*theStep];
-    TInt aSize = std::min(TInt(strlen(aPos)),theStep);
-    return std::string(aPos,aSize);
-  }
+  std::string GetString(TInt theId, TInt theStep, 
+			const TString& theString);
 
-  inline void SetString(TInt theId, TInt theStep, 
-			TString& theString, 
-			const std::string& theValue)
-  {
-    TInt aSize = std::min(TInt(theValue.size()+1),theStep);
-    strncpy(&theString[theId*theStep],theValue.c_str(),aSize);
-  }
-
+  void SetString(TInt theId, TInt theStep, 
+		 TString& theString, 
+		 const std::string& theValue);
 
   //---------------------------------------------------------------
   struct TBase
@@ -186,8 +176,7 @@ namespace MED{
     EConnectivite myTConn;
     EConnectivite GetConn() const { return myTConn;}
 
-    TInt myConnDim;
-    TInt GetConnDim() const { return myConnDim;}
+    virtual TInt GetConnDim() const = 0;
 
     TElemNum myConn;
     TInt GetConn(TInt theElemId, TInt theConnId) const;
