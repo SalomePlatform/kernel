@@ -77,6 +77,9 @@ try:
    # 3- eventually set it as default one : Launchers.setLauncher(name)
    import pluginLauncher
 except:
-   import traceback
-   traceback.print_exc()
+   #import traceback
+   #traceback.print_exc()
+   print "----------------------------------------------------------"
+   print " no user defined launcher, ssh used. (see Launchers.py)   "
+   print "----------------------------------------------------------"
    pass
