@@ -20,11 +20,6 @@
 ## otherwise the file is changed and a backup is saved by appending a
 ## tilde to the file name.
 ##
-
-DEPCC = @DEPCC@
-DEPCXX = @DEPCXX@
-DEPCXXFLAGS = @DEPCXXFLAGS@
-
 $(srcdir)/Dependencies: .depend
 	@if test "$(srcdir)" != "."; then				      \
 	    echo '## This file is machine generated on GNU systems.' >$@;     \
@@ -48,7 +43,7 @@ depend:.depend
 	            echo Building dependencies for $$dep;		      \
 	            obj=`basename $$dep .c`.lo;				      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
-	            $(DEPCC) $(C_DEPEND_FLAG) $(CPPFLAGS) $$dep 2>/dev/null |    \
+	            $(CC) $(C_DEPEND_FLAG) $(CPPFLAGS) $$dep 2>/dev/null |    \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
@@ -58,7 +53,7 @@ depend:.depend
 	            echo Building dependencies for $$dep;		      \
 	            obj=`basename $$dep .cc`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
-	            $(DEPCXX) $(CXX_DEPEND_FLAG) $(DEPCXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
+	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
@@ -68,7 +63,7 @@ depend:.depend
 	            echo Building dependencies for $$dep;		      \
 	            obj=`basename $$dep .cxx`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
-	            $(DEPCXX) $(CXX_DEPEND_FLAG) $(DEPCXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
+	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \

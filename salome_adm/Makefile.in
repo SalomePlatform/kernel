@@ -5,14 +5,15 @@ srcdir=@srcdir@
 VPATH=.:$(srcdir)/salome_adm
 
 
-all:
-	cp -rf @top_srcdir@/salome_adm @prefix@
+all: resources
 
-install: all
+install:
+	cp -rf @top_srcdir@/salome_adm @prefix@
 
 bin:
 
 resources :
+	cp -rf @top_srcdir@/salome_adm @top_builddir@
 
 inc:
 

@@ -95,7 +95,7 @@ $(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/
 	ln -sf $(CURDIR)/$< $@
 
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
 
 # copy python scripts in $(top_builddir)/bin/salome
 #
@@ -161,7 +161,7 @@ install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir
 # Install exported includes in includedir
 	@for f in X $(EXPORT_HEADERS:%=$(srcdir)/%); do			      \
 	   if test $$f != X; then					      \
-	     (cp -p $$f $(includedir) || exit 1);			      \
+	     (cp -p -f $$f $(includedir) || exit 1);			      \
 	   fi;							              \
 	done
 

@@ -2,8 +2,7 @@
 inc_builddir=$(top_builddir)/include/salome
 
 @SET_MAKE@
-# Modifcation B. Secher portage sur osf
-SHELL=@SHELL@
+SHELL=/bin/sh
 
 # header missing
 
@@ -11,10 +10,9 @@ HAVE_SSTREAM=@HAVE_SSTREAM@
 
 
 LIBS=@LIBS@ 
-# LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
-LDFLAGS= @LDFLAGS@ -L$(top_builddir)/lib/salome
+LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
 # add libstdc++ to link c++ library with libtool !
-LDFLAGS+= @STDLIB@
+LDFLAGS+= -lstdc++
 
 CP=@CP@
 
@@ -35,6 +33,10 @@ C_DEPEND_FLAG = @C_DEPEND_FLAG@
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@ 
 CXX_DEPEND_FLAG = @CXX_DEPEND_FLAG@
+
+# BOOST Library
+
+BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 
 # JAVA
 
@@ -75,7 +77,6 @@ SIP_LIBS = @SIP_LIBS@
 
 # PYQT
 PYQT_SIPS = @PYQT_SIPS@
-PYQT_INCLUDES = @PYQT_INCLUDES@
 PYQT_LIBS = @PYQT_LIBS@
 
 # openGL
@@ -115,10 +116,8 @@ CAS_VIEWER=@CAS_VIEWER@
 CAS_MODELER=@CAS_MODELER@
 CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
 CAS_LDPATH=@CAS_LDPATH@
-# MPI
-MPI_INCLUDES=@MPI_INCLUDES@
-MPI_LIBS=@MPI_LIBS@
 # MPICH
+
 MPICH_INCLUDES=@MPICH_INCLUDES@
 MPICH_LIBS=@MPICH_LIBS@
 
@@ -136,7 +135,7 @@ OMNIORB_CXXFLAGS    = @OMNIORB_CXXFLAGS@
 
 OMNIORB_IDL         = @OMNIORB_IDL@
 OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/idl
+OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/salome/idl
 
 OMNIORB_IDL_CLN_H   = @OMNIORB_IDL_CLN_H@
 OMNIORB_IDL_CLN_CXX = @OMNIORB_IDL_CLN_CXX@
@@ -153,7 +152,7 @@ CORBA_INCLUDES    = @CORBA_INCLUDES@
 CORBA_LIBS        = @CORBA_LIBS@
 CORBA_CXXFLAGS    = @CORBA_CXXFLAGS@
 
-IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/idl
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/salome/idl
 IDLPYFLAGS  = @IDLPYFLAGS@
 
 IDL = @IDL@
@@ -207,13 +206,13 @@ idldir=${prefix}/idl/salome
 sharedpydir=@libdir@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
 incmakedir=${prefix}/salome_adm/unix
 
-docdir=$(datadir)/doc
+docdir=${prefix}/doc/salome
 
 #
 # begin of package rules
 #
 
-.PHONY: all lib bin inc resources data doc tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
+.PHONY: all lib bin inc resources data docs tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
 
 .SUFFIXES: .cxx .cc .c .f .o .lo .idl .py .i .ui .po .qm
 
@@ -256,7 +255,7 @@ ac_cxx_namespaces.m4              check_omniorb.m4   pyembed.m4		\
 ac_cxx_partial_specialization.m4  check_opengl.m4    python.m4		\
 ac_cxx_typename.m4                check_pthreads.m4  check_cas.m4	\
 ac_cc_warnings.m4                 check_qt.m4        check_med2.m4      \
-check_swig.m4 
+check_swig.m4                     check_boost.m4 
 
 $(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files/%)
 	cd $(top_srcdir) ; aclocal --acdir=adm_local/unix/config_files -I @KERNEL_ROOT_DIR@/salome_adm/unix/config_files

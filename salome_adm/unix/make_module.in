@@ -57,11 +57,11 @@ data:
 	@if test "X$(top_builddir)" = "X."; then							 \
 	((cd examples && $(MAKE) $@) || exit 1);			 \
 	fi;
-	
-doc:	
-	@if test "X$(top_builddir)" = "X."; then \
-	((cd doc && $(MAKE) $@) || exit 1); \
-	fi;	
+# Commented because we need not to make docs when we make BUILD 	
+# docs:	
+#	@if test "X$(top_builddir)" = "X."; then \
+#	((cd doc && $(MAKE) $@) || exit 1); \
+#	fi;	
 
 install: install-resources
 	@@SETX@; for d in $(SUBDIRS); do 	\
