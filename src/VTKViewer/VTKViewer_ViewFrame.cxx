@@ -37,11 +37,6 @@
 #include "SALOME_PassThroughFilter.h"
 #include "SALOME_GeometryFilter.h"
 
-#include "SALOME_Transform.h"
-#include "SALOME_TransformFilter.h"
-#include "SALOME_PassThroughFilter.h"
-#include "SALOME_GeometryFilter.h"
-
 #include "QAD_Settings.h"
 #include "QAD_Config.h"
 #include "QAD_Application.h"
