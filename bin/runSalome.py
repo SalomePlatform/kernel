@@ -138,9 +138,9 @@ liste_modules[:0]=["KERNEL"]
 #print liste_modules
 #print modules_root_dir
 
+os.environ["SALOMEPATH"]=":".join(modules_root_dir.values())
 if "SUPERV" in liste_modules:with_container_superv=1
 
-import orbmodule
 
 # -----------------------------------------------------------------------------
 #
@@ -270,8 +270,11 @@ for module in liste_modules_reverse:
     add_python_path(os.path.join(module_root_dir,"bin","salome"))
     add_python_path(os.path.join(module_root_dir,"lib",python_version,"site-packages","salome"))
     add_python_path(os.path.join(module_root_dir,"lib","salome"))
+    add_python_path(os.path.join(module_root_dir,"lib",python_version,"site-packages","salome","shared_modules"))
 
 #print "PYTHONPATH=",sys.path
+
+import orbmodule
 
 #
 # -----------------------------------------------------------------------------
@@ -432,41 +435,42 @@ def startSalome():
 # -----------------------------------------------------------------------------
 #
 
-clt=None
-try:
-   clt = startSalome()
-except:
+if __name__ == "__main__":
+   clt=None
+   try:
+      clt = startSalome()
+   except:
+      print
+      print
+      print "--- erreur au lancement Salome ---"
+   
+   #print process_id
+   
+   
+   filedict='/tmp/'+os.getenv('USER')+'_SALOME_pidict'
+   #filedict='/tmp/'+os.getlogin()+'_SALOME_pidict'
+   
+   fpid=open(filedict, 'w')
+   pickle.dump(process_id,fpid)
+   fpid.close()
+   
    print
+   print "Sauvegarde du dictionnaire des process dans ", filedict
+   print "Pour tuer les process SALOME, executer : python killSalome.py depuis"
+   print "une console, ou bien killSalome() depuis le present interpreteur,"
+   print "s'il n'est pas fermé."
    print
-   print "--- erreur au lancement Salome ---"
-
-#print process_id
-
-
-filedict='/tmp/'+os.getenv('USER')+'_SALOME_pidict'
-#filedict='/tmp/'+os.getlogin()+'_SALOME_pidict'
-
-fpid=open(filedict, 'w')
-pickle.dump(process_id,fpid)
-fpid.close()
-
-print
-print "Sauvegarde du dictionnaire des process dans ", filedict
-print "Pour tuer les process SALOME, executer : python killSalome.py depuis"
-print "une console, ou bien killSalome() depuis le present interpreteur,"
-print "s'il n'est pas fermé."
-print
-print "runSalome, avec l'option --killall, commence par tuer les process restants d'une execution précédente."
-print
-print "Pour lancer uniquement le GUI, executer startGUI() depuis le present interpreteur,"
-print "s'il n'est pas fermé."
-
-#
-#  Impression arborescence Naming Service
-#
-
-if clt != None:
-  print
-  print " --- registered objects tree in Naming Service ---"
-  clt.showNS()
-
+   print "runSalome, avec l'option --killall, commence par tuer les process restants d'une execution précédente."
+   print
+   print "Pour lancer uniquement le GUI, executer startGUI() depuis le present interpreteur,"
+   print "s'il n'est pas fermé."
+   
+   #
+   #  Impression arborescence Naming Service
+   #
+   
+   if clt != None:
+     print
+     print " --- registered objects tree in Naming Service ---"
+     clt.showNS()
+   
