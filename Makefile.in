@@ -98,6 +98,8 @@ runSalome.csh \
 runNS.sh \
 launchConfigureParser.py \
 salome.launch \
+envSalome.py \
+salomeConsole.py \
 showNS.py
 
 # copy header files in common directory

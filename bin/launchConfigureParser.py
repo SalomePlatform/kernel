@@ -92,53 +92,18 @@ class xml_parser:
 
 # -----------------------------------------------------------------------------
 
-### searching for launch configuration file : $HOME/.$(application_name)/$(application_name).launch
+### searching for launch configuration file : $HOME/applipath()/salome.launch
 
-appname = None
-dirname = None
-filename = None
-for bindir in glob.glob(os.environ["KERNEL_ROOT_DIR"]+"/bin/*"):
-    appname = string.split(bindir, "/").pop()
-    print 'Application name: "'+appname+'"'
-    # find version number
-    versnb = ""
-    try:
-      file = open(os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/VERSION", "r")
-      s = file.read()
-      l = string.split(s, ":")
-      vl = string.split(l[1], " ")
-      i = 0
-      while len(versnb) == 0:
-        versnb = vl[i]
-        i += 1
-        pass
-      versnb = string.split(versnb, "\n")[0]
-      print "Version ",versnb
-    except:
-      pass
-    # end find version number
-    dirname = os.environ["HOME"]+"/."+appname+"_"+versnb
-    filename = dirname+"/"+appname+".launch"
-    if not os.path.exists(filename) and \
-       not os.path.exists(os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/"+appname+".launch"):
-        filename = None
-    else:
-        break
-    pass
-if not appname:
-    print "Can not find application name"
-    if not os.have_key("KERNEL_ROOT_DIR"):
-        print "KERNEL_ROOT_DIR environment variable must be set"
-        pass
-    sys.exit(1);
-elif not filename or not os.path.exists(filename):
-    filename = dirname+"/"+appname+".launch"
-    #filename = os.environ["HOME"]+"/."+appname+"/"+appname+".launch"
-    print "Launch configuration file does not exist. Create default:",filename
-    os.system("mkdir -p "+dirname)
-    #os.system("mkdir -p "+os.environ["HOME"]+"/."+appname)
-    os.system("cp -f "+os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/"+appname+".launch "+filename)
-    pass
+appname="salome"
+import Utils_Identity
+versnb=Utils_Identity.version()
+dirname = os.path.join(os.environ["HOME"],Utils_Identity.getapplipath())
+filename=os.path.join(dirname,"salome.launch")
+
+if not os.path.exists(filename):
+   print "Launch configuration file does not exist. Create default:",filename
+   os.system("mkdir -p "+dirname)
+   os.system("cp -f "+os.environ["KERNEL_ROOT_DIR"]+"/bin/salome/salome.launch "+filename)
 
 ### get options from launch configuration file
 
@@ -251,28 +216,28 @@ if opts.has_key("h"):
     print """USAGE: runSalome.py [options]
     [command line options] :
     --help or -h                  : print this help
-    --gui or -g                   : lancement du GUI
+    --gui or -g                   : launching with GUI
     --terminal -t                 : launching without gui (to deny --gui)
-    --logger or -l                : redirection des messages via CORBA
-    --file=filename or -l=filename: redirection des messages dans un fichier
-    --xterm or -x                 : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
-    --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
+    --logger or -l                : redirect messages in a CORBA collector
+    --file=filename or -f=filename: redirect messages in a log file  
+    --xterm or -x                 : execute servers in xterm console (messages appear in xterm windows)
+    --modules=module1,module2,... : salome module list (modulen is the name of Salome module to load)
     or -m=module1,module2,...
     --embedded=registry,study,moduleCatalog,cppContainer
     or -e=registry,study,moduleCatalog,cppContainer
-                                  : serveurs CORBA embarqués (par defaut: registry,study,moduleCatalog,cppContainer)
-                                  : (logger,pyContainer,supervContainer ne peuvent pas être embarqués
+                                  : embedded CORBA servers (default: registry,study,moduleCatalog,cppContainer)
+                                  : (logger,pyContainer,supervContainer can't be embedded
     --standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
     or -s=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
-                                  : executables serveurs CORBA indépendants (par défaut: pyContainer,supervContainer)
-    --containers=cpp,python,superv: (obsolete) lancement des containers cpp, python et de supervision
-    or -c=cpp,python,superv       : = on prend les defauts de -e et -s
+                                  : standalone CORBA servers (default: pyContainer,supervContainer)
+    --containers=cpp,python,superv: (obsolete) launching of containers cpp, python and supervision
+    or -c=cpp,python,superv       : = get default from -e and -s
     --portkill or -p              : kill the salome with current port
     --killall or -k               : kill salome
     
-    La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
-    positionnée (modulen doit etre en majuscule).
-    KERNEL_ROOT_DIR est obligatoire.
+    For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
+    The module name (<modulen>) must be uppercase.
+    KERNEL_ROOT_DIR is mandatory.
     """
     sys.exit(1)
     pass

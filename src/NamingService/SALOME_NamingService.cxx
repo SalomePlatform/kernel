@@ -1382,3 +1382,7 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const 
 }
 
 //----------------------------------------------------------------------
+
+char * SALOME_NamingService::getIORaddr(){
+   return _orb->object_to_string(_root_context);
+}

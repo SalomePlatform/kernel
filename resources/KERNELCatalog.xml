@@ -22,5 +22,25 @@
 
 	<constraint>hostname = muna</constraint>
 	</component>
+	<component>
+		<component-name>SalomeTestComponent</component-name>
+		<component-username>SalomeTestComponent</component-username>
+		<component-type>Other</component-type>
+		<component-author>NRI</component-author>
+		<component-version>2.1.0</component-version>
+		<component-comment>GUI Neutral Context</component-comment>
+		<component-multistudy>1</component-multistudy>
+		<constraint>'linux' ~ OS</constraint>
+	</component>
+	<component>
+		<component-name>SALOME_TestComponentPy</component-name>
+		<component-username>SALOME_TestComponentPy</component-username>
+		<component-type>Other</component-type>
+		<component-author>NRI</component-author>
+		<component-version>2.1.0</component-version>
+		<component-comment>GUI Neutral Context</component-comment>
+		<component-multistudy>1</component-multistudy>
+		<constraint>'linux' ~ OS</constraint>
+	</component>
 </component-list>
 </begin-catalog>

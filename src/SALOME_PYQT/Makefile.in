@@ -34,11 +34,17 @@ SIP_SRC=$(CURDIR)/SalomePyQtcmodule.cc \
 	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
 	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
 
+ifeq ($(SIP_VERS),new2)
+MOC_SRC = SalomePyQtcmodule_moc.cxx
+MOC_H = SalomePyQtcmodule.h
+else
+MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
+MOC_H = sipSalomePyQtProxySalomePyQt.h
+endif
+
 # Libraries targets
 
 LIB = libSalomePyQtcmodule.la
-
-MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
 
 LIB_SRC += SalomePyQt.cxx SALOME_PYQT_GUI.cxx $(SIP_SRC) $(MOC_SRC) 
 LIB_MOC = SALOME_PYQT_GUI.h
@@ -59,7 +65,7 @@ LDFLAGS+= -lSalomeGUI -lqtcmodule
 $(SIP_SRC): $(SIP_FILES)
 	$(SIP) $(SIP_FLAGS) $<
 
-$(MOC_SRC): sipSalomePyQtProxySalomePyQt.h
+$(MOC_SRC): $(MOC_H)
 	$(MOC) $< -o $@
 
 @CONCLUDE@

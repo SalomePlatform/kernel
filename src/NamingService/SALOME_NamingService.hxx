@@ -97,6 +97,9 @@ public:
   virtual void Destroy_Directory(const char* Path)
     throw(ServiceUnreachable);
 
+  //! get IORstring naming service address 
+  char * getIORaddr();
+
 protected:
   CORBA::ORB_ptr _orb;
   CosNaming::NamingContext_var _root_context, _current_context;

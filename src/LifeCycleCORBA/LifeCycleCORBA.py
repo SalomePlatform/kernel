@@ -37,6 +37,8 @@ import SALOME_ModuleCatalog
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
+import Utils_Identity 
+import Launchers
 
 class LifeCycleCORBA:
     _orb = None
@@ -96,12 +98,10 @@ class LifeCycleCORBA:
         except:
             theComputer = ""
             theContainer = containerName
-        if theComputer == "" :
+
+        if theComputer in ("","localhost") :
             theComputer = getShortHostName()
-        if theComputer == "localhost" :
-            theComputer = getShortHostName()
-        computerSplitName = theComputer.split('.')
-        theComputer = computerSplitName[0]
+
         MESSAGE( theComputer + theContainer )
         return theComputer,theContainer
 
@@ -180,6 +180,61 @@ class LifeCycleCORBA:
             return None
         pass
 
+    #-------------------------------------------------------------------------
+
+    def setLauncher(self,name):
+        """Change default launcher to the launcher identified by name
+
+           See module Launchers.py
+        """
+        Launchers.setLauncher(name)
+
+    #-------------------------------------------------------------------------
+
+    def StartContainer(self, theComputer , theContainer ):
+        """Start a container on theComputer machine with theContainer name
+	"""
+	# Get the Naming Service address
+	#
+        addr=self._orb.object_to_string(self._rootContext)
+	#
+	# If container name contains "Py" launch a Python Container
+	#
+        if theContainer.find('Py') == -1 :
+           CMD=['SALOME_Container',theContainer,'-ORBInitRef','NameService='+addr]
+        else:
+           CMD=['SALOME_ContainerPy.py',theContainer,'-ORBInitRef','NameService='+addr]
+        if theComputer in ("","localhost"):
+           theComputer=getShortHostName()
+	#
+	# Get the appropriate launcher and ask to launch
+	#
+        Launchers.getLauncher(theComputer).launch(theComputer,CMD)
+	#
+	# Wait until the container is registered in Naming Service
+	#
+        count =5 
+	aContainer=None
+        while aContainer is None and count > 0:
+            time.sleep(1)
+            count = count - 1
+            MESSAGE( str(count) + ". Waiting for " + theComputer + "/" + theContainer )
+            aContainer = self.FindContainer( theComputer + "/" + theContainer )
+	return aContainer
+
+    #-------------------------------------------------------------------------
+
+    def FindOrStartContainer(self, theComputer , theContainer ):
+        """Find or Start a container on theComputer machine with theContainer name
+	"""
+        if theComputer in ("","localhost"):
+           theComputer=getShortHostName()
+        MESSAGE( "FindOrStartContainer: " + theComputer + theContainer )
+        aContainer = self.FindContainer( theComputer + "/" + theContainer )
+        if aContainer is None :
+            aContainer= self.StartContainer(theComputer , theContainer )
+	return aContainer
+	    
     #-------------------------------------------------------------------------
 
     def LoadComponent(self,containerName,componentName,listOfMachine):

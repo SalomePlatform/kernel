@@ -62,6 +62,14 @@ module Engines
     Component load_impl(in string nameToRegister, in string componentName);
 
 /*!
+    Loads into the container a new component, registers it and starts it's CORBA servant.
+    \param nameToRegister    Name used to register in Naming Service, the component instance 
+    \param componentName     Name of the %component
+    \return a new instance of the component or the registered component if already registered or Nil if not possible
+*/
+    Component instance(in string nameToRegister, in string componentName);
+
+/*!
     Stops the component servant, and deletes all related objects
     \param component_i     Component to be removed
 */

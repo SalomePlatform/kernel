@@ -358,3 +358,85 @@ string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName, c
   return ret;
 }
 
+
+/*
+ *  Create one instance of componentName component and register it 
+ *  as nameToRegister in naming service
+ */
+Engines::Component_ptr Engines_Container_i::instance( const char* nameToRegister,
+	                                              const char* componentName ) {
+
+  _numInstanceMutex.lock() ; // lock on the instance number
+  BEGIN_OF( "Container_i::instance " << componentName ) ;
+
+  string _nameToRegister = nameToRegister;
+  string component_registerName = _containerName + "/" + _nameToRegister;
+  
+  Engines::Component_var iobject = Engines::Component::_nil() ;
+  
+  try {
+    CORBA::Object_var obj = _NS->Resolve( component_registerName.c_str() ) ;
+    if (! CORBA::is_nil( obj ) ) {
+      MESSAGE( "Container_i::instance " << component_registerName.c_str() << " already registered" ) ;
+      iobject = Engines::Component::_narrow( obj ) ;
+    }
+    else{
+      string _compo_name = componentName;
+      string _impl_name = "lib" + _compo_name + "Engine.so";
+      SCRUTE(_impl_name);
+      
+      void* handle;
+      handle = dlopen( _impl_name.c_str() , RTLD_LAZY ) ;
+      
+      if ( handle ) {
+	 string factory_name = _compo_name + "Engine_factory";
+	 SCRUTE(factory_name) ;
+
+	 typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
+                        	   (CORBA::ORB_ptr,
+				    PortableServer::POA_ptr, 
+				    PortableServer::ObjectId *, 
+				    const char *, 
+				    const char *) ; 
+	 FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+
+	 char *error ;
+	 if ( (error = dlerror() ) == NULL) {
+             // Instanciate required CORBA object
+	     _numInstance++ ;
+             char _aNumI[12];
+             sprintf( _aNumI , "%d" , _numInstance ) ;
+             string instanceName = _compo_name + "_inst_" + _aNumI ;
+             SCRUTE(instanceName);
+
+             PortableServer::ObjectId * id ;
+             id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str() ,
+                                 _nameToRegister.c_str() ) ;
+             // get reference from id
+             obj = _poa->id_to_reference(*id);
+             iobject = Engines::Component::_narrow( obj ) ;
+
+             // register the engine under the name containerName.dir/nameToRegister.object
+             _NS->Register( iobject , component_registerName.c_str() ) ;
+             MESSAGE( "Container_i::instance " << component_registerName.c_str() << " registered" ) ;
+	     handle_map[instanceName] = handle;
+	 }
+	 else{
+	     INFOS("Can't resolve symbol: " + factory_name);
+	     SCRUTE(error);
+	 }  
+      }
+      else{
+	INFOS("Can't load shared library : " << _impl_name);
+	INFOS("error dlopen: " << dlerror());
+      }      
+    }
+  }
+  catch (...) {
+    INFOS( "Container_i::instance exception caught" ) ;
+  }
+  END_OF("Container_i::instance");
+  _numInstanceMutex.unlock() ;
+  return Engines::Component::_duplicate(iobject);
+}
+

@@ -57,3 +57,24 @@ class Identity:
         self._tc_start	= time.time()
         self._cstart    = time.ctime(self._tc_start)
         self._cdir	= os.getcwd()
+
+def getapplipath():
+    """
+      Gives short application path (the complete path is $HOME/$APPLI)
+    """
+    return os.environ.get("APPLI",".salome_"+versnb)
+
+try:
+  file = open(os.path.join(os.environ["KERNEL_ROOT_DIR"],"bin","salome","VERSION"), "r")
+  s = file.readline()
+  versnb = string.strip(string.split(s, ":")[1])
+  dirname=".salome_"+versnb
+except:
+  versnb = ""
+  dirname=".salome"
+
+def version():
+    """
+      Gives salome version number
+    """
+    return versnb

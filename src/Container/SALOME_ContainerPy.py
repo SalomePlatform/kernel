@@ -36,6 +36,8 @@ from omniORB import CORBA, PortableServer
 # (if not, incomplete import done by SALOME module: no load of SALOMEDS_attributes)
 import SALOMEDS 
 import Engines, Engines__POA
+reload(Engines)
+reload(Engines__POA)
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 
@@ -133,6 +135,22 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def instance(self, nameToRegister, componentName):
+        MESSAGE(  "SALOME_ContainerPy_i::instance " + str(nameToRegister) + ' ' + str(componentName) )
+        self._numInstance = self._numInstance +1
+        instanceName = nameToRegister + "_inst_" + `self._numInstance`
+
+	component=__import__(componentName)
+	factory=getattr(component,componentName)
+	comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
+	               instanceName, nameToRegister)
+
+        MESSAGE( "SALOME_ContainerPy_i::instance : component created")
+        comp_o = comp_i._this()
+        return comp_o
+
+    #-------------------------------------------------------------------------
+
     def load_impl(self, nameToRegister, componentName):
         MESSAGE(  "SALOME_ContainerPy_i::load_impl " + str(nameToRegister) + ' ' + str(componentName) )
         self._numInstance = self._numInstance +1
@@ -150,21 +168,25 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     def remove_impl(self, component):
         MESSAGE( "SALOME_ContainerPy_i::remove_impl" )
+        return None
 
     #-------------------------------------------------------------------------
 
     def finalize_removal(self):
         MESSAGE( "SALOME_ContainerPy_i::finalize_removal" )
+        return None
 
     #-------------------------------------------------------------------------
 
     def ping(self):
         MESSAGE( "SALOME_ContainerPy_i::ping" )
+        return None
 
     #-------------------------------------------------------------------------
 
     def _get_name(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_name" )
+        return self._containerName
 
     #-------------------------------------------------------------------------
 

@@ -60,6 +60,9 @@ public:
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
 
+  Engines::Component_ptr instance(const char* nameToRegister,
+				   const char* componentName);
+
   //! Unload component from current container
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();

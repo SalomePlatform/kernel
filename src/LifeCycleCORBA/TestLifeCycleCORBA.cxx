@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-#include "utilities.h"
 #include <iostream>
 #include <unistd.h>
 #include <SALOMEconfig.h>
@@ -34,7 +33,10 @@
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "utilities.h"
+#include "SALOMETraceCollector.hxx"
 #include <OpUtil.hxx>
+
 using namespace std;
 
 int main (int argc, char * argv[])
@@ -44,6 +46,7 @@ int main (int argc, char * argv[])
     {
       // Initializing omniORB
       CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+      SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
     
       // Obtain a reference to the root POA
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA") ;
@@ -57,6 +60,10 @@ int main (int argc, char * argv[])
       // load an engine, and invoque methods on that engine
 
       string containerName = GetHostname();
+
+      cout << containerName << endl;
+      cout << "FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" << endl;
+      MESSAGE("FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" );
 
       Engines::Component_var mycompo =
 	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
@@ -87,7 +94,22 @@ int main (int argc, char * argv[])
       ASSERT(!CORBA::is_nil(m2));
 
       SCRUTE(m2->instanceName());
+      cout << m2->instanceName() << endl;
       MESSAGE("Coucou " << m2->Coucou(1L));
+
+      Engines::Component_var mycompo3 = _LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
+      ASSERT(!CORBA::is_nil(mycompo3));
+      Engines::TestComponent_var m3 = Engines::TestComponent::_narrow(mycompo3);
+      ASSERT(!CORBA::is_nil(m3));
+      cout << m3->instanceName() << endl;
+
+      string containerName4 = containerName + "/titiPy";
+      Engines::Component_var mycompo4 = _LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
+      ASSERT(!CORBA::is_nil(mycompo4));
+      Engines::TestComponent_var m4 = Engines::TestComponent::_narrow(mycompo4);
+      ASSERT(!CORBA::is_nil(m4));
+      cout << m4->instanceName() << endl;
+
     }
   catch(CORBA::COMM_FAILURE& ex)
     {

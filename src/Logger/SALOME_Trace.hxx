@@ -11,7 +11,7 @@
 #if !defined(AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_)
 #define AFX_LOGGER_H__96F2A3AB_F6F8_11D6_BFA6_000476A0958C__INCLUDED_
 
-#include <strstream.h>
+#include <strstream>
 #include "Logger.hh"
 
 //these declarations for files don't using OCC includes (for example HDF)

@@ -67,6 +67,9 @@ protected:
 			     std::string * theComputer ,
 			     std::string * theContainer ) ;
   std::string ComputerPath( const char * theComputer ) ;
+  Engines::Container_ptr FindOrStartContainer(const std::string aComputerContainer ,
+                                              const std::string theComputer ,
+                                              const std::string theContainer ) ;
 } ;
 
 #endif

@@ -36,12 +36,12 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
 
-EXPORT_PYSCRIPTS = LifeCycleCORBA.py
+EXPORT_PYSCRIPTS = LifeCycleCORBA.py Launchers.py
 
 # Libraries targets
 
 LIB = libSalomeLifeCycleCORBA.la
-LIB_SRC = SALOME_LifeCycleCORBA.cxx
+LIB_SRC = SALOME_LifeCycleCORBA.cxx Launchers.cxx
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
 
@@ -51,10 +51,11 @@ BIN_SRC =
 BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
 
-CPPFLAGS += $(QT_MT_INCLUDES)
+CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
 
 LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
 LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
+LIBS += $(PYTHON_LIBS)
 
 @CONCLUDE@
 

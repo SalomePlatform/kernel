@@ -33,6 +33,7 @@
 
 #include "OpUtil.hxx"
 #include "utilities.h"
+#include "Launchers.hxx"
 
 #include <ServiceUnreachable.hxx>
 
@@ -266,4 +267,58 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::LoadComponent(const char *containe
   Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,listOfMachines);
   string implementation=Engines_Component_i::GetDynLibraryName(componentName);
   return cont->load_impl(componentName, implementation.c_str());
+}
+
+
+Engines::Container_ptr SALOME_LifeCycleCORBA::FindOrStartContainer(
+                                              const string aComputerContainer ,
+                                              const string theComputer ,
+                                              const string theContainer ) {
+  SCRUTE( aComputerContainer ) ;
+  SCRUTE( theComputer ) ;
+  SCRUTE( theContainer ) ;
+
+  Engines::Container_var aContainer = FindContainer( aComputerContainer.c_str() ) ;
+
+  if ( !CORBA::is_nil( aContainer ) ) {
+    return aContainer ;
+  }
+
+  Engines::Container_var aFactoryServer ;
+
+  bool pyCont = false ;
+  int len = theContainer.length() ;
+  if ( !strcmp( &theContainer.c_str()[len-2] , "Py" ) ) {
+    pyCont = true ;
+  }
+
+  string addr=_NS->getIORaddr();
+  string CMD="SALOME_Container";
+  if ( pyCont ) {
+    CMD="SALOME_ContainerPy.py";
+  }
+  CMD=CMD + " " + theContainer;
+  CMD=CMD + " -ORBInitRef NameService="+addr;
+
+  /*
+   *  Get the appropriate launcher and ask to launch
+   */
+  PyObject * launcher=getLauncher((char *)theComputer.c_str());
+  Launcher_Slaunch(launcher,(char *)theComputer.c_str(),(char *)CMD.c_str());
+  /*
+   *  Wait until the container is registered in Naming Service
+   */
+  int count = 5 ;
+  while ( CORBA::is_nil( aFactoryServer ) && count ) {
+      sleep( 1 ) ;
+      count-- ;
+      if ( count != 10 )
+            MESSAGE( count << ". Waiting for FactoryServer on " << theComputer)
+      aFactoryServer = FindContainer( aComputerContainer.c_str() ) ;
+  }
+  if ( !CORBA::is_nil( aFactoryServer ) ) {
+     return aFactoryServer;
+  }
+  MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
+  return Engines::Container::_nil();
 }
