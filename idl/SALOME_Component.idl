@@ -83,6 +83,14 @@ module Engines
    Returns True if the %container has been killed
 */
     boolean Kill_impl() ;
+/*!
+   Returns the hostname of the container
+*/
+    string getHostName();
+/*!
+   Returns the PID of the container
+*/
+    long getPID();
   };
 /*! \brief Interface of the %component
 

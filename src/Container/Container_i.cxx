@@ -58,6 +58,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           int argc , char* argv[] ) :
  _numInstance(0)
 {
+  _pid = (long)getpid();
 
   ActSigIntHandler() ;
 
@@ -124,6 +125,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 					  int flag ) 
   : _numInstance(0)
 {
+  _pid = (long)getpid();
   string hostname = GetHostname();
   SCRUTE(hostname);
 
@@ -460,4 +462,16 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     return ;
   }
+}
+
+// Get the PID of the Container
+
+long Engines_Container_i::getPID() {
+    return(_pid);
+}
+
+// Get the hostName of the Container
+
+char* Engines_Container_i::getHostName() {
+    return((char*)(GetHostname().c_str()));
 }

@@ -70,6 +70,8 @@ public:
   char* machineName();
   void ping();
   bool Kill_impl() ;
+  char* getHostName();
+  long getPID();
 
 protected:
 
@@ -88,6 +90,7 @@ private:
 
   int   _argc ;
   char** _argv ;
+  long _pid;
 
 };
 
