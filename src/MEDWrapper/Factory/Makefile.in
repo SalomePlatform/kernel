@@ -49,6 +49,6 @@ BIN_SRC =
 
 CPPFLAGS+= $(BOOST_CPPFLAGS) $(MED2_INCLUDES)
 
-LDFLAGS+= -lMEDWrapper_V2_2 -lMEDWrapper_V2_1
+LDFLAGS+= -lMEDWrapper_V2_2 -lMEDWrapper_V2_1 -lMEDWrapperBase
 
 @CONCLUDE@
