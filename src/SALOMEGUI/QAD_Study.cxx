@@ -96,6 +96,9 @@ myPath( path )
 QAD_Study::~QAD_Study ()
 {
   close();
+  //SRN: added - clear selection in case the study will be loaded again so the title will coincide
+  SALOME_Selection::RemoveSelection( QString(myTitle + "_" + mySelection) );
+
 }
 
 /*!
