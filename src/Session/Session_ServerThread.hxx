@@ -37,9 +37,6 @@
 
 using namespace std;
 
-void WaitForServerReadiness(string serverName);
-
-
 class Session_ServerThread
 {
 public:

@@ -35,6 +35,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -54,6 +55,13 @@ static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
 
 int main(int argc, char* argv[])
 {
+#ifdef HAVE_MPI2
+  MPI_Init(&argc,&argv);
+#endif
+  // Initialise the ORB.
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
     
@@ -62,14 +70,6 @@ int main(int argc, char* argv[])
   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
   
   try{
-#ifdef HAVE_MPI2
-      MPI_Init(&argc,&argv);
-#endif
-    // Initialise the ORB.
-    ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-    ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-    CORBA::ORB_var &orb = init( argc , argv ) ;
-    
     // Obtain a reference to the root POA.
     // obtain the root poa manager
     //
@@ -210,5 +210,7 @@ int main(int argc, char* argv[])
   MPI_Finalize();
 #endif
   END_OF(argv[0]);
+  delete myThreadTrace;
+  return 0 ;
 }
 

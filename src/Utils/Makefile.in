@@ -36,7 +36,6 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 # header files  
 EXPORT_HEADERS= \
-	utilities.h \
 	OpUtil.hxx \
 	Utils_Timer.hxx \
 	Utils_CorbaException.hxx \

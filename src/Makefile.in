@@ -32,7 +32,7 @@ VPATH=.:@srcdir@
 
 @COMMENCE@
 
-SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils SALOMELogger CASCatch PatchQt \
+SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils CASCatch PatchQt \
           GenericObj MEDWrapper NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           Notification  NOTIFICATION_SWIG \

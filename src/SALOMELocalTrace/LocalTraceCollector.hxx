@@ -1,6 +1,4 @@
-//  SALOME Utils : general SALOME's definitions and tools
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -21,31 +19,36 @@
 //
 //
 //
-//  File   : duplicate.cxx
-//  Author : Antoine YESSAYAN, EDF
-//  Module : SALOME
+//  File   : LocalTraceCollector.hxx
+//  Author : Paul RASCLE (EDF)
+//  Module : KERNEL
 //  $Header$
 
-/*!
- *	This function can be changed by strdup() if strdup() is ANSI.
- *	It is strongly (and only) used in the Registry environment
- *	(RegistryService, RegistryConnexion, Identity, ...)
- */
+#ifndef _LOCALTRACECOLLECTOR_HXX_
+#define _LOCALTRACECOLLECTOR_HXX_
 
-#include <cstdlib>
-#include <cstring>
+#include <string>
+#include <CORBA.h>
+#include "LocalTraceBufferPool.hxx"
 
-#include  "utilities.h"
-
-using namespace std;
-
-const char* duplicate( const char *const str )
+class LocalTraceCollector
 {
-	ASSERT(str!=NULL) ;
-	const size_t length = strlen( str ) ;
-	ASSERT(length>0) ;
-	char *new_str = new char[ 1+length ] ;
-	ASSERT(new_str) ;
-	strcpy( new_str , str ) ;
-	return new_str ;
-}
+ public:
+  static LocalTraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);
+  static void *run(void *bid);
+  ~LocalTraceCollector();
+
+ protected:
+  LocalTraceCollector();
+
+ private:
+  static int _threadToClose;
+  static int _toFile;
+  static LocalTraceCollector* _singleton;
+  static pthread_mutex_t _singletonMutex;
+  static pthread_t _threadId;
+  static std::string _fileName;
+  static CORBA::ORB_ptr _orb;
+};
+
+#endif

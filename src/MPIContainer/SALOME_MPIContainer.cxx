@@ -28,10 +28,12 @@ using namespace std;
 #include <iostream>
 #include "MPIContainer_i.hxx"
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 #include <mpi.h>
 
 int main(int argc, char* argv[])
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
   int nbproc, numproc;
   MPIContainer_i * myContainer;
 
@@ -116,5 +118,7 @@ int main(int argc, char* argv[])
     INFOS("Caught unknown exception.")
    }
   END_OF(argv[0]);
+  delete myThreadTrace;
+  return 0;
 }
 

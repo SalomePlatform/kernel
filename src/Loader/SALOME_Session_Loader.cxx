@@ -19,6 +19,7 @@ using namespace std;
 #include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 
 //! CORBA client for SALOME Session server : launch GUI
 /*!
@@ -30,6 +31,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+  CORBA::ORB_ptr orb = CORBA::ORB_init(argc,argv) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
 //VRV: T2.4 - Trace management improvement
   QApplication myQApp(argc, argv) ;
   InquireServersGUI myIS;
@@ -43,9 +46,7 @@ int main(int argc, char **argv)
 //VRV: T2.4 - Trace management improvement
   if (myIS.withGUI()) {
     try
-      {
-	CORBA::ORB_ptr orb = CORBA::ORB_init(argc,argv) ;
-	
+      {	
 	SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
 	ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
 	NS.init_orb( orb ) ;
@@ -85,8 +86,10 @@ int main(int argc, char **argv)
       {
 	INFOS("Caught unknown exception.");
       }
-    return 0 ;
   }
+  INFOS("Normal Exit"); // without this trace, Splash remains on screen !
+  delete myThreadTrace;
+  return 0 ;
 }
 
 

@@ -55,6 +55,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 
 #include "SALOME_Session_i.hxx"
 
@@ -90,15 +91,13 @@ static int MYDEBUG = 0;
 
 int main(int argc, char **argv)
 {
+  SALOME_Event::GetSessionThread();
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  int orbArgc = 1;
+  CORBA::ORB_var &orb = init( orbArgc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   try
     {
-      SALOME_Event::GetSessionThread();
-
-      ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-      ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-      int orbArgc = 1;
-      CORBA::ORB_var &orb = init( orbArgc , argv ) ;
-
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
       PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 
@@ -253,5 +252,7 @@ int main(int argc, char **argv)
     {
       INFOS("Caught unknown exception.");
     }
+  MESSAGE("End of SALOME_Session_Server");
+  delete myThreadTrace;
   return 0 ;
 }

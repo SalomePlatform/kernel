@@ -42,6 +42,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "OpUtil.hxx"
+#include "NamingService_WaitForServerReadiness.hxx"
 #include "utilities.h"
 
 #include <cstdlib>
@@ -55,64 +56,6 @@ const char* Session_ServerThread::_serverTypes[NB_SRV_TYP] = {"Container",
 							      "Registry",
 							      "SALOMEDS",
 							      "Session"};
-
-//=============================================================================
-/*! 
- * Wait until the given server is ready i.e. is name is found in namingService.
- * Try 40 times, with 250 ms sleep between each try.
- * If Logger is used for traces, it must be ready before this call, because
- * SALOME_NamingService client uses SALOME traces. So, Logger readiness must be
- * checked in Launch script before execution of WaitForServerReadiness.
- */
-//=============================================================================
-
-void WaitForServerReadiness(SALOME_NamingService* NS, string serverName)
-{
-  long TIMESleep = 250000000; // 250 ms.
-  int NumberOfTries = 40;     // total wait = 10 s.
-  int found = 0;
-
-  timespec ts_req;
-  ts_req.tv_nsec=TIMESleep;
-  ts_req.tv_sec=0;
-  timespec ts_rem;
-  ts_rem.tv_nsec=0;
-  ts_rem.tv_sec=0;
-
-  for (int itry=0; itry < NumberOfTries; itry++)
-    {
-      try
-	{
-	  if (serverName.length() == 0)
-	    {
-	      string curdir = NS->Current_Directory(); // to wait for naming service
-	      found = 1;
-	      break; // naming service found
-	    }
-	  else
-	    {
-	      CORBA::Object_ptr obj = NS->Resolve(serverName.c_str());
-	      if (! CORBA::is_nil(obj))
-		{
-		  found =1;
-		  break; // server found, no more try to do
-		}
-	      MESSAGE("Server "<< serverName <<" not yet ready, waiting...");
-	      int a = nanosleep(&ts_req,&ts_rem); // wait before retry
-	    }
-	}
-      catch( ServiceUnreachable& )
-	{
-	  MESSAGE("CORBA::COMM_FAILURE: Naming Service not yet ready, waiting...");
-	  int a = nanosleep(&ts_req,&ts_rem); // wait before retry
-	}
-    }
-  if (!found)
-    {
-    INFOS("Server "<< serverName <<" not found, abort...");
-    exit(EXIT_FAILURE);
-    }
-}
 
 //=============================================================================
 /*! 
@@ -180,35 +123,35 @@ void Session_ServerThread::Init()
 	  {
 	  case 0:  // Container
 	    {
-	      WaitForServerReadiness(_NS,"/Registry");
+	      NamingService_WaitForServerReadiness(_NS,"/Registry");
 	      ActivateContainer(_argc, _argv);
 	      break;
 	    }
 	  case 1:  // ModuleCatalog
 	    {
-	      WaitForServerReadiness(_NS,"/Registry");
+	      NamingService_WaitForServerReadiness(_NS,"/Registry");
 	      ActivateModuleCatalog(_argc, _argv);
 	      break;
 	    }
 	  case 2:  // Registry
 	    {
-	      WaitForServerReadiness(_NS,"");
+	      NamingService_WaitForServerReadiness(_NS,"");
 	      ActivateRegistry(_argc, _argv);
 	      break;
 	    }
 	  case 3:  // SALOMEDS
 	    {
-	      WaitForServerReadiness(_NS,"/Kernel/ModulCatalog");
+	      NamingService_WaitForServerReadiness(_NS,"/Kernel/ModulCatalog");
 	      ActivateSALOMEDS(_argc, _argv);
 	      break;
 	    }
 	  case 4:  // Session
 	    {
-	      WaitForServerReadiness(_NS,"/myStudyManager");
+	      NamingService_WaitForServerReadiness(_NS,"/myStudyManager");
 	      string containerName = "/Containers/";
 	      containerName = containerName + GetHostname();
 	      containerName = containerName + "/FactoryServer";
-	      WaitForServerReadiness(_NS,containerName);
+	      NamingService_WaitForServerReadiness(_NS,containerName);
 	      ActivateSession(_argc, _argv);
 	      break;
 	    }

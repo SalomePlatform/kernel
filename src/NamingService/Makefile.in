@@ -38,11 +38,16 @@ EXPORT_PYSCRIPTS = SALOME_NamingServicePy.py
 
 EXPORT_HEADERS = \
 	SALOME_NamingService.hxx \
-	ServiceUnreachable.hxx
+	ServiceUnreachable.hxx \
+	NamingService_WaitForServerReadiness.hxx
+
 # Libraries targets
 
 LIB = libSalomeNS.la 
-LIB_SRC = SALOME_NamingService.cxx ServiceUnreachable.cxx
+LIB_SRC = \
+	SALOME_NamingService.cxx \
+	ServiceUnreachable.cxx \
+	NamingService_WaitForServerReadiness.cxx
 
 LDFLAGS+= -lOpUtil
 

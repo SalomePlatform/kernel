@@ -8,6 +8,7 @@
 //  $Header$
 
 using namespace std;
+#include "utilities.h"
 #include "InquireServersQThread.h"
 
 #include <qlabel.h>
@@ -34,7 +35,7 @@ using namespace std;
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
-#include "utilities.h"
+//#include "utilities.h"
 #include "OpUtil.hxx"
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
@@ -230,7 +231,7 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
       myMessages[5] = str + "SALOME_Container FactoryServer" + "...";
       myServersCount++;
     }
-    if (strcmp(_argv[i],"PYTHON")==0) {
+    if (strcmp(_argv[i],"PY")==0) {
       myMessages[6] = str + "SALOME_ContainerPy.py FactoryServerPy" + "...";
       myServersCount++;
     }

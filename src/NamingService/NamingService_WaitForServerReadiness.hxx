@@ -1,6 +1,4 @@
-//  SALOME Utils : general SALOME's definitions and tools
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -21,31 +19,18 @@
 //
 //
 //
-//  File   : duplicate.cxx
-//  Author : Antoine YESSAYAN, EDF
-//  Module : SALOME
+//  File   : NamingService_WaitForServerReadiness.hxx
+//  Author : Paul RASCLE (EDF)
+//  Module : KERNEL
 //  $Header$
 
-/*!
- *	This function can be changed by strdup() if strdup() is ANSI.
- *	It is strongly (and only) used in the Registry environment
- *	(RegistryService, RegistryConnexion, Identity, ...)
- */
+#ifndef _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
+#define _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
 
-#include <cstdlib>
-#include <cstring>
+#include <string>
+#include "SALOME_NamingService.hxx"
 
-#include  "utilities.h"
+void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
+					  std::string serverName);
 
-using namespace std;
-
-const char* duplicate( const char *const str )
-{
-	ASSERT(str!=NULL) ;
-	const size_t length = strlen( str ) ;
-	ASSERT(length>0) ;
-	char *new_str = new char[ 1+length ] ;
-	ASSERT(new_str) ;
-	strcpy( new_str , str ) ;
-	return new_str ;
-}
+#endif

@@ -35,15 +35,21 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 @COMMENCE@
 
 # header files  
-EXPORT_HEADERS= SALOME_Log.hxx
+EXPORT_HEADERS= utilities.h \
+		LocalTraceBufferPool.hxx \
+		LocalTraceCollector.hxx \
+		LocalTrace_WaitForServerReadiness.hxx
 
 EXPORT_PYSCRIPTS = 
 
 # Libraries targets
 
 LIB = libSALOMELocalTrace.la 
-LIB_SRC = SALOME_Log.cxx
+LIB_SRC = LocalTraceCollector.cxx \
+	  LocalTraceBufferPool.cxx \
+	  LocalTrace_WaitForServerReadiness.cxx
 
+LIB_CLIENT_IDL = Logger.idl 
 LDFLAGS+= 
 
 @CONCLUDE@

@@ -30,6 +30,10 @@
 
 #include "utilities.h"
 
+#include "SALOME_DataTypeCatalog_Handler.hxx"
+
+#include "utilities.h"
+
 using namespace std;
 
 // contains all the data types defined in the catalog
