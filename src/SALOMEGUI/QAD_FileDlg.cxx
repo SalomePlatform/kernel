@@ -14,7 +14,6 @@
 #include <qlabel.h>
 #include <qobjectlist.h>
 #include <qpalette.h>
-#include <qpushbutton.h>
 #include <qregexp.h>
 #include "QAD_Config.h"
 #include "QAD_Desktop.h"   
@@ -42,39 +41,16 @@ myOpen( open )
 
   if (showQuickDir) {
     // inserting quick dir combo box
-    QLabel* lab  = new QLabel(tr("Quick path:"), this);
+    QLabel* lab  = new QLabel(tr("QUICK_PATH_LAB"), this);
     myQuickCombo = new QComboBox(false, this);
     myQuickCombo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     myQuickCombo->setMinimumSize(MIN_COMBO_SIZE, 0);
     
-    // the following is a workaround for proper layouting of custom widgets ===========
-    QPushButton* btn = new QPushButton(this);
-    btn->setEnabled(false);
-    QPalette pal = btn->palette();
-    QColorGroup ca = pal.active();
-    ca.setColor(QColorGroup::Light,    palette().active().background());
-    ca.setColor(QColorGroup::Midlight, palette().active().background());
-    ca.setColor(QColorGroup::Dark,     palette().active().background());
-    ca.setColor(QColorGroup::Mid,      palette().active().background());
-    ca.setColor(QColorGroup::Shadow,   palette().active().background());
-    QColorGroup ci = pal.inactive();
-    ci.setColor(QColorGroup::Light,    palette().inactive().background());
-    ci.setColor(QColorGroup::Midlight, palette().inactive().background());
-    ci.setColor(QColorGroup::Dark,     palette().inactive().background());
-    ci.setColor(QColorGroup::Mid,      palette().inactive().background());
-    ci.setColor(QColorGroup::Shadow,   palette().inactive().background());
-    QColorGroup cd = pal.disabled();
-    cd.setColor(QColorGroup::Light,    palette().disabled().background());
-    cd.setColor(QColorGroup::Midlight, palette().disabled().background());
-    cd.setColor(QColorGroup::Dark,     palette().disabled().background());
-    cd.setColor(QColorGroup::Mid,      palette().disabled().background());
-    cd.setColor(QColorGroup::Shadow,   palette().disabled().background());
-    pal.setActive(ca); pal.setInactive(ci); pal.setDisabled(cd);
-    btn->setPalette(pal);
-    // ================================================================================
+    myQuickButton = new QPushButton(tr("ADD_PATH_BTN"), this);
 
-    connect(myQuickCombo, SIGNAL(activated(const QString&)), this, SLOT(quickDir(const QString&)));
-    addWidgets(lab, myQuickCombo, btn);
+    connect(myQuickCombo,  SIGNAL(activated(const QString&)), this, SLOT(quickDir(const QString&)));
+    connect(myQuickButton, SIGNAL(clicked()),                 this, SLOT(addQuickDir()));
+    addWidgets(lab, myQuickCombo, myQuickButton);
 
     // getting dir list from settings
     QString dirs = QAD_CONFIG->getSetting("FileDlg:QuickDirList");
@@ -93,7 +69,7 @@ myOpen( open )
     const QObjectList *list = children();
     QObjectListIt it(*list);
     int maxButWidth = lab->sizeHint().width();
-    int maxLabWidth = btn->sizeHint().width();
+    int maxLabWidth = myQuickButton->sizeHint().width();
     
     for (; it.current() ; ++it) {
       if ( it.current()->isA( "QLabel" ) ) {
@@ -324,7 +300,41 @@ void QAD_FileDlg::quickDir(const QString& dirPath)
     processPath(dirPath);
   }
 }
-
+/*!
+  Called when user presses "Add" button - adds current directory to quick directory
+  list and to the preferences
+*/
+void QAD_FileDlg::addQuickDir()
+{
+  QString dp = dirPath();
+  if ( !dp.isEmpty() ) {
+    QDir dir( dp );
+    // getting dir list from settings
+    QString dirs = QAD_CONFIG->getSetting("FileDlg:QuickDirList");
+    QStringList dirList = QStringList::split(';', dirs, false);
+    bool found = false;
+    bool emptyAndHome = false;
+    if ( dirList.count() > 0 ) {
+      for ( unsigned i = 0; i < dirList.count(); i++ ) {
+	QDir aDir( dirList[i] );
+	if ( aDir.canonicalPath().isNull() && dirList[i] == dir.absPath() ||
+	    !aDir.canonicalPath().isNull() && aDir.exists() && aDir.canonicalPath() == dir.canonicalPath() ) {
+	  found = true;
+	  break;
+	}
+      }
+    }
+    else {
+      emptyAndHome = dir.canonicalPath() == QDir(QDir::homeDirPath()).canonicalPath();
+    }
+    if ( !found ) {
+      dirList.append( dp );
+      QAD_CONFIG->addSetting("FileDlg:QuickDirList", dirList.join(";"));
+      if ( !emptyAndHome )
+	myQuickCombo->insertItem( dp );
+    }
+  }
+}
 /*!
   Returns the file name for Open/Save [ static ]
 */

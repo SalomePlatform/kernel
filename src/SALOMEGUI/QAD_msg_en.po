@@ -871,3 +871,9 @@ msgstr "Plot table"
 msgid "NEW_OBJECT"
 msgstr "New object"
  
+msgid "QUICK_PATH_LAB"
+msgstr "Quick path:"
+ 
+msgid "ADD_PATH_BTN"
+msgstr "Add"
+ 

@@ -13,6 +13,7 @@
 #define QAD_FILEDIALOG_H
 
 #include <qcombobox.h>
+#include <qpushbutton.h>
 
 // VSR (18/01/2005): use patched QFileDialog only for the official 3.0.5 version of Qt
 #if QT_VERSION == 0x030005
@@ -68,13 +69,15 @@ protected slots:
     void               accept();        
     void               reject(); 
     void               quickDir(const QString&);
+    void               addQuickDir();
 
 protected:
-    bool               myOpen;             /* open/save selector  */      
-    QString            mySelectedFile;     /* selected filename   */    
-    QAD_FileValidator* myValidator;        /* file validator      */
-    static QString     myLastVisitedPath;  /* last visited path   */
-    QComboBox*         myQuickCombo;       /* quick dir combo box */
+    bool               myOpen;             /* open/save selector   */      
+    QString            mySelectedFile;     /* selected filename    */    
+    QAD_FileValidator* myValidator;        /* file validator       */
+    static QString     myLastVisitedPath;  /* last visited path    */
+    QComboBox*         myQuickCombo;       /* quick dir combo box  */
+    QPushButton*       myQuickButton;      /* quick dir add button */
 };
 
 #endif
