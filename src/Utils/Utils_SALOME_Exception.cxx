@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <iostream>
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
@@ -33,9 +34,9 @@ extern "C"
 {
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 }
-#include <string>
-using namespace std;
+
 
 const char* duplicate( const char *const str ) ;
 
@@ -47,7 +48,7 @@ SALOME_Exception::SALOME_Exception( void ): exception() , _text(0)
 
 
 
-char *makeText( const char *text, const char *fileName, const unsigned int lineNumber )
+const char *makeText( const char *text, const char *fileName, const unsigned int lineNumber )
 {
 	char *newText = 0 ;
 
@@ -88,14 +89,15 @@ SALOME_Exception::~SALOME_Exception() throw ()
 {
 	if ( _text )
 	{
-	  delete [] _text ;
-	  _text = NULL;
+		delete [] _text ;
+		_text = 0 ;
 	}
+	ASSERT(_text==NULL) ;
 }
 
 
 
-SALOME_Exception::SALOME_Exception( const SALOME_Exception &ex ): _text((char*)duplicate(ex._text))
+SALOME_Exception::SALOME_Exception( const SALOME_Exception &ex ): _text(duplicate(ex._text))
 {
 	;
 }

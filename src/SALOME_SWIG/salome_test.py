@@ -59,6 +59,8 @@ print
 print "=============  Test SMESH  ============================="
 print
 
+import StdMeshers
+
 comp = catalog.GetComponent("SMESH")
 if comp is None:
 	raise RuntimeError,"Component SMESH not found in Module Catalog."
@@ -68,11 +70,11 @@ if comp is None:
 	raise RuntimeError,"Component MED not found in Module Catalog."
 
 import SMESH
-import smeshpy
 
 geom = salome.lcc.FindOrLoadComponent("FactoryServer", "GEOM")
 myBuilder = salome.myStudy.NewBuilder()
 
+smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
 smeshgui = salome.ImportComponentGUI("SMESH")
 smeshgui.Init(salome.myStudyId);
 
@@ -113,138 +115,107 @@ name = geompy.SubShapeName( edge._get_Name(), face._get_Name() )
 print name
 idedge=geompy.addToStudyInFather(face,edge,name)
 
-# ---- launch SMESH, init a Mesh with the box
-gen=smeshpy.smeshpy()
-mesh=gen.Init(idbox)
 
-idmesh = smeshgui.AddNewMesh( salome.orb.object_to_string(mesh) )
-smeshgui.SetName(idmesh, "Meshbox");
-smeshgui.SetShape(idbox, idmesh);
+# ---- SMESH 
 
 # ---- create Hypothesis
 
 print "-------------------------- create Hypothesis"
 print "-------------------------- LocalLength"
-hyp1=gen.CreateHypothesis("LocalLength")
-hypLen1 = hyp1._narrow(SMESH.SMESH_LocalLength)
+hypLen1 = smesh.CreateHypothesis( "LocalLength", "libStdMeshersEngine.so" )
 hypLen1.SetLength(100)
 print hypLen1.GetName()
 print hypLen1.GetId()
 print hypLen1.GetLength()
 
-idlength = smeshgui.AddNewHypothesis( salome.orb.object_to_string(hypLen1) );
-smeshgui.SetName(idlength, "Local_Length_100");
+smeshgui.SetName(salome.ObjectToID(hypLen1), "Local_Length_100")
 
 print "-------------------------- NumberOfSegments"
-hyp2=gen.CreateHypothesis("NumberOfSegments")
-hypNbSeg1=hyp2._narrow(SMESH.SMESH_NumberOfSegments)
+hypNbSeg1= smesh.CreateHypothesis( "NumberOfSegments", "libStdMeshersEngine.so" )
 hypNbSeg1.SetNumberOfSegments(7)
 print hypNbSeg1.GetName()
 print hypNbSeg1.GetId()
 print hypNbSeg1.GetNumberOfSegments()
 
-idseg = smeshgui.AddNewHypothesis( salome.orb.object_to_string(hypNbSeg1) );
-smeshgui.SetName(idseg, "NumberOfSegments_7");
+smeshgui.SetName(salome.ObjectToID(hypNbSeg1), "NumberOfSegments_7")
 
 print "-------------------------- MaxElementArea"
-hyp3=gen.CreateHypothesis("MaxElementArea")
-hypArea1=hyp3._narrow(SMESH.SMESH_MaxElementArea)
+hypArea1 = smesh.CreateHypothesis( "MaxElementArea", "libStdMeshersEngine.so" )
 hypArea1.SetMaxElementArea(2500)
 print hypArea1.GetName()
 print hypArea1.GetId()
 print hypArea1.GetMaxElementArea()
 
-idarea1 = smeshgui.AddNewHypothesis( salome.orb.object_to_string(hypArea1) );
-smeshgui.SetName(idarea1, "MaxElementArea_2500");
+smeshgui.SetName(salome.ObjectToID(hypArea1), "MaxElementArea_2500")
 
 print "-------------------------- MaxElementArea"
-hyp3=gen.CreateHypothesis("MaxElementArea")
-hypArea2=hyp3._narrow(SMESH.SMESH_MaxElementArea)
+hypArea2 = smesh.CreateHypothesis( "MaxElementArea", "libStdMeshersEngine.so" )
 hypArea2.SetMaxElementArea(500)
 print hypArea2.GetName()
 print hypArea2.GetId()
 print hypArea2.GetMaxElementArea()
 
-idarea2 = smeshgui.AddNewHypothesis( salome.orb.object_to_string(hypArea2) );
-smeshgui.SetName(idarea2, "MaxElementArea_500");
+smeshgui.SetName(salome.ObjectToID(hypArea2), "MaxElementArea_500")
 
 print "-------------------------- Regular_1D"
-alg1=gen.CreateHypothesis("Regular_1D")
-algo1=alg1._narrow(SMESH.SMESH_Algo)
-listHyp=algo1.GetCompatibleHypothesis()
+algoReg = smesh.CreateHypothesis( "Regular_1D", "libStdMeshersEngine.so" )
+listHyp=algoReg.GetCompatibleHypothesis()
 for hyp in listHyp:
     print hyp
-algoReg=alg1._narrow(SMESH.SMESH_Regular_1D)
 print algoReg.GetName()
 print algoReg.GetId()
 
-idreg = smeshgui.AddNewAlgorithms( salome.orb.object_to_string(algoReg) );
-smeshgui.SetName(idreg, "Regular_1D");
+smeshgui.SetName(salome.ObjectToID(algoReg), "Regular_1D" )
 
 print "-------------------------- MEFISTO_2D"
-alg2=gen.CreateHypothesis("MEFISTO_2D")
-algo2=alg2._narrow(SMESH.SMESH_Algo)
-listHyp=algo2.GetCompatibleHypothesis()
+algoMef = smesh.CreateHypothesis( "MEFISTO_2D", "libStdMeshersEngine.so" )
+listHyp=algoMef.GetCompatibleHypothesis()
 for hyp in listHyp:
     print hyp
-algoMef=alg2._narrow(SMESH.SMESH_MEFISTO_2D)
 print algoMef.GetName()
 print algoMef.GetId()
 
-idmef = smeshgui.AddNewAlgorithms( salome.orb.object_to_string(algoMef) );
-smeshgui.SetName(idmef, "MEFISTO_2D");
-
-# ---- add hypothesis to edge
-
-print "-------------------------- add hypothesis to edge"
-edge=salome.IDToObject(idedge)
-submesh=mesh.GetElementsOnShape(edge)
-ret=mesh.AddHypothesis(edge,algoReg)
-print ret
-ret=mesh.AddHypothesis(edge,hypLen1)
-print ret
-
-idsm1 = smeshgui.AddSubMeshOnShape( idmesh,
-                                    idedge,
-                                    salome.orb.object_to_string(submesh),
-                                    ShapeTypeEdge )
-smeshgui.SetName(idsm1, "SubMeshEdge")
-smeshgui.SetAlgorithms( idsm1, idreg );
-smeshgui.SetHypothesis( idsm1, idlength );
-
-print "-------------------------- add hypothesis to face"
-face=salome.IDToObject(idface)
-submesh=mesh.GetElementsOnShape(face)
-ret=mesh.AddHypothesis(face,hypArea2)
-print ret
-
-idsm2 = smeshgui.AddSubMeshOnShape( idmesh,
-                                    idface,
-                                    salome.orb.object_to_string(submesh),
-                                    ShapeTypeFace )
-smeshgui.SetName(idsm2, "SubMeshFace")
-smeshgui.SetHypothesis( idsm2, idarea2 );
+smeshgui.SetName(salome.ObjectToID(algoMef), "MEFISTO_2D" )
 
 # ---- add hypothesis to box
 
 print "-------------------------- add hypothesis to box"
 box=salome.IDToObject(idbox)
-submesh=mesh.GetElementsOnShape(box)
+mesh = smesh.CreateMesh(box)
+
+smeshgui.SetName( salome.ObjectToID(mesh), "MeshBox" );
+
 ret=mesh.AddHypothesis(box,algoReg)
 print ret
-ret=mesh.AddHypothesis(box,hypNbSeg1)
-print ret
 ret=mesh.AddHypothesis(box,algoMef)
+print ret
+
+
+ret=mesh.AddHypothesis(box,hypNbSeg1)
 print ret
 ret=mesh.AddHypothesis(box,hypArea1)
 print ret
 
-smeshgui.SetAlgorithms( idmesh, idreg );
-smeshgui.SetHypothesis( idmesh, idseg );
-smeshgui.SetAlgorithms( idmesh, idmef );
-smeshgui.SetHypothesis( idmesh, idarea1 );
 
-gen.Compute(mesh, idbox)
+# ---- add hypothesis to edge
+
+print "-------------------------- add hypothesis to edge"
+edge=salome.IDToObject(idedge)
+submesh=mesh.GetSubMesh(edge, "SubMeshEdge")
+
+ret=mesh.AddHypothesis(edge,algoReg)
+print ret
+ret=mesh.AddHypothesis(edge,hypLen1)
+print ret
+
+print "-------------------------- add hypothesis to face"
+face=salome.IDToObject(idface)
+submesh   = mesh.GetSubMesh(face, "SubMeshFace")
+
+ret=mesh.AddHypothesis(face,hypArea2)
+print ret
+
+smesh.Compute(mesh, box)
 sg.updateObjBrowser(1);
 
 print
@@ -273,7 +244,7 @@ if father is None:
 	myBuilder.DefineComponentInstance(father,SuperVision)
 
 def addStudy(ior):
-    dataflow = SuperVision.getGraph(ior)
+    dataflow = SuperVision.getStreamGraph(ior)
     name=dataflow.Name()
     itr = myStudy.NewChildIterator(father)
     while itr.More():
@@ -309,7 +280,7 @@ print "Load dataflow from the file : "
 print xmlfile
 print
 
-myGraph = Graph ( xmlfile )
+myGraph = StreamGraph ( xmlfile )
 
 # This DataFlow is "valid" : no loop, correct links between Nodes etc...
 print "myGraph.IsValid() = ", myGraph.IsValid()
@@ -371,7 +342,7 @@ for node in nodes:
 print names
 
 # Graph creation 
-GraphInLines = Graph( 'GraphInLines' )
+GraphInLines = StreamGraph( 'GraphInLines' )
 GraphInLines.SetName( 'GraphInLines' )
 GraphInLines.SetAuthor( '' )
 GraphInLines.SetComment( '' )
@@ -460,8 +431,8 @@ import VISU
 
 import visu_gui
 
-medFile = "pointe.med"
-medFile = os.getenv('KERNEL_ROOT_DIR') + '/examples/' + medFile
+medFileName = "pointe.med"
+medFile = os.getenv('KERNEL_ROOT_DIR') + '/examples/' + medFileName
 print "Load ", medFile
 
 studyCurrent = salome.myStudyName
@@ -473,10 +444,11 @@ try:
     if os.access(medFile, os.R_OK) :
        if not os.access(medFile, os.W_OK) :
 	       import random
-	       medFileNew = "/tmp/" + str(random.randint(0,1000000)) + "_" + medfile
+	       medFileNew = "/tmp/" + str(random.randint(0,1000000)) + "_" + medFileName
 	       print " -- Copy " + medFile + " to " + medFileNew
 	       os.system("cp "+ medFile + " " + medFileNew)
 	       medFile = medFileNew
+	       os.system("chmod 755 " + medFile)
 
        if os.access(medFile, os.W_OK) :
            med_comp.readStructFileWithFieldType(medFile,studyCurrent)

@@ -33,12 +33,46 @@
 #include <unistd.h>
 using namespace std;
 
+#include <qthread.h> 
+#include <qapplication.h>
+#include <qlabel.h>
+#include <qwaitcondition.h>
+
+#include "SALOMEGUI_Application.h"
+#include "QAD.h"
+#include "QAD_MessageBox.h"
+#include "QAD_Application.h"
+#include "QAD_Settings.h"
+#include "QAD_Config.h"
+#include "QAD_Tools.h"
+#include "QAD_ResourceMgr.h"
+#include "Utils_CatchSignals.h"
+#include "Utils_SALOME_Exception.hxx"
+#include "Utils_CorbaException.hxx"
+#include "SALOMEGUI_QtCatchCorbaException.hxx"
+
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Session)
+#include CORBA_SERVER_HEADER(SALOMEDS)
 
 #include "utilities.h"
 
 #include "SALOME_Session_i.hxx"
+
+#include "Session_ServerLauncher.hxx"
+
+/*! - read arguments, define list of server to launch with their arguments.
+ *  - wait for naming service
+ *  - create and run a thread for launch of all servers
+ *  
+ */
+
+// ----------------------------------------------------------------------------
+
+
+
+// ----------------------------------------------------------------------------
 
 //! CORBA server for SALOME Session
 /*!
@@ -54,120 +88,169 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-
   try
     {
       ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
       ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-      CORBA::ORB_var &orb = init( argc , argv ) ;
+      int orbArgc = 1;
+      CORBA::ORB_var &orb = init( orbArgc , argv ) ;
 
-      //
-      long TIMESleep = 250000000;
-      int NumberOfTries = 40;
-      int a;
-      timespec ts_req;
-      ts_req.tv_nsec=TIMESleep;
-      ts_req.tv_sec=0;
-      timespec ts_rem;
-      ts_rem.tv_nsec=0;
-      ts_rem.tv_sec=0;
-      CosNaming::NamingContext_var inc;
-      PortableServer::POA_var poa;
-      CORBA::Object_var theObj;
-      CORBA::Object_var obj;
-      CORBA::Object_var object;
-      SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-      int SESSION=0;
-      const char * Env = getenv("USE_LOGGER"); 
-      int EnvL =0;
-      if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
-      CosNaming::Name name;
-      name.length(1);
-      name[0].id=CORBA::string_dup("Logger");    
-      PortableServer::POAManager_var pman; 
-      for (int i = 1; i<=NumberOfTries; i++){
-	if (i!=1) 
-	  a=nanosleep(&ts_req,&ts_rem);
-	try
-	  { 
-	    obj = orb->resolve_initial_references("RootPOA");
-            if(!CORBA::is_nil(obj))
-	      poa = PortableServer::POA::_narrow(obj);
-            if(!CORBA::is_nil(poa))
-	      pman = poa->the_POAManager();
-	    if(!CORBA::is_nil(orb)) 
-	      theObj = orb->resolve_initial_references("NameService");
-	    if (!CORBA::is_nil(theObj))
-	      inc = CosNaming::NamingContext::_narrow(theObj);
-	  }
-	catch( CORBA::COMM_FAILURE& )
-	  {
-	    MESSAGE( "Session Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
-	  }
-	if(!CORBA::is_nil(inc))
-	  {
-	    MESSAGE( "Session Server: Naming Service was found" );
-	    if(EnvL==1)
-	      {
-		for(int j=1; j<=NumberOfTries; j++)
-		  {
-		    if (j!=1) 
-		      a=nanosleep(&ts_req, &ts_rem);
-		    try
-		      {
-			object = inc->resolve(name);
-		      }
-		    catch(CosNaming::NamingContext::NotFound)
-		      { MESSAGE( "Session Server: Logger Server wasn't found" );
-		      }
-		    catch(...)
-		      {
-			MESSAGE( "Session Server: Unknown exception" ); 
-		      }
-		    if (!CORBA::is_nil(object))
-		      {
-			MESSAGE( "Session Server: Loger Server was found" );
-			SESSION=1;
-			break;
-		      }
-		  }
-	      }
-	  }
-	if ((SESSION==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-	  break;
-      }
-   
-      // servant
-      SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, poa) ;
-      PortableServer::ObjectId_var mySALOME_Sessionid = poa->activate_object(mySALOME_Session) ;
-      MESSAGE("poa->activate_object(mySALOME_Session)")
+      CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+      PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 
-	obj = mySALOME_Session->_this() ;
-      CORBA::String_var sior(orb->object_to_string(obj)) ;
-
-      mySALOME_Session->NSregister();
-
-      mySALOME_Session->_remove_ref() ;
-
-      //DECOMMENT PortableServer::POAManager_var pman = poa->the_POAManager() ;
+      PortableServer::POAManager_var pman = poa->the_POAManager() ;
       pman->activate() ;
-      MESSAGE("pman->activate()")
+      INFOS("pman->activate()");
 
-	orb->run() ;
-      orb->destroy() ;
+      SALOME_NamingService *_NS = new SALOME_NamingService(orb);
+
+      Utils_CatchSignals aCatch;
+      aCatch.Activate();
+
+      // CORBA Servant Launcher
+
+      QMutex _GUIMutex ;
+      QWaitCondition _ServerLaunch;
+      _GUIMutex.lock();     // to block Launch server thread until wait(mutex)
+
+      Session_ServerLauncher* myServerLauncher
+	= new Session_ServerLauncher(argc, argv, orb, poa, &_GUIMutex, &_ServerLaunch);
+      myServerLauncher->start();
+
+      MESSAGE("waiting wakeAll()");
+      _ServerLaunch.wait(&_GUIMutex); // to be reseased by Launch server thread when ready:
+      // atomic operation lock - unlock on mutex
+      // unlock mutex: serverThread runs, calls  _ServerLaunch->wakeAll()
+      // this thread wakes up, and lock mutex
+
+      INFOS("Session activated, Launch IAPP...");
+
+      int qappArgc = 1;
+      QApplication *_qappl = new QApplication(qappArgc, argv );
+      INFOS("creation QApplication");
+      _GUIMutex.unlock();
+
+      QAD_ASSERT ( QObject::connect(_qappl, SIGNAL(lastWindowClosed()), _qappl, SLOT(quit()) ) );
+      SALOMEGUI_Application* _mw = new SALOMEGUI_Application ( "MDTV-Standard", "HDF", "hdf" );
+      INFOS("creation SALOMEGUI_Application");
+      
+      SCRUTE(_NS);
+      if ( !SALOMEGUI_Application::addToDesktop ( _mw, _NS ) )
+	{
+	  QAD_MessageBox::error1 ( 0,
+				   QObject::tr("ERR_ERROR"), 
+				   QObject::tr("ERR_APP_INITFAILED"),
+				   QObject::tr("BUT_OK") );
+	}
+      else
+	{
+	  
+	  QFileInfo prgInfo(argv[0]);
+	  QDir prgDir(prgInfo.dirPath(true));
+	  QAD_CONFIG->setPrgDir(prgDir);        // CWD is program directory
+	  QAD_CONFIG->createConfigFile(false);  // Create config file
+	                                        // ~/.tr(MEN_APPNAME)/tr(MEN_APPNAME).conf if there's none
+	  QAD_CONFIG->readConfigFile();         // Read config file
+	  
+	  _qappl->setPalette( QAD_Application::getPalette() ); 
+
+	  //Utils_CatchSignals aCatch;
+	  //aCatch.Activate();
+
+	  /* Run 'SALOMEGUI' application */
+	  QAD_Application::run();
+
+	  // T2.12 - catch exceptions thrown on attempts to modified a locked study
+	  while (1) 
+	    {
+	      try 
+		{
+		  MESSAGE("run(): starting the main event loop");
+		  int _ret = _qappl->exec();
+		  break;
+		}
+	      catch (SALOME::SALOME_Exception& e)
+		{
+		  QtCatchCorbaException(e);
+		}
+	      catch(SALOMEDS::StudyBuilder::LockProtection&)
+		{
+		  INFOS("run(): An attempt to modify a locked study has not been handled by QAD_Operation");
+		  QApplication::restoreOverrideCursor();
+		  QAD_MessageBox::warn1 ( (QWidget*)QAD_Application::getDesktop(),
+					  QObject::tr("WRN_WARNING"), 
+					  QObject::tr("WRN_STUDY_LOCKED"),
+					  QObject::tr("BUT_OK") );
+		}
+	      catch (const CORBA::Exception& e)
+		{
+		  CORBA::Any tmp;
+		  tmp<<= e;
+		  CORBA::TypeCode_var tc = tmp.type();
+		  const char *p = tc->name();
+		  INFOS ("run(): CORBA exception of the kind : "<<p<< " is caught");
+
+		  QApplication::restoreOverrideCursor();
+		  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+					   QObject::tr("ERR_ERROR"), 
+					   QObject::tr("ERR_APP_EXCEPTION")
+					   + QObject::tr(" CORBA exception ") + QObject::tr(p),
+					   QObject::tr("BUT_OK") );
+		}
+	      catch(std::exception& e)
+		{
+		  INFOS("run(): An exception has been caught");
+		  QApplication::restoreOverrideCursor();
+		  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+					   QObject::tr("ERR_ERROR"), 
+					   QObject::tr("ERR_APP_EXCEPTION")+ " " +QObject::tr(e.what()),
+					   QObject::tr("BUT_OK") );
+		}
+	      catch(...)
+		{
+		  INFOS("run(): An exception has been caught");
+		  QApplication::restoreOverrideCursor();
+		  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+					   QObject::tr("ERR_ERROR"), 
+					   QObject::tr("ERR_APP_EXCEPTION"),
+					   QObject::tr("BUT_OK") );
+		}
+	    }
+	  //aCatch.Deactivate();
+	  QString confMsg = "Settings create $HOME/." 
+	    + QObject::tr("MEN_APPNAME") + "/" + QObject::tr("MEN_APPNAME") + ".conf";
+	  MESSAGE (confMsg );
+	  QAD_CONFIG->createConfigFile(true);
+	}
+      //orb->shutdown(0);
+      myServerLauncher->KillAll();
+      aCatch.Deactivate();
     }
-  catch (CORBA::SystemException&)
+  catch (SALOME_Exception& e)
+    {
+      INFOS("run(): SALOME::SALOME_Exception is caught: "<<e.what());
+    }
+  catch (CORBA::SystemException& e)
     {
       INFOS("Caught CORBA::SystemException.");
     }
-  catch (CORBA::Exception&)
+  catch (CORBA::Exception& e)
     {
       INFOS("Caught CORBA::Exception.");
+      CORBA::Any tmp;
+      tmp<<= e;
+      CORBA::TypeCode_var tc = tmp.type();
+      const char *p = tc->name();
+      INFOS ("run(): CORBA exception of the kind : "<<p<< " is caught");
+    }
+  catch(std::exception& e)
+    {
+      INFOS("run(): An exception has been caught: " <<e.what());
     }
   catch (...)
     {
       INFOS("Caught unknown exception.");
     }
+  MESSAGE("End of SALOME_Session_Server");
   return 0 ;
 }

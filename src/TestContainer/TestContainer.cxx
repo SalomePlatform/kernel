@@ -98,7 +98,7 @@ int main (int argc, char * argv[])
 	    }
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      MESSAGE( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
+	      INFOS( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
 		}
 	  if(!CORBA::is_nil(inc))
 	    {
@@ -115,11 +115,11 @@ int main (int argc, char * argv[])
 			  }
 			catch(CosNaming::NamingContext::NotFound)
 			  {
-			    MESSAGE( "Test Container: Logger Server wasn't found" );
+			    INFOS( "Test Container: Logger Server wasn't found" );
 			  }
 			catch(...)
 			  {
-			    MESSAGE( "Test Container: Unknown exception" );
+			    INFOS( "Test Container: Unknown exception" );
 			  }
 			if (!CORBA::is_nil(object))
 			  {
@@ -147,14 +147,41 @@ int main (int argc, char * argv[])
     
       for (int iter = 0; iter < 3 ; iter++)
 	{
-	  INFOS("----------------------------------------------------" << iter);   
+	  MESSAGE("----------------------------------------------------" << iter);   
           string dirn = getenv("KERNEL_ROOT_DIR");
           dirn += "/lib/salome/libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
-	  INFOS("recup m1");
+	  MESSAGE("recup m1");
 	  SCRUTE(m1->instanceName());
-	  INFOS("Coucou " << m1->Coucou(1L));
+
+	  Engines::FieldsDict_var dico = new Engines::FieldsDict;
+	  dico->length(3);
+	  dico[0].key=CORBA::string_dup("key_0");
+	  dico[0].value <<="value_0";
+	  dico[1].key=CORBA::string_dup("key_1");
+	  dico[1].value <<=(CORBA::UShort)72;
+	  dico[2].key=CORBA::string_dup("key_2");
+	  dico[2].value <<="value_2";
+	  m1->setProperties(dico);
+
+	  MESSAGE("Coucou " << m1->Coucou(1L));
+
+	  m1->Setenv();
+
+	  Engines::FieldsDict_var dico2 =  m1->getProperties();
+	  for (CORBA::ULong i=0; i<dico2->length(); i++)
+	    {
+	      MESSAGE("dico2["<<i<<"].key="<<dico2[i].key);
+	      MESSAGE("dico2["<<i<<"].value type ="<<dico2[i].value.type()->kind());
+	      if (dico2[i].value.type()->kind() == CORBA::tk_string)
+		{
+		  const char* value;
+		  dico2[i].value >>= value;
+		  MESSAGE("dico2["<<i<<"].value="<<value);
+		}
+	    }
+
 	  iGenFact->remove_impl(m1) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
           sleep(5);

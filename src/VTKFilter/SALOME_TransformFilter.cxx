@@ -48,24 +48,22 @@ void SALOME_TransformFilter::Execute(){
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   output->CopyStructure( input );
-  int anIdentity = 0;
-  if(SALOME_Transform* aTransform = dynamic_cast<SALOME_Transform*>(this->Transform))
-    anIdentity = aTransform->IsIdentity();
-  if(!anIdentity && this->Transform != NULL){
+  if(Transform){
+    bool anIsIdentity = true;
+    if(SALOME_Transform* aTransform = dynamic_cast<SALOME_Transform*>(Transform))
+      anIsIdentity = aTransform->IsIdentity();
     inPts = input->GetPoints();
-    if(!inPts){
-      vtkErrorMacro(<<"No input data");
-      return;
+    if(!anIsIdentity && inPts){
+      numPts = inPts->GetNumberOfPoints();
+      numCells = input->GetNumberOfCells();
+      newPts = vtkPoints::New();
+      newPts->Allocate(numPts);
+      this->UpdateProgress(.2);
+      this->Transform->TransformPoints(inPts,newPts);
+      this->UpdateProgress(.8);
+      output->SetPoints(newPts);
+      newPts->Delete();
     }
-    numPts = inPts->GetNumberOfPoints();
-    numCells = input->GetNumberOfCells();
-    newPts = vtkPoints::New();
-    newPts->Allocate(numPts);
-    this->UpdateProgress(.2);
-    this->Transform->TransformPoints(inPts,newPts);
-    this->UpdateProgress(.8);
-    output->SetPoints(newPts);
-    newPts->Delete();
   }
   outPD->PassData(pd);
   outCD->PassData(cd);

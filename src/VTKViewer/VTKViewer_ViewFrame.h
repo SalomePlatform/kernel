@@ -58,7 +58,7 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void                           setBackgroundColor( const QColor& );
   QColor                         backgroundColor() const;
   
-  void                           SetSelectionMode( int mode );
+  void                           SetSelectionMode( Selection_Mode mode );
 
   /*  popup management */
   void                           setPopupServer( QAD_Application* );

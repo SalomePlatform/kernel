@@ -58,8 +58,6 @@ class VTKViewer_Trihedron : public vtkObject{
 
   virtual int GetVisibleActorCount(vtkRenderer* theRenderer);
   
-  virtual void  Render(vtkRenderer *theRenderer);
-  
 protected:
   vtkActorCollection* myPresent;
   VTKViewer_Axis* myAxis[3];

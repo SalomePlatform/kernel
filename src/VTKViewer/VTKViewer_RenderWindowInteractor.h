@@ -34,6 +34,7 @@
 
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_Actor.h"
+#include "SALOME_Selection.h"
 
 // QT Includes
 #include <qobject.h>
@@ -141,8 +142,20 @@ public:
   bool isVisible( const Handle(SALOME_InteractiveObject)& IObject);
   void rename(const Handle(SALOME_InteractiveObject)& IObject, QString newName);
 
+  void SetSelectionMode(Selection_Mode mode);
+  void SetSelectionProp(const double& theRed = 1, const double& theGreen = 1,
+			const double& theBlue = 0, const int& theWidth = 5);
+  void SetSelectionTolerance(const double& theTolNodes = 0.025, const double& theTolCell = 0.001);
 
-  void SetSelectionMode(int mode);
+  void setCellData(const Handle(SALOME_InteractiveObject)& IObject,
+		   const int& theIndex, vtkActor* theActor );
+  void setCellData(const Handle(SALOME_InteractiveObject)& IObject,
+		   const std::vector<int>& theIndexes, vtkActor* theActor );
+  void setEdgeData(const Handle(SALOME_InteractiveObject)& IObject,
+		   const int& theCellIndex, const int& theEdgeIndex, 
+		   vtkActor* theActor ); //NB
+  void setPointData(const Handle(SALOME_InteractiveObject)& IObject, 
+		    const int& theIndex, vtkActor* theActor );
 
   // Displaymode management
   int GetDisplayMode();
@@ -167,6 +180,7 @@ public:
   void Display(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly=true);
 
   void Display( SALOME_Actor* SActor, bool immediatly = true );
+  void Erase( SALOME_Actor* SActor, bool immediatly = true );
 
   // Transparency
   void SetTransparency(const Handle(SALOME_InteractiveObject)& IObject,float trans);
@@ -196,6 +210,9 @@ public:
   bool highlight(const Handle(SALOME_InteractiveObject)& IObject, 
 		 const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
 		 vtkActor *theActor, bool hilight, bool update );
+  void setActorData(const Handle(SALOME_InteractiveObject)& IObject, 
+		    const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
+		    vtkActor *theActor );
 
   // Timer used during various mouse events to figure 
   // out mouse movements. 
@@ -205,7 +222,7 @@ public:
   int displaymode;
 
   //NRI: Selection mode
-  int selectionmode;
+  Selection_Mode selectionmode;
   vtkActor* Point_Actor;
   vtkActor* Edge_Actor; //NB
   vtkActor* Cell_Actor;
@@ -243,6 +260,8 @@ public:
 
  private:
   QWidget*     myGUIWindow;  
+  double       myTolNodes;
+  double       myTolItems;
 };
 
 #endif

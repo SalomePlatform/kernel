@@ -31,27 +31,25 @@
 
 #include <vtkDataSetToDataSetFilter.h>
 
-class SALOME_GeometryFilter;
+class SALOME_PassThroughFilter : public vtkDataSetToDataSetFilter
+{
+public:
+  vtkTypeRevisionMacro(SALOME_PassThroughFilter,vtkDataSetToDataSetFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-class SALOME_PassThroughFilter : public vtkDataSetToDataSetFilter{
- public:
-  vtkTypeMacro(SALOME_PassThroughFilter,vtkDataSetToDataSetFilter);
+  // Description:
+  // Create a new SALOME_PassThroughFilter.
   static SALOME_PassThroughFilter *New();
 
-  void SetInput(vtkDataSet *input);
-  vtkPolyData *GetPolyDataOutput();
 
-  void SetInside(int theShowInside);
-  int GetInside();
+protected:
 
- protected:
-  SALOME_PassThroughFilter();
-  virtual ~SALOME_PassThroughFilter();
+  SALOME_PassThroughFilter() {};
+  virtual ~SALOME_PassThroughFilter() {};
+
   void Execute();
 
-  SALOME_GeometryFilter* myGeomFilter;
-
- private:
+private:
   SALOME_PassThroughFilter(const SALOME_PassThroughFilter&);  // Not implemented.
   void operator=(const SALOME_PassThroughFilter&);  // Not implemented.
 };

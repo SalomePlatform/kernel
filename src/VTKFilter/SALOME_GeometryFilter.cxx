@@ -24,7 +24,7 @@
 //  File   : SALOME_GeometryFilter.cxx
 //  Author : Michael ZORIN
 //  Module : SALOME
-//  $Header: /dn05/salome/CVS/SALOME_ROOT/SALOME/src/OBJECT/SALOME_GeometryFilter.cxx
+//  $Header$
 
 #include "SALOME_GeometryFilter.h"
 
@@ -44,15 +44,33 @@
 #include <vtkVoxel.h>
 #include <vtkWedge.h>
 
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+static int MYDEBUGWITHFILES = 0;
+#else
+static int MYDEBUG = 0;
+static int MYDEBUGWITHFILES = 0;
+#endif
+
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+
 vtkCxxRevisionMacro(SALOME_GeometryFilter, "$Revision$");
 vtkStandardNewMacro(SALOME_GeometryFilter);
 
 
-SALOME_GeometryFilter::SALOME_GeometryFilter(): myShowInside(0)
+SALOME_GeometryFilter::SALOME_GeometryFilter(): 
+  myShowInside(0),
+  myStoreMapping(0)
 {}
+
 
 SALOME_GeometryFilter::~SALOME_GeometryFilter()
 {}
+
 
 void SALOME_GeometryFilter::Execute()
 {
@@ -70,6 +88,34 @@ void SALOME_GeometryFilter::Execute()
   }else
     vtkGeometryFilter::Execute();
 }
+
+
+void SALOME_GeometryFilter::SetStoreMapping(int theStoreMapping){
+  myStoreMapping = theStoreMapping;
+  this->Modified();
+}
+
+
+vtkIdType SALOME_GeometryFilter::GetObjId(int theVtkID){
+  if(myVTK2ObjIds.empty() || theVtkID > myVTK2ObjIds.size()) return -1;
+#if defined __GNUC_2__
+  return myVTK2ObjIds[theVtkID];
+#else
+  return myVTK2ObjIds.at(theVtkID);
+#endif
+}
+
+
+SALOME_GeometryFilter::TVectorId SALOME_GeometryFilter::GetVtkId(int theObjID){
+  TVectorId aVect;
+  if(myObj2VTKIds.empty() || theObjID > myObj2VTKIds.size()) return aVect;
+#if defined __GNUC_2__
+  return myObj2VTKIds[theObjID];
+#else
+  return myObj2VTKIds.at(theObjID);
+#endif
+}
+
 
 void SALOME_GeometryFilter::UnstructuredGridExecute()
 {
@@ -95,7 +141,7 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   vtkIdType newCellId;
   int faceId, *faceVerts, numFacePts;
   float *x;
-  int PixelConvert[4];
+  int PixelConvert[4], aNewPts[VTK_CELL_SIZE];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
   unsigned char  *cellGhostLevels = 0;  
@@ -150,14 +196,15 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
 
   outputCD->CopyAllocate(cd,numCells,numCells/2);
 
-  Verts = vtkCellArray::New();
-  Verts->Allocate(numCells/4+1,numCells);
-  Lines = vtkCellArray::New();
-  Lines->Allocate(numCells/4+1,numCells);
-  Polys = vtkCellArray::New();
-  Polys->Allocate(numCells/4+1,numCells);
-  Strips = vtkCellArray::New();
-  Strips->Allocate(numCells/4+1,numCells);
+  output->Allocate(numCells/4+1,numCells);
+  //Verts = vtkCellArray::New();
+  //Verts->Allocate(numCells/4+1,numCells);
+  //Lines = vtkCellArray::New();
+  //Lines->Allocate(numCells/4+1,numCells);
+  //Polys = vtkCellArray::New();
+  //Polys->Allocate(numCells/4+1,numCells);
+  //Strips = vtkCellArray::New();
+  //Strips->Allocate(numCells/4+1,numCells);
   
   // Loop over the cells determining what's visible
   if (!allVisible)
@@ -195,6 +242,11 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   // Loop over all cells now that visibility is known
   // (Have to compute visibility first for 3D cell boundarys)
   int progressInterval = numCells/20 + 1;
+  if(myStoreMapping){
+    myVTK2ObjIds.clear();  myObj2VTKIds.clear(); //apo
+    myVTK2ObjIds.reserve(numCells);
+    myObj2VTKIds.resize(numCells);
+  }
   for (cellId=0, Connectivity->InitTraversal(); 
        Connectivity->GetNextCell(npts,pts); 
        cellId++)
@@ -216,45 +268,62 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
       {
       //special code for nonlinear cells - rarely occurs, so right now it
       //is slow.
-      switch (input->GetCellType(cellId))
+      vtkIdType aCellType = input->GetCellType(cellId);
+      switch (aCellType)
         {
         case VTK_EMPTY_CELL:
           break;
 
         case VTK_VERTEX:
         case VTK_POLY_VERTEX:
-          newCellId = Verts->InsertNextCell(npts,pts);
+          newCellId = output->InsertNextCell(aCellType,npts,pts);
+	  if(myStoreMapping){
+	    myVTK2ObjIds.push_back(cellId); //apo
+	    myObj2VTKIds[cellId].push_back(newCellId);
+	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
 
         case VTK_LINE: 
         case VTK_POLY_LINE:
-          newCellId = Lines->InsertNextCell(npts,pts);
+          newCellId = output->InsertNextCell(VTK_LINE,npts,pts);
+	  if(myStoreMapping){
+	    myVTK2ObjIds.push_back(cellId); //apo
+	    myObj2VTKIds[cellId].push_back(newCellId);
+	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
 
         case VTK_TRIANGLE:
         case VTK_QUAD:
         case VTK_POLYGON:
-          newCellId = Polys->InsertNextCell(npts,pts);
+          newCellId = output->InsertNextCell(aCellType,npts,pts);
+	  if(myStoreMapping){
+	    myVTK2ObjIds.push_back(cellId); //apo
+	    myObj2VTKIds[cellId].push_back(newCellId);
+	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
 
         case VTK_TRIANGLE_STRIP:
-          newCellId = Strips->InsertNextCell(npts,pts);
+          newCellId = output->InsertNextCell(aCellType,npts,pts);
+	  if(myStoreMapping){
+	    myVTK2ObjIds.push_back(cellId); //apo
+	    myObj2VTKIds[cellId].push_back(newCellId);
+	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
 
         case VTK_PIXEL:
-          newCellId = Polys->InsertNextCell(npts);
-          for ( i=0; i < npts; i++)
-            {
-            Polys->InsertCellPoint(pts[PixelConvert[i]]);
-            }
-          outputCD->CopyData(cd,cellId,newCellId);
+          newCellId = output->InsertNextCell(aCellType,npts,pts);
+	  if(myStoreMapping){
+	    myVTK2ObjIds.push_back(cellId); //apo
+	    myObj2VTKIds[cellId].push_back(newCellId);
+	  }
+	  outputCD->CopyData(cd,cellId,newCellId);
           break;
 
-        case VTK_TETRA:
+        case VTK_TETRA: {
           for (faceId = 0; faceId < 4; faceId++)
             {
             faceIds->Reset();
@@ -263,21 +332,26 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
             faceIds->InsertNextId(pts[faceVerts[1]]);
             faceIds->InsertNextId(pts[faceVerts[2]]);
             numFacePts = 3;
+	    aCellType = VTK_TRIANGLE;
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || myShowInside == 1 ||
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
-              newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                aNewPts[i] = pts[faceVerts[i]];
                 }
+              newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	      if(myStoreMapping){
+		myVTK2ObjIds.push_back(cellId); //apo
+		myObj2VTKIds[cellId].push_back(newCellId);
+	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           break;
-
-        case VTK_VOXEL:
+	}
+        case VTK_VOXEL: {
           for (faceId = 0; faceId < 6; faceId++)
             {
             faceIds->Reset();
@@ -287,21 +361,26 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
             faceIds->InsertNextId(pts[faceVerts[2]]);
             faceIds->InsertNextId(pts[faceVerts[3]]);
             numFacePts = 4;
+	    aCellType = VTK_QUAD;
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || myShowInside == 1 || 
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
-              newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                Polys->InsertCellPoint(pts[faceVerts[PixelConvert[i]]]);
+                aNewPts[i] = pts[faceVerts[PixelConvert[i]]];
                 }
+              newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	      if(myStoreMapping){
+		myVTK2ObjIds.push_back(cellId); //apo
+		myObj2VTKIds[cellId].push_back(newCellId);
+	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           break;
-
-        case VTK_HEXAHEDRON:
+	}
+        case VTK_HEXAHEDRON: {
           for (faceId = 0; faceId < 6; faceId++)
             {
             faceIds->Reset();
@@ -311,21 +390,26 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
             faceIds->InsertNextId(pts[faceVerts[2]]);
             faceIds->InsertNextId(pts[faceVerts[3]]);
             numFacePts = 4;
+	    aCellType = VTK_QUAD;
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || myShowInside == 1 ||
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
-              newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                aNewPts[i] = pts[faceVerts[i]];
                 }
+              newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	      if(myStoreMapping){
+		myVTK2ObjIds.push_back(cellId); //apo
+		myObj2VTKIds[cellId].push_back(newCellId);
+	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           break;
-
-        case VTK_WEDGE:
+	}
+        case VTK_WEDGE: {
           for (faceId = 0; faceId < 5; faceId++)
             {
             faceIds->Reset();
@@ -334,26 +418,32 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
             faceIds->InsertNextId(pts[faceVerts[1]]);
             faceIds->InsertNextId(pts[faceVerts[2]]);
             numFacePts = 3;
+	    aCellType = VTK_TRIANGLE;
             if (faceVerts[3] >= 0)
               {
               faceIds->InsertNextId(pts[faceVerts[3]]);
               numFacePts = 4;
+	      aCellType = VTK_QUAD;
               }
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || myShowInside == 1 || 
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
-              newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                aNewPts[i] = pts[faceVerts[i]];
                 }
+              newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	      if(myStoreMapping){
+		myVTK2ObjIds.push_back(cellId); //apo
+		myObj2VTKIds[cellId].push_back(newCellId);
+	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           break;
-
-        case VTK_PYRAMID:
+	}
+        case VTK_PYRAMID: {
           for (faceId = 0; faceId < 5; faceId++)
             {
             faceIds->Reset();
@@ -362,104 +452,70 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
             faceIds->InsertNextId(pts[faceVerts[1]]);
             faceIds->InsertNextId(pts[faceVerts[2]]);
             numFacePts = 3;
+	    aCellType = VTK_TRIANGLE;
             if (faceVerts[3] >= 0)
               {
               faceIds->InsertNextId(pts[faceVerts[3]]);
               numFacePts = 4;
+	      aCellType = VTK_QUAD;
               }
             input->GetCellNeighbors(cellId, faceIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0 || myShowInside == 1 || 
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
-              newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                Polys->InsertCellPoint(pts[faceVerts[i]]);
+                aNewPts[i] = pts[faceVerts[i]];
                 }
+              newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	      if(myStoreMapping){
+		myVTK2ObjIds.push_back(cellId); //apo
+		myObj2VTKIds[cellId].push_back(newCellId);
+	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
             }
           break;
-
+	}
         //Quadratic cells
         case VTK_QUADRATIC_EDGE:
         case VTK_QUADRATIC_TRIANGLE:
         case VTK_QUADRATIC_QUAD:
         case VTK_QUADRATIC_TETRA:
         case VTK_QUADRATIC_HEXAHEDRON:
-          {
-          vtkGenericCell *cell = vtkGenericCell::New();
-          input->GetCell(cellId,cell);
-          vtkIdList *pts = vtkIdList::New();  
-          vtkPoints *coords = vtkPoints::New();
-          vtkIdList *cellIds = vtkIdList::New();
-          vtkIdType newCellId;
-
-          if ( cell->GetCellDimension() == 1 )
-            {
-            cell->Triangulate(0,pts,coords);
-            for (i=0; i < pts->GetNumberOfIds(); i+=2)
-              {
-              newCellId = Lines->InsertNextCell(2);
-              Lines->InsertCellPoint(pts->GetId(i));
-              Lines->InsertCellPoint(pts->GetId(i+1));
-              outputCD->CopyData(cd,cellId,newCellId);
-              }
-            }
-          else if ( cell->GetCellDimension() == 2 )
-            {
-            cell->Triangulate(0,pts,coords);
-            for (i=0; i < pts->GetNumberOfIds(); i+=3)
-              {
-              newCellId = Lines->InsertNextCell(2);
-              Polys->InsertCellPoint(pts->GetId(i));
-              Polys->InsertCellPoint(pts->GetId(i+1));
-              Polys->InsertCellPoint(pts->GetId(i+2));
-              outputCD->CopyData(cd,cellId,newCellId);
-              }
-            } 
-          else //3D nonlinear cell
-            {
-            vtkCell *face;
-            for (int j=0; j < cell->GetNumberOfFaces(); j++)
-              {
-              face = cell->GetFace(j);
-              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
-              if ( cellIds->GetNumberOfIds() <= 0)
-                {
-                face->Triangulate(0,pts,coords);
-                for (i=0; i < pts->GetNumberOfIds(); i+=3)
-                  {
-                  newCellId = Lines->InsertNextCell(2);
-                  Polys->InsertCellPoint(pts->GetId(i));
-                  Polys->InsertCellPoint(pts->GetId(i+1));
-                  Polys->InsertCellPoint(pts->GetId(i+2));
-                  outputCD->CopyData(cd,cellId,newCellId);
-                  }
-                }
-              }
-            } //3d cell
-          cellIds->Delete();
-          coords->Delete();
-          pts->Delete();
-          cell->Delete();
-          }
+          
           break; //done with quadratic cells
           
         } //switch
       } //if visible
     } //for all cells
   
+  if(MYDEBUG && myStoreMapping){
+    for(int i = 0, iEnd = myVTK2ObjIds.size(); i < iEnd; i++){
+      cout<<myVTK2ObjIds[i]<<", ";
+    }
+    cout<<"\n";
+    for(int i = 0, iEnd = myObj2VTKIds.size(); i < iEnd; i++){
+      TVectorId& aVectorId = myObj2VTKIds[i];
+      cout<<aVectorId.size()<<": ";
+      for(int j = 0, jEnd = aVectorId.size(); j < jEnd; j++){
+	cout<<aVectorId[j]<<", ";
+      }
+      cout<<"\n";
+    }
+    cout<<"\n";
+  }
+
   // Update ourselves and release memory
   //
-  output->SetVerts(Verts);
-  Verts->Delete();
-  output->SetLines(Lines);
-  Lines->Delete();
-  output->SetPolys(Polys);
-  Polys->Delete();
-  output->SetStrips(Strips);
-  Strips->Delete();
+  //output->SetVerts(Verts);
+  //Verts->Delete();
+  //output->SetLines(Lines);
+  //Lines->Delete();
+  //output->SetPolys(Polys);
+  //Polys->Delete();
+  //output->SetStrips(Strips);
+  //Strips->Delete();
   
   output->Squeeze();
 

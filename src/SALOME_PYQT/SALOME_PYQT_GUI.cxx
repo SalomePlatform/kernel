@@ -1,3 +1,4 @@
+using namespace std;
 //=============================================================================
 // File      : SALOME_PYQT_GUI.cxx
 // Created   : mer jun  4 17:17:20 UTC 2003
@@ -7,17 +8,14 @@
 // $Header$
 //=============================================================================
 
-#include "SALOME_PYQT_GUI.hxx"
+#include "SALOME_PYQT_GUI.h"
 
 #include "QAD_Desktop.h"
 
-#include "QAD_MessageBox.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
-#include "PyInterp_PyQt.h"
-//#include <cStringIO.h>
 
 #include <sipSalomePyQtDeclSalomePyQt.h>
 #include <sipqtQWorkspace.h>
@@ -25,12 +23,9 @@
 
 #include <map>
 #include <string>
-using namespace std;
 
 static PyInterp_PyQt *interp = NULL;
 static map<int,PyInterp_PyQt*> mapInterp;
-static PyObject *module;
-static string _moduleName;
 
 //=============================================================================
 /*!
@@ -39,26 +34,43 @@ static string _moduleName;
  */
 //=============================================================================
 
-static void setWorkSpace()
+void SALOME_PYQT_GUI::setWorkSpace()
 {
   MESSAGE("setWorkSpace");
-  PyObject *res,*pyws;
+  PyLockWrapper aLock = interp->GetLockWrapper();
 
-  interp->enter();
-  pyws=sipMapCppToSelf( QAD_Application::getDesktop()->getMainFrame(),
-			sipClass_QWorkspace);
-  res=PyObject_CallMethod(module,"setWorkSpace","O",pyws);
+  //   Try to import qt module. If it's not possible don't go on
+  PyObjWrapper qtmodule(PyImport_ImportModule("qt"));
+  if(!qtmodule){
+    PyErr_Print();
+    return ;
+  }  
+
+  PyObjWrapper pyws(sipMapCppToSelf( QAD_Application::getDesktop()->getMainFrame(),
+				     sipClass_QWorkspace));
+  PyObjWrapper res(PyObject_CallMethod(_module,"setWorkSpace","O",pyws.get()));
   SCRUTE(pyws->ob_refcnt);
-  Py_DECREF(pyws);
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return ;
-    }
-  Py_DECREF(res);
-  interp->quit();
-  return ;
+  if(!res){
+    PyErr_Print();
+    return ;
+  }
+}
+
+//=============================================================================
+/*!
+ *  Import Python module (from _moduleName)                   
+ */
+//=============================================================================
+void SALOME_PYQT_GUI::importModule()
+{
+  PyLockWrapper aLock = interp->GetLockWrapper();
+
+  _module=PyImport_ImportModule((char*)_moduleName.c_str());
+  if(!_module){
+    MESSAGE ( " Problem... " );
+    PyErr_Print();
+    return;
+  }
 }
 
 //=============================================================================
@@ -69,35 +81,47 @@ static void setWorkSpace()
  */
 //=============================================================================
 
-static void initInterp(int StudyID)
+void SALOME_PYQT_GUI::initInterp(int StudyID)
 {
-  MESSAGE("initInterp");
-  if (mapInterp.find(StudyID) != mapInterp.end())
-    {
-      MESSAGE ( " StudyID is found " << StudyID );
-      interp = mapInterp[StudyID];
-      return;
-    }
-  else 
-    {
-      MESSAGE ( " StudyID is not found " << StudyID );
-      interp=new PyInterp_PyQt();
-      mapInterp[StudyID] = interp;
-    }
-
-  interp->enter();
-
-  module=PyImport_ImportModule((char*)_moduleName.c_str());
-  if(module == NULL)
-    {
-      INFOS ( " Problem... " );
-      PyErr_Print();
-      interp->quit();
-      return;
-    }
-  // PyQt import is OK
-  interp->quit();
+  MESSAGE("SALOME_PYQT_GUI::initInterp");
+  if(mapInterp.find(StudyID) != mapInterp.end()){
+    MESSAGE ( "SALOME_PYQT_GUI::initInterp StudyID is found " << StudyID );
+    interp = mapInterp[StudyID];
+    return;
+  }else{
+    MESSAGE ( "SALOME_PYQT_GUI::initInterp StudyID is not found " << StudyID );
+    /*
+     * The creation of Python interpretor must be protected par a C++ Lock because of C threads
+     */
+    ThreadLock aPyLock = GetPyThreadLock("SALOME_PYQT_GUI::initInterp");
+    interp=new PyInterp_PyQt();
+    mapInterp[StudyID] = interp;
+  }
+  // imports Python GUI module and puts it in _module attribute
+  importModule();
+  // calls _module.setWorkspace and passes the SIP object main workspace
   setWorkSpace();
+
+}
+
+//=============================================================================
+/*!
+ * constructor : only calls SALOMEGUI constructor
+ */
+//=============================================================================
+SALOME_PYQT_GUI::SALOME_PYQT_GUI( const QString& theName, QObject* theParent ) :
+    SALOMEGUI( theName, theParent ),_module(0)
+{
+    MESSAGE("SALOME_PYQT_GUI::SALOME_PYQT_GUI");
+}
+
+//=============================================================================
+/*!
+ * destructor : do nothing
+ */
+//=============================================================================
+SALOME_PYQT_GUI::~SALOME_PYQT_GUI()
+{
 }
 
 //=============================================================================
@@ -110,18 +134,13 @@ bool SALOME_PYQT_GUI::OnGUIEvent (int theCommandID,
 				  QAD_Desktop* parent)
 {
   MESSAGE("SALOME_PYQT_GUI::OnGUIEvent");
-  PyObject *res;
-  
-  interp->enter();
-  res=PyObject_CallMethod(module,"OnGUIEvent","i",theCommandID);
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return false;
-    }
-  Py_DECREF(res);
-  interp->quit();
+  PyLockWrapper aLock = interp->GetLockWrapper();
+
+  PyObjWrapper res(PyObject_CallMethod(_module,"OnGUIEvent","i",theCommandID));
+  if(!res){
+    PyErr_Print();
+    return false;
+  }
   return true;
 }
 
@@ -163,8 +182,8 @@ bool SALOME_PYQT_GUI::OnMouseMove (QMouseEvent* pe ,
 				   QAD_Desktop* parent, 
 				   QAD_StudyFrame* studyFrame)
 {
-  // La ligne suivante est commentée sinon multiple traces ...
-  // MESSAGE("SALOME_PYQT_GUI::OnMouseMouve");
+  // Commented out to avoid multiple traces ...
+  // MESSAGE("SALOME_PYQT_GUI::OnMouseMove");
   return true;
 }
 
@@ -178,23 +197,29 @@ bool SALOME_PYQT_GUI::OnMouseMove (QMouseEvent* pe ,
 bool SALOME_PYQT_GUI::SetSettings (QAD_Desktop* parent, char* moduleName)
 {
   MESSAGE("SALOME_PYQT_GUI::SetSettings");
-  PyObject *res;
   int StudyID = QAD_Application::getDesktop()->getActiveStudy()->getStudyId();
   SCRUTE ( StudyID );
   _moduleName = moduleName + string("GUI");
   SCRUTE(_moduleName);
+
+  // initializes one Python interpreter by study and puts it in interp global variable
+  // imports Python GUI module and puts it in _module attribute
+  // calls _module.setWorkspace and passes the SIP object main workspace
   initInterp(StudyID);
   
-  interp->enter();
-  res=PyObject_CallMethod(module,"setSettings","");
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return false;
-    }
-  Py_DECREF(res);
-  interp->quit();
+  PyLockWrapper aLock = interp->GetLockWrapper();
+
+  _module = PyImport_ImportModule((char*)_moduleName.c_str());
+  if(!_module){
+    PyErr_Print();
+    return false;
+  }
+
+  PyObjWrapper res(PyObject_CallMethod(_module,"setSettings",""));
+  if(!res){
+    PyErr_Print();
+    return false;
+  }
   return true;
 }
 
@@ -218,25 +243,19 @@ bool SALOME_PYQT_GUI::CustomPopup ( QAD_Desktop* parent,
   MESSAGE ( " theParent : " << theParent.latin1() );
   MESSAGE ( " theObject : " << theObject.latin1() );
 
-  PyObject *res,*pypop;
-  interp->enter();
-  pypop=sipMapCppToSelf( popup,
-			sipClass_QPopupMenu);
+  PyLockWrapper aLock = interp->GetLockWrapper();
 
-  res=PyObject_CallMethod(module,"customPopup","Osss",pypop,
-			  theContext.latin1(), theObject.latin1(), theParent.latin1());
-  Py_DECREF(pypop);
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return false;
-    }
+  PyObjWrapper pypop(sipMapCppToSelf( popup, sipClass_QPopupMenu));
 
-  Py_DECREF(res);
-  interp->quit();
-
-
+  PyObjWrapper res(PyObject_CallMethod(_module,"customPopup",
+				       "Osss",pypop.get(),
+				       theContext.latin1(), 
+				       theObject.latin1(), 
+				       theParent.latin1()));
+  if(!res){
+    PyErr_Print();
+    return false;
+  }
   return true;
 }
 
@@ -253,36 +272,37 @@ void SALOME_PYQT_GUI::DefinePopup( QString & theContext,
 				   QString & theObject )
 {
   MESSAGE("SALOME_PYQT_GUI::DefinePopup");
-  theContext = "";
-  theObject = "";
-  theParent = "";
+  //theContext = "";
+  //theObject = "";
+  //theParent = "";
   
-  PyObject *res;
-  interp->enter();
-  res=PyObject_CallMethod(module,"definePopup","sss",
-			  theContext.latin1(), theObject.latin1(), theParent.latin1());
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return ;
-    }
-  char *co, *ob, *pa;
-  int parseOk = PyArg_ParseTuple(res, "sss", &co, &ob, &pa);
+  PyLockWrapper aLock = interp->GetLockWrapper();
 
-  MESSAGE ("parseOk " << parseOk);
+  PyObjWrapper res(PyObject_CallMethod(_module,"definePopup","sss",
+				       theContext.latin1(), 
+				       theObject.latin1(), 
+				       theParent.latin1()));
+  if(!res){
+    PyErr_Print();
+    return;
+  }
+  char *co, *ob, *pa;
+  if(!PyArg_ParseTuple(res, "sss", &co, &ob, &pa))
+  {
+    // It's not a valid tuple. Do nothing.
+    return;
+  }
+
+  MESSAGE ("parseOk ");
   MESSAGE (" --- " << co << " " << ob << " " << pa);
 
   theContext = co;
   theObject = ob;
   theParent = pa;
-  Py_DECREF(res);
-  interp->quit();
 
   MESSAGE ( " theContext : " << theContext.latin1() );
   MESSAGE ( " theParent : " << theParent.latin1() );
   MESSAGE ( " theObject : " << theObject.latin1() );
-
 }
 
 //=============================================================================
@@ -292,76 +312,64 @@ void SALOME_PYQT_GUI::DefinePopup( QString & theContext,
  */
 //=============================================================================
 
-void SALOME_PYQT_GUI::ActiveStudyChanged( QAD_Desktop* parent )
+bool SALOME_PYQT_GUI::ActiveStudyChanged( QAD_Desktop* parent )
 {
-  MESSAGE("SALOME_PYQT_GUI::ActiveStudyChanged");
-  PyObject *res;
   
   int StudyID = parent->getActiveApp()->getActiveStudy()->getStudyId();
+  MESSAGE("SALOME_PYQT_GUI::ActiveStudyChanged"<<StudyID<<" - " <<this);
   initInterp(StudyID);
   
-  interp->enter();
-  res=PyObject_CallMethod(module,"activeStudyChanged","i", StudyID );
-  if (res == NULL)
-    {
-      PyErr_Print();
-      interp->quit();
-      return ;
-    }
-  Py_DECREF(res);
-  interp->quit();
-  return;
+  PyLockWrapper aLock = interp->GetLockWrapper();
+
+  PyObjWrapper res(PyObject_CallMethod(_module,"activeStudyChanged","i", StudyID ));
+  if(!res){
+    PyErr_Print();
+    return false;
+  }
+  return true;
 }
+
+//=============================================================================
+/*!
+ *  no call to python module.BuildPresentation() (not yet ???)
+ */
+//=============================================================================
+void SALOME_PYQT_GUI::BuildPresentation( const Handle(SALOME_InteractiveObject)& theIO )
+{
+}
+
+//=============================================================================
+/*!
+ *  no call to python module.SupportedViewType() (not yet ???)
+ */
+//=============================================================================
+void SALOME_PYQT_GUI::SupportedViewType(int* buffer, int bufferSize)
+{
+}
+
+//=============================================================================
+/*!
+ *  no call to python module.Deactivate() (not yet ???)
+ */
+//=============================================================================
+void SALOME_PYQT_GUI::Deactivate()
+{
+}
+
+
 
 
 //=============================================================================
 /*!
- *  
+ *  Component GUI Factory : returns a new GUI obj at each call
  */
 //=============================================================================
 
-
 extern "C"
 {
-  bool OnGUIEvent(int theCommandID, QAD_Desktop* parent)
-  {
-    return SALOME_PYQT_GUI::OnGUIEvent(theCommandID, parent);
-  }
-  
-  bool OnKeyPress(QKeyEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame)
-  {
-    return SALOME_PYQT_GUI::OnKeyPress(pe, parent, studyFrame);
-  }
-  
-  bool OnMousePress(QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame)
-  {
-    return SALOME_PYQT_GUI::OnMousePress(pe, parent, studyFrame);
-  }
-  
-  bool OnMouseMove(QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame)
-  {
-    return SALOME_PYQT_GUI::OnMouseMove(pe, parent, studyFrame);
-  }
-  
-  bool SetSettings(QAD_Desktop* parent, char* moduleName)
-  {
-    return SALOME_PYQT_GUI::SetSettings(parent, moduleName);
-  }
-  
-  bool customPopup(QAD_Desktop* parent, QPopupMenu* popup, const QString & theContext,
-		   const QString & theParent, const QString & theObject)
-  {
-    return SALOME_PYQT_GUI::CustomPopup( parent, popup, theContext, theParent, theObject );
-  }
-  
-  void definePopup(QString & theContext, QString & theParent, QString & theObject)
-  {
-    SALOME_PYQT_GUI::DefinePopup(theContext, theParent, theObject);
-  }
-  
-  void activeStudyChanged ( QAD_Desktop* parent )
-  {
-    SALOME_PYQT_GUI::ActiveStudyChanged(parent);
+  Standard_EXPORT SALOMEGUI* GetComponentGUI() {
+    MESSAGE("SALOME_PYQT_GUI::GetComponentGUI");
+    SALOMEGUI* aGUI = new SALOME_PYQT_GUI("");
+    return aGUI;
   }
 }
-

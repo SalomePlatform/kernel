@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include <qapplication.h>
 #include <qlabel.h>
 
@@ -42,13 +43,11 @@
 // only to use findFile method : perhaps put it in QAD_Tools ???
 #include "QAD_ResourceMgr.h"
 #include <qlabel.h>
-using namespace std;
 
-
+#include "Utils_CatchSignals.h"
+#include "Utils_CorbaException.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-
-SALOME_Session_QThread* SALOME_Session_QThread::_singleton = 0;
 
 //=============================================================================
 /*! SALOME_Session_QThread
@@ -58,7 +57,6 @@ SALOME_Session_QThread* SALOME_Session_QThread::_singleton = 0;
 
 SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread()
 {
-  INFOS("Creation SALOME_Session_QThread");
   _qappl = 0 ;
   _mw = 0 ;
   _argc = argc ;
@@ -66,18 +64,6 @@ SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread
   _NS = 0 ;
 } ;
 
-//=============================================================================
-/*!
- *  
- */
-//=============================================================================
-
-  SALOME_Session_QThread* SALOME_Session_QThread::Instance(int argc, char ** argv)
-{
-  if (_singleton == 0) _singleton = new SALOME_Session_QThread(argc, argv);
-  return _singleton;
-
-}
 
 //=============================================================================
 /*! run
@@ -85,18 +71,17 @@ SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread
  *  Executes the Qt main window of the GUI on a separate thread
  */
 //=============================================================================
-
 void SALOME_Session_QThread::run()
 {
   if (_qappl == 0)
     {
       _qappl = new QApplication(_argc, _argv );
-      INFOS("creation QApplication");
+      MESSAGE("creation QApplication");
     }
 
   QAD_ASSERT ( QObject::connect(_qappl, SIGNAL(lastWindowClosed()), _qappl, SLOT(quit()) ) );
   _mw = new SALOMEGUI_Application ( "MDTV-Standard", "HDF", "hdf" );
-  INFOS("creation SALOMEGUI_Application");
+  MESSAGE("creation SALOMEGUI_Application");
   
   if ( !SALOMEGUI_Application::addToDesktop ( _mw, _NS ) )
     {
@@ -116,26 +101,59 @@ void SALOME_Session_QThread::run()
 
       _qappl->setPalette( QAD_Application::getPalette() ); 
 
+      Utils_CatchSignals aCatch;
+      aCatch.Activate();
+      
       /* Run 'SALOMEGUI' application */
       QAD_Application::run();
-
+     
       // T2.12 - catch exceptions thrown on attempts to modified a locked study
       while (1) {
 	try {
-	  MESSAGE("run(): starting the main event loop")
+	  MESSAGE("run(): starting the main event loop");
 	  _ret = _qappl->exec();
 	  break;
 	}
+	catch (SALOME::SALOME_Exception& e) {
+	  INFOS("run(): SALOME::SALOME_Exception is caught");
+	  QApplication::restoreOverrideCursor();
+	  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+				  QObject::tr("ERR_ERROR"), 
+				  QObject::tr("ERR_APP_EXCEPTION")+ QObject::tr(" SALOME::SALOME_Exception is caught") ,
+				  QObject::tr("BUT_OK") );
+	  
+	}
 	catch(SALOMEDS::StudyBuilder::LockProtection&) {
-	  MESSAGE("run(): An attempt to modify a locked study has not been handled by QAD_Operation")
+	  INFOS("run(): An attempt to modify a locked study has not been handled by QAD_Operation");
 	  QApplication::restoreOverrideCursor();
 	  QAD_MessageBox::warn1 ( (QWidget*)QAD_Application::getDesktop(),
-			       QObject::tr("WRN_WARNING"), 
-			       QObject::tr("WRN_STUDY_LOCKED"),
+				 QObject::tr("WRN_WARNING"), 
+				 QObject::tr("WRN_STUDY_LOCKED"),
+				 QObject::tr("BUT_OK") );
+	}
+	catch (const CORBA::Exception& e) {
+	  CORBA::Any tmp;
+	  tmp<<= e;
+	  CORBA::TypeCode_var tc = tmp.type();
+	  const char *p = tc->name();
+	  INFOS ("run(): CORBA exception of the kind : "<<p<< " is caught");
+
+	  QApplication::restoreOverrideCursor();
+	  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+			       QObject::tr("ERR_ERROR"), 
+			       QObject::tr("ERR_APP_EXCEPTION")+ QObject::tr(" CORBA exception ") + QObject::tr(p),
+			       QObject::tr("BUT_OK") );
+	}
+	catch(std::exception& e) {
+	  INFOS("run(): An exception has been caught");
+	  QApplication::restoreOverrideCursor();
+	  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
+			       QObject::tr("ERR_ERROR"), 
+			       QObject::tr("ERR_APP_EXCEPTION")+ " " +QObject::tr(e.what()),
 			       QObject::tr("BUT_OK") );
 	}
 	catch(...) {
-	  MESSAGE("run(): An exception has been caught")
+	  INFOS("run(): An exception has been caught")
 	  QApplication::restoreOverrideCursor();
 	  QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
 			       QObject::tr("ERR_ERROR"), 
@@ -143,7 +161,8 @@ void SALOME_Session_QThread::run()
 			       QObject::tr("BUT_OK") );
 	}
       }
-
+      
+      aCatch.Deactivate();
       QString confMsg = "Settings create $HOME/." + QObject::tr("MEN_APPNAME") + "/" + QObject::tr("MEN_APPNAME") + ".conf";
       MESSAGE (confMsg )
       QAD_CONFIG->createConfigFile(true);

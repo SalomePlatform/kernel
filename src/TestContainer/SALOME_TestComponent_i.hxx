@@ -49,6 +49,7 @@ public:
   virtual ~Engines_TestComponent_i();
 
   char* Coucou(CORBA::Long L);
+  void Setenv();
   
 private:
 

@@ -33,6 +33,7 @@
 
 #include <string>
 #include <iostream>
+#include <cstdlib>
 #include "SALOME_Log.hxx"
 
 /* ---  INFOS is always defined (without _DEBUG_): to be used for warnings, with release version --- */
@@ -82,7 +83,7 @@
 
 #define HERE {cout<<flush ;cerr<<"- Trace "<<__FILE__<<" ["<<__LINE__<<"] : "<<flush ;}
 
-#define INTERRUPTION(code) {HERE;cerr<<"INTERRUPTION return code= "<<code<< endl;exit(code);}
+#define INTERRUPTION(code) {HERE;cerr<<"INTERRUPTION return code= "<<code<< endl;std::exit(code);}
 
 #ifndef ASSERT
 #define ASSERT(condition) \

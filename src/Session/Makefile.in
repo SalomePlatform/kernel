@@ -40,8 +40,9 @@ EXPORT_HEADERS= SALOME_Session_i.hxx
 # Libraries targets
 LIB = libSalomeSession.la
 LIB_SRC=\
-	SALOME_Session_QThread.cxx \
-	SALOME_Session_i.cxx
+	SALOME_Session_i.cxx \
+	Session_ServerThread.cxx \
+	Session_ServerLauncher.cxx
 
 # Executables targets
 BIN = SALOME_Session_Server
@@ -49,9 +50,9 @@ BIN_SRC =
 BIN_SERVER_IDL = SALOME_Session.idl
 BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
-CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
+CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS)  -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace
+LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent
 
 
 @CONCLUDE@

@@ -38,7 +38,8 @@ VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
 	 	 VTKViewer_ViewFrame.h \
 		 VTKViewer_RenderWindowInteractor.h \
-	         VTKViewer_InteractorStyleSALOME.h 
+	         VTKViewer_InteractorStyleSALOME.h \
+		 VTKViewer_Filter.h
 		     
 # Libraries targets
 LIB = libVTKViewer.la
@@ -49,7 +50,10 @@ LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_InteractorStyleSALOME.cxx \
 	 VTKViewer_Trihedron.cxx \
 	 VTKViewer_VectorText.cxx \
-	 VTKViewer_Utilities.cxx
+	 VTKViewer_RectPicker.cxx \
+	 VTKViewer_CellRectPicker.cxx \
+	 VTKViewer_Utilities.cxx \
+	 VTKViewer_Filter.cxx
 
 LIB_MOC = \
 	 VTKViewer.h \

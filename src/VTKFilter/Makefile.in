@@ -35,7 +35,8 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = SALOME_Transform.h \
 	         SALOME_TransformFilter.h \
 	         SALOME_PassThroughFilter.h \
-		 SALOME_GeometryFilter.h
+		 SALOME_GeometryFilter.h \
+		 SALOME_ExtractUnstructuredGrid.h
 
 # Libraries targets
 
@@ -43,7 +44,8 @@ LIB = libSalomeVTKFilter.la
 LIB_SRC = SALOME_Transform.cxx \
           SALOME_TransformFilter.cxx \
 	  SALOME_PassThroughFilter.cxx \
-	  SALOME_GeometryFilter.cxx
+	  SALOME_GeometryFilter.cxx \
+	  SALOME_ExtractUnstructuredGrid.cxx
 
 # Executables targets
 
@@ -51,6 +53,6 @@ BIN =
 BIN_SRC	= 
 
 CPPFLAGS+= $(VTK_INCLUDES)
-LDFLAGS+= $(VTK_LIBS)
+LDFLAGS+= $(VTK_LIBS) -lOpUtil
 
 @CONCLUDE@

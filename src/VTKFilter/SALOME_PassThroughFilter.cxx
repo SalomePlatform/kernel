@@ -27,65 +27,31 @@
 
 
 #include "SALOME_PassThroughFilter.h"
-#include "SALOME_GeometryFilter.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkPointSet.h>
-#include <vtkPointData.h>
 #include <vtkCellData.h>
-#include <vtkPoints.h>
-#include <vtkMatrix4x4.h>
+#include <vtkDataSet.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
 
-using namespace std;
-
+vtkCxxRevisionMacro(SALOME_PassThroughFilter, "$Revision$");
 vtkStandardNewMacro(SALOME_PassThroughFilter);
 
-SALOME_PassThroughFilter::SALOME_PassThroughFilter(){
-  this->vtkProcessObject::SetNthInput(0, NULL);
-  myGeomFilter = SALOME_GeometryFilter::New();
-}
-
-SALOME_PassThroughFilter::~SALOME_PassThroughFilter(){
-  myGeomFilter->Delete();
-}
-
-void SALOME_PassThroughFilter::Execute(){
+void SALOME_PassThroughFilter::Execute()
+{
   vtkDataSet *input = static_cast<vtkDataSet*>(this->GetInput());
   vtkDataSet *output = static_cast<vtkDataSet*>(this->GetOutput());
+
+  // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
+  
+  // Pass all. (data object's field data is passed by the
+  // superclass after this method)
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
+
 }
 
-
-void SALOME_PassThroughFilter::SetInput(vtkDataSet *input){
-  myGeomFilter->SetInput(input);
-  vtkDataSet *oldInput = this->GetInput();
-  if(oldInput != NULL)
-    if(input == NULL || oldInput->GetDataObjectType() != input->GetDataObjectType()){
-      vtkWarningMacro("Changing input type.  Deleting output");
-      this->SetOutput(NULL);
-    }
-  if (input != NULL && this->vtkSource::GetOutput(0) == NULL){
-    this->vtkSource::SetNthOutput(0, input->NewInstance());
-    this->Outputs[0]->ReleaseData();
-    this->Outputs[0]->Delete();
-  }
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-vtkPolyData *SALOME_PassThroughFilter::GetPolyDataOutput() {
-  vtkDataSet *ds = this->GetOutput();
-  if(!ds) return NULL;
-  if(ds->GetDataObjectType() == VTK_POLY_DATA) return (vtkPolyData *)ds;
-  myGeomFilter->SetInput(this->GetOutput());
-  return myGeomFilter->GetOutput();
-}
-
-
-void SALOME_PassThroughFilter::SetInside(int theShowInside){
-  myGeomFilter->SetInside(theShowInside);
-  Modified();
-}
-int SALOME_PassThroughFilter::GetInside(){
-  return myGeomFilter->GetInside();
+void SALOME_PassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

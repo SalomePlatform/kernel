@@ -27,6 +27,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "ToolsGUI_CatalogGeneratorDlg.h"
 
 #include "QAD_Application.h"
@@ -48,7 +49,6 @@
 #include <OSD_Path.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Standard_CString.hxx>
-using namespace std;
 
 #define SPACING_SIZE             6
 #define MARGIN_SIZE             11
@@ -123,8 +123,6 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
   myVersionEdit->setMinimumSize( myMinimumSize );
   QStringList aList = QStringList::split(QRegExp("\\s+"),tr( "INF_VERSION" ));
   myVersionEdit->setText(aList.last());
-  QDoubleValidator *validator = new QDoubleValidator(myVersionEdit);
-  myVersionEdit->setValidator(validator);
 
   myPngEdit = new QLineEdit(supplGrp , "myCompIcon" );
   myPngEdit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -396,7 +394,7 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
     else {
       QString command = "";
       if ( getenv("KERNEL_ROOT_DIR")  )
-	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser " + IDLpath + " -Wbcatalog=" + XmlFile;
+	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser -K " + IDLpath + " -Wbcatalog=" + XmlFile;
       else {
 	QAD_MessageBox::error1( this, 
 				tr("TOOLS_ERR_ERROR"), 

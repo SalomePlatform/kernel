@@ -26,10 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include "SALOME_TestComponent_i.hxx"
 #include <stdio.h>
-using namespace std;
+#include <cstdlib>
+#include <map>
 
 Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
 						 PortableServer::POA_ptr poa,
@@ -58,6 +60,32 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
   sprintf(s, "TestComponent_i : L = %ld", (long) L);
 
   return CORBA::string_dup(s);
+}
+
+void Engines_TestComponent_i::Setenv()
+{
+  bool overwrite = true;
+  map<std::string,CORBA::Any>::iterator it;
+  MESSAGE("set environment associated with keys in map _fieldsDict");
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
+    {
+      std::string cle((*it).first);
+      if ((*it).second.type()->kind() == CORBA::tk_string)
+	{
+	  const char* value;
+	  (*it).second >>= value;
+	  int ret = setenv(cle.c_str(), value, overwrite);
+	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
+	}
+    }
+  MESSAGE("read environment associated with keys in map _fieldsDict");
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
+    {
+      std::string cle((*it).first);
+      char* valenv= getenv(cle.c_str());
+      if (valenv)
+	MESSAGE("--- getenv: "<<cle<<" = "<< valenv);
+    }
 }
 
 extern "C"

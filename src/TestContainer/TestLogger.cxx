@@ -26,17 +26,17 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include <iostream>
 #include <unistd.h>
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-using namespace std;
 
 int main (int argc, char * argv[])
 {
-  INFOS("It's OK");
+  MESSAGE("It's OK");
   return 0;
 }
 

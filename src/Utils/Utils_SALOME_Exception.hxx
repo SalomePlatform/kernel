@@ -31,18 +31,19 @@
 
 # include <exception>
 # include <iostream>
+
 using namespace std;
 
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 
-class SALOME_Exception : public std::exception
+class SALOME_Exception : public exception
 {
 
 private :
 	SALOME_Exception( void );
 
 protected :
-	char* _text ;	// pointeur
+	const char* _text ;	// non constant pointer but read only char variable
 
 public :
 	SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );

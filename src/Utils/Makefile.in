@@ -45,7 +45,9 @@ EXPORT_HEADERS= \
 	Utils_ORB_INIT.hxx \
 	Utils_Identity.hxx \
 	Utils_SINGLETON.hxx \
-	Utils_DESTRUCTEUR_GENERIQUE.hxx
+	Utils_DESTRUCTEUR_GENERIQUE.hxx \
+	Utils_ExceptHandlers.hxx \
+	Utils_CatchSignals.h
 
 EXPORT_PYSCRIPTS = Utils_Identity.py SALOME_utilities.py
 # Libraries targets
@@ -55,9 +57,13 @@ LIB_SRC = OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
 	Utils_CommException.cxx \
 	Utils_SALOME_Exception.cxx \
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \
-	Utils_DESTRUCTEUR_GENERIQUE.cxx
+	Utils_DESTRUCTEUR_GENERIQUE.cxx \
+	Utils_ExceptHandlers.cxx \
+	Utils_CatchSignals.cxx
 
-LDFLAGS+= 
+LIB_SERVER_IDL = SALOME_Exception.idl
+
+LDFLAGS+= -lSALOMELocalTrace
 
 @CONCLUDE@
 

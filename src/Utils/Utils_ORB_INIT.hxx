@@ -47,7 +47,7 @@ private :
 
 public :
 	ORB_INIT( void );
-	~ORB_INIT();
+	virtual ~ORB_INIT();
 	CORBA::ORB_var & operator() ( int argc , char **argv ) throw( CommException ) ;
 
 	inline CORBA::ORB_var &orb( void );

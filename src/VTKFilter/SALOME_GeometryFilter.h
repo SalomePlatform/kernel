@@ -24,13 +24,14 @@
 //  File   : SALOME_GeometryFilter.h
 //  Author : Michael ZORIN
 //  Module : SALOME
-//  $Header: /dn05/salome/CVS/SALOME_ROOT/SALOME/src/OBJECT/SALOME_GeometryFilter.h
+//  $Header$
 
 
 #ifndef __SALOME_GeometryFilter_h
 #define __SALOME_GeometryFilter_h
 
 #include <vtkGeometryFilter.h>
+#include <vector>
 
 class SALOME_GeometryFilter : public vtkGeometryFilter 
 {
@@ -40,6 +41,13 @@ public:
   void SetInside(int theShowInside);
   int GetInside();
 
+  void SetStoreMapping(int theStoreMapping);
+  int GetStoreMapping(){ return myStoreMapping;}
+
+  typedef std::vector<vtkIdType> TVectorId;
+  virtual vtkIdType GetObjId(int theVtkID);
+  virtual TVectorId GetVtkId(int theObjID);
+
 protected:
   SALOME_GeometryFilter();
   ~SALOME_GeometryFilter();
@@ -48,7 +56,12 @@ protected:
   void UnstructuredGridExecute();
     
 private:
-  int myShowInside;      
+  int myShowInside;   
+
+  int myStoreMapping;   
+  TVectorId myVTK2ObjIds;
+  typedef std::vector<TVectorId> TVecVectorId;
+  TVecVectorId myObj2VTKIds;
 };
 
 #endif

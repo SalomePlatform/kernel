@@ -29,6 +29,7 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
+# include <CORBA.h>
 # include "utilities.h"
 
 /*!\class DESTRUCTEUR_GENERIQUE_
@@ -55,14 +56,10 @@
 class DESTRUCTEUR_GENERIQUE_
 {
 public :
-	virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
-	static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
-	virtual void operator()( void )=0 ;//!< performs the destruction
+  virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
+  static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
+  virtual void operator()( void )=0 ;//!< performs the destruction
 } ;
-
-
-
-
 
 
 /*!\class DESTRUCTEUR_DE_
@@ -87,49 +84,48 @@ public :
  * 	destruction to be performed at the end of the process.
  * 
  */
-
 template <class TYPE> class DESTRUCTEUR_DE_ : public DESTRUCTEUR_GENERIQUE_
 {
 public :
+  /* Programs the destruction at the end of the process, of the object objet.
+     This method records in _PtrObjet the address of an object to be destroyed 
+     at the end of the process
+  */
+  DESTRUCTEUR_DE_(TYPE &objet):
+    _PtrObjet( &objet )
+  {
+    ASSERT(DESTRUCTEUR_GENERIQUE_::Ajout( *this ) >= 0) ;
+  }
 
-	inline DESTRUCTEUR_DE_( TYPE &objet ); //! programs the destruction at the end of the process, of the object objet
-	virtual void operator()( void ) ; //!< performs the destruction of the object
-	virtual ~DESTRUCTEUR_DE_() ;
+  /* Performs the destruction of the object.
+     This method really destroys the object pointed by _PtrObjet. 
+     It should be called at the end of the process (i.e. at exit).
+  */
+  virtual void operator()(void){
+    typedef PortableServer::ServantBase TServant;
+    if(_PtrObjet){
+      if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
+	MESSAGE("deleting ServantBase's _PtrObjet");
+	PortableServer::POA_var aPOA = aServant->_default_POA();
+	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
+	aPOA->deactivate_object(anObjectId.in());
+	aServant->_remove_ref();
+      }else{
+	MESSAGE("deleting _PtrObjet");
+	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);
+	delete aPtr;
+      }
+      _PtrObjet = NULL ;
+    }
+  } 
+
+  virtual ~DESTRUCTEUR_DE_(){
+    ASSERT(!_PtrObjet) ;
+  }
+
 private :
-	const TYPE *_PtrObjet ;
-} ;
+  TYPE *_PtrObjet ;
+};
 
-
-
-
-
-
-/*!
-This method records in _PtrObjet the address of an object to be destroyed at the end of the process
-*/
-template <class TYPE> DESTRUCTEUR_DE_<TYPE>::DESTRUCTEUR_DE_( TYPE &objet ): _PtrObjet( &objet )
-{
-	int k = DESTRUCTEUR_GENERIQUE_::Ajout( *this ) ;	
-	ASSERT(k>=0) ;
-}
-
-template <class TYPE> DESTRUCTEUR_DE_<TYPE>::~DESTRUCTEUR_DE_()
-{
-	ASSERT(_PtrObjet==NULL) ;
-}
-
-/*!
-This method really destroys the object pointed by _PtrObjet. It should be called at the end of the process
-(i.e. at exit).
-*/
-template <class TYPE> void DESTRUCTEUR_DE_<TYPE>::operator()( void )
-{
-	if ( _PtrObjet )
-	{
-         	  MESSAGE("deleting _PtrObjet") ;
-		delete (TYPE*)_PtrObjet ;
-		_PtrObjet = NULL ;
-	}
-}
 
 # endif		/* # if !defined( __SINGLETON__H__ ) */

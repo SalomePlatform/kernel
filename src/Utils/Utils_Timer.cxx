@@ -25,7 +25,7 @@
 //  Module : SALOME
 
 # include "Utils_Timer.hxx"
-# include <iostream>
+# include <stream.h>
 using namespace std;
 
 static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));

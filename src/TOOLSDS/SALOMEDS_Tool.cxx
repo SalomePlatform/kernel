@@ -1,3 +1,4 @@
+using namespace std;
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
@@ -12,8 +13,8 @@
 
 #include <TCollection_AsciiString.hxx> 
 #include <stdio.h>
-#include <iostream> 
-#include <fstream>
+#include <iostream.h> 
+#include <fstream.h>
 #include <OSD_Path.hxx>
 #include <OSD_File.hxx>
 #include <OSD_Directory.hxx>
@@ -22,7 +23,6 @@
 #include <OSD_Protection.hxx>
 #include <OSD_SingleProtection.hxx>
 #include <OSD_FileIterator.hxx>
-using namespace std;
 
 #include <sys/time.h>
 #include <stdlib.h>

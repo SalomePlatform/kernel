@@ -41,7 +41,7 @@ class SALOME_Session_QThread: public QThread
 {
 
 public:
-  static SALOME_Session_QThread* Instance(int argc, char ** argv);
+  SALOME_Session_QThread(int argc, char ** argv) ;
 
   //! launch the Qt main window of the GUI on a separate thread
   virtual void run() ;
@@ -57,10 +57,6 @@ protected:
   QApplication *_qappl ;
 
   SALOMEGUI_Application* _mw ;
-  SALOME_Session_QThread(int argc, char ** argv);
-
-private:
-  static SALOME_Session_QThread* _singleton;
 } ;
 
 #endif

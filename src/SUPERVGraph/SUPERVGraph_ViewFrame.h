@@ -34,6 +34,7 @@
 #include "QAD_Application.h"
 
 #include "SALOME_InteractiveObject.hxx"
+#include "SALOME_Selection.h" 
 
 class QAD_EXPORT SUPERVGraph_View: public QWidget, public QAD_PopupClientServer{
   Q_OBJECT;
@@ -62,7 +63,7 @@ class QAD_EXPORT SUPERVGraph_ViewFrame : public QAD_ViewFrame {
   void                           setBackgroundColor( const QColor& );
   QColor                         backgroundColor() const;
   
-  void                           SetSelectionMode( int mode );
+  void                           SetSelectionMode( Selection_Mode mode );
 
   void                           onAdjustTrihedron( );
   

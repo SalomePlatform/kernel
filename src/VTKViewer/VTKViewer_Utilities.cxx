@@ -52,7 +52,7 @@ void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){
     if ( theRenderer->GetActiveCamera() != NULL )
       theRenderer->GetActiveCamera()->GetViewPlaneNormal(vn);
     else{
-      INFOS("Trying to reset non-existant camera");
+      MESSAGE("Trying to reset non-existant camera");
       return;
     }
     

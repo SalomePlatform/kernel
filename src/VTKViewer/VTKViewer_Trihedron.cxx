@@ -63,6 +63,7 @@ public:
 
 protected:
   VTKViewer_UnScaledActor();
+  ~VTKViewer_UnScaledActor(){}
   int mySize;
 };
 
@@ -82,14 +83,62 @@ void VTKViewer_UnScaledActor::Render(vtkRenderer *theRenderer){
     float aWinDiag = sqrt(float(aSize[0]*aSize[0]+aSize[1]*aSize[1]));
     vtkDataSet* aDataSet = GetMapper()->GetInput();
     float aLength = aDataSet->GetLength();
+    float aPrecision = 1.0E-3;
+    float anOldScale = GetScale()[0];
     float aScale = mySize*aWorldDiag/aWinDiag/aLength*sqrt(float(aSize[0])/float(aSize[1]));
-    SetScale(aScale);
+    if(fabs(aScale - anOldScale)/aScale > aPrecision){
+      SetScale(aScale);
+    }
   }
   vtkFollower::Render(theRenderer);
 }
 
 void VTKViewer_UnScaledActor::SetSize(int theSize){
   mySize = theSize;
+}
+
+//==============================================================================
+
+class VTKViewer_LineActor: public vtkFollower{
+  VTKViewer_LineActor(const VTKViewer_LineActor&);
+
+public:
+  vtkTypeMacro(VTKViewer_LineActor,vtkFollower);
+  static VTKViewer_LineActor *New();
+
+  void SetLabelActor(VTKViewer_UnScaledActor* theLabelActor);
+  void SetArrowActor(VTKViewer_UnScaledActor* theLabelActor);
+  virtual void Render(vtkRenderer *theRenderer);
+
+protected:
+  VTKViewer_LineActor(){
+    LabelActor = NULL;
+    ArrowActor = NULL;
+  }
+  ~VTKViewer_LineActor(){
+    SetLabelActor(NULL);
+    SetArrowActor(NULL);
+  }
+
+  VTKViewer_UnScaledActor* LabelActor;
+  VTKViewer_UnScaledActor* ArrowActor;
+};
+
+vtkStandardNewMacro(VTKViewer_LineActor);
+
+vtkCxxSetObjectMacro(VTKViewer_LineActor,LabelActor,VTKViewer_UnScaledActor);
+vtkCxxSetObjectMacro(VTKViewer_LineActor,ArrowActor,VTKViewer_UnScaledActor);
+
+void VTKViewer_LineActor::Render(vtkRenderer *theRenderer){
+  if(LabelActor && LabelActor->GetVisibility()){
+    LabelActor->Modified();
+    LabelActor->Render(theRenderer);
+  }
+  if(ArrowActor && ArrowActor->GetVisibility()){
+    ArrowActor->Modified();
+    ArrowActor->Render(theRenderer);
+  }
+  vtkFollower::Render(theRenderer);
 }
 
 //==============================================================================
@@ -106,9 +155,10 @@ protected:
   vtkTypeMacro(VTKViewer_Axis,vtkObject);
   
   virtual void AddToRender(vtkRenderer* theRenderer){
+    //Order of the calls are important
+    theRenderer->AddActor(myLineActor);
     theRenderer->AddActor(myLabelActor);
     theRenderer->AddActor(myArrowActor);
-    theRenderer->AddActor(myLineActor);
   }
 
   virtual void SetVisibility(VTKViewer_Trihedron::TVisibility theVis);
@@ -140,7 +190,8 @@ protected:
   VTKViewer_Trihedron::TVisibility myVisibility;
   float myDir[3], myRot[3];
 
-  vtkActor *myLineActor;
+  VTKViewer_LineActor *myLineActor;
+  //vtkActor *myLineActor;
   VTKViewer_UnScaledActor *myArrowActor;
   VTKViewer_UnScaledActor *myLabelActor;
 
@@ -158,7 +209,7 @@ VTKViewer_Axis::VTKViewer_Axis(){
   myMapper[0] = vtkPolyDataMapper::New();
   myMapper[0]->SetInput(myLineSource->GetOutput());
 
-  myLineActor = vtkActor::New();
+  myLineActor = VTKViewer_LineActor::New();
   myLineActor->SetMapper(myMapper[0]);
   myLineActor->PickableOff();
 
@@ -176,6 +227,8 @@ VTKViewer_Axis::VTKViewer_Axis(){
   myArrowActor->SetSize(aArrowActorSize);
   myArrowActor->PickableOff();
 
+  myLineActor->SetArrowActor(myArrowActor);
+
   // Initialize the Label pipe-line representation
   myVectorText = VTKViewer_VectorText::New();
 
@@ -187,6 +240,9 @@ VTKViewer_Axis::VTKViewer_Axis(){
   static int aLabelActorSize = 12;
   myLabelActor->SetSize(aLabelActorSize);
   myLabelActor->PickableOff();
+  //myLabelActor->DebugOn();
+
+  myLineActor->SetLabelActor(myLabelActor);
 
   // Initialise visibility param.
   myVisibility = VTKViewer_Trihedron::eOn;
@@ -379,12 +435,3 @@ int VTKViewer_Trihedron::GetVisibleActorCount(vtkRenderer* theRenderer){
   //SetVisibility(aVis);
   return aCount;
 }
-
-void VTKViewer_Trihedron::Render(vtkRenderer* theRenderer){
-  for(int i = 0; i < 3; i++)
-    {
-      myAxis[i]->GetLabel()->Render(theRenderer);
-      myAxis[i]->GetArrow()->Render(theRenderer);
-    }
-}
-

@@ -5,6 +5,7 @@
 //  File   : SalomePyQt.cxx
 //  Module : SALOME
 
+using namespace std;
 #include "SalomePyQt.hxx"
 
 #include "QAD_Application.h"
@@ -14,7 +15,6 @@
 
 #include "QAD_Config.h"
 #include "QAD_Settings.h"
-using namespace std;
 
 QWidget* SalomePyQt::getDesktop()
 {

@@ -33,6 +33,8 @@
 #include <qobject.h>
 #include <qcursor.h>
 #include "SALOME_Actor.h"
+#include "VTKViewer_Filter.h"
+#include "SALOME_Selection.h"
 
 class VTKViewer_Trihedron;
 
@@ -55,6 +57,8 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   static VTKViewer_InteractorStyleSALOME *New();
 
   void setTriedron(VTKViewer_Trihedron* theTrihedron);
+  void setPreselectionProp(const double& theRed = 0, const double& theGreen = 1,
+			   const double& theBlue = 1, const int& theWidth = 5);
 
   vtkTypeMacro(VTKViewer_InteractorStyleSALOME, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -68,7 +72,14 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   void OnRightButtonDown(int ctrl, int shift, int x, int y);
   void OnRightButtonUp  (int ctrl, int shift, int x, int y);
 
+  void OnSelectionModeChanged();
+
   void  ViewFitAll();
+
+  void  SetEdgeFilter( const Handle(VTKViewer_Filter)& );
+  void  SetFaceFilter( const Handle(VTKViewer_Filter)& );
+  void  RemoveFaceFilter();
+  void  RemoveEdgeFilter();
 
  protected:
   VTKViewer_InteractorStyleSALOME();
@@ -93,12 +104,15 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
 		const int left, const int top, 
 		const int right, const int bottom);
 
+  bool isValid( SALOME_Actor* theActor, const int theCellId, const Selection_Mode theSelMode );
+
   int State;
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad
   double myScale;
 
   SALOME_Actor* preview;
+  vtkActor*     myPActor;
 
 public:
   bool eventFilter(QObject* object, QEvent* event);
@@ -123,26 +137,30 @@ protected:
   void setCursor(const int operation);
 
 protected:
-  QCursor      myDefCursor;
-  QCursor      myPanCursor;
-  QCursor      myZoomCursor;
-  QCursor      myRotateCursor;
-  QCursor      mySpinCursor;
-  QCursor      myHandCursor;
-  QCursor      myGlobalPanCursor;
-  QPoint       myPoint;
-  QPoint       myOtherPoint;
-  bool         myCursorState;
-  bool         myShiftState;
-  int ForcedState;
-  VTKViewer_Trihedron* m_Trihedron;  
-
-  QWidget*     myGUIWindow;
+  QCursor                   myDefCursor;
+  QCursor                   myPanCursor;
+  QCursor                   myZoomCursor;
+  QCursor                   myRotateCursor;
+  QCursor                   mySpinCursor;
+  QCursor                   myHandCursor;
+  QCursor                   myGlobalPanCursor;
+  QPoint                    myPoint;
+  QPoint                    myOtherPoint;
+  bool                      myCursorState;
+  bool                      myShiftState;
+  int                       ForcedState;
+  
+  VTKViewer_Trihedron*      m_Trihedron;
+  
+  QWidget*                  myGUIWindow;
+  
+  Handle(VTKViewer_Filter)  myEdgeFilter;
+  Handle(VTKViewer_Filter)  myFaceFilter;
 
   //  members from old version
-  double DeltaElevation;
-  double DeltaAzimuth;
-  int LastPos[2];
+  double                    DeltaElevation;
+  double                    DeltaAzimuth;
+  int                       LastPos[2];
 };
 
 #endif

@@ -45,4 +45,22 @@
                 throw SALOME::SALOME_Exception(ExDescription); \
               }
 
+#include <ostream.h>
+//Dump the CORBA exception type.
+static ostream& operator<<(ostream& os, const CORBA::Exception& e)
+{
+  CORBA::Any tmp;
+  tmp<<= e;
+  CORBA::TypeCode_var tc = tmp.type();
+  const char *p = tc->name();
+  os<<"CORBA Exception was catch of the kind : ";
+  if ( *p != '\0' ) {
+    os<<p;
+  } 
+  else  { 
+    os << tc->id();
+  }
+  
+  return os;
+}
 #endif

@@ -20,7 +20,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 # SIP C++ Python
 # SIP defined in make_commence.in
-SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) $(PYQT_INCLUDES)
+SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
 
 
 # SIP input file(s)
@@ -41,6 +41,7 @@ LIB = libSalomePyQtcmodule.la
 MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
 
 LIB_SRC += SalomePyQt.cxx SALOME_PYQT_GUI.cxx $(SIP_SRC) $(MOC_SRC) 
+LIB_MOC = SALOME_PYQT_GUI.h
 
 #LIB_MOC += sipSalomePyQtProxySalomePyQt.h
 
@@ -50,7 +51,7 @@ LIB_CLIENT_IDL = SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES)
 LIBS+= $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
-LDFLAGS+= -lSalomeGUI
+LDFLAGS+= -lSalomeGUI -lqtcmodule
 
 
 # Custom build step: generate C++ wrapping according to $(SIP_FILES)

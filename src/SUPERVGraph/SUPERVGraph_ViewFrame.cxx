@@ -26,6 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "SUPERVGraph_ViewFrame.h"
 
 #include "QAD_Settings.h"
@@ -39,7 +40,6 @@
 //QT Include
 #include <qlayout.h>
 #include <qcolordialog.h>
-using namespace std;
 
 SUPERVGraph_View::SUPERVGraph_View(QWidget* theParent): QWidget(theParent){
   init(theParent);
@@ -249,7 +249,7 @@ QColor SUPERVGraph_ViewFrame::backgroundColor() const
 }
 
 
-void SUPERVGraph_ViewFrame::SetSelectionMode( int mode )
+void SUPERVGraph_ViewFrame::SetSelectionMode( Selection_Mode mode )
 {
   MESSAGE ( "SUPERVGraph_ViewFrame::SetSelectionMode" )
 }
