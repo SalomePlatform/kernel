@@ -79,6 +79,7 @@ SALOME_ModuleCatalog_Server \
     ${GEOM_ROOT_DIR}/share/salome/resources/GEOMCatalog.xml:\
     ${SUPERV_ROOT_DIR}/share/salome/resources/SUPERVCatalog.xml:\
     ${VISU_ROOT_DIR}/share/salome/resources/VISUCatalog.xml \
+    ${MED_ROOT_DIR}/share/salome/resources/MEDCatalog.xml \
     -personal ${HOME}/Salome/resources/CatalogModulePersonnel.xml &
 #sleep 2
 
