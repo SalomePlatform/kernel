@@ -76,6 +76,9 @@ msgstr "Version : "
 msgid "ToolsGUI_CatalogGeneratorDlg::TOOLS_COMP_NAME"
 msgstr "Name : "
 
+msgid "ToolsGUI_CatalogGeneratorDlg::TOOLS_COMP_USERNAME"
+msgstr "UserName : "
+
 msgid "ToolsGUI_CatalogGeneratorDlg::TOOLS_COMP_TYPE"
 msgstr "Type : "
 

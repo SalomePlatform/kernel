@@ -1,9 +1,9 @@
 #!/bin/sh
 
-python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python --killall
-#python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
-#python -i runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
-#python -i runSalome.py --help
+python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python --killall
+#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
+#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
+#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --help
 
 # -----------------------------------------------------------------------------
 #

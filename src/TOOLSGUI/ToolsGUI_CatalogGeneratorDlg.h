@@ -46,12 +46,14 @@ public:
     ToolsGUI_CatalogGeneratorDlg( QWidget* parent = 0, const char* name = 0 );
     ~ToolsGUI_CatalogGeneratorDlg();
 
+    QString getIdlPath();
     QString getIdlFile();
     QString getXmlFile();
     QString getPngFile();
     QString getAuthor();
     QString getVersion();
     QString getCompName();
+    QString getCompUserName();
     QString getCompType();
     QString getCompMultiStd();
 
@@ -67,6 +69,7 @@ private:
     QLineEdit*     myVersionEdit;
     QLineEdit*     myAuthorEdit;
     QLineEdit*     myCompName;
+    QLineEdit*     myCompUserName;
     QLineEdit*     myCompType;
     QLineEdit*     myCompMultiStd;
     QPushButton*   myBrowseIdlBtn;

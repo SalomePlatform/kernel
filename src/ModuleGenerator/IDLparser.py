@@ -29,14 +29,36 @@ import pdb
 from xml.sax.handler import *
 from omniidl import idlast, idltype, idlvisitor, idlutil, output
 
-#values of this map are used in some nodes defenition
-common_data={"AUTHOR"   : "",
-             "ICON"     : "",
-             "VERSION"  : "",
-             "COMP_TYPE": "",
-             "COMP_NAME": "",
-             "COMP_MULT": "1"
+# parameters not found in IDL file, user's specified in optional parameters
+common_data={"AUTHOR"     : "",
+             "ICON"       : "",
+             "VERSION"    : "",
+             "COMP_TYPE"  : "",
+             "COMP_NAME"  : "",
+             "COMP_UNAME" : "",
+             "COMP_MULT"  : ""
              }
+
+nb_components = 0
+
+#--------------------------------------------------
+# extract value of <param_name> from <args> list
+# it's proposed that the matching <args> item
+# looks like <param_name>=<value>, for example,
+# catalog=/tmp/myxml.xml
+#--------------------------------------------------
+def getParamValue( param_name, default_value, args ):
+    pattern=param_name+"="
+
+    res = default_value        #initial value
+    for opt in args:
+        s = re.compile(pattern).search(opt)
+        if s:
+            res = opt[s.end():]
+            break     #found
+
+    return res    
+
 
 #--------------------------------------------------
 # print error message
@@ -168,7 +190,7 @@ class Tree:
 #--------------------------------------------------
 class inParameter(Tree):
     
-    def __init__(self, name=None, type='', comment=''):
+    def __init__(self, name=None, type='', comment='unknown'):
         Tree.__init__(self, 'inParameter')
         if name is None:  return
         
@@ -186,7 +208,7 @@ class inParameter(Tree):
 #--------------------------------------------------
 class outParameter(Tree):
     
-    def __init__(self, name=None, type='', comment = ''):
+    def __init__(self, name=None, type='', comment = 'unknown'):
         
         Tree.__init__(self, 'outParameter')
         if name is None:  return
@@ -205,7 +227,7 @@ class outParameter(Tree):
 #--------------------------------------------------
 class Service(Tree):
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, comment = 'unknown'):
         
         Tree.__init__(self, 'component-service')
         if name is None:  return
@@ -213,7 +235,7 @@ class Service(Tree):
         self.addNamedChild('service-name', name)
         self.addNamedChild('service-author',common_data["AUTHOR"])
         self.addNamedChild('service-version',common_data["VERSION"])
-        self.addNamedChild('service-comment')
+        self.addNamedChild('service-comment', comment)
         self.addNamedChild('service-by-default', "0")
         self.addNamedChild('inParameter-list')
         self.addNamedChild('outParameter-list')
@@ -304,14 +326,14 @@ class Service(Tree):
 #--------------------------------------------------
 class Interface(Tree):
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, comment='unknown'):
                
         Tree.__init__(self)
 
         if name is None:  return
         
         self.addNamedChild('component-interface-name', name)
-        self.addNamedChild('component-interface-comment');
+        self.addNamedChild('component-interface-comment', comment);
         self.addNamedChild('component-service-list')
             
     def createService(self, name):
@@ -362,18 +384,17 @@ class Interface(Tree):
 # implements Component tree
 #--------------------------------------------------
 class Component(Tree):
-    def __init__(self, name=None):
+    def __init__(self):
         Tree.__init__(self, 'component')
-
-        if name is None: return
-        
-        self.addNamedChild('component-name', name)
-        self.addNamedChild('component-type',common_data["COMP_TYPE"])
-        self.addNamedChild('component-author',common_data["AUTHOR"])
-        self.addNamedChild('component-version',common_data["VERSION"])
-        self.addNamedChild('component-comment')
+                 
+        self.addNamedChild('component-name',       common_data["COMP_NAME"]) 
+        self.addNamedChild('component-username',   common_data["COMP_UNAME"])
+        self.addNamedChild('component-type',       common_data["COMP_TYPE"])
+        self.addNamedChild('component-author',     common_data["AUTHOR"])
+        self.addNamedChild('component-version',    common_data["VERSION"])
+        self.addNamedChild('component-comment',    'unknown')
         self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
-        self.addNamedChild('component-icone',common_data["ICON"])
+        self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
         self.addNamedChild('component-interface-list')
             
@@ -387,41 +408,17 @@ class Component(Tree):
         return i
 
     def merge(self, C):
-        ext=C.getChild('component-author')
-        int=self.getChild('component-author')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-            
-        ext=C.getChild('component-type')
-        int=self.getChild('component-type')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
 
-        ext=C.getChild('component-icone')
-        int=self.getChild('component-icone')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-
-        ext=C.getChild('component-version')
-        int=self.getChild('component-version')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-
-        ext=C.getChild('component-comment')
-        int=self.getChild('component-comment')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-
-        ext=C.getChild('component-multistudy')
-        int=self.getChild('component-multistudy')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-            
-        ext=C.getChild('constraint')
-        int=self.getChild('constraint')
-        if int is not None  and  ext is not None  and  len(ext.content):
-            int.content = ext.content
-             
+        for i in ['component-username', 'component-author',
+                  'component-type', 'component-icone', 'component-version',
+                  'component-comment', 'component-multistudy', 'constraint']:
+            ext = C.getChild(i)
+            int = self.getChild(i)
+            if int is None:
+                int = ext
+            elif ext is not None and len(ext.content):
+                int.content = ext.content
+                
         L_ext = C.getChild('component-interface-list')
         L_int = self.getChild('component-interface-list')
         if L_ext is None or L_int is None:
@@ -602,8 +599,7 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                 if ((s[0] == "Engines") & (s[1] == "Component")):
                     self.EngineType = 1; break
                 
-            if common_data["COMP_NAME"] :  Comp = Component(common_data["COMP_NAME"])
-            else :  Comp = Component(node.identifier())
+            Comp = Component()
             
             self.currentInterface = Comp.createInterface(node.identifier())
         
@@ -612,6 +608,8 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                     c.accept(self)
 
             if (self.EngineType):
+                global nb_components
+                nb_components = nb_components + 1
                 self.catalog.mergeComponent(Comp)
 
             self.EngineType = 0
@@ -649,51 +647,28 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                      (node.identifier(), self.currentType)
         
 #--------------------------------------------------
-# extract value of <param_name> from <args> list
-# it's proposed that the matching <args> item
-# looks like <param_name>=<value>, for example,
-# catalog=/tmp/myxml.xml
-#--------------------------------------------------
-def getParamValue( param_name, args ):
-    pattern="^"+param_name+"="
-
-    res = ""        #initial value
-    for opt in args:
-        s = re.compile(pattern).search(opt)
-        if s:
-            res = opt[s.end():]
-            break     #found
-
-    return res    
-
-#--------------------------------------------------
 # parse idl and store xml file
 #--------------------------------------------------
 def run(tree, args):
-    CatalogFileName=getParamValue("catalog",args)
-    if CatalogFileName is None:
-        CatalogFileName = 'CatalogModulePersonnel.xml'
+    print args
     
-    if (re.compile(".*?.xml$").match(CatalogFileName, 1) is None):
+    CatalogFileName=getParamValue("catalog", "CatalogModulePersonnel.xml", args)
+    print CatalogFileName
+    if re.compile(".*?.xml$").match(CatalogFileName, 1) is None:
         CatalogFileName = CatalogFileName + '.xml'
 
     #=========  Read parameters  ======================    
-    common_data["ICON"] = getParamValue("icon",args)              # get icon file
+    common_data["ICON"]       = getParamValue("icon",       "",                args)
+    common_data["AUTHOR"]     = getParamValue("author",     os.getenv("USER"), args)
+    common_data["VERSION"]    = getParamValue("version",    "1",               args)
+    common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
+    common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
+    common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
+    common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
 
-    common_data["AUTHOR"] = getParamValue("author",args)          # get author name
-    if common_data["AUTHOR"] is None:   common_data["AUTHOR"] = os.getenv("USER");
+    print common_data
     
-    common_data["VERSION"] = getParamValue("version",args)        # get version
-
-    common_data["COMP_NAME"] = getParamValue("name",args)         # get icon file
-
-    val = getParamValue("type",args)                              # get icon file
-    if val:   common_data["COMP_TYPE"] = val
-
-    val = getParamValue("multistudy",args)                        # get icon file
-    if val :    common_data["COMP_MULT"]  = val
-
-    remove_comp = getParamValue("remove", args)
+    remove_comp = getParamValue("remove", "", args)
     
     #==================================================    
     
@@ -701,9 +676,9 @@ def run(tree, args):
         print "Importing", CatalogFileName
         C = Catalog(CatalogFileName)
     else:
-        print "Warning : ",CatalogFileName, " was not found."
+        print "Creating ",CatalogFileName
         C = Catalog()
-        
+    
     print "Reading idl file"
     
     visitor = ModuleCatalogVisitor(C)
@@ -735,5 +710,5 @@ def run(tree, args):
 
 if __name__ == "__main__":
     print
-    print "Usage : omniidl -bIDLparser -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,multistudy=<component_multistudy>][,remove=component_name] <file.idl>"
+    print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>] <file.idl>"
     print

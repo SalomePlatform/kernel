@@ -21,7 +21,12 @@ class Server:
 
 class NamingServer(Server):
    XTERM=""
-   CMD="runNS.sh > /tmp/salomeNS.log 2>&1"
+   USER=os.getenv('USER')
+   if USER is None:
+      USER='anonymous'
+   LOGDIR="/tmp/logs/" + USER
+   os.system("mkdir -m 777 -p " + LOGDIR)
+   CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
 
 # -----------------------------------------------------------------------------
 
