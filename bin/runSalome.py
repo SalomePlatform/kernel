@@ -9,11 +9,33 @@ usage="""USAGE: runSalome.py [options]
 --xterm			      : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
 --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
 --containers=cpp,python,superv: lancement des containers cpp, python et de supervision
+--killall	              : arrêt des serveurs de salome
 
  La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
  positionnée (modulen doit etre en majuscule).
  KERNEL_ROOT_DIR est obligatoire.
 """
+
+# -----------------------------------------------------------------------------
+#
+# Fonction d'arrêt de salome
+#
+
+def killSalome():
+   print "arret des serveurs SALOME"
+   for pid, cmd in process_id.items():
+      print "arret du process %s : %s"% (pid, cmd[0])
+      try:
+	os.kill(pid,signal.SIGKILL)
+      except:
+         print "  ------------------ process %s : %s inexistant"% (pid, cmd[0])
+   print "arret du naming service"
+   os.system("killall -9 omniNames")
+   
+# -----------------------------------------------------------------------------
+#
+# Fonction message
+#
 
 def message(code, msg=''):
     if msg: print msg
@@ -22,7 +44,7 @@ def message(code, msg=''):
 import sys,os,string,glob,time,signal,pickle,getopt
 
 init_time=os.times()
-opts, args=getopt.getopt(sys.argv[1:], 'hmglxc:', ['help','modules=','gui','logger','xterm','containers='])
+opts, args=getopt.getopt(sys.argv[1:], 'hmglxck:', ['help','modules=','gui','logger','xterm','containers=','killall'])
 modules_root_dir={}
 process_id={}
 liste_modules={}
@@ -65,7 +87,23 @@ try:
 	   with_container_superv=1
       else:
 	   with_container_superv=0
+    elif o in ('-k', '--killall'):
+      filedict='/tmp/'+os.getenv('USER')+'_SALOME_pidict'
+      #filedict='/tmp/'+os.getlogin()+'_SALOME_pidict'
+      found = 0
+      try:
+         fpid=open(filedict, 'r')
+	 found = 1
+      except:
+         print "le fichier %s des process SALOME n'est pas accessible"% filedict
 
+      if found:
+         process_id=pickle.load(fpid)
+         fpid.close()
+         killSalome()
+	 process_id={}
+         os.remove(filedict)
+	
 except getopt.error, msg:
   print usage
   sys.exit(1)
@@ -172,19 +210,6 @@ class NotifyServer(Server):
 
 # -----------------------------------------------------------------------------
 #
-# Fonction d'arrêt de salome
-#
-
-def killSalome():
-   print "arret des serveurs SALOME"
-   for pid, cmd in process_id.items():
-      print "arret du process %s : %s"% (pid, cmd[0])
-      os.kill(pid,signal.SIGKILL)
-   print "arret du naming service"
-   os.system("killall -9 omniNames")
-   
-# -----------------------------------------------------------------------------
-#
 # Fonction de test
 #
 
@@ -251,7 +276,21 @@ for module in liste_modules_reverse:
 #
 # -----------------------------------------------------------------------------
 #
-   
+
+def startGUI():
+  import SALOME
+  session=clt.waitNS("/Kernel/Session",SALOME.Session)
+
+  #
+  # Activation du GUI de Session Server
+  #
+	
+  session.GetInterface()
+  
+#
+# -----------------------------------------------------------------------------
+#
+
 def startSalome():
 
   #
@@ -416,7 +455,11 @@ print "Sauvegarde du dictionnaire des process dans ", filedict
 print "Pour tuer les process SALOME, executer : python killSalome.py depuis"
 print "une console, ou bien killSalome() depuis le present interpreteur,"
 print "s'il n'est pas fermé."
-print "runSalome commence par tuer les process restants d'une execution précédente."
+print
+print "runSalome, avec l'option --killall, commence par tuer les process restants d'une execution précédente."
+print
+print "Pour lancer uniquement le GUI, executer startGUI() depuis le present interpreteur,"
+print "s'il n'est pas fermé."
 
 #
 #  Impression arborescence Naming Service
