@@ -99,6 +99,7 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
 
 public:
   bool eventFilter(QObject* object, QEvent* event);
+  void ControlLblSize(double aOldScale, double aNewScale);
   void startZoom();
   void startPan();
   void startGlobalPan();

@@ -67,7 +67,8 @@ VTKViewer_RenderWindow::VTKViewer_RenderWindow(QWidget *parent, const char *name
 }
 
 VTKViewer_RenderWindow::~VTKViewer_RenderWindow() {
-  //myRW->Delete(); //BUG SAL2954, Commented by SRN, to avoid problems when using rlogin
+  myRW->Delete(); //BUG SAL2954, Commented by SRN, to avoid problems when using rlogin
+  // Uncommented because of bug SAL3913
 }
 
 void VTKViewer_RenderWindow::paintEvent(QPaintEvent* theEvent) {

@@ -156,14 +156,14 @@ void VTKViewer_RenderWindowInteractor::Initialize() {
   Edge_Actor = vtkActor::New(); 
   Edge_Actor->PickableOff();
   Edge_Actor->GetProperty()->SetColor(1,0,0);
-  Edge_Actor->GetProperty()->SetRepresentationToSurface();
   Edge_Actor->GetProperty()->SetLineWidth(5);
+  Edge_Actor->GetProperty()->SetRepresentationToWireframe();
 
   Point_Actor = vtkActor::New(); 
   Point_Actor->PickableOff();
   Point_Actor->GetProperty()->SetColor(1,1,0);
-  Point_Actor->GetProperty()->SetRepresentationToSurface();
   Point_Actor->GetProperty()->SetPointSize(5);
+  Point_Actor->GetProperty()->SetRepresentationToPoints();
 
   return ;
 }
@@ -912,12 +912,12 @@ QColor VTKViewer_RenderWindowInteractor::GetColor(const Handle(SALOME_Interactiv
 	      // GEOM actor
 	      float r,g,b;
 	      anActor->GetColor(r,g,b);
-	      return QColor(r*255,g*255,b*255);
+	      return QColor(int(r*255),int(g*255),int(b*255));
 	    }
 	    else {
 	      float color[3];
 	      anActor->GetProperty()->GetColor(color);   
-	      return QColor(color[0]*255,color[1]*255,color[2]*255);
+	      return QColor(int(color[0]*255),int(color[1]*255),int(color[2]*255));
 	    }
 	  }
 	}
@@ -1063,7 +1063,12 @@ static void CellCreateMapper(vtkPolyData *theSourcePolyData, vtkPolyDataMapper* 
     int aPartId = ite.Key();
     if(0 > aPartId || aPartId >= aNbOfParts) break;
     theSourcePolyData->GetCellPoints(aPartId,ptIds);
-    aPolyData->InsertNextCell(theSourcePolyData->GetCellType(aPartId),ptIds);
+    vtkCell* aCell = theSourcePolyData->GetCell(aPartId);
+    aPolyData->InsertNextCell(aCell->GetCellType(),ptIds);
+    for (int i = 0, iEnd = aCell->GetNumberOfEdges(); i < iEnd; i++){
+      vtkCell* anEdgeCell = aCell->GetEdge(i);
+      aPolyData->InsertNextCell(VTK_LINE,anEdgeCell->GetPointIds());
+    }
   }
   ptIds->Delete();
   theMapper->SetInput(aPolyData);  

@@ -278,9 +278,17 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
       }
     case Key_Up:
       {
-	// if Cntr+Key_Up event then scroll the commands stack up
+	// if Cntr+Key_Up event then move cursor up
 	if (ctrlPressed) {
-	  QString histLine = _currentPrompt;
+	  QMultiLineEdit::cursorUp( );
+        }
+	// if Shift+Key_Up event then move cursor up and select the text
+	else if ( shftPressed && curLine > 0 ){
+	   setCursorPosition(curLine-1, curCol, true);
+	}
+	// scroll the commands stack up
+	else { 
+	   QString histLine = _currentPrompt;
 	  if (! _isInHistory)
 	    {
 	      _isInHistory = true;
@@ -297,19 +305,21 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
 	  endLine = numLines() -1;
 	  setCursorPosition(endLine, lineLength(endLine));
 	}
-	// if Shift+Key_Up event then move cursor up and select the text
-	else if ( shftPressed && curLine > 0 ){
-	   setCursorPosition(curLine-1, curCol, true);
-	}
-	// move cursor up
-	else { QMultiLineEdit::keyPressEvent( e ); }
 	break;
       }
     case Key_Down:
       {
-	// if Cntr+Key_Down event then scroll the commands stack down
+	// if Cntr+Key_Down event then move cursor down
 	if (ctrlPressed) {
-	  QString histLine = _currentPrompt;
+	  QMultiLineEdit::cursorDown( );
+	}
+	// if Shift+Key_Down event then move cursor down and select the text
+	else if ( shftPressed && curLine < endLine ) {
+	   setCursorPosition(curLine+1, curCol, true);
+	}
+	// scroll the commands stack down
+	else {
+	QString histLine = _currentPrompt;
 	  QString nextCommand = _interp->getNext();
 	  if (nextCommand.compare(TOP_HISTORY_PY) != 0)
 	    {
@@ -328,13 +338,6 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
 	  endLine = numLines() -1;
 	  setCursorPosition(endLine, lineLength(endLine));
 	}
-	// if Shift+Key_Down event then move cursor down and select the text
-	else if ( shftPressed && curLine < endLine ) {
-	   setCursorPosition(curLine+1, curCol, true);
-	}
-	//move cursor down
-	else { QMultiLineEdit::keyPressEvent( e ); }
-
 	break;
       }
     case Key_Left:

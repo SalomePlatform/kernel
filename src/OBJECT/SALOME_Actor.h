@@ -30,17 +30,20 @@
 #define SALOME_ACTOR_H
 
 // SALOME Includes
-#include "SALOME_Transform.h"
+#include "VTKViewer_Common.h"
 #include "SALOME_InteractiveObject.hxx"
 #ifndef _Handle_SALOME_InteractiveObject_HeaderFile
 #include "Handle_SALOME_InteractiveObject.hxx"
 #endif
-
 #include <vector.h>
-#include "VTKViewer_Common.h"
 
-class SALOME_Actor : public vtkLODActor 
-{
+class SALOME_Transform;
+class SALOME_TransformFilter;
+class SALOME_PassThroughFilter;
+
+extern int SALOME_POINT_SIZE;
+
+class SALOME_Actor : public vtkLODActor{
  protected:
   //constructor should be protected due to first implementation of this class
   //it was abstract class
@@ -102,6 +105,9 @@ class SALOME_Actor : public vtkLODActor
   virtual void SetMapper(vtkMapper* theMapper); 
   virtual void SetTransform(SALOME_Transform* theTransform); 
 
+  virtual void SetRepresentation(int theMode);
+  virtual int GetRepresentation();
+    
  protected:
   vtkProperty         *PreviewProperty;
   Standard_Boolean    ispreselected;
@@ -116,5 +122,7 @@ class SALOME_Actor : public vtkLODActor
   SALOME_Transform *myTransform;
   std::vector<SALOME_PassThroughFilter*> myPassFilter;
   SALOME_TransformFilter *myTransformFilter;
+  int myRepresentation;
 };
+
 #endif // SALOME_ACTOR_H

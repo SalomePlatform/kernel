@@ -42,13 +42,32 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
 {
   hdf_idt datatype;
   hdf_err ret;
+#ifdef PCLINUX
+  int isI32BE = 0;
+  int size;
+#endif
 
   if ((datatype = H5Dget_type(id)) < 0)
     return -1;
 
-  if ((ret = H5Dwrite(id,datatype,H5S_ALL,H5S_ALL,
-		      H5P_DEFAULT, val)) < 0)
+#ifdef PCLINUX
+  if((H5Tget_class(datatype) == H5T_INTEGER) && (H5Tget_size(datatype) == 4)) {
+    isI32BE = 1; /* See HDFdatasetCreate */
+    size = (int)HDFdatasetGetSize(id) / 4;
+    if(size == 0) 
+      return -1;
+    if(H5Tconvert(H5T_NATIVE_INT, H5T_STD_I32BE, size, (void *)val, NULL, NULL) < 0) 
+      return -1;
+  }
+#endif
+
+  if ((ret = H5Dwrite(id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, val)) < 0) 
     return -1;
+
+#ifdef PCLINUX
+  if (isI32BE && (H5Tconvert(H5T_STD_I32BE, H5T_NATIVE_INT, size, (void *)val, NULL, NULL) < 0)) 
+    return -1;
+#endif
 
   return 0;
 }
