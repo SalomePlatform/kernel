@@ -42,6 +42,8 @@ extern "C"{
 
 #include <boost/shared_ptr.hpp>
 
+#include "SALOMEconfig.h"
+
 namespace MED{
 
   enum EVersion {eVUnknown = -1, eV2_1, eV2_2};

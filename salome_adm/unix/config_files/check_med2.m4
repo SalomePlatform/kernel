@@ -24,6 +24,7 @@ AC_DEFUN([CHECK_MED2],[
 AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_CPP])dnl
 AC_REQUIRE([CHECK_HDF5])dnl
+AC_REQUIRE([AC_DEPEND_FLAG])dnl
 
 AC_CHECKING(for MED2)
 
@@ -41,57 +42,38 @@ MED2_INCLUDES=""
 MED2_LIBS=""
 MED2_MT_LIBS=""
 
+LOCAL_INCLUDES=""
+LOCAL_LIBS=""
+
 med2_ok=no
 
-LOCAL_INCLUDES="$HDF5_INCLUDES"
-LOCAL_LIBS="-lmed $HDF5_LIBS"
-
+dnl check, if there is MED library
 if test -z $MED2HOME
 then
    AC_MSG_WARN(undefined MED2HOME variable which specify med2 installation directory)
 else
-   LOCAL_INCLUDES="$LOCAL_INCLUDES -I$MED2HOME/include"
-   LOCAL_LIBS="-L$MED2HOME/lib $LOCAL_LIBS"
+   LOCAL_INCLUDES="$HDF5_INCLUDES -I$MED2HOME/include"
+   LOCAL_LIBS="-L$MED2HOME/lib -lmed $HDF5_LIBS"
 fi
 
 dnl check med2 header
-
 CPPFLAGS_old="$CPPFLAGS"
-dnl we must test system : linux = -DPCLINUX
-dnl we must test system : Alpha-OSF = -DOSF1
-case $host_os in
-   linux*)
-      CPPFLAGS="$CPPFLAGS -DPCLINUX $LOCAL_INCLUDES"
-      ;;
-   osf*)
-      CPPFLAGS="$CPPFLAGS -DOSF1 $LOCAL_INCLUDES"
-      ;;
-esac
+CPPFLAGS="$CPPFLAGS -D$MACHINE $LOCAL_INCLUDES"
 AC_CHECK_HEADER(med.h,med2_ok=yes ,med2_ok=no)
 CPPFLAGS="$CPPFLAGS_old"
 
+dnl check med2 library
 if  test "x$med2_ok" = "xyes"
 then
-
-dnl check med2 library
-
   LIBS_old="$LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
   AC_CHECK_LIB(med,MEDouvrir,med2_ok=yes,med2_ok=no)
   LIBS="$LIBS_old"
-
 fi
 
 if  test "x$med2_ok" = "xyes"
 then
-case $host_os in
-   linux*)
-        MED2_INCLUDES="-DPCLINUX $LOCAL_INCLUDES"
-      ;;
-   osf*)
-      MED2_INCLUDES="-DOSF1 $LOCAL_INCLUDES"
-      ;;
-esac
+  MED2_INCLUDES="-D$MACHINE $LOCAL_INCLUDES"
   MED2_LIBS="$LOCAL_LIBS"
   MED2_MT_LIBS="$LOCAL_LIBS"
 fi
