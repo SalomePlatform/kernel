@@ -56,6 +56,10 @@ if test "x$pyqt_ok" = xyes ; then
   AC_CHECK_FILES("$PYQTLIB/qt.py",pyqt_ok=yes,pyqt_ok=no)
 fi
 
+if test "x$pyqt_ok" = xno ; then
+  AC_CHECK_FILES("$PYQTLIB/qt/qt.py",pyqt_ok=yes,pyqt_ok=no)
+fi
+
 if test "x$pyqt_ok" = xyes ; then
   AC_CHECK_FILE("$PYQTLIB/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
 fi
