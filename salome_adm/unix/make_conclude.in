@@ -35,9 +35,9 @@ LIB_OBJ_F    = $(patsubst %.f,   %.lo, $(filter %.f, $(LIB_SRC)))
 # all libtool obj file in library
 LIB_OBJ = $(LIB_OBJ_CXX) $(LIB_OBJ_CC) $(LIB_OBJ_C) $(LIB_CLIENT_OBJ:%.o=%.lo) $(LIB_SERVER_OBJ:%.o=%.lo) $(LIB_SWIG_OBJ) $(LIB_OBJ_F)
 
-# LIB_BUILD = $(LIB:%.la=$(top_builddir)/lib/%.la)
-LIB_BUILD = $(patsubst %.la, $(top_builddir)/lib/%.la, $(filter %.la, $(LIB)))
-LIB_BUILD_A = $(patsubst %.a, $(top_builddir)/lib/%.a, $(filter %.a, $(LIB)))
+# LIB_BUILD = $(LIB:%.la=$(top_builddir)/lib/salome/%.la)
+LIB_BUILD = $(patsubst %.la, $(top_builddir)/lib/salome/%.la, $(filter %.la, $(LIB)))
+LIB_BUILD_A = $(patsubst %.a, $(top_builddir)/lib/salome/%.a, $(filter %.a, $(LIB)))
 
 ifneq ($(findstring cmodule.la,$(filter %.la, $(LIB))),)
 LIB_SWIG = $(patsubst %cmodule.la,%.so, $(filter %.la, $(LIB)))
@@ -48,7 +48,7 @@ endif
 lib: $(LIB_BUILD) $(LIB_CLIENT_PY)
 # we don't build static library !
 
-$(LIB_BUILD): $(top_builddir)/lib/%.la: %.la
+$(LIB_BUILD): $(top_builddir)/lib/salome/%.la: %.la
 	-$(RM) $@
 	-$(RM) $(patsubst %.la, %.so, $@)
 	-$(RM) $(patsubst %.la, %.a, $@)
@@ -59,10 +59,10 @@ $(LIB_BUILD): $(top_builddir)/lib/%.la: %.la
 	      $(patsubst %.la, %.so, $@).0 || true
 
 	if ! test -z $(LIB_SWIG) ; then \
-	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/_$(LIB_SWIG) || true;\
+	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/salome/_$(LIB_SWIG) || true;\
 	fi;
 
-$(LIB_BUILD_A): $(top_builddir)/lib/%.a: %.a
+$(LIB_BUILD_A): $(top_builddir)/lib/salome/%.a: %.a
 	-$(RM) $@
 	ln -sf $(CURDIR)/$< $@ || true
 
@@ -86,22 +86,22 @@ BIN_OBJ_CXX = $(patsubst %.cxx,  %.o, $(filter %.cxx, $(BIN_SRC)))
 # all obj file in bin target
 BIN_OBJ = $(BIN_OBJ_CC) $(BIN_OBJ_CXX) $(BIN_OBJ_C) $(BIN_CLIENT_OBJ) $(BIN_SERVER_OBJ) 
 
-bin: $(BIN:%=$(top_builddir)/bin/%) $(BIN) $(LIB) pyscripts sharedpyscripts
+bin: $(BIN:%=$(top_builddir)/bin/salome/%) $(BIN) $(LIB) pyscripts sharedpyscripts
 
 BIN_LIB=$(LIB:lib%.la=-l%)
 
-$(BIN:%=$(top_builddir)/bin/%) $(TEST_PROGS:%=$(top_builddir)/bin/%): $(top_builddir)/bin/%: %
+$(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/%): $(top_builddir)/bin/salome/%: %
 	-$(RM) $@
 	ln -sf $(CURDIR)/$< $@
 
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
 
-# copy python scripts in $(top_builddir)/bin
+# copy python scripts in $(top_builddir)/bin/salome
 #
-DEST_PYSCRIPTS = $(EXPORT_PYSCRIPTS:%=$(top_builddir)/bin/%)
+DEST_PYSCRIPTS = $(EXPORT_PYSCRIPTS:%=$(top_builddir)/bin/salome/%)
 pyscripts: $(DEST_PYSCRIPTS)
-$(DEST_PYSCRIPTS): $(top_builddir)/bin/%: %
+$(DEST_PYSCRIPTS): $(top_builddir)/bin/salome/%: %
 	cp -f $< $@
 
 # copy pyqt files in $(PYTHON_SHARED_SITE)
@@ -120,7 +120,7 @@ check: test
 
 tests: test
 
-test: $(LIB) $(TEST_PROGS:%=$(top_builddir)/bin/%) 
+test: $(LIB) $(TEST_PROGS:%=$(top_builddir)/bin/salome/%) 
 
 
 # copy header file in $(inc_builddir)
@@ -161,7 +161,7 @@ install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir
 # Install exported includes in includedir
 	@for f in X $(EXPORT_HEADERS:%=$(srcdir)/%); do			      \
 	   if test $$f != X; then					      \
-	     ($(INSTALL_DATA) $$f $(includedir)/. || exit 1);		      \
+	     (cp -p $$f $(includedir) || exit 1);			      \
 	   fi;							              \
 	done
 
@@ -260,10 +260,10 @@ clean: mostlyclean
 	-$(RM) $(LIB) $(TEST_PROGS) $(BIN) $(CLEAN)
 	-$(RM) TAGS *~ *# core *.core 
 	-$(RM) -r .libs
-	-$(RM) $(top_builddir)/lib/$(LIB)
-	-$(RM) $(patsubst %,$(top_builddir)/bin/%, $(BIN))
-	-$(RM) $(patsubst %.la, %.so, $(top_builddir)/lib/$(LIB))
-	-$(RM) $(patsubst %.la, %.a, $(top_builddir)/lib/$(LIB))
+	-$(RM) $(top_builddir)/lib/salome/$(LIB)
+	-$(RM) $(patsubst %,$(top_builddir)/bin/salome/%, $(BIN))
+	-$(RM) $(patsubst %.la, %.so, $(top_builddir)/lib/salome/$(LIB))
+	-$(RM) $(patsubst %.la, %.a, $(top_builddir)/lib/salome/$(LIB))
 # remove idl generated files (sources)
 	-$(RM) $(LIB_CLIENT_SRC) $(LIB_SERVER_SRC) $(BIN_CLIENT_SRC) $(BIN_SERVER_SRC)
 # remove idl generated files (headers)
@@ -327,7 +327,11 @@ distclean: clean
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
 $(top_builddir)/share/salome/resources/%.qm: %.po
-	$(top_builddir)/bin/msg2qm $< $@
+	if test -e ${KERNEL_ROOT_DIR}/bin/salome/msg2qm ; then \
+		${KERNEL_ROOT_DIR}/bin/salome/msg2qm $< $@ ; \
+	else \
+		$(top_builddir)/bin/salome/msg2qm $< $@ ; \
+	fi
 
 #------------------------------------------------------------------------------
 # The following section of this makefile contains dependencies between the

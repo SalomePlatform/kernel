@@ -16,7 +16,7 @@
 #IDLOBJ=$(IDLSRC:%.idl=%$(IDL_CLN_OBJ))
 
 # dependancies between idl and it's generated files
-%$(OMNIORB_IDL_CLN_CXX) %$(OMNIORB_IDL_CLN_H): ${top_builddir}/share/salome/idl/%.idl
+%$(OMNIORB_IDL_CLN_CXX) %$(OMNIORB_IDL_CLN_H): ${top_builddir}/idl/%.idl
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 # dependncies between idl files

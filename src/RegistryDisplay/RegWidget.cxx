@@ -50,6 +50,8 @@ using namespace std;
 # include "HelpWindow.hxx" 
 # include "IntervalWindow.hxx"
 
+static QString addSlash( const QString& path );
+
 typedef int PIXELS;
 RegWidget* RegWidget::myRegWidgetPtr = 0;
 
@@ -110,12 +112,31 @@ RegWidget::RegWidget(CORBA::ORB_var &orb, QWidget *parent, const char *name )
        _tabWidget(0), _refresh(0), _interval(0),
        myInfoWindow(0), myHelpWindow(0), myIntervalWindow(0)
 {
-  char* dir = getenv( "CSF_ResourcesDefaults" );
+
   QString path( "" );
-  if ( dir ) {
-    QDir qDir( dir );
-    path = qDir.filePath( "default.png" );
+  QString dir;
+  char* cenv;
+  cenv = getenv( "KERNEL_ROOT_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QDir qDir( dir );
+      path = qDir.filePath( "default.png" );
+    }
   }
+//    char* dir = getenv( "CSF_ResourcesDefaults" );
+//    QString path( "" );
+//    if ( dir ) {
+//      QDir qDir( dir );
+//      path = qDir.filePath( "default.png" );
+//    }
   QPixmap pm ( path );
   if ( !pm.isNull() )
     setIcon( pm );
@@ -573,4 +594,18 @@ InfoWindow::InfoWindow( QWidget* parent, const char* name )
 void InfoWindow::setText( const QString& text )
 {
   myTextView->setText( text );
+}
+
+QString addSlash( const QString& path )
+{
+  if (!path.isNull()) {
+#ifdef WNT
+    QChar slash ('\\');
+#else
+    QChar slash ('/');
+#endif
+    if ( path.at(path.length()-1) != slash )
+      return path + slash;
+  }
+  return path;
 }

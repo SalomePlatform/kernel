@@ -8,7 +8,7 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
@@ -16,7 +16,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 @COMMENCE@
 
 # Executables targets
-BIN = SALOME_Session_loader
+BIN = SALOME_Session_Loader
 
 BIN_MOC = InquireServersQThread.h
 BIN_SRC = InquireServersQThread.cxx

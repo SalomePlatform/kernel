@@ -41,6 +41,7 @@ dnl ##########################################################
 AC_SUBST(KERNEL_ROOT_DIR)
 dnl ##########################################################
 
+
 echo
 echo Source root directory : $ROOT_SRCDIR
 echo Build  root directory : $ROOT_BUILDDIR

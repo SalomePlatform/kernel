@@ -129,7 +129,7 @@ msgstr "Open With..."
 
 #: QAD_Application.cxx:331
 msgid "QAD_Application::MEN_ABOUT"
-msgstr "A propos de SALOME Professional"
+msgstr "A propos de SALOME "
 
 #: QAD_Desktop.cxx:407
 msgid "QAD_Desktop::MEN_DESK_EDIT"
@@ -470,6 +470,11 @@ msgstr "L'étude est en lecture seule"
 msgid "ERR_ERROR"
 msgstr "Erreur"
 
+
+#: QAD_Desktop.cxx:2339
+msgid "ERR_LIBGUI"
+msgstr "La lib%1.so n'a pas été trouvée. Verifier la variable d'environnement LD_LIBRARY_PATH"
+
 #---------------
 # QUESTION
 #---------------
@@ -522,7 +527,7 @@ msgstr "Créer ou ouvrir une étude"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "SALOME Professional"
+msgstr "SALOME"
 
 
 #: QAD_Desktop.cxx:431
@@ -531,7 +536,7 @@ msgstr "Étude"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "SALOME Professional"
+msgstr "SALOME"
 
 #: QAD_Desktop.cxx:920
 msgid "QAD_Desktop::DESK_FILES"

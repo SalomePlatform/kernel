@@ -500,6 +500,29 @@ void SALOMEGUI_Application::onDisplay(int id)
 	MESSAGE ( " Not found " )
       }
     }
+    if ( !found && getenv( QAD_Application::getDesktop()->getComponentName(parentComp) + "_ROOT_DIR")  ) {
+      dir.fill('\0');
+      dir.sprintf("%s", getenv( QAD_Application::getDesktop()->getComponentName(parentComp) + "_ROOT_DIR"));
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "lib" ;
+      dir = QAD_Tools::addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.dll" ;
+#else
+      dir = dir + "lib" + QAD_Application::getDesktop()->getComponentName(parentComp).latin1() + "GUI.so" ;
+#endif
+      MESSAGE ( " GUI library = " << dir )
+      fileInfo.setFile(dir) ;
+      if (fileInfo.exists()) {
+	ComponentLib = fileInfo.fileName() ;
+	found = true;
+	MESSAGE ( " found " )
+      } else {
+	MESSAGE ( " Not found " )
+      }
+    }
     
     if (ComponentLib.isEmpty()) {
       waitCursor.stop();

@@ -44,6 +44,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_path_prefix = "path-prefix" ;
 
   test_component_name = "component-name";
+  test_component_username = "component-username";
   test_component_type = "component-type" ;
   test_component_multistudy="component-multistudy";
   test_component_icone="component-icone" ;
@@ -140,6 +141,9 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
   // tag test_component_name
   if((qName.compare(QString(test_component_name))==0)) 
     _amodule.Parsercomponentname = content ;
+  // tag test_component_username
+  if((qName.compare(QString(test_component_username))==0)) 
+    _amodule.Parsercomponentusername = content ;
   // tag test_component_type
    if((qName.compare(QString(test_component_type))==0)) 
      {

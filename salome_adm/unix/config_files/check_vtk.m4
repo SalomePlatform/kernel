@@ -50,7 +50,7 @@ fi
 
 
 LOCAL_INCLUDES="$OGL_INCLUDES"
-LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkPatented -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS -L$x_libraries -lX11 -lXt"
+LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS -L$x_libraries -lX11 -lXt"
 TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS -L$x_libraries -lX11 -lXt"
 
 if test -z $VTKHOME
@@ -64,7 +64,7 @@ fi
 
 dnl vtk headers
 CPPFLAGS_old="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
+CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES -Wno-deprecated"
 
 AC_CHECK_HEADER(vtkPlane.h,vtk_ok="yes",vtk_ok="no")
 
@@ -78,11 +78,11 @@ AC_CHECK_HEADER(vtkPlane.h,vtk_ok="yes",vtk_ok="no")
 
    AC_MSG_CHECKING(linking VTK library)
 
-   LIBS_old="$LIBS"
- #  LIBS="$LIBS $TRY_LINK_LIBS"
-   LIBS="$LIBS $LOCAL_LIBS"
-   CPPFLAGS_old="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS $VTK_INCLUDES"
+  LIBS_old="$LIBS"
+#  LIBS="$LIBS $TRY_LINK_LIBS"
+  LIBS="$LIBS $LOCAL_LIBS"
+  CPPFLAGS_old="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $VTK_INCLUDES -Wno-deprecated"
 
  dnl  VTKPY_MODULES="$VTKHOME/python"
 

@@ -105,6 +105,7 @@ This struct contains GUI elements used for representation of the module in %IAPP
   struct IAPP_Affich
   {
     string modulename; /*!<Name of the module.*/
+    string moduleusername; /*!<UserName of the module.*/
     string moduleicone; /*!<Icone representing the module.*/
   };
 /*!
@@ -196,6 +197,11 @@ List of pair GUI elements (component name, component icone)
 Sets/gets the name of the component
 */
     readonly attribute string componentname;
+
+/*! 
+Sets/gets the user name of the component
+*/
+    readonly attribute string componentusername;
 
 /*! 
 Defines whether the component can be multistudy or not

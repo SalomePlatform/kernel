@@ -80,7 +80,7 @@ if test "x$occ_ok" = "xyes"; then
 dnl cascade headers
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -I$CASROOT/inc"
+  CPPFLAGS="$CPPFLAGS -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -I$CASROOT/inc -Wno-deprecated"
   CXXFLAGS_old="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -funsigned-char"
 
@@ -98,7 +98,7 @@ if test "x$occ_ok" = xyes ; then
   AC_MSG_CHECKING(for OpenCascade libraries)
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS -Wno-deprecated"
   CXXFLAGS_old="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS $CAS_CXXFLAGS"
   LIBS_old="$LIBS"

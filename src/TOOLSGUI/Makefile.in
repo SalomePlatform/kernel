@@ -27,7 +27,7 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
@@ -58,7 +58,7 @@ LIB_CLIENT_IDL = SALOME_Exception.idl
 CPPFLAGS += $(QT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS += $(OCC_CXXFLAGS)
 
-LDFLAGS += -lSalomeGUI $(OCC_LIBS)
+LDFLAGS += -lSalomeGUI
 
 
 @CONCLUDE@

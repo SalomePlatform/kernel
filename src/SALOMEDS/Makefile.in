@@ -26,7 +26,7 @@
 #  Module : SALOME
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
@@ -107,9 +107,7 @@ BIN_CLIENT_IDL =
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(CAS_KERNEL) $(CAS_OCAF) $(CAS_VIEWER) $(CAS_MODELER) $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer
-# -L/opt/ccmalloc/lib -lccmalloc -ldl
-# -L/opt/efence/lib -lefence
+LDFLAGS+=$(OCC_KERNEL_LIBS) $(OCC_OCAF_LIBS) $(OCC_VIEWER_LIBS) $(OCC_MODELER_LIBS) $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSalomeLoggerServer
 
 @CONCLUDE@
 

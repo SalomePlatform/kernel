@@ -653,7 +653,7 @@ msgid "SALOMEGUI_CloseDlg::CLOSE_DESCRIPTION"
 msgstr "Do you want to close or only unload the study ?"
 
 msgid "SALOMEGUI_HELP_TITLE"
-msgstr "SALOME Professional Help"
+msgstr "SALOME Help"
 
 msgid "TOT_PLOT2D_FITDATA"
 msgstr "Fit range"

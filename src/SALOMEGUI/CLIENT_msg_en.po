@@ -23,14 +23,14 @@ msgid "INF_VERSION"
 msgstr "Version 1.2"
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright (C) 2002, OPEN CASCADE"
+msgstr "  "
 
 msgid "INF_LICENSE"
-msgstr "All rights reserved"
+msgstr "  "
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_TLT"
-msgstr "About SALOME Professional"
+msgstr "About SALOME"
 
 #: QAD_Config.cxx:84
 msgid "MEN_APPNAME"
@@ -38,8 +38,8 @@ msgstr "salome"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "SALOME Professional 1.2"
+msgstr "SALOME 1.2"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "SALOME Professional 1.2"
+msgstr "SALOME 1.2"

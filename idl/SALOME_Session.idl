@@ -83,7 +83,8 @@ module SALOME
    Launches GUI in the session
 */
     void GetInterface(); 
-    Engines::Component GetVisuGen();
+    //***//    VISU::VISU_Gen GetVisuGen();
+    Engines::Component GetVisuComponent();
 
 /*! 
   Stops the %Session (It must be idle)

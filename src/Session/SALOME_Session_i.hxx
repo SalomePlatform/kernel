@@ -32,6 +32,7 @@
 #include <qthread.h> 
 
 #include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Session)
 class SALOME_NamingService;
 class SALOME_Session_QThread;
@@ -45,7 +46,9 @@ public:
 
   //! Launch Graphical User Interface
   void GetInterface();
-  Engines::Component_ptr GetVisuGen();
+
+  //! Return VISU component
+  Engines::Component_ptr GetVisuComponent();
 
   //! Stop the Session (must be idle): kill servant & server
   void StopSession();

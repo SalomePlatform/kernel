@@ -1,0 +1,23 @@
+#!/bin/sh
+
+export KERNEL_ROOT_DIR=/Salome2/KERNEL_install
+
+export GEOM_ROOT_DIR=/Salome2/GEOM_install
+export MED_ROOT_DIR=/Salome2/MED_install
+export SMESH_ROOT_DIR=/Salome2/SMESH_install
+export SUPERV_ROOT_DIR=/Salome2/SUPERV_install
+export VISU_ROOT_DIR=/Salome2/VISU_install
+
+python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python --killall
+#python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
+#python -i runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
+#python -i runSalome.py --help
+
+# -----------------------------------------------------------------------------
+#
+# l'option -i permet de garder l'interpreteur python ouvert :
+# par defaut, les differents serveurs ouvrent des fenêtres xterm
+# (cf. runSalome.py)
+# le serveur Logger n'est pas obligatoire (commenté dans runSalome.py)
+# 
+# -----------------------------------------------------------------------------

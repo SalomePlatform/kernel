@@ -5,9 +5,28 @@ AC_REQUIRE([CHECK_PYTHON])dnl
 
 AC_CHECKING(for pyqt)
 
-pyqt_ok=yes
+pyqt_ok=no
 
-dnl were is pyqt ?
+PYTHON_SITE_PACKPYQT=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
+AC_CHECK_FILES($PYTHON_SITE_PACKPYQT/qt.py $PYTHON_SITE_PACKPYQT/libqtcmodule.so,pyqt_ok=yes,pyqt_ok=no)
+if test "x$pyqt_ok" = xyes ; then
+   PYQT_INCLUDES="-I $PYTHON_SITE_PACKPYQT"
+   PYQT_LIBS="-L$PYTHON_SITE_PACKPYQT -lqtcmodule"
+fi
+
+if test "x$pyqt_ok" = xyes ; then
+   AC_CHECK_FILES(/usr/share/sip/qt/qtmod.sip,pyqt_ok=yes,pyqt_ok=no)
+   if test "x$pyqt_ok" = xyes ; then
+      PYQT_SIPS="/usr/share/sip/qt"
+   fi
+   AC_SUBST(PYQT_INCLUDES)
+   AC_SUBST(PYQT_LIBS)
+   AC_SUBST(PYQT_SIPS)
+   AC_MSG_RESULT(yes)
+else
+
+  pyqt_ok=yes
+  dnl were is pyqt ?
 
 AC_ARG_WITH(pyqt,
     [  --with-pyqt=DIR      root directory path to PyQt installation ],
@@ -95,6 +114,7 @@ AC_SUBST(PYQT_LIBS)
 
 AC_MSG_RESULT(for pyqt: $pyqt_ok)
 
+fi
 ])dnl
 dnl
 

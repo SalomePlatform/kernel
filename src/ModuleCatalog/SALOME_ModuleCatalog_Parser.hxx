@@ -72,6 +72,7 @@ typedef vector<ParserDefInterface> ListOfDefinitionInterface;
 struct ParserComponent
 {
   string Parsercomponentname;
+  string Parsercomponentusername;
   ParserComponentType Parsercomponenttype;
   bool Parsercomponentmultistudy ;
   string Parsercomponenticone;

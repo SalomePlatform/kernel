@@ -1,6 +1,6 @@
 formatlist:SALOME_STUDY
 
-SALOME_STUDY.Description: Stars Document Version 1.0
+SALOME_STUDY.Description: SALOME Document Version 1.0
 SALOME_STUDY.FileExtension: std
 SALOME_STUDY.StoragePlugin: ad696000-5b34-11d1-b5ba-00a0c9064368
 SALOME_STUDY.RetrievalPlugin: ad696001-5b34-11d1-b5ba-00a0c9064368

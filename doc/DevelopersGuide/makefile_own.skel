@@ -1,0 +1,10 @@
+# begin copy here ==========================================
+
+top_srcdir=@top_srcdir@
+top_builddir=../../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@
+
+@COMMENCE@
+
+# end copy here ============================================
