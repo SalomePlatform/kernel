@@ -30,19 +30,35 @@ then
   AC_SUBST(OMNIORB_IDL)
 
   OMNIORB_BIN=`echo ${OMNIORB_IDL} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  OMNIORB_LIB=`echo ${OMNIORB_BIN} | sed -e "s,bin,lib,"`
-
-  OMNIORB_ROOT=`echo ${OMNIORB_BIN}  | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-  OMNIORB_ROOT=`echo ${OMNIORB_ROOT} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+  OMNIORB_ROOT=${OMNIORB_BIN}
+  # one-level up
+  OMNIORB_ROOT=`echo ${OMNIORB_ROOT}  | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+  #
+  #
+  if test -d $OMNIORB_ROOT/include ; then
+    # if $OMNIORB_ROOT/include exists, there are a lot of chance that
+    # this is omniORB4.x installed via configure && make && make install
+    OMNIORB_LIB=`echo ${OMNIORB_BIN} | sed -e "s,bin\$,lib,"`
+    OMNIORB_VERSION=4
+  else
+    # omniORB has been installed old way
+    OMNIORB_LIB=`echo ${OMNIORB_BIN} | sed -e "s,bin/,lib/,"`
+    # one-level up again
+    OMNIORB_ROOT=`echo ${OMNIORB_ROOT}  | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+    if test -d $OMNIORB_ROOT/include/omniORB4 ; then
+      OMNIORB_VERSION=4
+    else
+      OMNIORB_VERSION=3
+    fi
+  fi
   AC_SUBST(OMNIORB_ROOT)
 
-  OMNIORB_INCLUDES="-I$OMNIORB_ROOT/include -I$OMNIORB_ROOT/include/omniORB3 -I$OMNIORB_ROOT/include/COS"
-dnl  OMNIORB_INCLUDES="-I$OMNIORB_ROOT/include -I$OMNIORB_ROOT/include/omniORB4 -I$OMNIORB_ROOT/include/COS"
+  OMNIORB_INCLUDES="-I$OMNIORB_ROOT/include -I$OMNIORB_ROOT/include/omniORB${OMNIORB_VERSION} -I$OMNIORB_ROOT/include/COS"
   AC_SUBST(OMNIORB_INCLUDES)
 
   ENABLE_PTHREADS
 
-  OMNIORB_CXXFLAGS=
+  OMNIORB_CXXFLAGS="-DOMNIORB_VERSION=$OMNIORB_VERSION"
   case $build_cpu in
     sparc*)
       AC_DEFINE(__sparc__)
@@ -120,16 +136,23 @@ then
   AC_CHECK_LIB(nsl,gethostbyname, LIBS="-lnsl $LIBS",,)
 
   LIBS_old=$LIBS
-  OMNIORB_LIBS="$OMNIORB_LDFLAGS -lomniORB3 -ltcpwrapGK -lomniDynamic3 -lomnithread -lCOS3 -lCOSDynamic3"
-dnl  OMNIORB_LIBS="$OMNIORB_LDFLAGS -lomniORB4 -lomniDynamic4 -lomnithread -lCOS4 -lCOSDynamic4"
+  OMNIORB_LIBS="$OMNIORB_LDFLAGS"
+  OMNIORB_LIBS="$OMNIORB_LIBS -lomniORB${OMNIORB_VERSION}"
+  OMNIORB_LIBS="$OMNIORB_LIBS -lomniDynamic${OMNIORB_VERSION}"
+  OMNIORB_LIBS="$OMNIORB_LIBS -lCOS${OMNIORB_VERSION}"
+  OMNIORB_LIBS="$OMNIORB_LIBS -lCOSDynamic${OMNIORB_VERSION}"
+  OMNIORB_LIBS="$OMNIORB_LIBS -lomnithread"
+  if test $OMNIORB_VERSION = 3 ; then
+    OMNIORB_LIBS="$OMNIORB_LIBS -ltcpwrapGK"
+  fi
   AC_SUBST(OMNIORB_LIBS)
 
   LIBS="$OMNIORB_LIBS $LIBS"
   CXXFLAGS_old=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $OMNIORB_CXXFLAGS $OMNIORB_INCLUDES"
 
-  AC_MSG_CHECKING(whether we can link with omniORB3)
-  AC_CACHE_VAL(salome_cv_lib_omniorb3,[
+  AC_MSG_CHECKING(whether we can link with omniORB)
+  AC_CACHE_VAL(salome_cv_lib_omniorb,[
     AC_TRY_LINK(
 #include <CORBA.h>
 ,   CORBA::ORB_var orb,
@@ -184,21 +207,22 @@ then
 
   CORBA_ORB_INIT_HAVE_3_ARGS=1
   AC_DEFINE(CORBA_ORB_INIT_HAVE_3_ARGS)
-  CORBA_ORB_INIT_THIRD_ARG='"omniORB3"'
-  AC_DEFINE(CORBA_ORB_INIT_THIRD_ARG, "omniORB3")
+  CORBA_ORB_INIT_THIRD_ARG='"omniORB"'
+  AC_DEFINE(CORBA_ORB_INIT_THIRD_ARG, "omniORB")
 
 fi
 
 omniORBpy_ok=no
 if  test "x$omniORB_ok" = "xyes"
 then
-  AC_MSG_CHECKING(omniORBpy (CORBA.py file available))
-  if test -f ${OMNIORB_ROOT}/lib/python/CORBA.py
-  then
-    omniORBpy_ok=yes
-    PYTHONPATH=${OMNIORB_ROOT}/lib/python:${OMNIORB_LIB}:${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}:${PYTHONPATH}
-    AC_SUBST(PYTHONPATH)
+  AC_MSG_CHECKING(omniORBpy)
+  $PYTHON -c "import omniORB" &> /dev/null
+  if test $? = 0 ; then
     AC_MSG_RESULT(yes)
+    omniORBpy_ok=yes
+  else
+    AC_MSG_RESULT(no, check your installation of omniORBpy)
+    omniORBpy_ok=no
   fi
 fi
 

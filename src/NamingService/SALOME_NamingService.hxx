@@ -31,7 +31,8 @@
 
 #include "utilities.h"
 //#include <omniORB4/CORBA.h>
-#include <omniORB3/CORBA.h>
+//##include <omniORB3/CORBA.h>
+#include <CORBA.h>
 #include <vector>
 #include <string>
 

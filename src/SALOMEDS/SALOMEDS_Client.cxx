@@ -279,8 +279,13 @@ int main(int argc, char** argv)
 { 
   try {
     // Initialise the ORB.
+#if OMNIORB_VERSION >= 4
+    const char* options[][2] = { { "giopMaxMsgSize", "104857600" }, { 0, 0 } };
+    CORBA::ORB_var orb = CORBA::ORB_init( argc , argv , "omniORB4", options) ;
+#else
     CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
     omniORB::MaxMessageSize(100 * 1024 * 1024);
+#endif
     
     // Obtain a reference to the root POA.
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");

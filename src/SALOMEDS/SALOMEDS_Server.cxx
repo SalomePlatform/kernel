@@ -129,8 +129,7 @@ int main(int argc, char** argv)
 		      }
 		  }
 	      }
-	
-	    }
+       	    }
 	  catch( const SALOME_Exception &ex )
 	    {
 	      MESSAGE( "Communication Error : " << ex.what() );
