@@ -9,7 +9,7 @@
 //  This library is distributed in the hope that it will be useful, 
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of 
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
+//  Lesser General Public License for more details.
 // 
 //  You should have received a copy of the GNU Lesser General Public 
 //  License along with this library; if not, write to the Free Software 
@@ -24,347 +24,7 @@
 //  $Header$
 
 /*! \mainpage 
-    \image html Application-About.png
-    
-*/
-/*! \page page1 Mapping of IDL definitions to Python language.
-\section Intro Introduction
-%SALOME PRO is a distributed client/server application using the Common Object Request Broker Architecture (CORBA).
-CORBA architecture uses the Interface Definition Language (IDL), which specifies interfaces between CORBA objects. So with help of IDL 
-CORBA's language independence is ensured . Because interfaces described in IDL can be mapped to the most of currently used programming languages, CORBA applications and components are thus
-independent of the language(s) used to implement them. In other words, a client written in C++ can communicate with a server written in Java, which in turn can communicate with
-another server written in COBOL, and so forth.
-
-One important thing to remember about IDL is that it is not an implementation language. That is, applications can't be written in IDL. The sole purpose of IDL is to define interfaces;
-providing implementations for these interfaces is performed using some other language.
- 
-This page contains an abridged reference manual for mapping of IDL definitions to Python language. It will be useful for Python programmers who are not familiar 
-with IDL language. All examples are taken from %SALOME PRO source files.
-The complete version of Python Language Mapping Specification can be found <A HREF="http://www.omg.org">here.</A>
-
-<BR><STRONG>CONTENTS:</STRONG>
-- \ref subsection1
-- \ref subsection2
-- \ref subsection3
-- \ref subsection4
-- \ref subsection5
-- \ref subsection6
-- \ref subsection7
-
-\subsection subsection1 Using Scoped Names
-
-Python implements a module concept that is similar to the IDL scoping mechanisms,
-except that it does not allow for nested modules. In addition, Python requires each
-object to be implemented in a module; globally visible objects are not supported.
-
-Because of these constraints, scoped names are translated into Python using the
-following rules:
-
-• An IDL module mapped into a Python module. Modules containing modules are
-mapped to packages (i.e., directories with an <STRONG>__init__</STRONG> module containing all
-definitions excluding the nested modules). An implementation can chose to map toplevel
-definitions (including the module CORBA) to modules in an implementationdefined
-package, to allow concurrent installations of different CORBA runtime
-libraries. In that case, the implementation must provide additional modules so that
-toplevel modules can be used without importing them from a package.
-
-• For all other scopes, a Python class is introduced that contains all the definitions
-inside this scope.
-
-• Other global definitions (except modules) appear in a module whose name is
-implementation dependent. Implementations are encouraged to use the name of the
-IDL file when defining the name of that module.
-
-For instance,
-
-\verbatim
-module SALOMEDS {
- interface StudyManager {
-  void  Close(in Study aStudy);
- };
-};
-\endverbatim 
-
-would introduce a module SALOMEDS.py, which contains the following definitions:
-
-\verbatim
-# module SALOMEDS.py
-class StudyManager:
-  def _Close(self,aStudy):
-   pass #interfaces are discussed later
-\endverbatim
-
-To avoid conflicts, IDL names that are also Python identifiers are prefixed with an underscore (‘_’).
-
-\subsection subsection2 Mapping for Template and Array Types
-
-Both the bounded and the unbounded string type of IDL are mapped to the Python
-string type. Wide strings are represented by an implementation-defined type with the
-following properties:
-
-• For the wide string X and the integer n, X[n] returns the nth character, which is a
-wide string of length 1.
-
-• len(X) returns the number of characters of wide string X.
-
-• CORBA.wstr(c) returns a wide character with the code point c in an
-implementation-defined encoding.
-
-• X+Y returns the concatenation of wide strings X and Y.
-
-• CORBA.word(CORBA.wstr(c)) == c
-
-The sequence template is mapped to sequence objects (e.g., tuples or lists).
-Applications should not assume that values of a sequence type are mutable. Sequences
-and arrays of octets and characters are mapped to the string type for efficiency reasons.
-
-For example, given the IDL definitions
-
-\verbatim
-module SALOMEDS {
-  typedef sequence <string> StringSeq;
-   
-   interface AttributeTableOfInteger : GenericAttribute {
-
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
- };
-};
-\endverbatim
-
-a client could invoke the operation
-
-\verbatim
-print My_AttributeTableOfInteger.SetRowTitles(["X","F"])
-\endverbatim
-
-Array types are mapped like sequence templates. The application in this example also expects an
-IncorrectArgumentLength exception if it passes sequences that violate the bounds constraint or
-arrays of wrong size.
-
-Another example with arrays. The following IDL definition
-
-\verbatim
-module SALOMEDS {
- typedef sequence<GenericAttribute> ListOfAttributes;
- interface SObject {
-  ListOfAttributes     GetAllAttributes();
- };
-};
-\endverbatim
-
-is equal to 
-
-\verbatim
-import SALOMEDS
-
-attributes=[]
- 
-attributes = My_SObject.GetAllAttributes()
-
-length = len(attributes)
-
-print "Attributes number = ", length
-print attributes
-\endverbatim
-
-\subsection subsection3 Mapping for Objects and Operations
-
-A CORBA object reference is represented as a Python object at run-time. This object
-provides all the operations that are available on the interface of the object. Although
-this specification does not mandate the use of classes for stub objects, the following
-discussion uses classes to indicate the interface.
-
-The nil object is represented by <STRONG>None</STRONG>.
-
-If an operation expects parameters of the IDL Object type, any Python object
-representing an object reference might be passed as actual argument.
-
-If an operation expects a parameter of an abstract interface, either an object
-implementing that interface, or a value supporting this interface may be passed as
-actual argument. The semantics of abstract values then define whether the argument is
-passed by value or by reference.
-
-Operations of an interface map to methods available on the object references.
-Parameters with a parameter attribute of <STRONG>in</STRONG> or <STRONG>inout</STRONG> 
-are passed from left to right tothe method, skipping <STRONG>out</STRONG> parameters.
-The return value of a method depends on the number of <STRONG>out</STRONG> parameters 
-and the return type. If the operation returns a value, this
-value forms the first <VAR>result value</VAR>. All <STRONG>inout</STRONG> or <STRONG>out</STRONG> 
-parameters form consecutive <VAR>result values</VAR>. The method result depends then on the number
-of <VAR>result values</VAR>:
-
-• If there is no <VAR>result value</VAR>, the method returns None.
-
-• If there is exactly one <VAR>result value</VAR>, it is returned as a single value.
-
-• If there is more than one <VAR>result value</VAR>, all of them are packed into a tuple, and this
-tuple is returned.
-
-Assuming the IDL definition
-
-\verbatim
-module SALOMEDS{
- interface StudyBuilder{
-  boolean FindAttribute  ( in SObject anObject, 
-                           out GenericAttribute anAttribute, 
-                           in string aTypeOfAttribute );
- };
-};
-\endverbatim
-                                          
-a client could write
-
-\verbatim
-from SALOMEDS import StudyBuilder;
-my_StudyBuilder=...
-  
-  res,A=my_StudyBuilder.FindAttribute(Sobj, "AttributeSequenceOfReal")
-\endverbatim
-
-In this example <STRONG>A</STRONG> corresponds to the return value <STRONG>anAttribute</STRONG> and  
-<STRONG>res</STRONG> to the <STRONG>boolean</STRONG> return value. 
-
-If an interface defines an <STRONG>attribute name</STRONG>, for example, the attribute is mapped into an
-operation <STRONG>_get_name</STRONG>. If the attribute is not <STRONG>readonly</STRONG>, there is an
-additional operation <STRONG>_set_name</STRONG>.
-
-The IDL definition
-
-\verbatim
-module SALOMEDS{
- interface Study{
-  attribute string Name;
- };
-};
-\endverbatim
-
-is equal to the following
-
-\verbatim
-from SALOMEDS import Study
-My_Study=...
-  Name=My_Study._get_name();
-  Name=My_Study._set_name();
-\endverbatim
-
-\subsection subsection4 Narrowing Object References
-
-Python objects returned from CORBA operations or pseudo-operations (such as
-string_to_object) might have a dynamic type, which is more specific than the
-static type as defined in the operation signature.
-
-Since there is no efficient and reliable way of automatically creating the most specific
-type, explicit narrowing is necessary. To narrow an object reference <STRONG>A</STRONG> to an interface
-class <STRONG>AttributeSequenceOfReal</STRONG>, the client can use the following operation 
-
-\verbatim
-A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
-\endverbatim
-
-\subsection subsection5 Mapping for Exceptions
-
-An   IDL   exception   is   translated   into   a   Python  class  derived  from
-CORBA.UserException.  System  exceptions are derived from CORBA.SystemException.
-Both  base  classes  are  derived  from  CORBA.Exception.  The parameters of the
-exception  are mapped in the same way as the fields of a struct definition. When
-raising  an  exception,  a new instance of the class is created; the constructor
-expects the exception parameters. For example, the definition
-
-\verbatim
-module SALOMEDS{
- interface StudyBuilder{
-  exception LockProtection {};
-  void CommitCommand() raises(LockProtection);
- };
-};
-\endverbatim
-
-could be used caught as
-
-\verbatim
-from SALOMEDS import StudyBuilder;
-my_StudyBuilder=...
-try:
-  my_StudyBuilder.CommitCommand();
-except StudyBuilder.LockProtection,value:
-  print "Error! Study is locked for modifications"
-\endverbatim
-
-
-\subsection subsection6 Mapping for Enumeration Types
-
-An enumeration is mapped into a number of constant objects in the name space where
-the enumeration is defined. An application may only test for equivalence of two
-enumeration values, and not assume that they behave like numbers.
-For example, the definition
-
-\verbatim
-module VISU {
- interface PrsObject{
- 
-  enum PrsObjType{ TCURVE, TTABLE, TMESH, TCONTAINER,
-                   TSCALARMAP, TISOSURFACE, TDEFORMEDSHAPE,
-                   TCUTPLANES, TVECTORS };
- };
-};
-\endverbatim
-
-introduces the objects
-
-\verbatim
-from VISU import PrsObject
-VISU.PrsObjType.TCURVE,VISU.PrsObjType.TTABLE,VISU.PrsObjType.TMESH,VISU.PrsObjType.TCONTAINER,
-VISU.PrsObjType.TSCALARMAP,VISU.PrsObjType.TISOSURFACE,VISU.PrsObjType.TDEFORMEDSHAPE,VISU.PrsObjType.TCUTPLANES,
-VISU.PrsObjType.TVECTORS
-\endverbatim
-
-\subsection subsection7 Mapping for Structured Types
-
-An IDL struct definition is mapped into a Python class or type. For each field in the
-struct, there is a corresponding attribute in the class with the same name as the field.
-The constructor of the class expects the field values, from left to right.
-For example, the IDL definition
-
-\verbatim
-struct SDate {
-               short Second;
-               short Minute;
-               short Hour;
-               short Day;
-               short Month;
-               short Year;
-             };
-\endverbatim
-
-could be used in the Python statements
-
-\verbatim
-Date=SDate(30, 12, 15, 26, 1, 79)
-print Date.Second,Date.Minute,Date.Hour,Date.Day,Date.Month,Date.Year
-\endverbatim
-*/
-/*! \page page2 Mapping of SALOME IDL definitions to Python language.
-
-
-  - <B>%SALOME STUDY module</B>
-     - <A href=HTML/SALOMEDS.html>Mapping of %SALOMEDS functions</A>
-     - <A href=HTML/SALOMEDS_Attributes.html>Mapping of SALOMEDS_Attributes functions</A>
-  - <B>%SAlOME KERNEL module</B>
-     - <A href=HTML/Med_Gen.html>Mapping of %Med_Gen functions</A>
-     - <A href=HTML/SALOME_Session.html>Mapping of %SALOME_Session functions</A>
-     - <A href=HTML/SALOME_ModuleCatalog.html>Mapping of %SALOME_ModuleCatalog functions</A>
-     - <A href=HTML/SALOME_Exception.html>Mapping of %SALOME_Exception functions</A>
-     - <A href=HTML/SALOME_Component.html>Mapping of %SALOME_Component functions</A>
-  - <B>%SALOME MED component</B>
-     - <A href=HTML/MED.html>Mapping of %Med functions</A>
-  - <B>%SALOME SUPERVISION module</B>
-     - <A href=HTML/SUPERV.html>Mapping of %SUPERV functions</A>
-  - <B>%SALOME %VISU module</B>
-     - <A href=HTML/VISU_Gen.html>Mapping of %VISU_Gen functions</A>
-
-*/
-
-/*! \defgroup Study SALOME STUDY module
+    \image html Application-About.png    
 */
 
 /*!
@@ -377,7 +37,7 @@ print Date.Second,Date.Minute,Date.Hour,Date.Day,Date.Month,Date.Year
 
 #include "SALOME_Exception.idl"
 
-/*! \ingroup Study
+/*!
      This package contains the interfaces used for creation, managment
      and modification of the %Study
 */
@@ -400,7 +60,10 @@ module SALOMEDS
 /*! IOR of the study in %SALOME application
 */
   typedef string SalomeReference;
-/*! List of names of open studies in a %SALOME session
+
+/*! List of the names of studies which are currently open in this %SALOME session.
+Since %SALOME is a multi-study application, it allows to open a lot of studies 
+during each working session.
 */
   typedef sequence<string> ListOfOpenStudies;
 /*! List of file names
@@ -436,10 +99,12 @@ module SALOMEDS
   interface UseCaseIterator;
   interface UseCaseBuilder;
   interface Callback;
+
 /*! List of attributes
 */
   typedef sequence<GenericAttribute> ListOfAttributes;
-/*! Exception indicating that this feature hasn't been implemented
+
+/*! Exception indicating that this feature hasn't been implemented. 
 */
   exception NotImplemented {};
 
@@ -489,7 +154,7 @@ module SALOMEDS
 */
     typedef sequence<SObject> ListOfSObject;
 /*!
-  Gets a persistent reference to the %Study.
+  Gets the persistent reference to the %Study.
 */
     PersistentReference  GetPersistentReference();
 /*!
@@ -901,24 +566,35 @@ module SALOMEDS
     Closes the study.
 */
     void  Close(in Study aStudy);
-/*! \brief Saving the study
+/*! \brief Saving the study in a HDF file (or files).
 
     Saves the study.
+    \param theMultiFile If this parameter is True the study will be saved in several files.
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void  Save(in  Study aStudy, in boolean theMultiFile);
+/*! \brief Saving the study in a ASCII file (or files).
 
+    Saves the study in a ASCII format.
+    \param theMultiFile If this parameter is True the study will be saved in several files.
+*/
     void  SaveASCII(in  Study aStudy, in boolean theMultiFile);
-/*! \brief Saving the study in a file
+/*! \brief Saving the study in a specified HDF file (or files).
 
-    Saves the study in a specified file.
+    Saves the study in a specified file (or files).
+    \param theMultiFile If this parameter is True the study will be saved in several files.
+
  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void  SaveAs(in URL   aUrl, // if the file already exists
 		in Study aStudy,
 		in boolean theMultiFile); // overwrite (as option)
+/*! \brief Saving the study in a specified ASCII file (or files).
 
+    Saves the study in a specified ASCII file (or files).
+    \param theMultiFile If this parameter is True the study will be saved in several files.
+*/
     void  SaveAsASCII(in URL   aUrl, // if the file already exists
 		      in Study aStudy,
 		      in boolean theMultiFile); // overwrite (as option)
@@ -1039,8 +715,7 @@ module SALOMEDS
   //==========================================================================
 /*! \brief %Generic attribute interface
 
-   %Generic attribute is a base interface for all attributes which inherit
-   its methods.
+   %Generic attribute is a base interface for all attributes which can be assigned to the SObjects created in the study.
 */
   //==========================================================================
   interface GenericAttribute
@@ -1063,6 +738,7 @@ module SALOMEDS
   //==========================================================================
 /*! \brief %SComponent interface
 
+   The %SComponent interface establishes in the study a permanent assocition to the Components integrated into %SALOME platform.
    The %SComponent interface is a specialization of the %SObject interface.
    It inherits the most of its methods from the %SObject interface.
 */
@@ -1240,7 +916,7 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
   };
   //==========================================================================
   //==========================================================================
-/*! \brief The callback interface  
+/*! \brief The callback interface
 
   The %StudyBuilder can be created with the method <VAR>NewBuilder</VAR>. While invocation of this method a new object of the class <VAR>Callback</VAR> is created
   and this object is assigned to the newly created Builder as callback which should be called when adding and removing of the ojects.
@@ -1367,5 +1043,5 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
 
   };
 };
- 
+
 #endif
