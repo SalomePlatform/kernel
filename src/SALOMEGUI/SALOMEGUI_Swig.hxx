@@ -51,6 +51,8 @@ public:
   SALOMEGUI_Swig();
   ~SALOMEGUI_Swig();
 
+  bool hasDesktop();
+
   void         updateObjBrowser( bool updateSelection );
   QAD_Study*   getActiveStudy();
   int          getActiveStudyId();

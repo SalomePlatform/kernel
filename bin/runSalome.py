@@ -253,6 +253,22 @@ class Server:
         process_id[pid]=self.CMD
 
 
+class InterpServer(Server):
+    def __init__(self,args):
+        self.args=args
+        env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+        #self.CMD=['xterm', '-iconic', '-sb', '-sl', '500', '-hold','-e']+ env_ld_library_path + ['python']
+        self.CMD=['xterm', '-e', 'python']
+       
+    def run(self):
+        global process_id
+        command = self.CMD
+        print "command = ", command
+        pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        process_id[pid]=self.CMD
+
+# ---
+
 class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
@@ -569,6 +585,18 @@ def startSalome(args, modules_list, modules_root_dir):
     print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
                                                          - init_time[4])
 
+    #
+    # additionnal external python interpreters
+    #
+
+    nbaddi = int(args['interp'][0])
+    print "additional external python interpreters: ", nbaddi
+    if nbaddi:
+        for i in range(nbaddi):
+            print "i=",i
+            anInterp=InterpServer(args)
+            anInterp.run()
+    
     return clt
 
 # -----------------------------------------------------------------------------

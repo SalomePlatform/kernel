@@ -19,34 +19,38 @@
 #
 #
 #
-#  File   : Makefile.in
+#  File   : salome.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
 
+# to replace some function from <MODULE>_SWIG, outside GUI
 
-@COMMENCE@
+# --- From GeometryGUI_SWIG
 
-# Libraries targets
+    #--------------------------------------------------------------------------
 
-#LIB = libSALOME_Swigcmodule.la
-LIB_SRC = 
+def getIndexTopology(aSubId, aMainId):
+    return 0
 
-#SWIG_DEF = libSALOME_Swig.i
-EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py examplevtk1.py supervisionexample.py supervisiongeomexample.py salome_shared_modules.py batchmode_salome.py test_table.py test_big_table.py test_many_objects.py import_hook.py salome_test.py salome_kernel.py salome_study.py salome_iapp.py salome_ComponentGUI.py
+    #--------------------------------------------------------------------------
 
-EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
+def getShapeTypeString(aSubId):
+    return "SubShape"
 
-#LIB_CLIENT_IDL = SALOMEDS.idl \
-		 #SALOME_Exception.idl
+    #--------------------------------------------------------------------------
 
-#CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) -DHAVE_CONFIG_H
-#LIBS+= $(PYTHON_LIBS)
-#LDFLAGS+= -lSalomeGUI
+# --- From SMESHGUI_SWIG
 
-@CONCLUDE@
+    #--------------------------------------------------------------------------
+
+def Init(studyId):
+    return
+
+    #--------------------------------------------------------------------------
+
+def SetName(objId, name):
+    return
+
+    #--------------------------------------------------------------------------

@@ -57,6 +57,8 @@ class SALOMEGUI_Swig
   SALOMEGUI_Swig();
   ~SALOMEGUI_Swig();
 
+  bool hasDesktop();
+
   void updateObjBrowser(bool);
   int getActiveStudyId();
   const char *getActiveStudyName();

@@ -124,7 +124,7 @@ else:
 for aKey in ("containers","embedded","key","modules","standalone"):
     if not args.has_key(aKey):
         args[aKey]=[]
-for aKey in ("gui","logger","file","xterm","portkill","killall"):
+for aKey in ("gui","logger","file","xterm","portkill","killall","interp"):
     if not args.has_key(aKey):
         args[aKey]=0
 if args["file"]:
@@ -205,7 +205,7 @@ except:
 
 opterror=0
 for opt in opts:
-    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t"):
+    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i"):
         print "command line error: -", opt
         opterror=1
 
@@ -233,7 +233,8 @@ if opts.has_key("h"):
     --containers=cpp,python,superv: (obsolete) launching of containers cpp, python and supervision
     or -c=cpp,python,superv       : = get default from -e and -s
     --portkill or -p              : kill the salome with current port
-    --killall or -k               : kill salome
+    --killall or -k               : kill all salome sessions
+    --interp=n or -i=n            : number of additional xterm to open, with session environment
     
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
@@ -252,6 +253,8 @@ for opt in opts:
         args['file'] = opts['f']
     elif opt == 'x':
         args['xterm'] = 1
+    elif opt == 'i':
+        args['interp'] = opts['i']
     elif opt == 'm':
         args['modules'] = opts['m']
     elif opt == 'e':

@@ -258,6 +258,11 @@ int PyInterp_base::run(const char *command)
       _atFirst = false;
       return ret;
     }
+    ret = simpleRun("salome.salome_init()");
+    if (ret) { 
+      _atFirst = false;
+      return ret;
+    }
     _atFirst = false;
   }
   return simpleRun(command);

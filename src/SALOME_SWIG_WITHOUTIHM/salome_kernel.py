@@ -19,34 +19,37 @@
 #
 #
 #
-#  File   : Makefile.in
+#  File   : salome_kernel.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+from omniORB import CORBA
+from LifeCycleCORBA import *
+from SALOME_NamingServicePy import *
+from SALOME_utilities import *
+import Engines
 
+salome_kernel_initial=1
 
-@COMMENCE@
+def salome_kernel_init():
+    global salome_kernel_initial
+    global orb, lcc, naming_service, cm
+    
+    if salome_kernel_initial:
+        salome_kernel_initial = 0
+        
+        # initialise the ORB
+        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
-# Libraries targets
+        # create a LifeCycleCORBA instance
+        lcc = LifeCycleCORBA(orb)
 
-#LIB = libSALOME_Swigcmodule.la
-LIB_SRC = 
+        #create a naming service instance
+        naming_service = SALOME_NamingServicePy_i(orb)
 
-#SWIG_DEF = libSALOME_Swig.i
-EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py examplevtk1.py supervisionexample.py supervisiongeomexample.py salome_shared_modules.py batchmode_salome.py test_table.py test_big_table.py test_many_objects.py import_hook.py salome_test.py salome_kernel.py salome_study.py salome_iapp.py salome_ComponentGUI.py
+        # get Container Manager
+        obj = naming_service.Resolve('/ContainerManager')
+        cm = obj._narrow(Engines.ContainerManager)
 
-EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
-
-#LIB_CLIENT_IDL = SALOMEDS.idl \
-		 #SALOME_Exception.idl
-
-#CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) -DHAVE_CONFIG_H
-#LIBS+= $(PYTHON_LIBS)
-#LDFLAGS+= -lSalomeGUI
-
-@CONCLUDE@
+    return orb, lcc, naming_service, cm

@@ -24,138 +24,40 @@
 #  Module : SALOME
 #  $Header$
 
-from omniORB import CORBA
-from LifeCycleCORBA import *
-from libSALOME_Swig import *
-import SALOMEDS
-import Engines
-from SALOME_NamingServicePy import *
+from salome_kernel import *
+from salome_study import *
+from salome_iapp import *
 
-from SALOME_utilities import *
-
-#--------------------------------------------------------------------------
-
-def DumpComponent(Study, SO, offset):
-    it = Study.NewChildIterator(SO)
-    Builder = Study.NewBuilder()
-    while it.More():
-        CSO = it.Value()
-        it.Next()
-        anAttr = Builder.FindOrCreateAttribute(CSO, "AttributeName")
-        AtName = anAttr._narrow(SALOMEDS.AttributeName)
-        t_name = AtName.Value()
-        if t_name[0] == 1:
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "--"
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(CSO.GetID()) + " " + str(t_name[1]) )
-        t_RefSO = CSO.ReferencedObject()
-        if t_RefSO[0] == 1:
-            RefSO = t_RefSO[1]
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "  "
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(RefSO.GetID()) )
-        DumpComponent(Study, CSO, offset+2)
-
-    #--------------------------------------------------------------------------
-
-def DumpStudy(Study):
-    itcomp = Study.NewComponentIterator()
-    while itcomp.More():
-        SC = itcomp.Value()
-        itcomp.Next()
-        name = SC.ComponentDataType()
-        MESSAGE( "-> ComponentDataType is " + name )
-        DumpComponent(Study, SC, 1)
-        
-
-    #--------------------------------------------------------------------------
-
-def ImportComponentGUI(ComponentName):
-    libName = "lib" + ComponentName + "_Swig"
-    command = "from " + libName + " import *"
-    exec ( command )
-    constructor = ComponentName + "_Swig()"
-    command = "gui = " + constructor
-    exec ( command )
-    return gui
-
-    #--------------------------------------------------------------------------
-
-def SalomeGUIgetAllSelected(self):
-    selNumber = self.SelectedCount()
-    listSelected = []
-    for i in range(selNumber):
-        listSelected.append(self.getSelected(i))
-    return listSelected
-
-class SalomeGUI(SALOMEGUI_Swig):
-    getAllSelected = SalomeGUIgetAllSelected
+salome_initial=1
+def salome_init(theStudyId=0):
+    """
+    Performs only once SALOME general purpose intialisation for scripts.
+    optional argument : theStudyId
+      When in embedded interpreter inside IAPP, theStudyId is not used
+      When used without GUI (external interpreter)
+        0      : create a new study (default).
+        n (>0) : try connection to study with Id = n, or create a new one
+                 if study not found.
+                 If study creation, its Id may be different from theStudyId !
+    Provides:
+    orb             reference to CORBA
+    lcc             a LifeCycleCorba instance
+    naming_service  a naming service instance
+    cm              reference to the container manager
+    sg              access to SALOME GUI (when linked with IAPP GUI)
+    myStudyManager  the study manager
+    myStudyId       active study identifier
+    myStudy         active study itself (CORBA reference)
+    myStudyName     active study name
+    """
+    global salome_initial
+    global orb, lcc, naming_service, cm
+    global sg
+    global myStudyManager, myStudyId, myStudy, myStudyName
     
-    #--------------------------------------------------------------------------
+    if salome_initial:
+        salome_initial=0
+        sg = salome_iapp_init()
+        orb, lcc, naming_service, cm = salome_kernel_init()
+        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
 
-def IDToObject(id):
-    myObj = None
-    mySO = myStudy.FindObjectID(id);
-    if mySO is not None:
-        ok, anAttr = mySO.FindAttribute("AttributeIOR")
-        if ok:
-            AtIOR = anAttr._narrow(SALOMEDS.AttributeIOR)
-            if AtIOR.Value() != "":
-                myObj = orb.string_to_object(AtIOR.Value())
-    return myObj
-
-def ObjectToSObject(obj):
-    mySO = None
-    if obj is not None:
-        ior =  orb.object_to_string(obj)
-        if ior != "":
-            mySO = myStudy.FindObjectIOR(ior)
-    return mySO
-
-def ObjectToID(obj):
-    mySO = ObjectToSObject(obj)
-    if mySO:
-        return mySO.GetID()
-    return ""
-
-def IDToSObject(id):
-    mySO = myStudy.FindObjectID(id);
-    return mySO
-
-    #--------------------------------------------------------------------------
-
-# initialise the ORB
-orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-
-# create an LifeCycleCORBA instance
-lcc = LifeCycleCORBA(orb)
-
-# create an SALOMEGUI_Swig instance
-sg = SalomeGUI()
-
-#create an naming service instance
-naming_service = SALOME_NamingServicePy_i(orb)
-
-# get active study name and id
-myStudyName = sg.getActiveStudyName()
-MESSAGE( myStudyName )
-
-myStudyId = sg.getActiveStudyId()
-MESSAGE( str(myStudyId) )
-
-# get Study Manager reference
-obj = naming_service.Resolve('myStudyManager')
-myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-
-# get active study
-myStudy = myStudyManager.GetStudyByName(myStudyName)
-
-# get Container Manager
-obj = naming_service.Resolve('/ContainerManager')
-cm = obj._narrow(Engines.ContainerManager)
