@@ -23,7 +23,7 @@ EXPORT_HEADERS = TestMPIComponentEngine.hxx
 
 LIB = libSalomeTestMPIComponentEngine.la 
 LIB_SRC = TestMPIComponentEngine.cxx
-LIB_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_TestMPIComponent.idl
+LIB_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_TestMPIComponent.idl SALOME_Component.idl
 
 # Executables targets
 BIN = TestMPIContainer

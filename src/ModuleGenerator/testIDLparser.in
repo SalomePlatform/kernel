@@ -1,7 +1,10 @@
 #!/bin/bash
 
-export ROOT_SRCDIR=@ROOT_SRCDIR@
-export ROOT_BUILDDIR=@ROOT_BUILDDIR@
-export SRCDIR=${ROOT_SRCDIR}/SALOME/src/ModuleGenerator
+ROOT_SRCDIR=@ROOT_SRCDIR@
+export ROOT_SRCDIR
+ROOT_BUILDDIR=@ROOT_BUILDDIR@
+export ROOT_BUILDDIR
+SRCDIR=${ROOT_SRCDIR}/SALOME/src/ModuleGenerator
+export SRCDIR
 
 ${SRCDIR}/tests/test$1.sh

@@ -232,9 +232,17 @@ void QAD_Study::removeStudyFrame( QAD_StudyFrame* sf )
 	aStudyBuilder->RemoveObject(fatherSF);
 	if (aLocked) myStudy->GetProperties()->SetLocked(true);
       }
-      
+
       updateObjBrowser( true );
     }
+    
+    QAD_RightFrame* rightFrame = sf->getRightFrame();
+    if ( rightFrame ) {
+      QAD_ViewFrame* viewFrame = rightFrame->getViewFrame();
+      if ( viewFrame )
+	emit supervStudyFrameClosing( viewFrame );
+    }
+
     myStudyFrames.removeRef( sf );
   }
 }
@@ -1330,7 +1338,7 @@ void QAD_Study::Selection( QString aSelection )
 /*!
   Returns the name of current selection
 */
-QString QAD_Study::getSelection()
+QString QAD_Study::getSelection() const
 {
   return QString (myTitle + "_" + mySelection);
 }

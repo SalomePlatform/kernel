@@ -28,8 +28,11 @@ CONF_DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
 
 find_in()
 {
-  local i
-  local f=$2
+#CCRT
+  #local i
+  i=0
+  #local f=$2
+  f=$2
 
 # if the first argument is not a directory, returns
 
@@ -79,8 +82,12 @@ ABS_CONF_DIR=`pwd`
 # Common part of the configure.in file
 #
 chmod u+w configure.in.base
-if ! \cp -f configure.in.base configure.in_tmp1 
+#CCRT
+#if ! \cp -f configure.in.base configure.in_tmp1
+if \cp -f configure.in.base configure.in_tmp1
 then
+	echo
+else
 	echo
 	echo "error : can't create files in" ${CONF_DIR}
 	echo "aborting ..."
@@ -149,8 +156,12 @@ then
 	fi
 else
 	echo -n "Updating 'configure.in' file ... "
-	if ! \cp configure.in configure.in_old >& /dev/null
+#CCRT
+#	if ! \cp configure.in configure.in_old >& /dev/null
+	if \cp configure.in configure.in_old >& /dev/null
 	then
+		echo
+        else
 		echo
 		echo
 		echo "Can't backup previous configure.in"

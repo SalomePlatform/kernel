@@ -70,6 +70,8 @@ LIB_SRC = 	\
 	          SALOMEDS_AttributeDrawable_i.cxx \
 	          SALOMEDS_AttributeSelectable_i.cxx \
 	          SALOMEDS_AttributeOpened_i.cxx \
+	          SALOMEDS_AttributeFlags_i.cxx \
+	          SALOMEDS_AttributeGraphic_i.cxx \
 	          SALOMEDS_AttributeExpandable_i.cxx \
 	          SALOMEDS_AttributeTextColor_i.cxx  \
 	          SALOMEDS_AttributeTextHighlightColor_i.cxx  \
@@ -89,6 +91,8 @@ LIB_SRC = 	\
 	          SALOMEDS_SelectableAttribute.cxx \
 	          SALOMEDS_ExpandableAttribute.cxx  \
 	          SALOMEDS_OpenedAttribute.cxx \
+	          SALOMEDS_FlagsAttribute.cxx \
+	          SALOMEDS_GraphicAttribute.cxx \
 	          SALOMEDS_TextColorAttribute.cxx \
 	          SALOMEDS_TextHighlightColorAttribute.cxx \
 	          SALOMEDS_PixMapAttribute.cxx \
@@ -112,6 +116,7 @@ BIN_SRC =
 LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl
 BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
 BIN_CLIENT_IDL = 
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_GenericObj.idl
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)

@@ -192,7 +192,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
  *  Purpose  : 
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_out obj)
+CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj)
 {
   TDF_Label L = _lab.FindChild(atag,false);
   if (L.IsNull()) return false;

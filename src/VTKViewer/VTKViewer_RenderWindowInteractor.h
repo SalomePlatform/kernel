@@ -68,7 +68,7 @@ class VTKViewer_InteractorStyleSALOME;
 class VTK_EXPORT VTKViewer_RenderWindowInteractor : 
   public QObject, public vtkRenderWindowInteractor
 {
-  Q_OBJECT ;
+  Q_OBJECT ;   
   friend class VTKViewer_ViewFrame;
 public:
 
@@ -178,12 +178,14 @@ public:
   // Erase Display functions
   void EraseAll();
   void DisplayAll();
+  void RemoveAll( const bool immediatly );
   void Erase(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly=true);
   void Remove(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly=true);
   void Display(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly=true);
 
   void Display( SALOME_Actor* SActor, bool immediatly = true );
   void Erase( SALOME_Actor* SActor, bool immediatly = true );
+  void Remove( SALOME_Actor* SActor, bool updateViewer = true );
 
   // Transparency
   void SetTransparency(const Handle(SALOME_InteractiveObject)& IObject,float trans);

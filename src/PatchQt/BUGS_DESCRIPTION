@@ -1,0 +1,250 @@
+*********************************************************************
+* File    : BUGS_DESCRIPTION
+* Project : PAL/SALOME
+* Module  : PatchQt
+* Author  : Vadim SANDLER
+* Created : 03/11/2004
+*********************************************************************
+
+This file contains description of bugs found in Qt 3.0.5 classes and patches with bug-fixes and improvements done for Qt classes
+in frames of PAL/SALOME project.
+
+Main principles of the patches creation:
+* the original classes are renamed by adding "P" suffix to the class name;
+* private Qt classes are copied to patched files in order to avoid compilation/linking problems;
+* classes definitions are moved from *.cpp implementation to *.h header in order to avoid additional moc preprocessing for *.cpp files.
+
+*********************************************************************
+
+Bug: keyboard accelerators for actions (menu, toolbar, etc) are not disabled when action itself is disabled (grayed).
+
+Gravity: medium
+
+Patched file(s): 
+* qactionP.cxx:
+1) void QActionPrivate::update()
+- enable/disable key accelerator according to the action state
+
+*********************************************************************
+
+Bug: Wrong MDI behaviour
+To reproduce in SALOME:
+1. Create new study
+- Window Study1#1 appears and becomes active
+2. Create one more study
+- Window Study2#1 appears and becomes active (Study1#1 becames inactive)
+3. Minimize Study2#1 window
+- Window Study2#1 is minimized, Study1#1 becames active
+4. Minimize Study1#1 window
+- Window Study1#1 is minimized but stays still active (highlighted title)
+5. Menu command "File/Close"
+- Study2 document is closed, but should Study1 !!!
+
+Gravity: high
+
+Bug: Crash on close study window
+To reproduce in SALOME:
+1. Launch application.
+2. Create new study with any Viewer.
+3. Create second new study.
+4. Close second study.
+-> crash
+
+Gravity: high
+
+Bug: crash when leaving a study
+To reproduce in SALOME:
+1. Create new study
+2. Load VISU component
+3. Menu Window / New Window / Plot2d Viewer
+4. Miximize Study 1#2 window (with Plot2d viewer)
+5. Menu File / Close
+6. Press "Close w/o saving" button in "Close Active Study" dialog box.
+-> crash
+
+Gravity: high
+
+Patched files(s): 
+* qworkspaceP.h:
+- methods
+void QWorkspace::activateNextWindow()
+void QWorkspace::activatePreviousWindow()
+void QWorkspace::activateWindow( QWidget* w, bool change_focus = TRUE ) 
+are made public
+
+* qworkspaceP.cxx:
+- methods
+void QWorkspace::childEvent( QChildEvent * e)
+void QWorkspace::activateWindow( QWidget* w, bool change_focus )
+void QWorkspace::minimizeWindow( QWidget* w)
+bool QWorkspace::eventFilter( QObject *o, QEvent * e)
+void QWorkspace::activatePreviousWindow()
+are modified to activate correct child window on maximizing/minimizing/closing etc operations and to avoid crashes.
+
+*********************************************************************
+
+Improvement: Add controls to allow collapse/expand parts of view frame.
+The patch adds buttons with small arrows for splitter which allow to collapse/restore splitter in both (left/right or top/botton) directions.
+
+Gravity: medium
+
+Bug: Splitter is not shown in python console
+To reproduce in SALOME:
+1. Create new study
+2. Open new window (VTK or OCC) -> python console and message console is hidden
+3. Restore normal size of low frames (python and message consoles) by clicking corresponding splitter button.
+-> horizontal scrolbars for this windows are not shown, i.e. python and message frames are clipped.
+
+Gravity: medium
+
+Bug: Splitter does not restore its original position after collapsing/expanding operations.
+To reproduce try to collapse/expand repeatedly any splitter (e.g. that one between Python and Message consoles).
+
+Gravity: medium
+
+Improvement: Implement a functionality (for VISU module) to control the Viewers behavior from python console - concerning QSplitter it means a possibility
+to show/hide different parts of view frame (Object Browser, Python Console, 3d/2d viewer, Python console, Message window).
+
+Gravity: high
+
+Patched file(s): 
+* qsplitterP.h
+1) to process correctly resizing events:
+- methods
+QSizePolicy QSplitter::sizePolicy() const
+QSizePolicy QSplitterHandle::sizePolicy() const;
+are added 
+
+2) to allow collapse/expand functionality:
+- methods
+bool QSplitter::isCompressEnabled() const;
+void QSplitter::setCompressEnabled(bool on);
+void QSplitter::compress(QWidget*);
+void QSplitter::unCompress(QWidget*);
+QSplitterHandle* QSplitter::getHandleAfter(QWidget* w);
+QSplitterHandle* QSplitter::getHandleBefore(QWidget* w);
+bool QSplitter::isCompressed( const QWidget* ) const;
+QWidget* QSplitter::widgetBefore( int id ) const;
+QWidget* QSplitter::widgetAfter( int id ) const;
+QSize QSplitter::minSize( const QWidget *w ) const;
+QSize QSplitter::maxSize( const QWidget *w ) const;
+int QSplitter::hit( QPoint p );
+void QSplitter::updateSplitterHandles() const;
+and
+void QSplitterHandle::updateButtonState();
+void QSplitterHandle::compressAfter();
+void QSplitterHandle::unCompressAfter();
+void QSplitterHandle::compressBefore();
+void QSplitterHandle::unCompressBefore();
+void QSplitterHandle::onBeforeCompress();
+void QSplitterHandle::onAfterCompress();
+void QSplitterHandle::onBeforeUnCompress();
+void QSplitterHandle::onAfterUnCompress();
+are added
+
+- fields:
+QWidgetList QSplitter::compressed_widgets;
+bool QSplitter::compress_flag;
+and
+int QSplitterHandle::oldpos;
+QPushButton* QSplitterHandle::left;
+QPushButton* QSplitterHandle::right;
+QPushButton* QSplitterHandle::unleft;
+QPushButton* QSplitterHandle::unright;
+are added
+
+- method
+void QSplitter::setG( QWidget *w, int p, int s );
+is modified 
+
+* qsplitterP.cxx:
+1) to draw button arrows: 
+static const char* splitter_left_xpm[];
+static const char* splitter_right_xpm[];
+static const char* splitter_up_xpm[];
+static const char* splitter_down_xpm[];
+are added
+
+2) to process correctly resizing events:
+- methods
+QSizePolicy QSplitter::sizePolicy() const
+QSizePolicy QSplitterHandle::sizePolicy() const;
+are added 
+
+3) to allow collapse/expand functionality:
+- methods
+bool QSplitter::isCompressEnabled() const;
+void QSplitter::setCompressEnabled(bool on);
+void QSplitter::compress(QWidget*);
+void QSplitter::unCompress(QWidget*);
+QSplitterHandle* QSplitter::getHandleAfter(QWidget* w);
+QSplitterHandle* QSplitter::getHandleBefore(QWidget* w);
+bool QSplitter::isCompressed( const QWidget* ) const;
+QWidget* QSplitter::widgetBefore( int id ) const;
+QWidget* QSplitter::widgetAfter( int id ) const;
+QSize QSplitter::minSize( const QWidget *w ) const;
+QSize QSplitter::maxSize( const QWidget *w ) const;
+int QSplitter::hit( QPoint p );
+void QSplitter::updateSplitterHandles() const;
+and
+void QSplitterHandle::updateButtonState();
+void QSplitterHandle::compressAfter();
+void QSplitterHandle::unCompressAfter();
+void QSplitterHandle::compressBefore();
+void QSplitterHandle::unCompressBefore();
+void QSplitterHandle::onBeforeCompress();
+void QSplitterHandle::onAfterCompress();
+void QSplitterHandle::onBeforeUnCompress();
+void QSplitterHandle::onAfterUnCompress();
+are added
+
+- methods
+QSplitterHandle::QSplitterHandle()
+void QSplitter::setG( QWidget *w, int p, int s );
+QSize QSplitterHandle::sizeHint() const
+void QSplitterHandle::setOrientation( Qt::Orientation o )
+void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
+void QSplitterHandle::paintEvent( QPaintEvent * )
+void QSplitter::init()
+void QSplitter::setOrientation( Orientation o )
+QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
+void QSplitter::setRubberband( int p )
+void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD h )
+void QSplitter::moveSplitter( QCOORD p, int id )
+void QSplitter::moveBefore( int pos, int id, bool upLeft )
+void QSplitter::moveAfter( int pos, int id, bool upLeft )
+void QSplitter::getRange( int id, int *min, int *max )
+void QSplitter::doResize()
+void QSplitter::recalc( bool update )
+void QSplitter::styleChange( QStyle& old )
+are modified:
+
+*********************************************************************
+
+Bug: File names filter of the "Open" and "Save" dialog boxes is broken
+To reproduce in SALOME:
+1) start PAL/SALOME
+2) open new study with the help of OCC Viewer and load Geometry module
+3) Menu File / Import / BRep
+4) Browse to any directory may be changed by yourself
+5) Press "Create New Folder" button of the "Import" dialog box
+6) Browse to created directory "New Folder 1"
+7) Press "Create New Folder" button of the "Import" dialog box
+8) Browse to created directory "New Folder 1"
+9) Delete first created "New Folder 1" directory externally (e.g. from any terminal window)
+10) Press "One directory up" button of the "Import" dialog box
+11) Error message box appears: "Could not read directory .../New Folder 1/New Folder 1" - press OK button to close message box.
+-> Result: "BREP Files (*.brep)" filter is set as "File type" in the "Import" dialog box, but non-BREP files are also visible and available for the selection
+in the browser window of the "Import" dialog box
+-> The same situation takes place for the "Export" dialog box.
+
+Gravity: low
+
+Patch: 
+* qfiledialogP.cxx:
+1) methods 
+void QFileDialogP::urlFinished( QNetworkOperation *op )
+is modified to fix bug
+
+*********************************************************************
+

@@ -39,6 +39,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
+#include "LocalTraceCollector.hxx"
 using namespace std;
 
 static ostream& operator<<(ostream& os, const CORBA::Exception& e)
@@ -62,10 +63,15 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
 int main (int argc, char * argv[])
 {
 
+  // Initializing omniORB
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+
   try
     {
-      // Initializing omniORB
-      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+
+
     
       // use IOR to find container
       //if (argc != 2) { return 1; }
@@ -221,6 +227,7 @@ int main (int argc, char * argv[])
     INFOS("Caught unknown exception.")
       }
 
+  delete myThreadTrace;
   return 0;
 }
 

@@ -38,7 +38,8 @@ public:
                                    const QString & theParent, const QString & theObject );
   virtual void DefinePopup       ( QString & theContext, QString & theParent, QString & theObject );
   virtual bool ActiveStudyChanged( QAD_Desktop* parent);
-  virtual void BuildPresentation ( const Handle(SALOME_InteractiveObject)& theIO );
+  virtual void BuildPresentation ( const Handle(SALOME_InteractiveObject)& theIO,
+                                   QAD_ViewFrame* = 0 );
   virtual void SupportedViewType (int* buffer, int bufferSize);
   virtual void Deactivate        ();
   void initInterp(int studyId);

@@ -80,8 +80,6 @@ QT_ROOT=$QTDIR
 
 if  test "x$qt_ok" = "xyes"
 then
-  AC_MSG_CHECKING(include of qt headers)
-
   CPPFLAGS_old=$CPPFLAGS
   CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
 
@@ -90,13 +88,15 @@ then
 
   CPPFLAGS=$CPPFLAGS_old
 
+  AC_MSG_CHECKING(include of qt headers)
+
   if  test "x$qt_ok" = "xno"
   then
     AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
     AC_MSG_RESULT(QTDIR environment variable may be wrong)
   else
     AC_MSG_RESULT(yes)
-       QT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
+    QT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
     QT_MT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
   fi
 fi

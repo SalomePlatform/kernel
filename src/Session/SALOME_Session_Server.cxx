@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 	      }
 	    catch(std::exception& e)
 	      {
-		INFOS("run(): An exception has been caught");
+		INFOS("run(): An exception has been caught " <<e.what() );
 		QApplication::restoreOverrideCursor();
 		QAD_MessageBox::error1 ( (QWidget*)QAD_Application::getDesktop(),
 					QObject::tr("ERR_ERROR"), 

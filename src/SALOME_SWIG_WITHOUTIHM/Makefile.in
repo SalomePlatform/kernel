@@ -1,0 +1,52 @@
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : Makefile.in
+#  Author : Paul RASCLE, EDF
+#  Module : SALOME
+#  $Header$
+
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+# Libraries targets
+
+#LIB = libSALOME_Swigcmodule.la
+LIB_SRC = 
+
+#SWIG_DEF = libSALOME_Swig.i
+EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py examplevtk1.py supervisionexample.py supervisiongeomexample.py salome_shared_modules.py batchmode_salome.py test_table.py test_big_table.py test_many_objects.py import_hook.py salome_test.py
+
+EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
+
+#LIB_CLIENT_IDL = SALOMEDS.idl \
+		 #SALOME_Exception.idl
+
+#CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) -DHAVE_CONFIG_H
+#LIBS+= $(PYTHON_LIBS)
+#LDFLAGS+= -lSalomeGUI
+
+@CONCLUDE@

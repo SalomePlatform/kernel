@@ -327,7 +327,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
-      char eStr[strlen(aUrl)+17];
+//       char eStr[strlen(aUrl)+17];
+      char *eStr = new char[strlen(aUrl)+17+1];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
       
@@ -375,7 +376,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
-      char eStr[strlen(aUrl)+17];
+      char *eStr=new char[strlen(aUrl)+17];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
     } 

@@ -40,6 +40,7 @@
 #include "SALOME_Transform.h"
 #include "SALOME_TransformFilter.h"
 #include "SALOME_GeometryFilter.h"
+#include "SALOMEGUI.h"
 
 #include "QAD_Settings.h"
 #include "QAD_Config.h"
@@ -47,6 +48,8 @@
 #include "QAD_Desktop.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
+#include "ToolsGUI.h"
+#include "SALOMEDS_Tool.hxx"
 
 #include "utilities.h"
 
@@ -476,10 +479,12 @@ Handle(SALOME_InteractiveObject) VTKViewer_ViewFrame::FindIObject(const char* th
 /* display */		
 void VTKViewer_ViewFrame::Display(const Handle(SALOME_InteractiveObject)& theIObject, bool update)
 {
-  QAD_Study* aStudy = QAD_Application::getDesktop()->getActiveStudy();
-  SALOME_Selection* aSel = SALOME_Selection::Selection(aStudy->getSelection());
+  QAD_Study*          aQADStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection*   aSel      = SALOME_Selection::Selection( aQADStudy->getSelection() );
+  SALOMEDS::Study_var aStudy    = aQADStudy->getStudyDocument();
 
   m_RWInteractor->Display(theIObject,false);
+  ToolsGUI::SetVisibility( aStudy, theIObject->getEntry(), true, this );
   aSel->AddIObject(theIObject,false);
 
   if(update)
@@ -506,12 +511,16 @@ void VTKViewer_ViewFrame::DisplayOnly(const Handle(SALOME_InteractiveObject)& th
   SALOME_Selection* aSel = SALOME_Selection::Selection(aStudy->getSelection());
 
   aSel->ClearIObjects();
-  m_RWInteractor->EraseAll();
+  //m_RWInteractor->EraseAll();
+  EraseAll();
 
   using namespace SALOME::VTK;
   ForEachIf<SALOME_Actor>(getRenderer()->GetActors(),
 			  TIsSameIObject<SALOME_Actor>(theIObject),
 			  TDisplayAction(aSel,theIObject));
+
+  ToolsGUI::SetVisibility(
+    aStudy->getStudyDocument(), theIObject->getEntry(), true, this );
 
   Repaint();
 }
@@ -541,6 +550,9 @@ void VTKViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& theIObje
 			  TIsSameIObject<SALOME_Actor>(theIObject),
 			  TEraseAction(aSel,theIObject,m_RWInteractor));
 
+  ToolsGUI::SetVisibility(
+    aStudy->getStudyDocument(), theIObject->getEntry(), false, this );
+
   if(update)
     Repaint();
 }
@@ -549,12 +561,42 @@ void VTKViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& theIObje
 void VTKViewer_ViewFrame::DisplayAll()
 {
   m_RWInteractor->DisplayAll();
+
+  // update flag of visibility
+  QAD_Study*               aQADStudy  = QAD_Application::getDesktop()->getActiveStudy();
+  SALOMEDS::Study_var      aStudy     = aQADStudy->getStudyDocument();
+  QAD_Desktop*             aDesktop   = QAD_Application::getDesktop();
+  const QString&           aCompName  = aDesktop->getComponentDataType();
+  SALOMEDS::SObject_var    aComponent =
+    SALOMEDS::SObject::_narrow( aStudy->FindComponent ( aCompName.latin1() ) );
+    
+  std::list<SALOMEDS::SObject_var> aList;
+  SALOMEDS_Tool::GetAllChildren( aStudy, aComponent, aList );
+
+  std::list<SALOMEDS::SObject_var>::iterator anIter = aList.begin();
+  for ( ; anIter != aList.end(); ++anIter )
+    ToolsGUI::SetVisibility( aStudy, (*anIter)->GetID(), true, this );
 }
 
 
 void VTKViewer_ViewFrame::EraseAll()
 {
   m_RWInteractor->EraseAll();
+
+  // update flag of visibility
+  QAD_Study*               aQADStudy  = QAD_Application::getDesktop()->getActiveStudy();
+  SALOMEDS::Study_var      aStudy     = aQADStudy->getStudyDocument();
+  QAD_Desktop*             aDesktop   = QAD_Application::getDesktop();
+  const QString&           aCompName  = aDesktop->getComponentDataType();
+  SALOMEDS::SObject_var    aComponent =
+    SALOMEDS::SObject::_narrow( aStudy->FindComponent ( aCompName.latin1() ) );
+
+  std::list<SALOMEDS::SObject_var> aList;
+  SALOMEDS_Tool::GetAllChildren( aStudy, aComponent, aList );
+
+  std::list<SALOMEDS::SObject_var>::iterator anIter = aList.begin();
+  for ( ; anIter != aList.end(); ++anIter )
+    ToolsGUI::SetVisibility( aStudy, (*anIter)->GetID(), false, this );
 }
 
 
@@ -625,6 +667,16 @@ void VTKViewer_ViewFrame::Display( const SALOME_VTKPrs* prs )
     {
       // just display the object
       m_RWInteractor->Display( salomeActor, false );
+      
+      // Set visibility flag
+      Handle(SALOME_InteractiveObject) anObj = salomeActor->getIO();
+      if ( !anObj.IsNull() && anObj->hasEntry() )
+      {
+        SALOMEDS::Study_var aStudy =
+          QAD_Application::getDesktop()->getActiveStudy()->getStudyDocument();
+        ToolsGUI::SetVisibility( aStudy, anObj->getEntry(), true, this );
+      }
+
       if ( salomeActor->IsSetCamera() )
         salomeActor->SetCamera( getRenderer()->GetActiveCamera() );
     }
@@ -648,13 +700,27 @@ void VTKViewer_ViewFrame::Erase( const SALOME_VTKPrs* prs, const bool forced )
   if ( !actors )
     return;
 
+  SALOMEDS::Study_var aStudy =
+    QAD_Application::getDesktop()->getActiveStudy()->getStudyDocument();
+
   actors->InitTraversal();
   vtkActor* actor;
   while( ( actor = actors->GetNextActor() ) ) {
     SALOME_Actor* salomeActor = SALOME_Actor::SafeDownCast( actor );
     if ( salomeActor ) {
       // just erase the object
-      m_RWInteractor->Erase( salomeActor, forced );
+      if ( forced )
+        m_RWInteractor->Remove( salomeActor, false );
+      else
+        m_RWInteractor->Erase( salomeActor, forced );
+
+      // Set visibility flag if necessary
+      if ( !forced )
+      {
+        Handle(SALOME_InteractiveObject) anObj = salomeActor->getIO();
+        if ( !anObj.IsNull() && anObj->hasEntry() )
+          ToolsGUI::SetVisibility( aStudy, anObj->getEntry(), true, this );
+      }
     }
   }
 }
@@ -703,3 +769,89 @@ void  VTKViewer_ViewFrame::AfterDisplay( SALOME_Displayer* d )
 {
   d->AfterDisplay( this, SALOME_VTKViewType() );
 }
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::undo
+ *  Redisplay all objects in viewer
+ */
+//==========================================================
+void VTKViewer_ViewFrame::undo( QAD_Study* theQADStudy, const char* /*StudyFrameEntry*/ )
+{
+  redisplayAll( theQADStudy, true );
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::redo
+ *  Redisplay all objects in viewer
+ */
+//==========================================================
+void VTKViewer_ViewFrame::redo( QAD_Study* theQADStudy, const char* /*StudyFrameEntry*/ )
+{
+  redisplayAll( theQADStudy, true );
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::redisplayAll
+ *  Redisplay all objects in viewer
+ */
+//==========================================================
+void VTKViewer_ViewFrame::redisplayAll( QAD_Study* theQADStudy, const bool theToUpdate )
+{
+  SALOMEDS::Study_var      aStudy     = theQADStudy->getStudyDocument();
+  SALOME_Selection*        aSel       = SALOME_Selection::Selection( theQADStudy->getSelection() );
+  QAD_Desktop*             aDesktop   = QAD_Application::getDesktop();
+  SALOMEGUI*               aGUI       = aDesktop->getActiveGUI();
+  const QString&           aCompName  = aDesktop->getComponentDataType();
+  SALOMEDS::SObject_var    aComponent =
+    SALOMEDS::SObject::_narrow( aStudy->FindComponent ( aCompName.latin1() ) );
+
+  if ( aComponent->_is_nil() )
+    return;
+
+  bool isTrhDisplayed = isTrihedronDisplayed();
+
+  m_RWInteractor->RemoveAll( false );
+  //m_RWInteractor->EraseAll();
+
+  aSel->ClearIObjects();
+  
+  if ( isTrhDisplayed )
+    m_Triedron->AddToRender( m_Renderer );
+
+  std::list<SALOMEDS::SObject_var> aList;
+  SALOMEDS_Tool::GetAllChildren( aStudy, aComponent, aList );
+
+  std::list<SALOMEDS::SObject_var>::iterator anIter = aList.begin();
+  for ( ; anIter != aList.end(); ++anIter )
+  {
+    SALOMEDS::SObject_var anObj = (*anIter);
+    if ( ToolsGUI::GetVisibility( aStudy, anObj, this ) )
+    {
+      Handle(SALOME_InteractiveObject) anIObj = new SALOME_InteractiveObject();
+      anIObj->setEntry( anObj->GetID() );
+      aGUI->BuildPresentation( anIObj, this );
+    }
+    
+  }
+
+  if ( theToUpdate )
+    Repaint();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -214,6 +214,7 @@ ViewType QAD_StudyFrame::getTypeView() const
 void QAD_StudyFrame::onStudyFrameActivated ( QWidget* activeWindow )
 {
   emit sfStudyFrameActivated( (QAD_StudyFrame*) activeWindow );
+  getRightFrame()->getViewFrame()->Activate( getStudy() );
 }
 
 /*!

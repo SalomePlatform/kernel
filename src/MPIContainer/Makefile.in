@@ -44,6 +44,7 @@ EXPORT_HEADERS = \
 
 LIB = libSalomeMPIContainer.la 
 LIB_SRC = MPIObject_i.cxx  MPIContainer_i.cxx
+LIB_CLIENT_IDL = SALOME_Component.idl
 LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
 
 # Executables targets

@@ -8,6 +8,7 @@
 #include "SalomePyQt.hxx"
 
 #include <qapplication.h>
+#include <qmenubar.h>
 
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -19,6 +20,7 @@
 
 #include "QAD_Config.h"
 #include "QAD_Settings.h"
+
 using namespace std;
 
 QWidget* SalomePyQt::getDesktop()
@@ -148,4 +150,13 @@ bool SalomePyQt::dumpView(const QString& filename)
     return bOk;
   }
   return false;
+}
+
+QPopupMenu* SalomePyQt::getPopupMenu( const MenuName menu )
+{
+  QMenuBar* mainMenu = QAD_Application::getDesktop()->getMainMenuBar();
+  if ( mainMenu->findItem( menu ) ) {
+    return mainMenu->findItem( menu )->popup();
+  }
+  return 0;
 }

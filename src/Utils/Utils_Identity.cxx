@@ -72,12 +72,13 @@ Identity::Identity( const char *name ):	_name(duplicate(name)),\
 							_adip(get_adip()),\
 			 				_uid(getuid()) ,\
 			 				_pwname(get_pwname()) ,\
-							_dir(getcwd(NULL,0)),\
+							_dir(getcwd(NULL,256)),\
 			 				_pid(getpid()) ,\
 							_start(time(NULL)),\
 							_cstart(ctime(&_start))
+//CCRT
 {
-	;
+	ASSERT(strlen(_dir)<256);
 }
 
 

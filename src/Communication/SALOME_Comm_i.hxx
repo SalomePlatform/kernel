@@ -1,7 +1,6 @@
 #ifndef _SALOME_COMM_I_HXX_
 #define _SALOME_COMM_I_HXX_
 
-#include <set.h>
 #include <string>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)
@@ -59,7 +58,7 @@ class SALOME_CorbaDoubleCSender_i : public POA_SALOME::CorbaDoubleCSender,
 				    public SALOME_Sender_i
 {
 public:
-  SALOME_CorbaDoubleCSender_i(const double *tabToSend,const long lgrTabToSend);
+  SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend);
   ~SALOME_CorbaDoubleCSender_i();
   CORBA::ULong getSize();
   SALOME::vectorOfDouble* sendPart(CORBA::ULong offset, CORBA::ULong length);
@@ -71,7 +70,7 @@ class SALOME_CorbaLongNCSender_i : public POA_SALOME::CorbaLongNCSender,
 				   public SALOME_Sender_i
 {
 public:
-  SALOME_CorbaLongNCSender_i(const int *tabToSend,const long lgrTabToSend);
+  SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend);
   ~SALOME_CorbaLongNCSender_i();
   CORBA::ULong getSize();
   SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);

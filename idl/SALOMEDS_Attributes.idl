@@ -440,6 +440,36 @@ Sets the item to be selectable
   };
 
   //==========================================================================
+/*! \brief Flags Attribute.
+
+   This interface is intended for storing different object attributes that
+   have only two states (0 and 1).
+*/
+  //==========================================================================
+
+  interface AttributeFlags : GenericAttribute
+  {
+    long    GetFlags();
+    void    SetFlags( in long theFlags );
+
+    boolean Get( in long theFlag );
+    void    Set( in long theFlag, in boolean theValue );
+  };
+
+  //==========================================================================
+/*! \brief Graphic Attribute.
+   This class is intended for storing information about
+   graphic representation of objects in dirrent views
+*/
+  //==========================================================================
+
+  interface AttributeGraphic : GenericAttribute
+  {
+    void     SetVisibility( in long theViewId, in boolean theValue );
+    boolean  GetVisibility( in long theViewId );
+  };  
+
+  //==========================================================================
 /*! \brief Opened flag Attribute.
 
    This is a presentation attribute necessary for display of the study tree in the browser.

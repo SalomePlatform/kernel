@@ -35,36 +35,24 @@
 
 #include "QAD_Desktop.h"
 
-class ToolsGUI : public QObject
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
+
+class Standard_EXPORT ToolsGUI  
 {
-  Q_OBJECT
 
 public :
 
-// Methods PUBLIC
-// 
-    Standard_EXPORT static int ToolsGUI::runCommand(string & arg);
-Standard_EXPORT static bool OnGUIEvent (int theCommandID, QAD_Desktop* parent);
- 
-protected:
+  static int                runCommand( string&  );
+  static bool               OnGUIEvent( int theCommandID, QAD_Desktop* parent );
 
- // Methods PROTECTED
- // 
-
-
- // Fields PROTECTED
- //
-
-
-private: 
-
- // Methods PRIVATE
- // 
-
-
- // Fields PRIVATE
- //
-
+  static bool               GetVisibility( SALOMEDS::Study_var   theStudy,
+                                           SALOMEDS::SObject_var theObj,
+                                           void*                 theId );
+  static bool               SetVisibility( SALOMEDS::Study_var theStudy,
+                                           const char*         theEntry,
+                                           const bool          theValue,
+                                           void*               theId );
 };
 
 #endif

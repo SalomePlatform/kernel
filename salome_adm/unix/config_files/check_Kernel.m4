@@ -13,7 +13,7 @@ AC_ARG_WITH(kernel,
 	    [  --with-kernel=DIR               root directory path of KERNEL build or installation],
 	    KERNEL_DIR="$withval",KERNEL_DIR="")
 
-if test "x$KERNEL_DIR" == "x" ; then
+if test "x$KERNEL_DIR" = "x" ; then
 
 # no --with-kernel-dir option used
 
@@ -39,10 +39,10 @@ if test -f ${KERNEL_DIR}/bin/salome/runSalome ; then
    Kernel_ok=yes
    AC_MSG_RESULT(Using Kernel module distribution in ${KERNEL_DIR})
 
-   if test "x$KERNEL_ROOT_DIR" == "x" ; then
+   if test "x$KERNEL_ROOT_DIR" = "x" ; then
       KERNEL_ROOT_DIR=${KERNEL_DIR}
    fi
-   if test "x$KERNEL_SITE_DIR" == "x" ; then
+   if test "x$KERNEL_SITE_DIR" = "x" ; then
       KERNEL_SITE_DIR=${KERNEL_ROOT_DIR}
    fi
    AC_SUBST(KERNEL_ROOT_DIR)

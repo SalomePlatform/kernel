@@ -10,7 +10,8 @@
 #ifndef __SALOMEDS_Tool_H__
 #define __SALOMEDS_Tool_H__
 
-#include <string> 
+#include <string>
+#include <list> 
 
 // IDL headers
 #include "SALOMEconfig.h"
@@ -50,5 +51,41 @@ public:
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "/tmp/aaa"
   static std::string GetDirFromPath(const char* thePath);
 
+  // Retrieves specified flaf from "AttributeFlags" attribute
+  static bool GetFlag( const int             theFlag,
+                       SALOMEDS::Study_var   theStudy,
+                       SALOMEDS::SObject_var theObj );
+
+  // Sets/Unsets specified flaf from "AttributeFlags" attribute
+  static bool SetFlag( const int           theFlag,
+                       SALOMEDS::Study_var theStudy,
+                       const char*         theEntry,
+                       const bool          theValue );
+
+  // Get all children of object. If theObj is null all objects of study are returned
+  static void GetAllChildren( SALOMEDS::Study_var               theStudy,
+                              SALOMEDS::SObject_var             theObj,
+                              std::list<SALOMEDS::SObject_var>& theList );
+
 };
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

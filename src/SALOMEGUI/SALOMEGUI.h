@@ -35,6 +35,7 @@
 #include <qstring.h>
 
 class QAD_Desktop;
+class QAD_ViewFrame;
 class QAD_StudyFrame;
 class SALOME_Event;
 
@@ -64,7 +65,8 @@ public:
                                    const QString & theParent, const QString & theObject );
   virtual void DefinePopup       ( QString & theContext, QString & theParent, QString & theObject );
   virtual bool ActiveStudyChanged( QAD_Desktop* parent );
-  virtual void BuildPresentation ( const Handle(SALOME_InteractiveObject)& theIO );
+  virtual void BuildPresentation ( const Handle(SALOME_InteractiveObject)& theIO,
+                                   QAD_ViewFrame*  = 0 );
   virtual void SupportedViewType (int* buffer, int bufferSize);
   virtual void Deactivate        ();
 

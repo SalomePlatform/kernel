@@ -32,6 +32,8 @@
 */
 
 #include "OCCViewer_Viewer3d.h"
+#include "OCCViewer_ViewFrame.h"
+#include "OCCViewer_AISSelector.h"
 #include "QAD.h"
 #include "QAD_Config.h"
 #include "QAD_Desktop.h"
@@ -61,6 +63,7 @@
 #include <TColStd_IndexedMapOfInteger.hxx>
 #include <NCollection_DefineBaseCollection.hxx>
 #include <NCollection_DefineDataMap.hxx>
+
 using namespace std;
 
 DEFINE_BASECOLLECTION( OCCViewer_CollectionOfIndexedMapOfShapes, TopTools_IndexedMapOfShape )

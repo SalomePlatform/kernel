@@ -38,7 +38,7 @@ EOF
 fUSE_STD_IOSTREAM=no
 for ac_CXX_USE_STD_IOSTREAM in "" -D__USE_STD_IOSTREAM ; do
   if $CXX ${ac_CXX_USE_STD_IOSTREAM} conftest.cxx > /dev/null 2>&1; then
-    CXXFLAGS="$CXXFLAGS ${ac_CXX_USE_STD_IOSTREAM}"
+    CPPFLAGS="$CPPFLAGS ${ac_CXX_USE_STD_IOSTREAM}"
     if test x${ac_CXX_USE_STD_IOSTREAM} = x; then
       AC_MSG_RESULT(yes)
     else

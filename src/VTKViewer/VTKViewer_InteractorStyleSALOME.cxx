@@ -171,6 +171,8 @@ VTKViewer_InteractorStyleSALOME::~VTKViewer_InteractorStyleSALOME()
 void VTKViewer_InteractorStyleSALOME::setPreselectionProp(const double& theRed, const double& theGreen, 
 							  const double& theBlue, const int& theWidth) 
 {
+  if ( myPreSelectionActor->GetProperty() == 0 )
+    return;
   myPreSelectionActor->GetProperty()->SetColor(theRed, theGreen, theBlue);
   myPreSelectionActor->GetProperty()->SetLineWidth(theWidth);
   myPreSelectionActor->GetProperty()->SetPointSize(theWidth);
@@ -835,7 +837,7 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
       rect = rect.normalize();
       if (State == VTK_INTERACTOR_STYLE_CAMERA_FIT) {
         // making fit rect opeation 
-        int w, h, x, y;
+        int w, h;
         m_Interactor->GetSize(w, h);
         int x1, y1, x2, y2;
         x1 = rect.left(); 
@@ -965,7 +967,7 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 	  //	  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 	  QRect rect(myPoint, myOtherPoint);
 	  rect = rect.normalize();
-	  int w, h, x, y;
+	  int w, h;
 	  m_Interactor->GetSize(w, h);
 	  int x1, y1, x2, y2;
 	  x1 = rect.left(); 
@@ -1272,7 +1274,7 @@ void VTKViewer_InteractorStyleSALOME::onCursorMove(QPoint mousePos) {
       }
     }
   }
-  else if ( vtkPicker* picker = vtkPicker::SafeDownCast(aPicker) ) {
+  else if ( vtkPicker::SafeDownCast(aPicker) ) {
     if ( SActor ) {
       if ( myPreViewActor != SActor ) {
 	if ( myPreViewActor != NULL ) {

@@ -15,12 +15,23 @@
 #include <qstring.h>
 #include <qmenubar.h>
 
+enum MenuName {
+  File        = 1,
+  View        = 2,
+  Edit        = 3,
+  Preferences = 4,
+  Tools       = 5,
+  Window      = 6,
+  Help        = 7  
+};
+
 class SalomePyQt
 {
 public:
   static QWidget*          getDesktop();
   static QWorkspace*       getMainFrame();
   static QMenuBar*         getMainMenuBar();
+  static QPopupMenu*       getPopupMenu( const MenuName menu );
   static SALOME_Selection* getSelection();
   static int               getStudyId();
   static void              putInfo( const QString& );

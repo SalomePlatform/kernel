@@ -90,6 +90,10 @@ public:
   virtual void           EraseAll() = 0;
   virtual void           Repaint() = 0;
 
+  /* activation */
+  virtual void           Activate( QAD_Study* ) {}
+  // this method is called when parent window of view frame is activated
+
 protected slots:
   virtual void           onViewPan() = 0; 
   virtual void           onViewZoom() = 0;

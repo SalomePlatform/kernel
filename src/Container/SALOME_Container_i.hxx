@@ -76,7 +76,7 @@ public:
   bool Kill_impl() ;
 
   char* getHostName();
-  long getPID();
+  CORBA::Long getPID();
 
 protected:
 

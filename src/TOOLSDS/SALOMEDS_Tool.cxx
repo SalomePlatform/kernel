@@ -25,6 +25,9 @@
 
 #include <sys/time.h>
 #include <stdlib.h>
+
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 using namespace std;
 
 //============================================================================
@@ -249,7 +252,6 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 
   if(aBuffer == NULL) return NULL;
 
-  long aBufferSize = theStream.length();
   long aFileSize, aCurrentPos = 4;
   int i, aFileNameSize, aNbFiles = 0;
 
@@ -310,3 +312,102 @@ std::string SALOMEDS_Tool::GetDirFromPath(const char* thePath) {
   aDirString.ChangeAll('|','/');
   return aDirString.ToCString();
 }
+
+//=======================================================================
+// name    : GetFlag
+// Purpose : Retrieve specified flaf from "AttributeFlags" attribute
+//=======================================================================
+bool SALOMEDS_Tool::GetFlag( const int             theFlag,
+                             SALOMEDS::Study_var   theStudy,
+                             SALOMEDS::SObject_var theObj )
+{
+  SALOMEDS::GenericAttribute_var anAttr;
+  if ( !theObj->_is_nil() && theObj->FindAttribute( anAttr, "AttributeFlags" ) )
+  {
+    SALOMEDS::AttributeFlags_var aFlags = SALOMEDS::AttributeFlags::_narrow( anAttr );
+    return aFlags->Get( theFlag );
+  }
+
+  return false;
+}
+
+//=======================================================================
+// name    : SetFlag
+// Purpose : Set/Unset specified flaf from "AttributeFlags" attribute
+//=======================================================================
+bool SALOMEDS_Tool::SetFlag( const int           theFlag,
+                             SALOMEDS::Study_var theStudy,
+                             const char*         theEntry,
+                             const bool          theValue )
+{
+  SALOMEDS::SObject_var anObj = theStudy->FindObjectID( theEntry );
+
+  if ( !anObj->_is_nil() )
+  {
+    SALOMEDS::GenericAttribute_var aGAttr;
+    if ( anObj->FindAttribute( aGAttr, "AttributeFlags" ) )
+    {
+      SALOMEDS::AttributeFlags_var anAttr = SALOMEDS::AttributeFlags::_narrow( aGAttr );
+      anAttr->Set( theFlag, theValue );
+    }
+    else if ( theValue )
+    {
+      SALOMEDS::StudyBuilder_var aBuilder = theStudy->NewBuilder();
+      SALOMEDS::AttributeFlags_var anAttr = SALOMEDS::AttributeFlags::_narrow(
+        aBuilder->FindOrCreateAttribute( anObj, "AttributeFlags" ) );
+      anAttr->Set( theFlag, theValue );
+    }
+    return true;
+  }
+
+  return false;
+}
+
+//=======================================================================
+// name    : getAllChildren
+// Purpose : Get all children of object.
+//           If theObj is null all objects of study are returned
+//=======================================================================
+void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
+                                    SALOMEDS::SObject_var             theObj,
+                                    std::list<SALOMEDS::SObject_var>& theList )
+{
+  if ( theObj->_is_nil() )
+  {
+    SALOMEDS::SComponentIterator_var anIter = theStudy->NewComponentIterator();
+    for ( ; anIter->More(); anIter->Next() )
+    {
+      SALOMEDS::SObject_var anObj = SALOMEDS::SObject::_narrow( anIter->Value() );
+      if ( !anObj->_is_nil() )
+      {
+        theList.push_back( anObj );
+        GetAllChildren( theStudy, anObj, theList );
+      }
+    }
+  }
+  else
+  {
+    SALOMEDS::ChildIterator_var anIter = theStudy->NewChildIterator( theObj );
+    for ( ; anIter->More(); anIter->Next() )
+    {
+      SALOMEDS::SObject_var anObj = anIter->Value();
+      SALOMEDS::SObject_var aRef;
+      if ( !anObj->ReferencedObject( aRef ) )
+      {
+        theList.push_back( anObj );
+        GetAllChildren( theStudy, anObj, theList );
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -45,6 +45,7 @@
 #if !defined WNT
 #include <Xw.hxx>
 #endif
+
 using namespace std;
 
 /*!
@@ -84,7 +85,6 @@ void OCCViewer_ViewPort3d::onCreatePopup()
   if ( myPopup ) {	
     QAD_Desktop*     Desktop = (QAD_Desktop*) QAD_Application::getDesktop();
     QAD_Study*   myActiveStudy = Desktop->getActiveStudy();
-    SALOME_Selection*      Sel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
     
     QString theContext;
     QString theParent("Viewer");

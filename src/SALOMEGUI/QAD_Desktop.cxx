@@ -173,22 +173,22 @@ QPalette* QAD_Desktop::getPalette()
   return palette;
 }
 
-/*!
-    Gets window ratio width/heght [ static ]
-*/
-static double myWindowRatio = 1;
-static double getWindowRatio()
-{
-  return myWindowRatio;
-}
-
-/*!
-    Sets window ratio width/heght [ static ]
-*/
-static void setWindowRatio(double aRatio)
-{
-  myWindowRatio = aRatio;
-}
+///*!
+//    Gets window ratio width/heght [ static ]
+//*/
+//static double  = 1;
+//static double getWindowRatio()
+//{
+//  return myWindowRatio;
+//}
+//
+///*!
+//    Sets window ratio width/heght [ static ]
+//*/
+//static void setWindowRatio(double aRatio)
+//{
+//  myWindowRatio = aRatio;
+//}
 
 /*!
     Constructor
@@ -2924,7 +2924,6 @@ void QAD_Desktop::onDispatchTools(int id)
   QFileInfo fileInfo ;
   bool found = false;
 
-  char arg[256] ;
   bool libToolsGUI = true;
   if( QAD_XmlHandler::_bibmap[ id ].isEmpty() ) 
   { 

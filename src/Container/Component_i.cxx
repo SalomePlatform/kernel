@@ -193,7 +193,14 @@ void Engines_Component_i::beginService(const char *serviceName)
 	{
 	  const char* value;
 	  (*it).second >>= value;
-	  int ret = setenv(cle.c_str(), value, overwrite);
+	  //CCRT porting : setenv not defined in stdlib.h
+	  std::string s(cle);
+	  s+='=';
+	  s+=value;
+	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
+	  int ret=putenv((char *)s.c_str());
+	  //End of CCRT porting
+	  //int ret = setenv(cle.c_str(), value, overwrite);
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
 	}
     }
@@ -224,7 +231,7 @@ char* Engines_Component_i::nodeName() {
   return CORBA::string_dup( _nodeName.c_str() ) ;
 }
 
-bool Engines_Component_i::Killer( int ThreadId , int signum ) {
+bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
   if ( ThreadId ) {
     if ( signum == 0 ) {
       if ( pthread_cancel( ThreadId ) ) {
@@ -347,7 +354,7 @@ long Engines_Component_i::CpuUsed() {
   return cpu ;
 }
 
-long Engines_Component_i::CpuUsed_impl() {
+CORBA::Long Engines_Component_i::CpuUsed_impl() {
   long cpu = 0 ;
   if ( _ThreadId || _Executed ) {
     if ( _ThreadId > 0 ) {

@@ -58,7 +58,7 @@ $(LIB_BUILD): $(top_builddir)/lib/salome/%.la: %.la
 	ln -sf $(patsubst %.la, %.so, $(CURDIR)/.libs/$<).0 \
 	      $(patsubst %.la, %.so, $@).0 || true
 
-	if ! test -z $(LIB_SWIG) ; then \
+	if test "X$(LIB_SWIG)" != X; then \
 	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/salome/_$(LIB_SWIG) || true;\
 	fi;
 
@@ -95,7 +95,7 @@ $(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/
 	ln -sf $(CURDIR)/$< $@
 
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
 
 # copy python scripts in $(top_builddir)/bin/salome
 #
@@ -160,7 +160,7 @@ install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir
 	      ($(LT_INSTALL_LIB) $$f $(libdir)/. || exit 1);		      \
 	   fi;								      \
 	done
-	@if ! test -z $(LIB_SWIG) ; then				      \
+	@if test "X$(LIB_SWIG)" != X; then				      \
 	  (cd $(libdir); ln -sf $(patsubst %.so, %cmodule.so, $(LIB_SWIG)) _$(LIB_SWIG)  || true); \
         fi;								      
 	@for f in X $(BIN); do						      \

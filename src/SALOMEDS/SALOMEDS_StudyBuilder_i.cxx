@@ -67,6 +67,8 @@
 #include "SALOMEDS_AttributeSelectable_i.hxx"
 #include "SALOMEDS_AttributeExpandable_i.hxx"
 #include "SALOMEDS_AttributeOpened_i.hxx"
+#include "SALOMEDS_AttributeFlags_i.hxx"
+#include "SALOMEDS_AttributeGraphic_i.hxx"
 #include "SALOMEDS_AttributeTextColor_i.hxx"
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS_AttributePixMap_i.hxx"
@@ -82,6 +84,7 @@
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
+
 using namespace std;
 
 #define USE_CASE_LABEL_TAG            2
@@ -561,6 +564,8 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   __FindOrCreateAttribute(SALOMEDS_StudyPropertiesAttribute, AttributeStudyProperties)
   __FindOrCreateAttribute(SALOMEDS_ExternalFileDef, AttributeExternalFileDef)
   __FindOrCreateAttribute(SALOMEDS_FileType, AttributeFileType)
+  __FindOrCreateAttribute(SALOMEDS_FlagsAttribute, AttributeFlags)
+  __FindOrCreateAttribute(SALOMEDS_GraphicAttribute, AttributeGraphic)    
 
   if (strncmp(aTypeOfAttribute, "AttributeTreeNode",17) == 0 ) {
     Standard_GUID aTreeNodeGUID;

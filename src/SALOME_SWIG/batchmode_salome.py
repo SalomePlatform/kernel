@@ -215,23 +215,43 @@ def FindFileInDataDir(filename):
 # initialise the ORB
 orb = None
 
-while orb == None:
+step = 0
+while step < 100 and orb is None:
     orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+    step = step + 1
+    time.sleep(4)
+
+if orb is None:
+    print "Warning: ORB has not been initialized !!!"
 
 # create an LifeCycleCORBA instance
 lcc = LifeCycleCORBA(orb)
 
-while lcc._catalog == None:
+step = 0
+while step < 100 and lcc._catalog is None:
     lcc = LifeCycleCORBA(orb)
-
+    step = step + 1
+    time.sleep(4)
+    
+if lcc._catalog is None:
+    print "Warning: LifeCycleCORBA object is incomplete !!!"
+    
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
 
 # get Study Manager reference
-obj=None
-while obj == None:
-    obj = naming_service.Resolve('myStudyManager') 
+obj = None
+
+step = 0
+while step < 100 and obj == None:
+    obj = naming_service.Resolve('myStudyManager')
+    step = step + 1
+    time.sleep(4)
+     
 myStudyManager = obj._narrow(SALOMEDS.StudyManager)
+
+if myStudyManager is None:
+    print "Warning: SALOMEDS.StudyManager has not been created !!!"
 
 # create new study
 aListOfOpenStudies = myStudyManager.GetOpenStudies();

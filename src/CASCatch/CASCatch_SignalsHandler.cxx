@@ -20,10 +20,14 @@
 
 
 #include "CASCatch_SignalsHandler.h"
+#include <signal.h>
 #include <OSD.hxx>
 using namespace std;
 
 CASCatch_SignalsHandler::CASCatch_SignalsHandler(bool theFloatingSignal)
 {
   OSD::SetSignal(theFloatingSignal);
+  // To allow application kill when used in xterm, one must use default behavior
+  // with SIGHUP signal
+  Utils_SignalsHandler::SetSigHandler(SIGHUP,SIG_DFL);
 }

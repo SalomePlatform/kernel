@@ -27,7 +27,7 @@ BIN_CLIENT_IDL = SALOME_Session.idl \
 		 SALOME_Component.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Registry.idl \
-                 SALOME_Exception.idl
+                 SALOME_Exception.idl Logger.idl
 
 CPPFLAGS+=$(QT_MT_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)

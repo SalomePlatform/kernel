@@ -28,8 +28,8 @@
 
 #include "SALOMEGUI.h"
 #include "QAD_Desktop.h"
-using namespace std;
 
+using namespace std;
 
 //=============================================================================
 /*!
@@ -155,7 +155,8 @@ bool SALOMEGUI::ActiveStudyChanged( QAD_Desktop* parent )
  *
  */
 //=============================================================================
-void SALOMEGUI::BuildPresentation( const Handle(SALOME_InteractiveObject)& theIO )
+void SALOMEGUI::BuildPresentation( const Handle(SALOME_InteractiveObject)&,
+                                   QAD_ViewFrame* )
 {
 }
 
@@ -164,7 +165,7 @@ void SALOMEGUI::BuildPresentation( const Handle(SALOME_InteractiveObject)& theIO
  *
  */
 //=============================================================================
-void SALOMEGUI::SupportedViewType(int* buffer, int bufferSize)
+void SALOMEGUI::SupportedViewType(int* /*buffer*/, int /*bufferSize*/ )
 {
 }
 

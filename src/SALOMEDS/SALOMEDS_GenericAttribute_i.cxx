@@ -9,13 +9,14 @@
 //  Module : SALOME
 //  $Header$
 
-
 #include <TDataStd_TreeNode.hxx>
 #include <TDataStd_UAttribute.hxx>
 
 #include "SALOMEDS_AttributeDrawable_i.hxx"
 #include "SALOMEDS_AttributeSelectable_i.hxx"
 #include "SALOMEDS_AttributeOpened_i.hxx"
+#include "SALOMEDS_AttributeFlags_i.hxx"
+#include "SALOMEDS_AttributeGraphic_i.hxx"
 #include "SALOMEDS_AttributeTextColor_i.hxx"
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS_AttributePixMap_i.hxx"
@@ -41,6 +42,8 @@
 #include "SALOMEDS_SelectableAttribute.hxx"
 #include "SALOMEDS_ExpandableAttribute.hxx"
 #include "SALOMEDS_OpenedAttribute.hxx"
+#include "SALOMEDS_FlagsAttribute.hxx"
+#include "SALOMEDS_GraphicAttribute.hxx"
 #include "SALOMEDS_TextColorAttribute.hxx"
 #include "SALOMEDS_TextHighlightColorAttribute.hxx"
 #include "SALOMEDS_PixMapAttribute.hxx"
@@ -54,8 +57,10 @@
 #include "SALOMEDS_ExternalFileDef.hxx"
 #include "SALOMEDS_FileType.hxx"
 #include "Utils_ExceptHandlers.hxx"
+
 using namespace std;
-#define RegisteredAttributes 26
+
+#define RegisteredAttributes 28
 
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
@@ -73,7 +78,9 @@ const char AttributesTypeNames[RegisteredAttributes][30] = {
   "AttributeStudyProperties",
   "AttributePythonObject",
   "AttributeUserID",
-  "AttributeExternalFileDef", "AttributeFileType"
+  "AttributeExternalFileDef", "AttributeFileType",
+  "AttributeFlags",
+  "AttributeGraphic"
 };
 
 const Standard_GUID AttributesGUIDs[RegisteredAttributes] = {
@@ -90,7 +97,9 @@ const Standard_GUID AttributesGUIDs[RegisteredAttributes] = {
   SALOMEDS_StudyPropertiesAttribute::GetID(),
   SALOMEDS_PythonObjectAttribute::GetID(),
   Standard_GUID("FFFFFFFF-D9CD-11d6-945D-1050DA506788"),
-  SALOMEDS_ExternalFileDef::GetID(), SALOMEDS_FileType::GetID()
+  SALOMEDS_ExternalFileDef::GetID(), SALOMEDS_FileType::GetID(),
+  SALOMEDS_FlagsAttribute::GetID(),
+  SALOMEDS_GraphicAttribute::GetID()
 };
 
 void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) {
@@ -192,6 +201,8 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(CORB
   __ReturnCORBAAttribute(SALOMEDS_PythonObjectAttribute, AttributePythonObject);
   __ReturnCORBAAttribute(SALOMEDS_ExternalFileDef, AttributeExternalFileDef);
   __ReturnCORBAAttribute(SALOMEDS_FileType, AttributeFileType);
+  __ReturnCORBAAttribute(SALOMEDS_FlagsAttribute, AttributeFlags);
+  __ReturnCORBAAttribute(SALOMEDS_GraphicAttribute, AttributeGraphic);
 
   Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(theAttr);
   if (!aNode.IsNull()) {

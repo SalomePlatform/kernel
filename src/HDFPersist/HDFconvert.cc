@@ -68,7 +68,7 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
 #endif
   
   // Creation du Dataset utilisateur 
-  hdf_dataset = new HDFdataset::HDFdataset( (char *) nomdataset.c_str(),            /*discard const */
+  hdf_dataset = new HDFdataset( (char *) nomdataset.c_str(),            /*discard const */
                                             (HDFcontainerObject*) &hdf_container,   /*discard const, pas de constructeur par référence */
                                             HDF_STRING,
                                             &length_long,1);

@@ -1,4 +1,3 @@
-using namespace std;
 //=============================================================================
 // File      : SALOME_PYQT_GUI.cxx
 // Created   : mer jun  4 17:17:20 UTC 2003
@@ -338,7 +337,8 @@ bool SALOME_PYQT_GUI::ActiveStudyChanged( QAD_Desktop* parent )
  *  no call to python module.BuildPresentation() (not yet ???)
  */
 //=============================================================================
-void SALOME_PYQT_GUI::BuildPresentation( const Handle(SALOME_InteractiveObject)& theIO )
+void SALOME_PYQT_GUI::BuildPresentation( const Handle(SALOME_InteractiveObject)&,
+                                         QAD_ViewFrame* )
 {
 }
 
@@ -347,7 +347,7 @@ void SALOME_PYQT_GUI::BuildPresentation( const Handle(SALOME_InteractiveObject)&
  *  no call to python module.SupportedViewType() (not yet ???)
  */
 //=============================================================================
-void SALOME_PYQT_GUI::SupportedViewType(int* buffer, int bufferSize)
+void SALOME_PYQT_GUI::SupportedViewType(int* /*buffer*/, int /*bufferSize*/ )
 {
 }
 

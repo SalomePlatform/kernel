@@ -48,6 +48,7 @@ class QAD_Application;
 class QMutex;
 class QAD_PyInterp;
 class TInitStudyThread;
+class QAD_ViewFrame;
 
 class QAD_EXPORT QAD_Study : public QObject
 {
@@ -145,7 +146,7 @@ public:
 
   /* selection */
   void		  Selection( QString aSelection );
-  QString	  getSelection();
+  QString	  getSelection() const;
 
   /* python interpreter */
   QAD_PyInterp*	  get_PyInterp(void);
@@ -160,6 +161,7 @@ signals:
   void		  docClosing( QAD_Study* );
   void		  docOperationTerminated( bool );
   void            closed();
+  void            supervStudyFrameClosing( QAD_ViewFrame* );
 
 public slots:
   void		  onStudyFrameActivated( QAD_StudyFrame* );

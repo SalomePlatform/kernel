@@ -132,19 +132,27 @@ AC_LINKER_OPTIONS
 
 echo
 echo ---------------------------------------------
-echo BOOST Library
-echo ---------------------------------------------
-echo
-
-CHECK_BOOST
-
-echo
-echo ---------------------------------------------
 echo testing threads
 echo ---------------------------------------------
 echo
 
 ENABLE_PTHREADS
+
+dnl
+dnl ---------------------------------------------
+dnl testing WITHIHM
+dnl ---------------------------------------------
+dnl
+
+CHECK_WITHIHM
+
+echo
+echo ---------------------------------------------
+echo BOOST Library
+echo ---------------------------------------------
+echo
+
+CHECK_BOOST
 
 dnl
 dnl ---------------------------------------------
@@ -242,13 +250,6 @@ AC_SUBST_FILE(CORBA)
 corba=make_$ORB
 CORBA=salome_adm/unix/$corba
 
-echo
-echo ---------------------------------------------
-echo testing openGL
-echo ---------------------------------------------
-echo
-
-CHECK_OPENGL
 
 echo
 echo ---------------------------------------------
@@ -258,13 +259,47 @@ echo
 
 CHECK_QT
 
-echo
-echo ---------------------------------------------
-echo testing VTK
-echo ---------------------------------------------
-echo
+if test "X$WITHIHM" = "Xyes"; then
+	echo
+	echo ---------------------------------------------
+	echo Testing sip
+	echo ---------------------------------------------
+	echo
 
-CHECK_VTK
+	CHECK_SIP
+
+	echo
+	echo ---------------------------------------------
+	echo testing openGL
+	echo ---------------------------------------------
+	echo
+
+	CHECK_OPENGL
+
+	echo
+	echo ---------------------------------------------
+	echo testing VTK
+	echo ---------------------------------------------
+	echo
+
+	CHECK_VTK
+
+	echo
+	echo ---------------------------------------------
+	echo Testing pyqt
+	echo ---------------------------------------------
+	echo
+
+	CHECK_PYQT
+
+	echo
+	echo ---------------------------------------------
+	echo Testing qwt
+	echo ---------------------------------------------
+	echo
+
+	CHECK_QWT
+fi
 
 echo
 echo ---------------------------------------------
@@ -289,30 +324,6 @@ echo ---------------------------------------------
 echo
 
 CHECK_CAS
-
-echo
-echo ---------------------------------------------
-echo Testing sip
-echo ---------------------------------------------
-echo
-
-CHECK_SIP
-
-echo
-echo ---------------------------------------------
-echo Testing pyqt
-echo ---------------------------------------------
-echo
-
-CHECK_PYQT
-
-echo
-echo ---------------------------------------------
-echo Testing qwt
-echo ---------------------------------------------
-echo
-
-CHECK_QWT
 
 echo
 echo ---------------------------------------------
@@ -402,8 +413,8 @@ do
   local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
   case "$local_bin" in
         *.in | *~) ;;
-        ./bin/CVS | ./bin/salome)                    ;;
-        *) /usr/bin/install -c $i .; echo $local_bin ;;
+        ./bin/CVS | ./bin/salome) ;;
+        *) $INSTALL $i .; echo $local_bin ;;
   esac
 done
 cd $ROOT_BUILDDIR

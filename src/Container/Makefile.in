@@ -56,6 +56,6 @@ CXXFLAGS+=$(OCC_CXXFLAGS)
 
 LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
-LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
+LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
 
 @CONCLUDE@

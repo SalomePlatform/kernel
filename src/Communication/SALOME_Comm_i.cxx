@@ -256,6 +256,10 @@ void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
 
 #ifdef HAVE_SOCKET
 
+//CCRT porting
+#define _POSIX_PII_SOCKET
+#define _LIBC_POLLUTION_H_
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -480,5 +484,9 @@ void SALOME_SocketSender_i::endOfCom()
     }
   delete [] _argsForThr;
 }
+
+//CCRT porting
+#undef _LIBC_POLLUTION_H_
+#undef _POSIX_PII_SOCKET
 
 #endif

@@ -51,13 +51,14 @@ LIB_SRC = \
 		  SALOME_ModuleCatalog_impl.cxx \
 		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 
-CXXFLAGS+=-ftemplate-depth-32
+CXXFLAGS+=@CXXTMPDPTHFLAGS@
 
 # Executables targets
 # trouble we have client and serveur and build don't known about this with rule
 # in fact client is a test ! So it may go away BIN !
 BIN = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
 BIN_SRC = 
+LIB_CLIENT_IDL = SALOME_ModuleCatalog.idl
 BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 

@@ -78,7 +78,7 @@ static void RestoreSigHandler(TSigHandler theSigHandler,
 //=======================================================================
 Utils_SignalsHandler::Utils_SignalsHandler()
 {
-  StoreSignalHandler(mySigHandlerCont,SIGHUP); // floating point exception
+  StoreSignalHandler(mySigHandlerCont,SIGHUP); // end of leader process
   StoreSignalHandler(mySigHandlerCont,SIGFPE); // floating point exception
   
   StoreSignalHandler(mySigHandlerCont,SIGINT); // interrupt

@@ -53,14 +53,6 @@ no) enable_production=no ;;
 esac],
 enable_production=AC_ENABLE_PRODUCTION_DEFAULT)dnl
 
-# portage alpha/OSF
-# CXXFLAGS="$CXXFLAGS -Wno-deprecated -Wparentheses -Wreturn-type -Wmissing-declarations -Wunused "
-echo $CXX
-AC_CXX_OPTION(-Wparentheses,CXXFLAGS)
-AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
-AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)
-AC_CXX_OPTION(-Wunused,CXXFLAGS)
-
 # supprimer car ne marche qu'avec compilo gnu
 # CXXVERSION=`$CXX --version`
 # if test "X$CXXVERSION" != "X2.95.3"; then

@@ -35,7 +35,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 @COMMENCE@
 
 # header files 
-EXPORT_HEADERS=
+EXPORT_HEADERS = ToolsGUI.h
 
 # .po files to transform in .qm
 PO_FILES = \
@@ -48,10 +48,10 @@ LIB = libToolsGUI.la
 LIB_SRC = ToolsGUI.cxx \
 	  ToolsGUI_CatalogGeneratorDlg.cxx
 
-LIB_MOC = ToolsGUI_moc.cxx \
-	  ToolsGUI_CatalogGeneratorDlg_moc.cxx
+LIB_MOC = ToolsGUI_CatalogGeneratorDlg_moc.cxx
 
-LIB_CLIENT_IDL = SALOME_Exception.idl
+LIB_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl \
+                 SALOME_Component.idl SALOME_Exception.idl 
 
 # additionnal information to compil and link file
 

@@ -448,7 +448,7 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
 
 // Get the PID of the Container
 
-long Engines_Container_i::getPID() {
+CORBA::Long Engines_Container_i::getPID() {
     return (long)getpid();
 }
 

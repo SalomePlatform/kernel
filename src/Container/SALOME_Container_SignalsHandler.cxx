@@ -20,18 +20,34 @@
 
 #include <stdexcept>
 #include <CORBA.h>
+#include "utilities.h"
 
-#include "CASCatch_SignalsHandler.h" // CAREFUL ! position of this file is critic : see Lucien PIGNOLONI / OCC
+// CCRT porting
+// #include "CASCatch_SignalsHandler.h" // CAREFUL ! position of this file is critic : see Lucien PIGNOLONI / OCC
 
 using namespace std;
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB)
 {
-  CASCatch_SignalsHandler aSignalsHandler;
+ // CCRT porting
+ //  CASCatch_SignalsHandler aSignalsHandler;
   try {
     theORB->run();
-  }catch(Standard_Failure){
-    Handle(Standard_Failure) aFail = Standard_Failure::Caught();
-    throw std::runtime_error(aFail->GetMessageString());
+    // CCRT porting
+    //  }catch(CORBA::SystemException&){
+    //    Handle(Standard_Failure) aFail = Standard_Failure::Caught();
+    //    throw std::runtime_error(aFail->GetMessageString());
+  }catch(CORBA::SystemException&){
+    INFOS("Caught CORBA::SystemException.");
+  }catch(PortableServer::POA::WrongPolicy&){
+    INFOS("Caught CORBA::WrongPolicyException.");
+  }catch(PortableServer::POA::ServantAlreadyActive&){
+    INFOS("Caught CORBA::ServantAlreadyActiveException");
+  }catch(CORBA::Exception&){
+    INFOS("Caught CORBA::Exception.");
+  }catch(std::exception& exc){
+    INFOS("Caught std::exception - "<<exc.what()); 
+  }catch(...){
+    INFOS("Caught unknown exception.");
   }
 }

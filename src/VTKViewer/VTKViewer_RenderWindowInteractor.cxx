@@ -575,7 +575,6 @@ void VTKViewer_RenderWindowInteractor::EraseAll()
   emit RenderWindowModified() ;
 }
 
-
 void VTKViewer_RenderWindowInteractor::DisplayAll()
 { 
   vtkActorCollection* aCollection = GetRenderer()->GetActors();
@@ -624,8 +623,39 @@ void VTKViewer_RenderWindowInteractor::Remove(const Handle(SALOME_InteractiveObj
 			  TIsSameIObject<SALOME_Actor>(theIObject),
 			  TRemoveAction(aRen));
 
-  if(update)
-    emit RenderWindowModified();
+  
+}
+
+void VTKViewer_RenderWindowInteractor::Remove( SALOME_Actor* SActor, bool updateViewer )
+{
+  if ( SActor != 0 )
+  {
+    GetRenderer()->RemoveProp( SActor );
+    if ( updateViewer )
+      emit RenderWindowModified();
+  }
+}
+
+void VTKViewer_RenderWindowInteractor::RemoveAll( const bool updateViewer )
+{
+  vtkRenderer* aRenderer = GetRenderer();
+  vtkActorCollection* anActors = aRenderer->GetActors();
+  if ( anActors )
+  {
+    anActors->InitTraversal();
+    while ( vtkActor *anAct = anActors->GetNextActor() )
+    {
+      if ( anAct->IsA( "SALOME_Actor" ) )
+      {
+        SALOME_Actor* aSAct = (SALOME_Actor*)anAct;
+        if ( aSAct->hasIO() && aSAct->getIO()->hasEntry() )
+          aRenderer->RemoveActor( anAct );
+      }
+    }
+
+    if ( updateViewer )
+      emit RenderWindowModified();
+  }
 }
 
 

@@ -29,9 +29,7 @@
 #ifndef OCCVIEWER_VIEWER3D_H
 #define OCCVIEWER_VIEWER3D_H
 
-#include "OCCViewer_ViewFrame.h"
-#include "OCCViewer_AISSelector.h"
-
+#include "OCCViewer_ViewPort.h"
 #include "QAD.h"
 #include "QAD_Popup.h"
 #include "QAD_ViewFrame.h"
@@ -40,6 +38,9 @@
 // Open CASCADE Includes
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_Trihedron.hxx>
+
+class OCCViewer_ViewFrame;
+class OCCViewer_AISSelector;
 
 class QAD_EXPORT OCCViewer_Viewer3d : public QObject, public QAD_PopupClientServer
 {
