@@ -101,12 +101,12 @@ Additionnal software may be installed for optional features:
 ######
 ###### To Do -------------------------
 ######
-Instructions for installing these software programs can be found in a
-special note doc/install-prerequis. Installation shell scripts are
-also provided. These scripts have to be adapted to your own
-configuration.
---> prepare doc/install-prerequis.
---> prepare example_prerequis.sh
+- Instructions for installing these software programs can be found in a
+  special note doc/configuration_examples/install-prerequis.
+- Installation shell scripts are also provided.
+  These scripts have to be adapted to your own configuration.
+
+- See doc/configuration_examples/*
 ######
 ###### To Do -------------------------
 ######
