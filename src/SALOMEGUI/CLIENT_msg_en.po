@@ -20,7 +20,7 @@ msgstr ""
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.3.0"
+msgstr "Version 1.4.0"
 
 msgid "INF_COPYRIGHT"
 msgstr "  "
@@ -38,8 +38,8 @@ msgstr "salome"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "SALOME 1.3.0"
+msgstr "SALOME 1.4.0"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "SALOME 1.3.0"
+msgstr "SALOME 1.4.0"
