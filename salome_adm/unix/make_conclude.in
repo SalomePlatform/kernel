@@ -161,7 +161,7 @@ install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir
 # Install exported includes in includedir
 	@for f in X $(EXPORT_HEADERS:%=$(srcdir)/%); do			      \
 	   if test $$f != X; then					      \
-	     ($(INSTALL_DATA) $$f $(includedir)/. || exit 1);		      \
+	     (cp -p $$f $(includedir) || exit 1);			      \
 	   fi;							              \
 	done
 

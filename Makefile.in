@@ -129,6 +129,13 @@ depend_idl:
 #doc:
 #	(cd doc && $(MAKE) $@) || exit 1
 
+# Install make_commence make_conclude ... for other modules
+install-make:
+	($(INSTALL) -d  $(incmakedir) || exit 1);
+	(sed 's/^prefix=/#prefix=/' $(top_builddir)/salome_adm/unix/make_commence > $(incmakedir)/make_commence || exit 1);
+	(sed 's/^prefix=/#prefix=/' $(top_builddir)/salome_adm/unix/make_conclude > $(incmakedir)/make_conclude || exit 1);
+
+
 install-end:
 # finish libtool install
 #	@$(LT) --mode=finish $(libdir)
@@ -137,7 +144,7 @@ install-include: $(include_list)
 	$(INSTALL) -d  $(includedir)
 	@for f in X $(include_list); do				\
 	   if test $$f != X; then				\
-	     ($(INSTALL_DATA) $$f $(includedir)/. || exit 1);	\
+	     (cp -p $$f $(includedir) || exit 1);		\
 	   fi;							\
 	done
 
@@ -161,5 +168,5 @@ distclean-other:
 
 @MODULE@
 
-install: install-bin install-include install-end
+install: install-bin install-include install-make install-end
 

@@ -47,9 +47,8 @@ PYTHONHOME = @PYTHONHOME@
 PYTHON_INCLUDES = @PYTHON_INCLUDES@
 PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_VERSION = @PYTHON_VERSION@
-PYTHON_SITE = @PYTHON_SITE@
-PYTHON_SITE_INSTALL = @PYTHON_SITE_INSTALL@
-
+PYTHON_SITE = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages
+PYTHON_SITE_INSTALL = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome
 # QT
 
 QT_ROOT = @QT_ROOT@
@@ -192,8 +191,9 @@ libdir=@libdir@/salome
 # warning : if user give this path in configure we could have salome/salome :-(
 includedir=@includedir@/salome
 datadir=@datadir@/salome
-idldir=$(prefix)/idl/salome
+idldir=${prefix}/idl/salome
 sharedpydir=@libdir@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
+incmakedir=${prefix}/salome_adm/unix
 
 docdir=$(datadir)/doc
 
