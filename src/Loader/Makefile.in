@@ -1,0 +1,40 @@
+#==============================================================================
+#  File      : Makefile.in
+#  Created   : mar jui  3 12:59:20 CEST 2001
+#  Author    : Paul RASCLE, EDF
+#  Project   : SALOME
+#  Copyright : EDF 2001
+#  $Header$
+#==============================================================================
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+# Executables targets
+BIN = SALOME_Session_Loader
+
+BIN_MOC = InquireServersQThread.h
+BIN_SRC = InquireServersQThread.cxx
+
+BIN_CLIENT_IDL = SALOME_Session.idl \
+		 SALOMEDS.idl \
+		 SALOMEDS_Attributes.idl \
+		 SALOME_Component.idl \
+		 SALOME_ModuleCatalog.idl \
+		 SALOME_Registry.idl \
+                 SALOME_Exception.idl 
+
+
+CPPFLAGS+=$(QT_MT_INCLUDES)
+CXXFLAGS+=$(OCC_CXXFLAGS)
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSalomeLoggerServer
+
+
+@CONCLUDE@
+
