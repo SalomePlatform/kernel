@@ -11,14 +11,15 @@ Username=`/usr/bin/whoami`
 
 # clear log files
 
-mkdir -m 775 ${BaseDir}/logs 
+mkdir -m 777 ${BaseDir}/logs 
 mkdir ${BaseDir}/logs/${Username}
 touch ${BaseDir}/logs/${Username}/dummy
 \rm -f ${BaseDir}/logs/${Username}/omninames* ${BaseDir}/logs/${Username}/dummy ${BaseDir}/logs/${Username}/*.log
 
 echo "Name Service... "
-
-omniNames -start -logdir ${BaseDir}/logs/${Username} &
+aSedCommand="s/ORBInitRef NameService=corbaname::`hostname`:\([[:digit:]]*\)/\1/"
+aPort=`sed -e"$aSedCommand" $OMNIORB_CONFIG`
+omniNames -start $aPort -logdir ${BaseDir}/logs/${Username} &
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested
 #    computer if this Container does not exist. Default is localhost.

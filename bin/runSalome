@@ -1,10 +1,47 @@
-#!/bin/sh
+#!/bin/bash
 
-python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python --killall
-#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
-#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
-#python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --help
+NSPORT=2809
+echo -n "Searching for free port for the SALOME Naming Service: "
+while [ ${NSPORT} -lt 3000 ]; do
+    NSPORT=`expr ${NSPORT} + 1`
+    aRes=`netstat -ltn | grep -E :${NSPORT}`
+    if [ -z "$aRes" ]; then
+cat > ${OMNIORB_CONFIG} <<EOF
+ORBInitRef NameService=corbaname::`hostname`:${NSPORT}
+EOF
+        echo ${NSPORT} - Ok
+        break
+    fi
+    echo -n "${NSPORT}; "
+done
 
+if [ $# -ne 0 ] ; then
+    python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
+else
+    python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py
+fi
+
+# -----------------------------------------------------------------------------
+# examples:
+# ---------
+#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome
+#
+#     parameters read from $HOME/.salome/salome.launch 
+#     if the config file does not exist, it is created with default values
+#
+#  
+#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,SUPERV,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer,supervContainer --xterm --killall
+#
+#     parameters from command line supersede those from $HOME/.salome/salome.launch
+#
+# Some CORBA servers could be launched in the SALOME_Session_Server
+# (embedded = same process) or in a separate process (standalone):
+# --> registry,study,moduleCatalog,cppContainer
+# Other CORBA servers could only be launched in separate process (standalone):
+# --> pyContainer,supervContainer
+#
+# $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome -h
+#    help
 # -----------------------------------------------------------------------------
 #
 # l'option -i permet de garder l'interpreteur python ouvert :

@@ -1,0 +1,30 @@
+<Configuration-list>
+	<launchoptions>
+	        <gui>yes</gui>
+		<logger>no</logger>
+		<xterm>no</xterm>
+		<portkill>yes</portkill>
+		<killall>no</killall>
+	</launchoptions>
+        <modules-list>
+	        <module name="GEOM"/>
+	        <module name="SMESH">
+			<plugin name="NETGENPlugin"/>
+	        </module>
+	        <module name="VISU"/>
+	        <module name="SUPERV"/>
+	        <module name="MED"/>
+	        <module name="COMPONENT"/>
+	        <module name="PYCALCULATOR"/>
+        </modules-list>
+	<embedded-list>
+	        <embeddedserver>registry</embeddedserver>
+	        <embeddedserver>study</embeddedserver>
+	        <embeddedserver>moduleCatalog</embeddedserver>
+	        <embeddedserver>cppContainer</embeddedserver>
+	</embedded-list>
+	<standalone-list>
+	        <standaloneserver>pyContainer</standaloneserver>
+	        <standaloneserver>supervContainer</standaloneserver>
+	</standalone-list>
+</Configuration-list>
