@@ -1203,7 +1203,8 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
 					      const TDF_Label& theSource,
 					      const TDF_Label& theDestinationStart,
 					      const int theCopiedStudyID,
-					      const bool isFirstElement) {
+					      const bool isFirstElement) 
+{
 
   // get corresponding source, target and auxiliary labels
   TDF_Label aTargetLabel = theDestinationStart;
@@ -1212,7 +1213,8 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
   if (!isFirstElement) {
     for(a = theSource.Depth() - 1; a > 0 ; a--) {
       TDF_Label aSourceLabel = theSource;
-      for(int aNbFather = 1; aNbFather < a; aNbFather++) aSourceLabel = aSourceLabel.Father();
+      for(int aNbFather = 1; aNbFather < a; aNbFather++)
+	aSourceLabel = aSourceLabel.Father();
       aTargetLabel = aTargetLabel.FindChild(aSourceLabel.Tag());
       aAuxSourceLabel = aAuxSourceLabel.FindChild(aSourceLabel.Tag());
     }
@@ -1268,18 +1270,22 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
   if (aAuxSourceLabel.FindAttribute(TDataStd_Comment::GetID(), aCommentAttribute)) {
     std::string anEntry(TCollection_AsciiString(aCommentAttribute->Get()).ToCString());
     std::size_t aNameStart = anEntry.find(' ');
+    std::string aName;
+    if(aNameStart != std::string::npos){
+      aName = anEntry.substr(aNameStart+1);
+      anEntry = anEntry.substr(0,aNameStart);
+    }
     if (theCopiedStudyID == theDestinationStudy->StudyId()) { // if copy to the same study, reanimate reference
       TDF_Label aRefLabel;
-      TDF_Tool::Label(aTargetLabel.Data(),const_cast<char*>(anEntry.c_str()),aRefLabel);
+      TDF_Tool::Label(aTargetLabel.Data(),&anEntry[0],aRefLabel);
       TDF_Reference::Set(aTargetLabel, aRefLabel);
       SALOMEDS_TargetAttribute::Set(aRefLabel)->Append(aTargetLabel); // target attributes structure support
     } else {
       if(aNameStart != std::string::npos)
-	TDataStd_Name::Set(aTargetLabel, &anEntry[aNameStart+1]);
+	TDataStd_Name::Set(aTargetLabel, &aName[0]);
       else
 	TDataStd_Name::Set(aTargetLabel, 
-			   TCollection_ExtendedString("Reference to:") +
-			   const_cast<char*>(anEntry.c_str()));
+			   TCollection_ExtendedString("Reference to:") + &anEntry[0]);
     }
   }
 
@@ -1334,17 +1340,9 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
     return SALOMEDS::SObject::_nil();
 
   // fill root inserted SObject
-  TDF_Label aStartLabel;
   int aCStudyID = aStudyIDAttribute->Get();
-  if (aStructureOnly) {
-    TDF_Label anObjectLabel;
-    TDF_Tool::Label(aDocument->GetData(),theObject->GetID(),anObjectLabel);
-    aStartLabel = PasteLabel(aStudy,anEngine,_clipboard->Main(),anObjectLabel,aCStudyID,false);
-  } else {
-    TDF_Label aComponentLabel;
-    TDF_Tool::Label(aDocument->GetData(),aComponent->GetID(),aComponentLabel);
-    aStartLabel = PasteLabel(aStudy,anEngine,_clipboard->Main(),aComponentLabel,aCStudyID,true);
-  }
+  TDF_Label aLabel = aStructureOnly? aSObject->GetLabel(): aSObject->GetFatherComponentLabel();
+  TDF_Label aStartLabel = PasteLabel(aStudy,anEngine,_clipboard->Main(),aLabel,aCStudyID,true);
 
   // paste all sublebels
   TDF_ChildIterator anIterator(_clipboard->Main(),Standard_True);

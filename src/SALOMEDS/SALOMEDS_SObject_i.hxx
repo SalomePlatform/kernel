@@ -110,6 +110,8 @@ public:
   SALOMEDS_Study_i* GetStudyServant(){ return _study;}
 
   TDF_Label GetLabel(){ return _lab;}
+  TDF_Label GetFatherLabel(){ return _lab.Father();}
+  TDF_Label GetFatherComponentLabel();
 
   CORBA::ORB_var GetORB() const;
 

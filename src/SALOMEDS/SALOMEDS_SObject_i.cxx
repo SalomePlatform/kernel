@@ -365,12 +365,19 @@ char* SALOMEDS_SObject_i::GetID()
  *  Purpose  : 
  */
 //============================================================================
+TDF_Label SALOMEDS_SObject_i::GetFatherComponentLabel()
+{
+  TDF_Label aLabel = _lab;
+  while(!SALOMEDS_SComponent_i::IsA(aLabel) && !aLabel.IsRoot())
+    aLabel = aLabel.Father();
+
+  return aLabel;
+}
+
 SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 {
-  TDF_Label aSCompLabel = _lab;
-  while(!SALOMEDS_SComponent_i::IsA(aSCompLabel) && !aSCompLabel.IsRoot()){
-    aSCompLabel = aSCompLabel.Father();
-  }
+  TDF_Label aSCompLabel = GetFatherComponentLabel();
+
   return SALOMEDS_SComponent_i::NewRef(_study,aSCompLabel)._retn();
 }
   
