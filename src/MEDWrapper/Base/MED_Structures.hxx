@@ -165,6 +165,9 @@ namespace MED{
 
 
   //---------------------------------------------------------------
+  typedef SliceArray<TElemNum> TConnSlice;
+  typedef ConstSliceArray<TElemNum> TConstConnSlice;
+
   struct TCellInfo: virtual TElemInfo
   {
     EEntiteMaillage myTEntity;
@@ -179,6 +182,9 @@ namespace MED{
     virtual TInt GetConnDim() const = 0;
 
     TElemNum myConn;
+    TConstConnSlice GetConnSlice(TInt theElemId) const;
+    TConnSlice GetConnSlice(TInt theElemId);
+
     TInt GetConn(TInt theElemId, TInt theConnId) const;
     void SetConn(TInt theElemId, TInt theConnId, TInt theVal);
   };

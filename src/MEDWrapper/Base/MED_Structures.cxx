@@ -123,6 +123,19 @@ TInt TCellInfo::GetConn(TInt theElemId, TInt theConnId) const {
 void TCellInfo::SetConn(TInt theElemId, TInt theConnId, TInt theVal){
   GETINDEX(myConn,GetConnDim()*theElemId + theConnId) = theVal;
 }
+
+TConstConnSlice 
+TCellInfo::GetConnSlice(TInt theElemId) const
+{
+  return TConstConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbConnectivities(myTGeom),1));
+}
+
+TConnSlice 
+TCellInfo::GetConnSlice(TInt theElemId)
+{
+  return TConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbConnectivities(myTGeom),1));
+}
+
 //---------------------------------------------------------------
 TInt TPolygoneInfo::GetNbConn(TInt theElemId) const {
   TInt i1 = GETINDEX(myIndex,theElemId);

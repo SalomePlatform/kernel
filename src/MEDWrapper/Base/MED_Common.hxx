@@ -29,8 +29,10 @@
 #ifndef MED_Common_HeaderFile
 #define MED_Common_HeaderFile
 
-#include <string>
+#include <stdexcept>
+#include <valarray>
 #include <vector>
+#include <string>
 #include <set>
 #include <map>
 
@@ -42,22 +44,85 @@ extern "C"{
 
 namespace MED{
 
-  template<class T> class shared_ptr: public boost::shared_ptr<T>
+  enum EVersion {eVUnknown = -1, eV2_1, eV2_2};
+  
+
+  template<class T> class SharedPtr: public boost::shared_ptr<T>
   {
   public:
-    shared_ptr() {}
+    SharedPtr() {}
 
     template<class Y>
-    explicit shared_ptr(Y * p): boost::shared_ptr<T>(p) {}
+    explicit SharedPtr(Y * p): boost::shared_ptr<T>(p) {}
 
     template<class Y>
-    shared_ptr(shared_ptr<Y> const & r): boost::shared_ptr<T>(r) {}
+    SharedPtr(SharedPtr<Y> const & r): boost::shared_ptr<T>(r) {}
 
     operator const T& () const { return *get();}
 
     operator T& () { return *get();}
   };
 
+
+  template<class TContainer> 
+  class ConstSliceArray
+  {
+    const TContainer& myConstContainer;
+    std::slice mySlice;
+  protected:
+    size_t GetID(size_t theId) const
+    {
+      if(theId < mySlice.size()){
+	size_t anId = mySlice.start() + theId*mySlice.stride();
+	if(anId < myConstContainer.size())
+	  return anId;
+      }
+      throw std::out_of_range();
+      return -1;
+    }
+    
+  public:
+    typedef typename TContainer::value_type TValue;
+
+    ConstSliceArray(const TContainer& theContainer,
+		    const std::slice& theSlice): 
+      myConstContainer(theContainer),
+      mySlice(theSlice)
+    {
+    }
+    
+    const TValue& operator[](size_t theId) const
+    {
+      return myConstContainer[GetID(theId)];
+    }
+    
+    size_t size() const
+    {
+      return mySlice.size();
+    }
+  };
+  
+
+  template<class TContainer> 
+  class SliceArray: public ConstSliceArray<TContainer>
+  {
+    TContainer& myContainer;
+    
+  public:
+    typedef ConstSliceArray<TContainer> TSupperClass;
+    SliceArray(TContainer& theContainer,
+	       const std::slice& theSlice): 
+      TSupperClass(theContainer,theSlice),
+      myContainer(theContainer)
+    {
+    }
+    
+    typename TSupperClass::TValue& operator[](size_t theId)
+    {
+      return myContainer[GetID(theId)];
+    }
+  };
+  
 
   typedef enum {eFAUX, eVRAI} EBooleen ; 
   typedef double TFloat;
@@ -97,10 +162,6 @@ namespace MED{
 
   const TEntity2GeomSet& GetEntity2GeomSet();
 
-  enum EVersion {eVUnknown = -1, eV2_1, eV2_2};
-  
-  TInt GetNbConnectivities(EGeometrieElement typmai);
-
   template<int EVersion>
   TInt GetNbConn(EGeometrieElement typmai,
 		 TInt mdim);
@@ -113,41 +174,43 @@ namespace MED{
   TInt GetNbConn<eV2_2>(EGeometrieElement typmai,
 			TInt mdim);
 
+  TInt GetNbConnectivities(EGeometrieElement typmai);
+
   struct TNameInfo;
-  typedef MED::shared_ptr<TNameInfo> PNameInfo;
+  typedef SharedPtr<TNameInfo> PNameInfo;
   
   struct TMeshInfo;
-  typedef MED::shared_ptr<TMeshInfo> PMeshInfo;
+  typedef SharedPtr<TMeshInfo> PMeshInfo;
   
   struct TFamilyInfo;
-  typedef MED::shared_ptr<TFamilyInfo> PFamilyInfo;
+  typedef SharedPtr<TFamilyInfo> PFamilyInfo;
 
   struct TElemInfo;
-  typedef MED::shared_ptr<TElemInfo> PElemInfo;
+  typedef SharedPtr<TElemInfo> PElemInfo;
 
   struct TNodeInfo;
-  typedef MED::shared_ptr<TNodeInfo> PNodeInfo;
+  typedef SharedPtr<TNodeInfo> PNodeInfo;
 
   struct TPolygoneInfo;
-  typedef MED::shared_ptr<TPolygoneInfo> PPolygoneInfo;
+  typedef SharedPtr<TPolygoneInfo> PPolygoneInfo;
 
   struct TPolyedreInfo;
-  typedef MED::shared_ptr<TPolyedreInfo> PPolyedreInfo;
+  typedef SharedPtr<TPolyedreInfo> PPolyedreInfo;
 
   struct TCellInfo;
-  typedef MED::shared_ptr<TCellInfo> PCellInfo;
+  typedef SharedPtr<TCellInfo> PCellInfo;
 
   struct TFieldInfo;
-  typedef MED::shared_ptr<TFieldInfo> PFieldInfo;
+  typedef SharedPtr<TFieldInfo> PFieldInfo;
 
   struct TTimeStampInfo;
-  typedef MED::shared_ptr<TTimeStampInfo> PTimeStampInfo;
+  typedef SharedPtr<TTimeStampInfo> PTimeStampInfo;
   
   struct TTimeStampVal;
-  typedef MED::shared_ptr<TTimeStampVal> PTimeStampVal;
+  typedef SharedPtr<TTimeStampVal> PTimeStampVal;
 
   class TWrapper;
-  typedef MED::shared_ptr<TWrapper> PWrapper;
+  typedef SharedPtr<TWrapper> PWrapper;
 };
 
 
