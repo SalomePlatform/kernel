@@ -47,9 +47,11 @@
 #include <TColStd_MapOfInteger.hxx>
 #include <TColStd_MapIteratorOfMapOfInteger.hxx>
 
-class VTKViewer_RenderWindow;
 class vtkPolyData;
 class vtkPolyDataMapper;
+
+class VTKViewer_RenderWindow;
+class VTKViewer_InteractorStyleSALOME;
 
 // ------------------------------------------------------------
 // :TRICKY: Fri Apr 21 22:19:27 2000 Pagey
@@ -66,7 +68,7 @@ public:
 
   static VTKViewer_RenderWindowInteractor *New() ; 
 
-  vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
+  vtkTypeMacro(VTKViewer_RenderWindowInteractor,vtkRenderWindowInteractor);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -75,6 +77,11 @@ public:
   // good for when you don`t have a user interface, but you still
   // want to have mouse interaction.
   virtual void Initialize();
+
+  virtual void SetInteractorStyle(vtkInteractorObserver *);
+  VTKViewer_InteractorStyleSALOME* GetInteractorStyleSALOME(){
+    return myInteractorStyle;
+  }
 
   // Description:
   // This will start up the X event loop and never return. If you
@@ -174,23 +181,24 @@ public:
   vtkRenderer* GetRenderer();
 
   QWidget* getGUIWindow() {return myGUIWindow;}
-  void setGUIWindow(QWidget* theWin) { myGUIWindow = theWin;}
-
+  void setGUIWindow(QWidget* theWin) {myGUIWindow = theWin;}
+  
   typedef void (*TCreateMapperFun)(vtkPolyData *theSourcePolyData, 
-					   vtkPolyDataMapper* theMapper, 
-					   const TColStd_MapOfInteger& theMapIndex);
+				   vtkPolyDataMapper* theMapper, 
+				   const TColStd_MapOfInteger& theMapIndex);
  protected:
 
   VTKViewer_RenderWindowInteractor();
   ~VTKViewer_RenderWindowInteractor();
 
+  VTKViewer_InteractorStyleSALOME* myInteractorStyle;
+
   bool highlight(const Handle(SALOME_InteractiveObject)& IObject, 
 		 const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
 		 vtkActor *theActor, bool hilight, bool update );
-  //
+
   // Timer used during various mouse events to figure 
   // out mouse movements. 
-  //
   QTimer *mTimer ;
 
   //CAI: Display mode
@@ -202,14 +210,11 @@ public:
   vtkActor* Edge_Actor; //NB
   vtkActor* Cell_Actor;
   
-  //
   // User for switching to stereo mode.
-  //
   int PositionBeforeStereo[2];
-  //
+
   // Connect/disconnect all slots which allow events on the
   // render window to be passed to the interactor. 
-  //
   void ConnectSlots() ;
   void DisconnectSlots() ;
   void ProcessSlotConnections(bool conn) ;
@@ -227,13 +232,12 @@ public:
   void KeyPressed(QKeyEvent *event) ;
 
   private slots:
-    //
     // Not all of these slots are needed in VTK_MAJOR_VERSION=3,
     // but moc does not understand "#if VTK_MAJOR_VERSION". Hence, 
     // we have to include all of these for the time being. Once,
     // this bug in MOC is fixed, we can separate these. 
-    //
     void TimerFunc() ;
+
  signals:
   void RenderWindowModified() ;
 
@@ -243,3 +247,4 @@ public:
 
 #endif
 
+ 

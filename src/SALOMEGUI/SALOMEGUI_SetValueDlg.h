@@ -36,11 +36,20 @@ public:
  			      const int      oldValue = 0,
 			      bool*          ok = 0, 
 			      QWidget*       parent = 0 );
+  static int      getInteger( const QString& caption, 
+			      const QString& label, 
+			      int            bottom,
+			      int            top,
+ 			      const int      oldValue = 0,
+			      bool*          ok = 0, 
+			      QWidget*       parent = 0 );
   static double   getDouble ( const QString& caption, 
 			      const QString& label, 
  			      const double   oldValue = 0.0,
 			      bool*          ok = 0, 
 			      QWidget*       parent = 0 );
+public slots:
+  void accept();
 
 private:
   SALOMEGUI_SetValueDlg( QWidget* parent = 0 );

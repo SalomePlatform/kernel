@@ -40,6 +40,8 @@ using namespace std;
 #include "QAD_Application.h"
 #include "utilities.h"
 
+#include "QAD_Config.h"
+#include "QAD_Settings.h"
 #include "SALOME_Selection.h"
 #include "SALOME_AISShape.hxx"
 
@@ -49,7 +51,7 @@ using namespace std;
 // Open CASCADE Include
 #include <V3d_View.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
-
+#include <Visual3d_View.hxx>
 
 /*!
     Constructor
@@ -380,6 +382,7 @@ void OCCViewer_ViewFrame::onViewTrihedron()
     myViewer->getAISContext()->Display( myViewer->getTrihedron() );
   else
     myViewer->getAISContext()->Erase( myViewer->getTrihedron() );
+  onAdjustTrihedron();
 }
 
 void OCCViewer_ViewFrame::rename( const Handle(SALOME_InteractiveObject)& IObject, QString newName )
@@ -497,11 +500,6 @@ void OCCViewer_ViewFrame::redo(SALOMEDS::Study_var aStudy,
     ite1.Next();
   }
   Repaint();
-}
-
-void OCCViewer_ViewFrame::SetTrihedronSize( int dim )
-{
-  myViewer->setTrihedronSize( dim );
 }
 
 /* selection */
@@ -658,6 +656,58 @@ void OCCViewer_ViewFrame::EraseAll()
 
 
 
-void OCCViewer_ViewFrame::Repaint(){
+void OCCViewer_ViewFrame::Repaint()
+{
+  onAdjustTrihedron();
   myViewer->getViewer3d()->Update();
+}
+
+void OCCViewer_ViewFrame::onAdjustTrihedron()
+{
+  Handle (AIS_InteractiveContext) ic = myViewer->getAISContext();
+  
+  if (!ic->IsDisplayed(myViewer->getTrihedron())) 
+    return;
+  else 
+    {
+      AIS_ListOfInteractive List;
+      ic->Erase( myViewer->getTrihedron() );
+      ic->DisplayedObjects(List);
+      ic->Display( myViewer->getTrihedron() ); 
+      if (List.IsEmpty())
+	{
+	  myViewer->setTrihedronSize(100);
+	  return;
+	}
+    }
+  
+  Handle( V3d_View) view3d = ((OCCViewer_ViewPort3d*)myViewPort)->getView();
+  
+  if (!view3d.IsNull())
+    {
+      double Xmin=0, Ymin=0, Zmin=0, Xmax=0, Ymax=0, Zmax=0;
+      double aMaxSide; 
+      double aPercents;
+     
+      view3d->View()->MinMaxValues(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
+
+      if (Xmin==RealFirst() || Ymin==RealFirst() || Zmin==RealFirst() ||
+	  Xmax==RealLast()  || Ymax==RealLast()  || Zmax==RealLast())
+	return;
+           
+      aMaxSide = Xmax - Xmin;
+      if (aMaxSide < Ymax -Ymin) aMaxSide = Ymax -Ymin;
+      if (aMaxSide < Zmax -Zmin) aMaxSide = Zmax -Zmin;
+      
+      static float aSizeInPercents = 105;
+      QString aSetting = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
+      if (!aSetting.isEmpty())	aSizeInPercents = aSetting.toFloat();
+
+      static float EPS = 5.0E-3;
+      float aSize = myViewer->getTrihedron()->Size();
+      float aNewSize = aMaxSide*aSizeInPercents/100.0;
+      // if the new trihedron size have sufficient difference, then apply the value
+      if(fabs(aNewSize-aSize) > aSize*EPS || fabs(aNewSize-aSize) > aNewSize*EPS)
+	myViewer->setTrihedronSize(aNewSize);
+    }
 }

@@ -44,6 +44,11 @@ char* SALOMEDS_AttributeIOR_i::Value()
 void SALOMEDS_AttributeIOR_i::SetValue(const char* value) 
 {
   CheckLocked();
+
+  SALOMEDS::Study_var aStudy = SALOMEDS_Study_i::GetStudy(_myAttr->Label(), _myOrb);
+  aStudy->AddCreatedPostponed(value);
+  aStudy->AddPostponed(Value());
+
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
   SALOMEDS_Study_i::IORUpdated(Handle(SALOMEDS_IORAttribute)::DownCast(_myAttr),_myOrb);

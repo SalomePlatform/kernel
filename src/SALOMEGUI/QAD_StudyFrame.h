@@ -87,7 +87,6 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
  signals:
   void                sfStudyFrameActivated( QAD_StudyFrame* );
   void                sfStudyFrameClosing( QAD_StudyFrame*);
-  void                sfBeforeStudyFrameClosing( QAD_StudyFrame*);
 
  public slots:
   void      	      onStudyFrameActivated ( QWidget* );

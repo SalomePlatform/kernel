@@ -67,7 +67,7 @@ msgstr "Appropriate view must be created to display selected object(s)"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:77
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON_SIZE"
-msgstr "Size :"
+msgstr "Size (% of bounding box) :"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:36
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON"

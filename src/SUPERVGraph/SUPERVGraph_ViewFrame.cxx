@@ -254,9 +254,9 @@ void SUPERVGraph_ViewFrame::SetSelectionMode( int mode )
   MESSAGE ( "SUPERVGraph_ViewFrame::SetSelectionMode" )
 }
 
-void SUPERVGraph_ViewFrame::SetTrihedronSize( int dim )
+void SUPERVGraph_ViewFrame::onAdjustTrihedron(  )
 {
-  MESSAGE ( "SUPERVGraph_ViewFrame::SetTrihedronSize" )  
+  MESSAGE ( "SUPERVGraph_ViewFrame::onAdjustTrihedron" )  
 }
 
 void SUPERVGraph_ViewFrame::rename( const Handle(SALOME_InteractiveObject)& IObject, 

@@ -232,11 +232,11 @@ void SALOMEDS_TableOfRealAttribute::Restore(const Handle(TDF_Attribute)& with)
   myNbColumns = aTable->myNbColumns;
   myTitle = aTable->myTitle;
   
-  for(anIndex = 1; anIndex <= aTable->GetNbRows();anIndex++) {
-    SetRowTitle(anIndex,aTable->GetRowTitle(anIndex));
-  }
+  for(anIndex = 1; anIndex <= aTable->GetNbRows();anIndex++)
+    myRows->Append(aTable->GetRowTitle(anIndex));
+
   for(anIndex = 1; anIndex <= aTable->GetNbColumns(); anIndex++) 
-    SetColumnTitle(anIndex, aTable->GetColumnTitle(anIndex));
+    myCols->Append(aTable->GetColumnTitle(anIndex));
 }
 
 Handle(TDF_Attribute) SALOMEDS_TableOfRealAttribute::NewEmpty() const
@@ -259,11 +259,10 @@ void SALOMEDS_TableOfRealAttribute::Paste(const Handle(TDF_Attribute)& into,
   aTable->myNbRows = myNbRows;
   aTable->myNbColumns = myNbColumns;
 
-  for(anIndex = 1; anIndex <= GetNbRows();anIndex++) {
-    aTable->SetRowTitle(anIndex,GetRowTitle(anIndex));
-  }
+  for(anIndex = 1; anIndex <= GetNbRows();anIndex++)
+    aTable->myRows->Append(GetRowTitle(anIndex));
   for(anIndex = 1; anIndex <= GetNbColumns(); anIndex++) 
-    aTable->SetColumnTitle(anIndex, GetColumnTitle(anIndex));
+    aTable->myCols->Append(GetColumnTitle(anIndex));
 }
 
 

@@ -2,20 +2,20 @@
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //  Lesser General Public License for more details.
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org
 //
 //
 //
@@ -23,8 +23,8 @@
 //  Author : Yves FRICAUD
 //  $Header$
 
-/*! \mainpage 
-    \image html Application-About.png    
+/*! \mainpage
+    \image html Application-About.png
 */
 
 /*!
@@ -62,20 +62,20 @@ module SALOMEDS
   typedef string SalomeReference;
 
 /*! List of the names of studies which are currently open in this %SALOME session.
-Since %SALOME is a multi-study application, it allows to open a lot of studies 
+Since %SALOME is a multi-study application, it allows to open a lot of studies
 during each working session.
 */
   typedef sequence<string> ListOfOpenStudies;
 /*! List of file names
 */
   typedef sequence<string> ListOfFileNames;
-/*! List of modification dates of the study
+/*! List of modification dates of a study
 */
   typedef sequence<string> ListOfDates ;
 /*! An unbounded sequence of strings
 */
   typedef sequence<string> ListOfStrings ;
-/*! A byte stream which is used for binary data transfer between components
+/*! A byte stream which is used for binary data transfer between different components
 */
   typedef sequence<octet> TMPFile;
 
@@ -100,11 +100,11 @@ during each working session.
   interface UseCaseBuilder;
   interface Callback;
 
-/*! List of attributes
+/*! List of attributes of %SObjects
 */
   typedef sequence<GenericAttribute> ListOfAttributes;
 
-/*! Exception indicating that this feature hasn't been implemented. 
+/*! Exception indicating that this feature hasn't been implemented in %SALOME PRO application.
 */
   exception NotImplemented {};
 
@@ -127,6 +127,7 @@ during each working session.
 
   interface Study
   {
+
     exception StudyInvalidContext {};
     exception StudyInvalidComponent {};
 /*! Invalid directory of the %study exception
@@ -180,25 +181,40 @@ during each working session.
     SComponent FindComponentID(in ID aComponentID);
 /*!
     Allows to find a %SObject by the Name Attribute of this %SObject
+
+    \param anObjectName String parameter defining the name of the object
+    \return The obtained %SObject
+
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     SObject       FindObject      (in string anObjectName);
 /*!
     Allows to find a %SObject by its ID
+    \param aObjectID This parameter defines the ID of the required object
+    \return The obtained %SObject
+
 */
     SObject       FindObjectID    (in ID aObjectID);
 /*!
     Allows to find a %SObject by IOR of the object belonging to this %SObject.
+    \param anObjectName This parameter defines the IOR of the object
+    \return The obtained %SObject
+
 */
     SObject       FindObjectIOR   (in ID aObjectIOR);
 /*!
-    Returns a list of %SObjects belonging to this %Component. The Name Attribute
-    of these %SObjects should correspond to <VAR>anObjectName</VAR>.
+    Finds in the study all %SObjects produced by a given %Component.
+    \param anObjectName The Name Attribute of the searched %SObjects should correspond to <VAR>anObjectName</VAR>.
+    \param aComponentName The name of the component, which objects are searched for.
 */
     ListOfSObject FindObjectByName(in string anObjectName, in string aComponentName);
 /*!
     Allows to find a %SObject by the path to it.
+
+    \param thePath The path to the required %SObject.
+    \return The obtained %SObject.
+
 */
     SObject FindObjectByPath(in string thePath);
 /*!
@@ -208,12 +224,15 @@ during each working session.
 
 /*!
     Sets the context of the %Study.
+    \param thePath String parameter defining the context of the study.
+
 <BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void SetContext(in string thePath);
 /*!
-    Gets the context of the %Study
+    Gets the context of the %Study.
+    
 <BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -238,19 +257,24 @@ during each working session.
    \note  If the parameter <VAR>theContext</VAR> is empty, then the current context will be used.
 */
     ListOfStrings GetComponentNames(in string theContext);
-/*! \brief Creation of a new iterator of child levels
-
-    Creates a new iterator of child levels of the %SObject
+/*!
+    Creates a new iterator of child levels of the given %SObject.
+    \param aSO The given %SObject
+    \return A new iterator of child levels of the given %SObject.
 */
     ChildIterator      NewChildIterator(in SObject aSO);
-/*! \brief Creation of a new iterator of the %SComponent
+/*!
 
-    Creates a new iterator of the %SComponent.
+    Creates a new iterator of the %SComponents.
+
+    \return A new iterator of the %SComponents.
 */
     SComponentIterator NewComponentIterator();
-/*! \brief Creation of a %StudyBuilder
-
+/*!
    Creates a new %StudyBuilder to add or modify an object in the study.
+
+   \return A new %StudyBuilder.
+
 <BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -264,6 +288,7 @@ during each working session.
 /*! \brief Getting properties of the study
 
    Returns the attriubte, which contains the properties of this study.
+
 <BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -324,6 +349,17 @@ during each working session.
     Enables(if isEnabled = True)/disables automatic addition of new %SObjects to the use case.
 */
     void EnableUseCaseAutoFilling(in boolean isEnabled);
+
+/*!
+    Functions for internal usage only
+*/
+    void AddPostponed(in string theIOR);
+
+    void AddCreatedPostponed(in string theIOR);
+
+    void RemovePostponed(in long theUndoLimit);
+
+    void UndoPostponed(in long theWay);
   };
 
   //==========================================================================
@@ -354,49 +390,66 @@ during each working session.
 <BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
-    SComponent NewComponent(in string ComponentDataType);
+    SComponent NewComponent(in string ComponentDataType) raises(LockProtection);
 /*! \brief Definition of the instance to the %SComponent
 
     Defines the instance to the %SComponent.
 */
-    void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR);
-/*! \brief Deletion of the %SComponent
+    void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR) raises(LockProtection);
+/*! \brief Deletion of a %SComponent
 
-  Removes the %SComponent.
+  Removes a %SComponent.
 */
-    void       RemoveComponent(in SComponent aComponent);
+    void       RemoveComponent(in SComponent aComponent) raises(LockProtection);
 
 /*! \brief Creation of a new %SObject
 
-   Creates a new %SObject.
+   Creates a new %SObject under a definite father %SObject.
+
+   \param theFatherObject The father %SObject under which this one should be created.
+   \return New %SObject
+
 <BR><VAR>See also <A href=exemple/Example18.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
-    SObject NewObject      (in SObject theFatherObject);
+
+    SObject NewObject      (in SObject theFatherObject) raises(LockProtection);
+
 /*! \brief Creation of a new %SObject with a definite %tag
 
    Creates a new %SObject with a definite %tag.
+
+   \param atag Long value corresponding to the tag of the new %SObject.
+   \return New %SObject
+
 */
-    SObject NewObjectToTag (in SObject theFatherObject, in long atag);
+    SObject NewObjectToTag (in SObject theFatherObject, in long atag) raises(LockProtection);
 /*! \brief Deletion of the %SObject
 
   Removes a %SObject from the %StudyBuilder.
+
+  \param anObject The %SObject to be deleted.
 */
-    void    RemoveObject   (in SObject anObject);
+    void    RemoveObject   (in SObject anObject) raises(LockProtection);
 /*! \brief Deletion of the %SObject with all his child objects.
 
   Removes the %SObject with all his child objects.
+
+  \param anObject The %SObject to be deleted with all child objects.
 */
-    void    RemoveObjectWithChildren(in SObject anObject);
+    void    RemoveObjectWithChildren(in SObject anObject) raises(LockProtection);
 
 /*!
    Loads a %SComponent.
+
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void  LoadWith (in SComponent sco, in Driver Engine) raises (SALOME::SALOME_Exception);
 /*!
    Loads a %SObject.
+
+   \param sco %SObject to be loaded.
 */
     void  Load (in SObject sco);
 
@@ -410,9 +463,9 @@ during each working session.
 */
 
     GenericAttribute FindOrCreateAttribute(in  SObject        anObject,
-	                                 in  string         aTypeOfAttribute);
+	                                 in  string         aTypeOfAttribute) raises(LockProtection);
 
-/*! \brief Looking for an attribute assigned to %SObject
+/*! \brief Looking for an attribute assigned to a %SObject
 
     Allows to find an attribute of a specific type which is assigned to the object.
     \param anObject        The %SObject corresponding to the attribute which is looked for.
@@ -433,37 +486,46 @@ during each working session.
 <BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void RemoveAttribute(in  SObject        anObject,
-				in  string         aTypeOfAttribute);
-/*! \brief Addition of a reference
-
+			 in  string         aTypeOfAttribute) raises(LockProtection);
+/*!
     Adds a reference between %anObject and %theReferencedObject.
+    \param anObject The %SObject which will get a reference
+    \param theReferencedObject The %SObject having a reference
 */
 
     void Addreference(in SObject anObject,
 		      in SObject theReferencedObject) ;
 /*!
    Adds a directory in the %Study.
+   \param theName String parameter defining the name of the directory.
+
 <BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
-    void AddDirectory(in string theName);
+    void AddDirectory(in string theName) raises(LockProtection);
 
 /*! \brief Identification of the %SObject's substructure.
 
       Identification of the %SObject's substructure by GUID.
-      It has the following format "00000000-0000-0000-0000-000000000000"
+
+
+      \param anObject The %SObject which will be identified
+      \param theGUID GUID has the following format "00000000-0000-0000-0000-000000000000"
 */
 
-     void SetGUID(in SObject anObject, in string theGUID);
+     void SetGUID(in SObject anObject, in string theGUID) raises(LockProtection);
 /*!
+Searches for a definite %SObject with a definite GUID and returns True if it finds it.
 
-   Returns True if the %SObject has GUID.
+\param anObject A definite %SObject which will be identified
+\param theGUID GUID has the following format "00000000-0000-0000-0000-000000000000"
 */
      boolean IsGUID(in SObject anObject, in string theGUID);
 
 /*! \brief Creation of a new command
 
    Creates a new command which can contain several different actions.
+   
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -471,6 +533,9 @@ during each working session.
 /*! \brief Execution of the command
 
    Commits all actions declared within this command.
+
+   \exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
+
 <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -482,6 +547,7 @@ during each working session.
 /*! \brief Cancelation of the command
 
     Cancels all actions declared within the command.
+    
 <BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void AbortCommand(); // command management
@@ -493,6 +559,9 @@ during each working session.
 /*! \brief Undo method
 
     Cancels all actions of the last command.
+
+    \exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
+
 <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -500,28 +569,40 @@ during each working session.
 /*! \brief Redo method
 
     Redoes all actions of the last command.
+
+\exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
+
  <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void Redo() raises (LockProtection);
 /*!
     Returns True if at this moment there are any actions which can be canceled.
+    
    <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean GetAvailableUndos();
 /*!
     Returns True if at this moment there are any actions which can be redone.
+
    <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean GetAvailableRedos();
 /*!
-    Sets the callback for addition of the given %SObject. Returns the previous callback.
+    This method is called when adding an object into study.
+    It sets the callback for addition of the given %SObject.
+    \param theCallback New assigned callback.
+    \return The previous callback.
 */
     Callback SetOnAddSObject(in Callback theCallback);
 /*!
-    Sets the callback for removal of the given %SObject. Returns the previous callback.
+    This method is called when adding an object into study.
+    It sets the callback for removal of the given %SObject.
+
+    \return The previous callback.
+    \param theCallback New assigned callback.
 */
     Callback SetOnRemoveSObject(in Callback theCallback);
 
@@ -545,9 +626,12 @@ during each working session.
 */
     void ping();
 
-/*! \brief Creation of a new %Study
+/*! \brief Creation of a new study
 
-     Creates a new %Study with a definite name.
+     Creates a new study with a definite name.
+
+     \param study_name String parameter defining the name of the study
+
 <BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -556,33 +640,39 @@ during each working session.
 /*! \brief Open a study
 
      Reads and activates the structure of the study %Objects.
+     \param aStudyUrl The path to the study
     \warning This method doesn't activate the corba objects. Only a component can do it.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     Study Open (in URL aStudyUrl) raises (SALOME::SALOME_Exception);
 
 /*! \brief Closing the study
 
-    Closes the study.
+    Closes a study.
 */
     void  Close(in Study aStudy);
 /*! \brief Saving the study in a HDF file (or files).
 
-    Saves the study.
+    Saves a study.
+
     \param theMultiFile If this parameter is True the study will be saved in several files.
+
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void  Save(in  Study aStudy, in boolean theMultiFile);
-/*! \brief Saving the study in a ASCII file (or files).
+/*! \brief Saving a study in a ASCII file (or files).
 
-    Saves the study in a ASCII format.
+    Saves a study in an ASCII format file (or files).
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
     void  SaveASCII(in  Study aStudy, in boolean theMultiFile);
 /*! \brief Saving the study in a specified HDF file (or files).
 
     Saves the study in a specified file (or files).
+    \param aUrl The path to the definite file in whcih the study will be saved
+    \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 
  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
@@ -593,6 +683,9 @@ during each working session.
 /*! \brief Saving the study in a specified ASCII file (or files).
 
     Saves the study in a specified ASCII file (or files).
+
+    \param aUrl The path to the definite file in whcih the study will be saved
+    \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
     void  SaveAsASCII(in URL   aUrl, // if the file already exists
@@ -602,21 +695,25 @@ during each working session.
 
 /*! \brief List of open studies.
 
-    Returns the list of open studies in the current session.
+Gets the list of open studies
+
+    \return A list of open studies in the current session.
 */
     ListOfOpenStudies GetOpenStudies();
 
 /*! \brief Getting a particular %Study picked by name
 
     Activates a particular %Study
-    amongst the session collection picking it by name.
+    among the session collection picking it by name.
+    \param aStudyName The name of the study
 */
     Study GetStudyByName  (in string aStudyName);
 
 /*! \brief Getting a particular %Study picked by ID
 
     Activates a particular %Study
-    amongst the session collection picking it by ID.
+    among the session collection picking it by ID.
+    \param aStudyID The ID of the study
 */
     Study GetStudyByID  (in short aStudyID);
 
@@ -628,14 +725,19 @@ during each working session.
     boolean CanCopy(in SObject theObject);
 /*!
     Returns True, if the given %SObject is copied to the clipboard.
+    \param theObject The %SObject which will be copied
 */
     boolean Copy(in SObject theObject);
 /*!
     Returns True, if the object from the clipboard can be pasted to the given %SObject.
+    \param theObject The %SObject stored in the clipboard.
 */
     boolean CanPaste(in SObject theObject);
 /*!
     Returns the %SObject in which the object from the clipboard was pasted to.
+    \param theObject The %SObject which will be pasted
+    \exception SALOMEDS::StudyBuilder::LockProtection This exception is raised, when trying to paste
+    an object into a study, which is protected for modifications.
 */
     SObject Paste(in SObject theObject) raises (SALOMEDS::StudyBuilder::LockProtection);
   };
@@ -647,6 +749,7 @@ during each working session.
    The objects in the %study are built by the %StudyBuilder. The %SObject interface
    provides methods for elementary inquiries, like getting an object %ID or its attribuites.
  \note
+ 
    <BR><VAR>Tag</VAR> of an item in %SALOME application is an integer value uniquely defining an item
    in the tree-type data structure.
    <BR><VAR>ID</VAR> of an item is a description of item's position in the tree-type data structure.
@@ -659,54 +762,59 @@ during each working session.
 /*! Name of the %SObject
 */
     attribute string Name; // equivalent to setName() & getName()
-/*! \brief Getting an object %ID
+/*! Gets an object %ID
 
-   Returns ID of the %SObject.
+   \return ID of the %SObject.
 */
     ID GetID();
-/*! \brief Acquisition of the father %Component of the %SObject
+/*!  Acquisition of the father %Component of the %SObject
 
-  Returns the father %Component of the %SObject.
+  \return The father %Component of the %SObject.
 */
     SComponent GetFatherComponent();
-/*! \brief Acquisition of the father %SObject of the %SObject
+/*! Acquisition of the father %SObject of the %SObject
 
-   Returns the father %SObject of the given %SObject.
+   \return the father %SObject of the given %SObject.
 */
     SObject    GetFather();
-/*! \brief %Tag of %SObject
+/*! Gets the %tag of a %SObject
 
-    Returns the %tag of the %SObject.
+    \return the %tag of a %SObject.
 */
     short      Tag();
-/*! \brief Looking for subobjects of an object.
+/*! Looks for subobjects of a given %SObject.
 
-    Returns True if it finds a subobject of the %SObject with a definite tag.
+    \param atag Tag of the given %SObject
+    \return True if it finds a subobject of the %SObject with a definite tag as well as the required subobject.
 */
 
     boolean FindSubObject (in long atag, out SObject obj);
-/*! \brief Looking for attributes of the %SObject
+/*! Looks for attributes of a given %SObject
 
-   Returns True if it finds an attribute of a definite type of the %SObject.
+   \param aTypeOfAttribute String value defining the type of the required attribute of the given %SObject.
+   \return True if it finds an attribute of a definite type of the given %SObject as well as the discovered attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     boolean FindAttribute(out GenericAttribute anAttribute,
 				  in  string         aTypeOfAttribute);
-/*!
-    Returns the object which this %SObject refers to. It also returns True if it finds
+/*! Looks for a %SObject which the given %SObject refers to.
+
+    \return The object which the given %SObject refers to as well as True if it finds
     this object.
 */
     boolean ReferencedObject(out SObject obj); // A REVOIR
-/*! \brief Getting all attributes of the %SObject
+/*! Gets all attributes of a given %SObject
 
-    Returns the list of all attributes of the %SObject.
+    \return The list of all attributes of the given %SObject.
+
 <BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     ListOfAttributes     GetAllAttributes();
-/*! \brief Returning the study
+/*! Gets the study of a given %SObject.
 
-    Returns the study containing the given %SObject.
+    /return The study containing the given %SObject.
 */
     Study GetStudy();
   };
@@ -728,7 +836,8 @@ during each working session.
 /*! \brief Method CheckLocked
 
    Checks whether the %Study is protected for modifications.
-   \note <BR>This exception is raised only outside the transaction.
+
+   \note <BR>This exception is raised only outside a transaction.
 */
     void CheckLocked() raises (LockProtection);
   };
@@ -745,13 +854,14 @@ during each working session.
   //==========================================================================
   interface SComponent : SObject
   {
-/*! \brief Data type of the %SComponent
+/*! Gets the data type of the given %SComponent
 
-    Returns the data type of the %SComponent.
+    \return The data type of this %SComponent.
 */
     string  ComponentDataType();
-/*!
-  Returns IOR of the according component.
+/*! Gets the IOR of the given component
+
+  \return True (if there is an instance of the given component) and its IOR.
 */
     boolean ComponentIOR (out ID theID); //returns True if there is an instance
                                          //In this case ID identifies this one
@@ -767,23 +877,22 @@ during each working session.
   //==========================================================================
   interface SComponentIterator
   {
-/*! \brief Initialization of the Iterator
-
+/*!
 Activates the %SComponentIterator.
 */
     void Init();
-/*! \brief Method More
+/*!  Method More
 
-   Returns True if there is one more %SComponent in the list.
+   \return True if there is one more %SComponent in the list.
 */
     boolean More();
-/*! \brief Moving the iterator to the next %SComponent
-
+/*!
 Moves the iterator to the next %SComponent in the list.
 */
     void Next();
 /*!
     Returns the %SComponent corresponding to the current %SComponent found by the iterator.
+
  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -799,19 +908,21 @@ Moves the iterator to the next %SComponent in the list.
   //==========================================================================
   interface ChildIterator
   {
-/*! \brief Initialization of the Iterator.
+/*!
 
 Activates the %ChildIterator.
 */
     void Init();
-/*! \brief Initialization of the Iterator for all child levels.
+/*!
 
-Activates the %ChildIterator (if True) for all child levels.
+Activates the %ChildIterator for all child levels.
+
+\param allLevels If this boolean parameter is True, the %ChildIterator will be activated for all child levels.
 */
     void InitEx(in boolean allLevels);
-/*! \brief Method More
+/*! Method More
 
-    Returns True if the %ChildIterator finds one more child level.
+   \return True if there is one more %ChildIterator in the list.
 */
     boolean More();
 /*!
@@ -832,14 +943,14 @@ Activates the %ChildIterator (if True) for all child levels.
 */
   interface UseCaseIterator
   {
-/*! \brief Initialization of the Iterator.
-
-Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is activated for all subobjects.
+/*!
+Activates the %UseCaseIterator.
+\param allLevels If the value of this parameter is True the Iterator is activated for all subobjects.
 */
     void Init(in boolean allLevels);
-/*! \brief Method More
+/*! Method More
 
-    Returns True if the %UseCaseIterator finds one more object.
+    \return True if the %UseCaseIterator finds one more object.
 */
     boolean More();
 /*!
@@ -862,11 +973,17 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
   interface UseCaseBuilder
   {
 /*!
-   Adds to the use case an object <VAR>theObject</VAR> as a child of the current object of the use case.
+   Adds to the use case an object as a child of the current object of the use case.
+
+   \param theObject The added %SObject.
+   \return True if this %SObject has been added in the use case.
 */
     boolean Append(in SObject theObject);
 /*!
-   Removes an object <VAR>theObject</VAR> from the use case.
+   Removes an object from the use case.
+
+   \param theObject The deleted %SObject
+   \return True if this %SObject has been deleted from the use case.
 */
     boolean Remove(in SObject theObject);
 /*!
@@ -936,17 +1053,26 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
   //==========================================================================
 /*! \brief %Driver interface
 
-    This interface contains a set of methods used for the management
-     of the object produced in the %study by a component.
+This class represents a common tool for all components integrated into SALOME application, that allows them to communicate with the study. It contains a set of methods which
+can be called by any component and which provide the following functionality:
+<ul>
+    <li> publishing in the study of the objects created by a definite component
+    <li> saving/loading of the data created by a definite component. These methods are called by the StudyManager when loading/saving a study containing the data created by a definite component.
+    <li> transforming of the transient references into persistant references (or vice versa) of the SObjects when saving (or loading) a study
+    <li> copy/paste common functionality. These methods can be called by any component in order to copy/paste its object created in the study
+</ul>
+
 */
   //==========================================================================
   interface Driver
   {
 
-    /*! \brief Saving the data.
+    /*! \brief Saving the data produced by a definite component.
 
         This method is called by the StudyManager when saving a study.
        \param theComponent    %SComponent corresponding to this Component
+       \param theURL  The path to the file in which the data will be saved.
+       \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
        \return A byte stream TMPFile that contains all saved data
 
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
@@ -956,6 +1082,17 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
 
     TMPFile Save(in SComponent theComponent, in string theURL, in boolean isMultiFile);
 
+/*! \brief Saving the data in ASCII format produced by a definite component.
+
+        This method is called by the StudyManager when saving a study in ASCII format.
+       \param theComponent    %SComponent corresponding to this Component
+       \param theURL  The path to the file in which the data will be saved.
+       \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
+       \return A byte stream TMPFile that will contain all saved data
+
+<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+
+     */
     TMPFile SaveASCII(in SComponent theComponent, in string theURL, in boolean isMultiFile);
 
     /*! \brief Loading the data.
@@ -963,32 +1100,53 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
        This method is called by the StudyManager when opening a study.
        \param theComponent      %SComponent corresponding to this Component
        \param theStream   The file which contains all data saved by the component on Save method
+       \param isMultiFile  If the value of this boolean parameter is True, the data will be loaded from several files
+
      */
 
     boolean Load(in SComponent theComponent, in TMPFile theStream, in string theURL, in boolean isMultiFile);
+
+    /*! \brief Loading the data from files in ASCII format.
+
+       This method is called by the StudyManager when opening a study.
+       \param theComponent      %SComponent corresponding to this Component
+       \param theStream   The file which contains all data saved by the component on Save method
+       \param isMultiFile  If the value of this boolean parameter is True, the data will be loaded from several files
+
+     */
 
     boolean LoadASCII(in SComponent theComponent, in TMPFile theStream, in string theURL, in boolean isMultiFile);
 
     /*! \brief Closing of the study
 
       This method Close is called by the StudyManager when closing a study.
-
+    \param aSComponent The according %SComponent
      */
 
     void Close (in SComponent aSComponent);
     //void Close ( in string  aIORSComponent);
 
-    /*! \brief The type of the data
+    /*! Gets the type of the data
 
-        Returns the type of data produced by the Component in the study.
+        \return The type of data produced by the Component in the study.
      */
 
      string ComponentDataType();
 
     // Driver Transient -> persistent called for each object in study
 /*!
-   Transforms IOR into PersistentID of the object. It is called for each
+   Transforms IOR of a given %SObject into PersistentID. It is called for each
    object in the %study.
+\note <br> In %SALOME the objects which are present in an active study are identified by an IOR, when this
+study is saved these references are transformed into persintent IDs.
+
+   \param theSObject The given %SObject.
+   \param IORString The IOR of the given %SObject.
+   \param isMultiFile If this parameter is True the study containing the given %SObject is stored in several files.
+   \param isASCII If this parameter is True the study containing the given %SObject is stored in ASCII format.
+
+   \return The persistent ID of the given %SObject
+
 */
     string IORToLocalPersistentID (in SObject theSObject,
 				   in string IORString,
@@ -997,6 +1155,17 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
 /*!
   Transforms PersistentID into IOR of the object. It is called for each
    object in the %study.
+
+   \note <br> In %SALOME the objects which are present in an saved study (file) are identified by a persistent ID, when this
+study is open, these references are transformed into persintent IORs.
+
+   \param theSObject The given %SObject.
+   \param IORString The IOR of the given %SObject.
+   \param isMultiFile If this parameter is True the study containing the given %SObject is stored in several files.
+   \param isASCII If this parameter is True the study containing the given %SObject is stored in ASCII format.
+
+   \return The IOR of the given %SObject
+
 */
     string LocalPersistentIDToIOR (in SObject theSObject,
 				   in string aLocalPersistentID,
@@ -1005,9 +1174,10 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
       raises (SALOME::SALOME_Exception);
 
     // Publishing in the study
-/*! \brief Publishing in the study
+/*! Publishing in the study
 
-    Returns True if the given %Component can publish the %object in the %study.
+    \return True if the given %Component can publish a definite object with a given IOR in the %study.
+    \param theIOR The IOR of a definite object
 */
     boolean CanPublishInStudy(in Object theIOR) raises (SALOME::SALOME_Exception);
 /*! \brief Publishing in the study
@@ -1019,6 +1189,8 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
     \param theObject      The object which is published
     \param theName      The name of the published object. If this parameter is empty, the name is generated
     automatically by the component.
+
+    \return The published %SObject.
 */
     SObject PublishInStudy(in Study theStudy, in SObject theSObject, in Object theObject, in string theName);
 
@@ -1026,6 +1198,8 @@ Activates the %UseCaseIterator. If <VAR>allLevels</VAR> is True the Iterator is 
 
 /*!
     Returns True, if the given %SObject can be copied to the clipboard.
+
+    \param theObject The given %SObject which should be copied.
 */
     boolean CanCopy(in SObject theObject);
 /*!

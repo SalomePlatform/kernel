@@ -42,6 +42,8 @@
 #include <TDF_Data.hxx>
 #include <TDF_Label.hxx>
 #include <stdio.h>
+#include <TColStd_SequenceOfInteger.hxx>
+#include <TColStd_SequenceOfAsciiString.hxx>
 
 //SALOMEDS headers
 #include "SALOMEDS_SComponentIterator_i.hxx"
@@ -70,6 +72,12 @@ private:
   CORBA::Short             _StudyId;
 
   SALOMEDS_DataMapStringLabel myIORLabels;
+
+  // data structures for postponed destroying of CORBA object functionality
+  TColStd_SequenceOfAsciiString myPostponedIORs; // ordered set of IORs
+  TColStd_SequenceOfInteger myNbPostponed; // number of IOR in the each transaction
+  int myNbUndos; // number of current Undos, made by user
+
   TDF_Label                _current;
   bool                     _autoFill;  
 
@@ -257,6 +265,8 @@ public:
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);
 
+  static SALOMEDS::Study_ptr GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb);
+
   static void IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute, CORBA::ORB_ptr orb);
 
   virtual void UpdateIORLabelMap(const char* anIOR, const char* aLabel);
@@ -277,5 +287,15 @@ public:
   virtual void Close();
 
   void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) { _autoFill = isEnabled; }
+
+  // postponed destroying of CORBA object functionality
+  virtual void AddPostponed(const char* theIOR);
+
+  virtual void AddCreatedPostponed(const char* theIOR);
+
+  virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
+                                                        // if theUndoLimit==0, removes all
+  virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
+                                                // theWay = -1: get back to the list of postponed
 };
 #endif

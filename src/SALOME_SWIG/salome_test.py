@@ -471,6 +471,13 @@ myVisu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
 
 try:
     if os.access(medFile, os.R_OK) :
+       if not os.access(medFile, os.W_OK) :
+	       import random
+	       medFileNew = "/tmp/" + str(random.randint(0,1000000)) + "_" + medfile
+	       print " -- Copy " + medFile + " to " + medFileNew
+	       os.system("cp "+ medFile + " " + medFileNew)
+	       medFile = medFileNew
+
        if os.access(medFile, os.W_OK) :
            med_comp.readStructFileWithFieldType(medFile,studyCurrent)
            med_obj = visu_gui.visu.getMedObjectFromStudy()

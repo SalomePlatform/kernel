@@ -36,6 +36,7 @@ using namespace std;
 #include "QAD_Settings.h"
 #include "QAD_Tools.h"
 #include "QAD_RightFrame.h"
+#include "QAD_LeftFrame.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
@@ -71,6 +72,19 @@ using namespace std;
 #define UC_RENAME_ID       1000012
 #define UC_CLEAR_ID        1000014
 #define UC_SET_CURRENT_ID  1000016
+
+/*!
+  Small button which updates Object Browser's contents
+*/
+Btn::Btn ( QWidget * parent, const char * name ) : QToolButton( parent, name ) 
+{
+  connect( this, SIGNAL(clicked()), this, SLOT(onClicked()) );
+}
+void Btn::onClicked()
+{
+  QAD_ObjectBrowser* OB = QAD_Application::getDesktop()->getActiveApp()->getActiveStudy()->getActiveStudyFrame()->getLeftFrame()->getObjectBrowser();
+  OB->Update();
+}
 
 /*!
   Gets selected top-level items (i.e. not including sub-items) [ static ]
@@ -157,12 +171,14 @@ void QAD_ObjectBrowser::setupListView()
   QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 
   this->setTabPosition( QTabWidget::Bottom );
-
+  
   /* Reading setting : Columns for Value, OCAF Doc entry, object IOR, OCAF Doc ref entry and Chrono sorting */
   QString AddColumn       = QAD_CONFIG->getSetting( "ObjectBrowser:AddColumn"   );
   QString ValueColumn     = QAD_CONFIG->getSetting( "ObjectBrowser:ValueColumn" );
-  QString ShowCHRONO_SORT = QAD_CONFIG->getSetting( "ObjectBrowser:CHRONO_SORT" );
-
+  QString ShowCHRONO_SORT = QAD_CONFIG->getSetting( "ObjectBrowser:ChronologicalSort" );
+  QString showUseCase = QAD_CONFIG->getSetting("ObjectBrowser:ShowUseCaseBrowser");
+  QString noAutoSizeColumns = QAD_CONFIG->getSetting( "ObjectBrowser:NoAutoSizeColumns" );
+ 
   /* create and setup Object Browser ================================= */
   myListView = new QListView( this, "Object Browser");
   myListView->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -176,7 +192,7 @@ void QAD_ObjectBrowser::setupListView()
   myListView->addColumn( tr( "OBJECT_BROWSER_IOR" ) );      /* Adding Object IOR column         */
   myListView->addColumn( tr( "OBJECT_BROWSER_REFENTRY" ) ); /* Adding OCAF Doc ref entry column */
   myListView->header()->setMovingEnabled( false );
-
+ 
   /* Properties */
   myListView->header()->setClickEnabled( TRUE );          /* Enable clicking on the header                    */
   myListView->setShowSortIndicator( TRUE ) ;              /* Add user arrows to indicate the sort order : LPN */
@@ -185,6 +201,7 @@ void QAD_ObjectBrowser::setupListView()
   myListView->setVScrollBarMode( QScrollView::AlwaysOn ); /* Set scrollbars always visible                    */
   myListView->setHScrollBarMode( QScrollView::AlwaysOn ); /* ...                                              */
 
+  myListView->setCornerWidget( new Btn( this ) );
   /* Connect section */
   //VRV: porting on Qt 3.0.5
 #if QT_VERSION < 0x030005
@@ -202,12 +219,12 @@ void QAD_ObjectBrowser::setupListView()
 	   this,       SLOT( onExpanded( QListViewItem* ) ) );
   connect( myListView, SIGNAL( collapsed( QListViewItem* ) ),
 	   this,       SLOT( onCollapsed( QListViewItem* ) ) );
-
+    
   /* create and setup UseCase Browser ================================ */
-  QWidget* vBox = new QWidget( this );
-  QVBoxLayout* vBoxLayout = new QVBoxLayout( vBox );
+  myVBox = new QWidget( this );
+  QVBoxLayout* vBoxLayout = new QVBoxLayout( myVBox );
   
-  myUseCaseView = new QListView( vBox, "UseCase Browser");
+  myUseCaseView = new QListView( myVBox, "UseCase Browser");
   myUseCaseView->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
   myUseCaseView->setMinimumSize( 1, 1 );
   myUseCaseView->setPalette( QAD_Application::getPalette( true ) );
@@ -228,23 +245,25 @@ void QAD_ObjectBrowser::setupListView()
   myUseCaseView->setSorting( -1 ) ;
   vBoxLayout->addWidget( myUseCaseView ); 
 
-  myNewBtn = new QToolButton( vBox );
+  myUseCaseView->setCornerWidget( new Btn( this ) );
+
+  myNewBtn = new QToolButton( myVBox );
   myNewBtn->setIconSet( resMgr->loadPixmap( "QAD", tr("ICON_UC_NEW") ) );
   myNewBtn->setAutoRaise( true );
   QToolTip::add( myNewBtn, tr( "UC_NEW_ID" ), QAD_Application::getDesktop()->toolTipGroup(), tr( "UC_NEW_TIP" ) );
-  myAddBtn = new QToolButton( vBox );
+  myAddBtn = new QToolButton( myVBox );
   myAddBtn->setIconSet( resMgr->loadPixmap( "QAD", tr("ICON_UC_ADD") ) );
   myAddBtn->setAutoRaise( true );
   QToolTip::add( myAddBtn, tr( "UC_APPEND_ID" ), QAD_Application::getDesktop()->toolTipGroup(), tr( "UC_APPEND_TIP" ) );
-  myDelBtn = new QToolButton( vBox );
+  myDelBtn = new QToolButton( myVBox );
   myDelBtn->setIconSet( resMgr->loadPixmap( "QAD", tr("ICON_UC_REMOVE") ) );
   myDelBtn->setAutoRaise( true );
   QToolTip::add( myDelBtn, tr( "UC_REMOVE_ID" ), QAD_Application::getDesktop()->toolTipGroup(), tr( "UC_REMOVE_TIP" ) );
-  myClearBtn = new QToolButton( vBox );
+  myClearBtn = new QToolButton( myVBox );
   myClearBtn->setIconSet( resMgr->loadPixmap( "QAD", tr("ICON_UC_CLEAR") ) );
   myClearBtn->setAutoRaise( true );
   QToolTip::add( myClearBtn, tr( "UC_CLEAR_ID" ), QAD_Application::getDesktop()->toolTipGroup(), tr( "UC_CLEAR_TIP" ) );
-  myCurrentBtn = new QToolButton( vBox );
+  myCurrentBtn = new QToolButton( myVBox );
   myCurrentBtn->setIconSet( resMgr->loadPixmap( "QAD", tr("ICON_UC_SET_CURRENT") ) );
   myCurrentBtn->setAutoRaise( true );
   QToolTip::add( myCurrentBtn, tr( "UC_SET_CURRENT_ID" ), QAD_Application::getDesktop()->toolTipGroup(), tr( "UC_SET_CURRENT_TIP" ) );
@@ -289,12 +308,21 @@ void QAD_ObjectBrowser::setupListView()
 
   /* add Object Browser and UseCase Browser as pages ================= */
   this->addTab( myListView,    tr( "TLT_OBJECT_BROWSER" ) );
-  this->addTab( vBox, tr( "TLT_USECASE_BROWSER" ) );
-
+  this->addTab( myVBox, tr( "TLT_USECASE_BROWSER" ) );
+  
+  if ( showUseCase != "true")
+    this->removePage(myVBox);
+ 
   setShowInfoColumns( AddColumn == "true" );
   setShowValueColumn( ValueColumn == "true" );
   setEnableChronoSort( ShowCHRONO_SORT == "true" );
   
+  if ( noAutoSizeColumns == "true" ) 
+    {
+      for (int i = 0; i < myListView->header()->count(); i++ )
+	myListView->setColumnWidthMode(i, QListView::Manual);
+    }
+
   resize( QSize( 100, 400 ) );
 }
 
@@ -306,11 +334,12 @@ bool QAD_ObjectBrowser::eventFilter( QObject* o, QEvent* e )
 {
   QAD_Desktop* Desktop     = (QAD_Desktop*) QAD_Application::getDesktop();
   QAD_Study* myActiveStudy = Desktop->getActiveStudy();
+ 
   if ( myStudy->_is_nil() )
     return QTabWidget::eventFilter( o, e );
 
   SALOMEDS::UseCaseBuilder_var UCBuilder = myStudy->GetUseCaseBuilder();
-  if ( o == myUseCaseView->viewport() ) {
+  if (o == myUseCaseView->viewport()) {
     if ( e->type() == QEvent::MouseButtonPress ) {
       // Test if clicked on selection and start drag if necessary
       QMouseEvent* me = ( QMouseEvent* )e;
@@ -688,8 +717,8 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	      QString msg;
 	      QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	      if ( resMgr ) {
-		if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aFatherName->Value())), msg )) {
-		  QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aFatherName->Value())),
+		if(resMgr->loadResources( QString(aFatherName->Value()) + "GUI", msg )) {
+		  QPixmap icon ( resMgr->loadPixmap( QString(aFatherName->Value()) + "GUI",
 						     tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
 		  Item->setPixmap( 0, icon );
 		}
@@ -712,9 +741,10 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 */
 void QAD_ObjectBrowser::Update()
 {
-  int x = myListView->contentsX();
-  int y = myListView->contentsY();
-
+  int xc = myListView->contentsX();
+  int yc = myListView->contentsY();
+  myListView->viewport()->setUpdatesEnabled( false );
+ 
   myListView->clear();
   myListViewMap.clear();
 
@@ -845,11 +875,14 @@ void QAD_ObjectBrowser::Update()
 	Update (SC, Item);
     }
   }
-  /* Updating UseCase Browser ============================================= */
-  UpdateUseCaseBrowser();
+  myListView->setContentsPos(xc,yc);
 
-  myListView->setContentsPos(x,y);
-}
+  myListView->viewport()->setUpdatesEnabled( true );
+  myListView->viewport()->repaint( false );
+  /* Updating UseCase Browser ============================================= */
+  if ( this->count() > 1 ) 
+    UpdateUseCaseBrowser(); 
+} 
 
 /*!
   Removes item with all childs from the map - used to optimize UseCase browser update
@@ -876,7 +909,7 @@ void removeFromMap( ItemMap& theMap, QAD_ObjectBrowserItem* item )
 */
 void QAD_ObjectBrowser::UpdateUseCaseBrowser() {
 //  myUseCaseView->clear(); myUseCaseMap.clear();
-  if ( myStudy->_is_nil() ) {
+  if ( myStudy->_is_nil() || this->count()<2 ) {
     return;
   }
   myUseCaseView->blockSignals( true );
@@ -936,7 +969,7 @@ void QAD_ObjectBrowser::UpdateUseCaseBrowser() {
 */
 void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_ObjectBrowserItem* UCItem )
 {
-  if ( myStudy->_is_nil() || !UCItem )
+  if ( myStudy->_is_nil() || !UCItem ) 
     return;
 
   /* Creating SObjects item */
@@ -1103,7 +1136,7 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
 void QAD_ObjectBrowser::unHighlightAll()
 {
   myListView->clearSelection();
-  myUseCaseView->clearSelection();
+  myUseCaseView->clearSelection();  
 }
 
 /*!
@@ -1283,6 +1316,9 @@ void QAD_ObjectBrowser::showUseCasePopupMenu(QListViewItem* theItem)
 */
 void QAD_ObjectBrowser::onSelectedItem()
 {
+  if (currentPage()==myListView)
+    myUseCaseView->clearSelection();
+
   QListView* whoIs;
   if ( sender()->inherits("QListView") )
     whoIs = (QListView*)sender();
@@ -1489,6 +1525,7 @@ void QAD_ObjectBrowser::setShowIAPP( bool show )
 void QAD_ObjectBrowser::setShowInfoColumns( bool show )
 {
   bool shown = myListView->header()->isResizeEnabled( 2 );
+  
   if ( show != shown ) {
     if ( show ) {
       myListView->header()->setResizeEnabled( true, 2 );
@@ -1524,6 +1561,7 @@ void QAD_ObjectBrowser::setShowInfoColumns( bool show )
 void QAD_ObjectBrowser::setShowValueColumn( bool show )
 {
   bool shown = myListView->header()->isResizeEnabled( 1 );
+  
   if ( show != shown ) {
     if ( show ) {
       myListView->header()->setResizeEnabled( true, 1 );
@@ -1808,4 +1846,44 @@ void QAD_ObjectBrowser::onUseCaseBtn()
     onUseCasePopupMenu( UC_CLEAR_ID );
   if ( sender() == myCurrentBtn )
     onUseCasePopupMenu( UC_SET_CURRENT_ID );
+}
+
+/* 
+   Show/remove UseCase Browser 
+*/
+
+void QAD_ObjectBrowser::showUseCaseBrowser ( bool show )
+{
+  bool shown = (this->count() > 1);
+  
+  if (show != shown)
+    {
+      if (show)
+	{
+	  this->addTab( myVBox, tr( "TLT_USECASE_BROWSER" ) );
+	  UpdateUseCaseBrowser();
+	  unHighlightAll();
+	}
+      else
+	this->removePage(myVBox);
+    }
+}
+
+/*!
+  Switch between auto resizing of columns and manual mode
+*/
+void QAD_ObjectBrowser::autoSizeColumns( bool autosize )
+{
+  if (autosize)
+    {
+      for (int i = 0; i < myListView->header()->count(); i++ )
+	if (myListView->header()->isResizeEnabled(i))
+	  myListView->setColumnWidthMode(i, QListView::Maximum);
+      
+    }
+  else
+    {
+      for (int i = 0; i < myListView->header()->count(); i++ )
+	myListView->setColumnWidthMode(i, QListView::Manual); 
+    }
 }

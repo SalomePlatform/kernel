@@ -45,7 +45,7 @@ public:
   ViewType          getTypeView() const { return VIEW_PLOT2D; }
   QWidget*          getViewWidget();
   void              SetSelectionMode( int mode ) {}
-  void              SetTrihedronSize( int dim ) {}
+  void              onAdjustTrihedron( ) {}
 
   /* popup management */
   void              setPopupServer( QAD_Application* );

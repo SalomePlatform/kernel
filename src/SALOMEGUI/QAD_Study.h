@@ -154,6 +154,7 @@ public:
 signals:
   void		  docClosing( QAD_Study* );
   void		  docOperationTerminated( bool );
+  void            closed();
 
 public slots:
   void		  onStudyFrameActivated( QAD_StudyFrame* );

@@ -119,31 +119,31 @@ QAD_HelpWindow::QAD_HelpWindow()
   QCString dir;
   QString root;
   if ( (dir = getenv("KERNEL_ROOT_DIR")) ) {
-  root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
-  if ( QFileInfo( root + "index.html" ).exists() ) {
-  homeDir = root;
-  }
-  else {
-  root = QAD_Tools::addSlash( root + "html" );
-  if ( QFileInfo( root + "index.html" ).exists() ) {
-  homeDir = root;
-  }
-  else {
-  root = QAD_Tools::addSlash( root + "html" );
-  if ( QFileInfo( root + "index.html" ).exists() ) {
-  homeDir = root;
-  }
-  }
-  }
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      homeDir = root;
+    }
+    else {
+      root = QAD_Tools::addSlash( root + "html" );
+      if ( QFileInfo( root + "index.html" ).exists() ) {
+	homeDir = root;
+      }
+      else {
+	root = QAD_Tools::addSlash( root + "html" );
+	if ( QFileInfo( root + "index.html" ).exists() ) {
+	  homeDir = root;
+	}
+      }
+    }
   }
   if ( root.isEmpty() ) {
-  if ( QFileInfo( "/usr/local/doc/html/index.html" ).exists() ) {
-  homeDir = "/usr/local/doc/html/";
-  }
+    if ( QFileInfo( "/usr/local/doc/html/index.html" ).exists() ) {
+      homeDir = "/usr/local/doc/html/";
+    }
   }
   if ( root.isEmpty() ) 
-  root = "./doc/";
-  
+    root = "./doc/";
+
   browser->setSource( QFileInfo( homeDir + "index.html" ).absFilePath() );
   */
   browser->setFocus();

@@ -107,7 +107,7 @@ template <class TYPE> TYPE *SINGLETON_<TYPE>::Instance( void )
 {
 	if ( ! PtrSingleton )
 	{
-		MESSAGE("SINGLETON_<TYPE>::Instance( void )") ;
+		//MESSAGE("SINGLETON_<TYPE>::Instance( void )") ;
 		PtrSingleton = new SINGLETON_<TYPE> ;
 		new DESTRUCTEUR_DE_<TYPE>( PtrSingleton->_Instance ) ;
 	}
@@ -125,7 +125,7 @@ template <class TYPE> bool SINGLETON_<TYPE>::IsAlreadyExisting( void )
 
 template <class TYPE> SINGLETON_<TYPE>::SINGLETON_( void )
 {
-	MESSAGE("CREATION d'un SINGLETON_") ;
+	//MESSAGE("CREATION d'un SINGLETON_") ;
 }
 
 

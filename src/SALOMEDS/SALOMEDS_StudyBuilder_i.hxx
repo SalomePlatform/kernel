@@ -138,6 +138,8 @@ public:
   virtual CORBA::Long UndoLimit();
   virtual void UndoLimit(CORBA::Long);
 
+  void CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection);
+
   virtual SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
   virtual SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
 };

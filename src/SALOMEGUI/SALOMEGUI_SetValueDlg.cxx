@@ -119,6 +119,21 @@ void SALOMEGUI_SetValueDlg::setLabel( const QString& label )
   myLabel->setText( label );
 }
 
+void SALOMEGUI_SetValueDlg::accept()
+{
+  const QValidator* v = myLineEdit->validator();
+  if ( v ) {
+    if ( v->inherits( "QIntValidator" ) ) {
+      bool b;
+      int val = myLineEdit->text().toInt( &b );
+      const QIntValidator* iv = dynamic_cast<const QIntValidator*>(v);
+      if ( !b || val < iv->bottom() || val > iv->top())
+	return;
+    }
+  }
+  QDialog::accept();
+}
+
 /*!
   Gets string value
 */
@@ -157,6 +172,32 @@ int SALOMEGUI_SetValueDlg::getInteger( const QString& caption,
   dlg->setCaption( caption );
   dlg->setLabel( label );
   dlg->setValidator( new QIntValidator( dlg ) );
+  dlg->setValue( QString::number( oldValue ) );
+  int result = dlg->exec();
+  if ( result == QDialog::Accepted ) 
+    v = dlg->value().toInt();
+  if ( ok ) 
+    *ok = result == QDialog::Accepted;
+  delete dlg;
+  return v;
+}
+
+/*!
+  Gets integer value
+*/
+int SALOMEGUI_SetValueDlg::getInteger( const QString& caption, 
+				       const QString& label, 
+				       int            bottom,
+				       int            top,
+				       const int      oldValue,
+				       bool*          ok, 
+				       QWidget*       parent )
+{
+  int v = 0;
+  SALOMEGUI_SetValueDlg* dlg = new SALOMEGUI_SetValueDlg( parent );
+  dlg->setCaption( caption );
+  dlg->setLabel( label );
+  dlg->setValidator( new QIntValidator( bottom, top, dlg ) );
   dlg->setValue( QString::number( oldValue ) );
   int result = dlg->exec();
   if ( result == QDialog::Accepted ) 

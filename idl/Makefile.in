@@ -24,7 +24,8 @@ IDL_FILES = \
   TypeData.idl \
   MPIObject.idl \
   MPIContainer.idl \
-  Logger.idl
+  Logger.idl \
+  SALOME_GenericObj.idl
 
 PY_CLIENT_IDL = $(IDL_FILES)
 

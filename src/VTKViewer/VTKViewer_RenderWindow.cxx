@@ -45,6 +45,7 @@ using namespace std;
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRendererCollection.h>
 #include <vtkXOpenGLRenderWindow.h>
+#include <vtkCamera.h>
 
 //#include <GL/gl.h>
 //#include <GL/glu.h>
@@ -64,6 +65,7 @@ VTKViewer_RenderWindow::VTKViewer_RenderWindow(QWidget *parent, const char *name
   myRW->SetDisplayId((void*)x11Display());
   myRW->SetWindowId((void*)winId());
   myRW->DoubleBufferOn();
+  setMouseTracking(true);
 }
 
 VTKViewer_RenderWindow::~VTKViewer_RenderWindow() {
@@ -76,10 +78,23 @@ void VTKViewer_RenderWindow::paintEvent(QPaintEvent* theEvent) {
 }
 
 void VTKViewer_RenderWindow::resizeEvent(QResizeEvent* theEvent) {
-  vtkRenderWindowInteractor* aRWI = myRW->GetInteractor();
-  if (aRWI != NULL)
-    aRWI->SetSize(width(), height());
-  myRW->SetSize(width(), height());
+  int aWidth = myRW->GetSize()[0], aHeight = myRW->GetSize()[1];
+  if(vtkRenderWindowInteractor* aRWI = myRW->GetInteractor())
+    aRWI->UpdateSize(width(), height());
+  if(aWidth != width() || aHeight != height()){
+    vtkRendererCollection * aRenderers = myRW->GetRenderers();
+    aRenderers->InitTraversal();
+    double aCoeff = 1.0;
+    if(vtkRenderer *aRenderer = aRenderers->GetNextItem()){
+      vtkCamera *aCamera = aRenderer->GetActiveCamera();
+      double aScale = aCamera->GetParallelScale();
+      if((aWidth - width())*(aHeight - height()) > 0)
+	aCoeff = sqrt(double(aWidth)/double(width())*double(height())/double(aHeight));
+      else
+	aCoeff = double(aWidth)/double(width());
+      aCamera->SetParallelScale(aScale*aCoeff);
+    }
+  }
 }
 
 

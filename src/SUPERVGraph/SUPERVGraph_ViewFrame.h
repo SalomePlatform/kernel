@@ -64,7 +64,7 @@ class QAD_EXPORT SUPERVGraph_ViewFrame : public QAD_ViewFrame {
   
   void                           SetSelectionMode( int mode );
 
-  void                           SetTrihedronSize( int dim );
+  void                           onAdjustTrihedron( );
   
   /*  popup management */
   void                           setPopupServer( QAD_Application* );

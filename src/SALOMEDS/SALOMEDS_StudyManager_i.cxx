@@ -28,6 +28,7 @@
 
 using namespace std;
 #include "utilities.h"
+#include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
@@ -75,8 +76,12 @@ using namespace std;
 
 #include <strstream>
 
-#define USE_CASE_LABEL_ID            "0:2"
+#include <SALOME_GenericObj_i.hh>
 
+#define USE_CASE_LABEL_ID             "0:2"
+#define AUTO_SAVE_GUID                "128268A3-71C9-4036-89B1-F81BD6A4FCF2"
+#define AUTO_SAVE_TAG                 "0:8"
+#define AUTO_SAVE_TIME_OUT_IN_SECONDS 1200
 //===========================================================================
 //Function : LoadAttributes
 //===========================================================================
@@ -583,35 +588,15 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   _IDcounter++;
   Study->StudyId( _IDcounter );
 
-  // Register study in the naming service
-  // Path to acces the study
-  if(!_name_service->Change_Directory("/Study")) 
-      MESSAGE( "Unable to access the study directory" )
-  else
-    {
-      char* aPath = CORBA::string_dup(aUrl);
-      char *aName = NULL;
-      char *adr = strtok(aPath, "/");
-      while (adr)
-	{
-	  aName = adr;
-	  adr = strtok(NULL, "/");
-	}
-      adr = aName;
-      aName = strtok(adr, ".");
-      SCRUTE(aName);
-      _name_service->Register(Study, CORBA::string_dup(aName));
-      CORBA::string_free(aPath);
-    }
+  // Assign the value of the URL in the study object
+  Study->URL (aUrl);
+  SCRUTE(aUrl);
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
   SALOMEDS_IORAttribute::Set(Doc->Main().Root(),
 			     TCollection_ExtendedString(CORBA::string_dup(IORStudy)),_orb);
 
-  // Assign the value of the URL in the study object
-  Study->URL (aUrl);
-  SCRUTE(aUrl);
   SALOMEDS_PersRefAttribute::Set(Doc->Main(),strdup(aUrl)); 
 
   if (!hdf_file->ExistInternalObject("STUDY_STRUCTURE")) {
@@ -640,6 +625,12 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   
   hdf_file->CloseOnDisk();
 
+  // Register study in the naming service
+  // Path to acces the study
+  if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
+  else _name_service->Register(Study, CORBA::string_dup(Study->Name()));
+
+
   if (isASCII) {
     SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
     aFilesToRemove->length(1);
@@ -663,7 +654,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 void  SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
 {
   if(aStudy->_is_nil()) return;
-    
+  
+  aStudy->RemovePostponed(-1);
+  
   // Destroy study name in the naming service
   if(_name_service->Change_Directory("/Study")) 
     _name_service->Destroy_Name(aStudy->Name());
@@ -705,18 +698,12 @@ void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CORBA::Boole
 //============================================================================
 void SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
-  // Save the URL of the Study => to be used with the function "Save"
-  aStudy->URL(aUrl);
-  
   _SaveAs(aUrl,aStudy,theMultiFile, false);
 
 }
 
 void SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
-  // Save the URL of the Study => to be used with the function "Save"
-  aStudy->URL(aUrl);
-  
   _SaveAs(aUrl,aStudy,theMultiFile, true);
 }
 
@@ -1300,11 +1287,61 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
   SALOMEDS::StudyBuilder_var SB= aStudy->NewBuilder();
 
-  aStudy->URL(aUrl);
-
   ASSERT(!CORBA::is_nil(aStudy));
   try
     {
+      // mpv 15.12.2003: for saving components we have to load all data from all modules
+
+      SALOMEDS::SComponentIterator_var itcomponent1 = aStudy->NewComponentIterator();
+      for (; itcomponent1->More(); itcomponent1->Next())
+	{
+	  SALOMEDS::SComponent_var sco = itcomponent1->Value();
+	  // if there is an associated Engine call its method for saving
+	  CORBA::String_var IOREngine;
+	  try {
+	    
+	    if (!sco->ComponentIOR(IOREngine)) {
+	      SALOMEDS::GenericAttribute_var aGeneric;
+	      SALOMEDS::AttributeName_var aName;
+	      if(sco->FindAttribute(aGeneric, "AttributeName"))
+		aName = SALOMEDS::AttributeName::_narrow(aGeneric);
+
+	      if (!aName->_is_nil()) {
+		
+		CORBA::String_var aCompType = aName->Value();
+
+		
+		CORBA::String_var aFactoryType;
+		if (strcmp(aCompType, "SUPERV") == 0) aFactoryType = "SuperVisionContainer";
+		else aFactoryType = "FactoryServer";
+		
+		Engines::Component_var aComp =
+		  SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component(aFactoryType, aCompType);
+		
+		if (aComp->_is_nil()) {
+		  Engines::Component_var aComp =
+		    SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
+		}
+		
+		if (!aComp->_is_nil()) {
+		  SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(aComp);
+		  if (!CORBA::is_nil(aDriver)) {
+		    SB->LoadWith(sco, aDriver);
+		  }
+		}
+	      }
+	    }
+	  } catch(...) {
+	    MESSAGE("Can not restore information to resave it");
+	    return;
+	  }
+	}
+
+
+
+      CORBA::String_var anOldName = aStudy->Name();
+      aStudy->URL(aUrl);
+
       // To change for Save 
       // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
       hdf_file = new HDFfile((char *)aUrl);
@@ -1318,6 +1355,10 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
       hdf_group_datacomponent->CreateOnDisk();
 
       SALOMEDS::SComponentIterator_var itcomponent = aStudy->NewComponentIterator();
+      
+      //SRN: Added 17 Nov, 2003
+      SALOMEDS::SObject_var anAutoSaveSO = aStudy->FindObjectID(AUTO_SAVE_TAG);
+      //SRN: End
 
       for (; itcomponent->More(); itcomponent->Next())
 	{
@@ -1329,7 +1370,42 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
 	  CORBA::String_var componentDataType = sco->ComponentDataType();
 	  MESSAGE ( "Look for  an engine for data type :"<< componentDataType);
-	  // if there is an associated Engine call its method for saving
+
+	  //SRN: Added 17 Nov 2003: If there is a specified attribute, the component peforms a special save	  
+	  if(!CORBA::is_nil(anAutoSaveSO) && SB->IsGUID(sco, AUTO_SAVE_GUID)) {	    
+       
+	    SALOMEDS::GenericAttribute_var aGeneric;
+	    SALOMEDS::AttributeTableOfString_var aTable;
+	    if(anAutoSaveSO->FindAttribute(aGeneric, "AttributeTableOfString")) {
+	      aTable = SALOMEDS::AttributeTableOfString::_narrow(aGeneric);
+	      Standard_Integer nbRows = aTable->GetNbRows(), k, aTimeOut = 0;
+              if(nbRows > 0 && aTable->GetNbColumns() > 1) {	
+
+		SALOMEDS::StringSeq_var aRow;
+		for(k=1; k<=nbRows; k++) {
+		  aRow = aTable->GetRow(k);
+		  if (strcmp(aRow[0], componentDataType) == 0) {
+		    CORBA::String_var anEntry = CORBA::string_dup(aRow[1]);
+		    SALOMEDS::SObject_var aCompSpecificSO = aStudy->FindObjectID(anEntry);
+		    if(!CORBA::is_nil(aCompSpecificSO)) {
+		      SALOMEDS::AttributeInteger_var anInteger;
+		      if(aCompSpecificSO->FindAttribute(aGeneric, "AttributeInteger")) {
+			anInteger = SALOMEDS::AttributeInteger::_narrow(aGeneric);
+			anInteger->SetValue(-1);
+			while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
+		      }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
+		    }  // if(!CORBA::is_nil(aCompSpecificSO)) 
+		  }  // if (strcmp(aRow[0], componentDataType) == 0)
+		}  // for
+
+	      }  // if(nbRows > 0 && aTable->GetNbColumns() > 1)
+
+	    }  // if(anAutoSaveSO->FindAttribute(aTable, "AttributeTableOfString")
+
+	  }  // if(SB->IsGUID(AUTO_SAVE_GUID)
+
+	  //SRN: End
+
 	  CORBA::String_var IOREngine;
 	  if (sco->ComponentIOR(IOREngine))
 	    {
@@ -1344,6 +1420,7 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 		  MESSAGE("Engine :"<<Engine->ComponentDataType());
 
 		  SALOMEDS::TMPFile_var aStream;
+
                   if (theASCII) aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
 		  else aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
 
@@ -1452,6 +1529,11 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
       hdf_group_study_structure->CloseOnDisk();
       hdf_file->CloseOnDisk();
+
+      _name_service->Change_Directory("/Study");
+      _name_service->Destroy_Name(anOldName);
+      _name_service->Register(aStudy, aStudy->Name());
+
       aStudy->IsSaved(true);
       hdf_group_study_structure =0; // will be deleted by hdf_file destructor
       delete hdf_file; // recursively deletes all hdf objects...
@@ -1546,7 +1628,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
   CORBA::Object_var obj = _orb->string_to_object(IOREngine);
   SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
   if (CORBA::is_nil(Engine)) return false;
-  return Engine->CanCopy(theObject);
+  Standard_Boolean a = Engine->CanCopy(theObject);
+  return a;
 }
 
 //============================================================================

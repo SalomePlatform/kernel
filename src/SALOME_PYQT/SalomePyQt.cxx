@@ -107,3 +107,7 @@ QString SalomePyQt::getExistingDirectory(QWidget*       parent,
 {
   return QAD_FileDlg::getExistingDirectory(parent, initial, caption);
 }
+
+void SalomePyQt::helpContext(const QString& source, const QString& context) {
+  //QAD_Application::getDesktop()->helpContext(source, context);
+}

@@ -29,12 +29,14 @@
 
 /*!  
 The main package of interfaces used for creation of the module catalog in %SALOME application.
+Module catalog allows to manage components of %SALOME application, to call specified in the
+xml files interfaces with the help of AComponent interface.
 */
 module SALOME_ModuleCatalog
 {
   // Type Definitions
 /*! 
-This enumeration contains a set of definitions of the components integrated
+This enumeration contains a current set of definitions of the components integrated
 into %SALOME application.
 */
   enum ComponentType {  GEOM,  /*!<Module %GEOM */
@@ -47,7 +49,7 @@ into %SALOME application.
                        OTHER   /*!<Any other type of module */
                      } ;
 /*! 
-This struct contains fields defining the parameters of the services.
+This struct contains fields defining the parameter of the service.
 */
 
   struct ServicesParameter
@@ -56,7 +58,12 @@ This struct contains fields defining the parameters of the services.
     string Parametername; /*!<Name of the parameter.*/
   } ;
 
+/*! 
+The list of the parameters of service.
+*/
+
   typedef sequence<ServicesParameter> ListOfServicesParameter;
+
 /*! 
 This struct contains fields completely defining each service.
 */
@@ -65,7 +72,7 @@ This struct contains fields completely defining each service.
   {
     string                  ServiceName; /*!<Name of the service.*/
     ListOfServicesParameter ServiceinParameter; /*!< List of input parameters of the services.*/
-    ListOfServicesParameter ServiceoutParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesParameter ServiceoutParameter; /*!< List of output parameters of the services.*/
     boolean                 Servicebydefault; /*!<True if the service is taken with its defult fields.*/
   } ;
 /*! 
@@ -89,7 +96,7 @@ List of interface definitions.
 */
   typedef sequence<DefinitionInterface> ListOfDefInterface ;
 /*! 
-List of interfaces.
+List of names of interfaces.
 */
   typedef sequence<string> ListOfInterfaces ;
 /*! 
@@ -123,12 +130,16 @@ List of pair GUI elements (component name, component icone)
     string what ; /*!<Indicates if it's a %component, a %service or a % pathPrefix.*/
   } ;
 
+  /*!
+   This interface provides the common funcionality information of corresponding component.
+   Information is loaded from specific xml files.
+  */
   interface Acomponent
   {
     // GetInterfaceList : operation to get a list of the interfaces name of
     //                    a component
   /*!
-   Gets a list of names of interfaces of the component
+   Gets the list of names of interfaces of the component
     \return a list of interfaces of the component 
   */
     ListOfInterfaces GetInterfaceList() ;
@@ -146,7 +157,7 @@ List of pair GUI elements (component name, component icone)
     // GetServiceList : operation to get a list of the services name of
     //                  an interface of a component
  /*! 
-   Gets a list of names of services of a definite interface belonging to the component.
+   Gets the list of names of services of a definite interface belonging to the component.
    \note <BR>If the specified interface doesn't exist, Notfound exception is thrown.
    \param interfacename Name of the interface 
    \return List of services of the required interface
@@ -199,13 +210,13 @@ Sets/gets the name of the component
 */
     readonly attribute string componentname;
 
-/*! 
+/*!
 Sets/gets the user name of the component
 */
     readonly attribute string componentusername;
 
 /*! 
-Defines whether the component can be multistudy or not
+Defines whether the component is multistudy or not
 */
     readonly attribute boolean multistudy;
 

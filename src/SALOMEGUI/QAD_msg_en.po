@@ -259,6 +259,12 @@ msgstr "Interface Applicative"
 msgid "MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"
 msgstr "Chronological sort of objects" 
 
+msgid "MEN_DESK_PREF_OBJECTBROWSER_SHOW_USECASE"
+msgstr "Show UseCase Browser" 
+
+msgid "MEN_DESK_PREF_OBJECTBROWSER_NO_AUTOSIZE"
+msgstr "No autosize columns" 
+
 
 msgid "QAD_Desktop::MEN_DESK_SELECTION_MODE"
 msgstr "Selection Mode"
@@ -434,6 +440,21 @@ msgstr "Sketch a rectangular area to fit the view"
 #---------------
 # TOOL TIP
 #---------------
+
+#: QAD_HelpWindow.cxx:57
+msgid "QAD_HelpWindow::TOT_HELPWINDOW_BACKWARD"
+msgstr "Backward"
+
+#: QAD_HelpWindow.cxx:60
+msgid "QAD_HelpWindow::TOT_HELPWINDOW_FORWARD"
+msgstr "Forward"
+
+#: QAD_HelpWindow.cxx:63
+msgid "QAD_HelpWindow::TOT_HELPWINDOW_HOME"
+msgstr "Home"
+
+msgid "QAD_HelpWindow::QAD_HELP_CONTENTS"
+msgstr "Contents"
 
 #: QAD_Application.cxx:173
 msgid "QAD_Application::TOT_APP_EDIT_REDO"
@@ -751,6 +772,9 @@ msgstr "ASCII Save"
 
 msgid "TOT_APP_EDIT_COPY"
 msgstr "Copy"
+
+msgid "MEN_DESK_PREF_UNDO_LEVEL"
+msgstr "Undo Level"
 
 msgid "MEN_APP_EDIT_COPY"
 msgstr "&Copy"

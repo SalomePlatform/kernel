@@ -44,6 +44,7 @@ public:
   static QString getExistingDirectory(QWidget*       parent,
                                       const QString& initial,
                                       const QString& caption);
+  static void helpContext(const QString& source, const QString& context);
 };
 
 #endif

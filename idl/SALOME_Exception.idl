@@ -65,7 +65,7 @@ The main exception in %SALOME application.
 */
   exception SALOME_Exception
   {
-    ExceptionStruct details;
+    ExceptionStruct details; /*!<Structure of the exception.*/
   };
 
 };

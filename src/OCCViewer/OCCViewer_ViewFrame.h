@@ -65,9 +65,7 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   QCursor           cursor() const;
 
   void              SetSelectionMode( int mode ) {};
-
-  void              SetTrihedronSize( int dim );
-
+  
   /*  popup management */
   void              setPopupServer( QAD_Application* );
 
@@ -134,6 +132,7 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   void           onViewBottom();
   void           onViewTop();
   void           onViewTrihedron(); 
+  void           onAdjustTrihedron();
  
  protected:
   OCCViewer_Viewer3d*      myViewer;	 // my owner

@@ -615,7 +615,7 @@ void SALOMEGUI_Application::onDisplay(int id)
     viewFrame->Repaint();
 
   if (isForeignGUIUsed)
-    foreignGUI.DlClose();
+    ;//foreignGUI.DlClose(); // VSR: Fix crash on Display objects from non-parent components
   myActiveStudy->updateObjBrowser(true);
 }
 

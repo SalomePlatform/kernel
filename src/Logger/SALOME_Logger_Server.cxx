@@ -53,7 +53,7 @@ void Logger::putMessage(const char* message)
 
 void Logger::ping()
 {
-  cout<<" Logger::ping() pid "<< getpid()<<endl;
+  //cout<<" Logger::ping() pid "<< getpid()<<endl;
 }
 
 int main(int argc, char **argv)
@@ -66,59 +66,58 @@ int main(int argc, char **argv)
   try
     {
       //Initialize the ORB
-      long TIMESleep = 250000000;
-      int NumberOfTries = 40;
-      int a;
-      timespec ts_req;
-      ts_req.tv_nsec=TIMESleep;
-      ts_req.tv_sec=0;
-      timespec ts_rem;
-      ts_rem.tv_nsec=0;
-      ts_rem.tv_sec=0;
+      const long TIMESleep = 250000000;
+      const int NumberOfTries = 40;
+      int i;
+      timespec ts_req = {0, TIMESleep};
+      timespec ts_rem = {0, 0};
       CosNaming::NamingContext_var inc;
-      CORBA::ORB_var orb; 
       SALOME_Logger::Logger_var myLoggerRef;
       CORBA::Object_var theObj;
       Logger* myLogger;
       CORBA::Object_var obj;
       PortableServer::POA_var poa;
       PortableServer::POAManager_var pman;   
-      orb = CORBA::ORB_init(argc,argv) ;     
-      for (int i = 1; i<=NumberOfTries; i++){        
-	if (i!=1) 
-	  a=nanosleep(&ts_req,&ts_rem);  
-	obj = orb->resolve_initial_references("RootPOA") ;
-	if(!CORBA::is_nil(obj))
-	  poa = PortableServer::POA::_narrow(obj) ;
-	pman = poa->the_POAManager();
-	// NB. You can activate the POA before or after
-	// activating objects in that POA.
-	
-	// This activates the object in the root POA (by default), and
-	// returns a reference to it.
-	//NB. You can't use SALOME_NamingService class because it uses MESSAGE macro
-	//Otherwise, you will get segmentation fault.   
-	//Get initial naming context
-	try{
-      if(!CORBA::is_nil(orb)) 
-	theObj = orb->resolve_initial_references("NameService");
-      //Narrow to NamingContext
-      if (!CORBA::is_nil(theObj)){
-	inc = CosNaming::NamingContext::_narrow(theObj);
-      }
-      }catch(CORBA::COMM_FAILURE&)
-       {
-	 cout<<"Logger Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service"<<endl;
-	   }
-      catch(...){ cout<<"Logger Server: Unknown exception dealed with Naming Service" <<endl; } 
-	if (!CORBA::is_nil(inc)){
-	  cout<<"Logger Server: Naming Service was found"<<endl; 
-	  break;}
+
+      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv) ;
+
+      for (int i = 1; i <= NumberOfTries; i++){        
+	if (i != 1) nanosleep(&ts_req, &ts_rem);
+	try {
+	  obj = orb->resolve_initial_references("RootPOA") ;
+	  if(!CORBA::is_nil(obj))
+	    poa = PortableServer::POA::_narrow(obj) ;
+	  pman = poa->the_POAManager();
+	  // NB. You can activate the POA before or after
+	  // activating objects in that POA.
+	  
+	  // This activates the object in the root POA (by default), and
+	  // returns a reference to it.
+	  //NB. You can't use SALOME_NamingService class because it uses MESSAGE macro
+	  //Otherwise, you will get segmentation fault.   
+	  //Get initial naming context
+	  if(!CORBA::is_nil(orb)) 
+	    theObj = orb->resolve_initial_references("NameService");
+	  //Narrow to NamingContext
+	  if (!CORBA::is_nil(theObj))
+	    inc = CosNaming::NamingContext::_narrow(theObj);
+	} catch(CORBA::COMM_FAILURE&) {
+	  //cout<<"Logger Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service"<<endl;
+	}
+	catch(...) {
+	  //cout<<"Logger Server: Unknown exception dealed with Naming Service" <<endl;
+	}
+	if (!CORBA::is_nil(inc)) {
+//	  cout<<"Logger Server: Naming Service was found"<<endl; 
+	  break;
+	}
       }
       if (argc == 1)
 	myLogger = new Logger();
       else
 	myLogger = new Logger(argv[1]);
+
+
       myLoggerRef = myLogger->_this();
       CosNaming::Name name;
       name.length(1);

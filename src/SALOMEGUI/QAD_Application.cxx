@@ -396,7 +396,7 @@ const QString& QAD_Application::getStudyExtension() const
 */
 bool QAD_Application::isStudyOpened( const QString& studyName )
 {
-  QString Name = QAD_Tools::getFileNameFromPath( studyName, false );
+  QString Name = QAD_Tools::getFileNameFromPath( studyName, true );
   return (( getStudyByName( studyName ) != NULL ) || (getStudyByName( Name ) != NULL )); 
 }
 
@@ -464,7 +464,7 @@ void QAD_Application::helpAbout()
 void QAD_Application::helpSearch()
 {
   /* just calls QAD_Desktop::helpSearch() but can have own implementation */
- //  getDesktop()->helpSearch();
+//  getDesktop()->helpSearch();
 }
 
 /*!
@@ -473,7 +473,7 @@ void QAD_Application::helpSearch()
 void QAD_Application::helpContents()
 {
   /* just calls QAD_Desktop::helpContents() but can have own implementation */
- //  getDesktop()->helpContents();
+//  getDesktop()->helpContents();
 }
 
 /*!
@@ -801,7 +801,7 @@ QAD_Study* QAD_Application::newStudy()
     while ( exist ) {
       exist = false;
       for (unsigned int ind = 0; ind < List->length();ind++) {
-	QString NameS = QAD_Tools::getFileNameFromPath( QString( List[ind] ), false );
+	QString NameS = QAD_Tools::getFileNameFromPath( QString( List[ind] ), true );
 	if ( NameS.compare( StudyName ) == 0 ) {
 	  StudyName = getDesktop()->getNewStudyName();
 	  exist = true;
@@ -914,8 +914,9 @@ QAD_Study* QAD_Application::openStudy( const QString& fileName )
       /* open StudyDS */
       SALOMEDS::Study_var aStudy = myStudyMgr->Open((char*) name.latin1());
 
+      //MPV: name of the study is set in the study manager now
       //NRI DEBUG : 11/02/2002
-      aStudy->Name( QAD_Tools::getFileNameFromPath(name,false) );
+      //aStudy->Name( QAD_Tools::getFileNameFromPath(name,true) );
 
       /* create QAD study */            
       openStudy = new QAD_Study( this, aStudy, fileName );

@@ -35,7 +35,9 @@ module SALOME
    This enumeration contains values defining the state of the session
   
 */ 
-  enum SessionState {asleep, running} ;
+  enum SessionState {asleep, /*! Session is inactive */
+		     running /*! Session is running */
+  } ;
 
 /*! \brief %Session State and Statistics
 
@@ -80,7 +82,10 @@ module SALOME
    Launches GUI in the session
 */
     void GetInterface(); 
-    //***//    VISU::VISU_Gen GetVisuGen();
+
+/*! 
+   Returns the Visu component
+*/
     Engines::Component GetVisuComponent();
 
 /*! 

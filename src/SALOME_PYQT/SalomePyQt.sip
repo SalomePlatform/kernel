@@ -45,4 +45,5 @@ public:
 
   static QString getFileName(QWidget*, const QString&, const QStringList&, const QString&, bool);
   static QString getExistingDirectory(QWidget*, const QString&, const QString&);
+  static void helpContext(const QString&, const QString&);
 };

@@ -28,7 +28,8 @@
 
 using namespace std;
 #include "utilities.h"
-#include "SALOMEDS_StudyBuilder_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
+//#include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 
@@ -111,6 +112,7 @@ SALOMEDS_StudyBuilder_i::~SALOMEDS_StudyBuilder_i()
 SALOMEDS::SComponent_ptr 
 SALOMEDS_StudyBuilder_i::NewComponent(const char* DataType)
 {
+  CheckLocked();
   //Always create component under main label.
   TDF_Label L  = _doc->Main();
 
@@ -144,6 +146,7 @@ SALOMEDS_StudyBuilder_i::NewComponent(const char* DataType)
 void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr aComponent,
 						 CORBA::Object_ptr IOR)
 {
+  CheckLocked();
   //Find label
   TDF_Label Lab;
   ASSERT(!CORBA::is_nil(aComponent));
@@ -165,6 +168,7 @@ void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr a
 void 
 SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr aComponent)
 {
+  CheckLocked();
   ASSERT(!CORBA::is_nil(aComponent));
   RemoveObject(aComponent);
 }
@@ -177,6 +181,7 @@ SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr aComponent)
 SALOMEDS::SObject_ptr 
 SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr theFatherObject)
 {
+  CheckLocked();
   TCollection_AsciiString anEntry;
  
   //Find label of father
@@ -213,6 +218,7 @@ SALOMEDS::SObject_ptr
 SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
 					CORBA::Long atag)
 {
+  CheckLocked();
   //Find label of father
   TDF_Label Lab;
 
@@ -237,6 +243,7 @@ SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
 //============================================================================
 void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr anObject)
 {
+  CheckLocked();
   if(!CORBA::is_nil(_callbackOnRemove)) _callbackOnRemove->OnRemoveSObject(anObject);
 
   TDF_Label Lab;
@@ -249,6 +256,10 @@ void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr anObject)
     if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
       aTarget->Remove(Lab);
   }
+
+  Handle(SALOMEDS_IORAttribute) anAttr; // postponed removing of CORBA objects
+  if (Lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr))
+    SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->AddPostponed(strdup(TCollection_AsciiString(anAttr->Get()).ToCString()));
 
   Lab.ForgetAllAttributes();
 }
@@ -260,6 +271,7 @@ void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr anObject)
 //============================================================================
 void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anObject)
 {
+  CheckLocked();
   if(!CORBA::is_nil(_callbackOnRemove)) _callbackOnRemove->OnRemoveSObject(anObject);
 
   TDF_Label Lab;
@@ -272,6 +284,9 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
     if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
       aTarget->Remove(Lab);
   }
+  Handle(SALOMEDS_IORAttribute) anAttr; // postponed removing of CORBA objects
+  if (Lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr))
+    SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->AddPostponed(strdup(TCollection_AsciiString(anAttr->Get()).ToCString()));
 
   TDF_ChildIterator it(Lab);
   for(;it.More();it.Next()) {
@@ -281,6 +296,9 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
       if (aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
 	aTarget->Remove(aLabel);
     }
+    Handle(SALOMEDS_IORAttribute) anAttr; // postponed removing of CORBA objects
+    if (aLabel.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr))
+      SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->AddPostponed(strdup(TCollection_AsciiString(anAttr->Get()).ToCString()));
   }
 
   Lab.ForgetAllAttributes(Standard_True);
@@ -546,6 +564,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   if (strcmp(aTypeOfAttribute, "AttributeReal") == 0 ) {
     Handle(TDataStd_Real) anAttr;
     if (!Lab.FindAttribute(TDataStd_Real::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new TDataStd_Real;
       Lab.AddAttribute(anAttr); 
     }
@@ -556,6 +575,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeInteger") == 0 ) {
     Handle(TDataStd_Integer) anAttr;
     if (!Lab.FindAttribute(TDataStd_Integer::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new TDataStd_Integer;
       Lab.AddAttribute(anAttr); 
     }
@@ -566,6 +586,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeSequenceOfReal") == 0 ) {
     Handle(SALOMEDS_SequenceOfRealAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_SequenceOfRealAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_SequenceOfRealAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -576,6 +597,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeSequenceOfInteger") == 0 ) {
     Handle(SALOMEDS_SequenceOfIntegerAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_SequenceOfIntegerAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_SequenceOfIntegerAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -586,6 +608,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeName") == 0 ) {
     Handle(TDataStd_Name) anAttr;
     if (!Lab.FindAttribute(TDataStd_Name::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new TDataStd_Name;
       Lab.AddAttribute(anAttr); 
     }
@@ -596,6 +619,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeComment") == 0 ) {
     Handle(TDataStd_Comment) anAttr;
     if (!Lab.FindAttribute(TDataStd_Comment::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new TDataStd_Comment;
       Lab.AddAttribute(anAttr); 
     }
@@ -626,6 +650,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0 ) {
     Handle(SALOMEDS_IORAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_IORAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -686,6 +711,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeTextColor") == 0 ) {
     Handle(SALOMEDS_TextColorAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_TextColorAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_TextColorAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -696,6 +722,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeTextHighlightColor") == 0 ) {
     Handle(SALOMEDS_TextHighlightColorAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_TextHighlightColorAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_TextHighlightColorAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -706,6 +733,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributePixMap") == 0 ) {
     Handle(SALOMEDS_PixMapAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_PixMapAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_PixMapAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -724,16 +752,20 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
       delete(aGUIDString);
     }
     Handle(TDataStd_TreeNode) anAttr;
-    if (!Lab.FindAttribute(aTreeNodeGUID, anAttr))
+    if (!Lab.FindAttribute(aTreeNodeGUID, anAttr)) {
+      CheckLocked();
       anAttr = TDataStd_TreeNode::Set(Lab, aTreeNodeGUID);
+    }
     SALOMEDS_AttributeTreeNode_i* aTreeNodeAttr = new SALOMEDS_AttributeTreeNode_i(anAttr, _orb);
     SALOMEDS::AttributeTreeNode_var aTNA = aTreeNodeAttr->AttributeTreeNode::_this();
     return  aTNA._retn();
   }
   else if (strncmp(aTypeOfAttribute, "AttributeUserID",15) == 0 ) {
     Handle(TDataStd_UAttribute) anAttr;
-    if (!Lab.FindAttribute(SALOMEDS_AttributeUserID_i::DefaultID(), anAttr))
+    if (!Lab.FindAttribute(SALOMEDS_AttributeUserID_i::DefaultID(), anAttr)) {
+      CheckLocked();
       anAttr = TDataStd_UAttribute::Set(Lab, SALOMEDS_AttributeUserID_i::DefaultID());
+    }
     SALOMEDS_AttributeUserID_i* aUAttr = new SALOMEDS_AttributeUserID_i(anAttr, _orb);
     SALOMEDS::AttributeUserID_var aUA = aUAttr->AttributeUserID::_this();
     return  aUA._retn();
@@ -741,6 +773,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeLocalID") == 0 ) {
     Handle(SALOMEDS_LocalIDAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_LocalIDAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_LocalIDAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -761,6 +794,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeTableOfInteger") == 0 ) {
     Handle(SALOMEDS_TableOfIntegerAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_TableOfIntegerAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_TableOfIntegerAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -771,6 +805,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeTableOfReal") == 0 ) {
     Handle(SALOMEDS_TableOfRealAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_TableOfRealAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_TableOfRealAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -781,6 +816,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeTableOfString") == 0 ) {
     Handle(SALOMEDS_TableOfStringAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_TableOfStringAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_TableOfStringAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -791,9 +827,12 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributeStudyProperties") == 0 ) {
     Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
-      anAttr = new SALOMEDS_StudyPropertiesAttribute;
-      Lab.AddAttribute(anAttr); 
-      anAttr->SetModified(0);
+      CheckLocked();
+      if (!Lab.FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
+	anAttr = new SALOMEDS_StudyPropertiesAttribute;
+	Lab.AddAttribute(anAttr); 
+	anAttr->SetModified(0);
+      }
     }
     SALOMEDS_AttributeStudyProperties_i* aStPropAttr = new SALOMEDS_AttributeStudyProperties_i(anAttr, _orb);
     SALOMEDS::AttributeStudyProperties_var aSPA = aStPropAttr->AttributeStudyProperties::_this();
@@ -802,6 +841,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   else if (strcmp(aTypeOfAttribute, "AttributePythonObject") == 0 ) {
     Handle(SALOMEDS_PythonObjectAttribute) anAttr;
     if (!Lab.FindAttribute(SALOMEDS_PythonObjectAttribute::GetID(), anAttr)) {
+      CheckLocked();
       anAttr = new SALOMEDS_PythonObjectAttribute;
       Lab.AddAttribute(anAttr); 
     }
@@ -968,12 +1008,21 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anOb
 //============================================================================
 
 void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr anObject, 
-                                                                     const char* aTypeOfAttribute)
+					      const char* aTypeOfAttribute)
 {
+  CheckLocked();
   TDF_Label Lab;
   ASSERT(!CORBA::is_nil(anObject));
   CORBA::String_var anobid = anObject->GetID();
   TDF_Tool::Label(_doc->GetData(),strdup(anobid),Lab);
+  
+  if (strcmp(aTypeOfAttribute, "AttributeIOR") == 0) { // postponed removing of CORBA objects
+    Handle(SALOMEDS_IORAttribute) anAttr;
+    if (Lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anAttr))
+      SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->AddPostponed(strdup(TCollection_AsciiString(anAttr->Get()).ToCString()));
+    else return;
+  }
+
   Lab.ForgetAttribute (SALOMEDS_SObject_i::ReturnGUIDForAttribute(aTypeOfAttribute));
 }
 
@@ -986,6 +1035,7 @@ void
 SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me, 
 				      SALOMEDS::SObject_ptr theReferencedObject)
 {
+  CheckLocked();
   TDF_Label Lab;
   ASSERT(!CORBA::is_nil(me));
   CORBA::String_var meid = me->GetID();
@@ -1009,6 +1059,7 @@ SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me,
 //============================================================================
 void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath) 
 {
+  CheckLocked();
   if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
 
   TCollection_AsciiString aPath(CORBA::string_dup(thePath)), aContext(""), aFatherPath;
@@ -1075,6 +1126,7 @@ void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath)
 //============================================================================
 void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID)
 {
+  CheckLocked();
   TDF_Label aLabel;
   ASSERT(!CORBA::is_nil(anObject));
   CORBA::String_var anEntry = anObject->GetID();
@@ -1132,6 +1184,8 @@ void SALOMEDS_StudyBuilder_i::CommitCommand() throw (SALOMEDS::StudyBuilder::Loc
     AbortCommand();
     throw SALOMEDS::StudyBuilder::LockProtection();
   } else {
+    SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->RemovePostponed(_doc->GetUndoLimit());
+
     int aModif = anAttr->GetModified();
     if (aModif < 0) aModif = 1000; // if user make undo and then - new transaction "modify" will never be zero
     anAttr->SetModified(aModif+1);
@@ -1156,6 +1210,8 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::HasOpenCommand()
 //============================================================================
 void SALOMEDS_StudyBuilder_i::AbortCommand()
 {
+  SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->UndoPostponed(0);
+  
   _doc->AbortCommand();
 }
 
@@ -1175,6 +1231,7 @@ void SALOMEDS_StudyBuilder_i::Undo() throw (SALOMEDS::StudyBuilder::LockProtecti
     INFOS("Locked document modification !!!");
     throw SALOMEDS::StudyBuilder::LockProtection();
   } else {
+    SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->UndoPostponed(1);
     _doc->Undo();
     anAttr->SetModified(anAttr->GetModified()-1);
   }
@@ -1198,6 +1255,7 @@ void SALOMEDS_StudyBuilder_i::Redo() throw (SALOMEDS::StudyBuilder::LockProtecti
     throw SALOMEDS::StudyBuilder::LockProtection();
   } else {
     _doc->Redo();
+    SALOMEDS_Study_i::GetStudy(_doc->Main(), _orb)->UndoPostponed(-1);
     anAttr->SetModified(anAttr->GetModified()+1);
   }
 }
@@ -1222,7 +1280,6 @@ CORBA::Boolean  SALOMEDS_StudyBuilder_i::GetAvailableRedos()
   return _doc->GetAvailableRedos();
 }
 
-
 //============================================================================
 /*! Function : UndoLimit
  *  Purpose  : 
@@ -1240,6 +1297,7 @@ CORBA::Long  SALOMEDS_StudyBuilder_i::UndoLimit()
 //============================================================================
 void  SALOMEDS_StudyBuilder_i::UndoLimit(CORBA::Long n)
 {
+  CheckLocked();
   _doc->SetUndoLimit (n);
 }
 
@@ -1265,4 +1323,14 @@ SALOMEDS::Callback_ptr SALOMEDS_StudyBuilder_i::SetOnRemoveSObject(SALOMEDS::Cal
   SALOMEDS::Callback_ptr aRet = (CORBA::is_nil(_callbackOnRemove))?NULL:_callbackOnRemove._retn();
   _callbackOnRemove = SALOMEDS::Callback::_duplicate(theCallback);
   return aRet;
+}
+
+void SALOMEDS_StudyBuilder_i::CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection) {
+  if (_doc->HasOpenCommand()) return;
+  Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
+  if (!_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(), anAttr)) {
+    anAttr = new SALOMEDS_StudyPropertiesAttribute;
+    _doc->Main().AddAttribute(anAttr);
+  }
+  if (anAttr->IsLocked()) throw SALOMEDS::StudyBuilder::LockProtection();
 }

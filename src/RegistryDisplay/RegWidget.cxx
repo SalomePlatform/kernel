@@ -50,15 +50,17 @@ using namespace std;
 # include "HelpWindow.hxx" 
 # include "IntervalWindow.hxx"
 
-static QString addSlash( const QString& path );
-
 typedef int PIXELS;
 RegWidget* RegWidget::myRegWidgetPtr = 0;
+QString addSlash( const QString& );
+QString findFile( QString filename );
 
 #define BOLD( text ) ( QString( "<b>" ) + QString( text ) + QString( "</b>" ) )
+
 /*!
   Creates components list
 */
+
 Registry::Components_var MakeRegistry( CORBA::ORB_var &orb )
 {
 
@@ -112,32 +114,14 @@ RegWidget::RegWidget(CORBA::ORB_var &orb, QWidget *parent, const char *name )
        _tabWidget(0), _refresh(0), _interval(0),
        myInfoWindow(0), myHelpWindow(0), myIntervalWindow(0)
 {
-
+   QString aFile = findFile("default.png");
+ /* char* dir = getenv( "CSF_ResourcesDefaults" );
   QString path( "" );
-  QString dir;
-  char* cenv;
-  cenv = getenv( "KERNEL_ROOT_DIR" );
-  if ( cenv ) {
-    dir.sprintf( "%s", cenv );
-    if ( !dir.isEmpty() ) {
-      dir = addSlash(dir) ;
-      dir = dir + "share" ;
-      dir = addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = addSlash(dir) ;
-      dir = dir + "resources" ;
-      dir = addSlash(dir) ;
-      QDir qDir( dir );
-      path = qDir.filePath( "default.png" );
-    }
-  }
-//    char* dir = getenv( "CSF_ResourcesDefaults" );
-//    QString path( "" );
-//    if ( dir ) {
-//      QDir qDir( dir );
-//      path = qDir.filePath( "default.png" );
-//    }
-  QPixmap pm ( path );
+  if ( dir ) {
+    QDir qDir( dir );
+    path = qDir.filePath( "default.png" );
+  }*/
+  QPixmap pm ( aFile );
   if ( !pm.isNull() )
     setIcon( pm );
 
@@ -466,7 +450,7 @@ void RegWidget::slotSelectRefresh()
   myIntervalWindow->installEventFilter( this );
   myIntervalWindow->setValue(myRefreshInterval);
   myIntervalWindow->show();
-  connect( myIntervalWindow->Cancel(), SIGNAL( clicked() ), myIntervalWindow, SLOT( reject() ) );
+  connect( myIntervalWindow->Cancel(), SIGNAL( clicked() ), myIntervalWindow, SLOT( close() ) );
   connect( myIntervalWindow->Ok(), SIGNAL( clicked() ), this, SLOT( slotIntervalOk() ) );
   END_OF("slotSelectRefresh");
 }
@@ -596,6 +580,79 @@ void InfoWindow::setText( const QString& text )
   myTextView->setText( text );
 }
 
+static const char* SEPARATOR    = ":";
+
+QString findFile( QString filename )
+{
+  QString dir;
+  char* cenv;
+  
+  // Try ${HOME}/.salome/resources directory
+  cenv = getenv( "HOME" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + ".salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QFileInfo fileInfo( dir + filename );
+      if ( fileInfo.isFile() && fileInfo.exists() )
+	return fileInfo.filePath();
+    }
+  }
+  // Try ${SALOME_SITE_DIR}/share/salome/resources directory
+  cenv = getenv( "SALOME_SITE_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = addSlash(dir) ;
+      cenv = getenv("SALOME_SITE_NAME");
+      if (cenv)  dir = dir + cenv;
+      else       dir = dir + "salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QFileInfo fileInfo( dir + filename );
+      if ( fileInfo.isFile() && fileInfo.exists() )
+	return fileInfo.filePath();
+    }
+  }
+  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
+  cenv = getenv( "SALOME_ROOT_DIR" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      dir = addSlash(dir) ;
+      dir = dir + "share" ;
+      dir = addSlash(dir) ;
+      dir = dir + "salome" ;
+      dir = addSlash(dir) ;
+      dir = dir + "resources" ;
+      dir = addSlash(dir) ;
+      QFileInfo fileInfo( dir + filename );
+      if ( fileInfo.isFile() && fileInfo.exists() )
+	return fileInfo.filePath();
+    }
+  }
+  // Try CSF_SaloameResources env.var directory ( or directory list )
+  cenv = getenv( "CSF_SalomeResources" );
+  if ( cenv ) {
+    dir.sprintf( "%s", cenv );
+    if ( !dir.isEmpty() ) {
+      QStringList dirList = QStringList::split( SEPARATOR, dir, false ); // skip empty entries
+      for ( int i = 0; i < dirList.count(); i++ ) {
+	QFileInfo fileInfo( addSlash( dirList[ i ] ) + filename );
+	if ( fileInfo.isFile() && fileInfo.exists() )
+	  return fileInfo.filePath();
+      }
+    }
+  }
+  return filename;
+}
 QString addSlash( const QString& path )
 {
   if (!path.isNull()) {

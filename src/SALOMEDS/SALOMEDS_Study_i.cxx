@@ -39,6 +39,8 @@ using namespace std;
 #include <TDocStd_Owner.hxx>
 #include <CDM_Document.hxx>
 #include <CDM_Application.hxx>
+#include <TDF_ChildIDIterator.hxx>
+#include <SALOME_GenericObj_i.hh>
 #include "SALOMEDS_LocalIDAttribute.hxx"
 #include "SALOMEDS_PersRefAttribute.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
@@ -65,6 +67,8 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(const Handle(TDocStd_Document) doc,
   _URL = NULL;
   _StudyId = -1;
   _autoFill = true;
+  myNbPostponed.Append(0);
+  myNbUndos = 0;
 }
   
 //============================================================================
@@ -766,9 +770,20 @@ char* SALOMEDS_Study_i::URL()
 //============================================================================
 void SALOMEDS_Study_i::URL(const char* url)
 {
+  if (_URL) delete [] _URL;
   _URL = new char[strlen(url) +1];
   strcpy(_URL,url);
   SCRUTE(_URL);
+
+  char *aName = _URL;
+  char *adr = strtok(aName, "/");
+  while (adr)
+    {
+      aName = adr;
+      adr = strtok(NULL, "/");
+    }
+  strcpy(_URL,url);
+  Name(aName);
 }
 
 
@@ -863,22 +878,25 @@ void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR,const char* anEntry) 
   myIORLabels.Bind(TCollection_ExtendedString(IOR), aLabel);
 }
 
-void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute, CORBA::ORB_ptr orb) {
-  // get accorded study first
+SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb) {
   Handle(SALOMEDS_IORAttribute) Att;
-  if (theAttribute->Label().Root().FindAttribute(SALOMEDS_IORAttribute::GetID(),Att)){
-    TCollection_AsciiString ch(Att->Get());
-    char* IOR = CORBA::string_dup(ch.ToCString());
+  if (theLabel.Root().FindAttribute(SALOMEDS_IORAttribute::GetID(),Att)){
+    char* IOR = CORBA::string_dup(TCollection_AsciiString(Att->Get()).ToCString());
     CORBA::Object_var obj = orb->string_to_object(IOR);
     SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
     ASSERT(!CORBA::is_nil(aStudy));
-    TCollection_AsciiString aString;
-    TDF_Tool::Entry(theAttribute->Label(),aString);
-    aStudy->UpdateIORLabelMap(TCollection_AsciiString(theAttribute->Get()).ToCString(), aString.ToCString());
+    return SALOMEDS::Study::_duplicate(aStudy);
   } else {
-    INFOS("IORUpdated: Problem to get study");
-    return;
+    INFOS("GetStudy: Problem to get study");
   }
+  return SALOMEDS::Study::_nil();
+}
+
+void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute, CORBA::ORB_ptr orb) {
+  TCollection_AsciiString aString;
+  TDF_Tool::Entry(theAttribute->Label(), aString);
+  GetStudy(theAttribute->Label(), orb)->UpdateIORLabelMap(TCollection_AsciiString(theAttribute->Get()).ToCString(),
+							  aString.ToCString());
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObject_ptr anObject) {
@@ -964,10 +982,12 @@ void SALOMEDS_Study_i::Close()
       // we have found the associated engine to write the data 
       MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
       CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-      SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-	      
-      if (!anEngine->_is_nil())  
-	anEngine->Close(sco);
+      if (!CORBA::is_nil(obj)) {
+	SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+	
+	if (!anEngine->_is_nil())  
+	  anEngine->Close(sco);
+      }
     }
   }
 
@@ -979,4 +999,116 @@ void SALOMEDS_Study_i::Close()
 //    }
   if(!anApp.IsNull()) anApp->Close(_doc);
   _doc.Nullify();
+}
+
+//============================================================================
+/*! Function : AddPostponed
+ *  Purpose  : 
+ */
+ //============================================================================
+void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
+  if (!NewBuilder()->HasOpenCommand()) return;
+  try {
+    CORBA::Object_var obj = _orb->string_to_object(theIOR);
+    if (!CORBA::is_nil(obj)) {
+      SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
+      if (!CORBA::is_nil(aGeneric)) {
+	TCollection_AsciiString anIOR(strdup(theIOR));
+	anIOR.Prepend("d");
+	myPostponedIORs.Append(anIOR); // add prefix: deleted
+	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
+      }
+    }
+  } catch(...) {}
+}
+
+void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
+  if (!NewBuilder()->HasOpenCommand()) return;
+  try {
+    CORBA::Object_var obj = _orb->string_to_object(theIOR);
+    if (!CORBA::is_nil(obj)) {
+      SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
+      if (!CORBA::is_nil(aGeneric)) {
+	TCollection_AsciiString anIOR(strdup(theIOR));
+	anIOR.Prepend("c");
+	myPostponedIORs.Append(anIOR); // add prefix: created
+	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
+      }
+    }
+  } catch(...) {}
+}
+
+//============================================================================
+/*! Function : RemovePostponed
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
+  int anIndex;
+  int anOld;
+
+  int aUndoLimit = theUndoLimit;
+  if (theUndoLimit < 0) aUndoLimit = 0;
+
+  if (myNbUndos > 0) { // remove undone
+    anOld = 0;
+    for(anIndex = 1; anIndex < myNbPostponed.Length() - myNbUndos; anIndex++)
+      anOld += myNbPostponed(anIndex);
+    int aNew = myPostponedIORs.Length() - myNbPostponed.Last();
+
+    for(anIndex = anOld + 1; anIndex <= aNew; anIndex++) {
+      TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
+      if (anIOR.Value(1) == 'c') {
+	CORBA::Object_var obj = _orb->string_to_object(strdup(anIOR.Split(1).ToCString()));
+	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
+	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+      }
+    }
+    if (anOld < aNew) myPostponedIORs.Remove(anOld + 1, aNew);
+    if (myNbPostponed.Length() > 0) myNbPostponed.Remove(myNbPostponed.Length() - myNbUndos, myNbPostponed.Length() - 1);
+
+    myNbUndos = 0;
+  }
+
+  if (myNbPostponed.Length() > aUndoLimit) { // remove objects, that can not be undone
+    anOld = 0;
+    for(anIndex = myNbPostponed.Length() - aUndoLimit; anIndex >= 1; anIndex--)
+      anOld += myNbPostponed(anIndex);
+    for(anIndex = 1; anIndex <= anOld; anIndex++) {
+      TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
+      if (anIOR.Value(1) == 'd') {
+	CORBA::Object_var obj = _orb->string_to_object(strdup(anIOR.Split(1).ToCString()));
+	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
+	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+      }
+    }
+    if (anOld > 0) myPostponedIORs.Remove(1, anOld);
+    myNbPostponed.Remove(1, myNbPostponed.Length() - aUndoLimit);
+  }
+
+  if (theUndoLimit == -1) { // remove all IORs from the study on the study close
+    TDF_ChildIDIterator anIter(_doc->GetData()->Root(), SALOMEDS_IORAttribute::GetID(), Standard_True);
+    for(; anIter.More(); anIter.Next()) {
+      Handle(SALOMEDS_IORAttribute) anAttr = Handle(SALOMEDS_IORAttribute)::DownCast(anIter.Value());
+      CORBA::String_var anIOR = strdup(TCollection_AsciiString(anAttr->Get()).ToCString());
+      try {
+	CORBA::Object_var obj = _orb->string_to_object(anIOR);
+	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
+	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+      } catch (...) {}
+    }
+  } else myNbPostponed.Append(0);
+}
+
+//============================================================================
+/*! Function : UndoPostponed
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::UndoPostponed(const CORBA::Long theWay) {
+  myNbUndos += theWay;
+  // remove current postponed
+  if (myNbPostponed.Last() > 0)
+    myPostponedIORs.Remove(myPostponedIORs.Length() - myNbPostponed.Last() + 1, myPostponedIORs.Length());
+  myNbPostponed(myNbPostponed.Length()) = 0;
 }

@@ -43,6 +43,8 @@ module Engines
   {
 /*!
     Initializes the %container with a definite name.
+    \param ContainerName Name of the container
+    \return an initialized container
 */
     Container start_impl( in string ContainerName ) ;
 
@@ -50,11 +52,13 @@ module Engines
     Loads into the container a new component, registers it and starts it's CORBA servant.
     \param nameToRegister     Name of the component which will be registered in Registry (or Name Service)
     \param componentName     Name of the constructed library of the %component
+    \return a loaded component
 */
     Component load_impl(in string nameToRegister, in string componentName);
 
 /*!
-       Stops the component servant, and deletes all related objects
+    Stops the component servant, and deletes all related objects
+    \param component_i     Component to be removed
 */
     void remove_impl(in Component component_i);
 
@@ -109,6 +113,8 @@ module Engines
     Container GetContainerRef() ;
 /*!
    This method is used by the %SUPERVISOR component. It sets the names of the graph and of the node.
+   \param aGraphName Name of graph
+   \param aNodeName Name of node
 */
     void Names( in string aGraphName , in string aNodeName ) ;
 /*!

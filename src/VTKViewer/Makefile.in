@@ -47,7 +47,9 @@ LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_RenderWindow.cxx \
 	 VTKViewer_RenderWindowInteractor.cxx \
 	 VTKViewer_InteractorStyleSALOME.cxx \
-	 VTKViewer_VectorText.cxx
+	 VTKViewer_Trihedron.cxx \
+	 VTKViewer_VectorText.cxx \
+	 VTKViewer_Utilities.cxx
 
 LIB_MOC = \
 	 VTKViewer.h \

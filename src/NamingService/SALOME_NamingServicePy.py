@@ -46,7 +46,7 @@ class SALOME_NamingServicePy_i:
     #-------------------------------------------------------------------------
 
     def __init__(self, orb):
-        MESSAGE ( "SALOME_NamingServicePy_i::__init__" )
+        #MESSAGE ( "SALOME_NamingServicePy_i::__init__" )
         self._orb = orb
         # initialize root context and current context
 	ok = 0
@@ -138,7 +138,7 @@ class SALOME_NamingServicePy_i:
             
     #-------------------------------------------------------------------------
     def Resolve(self, Path):
-        MESSAGE ( "SALOME_NamingServicePy_i::Resolve" )
+        #MESSAGE ( "SALOME_NamingServicePy_i::Resolve" )
         path_list = list(Path)
         if path_list[0]=='/':
             self._current_context = self._root_context

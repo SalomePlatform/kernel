@@ -27,7 +27,10 @@
 //  $Header$
 
 #include "VTKViewer_ViewFrame.h"
+#include "VTKViewer_Utilities.h"
+#include "VTKViewer_Trihedron.h"
 #include "VTKViewer_RenderWindow.h"
+#include "VTKViewer_InteractorStyleSALOME.h"
 
 #include "SALOME_Transform.h"
 #include "SALOME_TransformFilter.h"
@@ -40,8 +43,6 @@
 #include "QAD_Desktop.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
-#include "VTKViewer_InteractorStyleSALOME.h"
-#include "VTKViewer_VectorText.h"
 
 #include "utilities.h"
 
@@ -54,14 +55,10 @@
 // VTK Includes
 #include <vtkActor.h>
 #include <vtkRenderer.h>
-#include <vtkPolyDataMapper.h> 
-
-#include <vtkMath.h>
-#include <vtkLine.h>
-#include <vtkConeSource.h>
-#include <vtkFollower.h>
+#include <vtkTransform.h>
 
 using namespace std;
+
 /*!
     Constructor
 */
@@ -70,186 +67,16 @@ VTKViewer_ViewFrame::VTKViewer_ViewFrame(QWidget* parent, const char* name)
 {
   m_ViewUp[0] = 0; m_ViewUp[1] = 0; m_ViewUp[2] = -1;
   m_ViewNormal[0] = 0; m_ViewNormal[1] = 0; m_ViewNormal[2] = 1;
+  m_Triedron = VTKViewer_Trihedron::New();
   m_Transform = SALOME_Transform::New();
-
-  //  m_InitialSetupDone = false ;
-  InitialSetup();
-}
-
-
-vtkFollower* CreateTextActor(char *text, float aSize) {
-  VTKViewer_VectorText* aTxt = VTKViewer_VectorText::New();
-  aTxt->SetText(text);
-  vtkPolyDataMapper* textMapper = vtkPolyDataMapper::New();
-  textMapper->SetInput(aTxt->GetOutput());
-  vtkFollower* textActor = vtkFollower::New();
-  textActor->SetMapper(textMapper);
-  float aScale = 17 * aSize/100;
-  textActor->SetScale(aScale, aScale, aScale);
-  return textActor;
-}
-
-void VTKViewer_ViewFrame::AddVector(float* o,float* p,vtkRenderer* renderer, float aSize) {
-  vtkPoints* myPoints = vtkPoints::New();
-  vtkLine* myLine = vtkLine::New();
-
-  myPoints->InsertNextPoint(o);
-  myPoints->InsertNextPoint(p);
-
-  (myLine->GetPointIds())->InsertNextId(0);
-  (myLine->GetPointIds())->InsertNextId(1);
-
-  vtkActor* lineActor = vtkActor::New();
-
-  vtkCellArray* cell = vtkCellArray::New();
-
-  cell->InsertNextCell(myLine);
-
-  vtkPolyData* output = vtkPolyData::New();
-  
-  output->SetPoints(myPoints);
-  output->SetLines(cell);
- 
-  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-
-  mapper->SetInput(output);
-
-  lineActor->SetMapper(mapper);
-
-  // Create CONE
-
-  vtkConeSource* acone =  vtkConeSource::New();
-
-  float dim = aSize;
-
-  acone->SetResolution(2);
-  //  acone->SetAngle(70);
-  acone->SetRadius(0.02*dim);
-  acone->SetHeight(0.08*dim);
-
-  vtkActor* coneActor = vtkActor::New();
- 
-  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
-  coneMapper->SetInput(acone->GetOutput());
-
-  coneActor->SetMapper(coneMapper);
-  float rot[3];
-  rot[0]=0; rot[1]=0; rot[2]=0;
-
-  vtkFollower* aTextActor;
-
-  coneActor->AddPosition(p);
-  if(p[0]!=0) {
-    // x
-    aTextActor = CreateTextActor("X", dim);
-  } else if(p[1]!=0) {
-    // y
-    rot[2]=90;
-    coneActor->AddOrientation(rot);
-    aTextActor = CreateTextActor("Y", dim);
-  } else if(p[2]!=0) {
-    // z
-    rot[1]=-90;
-    coneActor->AddOrientation(rot);
-    aTextActor = CreateTextActor("Z", dim);
-  }
-  aTextActor->AddPosition(p);
-  aTextActor->SetCamera(renderer->GetActiveCamera());
-
-  coneActor->GetProperty()->SetInterpolation(1);
-  coneActor->GetProperty()->SetRepresentationToSurface();
-  coneActor->GetProperty()->SetAmbient(1);
-  coneActor->GetProperty()->SetAmbientColor(1,1,1);
-  coneActor->GetProperty()->SetDiffuseColor(0.7,0.7,0.7);
-  coneActor->GetProperty()->SetSpecularColor(0.7,0.7,0.7);
-
-  lineActor->GetProperty()->SetInterpolation(1);
-  lineActor->GetProperty()->SetRepresentationToSurface();
-  lineActor->GetProperty()->SetAmbient(1);
-  lineActor->GetProperty()->SetAmbientColor(1,1,1);
-  lineActor->GetProperty()->SetDiffuseColor(0.7,0.7,0.7);
-  lineActor->GetProperty()->SetSpecularColor(0.7,0.7,0.7);
-
-  aTextActor->GetProperty()->SetAmbient(1);
-  aTextActor->GetProperty()->SetAmbientColor(1,1,1);
-  aTextActor->GetProperty()->SetDiffuseColor(0.7,0.7,0.7);
-  aTextActor->GetProperty()->SetSpecularColor(0.7,0.7,0.7);
-     
-  coneActor->PickableOff();
-  lineActor->PickableOff();
-  aTextActor->PickableOff();
-  
-  m_Triedron->AddItem(coneActor);
-  m_Triedron->AddItem(lineActor);
-  m_Triedron->AddItem(aTextActor);
-
-  renderer->AddActor(coneActor);
-  renderer->AddActor(lineActor);
-  renderer->AddActor(aTextActor);
-}  
-
-bool VTKViewer_ViewFrame::isTrihedronDisplayed() {
-  m_Triedron->InitTraversal();
-  vtkActor *ac = m_Triedron->GetNextActor();
-  while(!(ac==NULL)) {
-    if(ac->GetVisibility()) return true;
-    ac = m_Triedron->GetNextActor();
-  }
-  return false;
-}
-
-void VTKViewer_ViewFrame::SetTrihedronSize(int size)
-{
-  m_Triedron->InitTraversal();
-  vtkActor* anActor = m_Triedron->GetNextActor();
-  while(!(anActor==NULL)) {  
-    m_Renderer->RemoveActor( anActor );
-    anActor = m_Triedron->GetNextActor();
-  }
-
-  m_Triedron->RemoveAllItems();
-  AddAxis(m_Renderer);
-  m_RW->update();
-}
-
-
-void VTKViewer_ViewFrame::AddAxis(vtkRenderer* renderer) {  
-  float origine[3];
-  float X[3];
-  float Y[3];
-  float Z[3];
-  float dim;
-
-  QString Size = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
-  if( Size.isEmpty() ){
-    dim = 100;
-  } else {
-    dim = Size.toFloat();
-  }
-
-  origine[0]=0;        origine[1]=0;        origine[2]=0;
-  X[0]=origine[0]+dim; X[1]=origine[0];     X[2]=origine[0];
-  Y[0]=origine[0];     Y[1]=origine[0]+dim; Y[2]=origine[0];
-  Z[0]=origine[0];     Z[1]=origine[0];     Z[2]=origine[0]+dim;
-
-  AddVector(origine,X,renderer, dim);
-  AddVector(origine,Y,renderer, dim);
-  AddVector(origine,Z,renderer, dim);
- 
-}
-
-/*!
-  Returns widget containing 3D-Viewer
-*/
-QWidget* VTKViewer_ViewFrame::getViewWidget() 
-{
-  return m_RW;
-}
-
-
-void VTKViewer_ViewFrame::InitialSetup() {
+  //m_Renderer = VTKViewer_Renderer::New() ;
   m_Renderer = vtkRenderer::New() ;
 
+  m_Triedron->AddToRender(m_Renderer);
+  InitialSetup();
+}  
+
+void VTKViewer_ViewFrame::InitialSetup() {
   m_RW = new VTKViewer_RenderWindow(this, "RenderWindow");
   m_RW->getRenderWindow()->AddRenderer(m_Renderer);
 
@@ -266,11 +93,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
     m_Renderer->SetBackground( BgrColorRed.toInt()/255., BgrColorGreen.toInt()/255., BgrColorBlue.toInt()/255. );
   else
     m_Renderer->SetBackground( 0, 0, 0 );
- 
-  // CREATE AXIS
-  m_Triedron = vtkActorCollection::New();
-  AddAxis(m_Renderer);
- 
+  
   // Create an interactor.
   m_RWInteractor = VTKViewer_RenderWindowInteractor::New();
   m_RWInteractor->setGUIWindow(m_RW);
@@ -281,7 +104,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_RWInteractor->SetInteractorStyle(RWS); 
 
   m_RWInteractor->Initialize();
-  RWS->setTriedron( m_Triedron );
+  RWS->setTriedron(m_Triedron);
   //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
   RWS->FindPokedRenderer(0, 0);
 
@@ -290,414 +113,218 @@ void VTKViewer_ViewFrame::InitialSetup() {
 }
 
 VTKViewer_ViewFrame::~VTKViewer_ViewFrame() {
-  //
+  m_Transform->Delete() ;
   // In order to ensure that the interactor unregisters
   // this RenderWindow, we assign a NULL RenderWindow to 
   // it before deleting it.
-  //
-  m_Transform->Delete() ;
-    
   m_RWInteractor->SetRenderWindow(NULL) ;
   m_RWInteractor->Delete() ;
   
   //m_RW->Delete() ;
-
+  m_Renderer->RemoveAllProps();
   // NRI : BugID 1137:  m_Renderer->Delete() ;
+  m_Triedron->Delete();
+  MESSAGE("VTKViewer_ViewFrame::~VTKViewer_ViewFrame()");
 }
 
+/*!
+  Returns widget containing 3D-Viewer
+*/
+QWidget* VTKViewer_ViewFrame::getViewWidget(){
+  return m_RW;
+}
+
+bool VTKViewer_ViewFrame::isTrihedronDisplayed(){
+  return m_Triedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+}
+
+void VTKViewer_ViewFrame::onAdjustTrihedron(){   
+  if(!isTrihedronDisplayed()) 
+    return;
+  int aVisibleNum = m_Triedron->GetVisibleActorCount(m_Renderer);
+  if(aVisibleNum){
+    // calculating diagonal of visible props of the renderer
+    float bnd[6];
+    m_Triedron->VisibilityOff();
+    ::ComputeVisiblePropBounds(m_Renderer,bnd);
+    m_Triedron->VisibilityOn();
+    float aLength = 0;
+    static bool CalcByDiag = false;
+    if(CalcByDiag){
+      aLength = sqrt((bnd[1]-bnd[0])*(bnd[1]-bnd[0])+
+		     (bnd[3]-bnd[2])*(bnd[3]-bnd[2])+
+		     (bnd[5]-bnd[4])*(bnd[5]-bnd[4]));
+    }else{
+      aLength = bnd[1]-bnd[0];
+      aLength = max((bnd[3]-bnd[2]),aLength);
+      aLength = max((bnd[5]-bnd[4]),aLength);
+    }
+   
+    static float aSizeInPercents = 105;
+    QString aSetting = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
+    if(!aSetting.isEmpty()) aSizeInPercents = aSetting.toFloat();
+
+    static float EPS_SIZE = 5.0E-3;
+    float aSize = m_Triedron->GetSize();
+    float aNewSize = aLength*aSizeInPercents/100.0;
+    // if the new trihedron size have sufficient difference, then apply the value
+    if(fabs(aNewSize-aSize) > aSize*EPS_SIZE || fabs(aNewSize-aSize) > aNewSize*EPS_SIZE)
+      m_Triedron->SetSize(aNewSize);
+  }
+  m_Triedron->Render(m_Renderer);
+  ::ResetCameraClippingRange(m_Renderer);
+}
 
 /*!
   Display/hide Trihedron
 */
-void VTKViewer_ViewFrame::onViewTrihedron()
-{
-  if (isTrihedronDisplayed()) {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      ac->VisibilityOff();
-      ac = m_Triedron->GetNextActor();
-    }
+void VTKViewer_ViewFrame::onViewTrihedron(){
+  if(!m_Triedron) return;
+  if(isTrihedronDisplayed())
+    m_Triedron->VisibilityOff();
+  else{
+    m_Triedron->VisibilityOn();
   }
-  else {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      ac->VisibilityOn();
-      ac = m_Triedron->GetNextActor();
-    }
-    m_TriedronVisible = true;
-  }  
-  m_RW->update();
+  Repaint();
 }
 
 /*!
   Provides top projection of the active view
 */
-void VTKViewer_ViewFrame::onViewTop() {
+void VTKViewer_ViewFrame::onViewTop(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
-  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,0,1);
   camera->SetViewUp(0,1,0);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update();
 }
 
 /*!
   Provides bottom projection of the active view
 */
-void VTKViewer_ViewFrame::onViewBottom()
-{
+void VTKViewer_ViewFrame::onViewBottom(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
-  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,0,-1);
   camera->SetViewUp(0,1,0);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update();
 }
 
 /*!
   Provides left projection of the active view
 */
-void VTKViewer_ViewFrame::onViewLeft()    
-{
+void VTKViewer_ViewFrame::onViewLeft(){
   vtkCamera* camera = m_Renderer->GetActiveCamera(); 
-  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,1,0);
   camera->SetViewUp(0,0,1);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update(); 
 }
 
 /*!
   Provides right projection of the active view
 */
-void VTKViewer_ViewFrame::onViewRight()
-{
+void VTKViewer_ViewFrame::onViewRight(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
-  camera->SetFocalPoint(0,0,0);
   camera->SetPosition(0,-1,0);
   camera->SetViewUp(0,0,1);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update();
 }
 
 /*!
   Provides back projection of the active view
 */
-void VTKViewer_ViewFrame::onViewBack()
-{
+void VTKViewer_ViewFrame::onViewBack(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
   camera->SetPosition(-1,0,0);
-  camera->SetFocalPoint(0,0,0);
   camera->SetViewUp(0,0,1);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update();
 }
 
 /*!
   Provides front projection of the active view
 */
-void VTKViewer_ViewFrame::onViewFront()
-{
+void VTKViewer_ViewFrame::onViewFront(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
   camera->SetPosition(1,0,0);
-  camera->SetFocalPoint(0,0,0);
   camera->SetViewUp(0,0,1);
-  m_Renderer->ResetCamera();  
+  camera->SetFocalPoint(0,0,0);
   onViewFitAll();
-  m_RW->update();
-}
-
-/*!
-  Reset the active view
-*/
-void VTKViewer_ViewFrame::onViewReset()    
-{
-  vtkCamera* camera = m_Renderer->GetActiveCamera();
-  camera->SetPosition(1,-1,1);
-  camera->SetFocalPoint(0,0,0);
-  camera->SetViewUp(0,0,1);
-  m_Renderer->ResetCamera();  
-  
-  double aOldScale = camera->GetParallelScale();
-  camera->SetParallelScale(500);
-  double aNewScale = camera->GetParallelScale();
-  
-  //for controlling labels scale after reset
-  float dim;
-  QString Size = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
-  if( Size.isEmpty() ){
-    dim = 100;
-  } else {
-    dim = Size.toFloat();
-  }
-  float aScale = 17 * dim/100;
-
-  m_Triedron->InitTraversal();
-  vtkActor *ac = m_Triedron->GetNextActor();
-  bool IsConeActor = true;
-  while(!(ac==NULL)) {
-    if(ac->IsA("vtkFollower")) {
-      ac->SetScale(aScale, aScale, aScale);
-      IsConeActor = true;
-    }
-    else {
-      if (IsConeActor) {
-	//coneActor is the first in the list (see m_Triedron->AddItem(...) in VTKViewer_ViewFrame::AddVector(...))
-	IsConeActor = false;
-      } 
-    }
-    ac = m_Triedron->GetNextActor();
-  }
-
-  m_Renderer->ResetCameraClippingRange();
-  m_RW->update();
-}
-
-/*!
-  Rotates the active view
-*/
-void VTKViewer_ViewFrame::onViewRotate()
-{
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS)
-    RWS->startRotate();
-}
-
-/*!
-  Sets a new center of the active view
-*/
-void VTKViewer_ViewFrame::onViewGlobalPan()
-{
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS)
-    RWS->startGlobalPan();
-}
-
-/*!
-  Zooms the active view
-*/
-void VTKViewer_ViewFrame::onViewZoom()
-{
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS)
-    RWS->startZoom();
-}
-
-/*!
-  Moves the active view
-*/
-void VTKViewer_ViewFrame::onViewPan()
-{
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS)
-    RWS->startPan();
-}
-
-/*!
-  Fits all obejcts within a rectangular area of the active view
-*/
-void VTKViewer_ViewFrame::onViewFitArea()
-{
-  VTKViewer_InteractorStyleSALOME* RWS = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(getRWInteractor()->GetInteractorStyle());
-  if (RWS)
-    RWS->startFitArea();
 }
 
 /*!
   Fits all objects in the active view
 */
-// Reset the camera clipping range to include this entire bounding box
-static void ResetCameraClippingRange(vtkRenderer* theRenderer, float bounds[6] )
-{
-  //see vtkRenderer::ResetCameraClippingRange(float bounds[6]) method
-  double  vn[3], position[3], a, b, c, d;
-  double  range[2], dist;
-  int     i, j, k;
-  float center[3];
-  float distance;
-  float width;
+void VTKViewer_ViewFrame::onViewFitAll(){
+  m_RWInteractor->GetInteractorStyleSALOME()->ViewFitAll();
+//   int aTriedronWasVisible = isTrihedronDisplayed();
+//   if(m_Triedron->GetVisibleActorCount(m_Renderer)){
+//     m_Triedron->VisibilityOff();
+//     ::ResetCamera(m_Renderer);
+//   }else{
+//     m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
+//     ::ResetCamera(m_Renderer,true);
+//   }
+//   if(aTriedronWasVisible) m_Triedron->VisibilityOn();
+//   else m_Triedron->VisibilityOff();
 
-  vtkCamera* anActiveCamera = theRenderer->GetActiveCamera();
-  if ( anActiveCamera == NULL )
-    {
-      //vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");
-    return;
-    }
-  
-  // Find the plane equation for the camera view plane
-  anActiveCamera->GetViewPlaneNormal(vn);
-  anActiveCamera->GetPosition(position);
-//  a = -vn[0];
-//  b = -vn[1];
-//  c = -vn[2];
-//  d = -(a*position[0] + b*position[1] + c*position[2]);
-
-  // Set the max near clipping plane and the min far clipping plane
-//  range[0] = a*bounds[0] + b*bounds[2] + c*bounds[4] + d;
-//  range[1] = 1e-18;
-
-  // Find the closest / farthest bounding box vertex
-//  for ( k = 0; k < 2; k++ )
-//    {
-//    for ( j = 0; j < 2; j++ )
-//	  {
-//	  for ( i = 0; i < 2; i++ )
-//	    {
-//	    dist = a*bounds[i] + b*bounds[2+j] + c*bounds[4+k] + d;
-//	    range[0] = (dist<range[0])?(dist):(range[0]);
-//	    range[1] = (dist>range[1])?(dist):(range[1]);
-//	    }
-//	  }
-//    }
-  
-  center[0] = (bounds[0] + bounds[1])/2.0;
-  center[1] = (bounds[2] + bounds[3])/2.0;
-  center[2] = (bounds[4] + bounds[5])/2.0;
-  width = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
-	       (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
-	       (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  distance = sqrt((position[0]-center[0])*(position[0]-center[0]) +
-		  (position[1]-center[1])*(position[1]-center[1]) +
-		  (position[2]-center[2])*(position[2]-center[2]));
-  range[0] = distance - width/2.0;
-  range[1] = distance + width/2.0;
-
-  // Give ourselves a little breathing room
-  range[0] = 0.99*range[0] - (range[1] - range[0])*0.5;
-  range[1] = 1.01*range[1] + (range[1] - range[0])*0.5;
-
-  // Make sure near is not bigger than far
-  range[0] = (range[0] >= range[1])?(0.01*range[1]):(range[0]);
-
-  // Make sure near is at least some fraction of far - this prevents near
-  // from being behind the camera or too close in front. How close is too
-  // close depends on the resolution of the depth buffer
-  int ZBufferDepth = 16;
-  vtkRenderWindow* aRenderWindow = theRenderer->GetRenderWindow();
-  if (aRenderWindow)
-    {
-      ZBufferDepth = aRenderWindow->GetDepthBufferSize();
-    }
-  //
-  if ( ZBufferDepth <= 16 )
-    {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
-    }
-  else if ( ZBufferDepth <= 24 )
-    {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
-    }
-  else
-    {
-    range[0] = (range[0] < 0.01*range[1])?(0.01*range[1]):(range[0]);
-    }
-  anActiveCamera->SetClippingRange( range );
+  Repaint();
 }
 
-static void ResetCamera(vtkRenderer* theRenderer, vtkActorCollection* theTriedron, VTKViewer_RenderWindowInteractor* theRWInteractor){  
-  //see vtkRenderer::ResetCamera(float bounds[6]) method
-  float      bounds[6];
-  if(!theRenderer) return;
-  theRenderer->ComputeVisiblePropBounds( bounds );
-
-  float center[3];
-  float distance;
-  float width;
-  double vn[3], *vup;
-  int* winsize;
-  
-  if ( theRenderer->GetActiveCamera() != NULL )
-    {
-    theRenderer->GetActiveCamera()->GetViewPlaneNormal(vn);
-    }
-  else
-    {
-    MESSAGE("Trying to reset non-existant camera");
-    return;
-    }
-
-  center[0] = (bounds[0] + bounds[1])/2.0;
-  center[1] = (bounds[2] + bounds[3])/2.0;
-  center[2] = (bounds[4] + bounds[5])/2.0;
-  width = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
-	       (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
-	       (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  double ang = theRenderer->GetActiveCamera()->GetViewAngle();
-  distance = 2.0*width/tan(ang*vtkMath::Pi()/360.0);
-  
-  // find size of the window
-  winsize = theRenderer->GetSize();
-  
-  // check view-up vector against view plane normal
-  vup = theRenderer->GetActiveCamera()->GetViewUp();
-  if ( fabs(vtkMath::Dot(vup,vn)) > 0.999 )
-    {
-    MESSAGE("Resetting view-up since view plane normal is parallel");
-    theRenderer->GetActiveCamera()->SetViewUp(-vup[2], vup[0], vup[1]);
-    }
-
-  // update the camera
-  theRenderer->GetActiveCamera()->SetFocalPoint(center[0],center[1],center[2]);
-  theRenderer->GetActiveCamera()->SetPosition(center[0]+distance*vn[0],
-                                  center[1]+distance*vn[1],
-                                  center[2]+distance*vn[2]);
-  // setup default parallel scale
-  double aOldScale = theRenderer->GetActiveCamera()->GetParallelScale();
-  
-  if(winsize[0]<winsize[1] )
-    width=width*(float(winsize[1])/float(winsize[0]));
-  
-  theRenderer->GetActiveCamera()->SetParallelScale(width/2.0);
-  double aNewScale = theRenderer->GetActiveCamera()->GetParallelScale();
-  
-  // for controlling label size 
-  VTKViewer_InteractorStyleSALOME* Style = 0;
-  if (theRWInteractor->GetInteractorStyle()->IsA("VTKViewer_InteractorStyleSALOME")) {
-    Style = VTKViewer_InteractorStyleSALOME::SafeDownCast(theRWInteractor->GetInteractorStyle());
-    Style->ControlLblSize(aOldScale,aNewScale);
-  }
- 
-  //workaround on VTK
-  //theRenderer->ResetCameraClippingRange(bounds);
-  ResetCameraClippingRange(theRenderer,bounds);
+/*!
+  Reset the active view
+*/
+void VTKViewer_ViewFrame::onViewReset(){
+  int aTriedronIsVisible = isTrihedronDisplayed();
+  m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
+  ::ResetCamera(m_Renderer,true);  
+  vtkCamera* aCamera = m_Renderer->GetActiveCamera();
+  aCamera->SetPosition(1,-1,1);
+  aCamera->SetViewUp(0,0,1);
+  ::ResetCamera(m_Renderer,true);  
+  if(aTriedronIsVisible) m_Triedron->VisibilityOn();
+  else m_Triedron->VisibilityOff();
+  static float aCoeff = 3.0;
+  aCamera->SetParallelScale(aCoeff*aCamera->GetParallelScale());
+  Repaint();
 }
 
-void VTKViewer_ViewFrame::onViewFitAll()
-{
-  Standard_Boolean TriedronWasVisible = false;
-  if (isTrihedronDisplayed()) {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      ac->VisibilityOff();
-      ac = m_Triedron->GetNextActor();
-    }
-    TriedronWasVisible = true;
-  }
-  bool hasVisibleActors = m_Renderer->VisibleActorCount() > 0;
-  if ( hasVisibleActors ) {   // if there are visible actors, not to take into account Trihedron
-    ResetCamera(m_Renderer,m_Triedron,m_RWInteractor);
-  } 
-  if(TriedronWasVisible) {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      ac->VisibilityOn();
-      ac = m_Triedron->GetNextActor();
-    }
-    if ( !hasVisibleActors ) { // if there are NO visible actors, fit view to see only Trihedron
-      ResetCamera(m_Renderer,m_Triedron,m_RWInteractor);
-    } 
-  }
-  //m_Renderer->ResetCameraClippingRange();
-  m_RW->update();
+/*!
+  Rotates the active view
+*/
+void VTKViewer_ViewFrame::onViewRotate(){
+  m_RWInteractor->GetInteractorStyleSALOME()->startRotate();
+}
+
+/*!
+  Sets a new center of the active view
+*/
+void VTKViewer_ViewFrame::onViewGlobalPan(){
+  if(m_Triedron->GetVisibleActorCount(m_Renderer))
+    m_RWInteractor->GetInteractorStyleSALOME()->startGlobalPan();
+}
+
+/*!
+  Zooms the active view
+*/
+void VTKViewer_ViewFrame::onViewZoom(){
+  m_RWInteractor->GetInteractorStyleSALOME()->startZoom();
+}
+
+/*!
+  Moves the active view
+*/
+void VTKViewer_ViewFrame::onViewPan(){
+  m_RWInteractor->GetInteractorStyleSALOME()->startPan();
+}
+
+/*!
+  Fits all obejcts within a rectangular area of the active view
+*/
+void VTKViewer_ViewFrame::onViewFitArea(){
+  m_RWInteractor->GetInteractorStyleSALOME()->startFitArea();
 }
 
 /*!
@@ -967,9 +594,9 @@ void VTKViewer_ViewFrame::EraseAll()
 }
 
 
-void VTKViewer_ViewFrame::Repaint()
+void VTKViewer_ViewFrame::Repaint(bool theUpdateTrihedron)
 {
-  // m_RWInteractor->Render();
+  if (theUpdateTrihedron) onAdjustTrihedron();
   m_RW->update();
 }
 
@@ -979,12 +606,7 @@ void VTKViewer_ViewFrame::GetScale(double theScale[3]){
 
 void VTKViewer_ViewFrame::SetScale(double theScale[3]){
   m_Transform->SetScale(theScale[0], theScale[1], theScale[2]);
-  m_Transform->Modified();
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *anActor;
-  while(anActor = theActors->GetNextActor())
-    anActor->GetMapper()->Update();
+  m_RWInteractor->Render();
   Repaint();
 }
 
@@ -992,18 +614,12 @@ void VTKViewer_ViewFrame::AddActor( SALOME_Actor* theActor, bool update /*=false
   theActor->SetVisibility(true);
   theActor->AddToRender(m_Renderer);
   theActor->SetTransform(m_Transform);
-  if(update){
-    m_Renderer->ResetCameraClippingRange();
-    m_RWInteractor->Render();
-  }
+  if(update) Repaint();
 }
 
 void VTKViewer_ViewFrame::RemoveActor( SALOME_Actor* theActor, bool update /*=false*/ ){
   theActor->RemoveFromRender(m_Renderer);
-  if(update){
-    m_Renderer->ResetCameraClippingRange();
-    m_RWInteractor->Render();
-  }
+  if(update) Repaint();
 }
 
 

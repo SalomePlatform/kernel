@@ -172,6 +172,7 @@ void SALOME_Session_i::StopSession()
 SALOME::StatSession SALOME_Session_i::GetStatSession()
 {
   // update Session state
+  //qApp->lock(); // rollback bug 
   _GUIMutex.lock();    
   _isGUI = _IAPPThread->running();
   _runningStudies = 0;
@@ -182,6 +183,7 @@ SALOME::StatSession SALOME_Session_i::GetStatSession()
     qApp->unlock();
   }
   _GUIMutex.unlock();
+  //qApp->unlock();
   // getting stat info
   SALOME::StatSession_var myStats = new SALOME::StatSession ;
   if (_runningStudies)

@@ -68,6 +68,15 @@ msgstr "close.png"
 msgid "ICON_HELP"
 msgstr "help.png"
 
+msgid "QAD_HelpWindow::ICON_APP_HELP_BACK"
+msgstr "back.xpm"
+
+msgid "QAD_HelpWindow::ICON_APP_HELP_FORWARD"
+msgstr "forward.xpm"
+
+msgid "QAD_HelpWindow::ICON_APP_HELP_HOME"
+msgstr "home.xpm"
+
 #--------------
 # VIEW
 #--------------

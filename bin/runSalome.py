@@ -256,7 +256,9 @@ for module in liste_modules:
     module_root_dir=modules_root_dir[module]
     add_ld_library_path(os.path.join(module_root_dir,"lib","salome"))
 
+os.environ["SALOME_trace"]="local"
 if with_logger:
+   os.environ["SALOME_trace"]="with_logger"
    locdir=os.environ['PWD']
    libtracedir=os.path.join(locdir,"libSalomeTrace")
    libtrace = os.path.join(kernel_root_dir,"lib","salome","libSALOMELoggerClient.so.0.0.0")

@@ -227,10 +227,11 @@ void QAD_FileDlg::addExtension()
 //  if ( mySelectedFile.isEmpty() )//VSR- 06/12/02
   if ( mySelectedFile.stripWhiteSpace().isEmpty() )//VSR+ 06/12/02
     return;
-  
+
 //  if ( QAD_Tools::getFileExtensionFromPath( mySelectedFile ).isEmpty() ) //VSR- 06/12/02
-  if ( QAD_Tools::getFileExtensionFromPath( mySelectedFile ).isEmpty() && !mySelectedFile.contains(".") ) //VSR+ 06/12/02
-  {
+//ota :   16/12/03  if ( QAD_Tools::getFileExtensionFromPath( mySelectedFile ).isEmpty() ) //VSR+ 06/12/02
+//  {
+
 #if QT_VERSION < 0x030000
     QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
     int len, index = r.match( selectedFilter(), 0, &len );
@@ -247,11 +248,28 @@ void QAD_FileDlg::addExtension()
 //      QString wildcard = selectedFilter().mid( index + 1, r.matchedLength()-2 ); //VSR- 06/12/02
       QString wildcard = selectedFilter().mid( index + 1, r.matchedLength()-2 ).stripWhiteSpace(); //VSR+ 06/12/02
 #endif
-      index = wildcard.findRev( '.' );    
-      if ( index >= 0 ) 
-        mySelectedFile += wildcard.mid( index );
+      if ( mySelectedFile[mySelectedFile.length() - 1] == '.')
+	//if the file name ends with the point remove it
+	mySelectedFile.truncate(mySelectedFile.length() - 1);
+      QString anExt = "." + QAD_Tools::getFileExtensionFromPath( mySelectedFile ).stripWhiteSpace();
+      // From the filters list make a pattern to validate a file extension
+      // Due to transformations from the filter list (*.txt *.*xx *.c++ QAD*.* ) we 
+      // will have the pattern (\.txt|\..*xx|\.c\+\+|\..*) (as we validate extension only we remove
+      // stay extension mask only in the pattern
+      QString aPattern(wildcard);
+      QRegExp anExtRExp("("+aPattern.replace(QRegExp("(^| )[0-9a-zA-Z*_?]*\\."), " \\.").
+			stripWhiteSpace().replace(QRegExp("\\s+"), "|").
+			replace(QRegExp("[*]"),".*").replace(QRegExp("[+]"),"\\+") + ")");
+      
+      if ( anExtRExp.match(anExt) == -1 ) //if a selected file extension does not match to filter's list
+	{ //remove a point if it is at the word end
+	  if (anExt[ anExt.length() - 1 ] == '.')  anExt.truncate( anExt.length() - 1 );
+	  index = wildcard.findRev( '.' );    
+	  if ( index >= 0 ) 
+	    mySelectedFile += wildcard.mid( index ); //add the extension
+	}
     }
-  }
+  //  }
 }
 
 /*!

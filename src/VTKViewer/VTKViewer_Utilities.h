@@ -1,4 +1,4 @@
-//  SALOME RegistryDisplay : GUI for Registry server implementation
+//  SALOME VTKViewer : 
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,27 +21,19 @@
 //
 //
 //
-//  File   : RegWidgetFactory.cxx
-//  Author : Pascale NOYRET, EDF
+//  File   : VTKViewer_Utilities.h
+//  Author : Alexey PETROV
 //  Module : SALOME
-//  $Header$
+//  $Header: 
 
-using namespace std;
-# include "RegWidget.hxx"
-# include "utilities.h"
+#ifndef VTKViewer_Utilities_H
+#define VTKViewer_Utilities_H
 
-extern "C"
-{
+class vtkRenderer;
 
-void OnGUIEvent( CORBA::ORB_var &orb, QWidget *parent, const char *name )
-{
-  // N.B. parent can be 0
- RegWidget* ptrRegWidget = RegWidget::GetRegWidget( orb, parent, name );
- //ASSERT ( !ptrRegWidget );
- ptrRegWidget->show();
- ptrRegWidget->raise();
- ptrRegWidget->setActiveWindow();
- return;
-}
+extern void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint = false);
+extern int ComputeVisiblePropBounds(vtkRenderer* theRenderer, float theBounds[6]);
+extern void ResetCameraClippingRange(vtkRenderer* theRenderer);
+extern float EPS_BNDBOX;
 
-}
+#endif

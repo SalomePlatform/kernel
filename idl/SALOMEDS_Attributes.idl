@@ -42,18 +42,19 @@ module SALOMEDS
 /*! Sequence of string values
 */
   typedef sequence <string> StringSeq;
-/*! \struct Color 
-   This structure stores a set of elements defining the color based on RGB.
+/*! \struct Color
+   This structure stores a set of elements defining the color based on RGB palette. These elements are
+   used as input parameters for methods necessary for color definition of different items.
 */
   struct Color {
 /*! Red color
-*/  
+*/
    double R;
 /*! Green color
-*/ 
+*/
    double G;
 /*! Blue color
-*/ 
+*/
    double B;
   };
   //==========================================================================
@@ -66,11 +67,13 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     double Value();
 /*!
    Sets the value of this attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in double value);
@@ -85,11 +88,13 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long   Value();
 /*!
    Sets the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in long value);
@@ -113,6 +118,7 @@ module SALOMEDS
     DoubleSeq CorbaSequence();
 /*!
    Adds to the end of the sequence a real number.
+
    \param value    A real number added to the sequence.
 
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
@@ -121,22 +127,30 @@ module SALOMEDS
 /*!
     Removes a real number with a definite index
     from the sequence of real numbers stored in the Attribute.
+
+    \param index The index of the given real number
 */
     void      Remove(in long index);
 /*!
-    Substitutes a real number with a definite index for another real number.
+    Substitutes a given real number with a definite index for another real number.
+    \param index The index of the given real number.
+    \param value The value of another real number.
+
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void      ChangeValue(in long index, in double value);
 /*!
-  Returns a real number with a definite index
+  Returns a given real number with a definite index
     in the sequence of real numbers stored in the Attribute.
+    \param index The index of the given real number.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     double    Value(in short index);
 /*!
     Returns the length of the sequence of real numbers stored in the Attribute.
+
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -151,7 +165,7 @@ module SALOMEDS
   interface AttributeSequenceOfInteger : GenericAttribute
   {
 /*!
-   Initialization of the attribute with initial data.
+   Initialisation of the attribute with initial data.
    \param other    Initially assigned sequence of integer numbers.
 */
     void      Assign (in LongSeq other);
@@ -170,22 +184,30 @@ module SALOMEDS
 /*!
     Removes an integer number with a definite index
     from the sequence of integer numbers stored in the Attribute.
+    \param index The index of the given integer number.
+
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void      Remove(in long index);
 /*!
     Substitutes an integer number with a definite index for another integer number.
+    \param index The index of the given integer number.
+    \param value The value of another integer number.
+
 */
     void      ChangeValue(in long index, in long value);
 /*!
-   Returns an integer number with a definite index
+   Returns a given integer number with a definite index
     in the sequence of integer numbers stored in the Attribute.
+    \param index The index of the given integer number.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long      Value(in short index);
 /*!
     Returns the length of the sequence of integer numbers stored in the Attribute.
+
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -204,11 +226,15 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
+
+   \param value This parameter defines the value of this attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
@@ -225,11 +251,14 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
+   \param value This string parameter defines the value of this attribute - a description of a %SObject.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
@@ -245,11 +274,14 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
+   \param value This parameter defines the value of this attribute - IOR of a %SObject.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
@@ -265,11 +297,14 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
+   \param value This parameter defines the value of this attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
@@ -323,20 +358,24 @@ module SALOMEDS
   //==========================================================================
 /*! \brief Drawable flag Attribute.
 
-   This is a presentation attribute necessary for display of the study tree in the browser.
-   The item associated to SObject is created/displayed if TRUE.
+   This is a presentation attribute necessary for display of a study tree in the browser.
+   The item associated to a %SObject is created/displayed if TRUE.
 */
   //==========================================================================
   interface AttributeDrawable : GenericAttribute
   {
 /*!
    Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.
+
 <BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsDrawable();
 /*!
-Sets the items to be drawable if <VAR>value</VAR> is TRUE (the default) or not to be selectable if <VAR>value</VAR>is FALSE.
+Sets the item to be drawable.
+
+\param value If the value of this boolean parameter is TRUE (default) the item will be drawable.
+
 <BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -354,12 +393,17 @@ Sets the items to be drawable if <VAR>value</VAR> is TRUE (the default) or not t
   {
 /*!
    Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.
+
+
 <BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsSelectable();
 /*!
-Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not to be selectable if <VAR>value</VAR>is FALSE.
+Sets the item to be selectable
+
+\param value If the value of this parameter is TRUE (the default) the item will be set as selectable.
+
 <BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -378,13 +422,15 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
     Returns TRUE if this item is expandable even when it has no children.
+
 <BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsExpandable();
-/*!
-   Sets this item to be expandable even if it has no children if <VAR>value</VAR> is TRUE, and to be
-   expandable only if it has children if <VAR>value</VAR> is FALSE (the default).
+/*! Sets this item to be expandable even if it has no children.
+
+ \param value If the value of this boolean parameter is TRUE, this item will be set as expandable.
+
 <BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -403,13 +449,17 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
     Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.
+
 <BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsOpened();
 /*!
-   Sets this item to be open (its children are visible) if <VAR>value</VAR> is TRUE, and to be closed
-(its children are not visible) if <VAR>value</VAR> is FALSE.
+   Sets this item to be open (its children are visible)
+
+   \param value If the value of this boolean parameter is TRUE this item will be set as open,
+    and as closed if FALSE.
+
 <BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -425,12 +475,16 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
    Returns the color of an item.
+
 <BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     Color TextColor();
 /*!
    Sets the color of an item.
+
+   \param value This parameter defines the color of the item.
+
 <BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -447,12 +501,17 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
    Returns the highlight color of an item.
+
+
+
 <BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     Color TextHighlightColor();
 /*!
    Sets the highlight color of an item.
+   \param value This parameter defines the highlight color of the item.
+
 <BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -467,17 +526,20 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   interface AttributePixMap : GenericAttribute
   {
 /*!
-   Returns True if there is an icon before the name of the item.
+   Returns True if there is an icon before the name of the given item.
 */
     boolean HasPixMap();
 /*!
-   Returns the name of the icon.
+   Returns the name of the icon in the format of a string.
+
 <BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     string  GetPixMap();
 /*!
    Sets the name of the icon.
+   \param value This string parameter defines the name of the icon.
+
 <BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
@@ -490,6 +552,7 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
    A set of these attributes on the %SObjects of the %study forms an inner auxiliary
    tree whith its own structure and identifier. The quantity of such trees with different
    identifiers can be arbitrary.
+
 <BR><VAR>See also <A href=exemple/Example18.html> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
 
 */
@@ -497,108 +560,112 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   interface AttributeTreeNode : GenericAttribute
   {
 /*!
-  Sets the father TreeNode to this TreeNode.
+  Assigns the father tree node to this tree node.
 */
     void              SetFather(in AttributeTreeNode value);
 /*!
-  Returns True if there is the father TreeNode of this TreeNode.
+  Returns True if there is a father tree node of this tree node.
 */
     boolean           HasFather();
 /*!
-  Returns the father Treenode of this TreeNode.
+  Returns the father tree node of this tree node.
 */
     AttributeTreeNode GetFather();
 /*!
-  Sets the previous brother TreeNode to this treeNode.
+  Assigns the previous brother tree node to the given tree node.
 */
     void              SetPrevious(in AttributeTreeNode value);
 /*!
-  Returns True if there is the previous brother TreeNode of this TreeNode.
+  Returns True if there is the previous brother tree node of this tree node.
 */
     boolean           HasPrevious();
 /*!
-  Returns the previous brother TreeNode of this TreeNode.
+  Returns the previous brother tree node of this tree node.
 */
     AttributeTreeNode GetPrevious();
 /*!
-  Sets the next brother TreeNode to this treeNode.
+  Sets the next brother tree node to this tree node.
 */
     void              SetNext(in AttributeTreeNode value);
 /*!
-  Returns True if there is the next brother TreeNode of this TreeNode.
+  Returns True if there is the next brother tree node of this tree node.
 */
     boolean           HasNext();
 /*!
-  Returns the previous brother TreeNode of this TreeNode.
+  Returns the previous brother tree node of this tree node.
 */
     AttributeTreeNode GetNext();
 /*!
-  Sets the first child TreeNode to this treeNode.
+  Sets the first child tree node to this tree node.
 */
     void              SetFirst(in AttributeTreeNode value);
 /*!
-  Returns True if there is the first child TreeNode of this TreeNode.
+  Returns True if there is the first child tree node of this tree node.
 */
     boolean           HasFirst();
 /*!
-  Returns the first child TreeNode of this TreeNode.
+  Returns the first child tree node of this tree node.
 */
     AttributeTreeNode GetFirst();
 /*!
-  Sets ID of the tree. TreeNodes of one tree have the same ID.
+  Sets ID of a tree.
+  \param value String parameter defining the ID of a tree.
+  \note <br>Tree nodes of one tree have the same ID.
 */
     void              SetTreeID(in string value);
 /*!
-  Gets ID of the tree.
+  Gets ID of a tree.
+  \return An ID of a tree in the format of a string.
 */
     string            GetTreeID();
 
 /*!
-   Adds a child TreeNode to the end of the list of children of this Treenode.
+   Adds a child tree node to the end of the list of children of this tree node.
 */
     void              Append(in AttributeTreeNode value);
 /*!
-   Adds a child TreeNode to the beginning of the list of children of this Treenode.
+   Adds a child tree node to the beginning of the list of children of this tree node.
 
 */
     void              Prepend(in AttributeTreeNode value);
 /*!
-   Adds a brother TreeNode before this Treenode.
-    In this case the both TreeNodes will belong to the same father.
+   Adds a brother tree node before this tree node.
+    In this case the both tree nodes will belong to the same father.
 */
     void              InsertBefore(in AttributeTreeNode value);
 /*!
-   Adds a brother TreeNode after this Treenode.
-    In this case the both TreeNodes will belong to the same father.
+   Adds a brother tree node after this tree node.
+    In this case the both tree nodes will belong to the same father.
 */
     void              InsertAfter(in AttributeTreeNode value);
 /*!
-   Deletes a TreeNode.
+   Deletes a tree node.
+
 <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void              Remove();
 
 /*!
-   Returns  the  depth  of the TreeNode in the
-   structure, it means the  number of  fathers of the given TreeNode.
-   (i.e.: the depth of the root TreeNode is 0).
+   Returns  the  depth  of the tree node in the
+   structure, it means the  number of  fathers of the given tree node.
+   (i.e.: the depth of the root tree node is 0).
 */
     long              Depth();
 /*!
-    Returns True if it is a root TreeNode.
+    Returns True if it is a root tree node.
 */
     boolean           IsRoot();
 /*!
-    Returns True if this TreeNode is a descendant of the TreeNode.
+    Returns True if this tree node is a descendant of the tree node.
 */
     boolean           IsDescendant(in AttributeTreeNode value);
 /*!
-    Returns True if this TreeNode is the father of the TreeNode.
+    Returns True if this tree node is the father of the tree node.
 */
     boolean           IsFather(in AttributeTreeNode value);
 /*!
-    Returns True if this TreeNode is a child of the TreeNode.
+    Returns True if this tree node is a child of the tree node.
 */
     boolean           IsChild(in AttributeTreeNode value);
 /*!
@@ -616,11 +683,15 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
    Returns the value of this attribute.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long   Value();
 /*!
    Sets the value of this attribute.
+
+   \param value This parameter defines the local ID which will be set.
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in long value);
@@ -636,11 +707,13 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
   {
 /*!
    Returns the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
+
 <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
@@ -665,7 +738,7 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
 */
     void          Add(in SObject anObject);
 /*!
-    Returns the list of %SObjects which refer to this %SObject.
+    Returns a list of %SObjects which refer to this %SObject.
 */
     SALOMEDS::Study::ListOfSObject Get();
 /*!
@@ -681,6 +754,7 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
 
    This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
+
 <BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
 
 */
@@ -758,24 +832,35 @@ Sets the items to be selectable if <VAR>value</VAR> is TRUE (the default) or not
     // operations with rows
 /*!
    Adds a row to the end of the table.
+   \param theData A sequence of long values which will be set as elements of the added row.
 */
     void AddRow(in LongSeq theData) raises(IncorrectArgumentLength);
 /*!
-   Sets the values of all elements of the row.
+   Sets the elements of a definite row.
+   \param theRow The number of the row.
+   \param theData A sequence of long values which will be set as elements of this row.
+
 */
     void SetRow(in long theRow, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
 /*!
-   Returns the row of the table.
+   Gets the row of the table.
+
+   \param theRow The number of the row.
+   \return A sequence of long values which are set as elements of this row.
 */
     LongSeq GetRow(in long theRow) raises(IncorrectIndex);
 
     // operations with columns
 /*!
    Adds a column to the end of the table.
+
+   \param theData A sequence of long values which will be set as elements of this column.
 */
     void AddColumn(in LongSeq theData) raises(IncorrectArgumentLength);
 /*!
    Sets the values of all elements of the column.
+
+  \param theData A sequence of long values which will be set as elements of this column.
 */
     void SetColumn(in long theColumn, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
 /*!

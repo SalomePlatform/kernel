@@ -33,7 +33,7 @@ VPATH=.:@srcdir@
 @COMMENCE@
 
 SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils PatchQt \
-          NamingService Registry \
+          GenericObj NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist \

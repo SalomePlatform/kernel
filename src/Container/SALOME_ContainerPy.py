@@ -85,12 +85,29 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             else :
                 MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without runSession" )
             return container
-        shstr = os.getenv( "PWD" ) + "/"
-        shstr += "runSession ./SALOME_ContainerPy.py "
+        #shstr = os.getenv( "PWD" ) + "/"
+        #shstr += "runSession ./SALOME_ContainerPy.py "
+        shstr = "runSession SALOME_ContainerPy.py "
         shstr += ContainerName
-        shstr += " > /tmp/"
-        shstr += ContainerName
-        shstr += ".log 2>&1 &"
+
+        # mpv: fix for SAL4731 - allways create new file to write log of server
+        num = 1
+        fileName = ""
+        while 1:
+            fileName = "/tmp/"+ContainerName+"_%i.log"%num
+            if not os.path.exists(fileName):
+                break
+            num += 1
+            pass
+        
+        shstr += " > "
+        shstr += fileName
+        shstr += " 2>&1 &"
+        
+        #shstr += " > /tmp/"
+        #shstr += ContainerName
+        #shstr += ".log 2>&1 &"
+        
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
         os.system( shstr )
         count = 21

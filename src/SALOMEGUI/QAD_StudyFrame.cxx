@@ -124,7 +124,6 @@ void QAD_StudyFrame::setVisible( bool visible )
 */
 void QAD_StudyFrame::closeEvent(QCloseEvent* e)
 {
-  emit sfBeforeStudyFrameClosing(this); 
   emit sfStudyFrameClosing(this); 
 }
 

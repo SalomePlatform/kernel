@@ -276,7 +276,7 @@ TCollection_AsciiString QAD_Tools::toAsciiString( const QString& qString)
 QFont QAD_Tools::stringToFont( const QString& fontDescription )
 {
   QFont font;
-  if ( !font.fromString( fontDescription ) )
+  if ( fontDescription.stripWhiteSpace().isEmpty() || !font.fromString( fontDescription ) )
     font = QFont( "Courier", 11 );
   return font;
 }

@@ -66,7 +66,7 @@ msgstr "La vue appropriée doit étre créée pour afficher l'objet choisi"
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.1a"
+msgstr ""
 
 msgid "INF_COPYRIGHT"
 msgstr ""
@@ -81,7 +81,7 @@ msgstr ""
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:77
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON_SIZE"
-msgstr "Size :"
+msgstr "Size (% of bounding box) :"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:36
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON"
@@ -316,7 +316,7 @@ msgstr "VTK Viewer"
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_SALOME_TLT"
-msgstr "About SALOME "
+msgstr "About SALOME Professional"
 
 msgid "SALOMEGUI_OpenWith::OPEN_WITH_TLT"
 msgstr "Open With"

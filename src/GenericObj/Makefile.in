@@ -1,0 +1,46 @@
+#  Copyright (C) 2003  CEA/DEN, EDF R&D
+#
+#
+#
+#  File   : Makefile.in
+#  Author : Alexey Petrov
+#  Module : VISU
+#  $Header: 
+
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+# Libraries targets
+LIB = libSalomeGenericObj.la
+LIB_SRC = SALOME_GenericObj_i.cc
+
+LIB_SERVER_IDL = SALOME_GenericObj.idl
+LIB_CLIENT_IDL = 
+
+# Executables targets
+BIN = 
+BIN_SRC = 
+
+BIN_CLIENT_IDL =  
+BIN_SERVER_IDL =
+ 
+EXPORT_HEADERS = SALOME_GenericObj_i.hh
+
+# additionnal information to compil and link file
+CPPFLAGS += 
+
+LDFLAGS += 
+
+LIBS += 
+
+# additional file to be cleaned
+MOSTLYCLEAN +=
+CLEAN +=
+DISTCLEAN +=
+
+@CONCLUDE@

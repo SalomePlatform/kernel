@@ -89,6 +89,8 @@ public:
     void                   setShowInfoColumns( bool show );
     void                   setShowValueColumn( bool show );
     void                   setEnableChronoSort( bool enable );
+    void                   showUseCaseBrowser ( bool show );
+    void                   autoSizeColumns ( bool autosize );
 
 protected:
     void		   Update( SALOMEDS::SObject_ptr SO,
@@ -132,6 +134,7 @@ private:
     ItemMap                myListViewMap;
     ItemMap                myUseCaseMap;
     QListView*		   myListView;
+    QWidget*               myVBox;
     QListView*		   myUseCaseView;
     QPopupMenu*		   myPopupMenu;
     SALOMEDS::Study_ptr    myStudy;
@@ -141,6 +144,16 @@ private:
     QToolButton*           myCurrentBtn;
     QToolButton*           myRenameBtn;
     QToolButton*           myClearBtn;
+};
+
+
+class Btn : public QToolButton
+{
+  Q_OBJECT
+public:
+  Btn ( QWidget * parent, const char * name = 0 );
+public slots:
+  void onClicked();
 };
 
 #endif

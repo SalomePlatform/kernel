@@ -34,6 +34,7 @@
 #include <qcursor.h>
 #include "SALOME_Actor.h"
 
+class VTKViewer_Trihedron;
 
 #define VTK_INTERACTOR_STYLE_CAMERA_NONE    0
 #define VTK_INTERACTOR_STYLE_CAMERA_ROTATE  1
@@ -53,7 +54,7 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   // programmers.
   static VTKViewer_InteractorStyleSALOME *New();
 
-  void setTriedron( vtkActorCollection* triedron );
+  void setTriedron(VTKViewer_Trihedron* theTrihedron);
 
   vtkTypeMacro(VTKViewer_InteractorStyleSALOME, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -66,6 +67,8 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
   void OnRightButtonDown(int ctrl, int shift, int x, int y);
   void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+
+  void  ViewFitAll();
 
  protected:
   VTKViewer_InteractorStyleSALOME();
@@ -132,7 +135,7 @@ protected:
   bool         myCursorState;
   bool         myShiftState;
   int ForcedState;
-  vtkActorCollection* m_Triedron;  
+  VTKViewer_Trihedron* m_Trihedron;  
 
   QWidget*     myGUIWindow;
 

@@ -37,8 +37,8 @@
 
 // VTK Includes
 class vtkRenderer;
-class vtkActorCollection;
 class vtkTransform;
+class VTKViewer_Trihedron;
 
 class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   Q_OBJECT;
@@ -54,8 +54,7 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   VTKViewer_RenderWindowInteractor* getRWInteractor() {return m_RWInteractor;}
 
   bool                           isTrihedronDisplayed();
-  void                           SetTrihedronSize( int dim );
-
+ 
   void                           setBackgroundColor( const QColor& );
   QColor                         backgroundColor() const;
   
@@ -89,7 +88,8 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void           Erase(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly = true);
   void           DisplayAll();
   void           EraseAll();
-  void           Repaint();
+  void           Repaint(bool theUpdateTrihedron);
+  void           Repaint() { Repaint(true); }
 
   //apply existing transformation on adding SALOME_Actor
   void SetScale(double theScale[3]);
@@ -97,10 +97,6 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void AddActor(SALOME_Actor*, bool update = false);
   void RemoveActor(SALOME_Actor*, bool update = false);
 
- private:
-  void AddVector(float* o,float* p,vtkRenderer* renderer, float aSize);
-  void AddAxis(vtkRenderer* renderer);
- 
  public slots:
   void           onViewPan(); 
   void           onViewZoom();
@@ -116,20 +112,19 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void           onViewBottom();
   void           onViewTop();
   void           onViewTrihedron(); 
+  void           onAdjustTrihedron();
  
  private:
   double                        m_ViewUp[3];
   double                        m_ViewNormal[3];
-
+  
   void                          InitialSetup();
 
   vtkRenderer*                      m_Renderer;
   VTKViewer_RenderWindow*           m_RW;
   VTKViewer_RenderWindowInteractor* m_RWInteractor;
 
-  Standard_Boolean              m_TriedronVisible;
-  vtkActorCollection*           m_Triedron;  
-
+  VTKViewer_Trihedron *m_Triedron;  
   SALOME_Transform *m_Transform;
 };
 #endif

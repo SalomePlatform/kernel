@@ -58,8 +58,8 @@ public:
   virtual QColor         backgroundColor() const = 0;
 
   virtual void           SetSelectionMode( int mode ) = 0;
-
-  virtual void           SetTrihedronSize( int dim ) = 0;
+  
+  virtual void           onAdjustTrihedron() = 0; 
 
   /*  popup management */
   virtual void           setPopupServer( QAD_Application* ) = 0;
