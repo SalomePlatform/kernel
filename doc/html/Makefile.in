@@ -35,6 +35,7 @@ distclean: clean
 	rm -rf INPUT
 
 install:
+	$(INSTALL) -d $(docdir); \
 	cp -rf html $(docdir)
 
 uninstall:
