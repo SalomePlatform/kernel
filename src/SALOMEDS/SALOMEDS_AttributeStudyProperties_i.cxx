@@ -22,7 +22,7 @@ using namespace std;
 void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  aProp->SetFirstName(TCollection_ExtendedString(strdup(theName)));
+  aProp->SetFirstName((char*)theName);
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName() {
@@ -111,7 +111,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 							  CORBA::Long theYear) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  aProp->SetUserName(strdup(theName));
+  aProp->SetUserName((char*)theName);
   aProp->SetModificationDate((int)theMinute, (int)theHour, (int)theDay, (int)theMonth, (int)theYear);
 }
 void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringSeq_out theNames,
@@ -185,7 +185,7 @@ char* SALOMEDS_AttributeStudyProperties_i::Store() {
 }
 
 void SALOMEDS_AttributeStudyProperties_i::Restore(const char* value) {
-  char* aCopy = strdup(value);
+  char* aCopy = CORBA::string_dup(value);
   if (aCopy[0] == 'f') SetCreationMode("from scratch");
   else if (aCopy[0] == 'c') SetCreationMode("copy from");
   else SetCreationMode("none");

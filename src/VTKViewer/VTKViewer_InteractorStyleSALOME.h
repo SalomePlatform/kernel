@@ -30,13 +30,20 @@
 #define __VTKViewer_InteractorStyleSALOME_h
 
 #include <vtkInteractorStyle.h>
+
+class vtkCell;
+class vtkRenderWindowInteractor;
+
 #include <qobject.h>
 #include <qcursor.h>
-#include "SALOME_Actor.h"
-#include "VTKViewer_Filter.h"
-#include "SALOME_Selection.h"
 
+#include "VTKViewer_Filter.h"
+
+class SALOME_Actor;
+class VTKViewer_Actor;
 class VTKViewer_Trihedron;
+class VTKViewer_ViewFrame;
+class VTKViewer_RenderWindowInteractor;
 
 #define VTK_INTERACTOR_STYLE_CAMERA_NONE    0
 #define VTK_INTERACTOR_STYLE_CAMERA_ROTATE  1
@@ -55,13 +62,15 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   // parent. This class should not normally be instantiated by application
   // programmers.
   static VTKViewer_InteractorStyleSALOME *New();
+  vtkTypeMacro(VTKViewer_InteractorStyleSALOME, vtkInteractorStyle);
+
+  virtual void SetInteractor(vtkRenderWindowInteractor *theInteractor);
+  void setViewFrame(VTKViewer_ViewFrame* theViewFrame);
+  void setGUIWindow(QWidget* theWindow);
 
   void setTriedron(VTKViewer_Trihedron* theTrihedron);
   void setPreselectionProp(const double& theRed = 0, const double& theGreen = 1,
 			   const double& theBlue = 1, const int& theWidth = 5);
-
-  vtkTypeMacro(VTKViewer_InteractorStyleSALOME, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Generic event bindings must be overridden in subclasses
   void OnMouseMove  (int ctrl, int shift, int x, int y);
@@ -76,10 +85,14 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
 
   void  ViewFitAll();
 
-  void  SetEdgeFilter( const Handle(VTKViewer_Filter)& );
-  void  SetFaceFilter( const Handle(VTKViewer_Filter)& );
-  void  RemoveFaceFilter();
-  void  RemoveEdgeFilter();
+  void                     SetFilter( const Handle(VTKViewer_Filter)& );
+  Handle(VTKViewer_Filter) GetFilter( const int );  
+  bool                     IsFilterPresent( const int );
+  void                     RemoveFilter( const int );
+  bool                     IsValid( SALOME_Actor* theActor,
+                                    const int     theId,
+                                    const bool    theIsNode = false );
+  
 
  protected:
   VTKViewer_InteractorStyleSALOME();
@@ -104,19 +117,21 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
 		const int left, const int top, 
 		const int right, const int bottom);
 
-  bool isValid( SALOME_Actor* theActor, const int theCellId, const Selection_Mode theSelMode );
-
   int State;
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad
   double myScale;
 
-  SALOME_Actor* preview;
-  vtkActor*     myPActor;
+  SALOME_Actor* myPreViewActor;
 
-public:
+  VTKViewer_Actor* myPreSelectionActor;
+  SALOME_Actor* mySelectedActor;
+  int myElemId;
+  int myEdgeId;
+  int myNodeId;
+
+ public:
   bool eventFilter(QObject* object, QEvent* event);
-  void ControlLblSize(double aOldScale, double aNewScale);
   void startZoom();
   void startPan();
   void startGlobalPan();
@@ -124,10 +139,8 @@ public:
   void startFitArea();
   void startSpin();
   bool needsRedrawing();
-  QWidget* getGUIWindow() {return myGUIWindow;}
-  void setGUIWindow(QWidget* theWin) { myGUIWindow = theWin;}
 
-protected:
+ protected:
   void loadCursors();
   void startOperation(int operation);
   void onStartOperation();
@@ -136,7 +149,8 @@ protected:
   void onCursorMove(QPoint mousePos);
   void setCursor(const int operation);
 
-protected:
+
+ protected:
   QCursor                   myDefCursor;
   QCursor                   myPanCursor;
   QCursor                   myZoomCursor;
@@ -150,12 +164,12 @@ protected:
   bool                      myShiftState;
   int                       ForcedState;
   
+  VTKViewer_RenderWindowInteractor* m_Interactor;
+  VTKViewer_ViewFrame*      m_ViewFrame;
   VTKViewer_Trihedron*      m_Trihedron;
-  
   QWidget*                  myGUIWindow;
   
-  Handle(VTKViewer_Filter)  myEdgeFilter;
-  Handle(VTKViewer_Filter)  myFaceFilter;
+  std::map<int, Handle(VTKViewer_Filter)> myFilters;
 
   //  members from old version
   double                    DeltaElevation;

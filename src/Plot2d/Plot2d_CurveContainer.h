@@ -23,7 +23,7 @@ public:
   void                removeCurve( const int index, bool alsoDelete = false ) ;
   void                clear( bool alsoDelete = false );
   int                 count();
-  bool                isEmpty();
+  bool                isEmpty() const;
   Plot2d_Curve*       curve( const int index );
 
 private:

@@ -29,7 +29,10 @@
 
 #include "SALOME_ModuleCatalog_Parser_IO.hxx"
 #include <string>
+#include <iostream>
 #include "utilities.h"
+
+using namespace std;
 
 std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 {

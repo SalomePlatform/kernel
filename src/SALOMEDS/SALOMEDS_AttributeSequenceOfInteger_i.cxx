@@ -97,7 +97,7 @@ char* SALOMEDS_AttributeSequenceOfInteger_i::Store() {
 void SALOMEDS_AttributeSequenceOfInteger_i::Restore(const char* value) {
   Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
   
-  char* aCopy = strdup(value);
+  char* aCopy = CORBA::string_dup(value);
   char* adr = strtok(aCopy, " ");
   while (adr) {
     CORBA::Long l =  atol(adr);

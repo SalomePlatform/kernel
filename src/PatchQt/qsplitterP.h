@@ -1,28 +1,8 @@
-//  SALOME PatchQt : patch for Qt
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
-//  File   : qsplitterP.h
-//  Module : SALOME
+/////////////////////////////////////////////////////////////////////////////
+// Module      : PatchQt
+// File        : qsplitterP.h
+// Description : the patch for Qt's QSplitter class (qsplitter.h)
+/////////////////////////////////////////////////////////////////////////////
 
 /****************************************************************************
 ** $Id$
@@ -116,6 +96,10 @@ public:
     QSplitterPHandle* getHandleBefore(QWidget* w);
 // VSR 21/11/02 <- ================================
 
+// ASL 07/09/04
+   bool isCompressed( const QWidget* ) const;
+// ASL 07/09/04
+
 protected:
     void childEvent( QChildEvent * );
 
@@ -125,7 +109,7 @@ protected:
     int idAfter( QWidget* ) const;
     QWidget* widgetBefore( int id ) const;
     QWidget* widgetAfter( int id ) const;
-    bool isCompressed(const QWidget*) const;
+
     QSize minSize( const QWidget *w ) const;
     QSize maxSize( const QWidget *w ) const;
     

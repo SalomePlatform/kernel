@@ -34,7 +34,7 @@ PY_CLIENT_IDL = $(IDL_FILES)
 inc: $(top_builddir)/idl/salome $(IDL_FILES:%=$(top_builddir)/idl/salome/%)
 
 $(top_builddir)/idl/salome:
-	mkdir $@
+	mkdir -p $@
 
 $(IDL_FILES:%=$(top_builddir)/idl/salome/%):$(IDL_FILES:%=$(top_srcdir)/idl/%)
 #	$(CP) $< $@
@@ -55,7 +55,7 @@ $(PYTHON_BUILD_SITE)/%_idl.py: $(top_builddir)/idl/salome/%.idl
 
 
 # install python client (generated from idl file
-install: install-pyidl install-idl
+install: $(top_builddir)/idl/salome install-pyidl install-idl
 
 # create directory $(idldir) and copy idl files into it
 install-idl: $(IDL_FILES:%=$(top_builddir)/idl/salome/%)

@@ -96,7 +96,7 @@ char* SALOMEDS_AttributeSequenceOfReal_i::Store() {
 void SALOMEDS_AttributeSequenceOfReal_i::Restore(const char* value) {
   Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
   
-  char* aCopy = strdup(value);
+  char* aCopy =  CORBA::string_dup(value);
   char* adr = strtok(aCopy, " ");
   char *err = NULL;
   while (adr) {

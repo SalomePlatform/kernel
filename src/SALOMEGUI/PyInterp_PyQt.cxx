@@ -22,7 +22,6 @@ using namespace std;
  */
 PyInterp_PyQt::PyInterp_PyQt(): PyInterp_base()
 {
-  initialize();
 }
 
 PyInterp_PyQt::~PyInterp_PyQt()

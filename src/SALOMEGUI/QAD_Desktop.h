@@ -151,6 +151,7 @@ public:
     virtual void      helpContext(const QString& path, const QString& dir = QString::null);
 */
     bool	      loadComponent(QString);
+    bool              loadComponentData( const QString& );
     QString           changeXmlInputSourceData(QString theData, QString theComponent);
     void	      activateComponent(const QString& theName, bool isLoadData = true);
     void              deactivateComponent();
@@ -165,6 +166,7 @@ public:
     const QString&	  getActiveComponent() const;
     SALOMEGUI*            getActiveGUI();
     SALOMEGUI*            getComponentGUI( const QString& );  // accepts component`s user name
+    QString               getComponentDataType() const;
     SALOME_NamingService* getNameService()      {return myNameService;}
 
     Engines::Component_var getEngine(const char *containerName,
@@ -193,8 +195,6 @@ protected:
     virtual   void    updateToolBars( UpdateCommand );
     virtual   void    updateCaption( UpdateCommand );
     virtual   void    updateMenu( UpdateCommand );
-
-    bool              loadComponentData( const QString& );
 
 protected slots:
     virtual void      onNewStudy();
@@ -342,6 +342,7 @@ private:
     SALOME_LifeCycleCORBA *		    myEnginesLifeCycle;
     QComboBox *				    myCombo;
     bool                                    myQueryClose;
+    bool                                    myAboutToClose;
     bool                                    _islibso;
 
     ComponentMap                            myComponents;

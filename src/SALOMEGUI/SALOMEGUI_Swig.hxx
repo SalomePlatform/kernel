@@ -34,17 +34,22 @@
 
 #include <Standard.hxx>
 
-class vtkRenderer;
+#include "SALOME_InteractiveObject.hxx"
+
 class QAD_Study;
+class QAD_ViewFrame;
+
+namespace SALOME{
+  QAD_ViewFrame* GetViewFrame(QAD_Study* theStudy);
+  Handle(SALOME_InteractiveObject) FindIObject(QAD_Study* theStudy, const char *theEntry);
+}
+
 
 class SALOMEGUI_Swig
 {
 public:
   SALOMEGUI_Swig();
   ~SALOMEGUI_Swig();
-
-  //san:T3.13 - move getRenderer() implementation from here to SalomePy.cxx
-  //static vtkRenderer* getRenderer(int viewId = -1);
 
   void         updateObjBrowser( bool updateSelection );
   QAD_Study*   getActiveStudy();

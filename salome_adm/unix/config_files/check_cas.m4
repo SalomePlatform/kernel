@@ -39,10 +39,14 @@ AC_SUBST(CAS_LDFLAGS)
 
 AC_SUBST(CAS_LDPATH)
 
+OWN_CONFIG_H=no
+
 CAS_CPPFLAGS=""
 CAS_CXXFLAGS=""
 CAS_LDFLAGS=""
 occ_ok=no
+own_config_h=no
+
 
 dnl libraries directory location
 case $host_os in
@@ -89,15 +93,47 @@ if test "x$occ_ok" = "xyes"; then
 dnl cascade headers
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -I$CASROOT/inc -I$CASROOT -Wno-deprecated -DHAVE_WOK_CONFIG_H"
+  CPPFLAGS="$CPPFLAGS -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -I$CASROOT/inc -I$CASROOT -I$KERNEL_ROOT_DIR/include/salome -Wno-deprecated -DHAVE_WOK_CONFIG_H"
   CXXFLAGS_old="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -funsigned-char"
 
+
+  echo
+  echo
+  echo testing config.h
+  echo
+  echo
+
+  AC_CHECK_HEADER(config.h, own_config_h=no, [
+	echo
+	echo
+	echo "config.h file not found! Generating it..."
+	echo
+	echo
+	mv confdefs.h backup_confdefs.h
+	${ROOT_SRCDIR}/make_config
+	rm -rf ${ROOT_BUILDDIR}/*.log
+	rm -rf ${ROOT_BUILDDIR}/*.status
+	mv backup_confdefs.h confdefs.h
+	rm -f backup_confdefs.h
+	own_config_h=yes
+	echo
+	echo
+  ])
+
+  if test "x$own_config_h" = xyes ; then
+    OWN_CONFIG_H=yes
+  fi
+
+  CPPFLAGS="$CPPFLAGS -I$ROOT_BUILDDIR/salome_adm/unix"
+  
   AC_CHECK_HEADER(Standard_Type.hxx,occ_ok=yes ,occ_ok=no)
 
   CPPFLAGS="$CPPFLAGS_old"
   CXXFLAGS="$CXXFLAGS_old"
 fi
+
+AC_SUBST(OWN_CONFIG_H)
 
 if test "x$occ_ok" = xyes ; then
 
@@ -107,7 +143,7 @@ if test "x$occ_ok" = xyes ; then
   AC_MSG_CHECKING(for OpenCascade libraries)
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS -Wno-deprecated"
+  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome -I$ROOT_BUILDDIR/salome_adm/unix -Wno-deprecated"
   CXXFLAGS_old="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS $CAS_CXXFLAGS"
   LIBS_old="$LIBS"

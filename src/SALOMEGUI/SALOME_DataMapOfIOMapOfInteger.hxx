@@ -45,7 +45,7 @@
 class Standard_DomainError;
 class Standard_NoSuchObject;
 class SALOME_InteractiveObject;
-class TColStd_MapOfInteger;
+class TColStd_IndexedMapOfInteger;
 class TColStd_MapTransientHasher;
 class SALOME_DataMapNodeOfDataMapOfIOMapOfInteger;
 class SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger;
@@ -94,17 +94,17 @@ Standard_EXPORT   void Clear() ;
   Clear();
 }
 
-Standard_EXPORT   Standard_Boolean Bind(const Handle(SALOME_InteractiveObject)& K,const TColStd_MapOfInteger& I) ;
+Standard_EXPORT   Standard_Boolean Bind(const Handle(SALOME_InteractiveObject)& K,const TColStd_IndexedMapOfInteger& I) ;
 Standard_EXPORT   Standard_Boolean IsBound(const Handle(SALOME_InteractiveObject)& K) const;
 Standard_EXPORT   Standard_Boolean UnBind(const Handle(SALOME_InteractiveObject)& K) ;
-Standard_EXPORT  const TColStd_MapOfInteger& Find(const Handle(SALOME_InteractiveObject)& K) const;
- const TColStd_MapOfInteger& operator()(const Handle(SALOME_InteractiveObject)& K) const
+Standard_EXPORT  const TColStd_IndexedMapOfInteger& Find(const Handle(SALOME_InteractiveObject)& K) const;
+ const TColStd_IndexedMapOfInteger& operator()(const Handle(SALOME_InteractiveObject)& K) const
 {
   return Find(K);
 }
 
-Standard_EXPORT   TColStd_MapOfInteger& ChangeFind(const Handle(SALOME_InteractiveObject)& K) ;
-  TColStd_MapOfInteger& operator()(const Handle(SALOME_InteractiveObject)& K) 
+Standard_EXPORT   TColStd_IndexedMapOfInteger& ChangeFind(const Handle(SALOME_InteractiveObject)& K) ;
+  TColStd_IndexedMapOfInteger& operator()(const Handle(SALOME_InteractiveObject)& K) 
 {
   return ChangeFind(K);
 }

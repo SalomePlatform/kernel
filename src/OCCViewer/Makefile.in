@@ -9,33 +9,32 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 EXPORT_HEADERS = \
 		  OCCViewer_AISSelector.h \
-		  OCCViewer_Selector.h \
 		  OCCViewer_Viewer3d.h \
 		  OCCViewer_ViewFrame.h \
 		  OCCViewer_ViewPort.h \
 		  OCCViewer_ViewPort3d.h \
-		  OCCViewer_VService.h 
+		  OCCViewer_VService.h \
+		  OCCViewer_Prs.h
 
 # Libraries targets
 
 LIB = libOCCViewer.la
 LIB_SRC = 	  OCCViewer.cxx \
-		  OCCViewer_Selector.cxx \
 		  OCCViewer_Viewer3d.cxx \
 		  OCCViewer_ViewFrame.cxx \
 		  OCCViewer_ViewPort.cxx \
 		  OCCViewer_ViewPort3d.cxx \
 		  OCCViewer_AISSelector.cxx \
-		  OCCViewer_VService.cxx
+		  OCCViewer_VService.cxx \
+                  OCCViewer_Prs.cxx
 
 LIB_MOC = \
 		  OCCViewer.h \
 		  OCCViewer_AISSelector.h \
-		  OCCViewer_Selector.h \
 		  OCCViewer_Viewer3d.h \
 		  OCCViewer_ViewFrame.h \
 		  OCCViewer_ViewPort.h \
-		  OCCViewer_ViewPort3d.h \
+		  OCCViewer_ViewPort3d.h
 
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \
@@ -44,7 +43,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 
 
 CPPFLAGS+=$(QT_INCLUDES) $(OCC_INCLUDES) $(OGL_INCLUDES) $(PYTHON_INCLUDES)
-LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS) -lSalomeGUI
+LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS) -lSalomePrs -lSalomeGUI
 
 
 @CONCLUDE@

@@ -29,7 +29,6 @@
 #ifndef SALOME_CATALOG_HANDLER_H
 #define SALOME_CATALOG_HANDLER_H
 
-#include "utilities.h"
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
@@ -105,7 +104,7 @@ public:
 private:
   QString errorProt ;
 
-  string content;
+  std::string content;
 
   QString test_path_prefix_name ;
   QString test_computer_name ;

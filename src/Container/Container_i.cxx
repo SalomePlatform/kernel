@@ -449,7 +449,7 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
 // Get the PID of the Container
 
 long Engines_Container_i::getPID() {
-    return(_pid);
+    return (long)getpid();
 }
 
 // Get the hostName of the Container

@@ -47,7 +47,7 @@ EXPORT_HEADERS= \
 	Utils_SINGLETON.hxx \
 	Utils_DESTRUCTEUR_GENERIQUE.hxx \
 	Utils_ExceptHandlers.hxx \
-	Utils_CatchSignals.h
+	Utils_SignalsHandler.h
 
 EXPORT_PYSCRIPTS = Utils_Identity.py SALOME_utilities.py
 # Libraries targets
@@ -59,7 +59,7 @@ LIB_SRC = OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \
 	Utils_DESTRUCTEUR_GENERIQUE.cxx \
 	Utils_ExceptHandlers.cxx \
-	Utils_CatchSignals.cxx
+	Utils_SignalsHandler.cxx
 
 LIB_SERVER_IDL = SALOME_Exception.idl
 

@@ -204,7 +204,7 @@ void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
   Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
   Handle(TDF_Data) DF = TDocStd_Document::Get(_myAttr->Label())->GetData();
   
-  char* aCopy = strdup(value);
+  char* aCopy = CORBA::string_dup(value);
   char* adr = strtok(aCopy, " ");
   
   TDF_Label aLabel;
@@ -236,4 +236,5 @@ void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
     if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
     aNode->SetFirst(aDepNode);
   }
+  delete(aCopy);
 }

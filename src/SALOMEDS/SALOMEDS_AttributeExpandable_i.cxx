@@ -41,7 +41,7 @@ void SALOMEDS_AttributeExpandable_i::SetExpandable(CORBA::Boolean value) {
 }
 
 char* SALOMEDS_AttributeExpandable_i::Store() {
-  return strdup(IsExpandable()?"1":"0");
+  return CORBA::string_dup(IsExpandable()?"1":"0");
 }
 
 void SALOMEDS_AttributeExpandable_i::Restore(const char* value) {

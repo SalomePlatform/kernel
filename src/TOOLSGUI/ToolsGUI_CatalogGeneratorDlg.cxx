@@ -27,7 +27,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "ToolsGUI_CatalogGeneratorDlg.h"
 
 #include "QAD_Application.h"
@@ -49,6 +48,10 @@ using namespace std;
 #include <OSD_Path.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Standard_CString.hxx>
+
+#include "utilities.h"
+
+using namespace std;
 
 #define SPACING_SIZE             6
 #define MARGIN_SIZE             11
@@ -300,7 +303,7 @@ QString ToolsGUI_CatalogGeneratorDlg::getIdlPath()
   QString IDLpath = "";
 
   for (unsigned int ind = 0; ind < list_composants->length();ind++) {
-    QString modulename = strdup(list_composants[ind].modulename) ;
+    QString modulename = CORBA::string_dup(list_composants[ind].modulename) ;
     
     QCString dir;
     if (dir = getenv( modulename + "_ROOT_DIR")) {

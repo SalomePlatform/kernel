@@ -39,7 +39,10 @@ EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
 	 	 VTKViewer_ViewFrame.h \
 		 VTKViewer_RenderWindowInteractor.h \
 	         VTKViewer_InteractorStyleSALOME.h \
-		 VTKViewer_Filter.h
+		 VTKViewer_Filter.h \
+		 VTKViewer_Prs.h \
+		 VTKViewer_Trihedron.h \
+		 VTKViewer_VectorText.h
 		     
 # Libraries targets
 LIB = libVTKViewer.la
@@ -53,7 +56,9 @@ LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_RectPicker.cxx \
 	 VTKViewer_CellRectPicker.cxx \
 	 VTKViewer_Utilities.cxx \
-	 VTKViewer_Filter.cxx
+	 VTKViewer_Filter.cxx \
+         VTKViewer_Actor.cxx \
+         VTKViewer_Prs.cxx 
 
 LIB_MOC = \
 	 VTKViewer.h \
@@ -66,9 +71,9 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Component.idl \
 		 SALOME_Exception.idl
 
-CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES) $(VTK_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
-CXXFLAGS+=
-LDFLAGS+=$(VTK_LIBS) $(OGL_LIBS) $(QT_MT_LIBS) -lSalomeGUI
+CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES) $(VTK_INCLUDES) $(OCC_INCLUDES)
+
+LDFLAGS+=$(VTK_LIBS) $(OGL_LIBS) $(QT_MT_LIBS) -lSalomePrs -lSalomeGUI
 
 @CONCLUDE@
 

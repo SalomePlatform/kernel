@@ -48,11 +48,13 @@ public:
                               VTKViewer_Filter();
   virtual                     ~VTKViewer_Filter();
 
-  bool                        IsValid( SALOME_Actor*, const int theCellId );
-  virtual bool                IsValid( const int theCellId ) const = 0;
+  bool                        IsValid( SALOME_Actor*, const int theId );
+  virtual bool                IsValid( const int theId ) const = 0;
+  virtual int                 GetId() const = 0;
+  virtual bool                IsNodeFilter() const = 0;
 
   virtual void                SetActor( SALOME_Actor* );
-
+  
 protected:
 
   SALOME_Actor*               myActor;

@@ -44,9 +44,8 @@ public:
   void SetStoreMapping(int theStoreMapping);
   int GetStoreMapping(){ return myStoreMapping;}
 
-  typedef std::vector<vtkIdType> TVectorId;
-  virtual vtkIdType GetObjId(int theVtkID);
-  virtual TVectorId GetVtkId(int theObjID);
+  virtual vtkIdType GetNodeObjId(int theVtkID) { return theVtkID;}
+  virtual vtkIdType GetElemObjId(int theVtkID);
 
 protected:
   SALOME_GeometryFilter();
@@ -59,9 +58,8 @@ private:
   int myShowInside;   
 
   int myStoreMapping;   
+  typedef std::vector<vtkIdType> TVectorId;
   TVectorId myVTK2ObjIds;
-  typedef std::vector<TVectorId> TVecVectorId;
-  TVecVectorId myObj2VTKIds;
 };
 
 #endif

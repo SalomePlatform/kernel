@@ -51,22 +51,6 @@ using namespace std;
 
 //==============================================================================
 
-class VTKViewer_UnScaledActor: public vtkFollower{
-  VTKViewer_UnScaledActor(const VTKViewer_UnScaledActor&);
-
-public:
-  vtkTypeMacro(VTKViewer_UnScaledActor,vtkFollower);
-  static VTKViewer_UnScaledActor *New();
-
-  virtual void SetSize(int theSize);
-  virtual void Render(vtkRenderer *theRenderer);
-
-protected:
-  VTKViewer_UnScaledActor();
-  ~VTKViewer_UnScaledActor(){}
-  int mySize;
-};
-
 vtkStandardNewMacro(VTKViewer_UnScaledActor);
 
 VTKViewer_UnScaledActor::VTKViewer_UnScaledActor(){}
@@ -99,31 +83,6 @@ void VTKViewer_UnScaledActor::SetSize(int theSize){
 
 //==============================================================================
 
-class VTKViewer_LineActor: public vtkFollower{
-  VTKViewer_LineActor(const VTKViewer_LineActor&);
-
-public:
-  vtkTypeMacro(VTKViewer_LineActor,vtkFollower);
-  static VTKViewer_LineActor *New();
-
-  void SetLabelActor(VTKViewer_UnScaledActor* theLabelActor);
-  void SetArrowActor(VTKViewer_UnScaledActor* theLabelActor);
-  virtual void Render(vtkRenderer *theRenderer);
-
-protected:
-  VTKViewer_LineActor(){
-    LabelActor = NULL;
-    ArrowActor = NULL;
-  }
-  ~VTKViewer_LineActor(){
-    SetLabelActor(NULL);
-    SetArrowActor(NULL);
-  }
-
-  VTKViewer_UnScaledActor* LabelActor;
-  VTKViewer_UnScaledActor* ArrowActor;
-};
-
 vtkStandardNewMacro(VTKViewer_LineActor);
 
 vtkCxxSetObjectMacro(VTKViewer_LineActor,LabelActor,VTKViewer_UnScaledActor);
@@ -142,69 +101,15 @@ void VTKViewer_LineActor::Render(vtkRenderer *theRenderer){
 }
 
 //==============================================================================
-
 // The base class for concreate Axis
 // Its only duty is to give correct initialization and destruction
 //   of its pipe-lines
-class VTKViewer_Axis : public vtkObject{
-protected:
-  VTKViewer_Axis();
-  VTKViewer_Axis(const VTKViewer_Axis&);
-  virtual ~VTKViewer_Axis();
- public:
-  vtkTypeMacro(VTKViewer_Axis,vtkObject);
-  
-  virtual void AddToRender(vtkRenderer* theRenderer){
-    //Order of the calls are important
-    theRenderer->AddActor(myLineActor);
-    theRenderer->AddActor(myLabelActor);
-    theRenderer->AddActor(myArrowActor);
-  }
-
-  virtual void SetVisibility(VTKViewer_Trihedron::TVisibility theVis);
-  virtual VTKViewer_Trihedron::TVisibility GetVisibility() { 
-    return myVisibility;
-  }
-
-  virtual void SetCamera(vtkCamera* theCamera){
-    myLabelActor->SetCamera(theCamera);
-  }
-
-  virtual void SetProperty(vtkProperty* theProperty){
-    myLabelActor->SetProperty(theProperty);
-    myArrowActor->SetProperty(theProperty);
-    myLineActor->SetProperty(theProperty);
-  }
-
-  virtual void SetSize(float theSize);
-
-  virtual VTKViewer_UnScaledActor* GetLabel(){
-    return myLabelActor;
-  }
-
-  virtual VTKViewer_UnScaledActor* GetArrow(){
-    return myArrowActor;
-  }
-
-protected:
-  VTKViewer_Trihedron::TVisibility myVisibility;
-  float myDir[3], myRot[3];
-
-  VTKViewer_LineActor *myLineActor;
-  //vtkActor *myLineActor;
-  VTKViewer_UnScaledActor *myArrowActor;
-  VTKViewer_UnScaledActor *myLabelActor;
-
-  vtkPolyDataMapper *myMapper[3];
-  vtkLineSource *myLineSource;
-  vtkConeSource *myConeSource;
-  VTKViewer_VectorText* myVectorText;
-};
 
 VTKViewer_Axis::VTKViewer_Axis(){
+  
   // Initialize the Line pipe-line representation
   myLineSource = vtkLineSource::New();
-  myLineSource->SetPoint1(0.0,0.0,0.0);
+  myLineSource->SetPoint1( 0, 0, 0 );
 
   myMapper[0] = vtkPolyDataMapper::New();
   myMapper[0]->SetInput(myLineSource->GetOutput());
@@ -268,8 +173,8 @@ VTKViewer_Axis::~VTKViewer_Axis(){
   // Destroy of the Arrow pipe-line representation
   myLineActor->Delete();
 
-  myMapper[2]->RemoveAllInputs();
-  myMapper[2]->Delete();
+  myMapper[0]->RemoveAllInputs();
+  myMapper[0]->Delete();
 
   myLineSource->Delete();
 }
@@ -304,6 +209,26 @@ void VTKViewer_Axis::SetSize(float theSize){
   myLabelActor->SetPosition(0.0,0.0,0.0);
   myLabelActor->AddPosition(aPosition);
 }
+
+void VTKViewer_Axis::AddToRender( vtkRenderer* theRenderer )
+{
+  //Order of the calls are important
+  theRenderer->AddActor( myLineActor );
+  theRenderer->AddActor( myLabelActor );
+  theRenderer->AddActor( myArrowActor );
+}
+
+void VTKViewer_Axis::SetCamera( vtkCamera* theCamera )
+{
+  myLabelActor->SetCamera(theCamera);
+}
+
+void VTKViewer_Axis::SetProperty( vtkProperty* theProperty )
+{
+  myLabelActor->SetProperty(theProperty);
+  myArrowActor->SetProperty(theProperty);
+  myLineActor->SetProperty(theProperty);
+  }
 
 //==============================================================================
 class VTKViewer_XAxis : public VTKViewer_Axis{

@@ -14,8 +14,6 @@ EXPORT_HEADERS = SALOME_InteractiveObject.hxx \
 		 Handle_SALOME_AISShape.hxx \
 		 SALOME_AISObject.hxx \
 		 Handle_SALOME_AISObject.hxx \
-		 VTKViewer_Common.h
-
 
 # Libraries targets
 
@@ -23,7 +21,7 @@ LIB = libSalomeObject.la
 LIB_SRC =	 SALOME_InteractiveObject.cxx \
 		 SALOME_Actor.cxx \
 		 SALOME_AISShape.cxx\
-		 SALOME_AISObject.cxx
+		 SALOME_AISObject.cxx\
 
 LIB_CLIENT_IDL = 
 

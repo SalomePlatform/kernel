@@ -34,8 +34,8 @@ using namespace std;
 #ifndef _SALOME_InteractiveObject_HeaderFile
 #include "SALOME_InteractiveObject.hxx"
 #endif
-#ifndef _TColStd_MapOfInteger_HeaderFile
-#include <TColStd_MapOfInteger.hxx>
+#ifndef _TColStd_IndexedMapOfInteger_HeaderFile
+#include <TColStd_IndexedMapOfInteger.hxx>
 #endif
 #ifndef _TColStd_MapTransientHasher_HeaderFile
 #include <TColStd_MapTransientHasher.hxx>
@@ -98,8 +98,8 @@ Standard_Boolean SALOME_DataMapNodeOfDataMapOfIOMapOfInteger::IsKind(const Handl
 Handle_SALOME_DataMapNodeOfDataMapOfIOMapOfInteger::~Handle_SALOME_DataMapNodeOfDataMapOfIOMapOfInteger() {}
 #define TheKey Handle_SALOME_InteractiveObject
 #define TheKey_hxx "SALOME_InteractiveObject.hxx"
-#define TheItem TColStd_MapOfInteger
-#define TheItem_hxx <TColStd_MapOfInteger.hxx>
+#define TheItem TColStd_IndexedMapOfInteger
+#define TheItem_hxx <TColStd_IndexedMapOfInteger.hxx>
 #define Hasher TColStd_MapTransientHasher
 #define Hasher_hxx <TColStd_MapTransientHasher.hxx>
 #define TCollection_DataMapNode SALOME_DataMapNodeOfDataMapOfIOMapOfInteger

@@ -255,7 +255,10 @@ if "SMESH" in modules_list:
                 add_path(os.path.join(plugin_root,"bin",args['appname']), "PATH")
         pass
     pass
-   
+
+# set environment for SUPERV module
+os.environ["ENABLE_MACRO_NODE"]="1"
+
 import orbmodule
 
 #
@@ -330,6 +333,8 @@ def startSalome():
   if "GEOM" in modules_list:
 	print "GEOM OCAF Resources"
 	os.environ["CSF_GEOMDS_ResourcesDefaults"]=os.path.join(modules_root_dir["GEOM"],"share",args['appname'],"resources")
+	print "GEOM Shape Healing Resources"
+        os.environ["CSF_ShHealingDefaults"]=os.path.join(modules_root_dir["GEOM"],"share",args['appname'],"resources")
 
   if 'study' not in args['embedded']:
       SalomeDSServer().run()

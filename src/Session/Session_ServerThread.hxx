@@ -63,10 +63,10 @@ protected:
 			char ** argv);
   void ActivateContainer(int argc,
 			char ** argv);
-  void ActivateSession(int argc,
+  virtual void ActivateSession(int argc,
 			char ** argv);
 
-private:
+protected:
   int _argc;
   char ** _argv;
   int _servType;
@@ -74,6 +74,25 @@ private:
   PortableServer::POA_var _root_poa;
   QMutex* _GUIMutex;
   SALOME_NamingService *_NS;
+};
+
+class Session_SessionThread : public Session_ServerThread
+{
+public:
+  Session_SessionThread() {}
+  Session_SessionThread(int argc,
+		       char** argv, 
+		       CORBA::ORB_ptr orb, 
+		       PortableServer::POA_ptr poa,
+		       QMutex* GUIMutex,
+                       QWaitCondition* GUILauncher);
+  virtual ~Session_SessionThread();  
+
+protected:
+  virtual void ActivateSession(int argc,
+			char ** argv);
+private:
+  QWaitCondition* _GUILauncher;
 };
 
 #endif

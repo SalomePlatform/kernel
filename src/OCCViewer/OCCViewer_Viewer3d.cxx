@@ -56,6 +56,18 @@ using namespace std;
 #include <Geom_Axis2Placement.hxx>
 #include <AIS_ListOfInteractive.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
+#include <SelectMgr_EntityOwner.hxx>
+#include <TopTools_IndexedMapOfShape.hxx>
+#include <TopExp.hxx>
+#include <TColStd_IndexedMapOfInteger.hxx>
+#include <NCollection_DefineBaseCollection.hxx>
+#include <NCollection_DefineDataMap.hxx>
+
+DEFINE_BASECOLLECTION( OCCViewer_CollectionOfIndexedMapOfShapes, TopTools_IndexedMapOfShape )
+DEFINE_DATAMAP( OCCViewer_MapOfIOIndexedMapOfShape, OCCViewer_CollectionOfIndexedMapOfShapes, Handle_SALOME_InteractiveObject, TopTools_IndexedMapOfShape)
+
+DEFINE_BASECOLLECTION( OCCViewer_CollectionOfMapOfInteger, TColStd_MapOfInteger )
+DEFINE_DATAMAP( OCCViewer_MapOfIOMapOfInteger, OCCViewer_CollectionOfMapOfInteger, Handle_SALOME_InteractiveObject, TColStd_MapOfInteger )
 
 /*!
     Constructor
@@ -169,9 +181,20 @@ Handle(AIS_Trihedron) OCCViewer_Viewer3d::getTrihedron() const
   return myTrihedron;
 }
 
-void OCCViewer_Viewer3d::setTrihedronSize(float size)
+void OCCViewer_Viewer3d::setTrihedronSize( float size )
 {
-  myTrihedron->SetSize(size);
+  AIS_ListOfInteractive aList;
+  myAISContext->DisplayedObjects( aList );
+  myAISContext->ObjectsInCollector( aList );
+
+  AIS_ListIteratorOfListOfInteractive anIter( aList );
+  for ( ; anIter.More(); anIter.Next() )
+  {
+    Handle(AIS_Trihedron) aTrh = Handle(AIS_Trihedron)::DownCast( anIter.Value() );
+    if ( !aTrh.IsNull() )
+      aTrh->SetSize( aTrh == myTrihedron ? size : 0.5 *size );
+  }
+
   myAISContext->UpdateCurrentViewer();
 }
 
@@ -187,21 +210,27 @@ void OCCViewer_Viewer3d::rename( const Handle(SALOME_InteractiveObject)& IObject
   myAISContext->DisplayedObjects(List);
   
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
+  while (ite.More())
+  {
+    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape)))
+    {
+      Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast(ite.Value());
       
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  aSh->setName( strdup(newName.latin1()) );
-	  break;
-	}
+      if ( aSh->hasIO() )
+      {
+        Handle(SALOME_InteractiveObject) IO = aSh->getIO();
+        if ( IO->isSame( IObject ) )
+        {
+          char* aCopyName = CORBA::string_dup(newName.latin1());
+          aSh->setName( aCopyName );
+          delete( aCopyName );
+          break;
+        }
       }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
+    }
+    else if ( ite.Value()->IsKind( STANDARD_TYPE( SALOME_AISObject ) ) )
+    {
+      Handle(SALOME_AISObject) aSh = Handle(SALOME_AISObject)::DownCast( ite.Value() );
 
       // Add code here, if someone create a MODULE_AISObject.
     }
@@ -216,87 +245,63 @@ void OCCViewer_Viewer3d::SetColor(const Handle(SALOME_InteractiveObject)& IObjec
   myAISContext->DisplayedObjects(List);
   
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  Quantity_Color CSFColor = Quantity_Color ( thecolor.red()/255., thecolor.green()/255., thecolor.blue()/255., Quantity_TOC_RGB );
-	  aSh->SetColor ( CSFColor );
-	  //	  aSh->SetShadingColor ( CSFColor );
-	  break;
-	}
-      }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
-      
-      // Add code here, if someone create a MODULE_AISObject.
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+    {
+      Quantity_Color CSFColor = Quantity_Color ( thecolor.red() / 255.,
+                                                 thecolor.green() / 255.,
+                                                 thecolor.blue() / 255.,
+                                                 Quantity_TOC_RGB );
+      ite.Value()->SetColor( CSFColor );
+      break;
     }
-    ite.Next();
   }
+
   myV3dViewer->Update();
 }
 
-void OCCViewer_Viewer3d::SwitchRepresentation(const Handle(SALOME_InteractiveObject)& IObject,
-					      int mode)
+void OCCViewer_Viewer3d::SwitchRepresentation( const Handle(SALOME_InteractiveObject)& IObject,
+                                               int mode )
 {  
   AIS_ListOfInteractive List;
   myAISContext->DisplayedObjects(List);
   
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  myAISContext->SetDisplayMode(aSh,Standard_Integer(mode),true);
-	}
-      }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
-      
-      // Add code here, if someone create a MODULE_AISObject.
-    }
-    ite.Next();
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+      myAISContext->SetDisplayMode( ite.Value(), (Standard_Integer)mode ,true );
   }
+
   myV3dViewer->Update();
 }
 
-void OCCViewer_Viewer3d::SetTransparency(const Handle(SALOME_InteractiveObject)& IObject,
-					 float transp)
+void OCCViewer_Viewer3d::SetTransparency( const Handle(SALOME_InteractiveObject)& IObject,
+                                          float transp )
 {
   AIS_ListOfInteractive List;
-  myAISContext->DisplayedObjects(List);
+  myAISContext->DisplayedObjects( List );
   
-  AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  myAISContext->SetTransparency( aSh, transp, false );
-	  myAISContext->Redisplay( aSh, Standard_False, Standard_True );
-	}
-      }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
-      
-      // Add code here, if someone create a MODULE_AISObject.
+  AIS_ListIteratorOfListOfInteractive ite( List );
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+    {
+      myAISContext->SetTransparency( ite.Value(), transp, false );
+      myAISContext->Redisplay( ite.Value(), Standard_False, Standard_True );
     }
-    ite.Next();
   }
+  
   myV3dViewer->Update();  
 }
 
@@ -305,38 +310,46 @@ void OCCViewer_Viewer3d::SetTransparency(const Handle(SALOME_InteractiveObject)&
 */
 bool OCCViewer_Viewer3d::highlight( const Handle(SALOME_InteractiveObject)& IObject, bool highlight, bool update )
 {
+  bool isInLocal = myAISContext->HasOpenedContext();
+  QAD_Study* ActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection* Sel = SALOME_Selection::Selection( ActiveStudy->getSelection() );
+
   AIS_ListOfInteractive List;
   myAISContext->DisplayedObjects(List);
   
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  if ( highlight ) {
-	    if ( !myAISContext->IsSelected(aSh) ) 
-	      myAISContext->AddOrRemoveCurrentObject(aSh, false);
-	  } else {
-	    if ( myAISContext->IsSelected(aSh) ) 
-	      myAISContext->AddOrRemoveCurrentObject(aSh, false);	
-	  }      
-	  break;
-	}
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+    {
+      if ( !isInLocal )
+      {
+        if ( highlight && !myAISContext->IsSelected( ite.Value() ) )
+          myAISContext->AddOrRemoveCurrentObject( ite.Value(), false );
+        else if ( !highlight && myAISContext->IsSelected( ite.Value() ) )
+          myAISContext->AddOrRemoveCurrentObject( ite.Value(), false );
       }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
-      
-      // Add code here, if someone create a MODULE_AISObject.
+      // highlight subshapes only when local selection is active
+      else
+      {
+        if ( ite.Value()->IsKind( STANDARD_TYPE( SALOME_AISShape ) ) )
+        {
+          Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast( ite.Value() );
+          TColStd_IndexedMapOfInteger MapIndex;
+          Sel->GetIndex( IObject, MapIndex );
+          aSh->highlightSubShapes( MapIndex, highlight );
+        }
+      }
+      break;
     }
-    ite.Next();
   }
-  if (update)
-    myV3dViewer->Update();
+    
+  if ( update )
+    myV3dViewer->Redraw();
+    
   return false;
 }
 
@@ -345,7 +358,10 @@ bool OCCViewer_Viewer3d::highlight( const Handle(SALOME_InteractiveObject)& IObj
 */
 bool OCCViewer_Viewer3d::unHighlightAll()
 {
-  myAISContext->ClearCurrents();
+  if ( myAISContext->HasOpenedContext() )
+    myAISContext->ClearSelected();
+  else
+    myAISContext->ClearCurrents();
   return false;
 }
 
@@ -364,24 +380,13 @@ bool OCCViewer_Viewer3d::isInViewer( const Handle(SALOME_InteractiveObject)& IOb
   }
 
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IObject->isSame( IO ) ) {
-	  return true;
-	}
-      }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
 
-      // Add code here, if someone create a MODULE_AISObject.
-    }
-    ite.Next();
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+      return true;
   }
   return false;
 }
@@ -389,28 +394,18 @@ bool OCCViewer_Viewer3d::isInViewer( const Handle(SALOME_InteractiveObject)& IOb
 bool OCCViewer_Viewer3d::isVisible( const Handle(SALOME_InteractiveObject)& IObject )
 {
   AIS_ListOfInteractive List;
-  myAISContext->DisplayedObjects(List);
+  myAISContext->DisplayedObjects( List );
 
-  AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh =
-	Handle(SALOME_AISShape)::DownCast(ite.Value());
-      
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IObject->isSame( IO ) ) {
-	  return myAISContext->IsDisplayed(aSh);
-	}
-      }
-    } else if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-      Handle(SALOME_AISObject) aSh =
-	Handle(SALOME_AISObject)::DownCast(ite.Value());
+  AIS_ListIteratorOfListOfInteractive ite( List );
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
 
-      // Add code here, if someone create a MODULE_AISObject.
-    }
-    ite.Next();
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+      return myAISContext->IsDisplayed( ite.Value() );
   }
+  
   return false;
 }
 
@@ -498,13 +493,11 @@ void OCCViewer_Viewer3d::onMousePress( QMouseEvent* pe )
 void OCCViewer_Viewer3d::onMouseMove( QMouseEvent* pe )
 {
   /* activate hilighting only if no MB pressed */
-  if ( pe->state() == Qt::NoButton ) 
-    {
-      QAD_Application::getDesktop()->onMouseMove( pe );
-      
-      OCCViewer_ViewPort* vp = myViewFrame->getViewPort();
-      myAISSelector->moveTo ( pe->x(), pe->y(), ((OCCViewer_ViewPort3d*)vp)->getView() );
-    }
+  if ( ! ( pe->state() & ( Qt::LeftButton | Qt::MidButton | Qt::RightButton ) ) ) {
+    QAD_Application::getDesktop()->onMouseMove( pe );
+    OCCViewer_ViewPort* vp = myViewFrame->getViewPort();
+    myAISSelector->moveTo ( pe->x(), pe->y(), ((OCCViewer_ViewPort3d*)vp)->getView() );
+  }
 }
 
 /*!
@@ -582,138 +575,247 @@ void OCCViewer_Viewer3d::onSelectionDone( bool bAdded )
 {
   emit vw3dSelectionDone( bAdded );
 
-  QAD_Study*	  myActiveStudy	 = QAD_Application::getDesktop()->getActiveStudy();
-  QAD_StudyFrame* myActiveSFrame = myActiveStudy->getActiveStudyFrame();
-  SALOME_Selection*	    Sel	 = SALOME_Selection::Selection( myActiveStudy->getSelection() );
-  MESSAGE ( "OCCViewer_Viewer3d - NB SELECTED INTERACTIVE OBJECT : " << Sel->IObjectCount() )
+//  QAD_Study*	  myActiveStudy	 = QAD_Application::getDesktop()->getActiveStudy();
+//  QAD_StudyFrame* myActiveSFrame = myActiveStudy->getActiveStudyFrame();
+ // SALOME_Selection*	    Sel	 = SALOME_Selection::Selection( myActiveStudy->getSelection() );
+//  MESSAGE ( "OCCViewer_Viewer3d - NB SELECTED INTERACTIVE OBJECT : " << Sel->IObjectCount() )
 
-    QString             ActiveComp = QAD_Application::getDesktop()->getActiveComponent();
+  QString ActiveComp = QAD_Application::getDesktop()->getActiveComponent();
 
-  if ( ActiveComp.isEmpty() ) {
+  if ( ActiveComp.isEmpty() )
+  {
     unHighlightAll();
     return;
   }
 
+  if ( myAISContext->IndexOfCurrentLocal() <= 0 )
+    globalSelectionDone( bAdded );
+  else
+    localSelectionDone( bAdded );
+  
+  myV3dViewer->Update();
+}
+
+/*!
+  Called when an object is selected and there is no opened local context
+*/
+void OCCViewer_Viewer3d::globalSelectionDone( const bool bAdded )
+{
+  SALOME_Selection* Sel = SALOME_Selection::Selection(
+    QAD_Application::getDesktop()->getActiveStudy()->getSelection() );
+
+  MESSAGE ( "OCCViewer_Viewer3d - NB SELECTED INTERACTIVE OBJECT : " << Sel->IObjectCount() )
+  
   SALOME_ListIO DeltaPos;
   DeltaPos.Clear();
   SALOME_ListIO DeltaNeg;
   DeltaNeg.Clear();
 
-  if ( !bAdded ) { /* select */
-    myAISContext->InitCurrent();
-    while (myAISContext->MoreCurrent()) {
-      if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-  	Handle(SALOME_AISShape) aSh =
-  	  Handle(SALOME_AISShape)::DownCast(myAISContext->Current());
-	
-  	if ( aSh->hasIO() ) {
-	  Handle( SALOME_InteractiveObject) IO = aSh->getIO();
-	
-	  bool itemAllreadySelected = false;
-	  int nbSel = Sel->IObjectCount();
-	  if ( nbSel == 0 ) {
-	    DeltaPos.Append( IO );
-	  } else {
-	    SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
-	    for(;It.More();It.Next()) {
-	      Handle( SALOME_InteractiveObject) IO1 = It.Value();
-	      if ( IO->isSame( IO1 ) ) {
-		itemAllreadySelected = true;
-		break;
-	      }
-	    }
-	    if (!itemAllreadySelected) 
-	      DeltaPos.Append( IO );
-	  }
+  if ( !bAdded )
+  { 
+    for ( myAISContext->InitCurrent(); myAISContext->MoreCurrent(); myAISContext->NextCurrent() )
+    {
+      Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( myAISContext->Current()->GetOwner() );
+
+      if ( !anObj.IsNull() )
+      {
+        bool itemAllreadySelected = false;
+        int nbSel = Sel->IObjectCount();
+        if ( nbSel == 0 )
+          DeltaPos.Append( anObj );
+        else
+        {
+          SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
+          for( ; It.More(); It.Next() )
+          {
+            Handle( SALOME_InteractiveObject) IO1 = It.Value();
+            if ( anObj->isSame( IO1 ) )
+            {
+              itemAllreadySelected = true;
+              break;
+            }
+          }
+          if ( !itemAllreadySelected )
+            DeltaPos.Append( anObj );
         }
-      } else if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-	Handle(SALOME_AISObject) aSh =
-	  Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
-	
-	// Add code here, if someone create a MODULE_AISObject.
       }
-      myAISContext->NextCurrent();
+      else if ( myAISContext->Current()->IsKind( STANDARD_TYPE( SALOME_AISObject ) ) )
+      {
+        //Handle(SALOME_AISObject) aSh =
+        //  Handle(SALOME_AISObject)::DownCast( myAISContext->Current() );
+        // Add code here, if someone create a MODULE_AISObject.
+      }
     }
 
     if ( DeltaPos.Extent() > 0 )
       Sel->ClearIObjects();
-    
-  } else { /* shift select */
+
+  }
+  else
+  { /* shift select */
     SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
-    for(;It.More();It.Next()) {
+    for ( ;It.More(); It.Next() )
+    {
       Handle( SALOME_InteractiveObject) IO1 = It.Value();
 
       bool itemAllreadySelected = false;
-      myAISContext->InitCurrent();
-      while (myAISContext->MoreCurrent()) {
-	if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-	  Handle(SALOME_AISShape) aSh =
-	    Handle(SALOME_AISShape)::DownCast(myAISContext->Current());
-	  if ( aSh->hasIO() ) {
-	    Handle( SALOME_InteractiveObject) IO = aSh->getIO();
-	
-	    if ( IO->isSame( IO1 ) ) {
-	      itemAllreadySelected = true;
-	      break;
-	    }
-	  }
-	} else if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-	  Handle(SALOME_AISObject) aSh =
-	    Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
-	  
-	  // Add code here, if someone create a MODULE_AISObject.
-	}
-  	myAISContext->NextCurrent();
+      for ( myAISContext->InitCurrent(); myAISContext->MoreCurrent(); myAISContext->NextCurrent() )
+      {
+        Handle(SALOME_InteractiveObject) anObj =
+          Handle(SALOME_InteractiveObject)::DownCast( myAISContext->Current()->GetOwner() );
+
+        if ( !anObj.IsNull() && anObj->isSame( IO1 ) )
+        {
+          itemAllreadySelected = true;
+          break;
+        }
+        else if ( myAISContext->Current()->IsKind( STANDARD_TYPE( SALOME_AISObject ) ) )
+        {
+          //Handle(SALOME_AISObject) aSh =
+          //  Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
+          // Add code here, if someone create a MODULE_AISObject.
+        }
       }
 
-      if (!itemAllreadySelected)
-  	DeltaNeg.Append( IO1 );
+      if ( !itemAllreadySelected )
+        DeltaNeg.Append( IO1 );
     }
 
     myAISContext->InitCurrent();
-    while (myAISContext->MoreCurrent()) {
-      if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-	Handle(SALOME_AISShape) aSh =
-	  Handle(SALOME_AISShape)::DownCast(myAISContext->Current());
-	if ( aSh->hasIO() ) {
-	  Handle( SALOME_InteractiveObject) IO = aSh->getIO();	
-	
-	  bool itemAllreadySelected = false;
-	  SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
-	  for(;It.More();It.Next()) {
-	    Handle( SALOME_InteractiveObject) IO1 = It.Value();
-	    
-	    if ( IO->isSame( IO1 ) ) {
-	      itemAllreadySelected = true;
-	      break;
-	    }
-	  }
-	
-	  if (!itemAllreadySelected )
-	    DeltaPos.Append( IO );
-	}
-      } else if ( myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-	Handle(SALOME_AISObject) aSh =
-	  Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
+    for ( myAISContext->InitCurrent(); myAISContext->MoreCurrent(); myAISContext->NextCurrent() )
+    {
+      Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( myAISContext->Current()->GetOwner() );
 
-	// Add code here, if someone create a MODULE_AISObject.
+      if ( !anObj.IsNull() )
+      {
+        bool itemAllreadySelected = false;
+        SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
+        for ( ;It.More(); It.Next() )
+        {
+          Handle( SALOME_InteractiveObject) IO1 = It.Value();
+
+          if ( anObj->isSame( IO1 ) )
+          {
+            itemAllreadySelected = true;
+            break;
+          }
+        }
+
+        if ( !itemAllreadySelected )
+          DeltaPos.Append( anObj );
       }
-      myAISContext->NextCurrent();
+      else if ( myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISObject)))
+      {
+        //Handle(SALOME_AISObject) aSh =
+        //  Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
+        // Add code here, if someone create a MODULE_AISObject.
+      }
     }
   }
-  
+
   //  MESSAGE ( "VIEWER onSelectionDone DeltaNeg.count() == " << DeltaNeg.count() )
   SALOME_ListIteratorOfListIO ItNeg( DeltaNeg );
-  for(;ItNeg.More();ItNeg.Next()) {
+  for( ;ItNeg.More();ItNeg.Next() )
+  {
     Sel->RemoveIObject( ItNeg.Value(), false );
   }
-  
+
   //  MESSAGE ( "VIEWER onSelectionDone DeltaPos.count() == " << DeltaPos.Extent() )
   SALOME_ListIteratorOfListIO ItPos( DeltaPos );
-  for(;ItPos.More();ItPos.Next()) {
+  for ( ;ItPos.More();ItPos.Next() )
+  {
     Sel->AddIObject( ItPos.Value(), false );
-  }  
-  myV3dViewer->Update();
+  }
+}
+
+/*!
+  Called when an object is selected and there is opened local context
+*/
+void OCCViewer_Viewer3d::localSelectionDone( const bool /*bAdded*/ )
+{
+  SALOME_Selection* aSelection = SALOME_Selection::Selection(
+    QAD_Application::getDesktop()->getActiveStudy()->getSelection() );
+
+  aSelection->BlockSignals( true );
+
+  OCCViewer_MapOfIOIndexedMapOfShape aMapsOfShapes;   // SALOME_InteractiveObject <--> TopTools_IndexedMapOfShape
+  OCCViewer_MapOfIOMapOfInteger      aMapsOfIndexes; // SALOME_InteractiveObject <--> TColStd_MapOfInteger
+
+
+  // Iterate through selected objects and add them to selection
+  for( myAISContext->InitSelected(); myAISContext->MoreSelected(); myAISContext->NextSelected() )
+  {
+    // Retrive selected shape and subshape
+    Handle(SelectMgr_EntityOwner) anOwner = myAISContext->SelectedOwner();
+    if ( anOwner.IsNull() )
+      continue;
+      
+    Handle(AIS_InteractiveObject) anIO =
+      Handle(AIS_InteractiveObject)::DownCast( myAISContext->SelectedInteractive() );
+    if ( anIO.IsNull() )
+      continue;
+
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( anIO->GetOwner() );
+    if ( anObj.IsNull() )
+      continue;
+    
+    if ( anIO->IsKind( STANDARD_TYPE( AIS_Shape ) ) )
+    {
+      Handle(AIS_Shape) anAISShape = Handle(AIS_Shape)::DownCast( anIO );
+      TopoDS_Shape aShape = anAISShape->Shape();
+      TopoDS_Shape aSubShape = anOwner->Shape();
+      if ( aShape.IsNull() || aSubShape.IsNull() )
+        continue;
+
+      // Get index of selected shape
+      if ( aMapsOfShapes.IsBound( anObj ) )
+      {
+        const TopTools_IndexedMapOfShape& aShapes = aMapsOfShapes( anObj );
+        int anIndex = aShapes.FindIndex( aSubShape );
+
+        aMapsOfIndexes( anObj ).Add( anIndex );
+      }
+      else
+      {
+        TopTools_IndexedMapOfShape aShapes;
+        TopExp::MapShapes( aShape, aShapes );
+        int anIndex = aShapes.FindIndex( aSubShape );
+
+        TColStd_MapOfInteger anIndexes;
+        anIndexes.Add( anIndex );
+
+        aMapsOfShapes.Bind( anObj, aShapes );
+        aMapsOfIndexes.Bind( anObj, anIndexes );
+      }
+    }
+    else
+    {
+      aMapsOfShapes.Bind( anObj, TopTools_IndexedMapOfShape() );
+      aMapsOfIndexes.Bind( anObj, TColStd_MapOfInteger() );
+    }
+  }
+
+  // Clear selection
+  aSelection->ClearIObjects();
+
+  // Add object in selection
+  OCCViewer_MapOfIOMapOfInteger::Iterator anIter( aMapsOfIndexes );
+  for ( ; anIter.More(); anIter.Next() )
+  {
+    if ( anIter.Value().IsEmpty() )
+      aSelection->AddIObject( anIter.Key(), false );
+    else
+    {
+      aSelection->AddIObject( anIter.Key(), false );
+      aSelection->AddOrRemoveIndex( anIter.Key(), anIter.Value(), false, false );
+    }
+  }
+
+  aSelection->BlockSignals( false );
+  aSelection->SelectionChanged();
 }
 
 /*!
@@ -723,56 +825,56 @@ void OCCViewer_Viewer3d::onSelectionCancel( bool bAdded )
 {
   emit vw3dSelectionCancel();
 
-  QAD_Study*	  myActiveStudy	 = QAD_Application::getDesktop()->getActiveStudy();
-  QAD_StudyFrame* myActiveSFrame = myActiveStudy->getActiveStudyFrame();
-  SALOME_Selection*	    Sel	 = SALOME_Selection::Selection( myActiveStudy->getSelection() );
-
-  //  MESSAGE ( "OCCViewer_Viewer3d - NB SELECTED INTERACTIVE OBJECT : " << Sel->IObjectCount() )
+  QAD_Study*  myActiveStudy	 = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection*  Sel	 = SALOME_Selection::Selection( myActiveStudy->getSelection() );
 
   SALOME_ListIO DeltaPos;
   DeltaPos.Clear();
   SALOME_ListIO DeltaNeg;
   DeltaNeg.Clear();
-  if (!bAdded) { /* select */
+  
+  if ( !bAdded )
+  { /* select */
     Sel->ClearIObjects();
-  } else { /* shiftselect */
+  }
+  else
+  { /* shiftselect */
     SALOME_ListIteratorOfListIO It( Sel->StoredIObjects() );
-    for(;It.More();It.Next()) {
+    for ( ; It.More(); It.Next() )
+    {
       Handle( SALOME_InteractiveObject) IO1 = It.Value();
 
       bool itemAllreadySelected = false;
       myAISContext->InitCurrent();
-      while (myAISContext->MoreCurrent()) {
-	if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-	  Handle(SALOME_AISShape) aSh =
-	    Handle(SALOME_AISShape)::DownCast(myAISContext->Current());
-	  if ( aSh->hasIO() ) {
-	    Handle( SALOME_InteractiveObject) IO = aSh->getIO();	
-	    if ( IO->isSame(IO1) ) {
-	      itemAllreadySelected = true;
-	      break;
-	    }
-	  }
-	} else if (myAISContext->Current()->IsKind(STANDARD_TYPE(SALOME_AISObject))) {
-	  Handle(SALOME_AISObject) aSh =
-	    Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
-	  
-	  // Add code here, if someone create a MODULE_AISObject.
-	}
-  	myAISContext->NextCurrent();
+      for ( myAISContext->InitCurrent(); myAISContext->MoreCurrent(); myAISContext->NextCurrent() )
+      {
+        Handle(SALOME_InteractiveObject) anObj =
+          Handle(SALOME_InteractiveObject)::DownCast( myAISContext->Current()->GetOwner() );
+          
+        if ( !anObj.IsNull() && anObj->isSame( IO1 ) )
+        {
+          itemAllreadySelected = true;
+          break;
+        }
+        else if ( myAISContext->Current()->IsKind( STANDARD_TYPE( SALOME_AISObject ) ) )
+        {
+          Handle(SALOME_AISObject) aSh =
+            Handle(SALOME_AISObject)::DownCast(myAISContext->Current());
+          // Add code here, if someone create a MODULE_AISObject.
+        }
       }
       
       // only if isknown
-      if (!itemAllreadySelected)
-	DeltaNeg.Append( IO1 );
+      if ( !itemAllreadySelected )
+        DeltaNeg.Append( IO1 );
     }
   }
 
   //  MESSAGE ( "VIEWER onSelectionCancel DeltaNeg.count() == " << DeltaNeg.Extent() )
   SALOME_ListIteratorOfListIO ItNeg( DeltaNeg );
-  for(;ItNeg.More();ItNeg.Next()) {
+  for ( ; ItNeg.More(); ItNeg.Next() ) 
     Sel->RemoveIObject( ItNeg.Value(), false);
-  }
+
   myV3dViewer->Update();
 }
 

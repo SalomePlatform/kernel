@@ -35,6 +35,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = SALOME_Transform.h \
 	         SALOME_TransformFilter.h \
 	         SALOME_PassThroughFilter.h \
+		 SALOME_ShrinkFilter.h \
 		 SALOME_GeometryFilter.h \
 		 SALOME_ExtractUnstructuredGrid.h
 
@@ -44,6 +45,7 @@ LIB = libSalomeVTKFilter.la
 LIB_SRC = SALOME_Transform.cxx \
           SALOME_TransformFilter.cxx \
 	  SALOME_PassThroughFilter.cxx \
+	  SALOME_ShrinkFilter.cxx \
 	  SALOME_GeometryFilter.cxx \
 	  SALOME_ExtractUnstructuredGrid.cxx
 

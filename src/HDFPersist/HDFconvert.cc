@@ -99,4 +99,6 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
     return -1;
   };
     
+
+  return length;    
 };

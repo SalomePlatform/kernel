@@ -38,7 +38,7 @@
 #endif
 class Standard_NoSuchObject;
 class SALOME_InteractiveObject;
-class TColStd_MapOfInteger;
+class TColStd_IndexedMapOfInteger;
 class TColStd_MapTransientHasher;
 class SALOME_DataMapOfIOMapOfInteger;
 class SALOME_DataMapNodeOfDataMapOfIOMapOfInteger;
@@ -77,7 +77,7 @@ Standard_EXPORT SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger();
 Standard_EXPORT SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger(const SALOME_DataMapOfIOMapOfInteger& aMap);
 Standard_EXPORT   void Initialize(const SALOME_DataMapOfIOMapOfInteger& aMap) ;
 Standard_EXPORT  const Handle_SALOME_InteractiveObject& Key() const;
-Standard_EXPORT  const TColStd_MapOfInteger& Value() const;
+Standard_EXPORT  const TColStd_IndexedMapOfInteger& Value() const;
 
 
 

@@ -238,6 +238,16 @@ CORBA::Short SALOMEDS_SObject_i::Tag()
  *  Purpose  : 
  */
 //============================================================================
+CORBA::Short SALOMEDS_SObject_i::Depth()
+{
+  return _lab.Depth();
+}
+
+//============================================================================
+/*! Function :
+ *  Purpose  : 
+ */
+//============================================================================
 CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
 {
   CORBA::Object_ptr obj = CORBA::Object::_nil();

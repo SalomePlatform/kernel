@@ -39,7 +39,7 @@
 using namespace std;
 
 #ifdef _DEBUG_
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
 #endif
@@ -80,7 +80,7 @@ void SALOME_ExtractUnstructuredGrid::SetStoreMapping(int theStoreMapping){
   this->Modified();
 }
 
-vtkIdType SALOME_ExtractUnstructuredGrid::GetOutId(int theOutId) const{
+vtkIdType SALOME_ExtractUnstructuredGrid::GetInputId(int theOutId) const{
   if(myCellIds.empty() && myCellTypes.empty()) return theOutId;
   if(myOut2InId.empty() || theOutId > myOut2InId.size()) return -1;
 #if defined __GNUC_2__
@@ -90,7 +90,7 @@ vtkIdType SALOME_ExtractUnstructuredGrid::GetOutId(int theOutId) const{
 #endif
 }
 
-vtkIdType SALOME_ExtractUnstructuredGrid::GetInId(int theInId) const{
+vtkIdType SALOME_ExtractUnstructuredGrid::GetOutputId(int theInId) const{
   if(myCellIds.empty() && myCellTypes.empty()) return theInId;
   TMapId::const_iterator anIter = myIn2OutId.find(theInId);
   if(anIter == myIn2OutId.end()) return -1;
@@ -233,7 +233,7 @@ void SALOME_ExtractUnstructuredGrid::Execute(){
 	  }
 	}
       }
-      if(aNbElems = aConnectivity->GetNumberOfCells()){
+      if((aNbElems = aConnectivity->GetNumberOfCells())){
 	vtkIntArray* aCellLocationsArray = vtkIntArray::New();
 	aCellLocationsArray->SetNumberOfComponents(1);
 	aCellLocationsArray->SetNumberOfTuples(aNbElems);
@@ -322,7 +322,7 @@ void SALOME_ExtractUnstructuredGrid::Execute(){
 	}
       }
     }
-    if(aNbElems = aConnectivity->GetNumberOfCells()){
+    if((aNbElems = aConnectivity->GetNumberOfCells())){
       vtkIntArray* aCellLocationsArray = vtkIntArray::New();
       aCellLocationsArray->SetNumberOfComponents(1);
       aCellLocationsArray->SetNumberOfTuples(aNbElems);

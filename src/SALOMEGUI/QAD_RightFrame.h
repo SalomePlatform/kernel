@@ -55,7 +55,16 @@ class QAD_EXPORT QAD_RightFrame : public QAD_Splitter
   void              compressUp();
   void              unCompressBottom();
   void              unCompressUp();
-  
+
+  void              compressLeft();
+  void              compressRight();
+  void              unCompressLeft();
+  void              unCompressRight();
+
+  bool              isCompressedViewFrame() const;
+  bool              isCompressedPython() const;
+  bool              isCompressedMessage() const;
+    
 protected:
   ViewType          myViewType;
   

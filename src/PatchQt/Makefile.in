@@ -34,12 +34,13 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = \
 	qsplitterP.h \
 	qworkspaceP.h \
-	qactionP.h
+	qactionP.h \
+	qfiledialogP.h
 
 # Libraries targets
 
 LIB = libqsplitterP.la 
-LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx qworkspaceP.cxx qworkspaceP_moc.cxx qactionP.cxx qactionP_moc.cxx
+LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx qworkspaceP.cxx qworkspaceP_moc.cxx qactionP.cxx qactionP_moc.cxx qfiledialogP.cxx qfiledialogP_moc.cxx
 qsplitterP_moc.cxx: $(inc_builddir)/qsplitterP.h
 	$(MOC) $(inc_builddir)/qsplitterP.h -o qsplitterP_moc.cxx
 
@@ -48,6 +49,9 @@ qworkspaceP_moc.cxx: $(inc_builddir)/qworkspaceP.h
 
 qactionP_moc.cxx: $(inc_builddir)/qactionP.h
 	$(MOC) $(inc_builddir)/qactionP.h -o qactionP_moc.cxx
+
+qfiledialogP_moc.cxx: $(inc_builddir)/qfiledialogP.h
+	$(MOC) $(inc_builddir)/qfiledialogP.h -o qfiledialogP_moc.cxx
 
 CPPFLAGS+=$(QT_INCLUDES) -I${QTDIR}/src/kernel -I$(QTDIR)/mkspecs/linux-g++
 CXXFLAGS+=

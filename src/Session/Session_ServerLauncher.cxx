@@ -81,15 +81,14 @@ Session_ServerLauncher::~Session_ServerLauncher()
 
 void Session_ServerLauncher::run()
 {
-  MESSAGE("Session_ServerLauncher::run");
+  //MESSAGE("Session_ServerLauncher::run");
   _GUIMutex->lock(); // lock released by calling thread when ready: wait(mutex)
-   MESSAGE("Server Launcher thread free to go...");
+  //MESSAGE("Server Launcher thread free to go...");
    _GUIMutex->unlock();
 
   CheckArgs();
   ActivateAll();
 
-  _ServerLaunch->wakeAll();
   _orb->run();       // this thread wait, during omniORB process events
 }
 
@@ -207,8 +206,8 @@ void Session_ServerLauncher::ActivateAll()
   int argc=1;
   char** argv = new char*[argc];
   argv[0] = "Session";
-  Session_ServerThread* aServerThread
-    = new Session_ServerThread(argc, argv, _orb,_root_poa,_GUIMutex);
+  Session_SessionThread* aServerThread
+    = new Session_SessionThread(argc, argv, _orb,_root_poa,_GUIMutex,_ServerLaunch);
   _serverThreads.push_front(aServerThread);
 
   aServerThread->Init();

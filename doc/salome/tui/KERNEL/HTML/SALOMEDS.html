@@ -35,6 +35,10 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = FindObjectID ( aObjectID )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SObject  CreateObjectID ( in ID aObjectID )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateObjectID ( aObjectID )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>SObject  FindObjectIOR ( in ID aObjectIOR )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = FindObjectIOR ( aObjectIOR )</b></div></td>
 </tr>
@@ -130,6 +134,22 @@
 <td bgcolor= "lightgreen"><div align="center"><b>void EnableUseCaseAutoFilling ( in boolean isEnabled )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>EnableUseCaseAutoFilling ( isEnabled )</b></div></td>
 </tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void AddPostponed ( in string theIOR )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>AddPostponed ( theIOR )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void AddCreatedPostponed ( in string theIOR )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>AddCreatedPostponed ( theIOR )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void RemovePostponed ( in long theUndoLimit )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>RemovePostponed ( theUndoLimit )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void UndoPostponed ( in long theWay )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>UndoPostponed ( theWay )</b></div></td>
+</tr>
 </table><br>
 <table width="100%" BORDER>
 <tr bgcolor="#FFFFCC">
@@ -191,6 +211,10 @@
 <td bgcolor= "lightgreen"><div align="center"><b>Addreference ( anObject, theReferencedObject )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void RemoveReference ( in SObject anObject )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>RemoveReference ( anObject )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>void AddDirectory ( in string theName )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>AddDirectory ( theName )</b></div></td>
 </tr>
@@ -241,6 +265,18 @@
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>Callback  SetOnRemoveSObject ( in Callback theCallback )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = SetOnRemoveSObject ( theCallback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetName ( in SObject theSO, in string theValue )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetName ( theSO, theValue )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetComment ( in SObject theSO, in string theValue )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetComment ( theSO, theValue )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetIOR ( in SObject theSO, in string theValue )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetIOR ( theSO, theValue )</b></div></td>
 </tr>
 </table><br>
 <table width="100%" BORDER>
@@ -335,6 +371,10 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = Tag (  )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>short  Depth (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Depth (  )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>boolean  FindSubObject ( in long atag, out SObject obj )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  obj ] = FindSubObject ( atag )</b></div></td>
 </tr>
@@ -354,6 +394,22 @@
 <td bgcolor= "lightgreen"><div align="center"><b>Study  GetStudy (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = GetStudy (  )</b></div></td>
 </tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Object  GetObject (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetObject (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetComment (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetComment (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetIOR (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetIOR (  )</b></div></td>
+</tr>
 </table><br>
 <table width="100%" BORDER>
 <tr bgcolor="#FFFFCC">
@@ -365,6 +421,22 @@
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>void CheckLocked (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>CheckLocked (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Store (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Store (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Restore ( in string theData )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Restore ( theData )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Type (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Type (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SObject  GetSObject (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetSObject (  )</b></div></td>
 </tr>
 </table><br>
 <table width="100%" BORDER>

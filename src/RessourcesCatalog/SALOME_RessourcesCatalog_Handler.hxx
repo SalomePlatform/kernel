@@ -29,8 +29,8 @@
 #ifndef SALOME_RESSOURCES_CATALOG_HANDLER
 #define SALOME_RESSOURCES_CATALOG_HANDLER
 
-#include "utilities.h"
 #include "SALOME_RessourcesCatalog_Parser.hxx"
+
 #include <qxml.h>
 #include <string>
 #include <vector>
@@ -101,7 +101,7 @@ public :
 private :
   QString errorProt;
 
-  string content;
+  std::string content;
 
   const char* test_computer;
   const char* test_computer_name;

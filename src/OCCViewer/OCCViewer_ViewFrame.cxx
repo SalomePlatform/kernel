@@ -31,6 +31,7 @@ using namespace std;
 #include "OCCViewer_Viewer3d.h"
 #include "OCCViewer_ViewPort.h"
 #include "OCCViewer_ViewPort3d.h"
+#include "OCCViewer_Prs.h"
 
 #include "QAD.h"
 #include "QAD_Tools.h"
@@ -339,7 +340,8 @@ void OCCViewer_ViewFrame::onViewBack()
 void OCCViewer_ViewFrame::onViewRight()
 {
   Handle( V3d_View) view3d = ((OCCViewer_ViewPort3d*)myViewPort)->getView();
-  if ( !view3d.IsNull() ) view3d->SetProj (V3d_Yneg);
+  if ( !view3d.IsNull() )
+    view3d->SetProj( V3d_Ypos );
   onViewFitAll();
 }
 
@@ -349,7 +351,8 @@ void OCCViewer_ViewFrame::onViewRight()
 void OCCViewer_ViewFrame::onViewLeft()
 {
   Handle( V3d_View) view3d = ((OCCViewer_ViewPort3d*)myViewPort)->getView();
-  if ( !view3d.IsNull() ) view3d->SetProj (V3d_Ypos);
+  if ( !view3d.IsNull() )
+    view3d->SetProj( V3d_Yneg );
   onViewFitAll();
 }
 
@@ -415,97 +418,85 @@ void OCCViewer_ViewFrame::setPopupServer( QAD_Application* App )
   myViewer->setPopupServer( App );
 }
 
-void OCCViewer_ViewFrame::undo(SALOMEDS::Study_var aStudy,
-				  const char* StudyFrameEntry)
+void OCCViewer_ViewFrame::undo(QAD_Study* theStudy, const char* StudyFrameEntry)
 {
+  SALOMEDS::Study_var aStudy = theStudy->getStudyDocument();
   AIS_ListOfInteractive List1;
   myViewer->getAISContext()->ObjectsInCollector(List1);
   AIS_ListIteratorOfListOfInteractive ite1(List1);
-  while (ite1.More()) {
-    if (ite1.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast(ite1.Value());
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->hasEntry() ) { 
-	  if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry))
-	    myViewer->getAISContext()->Display(aSh);
-	}
-      }
+  for( ; ite1.More(); ite1.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite1.Value()->GetOwner() );
+      
+    if ( !anObj.IsNull() &&
+          anObj->hasEntry() &&
+          theStudy->isInViewer( anObj->getEntry(), StudyFrameEntry) )
+    {
+      myViewer->getAISContext()->Display( ite1.Value() );
     }
-    ite1.Next();
   }
   
   AIS_ListOfInteractive List;
   myViewer->getAISContext()->DisplayedObjects(List);
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast(ite.Value());
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->hasEntry() ) { 
-	  if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry ))
-	    myViewer->getAISContext()->Erase(aSh,true,true);
-	}
-      }
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() &&
+          anObj->hasEntry() &&
+          theStudy->isInViewer( anObj->getEntry(), StudyFrameEntry) )
+    {
+      myViewer->getAISContext()->Erase( ite.Value(), true, true ); 
     }
-    ite.Next();
   }
 }
 
-void OCCViewer_ViewFrame::redo(SALOMEDS::Study_var aStudy,
-				  const char* StudyFrameEntry)
+void OCCViewer_ViewFrame::redo(QAD_Study* theStudy, const char* StudyFrameEntry)
 {
+  SALOMEDS::Study_var aStudy = theStudy->getStudyDocument();
   SALOMEDS::SObject_var RefSO;
   SALOMEDS::SObject_var SO = aStudy->FindObjectID( StudyFrameEntry );
   SALOMEDS::ChildIterator_var it = aStudy->NewChildIterator(SO);
   for (; it->More();it->Next()){
     SALOMEDS::SObject_var CSO= it->Value();
-    if (CSO->ReferencedObject(RefSO)) {
-      
+    if (CSO->ReferencedObject(RefSO))
+    {
       AIS_ListOfInteractive List;
       myViewer->getAISContext()->ObjectsInCollector(List);
-      AIS_ListIteratorOfListOfInteractive ite(List);
-      while (ite.More()) {
-	if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-	  Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast(ite.Value());
-	  if ( aSh->hasIO() ) {
-	    Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	    if ( IO->hasEntry() ) { 
-	      if ( strcmp(IO->getEntry(),RefSO->GetID()) == 0 )
-		myViewer->getAISContext()->Display(aSh, false);
-	    }
-	  }
-	}
-	ite.Next();
-      }
       
+      AIS_ListIteratorOfListOfInteractive ite(List);
+      for ( ; ite.More(); ite.Next() )
+      {
+        Handle(SALOME_InteractiveObject) anObj =
+          Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+          
+        if ( !anObj.IsNull() && anObj->hasEntry() && strcmp( anObj->getEntry(), RefSO->GetID() ) == 0 )
+          myViewer->getAISContext()->Display( ite.Value(), false );
+      }
     }
   }
   
   AIS_ListOfInteractive List1;
   myViewer->getAISContext()->DisplayedObjects(List1);
   AIS_ListIteratorOfListOfInteractive ite1(List1);
-  while (ite1.More()) {
-    if (ite1.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh = Handle(SALOME_AISShape)::DownCast(ite1.Value());
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->hasEntry() ) { 
-	  if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry ))
-	    myViewer->getAISContext()->Erase(aSh,false,true);
-	}
-      }
-    }
-    ite1.Next();
+  for ( ; ite1.More(); ite1.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite1.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && !theStudy->isInViewer( anObj->getEntry(), StudyFrameEntry ) )
+      myViewer->getAISContext()->Erase( ite1.Value(), false, true );
   }
+  
   Repaint();
 }
 
 /* selection */
 Handle(SALOME_InteractiveObject) OCCViewer_ViewFrame::FindIObject(const char* Entry)
 {
-  Handle(SALOME_InteractiveObject) IO;
   Handle (AIS_InteractiveContext) ic = myViewer->getAISContext();
       
   AIS_ListOfInteractive List;
@@ -515,24 +506,19 @@ Handle(SALOME_InteractiveObject) OCCViewer_ViewFrame::FindIObject(const char* En
   List.Append(List1);
 
   AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh
-	= Handle(SALOME_AISShape)::DownCast(ite.Value());
-      if ( aSh->hasIO() ) {
-	IO = aSh->getIO();
-	if ( IO->hasEntry() ) {
-	  if ( strcmp( IO->getEntry(), Entry ) == 0 ) {
-	    MESSAGE ( "IO found")
-	    return IO;
-	  }
-	}
-      }
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && strcmp( anObj->getEntry(), Entry ) == 0 )
+    {
+      MESSAGE ( "IO found")
+      return anObj;
     }
-    ite.Next();
   }
   MESSAGE ( "IO not found")
-  return IO;
+  return Handle(SALOME_InteractiveObject)();
 }
 
 /* display */		
@@ -550,24 +536,21 @@ void OCCViewer_ViewFrame::Display(const Handle(SALOME_InteractiveObject)& IObjec
   ic->ObjectsInCollector(List1);
   List.Append(List1);
   
-  AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh
-	= Handle(SALOME_AISShape)::DownCast(ite.Value());
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( IO->isSame( IObject ) ) {
-	  ic->Display(aSh, false);
-	  //	  ic->AddOrRemoveCurrentObject(aSh, false); repeated in Viewer3d after next statement
-	  Sel->AddIObject(IO, false);
-	  break;
-	}
-      }
+  AIS_ListIteratorOfListOfInteractive ite( List );
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() && anObj->isSame( IObject ) )
+    {
+      ic->Display( ite.Value(), false );
+      Sel->AddIObject( anObj, false );
+      break;
     }
-    ite.Next();
   }
-  if (update)
+  
+  if ( update )
     Repaint();
 }
 
@@ -585,24 +568,27 @@ void OCCViewer_ViewFrame::DisplayOnly(const Handle(SALOME_InteractiveObject)& IO
   ic->ObjectsInCollector(List1);
   List.Append(List1);
   
-  AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) {
-    if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape))) {
-      Handle(SALOME_AISShape) aSh
-	= Handle(SALOME_AISShape)::DownCast(ite.Value());
-      if ( aSh->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	if ( !IO->isSame( IObject ) ) {
-	  ic->Erase(aSh, false);
-	  Sel->RemoveIObject(IO, false);
-	} else {
-	  ic->Display(aSh, false);
-	  Sel->AddIObject(IO, false);
-	}
+  AIS_ListIteratorOfListOfInteractive ite( List );
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() )
+    {
+      if ( !anObj->isSame( IObject ) )
+      {
+        ic->Erase( ite.Value(), false );
+        Sel->RemoveIObject( anObj, false );
+      }
+      else
+      {
+        ic->Display( ite.Value(), false );
+        Sel->AddIObject( anObj, false );
       }
     }
-    ite.Next();
   }
+  
   Repaint();
 }
 void OCCViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& IObject, bool update)
@@ -615,27 +601,25 @@ void OCCViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& IObject,
   
   AIS_ListOfInteractive List;
   ic->DisplayedObjects(List);
-  AIS_ListIteratorOfListOfInteractive ite(List);
-  while (ite.More()) 
+  
+  AIS_ListIteratorOfListOfInteractive ite( List );
+  for ( ; ite.More(); ite.Next() )
+  {
+    Handle(SALOME_InteractiveObject) anObj =
+      Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+    if ( !anObj.IsNull() && anObj->hasEntry() )
     {
-      if (ite.Value()->IsKind(STANDARD_TYPE(SALOME_AISShape)))
-	{
-	  Handle(SALOME_AISShape) aSh
-	    = Handle(SALOME_AISShape)::DownCast(ite.Value());
-	  if ( aSh->hasIO() )
-	    {
-	      Handle(SALOME_InteractiveObject) IO = aSh->getIO();
-	      if ( IO->isSame( IObject ) )
-		{
-		  ic->Erase(aSh, false);
-		  Sel->RemoveIObject(IO, false);
-		  break;
-		}
-	    }
-	}
-      ite.Next();
+      if ( anObj->isSame( IObject ) )
+      {
+        ic->Erase( ite.Value(), false );
+        Sel->RemoveIObject( anObj, false );
+        break;
+      }
     }
-  if (update)
+  }
+  
+  if ( update )
     Repaint();
 }
 
@@ -662,52 +646,308 @@ void OCCViewer_ViewFrame::Repaint()
   myViewer->getViewer3d()->Update();
 }
 
-void OCCViewer_ViewFrame::onAdjustTrihedron()
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::getTrihedronSize
+ *  Get new an current trihedron size
+ */
+//==========================================================
+bool OCCViewer_ViewFrame::getTrihedronSize( double& theNewSize, double& theSize )
+{
+  theNewSize = 100;
+  theSize = 100;
+
+  Handle( V3d_View) view3d = ((OCCViewer_ViewPort3d*)myViewPort)->getView();
+
+  if ( view3d.IsNull() )
+    return false;
+    
+  double Xmin = 0, Ymin = 0, Zmin = 0, Xmax = 0, Ymax = 0, Zmax = 0;
+  double aMaxSide;
+  double aPercents;
+
+  view3d->View()->MinMaxValues( Xmin, Ymin, Zmin, Xmax, Ymax, Zmax );
+
+  if ( Xmin == RealFirst() || Ymin == RealFirst() || Zmin == RealFirst() ||
+       Xmax == RealLast()  || Ymax == RealLast()  || Zmax == RealLast() )
+    return false;
+
+  aMaxSide = Xmax - Xmin;
+  if ( aMaxSide < Ymax -Ymin ) aMaxSide = Ymax -Ymin;
+  if ( aMaxSide < Zmax -Zmin ) aMaxSide = Zmax -Zmin;
+
+  static float aSizeInPercents = 105;
+  QString aSetting = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
+  if (!aSetting.isEmpty())
+    aSizeInPercents = aSetting.toFloat();
+
+  static float EPS = 5.0E-3;
+  theSize = myViewer->getTrihedron()->Size();
+  theNewSize = aMaxSide*aSizeInPercents / 100.0;
+
+  return fabs( theNewSize - theSize ) > theSize * EPS ||
+         fabs( theNewSize - theSize) > theNewSize * EPS;
+}
+
+void OCCViewer_ViewFrame::AdjustTrihedrons( const bool forced )
 {
   Handle (AIS_InteractiveContext) ic = myViewer->getAISContext();
-  
-  if (!ic->IsDisplayed(myViewer->getTrihedron())) 
+
+  if ( !myViewer->isTrihedronDisplayed() )
     return;
-  else 
+  else
+  {
+    AIS_ListOfInteractive List;
+    ic->DisplayedObjects(List);
+    if ( List.First() == List.Last() && List.First() == myViewer->getTrihedron() )
     {
-      AIS_ListOfInteractive List;
-      ic->Erase( myViewer->getTrihedron() );
-      ic->DisplayedObjects(List);
-      ic->Display( myViewer->getTrihedron() ); 
-      if (List.IsEmpty())
-	{
-	  myViewer->setTrihedronSize(100);
-	  return;
-	}
+      myViewer->setTrihedronSize( 100 );
+      return;
     }
-  
-  Handle( V3d_View) view3d = ((OCCViewer_ViewPort3d*)myViewPort)->getView();
-  
-  if (!view3d.IsNull())
-    {
-      double Xmin=0, Ymin=0, Zmin=0, Xmax=0, Ymax=0, Zmax=0;
-      double aMaxSide; 
-      double aPercents;
-     
-      view3d->View()->MinMaxValues(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
+  }
 
-      if (Xmin==RealFirst() || Ymin==RealFirst() || Zmin==RealFirst() ||
-	  Xmax==RealLast()  || Ymax==RealLast()  || Zmax==RealLast())
-	return;
-           
-      aMaxSide = Xmax - Xmin;
-      if (aMaxSide < Ymax -Ymin) aMaxSide = Ymax -Ymin;
-      if (aMaxSide < Zmax -Zmin) aMaxSide = Zmax -Zmin;
-      
-      static float aSizeInPercents = 105;
-      QString aSetting = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
-      if (!aSetting.isEmpty())	aSizeInPercents = aSetting.toFloat();
-
-      static float EPS = 5.0E-3;
-      float aSize = myViewer->getTrihedron()->Size();
-      float aNewSize = aMaxSide*aSizeInPercents/100.0;
-      // if the new trihedron size have sufficient difference, then apply the value
-      if(fabs(aNewSize-aSize) > aSize*EPS || fabs(aNewSize-aSize) > aNewSize*EPS)
-	myViewer->setTrihedronSize(aNewSize);
-    }
+  double aNewSize = 100, aSize = 100;
+  if ( getTrihedronSize( aNewSize, aSize ) || forced )
+    myViewer->setTrihedronSize( aNewSize );
 }
+
+void OCCViewer_ViewFrame::onAdjustTrihedron()
+{
+  AdjustTrihedrons( false );
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::Display
+ *  Display presentation
+ */
+//==========================================================
+void OCCViewer_ViewFrame::Display( const SALOME_OCCPrs* prs )
+{
+  // try do downcast object
+  const OCCViewer_Prs* anOCCPrs = dynamic_cast<const OCCViewer_Prs*>( prs );
+  if ( !anOCCPrs || anOCCPrs->IsNull() )
+    return;
+
+  // get context
+  Handle (AIS_InteractiveContext) ic = myViewer->getAISContext();
+  // get all displayed objects
+  AIS_ListOfInteractive List;
+  ic->DisplayedObjects( List );
+  // get objects in he collector
+  AIS_ListOfInteractive ListCollector;
+  ic->ObjectsInCollector( ListCollector );
+
+  // get objects to be displayed
+  AIS_ListOfInteractive anAISObjects;
+  anOCCPrs->GetObjects( anAISObjects );
+
+  AIS_ListIteratorOfListOfInteractive aIter( anAISObjects );
+  for ( ; aIter.More(); aIter.Next() ) {
+    Handle(AIS_InteractiveObject) anAIS = aIter.Value();
+    if ( !anAIS.IsNull() ) {
+      // try to find presentation in the viewer
+      bool bDisplayed = false;
+      AIS_ListIteratorOfListOfInteractive ite( List );
+      while ( ite.More() ) {
+	// compare presentations by handles
+	// if the object is already displayed - nothing to do more
+	if ( ite.Value() == anAIS ) {
+    
+    // Deactivate object if necessary
+    if ( !anOCCPrs->ToActivate() )
+      ic->Deactivate( anAIS );
+	  bDisplayed = true;
+	  break;
+	}
+	ite.Next();
+      }
+      if ( bDisplayed )
+	continue;
+      // then try to find presentation in the collector
+      bDisplayed = false;
+      ite.Initialize( ListCollector );
+      while ( ite.More() ) {
+	// compare presentations by handles
+	// if the object is in collector - display it
+	if ( ite.Value() == anAIS ) {
+	  ic->DisplayFromCollector( anAIS, false );
+
+  // Deactivate object if necessary
+  if ( !anOCCPrs->ToActivate() )
+      ic->Deactivate( anAIS );
+	  bDisplayed = true;
+	  break;
+	}
+	ite.Next();
+      }
+      if ( bDisplayed )
+	continue;
+      // if object is not displayed and not found in the collector - display it
+      if ( anAIS->IsKind( STANDARD_TYPE(AIS_Trihedron) ) )
+      {
+        Handle(AIS_Trihedron) aTrh = Handle(AIS_Trihedron)::DownCast( anAIS );
+        double aNewSize = 100, aSize = 100;
+        getTrihedronSize( aNewSize, aSize );
+        aTrh->SetSize( aTrh == myViewer->getTrihedron() ? aNewSize : 0.5 * aNewSize );
+      }
+      
+      ic->Display( anAIS, false );
+
+      // Deactivate object if necessary
+      if ( !anOCCPrs->ToActivate() )
+        ic->Deactivate( anAIS );
+    }
+  }
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::Erase
+ *  Erase presentation
+ */
+//==========================================================
+void OCCViewer_ViewFrame::Erase( const SALOME_OCCPrs* prs, const bool forced )
+{
+  // try do downcast object
+  const OCCViewer_Prs* anOCCPrs = dynamic_cast<const OCCViewer_Prs*>( prs );
+  if ( !anOCCPrs || anOCCPrs->IsNull() )
+    return;
+
+  // get context
+  Handle(AIS_InteractiveContext) ic = myViewer->getAISContext();
+
+  // get objects to be erased
+  AIS_ListOfInteractive anAISObjects;
+  anOCCPrs->GetObjects( anAISObjects );
+
+  AIS_ListIteratorOfListOfInteractive aIter( anAISObjects );
+  for ( ; aIter.More(); aIter.Next() ) {
+    Handle(AIS_InteractiveObject) anAIS = aIter.Value();
+    if ( !anAIS.IsNull() ) {
+      // erase the object from context : move it to collector
+      ic->Erase( anAIS, false, forced ? false : true );
+    }
+  }
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::CreatePrs
+ *  Create presentation by entry
+ */
+//==========================================================
+SALOME_Prs* OCCViewer_ViewFrame::CreatePrs( const char* entry )
+{
+  OCCViewer_Prs* prs = new OCCViewer_Prs();
+  if ( entry )
+  {
+    // get context
+    Handle(AIS_InteractiveContext) ic = myViewer->getAISContext();
+
+    // get displayed objects
+    AIS_ListOfInteractive List;
+    ic->DisplayedObjects( List );
+    // get objects in the collector
+    AIS_ListOfInteractive ListCollector;
+    ic->ObjectsInCollector( ListCollector );
+    List.Append( ListCollector );
+
+    AIS_ListIteratorOfListOfInteractive ite( List );
+    for ( ; ite.More(); ite.Next() )
+    {
+      Handle(SALOME_InteractiveObject) anObj =
+        Handle(SALOME_InteractiveObject)::DownCast( ite.Value()->GetOwner() );
+
+      if ( !anObj.IsNull() && anObj->hasEntry() && strcmp( anObj->getEntry(), entry ) == 0 )
+        prs->AddObject( ite.Value() );
+    }
+  }
+  return prs;
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::LocalSelection
+ *  Activates selection of sub shapes
+ */
+//==========================================================
+void OCCViewer_ViewFrame::LocalSelection( const SALOME_OCCPrs* thePrs, const int theMode )
+{
+  Handle(AIS_InteractiveContext) anIC = myViewer->getAISContext();
+  
+  const OCCViewer_Prs* anOCCPrs = dynamic_cast<const OCCViewer_Prs*>( thePrs );
+  if ( anIC.IsNull() )
+    return;
+  
+  // Open local context if there is no one
+  bool allObjects = thePrs == 0 || thePrs->IsNull();
+  if ( !anIC->HasOpenedContext() ) {
+    anIC->ClearCurrents( false );
+    anIC->OpenLocalContext( allObjects, true, true );
+  }
+
+  AIS_ListOfInteractive anObjs;
+  // Get objects to be activated
+  if ( allObjects ) 
+    anIC->DisplayedObjects( anObjs );
+  else
+    anOCCPrs->GetObjects( anObjs );
+
+  // Activate selection of objects from prs
+  AIS_ListIteratorOfListOfInteractive aIter( anObjs );
+  for ( ; aIter.More(); aIter.Next() ) {
+    Handle(AIS_InteractiveObject) anAIS = aIter.Value();
+    if ( !anAIS.IsNull() )
+    {
+      if ( anAIS->IsKind( STANDARD_TYPE( AIS_Shape ) ) )
+      {
+        anIC->Load( anAIS, -1, false );
+        anIC->Activate( anAIS, AIS_Shape::SelectionMode( (TopAbs_ShapeEnum)theMode ) );
+      }
+      else if ( anAIS->DynamicType() != STANDARD_TYPE(AIS_Trihedron) )
+      {
+        anIC->Load( anAIS, -1, false );
+        anIC->Activate( anAIS, theMode );
+      }
+    }
+  }
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::GlobalSelection
+ *  Deactivates selection of sub shapes
+ */
+//==========================================================
+void OCCViewer_ViewFrame::GlobalSelection( const bool update ) const
+{
+  Handle(AIS_InteractiveContext) anIC = myViewer->getAISContext();
+  if ( !anIC.IsNull() )
+    anIC->CloseAllContexts( false );
+  if ( update )
+    anIC->CurrentViewer()->Redraw();
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::BeforeDisplay
+ *  Axiluary method called before displaying of objects
+ */
+//==========================================================
+void  OCCViewer_ViewFrame::BeforeDisplay( SALOME_Displayer* d )
+{
+  d->BeforeDisplay( this, SALOME_OCCViewType() );
+}
+
+//==========================================================
+/*!
+ *  OCCViewer_ViewFrame::AfterDisplay
+ *  Axiluary method called after displaying of objects
+ */
+//==========================================================
+void  OCCViewer_ViewFrame::AfterDisplay( SALOME_Displayer* d )
+{
+  d->AfterDisplay( this, SALOME_OCCViewType() );
+}
+

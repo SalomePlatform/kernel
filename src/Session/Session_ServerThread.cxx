@@ -137,7 +137,7 @@ Session_ServerThread::Session_ServerThread(int argc,
 					   PortableServer::POA_ptr poa,
 					   QMutex *GUIMutex)
 {
-  MESSAGE("Session_ServerThread Constructor " << argv[0]);
+  //MESSAGE("Session_ServerThread Constructor " << argv[0]);
   _argc = argc;
   _argv = argv;
   _orb = CORBA::ORB::_duplicate(orb);
@@ -156,7 +156,7 @@ Session_ServerThread::Session_ServerThread(int argc,
 
 Session_ServerThread::~Session_ServerThread()
 {
-  MESSAGE("~Session_ServerThread "<< _argv[0]);
+  //MESSAGE("~Session_ServerThread "<< _argv[0]);
 }
 
 //=============================================================================
@@ -474,11 +474,32 @@ void Session_ServerThread::ActivateContainer(int argc,
 void Session_ServerThread::ActivateSession(int argc,
 					   char ** argv)
 {
+  MESSAGE("Session_ServerThread::ActivateSession() not implemented!");
+}
+
+Session_SessionThread::Session_SessionThread(int argc,
+					     char** argv, 
+					     CORBA::ORB_ptr orb, 
+					     PortableServer::POA_ptr poa,
+					     QMutex* GUIMutex,
+					     QWaitCondition* GUILauncher)
+: Session_ServerThread(argc, argv, orb, poa, GUIMutex),
+  _GUILauncher( GUILauncher )
+{
+}
+
+Session_SessionThread::~Session_SessionThread()
+{
+}
+
+void Session_SessionThread::ActivateSession(int argc,
+					    char ** argv)
+{
     try
       {
 	INFOS("Session thread started");
 	SALOME_Session_i * mySALOME_Session
-	  = new SALOME_Session_i(argc, argv, _orb, _root_poa, _GUIMutex) ;
+	  = new SALOME_Session_i(argc, argv, _orb, _root_poa, _GUIMutex, _GUILauncher) ;
 	PortableServer::ObjectId_var mySALOME_Sessionid
 	  = _root_poa->activate_object(mySALOME_Session);
 	INFOS("poa->activate_object(mySALOME_Session)");

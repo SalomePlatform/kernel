@@ -27,12 +27,11 @@
 /* Exception */
 #include <iostream>
 
-using namespace std;
 
 class HDFexception
 {
 public :
   HDFexception(const char *message) { 
-    cerr << message << endl;
+    std::cerr << message << std::endl;
   }
 };

@@ -41,6 +41,24 @@
 #include "Utils_CommException.hxx"
 using namespace std;
 
+static ostream& operator<<(ostream& os, const CORBA::Exception& e)
+{
+  CORBA::Any tmp;
+  tmp<<= e;
+  CORBA::TypeCode_var tc = tmp.type();
+  const char *p = tc->name();
+  os<<"Test blocking exception was catch of the kind : ";
+  if ( *p != '\0' ) {
+    os<<p;
+  } 
+  else  { 
+    os << tc->id();
+  }
+  
+  return os;
+}
+
+
 int main (int argc, char * argv[])
 {
 
@@ -193,11 +211,11 @@ int main (int argc, char * argv[])
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.")
       }
-  catch(CORBA::SystemException&) {
-    INFOS("Caught a CORBA::SystemException.")
+  catch(CORBA::SystemException& e) {
+    INFOS("Caught a CORBA::SystemException."<<e)
       }
-  catch(CORBA::Exception&) {
-    INFOS("Caught CORBA::Exception.")
+  catch(CORBA::Exception& e) {
+    INFOS("Caught CORBA::Exception."<<e)
       }
   catch(...) {
     INFOS("Caught unknown exception.")

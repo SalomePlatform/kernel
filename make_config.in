@@ -1,0 +1,75 @@
+# make_config.in: template for make_config script
+# make_config is used by check_cas.m4 to generate 
+# config.h file in case it cannot be found in OCC
+# and SALOME include paths
+#=================================================
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(salome_adm/unix)
+AC_CONFIG_SRCDIR(salome_adm/unix/config.h.in)
+AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
+AC_CANONICAL_HOST
+
+AC_CONFIG_HEADERS(./salome_adm/unix/config.h)
+
+AC_ISC_POSIX
+AC_C_BIGENDIAN
+
+dnl Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC_C_O
+
+AC_PROG_AWK
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_YACC
+AC_PROG_MAKE_SET
+
+dnl Replace `main' with a function in -le:
+AC_CHECK_LIB(e, main)
+
+dnl Replace `main' with a function in -links:
+AC_CHECK_LIB(inks, main)
+
+dnl Checks for X window system directories.
+AC_PATH_X
+if test "x$ac_x_includes" = "x"; then
+  X_INCLUDE=""
+else
+  X_INCLUDE="-I$ac_x_includes"
+fi
+if test "x$ac_x_libraries" = "x"; then
+  X_LIBS="-lXt -lX11"
+else
+  X_LIBS="-L$ac_x_libraries -lXt -lX11"
+fi
+
+dnl Checks for header files.
+
+AC_HEADER_STDC
+AC_LANG([C])
+AC_MSG_CHECKING([ for C header files ])
+AC_CHECK_HEADERS(dlfcn.h dl.h ieeefp.h time.h sys/time.h pwd.h)
+AC_CHECK_HEADERS(sys/statvfs.h sys/vfs.h sys/param.h osfcn.h netdb.h)
+AC_CHECK_HEADERS(sys/ioctl.h net/if.h sys/systeminfo.h sys/utsname.h)
+AC_CHECK_HEADERS(sysent.h unistd.h sys/unistd.h sys/socket.h)
+AC_CHECK_HEADERS(ndir.h sys/ndir.h sys/dir.h signal.h sys/signal.h)
+AC_CHECK_HEADERS(sigfpe.h floatingpoint.h sys/machsig.h sys/siginfo.h)
+AC_CHECK_HEADERS(malloc.h strings.h sys/stat.h sys/sem.h sys/ipc.h)
+AC_CHECK_HEADERS(sys/times.h dirent.h getopt.h sys/vnode.h)
+
+
+AC_LANG([C++])
+AC_MSG_CHECKING([ for C++ header files ])
+AC_CHECK_HEADERS(istream ostream istream fstream ios iomanip iostream )
+AC_CHECK_HEADERS(stream.h strstream.h istream.h ostream.h fstream.h stdlib.h ios.h iostream.h)
+AC_CHECK_HEADERS(iomanip.h limits.h values.h float.h)
+AC_CHECK_HEADERS(siginfo.h bits/sigset.h bstring.h sys/types.h sys/select.h)
+AC_CHECK_HEADERS(X11/extensions/transovl.h X11/extensions/readdisplay.h)
+AC_CHECK_HEADERS(X11/extensions/multibuf.h)
+AC_CHECK_HEADERS(sys/filio.h sys/mman.h libc.h)
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+
+AC_OUTPUT()

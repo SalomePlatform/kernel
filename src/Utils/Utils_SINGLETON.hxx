@@ -146,7 +146,7 @@ template <class TYPE> int SINGLETON_<TYPE>::Destruction( void )
 		MESSAGE("Destruction du SINGLETON_") ;
 
 
-		list<DESTRUCTEUR_GENERIQUE_ *>::iterator k ;
+		std::list<DESTRUCTEUR_GENERIQUE_ *>::iterator k ;
 		for( k=DESTRUCTEUR_GENERIQUE_::Destructeurs.begin() ; k!=DESTRUCTEUR_GENERIQUE_::Destructeurs.end();k++)
 		{
 			if ( *k == PtrSingleton->_Instance )

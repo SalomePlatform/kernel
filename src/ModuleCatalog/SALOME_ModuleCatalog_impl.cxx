@@ -35,6 +35,12 @@
 #include <qfileinfo.h>
 using namespace std;
 
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
 static const char* SEPARATOR    = ":";
 
 //----------------------------------------------------------------------
@@ -43,7 +49,7 @@ static const char* SEPARATOR    = ":";
 //----------------------------------------------------------------------
 SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA::ORB_ptr orb) : _orb(orb)
 {
-  MESSAGE("Catalog creation");
+  if(MYDEBUG) MESSAGE("Catalog creation");
 
   // Conversion rules for component types
   ComponentTypeConvert[GEOM]
@@ -93,57 +99,56 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 
   // Parse the arguments given at server run
   if (!_parseArguments(argc, argv,&_general_path,&_personal_path))
-    MESSAGE( "Error while argument parsing" );
+    if(MYDEBUG) MESSAGE( "Error while argument parsing" );
 
   // Test existency of files
-  if (_general_path == NULL)
-    MESSAGE( "Error the general catalog should be indicated" )
-  else
-    {
-      // Affect the _general_module_list and _general_path_list members
-      // with the common catalog
-      
-      QStringList dirList 
-	= QStringList::split( SEPARATOR, _general_path, 
-			      false ); // skip empty entries
-
-      for ( int i = 0; i < dirList.count(); i++ ) {
-	QFileInfo fileInfo( dirList[ i ] );
-	if ( fileInfo.isFile() && fileInfo.exists() ) {
-	  _parse_xml_file(fileInfo.filePath(), 
-			  _general_module_list, 
-			  _general_path_list);
-	}
-      }
-
-      // Verification of _general_path_list content
-      if(!_verify_path_prefix(_general_path_list))
-	MESSAGE( "Error while parsing the general path list, "
-		 "differents paths are associated to the same computer," 
-		 "the first one will be choosen")
-      else 
-	MESSAGE("General path list OK");
+  if (_general_path == NULL){
+    if(MYDEBUG) MESSAGE( "Error the general catalog should be indicated" );
+  }else{
+    // Affect the _general_module_list and _general_path_list members
+    // with the common catalog
     
-      if(_personal_path != NULL)
-	{
-	  // Initialize the _personal_module_list and 
-	  // _personal_path_list members with the personal catalog files
-	  _parse_xml_file(_personal_path,
-			  _personal_module_list, 
-			  _personal_path_list);
-	  
-	  // Verification of _general_path_list content
-	  if(!_verify_path_prefix(_personal_path_list))
-	    MESSAGE("Error while parsing the personal path list, "
-		    "differents paths are associated to the same computer, "
-		    "the first one will be choosen" )
-	  else 
-	    MESSAGE("Personal path list OK");
-	}
-      else 
-	MESSAGE("No personal catalog indicated or error while "
-		"opening the personal catalog");
+    QStringList dirList 
+      = QStringList::split( SEPARATOR, _general_path, 
+			    false ); // skip empty entries
+    
+    for ( int i = 0; i < dirList.count(); i++ ) {
+      QFileInfo fileInfo( dirList[ i ] );
+      if ( fileInfo.isFile() && fileInfo.exists() ) {
+	_parse_xml_file(fileInfo.filePath(), 
+			_general_module_list, 
+			_general_path_list);
+      }
     }
+    
+    // Verification of _general_path_list content
+    if(!_verify_path_prefix(_general_path_list)){
+      if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
+			   "differents paths are associated to the same computer," 
+			   "the first one will be choosen");
+    }else{
+      if(MYDEBUG) MESSAGE("General path list OK");
+    }
+    
+    if(_personal_path != NULL){
+      // Initialize the _personal_module_list and 
+      // _personal_path_list members with the personal catalog files
+      _parse_xml_file(_personal_path,
+		      _personal_module_list, 
+		      _personal_path_list);
+      
+      // Verification of _general_path_list content
+      if(!_verify_path_prefix(_personal_path_list)){
+	if(MYDEBUG) MESSAGE("Error while parsing the personal path list, "
+			    "differents paths are associated to the same computer, "
+			    "the first one will be choosen" );
+      }else {
+	if(MYDEBUG) MESSAGE("Personal path list OK");
+      }
+    }else 
+      if(MYDEBUG) MESSAGE("No personal catalog indicated or error while "
+			  "opening the personal catalog");
+  }
 }
 
 //----------------------------------------------------------------------
@@ -152,7 +157,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 //----------------------------------------------------------------------
 SALOME_ModuleCatalogImpl::~SALOME_ModuleCatalogImpl()
 {
-  MESSAGE("Catalog Destruction");
+  if(MYDEBUG) MESSAGE("Catalog Destruction");
 }
 
 
@@ -174,7 +179,7 @@ SALOME_ModuleCatalogImpl::GetComputerList()
 //----------------------------------------------------------------------
 char * 
 SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
-  MESSAGE("Begin of GetPathPrefix")
+  if(MYDEBUG) MESSAGE("Begin of GetPathPrefix");
   // Variables initialisation
   char* _path = NULL;
   bool _find = false ;
@@ -229,51 +234,47 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
 SALOME_ModuleCatalog::ListOfComponents* 
 SALOME_ModuleCatalogImpl::GetComponentList()
 {
-  MESSAGE("Begin of GetComponentList");
+  if(MYDEBUG) MESSAGE("Begin of GetComponentList");
   SALOME_ModuleCatalog::ListOfComponents_var _list_components = 
     new SALOME_ModuleCatalog::ListOfComponents;
 
   _list_components->length(_personal_module_list.size());
 
   // All the components defined in the personal catalog are taken
-  for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
-    {
-       _list_components[ind]=(_personal_module_list[ind].name).c_str();
-       SCRUTE(_list_components[ind]) ;
-    }
+  for(unsigned int ind=0; ind < _personal_module_list.size();ind++){
+    _list_components[ind]=(_personal_module_list[ind].name).c_str();
+    if(MYDEBUG) SCRUTE(_list_components[ind]) ;
+  }
 
   int indice = _personal_module_list.size() ;
   bool _find = false;
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-  for (unsigned int ind=0; ind < _general_module_list.size();ind++)
-    {
-      _find = false;
-      for (unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++)
-	{
-	  // searching if the component is already defined in 
-	  // the personal catalog
-	  if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
-	    _find = true;
-	}
-      if (!_find)
-	{
-	  MESSAGE("A new component " << _general_module_list[ind].name 
-		  << " has to be to added in the list");
-          _list_components->length(indice+1);
-	  // The component is not already defined => has to be taken
-	  _list_components[indice]=(_general_module_list[ind].name).c_str();   
-	  SCRUTE(_list_components[indice]) ;
-
-	  indice++;
-	}
-      else 
-	MESSAGE("The component " <<_general_module_list[ind].name 
-		<< " was already defined in the personal catalog") ;
-     }
-
-  MESSAGE ( "End of GetComponentList" )
+  for(unsigned int ind=0; ind < _general_module_list.size();ind++){
+    _find = false;
+    for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
+      // searching if the component is already defined in 
+      // the personal catalog
+      if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
+	_find = true;
+    }
+    if(!_find){
+      if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name 
+			  << " has to be to added in the list");
+      _list_components->length(indice+1);
+      // The component is not already defined => has to be taken
+      _list_components[indice]=(_general_module_list[ind].name).c_str();   
+      if(MYDEBUG) SCRUTE(_list_components[indice]) ;
+      
+      indice++;
+    }else{
+      if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name 
+			  << " was already defined in the personal catalog") ;
+    }
+  }
+  
+  if(MYDEBUG) MESSAGE ( "End of GetComponentList" );
   return _list_components._retn();
 }
 
@@ -288,7 +289,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
 SALOME_ModuleCatalog::ListOfIAPP_Affich* 
 SALOME_ModuleCatalogImpl::GetComponentIconeList()
 {
-  MESSAGE("Begin of GetComponentIconeList");
+  if(MYDEBUG) MESSAGE("Begin of GetComponentIconeList");
 
   SALOME_ModuleCatalog::ListOfIAPP_Affich_var _list_components_icone = 
     new SALOME_ModuleCatalog::ListOfIAPP_Affich;
@@ -296,47 +297,43 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   _list_components_icone->length(_personal_module_list.size());
 
   // All the components defined in the personal catalog are taken
-  for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
-    {
-       _list_components_icone[ind].modulename=(_personal_module_list[ind].name).c_str();
-       _list_components_icone[ind].moduleusername=(_personal_module_list[ind].username).c_str();
-       _list_components_icone[ind].moduleicone=(_personal_module_list[ind].icon).c_str();
-       //SCRUTE(_list_components_icone[ind].modulename); 
-       //SCRUTE(_list_components_icone[ind].moduleicone);
-    }
-
+  for(unsigned int ind=0; ind < _personal_module_list.size();ind++){
+    _list_components_icone[ind].modulename=(_personal_module_list[ind].name).c_str();
+    _list_components_icone[ind].moduleusername=(_personal_module_list[ind].username).c_str();
+    _list_components_icone[ind].moduleicone=(_personal_module_list[ind].icon).c_str();
+    //if(MYDEBUG) SCRUTE(_list_components_icone[ind].modulename); 
+    //if(MYDEBUG) SCRUTE(_list_components_icone[ind].moduleicone);
+  }
+  
   int indice = _personal_module_list.size() ;
   bool _find = false;
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-  for (unsigned int ind=0; ind < _general_module_list.size();ind++)
-    {
-      _find = false;
-      for (unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++)
-	{
-	  // searching if the component is aleready defined in 
-	  // the personal catalog
-	  if ((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
-	    _find = true;
-	}
-      if (!_find)
-	{
-	  //	  MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
-          _list_components_icone->length(indice+1);
-	  // The component is not already defined => has to be taken
-	  _list_components_icone[indice].modulename=_general_module_list[ind].name.c_str();  
-	  _list_components_icone[indice].moduleusername=_general_module_list[ind].username.c_str();  
-	  _list_components_icone[indice].moduleicone=_general_module_list[ind].icon.c_str(); 
-	  //SCRUTE(_list_components_icone[indice].modulename) ;
-	  //SCRUTE(_list_components_icone[indice].moduleicone);
-
-	  indice++;
-	}
-      // else 
-	//MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog"); 
-     }
-
+  for(unsigned int ind=0; ind < _general_module_list.size();ind++){
+    _find = false;
+    for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
+      // searching if the component is aleready defined in 
+      // the personal catalog
+      if((_general_module_list[ind].name.compare(_personal_module_list[ind1].name)) == 0)
+	_find = true;
+    }
+    if(!_find){
+      //	  if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
+      _list_components_icone->length(indice+1);
+      // The component is not already defined => has to be taken
+      _list_components_icone[indice].modulename=_general_module_list[ind].name.c_str();  
+      _list_components_icone[indice].moduleusername=_general_module_list[ind].username.c_str();  
+      _list_components_icone[indice].moduleicone=_general_module_list[ind].icon.c_str(); 
+      //if(MYDEBUG) SCRUTE(_list_components_icone[indice].modulename) ;
+      //if(MYDEBUG) SCRUTE(_list_components_icone[indice].moduleicone);
+      
+      indice++;
+    }
+    // else 
+    //if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog"); 
+  }
+  
   return _list_components_icone._retn() ;
 }
 
@@ -350,7 +347,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
 SALOME_ModuleCatalog::ListOfComponents* 
 SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentType component_type)
 {
-  MESSAGE("Begin of GetTypedComponentList");
+  if(MYDEBUG) MESSAGE("Begin of GetTypedComponentList");
   SALOME_ModuleCatalog::ListOfComponents_var _list_typed_component = 
     new SALOME_ModuleCatalog::ListOfComponents;
   int _j = 0;
@@ -392,7 +389,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
 	{
 	  _list_typed_component->length(_j + 1); 
 	  _list_typed_component[_j] = (_moduleList[ind].name).c_str();
-	  //SCRUTE(_list_typed_component[_j])
+	  //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
 	  _j++;
 	}
     }
@@ -417,16 +414,16 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
 	    }
 	  if (!_find)
 	    {
-	      //MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
+	      //if(MYDEBUG) MESSAGE("A new component " << _general_module_list[ind].name << " has to be to added in the list");
               _list_typed_component->length(indice+1);
 	      // The component is not already defined => has to be taken
 	      _list_typed_component[indice]=(_general_module_list[ind].name).c_str();   
-	      //SCRUTE(_list_typed_component[indice]) ;
+	      //if(MYDEBUG) SCRUTE(_list_typed_component[indice]) ;
 
 	      indice++;
 	    }
 	  //else 
-	    //MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog") ;
+	    //if(MYDEBUG) MESSAGE("The component " <<_general_module_list[ind].name << " was already defined in the personal catalog") ;
         }
     }
 
@@ -474,8 +471,8 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   else {
     // Not found in the personal catalog and in the general catalog
     // return NULL object
-    MESSAGE("Component with name  " << name 
-	    << " not found in catalog");
+    if(MYDEBUG) MESSAGE("Component with name  " << name 
+			<< " not found in catalog");
     compo = NULL;
   }
   
@@ -509,8 +506,8 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
     for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
       if (name.compare(_personal_module_list[ind].name) == 0)
         {
-          MESSAGE("Component named " << name 
-		  << " found in the personal catalog");
+          if(MYDEBUG) MESSAGE("Component named " << name 
+			      << " found in the personal catalog");
 	  C_parser = &(_personal_module_list[ind]);
 	  break;
 	}
@@ -520,8 +517,8 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
       {
 	if (name.compare(_general_module_list[ind].name) == 0)
 	  {
-	    MESSAGE("Component named " << name 
-		    << " found in the general catalog");
+	    if(MYDEBUG) MESSAGE("Component named " << name 
+				<< " found in the general catalog");
 	    C_parser = &(_general_module_list[ind]);
 	    break;
 	  }
@@ -539,8 +536,8 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
 					  ParserComponents& modulelist, 
 					  ParserPathPrefixes& pathList)
 {
-  BEGIN_OF("_parse_xml_file");
-  SCRUTE(file);
+  if(MYDEBUG) BEGIN_OF("_parse_xml_file");
+  if(MYDEBUG) SCRUTE(file);
 
   SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
   QFile xmlFile(file);
@@ -622,7 +619,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   
   // duplicate service list
   unsigned int _length = I_parser.services.size();
-  SCRUTE(_length);
+  if(MYDEBUG) SCRUTE(_length);
   //  I_corba.interfaceservicelist 
   //  = new SALOME_ModuleCatalog::ListOfInterfaceService;
   I_corba.interfaceservicelist.length(_length);
@@ -676,7 +673,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   
   // duplicate out DataStreamParameters
   _length = S_parser.outDataStreamParameters.size();
-  SCRUTE(_length);
+  if(MYDEBUG) SCRUTE(_length);
   S_corba.ServiceoutDataStreamParameter.length(_length);
   
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
@@ -723,7 +720,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   //     = (it_type == DataStreamTypeConvert.end()) 
   //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
 
-  SCRUTE(P_parser.type);
+  if(MYDEBUG) SCRUTE(P_parser.type);
   P_corba.Parametertype = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
   for (it_type = DataStreamTypeConvert.begin(); 
        it_type != DataStreamTypeConvert.end(); 
@@ -732,7 +729,7 @@ void SALOME_ModuleCatalogImpl::duplicate
       P_corba.Parametertype = it_type->second;
       break;
     }
-  SCRUTE(P_corba.Parametertype);
+  if(MYDEBUG) SCRUTE(P_corba.Parametertype);
 
   // duplicate parameter type
 
@@ -742,7 +739,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   //     = (it_type == DataStreamTypeConvert.end()) 
   //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
   
-  SCRUTE(P_parser.dependency);
+  if(MYDEBUG) SCRUTE(P_parser.dependency);
   P_corba.Parameterdependency = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
   for (it_dep = DataStreamDepConvert.begin(); 
        it_dep != DataStreamDepConvert.end(); 
@@ -752,7 +749,7 @@ void SALOME_ModuleCatalogImpl::duplicate
       break;
     }
 
-  SCRUTE(P_corba.Parameterdependency);
+  if(MYDEBUG) SCRUTE(P_corba.Parameterdependency);
 }
 
 //----------------------------------------------------------------------
@@ -795,7 +792,7 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
        {
 	 if(_machine_list[ind].compare(_machine_list[ind1]) == 0)
 	   {
-	     MESSAGE( "The computer " << _machine_list[ind] << " is indicated more than once in the path list")
+	     if(MYDEBUG) MESSAGE( "The computer " << _machine_list[ind] << " is indicated more than once in the path list");
 	     _return_value = false; 
 	   }
        }

@@ -101,6 +101,10 @@ module SALOME
     Determines whether the server has already been loaded or not.
 */ 
     void ping();
+/*!
+    Get Active study ID
+*/
+    long GetActiveStudyId();
   } ;
 
 } ;

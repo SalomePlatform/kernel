@@ -82,6 +82,9 @@ class QAD_EXPORT QAD_StudyFrame: public QMainWindow
   void                unCompressLeft();
   void                unCompressRight();
 
+  bool                isCompressedLeft() const;
+  bool                isCompressedRight() const;
+  
  signals:
   void                sfStudyFrameActivated( QAD_StudyFrame* );
   void                sfStudyFrameClosing( QAD_StudyFrame*);

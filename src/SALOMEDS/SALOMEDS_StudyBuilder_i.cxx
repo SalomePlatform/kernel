@@ -457,16 +457,10 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
 	  aDriver->Load(anSCO, aStreamFile.in(), aDir, aMultifileState[0]=='M');
       if(!aResult) {
 	RemoveAttribute( anSCO, "AttributeIOR" );
-	if (isASCII) {
-	  SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
-	  aFilesToRemove->length(1);
-	  aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
-	  SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
-	}
-	delete aHDFUrl;
+
 	MESSAGE("Can't load component");
-	THROW_SALOME_CORBA_EXCEPTION("Unable to load component data",SALOME::BAD_PARAM);
-	  //  	throw HDFexception("Unable to load component");
+	//THROW_SALOME_CORBA_EXCEPTION("Unable to load component data",SALOME::BAD_PARAM);
+	throw HDFexception("Unable to load component");
       }
       
       delete(aDir);
@@ -485,8 +479,8 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
       if (isASCII) {
 	SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
 	aFilesToRemove->length(1);
-	aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
-	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+	aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str())]));
+	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str(), aFilesToRemove, true);
       }
       delete aHDFUrl;
     }
@@ -496,12 +490,12 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
       if (isASCII) {
 	SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
 	aFilesToRemove->length(1);
-	aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
-	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+	aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str())]));
+	SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str(), aFilesToRemove, true);
       }
       delete aHDFUrl;
       if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
-      return;
+      THROW_SALOME_CORBA_EXCEPTION("No persistent file Name found",SALOME::BAD_PARAM);   
     }
     
     try {
@@ -689,13 +683,15 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
 
   Lab.ForgetAttribute(TDF_Reference::GetID());  
 
-  TDF_Label RefLab;  
+  //SRN: 30 Aug, 2004 : fix from Ecole l'ete version 
+
+  TDF_Label RefLab;
   ASSERT(!CORBA::is_nil(theReferencedObject));
   CORBA::String_var roid = theReferencedObject->GetID();
   TDF_Tool::Label(_doc->GetData(),roid,RefLab);
-
-  RemoveAttribute(theReferencedObject, "AttributeTarget");
-  //if(!CORBA::is_nil(_callbackOnRemove) && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+       
+  Handle(SALOMEDS_TargetAttribute) aTarget;
+  if(RefLab.FindAttribute(SALOMEDS_TargetAttribute::GetID(), aTarget)) aTarget->Remove(Lab);
 }
 
 
@@ -849,7 +845,7 @@ void SALOMEDS_StudyBuilder_i::CommitCommand() throw (SALOMEDS::StudyBuilder::Loc
 //============================================================================
 CORBA::Boolean SALOMEDS_StudyBuilder_i::HasOpenCommand()
 {
-  _doc->HasOpenCommand();
+  return _doc->HasOpenCommand();
 }
 
 //============================================================================

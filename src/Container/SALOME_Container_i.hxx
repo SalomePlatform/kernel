@@ -29,21 +29,22 @@
 #ifndef _SALOME_CONTAINER_I_HXX_
 #define _SALOME_CONTAINER_I_HXX_
 
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOME_Component)
+
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOME_Component)
 #include <omnithread.h>
 #include <map>
 #include <string>
 
 class SALOME_NamingService;
 
-class Engines_Container_i: public POA_Engines::Container,
-                public PortableServer::RefCountServantBase
+class Engines_Container_i: public virtual POA_Engines::Container,
+			   public virtual PortableServer::RefCountServantBase
 {
 public:
   Engines_Container_i();

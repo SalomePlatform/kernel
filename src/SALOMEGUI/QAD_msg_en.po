@@ -588,6 +588,12 @@ msgstr "%1GUI instance creation failed!"
 msgid "ERR_GET_GUI_NOT_FOUND"
 msgstr "GetComponentGUI() function not found in %1 library!"
 
+msgid "ERR_EMPTY_COMP_NAME"
+msgstr "Component name not found for %1"
+
+msgid "ERR_COMP_DATA_NOT_LOADED"
+msgstr "Persistent data for %1 component has not been loaded!\nProbably, persistent data file is missing or corrupted.\nThe component will be deactivated."
+
 #---------------
 # QUESTION
 #---------------
@@ -855,6 +861,9 @@ msgstr "Pastes object from the clipboard"
 
 msgid "EDIT_VALUE_CMD"
 msgstr "Edit value"
+
+msgid "EXPAND_ALL_CMD"
+msgstr "Expand all"
 
 msgid "PLOT_TABLE_CMD"
 msgstr "Plot table"

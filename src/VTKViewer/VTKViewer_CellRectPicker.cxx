@@ -299,7 +299,7 @@ void VTKViewer_CellRectPicker::IncludeActor(vtkProp3D* prop,
 	  dir[i] = p2[i] - p1[i];
 	}
 
-	input->GetCell(curData.cellId, cell2);
+	actor->GetMapper()->GetInput()->GetCell(curData.cellId, cell2);
 	result = IntersectCells(cell1, cellData.depth,
 				cell2, curData.depth, dir);
 	if (result > 0) {

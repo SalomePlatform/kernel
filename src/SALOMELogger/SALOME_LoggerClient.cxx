@@ -36,16 +36,19 @@ using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
 
+#include "utilities.h"
+
+// class SALOME_LoggerClient : public SALOME_Log
+// {
+// protected:
+//   SALOME_Logger::Logger_var m_pInterfaceLogger; // object reference on Logger server
+// };
+
 SALOME_Logger::Logger_ptr m_pInterfaceLogger; // object reference on Logger server
 
-SALOME_Log* SALOME_Log::_singleton = 0;
-
-// log line size: if too short, log line is truncated, without crash...
-char SALOME_LogStr[1024]; 
-
-SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
+SALOME_Log::SALOME_Log()
 {
-  cout << "SALOME_LoggerClient: constructor" << endl;
+  MESSAGE("SALOME_LoggerClient: constructor");
   //get reference on object reference from NS
   //and initialize m_pInterfaceLogger 
 
@@ -86,11 +89,11 @@ SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
 	    }  
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      cout<<"SALOME_LoggerClient: CORBA::COMM_FAILURE: Unable to contact the Naming Service"<<endl;
+	      MESSAGE("SALOME_LoggerClient: CORBA::COMM_FAILURE: Unable to contact the Naming Service");
 	    }
           catch(...)
 	    {
-	      cout<<"SALOME_LoggerClient: Unknown exception dealing with Naming Service"<<endl;
+	      MESSAGE("SALOME_LoggerClient: Unknown exception dealing with Naming Service");
 	    }
 	  
 	  if(!CORBA::is_nil(inc))
@@ -98,30 +101,30 @@ SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
 	      obj = inc->resolve(name);
 	      m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
 	      if (!CORBA::is_nil(m_pInterfaceLogger))
-		cout<<"SALOME_LoggerClient: Logger Server was found"<<endl;
+		MESSAGE("SALOME_LoggerClient: Logger Server was found");
 	      break;
 	    }
 	}	   
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {
-      //       cout << "Caught exception: Naming Service can't found Logger";
+      //       MESSAGE("Caught exception: Naming Service can't found Logger");
     }
   catch (CORBA::COMM_FAILURE&)
     {
-      //       cout << "Caught CORBA::SystemException CommFailure.";
+      //       MESSAGE("Caught CORBA::SystemException CommFailure.");
     }
   catch (CORBA::SystemException&)
     {
-      //       cout << "Caught CORBA::SystemException.";
+      //       MESSAGE("Caught CORBA::SystemException.");
     }
   catch (CORBA::Exception&)
     {
-      //       cout << "Caught CORBA::Exception.";
+      //       MESSAGE("Caught CORBA::Exception.");
     }
   catch (...)
     {
-      //       cout << "Caught unknown exception.";
+      //       MESSAGE("Caught unknown exception.");
     }
   //cerr << "-----SALOME_Trace::SALOME_Trace----"<<endl;
 }
@@ -130,10 +133,10 @@ SALOME_Log::~SALOME_Log()
 {
 }
 
-SALOME_Log* SALOME_Log::Instance()
+SALOME_Log& SALOME_Log::Instance()
 {
-  if (_singleton == 0) _singleton = new SALOME_Log();
-  return _singleton;
+  static SALOME_Log instance;
+  return instance;
 }
 
 void SALOME_Log::putMessage(std::ostream& msg)

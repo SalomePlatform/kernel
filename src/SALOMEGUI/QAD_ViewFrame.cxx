@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD.h"
 #include "QAD_ViewFrame.h"
 #include "QAD_Application.h"
@@ -37,6 +36,8 @@ using namespace std;
 #include <qapplication.h>
 #include <qimage.h>
 #include "utilities.h"
+
+using namespace std;
 
 /*!
     Constructor
@@ -68,30 +69,6 @@ QAD_ViewFrame::~QAD_ViewFrame()
 void QAD_ViewFrame::cleanup()
 {
 } 
-
-bool QAD_ViewFrame::isInViewer(SALOMEDS::Study_var aStudy,
-			       const char* anEntry, const char* StudyFrameEntry)
-{
-  SALOMEDS::SObject_var RefSO;
-  SALOMEDS::SObject_var SO = aStudy->FindObjectID(StudyFrameEntry);
-  SALOMEDS::ChildIterator_var it = aStudy->NewChildIterator(SO);
-  for (; it->More();it->Next()){
-    SALOMEDS::SObject_var CSO= it->Value();
-    if (CSO->ReferencedObject(RefSO))
-      if ( strcmp( anEntry, RefSO->GetID() ) == 0 )
-	return 1;
-  }
-  return 0;
-}
-
-//san:T3.13 - it's up to VTKViewer_ViewFrame to implement (or not implement) getRenderer() method. Be careful!
-/*
-vtkRenderer* QAD_ViewFrame::getRenderer()
-{
-  MESSAGE ( "Only redefined  VTKViewer")
-  return NULL;
-}
-*/
 
 /*
    Dumps 3d-Viewer contents into image file

@@ -57,7 +57,7 @@ public:
   // Remove the cell from the output
   void RegisterCell(vtkIdType theCellId);
   int IsCellsRegistered() { return !myCellIds.empty();}
-  int ClearRegisteredCells() { 
+  void ClearRegisteredCells() { 
     myCellIds.clear();
     Modified();
   }
@@ -65,7 +65,7 @@ public:
   // Remove every cells with the type from the output
   void RegisterCellsWithType(vtkIdType theCellType);
   int IsCellsWithTypeRegistered() { return !myCellTypes.empty();}
-  int ClearRegisteredCellsWithType() { 
+  void ClearRegisteredCellsWithType() { 
     myCellTypes.clear();
     Modified();
   }
@@ -77,8 +77,8 @@ public:
   void SetStoreMapping(int theStoreMapping);
   int GetStoreMapping(){ return myStoreMapping;}
 
-  vtkIdType GetOutId(int theOutId) const;
-  vtkIdType GetInId(int theInId) const;
+  vtkIdType GetInputId(int theOutId) const;
+  vtkIdType GetOutputId(int theInId) const;
 
   typedef std::vector<vtkIdType> TVectorId;
   typedef std::map<vtkIdType,vtkIdType> TMapId;

@@ -91,6 +91,7 @@ EXPORT_HEADERS = \
 		  SALOME_NumberFilter.hxx \
 		  Handle_SALOME_NumberFilter.hxx \
 		  SALOME_DataMapOfIOMapOfInteger.hxx \
+      SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger.hxx \
 		  Handle_SALOME_DataMapNodeOfDataMapOfIOMapOfInteger.hxx \
 		  SALOMEGUI.h \
 		  SALOMEGUI_LoadStudiesDlg.h \
@@ -220,7 +221,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES)
-LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject -lEvent
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject -lEvent -lSalomePrs
 
 LIBS+= $(PYTHON_LIBS)
 

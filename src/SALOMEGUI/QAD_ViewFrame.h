@@ -34,13 +34,15 @@
 #include "QAD_StudyFrame.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_Selection.h"
+#include "SALOME_Prs.h"
+
+class QAD_Study;
 
 // QT Include
 #include <qmainwindow.h>
 
-//class vtkRenderer;
 
-class QAD_EXPORT QAD_ViewFrame : public QMainWindow
+class QAD_EXPORT QAD_ViewFrame : public QMainWindow, public SALOME_View
 {
   Q_OBJECT
 
@@ -53,7 +55,6 @@ public:
 
   virtual ViewType       getTypeView() const = 0; 
   virtual QWidget*       getViewWidget() = 0;
-//  virtual vtkRenderer*   getRenderer();
 
   virtual void           setBackgroundColor( const QColor& ) = 0;
   virtual QColor         backgroundColor() const = 0;
@@ -75,14 +76,8 @@ public:
   virtual bool           isVisible( const Handle(SALOME_InteractiveObject)& IObject ) = 0;
 
   /*  undo/redo management */
-  virtual void           undo(SALOMEDS::Study_var aStudy,
-			      const char* StudyFrameEntry) = 0;
-  virtual void           redo(SALOMEDS::Study_var aStudy,
-			      const char* StudyFrameEntry) = 0;
-
-  static bool		 isInViewer(SALOMEDS::Study_var aStudy,
-				    const char* anEntry,
-				    const char* StudyFrameEntry);
+  virtual void           undo(QAD_Study* aStudy, const char* StudyFrameEntry) {}
+  virtual void           redo(QAD_Study* aStudy, const char* StudyFrameEntry) {}
 
   /* selection */
   virtual Handle(SALOME_InteractiveObject)   FindIObject(const char* Entry) = 0;

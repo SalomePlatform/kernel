@@ -42,7 +42,8 @@ LIB = libSalomeSession.la
 LIB_SRC=\
 	SALOME_Session_i.cxx \
 	Session_ServerThread.cxx \
-	Session_ServerLauncher.cxx
+	Session_ServerLauncher.cxx \
+	SALOME_Session_SignalsHandler.cxx
 
 # Executables targets
 BIN = SALOME_Session_Server
@@ -52,7 +53,7 @@ BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOM
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent
+LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent -lSalomePrs $(CAS_LDPATH) -lTKBO -lCASCatch
 
 
 @CONCLUDE@

@@ -96,23 +96,12 @@ void SALOME_GeometryFilter::SetStoreMapping(int theStoreMapping){
 }
 
 
-vtkIdType SALOME_GeometryFilter::GetObjId(int theVtkID){
+vtkIdType SALOME_GeometryFilter::GetElemObjId(int theVtkID){
   if(myVTK2ObjIds.empty() || theVtkID > myVTK2ObjIds.size()) return -1;
 #if defined __GNUC_2__
   return myVTK2ObjIds[theVtkID];
 #else
   return myVTK2ObjIds.at(theVtkID);
-#endif
-}
-
-
-SALOME_GeometryFilter::TVectorId SALOME_GeometryFilter::GetVtkId(int theObjID){
-  TVectorId aVect;
-  if(myObj2VTKIds.empty() || theObjID > myObj2VTKIds.size()) return aVect;
-#if defined __GNUC_2__
-  return myObj2VTKIds[theObjID];
-#else
-  return myObj2VTKIds.at(theObjID);
 #endif
 }
 
@@ -243,9 +232,8 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   // (Have to compute visibility first for 3D cell boundarys)
   int progressInterval = numCells/20 + 1;
   if(myStoreMapping){
-    myVTK2ObjIds.clear();  myObj2VTKIds.clear(); //apo
+    myVTK2ObjIds.clear();
     myVTK2ObjIds.reserve(numCells);
-    myObj2VTKIds.resize(numCells);
   }
   for (cellId=0, Connectivity->InitTraversal(); 
        Connectivity->GetNextCell(npts,pts); 
@@ -279,7 +267,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           newCellId = output->InsertNextCell(aCellType,npts,pts);
 	  if(myStoreMapping){
 	    myVTK2ObjIds.push_back(cellId); //apo
-	    myObj2VTKIds[cellId].push_back(newCellId);
 	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
@@ -289,7 +276,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           newCellId = output->InsertNextCell(VTK_LINE,npts,pts);
 	  if(myStoreMapping){
 	    myVTK2ObjIds.push_back(cellId); //apo
-	    myObj2VTKIds[cellId].push_back(newCellId);
 	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
@@ -300,7 +286,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           newCellId = output->InsertNextCell(aCellType,npts,pts);
 	  if(myStoreMapping){
 	    myVTK2ObjIds.push_back(cellId); //apo
-	    myObj2VTKIds[cellId].push_back(newCellId);
 	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
@@ -309,7 +294,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           newCellId = output->InsertNextCell(aCellType,npts,pts);
 	  if(myStoreMapping){
 	    myVTK2ObjIds.push_back(cellId); //apo
-	    myObj2VTKIds[cellId].push_back(newCellId);
 	  }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
@@ -318,7 +302,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           newCellId = output->InsertNextCell(aCellType,npts,pts);
 	  if(myStoreMapping){
 	    myVTK2ObjIds.push_back(cellId); //apo
-	    myObj2VTKIds[cellId].push_back(newCellId);
 	  }
 	  outputCD->CopyData(cd,cellId,newCellId);
           break;
@@ -344,7 +327,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
               newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	      if(myStoreMapping){
 		myVTK2ObjIds.push_back(cellId); //apo
-		myObj2VTKIds[cellId].push_back(newCellId);
 	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
@@ -373,7 +355,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
               newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	      if(myStoreMapping){
 		myVTK2ObjIds.push_back(cellId); //apo
-		myObj2VTKIds[cellId].push_back(newCellId);
 	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
@@ -402,7 +383,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
               newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	      if(myStoreMapping){
 		myVTK2ObjIds.push_back(cellId); //apo
-		myObj2VTKIds[cellId].push_back(newCellId);
 	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
@@ -436,7 +416,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
               newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	      if(myStoreMapping){
 		myVTK2ObjIds.push_back(cellId); //apo
-		myObj2VTKIds[cellId].push_back(newCellId);
 	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
@@ -470,7 +449,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
               newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	      if(myStoreMapping){
 		myVTK2ObjIds.push_back(cellId); //apo
-		myObj2VTKIds[cellId].push_back(newCellId);
 	      }
               outputCD->CopyData(cd,cellId,newCellId);
               }
@@ -493,15 +471,6 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   if(MYDEBUG && myStoreMapping){
     for(int i = 0, iEnd = myVTK2ObjIds.size(); i < iEnd; i++){
       cout<<myVTK2ObjIds[i]<<", ";
-    }
-    cout<<"\n";
-    for(int i = 0, iEnd = myObj2VTKIds.size(); i < iEnd; i++){
-      TVectorId& aVectorId = myObj2VTKIds[i];
-      cout<<aVectorId.size()<<": ";
-      for(int j = 0, jEnd = aVectorId.size(); j < jEnd; j++){
-	cout<<aVectorId[j]<<", ";
-      }
-      cout<<"\n";
     }
     cout<<"\n";
   }

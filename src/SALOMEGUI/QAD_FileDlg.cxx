@@ -31,15 +31,15 @@ QString QAD_FileDlg::myLastVisitedPath;
 Constructor
 */
 QAD_FileDlg::QAD_FileDlg( QWidget* parent, bool open, bool showQuickDir, bool modal ) :
-QFileDialog( parent, 0, modal ),
+QFileDialogP( parent, 0, modal ),
 myValidator( 0 ),
 myQuickCombo( 0 ),
 myOpen( open )
 {    
   if ( parent->icon() )
-    setIcon( *parent->icon() );       
+    setIcon( *parent->icon() );
   setSizeGripEnabled( true );
-  
+
   if (showQuickDir) {
     // inserting quick dir combo box
     QLabel* lab  = new QLabel(tr("Quick path:"), this);
@@ -176,7 +176,7 @@ void QAD_FileDlg::accept()
 {
 //  mySelectedFile = QFileDialog::selectedFile().simplifyWhiteSpace(); //VSR- 06/12/02
   if ( mode() != ExistingFiles ) {
-    mySelectedFile = QFileDialog::selectedFile(); //VSR+ 06/12/02
+    mySelectedFile = QFileDialogP::selectedFile(); //VSR+ 06/12/02
     addExtension();
   }
 //  mySelectedFile = mySelectedFile.simplifyWhiteSpace(); //VSR- 06/12/02
@@ -187,7 +187,7 @@ void QAD_FileDlg::accept()
   */
   if ( acceptData() ) {
     myLastVisitedPath = dirPath();
-    QFileDialog::accept();        
+    QFileDialogP::accept();        
   }
 }
 
@@ -197,7 +197,7 @@ Closes this dialog and sets the return code to 'Rejected'
 void QAD_FileDlg::reject()
 {
   mySelectedFile = QString::null;
-  QFileDialog::reject();        
+  QFileDialogP::reject();        
 }
 
 /*!
@@ -342,7 +342,9 @@ QString QAD_FileDlg::getFileName( QWidget*           parent,
   if ( !initial.isEmpty() ) { 
     fd->processPath( initial ); // VSR 24/03/03 check for existing of directory has been added to avoid QFileDialog's bug
   }
-  fd->setFilters( filters );        
+
+  fd->setFilters( filters );
+
   if ( validator )
     fd->setValidator( validator );
   fd->exec();
@@ -396,11 +398,11 @@ QString QAD_FileDlg::getExistingDirectory ( QWidget*       parent,
   }
   fd->setMode( DirectoryOnly );
   fd->setFilters(tr("DIRECTORIES_FILTER"));
+
   fd->exec();
   QString dirname = fd->selectedFile();
   delete fd;
   qApp->processEvents();
   return dirname;
-  
 }
 

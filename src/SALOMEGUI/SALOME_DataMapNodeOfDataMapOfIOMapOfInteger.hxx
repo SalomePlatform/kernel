@@ -37,8 +37,8 @@
 #ifndef _Handle_SALOME_InteractiveObject_HeaderFile
 #include <Handle_SALOME_InteractiveObject.hxx>
 #endif
-#ifndef _TColStd_MapOfInteger_HeaderFile
-#include <TColStd_MapOfInteger.hxx>
+#ifndef _TColStd_IndexedMapOfInteger_HeaderFile
+#include <TColStd_IndexedMapOfInteger.hxx>
 #endif
 #ifndef _TCollection_MapNode_HeaderFile
 #include <TCollection_MapNode.hxx>
@@ -47,7 +47,7 @@
 #include <TCollection_MapNodePtr.hxx>
 #endif
 class SALOME_InteractiveObject;
-class TColStd_MapOfInteger;
+class TColStd_IndexedMapOfInteger;
 class TColStd_MapTransientHasher;
 class SALOME_DataMapOfIOMapOfInteger;
 class SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger;
@@ -75,9 +75,9 @@ public:
 //      }
  // Methods PUBLIC
  // 
-Standard_EXPORT inline SALOME_DataMapNodeOfDataMapOfIOMapOfInteger(const Handle(SALOME_InteractiveObject)& K,const TColStd_MapOfInteger& I,const TCollection_MapNodePtr& n);
+Standard_EXPORT inline SALOME_DataMapNodeOfDataMapOfIOMapOfInteger(const Handle(SALOME_InteractiveObject)& K,const TColStd_IndexedMapOfInteger& I,const TCollection_MapNodePtr& n);
 Standard_EXPORT inline   Handle_SALOME_InteractiveObject& Key() const;
-Standard_EXPORT inline   TColStd_MapOfInteger& Value() const;
+Standard_EXPORT inline   TColStd_IndexedMapOfInteger& Value() const;
 Standard_EXPORT ~SALOME_DataMapNodeOfDataMapOfIOMapOfInteger();
 
 
@@ -108,15 +108,15 @@ private:
  // Fields PRIVATE
  //
 Handle_SALOME_InteractiveObject myKey;
-TColStd_MapOfInteger myValue;
+TColStd_IndexedMapOfInteger myValue;
 
 
 };
 
 #define TheKey Handle_SALOME_InteractiveObject
 #define TheKey_hxx "SALOME_InteractiveObject.hxx"
-#define TheItem TColStd_MapOfInteger
-#define TheItem_hxx <TColStd_MapOfInteger.hxx>
+#define TheItem TColStd_IndexedMapOfInteger
+#define TheItem_hxx <TColStd_IndexedMapOfInteger.hxx>
 #define Hasher TColStd_MapTransientHasher
 #define Hasher_hxx <TColStd_MapTransientHasher.hxx>
 #define TCollection_DataMapNode SALOME_DataMapNodeOfDataMapOfIOMapOfInteger

@@ -86,9 +86,10 @@ Identity::~Identity(void)
 	delete [] (char*)_name ;
 	(char*&)_name = NULL ;
 
-	delete [] (char*)_dir ;
-	(char*&)_dir = NULL ;
-
+	//delete [] (char*)_dir ;
+	//(char*&)_dir = NULL ;
+	free((char*)_dir);
+	
 	delete [] (char*)_adip ;
 	(char*&)_adip = NULL ;
 }

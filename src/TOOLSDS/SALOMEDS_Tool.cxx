@@ -31,7 +31,7 @@ using namespace std;
 // function : GetTempDir
 // purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
 //============================================================================ 
-char* SALOMEDS_Tool::GetTmpDir()
+std::string SALOMEDS_Tool::GetTmpDir()
 {
   //Find a temporary directory to store a file
 
@@ -83,7 +83,7 @@ char* SALOMEDS_Tool::GetTmpDir()
   OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
   aDir.Build(aProtection);
 
-  return CORBA::string_dup(aTmpDir.ToCString());
+  return aTmpDir.ToCString();
 }
 
 //============================================================================
@@ -104,6 +104,10 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const char* theDirectory,
     OSD_Path anOSDPath(aFile);
     OSD_File anOSDFile(anOSDPath);
     if(!anOSDFile.Exists()) continue;
+
+    OSD_Protection aProtection = anOSDFile.Protection();
+    aProtection.SetUser(OSD_RW);
+    anOSDFile.SetProtection(aProtection);
 
     anOSDFile.Remove();
   }
@@ -128,7 +132,9 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
 				const int theNamesOnly)
 {
   int i, aLength = theFiles.length();
-  if(aLength == 0) return NULL;
+  if(aLength == 0)
+//    return NULL;
+    return (new SALOMEDS::TMPFile);
 
   TCollection_AsciiString aTmpDir(const_cast<char*>(theFromDirectory)); //Get a temporary directory for saved a file
 
@@ -146,7 +152,7 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
     //Check if the file exists
     
     if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
-      TCollection_AsciiString aFullPath = aTmpDir + strdup(theFiles[i]);   
+      TCollection_AsciiString aFullPath = aTmpDir + CORBA::string_dup(theFiles[i]);   
       OSD_Path anOSDPath(aFullPath);
       OSD_File anOSDFile(anOSDPath);
       if(!anOSDFile.Exists()) continue;
@@ -168,7 +174,9 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
 
   aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
   unsigned char* aBuffer = new unsigned char[aBufferSize];  
-  if(aBuffer == NULL) return NULL; 
+  if(aBuffer == NULL)
+//    return NULL; 
+    return (new SALOMEDS::TMPFile);
 
   //Initialize 4 bytes of the buffer by 0
   memset(aBuffer, 0, 4); 
@@ -181,7 +189,7 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
   for(i=0; i<aLength; i++) {
     ifstream *aFile;
     if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
-      TCollection_AsciiString aFullPath = aTmpDir + strdup(theFiles[i]);
+      TCollection_AsciiString aFullPath = aTmpDir + CORBA::string_dup(theFiles[i]);
       OSD_Path anOSDPath(aFullPath);
       OSD_File anOSDFile(anOSDPath);
       if(!anOSDFile.Exists()) continue;
@@ -229,7 +237,7 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
 // function : PutStreamToFile
 // purpose  : converts the stream "theStream" to the files
 //============================================================================
-SALOMEDS::ListOfFileNames* 
+SALOMEDS::ListOfFileNames_var 
 SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 				const char* theToDirectory,
 				const int theNamesOnly)
@@ -277,28 +285,28 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     delete[] aFileName;
   }
 
-  return aFiles._retn();
+  return aFiles;
 }
 
 //============================================================================
 // function : GetNameFromPath
 // purpose  : Returns the name by the path
 //============================================================================
-char* SALOMEDS_Tool::GetNameFromPath(const char* thePath) {
-  if (thePath == NULL) return strdup("");
-  OSD_Path aPath = OSD_Path(TCollection_AsciiString(strdup(thePath)));
+std::string SALOMEDS_Tool::GetNameFromPath(const char* thePath) {
+  if (thePath == NULL) return string("");
+  OSD_Path aPath = OSD_Path(TCollection_AsciiString((char*)thePath));
   TCollection_AsciiString aNameString(aPath.Name());
-  return CORBA::string_dup(aNameString.ToCString());
+  return aNameString.ToCString();
 }
 
 //============================================================================
 // function : GetDirFromPath
 // purpose  : Returns the dir by the path
 //============================================================================
-char* SALOMEDS_Tool::GetDirFromPath(const char* thePath) {
-  if (thePath == NULL) return strdup("");
-  OSD_Path aPath = OSD_Path(TCollection_AsciiString(strdup(thePath)));
+std::string SALOMEDS_Tool::GetDirFromPath(const char* thePath) {
+  if (thePath == NULL) return string("");
+  OSD_Path aPath = OSD_Path(TCollection_AsciiString((char*)thePath));
   TCollection_AsciiString aDirString(aPath.Trek());
   aDirString.ChangeAll('|','/');
-  return CORBA::string_dup(aDirString.ToCString());
+  return aDirString.ToCString();
 }

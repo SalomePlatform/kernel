@@ -93,11 +93,11 @@ public:
   long CpuUsed_impl() ;
 
 protected:
-  string _instanceName ;
-  string _interfaceName ;
-  string _serviceName ;
-  string _graphName ;
-  string _nodeName ;
+  std::string _instanceName ;
+  std::string _interfaceName ;
+  std::string _serviceName ;
+  std::string _graphName ;
+  std::string _nodeName ;
   CORBA::ORB_ptr _orb;
   PortableServer::POA_ptr _poa;
   PortableServer::ObjectId * _id;
@@ -105,7 +105,7 @@ protected:
   Engines_Component_i * _thisObj ;
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
-  map<std::string,CORBA::Any>_fieldsDict;
+  std::map<std::string,CORBA::Any>_fieldsDict;
 
 private:
   pthread_t _ThreadId ;

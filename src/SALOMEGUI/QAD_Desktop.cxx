@@ -72,6 +72,7 @@
 
 #include "SALOMEGUI_CloseDlg.h"
 #include "SALOMEGUI_ActivateComponentDlg.h"
+#include "SALOMEGUI_QtCatchCorbaException.hxx"
 
 #include "SALOME_Event.hxx"
 
@@ -201,7 +202,8 @@ myActiveStudy(0),
 myCntUntitled(0),
 //NRImyHelpWindow(0),
 myDefaultTitle( tr("DESK_DEFAULTTITLE") ),
-myQueryClose( true )
+myQueryClose( true ),
+myAboutToClose( false )
 {
   /* Force reading of user config file */
   QAD_CONFIG->readConfigFile();  
@@ -287,9 +289,9 @@ myQueryClose( true )
     QString resDir;
 
     /* find component icon */
-    QString iconfile = strdup(list_composants[ind].moduleicone) ;
-    QString modulename = strdup(list_composants[ind].modulename) ;
-    QString moduleusername = strdup(list_composants[ind].moduleusername) ;
+    QString iconfile = CORBA::string_dup(list_composants[ind].moduleicone) ;
+    QString modulename = CORBA::string_dup(list_composants[ind].modulename) ;
+    QString moduleusername = CORBA::string_dup(list_composants[ind].moduleusername) ;
 
     //    MESSAGE ( " MODULE = " << modulename )
     //    MESSAGE ( " MODULE icon = " << iconfile )
@@ -388,7 +390,9 @@ const int IdSelectAll = 1004;
 */
 bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 {
-  if (e->type() == 2000   ) {
+  if (e->type() == QEvent::Close && o == this )
+    myAboutToClose = true;
+  else if (e->type() == 2000   ) {
     QMessageBox::information (this, tr ( "Help Information" ), tr ( "Can't run choosen browser.\nRunning default browser (Mozilla). "));
     return TRUE;
   }
@@ -396,9 +400,9 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
     QMessageBox::critical(this, tr ( "Help Error" ), tr ( "Can't run the default browser.") );
     return TRUE;
   }
-    else if ( e->type() == QEvent::ContextMenu ) {
-      QContextMenuEvent* ce = (QContextMenuEvent*)e;
-      if ( o->inherits("QRenameEdit") ) {
+  else if ( e->type() == QEvent::ContextMenu ) {
+    QContextMenuEvent* ce = (QContextMenuEvent*)e;
+    if ( o->inherits("QRenameEdit") ) {
       return TRUE;
     }
     else if ( o->inherits("QLineEdit") ) {
@@ -453,11 +457,8 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
   }
   else if ( e->type() == SALOME_EVENT ) { 
     SALOME_Event* aSE = (SALOME_Event*)((QCustomEvent*)e)->data();
-    processEvent( aSE );
-    // Signal the calling thread that the event has been processed
-    aSE->processed();
+    processEvent(aSE);
     ((QCustomEvent*)e)->setData( 0 );
-    delete aSE;
     return TRUE;
   }
   return QMainWindow::eventFilter( o, e );
@@ -468,9 +469,11 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 */
 void QAD_Desktop::processEvent( SALOME_Event* theEvent )
 {
-  if ( !theEvent )
-    return;
-  theEvent->Execute();
+  if(theEvent){
+    theEvent->Execute();
+    // Signal the calling thread that the event has been processed
+    theEvent->processed();
+  }
 }
 
 /*!
@@ -990,13 +993,13 @@ void QAD_Desktop::createActions()
       myCatalogue->GetComponentIconeList();
       
     for (unsigned int ind = 0; ind < list_composants->length(); ind++) {
-      QString aModuleName = strdup(list_composants[ind].modulename) ;
+      QString aModuleName = CORBA::string_dup(list_composants[ind].modulename) ;
       QString dir;
       if (dir = getenv( aModuleName + "_ROOT_DIR")) {
 	dir = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc/salome/" );
 	QString aFileName = aModuleName + "_index.html"; 
 	if ( QFileInfo( dir + aFileName ).exists() ) {
-	  QString aModuleUserName = strdup(list_composants[ind].moduleusername) ;
+	  QString aModuleUserName = CORBA::string_dup(list_composants[ind].moduleusername) ;
 	  if ( aModuleUserName == "Salome" )  aModuleUserName = "Kernel" ;
 	  QActionP* moduleHelpAction = new QActionP( "", aModuleUserName + " Help" , 0, this, aModuleName);
 	  QAD_ASSERT(connect( moduleHelpAction, SIGNAL(activated()), this, SLOT(onHelpContentsModule() )));
@@ -1412,36 +1415,44 @@ void QAD_Desktop::closeEvent ( QCloseEvent* e )
 				      QAD_NO, QAD_NO ) == QAD_YES;
   }
 
-  if ( doClose ) { 
-    for ( QAD_Application* app = myApps.first(); app; app = myApps.next() ) { 
-      QList<QAD_Study>& studies = app->getStudies();
-      for(QAD_Study* study = studies.first(); study != 0; study = studies.next()) {
-	if(myQueryClose && study->getStudyDocument()->IsModified()) {
-	  SALOMEGUI_CloseDlg aDlg( this );
-	  switch ( aDlg.exec() ) {
-	  case 1:
-	    if ( !onSaveStudy( study ) ) {
-	      putInfo( tr("INF_CANCELLED") );
-	      e->ignore();
-	      return;
-	    }
-	    break;
-	  case 2:
-	  case 3:
-	    break;
-	  case 0:
-	  default: 
-	    e->ignore();
+  for ( QAD_Application* app = myApps.first(); doClose && app; app = myApps.next() ) { 
+    QList<QAD_Study>& studies = app->getStudies();
+    for(QAD_Study* study = studies.first(); doClose && study != 0; study = studies.next()) {
+      if(myQueryClose && study->getStudyDocument()->IsModified()) {
+	SALOMEGUI_CloseDlg aDlg( this );
+	switch ( aDlg.exec() ) {
+	case 1:
+	  if ( !onSaveStudy( study ) ) {
 	    putInfo( tr("INF_CANCELLED") );
-	    return;
+	    doClose = false;
 	  }
+	  break;
+	case 2:
+	case 3:
+	  break;
+	case 0:
+	default: 
+	  doClose = false;
+	  putInfo( tr("INF_CANCELLED") );
 	}
-	study->close();
       }
+      if ( doClose )
+	study->close();
     }
   }
+
   myQueryClose = true;
-  doClose ? e->accept() : e->ignore();
+
+  if ( !doClose ) {
+    myAboutToClose = false;
+    // onActiveStudyChanged() is normally caused by QWorkspace::eventFilter(), 
+    // but this call was blocked by myAboutToClose == true, so now we should do it manually
+    onActiveStudyChanged(); 
+
+    e->ignore();
+  }
+  else
+    e->accept();
 }
 
 /*!
@@ -1716,12 +1727,7 @@ void QAD_Desktop::onOpenStudy()
 				      tr("ERR_ERROR"),
 				      tr("ERR_DOC_CANTOPEN") + "\n" + name,
 				      tr("BUT_OK") );
-	    } else if (myActiveComp != "") {
-	      QApplication::setOverrideCursor( Qt::waitCursor );
-	      loadComponentData(mapComponentName[myActiveComp]);
-	      openStudy->updateObjBrowser(true);
-	      QApplication::restoreOverrideCursor();
-	    }
+	    } 
 	    break;
 	}
     }
@@ -1738,6 +1744,13 @@ void QAD_Desktop::onOpenStudy()
 
 bool QAD_Desktop::loadComponentData( const QString& compName )
 {
+  QAD_WaitCursor wc;
+
+  if ( compName.isEmpty() ) {
+    MESSAGE("loadComponentData(): empty component name passed!")
+    return false;
+  }
+
   // Open component's data in active study if any
   MESSAGE("loadComponentData(): Opening " << compName << " component data ")
   if (!myActiveStudy) {
@@ -1758,33 +1771,36 @@ bool QAD_Desktop::loadComponentData( const QString& compName )
       comp = getEngine( "FactoryServerPy", compName);
   }
 
+  if ( CORBA::is_nil( comp ) ) {
+    MESSAGE("loadComponentData(): Engine is null");
+    return false;
+  }  
+
   SALOMEDS::Study_var aStudy = myActiveStudy->getStudyDocument();
   SALOMEDS::SComponent_var SCO = SALOMEDS::SComponent::_narrow(aStudy->FindObject( getComponentUserName(compName) ));
 	   
   if (!SCO->_is_nil()) {
-    if (!CORBA::is_nil(comp)) {
-      SALOMEDS::Driver_var   driver = SALOMEDS::Driver::_narrow(comp);
-      if (!CORBA::is_nil(driver)) {
-	SALOMEDS::StudyBuilder_var  B = aStudy->NewBuilder();
-	if (!CORBA::is_nil(B)) {
-//	  QAD_Operation* op = new QAD_Operation( myActiveStudy );
-//	  op->start();
+    SALOMEDS::Driver_var   driver = SALOMEDS::Driver::_narrow(comp);
+    if (!CORBA::is_nil(driver)) {
+      SALOMEDS::StudyBuilder_var  B = aStudy->NewBuilder();
+      if (!CORBA::is_nil(B)) {
+	try {
 	  B->LoadWith(SCO,driver);
-//	  op->finish();
-	} else {
+	}
+	catch( const SALOME::SALOME_Exception& ) {
+	  // Oops, something went wrong while loading -> return an error
 	  return false;
 	}
-      } else {
-	MESSAGE("loadComponentData(): Driver is null");
-	return false;
-      }
+      } 
     } else {
-      MESSAGE("loadComponentData(): Engine is null");
+      MESSAGE("loadComponentData(): Driver is null");
+      // Incorrect! All components should inherit SALOMEDS::Driver
       return false;
     }
   } else {
     MESSAGE("loadComponentData(): SComponent is null");
-    return false;
+    // Don't return false here, for there might be no data 
+    // for a given component in the study yet
   }
 
   return true;
@@ -2551,7 +2567,9 @@ void QAD_Desktop::onOpenWith()
     if (SCO->FindAttribute(anAttr, "AttributeName")) {
       aName = SALOMEDS::AttributeName::_narrow(anAttr);
       name = aName->Value();
-      SALOME_ModuleCatalog::Acomponent_var Comp = myCatalogue->GetComponent( mapComponentName[name] );
+      if ( getComponentName( name ).isEmpty() )
+	return;
+      SALOME_ModuleCatalog::Acomponent_var Comp = myCatalogue->GetComponent( getComponentName(name) );
       if ( !Comp->_is_nil() ) {
 	
 	SALOME_ModuleCatalog::ListOfComponents_var list_type_composants =
@@ -2562,7 +2580,7 @@ void QAD_Desktop::onOpenWith()
 	} else if ( list_type_composants->length() > 1 ) {
 	  SALOMEGUI_OpenWith* aDlg = new SALOMEGUI_OpenWith( this );
 	  for (unsigned int ind = 0; ind < list_type_composants->length();ind++) {
-	    QString compusername = getComponentUserName( strdup(list_type_composants[ind]) );
+	    QString compusername = getComponentUserName( (char*)list_type_composants[ind] );
 	    if ( !compusername.isEmpty() )
 	      aDlg->addComponent( compusername );
 	  }
@@ -2622,6 +2640,11 @@ void QAD_Desktop::setSettings()
 */
 bool QAD_Desktop::loadComponent(QString Component)
 {
+  if ( Component.isEmpty() ) {
+    MESSAGE("loadComponent(): empty component name passed!")
+    return false;
+  }
+
   QAD_WaitCursor wc;
   QString resDir("/");  //NRI : Pb under Windows
 
@@ -2693,16 +2716,6 @@ bool QAD_Desktop::loadComponent(QString Component)
   int nbToolbars = 0;
   if (myActiveMenus)
     nbToolbars = myActiveMenus->getToolBarList().count();
-
-  // san - avoid loading component GUI library multiple times
-  QString aUserName( getComponentUserName( Component ) );
-  
-  SALOMEGUI* anActiveGUI = getComponentGUI(aUserName);
-  if ( !anActiveGUI )
-    return false;
-
-  /* SETTINGS */
-  anActiveGUI->SetSettings( this, (char*)Component.latin1() );
 
   /* COMPONENT INTERFACE */
   SALOME_ModuleCatalog::Acomponent_ptr aComponent =
@@ -3012,6 +3025,23 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
       //NRI if (component.compare(QString("Salome"))!= 0) {
       if (component.compare( getComponentUserName( "KERNEL" ) )!= 0) {
 //	QApplication::setOverrideCursor( Qt::waitCursor );
+	bool isOk = ( !isLoadData || loadComponentData( getComponentName(component) ) );
+	if ( !isOk ) {
+	  QAD_MessageBox::error1( this, 
+				 tr("ERR_ERROR"),
+				 tr("ERR_COMP_DATA_NOT_LOADED").arg( component ), 
+				 tr("BUT_OK") );	  
+	}
+
+	if ( !isOk || !loadComponent( getComponentName(component) ) ) {
+	  myCombo->setCurrentItem (0);
+	  for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
+	    aButton->setOn(false);
+	  }
+	  myActiveComp = "";
+	  return;
+	}
+
 	myActiveComp = component;
 
 	SALOME_Selection* oldSel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
@@ -3024,13 +3054,6 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	}
 
 	myActiveStudy->Selection( component );
-	if ( !loadComponent(mapComponentName[component]) ) {
-	  myCombo->setCurrentItem (0);
-	  for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
-	    aButton->setOn(false);
-	  }
-	  myActiveComp = "";
-	}
 
 	SALOME_Selection* Sel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
 	SALOME_ListIteratorOfListIO It( oldSel->StoredIObjects() );
@@ -3044,10 +3067,13 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	  
 	}
 
-	// Open new component's data in active study if any
-	if(isLoadData) loadComponentData(mapComponentName[component]);
-
 	oldSel->Clear();
+
+	/* SETTINGS */
+	// IMPORTANT: SetSettings() should be called AFTER SALOME_Selection
+	// has been created for a newly activated component
+	getComponentGUI(component)->SetSettings( this, (char*)getComponentName(component).latin1() );
+
 	myActiveStudy->updateObjBrowser(true);
 
 //	QApplication::restoreOverrideCursor();
@@ -3132,7 +3158,8 @@ void QAD_Desktop::onButtonActiveComponent( )
  */
 void QAD_Desktop::clearMenus()
 {
-  onActiveStudyChanged();
+  // san - commented as presumably obsolete
+  //  onActiveStudyChanged();
 
   /* menus */
   myMenusList.clear();
@@ -3223,6 +3250,8 @@ typedef SALOMEGUI* (*ComponentGUI)();
 SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 {
   SALOMEGUI* aCompGUI = 0;
+  if ( component.isEmpty() || getComponentName( component ).isEmpty() )
+    return aCompGUI;
   
   // Load component GUI if requested for the first time
   if ( myComponents.find( component ) == myComponents.end() ) {
@@ -3328,6 +3357,22 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 }
 
 
+/*!
+    Returns name of active component
+*/
+QString QAD_Desktop::getComponentDataType() const
+{
+  using namespace SALOMEDS;
+  Study_var aStudy = getActiveStudy()->getStudyDocument();
+  SObject_var aSObject = aStudy->FindObject(myActiveComp.latin1());
+  SComponent_var aComponent = SComponent::_narrow(aSObject);
+  if(!aComponent->_is_nil()){
+    CORBA::String_var aString = aComponent->ComponentDataType();
+    return aString.in();
+  }
+  return "";
+}
+
 void QAD_Desktop::definePopup(QString & theContext,
 			      QString & theParent, 
 			      QString & theObject ) 
@@ -3417,6 +3462,34 @@ void QAD_Desktop::createPopup(QPopupMenu* popup, const QString & theContext,
 
 void QAD_Desktop::onActiveStudyChanged()
 {
+  // Avoid recursive calls caused by QAD_MessageBox
+  static bool isRecursion = false;
+  if ( isRecursion || myAboutToClose )
+    return;
+
+  if (myActiveComp != "") {
+    // Try to load active component's data in the activated study
+    if ( !loadComponentData(mapComponentName[myActiveComp]) ) {
+      isRecursion = true;
+      QAD_MessageBox::error1( this, 
+			     tr("ERR_ERROR"),
+			     tr("ERR_COMP_DATA_NOT_LOADED").arg( myActiveComp ), 
+			     tr("BUT_OK") );
+      // Error while loading component's data -> deactivate it
+      deactivateComponent();
+      if (!myXmlHandler->myIdList.IsEmpty()) clearMenus();
+      myCombo->setCurrentItem (0);
+      for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
+	aButton->setOn(false);
+      }
+      myActiveComp = "";
+      isRecursion = false;
+      return;
+    }
+    else
+      myActiveStudy->updateObjBrowser(true);
+  }
+
   SALOMEGUI* anActiveGUI = getActiveGUI();
   if ( anActiveGUI ) 
     anActiveGUI->ActiveStudyChanged(this);

@@ -202,16 +202,16 @@ void SALOMEGUI_TableDlg::onOK()
 	      }
 	      if ( !bEmptyRow ) {  // Skip rows with no data !!!
 		// set row title
-		tblIntAttr->SetRowTitle( nRow+1, rowTitles[ i ].isNull() ? strdup( "" ) : strdup( rowTitles[ i ] ) ); 
+		tblIntAttr->SetRowTitle( nRow+1, rowTitles[ i ].isNull() ? QString( "" ) : QString( rowTitles[ i ] ) ); 
 		// set row unit
-		tblIntAttr->SetRowUnit( nRow+1, units[ i ].isNull() ? strdup( "" ) : strdup( units[ i ] ) ); 
+		tblIntAttr->SetRowUnit( nRow+1, units[ i ].isNull() ? QString( "" ) : QString( units[ i ] ) ); 
 		nRow++;
 	      }
 	    }
 	    if ( nRow > 0 ) { // Set columns only if table is not empty, otherwise exception is raised !!!
 	      // column titles
 	      for ( i = 0; i < colTitles.count(); i++ )
-		tblIntAttr->SetColumnTitle( i+1, colTitles[ i ].isNull() ? strdup( "" ) : strdup( colTitles[ i ] ) );
+		tblIntAttr->SetColumnTitle( i+1, colTitles[ i ].isNull() ? QString( "" ) : QString( colTitles[ i ] ) );
 	    }
 	  }
 	  // title
@@ -247,16 +247,16 @@ void SALOMEGUI_TableDlg::onOK()
 	      }
 	      if ( !bEmptyRow ) {  // Skip rows with no data !!!
 		// set row title
-		tblRealAttr->SetRowTitle( nRow+1, rowTitles[ i ].isNull() ? strdup( "" ) : strdup( rowTitles[ i ] ) ); 
+		tblRealAttr->SetRowTitle( nRow+1, rowTitles[ i ].isNull() ? QString( "" ) : QString( rowTitles[ i ] ) ); 
 		// set row unit
-		tblRealAttr->SetRowUnit( nRow+1, units[ i ].isNull() ? strdup( "" ) : strdup( units[ i ] ) ); 
+		tblRealAttr->SetRowUnit( nRow+1, units[ i ].isNull() ? QString( "" ) : QString( units[ i ] ) ); 
 		nRow++;
 	      }
 	    }
 	    if ( nRow > 0 ) { // Set columns only if table is not empty, otherwise exception is raised !!!
 	      // column titles
 	      for ( i = 0; i < colTitles.count(); i++ )
-		tblRealAttr->SetColumnTitle( i+1, colTitles[ i ].isNull() ? strdup( "" ) : strdup( colTitles[ i ] ) );
+		tblRealAttr->SetColumnTitle( i+1, colTitles[ i ].isNull() ? QString( "" ) : QString( colTitles[ i ] ) );
 	    }
 	  }
 	  // title
@@ -300,7 +300,7 @@ void SALOMEGUI_TableDlg::initDlg()
       try {
 	SALOMEGUI_Table* tbl = myIntTable->getTable();
 	// title
-	myIntTable->setTableTitle( strdup( tblIntAttr->GetTitle() ) );
+	myIntTable->setTableTitle( CORBA::string_dup( tblIntAttr->GetTitle() ) );
 	// nb of rows & cols
 	int nbRows = tblIntAttr->GetNbRows() ; 
 	int nbCols = tblIntAttr->GetNbColumns();
@@ -311,7 +311,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var rowTitles = tblIntAttr->GetRowTitles();
 	for ( i = 0; i < nbRows; i++ ) {
 	  if ( rowTitles->length() > 0 )
-	    strlist.append( strdup( rowTitles[i] ) );
+	    strlist.append( CORBA::string_dup( rowTitles[i] ) );
 	  else
 	    strlist.append( "" );
 	}
@@ -321,7 +321,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var colTitles = tblIntAttr->GetColumnTitles();
 	for ( i = 0; i < nbCols; i++ ) {
 	  if ( colTitles->length() > 0 )
-	    strlist.append( strdup( colTitles[i] ) );
+	    strlist.append( CORBA::string_dup( colTitles[i] ) );
 	  else
 	    strlist.append( "" );
 	}
@@ -331,7 +331,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var rowUnits = tblIntAttr->GetRowUnits();
 	if ( rowUnits->length() > 0 ) {
 	  for ( i = 0; i < nbRows; i++ )
-	    strlist.append( strdup( rowUnits[i] ) );
+	    strlist.append( CORBA::string_dup( rowUnits[i] ) );
 	  myIntTable->setUnits( strlist );
 	}
 	// data
@@ -356,7 +356,7 @@ void SALOMEGUI_TableDlg::initDlg()
       try {
 	SALOMEGUI_Table* tbl = myRealTable->getTable();
 	// title
-	myRealTable->setTableTitle( strdup( tblRealAttr->GetTitle() ) );
+	myRealTable->setTableTitle( CORBA::string_dup( tblRealAttr->GetTitle() ) );
 	// nb of rows & cols
 	int nbRows = tblRealAttr->GetNbRows() ; 
 	int nbCols = tblRealAttr->GetNbColumns();
@@ -367,7 +367,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var rowTitles = tblRealAttr->GetRowTitles();
 	for ( i = 0; i < nbRows; i++ ) {
 	  if ( rowTitles->length() > 0 )
-	    strlist.append( strdup( rowTitles[i] ) );
+	    strlist.append( CORBA::string_dup( rowTitles[i] ) );
 	  else
 	    strlist.append( "" );
 	}
@@ -377,7 +377,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var colTitles = tblRealAttr->GetColumnTitles();
 	for ( i = 0; i < nbCols; i++ ) {
 	  if ( colTitles->length() > 0 )
-	    strlist.append( strdup( colTitles[i] ) );
+	    strlist.append( CORBA::string_dup( colTitles[i] ) );
 	  else
 	    strlist.append( "" );
 	}
@@ -387,7 +387,7 @@ void SALOMEGUI_TableDlg::initDlg()
 	SALOMEDS::StringSeq_var rowUnits = tblRealAttr->GetRowUnits();
 	if ( rowUnits->length() > 0 ) {
 	  for ( i = 0; i < nbRows; i++ )
-	    strlist.append( strdup( rowUnits[i] ) );
+	    strlist.append( CORBA::string_dup( rowUnits[i] ) );
 	  myRealTable->setUnits( strlist );
 	}
         // data

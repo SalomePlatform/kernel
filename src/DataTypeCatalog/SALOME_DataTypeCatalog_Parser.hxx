@@ -33,22 +33,19 @@
 #include <vector>
 
 // Type Definitions
-typedef  vector<string> ListOfParserDataTypeName;
+typedef  std::vector<std::string> ListOfParserDataTypeName;
 
 struct ParserDataType{
-  string       		        Parserdata_name ;	
-  string                        Parserdata_interface_read;
-  string                        Parserdata_interface_write;
+  std::string  		        Parserdata_name ;	
+  std::string                   Parserdata_interface_read;
+  std::string                   Parserdata_interface_write;
   ListOfParserDataTypeName	Parserdata_parents ;
 };
 
-typedef vector<ParserDataType> ListOfParserDataType;
+typedef std::vector<ParserDataType> ListOfParserDataType;
 
-#ifdef WRITE_CATA_DATA_TYPE
 // contains all the data types defined in the catalog
-ListOfParserDataType _datatypelist; 
-#else
 extern ListOfParserDataType _datatypelist;
-#endif
+
 
 #endif // SALOME_DATA_CATALOG_PARSER_H

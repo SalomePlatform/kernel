@@ -41,7 +41,12 @@ class SALOME_Session_i:  public virtual POA_SALOME::Session,
 		         public virtual PortableServer::RefCountServantBase
 {
 public:
-  SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, QMutex* GUIMutex);
+  SALOME_Session_i(int argc, 
+                   char ** argv, 
+                   CORBA::ORB_ptr orb, 
+                   PortableServer::POA_ptr poa, 
+                   QMutex* GUIMutex,
+                   QWaitCondition* GUILauncher);
   ~SALOME_Session_i();
 
   //! Launch Graphical User Interface
@@ -58,6 +63,8 @@ public:
 
   //! Register the servant to Naming Service
   void NSregister();
+
+  CORBA::Long GetActiveStudyId();
   
   void ping(){};
 
@@ -70,6 +77,7 @@ protected:
   char **_argv;
   CORBA::Boolean _isGUI ;
   QMutex* _GUIMutex ;
+  QWaitCondition* _GUILauncher;
   int _runningStudies ;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;

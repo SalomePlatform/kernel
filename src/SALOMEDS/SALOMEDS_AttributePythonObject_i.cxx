@@ -40,6 +40,7 @@ char* SALOMEDS_AttributePythonObject_i::Store() {
 }
 
 void SALOMEDS_AttributePythonObject_i::Restore(const char* value) {
-  char* aString = strdup(value);
+  char* aString = CORBA::string_dup(value);
   SetObject(aString + 1, aString[0]=='s');
+  delete(aString);
 }

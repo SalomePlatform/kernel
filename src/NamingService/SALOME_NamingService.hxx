@@ -82,7 +82,7 @@ public:
 
   //!method to get all the contexts contained in the current direcotry
   // Get only objects, isn't iterative
-  vector<string> list_directory()
+  std::vector<std::string> list_directory()
     throw(ServiceUnreachable);
  
   //! method to destroy an association Path-Object Reference

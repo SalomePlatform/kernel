@@ -45,7 +45,7 @@ void ReadMed(const char* theFileName){
   TWrapper aMedW(aFileName);
 
   int aNbMeshes = aMed.GetNbMeshes();
-  cout<<"GetNbMeshes() = "<<aNbMeshes<<endl;
+  MESSAGE("GetNbMeshes() = "<<aNbMeshes);
 
   string aName;
   for(int iMesh = 0; iMesh < aNbMeshes; iMesh++){
@@ -54,7 +54,7 @@ void ReadMed(const char* theFileName){
     aMed.GetMeshInfo(iMesh+1,*aMeshInfo);
     int aDim = aMeshInfo->myDim;
     aName = aMeshInfo->GetName();
-    cout<<"GetMeshInfo - aName = '"<<aName<<"'; aDim = "<<aDim<<endl;
+    MESSAGE("GetMeshInfo - aName = '"<<aName<<"'; aDim = "<<aDim);
     *aNewMeshInfo = *aMeshInfo;
     aName[0] += 1;
     aNewMeshInfo->SetName(aName);
@@ -63,18 +63,18 @@ void ReadMed(const char* theFileName){
     TEntityInfo aEntityInfo = aMed.GetEntityInfo(*aMeshInfo);
 
     med_int aNbFields = aMed.GetNbFields(); 
-    cout<<"GetNbFields() = "<<aNbFields<<endl;
+    MESSAGE("GetNbFields() = "<<aNbFields);
     for(int iField = 0; iField < aNbFields; iField++){
       med_int aNbComp = aMed.GetNbComp(iField+1);
       PFieldInfo aFieldInfo(new TFieldInfo(aMeshInfo,aNbComp));
       aMed.GetFieldInfo(iField+1,*aFieldInfo);
-      cout<<"\taName = '"<<aFieldInfo->GetName()<<"'; aNbComp = "<<aNbComp<<"; ";
+      MESSAGE("\taName = '"<<aFieldInfo->GetName()<<"'; aNbComp = "<<aNbComp<<"; ");
       aMedW.SetFieldInfo(*aFieldInfo);
       med_entite_maillage anEntity;
       TGeom aTGeom;
       med_int aNbTimeStamps = aMed.GetNbTimeStamps(*aFieldInfo,aEntityInfo,
 						   anEntity,aTGeom);
-      cout<<"GetNbTimeStamps = "<<aNbTimeStamps<<endl;
+      MESSAGE("GetNbTimeStamps = "<<aNbTimeStamps);
       PTimeStampInfo aTimeStampInfo(new TTimeStampInfo(aFieldInfo,anEntity,aTGeom));
       for(int iTimeStamp = 0; iTimeStamp < aNbTimeStamps; iTimeStamp++){
 	aMed.GetTimeStampInfo(iTimeStamp+1, *aTimeStampInfo);
@@ -88,34 +88,34 @@ void ReadMed(const char* theFileName){
 	for(; aMeshValueIter != aMeshValue.end(); aMeshValueIter++){
 	  med_geometrie_element aGeom = aMeshValueIter->first;
 	  TValue aValue = aMeshValueIter->second;
-	  cout<<"\t\taGeom = "<<aGeom<<"; aValue = "<<aValue.size()<<": ";
+	  MESSAGE("\t\taGeom = "<<aGeom<<"; aValue = "<<aValue.size()<<": ");
 	  for(int i = 0, iEnd = aValue.size()/aNbComp; i < iEnd; i++){
 	    for(int j = 0, ij = i*aNbComp; j < aNbComp; j++, ij++){
-	      //cout<<aValue[ij]<<",";
+	      //MESSAGE(aValue[ij]<<",");
 	    }
-	    //cout<<" ";
+	    //MESSAGE(" ");
 	  }
-	  cout<<"\n";
+	  MESSAGE("\n");
 	}
       }
     }
 
     int aNbFam = aMed.GetNbFamilies(*aMeshInfo);
-    cout<<"GetNbFamilies() = "<<aNbFam<<endl;
+    MESSAGE("GetNbFamilies() = "<<aNbFam);
     for(int iFam = 0; iFam < aNbFam; iFam++){
       int aNbAttr = aMed.GetNbFamAttr(iFam+1,*aMeshInfo);
       int aNbGroup = aMed.GetNbFamGroup(iFam+1,*aMeshInfo);
       PFamilyInfo aFamilyInfo(new TFamilyInfo(aMeshInfo,aNbGroup,aNbAttr));
       aMed.GetFamilyInfo(iFam+1,*aFamilyInfo);
       aName = aFamilyInfo->GetName();
-      cout<<"\taName = '"<<aName<<"'; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<endl;
+      MESSAGE("\taName = '"<<aName<<"'; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup);
       aName[0] += 1;
       aFamilyInfo->SetName(aName);
       aFamilyInfo->myMeshInfo = aNewMeshInfo;
       aName = aFamilyInfo->GetName();
       for(int iGroup = 0; iGroup < aNbGroup; iGroup++){
 	aName = aFamilyInfo->GetGroupName(iGroup);
-	cout<<"\t\taGroupName = '"<<aName<<"'\n";
+	MESSAGE("\t\taGroupName = '"<<aName<<"'");
 	aName[0] += 1;
 	aFamilyInfo->SetGroupName(iGroup,aName);
       }
@@ -123,25 +123,25 @@ void ReadMed(const char* theFileName){
       aMedW.SetFamilyInfo(*aFamilyInfo);
     }
 
-    cout<<"GetEntityInfo - aNbEntities = "<<aEntityInfo.size()<<endl;
+    MESSAGE("GetEntityInfo - aNbEntities = "<<aEntityInfo.size());
     TEntityInfo::iterator anEntityInfoIter = aEntityInfo.begin();
     for(; anEntityInfoIter != aEntityInfo.end(); anEntityInfoIter++){
       const med_entite_maillage& anEntity = anEntityInfoIter->first;
-      cout<<"\tanEntity = "<<anEntity<<endl;
+      MESSAGE("\tanEntity = "<<anEntity);
       if(anEntity == MED_NOEUD){
 	int aNbNodes = aMed.GetNbNodes(*aMeshInfo);
 	PNodeInfo aNodeInfo(new TNodeInfo(aMeshInfo,aNbNodes));
 	aMed.GetNodeInfo(*aNodeInfo);
-	cout<<"\tGetNodeInfo - aNbNodes = "<<aNbNodes<<": ";
+	MESSAGE("\tGetNodeInfo - aNbNodes = "<<aNbNodes<<": ");
 	TNodeCoord& aCoord = aNodeInfo->myCoord;
 	for(int iNode = 0; iNode < aNbNodes; iNode++){
 	  for(int iDim = 0, anId = iNode*aDim; iDim < aDim; iDim++, anId++){
-	    //cout<<aCoord[anId]<<",";
+	    //MESSAGE(aCoord[anId]<<",");
 	    aCoord[anId] += 1.0;
 	  }
-	  //cout<<" ";
+	  //MESSAGE(" ");
 	}
-	cout<<endl;
+	MESSAGE(endl);
 	aNodeInfo->myMeshInfo = aNewMeshInfo;
 	aMedW.SetNodeInfo(*aNodeInfo);
 	continue;
@@ -151,24 +151,24 @@ void ReadMed(const char* theFileName){
       for(; anTGeomIter != aTGeom.end(); anTGeomIter++){
 	const med_geometrie_element& aGeom = anTGeomIter->first;
 	med_int& aNbElem = anTGeomIter->second;
-	cout<<"\t\taGeom = "<<aGeom<<"; aNbElem = "<<aNbElem<<": ";
+	MESSAGE("\t\taGeom = "<<aGeom<<"; aNbElem = "<<aNbElem<<": ");
 	PCellInfo aCellInfo(new TCellInfo(aMeshInfo,aNbElem,anEntity,aGeom));
 	aMed.GetCellInfo(*aCellInfo);
 	for(int iElem = 0; iElem < aCellInfo->myNbElem; iElem++){
 	  int i = iElem*aCellInfo->myConnDim;
 	  for(int iConn = 0; iConn < aCellInfo->myConnDim; iConn++, i++){
-	    //cout<<aCellInfo->myConn[i]<<",";
+	    //MESSAGE(aCellInfo->myConn[i]<<",");
 	  }
-	  //cout<<" ";
+	  //MESSAGE(" ");
 	}
-	cout<<endl;
+	MESSAGE(endl);
 	aCellInfo->myMeshInfo = aNewMeshInfo;
 	aMedW.SetCellInfo(*aCellInfo);
       }
     }
     
   }
-  cout<<"OK"<<endl;
+  MESSAGE("OK");
 }
 
 
@@ -178,9 +178,9 @@ int main(int argc, char** argv){
       ReadMed(argv[1]);
     return 0;
   }catch(std::exception& exc){
-    cout<<"Follow exception was accured :\n"<<exc.what()<<endl;
+    MESSAGE("Follow exception was accured :\n"<<exc.what());
   }catch(...){
-    cout<<"Unknown exception was accured in VISU_Convertor_impl"<<endl;
+    MESSAGE("Unknown exception was accured in VISU_Convertor_impl");
   } 
   return 1;
 }

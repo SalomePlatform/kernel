@@ -164,7 +164,10 @@ QAD_RightFrame::QAD_RightFrame(QWidget *theParent,
     return;
   }
 
-  SharedLib.SetName( strdup(ComponentLib) );
+  const Standard_CString aCopyCL = CORBA::string_dup(ComponentLib);
+  SharedLib.SetName( aCopyCL);
+  delete(aCopyCL);
+  
   
   bool ok = SharedLib.DlOpen(OSD_RTLD_LAZY);
   if (!ok) {
@@ -282,5 +285,48 @@ void QAD_RightFrame::unCompressBottom()
   QSplitterPHandle* h = getHandleAfter(myViewFrame);
   if (h)
     h->unCompressAfter();
+}
+
+void QAD_RightFrame::compressLeft()
+{
+  QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
+  if( h )
+    h->compressBefore();
+}
+
+void QAD_RightFrame::compressRight()
+{
+  QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
+  if( h )
+    h->compressAfter();
+}
+
+void QAD_RightFrame::unCompressLeft()
+{
+  QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
+  if( h )
+    h->unCompressBefore();
+}
+
+void QAD_RightFrame::unCompressRight()
+{
+  QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
+  if( h )
+    h->unCompressAfter();
+}
+
+bool QAD_RightFrame::isCompressedViewFrame() const
+{
+    return isCompressed( myViewFrame );
+}
+
+bool QAD_RightFrame::isCompressedPython() const
+{
+    return mySplitter->isCompressed( getPyEditor() );
+}
+
+bool QAD_RightFrame::isCompressedMessage() const
+{
+    return mySplitter->isCompressed( getMessage() );
 }
 

@@ -124,6 +124,11 @@ protected:
 protected:
  OCCViewer_ViewFrame*		 myViewFrame;
 
+private:
+
+  void                   globalSelectionDone( const bool );
+  void                   localSelectionDone ( const bool );
+
  Handle (AIS_InteractiveContext) myAISContext;
  OCCViewer_AISSelector*		 myAISSelector;
  bool				 myEnableSelection;

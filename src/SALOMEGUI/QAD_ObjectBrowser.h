@@ -124,6 +124,7 @@ protected slots:
     void		   showPopupMenu(QListViewItem*);
     void                   showUseCasePopupMenu(QListViewItem*);
     
+    void                   onExpandAll();
     void                   onExpanded (QListViewItem*);
     void                   onCollapsed(QListViewItem*);
     void                   onUseCasePopupMenu( int );

@@ -62,7 +62,7 @@ int Plot2d_CurveContainer::count()
 /*!
   Returns true if contains no curves
 */
-bool Plot2d_CurveContainer::isEmpty()
+bool Plot2d_CurveContainer::isEmpty() const
 {
   return myCurves.isEmpty();
 }

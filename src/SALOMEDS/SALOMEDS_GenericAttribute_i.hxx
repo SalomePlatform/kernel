@@ -62,13 +62,13 @@ public:
 
 // defines for creation attributes objects
 
-//cout<<"*** Create new CORBA attribute for "<<#CORBA_Name<<endl;
+//MESSAGE("*** Create new CORBA attribute for "<<#CORBA_Name);
 #define __ReturnCORBAAttribute(OCAF_Name, CORBA_Name) if (theAttr->ID() == OCAF_Name::GetID()) { \
     SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(Handle(OCAF_Name)::DownCast(theAttr), theOrb); \
     return Attr->CORBA_Name::_this(); \
   }
 
-//cout<<"Create New Attribute "<<#CORBA_Name<<endl;
+//MESSAGE("Create New Attribute "<<#CORBA_Name);
 #define __FindOrCreateAttribute(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
     Handle(OCAF_Name) anAttr; \
     if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \
@@ -79,7 +79,7 @@ public:
     return Attr->CORBA_Name::_this(); \
   }
 
-//cout<<"Create New Attribute "<<#CORBA_Name<<endl;
+//MESSAGE("Create New Attribute "<<#CORBA_Name);
 #define __FindOrCreateAttributeLocked(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
     Handle(OCAF_Name) anAttr; \
     if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \

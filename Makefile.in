@@ -100,10 +100,20 @@ salome.launch \
 showNS.py
 
 # copy header files in common directory
-ifeq ($(HAVE_SSTREAM),yes)
-  include_list=include/salome/SALOMEconfig.h
+OWN_CONFIG_H=@OWN_CONFIG_H@
+
+ifeq ($(OWN_CONFIG_H),yes)
+    ifeq ($(HAVE_SSTREAM),yes)
+	include_list=include/salome/SALOMEconfig.h include/salome/config.h
+    else
+	include_list=include/salome/SALOMEconfig.h include/salome/config.h include/salome/sstream
+    endif
 else
-  include_list=include/salome/SALOMEconfig.h include/salome/sstream
+    ifeq ($(HAVE_SSTREAM),yes)
+	include_list=include/salome/SALOMEconfig.h
+    else
+	include_list=include/salome/SALOMEconfig.h include/salome/sstream
+    endif
 endif
 
 inc: idl $(include_list)
@@ -120,6 +130,10 @@ salome_adm/unix/SALOMEconfig.ref: salome_adm/unix/SALOMEconfig.h
 	if ! cmp $< $@; then  \
 	  cp -p $< $@;        \
 	fi;		      \
+
+include/salome/config.h: salome_adm/unix/config.h
+	-$(RM) $@
+	$(LN_S) ../../$< $@
 
 include/salome/sstream: salome_adm/unix/sstream
 	-$(RM) $@
@@ -168,7 +182,7 @@ distclean: distclean-other
 distclean-other:
 	-$(RM) salome_adm/unix/*~ salome_adm/unix/*% salome_adm/unix/*.bak salome_adm/unix/*.new salome_adm/unix/*.old
 	-$(RM) salome_adm/unix/make_* 
-	-$(RM) salome_adm/unix/depend salome_adm/unix/SALOMEconfig.h 
+	-$(RM) salome_adm/unix/depend salome_adm/unix/SALOMEconfig.h salome_adm/unix/config.h 
 	-$(RM) config.cache config.log config.status 
 
 @MODULE@

@@ -53,9 +53,16 @@ no) enable_production=no ;;
 esac],
 enable_production=AC_ENABLE_PRODUCTION_DEFAULT)dnl
 
+CXXFLAGS="$CXXFLAGS -Wno-deprecated -Wparentheses -Wreturn-type -Wmissing-declarations -Wunused "
+
+CXXVERSION=`$CXX --version`
+if test "X$CXXVERSION" != "X2.95.3"; then
+  CXXFLAGS="${CXXFLAGS} -fmessage-length=0 "
+fi
+
 if test "X$enable_production" = "Xyes"; then
   CFLAGS="$CFLAGS -O"
-  CXXFLAGS="$CXXFLAGS -O -Wno-deprecated "
+  CXXFLAGS="$CXXFLAGS -O -Wuninitialized "
 fi
 ])
 
@@ -89,7 +96,7 @@ enable_debug=AC_ENABLE_DEBUG_DEFAULT)dnl
 
 if test "X$enable_debug" = "Xyes"; then
   CFLAGS="$CFLAGS -g -D_DEBUG_ "
-  CXXFLAGS="$CXXFLAGS -g -D_DEBUG_ -Wno-deprecated "
+  CXXFLAGS="$CXXFLAGS -g -D_DEBUG_ "
 fi
 ])
 

@@ -42,6 +42,7 @@
 #include "QAD_Resource.h"
 #include "QAD_Tools.h"
 #include "QAD_WaitCursor.h"
+#include "QAD_MessageBox.h"
 
 // QT Includes
 #include <qapplication.h>
@@ -218,7 +219,7 @@ void SALOMEGUI_Application::onStudyShown( QAD_Study* study )
   }
 
   QAD_StudyFrame* sf = myActiveStudy->getActiveStudyFrame();
-  Standard_CString name = strdup(sf->title().latin1());
+  Standard_CString name = CORBA::string_dup(sf->title().latin1());
   
   SALOMEDS::SComponent_var father = aStudy->FindComponent("Interface Applicative");
   SALOMEDS::SObject_var newObj = B->NewObject(father);
@@ -479,61 +480,76 @@ void SALOMEGUI_Application::onDisplay(int id)
 
   QAD_ViewFrame* viewFrame = myActiveStudy->getActiveStudyFrame()->getRightFrame()->getViewFrame();
 
+  // Ensure that parent component's data are loaded
+  QString compName = desktop->getComponentName( parentComp );
+  if ( compName.isEmpty() ) {
+      waitCursor.stop();
+      QAD_MessageBox::error1( desktop, 
+			      tr("ERR_ERROR"), 
+			      tr("ERR_EMPTY_COMP_NAME").arg( parentComp ), 
+			      tr("BUT_OK"));    
+    return;
+  }
+
+  desktop->loadComponentData( compName );
+
   // Build the graphic presentation (it is stored in the corresponding viewer)
+
+  bool isComponent = false;
+  SALOMEDS::Study_var aStudy = myActiveStudy->getStudyDocument();
+  bool needRepaint = false;
 
   // Copy the selection
   SALOME_ListIteratorOfListIO itInit( Sel->StoredIObjects() );
   SALOME_ListIO selList;
   for (; itInit.More(); itInit.Next()) {
-    selList.Append(itInit.Value());
+    Handle(SALOME_InteractiveObject) IObject = itInit.Value();
+    if ( IObject->hasEntry() ) {
+      // check whether the component is selected
+      SALOMEDS::SObject_var obj = aStudy->FindObjectID(IObject->getEntry() );
+      if ( !obj->_is_nil() && strcmp( obj->GetFatherComponent()->GetID(), obj->GetID() ) == 0 ) {
+	selList.Clear();
+	isComponent = true;
+	selList.Append( IObject );
+	break;
+      }
+    }
+    selList.Append( IObject );
   }
-  
-  SALOMEDS::Study_var aStudy = myActiveStudy->getStudyDocument();
 
-  bool needRepaint = false;
-    
   if (id == QAD_DisplayOnly_Popup_ID) 
     viewFrame->EraseAll();
 
-  SALOME_ListIteratorOfListIO It( selList );
-  for(;It.More();It.Next()) {
-    Handle(SALOME_InteractiveObject) IObject    = It.Value();
-
-    // First check whether the object is a component or a child object
-    bool isComponent = false;
-
-    if (!IObject->hasEntry()) continue; 
-
-    SALOMEDS::SObject_var obj = aStudy->FindObjectID(IObject->getEntry());
-    if (!obj->_is_nil()) {
-      SALOMEDS::SComponent_var comp = obj->GetFatherComponent();
-      isComponent = (strcmp(comp->GetID(), obj->GetID()) == 0);
-    }
-
-    // For component -> display all children
-    if (isComponent) {
-      SALOMEDS::ChildIterator_ptr it = aStudy->NewChildIterator(obj);
-      it->InitEx(true);
-      for ( ; it->More(); it->Next()) {
-	SALOMEDS::SObject_ptr child = it->Value();
+  // For component -> display all children
+  if ( isComponent ) {
+    SALOMEDS::SObject_var obj = aStudy->FindObjectID( selList.First()->getEntry() );
+    SALOMEDS::ChildIterator_ptr It = aStudy->NewChildIterator( obj );
+    It->InitEx( true );
+    for ( ; It->More(); It->Next() ) {
+      SALOMEDS::SObject_ptr child = It->Value();
+      SALOMEDS::SObject_ptr ref;
+      if ( !child->ReferencedObject( ref ) ) {
 	Handle(SALOME_InteractiveObject) childIObject = new SALOME_InteractiveObject();
-	childIObject->setEntry(child->GetID());
-
+	childIObject->setEntry( child->GetID() );
 	// Ensure that proper 3D presentation exists for IObject
 	aGUI->BuildPresentation(childIObject);
 	viewFrame->Display(childIObject, false);
 	needRepaint = true;
       }
-    } else { // for child object -> simply display it (no children are displayed)
+    } 
+  }
+  else { // for child object -> simply display it (no children are displayed)
+    SALOME_ListIteratorOfListIO It( selList );
+    for( ;It.More();It.Next() ) {
+      Handle(SALOME_InteractiveObject) IObject = It.Value();
       // Ensure that proper 3D presentation exists for IObject
       aGUI->BuildPresentation(IObject);
       viewFrame->Display(IObject, false);
       needRepaint = true;
     }
-    
   }
 
-  if (needRepaint)
+  if ( needRepaint )
     viewFrame->Repaint();
 
   myActiveStudy->updateObjBrowser(true);

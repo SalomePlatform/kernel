@@ -44,6 +44,7 @@
 #include <Standard_Boolean.hxx>
 #endif
 
+#include <string>
 
 class SALOME_InteractiveObject : public MMgt_TShared {
 
@@ -64,25 +65,31 @@ public:
  // Methods PUBLIC
  // 
 Standard_EXPORT   SALOME_InteractiveObject();
-Standard_EXPORT   SALOME_InteractiveObject(const Standard_CString anEntry, 
-					   const Standard_CString aComponentDataType,
-					   const Standard_CString aName = "");
-Standard_EXPORT   void setEntry(const Standard_CString anEntry) ;
-Standard_EXPORT   Standard_CString getEntry() ;
-Standard_EXPORT   void setName(const Standard_CString aName) ;
-Standard_EXPORT   Standard_CString getName() ;
+Standard_EXPORT   SALOME_InteractiveObject(const char* anEntry, 
+					   const char* aComponentDataType,
+					   const char* aName = "");
+Standard_EXPORT   void setEntry(const char* anEntry) ;
+Standard_EXPORT   const char* getEntry() ;
+Standard_EXPORT   void setName(const char* aName) ;
+Standard_EXPORT   const char* getName() ;
 Standard_EXPORT   Standard_Boolean hasEntry() ;
 Standard_EXPORT   virtual  Standard_Boolean isSame(const Handle(SALOME_InteractiveObject)& anIO) ;
 
 Standard_EXPORT   Standard_Boolean hasReference() ;
-Standard_EXPORT   Standard_CString getReference() ;
-Standard_EXPORT   void setReference(const Standard_CString aReference) ;
+Standard_EXPORT   const char* getReference() ;
+Standard_EXPORT   void setReference(const char* aReference) ;
 
-Standard_EXPORT   void setComponentDataType(const Standard_CString ComponentDataType) ;
-Standard_EXPORT   Standard_CString getComponentDataType() ;
-Standard_EXPORT   Standard_Boolean isComponentType(const Standard_CString ComponentDataType) ;
+Standard_EXPORT   void setComponentDataType(const char* ComponentDataType) ;
+Standard_EXPORT   const char* getComponentDataType() ;
+Standard_EXPORT   Standard_Boolean isComponentType(const char* ComponentDataType) ; 
+  //Standard_EXPORT   Standard_Boolean isComponentType(std::string  ComponentDataType) ; 
+Standard_EXPORT   virtual ~SALOME_InteractiveObject();
 
-Standard_EXPORT   ~SALOME_InteractiveObject();
+// Must be defined for using by NCollection for ceratin of data map
+friend Standard_Boolean IsEqual(const Handle(SALOME_InteractiveObject)& anIO1,
+                                const Handle(SALOME_InteractiveObject)& anIO2)
+{ return anIO1->isSame( anIO2 ); }
+
 
 
 
@@ -101,10 +108,10 @@ protected:
 
  // Fields PROTECTED
  //
-Standard_CString myReference;
-Standard_CString myEntry;
-Standard_CString myName;
-Standard_CString myComponentDataType;
+  std::string myReference;
+  std::string myEntry;
+  std::string myName;
+  std::string myComponentDataType;
 
 private: 
 

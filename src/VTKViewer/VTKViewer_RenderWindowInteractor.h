@@ -33,7 +33,6 @@
 // now we define the C++ class
 
 #include "SALOME_InteractiveObject.hxx"
-#include "SALOME_Actor.h"
 #include "SALOME_Selection.h"
 
 // QT Includes
@@ -48,9 +47,14 @@
 #include <TColStd_MapOfInteger.hxx>
 #include <TColStd_MapIteratorOfMapOfInteger.hxx>
 
-class vtkPolyData;
-class vtkPolyDataMapper;
+class vtkPicker;
+class vtkCellPicker;
+class vtkPointPicker;
+class vtkActorCollection;
 
+class SALOME_Actor;
+class VTKViewer_Actor;
+class VTKViewer_ViewFrame;
 class VTKViewer_RenderWindow;
 class VTKViewer_InteractorStyleSALOME;
 
@@ -64,7 +68,8 @@ class VTKViewer_InteractorStyleSALOME;
 class VTK_EXPORT VTKViewer_RenderWindowInteractor : 
   public QObject, public vtkRenderWindowInteractor
 {
-  Q_OBJECT 
+  Q_OBJECT ;
+  friend class VTKViewer_ViewFrame;
 public:
 
   static VTKViewer_RenderWindowInteractor *New() ; 
@@ -129,15 +134,23 @@ public:
   //virtual void EndPickCallback();
   
   /* Selection Management */
-  bool highlightCell(const Handle(SALOME_InteractiveObject)& IObject, bool hilight, 
-		     const TColStd_MapOfInteger& MapIndex, bool immediatly = true );
-  bool highlightEdge(const Handle(SALOME_InteractiveObject)& IObject, bool hilight, 
-		     const TColStd_MapOfInteger& MapIndex, bool immediatly = true ); //NB
-  bool highlightPoint(const Handle(SALOME_InteractiveObject)& IObject, bool hilight, 
-		      const TColStd_MapOfInteger& MapIndex, bool immediatly = true );
+  bool highlightCell(const TColStd_IndexedMapOfInteger& MapIndex, 
+		     SALOME_Actor* theMapActor, 
+		     bool hilight, 
+		     bool update = true );
+  bool highlightEdge(const TColStd_IndexedMapOfInteger& MapIndex, 
+		     SALOME_Actor* theMapActor, 
+		     bool hilight, 
+		     bool update = true );
+  bool highlightPoint(const TColStd_IndexedMapOfInteger& MapIndex, 
+		      SALOME_Actor* theMapActor, 
+		      bool hilight, 
+		      bool update = true );
 
   bool highlight(const Handle(SALOME_InteractiveObject)& IObject, bool hiligth, bool immediatly = true );
+  void unHighlightSubSelection();
   bool unHighlightAll();
+
   bool isInViewer( const Handle(SALOME_InteractiveObject)& IObject);
   bool isVisible( const Handle(SALOME_InteractiveObject)& IObject);
   void rename(const Handle(SALOME_InteractiveObject)& IObject, QString newName);
@@ -147,22 +160,12 @@ public:
 			const double& theBlue = 0, const int& theWidth = 5);
   void SetSelectionTolerance(const double& theTolNodes = 0.025, const double& theTolCell = 0.001);
 
-  void setCellData(const Handle(SALOME_InteractiveObject)& IObject,
-		   const int& theIndex, vtkActor* theActor );
-  void setCellData(const Handle(SALOME_InteractiveObject)& IObject,
-		   const std::vector<int>& theIndexes, vtkActor* theActor );
-  void setEdgeData(const Handle(SALOME_InteractiveObject)& IObject,
-		   const int& theCellIndex, const int& theEdgeIndex, 
-		   vtkActor* theActor ); //NB
-  void setPointData(const Handle(SALOME_InteractiveObject)& IObject, 
-		    const int& theIndex, vtkActor* theActor );
-
   // Displaymode management
   int GetDisplayMode();
   void SetDisplayMode(int);
 
   // Switch representation wireframe/shading
-  void SwitchRepresentation(const Handle(SALOME_InteractiveObject)& IObject, bool update = true);
+  void SetDisplayMode(const Handle(SALOME_InteractiveObject)& IObject, int theMode);
 
   // Change all actors to wireframe or surface
   void ChangeRepresentationToWireframe();
@@ -194,12 +197,24 @@ public:
 
   vtkRenderer* GetRenderer();
 
-  QWidget* getGUIWindow() {return myGUIWindow;}
-  void setGUIWindow(QWidget* theWin) {myGUIWindow = theWin;}
+  void setGUIWindow(QWidget* theWindow);
+
+  void setViewFrame(VTKViewer_ViewFrame* ViewFrame);
   
-  typedef void (*TCreateMapperFun)(vtkPolyData *theSourcePolyData, 
-				   vtkPolyDataMapper* theMapper, 
-				   const TColStd_MapOfInteger& theMapIndex);
+  void setCellData(const int& theIndex, 
+		   SALOME_Actor* theMapActor,
+		   VTKViewer_Actor* theActor);
+  void setEdgeData(const int& theCellIndex, 
+		   SALOME_Actor* theMapActor,
+		   const int& theEdgeIndex, 
+		   VTKViewer_Actor* theActor ); //NB
+  void setPointData(const int& theIndex, 
+		    SALOME_Actor* theMapActor,
+		    VTKViewer_Actor* theActor);
+
+  typedef void (*TUpdateActor)(const TColStd_IndexedMapOfInteger& theMapIndex,
+			       SALOME_Actor* theMapActor, 
+			       VTKViewer_Actor* theActor);
  protected:
 
   VTKViewer_RenderWindowInteractor();
@@ -207,25 +222,29 @@ public:
 
   VTKViewer_InteractorStyleSALOME* myInteractorStyle;
 
-  bool highlight(const Handle(SALOME_InteractiveObject)& IObject, 
-		 const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
-		 vtkActor *theActor, bool hilight, bool update );
-  void setActorData(const Handle(SALOME_InteractiveObject)& IObject, 
-		    const TColStd_MapOfInteger& MapIndex, TCreateMapperFun theFun,
-		    vtkActor *theActor );
-
+  bool highlight(const TColStd_IndexedMapOfInteger& theMapIndex, 
+		 SALOME_Actor* theMapActor, VTKViewer_Actor* theActor,
+		 TUpdateActor theFun, bool hilight, bool update);
+  void setActorData(const TColStd_IndexedMapOfInteger& theMapIndex,
+		    SALOME_Actor* theMapActor,
+		    VTKViewer_Actor *theActor,
+		    TUpdateActor theFun);
+  
   // Timer used during various mouse events to figure 
   // out mouse movements. 
   QTimer *mTimer ;
 
-  //CAI: Display mode
-  int displaymode;
+  int myDisplayMode;
 
   //NRI: Selection mode
-  Selection_Mode selectionmode;
-  vtkActor* Point_Actor;
-  vtkActor* Edge_Actor; //NB
-  vtkActor* Cell_Actor;
+  VTKViewer_Actor* myPointActor;
+  VTKViewer_Actor* myEdgeActor;
+  VTKViewer_Actor* myCellActor;
+  void MoveInternalActors();
+
+  vtkPicker* myBasicPicker;
+  vtkCellPicker* myCellPicker;
+  vtkPointPicker* myPointPicker;
   
   // User for switching to stereo mode.
   int PositionBeforeStereo[2];
@@ -259,9 +278,10 @@ public:
   void RenderWindowModified() ;
 
  private:
-  QWidget*     myGUIWindow;  
-  double       myTolNodes;
-  double       myTolItems;
+  VTKViewer_ViewFrame* myViewFrame;  
+  QWidget* myGUIWindow;  
+  double myTolNodes;
+  double myTolItems;
 };
 
 #endif

@@ -272,7 +272,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetName(const char* theName) {
   if(_root.IsNull()) return 0;
 
   Handle(TDataStd_Name) aNameAttrib;
-  TCollection_ExtendedString aName(strdup(theName));
+  TCollection_ExtendedString aName((char*)theName);
 
   if (!_root->FindAttribute(TDataStd_Name::GetID(), aNameAttrib))
     aNameAttrib = TDataStd_Name::Set(_root->Label(), aName);
@@ -315,7 +315,7 @@ char* SALOMEDS_UseCaseBuilder_i::GetName() {
 
   Handle(TDataStd_Name) aName;
   if (!_root->FindAttribute(TDataStd_Name::GetID(), aName)) return aString._retn();
-  aString = strdup(TCollection_AsciiString(aName->Get()).ToCString());
+  aString = CORBA::string_dup(TCollection_AsciiString(aName->Get()).ToCString());
   return aString._retn();
 }
 
@@ -368,7 +368,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::AddUseCase(const char* theName)
   TDF_Label aChild = aLabel.FindChild(anInteger->Get());
   aNode = TDataStd_TreeNode::Set(aChild, aBasicGUID);
   aFatherNode->Append(aNode);
-  TDataStd_Name::Set(aChild, TCollection_ExtendedString(strdup(theName)));
+  TDataStd_Name::Set(aChild, TCollection_ExtendedString((char*)theName));
 
   SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aChild, _orb);
   SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 

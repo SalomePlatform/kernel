@@ -32,13 +32,15 @@
 #include "QAD.h"
 #include "QAD_ViewFrame.h"
 
-#include "VTKViewer_RenderWindowInteractor.h"
-#include "VTKViewer_RenderWindow.h"
-
-// VTK Includes
 class vtkRenderer;
-class vtkTransform;
+
+class SALOME_Actor;
+class SALOME_Transform;
+
 class VTKViewer_Trihedron;
+class VTKViewer_RenderWindow;
+class VTKViewer_RenderWindowInteractor;
+
 
 class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   Q_OBJECT;
@@ -72,13 +74,6 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   bool                           isInViewer( const Handle(SALOME_InteractiveObject)& IObject );
   bool                           isVisible( const Handle(SALOME_InteractiveObject)& IObject );
 
-  /*  undo/redo management */
-  void              undo(SALOMEDS::Study_var aStudy,
-			 const char* StudyFrameEntry);
-  void              redo(SALOMEDS::Study_var aStudy,
-			 const char* StudyFrameEntry);
-
-
   /* selection */
   Handle(SALOME_InteractiveObject) FindIObject(const char* Entry);
   
@@ -91,12 +86,22 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void           Repaint(bool theUpdateTrihedron);
   void           Repaint() { Repaint(true); }
 
+  /* Reimplemented from SALOME_View */
+  void          Display( const SALOME_VTKPrs* );
+  void          Erase( const SALOME_VTKPrs*, const bool = false );
+  SALOME_Prs*   CreatePrs( const char* entry = 0 );
+  virtual void  BeforeDisplay( SALOME_Displayer* d );
+  virtual void  AfterDisplay ( SALOME_Displayer* d );
+
   //apply existing transformation on adding SALOME_Actor
   void SetScale(double theScale[3]);
   void GetScale(double theScale[3]);
   void AddActor(SALOME_Actor*, bool update = false);
   void RemoveActor(SALOME_Actor*, bool update = false);
 
+  void          AdjustTrihedrons( const bool forced );
+  bool          ComputeTrihedronSize( double& theNewSize, double& theOldSize );
+  double        GetTrihedronSize() const;
  public slots:
   void           onViewPan(); 
   void           onViewZoom();
@@ -115,16 +120,20 @@ class QAD_EXPORT VTKViewer_ViewFrame : public QAD_ViewFrame{
   void           onAdjustTrihedron();
  
  private:
-  double                        m_ViewUp[3];
-  double                        m_ViewNormal[3];
-  
-  void                          InitialSetup();
+  void InitialSetup();
 
-  vtkRenderer*                      m_Renderer;
-  VTKViewer_RenderWindow*           m_RW;
+  double m_ViewUp[3];
+  double m_ViewNormal[3];
+  
+  vtkRenderer* m_Renderer;
+  VTKViewer_RenderWindow* m_RW;
   VTKViewer_RenderWindowInteractor* m_RWInteractor;
 
-  VTKViewer_Trihedron *m_Triedron;  
-  SALOME_Transform *m_Transform;
+  friend class VTKViewer_RenderWindowInteractor;
+  void InsertActor(SALOME_Actor* theActor, bool theMoveInternalActors = false);
+  void MoveActor(SALOME_Actor* theActor);
+
+  VTKViewer_Trihedron* m_Triedron;  
+  SALOME_Transform* m_Transform;
 };
 #endif

@@ -43,7 +43,6 @@ extern "C"
 #include "HDFfile.hxx"
 #include <string>
 
-using namespace std;
 
 class HDFConvert 
 {
@@ -54,7 +53,7 @@ private:
 
 public:
 
-static int FromAscii(const string& file, const  HDFcontainerObject& hdf_container, const string& nomdataset);
+static int FromAscii(const std::string& file, const  HDFcontainerObject& hdf_container, const std::string& nomdataset);
 
 };
 

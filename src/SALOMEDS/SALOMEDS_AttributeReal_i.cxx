@@ -26,9 +26,35 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+#include <sstream>
+
+using namespace std;
+
+static const char* write_double(double value)
+{
+  std::ostringstream os;
+  unsigned char* array = (unsigned char*)&value;
+  for(int i = 0; i < sizeof(double); i++) {
+    unsigned tmp = (unsigned short)array[i];
+    os << " " << tmp;
+  }
+  return os.str().c_str();
+}
+
+static double read_double(const char* str)
+{
+  std::istringstream is(str);
+  double value;
+  unsigned char* array = (unsigned char*)(&value);
+  for(int i = 0; i < sizeof(double); i++) {
+    unsigned tmp;
+    is >> tmp;
+    array[i] = (unsigned char)tmp;
+  }
+  return value;
+}
 
 CORBA::Double SALOMEDS_AttributeReal_i::Value() {
   return Handle(TDataStd_Real)::DownCast(_myAttr)->Get();
@@ -40,13 +66,16 @@ void SALOMEDS_AttributeReal_i::SetValue(CORBA::Double value) {
 }
 
 char* SALOMEDS_AttributeReal_i::Store() {
-  char* RealVal = new char[25];
-  sprintf(RealVal, "%f", Value());
-  return RealVal;
+  //  char* RealVal = new char[35];
+  //  sprintf(RealVal, "%.20f", Value());
+  //return RealVal;
+  return (char*)write_double( (double)Value() );
 }
 
 void SALOMEDS_AttributeReal_i::Restore(const char* value) {
-  char *err = NULL;
-  CORBA::Double r =  strtod(value, &err);
-  if (err != value) SetValue(r);
+  //char *err = NULL;
+  //CORBA::Double r =  strtod(value, &err);
+  //if (err != value) SetValue(r);
+  SetValue( read_double(value) );
 }
+

@@ -34,30 +34,27 @@
 
 struct ParserProc{
     long Parsernumber;
-    string Parsermodel_name;
+    std::string Parsermodel_name;
     float Parsercpu_mhz;
     float Parsercache_size;
 };
 
-typedef vector<ParserProc> ListOfParserProc;
+typedef std::vector<ParserProc> ListOfParserProc;
 
 enum Parsercontainertype {Cpp, python, NP};
-typedef vector<Parsercontainertype> ListOfParserContainerType;
+typedef std::vector<Parsercontainertype> ListOfParserContainerType;
 
 struct Parserressources{
-  string Parsername;
-  string ParserOS;
-  string ParserOS_version;
+  std::string Parsername;
+  std::string ParserOS;
+  std::string ParserOS_version;
   ListOfParserProc Parserprocs;
   ListOfParserContainerType Parsercontainertype;
 };
 
-typedef vector<Parserressources> ListOfParserressources;
+typedef std::vector<Parserressources> ListOfParserressources;
 
-#ifdef WRITE_RESSOURCES_TYPE
-ListOfParserressources _ressources_list;
-#else
 extern ListOfParserressources _ressources_list;
-#endif
+
 
 #endif //SALOME_RESSOURCES_CATALOG_PARSER

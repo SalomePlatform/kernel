@@ -27,11 +27,19 @@
 #include "SALOME_GenericObj_i.hh"
 #include "utilities.h"
 
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
 using namespace SALOME;
+using namespace std;
 
 GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1){
-  MESSAGE("GenericObj_i::GenericObj_i() - this = "<<this<<
-	"; CORBA::is_nil(thePOA) = "<<CORBA::is_nil(thePOA));
+  if(MYDEBUG) 
+    MESSAGE("GenericObj_i::GenericObj_i() - this = "<<this<<
+	    "; CORBA::is_nil(thePOA) = "<<CORBA::is_nil(thePOA));
   if(CORBA::is_nil(thePOA))
     myPOA = PortableServer::RefCountServantBase::_default_POA();
   else
@@ -40,19 +48,20 @@ GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1){
 
 
 PortableServer::POA_ptr GenericObj_i::_default_POA(){
-  //return PortableServer::RefCountServantBase::_default_POA();
   return PortableServer::POA::_duplicate(myPOA);
 }
 
 
 void GenericObj_i::Register(){
-  MESSAGE("GenericObj_i::Register "<<this<<"; myRefCounter = "<<myRefCounter)
+  if(MYDEBUG)
+    MESSAGE("GenericObj_i::Register "<<this<<"; myRefCounter = "<<myRefCounter)
   ++myRefCounter;
 }
 
 
 void GenericObj_i::Destroy(){
-  MESSAGE("GenericObj_i::Destroy "<<this<<"; myRefCounter = "<<myRefCounter)
+  if(MYDEBUG)
+    MESSAGE("GenericObj_i::Destroy "<<this<<"; myRefCounter = "<<myRefCounter)
   if(--myRefCounter <= 0){
     PortableServer::ObjectId_var anObjectId = myPOA->servant_to_id(this);
     myPOA->deactivate_object(anObjectId.in());

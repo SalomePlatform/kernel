@@ -180,8 +180,8 @@ def CheckCopyPaste(theSO, theInfo ,theComponentPaste):
     if theComponentPaste:
         aSObj = theSO.GetFatherComponent()
         theInfo = theInfo + "(paste for component)"
-    if not myStudyManager.Paste(aSObj):
-        raise RuntimeError, "<Paste> for "+theInfo+" returns false"
+    if myStudyManager.Paste(aSObj) == None:
+        raise RuntimeError, "<Paste> for "+theInfo+" returns None object"
     aNewTree = GetTree(aRoot)
     aLen = len(aTree)
     for a in range(0,aLen):
@@ -213,16 +213,24 @@ def FindFileInDataDir(filename):
         
 #--------------------------------------------------------------------------
 # initialise the ORB
-orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+orb = None
+
+while orb == None:
+    orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
 # create an LifeCycleCORBA instance
 lcc = LifeCycleCORBA(orb)
+
+while lcc._catalog == None:
+    lcc = LifeCycleCORBA(orb)
 
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
 
 # get Study Manager reference
-obj = naming_service.Resolve('myStudyManager')
+obj=None
+while obj == None:
+    obj = naming_service.Resolve('myStudyManager') 
 myStudyManager = obj._narrow(SALOMEDS.StudyManager)
 
 # create new study
@@ -238,4 +246,5 @@ myStudyName = myStudy._get_Name()
 
 myStudyId = myStudy._get_StudyId()
 print myStudyId
+
 

@@ -18,7 +18,7 @@ using namespace std;
 
 const Standard_GUID& SALOMEDS_TableOfStringAttribute::GetID() 
 {
-  static Standard_GUID SALOMEDS_TableOfStringAttributeID ("128371A2-8F52-11d6-A8A3-0001021E8C7F");
+  static Standard_GUID SALOMEDS_TableOfStringAttributeID ("128371A4-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDS_TableOfStringAttributeID;
 }
 
@@ -332,8 +332,9 @@ void SALOMEDS_TableOfStringAttribute::ConvertToString(ostrstream& theStream)
     if (anIterator.Value().Length()) { // check empty string in the value table
       theStream << anIterator.Key() << "\n";
       unsigned long aValueSize = anIterator.Value().Length();
-      theStream.write((char*)&aValueSize, sizeof(unsigned long));
+      theStream<<aValueSize << "\n";
       theStream.write((TCollection_AsciiString(anIterator.Value()).ToCString()),aValueSize);
+      theStream<<"\n";
     } else { // write index only of kind: "0key"; "05", for an example
       theStream << "0" << anIterator.Key() << "\n";
     }
@@ -409,8 +410,10 @@ bool SALOMEDS_TableOfStringAttribute::RestoreFromString(istrstream& theStream)
       aValue = "";
     else {
       unsigned long aValueSize;
-      theStream.read((char*)&aValueSize, sizeof(unsigned long));
+      theStream >> aValueSize;
+      theStream.read(aValueString, 1); // an '\n' omitting
       theStream.read(aValueString, aValueSize);
+      theStream.read(aValueString, 1); // an '\n' omitting
       aValue = aValueString;
     }
     myTable.Bind(aKey, aValue);

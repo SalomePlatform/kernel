@@ -9,6 +9,8 @@
 
 #include "Plot2d_ViewFrame.h"
 #include "Plot2d_SetupViewDlg.h"
+#include "Plot2d_Prs.h"
+
 #include "QAD_Desktop.h"
 #include "QAD_ResourceMgr.h"
 #include "QAD_FileDlg.h"
@@ -806,6 +808,7 @@ void Plot2d_ViewFrame::updateCurve( Plot2d_Curve* curve, bool update )
 						   QSize( myMarkerSize, myMarkerSize ) ) );
     }
     myPlot->setCurveTitle( curveKey, curve->getVerTitle() );
+    myPlot->setCurveData( curveKey, curve->horData(), curve->verData(), curve->nbPoints() );
     myPlot->curve( curveKey )->setEnabled( true );
     updateTitles();
     if ( update )
@@ -1712,4 +1715,82 @@ bool Plot2d_Plot2d::existMarker( const QwtSymbol::Style typeMarker, const QColor
     }
   }
   return false;
+}
+
+//==========================================================
+/*!
+ *  Plot2d_ViewFrame::Display
+ *  Display presentation
+ */
+//==========================================================
+void Plot2d_ViewFrame::Display( const SALOME_Prs2d* prs )
+{
+  // try do downcast object
+  const Plot2d_Prs* aPlot2dPrs = dynamic_cast<const Plot2d_Prs*>( prs );
+  if ( !aPlot2dPrs || aPlot2dPrs->IsNull() )
+    return;
+
+  // display all curves from presentation
+  Plot2d_CurveContainer aCurves = aPlot2dPrs->GetObjects();
+  displayCurves( aCurves );
+}
+
+//==========================================================
+/*!
+ *  Plot2d_ViewFrame::Erase
+ *  Erase presentation
+ */
+//==========================================================
+void Plot2d_ViewFrame::Erase( const SALOME_Prs2d* prs, const bool )
+{
+  // try do downcast object
+  const Plot2d_Prs* aPlot2dPrs = dynamic_cast<const Plot2d_Prs*>( prs );
+  if ( !aPlot2dPrs || aPlot2dPrs->IsNull() )
+    return;
+
+  // erase all curves from presentation
+  Plot2d_CurveContainer aCurves = aPlot2dPrs->GetObjects();
+  eraseCurves( aCurves );
+}
+  
+//==========================================================
+/*!
+ *  Plot2d_ViewFrame::CreatePrs
+ *  Create presentation by entry
+ */
+//==========================================================
+SALOME_Prs* Plot2d_ViewFrame::CreatePrs( const char* entry )
+{
+  Plot2d_Prs* prs = new Plot2d_Prs();
+  if ( entry ) {
+    QIntDictIterator<Plot2d_Curve> it( myCurves );
+    for ( ; it.current(); ++it ) {
+      if ( it.current()->hasIO() && !strcmp( it.current()->getIO()->getEntry(), entry ) ) {
+	prs->AddObject( it.current() );
+      }
+    }
+  }
+  return prs;
+}
+
+//==========================================================
+/*!
+ *  Plot2d_ViewFrame::BeforeDisplay
+ *  Axiluary method called before displaying of objects
+ */
+//==========================================================
+void  Plot2d_ViewFrame::BeforeDisplay( SALOME_Displayer* d )
+{
+  d->BeforeDisplay( this, SALOME_Plot2dViewType() );
+}
+
+//==========================================================
+/*!
+ *  Plot2d_ViewFrame::AfterDisplay
+ *  Axiluary method called after displaying of objects
+ */
+//==========================================================
+void  Plot2d_ViewFrame::AfterDisplay( SALOME_Displayer* d )
+{
+  d->AfterDisplay( this, SALOME_Plot2dViewType() );
 }

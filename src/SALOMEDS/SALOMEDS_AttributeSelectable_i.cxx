@@ -41,7 +41,7 @@ void SALOMEDS_AttributeSelectable_i::SetSelectable(CORBA::Boolean value) {
 }
 
 char* SALOMEDS_AttributeSelectable_i::Store() {
-  return strdup(IsSelectable()?"1":"0");
+  return CORBA::string_dup(IsSelectable()?"1":"0");
 }
 
 void SALOMEDS_AttributeSelectable_i::Restore(const char* value) {

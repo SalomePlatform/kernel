@@ -30,13 +30,15 @@
 #define OCCViewer_AISSELECTOR_H
 
 #include "QAD.h"
-#include "OCCViewer_Selector.h"
+
+// QT Include
+#include <qobject.h>
 
 // Open CASCADE Includes
 #include <Quantity_NameOfColor.hxx>
 #include <AIS_InteractiveContext.hxx>
 
-class QAD_EXPORT OCCViewer_AISSelector : public OCCViewer_Selector
+class QAD_EXPORT OCCViewer_AISSelector : public QObject
 {
   Q_OBJECT
 
@@ -48,23 +50,34 @@ public:
   ~OCCViewer_AISSelector();
 
 public:
-  bool	moveTo ( int, int, const Handle (V3d_View)& );
-  bool	select ( int, int, int, int, const Handle (V3d_View)& );
-  bool	shiftSelect ( int, int, int, int, const Handle (V3d_View)& );
-  bool	select ();
-  bool	shiftSelect ();
+  void	moveTo ( int, int, const Handle (V3d_View)& );
+  void	select ( int, int, int, int, const Handle (V3d_View)& );
+  void	shiftSelect ( int, int, int, int, const Handle (V3d_View)& );
+  void	select ();
+  void	shiftSelect ();
 
   void	setContext ( const Handle (AIS_InteractiveContext)& );
   void	setHilightColor ( Quantity_NameOfColor color );
   void	setSelectColor ( Quantity_NameOfColor color );
 
-protected:
-  bool	checkSelection ( AIS_StatusOfPick status, bool hadSelection, bool addTo );
+  void	enableSelection( bool );
+  void	enableMultipleSelection( bool );
+
+signals:
+  void	selSelectionDone( bool bAdded );
+  void	selSelectionCancel( bool bAdded );
 
 protected:
+  void	checkSelection ( int numBefore );
+  int   numSelected() const;
+
+private:
   Handle (AIS_InteractiveContext) myAISContext;	  // graphic context
   Quantity_NameOfColor		  myHilightColor; // color for hilight object
   Quantity_NameOfColor		  mySelectColor; // color for selected object
+
+  bool		                  myEnableSelection;
+  bool		                  myEnableMultipleSelection;
 
 };
 

@@ -41,6 +41,9 @@
 #include "utilities.h"
 
 // VTK Includes
+#include <vtkCell.h>
+#include <vtkRenderer.h>
+#include <vtkPolyData.h>
 #include <vtkObjectFactory.h>
 #include <vtkDataSetMapper.h>
 #include <vtkPolyDataMapper.h>
@@ -60,14 +63,20 @@ vtkStandardNewMacro(SALOME_Actor);
 
 
 SALOME_Actor::SALOME_Actor(){
-  PreviewProperty = NULL;
-  ispreselected = Standard_False;
-  myProperty = vtkProperty::New();
+  myIsHighlighted = myIsPreselected = false;
 
-  myRepresentation = 2;
+  myRepresentation = 1;
+  myDisplayMode = myRepresentation - 1;
+
+  myProperty = vtkProperty::New();
+  PreviewProperty = NULL;
 
   myIsInfinite = false;
 
+  myIsResolveCoincidentTopology = true;
+
+  vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(myPolygonOffsetFactor,
+								 myPolygonOffsetUnits);
   myStoreMapping = false;
   myGeomFilter = SALOME_GeometryFilter::New();
 
@@ -111,73 +120,79 @@ void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
   myTransformFilter->SetTransform(theTransform);
 }
 
+
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
+  InitPipeLine(theMapper);
+}
+
+void SALOME_Actor::InitPipeLine(vtkMapper* theMapper){
   if(theMapper){
     int anId = 0;
-#if defined __GNUC_2__
-    myPassFilter[anId]->SetInput(theMapper->GetInput());
-#else
-    myPassFilter.at(anId)->SetInput(theMapper->GetInput());
-#endif
-    myGeomFilter->SetStoreMapping(myStoreMapping);
-#if defined __GNUC_2__
-    myGeomFilter->SetInput(myPassFilter[anId]->GetOutput());
-#else
-    myGeomFilter->SetInput(myPassFilter.at(anId)->GetOutput());
-#endif
+    myPassFilter[ anId ]->SetInput( theMapper->GetInput() );
+    myPassFilter[ anId + 1]->SetInput( myPassFilter[ anId ]->GetOutput() );
+    
+    anId++; // 1
+    myGeomFilter->SetStoreMapping( myStoreMapping );
+    myGeomFilter->SetInput( myPassFilter[ anId ]->GetOutput() );
 
-    anId++;
+    anId++; // 2
+    myPassFilter[ anId ]->SetInput( myGeomFilter->GetOutput() ); 
+    myPassFilter[ anId + 1 ]->SetInput( myPassFilter[ anId ]->GetOutput() );
 
-#if defined __GNUC_2__
-    myPassFilter[anId]->SetInput(myGeomFilter->GetOutput());
-    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
-#else
-    myPassFilter.at(anId)->SetInput(myGeomFilter->GetOutput());
-    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
-#endif
+    anId++; // 3
+    myTransformFilter->SetInput( myPassFilter[ anId ]->GetPolyDataOutput() );
 
-    anId++;
-#if defined __GNUC_2__
-    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
-#else
-    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
-#endif
+    anId++; // 4
+    myPassFilter[ anId ]->SetInput( myTransformFilter->GetOutput() );
+    myPassFilter[ anId + 1 ]->SetInput( myPassFilter[ anId ]->GetOutput() );
 
-    anId++;
-#if defined __GNUC_2__
-    myTransformFilter->SetInput(myPassFilter[anId]->GetPolyDataOutput());
-#else
-    myTransformFilter->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
-#endif
-
-    anId++;
-#if defined __GNUC_2__
-    myPassFilter[anId]->SetInput(myTransformFilter->GetOutput());
-    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
-#else
-    myPassFilter.at(anId)->SetInput(myTransformFilter->GetOutput());
-    myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
-#endif
-
-    anId++;
-    if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
-#if defined __GNUC_2__
+    anId++; // 5
+    if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper)){
       aMapper->SetInput(myPassFilter[anId]->GetOutput());
-#else
-      aMapper->SetInput(myPassFilter.at(anId)->GetOutput());
-#endif
-    else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
-#if defined __GNUC_2__
+    }else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper)){
       aMapper->SetInput(myPassFilter[anId]->GetPolyDataOutput());
-#else
-      aMapper->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
-#endif
+    }
   }
   vtkLODActor::SetMapper(theMapper);
 }
 
-vtkPolyData* SALOME_Actor::GetPolyDataInput(){
-  return myPassFilter.back()->GetPolyDataOutput();
+
+void SALOME_Actor::Render(vtkRenderer *ren, vtkMapper* m){
+  if(myIsResolveCoincidentTopology){
+    int aResolveCoincidentTopology = vtkMapper::GetResolveCoincidentTopology();
+    float aFactor, aUnit; 
+    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(aFactor,aUnit);
+    
+    vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
+    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(myPolygonOffsetFactor,
+								   myPolygonOffsetUnits);
+    vtkLODActor::Render(ren,m);
+    
+    vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(aFactor,aUnit);
+    vtkMapper::SetResolveCoincidentTopology(aResolveCoincidentTopology);
+  }else{
+    vtkLODActor::Render(ren,m);
+  }
+}
+
+
+void SALOME_Actor::SetResolveCoincidentTopology(bool theIsResolve) {
+  myIsResolveCoincidentTopology = theIsResolve;
+}
+
+void SALOME_Actor::SetPolygonOffsetParameters(float factor, float units){
+  myPolygonOffsetFactor = factor;
+  myPolygonOffsetUnits = units;
+}
+
+void SALOME_Actor::GetPolygonOffsetParameters(float& factor, float& units){
+  factor = myPolygonOffsetFactor;
+  units = myPolygonOffsetUnits;
+}
+
+
+vtkDataSet* SALOME_Actor::GetInput(){
+  return myPassFilter.front()->GetOutput();
 }
 
 
@@ -195,17 +210,16 @@ unsigned long int SALOME_Actor::GetMTime(){
 
 void SALOME_Actor::SetRepresentation(int theMode) { 
   switch(myRepresentation){
-  case 0 : 
-  case 2 : 
+  case VTK_POINTS : 
+  case VTK_SURFACE : 
     myProperty->DeepCopy(GetProperty());
   }    
   switch(theMode){
-  case 0 : 
-  case 2 : 
+  case VTK_POINTS : 
+  case VTK_SURFACE : 
     GetProperty()->DeepCopy(myProperty);
     break;
   default:
-    break;
     GetProperty()->SetAmbient(1.0);
     GetProperty()->SetDiffuse(0.0);
     GetProperty()->SetSpecular(0.0);
@@ -215,7 +229,7 @@ void SALOME_Actor::SetRepresentation(int theMode) {
     myGeomFilter->SetInside(true);
     GetProperty()->SetRepresentation(1);
     break;
-  case 0 : 
+  case VTK_POINTS : 
     GetProperty()->SetPointSize(SALOME_POINT_SIZE);  
   default :
     GetProperty()->SetRepresentation(theMode);
@@ -228,6 +242,17 @@ int SALOME_Actor::GetRepresentation(){
   return myRepresentation;
 }
 
+
+vtkCell* SALOME_Actor::GetElemCell(int theObjID){
+  return GetInput()->GetCell(theObjID);
+}
+
+
+float* SALOME_Actor::GetNodeCoord(int theObjID){
+  return GetInput()->GetPoint(theObjID);
+}
+
+
 //=================================================================================
 // function : GetObjDimension
 // purpose  : Return object dimension.
@@ -235,41 +260,45 @@ int SALOME_Actor::GetRepresentation(){
 //=================================================================================
 int SALOME_Actor::GetObjDimension( const int theObjId )
 {
-  if ( theObjId < 0 )
-    return 0;
-    
-  std::vector<int> aVtkList = GetVtkId( theObjId );
-  int nbVtk = aVtkList.size();
-  
-  if ( nbVtk == 0 )
-    return 0;
-  else if ( nbVtk > 1 )
-    return 3;
-  else //  nbVtk = 1
-  {
-    if ( vtkDataSet* aGrid = GetMapper()->GetInput() )
-    {
-      if ( vtkCell* aCell = aGrid->GetCell( aVtkList.front() ) )
-        return aCell->GetCellDimension();
-    }
-  }
+  if ( vtkCell* aCell = GetElemCell(theObjId) )
+    return aCell->GetCellDimension();
   return 0;
 }
 
 
+bool SALOME_Actor::IsInfinitive(){ 
+  return myIsInfinite; 
+}
 
 
+void SALOME_Actor::SetOpacity(float theOpacity){ 
+  myOpacity = theOpacity;
+  GetProperty()->SetOpacity(theOpacity);
+}
+
+float SALOME_Actor::GetOpacity(){
+  return myOpacity;
+}
 
 
+void SALOME_Actor::SetColor(float r,float g,float b){
+  GetProperty()->SetColor(r,g,b);
+}
+
+void SALOME_Actor::GetColor(float& r,float& g,float& b){
+  float aColor[3];
+  GetProperty()->GetColor(aColor);
+  r = aColor[0];
+  g = aColor[1];
+  b = aColor[2];
+}
 
 
+int SALOME_Actor::getDisplayMode(){ 
+  return myDisplayMode; 
+}
 
-
-
-
-
-
-
-
-
-
+void SALOME_Actor::setDisplayMode(int theMode){ 
+  SetRepresentation(theMode+1); 
+  myDisplayMode = GetRepresentation() - 1;
+}

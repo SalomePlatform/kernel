@@ -820,6 +820,11 @@ Gets the list of open studies
     \return the %tag of a %SObject.
 */
     short      Tag();
+/*! Gets the depth of a %SObject
+
+    \return the depth of a %SObject.
+*/
+    short      Depth();
 /*! Looks for subobjects of a given %SObject.
 
     \param atag Tag of the given %SObject

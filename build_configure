@@ -119,7 +119,7 @@ echo "  ./salome_adm/Makefile \\" >> configure.in_tmp1
 touch configure.in_tmp2
 find_in . configure.in_tmp2
 sed '/^...salome_adm/d' configure.in_tmp2 >  configure.in_tmp3
-sed '/configure.in/d' configure.in_tmp3 >  configure.in_tmp2
+sed '/configure.in/d;/make_config.in/d' configure.in_tmp3 >  configure.in_tmp2
 sed 's/.in / /' configure.in_tmp2 >> configure.in_tmp1
 
 echo  "])" >> configure.in_tmp1
@@ -185,6 +185,23 @@ fi
 
 aclocal --acdir=adm_local/unix/config_files -I salome_adm/unix/config_files
 if autoconf
+then
+	echo "done"
+else
+	echo "failed (check file permissions and/or user quotas ...)"
+fi
+
+###############################################################
+# Creating make_config
+#
+if test -f make_config
+then
+	echo -n "Updating 'make_config' script ...  "
+else
+	echo -n "Creating 'make_config' script ...  "
+fi
+
+if autoconf -o make_config make_config.in
 then
 	echo "done"
 else

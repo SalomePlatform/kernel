@@ -44,7 +44,7 @@ class xml_parser:
                 pass
         elif self.space == ["Configuration-list","modules-list","module","plugin"] and "name" in attrs.getNames():
             key = str(self.currentModuleName)+"_plugins"
-            if not self.opts.has_key("key"):
+            if not self.opts.has_key(key):
                 self.opts[key]=[]
                 pass
             self.opts[key].append(attrs.getValue("name"))

@@ -26,9 +26,13 @@
 //  Module : SALOME
 //$Header$
 
-using namespace std;
-#define WRITE_RESSOURCES_TYPE
 #include "SALOME_RessourcesCatalog_Handler.hxx"
+
+#include "utilities.h"
+
+using namespace std;
+
+ListOfParserressources _ressources_list;
 
 //----------------------------------------------------------------------
 //Function : SALOME_RessourcesCatalog_Handler

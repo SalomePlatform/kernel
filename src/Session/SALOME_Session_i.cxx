@@ -30,7 +30,7 @@
 
 #include "SALOME_Session_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "SALOME_Session_QThread.hxx"
+#include "SALOME_Event.hxx"
 
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -48,7 +48,12 @@ using namespace std;
  */ 
 //=============================================================================
 
-SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, PortableServer::POA_ptr poa, QMutex* GUIMutex)
+SALOME_Session_i::SALOME_Session_i(int argc, 
+				   char ** argv, 
+				   CORBA::ORB_ptr orb, 
+				   PortableServer::POA_ptr poa, 
+				   QMutex* GUIMutex,
+				   QWaitCondition* GUILauncher)
 {
   _argc = argc ;
   _argv = argv ;
@@ -57,7 +62,8 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
   _GUIMutex = GUIMutex;
-  MESSAGE("constructor end");
+  _GUILauncher = GUILauncher;
+  //MESSAGE("constructor end");
 }
 
 //=============================================================================
@@ -68,7 +74,7 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
 
 Engines::Component_ptr SALOME_Session_i::GetVisuComponent()
 {
-  MESSAGE("SALOME_Session_i::GetVisuGen");
+  //MESSAGE("SALOME_Session_i::GetVisuGen");
   typedef Engines::Component_ptr TGetImpl(CORBA::ORB_ptr,
 					 PortableServer::POA_ptr,
 					 SALOME_NamingService*,QMutex*);
@@ -87,7 +93,7 @@ Engines::Component_ptr SALOME_Session_i::GetVisuComponent()
 
 SALOME_Session_i::~SALOME_Session_i()
 {
-  MESSAGE("destructor end"); 
+  //MESSAGE("destructor end"); 
 }
 
 //=============================================================================
@@ -114,7 +120,7 @@ void SALOME_Session_i::NSregister()
     {
       INFOS("Caught unknown exception from Naming Service");
     }
-  MESSAGE("Session registered in Naming Service"); 
+  //MESSAGE("Session registered in Naming Service"); 
 }
 
 //=============================================================================
@@ -126,14 +132,10 @@ void SALOME_Session_i::NSregister()
 
 void SALOME_Session_i::GetInterface()
 {
-  _GUIMutex->lock() ;       // get access to boolean _isGUI
-  //_isGUI = _IAPPThread->running();
-  if(!_isGUI)
-    {
-      _isGUI = TRUE ; 
-      //_IAPPThread->start() ;
-    }
-  _GUIMutex->unlock() ; // release access to boolean _isGUI 
+  if( !QAD_Application::getDesktop() ) {
+    _GUILauncher->wakeAll();
+    MESSAGE("SALOME_Session_i::GetInterface() called, starting GUI...")
+  }
 }
 
 //=============================================================================
@@ -141,12 +143,18 @@ void SALOME_Session_i::GetInterface()
  *  Kills the session if there are no active studies nore GUI
  */ 
 //=============================================================================
+class CloseEvent : public SALOME_Event
+{
+public:
+  virtual void Execute() {
+    if ( QAD_Application::getDesktop() )
+      QAD_Application::getDesktop()->closeDesktop( true );
+  }
+};
 
 void SALOME_Session_i::StopSession()
 {
-  qApp->lock();
-  QAD_Application::getDesktop()->closeDesktop( true );
-  qApp->unlock();
+  ProcessVoidEvent( new CloseEvent() );
 }
  
 //=============================================================================
@@ -156,23 +164,29 @@ void SALOME_Session_i::StopSession()
  */ 
 //=============================================================================
 
+class QtLock
+{
+public:
+  QtLock() { if ( qApp ) qApp->lock(); }
+  ~QtLock() { if ( qApp ) qApp->unlock(); }
+};
+
+
 SALOME::StatSession SALOME_Session_i::GetStatSession()
 {
   // update Session state
-  //qApp->lock(); // rollback bug 
   _GUIMutex->lock();    
-  //_isGUI = _IAPPThread->running();
-  _isGUI = 1;
+
   _runningStudies = 0;
-  if (_isGUI)
-    {
-      qApp->lock();
-      if ( QAD_Application::getDesktop() && QAD_Application::getDesktop()->getActiveApp() )
-	_runningStudies = QAD_Application::getDesktop()->getActiveApp()->getStudies().count();
-      qApp->unlock();
-    }
+  {
+    QtLock lock;
+    _isGUI = QAD_Application::getDesktop();
+    if ( _isGUI && QAD_Application::getDesktop()->getActiveApp() )
+      _runningStudies = QAD_Application::getDesktop()->getActiveApp()->getStudies().count();
+  }
+
   _GUIMutex->unlock();
-  //qApp->unlock();
+
   // getting stat info
   SALOME::StatSession_var myStats = new SALOME::StatSession ;
   if (_runningStudies)
@@ -184,3 +198,11 @@ SALOME::StatSession SALOME_Session_i::GetStatSession()
   return myStats._retn() ;
 }
 
+CORBA::Long SALOME_Session_i::GetActiveStudyId()
+{
+  long aStudyId=-1;
+  if( QAD_Application::getDesktop() && QAD_Application::getDesktop()->getActiveStudy()) {
+    aStudyId = QAD_Application::getDesktop()->getActiveStudy()->getStudyId();
+  }
+  return aStudyId;
+}

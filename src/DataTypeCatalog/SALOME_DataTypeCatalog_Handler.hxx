@@ -29,7 +29,6 @@
 #ifndef SALOME_DATA_CATALOG_HANDLER_H
 #define SALOME_DATA_CATALOG_HANDLER_H
 
-#include "utilities.h"
 #include "SALOME_DataTypeCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
@@ -104,7 +103,7 @@ public:
 private:
   QString errorProt ;
 
-  string content;
+  std::string content;
 
   const char* test_data_type_name ;
   const char* test_data_type_interf_read ;

@@ -21,6 +21,8 @@ lib:
 
 include/salome/SALOMEconfig.h:
 
+include/salome/config.h:
+
 include/salome/sstream:
 
 depend:

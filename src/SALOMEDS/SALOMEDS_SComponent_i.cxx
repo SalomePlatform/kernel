@@ -87,7 +87,7 @@ CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
   if (!_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),ior) )
       return false;
   TCollection_AsciiString ch(ior->Get());
-  IOR = strdup(ch.ToCString());
+  IOR = CORBA::string_dup(ch.ToCString());
   return true;
 }
   

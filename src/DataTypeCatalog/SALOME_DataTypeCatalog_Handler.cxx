@@ -26,9 +26,14 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-#define WRITE_CATA_DATA_TYPE
 #include "SALOME_DataTypeCatalog_Handler.hxx"
+
+#include "utilities.h"
+
+using namespace std;
+
+// contains all the data types defined in the catalog
+ListOfParserDataType _datatypelist; 
 
 //----------------------------------------------------------------------
 // Function : SALOME_DataTypeCatalog_Handler

@@ -26,11 +26,20 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 
 #include "Utils_ExceptHandlers.hxx"
 UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
+
+#include "utilities.h"
+
+using namespace std;
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_AcomponentImpl
@@ -43,9 +52,9 @@ UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
 SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl
 (SALOME_ModuleCatalog::Component &C) : _Component(C)
 {
-  BEGIN_OF("SALOME_ModuleCatalog_AcomponentImpl");
+  if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_AcomponentImpl");
 
-  END_OF("SALOME_ModuleCatalog_AcomponentImpl");
+  if(MYDEBUG) END_OF("SALOME_ModuleCatalog_AcomponentImpl");
 }
 
 //----------------------------------------------------------------------
@@ -54,10 +63,10 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_AcomponentImpl::~SALOME_ModuleCatalog_AcomponentImpl()
 {
-  BEGIN_OF("~SALOME_ModuleCatalog_AcomponentImpl");
+  if(MYDEBUG) BEGIN_OF("~SALOME_ModuleCatalog_AcomponentImpl");
 
 
-  END_OF("~SALOME_ModuleCatalog_AcomponentImpl");
+  if(MYDEBUG) END_OF("~SALOME_ModuleCatalog_AcomponentImpl");
 }
 
 //----------------------------------------------------------------------
@@ -67,7 +76,7 @@ SALOME_ModuleCatalog_AcomponentImpl::~SALOME_ModuleCatalog_AcomponentImpl()
 SALOME_ModuleCatalog::ListOfInterfaces* 
 SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList() 
 {
-  BEGIN_OF("GetInterfaceList");
+  if(MYDEBUG) BEGIN_OF("GetInterfaceList");
 
   SALOME_ModuleCatalog::ListOfInterfaces_var _list 
     = new SALOME_ModuleCatalog::ListOfInterfaces;
@@ -82,11 +91,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList()
   for (unsigned int ind = 0; ind < _length_interfaces; ind++)
     {
       _list[ind] = CORBA::string_dup(_Component.interfaces[ind].interfacename);
-      MESSAGE("The component " << _Component.name 
-	      << " contains " << _list[ind] << " as interface");
+      if(MYDEBUG) MESSAGE("The component " << _Component.name 
+			  << " contains " << _list[ind] << " as interface");
     }
   
-  END_OF("GetInterfaceList");
+  if(MYDEBUG) END_OF("GetInterfaceList");
   return _list._retn();
 }
 
@@ -98,8 +107,8 @@ SALOME_ModuleCatalog::DefinitionInterface*
 SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  BEGIN_OF("GetInterface");
-  SCRUTE(interfacename);
+  if(MYDEBUG) BEGIN_OF("GetInterface");
+  if(MYDEBUG) SCRUTE(interfacename);
 
   SALOME_ModuleCatalog::DefinitionInterface *_interface =
 	  new SALOME_ModuleCatalog::DefinitionInterface;
@@ -120,7 +129,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
 	}
     }
 
-  SCRUTE(_find);
+  if(MYDEBUG) SCRUTE(_find);
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
@@ -129,11 +138,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
       message += " of the component ";
       message += _Component.name;
       message += " was not found"; 
-      MESSAGE(message)
-	throw SALOME_ModuleCatalog::NotFound(message.c_str());
+      if(MYDEBUG) MESSAGE(message);
+      throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
-  END_OF("GetInterface");
+  if(MYDEBUG) END_OF("GetInterface");
 
   return _interface;
 }
@@ -149,8 +158,8 @@ SALOME_ModuleCatalog::ListOfServices*
 SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  BEGIN_OF("GetServiceList");
-  SCRUTE(interfacename);
+  if(MYDEBUG) BEGIN_OF("GetServiceList");
+  if(MYDEBUG) SCRUTE(interfacename);
 
   SALOME_ModuleCatalog::ListOfServices_var _list 
     = new SALOME_ModuleCatalog::ListOfServices;
@@ -173,8 +182,8 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
 	  for (unsigned int ind1 = 0; ind1 < _length_services ; ind1++)
 	    {
 	      _list[ind1] = CORBA::string_dup(I.interfaceservicelist[ind1].ServiceName);
-	      MESSAGE("The interface " << interfacename << " of the component " 
-		      << _Component.name << " contains " << _list[ind1] << " as a service") 
+	      if(MYDEBUG) MESSAGE("The interface " << interfacename << " of the component " 
+				  << _Component.name << " contains " << _list[ind1] << " as a service") 
 	    }
 	}
     }
@@ -187,11 +196,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
       message += " of the component ";
       message += _Component.name;
       message += " was not found"; 
-      MESSAGE(message)
-	throw SALOME_ModuleCatalog::NotFound(message.c_str());
+      if(MYDEBUG) MESSAGE(message);
+      throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
-  END_OF("GetServiceList");
+  if(MYDEBUG) END_OF("GetServiceList");
   return _list._retn();
 }
 
@@ -205,9 +214,9 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 						const char* servicename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  BEGIN_OF("GetService");
-  SCRUTE(interfacename);
-  SCRUTE(servicename);
+  if(MYDEBUG) BEGIN_OF("GetService");
+  if(MYDEBUG) SCRUTE(interfacename);
+  if(MYDEBUG) SCRUTE(servicename);
 
   Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::Service *service = new SALOME_ModuleCatalog::Service;
@@ -219,8 +228,8 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
   // looking for the specified interface
   for (unsigned int ind = 0; ind < _Component.interfaces.length(); ind++)
     {
-      SCRUTE(ind);
-      SCRUTE(_Component.interfaces[ind].interfacename);
+      if(MYDEBUG) SCRUTE(ind);
+      if(MYDEBUG) SCRUTE(_Component.interfaces[ind].interfacename);
 
       SALOME_ModuleCatalog::DefinitionInterface &I = _Component.interfaces[ind];
       if (strcmp(interfacename, I.interfacename) == 0)
@@ -230,8 +239,8 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 	  for (unsigned int ind1 = 0; ind1 <  I.interfaceservicelist.length() ; ind1++)
 	    {
 	      SALOME_ModuleCatalog::Service &S = I.interfaceservicelist[ind1];
-	      SCRUTE(ind1);
-	      SCRUTE(S.ServiceName);
+	      if(MYDEBUG) SCRUTE(ind1);
+	      if(MYDEBUG) SCRUTE(S.ServiceName);
 
 	      if (strcmp(servicename, S.ServiceName) == 0)
 	      {
@@ -245,7 +254,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 	}
     }
   
-  SCRUTE(_find);
+  if(MYDEBUG) SCRUTE(_find);
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
@@ -256,11 +265,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
       message += " of the component ";
       message += _Component.name;
       message += " was not found"; 
-      MESSAGE(message)
-	throw SALOME_ModuleCatalog::NotFound(message.c_str());
+      if(MYDEBUG) MESSAGE(message);
+      throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
-  END_OF("GetService");
+  if(MYDEBUG) END_OF("GetService");
   return service;
 }
 
@@ -272,8 +281,8 @@ SALOME_ModuleCatalog::Service*
 SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  BEGIN_OF("GetDefaultService");
-  SCRUTE(interfacename);
+  if(MYDEBUG) BEGIN_OF("GetDefaultService");
+  if(MYDEBUG) SCRUTE(interfacename);
 
   Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::Service *_service = new  SALOME_ModuleCatalog::Service;
@@ -310,11 +319,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
       message += " of the component ";
       message += _Component.name;
       message += " was not found";
-      MESSAGE(message)
-	throw SALOME_ModuleCatalog::NotFound(message.c_str());
+      if(MYDEBUG) MESSAGE(message);
+      throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
-  END_OF("GetDefaultService");
+  if(MYDEBUG) END_OF("GetDefaultService");
   return _service;
 }
 
@@ -326,8 +335,8 @@ char*
 SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  BEGIN_OF("GetPathPrefix");
-  SCRUTE(machinename);
+  if(MYDEBUG) BEGIN_OF("GetPathPrefix");
+  if(MYDEBUG) SCRUTE(machinename);
   Unexpect aCatch( MC_NotFound );
 
  // Variables initialisation
@@ -349,7 +358,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
  	    }
      }
 
-   SCRUTE(_find);
+   if(MYDEBUG) SCRUTE(_find);
    if (!_find)
      {
        // The computer was not found, the exception should be thrown
@@ -357,11 +366,11 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
        message += machinename;
        message += " was not found in the catalog associated to the component ";
        message += _Component.name;
-       MESSAGE(message)
+       if(MYDEBUG) MESSAGE(message);
        throw SALOME_ModuleCatalog::NotFound(message.c_str());
      }
 
-  END_OF("GetPathPrefix");
+  if(MYDEBUG) END_OF("GetPathPrefix");
   return _path;
 }
 
@@ -499,7 +508,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   
   // duplicate out DataStreamParameters
   _length = S_in.ServiceoutDataStreamParameter.length();
-  SCRUTE(_length);
+  if(MYDEBUG) SCRUTE(_length);
   S_out.ServiceoutDataStreamParameter.length(_length);
   
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
@@ -517,7 +526,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   
   // duplicate service list
   unsigned int _length = I_in.interfaceservicelist.length();
-  SCRUTE(_length);
+  if(MYDEBUG) SCRUTE(_length);
   I_out.interfaceservicelist.length(_length);
   
   for (unsigned int ind1 = 0; ind1 < _length ; ind1 ++)

@@ -42,7 +42,7 @@ void SALOMEDS_AttributeDrawable_i::SetDrawable(CORBA::Boolean value) {
 }
 
 char* SALOMEDS_AttributeDrawable_i::Store() {
-  return strdup(IsDrawable()?"1":"0");
+  return CORBA::string_dup(IsDrawable()?"1":"0");
 }
 
 void SALOMEDS_AttributeDrawable_i::Restore(const char* value) {

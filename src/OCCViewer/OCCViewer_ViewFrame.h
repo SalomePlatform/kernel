@@ -24,7 +24,7 @@
 //  File   : OCCViewer_ViewFrame.h
 //  Author : Nicolas REJNERI
 //  Module : SALOME
-//  $Header$
+//  $Header$           
 
 #ifndef OCCViewer_ViewFrame_H
 #define OCCViewer_ViewFrame_H
@@ -81,10 +81,8 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   bool              isVisible( const Handle(SALOME_InteractiveObject)& IObject );
 
   /*  undo/redo management */
-  void              undo(SALOMEDS::Study_var aStudy,
-			 const char* StudyFrameEntry);
-  void              redo(SALOMEDS::Study_var aStudy,
-			 const char* StudyFrameEntry);
+  void              undo(QAD_Study* aStudy, const char* StudyFrameEntry);
+  void              redo(QAD_Study* aStudy, const char* StudyFrameEntry);
 
   /* selection */
   Handle(SALOME_InteractiveObject) FindIObject(const char* Entry);
@@ -96,6 +94,21 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   void           DisplayAll();
   void           EraseAll();
   void           Repaint();
+
+  /* Reimplemented from SALOME_View */
+  void          Display( const SALOME_OCCPrs* );
+  void          Erase( const SALOME_OCCPrs*, const bool = false );
+  SALOME_Prs*   CreatePrs( const char* entry = 0 );
+  virtual void  BeforeDisplay( SALOME_Displayer* d );
+  virtual void  AfterDisplay ( SALOME_Displayer* d );
+  virtual void  LocalSelection( const SALOME_OCCPrs*, const int );
+  virtual void  GlobalSelection( const bool = false ) const;
+
+
+  void          AdjustTrihedrons( const bool forced  = false );
+
+  // Method for activation of sub-shapes selection
+
 
  protected:	
   void              closeEvent(QCloseEvent* e);
@@ -134,6 +147,9 @@ class QAD_EXPORT OCCViewer_ViewFrame : public QAD_ViewFrame
   void           onViewTop();
   void           onViewTrihedron(); 
   void           onAdjustTrihedron();
+
+private:
+  bool           getTrihedronSize( double& theNewSize, double& theSize ); 
  
  protected:
   OCCViewer_Viewer3d*      myViewer;	 // my owner

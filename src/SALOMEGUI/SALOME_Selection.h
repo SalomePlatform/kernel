@@ -43,7 +43,7 @@
 // Open CASCADE Include
 #include <TColStd_MapOfInteger.hxx>
 
-#include <vector>
+#include <set>
 
 enum Selection_Mode { 
  NodeSelection, 
@@ -96,13 +96,19 @@ public:
 	
 	bool                        HasIndex( const Handle(SALOME_InteractiveObject)& IObject );
 	void                       GetIndex( const Handle(SALOME_InteractiveObject)& IObject, 
-					     TColStd_MapOfInteger& theIndex );
+					     TColStd_IndexedMapOfInteger& theIndex );
 	
+	typedef std::set<int> TContainerOfId;
+
 	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index, bool modeShift, bool update=true );
 	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, const TColStd_MapOfInteger& theIndices, bool modeShift, bool update=true );
-	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, const std::vector<int>& theIndices, bool modeShift, bool update=true );
+	bool                        AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, const TContainerOfId& theIndices, bool modeShift, bool update=true );
 	void                        RemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index );
 	bool                        IsIndexSelected(const Handle(SALOME_InteractiveObject)& IObject, int index);
+	void                        ClearIndex();
+
+	void                        BlockSignals( const bool );
+	void                        SelectionChanged();
 
 signals:
 	void                        currentSelectionChanged();

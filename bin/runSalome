@@ -1,19 +1,33 @@
 #!/bin/bash
 
-NSPORT=2809
-echo -n "Searching for free port for the SALOME Naming Service: "
-while [ ${NSPORT} -lt 3000 ]; do
-    NSPORT=`expr ${NSPORT} + 1`
-    aRes=`netstat -ltn | grep -E :${NSPORT}`
-    if [ -z "$aRes" ]; then
-cat > ${OMNIORB_CONFIG} <<EOF
-ORBInitRef NameService=corbaname::`hostname`:${NSPORT}
-EOF
-        echo ${NSPORT} - Ok
-        break
-    fi
-    echo -n "${NSPORT}; "
-done
+searchFreePort() {
+    echo -n "Searching for a free port for naming service: "
+    export NSPORT=2810
+    local limit=$NSPORT
+    let limit=limit+100
+    while [ 1 ]
+    do
+        aRes=`netstat -ltn | grep -E :${NSPORT}`
+        if [ -z "$aRes" ]; then
+            echo ${NSPORT} - Ok
+	    local myhost=`hostname`
+            export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+            local initref="NameService=corbaname::"`hostname`":$NSPORT"
+            echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+            break
+        fi
+        echo -n "${NSPORT} "
+        if [[ $NSPORT -eq $limit ]] ; then
+            echo
+            echo "Can't find a free port to launch omniNames"
+            echo "Try to kill the running servers and then launch SALOME again."
+            exit
+        fi
+        let NSPORT=NSPORT+1
+    done
+}
+
+searchFreePort
 
 if [ $# -ne 0 ] ; then
     python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
@@ -26,15 +40,15 @@ fi
 # ---------
 #  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome
 #
-#     parameters read from $HOME/.salome/salome.launch 
-#     if the config file does not exist, it is created with default values
+#     - parameters for launching are taken from $HOME/.salome/salome.launch;
+#     - if the config file does not exist, it is created with default values.
 #
 #  
 #  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,SUPERV,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer,supervContainer --xterm --killall
 #
 #     parameters from command line supersede those from $HOME/.salome/salome.launch
 #
-# Some CORBA servers could be launched in the SALOME_Session_Server
+# Some CORBA servers can be launched in the SALOME_Session_Server's process
 # (embedded = same process) or in a separate process (standalone):
 # --> registry,study,moduleCatalog,cppContainer
 # Other CORBA servers could only be launched in separate process (standalone):

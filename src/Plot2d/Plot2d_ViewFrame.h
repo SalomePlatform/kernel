@@ -78,6 +78,13 @@ public:
   void           EraseAll();
   void           Repaint();
 
+  /* Reimplemented from SALOME_View */
+  void          Display( const SALOME_Prs2d* );
+  void          Erase( const SALOME_Prs2d*, const bool = false );
+  SALOME_Prs*   CreatePrs( const char* entry = 0 );
+  virtual void  BeforeDisplay( SALOME_Displayer* d );
+  virtual void  AfterDisplay ( SALOME_Displayer* d );
+
   /* event filter */
   bool    eventFilter( QObject* o, QEvent* e );
 

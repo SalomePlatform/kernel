@@ -28,6 +28,8 @@
 # include <stream.h>
 using namespace std;
 
+#include "utilities.h"
+
 static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));
 
 #ifndef CLK_TCK
@@ -78,8 +80,8 @@ void Utils_Timer::Stop() {
 void Utils_Timer::Show() {
   bool StopSav = Stopped;
   if (!StopSav) Stop();
-  cout << "CPU user time: "   << Cumul_user  << " seconds " << endl;
-  cout << "CPU system time: " << Cumul_sys   << " seconds " << endl;
+  MESSAGE("CPU user time: "   << Cumul_user  << " seconds ");
+  MESSAGE("CPU system time: " << Cumul_sys   << " seconds ");
   if (!StopSav) Start();
 }
 
@@ -90,5 +92,5 @@ void Utils_Timer::Reset() {
 
 void Utils_Timer::ShowAbsolute(){
     unsigned long Absolute_user = (unsigned long) ((timeval*)RefToCurrentTimeB)->tv_sec ;
-    cout << "Absolute time: "   << Absolute_user  << " seconds " << endl;
+    MESSAGE("Absolute time: "   << Absolute_user  << " seconds ");
 }

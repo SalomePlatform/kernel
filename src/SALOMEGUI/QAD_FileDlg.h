@@ -12,18 +12,19 @@
 #ifndef QAD_FILEDIALOG_H
 #define QAD_FILEDIALOG_H
 
-#include <qfiledialog.h>
 #include <qcombobox.h>
+
+#include <qfiledialogP.h>
 #include "QAD.h"
 #include "QAD_FileValidator.h"
 
-class QAD_EXPORT QAD_FileDlg : public QFileDialog
+class QAD_EXPORT QAD_FileDlg : public QFileDialogP
 {
     Q_OBJECT
 
 public:
     QAD_FileDlg( QWidget* parent, bool open, bool showQuickDir = true, bool modal = true );
-    ~QAD_FileDlg();
+    virtual ~QAD_FileDlg();
 
 public:    
     bool               isOpenDlg()    const;    
@@ -48,8 +49,11 @@ public:
 					      const QString& initial,
 					      const QString& caption, 
 					      bool           showQuickDir = true);
+
+protected:
+  virtual bool         acceptData();
+                            
 private:
-    bool               acceptData();
     void               addExtension();
     bool               processPath( const QString& path );
 
@@ -64,7 +68,6 @@ protected:
     QAD_FileValidator* myValidator;        /* file validator      */
     static QString     myLastVisitedPath;  /* last visited path   */
     QComboBox*         myQuickCombo;       /* quick dir combo box */
-
 };
 
 #endif

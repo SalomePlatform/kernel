@@ -32,6 +32,7 @@
 */
 
 #include "QAD_StudyFrame.h"
+#include "QAD_StudyFrame.h"
 #include "QAD_RightFrame.h"
 #include "QAD_LeftFrame.h"
 #include "QAD_Splitter.h"
@@ -133,22 +134,40 @@ void QAD_StudyFrame::closeEvent(QCloseEvent* e)
  */
 void QAD_StudyFrame::compressLeft()
 {
-  mySplitter->compress(myLeftFrm);
+  QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
+  if( h ) 
+    h->compressBefore();
 }
 
 void QAD_StudyFrame::compressRight()
 {
-  mySplitter->compress(myRightFrm);  
+  QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
+  if( h )
+    h->compressAfter();
 }
 
 void QAD_StudyFrame::unCompressLeft()
 {
-  mySplitter->unCompress(myLeftFrm);
+  QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
+  if( h )
+    h->unCompressBefore();
 }
 
 void QAD_StudyFrame::unCompressRight()
 {
-  mySplitter->unCompress(myRightFrm);  
+  QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
+  if( h )
+    h->unCompressAfter();
+}
+
+bool QAD_StudyFrame::isCompressedLeft() const
+{
+  return mySplitter->isCompressed(myLeftFrm);
+}
+
+bool QAD_StudyFrame::isCompressedRight() const
+{
+  return mySplitter->isCompressed(myRightFrm);
 }
 
 /*!

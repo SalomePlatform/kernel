@@ -99,9 +99,25 @@ $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
 
 # copy python scripts in $(top_builddir)/bin/salome
 #
+
+UI_FILES = $(notdir $(wildcard $(srcdir)/*.ui))
+UI_PY_FILES_PY = $(patsubst %.ui, %.py, $(UI_FILES))
+UI_PY_FILES = $(filter-out $(EXPORT_PYSCRIPTS) ,$(UI_PY_FILES_PY))
+
 DEST_PYSCRIPTS = $(EXPORT_PYSCRIPTS:%=$(top_builddir)/bin/salome/%)
-pyscripts: $(DEST_PYSCRIPTS)
+DEST_UI_PY_FILES = $(UI_PY_FILES:%=$(top_builddir)/bin/salome/%)
+pyscripts: $(DEST_PYSCRIPTS) $(UI_PY_FILES) $(DEST_UI_PY_FILES)
 $(DEST_PYSCRIPTS): $(top_builddir)/bin/salome/%: %
+	cp -f $< $@
+
+# generate generic python scripts from *.ui files
+#
+$(UI_PY_FILES): %.py: %.ui
+	$(PYUIC) $< -o $@
+
+# copy ui-generated python scripts in $(top_builddir)/bin
+#
+$(DEST_UI_PY_FILES): $(top_builddir)/bin/salome/%: %
 	cp -f $< $@
 
 # copy pyqt files in $(PYTHON_SHARED_SITE)
@@ -166,7 +182,10 @@ install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir
 	done
 
 # Install python script in $(bindir)
-install-python: $(bindir) $(EXPORT_PYSCRIPTS:%=install-%)
+install-python: $(bindir) $(EXPORT_PYSCRIPTS:%=install-%) $(UI_PY_FILES:%=install-%)
+
+$(UI_PY_FILES:%=install-%): install-%: %
+	$(INSTALL_PROGRAM) $< $(bindir)/.
 
 $(EXPORT_PYSCRIPTS:%=install-%): install-%: %
 	$(INSTALL_PROGRAM) $< $(bindir)/.
@@ -219,6 +238,13 @@ uninstall:
 	done
 # Uninstall python script in $(bindir)
 	@for f in X $(EXPORT_PYSCRIPTS); do  				      \
+	   if test $$f != X; then					      \
+	     $(LT_UNINSTALL) $(bindir)/$$f ;		      \
+	   fi;							              \
+	done
+
+# Uninstall python script in $(bindir)
+	@for f in X $(UI_PY_FILES); do  				      \
 	   if test $$f != X; then					      \
 	     $(LT_UNINSTALL) $(bindir)/$$f ;		      \
 	   fi;							              \

@@ -278,7 +278,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 
   // Assign the value of the IOR in the study->root
   const char*  IORStudy = _orb->object_to_string(Study);
-  SALOMEDS_IORAttribute::Set(Doc->Main().Root(),TCollection_ExtendedString(strdup(IORStudy)),_orb);
+  SALOMEDS_IORAttribute::Set(Doc->Main().Root(),TCollection_ExtendedString((char*)IORStudy),_orb);
 
   // set Study properties
   SALOMEDS::AttributeStudyProperties_ptr aProp = Study->GetProperties();
@@ -315,7 +315,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
     sprintf(aHDFUrl, "%shdf_from_ascii.hdf", aResultPath);
     delete(aResultPath);
   } else {
-    aHDFUrl = strdup(aUrl);
+    aHDFUrl = CORBA::string_dup(aUrl);
   }
 
   hdf_file = new HDFfile(aHDFUrl);
@@ -354,7 +354,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   SALOMEDS_IORAttribute::Set(Doc->Main().Root(),
 			     TCollection_ExtendedString(CORBA::string_dup(IORStudy)),_orb);
 
-  SALOMEDS_PersRefAttribute::Set(Doc->Main(),strdup(aUrl)); 
+  SALOMEDS_PersRefAttribute::Set(Doc->Main(),(char*)aUrl); 
 
   if (!hdf_file->ExistInternalObject("STUDY_STRUCTURE")) {
     delete aHDFUrl;
@@ -391,8 +391,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   if (isASCII) {
     SALOMEDS::ListOfFileNames_var aFilesToRemove = new SALOMEDS::ListOfFileNames;
     aFilesToRemove->length(1);
-    aFilesToRemove[0] = strdup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl))]));
-    SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+    aFilesToRemove[0] = CORBA::string_dup(&(aHDFUrl[strlen(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str())]));
+    SALOMEDS_Tool::RemoveTemporaryFiles(SALOMEDS_Tool::GetDirFromPath(aHDFUrl).c_str(), aFilesToRemove, true);
   }
   delete aHDFUrl;
   delete hdf_file; // all related hdf objects will be deleted
@@ -583,20 +583,20 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
     if (strcmp(anAttrList[a]->Type(), "AttributeIOR") == 0) continue; // never write AttributeIOR to file
     if (strcmp(anAttrList[a]->Type(), "AttributeExternalFileDef") == 0) continue; // never write ExternalFileDef to file
     if (strcmp(anAttrList[a]->Type(), "AttributeFileType") == 0) continue; // never write FileType to file
-    CORBA::String_var aSaveStr = strdup(anAttrList[a]->Store());
+    CORBA::String_var aSaveStr = CORBA::string_dup(anAttrList[a]->Store());
     size[0] = (hdf_int32) strlen(aSaveStr) + 1;
     HDFdataset *hdf_dataset = new HDFdataset(anAttrList[a]->Type(),hdf_group_sobject,HDF_STRING,size,1);
     hdf_dataset->CreateOnDisk();
     hdf_dataset->WriteOnDisk(aSaveStr);
     hdf_dataset->CloseOnDisk();
-    //cout<<"********** Write Attribute "<<anAttrList[a]->Type()<<" : "<<aSaveStr<<" done"<<endl;
+    //MESSAGE("********** Write Attribute "<<anAttrList[a]->Type()<<" : "<<aSaveStr<<" done");
     hdf_dataset=0; //will be deleted by hdf_sco_group destructor
   }
 
   // Reference attribute has no CORBA attribute representation, so, GetAllAttributes can not return this attribute
   SALOMEDS::SObject_var RefSO;
   if(SO->ReferencedObject(RefSO)) {
-    CORBA::String_var attribute_reference = strdup(RefSO->GetID());
+    CORBA::String_var attribute_reference = CORBA::string_dup(RefSO->GetID());
     size[0] = strlen(attribute_reference) + 1 ; 
     HDFdataset *hdf_dataset = new HDFdataset("Reference",hdf_group_sobject,HDF_STRING,size,1);
     hdf_dataset->CreateOnDisk();
@@ -668,7 +668,8 @@ void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgro
   MESSAGE("attribute StudyProperties " <<  aProperty << " wrote on file");
   hdf_dataset->CloseOnDisk();
   hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-  delete(aProperty);
+  //delete(aProperty); 
+  delete [] aProperty;
   aProp->SetModified(0);
 }
 
@@ -717,28 +718,26 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
       for (; itcomponent1->More(); itcomponent1->Next())
 	{
 	  SALOMEDS::SComponent_var sco = itcomponent1->Value();
+
 	  // if there is an associated Engine call its method for saving
 	  CORBA::String_var IOREngine;
 	  try {
-	    
 	    if (!sco->ComponentIOR(IOREngine)) {
 	      SALOMEDS::GenericAttribute_var aGeneric;
-	      SALOMEDS::AttributeName_var aName;
-	      if(sco->FindAttribute(aGeneric, "AttributeName"))
-		aName = SALOMEDS::AttributeName::_narrow(aGeneric);
-
+	      SALOMEDS::AttributeComment_var aName;
+	      if(sco->FindAttribute(aGeneric, "AttributeComment"))
+		aName = SALOMEDS::AttributeComment::_narrow(aGeneric);
+	    
 	      if (!aName->_is_nil()) {
 		
 		CORBA::String_var aCompType = aName->Value();
 
-		
 		CORBA::String_var aFactoryType;
 		if (strcmp(aCompType, "SUPERV") == 0) aFactoryType = "SuperVisionContainer";
 		else aFactoryType = "FactoryServer";
 		
 		Engines::Component_var aComp =
 		  SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component(aFactoryType, aCompType);
-		
 		if (aComp->_is_nil()) {
 		  Engines::Component_var aComp =
 		    SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
@@ -842,8 +841,8 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
 		  SALOMEDS::TMPFile_var aStream;
 
-                  if (theASCII) aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
-		  else aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl),theMultiFile);
+                  if (theASCII) aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
+		  else aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
 
 		  HDFdataset *hdf_dataset;
 		  hdf_size aHDFSize[1];
@@ -1006,7 +1005,7 @@ void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS::Study_ptr aStudy,
 	}
       }
 
-      CORBA::String_var scoid = strdup(SO->GetID());
+      CORBA::String_var scoid = CORBA::string_dup(SO->GetID());
       hdf_group_sobject = new HDFgroup(scoid,hdf_group_datatype);
       hdf_group_sobject->CreateOnDisk();
       SaveAttributes(SO, hdf_group_sobject);
@@ -1031,7 +1030,7 @@ const char *SALOMEDS_StudyManager_i::_SubstituteSlash(const char *aUrl)
   Standard_ExtCharacter val2 = ToExtCharacter(':');
   theUrl.ChangeAll(val1,val2);
   TCollection_AsciiString ch(theUrl);
-  return strdup(ch.ToCString());
+  return CORBA::string_dup(ch.ToCString());
 }
 
 //============================================================================
@@ -1122,7 +1121,7 @@ void SALOMEDS_StudyManager_i::CopyLabel(const SALOMEDS::Study_ptr theSourceStudy
     if (!Handle(SALOMEDS_IORAttribute)::DownCast(anAttr).IsNull()) { // IOR => ID and TMPFile of Engine
       TCollection_AsciiString anEntry;
       TDF_Tool::Entry(theSource, anEntry);
-      SALOMEDS::SObject_var aSO = theSourceStudy->FindObjectID(strdup(anEntry.ToCString()));
+      SALOMEDS::SObject_var aSO = theSourceStudy->FindObjectID(anEntry.ToCString());
 //        if (theEngine->CanCopy(aSO)) {
 	CORBA::Long anObjID;
 //  	TCollection_ExtendedString aResStr(strdup((char*)(theEngine->CopyFrom(aSO, anObjID))));
@@ -1176,14 +1175,15 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject) {
   // set component data type to the name attribute of root label
   if (!aStructureOnly) {
     TDataStd_Comment::Set(aTargetDocument->Main().Root(),
-			  TCollection_ExtendedString(strdup(Engine->ComponentDataType())));
+			  TCollection_ExtendedString(Engine->ComponentDataType()));
   }
   // set to the Root label integer attribute: study id
   TDataStd_Integer::Set(aTargetDocument->Main().Root(), aStudy->StudyId());
   // iterate all theObject's label children
   TDF_Label aStartLabel;
-  char* aStartID = strdup(theObject->GetID());
+  char* aStartID = CORBA::string_dup(theObject->GetID());
   TDF_Tool::Label(aDocument->GetData(), aStartID, aStartLabel);
+  delete(aStartID);
   Standard_Integer aSourceStartDepth = aStartLabel.Depth();
   
   // copy main source label
@@ -1230,7 +1230,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject
   CORBA::Object_var obj = _orb->string_to_object(IOREngine);
   SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
   if (CORBA::is_nil(Engine)) return false;
-  return Engine->CanPaste(strdup(TCollection_AsciiString(aCompName->Get()).ToCString()), anObjID->Get());
+  return Engine->CanPaste(TCollection_AsciiString(aCompName->Get()).ToCString(), anObjID->Get());
 }
 //============================================================================
 /*! Function : PasteLabel
@@ -1265,7 +1265,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
     aAuxSourceLabel.FindAttribute(TDataStd_Integer::GetID(), anObjID);
     Handle(TDataStd_Comment) aComponentName;
     theSource.Root().FindAttribute(TDataStd_Comment::GetID(), aComponentName);
-    CORBA::String_var aCompName = strdup(TCollection_AsciiString(aComponentName->Get()).ToCString());
+    CORBA::String_var aCompName = CORBA::string_dup(TCollection_AsciiString(aComponentName->Get()).ToCString());
 
     if (theEngine->CanPaste(aCompName, anObjID->Get())) {
       SALOMEDS::TMPFile_var aTMPFil = new SALOMEDS::TMPFile();
@@ -1281,7 +1281,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
       
       TCollection_AsciiString anEntry;
       TDF_Tool::Entry(aTargetLabel, anEntry);
-      SALOMEDS::SObject_var aPastedSO = theDestinationStudy->FindObjectID(strdup(anEntry.ToCString()));
+      SALOMEDS::SObject_var aPastedSO = theDestinationStudy->FindObjectID(anEntry.ToCString());
       if (isFirstElement) {
 	SALOMEDS::SObject_var aDestSO =
 	  theEngine->PasteInto(aTMPFil.in(),
@@ -1325,7 +1325,7 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(const SALOMEDS::Study_ptr theDesti
       if (aNameStart) TDataStd_Name::Set(aTargetLabel, aNameStart);
       else TDataStd_Name::Set(aTargetLabel, TCollection_ExtendedString("Reference to:")+anEntry);
     }
-    delete(anEntry);
+    delete [] anEntry;
   }
 
   return aTargetLabel;

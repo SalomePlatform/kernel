@@ -389,6 +389,14 @@ void QAD_Study::setReadOnly(bool state)
   myIsReadOnly = state;
 }
 
+bool QAD_Study::isLocked()
+{
+  bool state = false;
+  if ( !CORBA::is_nil( myStudy ) )
+    state = myStudy->GetProperties()->IsLocked();
+  return state;
+}
+
 //=======================================================================//
 //			Study operations				 //
 //=======================================================================//
@@ -648,7 +656,7 @@ QAD_StudyFrame* QAD_Study::createStudyFrame( const QString& title, ViewType theV
 			      title, VIEW_OCC,
 			      myInterp, myMutex );
     
-    Standard_CString name = strdup(sf->title().latin1());
+    Standard_CString name = CORBA::string_dup(sf->title().latin1());
     anAttr = aStudyBuilder->FindOrCreateAttribute(newObj, "AttributeName");
     aName = SALOMEDS::AttributeName::_narrow(anAttr);
     aName->SetValue(name);
@@ -820,7 +828,7 @@ bool QAD_Study::undo()
 
     for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
       /* Update Viewer */
-      sf->getRightFrame()->getViewFrame()->undo( myStudy, sf->entry() );
+      sf->getRightFrame()->getViewFrame()->undo( this, sf->entry() );
     }
     updateCaptions();
 
@@ -855,7 +863,7 @@ bool QAD_Study::redo()
 
     /* Update Viewer */
     for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
-      sf->getRightFrame()->getViewFrame()->redo( myStudy, sf->entry() );
+      sf->getRightFrame()->getViewFrame()->redo( this, sf->entry() );
     }
     updateCaptions();
 
@@ -1192,7 +1200,7 @@ void QAD_Study::renameIObject( const Handle(SALOME_InteractiveObject)& IObject, 
     SALOMEDS::AttributeName_var    aName;
     anAttr = aStudyBuilder->FindOrCreateAttribute(obj, "AttributeName");
     aName = SALOMEDS::AttributeName::_narrow(anAttr);
-    aName->SetValue(strdup(newName.latin1()));
+    aName->SetValue(newName.latin1());
   }
 
   // VSR 13/03/03 - rename Interactive object 

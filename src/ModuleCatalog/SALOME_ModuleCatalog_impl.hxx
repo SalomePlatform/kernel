@@ -123,7 +123,7 @@ private:
     \param name  string argument
     \return pointer on a component, NULL if not found
   */
-  ParserComponent *findComponent(const string & name);
+  ParserComponent *findComponent(const std::string & name);
 
   //! method to create a CORBA component description from parser
   /*!

@@ -94,7 +94,8 @@ void SALOME_PYQT_GUI::initInterp(int StudyID)
      * The creation of Python interpretor must be protected par a C++ Lock because of C threads
      */
     ThreadLock aPyLock = GetPyThreadLock("SALOME_PYQT_GUI::initInterp");
-    interp=new PyInterp_PyQt();
+    interp = new PyInterp_PyQt();
+    interp->initialize();
     mapInterp[StudyID] = interp;
   }
   // imports Python GUI module and puts it in _module attribute
@@ -134,6 +135,7 @@ bool SALOME_PYQT_GUI::OnGUIEvent (int theCommandID,
 				  QAD_Desktop* parent)
 {
   MESSAGE("SALOME_PYQT_GUI::OnGUIEvent");
+  ThreadLock aPyLock = GetPyThreadLock("SALOME_PYQT_GUI::OnGUIEvent");
   PyLockWrapper aLock = interp->GetLockWrapper();
 
   PyObjWrapper res(PyObject_CallMethod(_module,"OnGUIEvent","i",theCommandID));

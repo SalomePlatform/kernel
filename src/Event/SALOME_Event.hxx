@@ -51,39 +51,25 @@ class QSemaphore;
  *  no need to protect such fields with a mutex, for only one thread working with
  *  a SALOME_Event object is active at any moment.
  *
- *  It is possible to make the thread that creates SALOME_Event
- *  wait until the event is processed by the component GUI, SALOME_Event
- *  should be constructed with <wait> == TRUE in such a case.
- *
- *  SALOME_Event objects should be created on the heap. QAD_Desktop deletes
- *  these objects as soon as they have been processed.
- *
  *  Usage:
- *  - create SALOME_Event object on the heap with proper <type> and <wait> parameters. 
+ *  - create SALOME_Event. 
  *    Components can derive their own event class from SALOME_Event
  *    in order to pass custom data to the event handler.
- *  - call process() method to post the event. Between process() and release()
+ *  - call process() method to post the event. After process() execution
  *    it is possible to examine fields of your custom event object.
- *  - call release() method to wake up the desktop (you can also set <autoRelease>
+ *  - perform delete operator on the event to wake up the desktop (you can also set <autoRelease>
  *    parameter to TRUE to automatically wake up desktop after process()
  * 
  *  processed() method is used by the desktop to signal that event processing 
  *  has been completed.
  *  
  *  Caveats: 
- *  1. Never create SALOME_Event with <wait> == TRUE in code that is 
- *     supposed to be called within main GUI thread, for this will result
- *     in GUI process deadlock.
- *  2. Always call release() method after process() if you use <wait> parameters as TRUE,
- *     otherwise processed() method will never return and main GUI thread will be blocked!
- *  3. Never use pointers to the event after it has been released (either by calling release()
- *     or automatically by process() if <autoRelease> == TRUE) to avoid application crashes!
+ *    There is no.
  */
 //===========================================================
 
 
-class SALOME_Event
-{
+class SALOME_Event{
 public:
   SALOME_Event();
   virtual ~SALOME_Event();
@@ -91,14 +77,17 @@ public:
   // To do real work
   virtual void Execute() = 0;
 
+  static bool IsSessionThread();
   void process();
-  void processed();
 
-  void release();
+protected:
+  void processed();
+  friend class QAD_Desktop;
+
+  static void GetSessionThread();
+  friend int main(int, char **);
 
 private:
-  bool        myWait;
-  bool        myAutoRelease;
   QSemaphore* mySemaphore;
 };
 
@@ -242,17 +231,27 @@ private:
 
 // Template function for processing events with result returing
 template<class TEvent> inline typename TEvent::TResult ProcessEvent(TEvent* theEvent){
-  theEvent->process();
-  typename TEvent::TResult aResult = theEvent->myResult;
-  theEvent->release();
+  typename TEvent::TResult aResult;
+  if(SALOME_Event::IsSessionThread()){
+    theEvent->Execute();
+    aResult = theEvent->myResult;
+  }else{
+    theEvent->process();
+    aResult = theEvent->myResult;
+  }
+  delete theEvent;
   return aResult;
 }
 
 
 // Template function for processing events without result
 inline void ProcessVoidEvent(SALOME_Event* theEvent){
-  theEvent->process();
-  theEvent->release();
+  if(SALOME_Event::IsSessionThread()){
+    theEvent->Execute();
+  }else{
+    theEvent->process();
+  }
+  delete theEvent;
 }
 
 

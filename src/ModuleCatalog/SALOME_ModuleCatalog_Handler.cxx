@@ -27,10 +27,18 @@
 //  $Header$ 
 
 #define WRITE_CATA_COMPONENT
+
 #include "SALOME_ModuleCatalog_Handler.hxx"
 #include "SALOME_ModuleCatalog_Parser_IO.hxx"
-using namespace std;
+#include "utilities.h"
+
 #include <sstream>
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_Handler
@@ -38,7 +46,7 @@ using namespace std;
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 {
-  BEGIN_OF("SALOME_ModuleCatalog_Handler");
+  if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_Handler");
 
   // XML Tags initialisation
   // Used in the function endElement
@@ -90,7 +98,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 
   test_component="component";
 
-  END_OF("SALOME_ModuleCatalog_Handler");
+  if(MYDEBUG) END_OF("SALOME_ModuleCatalog_Handler");
 }
 
 //----------------------------------------------------------------------
@@ -99,8 +107,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 {
-  BEGIN_OF("~SALOME_ModuleCatalog_Handler()")
-  END_OF("~SALOME_ModuleCatalog_Handler()")
+  if(MYDEBUG) BEGIN_OF("~SALOME_ModuleCatalog_Handler()")
+  if(MYDEBUG) END_OF("~SALOME_ModuleCatalog_Handler()")
 }
 
 //----------------------------------------------------------------------
@@ -109,7 +117,7 @@ SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 //----------------------------------------------------------------------
 bool SALOME_ModuleCatalog_Handler::startDocument()
 {
-  MESSAGE("Begin parse document")
+  if(MYDEBUG) MESSAGE("Begin parse document");
   // Empty the private elements
   _pathList.resize(0);
   _pathPrefix.listOfComputer.resize(0);
@@ -304,8 +312,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
    //tag test_inParameter_name
    if ((qName.compare(test_inParameter_name)==0)) {
-     SCRUTE(parent);
-     SCRUTE(grandparent);
+     if(MYDEBUG) SCRUTE(parent);
+     if(MYDEBUG) SCRUTE(grandparent);
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
        _inDataStreamParam.name = content ;
      else 
@@ -324,7 +332,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
     {
       if (parent.compare(test_inParameter_list)==0) {
 	
-	MESSAGE("add inParameter : " << _inParam.name);
+	if(MYDEBUG) MESSAGE("add inParameter : " << _inParam.name);
 	_inParamList.push_back(_inParam) ; 
 	
 	// Empty temporary structures
@@ -333,7 +341,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
       }
       else if ((qName.compare(test_inDataStreamParameter)==0)) {
 	
-	MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.name);
+	if(MYDEBUG) MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.name);
 	_inDataStreamParamList.push_back(_inDataStreamParam) ; 
 	
 	// Empty temporary structures
@@ -347,7 +355,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_inParameter_list
    if((qName.compare(test_inParameter_list)==0))
      {
-       SCRUTE(_inParamList.size());
+       if(MYDEBUG) SCRUTE(_inParamList.size());
        _aService.inParameters = _inParamList;
        _inParamList.resize(0);
        return true;
@@ -356,22 +364,23 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_inDataStreamParameter_list
    if((qName.compare(test_inDataStreamParameter_list)==0))
      {
-       SCRUTE(_inDataStreamParamList.size());
+       if(MYDEBUG) SCRUTE(_inDataStreamParamList.size());
        _aService.inDataStreamParameters = _inDataStreamParamList;
        _inDataStreamParamList.resize(0);
      }
    //tag test_outDataStreamParameter_list
    if((qName.compare(test_outDataStreamParameter_list)==0))
      {
-       SCRUTE(_outDataStreamParamList.size());
+       if(MYDEBUG) SCRUTE(_outDataStreamParamList.size());
        _aService.outDataStreamParameters = _outDataStreamParamList;
        _outDataStreamParamList.resize(0);
        return true;
      }
 
 
+
    // Parameter out
-   SCRUTE(qName);
+   if(MYDEBUG) SCRUTE(qName);
 
    // tag test_outParameter_type
    if ((qName.compare(test_outParameter_type)==0)) {
@@ -402,8 +411,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 	 
    //tag test_outDataStreamParameter_name
    if ((qName.compare(test_outDataStreamParameter_name)==0)) {
-     SCRUTE(grandparent);
-     SCRUTE(test_outDataStreamParameter_list);
+     if(MYDEBUG) SCRUTE(grandparent);
+     if(MYDEBUG) SCRUTE(test_outDataStreamParameter_list);
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
        _outDataStreamParam.name = content ;
      else 
@@ -422,7 +431,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
     {
       if (parent.compare(test_outParameter_list)==0) {
 	
-	MESSAGE("add outParameter : " << _outParam.name);
+	if(MYDEBUG) MESSAGE("add outParameter : " << _outParam.name);
 	_outParamList.push_back(_outParam) ; 
 	
 	// Empty temporary structures
@@ -431,7 +440,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
       }
       else if ((qName.compare(test_outDataStreamParameter)==0)) {
 	
-	MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.name);
+	if(MYDEBUG) MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.name);
 	_outDataStreamParamList.push_back(_outDataStreamParam) ; 
 	
 	// Empty temporary structures
@@ -445,7 +454,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_outParameter_list
    if((qName.compare(test_outParameter_list)==0))
      {
-       SCRUTE(_outParamList.size());
+       if(MYDEBUG) SCRUTE(_outParamList.size());
        _aService.outParameters = _outParamList;
        _outParamList.resize(0);
        return true;
@@ -525,24 +534,24 @@ bool SALOME_ModuleCatalog_Handler::endDocument()
 {
 //  ofstream f("/tmp/logs/xxx.log", std::ofstream::app);
 //  f << "---------------------------------------------------------" << std::endl;
-  BEGIN_OF("endDocument");
+  if(MYDEBUG) BEGIN_OF("endDocument");
   //_pathlist
   for (unsigned int ind = 0; ind < _pathList.size(); ind++)
     {
-      MESSAGE("Path :"<<_pathList[ind].path)
+      if(MYDEBUG) MESSAGE("Path :"<<_pathList[ind].path);
       for (unsigned int i = 0; i < _pathList[ind].listOfComputer.size(); i++)
-	  MESSAGE("Computer name :" << _pathList[ind].listOfComputer[i])
+	if(MYDEBUG) MESSAGE("Computer name :" << _pathList[ind].listOfComputer[i]);
     }
 
    // _moduleList
-//  SCRUTE(_moduleList.size());
+//  if(MYDEBUG) SCRUTE(_moduleList.size());
 //  for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
 //    {
 //      f << _moduleList[ind] << std::endl;
 //    }
 
-  MESSAGE("Document parsed");
-  END_OF("endDocument");
+  if(MYDEBUG) MESSAGE("Document parsed");
+  if(MYDEBUG) END_OF("endDocument");
   return true;
 }
  

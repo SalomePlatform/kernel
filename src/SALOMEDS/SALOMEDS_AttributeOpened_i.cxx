@@ -41,7 +41,7 @@ void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) {
 }
 
 char* SALOMEDS_AttributeOpened_i::Store() {
-  return strdup(IsOpened()?"1":"0");
+  return CORBA::string_dup(IsOpened()?"1":"0");
 }
 
 void SALOMEDS_AttributeOpened_i::Restore(const char* value) {

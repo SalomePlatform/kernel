@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class SALOME_Selection SALOME_Selection.h
   \brief Selection Mechanism of Interactive Object.
@@ -42,6 +41,15 @@ using namespace std;
 #include "utilities.h"
 
 #include <TColStd_MapIteratorOfMapOfInteger.hxx>
+#include <TColStd_IndexedMapOfInteger.hxx>
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
+using namespace std;
 
 static QList<SALOME_Selection>&  SALOME_Sel_GetSelections()
 {
@@ -245,7 +253,7 @@ int SALOME_Selection::AddIObject(const Handle(SALOME_InteractiveObject)& anObjec
   QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
 
   if ( !IsOk(anObject) ) {
-    MESSAGE ( "The Object not authorized by Filters" )
+    if(MYDEBUG) INFOS ( "The Object not authorized by Filters" )
     myActiveStudy->highlight(anObject,false, update);
     return -1;
   }
@@ -307,13 +315,13 @@ int SALOME_Selection::IObjectCount()
 //!  Returns the first InteractiveObject in the selection.
 Handle(SALOME_InteractiveObject) SALOME_Selection::firstIObject()
 {
-  return myIObjects.First();
+  return myIObjects.Extent() > 0 ? myIObjects.First() : Handle(SALOME_InteractiveObject)();
 }
 
 //! Returns the last InteractiveObject in the selection.
 Handle(SALOME_InteractiveObject) SALOME_Selection::lastIObject()
 {
-  return myIObjects.Last();
+  return myIObjects.Extent() > 0 ? myIObjects.Last() : Handle(SALOME_InteractiveObject)();
 }
 
 /*!
@@ -351,7 +359,7 @@ bool SALOME_Selection::HasIndex( const Handle(SALOME_InteractiveObject)& IObject
   return myMapIOSubIndex.IsBound(IObject);
 }
 
-void SALOME_Selection::GetIndex( const Handle(SALOME_InteractiveObject)& IObject, TColStd_MapOfInteger& theIndex )
+void SALOME_Selection::GetIndex( const Handle(SALOME_InteractiveObject)& IObject, TColStd_IndexedMapOfInteger& theIndex )
 {
   if ( myMapIOSubIndex.IsBound(IObject) ) {
     theIndex = myMapIOSubIndex.Find(IObject);
@@ -368,11 +376,32 @@ bool SALOME_Selection::IsIndexSelected(const Handle(SALOME_InteractiveObject)& I
   if ( !myMapIOSubIndex.IsBound( IObject ) ) {
     return false;
   }
-  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+  TColStd_IndexedMapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
   return MapIndex.Contains( index );
 }
 
-
+static bool removeIndex( TColStd_IndexedMapOfInteger& MapIndex,
+                        const int                     Index)
+{
+  int i = MapIndex.FindIndex( Index ); // i==0 if Index is not in the MapIndex
+  if ( i ) {
+    // only the last key can be removed
+    int indexLast = MapIndex.FindKey( MapIndex.Extent() );
+    if ( indexLast == Index )
+      MapIndex.RemoveLast();
+    else {
+      TColStd_IndexedMapOfInteger aNewMap;
+      aNewMap.ReSize( MapIndex.Extent() - 1 );
+      for ( int j = 1; j <= MapIndex.Extent(); j++ ) {
+        int ind = MapIndex( j );
+        if ( ind != Index )
+          aNewMap.Add( ind );
+      }
+      MapIndex = aNewMap;
+    }
+  }
+  return i;
+}
 
 
 bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, 
@@ -380,35 +409,33 @@ bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)&
 					 bool modeShift,
 					 bool update)
 {
-  MESSAGE ( " SALOME_Selection::AddOrRemoveIndex " << index << " - " << modeShift );
+  if(MYDEBUG) INFOS( " SALOME_Selection::AddOrRemoveIndex " << index << " - " << modeShift );
   QAD_Desktop*   myDesktop = (QAD_Desktop*) QAD_Application::getDesktop();
   QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
 
   if ( !myMapIOSubIndex.IsBound( IObject ) ) {
-    TColStd_MapOfInteger Empty;
+    TColStd_IndexedMapOfInteger Empty;
     myMapIOSubIndex.Bind( IObject, Empty );
   }
-  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+  TColStd_IndexedMapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
 
-  if ( MapIndex.Contains( index )) {
-    if ( modeShift ) {
-      MapIndex.Remove( index );
-      myActiveStudy->highlight( IObject, true, update );
-    }
-  } else {
-    if ( !modeShift )
-      MapIndex.Clear();
+  bool anIsConatains = MapIndex.Contains( index );
 
+  if (anIsConatains)
+    removeIndex( MapIndex, index );
+  
+  if (!modeShift)
+    MapIndex.Clear();
+  
+  if(!anIsConatains)
     MapIndex.Add( index );
-    myActiveStudy->highlight( IObject, true, update );
-    emit currentSelectionChanged();
-    return true;
-  }
 
   if ( MapIndex.IsEmpty() ) {
     myMapIOSubIndex.UnBind( IObject );
     RemoveIObject( IObject, update );
   }
+
+  myActiveStudy->highlight( IObject, true, update );	
 
   emit currentSelectionChanged();
   return false;
@@ -423,40 +450,33 @@ bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)&
   QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
   
   if ( !myMapIOSubIndex.IsBound( IObject ) ) {
-    TColStd_MapOfInteger Empty;
+    TColStd_IndexedMapOfInteger Empty;
     myMapIOSubIndex.Bind( IObject, Empty );
   }
-  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+  TColStd_IndexedMapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
   TColStd_MapIteratorOfMapOfInteger It;
   It.Initialize(theIndices);
   
-  bool add = true;
-  
-  if (MapIndex.Contains(It.Key()))
-    {
-      if (!modeShift) return add;
-      add = false;
-    }
-  else if (!modeShift)
+  if (!modeShift)
     MapIndex.Clear();
   
-  if (add) 
-    for(;It.More();It.Next())
-      MapIndex.Add(It.Key());
-  else
-    for(;It.More();It.Next())
-      MapIndex.Remove(It.Key());
+  for(;It.More();It.Next())
+    MapIndex.Add(It.Key());
   
-  
+  if ( MapIndex.IsEmpty() ) {
+    myMapIOSubIndex.UnBind( IObject );
+    RemoveIObject( IObject, update );
+  }
+
   myActiveStudy->highlight( IObject, true, update );	
-  if ( MapIndex.IsEmpty() )  myMapIOSubIndex.UnBind( IObject );
+
   emit currentSelectionChanged();
   
-  return add;
+  return !MapIndex.IsEmpty();
 }
 
 bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, 
-					 const std::vector<int>& theIndices, 
+					 const TContainerOfId& theIndices, 
 					 bool modeShift,
 					 bool update)
 {
@@ -464,42 +484,63 @@ bool SALOME_Selection::AddOrRemoveIndex( const Handle(SALOME_InteractiveObject)&
   QAD_Study* myActiveStudy = myDesktop->getActiveStudy();
   
   if ( !myMapIOSubIndex.IsBound( IObject ) ) {
-    TColStd_MapOfInteger Empty;
+    TColStd_IndexedMapOfInteger Empty;
     myMapIOSubIndex.Bind( IObject, Empty );
   }
-  TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+  TColStd_IndexedMapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
       
-  bool add = true;
-  
-  if (MapIndex.Contains(theIndices[0]))
-    {
-      if (!modeShift) return add;
-      add = false;
-    }
-  else if (!modeShift)
+  if (!modeShift)
     MapIndex.Clear();
   
-  if (add) 
-    for (int i=0; i<theIndices.size();i++)
-      MapIndex.Add(theIndices[i]); 
-  else
-    for (int i=0; i<theIndices.size();i++)
-      MapIndex.Remove(theIndices[i]);
-  
-  myActiveStudy->highlight( IObject, true, update );	
-  if ( MapIndex.IsEmpty() )  
+  TContainerOfId::const_iterator anIter = theIndices.begin();
+  TContainerOfId::const_iterator anIterEnd = theIndices.end();
+  for(; anIter != anIterEnd; anIter++)
+    MapIndex.Add(*anIter); 
+
+  if ( MapIndex.IsEmpty() ) {
     myMapIOSubIndex.UnBind( IObject );
+    RemoveIObject( IObject, update );
+  }
+
+  myActiveStudy->highlight( IObject, true, update );	
+
   emit currentSelectionChanged();
   
-  return add;
+  return !MapIndex.IsEmpty();
 }
 
 void SALOME_Selection::RemoveIndex( const Handle(SALOME_InteractiveObject)& IObject, int index )
 {
   if ( myMapIOSubIndex.IsBound( IObject ) ) {
-    TColStd_MapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
-    if ( MapIndex.Contains( index ) )
-      MapIndex.Remove( index );
+    TColStd_IndexedMapOfInteger& MapIndex = myMapIOSubIndex.ChangeFind( IObject );
+    removeIndex( MapIndex, index );
   }
 }
 
+void SALOME_Selection::ClearIndex()
+{
+  myMapIOSubIndex.Clear();  
+}
+
+
+//================================================================
+// Function : GEOMBase_Helper
+// Purpose  : Block signal currentSelectionChanged. Use this method to
+//            deactivate signal before big modification of selection.
+//            After this modification this signal must be activated and
+//            method SelectionChanged must be called to notify other oblects
+//            ( dialogs for example )
+//================================================================
+void SALOME_Selection::BlockSignals( const bool theState )
+{
+  blockSignals( theState );
+}
+
+//================================================================
+// Function : SelectionChanged
+// Purpose  : Enit signal currentSelectionChanged()
+//================================================================
+void SALOME_Selection::SelectionChanged()
+{
+  emit currentSelectionChanged();
+}

@@ -87,7 +87,7 @@ class QAD_EXPORT SUPERVGraph_ViewFrame : public QAD_ViewFrame {
 
 
   /* selection */
-  Handle(SALOME_InteractiveObject) FindIObject(const char* Entry) { };
+  Handle(SALOME_InteractiveObject) FindIObject(const char* Entry) { Handle(SALOME_InteractiveObject) o; return o; };
 
   /* display */		
   void           Display(const Handle(SALOME_InteractiveObject)& IObject, bool immediatly = true){};

@@ -30,8 +30,13 @@
 #include "VTKViewer_Utilities.h"
 #include "VTKViewer_Trihedron.h"
 #include "VTKViewer_RenderWindow.h"
+#include "VTKViewer_RenderWindowInteractor.h"
 #include "VTKViewer_InteractorStyleSALOME.h"
+#include "VTKViewer_Algorithm.h"
+#include "VTKViewer_Functor.h"
+#include "VTKViewer_Prs.h"
 
+#include "SALOME_Actor.h"
 #include "SALOME_Transform.h"
 #include "SALOME_TransformFilter.h"
 #include "SALOME_GeometryFilter.h"
@@ -53,8 +58,12 @@
 
 // VTK Includes
 #include <vtkActor.h>
+#include <vtkCamera.h>
 #include <vtkRenderer.h>
 #include <vtkTransform.h>
+#include <vtkActorCollection.h>
+
+#include <TColStd_IndexedMapOfInteger.hxx>
 
 using namespace std;
 
@@ -95,15 +104,19 @@ void VTKViewer_ViewFrame::InitialSetup() {
   
   // Create an interactor.
   m_RWInteractor = VTKViewer_RenderWindowInteractor::New();
-  m_RWInteractor->setGUIWindow(m_RW);
   m_RWInteractor->SetRenderWindow(m_RW->getRenderWindow());
 
   VTKViewer_InteractorStyleSALOME* RWS = VTKViewer_InteractorStyleSALOME::New();
-  RWS->setGUIWindow(m_RW);
   m_RWInteractor->SetInteractorStyle(RWS); 
+  RWS->Delete();
+
+  m_RWInteractor->setGUIWindow(m_RW);
+  RWS->setGUIWindow(m_RW);
 
   m_RWInteractor->Initialize();
+  m_RWInteractor->setViewFrame(this);
   RWS->setTriedron(m_Triedron);
+  RWS->setViewFrame(this);
   //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
   RWS->FindPokedRenderer(0, 0);
 
@@ -112,18 +125,18 @@ void VTKViewer_ViewFrame::InitialSetup() {
 }
 
 VTKViewer_ViewFrame::~VTKViewer_ViewFrame() {
-  m_Transform->Delete() ;
   // In order to ensure that the interactor unregisters
   // this RenderWindow, we assign a NULL RenderWindow to 
   // it before deleting it.
   m_RWInteractor->SetRenderWindow(NULL) ;
   m_RWInteractor->Delete() ;
   
+  m_Transform->Delete() ;
   //m_RW->Delete() ;
   m_Renderer->RemoveAllProps();
   // NRI : BugID 1137:  m_Renderer->Delete() ;
   m_Triedron->Delete();
-  MESSAGE("VTKViewer_ViewFrame::~VTKViewer_ViewFrame()");
+  INFOS("VTKViewer_ViewFrame::~VTKViewer_ViewFrame()");
 }
 
 /*!
@@ -137,41 +150,85 @@ bool VTKViewer_ViewFrame::isTrihedronDisplayed(){
   return m_Triedron->GetVisibility() == VTKViewer_Trihedron::eOn;
 }
 
-void VTKViewer_ViewFrame::onAdjustTrihedron(){   
-  if(!isTrihedronDisplayed()) 
-    return;
-  int aVisibleNum = m_Triedron->GetVisibleActorCount(m_Renderer);
-  if(aVisibleNum){
-    // calculating diagonal of visible props of the renderer
-    float bnd[6];
-    m_Triedron->VisibilityOff();
-    ::ComputeVisiblePropBounds(m_Renderer,bnd);
-    m_Triedron->VisibilityOn();
-    float aLength = 0;
-    static bool CalcByDiag = false;
-    if(CalcByDiag){
-      aLength = sqrt((bnd[1]-bnd[0])*(bnd[1]-bnd[0])+
-		     (bnd[3]-bnd[2])*(bnd[3]-bnd[2])+
-		     (bnd[5]-bnd[4])*(bnd[5]-bnd[4]));
-    }else{
-      aLength = bnd[1]-bnd[0];
-      aLength = max((bnd[3]-bnd[2]),aLength);
-      aLength = max((bnd[5]-bnd[4]),aLength);
-    }
-   
-    static float aSizeInPercents = 105;
-    QString aSetting = QAD_CONFIG->getSetting("Viewer:TrihedronSize");
-    if(!aSetting.isEmpty()) aSizeInPercents = aSetting.toFloat();
+bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theSize )
+{
+  // calculating diagonal of visible props of the renderer
+  float bnd[ 6 ];
+  m_Triedron->VisibilityOff();
+  if ( ::ComputeVisiblePropBounds( m_Renderer, bnd ) == 0 )
+  {
+    bnd[ 1 ] = bnd[ 3 ] = bnd[ 5 ] = 100;
+    bnd[ 0 ] = bnd[ 2 ] = bnd[ 100 ] = 0;
+  }
+  m_Triedron->VisibilityOn();
+  float aLength = 0;
+  static bool CalcByDiag = false;
+  if ( CalcByDiag )
+  {
+    aLength = sqrt( ( bnd[1]-bnd[0])*(bnd[1]-bnd[0] )+
+                    ( bnd[3]-bnd[2])*(bnd[3]-bnd[2] )+
+                    ( bnd[5]-bnd[4])*(bnd[5]-bnd[4] ) );
+  }
+  else
+  {
+    aLength = bnd[ 1 ]-bnd[ 0 ];
+    aLength = max( ( bnd[ 3 ] - bnd[ 2 ] ),aLength );
+    aLength = max( ( bnd[ 5 ] - bnd[ 4 ] ),aLength );
+  }
 
-    static float EPS_SIZE = 5.0E-3;
-    float aSize = m_Triedron->GetSize();
-    float aNewSize = aLength*aSizeInPercents/100.0;
+  static float aSizeInPercents = 105;
+  QString aSetting = QAD_CONFIG->getSetting( "Viewer:TrihedronSize" );
+  if ( !aSetting.isEmpty() )
+    aSizeInPercents = aSetting.toFloat();
+
+  static float EPS_SIZE = 5.0E-3;
+  theSize = m_Triedron->GetSize();
+  theNewSize = aLength * aSizeInPercents / 100.0;
+
+  // if the new trihedron size have sufficient difference, then apply the value
+  return fabs( theNewSize - theSize) > theSize * EPS_SIZE ||
+         fabs( theNewSize-theSize ) > theNewSize * EPS_SIZE;
+}
+
+double VTKViewer_ViewFrame::GetTrihedronSize() const
+{
+  return m_Triedron->GetSize();
+}
+
+void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
+{
+  if ( !isTrihedronDisplayed() && !forcedUpdate )
+    return;
+
+  int aVisibleNum = m_Triedron->GetVisibleActorCount( m_Renderer );
+  if ( aVisibleNum || forcedUpdate )
+  {
     // if the new trihedron size have sufficient difference, then apply the value
-    if(fabs(aNewSize-aSize) > aSize*EPS_SIZE || fabs(aNewSize-aSize) > aNewSize*EPS_SIZE){
-      m_Triedron->SetSize(aNewSize);
+    double aNewSize = 100, anOldSize;
+    if ( ComputeTrihedronSize( aNewSize, anOldSize ) || forcedUpdate )
+    {
+      m_Triedron->SetSize( aNewSize );
+      // itearte throuh displayed objects and set size if necessary
+
+      vtkActorCollection* anActors = getRenderer()->GetActors();
+      anActors->InitTraversal();
+      while( vtkActor* anActor = anActors->GetNextActor() )
+      {
+        if( SALOME_Actor* aSActor = SALOME_Actor::SafeDownCast( anActor ) )
+        {
+          if ( aSActor->IsResizable() )
+            aSActor->SetSize( 0.5 * aNewSize );
+        }
+      }
     }
   }
+
   ::ResetCameraClippingRange(m_Renderer);
+}
+
+void VTKViewer_ViewFrame::onAdjustTrihedron()
+{   
+  AdjustTrihedrons( false );
 }
 
 /*!
@@ -214,7 +271,7 @@ void VTKViewer_ViewFrame::onViewBottom(){
 */
 void VTKViewer_ViewFrame::onViewLeft(){
   vtkCamera* camera = m_Renderer->GetActiveCamera(); 
-  camera->SetPosition(0,1,0);
+  camera->SetPosition(0,-1,0);
   camera->SetViewUp(0,0,1);
   camera->SetFocalPoint(0,0,0);
   onViewFitAll();
@@ -225,7 +282,7 @@ void VTKViewer_ViewFrame::onViewLeft(){
 */
 void VTKViewer_ViewFrame::onViewRight(){
   vtkCamera* camera = m_Renderer->GetActiveCamera();
-  camera->SetPosition(0,-1,0);
+  camera->SetPosition(0,1,0);
   camera->SetViewUp(0,0,1);
   camera->SetFocalPoint(0,0,0);
   onViewFitAll();
@@ -258,17 +315,6 @@ void VTKViewer_ViewFrame::onViewFront(){
 */
 void VTKViewer_ViewFrame::onViewFitAll(){
   m_RWInteractor->GetInteractorStyleSALOME()->ViewFitAll();
-//   int aTriedronWasVisible = isTrihedronDisplayed();
-//   if(m_Triedron->GetVisibleActorCount(m_Renderer)){
-//     m_Triedron->VisibilityOff();
-//     ::ResetCamera(m_Renderer);
-//   }else{
-//     m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
-//     ::ResetCamera(m_Renderer,true);
-//   }
-//   if(aTriedronWasVisible) m_Triedron->VisibilityOn();
-//   else m_Triedron->VisibilityOff();
-
   Repaint();
 }
 
@@ -372,31 +418,30 @@ void VTKViewer_ViewFrame::highlight( const Handle(SALOME_InteractiveObject)& IOb
   SALOME_Selection* Sel = SALOME_Selection::Selection( ActiveStudy->getSelection() );
   m_RWInteractor->highlight(IObject, highlight, update);
 
-  switch (Sel->SelectionMode()) {
-  case NodeSelection:
-    if ( Sel->HasIndex( IObject ) ) {
-      TColStd_MapOfInteger MapIndex;
-      Sel->GetIndex( IObject, MapIndex );
-      m_RWInteractor->highlightPoint(IObject, highlight, MapIndex, update);
+  if(Sel->HasIndex(IObject) && IObject->hasEntry()){
+    TColStd_IndexedMapOfInteger MapIndex;
+    Sel->GetIndex(IObject,MapIndex);
+    using namespace SALOME::VTK;
+    const char* anEntry = IObject->getEntry();
+    vtkActorCollection* aCollection = getRenderer()->GetActors();
+    if(SALOME_Actor* anActor = Find<SALOME_Actor>(aCollection,TIsSameEntry<SALOME_Actor>(anEntry))){
+      switch (Sel->SelectionMode()) {
+      case NodeSelection:
+	m_RWInteractor->highlightPoint(MapIndex,anActor,highlight,update);
+	break;
+      case EdgeOfCellSelection:
+	m_RWInteractor->highlightEdge(MapIndex,anActor,highlight,update);
+	break;
+      case CellSelection:
+      case EdgeSelection:
+      case FaceSelection:
+      case VolumeSelection:
+	m_RWInteractor->highlightCell(MapIndex,anActor,highlight,update);
+	break;
+      }
     }
-    break;
-  case EdgeOfCellSelection:
-    if ( Sel->HasIndex( IObject ) ) {
-      TColStd_MapOfInteger MapIndex;
-      Sel->GetIndex( IObject, MapIndex );
-      m_RWInteractor->highlightEdge(IObject, highlight, MapIndex, update);
-    }
-    break;
-  case CellSelection:
-  case EdgeSelection:
-  case FaceSelection:
-  case VolumeSelection:
-    if ( Sel->HasIndex( IObject ) ) {
-      TColStd_MapOfInteger MapIndex;
-      Sel->GetIndex( IObject, MapIndex );
-      m_RWInteractor->highlightCell(IObject, highlight, MapIndex, update);
-    }
-    break;
+  }else{
+    m_RWInteractor->unHighlightSubSelection();
   }
 }
 
@@ -415,170 +460,88 @@ void VTKViewer_ViewFrame::setPopupServer( QAD_Application* App )
   m_RW->setPopupServer( App );
 }
 
-void VTKViewer_ViewFrame::undo(SALOMEDS::Study_var aStudy,
-			       const char* StudyFrameEntry)
-{
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *ac = theActors->GetNextActor();
-  while(!(ac==NULL)) {
-    if ( ac->IsA("SALOME_Actor") ) {
-      SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-      if ( anActor->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = anActor->getIO();
-	if ( IO->hasEntry() ) { 
-	  /*if (!QAD_ViewFrame::isInViewer(aStudy, IO->getEntry(), StudyFrameEntry)) {
-	    m_RWInteractor->Erase(IO);
-	    }*/
-	}
-      }
-    }
-    ac = theActors->GetNextActor();
-  }
-}
-
-void VTKViewer_ViewFrame::redo(SALOMEDS::Study_var aStudy,
-			       const char* StudyFrameEntry)
-{
-  SALOMEDS::SObject_var RefSO;
-  SALOMEDS::SObject_var SO = aStudy->FindObjectID( StudyFrameEntry );
-  SALOMEDS::ChildIterator_var it = aStudy->NewChildIterator(SO);
-  for (; it->More();it->Next()){
-    SALOMEDS::SObject_var CSO= it->Value();
-    if (CSO->ReferencedObject(RefSO)) {
-      vtkActorCollection* theActors = m_Renderer->GetActors();
-      theActors->InitTraversal();
-      vtkActor *ac = theActors->GetNextActor();
-      while(!(ac==NULL)) {
-	if ( ac->IsA("SALOME_Actor") ) {
-	  SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-	  if ( anActor->hasIO() ) {
-	    Handle(SALOME_InteractiveObject) IO = anActor->getIO();
-	    if ( IO->hasEntry() ) { 
-	      /*if ( strcmp(IO->getEntry(),RefSO->GetID()) == 0 )
-		m_RWInteractor->Display(IO);*/
-	    }
-	  }
-	}
-	ac = theActors->GetNextActor();
-      }
-    }
-  }
-}
-
-
 /* selection */
-Handle(SALOME_InteractiveObject) VTKViewer_ViewFrame::FindIObject(const char* Entry)
+Handle(SALOME_InteractiveObject) VTKViewer_ViewFrame::FindIObject(const char* theEntry)
 {
-  Handle(SALOME_InteractiveObject) IO;
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *ac = theActors->GetNextActor();
-  while(!(ac==NULL)) {
-    if ( ac->IsA("SALOME_Actor") ) {
-      SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-      if ( anActor->hasIO() ) {
-	IO = anActor->getIO();
-	if ( IO->hasEntry() ) {
-	  if ( strcmp( IO->getEntry(), Entry ) == 0 ) {
-	    return IO;
-	  }
-	}
-      }
-    }
-    ac = theActors->GetNextActor();
-  }
-  return IO;
+  using namespace SALOME::VTK;
+  SALOME_Actor* anActor = 
+    Find<SALOME_Actor>(getRenderer()->GetActors(),
+		       TIsSameEntry<SALOME_Actor>(theEntry));
+  if(anActor)
+    return anActor->getIO();
+
+  return Handle(SALOME_InteractiveObject)();
 }
 
 /* display */		
-void VTKViewer_ViewFrame::Display(const Handle(SALOME_InteractiveObject)& IObject, bool update)
+void VTKViewer_ViewFrame::Display(const Handle(SALOME_InteractiveObject)& theIObject, bool update)
 {
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
-  SALOME_Selection* Sel
-    = SALOME_Selection::Selection( myStudy->getSelection() );
+  QAD_Study* aStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection* aSel = SALOME_Selection::Selection(aStudy->getSelection());
 
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *ac = theActors->GetNextActor();
-  while(!(ac==NULL))
-    {
-      if ( ac->IsA("SALOME_Actor") )
-	{
-	  SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-	  if ( anActor->hasIO() ) 
-	    {
-	      Handle(SALOME_InteractiveObject) IO = anActor->getIO();
-	      if ( IO->isSame(IObject) )
-		{
-		  m_RWInteractor->Display(IO, false);
-		  Sel->AddIObject(IO, false);
-		  break;
-		}
-	    }
-	}
-      ac = theActors->GetNextActor();
-    }
-  if (update)
+  m_RWInteractor->Display(theIObject,false);
+  aSel->AddIObject(theIObject,false);
+
+  if(update)
     Repaint();
 }
 
 
-void VTKViewer_ViewFrame::DisplayOnly(const Handle(SALOME_InteractiveObject)& IObject)
-{
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
-  SALOME_Selection* Sel
-    = SALOME_Selection::Selection( myStudy->getSelection() );
-
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *ac = theActors->GetNextActor();
-  while(!(ac==NULL)) {
-    if ( ac->IsA("SALOME_Actor") ) {
-      SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-      if ( anActor->hasIO() ) {
-	Handle(SALOME_InteractiveObject) IO = anActor->getIO();
-	if ( !IO->isSame(IObject) ) {
-	  m_RWInteractor->Erase(IO, false);
-	  Sel->RemoveIObject(IO, false);
-	} else {
-	  anActor->SetVisibility(true);
-	  Sel->AddIObject(IO, false);
-	}
-      }
-    }
-    ac = theActors->GetNextActor();
+struct TDisplayAction{
+  SALOME_Selection* mySel;
+  Handle(SALOME_InteractiveObject) myIO;
+  TDisplayAction(SALOME_Selection* theSel,
+		 Handle(SALOME_InteractiveObject) theIO): 
+    mySel(theSel), myIO(theIO)
+  {}
+  void operator()(SALOME_Actor* theActor){
+    theActor->SetVisibility(true);
+    mySel->AddIObject(myIO,false);
   }
+};
+
+void VTKViewer_ViewFrame::DisplayOnly(const Handle(SALOME_InteractiveObject)& theIObject)
+{
+  QAD_Study* aStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection* aSel = SALOME_Selection::Selection(aStudy->getSelection());
+
+  aSel->ClearIObjects();
+  m_RWInteractor->EraseAll();
+
+  using namespace SALOME::VTK;
+  ForEachIf<SALOME_Actor>(getRenderer()->GetActors(),
+			  TIsSameIObject<SALOME_Actor>(theIObject),
+			  TDisplayAction(aSel,theIObject));
+
   Repaint();
 }
 
-void VTKViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& IObject, bool update)
-{
-  QAD_Study* myStudy = QAD_Application::getDesktop()->getActiveStudy();
-  SALOME_Selection* Sel
-    = SALOME_Selection::Selection( myStudy->getSelection() );
 
-  vtkActorCollection* theActors = m_Renderer->GetActors();
-  theActors->InitTraversal();
-  vtkActor *ac = theActors->GetNextActor();
-  while(!(ac==NULL)) 
-    {
-      if ( ac->IsA("SALOME_Actor") )
-	{
-	  SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-	  if ( anActor->hasIO() )
-	    {
-	      Handle(SALOME_InteractiveObject) IO = anActor->getIO();
-	      if ( IO->isSame( IObject ) ) {
-		m_RWInteractor->Erase(IO, false);
-		Sel->RemoveIObject(IO, false);
-		break;
-	      }
-	    }
-	}
-      ac = theActors->GetNextActor();
-    }
-  if (update)
+struct TEraseAction: TDisplayAction{
+  VTKViewer_RenderWindowInteractor* myRWInteractor;
+  TEraseAction(SALOME_Selection* theSel,
+	       Handle(SALOME_InteractiveObject) theIO,
+	       VTKViewer_RenderWindowInteractor* theRWInteractor): 
+    TDisplayAction(theSel,theIO),
+    myRWInteractor(theRWInteractor)
+  {}
+  void operator()(SALOME_Actor* theActor){
+    myRWInteractor->Erase(myIO,false);
+    mySel->RemoveIObject(myIO,false);
+  }
+};
+
+void VTKViewer_ViewFrame::Erase(const Handle(SALOME_InteractiveObject)& theIObject, bool update)
+{
+  QAD_Study* aStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOME_Selection* aSel = SALOME_Selection::Selection(aStudy->getSelection());
+
+  using namespace SALOME::VTK;
+  ForEachIf<SALOME_Actor>(getRenderer()->GetActors(),
+			  TIsSameIObject<SALOME_Actor>(theIObject),
+			  TEraseAction(aSel,theIObject,m_RWInteractor));
+
+  if(update)
     Repaint();
 }
 
@@ -611,14 +574,132 @@ void VTKViewer_ViewFrame::SetScale(double theScale[3]){
   Repaint();
 }
 
-void VTKViewer_ViewFrame::AddActor( SALOME_Actor* theActor, bool update /*=false*/ ){
-  theActor->SetVisibility(true);
+void VTKViewer_ViewFrame::InsertActor( SALOME_Actor* theActor, bool theMoveInternalActors ){
   theActor->AddToRender(m_Renderer);
   theActor->SetTransform(m_Transform);
-  if(update) Repaint();
+  if(theMoveInternalActors) 
+    m_RWInteractor->MoveInternalActors();
 }
 
-void VTKViewer_ViewFrame::RemoveActor( SALOME_Actor* theActor, bool update /*=false*/ ){
+void VTKViewer_ViewFrame::AddActor( SALOME_Actor* theActor, bool theUpdate /*=false*/ ){
+  InsertActor(theActor);
+  if(theUpdate) 
+    Repaint();
+}
+
+void VTKViewer_ViewFrame::RemoveActor( SALOME_Actor* theActor, bool theUpdate /*=false*/ ){
   theActor->RemoveFromRender(m_Renderer);
-  if(update) Repaint();
+  if(theUpdate) 
+    Repaint();
+}
+
+void VTKViewer_ViewFrame::MoveActor(SALOME_Actor* theActor)
+{
+  RemoveActor(theActor);
+  InsertActor(theActor,true);
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::Display
+ *  Display presentation
+ */
+//==========================================================
+void VTKViewer_ViewFrame::Display( const SALOME_VTKPrs* prs )
+{
+  // try do downcast object
+  const VTKViewer_Prs* aVTKPrs = dynamic_cast<const VTKViewer_Prs*>( prs );
+  if ( !aVTKPrs || aVTKPrs->IsNull() )
+    return;
+
+  vtkActorCollection* actors = aVTKPrs->GetObjects();
+  if ( !actors )
+    return;
+
+  actors->InitTraversal();
+  vtkActor* actor;
+  while( ( actor = actors->GetNextActor() ) )
+  {
+    SALOME_Actor* salomeActor = SALOME_Actor::SafeDownCast( actor );
+    if ( salomeActor )                      
+    {
+      // just display the object
+      m_RWInteractor->Display( salomeActor, false );
+      if ( salomeActor->IsSetCamera() )
+        salomeActor->SetCamera( getRenderer()->GetActiveCamera() );
+    }
+  }
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::Erase
+ *  Erase presentation
+ */
+//==========================================================
+void VTKViewer_ViewFrame::Erase( const SALOME_VTKPrs* prs, const bool forced )
+{
+  // try do downcast object
+  const VTKViewer_Prs* aVTKPrs = dynamic_cast<const VTKViewer_Prs*>( prs );
+  if ( !aVTKPrs || aVTKPrs->IsNull() )
+    return;
+
+  vtkActorCollection* actors = aVTKPrs->GetObjects();
+  if ( !actors )
+    return;
+
+  actors->InitTraversal();
+  vtkActor* actor;
+  while( ( actor = actors->GetNextActor() ) ) {
+    SALOME_Actor* salomeActor = SALOME_Actor::SafeDownCast( actor );
+    if ( salomeActor ) {
+      // just erase the object
+      m_RWInteractor->Erase( salomeActor, forced );
+    }
+  }
+}
+  
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::CreatePrs
+ *  Create presentation by entry
+ */
+//==========================================================
+SALOME_Prs* VTKViewer_ViewFrame::CreatePrs( const char* entry )
+{
+  VTKViewer_Prs* prs = new VTKViewer_Prs();
+  if ( entry ) {
+    vtkActorCollection* theActors = m_Renderer->GetActors();
+    theActors->InitTraversal();
+    vtkActor* ac;
+    while( ( ac = theActors->GetNextActor() ) ) {
+      SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
+      if ( anActor && anActor->hasIO() && !strcmp( anActor->getIO()->getEntry(), entry ) ) {
+	prs->AddObject( ac );
+      }
+    }
+  }
+  return prs;
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::BeforeDisplay
+ *  Axiluary method called before displaying of objects
+ */
+//==========================================================
+void  VTKViewer_ViewFrame::BeforeDisplay( SALOME_Displayer* d )
+{
+  d->BeforeDisplay( this, SALOME_VTKViewType() );
+}
+
+//==========================================================
+/*!
+ *  VTKViewer_ViewFrame::AfterDisplay
+ *  Axiluary method called after displaying of objects
+ */
+//==========================================================
+void  VTKViewer_ViewFrame::AfterDisplay( SALOME_Displayer* d )
+{
+  d->AfterDisplay( this, SALOME_VTKViewType() );
 }

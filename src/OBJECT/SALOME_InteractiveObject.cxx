@@ -42,65 +42,54 @@ SALOME_InteractiveObject::SALOME_InteractiveObject()
   myReference = "";
 }
 
-SALOME_InteractiveObject::SALOME_InteractiveObject(const Standard_CString anEntry, 
-						   const Standard_CString aComponentDataType,
-						   const Standard_CString aName)
-{
-  myEntry = new char [strlen(anEntry)+1];
-  strcpy( myEntry, anEntry);
+SALOME_InteractiveObject::SALOME_InteractiveObject(const char* anEntry, 
+						   const char* aComponentDataType,
+						   const char* aName):
+  myEntry(anEntry), 
+  myName(aName), 
+  myComponentDataType(aComponentDataType), 
+  myReference("")
+{}
 
-  myName = new char [strlen(aName)+1];
-  strcpy( myName, aName);
-
-  myComponentDataType = new char [strlen(aComponentDataType)+1];
-  strcpy( myComponentDataType, aComponentDataType);
-
-  myReference = new char [strlen("")+1];
-  strcpy( myReference, "");
+void SALOME_InteractiveObject::setEntry(const char* anEntry){
+  myEntry = anEntry;
 }
 
-void SALOME_InteractiveObject::setEntry(const Standard_CString anEntry){
-  myEntry = new char [strlen(anEntry)+1];
-  strcpy( myEntry, anEntry);
+const char* SALOME_InteractiveObject::getEntry(){
+  return myEntry.c_str();
 }
 
-Standard_CString SALOME_InteractiveObject::getEntry(){
-  return myEntry;
+void SALOME_InteractiveObject::setComponentDataType(const char* aComponentDataType){
+  myComponentDataType = aComponentDataType; 
 }
 
-void SALOME_InteractiveObject::setComponentDataType(const Standard_CString aComponentDataType){
-  myComponentDataType = new char [strlen(aComponentDataType)+1];
-  strcpy( myComponentDataType, aComponentDataType);
+const char* SALOME_InteractiveObject::getComponentDataType(){
+  return myComponentDataType.c_str();
 }
 
-Standard_CString SALOME_InteractiveObject::getComponentDataType(){
-  return myComponentDataType;
+void SALOME_InteractiveObject::setName(const char* aName){
+  myName = aName;
 }
 
-void SALOME_InteractiveObject::setName(const Standard_CString aName){
-  myName = new char [strlen(aName)+1];
-  strcpy( myName, aName);
-}
-
-Standard_CString SALOME_InteractiveObject::getName(){
-  return myName;
+const char* SALOME_InteractiveObject::getName(){
+  return myName.c_str();
 }
 
 Standard_Boolean SALOME_InteractiveObject::hasEntry(){
-  return !( strcmp(myEntry, "" ) == 0 );
+  return myEntry != "";
 }
 
 Standard_Boolean SALOME_InteractiveObject::isSame(const Handle(SALOME_InteractiveObject)& anIO ){
   if ( anIO->hasEntry() && this->hasEntry() ) {
-    if ( strcmp(myEntry, anIO->getEntry() ) == 0 )
+    if ( myEntry == anIO->getEntry() )
       return Standard_True;
   }
   
   return Standard_False;
 }
 
-Standard_Boolean SALOME_InteractiveObject::isComponentType(const Standard_CString ComponentDataType){
-  if ( strcmp( myComponentDataType, ComponentDataType) == 0 )
+Standard_Boolean SALOME_InteractiveObject::isComponentType(const char* ComponentDataType){
+  if ( myComponentDataType == ComponentDataType )
     return Standard_True;
   else
     return Standard_False;
@@ -108,16 +97,15 @@ Standard_Boolean SALOME_InteractiveObject::isComponentType(const Standard_CStrin
 
 Standard_Boolean SALOME_InteractiveObject::hasReference()
 {
-  return !( strcmp(myReference, "" ) == 0 );
+  return myReference != "";
 }
 
-Standard_CString SALOME_InteractiveObject::getReference()
+const char* SALOME_InteractiveObject::getReference()
 {
-  return myReference;
+  return myReference.c_str();
 }
 
-void SALOME_InteractiveObject::setReference(const Standard_CString aReference)
+void SALOME_InteractiveObject::setReference(const char* aReference)
 {
-  myReference = new char [strlen(aReference)+1];
-  strcpy( myReference, aReference);
+  myReference = aReference;
 }

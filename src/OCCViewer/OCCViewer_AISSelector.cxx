@@ -40,7 +40,9 @@ using namespace std;
     Constructor
 */
 OCCViewer_AISSelector::OCCViewer_AISSelector( const Handle (AIS_InteractiveContext)& aisContext) :
-myAISContext ( aisContext )
+       myAISContext ( aisContext ),
+       myEnableSelection( true ),
+       myEnableMultipleSelection( true )
 {
   initialize();
 }
@@ -61,7 +63,7 @@ void OCCViewer_AISSelector::initialize()
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
 
   myHilightColor = Quantity_NOC_CYAN1;
-  mySelectColor = Quantity_NOC_GRAY80;
+  mySelectColor = Quantity_NOC_WHITE;
 
   myAISContext->SetHilightColor( myHilightColor );
   myAISContext->SelectionColor( mySelectColor );
@@ -105,25 +107,13 @@ void OCCViewer_AISSelector::setContext ( const Handle (AIS_InteractiveContext)& 
     'selSelectionCancel'.
     Returns 'true' if no error, 'false' otherwise.
 */
-bool OCCViewer_AISSelector::checkSelection ( AIS_StatusOfPick status, bool hadSelection, bool addTo )
+void OCCViewer_AISSelector::checkSelection ( int numSelBefore )
 {
-  myNumSelected = myAISContext->NbCurrents(); /* update after the last selection */
-
-  if ( status == AIS_SOP_NothingSelected && !hadSelection ) {
-    emit selSelectionCancel( addTo );
-  }
-  else if ( status == AIS_SOP_NothingSelected && hadSelection ) {
-    emit selSelectionCancel( addTo ); /* unselected now */
-  }
-  else if ( status == AIS_SOP_OneSelected || status == AIS_SOP_SeveralSelected )
-    {
-      //      if ( !hadSelection || status != AIS_SOP_SeveralSelected )
-      //	addTo = false;
-      //      MESSAGE (" AIS_StatusOfPick : " << AIS_SOP_OneSelected )
-
-      emit selSelectionDone( addTo ); /* selected ( the same object, may be ) */
-    }
-  return ( status != AIS_SOP_Error && status != AIS_SOP_NothingSelected );
+  int numSelAfter = numSelected();
+  if ( numSelAfter < 1 && numSelBefore > 0 )
+    emit selSelectionCancel( false );
+  else if ( numSelAfter > 0 )
+    emit selSelectionDone( numSelAfter > 1 );
 }
 
 
@@ -131,32 +121,31 @@ bool OCCViewer_AISSelector::checkSelection ( AIS_StatusOfPick status, bool hadSe
     Detects the interactive objects at position (x,y).
     Returns 'true' if no error, 'false' otherwise.
 */
-bool OCCViewer_AISSelector::moveTo ( int x, int y, const Handle (V3d_View)& view )
+void OCCViewer_AISSelector::moveTo ( int x, int y, const Handle (V3d_View)& view )
 {
   if ( !myEnableSelection )
-    return false;
+    return;
 
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
-  AIS_StatusOfDetection status = AIS_SOD_Error;
-  status = myAISContext->MoveTo (x, y, view);
-
-  return ( status != AIS_SOD_Error && status != AIS_SOD_AllBad );
+  myAISContext->MoveTo (x, y, view);
 }
 
 /*!
     Selects the detected interactive objects.
     Calls checkSelection() for checking the status.
 */
-bool OCCViewer_AISSelector::select ()
+void OCCViewer_AISSelector::select ()
 {
   if ( !myEnableSelection )
-    return false;
+    return;
 
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
-  bool hadSelection = ( myNumSelected > 0 );
+  int numBefore = numSelected();
 
-  /* select and send notifications */
-  return checkSelection ( myAISContext->Select(), hadSelection, false );
+  myAISContext->Select();
+
+  /* send notifications */
+  checkSelection ( numBefore );
 }
 
 /*!
@@ -164,18 +153,19 @@ bool OCCViewer_AISSelector::select ()
     Multiple selection must be enabled to get use of this function.
     Calls checkSelection() for checking the status.
 */
-bool OCCViewer_AISSelector::select ( int left, int top, int right, int bottom,
+void OCCViewer_AISSelector::select ( int left, int top, int right, int bottom,
 			       const Handle (V3d_View)& view )
 {
   if ( !myEnableSelection || !myEnableMultipleSelection )
-    return false;	/* selection with rectangle is considered as multiple selection */
+    return;	/* selection with rectangle is considered as multiple selection */
 
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
-  bool hadSelection = ( myNumSelected > 0 );
+  int numBefore = numSelected();
 
-  /* select and send notifications */
-  return checkSelection ( myAISContext->Select(left, top, right, bottom, view),
-			  hadSelection, false );
+  myAISContext->Select(left, top, right, bottom, view);
+
+  /* send notifications */
+  checkSelection ( numBefore );
 }
 
 /*!
@@ -183,18 +173,21 @@ bool OCCViewer_AISSelector::select ( int left, int top, int right, int bottom,
     Multiple selection must be enabled to get use of this function.
     Calls checkSelection() for checking the status.
 */
-bool OCCViewer_AISSelector::shiftSelect ()
+void OCCViewer_AISSelector::shiftSelect ()
 {
   if ( !myEnableSelection )
-    return false;
+    return;
 
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
-  bool hadSelection = ( myNumSelected > 0 ); /* something was selected */
-  if ( hadSelection && !myEnableMultipleSelection)
-    return false;
+  int numBefore = numSelected();
 
-  /* select and send notifications */
-  return checkSelection ( myAISContext->ShiftSelect(), hadSelection, true );
+  if ( numBefore && !myEnableMultipleSelection)
+    myAISContext->Select();
+  else
+    myAISContext->ShiftSelect();
+
+  /* send notifications */
+  checkSelection ( numBefore );
 }
 
 /*!
@@ -203,19 +196,50 @@ bool OCCViewer_AISSelector::shiftSelect ()
     Multiple selection must be enabled to get use of this function.
     Calls checkSelection() for checking the status.
 */
-bool OCCViewer_AISSelector::shiftSelect ( int left, int top, int right, int bottom,
+void OCCViewer_AISSelector::shiftSelect ( int left, int top, int right, int bottom,
 				    const Handle (V3d_View)& view )
 
 {
   if ( !myEnableSelection || !myEnableMultipleSelection )
-    return false;	/* selection with rectangle is considered as multiple selection */
+    return;	/* selection with rectangle is considered as multiple selection */
 
   QAD_ASSERT_DEBUG_ONLY ( !myAISContext.IsNull() );
-  bool hadSelection = ( myNumSelected > 0 );			/* something was selected */
-  if ( hadSelection && !myEnableMultipleSelection)
-    return false;
+  int numBefore = numSelected();
 
-  /* select and send notifications */
-  return checkSelection ( myAISContext->ShiftSelect(left,top,right,bottom, view),
-			  hadSelection, true );
+  myAISContext->ShiftSelect(left,top,right,bottom, view);
+
+  /* send notifications */
+  checkSelection ( numBefore );
+}
+
+/*!
+    Enables/disables selection
+*/
+void OCCViewer_AISSelector::enableSelection( bool bEnable )
+{
+  myEnableSelection = bEnable;
+}
+
+/*!
+    Enables/disables multiple selection i.e
+    selection of several objects at the same time.
+    If enabled, non-multiple selection is enabled as well.
+*/
+void OCCViewer_AISSelector::enableMultipleSelection( bool bEnable )
+{
+  myEnableMultipleSelection = bEnable;
+  if ( bEnable ) myEnableSelection = bEnable;
+}
+
+/*!
+    Returns the number of selected objects.
+*/
+int OCCViewer_AISSelector::numSelected() const
+{
+  if ( myAISContext.IsNull() )
+    return 0;
+
+  if ( myAISContext->HasOpenedContext() )
+    return myAISContext->NbSelected();
+  return myAISContext->NbCurrents();
 }

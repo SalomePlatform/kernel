@@ -29,11 +29,17 @@
 #ifndef SALOME_ACTOR_H
 #define SALOME_ACTOR_H
 
-// SALOME Includes
-#include "VTKViewer_Common.h"
-#include "SALOME_InteractiveObject.hxx"
-
 #include <vector>
+
+#include <vtkLODActor.h>
+#include <vtkProperty.h>
+
+class vtkCell;
+class vtkDataSet;
+class vtkPolyData;
+class vtkCamera;
+
+#include "SALOME_InteractiveObject.hxx"
 
 class SALOME_Transform;
 class SALOME_GeometryFilter;
@@ -43,42 +49,39 @@ class SALOME_PassThroughFilter;
 extern int SALOME_POINT_SIZE;
 
 class SALOME_Actor : public vtkLODActor{
- protected:
-  //constructor should be protected due to first implementation of this class
-  //it was abstract class
-  SALOME_Actor();
-  ~SALOME_Actor();
  public:
   static SALOME_Actor* New();
 
   vtkTypeMacro(SALOME_Actor,vtkLODActor);
 
   virtual Standard_Boolean hasIO() { return !myIO.IsNull(); }
-  virtual Handle_SALOME_InteractiveObject getIO() { return myIO; } 
+  virtual const Handle(SALOME_InteractiveObject)& getIO() { return myIO; } 
   virtual void setIO(const Handle(SALOME_InteractiveObject)& io) { myIO = io; }
 
-  virtual Standard_CString getName()     { return myName; }
-  virtual void setName(Standard_CString aName){
-    myName = aName;
-    if(hasIO())	myIO->setName(aName);
+  virtual const char* getName() { return myName.c_str(); }
+  virtual void setName(const char* theName){
+    if(hasIO())	myIO->setName(theName);
+    myName = theName;
   }
 
-  virtual int getDisplayMode() { return myDisplayMode; }
-  virtual void setDisplayMode(int mode) { myDisplayMode = mode; }
+  // To generate highlight automaticaly
+  virtual bool hasHighlight() { return false; } 
+  virtual void highlight(bool theHighlight) { myIsHighlighted = theHighlight; }  
+  virtual bool isHighlighted() { return myIsHighlighted; }
 
-  virtual bool hasHighlight() { return false; }  
-  virtual void highlight(Standard_Boolean highlight) { ishighlighted = highlight; }  
-  virtual Standard_Boolean isHighlighted() { return ishighlighted; }
+  virtual void SetOpacity(float theOpacity);
+  virtual float GetOpacity();
 
-  virtual void SetOpacity(float opa) { m_opacity = opa; }
-  virtual float GetOpacity() { return m_opacity; }
-
-  virtual void SetColor(float r,float g,float b) {};
-  virtual void GetColor(float& r,float& g,float& b) {};
+  virtual void SetColor(float r,float g,float b);
+  virtual void GetColor(float& r,float& g,float& b);
+  void SetColor(const float theRGB[3]){ 
+    SetColor(theRGB[0],theRGB[1],theRGB[2]);
+  }
 
   vtkSetObjectMacro(PreviewProperty,vtkProperty);
 
-  virtual void SetPreSelected(Standard_Boolean presel = Standard_False)   { ispreselected = presel; }
+  virtual void SetPreSelected(bool thePreselect = false) { myIsPreselected = thePreselect;}
+
 
   // Used to obtain all dependent actors
   virtual void GetChildActors(vtkActorCollection*) {};
@@ -86,14 +89,19 @@ class SALOME_Actor : public vtkLODActor{
   virtual void AddToRender(vtkRenderer* theRenderer); 
   virtual void RemoveFromRender(vtkRenderer* theRenderer);
 
-  typedef std::vector<int> TVectorId;
-  virtual int GetObjId(int theVtkID) { return -1;}
-  virtual TVectorId GetVtkId(int theObjID) { return TVectorId();}
+
+  // For selection mapping purpose
+  virtual int GetNodeObjId(int theVtkID) { return theVtkID;}
+  virtual float* GetNodeCoord(int theObjID);
+
+  virtual int GetElemObjId(int theVtkID) { return theVtkID;}
+  virtual vtkCell* GetElemCell(int theObjID);
 
   virtual int GetObjDimension( const int theObjId );
 
   virtual void SetMapper(vtkMapper* theMapper); 
-  virtual vtkPolyData* GetPolyDataInput(); 
+  virtual vtkDataSet* GetInput(); 
+
 
   virtual void SetTransform(SALOME_Transform* theTransform); 
   virtual unsigned long int GetMTime();
@@ -101,19 +109,46 @@ class SALOME_Actor : public vtkLODActor{
   virtual void SetRepresentation(int theMode);
   virtual int GetRepresentation();
 
-  // Infinitive means actor without size (point for example
+  virtual int getDisplayMode();
+  virtual void setDisplayMode(int theMode);
+
+  // Infinitive means actor without size (point for example),
   // which is not taken into account in calculation of boundaries of the scene
-  virtual bool IsInfinitive() { return myIsInfinite; }
+  void SetInfinitive(bool theIsInfinite) { myIsInfinite = theIsInfinite; }
+  virtual bool IsInfinitive();
     
+  void SetResolveCoincidentTopology(bool theIsResolve);
+  void SetPolygonOffsetParameters(float factor, float units);
+  void GetPolygonOffsetParameters(float& factor, float& units);
+
+  virtual void Render(vtkRenderer *, vtkMapper *);
+
+  virtual float GetShrinkFactor() { return 1.0;}
+
+  virtual bool IsShrunkable() { return false;}
+  virtual bool IsShrunk() { return false;}
+
+  virtual void SetShrink() {} 
+  virtual void UnShrink() {}
+
+  virtual bool IsSetCamera() const { return false; }
+  virtual bool IsResizable() const { return false; }
+  virtual void SetSize( const float ) {}
+  virtual void SetCamera( vtkCamera* ) {}
+
  protected:
-  vtkProperty         *PreviewProperty;
-  Standard_Boolean    ispreselected;
+  bool myIsResolveCoincidentTopology;
+  float myPolygonOffsetFactor;
+  float myPolygonOffsetUnits;
 
   Handle(SALOME_InteractiveObject) myIO;
-  Standard_CString myName;
+  std::string myName;
 
-  float   m_opacity;
-  Standard_Boolean    ishighlighted;
+  vtkProperty *PreviewProperty;
+  bool myIsPreselected;
+
+  float myOpacity;
+  bool myIsHighlighted;
   int myDisplayMode;
   bool myIsInfinite;
 
@@ -124,6 +159,13 @@ class SALOME_Actor : public vtkLODActor{
 
   int myRepresentation;
   vtkProperty *myProperty;
+
+  void InitPipeLine(vtkMapper* theMapper); 
+
+  SALOME_Actor();
+  ~SALOME_Actor();
 };
 
+
 #endif // SALOME_ACTOR_H
+

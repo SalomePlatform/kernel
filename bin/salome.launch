@@ -10,8 +10,8 @@
 	        <module name="GEOM"/>
 	        <module name="SMESH">
 			<plugin name="NETGENPlugin"/>
+			<plugin name="GHS3DPlugin"/>
 	        </module>
-		<module name="DATA"/>
 	        <module name="VISU"/>
 	        <module name="SUPERV"/>
 	        <module name="MED"/>

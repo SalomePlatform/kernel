@@ -25,6 +25,10 @@
 #include <qcolordialog.h>
 #include <qspinbox.h>
 
+#include "utilities.h"
+
+using namespace std;
+
 #define DLG_SIZE_WIDTH    500 
 #define DLG_SIZE_HEIGHT   400
 #define MAX_LINE_WIDTH    100
@@ -107,10 +111,10 @@ Plot2d_SetupPlot2dDlg::Plot2d_SetupPlot2dDlg( SALOMEDS::SObject_var object, QWid
 	  frameLayout->addWidget( item->myVBtn,        row, 1 );
 	  frameLayout->addWidget( item->myTitleLab,    row, 3 );
 	  if ( rowTitles->length() > 0 )
-	    item->myTitleLab->setText( QString( strdup( rowTitles[ i ] ) ) );
+	    item->myTitleLab->setText( QString( rowTitles[ i ] ) );
 	  frameLayout->addWidget( item->myUnitLab,     row, 5 );
 	  if ( rowUnits->length() > 0 )
-	    item->myUnitLab->setText( QString( strdup( rowUnits[ i ] ) ) );
+	    item->myUnitLab->setText( QString( rowUnits[ i ] ) );
 	  frameLayout->addWidget( item->myAutoCheck,   row, 7 );
 	  frameLayout->addWidget( item->myLineCombo,   row, 8 );
 	  frameLayout->addWidget( item->myLineSpin,    row, 9 );
@@ -142,10 +146,10 @@ Plot2d_SetupPlot2dDlg::Plot2d_SetupPlot2dDlg( SALOMEDS::SObject_var object, QWid
 	  frameLayout->addWidget( item->myVBtn,        row, 1 );
 	  frameLayout->addWidget( item->myTitleLab,    row, 3 );
 	  if ( rowTitles->length() > 0 )
-	    item->myTitleLab->setText( QString( strdup( rowTitles[ i ] ) ) );
+	    item->myTitleLab->setText( QString( rowTitles[ i ] ) );
 	  frameLayout->addWidget( item->myUnitLab,     row, 5 );
 	  if ( rowUnits->length() > 0 )
-	    item->myUnitLab->setText( QString( strdup( rowUnits[ i ] ) ) );
+	    item->myUnitLab->setText( QString( rowUnits[ i ] ) );
 	  frameLayout->addWidget( item->myAutoCheck,   row, 7 );
 	  frameLayout->addWidget( item->myLineCombo,   row, 8 );
 	  frameLayout->addWidget( item->myLineSpin,    row, 9 );
@@ -272,13 +276,13 @@ void Plot2d_SetupPlot2dDlg::getCurves( Plot2d_CurveContainer& container )
 	  Plot2d_Curve* curve = new Plot2d_Curve();
 	  // curve titles
 	  if ( rowTitles->length() > 0 ) {
-	    curve->setHorTitle( strdup( rowTitles[ horIndex ] ) );
-	    curve->setVerTitle( strdup( rowTitles[ verIndex[i] ] ) );
+	    curve->setHorTitle( QString( rowTitles[ horIndex ] ) );
+	    curve->setVerTitle( QString( rowTitles[ verIndex[i] ] ) );
 	  }
 	  // curve units
 	  if ( rowUnits->length() > 0 ) {
-	    curve->setHorUnits( strdup( rowUnits[ horIndex ] ) );
-	    curve->setVerUnits( strdup( rowUnits[ verIndex[i] ] ) );
+	    curve->setHorUnits( QString( rowUnits[ horIndex ] ) );
+	    curve->setVerUnits( QString( rowUnits[ verIndex[i] ] ) );
 	  }
 	  // curve data
 	  int nbPoints = 0;
@@ -324,13 +328,13 @@ void Plot2d_SetupPlot2dDlg::getCurves( Plot2d_CurveContainer& container )
 	  Plot2d_Curve* curve = new Plot2d_Curve();
 	  // curve titles
 	  if ( rowTitles->length() > 0 ) {
-	    curve->setHorTitle( strdup( rowTitles[ horIndex ] ) );
-	    curve->setVerTitle( strdup( rowTitles[ verIndex[i] ] ) );
+	    curve->setHorTitle( QString( rowTitles[ horIndex ] ) );
+	    curve->setVerTitle( QString( rowTitles[ verIndex[i] ] ) );
 	  }
 	  // curve units
 	  if ( rowUnits->length() > 0 ) {
-	    curve->setHorUnits( strdup( rowUnits[ horIndex ] ) );
-	    curve->setVerUnits( strdup( rowUnits[ verIndex[i] ] ) );
+	    curve->setHorUnits( QString( rowUnits[ horIndex ] ) );
+	    curve->setVerUnits( QString( rowUnits[ verIndex[i] ] ) );
 	  }
 	  // curve data
 	  int nbPoints = 0;

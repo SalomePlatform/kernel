@@ -30,7 +30,6 @@
 #define Utils_ExceptHandlers_HeaderFile
 
 #include <stdexcept>
-#include <utilities.h>
 
 typedef void (*PVF)();
 
@@ -38,8 +37,8 @@ class Unexpect { //save / retrieve unexpected exceptions treatment
   PVF old;
   public :
     Unexpect( PVF f ) 
-      { old = set_unexpected(f); }
-  ~Unexpect() { set_unexpected(old); }
+      { old = std::set_unexpected(f); }
+  ~Unexpect() { std::set_unexpected(old); }
 };
 
 class Terminate {//save / retrieve terminate function
@@ -47,12 +46,12 @@ class Terminate {//save / retrieve terminate function
   PVF old;
   public :
     Terminate( PVF f ) 
-      { old = set_terminate(f); }
-  ~Terminate() { set_terminate(old); }
+      { old = std::set_terminate(f); }
+  ~Terminate() { std::set_terminate(old); }
 };
 
 #define UNEXPECT_CATCH(FuncName, ExceptionConstructor) \
-void FuncName () {\
+inline void FuncName () {\
    throw ExceptionConstructor (); \
 }
 //Example of the usage 
@@ -72,4 +71,5 @@ void FuncName () {\
 //Definitions :
 extern void SalomeException();
 extern void SALOME_SalomeException();
+
 #endif

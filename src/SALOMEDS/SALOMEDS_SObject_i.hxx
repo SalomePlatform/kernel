@@ -87,6 +87,7 @@ public:
   virtual char* GetIOR();
 
   virtual CORBA::Short Tag();
+  virtual CORBA::Short Depth();
 
   static char* AttributeIDToType(Standard_GUID);
   

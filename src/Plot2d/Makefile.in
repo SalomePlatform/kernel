@@ -14,7 +14,8 @@ EXPORT_HEADERS = \
            Plot2d_ViewFrame.h \
            Plot2d_SetupViewDlg.h \
            Plot2d_SetupPlot2dDlg.h \
-           Plot2d_FitDataDlg.h
+           Plot2d_FitDataDlg.h \
+	   Plot2d_Prs.h
 
 # .po files to transform in .qm
 #PO_FILES = \
@@ -29,7 +30,8 @@ LIB_SRC = 	  \
            Plot2d_ViewFrame.cxx \
            Plot2d_SetupViewDlg.cxx \
            Plot2d_SetupPlot2dDlg.cxx \
-           Plot2d_FitDataDlg.cxx
+           Plot2d_FitDataDlg.cxx \
+           Plot2d_Prs.cxx
 
 LIB_MOC = \
            Plot2d.h \
@@ -44,7 +46,7 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(OCC_INCLUDES) $(OGL_INCLUDES) $(PYTHON_INCLUDES) $(QWT_INCLUDES) 
-LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS) $(QWT_LIBS) -lSalomeGUI
+LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS) $(QWT_LIBS) -lSalomePrs -lSalomeGUI
 
 
 @CONCLUDE@

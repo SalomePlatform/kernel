@@ -134,9 +134,11 @@ RegWidget::RegWidget(CORBA::ORB_var &orb, QWidget *parent, const char *name )
   connect( _refresh, SIGNAL( clicked() ), this, SLOT( slotListeSelect() ) );
   QToolTip::add( _refresh, "", toolTipGroup(), tr("Immediately updates list of components") );
   
+  /* PAL5540 - this button is needless
   QPushButton* help = new QPushButton( tr( "Help" ), topbar );
   connect( help, SIGNAL( clicked() ), this, SLOT( slotHelp() ) );
   QToolTip::add( help, "", toolTipGroup(), tr("Opens Help window") );
+  */
   
   _interval = new QPushButton( tr( "Interval" ), topbar );
   connect( _interval, SIGNAL( clicked() ), this, SLOT( slotSelectRefresh() ) );

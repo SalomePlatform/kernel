@@ -95,7 +95,7 @@ idbox = geompy.addToStudy(box,"box")
 
 subShapeList=geompy.SubShapeAll(box,ShapeTypeFace)
 face=subShapeList[0]
-name = geompy.SubShapeName( face._get_Name(), box._get_Name() )
+name = geompy.SubShapeName(face, box)
 print name
 idface=geompy.addToStudyInFather(box,face,name)
 
@@ -103,7 +103,7 @@ idface=geompy.addToStudyInFather(box,face,name)
 
 subShellList=geompy.SubShapeAll(box,ShapeTypeShell)
 shell = subShellList[0]
-name = geompy.SubShapeName( shell._get_Name(), box._get_Name() )
+name = geompy.SubShapeName(shell, box)
 print name
 idshell=geompy.addToStudyInFather(box,shell,name)
 
@@ -111,7 +111,7 @@ idshell=geompy.addToStudyInFather(box,shell,name)
 
 edgeList = geompy.SubShapeAll(face,ShapeTypeEdge)
 edge=edgeList[0];
-name = geompy.SubShapeName( edge._get_Name(), face._get_Name() )
+name = geompy.SubShapeName(edge, face)
 print name
 idedge=geompy.addToStudyInFather(face,edge,name)
 

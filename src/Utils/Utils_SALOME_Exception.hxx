@@ -32,11 +32,10 @@
 # include <exception>
 # include <iostream>
 
-using namespace std;
-
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 
-class SALOME_Exception : public exception
+
+class SALOME_Exception : public std::exception
 {
 
 private :
@@ -49,7 +48,7 @@ public :
 	SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
 	SALOME_Exception( const SALOME_Exception &ex );
 	~SALOME_Exception() throw ();
-	friend ostream & operator<<( ostream &os , const SALOME_Exception &ex );
+	friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
 	virtual const char *what( void ) const throw () ;
 } ;
 

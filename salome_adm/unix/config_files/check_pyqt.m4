@@ -29,7 +29,7 @@ pyqt_ok=no
 if test "x$PYQTDIR" = x; then
   PYQTDIR="/usr"
 fi
-
+  
 if test "x$PYQT_SIPS" = x; then
   PYQT_SIPS="/usr/share/sip/qt"
 fi
@@ -50,7 +50,11 @@ else
   PYQTBIN=$PYQTDIR
 fi
 
-AC_CHECK_FILE("$PYQTBIN/pyuic",pyqt_ok=yes,pyqt_ok=no)
+if test "x$PYUIC" = x; then
+  PYUIC="$PYQTBIN/pyuic"
+fi
+  
+AC_CHECK_FILE("$PYUIC",pyqt_ok=yes,pyqt_ok=no)
 
 if test "x$pyqt_ok" = xyes ; then
   AC_CHECK_FILES("$PYQTLIB/qt.py",pyqt_ok=yes,pyqt_ok=no)

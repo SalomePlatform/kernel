@@ -83,6 +83,7 @@ public:
   bool		   isModified() const;
   bool		   isReadOnly() const;
   void		   setReadOnly(bool state);
+  bool             isLocked();
   const QString&   getTitle() const;
   int              getStudyId();
   const QString&   getPath() const;

@@ -48,6 +48,7 @@
 #endif
 class SALOME_InteractiveObject;
 class TopoDS_Shape;
+class TColStd_IndexedMapOfInteger;
 
 
 class SALOME_AISShape : public AIS_Shape {
@@ -77,6 +78,7 @@ Standard_EXPORT virtual  Handle_SALOME_InteractiveObject getIO() = 0;
 Standard_EXPORT virtual  Standard_Boolean hasIO() = 0;
 Standard_EXPORT virtual  Standard_CString getName() = 0;
 Standard_EXPORT virtual  void setName(Standard_CString aName) = 0;
+Standard_EXPORT virtual  void highlightSubShapes(const TColStd_IndexedMapOfInteger& aIndexMap, const Standard_Boolean aHighlight ) = 0;
 Standard_EXPORT ~SALOME_AISShape();
 
 
