@@ -1,0 +1,34 @@
+#! /bin/sh
+
+# test of MED compound :
+# You must specifie 5 arguments :
+#  1 : A med file ('/tmp/file.med')
+#  2 : A mesh name in this med file ('mymesh')
+#  3 : A field on all node in this med file on mymesh of course ('myfield')
+#  4 : A second field on all node in this med file on mymesh of course ('myfield2')
+#  5 : A vtk file to write mesh and fields ('/tmp/file.vtk)
+
+@ENVSCRIPT@
+
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+
+./runNS.sh
+sleep 2
+./SALOME_Registry_Server --salome_session theSession &
+sleep 2
+
+# direct :
+./SALOME_Container &
+# with gdb
+#xterm -T "SALOME_Container" -bg "black" -fg "green" -e /usr/bin/gdb SALOME_Container&
+
+sleep 2
+
+# direct :
+./TestMED "$1" "$2" "$3" "$4" "$5"
+
+# with gdb (you must add argument when you type 'run' command in gdb : I don't find how to do this better)
+#xterm -T "TestMED" -bg "black" -fg "green" -e /usr/bin/gdb TestMED&

@@ -1,0 +1,678 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface SuperG</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Graph  Graph ( in string aGraph )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Graph ( aGraph )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Graph  GraphE ( in string aGraph )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GraphE ( aGraph )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Value  StringValue ( in string aString )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = StringValue ( aString )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Value  AnyValue ( in any anAny )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = AnyValue ( anAny )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Graph  getGraph ( in string ior )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGraph ( ior )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface CNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Name (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Name (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Service  Service (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Service (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>KindOfNode  Kind (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Kind (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SDate  CreationDate (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreationDate (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SDate  LastUpdateDate (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LastUpdateDate (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Version (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Version (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Author (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Author (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Comment (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Comment (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetName ( in string aNewName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetName ( aNewName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetAuthor ( in string anAuthor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetAuthor ( anAuthor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetComment ( in string aComment )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetComment ( aComment )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  Port ( in string aParameterName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Port ( aParameterName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  Input ( in string InputParameterName, in Value aValue )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Input ( InputParameterName, aValue )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfPorts  Ports (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Ports (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfLinks  Links (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Links (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsGraph (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsGraph (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsComputing (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsComputing (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsFactory (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsFactory (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsInLine (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsInLine (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsGOTO (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsGOTO (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsLoop (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsLoop (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsEndLoop (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsEndLoop (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsSwitch (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsSwitch (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsEndSwitch (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsEndSwitch (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  SubGraph (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SubGraph (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Thread (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Thread (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsWaiting (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsWaiting (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsReady (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsReady (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsRunning (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsRunning (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsDone (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsDone (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsSuspended (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsSuspended (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GraphState  State (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = State (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ReadyW (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ReadyW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  RunningW (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = RunningW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  DoneW (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = DoneW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SuspendedW (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SuspendedW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Kill (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Kill (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  KillDone (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = KillDone (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Stop (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Stop (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Suspend (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Suspend (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SuspendDone (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SuspendDone (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Resume (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Resume (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ReRun (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ReRun (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ReRunAt ( in string aNodeName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ReRunAt ( aNodeName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ReStart (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ReStart (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ReStartAt ( in string aNodeName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ReStartAt ( aNodeName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>AutomatonState  AutoState (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = AutoState (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ControlState  Control (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Control (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void ControlClear (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>ControlClear (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ContainerKill (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ContainerKill (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Coords ( in long X, in long Y )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Coords ( X, Y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  X (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = X (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Y (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Y (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface FNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetComponentName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetComponentName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetInterfaceName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetInterfaceName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetContainer (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetContainer (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetComponentName ( in string aComponentName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetComponentName ( aComponentName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetInterfaceName ( in string anInterfaceName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetInterfaceName ( anInterfaceName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetContainer ( in string aContainer )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetContainer ( aContainer )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface INode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPyFunction ( in string FuncName, in ListOfStrings aPyInitFunction )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPyFunction ( FuncName, aPyInitFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfStrings  PyFunction (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyFunction (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  PyFuncName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyFuncName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  InPort ( in string aParameterName, in string aParameterType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = InPort ( aParameterName, aParameterType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  OutPort ( in string aParameterName, in string aParameterType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = OutPort ( aParameterName, aParameterType )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface GNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SetCoupled ( in string anInLineNode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SetCoupled ( anInLineNode )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>INode  Coupled (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Coupled (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface LNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPyInit ( in string MoreName, in ListOfStrings aPyMoreFunction )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPyInit ( MoreName, aPyMoreFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfStrings  PyInit (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyInit (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  PyInitName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyInitName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPyMore ( in string MoreName, in ListOfStrings aPyMoreFunction )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPyMore ( MoreName, aPyMoreFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfStrings  PyMore (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyMore (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  PyMoreName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyMoreName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPyNext ( in string NextName, in ListOfStrings aPyNextFunction )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPyNext ( NextName, aPyNextFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfStrings  PyNext (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyNext (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  PyNextName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = PyNextName (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface ELNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface SNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface ESNode</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Graph</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>CNode  CNode ( in Service aService )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CNode ( aService )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FNode  FNode ( in string aComponentName, in string anInterfaceName, in Service aService )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = FNode ( aComponentName, anInterfaceName, aService )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>INode  INode ( in string FuncName, in ListOfStrings aPythonFunction )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = INode ( FuncName, aPythonFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GNode  GNode ( in string FuncName, in ListOfStrings aPythonFunction, in string anINode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GNode ( FuncName, aPythonFunction, anINode )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>LNode  LNode ( in string InitName, in ListOfStrings InitFunction, in string MoreName, in ListOfStrings MoreFunction, in string NextName, in ListOfStrings NextFunction, out INode anEndOfLoop )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  anEndOfLoop ] = LNode ( InitName, InitFunction, MoreName, MoreFunction, NextName, NextFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SNode  SNode ( in string FuncName, in ListOfStrings aPythonFunction, out INode anEndOfSwitch )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  anEndOfSwitch ] = SNode ( FuncName, aPythonFunction )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Component  ComponentRef ( in string aComputerContainer, in string aComponentName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ComponentRef ( aComputerContainer, aComponentName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Link  Link ( in Port OutputPort, in Port InputPort )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Link ( OutputPort, InputPort )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Import ( in string anXmlFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Import ( anXmlFile )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Export ( in string anXmlFile )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Export ( anXmlFile )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsReadOnly (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsReadOnly (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Run (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Run (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  EventNoW ( out CNode aNode, out GraphEvent anEvent, out GraphState aState )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  aNode, anEvent, aState ] = EventNoW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Event ( out CNode aNode, out GraphEvent anEvent, out GraphState aState )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  aNode, anEvent, aState ] = Event (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  EventW ( out CNode aNode, out GraphEvent anEvent, out GraphState aState )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  aNode, anEvent, aState ] = EventW (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  LevelMax (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LevelMax (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfNodes  LevelNodes ( in long aLevel )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LevelNodes ( aLevel )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  ThreadsMax (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ThreadsMax (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GraphsNumber (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GraphsNumber (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Threads (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Threads (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  SuspendedThreads (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SuspendedThreads (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsValid (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsValid (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsExecutable (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsExecutable (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsDataFlow (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsDataFlow (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsEditing (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsEditing (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsExecuting (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsExecuting (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  LastLevelDone (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LastLevelDone (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Start (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Start (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Graph  Copy (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Copy (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Merge ( in Graph aGraph )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Merge ( aGraph )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfNodes  Nodes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Nodes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfLinks  GLinks (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GLinks (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getIOR (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getIOR (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfGraphs  Graphs (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Graphs (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Link</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  OutPort (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = OutPort (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Port  InPort (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = InPort (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  CoordsSize (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CoordsSize (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  AddCoord ( in long index, in long X, in long Y )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = AddCoord ( index, X, Y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  ChangeCoord ( in long index, in long X, in long Y )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ChangeCoord ( index, X, Y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  RemoveCoord ( in long index )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = RemoveCoord ( index )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Coords ( in long index, out long X, out long Y )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  X, Y ] = Coords ( index )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Value</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  ToString (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ToString (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>any  ToAny (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ToAny (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsIOR (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsIOR (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  ComponentDataType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ComponentDataType (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Port</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  Input ( in Value aValue )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Input ( aValue )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>CNode  Node (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Node (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Name (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Name (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  Type (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Type (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Link  Link (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Link (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfLinks  Links (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Links (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsInput (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsInput (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  HasInput (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = HasInput (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsLinked (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsLinked (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>KindOfPort  Kind (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Kind (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsParam (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsParam (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsGate (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsGate (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsInLine (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsInLine (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsLoop (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsLoop (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsSwitch (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsSwitch (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsEndSwitch (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsEndSwitch (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GraphState  State (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = State (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  IsDone (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsDone (  )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

@@ -1,0 +1,4 @@
+
+DIR=`pwd`
+export OMNIORB_CONFIG=${DIR}/omniORB.cfg
+

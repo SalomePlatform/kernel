@@ -1,0 +1,710 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Base</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>IdType  GetID (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetID (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>VISUType  GetType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetType (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface PrsObject</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Table</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetOrientation ( in Orientation theOrientation )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetOrientation ( theOrientation )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Orientation  GetOrientation (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetOrientation (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbRows (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbRows (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbColumns (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbColumns (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Curve</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetColor ( in Color theColor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetColor ( theColor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Color  GetColor (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetColor (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetMarker ( in MarkerType theType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetMarker ( theType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>MarkerType  GetMarker (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetMarker (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetLine ( in LineType theType, in long theLineWidth )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetLine ( theType, theLineWidth )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>LineType  GetLine (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetLine (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetLineWidth (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetLineWidth (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Container</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void AddCurve ( in Curve theCurve )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>AddCurve ( theCurve )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void RemoveCurve ( in Curve theCurve )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>RemoveCurve ( theCurve )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbCurves (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbCurves (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Clear (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Clear (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Mesh</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetCellColor ( in Color theColor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetCellColor ( theColor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Color  GetCellColor (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetCellColor (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetNodeColor ( in Color theColor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetNodeColor ( theColor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Color  GetNodeColor (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNodeColor (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetLinkColor ( in Color theColor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetLinkColor ( theColor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Color  GetLinkColor (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetLinkColor (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPresentationType ( in PresentationType theType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPresentationType ( theType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>PresentationType  GetPresentationType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetPresentationType (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface ScalarMap</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetScalarMode ( in long theScaling )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetScalarMode ( theScaling )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetScalarMode (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetScalarMode (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetScaling ( in Scaling theScaling )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetScaling ( theScaling )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Scaling  GetScaling (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetScaling (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetRange ( in double theMin, in double theMax )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetRange ( theMin, theMax )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetMin (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetMin (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetMax (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetMax (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetOrientation ( in Orientation theOrientation )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetOrientation ( theOrientation )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Orientation  GetOrientation (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetOrientation (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPosition ( in double X, in double Y )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPosition ( X, Y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetPosX (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetPosX (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetPosY (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetPosY (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetSize ( in double theWidth, in double theHeight )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetSize ( theWidth, theHeight )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetWidth (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetWidth (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetHeight (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetHeight (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetNbColors ( in long theNbColors )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetNbColors ( theNbColors )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbColors (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbColors (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetLabels ( in long theNbLabels )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetLabels ( theNbLabels )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetLabels (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetLabels (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetTitle ( in string theName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetTitle ( theName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetTitle (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface DeformedShape</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetScale ( in double theScale )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetScale ( theScale )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetScale (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetScale (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface CutPlanes</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetOrientationType ( in Orientation theNb )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetOrientationType ( theNb )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Orientation  GetOrientationType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetOrientationType (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetNbPlanes ( in long theNb )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetNbPlanes ( theNb )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbPlanes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbPlanes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetRotateX ( in double theAngle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetRotateX ( theAngle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetRotateX (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetRotateX (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetRotateY ( in double theAngle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetRotateY ( theAngle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetRotateY (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetRotateY (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface StreamLines</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface IsoSurfaces</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetNbSurfaces ( in long theNb )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetNbSurfaces ( theNb )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetNbSurfaces (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetNbSurfaces (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Vectors</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetLineWidth ( in double theWidth )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetLineWidth ( theWidth )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetLineWidth (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetLineWidth (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetGlyphType ( in GlyphType theType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetGlyphType ( theType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GlyphType  GetGlyphType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetGlyphType (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetGlyphPos ( in GlyphPos thePos )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetGlyphPos ( thePos )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GlyphPos  GetGlyphPos (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetGlyphPos (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Result</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface VISU_Gen</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetCurrentStudy ( in Study theStudy )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetCurrentStudy ( theStudy )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Study  GetCurrentStudy (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetCurrentStudy (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ViewManager  GetViewManager (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetViewManager (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SObject  ImportTables ( in string theFileName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ImportTables ( theFileName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Result  ImportFile ( in string theFileName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ImportFile ( theFileName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Result  ImportMed ( in FIELD theField )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ImportMed ( theField )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Result  ImportMedMesh ( in MESH theMesh )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ImportMedMesh ( theMesh )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Result  ImportMedSupport ( in SUPPORT theSupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ImportMedSupport ( theSupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Mesh  MeshOnEntity ( in Result theResult, in string theMeshName, in Entity theEntity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = MeshOnEntity ( theResult, theMeshName, theEntity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Mesh  FamilyMeshOnEntity ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFamilyName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = FamilyMeshOnEntity ( theResult, theMeshName, theEntity, theFamilyName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Mesh  GroupMesh ( in Result theResult, in string theMeshName, in string theGroupName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GroupMesh ( theResult, theMeshName, theGroupName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ScalarMap  ScalarMapOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ScalarMapOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>DeformedShape  DeformedShapeOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = DeformedShapeOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Vectors  VectorsOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = VectorsOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>IsoSurfaces  IsoSurfacesOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsoSurfacesOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>StreamLines  StreamLinesOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = StreamLinesOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>CutPlanes  CutPlanesOnField ( in Result theResult, in string theMeshName, in Entity theEntity, in string theFieldName, in double theIteration )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CutPlanesOnField ( theResult, theMeshName, theEntity, theFieldName, theIteration )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Table  CreateTable ( in string theTableEntry )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateTable ( theTableEntry )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Curve  CreateCurve ( in Table theTable, in long theHRow, in long theVRow )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateCurve ( theTable, theHRow, theVRow )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Container  CreateContainer (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateContainer (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface View</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetBackground ( in Color theColor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetBackground ( theColor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Color  GetBackground (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetBackground (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Minimize (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Minimize (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Restore (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Restore (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Maximize (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Maximize (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void EraseAll (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>EraseAll (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void DisplayAll (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>DisplayAll (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Erase ( in PrsObject thePrsObj )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Erase ( thePrsObj )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Display ( in PrsObject thePrsObj )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Display ( thePrsObj )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void DisplayOnly ( in PrsObject thePrsObj )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>DisplayOnly ( thePrsObj )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Update (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Update (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SavePicture ( in string theFileName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SavePicture ( theFileName )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface View3D</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void FitAll (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>FitAll (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetView ( in ViewType theType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetView ( theType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetPointOfView ( in XYZ theCoord )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetPointOfView ( theCoord )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>XYZ  GetPointOfView (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetPointOfView (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetViewUp ( in XYZ theDir )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetViewUp ( theDir )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>XYZ  GetViewUp (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetViewUp (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetFocalPoint ( in XYZ theDir )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetFocalPoint ( theDir )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>XYZ  GetFocalPoint (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetFocalPoint (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetParallelScale ( in double theScale )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetParallelScale ( theScale )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  GetParallelScale (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetParallelScale (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void ScaleView ( in Axis theAxis, in double theParam )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>ScaleView ( theAxis, theParam )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void RemoveScale (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>RemoveScale (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  SaveViewParams ( in string theName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = SaveViewParams ( theName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  RestoreViewParams ( in string theName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = RestoreViewParams ( theName )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface TableView</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface XYPlot</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetSubTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetSubTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetSubTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetSubTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetCurveType ( in CurveType theType )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetCurveType ( theType )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>CurveType  GetCurveType (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetCurveType (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetMarkerSize ( in long theSize )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetMarkerSize ( theSize )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  GetMarkerSize (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetMarkerSize (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void EnableXGrid ( in boolean theMajor, in long theNumMajor, in boolean theMinor, in long theNumMinor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>EnableXGrid ( theMajor, theNumMajor, theMinor, theNumMinor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void EnableYGrid ( in boolean theMajor, in long theNumMajor, in boolean theMinor, in long theNumMinor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>EnableYGrid ( theMajor, theNumMajor, theMinor, theNumMinor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetHorScaling ( in Scaling theScaling )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetHorScaling ( theScaling )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Scaling  GetHorScaling (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetHorScaling (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetVerScaling ( in Scaling theScaling )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetVerScaling ( theScaling )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Scaling  GetVerScaling (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetVerScaling (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetXTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetXTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetXTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetXTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetYTitle ( in string theTitle )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetYTitle ( theTitle )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  GetYTitle (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetYTitle (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void ShowLegend ( in boolean theShowing )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>ShowLegend ( theShowing )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void FitAll (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>FitAll (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface ViewManager</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>View  GetCurrentView (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetCurrentView (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>View3D  Create3DView (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Create3DView (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>TableView  CreateTableView ( in Table theTable )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateTableView ( theTable )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>XYPlot  CreateXYPlot (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = CreateXYPlot (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Destroy ( in View theView )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Destroy ( theView )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

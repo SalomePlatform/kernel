@@ -1,0 +1,27 @@
+#!/bin/sh
+
+
+showNameService() {
+
+   local noeud=$1
+   local decalage=$2
+
+   local list=`nameclt list $noeud`
+
+   for i in $list
+   do
+      case $i in
+      *.dir/)
+        j=`echo $1/$i | sed -e 's,^/,,' -e 's,/$,,' -`
+        k=`echo $j | sed -e 's,.dir,,g' -`
+        echo "$decalage" $k "(dir)"
+        showNameService "$j" "$decalage$decalage"
+        ;;
+      *)
+        echo "$decalage" $i
+        ;;
+      esac
+   done
+}
+
+showNameService "" " "

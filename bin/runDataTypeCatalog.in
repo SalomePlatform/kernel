@@ -1,0 +1,11 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+runNS.sh
+
+SALOME_DataTypeCatalog_Server \
+-common ${SALOME_SRC_DIR}/SALOME/resources/CatalogDataType.xml &

@@ -1,0 +1,110 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface SyrComponent</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_ISEVEN ( in long anInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_ISEVEN ( anInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_ISONE ( in long anOddInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_ISONE ( anOddInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_M3 ( in long anOddInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_M3 ( anOddInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_M3P1 ( in long anOddInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_M3P1 ( anOddInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_DIV2 ( in long anEvenInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_DIV2 ( anEvenInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_INCR ( in long aCount )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_INCR ( aCount )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_MIN ( in long aMinVal, in long anInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_MIN ( aMinVal, anInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  C_MAX ( in long aMaxVal, in long anInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_MAX ( aMaxVal, anInteger )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfSyr  C_LISTOFSYR (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = C_LISTOFSYR (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>ListOfSyr  C_AVERAGE ( in ListOfSyr aListOfSyr, in long anInteger, in long aCount, out double anAverage )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  anAverage ] = C_AVERAGE ( aListOfSyr, anInteger, aCount )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Syr  Init ( in long anOddInteger )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Init ( anOddInteger )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface ListOfSyr</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SeqOfSyr  GetSeqOfSyr (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = GetSeqOfSyr (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetSeqOfSyr ( in SeqOfSyr aSeqOfSyr )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetSeqOfSyr ( aSeqOfSyr )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Syr</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Initial (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Initial (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Current (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Current (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  IsEven (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsEven (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  IsOne (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = IsOne (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  Count (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Count (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void M3p1 (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>M3p1 (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Div2 (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Div2 (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void Incr (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>Incr (  )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

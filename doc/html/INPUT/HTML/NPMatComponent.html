@@ -1,0 +1,50 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface PCSRMat</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>unsigned long  NbRows (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = NbRows (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>unsigned long  NbCols (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = NbCols (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void LMat ( out unsigned long start, out unsigned long end )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ start, end ] = LMat (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>CSRMatStruct  ncsrmat ( in unsigned long start, in unsigned long end )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = ncsrmat ( start, end )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface NPMatComponent</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetFileName ( in string filename )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetFileName ( filename )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void ReadDataFromFile ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>ReadDataFromFile ( id_callback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SaveDataToFile ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SaveDataToFile ( id_callback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SPGetData ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SPGetData ( id_callback )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

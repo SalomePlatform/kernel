@@ -1,0 +1,93 @@
+#! /bin/sh
+
+# you must define SALOME_ROOT_DIR and SALOME_SITE_DIR (if you need it)
+
+if test -n $SALOME_ROOT_DIR
+then
+  export PATH=$SALOME_ROOT_DIR/bin/salome:${PATH}
+  export LD_LIBRARY_PATH=$SALOME_ROOT_DIR/lib/salome:${LD_LIBRARY_PATH}
+  export PYTHONPATH=${SALOME_ROOT_DIR}/lib/salome:${SALOME_ROOT_DIR}/lib/python2.2/site-packages/salome:${SALOME_ROOT_DIR}/share/salome/resources:${PYTHONPATH}
+  # add bin, because some script are in (SALOME_SWIG) !!!!
+  export PYTHONPATH=${SALOME_ROOT_DIR}/bin/salome:${PYTHONPATH}
+fi
+if test -n $SALOME_SITE_DIR
+then
+  export PATH=$SALOME_SITE_DIR/bin/salome:${PATH}
+  export LD_LIBRARY_PATH=$SALOME_SITE_DIR/lib/salome:${LD_LIBRARY_PATH}
+  export PYTHONPATH=${SALOME_SITE_DIR}/lib/salome:${SALOME_SITE_DIR}/lib/python2.2/site-packages/salome:${SALOME_SITE_DIR}/share/salome/resources:${PYTHONPATH}
+fi
+
+if test -d $HOME/Salome/bin
+then
+  export PATH=$HOME/Salome/bin:${PATH}
+fi
+if test -d $HOME/Salome/lib
+then
+  export LD_LIBRARY_PATH=$HOME/Salome/lib:${LD_LIBRARY_PATH}
+fi
+
+#export ORB_ROOT_DIR=/export/home/LGLS/omni
+
+
+#PYVTK_PATH=
+#export PYTHONPATH=${PYTHONPATH}:${SALOME_ROOT_DIR}/idl:${SALOME_ROOT_DIR}/bin:${SALOME_ROOT_DIR}/lib:${PYVTK_PATH}:${EXEC_DIR}
+
+#export MICORC=/dev/null
+
+#cd ${SALOME_ROOT_DIR}/bin
+
+# OCAF
+export CSF_PluginDefaults=${SALOME_ROOT_DIR}/share/salome/resources
+export CSF_ResourcesDefaults=${SALOME_ROOT_DIR}/share/salome/resources
+
+export CSF_PATHData=${SALOME_ROOT_DIR}/share/salome
+
+export tmp=/tmp
+
+echo "runSession standalone on ${HOSTNAME}"
+allkillWithPort
+
+echo "Starting runNS.sh"
+runNSWithPort.sh $1
+sleep 2
+
+echo "Starting SALOME_Logger_Server $2"
+SALOME_Logger_Server $2 &
+sleep 2
+
+echo "Starting SALOME_Registry_Server"
+SALOME_Registry_Server --salome_session theSession &
+#sleep 2
+
+echo "Starting SALOMEDS_Server"
+SALOMEDS_Server&
+#sleep 2
+
+echo "Starting SALOME_ModuleCatalog_Server -common ${SALOME_ROOT_DIR}/share/salome/resources/CatalogModuleGeneral.xml -personal ${HOME}/Salome/resources/CatalogModulePersonnel.xml"
+SALOME_ModuleCatalog_Server \
+ -common ${SALOME_ROOT_DIR}/share/salome/resources/CatalogModuleGeneral.xml \
+ -personal ${HOME}/Salome/resources/CatalogModulePersonnel.xml &
+#sleep 2
+
+echo "Starting SALOME_Session_Server"
+SALOME_Session_Server&
+#sleep 2
+
+echo "Starting runNotify.sh"
+notifd -c ${SALOME_ROOT_DIR}/share/salome/resources/channel.cfg -DFactoryIORFileName=/tmp/${LOGNAME}_rdifact.ior -DChannelIORFileName=/tmp/${LOGNAME}_rdichan.ior&
+#sleep 2
+
+echo "SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost"
+SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost:$1 &
+
+echo "SALOME_ContainerPy.py FactoryServerPy -ORBInitRef NameService=corbaname::localhost"
+SALOME_ContainerPy.py FactoryServerPy -ORBInitRef NameService=corbaname::localhost:$1 &
+
+echo "SALOME_Container SuperVisionContainer -ORBInitRef NameService=corbaname::localhost"
+SALOME_Container SuperVisionContainer -ORBInitRef NameService=corbaname::localhost:$1 &
+
+echo "--------------------------------------------------------------------------------"
+echo "|                                                                              |"
+echo "|  read README file on this directory for configuration and launch of SALOME   |"
+echo "|                                                                              |"
+echo "--------------------------------------------------------------------------------"

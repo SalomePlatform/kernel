@@ -1,0 +1,50 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface PVec</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>unsigned long  Size (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Size (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void LVec ( out unsigned long start, out unsigned long end )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ start, end ] = LVec (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>DoubleVec  nvec ( in unsigned long start, in unsigned long end )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = nvec ( start, end )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface NPVecComponent</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetFileName ( in string filename )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetFileName ( filename )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void ReadDataFromFile ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>ReadDataFromFile ( id_callback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SaveDataToFile ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SaveDataToFile ( id_callback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SPGetData ( in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SPGetData ( id_callback )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SPPutData ( in PVec vec, in string id_callback )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SPPutData ( vec, id_callback )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

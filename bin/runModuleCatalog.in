@@ -1,0 +1,12 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+runNS.sh
+
+SALOME_ModuleCatalog_Server \
+-common ${SALOME_SRC_DIR}/SALOME/resources/CatalogModuleGeneral.xml \
+-personal ${SALOME_SRC_DIR}/SALOME/resources/CatalogModulePersonnel.xml &

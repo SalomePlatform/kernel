@@ -1,0 +1,38 @@
+There are several scripts for launching SALOME. 
+First of all you have possibility to launch all servers simultaneously using any
+of following scripts: runSalome or runSalomeWithPort. The difference between 
+them consist in using port number for running Naming Service. You should set
+port number in a omniORB.cfg in your home folder. This file contains following
+string: 
+ORBInitRef NameService=corbaname::moulinex:2888   ,
+where moulinex is a machine name and 2888 is a unique port number. 
+The runSalome script doesn't contain any parameter related to using specific port
+number and in order to use it you must set port number as 2809. Otherwise you 
+will not be able to run all servers. Also you can have problems at attempt to 
+launch SALOME application on computer with existing instance of the same program 
+launched by another user. In order to avoid this we recomment strongly to use 
+runSalomeWithPort scripts. You must pass port number defined in your omniORB.cfg 
+file as parameter. 
+Also both scripts use special CORBA server Logger that is used in order to put 
+all messages in one place. You can put all messages related to SALOME application
+you should pass absolute pathname of output file as parameter for both scripts. 
+Otherwise all messages will be put into terminal.
+Example of using runSalome:
+ runSalome ~/SALOME.log
+Example of using runSalomeWithPort:
+ runSalomeWithPort 2888 ~/SALOME.log
+Another way to launch salome consists in using two interdependent scripts: 
+runSalomeServers and runSalomeDesktop. This way is more elegant and also it can 
+save your time you spend on successive running SALOME. At first it's necessary to
+load all servers with help of runSalomeServers scripts. It can take two 
+parameters. First one is indispensable for launching and it should contains port 
+number for Naming Service. Second parameter contains absolute pathname for 
+special Logger server. In case you not pass second parameter all output messages 
+will be put into terminal instead of file. You have to launch runSalomeServers 
+before runSalomeDesktop only once time. Then you can launch runSalomeDesktop 
+(without any parameters) that is in charge of loading GUI.
+Example of using:
+1. runSalomeServers 2888 ~/SALOME.log
+2. runSalomeDesktop
+3. You can close application and run it again. 
+Just type runSalomeDesktop again and enjoy.

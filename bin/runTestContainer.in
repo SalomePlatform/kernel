@@ -1,0 +1,16 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+
+./runNS.sh
+sleep 2
+./SALOME_Registry_Server &
+sleep 2
+#SALOME_Container ${SALOME_HOME_DIR}/lib/ /FactoryServer &
+SALOME_Container &
+sleep 2
+TestContainer

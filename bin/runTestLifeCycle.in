@@ -1,0 +1,27 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+# ---- starting Name Service CORBA
+
+./runNS.sh
+sleep 2
+
+# ---- starting module catalog
+
+./SALOME_ModuleCatalog_Server \
+-common ${SALOME_SRC_DIR}/SALOME/resources/CatalogModuleGeneral.xml \
+-personal ${SALOME_SRC_DIR}/SALOME/resources/CatalogModulePersonnel.xml &
+sleep 10
+
+# ---- launching containers
+
+#./SALOME_Container ${SALOME_HOME_DIR}/lib/ /FactoryServer &
+./SALOME_ContainerPy.py &
+sleep 2
+./SALOME_Container &
+sleep 2
+./TestLifeCycleCORBA

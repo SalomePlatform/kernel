@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PYTHON_VERSION=python@PYTHON_VERSION@
+
+# you must define SALOME_ROOT_DIR and SALOME_SITE_DIR (if you need it)
+
+if test -n $SALOME_ROOT_DIR
+then
+  export PATH=$SALOME_ROOT_DIR/bin/salome:${PATH}
+  export LD_LIBRARY_PATH=$SALOME_ROOT_DIR/lib/salome:${LD_LIBRARY_PATH}
+  export PYTHONPATH=${SALOME_ROOT_DIR}/lib/salome:${SALOME_ROOT_DIR}/lib/$PYTHON_VERSION/site-packages/salome:${PYTHONPATH}
+fi
+if test -n $SALOME_SITE_DIR
+then
+  export PATH=$SALOME_SITE_DIR/bin/salome:${PATH}
+  export LD_LIBRARY_PATH=$SALOME_SITE_DIR/lib/salome:${LD_LIBRARY_PATH}
+  export PYTHONPATH=${SALOME_SITE_DIR}/lib/salome:${SALOME_SITE_DIR}/lib/$PYTHON_VERSION/site-packages/salome:${PYTHONPATH}
+fi
+
+if test -d $HOME/.salome/bin
+then
+  export PATH=$HOME/.salome/bin:${PATH}
+fi
+if test -d $HOME/.salome/lib
+then
+  export LD_LIBRARY_PATH=$HOME/.salome/lib:${LD_LIBRARY_PATH}
+fi
+
+export CSF_PluginDefaults=${SALOME_ROOT_DIR}/share/salome/resources
+export CSF_ResourcesDefaults=${SALOME_ROOT_DIR}/share/salome/resources
+
+export CSF_PATHData=${SALOME_ROOT_DIR}/share/salome
+
+export tmp=/tmp
+
+SALOME_Session_loader

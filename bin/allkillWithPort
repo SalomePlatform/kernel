@@ -1,0 +1,147 @@
+#!/bin/sh
+
+
+#  killall -q -9 omniNames
+if test $# = 0; then
+list=`ps -f U $USER --width 1000 | grep omniNames | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_Logger_Server
+list=`ps -f U $USER --width 1000 | grep SALOME_Logger_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 geom
+list=`ps -e -o pid,user,fname | awk '{if ($2 == USRNAME && $3 == FNAME) print $1}' USRNAME=$USER FNAME=geom`
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOMEDS_Server
+list=`ps -f U $USER --width 1000 | grep SALOMEDS_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 mesh
+list=`ps -e -o pid,user,fname | awk '{if ($2 == USRNAME && $3 == FNAME) print $1}' USRNAME=$USER FNAME=mesh`
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_Session_Server
+list=`ps -f U $USER --width 1000 | grep SALOME_Session_Serve | grep -vE "grep|gdb" |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_ModuleCatalog_Client
+list=`ps -f U $USER --width 1000 | grep SALOME_ModuleCatalog_Client | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_ModuleCatalog_Server
+list=`ps -f U $USER --width 1000 | grep SALOME_ModuleCatalog_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_DataTypeCatalog_Client
+list=`ps -f U $USER --width 1000 | grep SALOME_DataTypeCatalog_Client | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_DataTypeCatalog_Server
+list=`ps -f U $USER --width 1000 | grep SALOME_DataTypeCatalog_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_RessourcesCatalog_Client
+list=`ps -f U $USER --width 1000 | grep SALOME_RessourcesCatalog_Client | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_RessourcesCatalog_Server
+list=`ps -f U $USER --width 1000 | grep SALOME_RessourcesCatalog_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SALOME_Container
+list=`ps -f U $USER --width 1000 | grep SALOME_Container | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 FactoryServer
+list=`ps -f U $USER --width 1000 | grep FactoryServer | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9 SuperVisionContainer
+list=`ps -f U $USER --width 1000 | grep SuperVisionContainer | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#  killall -q -9SALOME_ContainerPy.py
+list=`ps -f U $USER --width 1000 | grep SALOME_ContainerPy.py | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#export Container=`eval "which SALOME_Container"`
+#killall -q -9 ${Container}
+list=`ps -e -o pid,user,fname | awk '{if ($2 == USRNAME && $3 == FNAME) print $1}' USRNAME=$USER FNAME=micod`
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 micod
+list=`ps -e -o pid,user,fname | awk '{if ($2 == USRNAME && $3 == FNAME) print $1}' USRNAME=$USER FNAME=traderd`
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 traderd
+list=`ps -e -o pid,user,fname | awk '{if ($2 == USRNAME && $3 == FNAME) print $1}' USRNAME=$USER FNAME=notifd`
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 notifd
+list=`ps -f U $USER --width 1000 | grep SALOME_Registry_Server | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 SALOME_Registry_Server
+list=`ps -f U $USER --width 1000 | grep runDataGUIServer | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 runDataGUIServer
+fi
+
+if test $# != 0; then
+list=`ps -f U $USER --width 1000 | grep $1 | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+#  killall -q -9 $1
+list=`ps -f U $USER --width 1000 | grep FactoryServer | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+list=`ps -f U $USER --width 1000 | grep SuperVisionContainer | grep -v grep |  awk '{print $2}'` 
+for pid in $list; do
+    kill -s KILL $pid
+done
+
+#export Container=`eval "which $1"`
+#  killall -q -9 ${Container}
+fi

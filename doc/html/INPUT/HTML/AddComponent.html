@@ -1,0 +1,46 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface AddComponent</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Adder  Addition (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = Addition (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  Add ( in double x, in double y, out double z )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  z ] = Add ( x, y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  LastResult (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = LastResult (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface Adder</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  Add ( in double x, in double y, out double z )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  z ] = Add ( x, y )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  AddAndCompare ( in double x, in double y, in Adder anOtherAdder, out double z )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>[ return_value,  z ] = AddAndCompare ( x, y, anOtherAdder )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void SetLastResult ( in double z )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>SetLastResult ( z )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void LastResult ( out double z )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>z = LastResult (  )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>

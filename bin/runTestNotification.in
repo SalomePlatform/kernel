@@ -1,0 +1,17 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+./allkill
+
+# ---- starting Name Service CORBA
+
+./runNS.sh
+sleep 2
+
+runNotify.sh
+
+xterm -geometry -1+1 -e TestNotifServer -d 10 -v &
+sleep 1
+xterm -geometry +1+1 -e TestNotifClient -d 10 -v &

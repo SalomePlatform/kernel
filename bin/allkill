@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if test $# = 0; then
+  killall -q -9 SALOME_Logger_Server
+  killall -q -9 omniNames
+  killall -q -9 geom
+  killall -q -9 SALOMEDS_Server
+  killall -q -9 mesh
+  killall -q -9 SALOME_Session_Server
+  killall -q -9 SALOME_ModuleCatalog_Client
+  killall -q -9 SALOME_ModuleCatalog_Server
+  killall -q -9 SALOME_DataTypeCatalog_Client
+  killall -q -9 SALOME_DataTypeCatalog_Server
+  killall -q -9 SALOME_RessourcesCatalog_Client
+  killall -q -9 SALOME_RessourcesCatalog_Server
+  killall -q -9 SALOME_Container
+export Container=`eval "which SALOME_Container"`
+  killall -q -9 ${Container}
+  killall -q -9 micod
+  killall -q -9 traderd
+  killall -q -9 notifd
+  killall -q -9 SALOME_Registry_Server
+  killall -q -9 runDataGUIServer
+fi
+
+if test $# != 0; then
+  killall -q -9 $1
+export Container=`eval "which $1"`
+  killall -q -9 ${Container}
+fi

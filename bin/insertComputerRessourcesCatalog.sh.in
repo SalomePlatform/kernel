@@ -1,0 +1,149 @@
+#!/usr/bin/perl -w
+# Estelle Deville 14 sept 2001
+# Utilities to complete the Ressource Catalog with a new computer ressource
+
+print "What is the Ressource Catalog name (absolute path)? ";
+chomp($catalog=<STDIN>);
+print "What is the computer name? ";
+chomp($computer=<STDIN>); 
+
+printf "Will C++ container Type be able on %s [y/n]? ", $computer;
+chomp($response=<STDIN>);
+if($response eq "y")
+    {
+	push(@container,"C++");
+    }
+printf "Will python container Type be able on %s [y/n]? ", $computer;
+chomp($response=<STDIN>);
+if($response eq "y")
+    {
+	push(@container,"python");
+    }
+printf "Will NP container Type be able on %s [y/n]? ", $computer;
+chomp($response=<STDIN>);
+if($response eq "y")
+    {
+	push(@container,"NP");
+    }
+
+chomp($working_computer=`hostname`);
+
+if($working_computer eq $computer)
+{
+
+    if(-r $catalog && -w $catalog)
+    {   #file exist and can bi read and write
+	chomp($OS=`uname`);
+	chomp($OS_version=`uname -r`);
+
+	$proc="/proc/cpuinfo";
+	if(-r $proc)
+	{
+	    #information file of processor is accessible
+	    open(PROC, $proc);
+	    while(<PROC>)
+	    {
+		chomp;
+		$temp = $_;
+		$temp =~ s/\t.*$//;
+		if($temp eq  "processor")
+		{
+		    $_=~ s/^[^:]*: //;
+		    push(@proc_number,$_);
+		}
+		if($temp eq "model name")
+		{
+		    $_=~ s/^[^:]*: //;
+		    push(@model_name,$_);
+		}
+		if($temp eq "cpu MHz")
+		{
+		    $_=~ s/^[^:]*: //;
+		    push(@cpu,$_);
+		}
+		if($temp eq "cache size")
+		{
+		    $_=~ s/^[^:]*: //;
+		    $_=~ s/ .*$//;
+		    push(@cache,$_);
+		}
+	    }
+	    close(PROC);
+	
+	}
+	#Information Verification
+	for ($i=0; $i<=$#proc_number; $i++)
+	{
+	    print "PROCESSOR\n";
+	    printf "number %s \n", $proc_number[$i];
+	    printf "model name %s \n", $model_name[$i];
+	    printf "cpu %s \n", $cpu[$i];
+	    printf "cache %s \n", $cache[$i];
+	}
+	print "OS information\n";
+	printf "OS %s \n", $OS;
+	printf "OS_version %s \n",$OS_version;
+	print "CONTAINER TYPE LIST\n";
+	for ($i=0; $i<=$#container; $i++)
+	{
+	    printf "container type %s \n", $container[$i];
+	}
+
+	#Write catalog content
+	open(CATALOG_IN,$catalog);
+	$catalog_temp=$catalog."_temp";
+	open(CATALOG,">$catalog_temp");
+	$tmp =0;
+	while(<CATALOG_IN>)
+	{
+	    print CATALOG $_;
+	    if($_ eq "<Ressources-list>\n")
+	    {
+		$tmp=1;
+	    }
+	    if ($tmp == 1)
+	    {
+		print CATALOG "\t<computer>\n";
+		printf CATALOG "\t\t<name>%s</name>\n", $computer;
+		printf CATALOG "\t\t<OS>%s</OS>\n", $OS;
+		printf CATALOG "\t\t<OS-version>%s</OS-version>\n", $OS_version;
+		print CATALOG "\t\t<proc-list>\n";
+		#processor
+		for ($i=0; $i<=$#proc_number; $i++)
+		{
+		    printf CATALOG "\t\t\t<proc>\n";
+		    printf CATALOG "\t\t\t\t<number>%s</number>\n", $proc_number[$i];
+		    printf CATALOG "\t\t\t\t<model>%s</model>\n", $model_name[$i];
+		    printf CATALOG "\t\t\t\t<CPU-MHz>%s</CPU-MHz>\n", $cpu[$i];
+		    printf CATALOG "\t\t\t\t<cache>%s</cache>\n", $cache[$i];
+		    printf CATALOG "\t\t\t</proc>\n";
+		}
+		print CATALOG "\t\t</proc-list>\n";
+		#container
+		print CATALOG "\t\t<containertype-list>\n";
+		for ($i=0; $i<=$#container; $i++)
+		{
+		    printf CATALOG "\t\t\t\t<containertype>%s</containertype>\n", $container[$i];
+		}
+		print CATALOG "\t\t</containertype-list>\n";
+		print CATALOG "\t</computer>\n";
+		$tmp=0;
+	    }
+	}
+	close(CATALOG);
+	close(CATALOG_IN);
+	rename($catalog_temp,$catalog) || die "can't rename :$!";
+    }
+    else
+    {
+	printf "Error, the Ressource catalog %s isn't accessible\n", $catalog;
+    }
+
+}
+else
+{ 
+    printf "Error, you should run the script on computer %s \n", $computer;
+}
+
+
+

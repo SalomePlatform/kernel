@@ -1,0 +1,28 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+cd ${SALOME_HOME_DIR}/bin
+
+# ---- cleaning jobs
+
+./allkill
+
+# ---- starting Name Service CORBA
+
+echo "Starting ./runNS.sh"
+./runNS.sh
+sleep 2
+
+# ---- starting Registry server
+
+echo "Starting ./SALOME_Registry_Server"
+./SALOME_Registry_Server --salome_session theSession &
+sleep 2
+
+# ---- launching container
+
+./SALOME_ContainerPy.py &
+
+# ---- test
+
+echo "lancer runTestContainerPy2"

@@ -1,0 +1,130 @@
+#! /bin/sh
+
+@ENVSCRIPT@
+
+cd ${SALOME_HOME_DIR}/bin
+
+# OCAF
+export CSF_PluginDefaults=${SALOME_HOME_DIR}/resources
+export CSF_ResourcesDefaults=${SALOME_HOME_DIR}/resources
+#export CSF_RepeatServerRequest=10
+
+export CSF_ToolsGUIResources=${SALOME_HOME_DIR}/SALOME/resources
+export CSF_ToolsGUILanguage=en
+
+export CSF_SALOMEGUIResources=${SALOME_HOME_DIR}/SALOME/resources
+export CSF_SALOMEGUILanguage=en
+
+export CSF_QADResources=${SALOME_HOME_DIR}/SALOME/resources
+export CSF_QADLanguage=en
+
+export CSF_GeometryGUIResources=${SALOME_HOME_DIR}/GEOM/resources
+export CSF_GeometryGUILanguage=en
+
+export CSF_MeshGUIResources=${SALOME_HOME_DIR}/MESH/resources
+export CSF_MeshGUILanguage=en
+
+export CSF_QMGGUIResources=${SALOME_HOME_DIR}/QMG/resources
+export CSF_QMGGUILanguage=en
+
+export CSF_CLRheolefGUIResources=${SALOME_HOME_DIR}/CLRHEOLEF/resources
+export CSF_CLRheolefGUILanguage=en
+
+export CSF_RheolefGUIResources=${SALOME_HOME_DIR}/RHEOLEF/resources
+export CSF_RheolefGUILanguage=en
+
+export CSF_MEFISTETGUIResources=${SALOME_HOME_DIR}/MEFISTET/resources
+export CSF_MEFISTETGUILanguage=en
+
+export CSF_DataGUIResources=${SALOME_HOME_DIR}/DATA/resources
+export CSF_DataGUILanguage=en
+
+export CSF_VisuGUIResources=${SALOME_HOME_DIR}/VISU/resources
+export CSF_VisuGUILanguage=en
+
+export CSF_DiodoreGUIResources=${SALOME_HOME_DIR}/DIODORE/resources
+export CSF_DiodoreGUILanguage=en
+
+export CSF_MiniExempleGUIResources=${SALOME_HOME_DIR}/MINIEXEMPLE/resources
+export CSF_MiniExempleGUILanguage=en
+
+export CSF_SupervisionGUIResources=${SALOME_HOME_DIR}/SUPERV/resources
+export CSF_SupervisionGUILanguage=en
+
+export CSF_CatalogueResources=${SALOME_HOME_DIR}/resources
+
+export CSF_ToolsResources=${SALOME_HOME_DIR}/SALOME/resources
+
+export CSF_GeometryResources=${SALOME_HOME_DIR}/GEOM/resources
+
+export CSF_MeshResources=${SALOME_HOME_DIR}/MESH/resources
+
+export CSF_QMGResources=${SALOME_HOME_DIR}/QMG/resources
+
+export CSF_CLRheolefResources=${SALOME_HOME_DIR}/CLRHEOLEF/resources
+
+export CSF_RheolefResources=${SALOME_HOME_DIR}/RHEOLEF/resources
+
+export CSF_MEFISTETResources=${SALOME_HOME_DIR}/MEFISTET/resources
+
+export CSF_MiniExempleResources=${SALOME_HOME_DIR}/MINIEXEMPLE/resources
+
+export CSF_DataResources=${SALOME_HOME_DIR}/DATA/resources
+
+export CSF_VisuResources=${SALOME_HOME_DIR}/VISU/resources
+
+export CSF_DiodoreResources=${SALOME_HOME_DIR}/DIODORE/resources
+
+export CSF_SupervisionResources=${SALOME_HOME_DIR}/SUPERV/resources
+
+export CSF_PATHData=${SALOME_SRC_DIR}/data
+
+export tmp=/usr/tmp
+
+echo "runSession standalone on ${HOSTNAME}"
+./allkill
+
+echo "Starting ./runNS.sh"
+./runNS.sh
+sleep 2
+
+echo "Starting SALOME_Logger_Server $1"
+./SALOME_Logger_Server $1 &
+sleep 2
+
+echo "Starting ./SALOME_Registry_Server"
+./SALOME_Registry_Server --salome_session theSession &
+sleep 2
+
+echo "Starting ./SALOMEDS_Server"
+./SALOMEDS_Server&
+sleep 2
+
+echo "Starting ./SALOME_ModuleCatalog_Server -common ${SALOME_SRC_DIR}/SALOME/resources/CatalogModuleGeneral.xml -personal ${SALOME_SRC_DIR}/SALOME/resources/CatalogModulePersonnel.xml"
+./SALOME_ModuleCatalog_Server \
+ -common ${SALOME_SRC_DIR}/SALOME/resources/CatalogModuleGeneral.xml \
+ -personal ${SALOME_SRC_DIR}/SALOME/resources/CatalogModulePersonnel.xml &
+sleep 2
+
+echo "Starting ./SALOME_Session_Server"
+./SALOME_Session_Server&
+sleep 2
+
+echo "Starting ./runNotify.sh"
+./runNotify.sh
+
+echo "./SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost:1515"
+./SALOME_Container FactoryServer -ORBInitRef NameService=corbaname::localhost:1515 &
+
+echo "Starting ./SALOME_ContainerPy.py"
+./SALOME_ContainerPy.py &
+
+sleep 5
+echo "Starting SALOME_Session_loader"
+./SALOME_Session_loader &
+
+echo "--------------------------------------------------------------------------------"
+echo "|                                                                              |"
+echo "|  read README file on this directory for configuration and launch of SALOME   |"
+echo "|                                                                              |"
+echo "--------------------------------------------------------------------------------"
