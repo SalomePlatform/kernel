@@ -97,9 +97,9 @@ $(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
 
-# copy python scripts in $(top_builddir)/bin
+# copy python scripts in $(top_builddir)/bin/salome
 #
-DEST_PYSCRIPTS = $(EXPORT_PYSCRIPTS:%=$(top_builddir)/bin/%)
+DEST_PYSCRIPTS = $(EXPORT_PYSCRIPTS:%=$(top_builddir)/bin/salome/%)
 pyscripts: $(DEST_PYSCRIPTS)
 $(DEST_PYSCRIPTS): $(top_builddir)/bin/salome/%: %
 	cp -f $< $@
