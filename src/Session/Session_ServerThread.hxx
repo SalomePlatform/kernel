@@ -58,6 +58,8 @@ protected:
 			char ** argv);
   void ActivateContainer(int argc,
 			char ** argv);
+  void ActivateContainerManager(int argc,
+				char ** argv);
   virtual void ActivateSession(int argc,
 			char ** argv);
 

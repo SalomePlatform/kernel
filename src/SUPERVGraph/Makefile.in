@@ -22,6 +22,7 @@ LIB_MOC = 	  SUPERVGraph_moc.cxx \
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
+		 SALOME_ContainerManager.idl \
 		 SALOME_Exception.idl
 
 

@@ -38,19 +38,17 @@
 
 #include "SALOME_LifeCycleCORBA.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
+#include "SALOME_ContainerManager.hxx"
+#include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
 using namespace std;
-
-SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA()
-{
-  _NS = NULL;
-  _FactoryServer = NULL ;
-}
 
 SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 {
   _NS = ns;
-  _FactoryServer = NULL ;
+  //add try catch
+  CORBA::Object_var obj=_NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
+  _ContManager=Engines::ContainerManager::_narrow(obj);
 }
 
 SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
@@ -86,6 +84,7 @@ string SALOME_LifeCycleCORBA::ContainerName(
     theComputerContainer += "/" ;
     theComputerContainer += *theContainer ;
   }
+  delete [] ContainerName;
   return theComputerContainer ;
 }
 
@@ -106,316 +105,92 @@ string SALOME_LifeCycleCORBA::ComputerPath(
   return CORBA::string_dup( path ) ;
 }
 
-Engines::Container_var SALOME_LifeCycleCORBA::FindContainer(const char *containerName ) {
-  ASSERT(_NS != NULL);
-  string cont ;
-  if ( strncmp( containerName , "/Containers/" , 12 ) ) { // Compatibility ...
-    string theComputer ;
-    string theContainer ;
-    cont = ContainerName( containerName , &theComputer , &theContainer ) ;
-  }
-  else {
-    cont = containerName ;
-  }
-  try {
-
-    SCRUTE( cont );
-
-    CORBA::Object_var obj = _NS->Resolve( cont.c_str() );
-    if( !CORBA::is_nil( obj ) ) {
-      return Engines::Container::_narrow( obj ) ;
-    }
-  }
-  catch (ServiceUnreachable&) {
-    INFOS("Caught exception: Naming Service Unreachable");
-  }
-  catch (...) {
-    INFOS("Caught unknown exception.");
-  }
-  return Engines::Container::_nil();
-}
-
-Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
-                                              const string aComputerContainer ,
-                                              const string theComputer ,
-                                              const string theContainer ) {
-  Engines::Container_var aContainer = FindContainer( aComputerContainer.c_str() ) ;
-  Engines::Container_var aFactoryServer ;
-  SCRUTE( aComputerContainer ) ;
-  SCRUTE( theComputer ) ;
-  SCRUTE( theContainer ) ;
-  bool pyCont = false ;
-  int len = theContainer.length() ;
-  if ( !strcmp( &theContainer.c_str()[len-2] , "Py" ) ) {
-    pyCont = true ;
-  }
-  if ( !CORBA::is_nil( aContainer ) ) {
-    return aContainer ;
-  }
-  else {
-    string FactoryServer = theComputer ;
-    if ( pyCont ) {
-      FactoryServer += "/FactoryServerPy" ;
-    }
-    else {
-      FactoryServer += "/FactoryServer" ;
-    }
-    aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
-    if ( CORBA::is_nil( aFactoryServer ) ) {
-// rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
-      string rsh( "" ) ;
-      if ( theComputer!= GetHostname() ) {
-        rsh += "rsh -n " ;
-        rsh += theComputer ;
-        rsh += " " ;
-      }
-      string path = ComputerPath( theComputer.c_str() ) ;
-      SCRUTE( path ) ;
-      if ( path[0] != '\0' ) {
-        rsh += path ;
-        rsh += "/../bin/" ;
-      }
-      rsh += "runSession " ;
-      if ( pyCont ) {
-        rsh += "SALOME_ContainerPy.py " ;
-        rsh += "FactoryServerPy -" ;
-      }
-      else {
-        rsh += "SALOME_Container " ;
-        rsh += "FactoryServer -" ;
-      }
-      string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-      ifstream omniORBfile( omniORBcfg.c_str() ) ;
-      char ORBInitRef[12] ;
-      char nameservice[132] ;
-      omniORBfile >> ORBInitRef ;
-      rsh += ORBInitRef ;
-      rsh += " " ;
-      omniORBfile >> nameservice ;
-      omniORBfile.close() ;
-      char * bsn = strchr( nameservice , '\n' ) ;
-      if ( bsn ) {
-        bsn[ 0 ] = '\0' ;
-      }
-      rsh += nameservice ;
-      if ( pyCont ) {
-        rsh += " > /tmp/FactoryServerPy_" ;
-      }
-      else {
-        rsh += " > /tmp/FactoryServer_" ;
-      }
-      rsh += theComputer ;
-      rsh += ".log 2>&1 &" ;
-      SCRUTE( rsh );
-      int status = system( rsh.c_str() ) ;
-      if (status == -1) {
-        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)") ;
-      }
-      else if (status == 217) {
-        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status 217)") ;
-      }
-      else {
-        int count = 21 ;
-        while ( CORBA::is_nil( aFactoryServer ) && count ) {
-          sleep( 1 ) ;
-          count-- ;
-          if ( count != 10 )
-            MESSAGE( count << ". Waiting for FactoryServer on " << theComputer)
-          aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
-	}
-        if ( CORBA::is_nil( aFactoryServer ) ) {
-          MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
-	}
-        else if ( strcmp( theComputer.c_str() , GetHostname().c_str() ) ) {
-          _FactoryServer = aFactoryServer ;
-	}
-      }
-    }
-    if ( !CORBA::is_nil( aFactoryServer ) ) {
-      if ( strcmp( theContainer.c_str() , "FactoryServer" ) ||
-           strcmp( theContainer.c_str() , "FactoryServerPy" ) ) {
-        MESSAGE("Container not found ! trying to start " << aComputerContainer);
-        Engines::Container_var myContainer = aFactoryServer->start_impl( theContainer.c_str() ) ;
-        if ( !CORBA::is_nil( myContainer ) ) {
-          MESSAGE("Container " << aComputerContainer << " started");
-          return myContainer ;
-        }
-        else {
-          MESSAGE("Container " << aComputerContainer << " NOT started");
-        }
-      }
-      else {
-        MESSAGE("Container " << aComputerContainer << " started");
-        return aFactoryServer ;
-      }
-    }
-  }
-  return Engines::Container::_nil();
-}
-
-Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component
-                                   (const char *containerName,
-				    const char *componentName,
-				    const char *implementation)
-{
-  BEGIN_OF("FindOrLoad_Component(1)");
-  ASSERT(_NS != NULL);
-  string theComputer ;
-  string theContainer ;
-  string theComputerContainer = ContainerName( containerName ,
-                                               &theComputer ,
-                                               &theContainer ) ;
-  Engines::Container_var cont = FindOrStartContainer( theComputerContainer ,
-                                                      theComputer ,
-                                                      theContainer ) ;
-//  ASSERT(!CORBA::is_nil(cont));
-
-  string path( theComputerContainer );
-  path = path + "/";
-  path = path + componentName;
-  SCRUTE(path);
-  try
-    {
-      CORBA::Object_var obj = _NS->Resolve(path.c_str());
-      if (CORBA::is_nil(obj))
-	{
-	  MESSAGE("Component not found ! trying to load " << path);
-	  Engines::Component_var compo 
-	    = cont->load_impl(componentName, implementation);
-//	  ASSERT(!CORBA::is_nil(compo));
-	  MESSAGE("Component launched !" << path);
-	  return compo;
-	}
-      else
-	{
-	  MESSAGE("Component found !" << path);
-	  Engines::Component_var compo = Engines::Component::_narrow(obj);
-//	  ASSERT(!CORBA::is_nil(compo));
-	  try
-	    {
-	      compo->ping(); 
-	    }
-	  catch (CORBA::COMM_FAILURE&)
-	    {
-	      INFOS("Caught CORBA::SystemException CommFailure. Engine "
-		    << path << "does not respond" );
-	    }
-	  return compo;
-	}
-    }
-  catch (ServiceUnreachable&)
-    {
-      INFOS("Caught exception: Naming Service Unreachable");
-    }
-  catch (...)
-    {
-      INFOS("Caught unknown exception.");
-    }
-  return Engines::Component::_nil();
-}
-
-Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component
+Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
                                   (const char *containerName,
 				   const char *componentName)
 {
-//  BEGIN_OF("FindOrLoad_Component(2)");
-  ASSERT(_NS != NULL);
-  string theComputer ;
-  string theContainer ;
-  string theComputerContainer = ContainerName( containerName ,
-                                               &theComputer ,
-                                               &theContainer ) ;
-  Engines::Container_var cont = FindOrStartContainer( theComputerContainer ,
-                                                      theComputer ,
-                                                      theContainer ) ;
-
-  if ( CORBA::is_nil( cont ) ) {
-    MESSAGE("Container not found ! " << theComputerContainer );
-    return Engines::Component::_nil();
-  }
-
-//  char * machine = cont->machineName() ;
-  const char * machine = theComputer.c_str() ;
-
-  string path( theComputerContainer );
-  path += "/";
-  path += componentName;
-  SCRUTE(path);
-
-  try {
-    CORBA::Object_var obj = _NS->Resolve(path.c_str());
-    if ( CORBA::is_nil( obj ) ) {
-      MESSAGE("Component not found ! trying to load " << path);
-	  CORBA::Object_var obj2 = _NS->Resolve("/Kernel/ModulCatalog");
-	  SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
-	    SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj2);
-
-	  SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
-	    Catalog->GetComponent(componentName);
-	  if (CORBA::is_nil (compoInfo)) 
-	    {
-	      INFOS("Catalog Error : Component not found in the catalog")
-              return Engines::Component::_nil();
-//		exit (-1);
-	    }
-	  
-	  string  path;
-	  try
-	    {
-	      path = compoInfo->GetPathPrefix( machine ) ;
-              path += "/" ;
-	    }
-	  catch (SALOME_ModuleCatalog::NotFound&)
-	    {
-	      INFOS("GetPathPrefix(" << machine << ") not found!"
-		      << "trying localhost");
-	      try {
-                path = compoInfo->GetPathPrefix("localhost") ;
-                path += "/" ;
-	      }
-	      catch (SALOME_ModuleCatalog::NotFound&) {
-	        INFOS("GetPathPrefix(localhost) not found!") ;
-                path = "" ;
-	      }
-	    }
-
-	  SCRUTE(path); 
-	  string implementation(path);
-	  implementation += "lib";
-	  implementation += componentName;
-	  implementation += "Engine.so";
-	  
-	  Engines::Component_var compo 
-	    = cont->load_impl(componentName, implementation.c_str());
-
-//	  ASSERT(!CORBA::is_nil(compo));
-//	  MESSAGE("Component launched !" << path);
-	  return compo;
-    }
+  char *stContainer=strdup(containerName);
+  string st2Container(stContainer);
+  int rg=st2Container.find("/");
+  if(rg<0) {
+    //containerName doesn't contain "/" => Local container
+    free(stContainer);
+    Engines::MachineList_var listOfMachine=new Engines::MachineList;
+    listOfMachine->length(1);
+    listOfMachine[0]=CORBA::string_dup(GetHostname().c_str());
+    Engines::Component_ptr ret=FindComponent(containerName,componentName,listOfMachine.in());
+    if(CORBA::is_nil(ret))
+      return LoadComponent(containerName,componentName,listOfMachine);
     else
+      return ret;
+  }
+  else {
+    //containerName contains "/" => Remote container
+    stContainer[rg]='\0';
+    Engines::MachineParameters_var params=new Engines::MachineParameters;
+    params->container_name=CORBA::string_dup(stContainer+rg+1);
+    params->hostname=CORBA::string_dup(stContainer);
+    params->OS=CORBA::string_dup("LINUX");
+    free(stContainer);
+    return FindOrLoad_Component(params,componentName);
+  }
+}
+
+Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& params,
+								   const char *componentName)
+{
+  Engines::MachineList_var listOfMachine=_ContManager->GetFittingResources(params,componentName);
+  Engines::Component_ptr ret=FindComponent(params.container_name,componentName,listOfMachine);
+  if(CORBA::is_nil(ret))
+    return LoadComponent(params.container_name,componentName,listOfMachine);
+  else
+    return ret;
+}
+
+Engines::Component_ptr SALOME_LifeCycleCORBA::FindComponent(const char *containerName,
+								 const char *componentName,
+								 const Engines::MachineList& listOfMachines)
+{
+  if(containerName[0]!='\0')
+    {
+      Engines::MachineList_var machinesOK=new Engines::MachineList;
+      unsigned int lghtOfmachinesOK=0;
+      machinesOK->length(listOfMachines.length());
+      for(unsigned int i=0;i<listOfMachines.length();i++)
 	{
-	  MESSAGE("Component found !" << path);
-	  Engines::Component_var compo = Engines::Component::_narrow(obj);
-//	  ASSERT(!CORBA::is_nil(compo));
-	  try
+	  const char *currentMachine=listOfMachines[i];
+	  string componentNameForNS=Engines_Component_i::BuildComponentNameForNS(componentName,containerName,currentMachine);
+	  CORBA::Object_var obj = _NS->Resolve(componentNameForNS.c_str());
+	  if(!CORBA::is_nil(obj))
 	    {
-	      string instanceName = compo->instanceName(); 
+	      machinesOK[lghtOfmachinesOK++]=CORBA::string_dup(currentMachine);
 	    }
-	  catch (CORBA::COMM_FAILURE&)
-	    {
-	      INFOS("Caught CORBA::SystemException CommFailure. Engine "
-		    << path << "does not respond" );
-	    }
-	  return compo;
 	}
+      if(lghtOfmachinesOK!=0)
+	{
+	  machinesOK->length(lghtOfmachinesOK);
+	  CORBA::String_var bestMachine=_ContManager->FindBest(machinesOK);
+	  string componentNameForNS=Engines_Component_i::BuildComponentNameForNS(componentName,containerName,bestMachine);
+	  CORBA::Object_var obj=_NS->Resolve(componentNameForNS.c_str());
+	  return Engines::Component::_narrow(obj);
+	}
+      else
+	return Engines::Component::_nil();
     }
-  catch (ServiceUnreachable&)
+  else
     {
-      INFOS("Caught exception: Naming Service Unreachable");
+      //user specified no container name so trying to find a component in the best machine among listOfMachines
+      CORBA::String_var bestMachine=_ContManager->FindBest(listOfMachines);
+      //Normally look at all containers launched on bestMachine to see if componentName is already launched on one of them. To do..
+      string componentNameForNS=Engines_Component_i::BuildComponentNameForNS(componentName,containerName,bestMachine);
+      CORBA::Object_var obj = _NS->Resolve(componentNameForNS.c_str());
+      return Engines::Component::_narrow(obj);
     }
-  catch (...)
-    {
-      INFOS("Caught unknown exception.");
-    }
-  return Engines::Component::_nil();
+}
+
+Engines::Component_ptr SALOME_LifeCycleCORBA::LoadComponent(const char *containerName, const char *componentName, const Engines::MachineList& listOfMachines)
+{
+  Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,listOfMachines);
+  string implementation=Engines_Component_i::GetDynLibraryName(componentName);
+  return cont->load_impl(componentName, implementation.c_str());
 }

@@ -30,8 +30,9 @@
 #include <string>
 #include <stdio.h>
 
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+//#include "Utils_ORB_INIT.hxx"
+//#include "Utils_SINGLETON.hxx"
+#include <unistd.h>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
@@ -59,8 +60,8 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
   // Initialise the ORB.
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
+  //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
@@ -87,7 +88,7 @@ int main(int argc, char* argv[])
     CORBA::Object_var theObj;
     CORBA::Object_var obj;
     CORBA::Object_var object;
-    SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
+    //SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
     int CONTAINER=0;
     const char * Env = getenv("USE_LOGGER");
     int EnvL =0;
@@ -139,47 +140,14 @@ int main(int argc, char* argv[])
 	break;
     }
     
-    // define policy objects     
-    PortableServer::ImplicitActivationPolicy_var implicitActivation =
-      root_poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION) ;
-    
-    // default = NO_IMPLICIT_ACTIVATION
-    PortableServer::ThreadPolicy_var threadPolicy =
-      root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL);
-    // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
-    
-    // create policy list
-    CORBA::PolicyList policyList;
-    policyList.length(2);
-    policyList[0] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitActivation) ;
-    policyList[1] = PortableServer::ThreadPolicy::_duplicate(threadPolicy) ;
-    
-    // create the child POA
-    PortableServer::POAManager_var nil_mgr = PortableServer::POAManager::_nil() ;
-    PortableServer::POA_var factory_poa =
-      root_poa->create_POA("factory_poa", pman, policyList) ;
-    //with nil_mgr instead of pman, a new POA manager is created with the new POA
-    
-    // destroy policy objects
-    implicitActivation->destroy() ;
-    threadPolicy->destroy() ;
-    
     char *containerName = "";
     if(argc > 1){
       containerName = argv[1] ;
     }
     
     Engines_Container_i * myContainer 
-      = new Engines_Container_i(orb, factory_poa, containerName , argc , argv );
-    
-    //     Engines_Container_i * myContainer 
-    //      = new Engines_Container_i(string(argv[1]),string(argv[2]), orb, factory_poa);
-    
-    // use naming service
-    //     myContainer->_NS.init_orb(orb);
-    //     Engines::Container_ptr pCont = Engines::Container::_narrow(myContainer->_this());
-    //     myContainer->_NS.Register(pCont, argv[2]); 
-    
+      = new Engines_Container_i(orb, root_poa, containerName , argc , argv );
+
     pman->activate();
     
 #ifdef CHECKTIME
@@ -191,8 +159,6 @@ int main(int argc, char* argv[])
 #endif
     
     HandleServerSideSignals(orb);
-    
-    orb->destroy();
   }catch(CORBA::SystemException&){
     INFOS("Caught CORBA::SystemException.");
   }catch(PortableServer::POA::WrongPolicy&){

@@ -41,6 +41,7 @@ LIB_SRC = SalomePy.cxx
 
 LIB_CLIENT_IDL = SALOMEDS.idl \
                  SALOMEDS_Attributes.idl \
+		 SALOME_ContainerManager.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) $(OCC_INCLUDES) -DHAVE_CONFIG_H

@@ -23,6 +23,7 @@ docs:
 	mv -f doxyfile1 doxyfile; \
 	$(doxygen) ./doxyfile; \
 	cd ..; \
+	mkdir KERNEL; \
 	cp -fr $(srcdir)/KERNEL/sources/static/*.* ./KERNEL/
 	cp -fr $(srcdir)/KERNEL/sources/ KERNEL/
 	cp -fr $(srcdir)/KERNEL/HTML/ KERNEL/

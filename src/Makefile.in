@@ -36,7 +36,7 @@ ifeq (@WITHIHM@,yes)
 SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch PatchQt \
           GenericObj MEDWrapper NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
-          Notification  NOTIFICATION_SWIG \
+          ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist Prs \
 	  VTKFilter OBJECT \
           TOOLSDS SALOMEDS Event \
@@ -50,7 +50,7 @@ ifeq (@WITHIHM@,no)
 SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch \
           GenericObj NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
-	  Notification  NOTIFICATION_SWIG \
+	  ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist Prs \
           TOOLSDS SALOMEDS Event \
           SALOME_SWIG_WITHOUTIHM ModuleGenerator Loader Communication

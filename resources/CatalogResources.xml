@@ -1,0 +1,8 @@
+<!DOCTYPE ResourcesCatalog>
+<resources>
+<machine protocol="r" nbOfNodes="1" mode="i" OS="LINUX" CPUFreqMHz="3200" userName="BS" memInMB="1024" preReqFilePath="/export/home/kloss/Salome2_2.1.0_22.12.04/env_products.sh" nbOfProcPerNode="1" alias="is111793" hostname="is111793" >
+<modules modulePath="/export/home/kloss/Salome2_2.1.0_22.12.04/CCRTTEST_INSTALL" moduleName="CCRTTEST" />
+  <modules modulePath="/export/home/kloss/Salome2_2.1.0_22.12.04/KERNEL_INSTALL" moduleName="KERNEL" /> </machine>
+ <machine protocol="r" nbOfNodes="1" mode="i" OS="LINUX" CPUFreqMHz="3200" userName="geay" memInMB="1024" preReqFilePath="/export/home/geay/SALOME_RES_MAN/env_products.sh" nbOfProcPerNode="1" alias="is111918" hostname="is111918" >
+<modules modulePath="/export/home/geay/CCRTTEST/CCRTTEST_INSTALL" moduleName="CCRTTEST" />
+  <modules modulePath="/export/home/geay/SALOME_RES_MAN/KERNEL_INSTALL" moduleName="KERNEL" /> </machine></resources>

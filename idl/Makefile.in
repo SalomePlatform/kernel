@@ -20,6 +20,7 @@ IDL_FILES = \
   SALOMEDS_Attributes.idl \
   SALOME_Session.idl \
   SALOME_Component.idl \
+  SALOME_ContainerManager.idl \
   SALOME_TestComponent.idl \
   SALOME_Registry.idl \
   SALOME_MPIObject.idl \

@@ -645,7 +645,7 @@ char* SALOME_NamingService::Current_Directory()
       // the directories
       length_path = length_path + strlen(result_path[k]) + 1;
     }
-  char* return_Path = new char[length_path +1];
+  char* return_Path = new char[length_path +2];
   return_Path[0] = '/' ;
   return_Path[1] = '\0' ;
   for (int k = 0 ; k <i ;k++) 
@@ -737,6 +737,23 @@ vector<string> SALOME_NamingService::list_directory()
   return _list;
 }
 
+//----------------------------------------------------------------------
+/*! Function : list_directory_recurs
+ *  Purpose  : method to get all the contexts contained in the current 
+ *             directory
+ *             Get only objects and is recursive 
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown
+ */ 
+//----------------------------------------------------------------------
+vector<string> SALOME_NamingService::list_directory_recurs()
+    throw(ServiceUnreachable)
+{
+  vector<string> _list ;
+  char *currentDir=Current_Directory();
+  _list_directory_recurs(_list,0,currentDir);
+  delete [] currentDir;
+  return _list;
+}
 
 //----------------------------------------------------------------------
 /*! Function : Destroy_Name 
@@ -1310,4 +1327,58 @@ SALOME_NamingService::_current_directory(char** result_path,
   // We go to the last directory where an occurence was found
   _current_context = _ref_context ; 
 }
+
+
+//----------------------------------------------------------------------
+/*! Function :_list_directory_recurs.
+ * Purpose  : method to list recursively all the objects contained in the tree of absCurDirectory/relativeSubDir.
+ *  \param myList The list that will be filled.
+ *  \param relativeSubDir The directory from absCurDirectory in which the objects are found.
+ *  \param absCurDirectory The directory in ABSOLUTE form.
+ *  _current_context must refer to absCurDirectory.
+ */
+//----------------------------------------------------------------------
+void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const char *relativeSubDir,const char *absCurDirectory)
+{
+  CosNaming::BindingList_var _binding_list;
+  CosNaming::BindingIterator_var _binding_iterator;
+  unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
+  CosNaming::Binding_var _binding ;
+  char *absDir;
+
+  CosNaming::NamingContext_var _ref_context = _current_context;
+  if(relativeSubDir)
+    {
+      Change_Directory(relativeSubDir);
+      absDir=new char[strlen(absCurDirectory)+2+strlen(relativeSubDir)];
+      strcpy(absDir,absCurDirectory);
+      strcat(absDir,relativeSubDir);
+      strcat(absDir,"/");
+    }
+  else
+    absDir=(char *)absCurDirectory;
+  _current_context->list(nb, _binding_list, _binding_iterator) ;
+
+  while (_binding_iterator->next_one(_binding)) {
+    CosNaming::Name _bindingName = _binding->binding_name;
+    if (_binding->binding_type == CosNaming::ncontext) {
+      _list_directory_recurs(myList,_bindingName[0].id,absDir);
+    }
+    else if (_binding->binding_type == CosNaming::nobject) {
+      char *elt=new char[strlen(absDir)+2+strlen(_bindingName[0].id)];
+      strcpy(elt,absDir);
+      strcat(elt,_bindingName[0].id);
+      myList.push_back(elt);
+      delete [] elt;
+    }
+  }
+  if(relativeSubDir)
+    {
+      _current_context = _ref_context ;
+      delete [] absDir;
+    }
+
+  _binding_iterator->destroy();
+}
+
 //----------------------------------------------------------------------

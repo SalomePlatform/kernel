@@ -40,7 +40,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 					       PortableServer::POA_ptr poa,
 					       char * containerName,
 					       int argc, char *argv[]) 
-  : Engines_Container_i(orb,poa,containerName,argc,argv,false,false), MPIObject_i(nbproc,numproc)
+  : Engines_Container_i(orb,poa,containerName,argc,argv,false), MPIObject_i(nbproc,numproc)
 {
   MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);

@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOME_Component_i.hxx"
+#include "SALOME_Container_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
 #include <stdio.h>
@@ -397,3 +398,20 @@ CORBA::Long Engines_Component_i::CpuUsed_impl() {
 void Engines_Component_i::sendMessage(const char *event_type, const char *message) {
     _notifSupplier->Send(graphName(), nodeName(), event_type, message);
 }
+
+string Engines_Component_i::GetDynLibraryName(const char *componentName)
+{
+  string ret="lib";
+  ret+=componentName;
+  ret+="Engine.so";
+  return ret;
+}
+
+string Engines_Component_i::BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname)
+{
+  string ret=Engines_Container_i::BuildContainerNameForNS(ContainerName,hostname);
+  ret+="/";
+  ret+=ComponentName;
+  return ret;
+}
+

@@ -113,14 +113,14 @@ LIB_SRC = 	\
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client
 BIN_SRC = 
-LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl
+LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl SALOME_ContainerManager.idl
 BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
 BIN_CLIENT_IDL = 
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_GenericObj.idl
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA
+LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA -lSalomeContainer -lSalomeResourcesManager -lRegistry -lSalomeNotification -lSALOMETraceCollector
 
 # _CS_gbo_090604 Ajout Spécifique Calibre 3, pour l'utilisation de la version 5.12 de la bibliothèque OCC.
 # La bibliothèque OCC5.12 a été compilée sur Calibre 3 avec l'extention Xmu (impossible de compiler sans).

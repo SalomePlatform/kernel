@@ -78,6 +78,15 @@ class LifeCycleCORBA:
         if self._catalog is None:
             MESSAGE( "/Kernel.dir/ModulCatalog.object exists but is not a ModulCatalog" )
 
+        name = [CosNaming.NameComponent("ContainerManager","object")]
+        try:
+            obj = self._rootContext.resolve(name)
+        except CosNaming.NamingContext.NotFound, ex:
+            MESSAGE( "ContainerManager.object not found in Naming Service" )
+        self._contManager = obj._narrow(Engines.ContainerManager)
+        if self._contManager is None:
+            MESSAGE( "ContainerManager.object exists but is not a ContainerManager")
+
     #-------------------------------------------------------------------------
 
     def ContainerName(self, containerName):
@@ -130,120 +139,81 @@ class LifeCycleCORBA:
     
     #-------------------------------------------------------------------------
 
-    def FindOrStartContainer(self, theComputer , theContainer ):
-        MESSAGE( "FindOrStartContainer" + theComputer + theContainer )
-        aContainer = self.FindContainer( theComputer + "/" + theContainer )
-        if aContainer is None :
-            if (theContainer == "FactoryServer") | (theContainer == "FactoryServerPy") :
-                myMachine=getShortHostName()
-                if theComputer == myMachine :
-                    rshstr = ""
-                else :
-                    rshstr = "rsh -n " + theComputer + " "
-                path = self.ComputerPath( theComputer )
-##                if path != "" :
-##                    rshstr = rshstr + path + "/../bin/"
-##                else :
-##                    rshstr = rshstr + os.getenv( "KERNEL_ROOT_DIR" ) + "/bin/"
-                if theContainer == "FactoryServer" :
-                    rshstr = rshstr + path + "SALOME_Container "
-                else :
-                    rshstr = rshstr + path + "SALOME_ContainerPy.py '"
-                rshstr = rshstr + theContainer + " -"
-		omniORBcfg = os.getenv( "OMNIORB_CONFIG" )
-                file = os.open( omniORBcfg , os.O_RDONLY )
-                ORBInitRef = os.read(file,132)
-                if ORBInitRef[len(ORBInitRef)-1] == '\n' :
-                    ORBInitRef,bsn = ORBInitRef.split('\n')
-                os.close( file )
-                rshstr = rshstr + ORBInitRef
-                if theContainer == "FactoryServerPy" :
-                    rshstr = rshstr + "'"
-                rshstr = rshstr + " > /tmp/" + theContainer + "_"
-                rshstr = rshstr + theComputer
-                rshstr = rshstr + ".log 2>&1 &"
-                os.system( rshstr )
-                MESSAGE( "FindOrStartContainer" + rshstr + " done" )
-            else :
-                if theContainer.find('Py') == -1 :
-                    aContainer = self.FindContainer( theComputer + "/" + "FactoryServer" )
-                else :
-                    aContainer = self.FindContainer( theComputer + "/" + "FactoryServerPy" )
-                aContainer = aContainer.start_impl( theContainer )
-
-            count = 21
-            while aContainer is None :
-                time.sleep(1)
-                count = count - 1
-                MESSAGE( str(count) + ". Waiting for " + theComputer + "/" + theContainer )
-                aContainer = self.FindContainer( theComputer + "/" + theContainer )
-                if count == 0 :
-                    return aContainer
-            
-        return  aContainer       
-        #os.system("rsh -n dm2s0017 /export/home/KERNEL_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515")
+    def FindComponent(self,containerName,componentName,listOfMachines):
+        if containerName!="":
+            machinesOK=[]
+            for i in range(len(listOfMachines)):
+                currentMachine=listOfMachines[i]
+                componentNameForNS= [CosNaming.NameComponent(currentMachine,"dir"),
+                                     CosNaming.NameComponent(containerName,"dir"),
+                                     CosNaming.NameComponent(componentName,"object")]
+                obj=None
+                try:
+                    obj = self._containerRootContext.resolve(componentNameForNS)
+                except CosNaming.NamingContext.NotFound, ex:
+                    MESSAGE( "component " + componentName + " not found on machine " + currentMachine + " , trying to load" )
+                    pass
+                if obj is not None:
+                    machinesOK.append(currentMachine)
+                    pass
+                pass
+            if len(machinesOK)!=0:
+                bestMachine=self._contManager.FindBest(machinesOK)
+                componentNameForNS= [CosNaming.NameComponent(bestMachine,"dir"),
+                                     CosNaming.NameComponent(containerName,"dir"),
+                                     CosNaming.NameComponent(componentName,"object")]
+                obj=None
+                try:
+                    obj = self._containerRootContext.resolve(componentNameForNS)
+                except:
+                    pass
+                if obj is not None:
+                    return obj._narrow(Engines.Component)
+                else:
+                    MESSAGE( "Big problem !!!")
+                    return None
+            else:
+                return None
+        else:
+            bestMachine=self._contManager.FindBest(listOfMachines)
+            MESSAGE("Not implemented yet ...")
+            return None
+        pass
 
     #-------------------------------------------------------------------------
 
-    def FindOrLoadComponent(self, containerName, componentName):
-
-        theComputer,theContainer = self.ContainerName( containerName )
-        name = [CosNaming.NameComponent(theComputer,"dir"),
-                CosNaming.NameComponent(theContainer,"dir"),
-                CosNaming.NameComponent(componentName,"object")]
+    def LoadComponent(self,containerName,componentName,listOfMachine):
+        container=self._contManager.FindOrStartContainer(containerName,listOfMachine)
+        implementation="lib"+componentName+"Engine.so"
         try:
-            obj = self._containerRootContext.resolve(name)
-        except CosNaming.NamingContext.NotFound, ex:
-            MESSAGE( "component " + componentName + " not found, trying to load" )
-            container = self.FindContainer(theComputer + "/" + theContainer)
-            if container is None:
-                MESSAGE( "container " + theComputer + "/" + theContainer + " not found in Naming Service, trying to start" )
-                if (theContainer != "FactoryServer") & (theContainer != "FactoryServerPy") :
-                    if theContainer.find('Py') == -1 :
-                        theFactorycontainer = "FactoryServer"
-                    else :
-                        theFactorycontainer = "FactoryServerPy"
-                    Factorycontainer = self.FindContainer(theComputer + "/" + theFactorycontainer)
-                    if Factorycontainer is None:
-                        MESSAGE( "container " + theComputer + "/" + theFactorycontainer + " not found in Naming Service, trying to start" )
-                        Factorycontainer = self.FindOrStartContainer(theComputer,theFactorycontainer)
-                else:
-                    Factorycontainer = self.FindOrStartContainer(theComputer,theContainer)
-                if Factorycontainer != None :
-                    container = self.FindOrStartContainer(theComputer,theContainer)
+            component = container.load_impl(componentName, implementation)
+            MESSAGE( "component " + component._get_instanceName() + " launched !" )
+            return component
+        except:
+            MESSAGE( "component " + componentName + " NOT launched !" )
+            return None
 
-            if container != None:
-                compoinfo = self._catalog.GetComponent(componentName)
-                if compoinfo is None:
-                    MESSAGE( "component " + componentName + " not found in Module Catalog" )
-                else:
-                    try:
-                        machineName = theComputer
-                        path = compoinfo.GetPathPrefix(machineName) + "/"
-                    except SALOME_ModuleCatalog.NotFound, ex:
-                        MESSAGE( "machine " + machineName + " not found in Module Catalog" )
-                        MESSAGE( "trying localhost" )
-                        try:
-                            path = compoinfo.GetPathPrefix("localhost") + "/"
-                        except SALOME_ModuleCatalog.NotFound, ex:
-                            path = ""
-                    implementation = path + "lib" + componentName + "Engine.so"
-                    MESSAGE( "Trying to load " + implementation )
-                    try:
-                        component = container.load_impl(componentName, implementation)
-                        MESSAGE( "component " + component._get_instanceName() + " launched !" )
-                        return component
-                    except:
-                        MESSAGE( "component " + componentName + " NOT launched !" )
+    #-------------------------------------------------------------------------
+    
 
+    def FindOrLoadComponent(self, containerName, componentName):
+        sp=containerName.split("/")
+        if len(sp)==1:
+            listOfMachine=[]
+            listOfMachine.append(getShortHostName())
+            comp=self.FindComponent(containerName,componentName,listOfMachine)
+            if comp is None:
+                return self.LoadComponent(containerName,componentName,listOfMachine)
+            else:
+                return comp
+            pass
         else:
-            try:
-                component = obj._narrow(Engines.Component)
-                if component is None:
-                    MESSAGE( componentName + " is not a component !" )
-                else:
-                    MESSAGE( "component " + component._get_instanceName() + " found !" )
-                return component
-            except:
-                MESSAGE( componentName + " failure" )
-                return None
+            params= Engines.MachineParameters(sp[1],sp[0],"LINUX",0,0,0,0)
+            listOfMachine=self._contManager.GetFittingResources(params,componentName)
+            ret=self.FindComponent(sp[1],componentName,listOfMachine);
+            if ret is None:
+                return self.LoadComponent(sp[1],componentName,listOfMachine)
+            else:
+                return ret
+            pass
+        

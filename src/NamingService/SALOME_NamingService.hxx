@@ -84,6 +84,10 @@ public:
   // Get only objects, isn't iterative
   std::vector<std::string> list_directory()
     throw(ServiceUnreachable);
+
+  //!methods that lists all objects RECUSIVELY in the current directory
+  std::vector<std::string> list_directory_recurs()
+    throw(ServiceUnreachable);
  
   //! method to destroy an association Path-Object Reference
   void Destroy_Name(const char* Path)
@@ -120,6 +124,10 @@ protected:
 			  int& length_result,
 			  CosNaming::NamingContext_var context_to_found,
 			  CORBA::Boolean& _continue);
+
+  //! internal method to list all (recursively) the objects contains in absCurDirectory/relativeSubDir.
+  void _list_directory_recurs(std::vector<std::string>& myList, const char *relativeSubDir,const char *absCurDirectory);
+
 };
 
 #endif // SALOME_NAMINGSERVICE_H

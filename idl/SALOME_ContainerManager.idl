@@ -1,0 +1,40 @@
+#ifndef _SALOME_CONTAINERMANAGER_IDL_
+#define _SALOME_CONTAINERMANAGER_IDL_
+
+#include "SALOME_Component.idl"
+
+module Engines
+{
+
+/*!
+    Type to describe properties of wanted resource.
+*/
+struct MachineParameters {
+  string container_name;
+  string hostname;
+  string OS;
+  long mem_mb;
+  long cpu_clock;
+  long nb_proc_per_node;
+  long nb_node;
+};
+
+/*!
+    Type to transmit list of machines.
+*/
+  typedef sequence<string> MachineList;
+
+/*! \brief Interface of the %containerManager
+    This interface is used for interaction with the unique instance of ContainerManager
+*/
+  interface ContainerManager
+  {
+    Container FindOrStartContainer( in string containerName, in MachineList possibleComputers);
+    string FindBest(in MachineList possibleComputers);
+    MachineList GetFittingResources( in MachineParameters params, in string componentName );
+    void Shutdown();
+    void ShutdownContainers();
+  } ;
+};
+  
+#endif

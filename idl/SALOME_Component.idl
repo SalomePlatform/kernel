@@ -52,12 +52,6 @@ module Engines
 */
   interface Container
   {
-/*!
-    Initializes the %container with a definite name.
-    \param ContainerName Name of the container
-    \return an initialized container
-*/
-    Container start_impl( in string ContainerName ) ;
 
 /*!
     Loads into the container a new component, registers it and starts it's CORBA servant.
@@ -94,6 +88,10 @@ module Engines
    Returns True if the %container has been killed
 */
     boolean Kill_impl() ;
+/*!
+   Shutdown the Container process.
+*/
+    oneway void Shutdown();
 /*!
    Returns the hostname of the container
 */

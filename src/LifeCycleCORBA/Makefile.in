@@ -43,15 +43,17 @@ EXPORT_PYSCRIPTS = LifeCycleCORBA.py
 LIB = libSalomeLifeCycleCORBA.la
 LIB_SRC = SALOME_LifeCycleCORBA.cxx
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl
+		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
 
 # Executables targets
 BIN = TestLifeCycleCORBA
 BIN_SRC =
 BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl
+		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
 
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace
+CPPFLAGS += $(QT_MT_INCLUDES)
+
+LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager -lRegistry -lSalomeNotification -lSALOMETraceCollector
 
 @CONCLUDE@
 

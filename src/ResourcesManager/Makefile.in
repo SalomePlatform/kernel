@@ -1,4 +1,4 @@
-#  SALOME Session : implementation of Session.idl
+#  SALOME RessourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -26,7 +26,6 @@
 #  Module : SALOME
 #  $Header$
 
-# source path
 top_srcdir=@top_srcdir@
 top_builddir=../..
 srcdir=@srcdir@
@@ -35,26 +34,33 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_HEADERS= SALOME_Session_i.hxx
+EXPORT_HEADERS = \
+		SALOME_ResourcesCatalog_Parser.hxx \
+		SALOME_ResourcesManager.hxx \
+                SALOME_ResourcesCatalog_Handler.hxx \
+		SALOME_LoadRateManager.hxx \
 
 # Libraries targets
-LIB = libSalomeSession.la
-LIB_SRC=\
-	SALOME_Session_i.cxx \
-	Session_ServerThread.cxx \
-	Session_ServerLauncher.cxx \
-	SALOME_Session_SignalsHandler.cxx
+LIB = libSalomeResourcesManager.la
+LIB_SRC = \
+		  SALOME_ResourcesCatalog_Parser.cxx \
+		  SALOME_ResourcesCatalog_Handler.cxx  \
+		  SALOME_LoadRateManager.cxx \
+		  SALOME_ResourcesManager.cxx \
 
 # Executables targets
-BIN = SALOME_Session_Server
+# trouble we have client and serveur and build don't known about this with rule
+# in fact client is a test ! So it may go away BIN !
+#BIN = test_rc2
+#SALOME_RessourcesCatalog_Server SALOME_RessourcesCatalog_Client test
+LIB_CLIENT_IDL = SALOME_ContainerManager.idl SALOME_Component.idl
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_Session.idl
-BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
+BIN_SERVER_IDL = SALOME_ContainerManager.idl
 
-CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) $(HDF5_INCLUDES)
-CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSALOMETraceCollector -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent -lSalomePrs $(CAS_LDPATH) -lTKBO -lCASCatch -lSalomeResourcesManager
-
+CPPFLAGS+= $(QT_MT_INCLUDES) -I$(srcdir)/../Container
+CXXFLAGS+= 
+LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
 
 @CONCLUDE@
+
 

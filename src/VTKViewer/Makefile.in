@@ -69,6 +69,7 @@ LIB_MOC = \
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
+		 SALOME_ContainerManager.idl \
 		 SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(OGL_INCLUDES) $(VTK_INCLUDES) $(OCC_INCLUDES)

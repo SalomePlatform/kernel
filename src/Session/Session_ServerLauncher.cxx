@@ -181,6 +181,17 @@ void Session_ServerLauncher::CheckArgs()
 
 void Session_ServerLauncher::ActivateAll()
 {
+  
+  // Always launch ContainerManager
+
+  char** argv = new char* [1];
+  argv[0] = "ContainerManager";
+  Session_SessionThread* aServerThread2
+    = new Session_SessionThread(1, argv, _orb,_root_poa,_GUIMutex,_ServerLaunch);
+  _serverThreads.push_front(aServerThread2);
+
+  aServerThread2->Init();
+
   list<ServArg>::iterator itServ;
   for (itServ = _argServToLaunch.begin(); itServ !=_argServToLaunch.end(); itServ++)
     {
@@ -205,7 +216,7 @@ void Session_ServerLauncher::ActivateAll()
   // Always launch Session Server
 
   int argc=1;
-  char** argv = new char*[argc];
+  argv = new char*[argc];
   argv[0] = "Session";
   Session_SessionThread* aServerThread
     = new Session_SessionThread(argc, argv, _orb,_root_poa,_GUIMutex,_ServerLaunch);

@@ -52,13 +52,9 @@ public:
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
                       int argc, char* argv[],
-		      bool regist = true,
-		      bool activ = true);
+		      bool activAndRegist = true);
   virtual ~Engines_Container_i();
 
-
-  //! Launch a new container from the current container
-  Engines::Container_ptr start_impl(const char* ContainerName);
 
   //! Load component in current container
   Engines::Component_ptr load_impl(const char* nameToRegister,
@@ -71,13 +67,16 @@ public:
   char* name();
   char* machineName();
   void ping();
-
+  void Shutdown();
   //! Kill current container
   bool Kill_impl() ;
 
   char* getHostName();
   CORBA::Long getPID();
+  static bool isPythonContainer(const char* ContainerName);
 
+  static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  static const char *_defaultContainerName;
 protected:
 
   SALOME_NamingService *_NS ;

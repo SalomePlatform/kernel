@@ -252,7 +252,6 @@ class Server:
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
 
-# ---
 
 class CatalogServer(Server):
     def __init__(self,args):
@@ -449,6 +448,8 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
+    print "Notify Server to launch"
+
     myServer=NotifyServer(args,modules_root_dir)
     myServer.run()
 
@@ -466,6 +467,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Catalog Server,
     # attente de la disponibilité du Catalog Server dans le Naming Service
     #
+    
 
     if 'moduleCatalog' not in args['embedded']:
         cataServer=CatalogServer(args)
@@ -527,7 +529,7 @@ def startSalome(args, modules_list, modules_root_dir):
             os.environ["HOSTNAME"]=os.getenv("HOST")
 
     theComputer = getShortHostName()
-  
+    
     #
     # Lancement Container C++ local,
     # attente de la disponibilité du Container C++ local dans le Naming Service

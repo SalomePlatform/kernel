@@ -28,6 +28,7 @@ from omniORB import CORBA
 from LifeCycleCORBA import *
 from libSALOME_Swig import *
 import SALOMEDS
+import Engines
 from SALOME_NamingServicePy import *
 
 from SALOME_utilities import *
@@ -154,3 +155,7 @@ myStudyManager = obj._narrow(SALOMEDS.StudyManager)
 
 # get active study
 myStudy = myStudyManager.GetStudyByName(myStudyName)
+
+# get Container Manager
+obj = naming_service.Resolve('/ContainerManager')
+cm = obj._narrow(Engines.ContainerManager)
