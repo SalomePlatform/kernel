@@ -76,7 +76,7 @@
 #include <strstream>
 using namespace std;
 
-#include <SALOME_GenericObj_i.hh>
+#include "SALOME_GenericObj_i.hh"
 
 #define USE_CASE_LABEL_ID             "0:2"
 #define AUTO_SAVE_GUID                "128268A3-71C9-4036-89B1-F81BD6A4FCF2"
