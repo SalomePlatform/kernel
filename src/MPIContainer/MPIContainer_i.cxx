@@ -44,6 +44,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 {
   MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);
+  this->_add_ref();
 
   if(numproc==0){
 
@@ -52,8 +53,9 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
     ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
     _NS->init_orb( orb ) ;
 
-    Engines::Container_ptr pCont 
-      = Engines::Container::_narrow(POA_Engines::MPIContainer::_this());
+//     Engines::Container_ptr pCont 
+//       = Engines::Container::_narrow(POA_Engines::MPIContainer::_this());
+    Engines::Container_ptr pCont = Engines::Container::_narrow(_poa->id_to_reference(*_id));
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
   }
@@ -384,3 +386,18 @@ void Engines_MPIContainer_i::Lfinalize_removal()
 
   END_OF("[" << _numproc << "] MPIContainer_i::Lfinalize_removal");
 }
+
+// Load component
+void Engines_MPIContainer_i::MPIShutdown()
+{
+  int ip;
+  MESSAGE("[" << _numproc << "] shutdown of Corba Server");
+  if( _numproc == 0 ){
+    for(ip= 1;ip<_nbproc;ip++)
+      (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
+  }
+
+  Shutdown();
+
+}
+

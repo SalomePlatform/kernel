@@ -31,7 +31,9 @@ BIN_SRC =
 BIN_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_MPIContainer.idl SALOME_TestMPIComponent.idl
 BIN_SERVER_IDL = 
 
-LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeMPILifeCycleCORBA -lSalomeLifeCycleCORBA -lSalomeMPIContainer -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace
+LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeMPILifeCycleCORBA -lSalomeLifeCycleCORBA -lSalomeMPIContainer -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace ${MPI_LIBS}
 
+CXXFLAGS+=${MPI_INCLUDES}
+CXX_DEPEND_FLAG+=${MPI_INCLUDES}
 
 @CONCLUDE@

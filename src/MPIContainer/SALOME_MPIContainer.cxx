@@ -4,6 +4,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
 #include <mpi.h>
+#include "LocalTraceCollector.hxx"
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -12,21 +13,18 @@ int main(int argc, char* argv[])
   int flag;
   Engines_MPIContainer_i * myContainer=NULL;
 
-  BEGIN_OF(argv[0])
+  MPI_Init(&argc,&argv);
+  MPI_Comm_size(MPI_COMM_WORLD,&nbproc);
+  MPI_Comm_rank(MPI_COMM_WORLD,&numproc);
+
+  // Initialise the ORB.
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+ 
+  BEGIN_OF("[" << numproc << "] " << argv[0])
   try {
     
-    MESSAGE("Connection MPI");
-    MPI_Init(&argc,&argv);
-    MPI_Comm_size(MPI_COMM_WORLD,&nbproc);
-    MPI_Comm_rank(MPI_COMM_WORLD,&numproc);
-
-    MESSAGE("[" << numproc << "] Initialisation CORBA");
-    // Initialise the ORB.
-    //    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-    ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-    ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-    CORBA::ORB_var &orb = init( argc , argv ) ;
- 
     // Obtain a reference to the root POA.
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
@@ -65,7 +63,7 @@ int main(int argc, char* argv[])
 	containerName = argv[1] ;
     }
 
-    MESSAGE("[" << numproc << "] Chargement container");
+    MESSAGE("[" << numproc << "] MPIContainer: load MPIContainer servant");
     myContainer = new Engines_MPIContainer_i(nbproc,numproc,orb,factory_poa, containerName,argc,argv);
 
     pman->activate();
@@ -96,6 +94,8 @@ int main(int argc, char* argv[])
   if(flag)
     MPI_Finalize();
 
-  END_OF(argv[0]);
+  END_OF("[" << numproc << "] " << argv[0]);
+  delete myThreadTrace;
+  return 0 ;
 }
 

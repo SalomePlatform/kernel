@@ -56,6 +56,9 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   // synchronous version for process 0
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
+  // shutdown corba server
+  void MPIShutdown();
+
   // asynchronous version for other process
   void SPload_impl(const char* nameToRegister, const char* componentName);
 

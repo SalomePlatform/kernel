@@ -7,6 +7,7 @@
 // $Header$
 //=============================================================================
 
+#include <mpi.h>
 #include "utilities.h"
 #include "TestMPIComponentEngine.hxx"
 using namespace std;
@@ -22,7 +23,7 @@ TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
 {
   MESSAGE("activate object")
   _thisObj = this ;
-  _id = _poa->activate_object(_thisObj);
+  _id = _poa->reference_to_id(_thisObj->_this());
 }
 
 TestMPIComponentEngine::TestMPIComponentEngine(): Engines_Component_i(), MPIObject_i()
@@ -35,19 +36,18 @@ TestMPIComponentEngine::~TestMPIComponentEngine()
 
 void TestMPIComponentEngine::Coucou(CORBA::Long L)
 {
-  BEGIN_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");
   if(_numproc==0)
     for(int ip=1;ip<_nbproc;ip++)
       Engines::TestMPIComponent::_narrow((*_tior)[ip])->SPCoucou(L);
-  MESSAGE("[" << _numproc << "] TestMPIComponentEngine : L = " << L);
-  END_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");
+  SPCoucou(L);
 }
 
 void TestMPIComponentEngine::SPCoucou(CORBA::Long L)
 {
-  BEGIN_OF("[" << _numproc << "] TestMPIComponentEngine::SPCoucou()");
+  BEGIN_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");
   MESSAGE("[" << _numproc << "] TestMPIComponentEngine : L = " << L);
-  END_OF("[" << _numproc << "] TestMPIComponentEngine::SPCoucou()");
+  END_OF("[" << _numproc << "] TestMPIComponentEngine::Coucou()");
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 extern "C"

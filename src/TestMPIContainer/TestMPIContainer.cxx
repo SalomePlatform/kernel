@@ -20,24 +20,27 @@
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
+#include "LocalTraceCollector.hxx"
 using namespace std;
 
 int main (int argc, char * argv[])
 {
 
+  // Initializing omniORB
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+    
+  BEGIN_OF(argv[0])
   try{
 
     int status;
 
-    MESSAGE("COUCOU");
     if( argc != 3 || strcmp(argv[1],"-np") ){
       cout << "Usage: TestMPIContainer -np nbproc" << endl;
       exit(0);
     }
 
-    // Initializing omniORB
-    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-    
     // Obtain a reference to the root POA
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA") ;
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
@@ -48,15 +51,12 @@ int main (int argc, char * argv[])
     string hostName = GetHostname();
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
-    MESSAGE(containerName);
-
     string dirn(getenv("KERNEL_ROOT_DIR"));
     dirn += "/lib/salome/libSalomeTestMPIComponentEngine.so";
-    MESSAGE(dirn.c_str());
     
     // Try to resolve MPI Container
     obj = NS.Resolve(containerName.c_str()) ;
-    Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
+    Engines::MPIContainer_var iGenFact = Engines::MPIContainer::_narrow(obj);
 
     if(CORBA::is_nil(iGenFact)){
 
@@ -82,41 +82,42 @@ int main (int argc, char * argv[])
       do{
 	sleep(1);
 	obj = NS.Resolve(containerName.c_str()) ;
-	iGenFact = Engines::Container::_narrow(obj);
+	iGenFact = Engines::MPIContainer::_narrow(obj);
 	MESSAGE("Waiting for MPI Container " << containerName << " : it = " << it );
       }while( CORBA::is_nil(iGenFact) && (it++<15) );
 
     }
 
     if(CORBA::is_nil(iGenFact)){
-      MESSAGE("echec recuperation poignee container");
+      MESSAGE("launching container failed");
       exit(1);
     }
 
+
     Engines::TestMPIComponent_var m1;
 
-    for (int iter = 0; iter < 1 ; iter++){
-      MESSAGE("----------------------------------------------------" << iter);   
-      obj = iGenFact->load_impl("TestMPIComponent",dirn.c_str());
+//     for (int iter = 0; iter < 1 ; iter++){
+//       MESSAGE("----------------------------------------------------" << iter);   
+    obj = iGenFact->load_impl("TestMPIComponent",dirn.c_str());
 
-      m1 = Engines::TestMPIComponent::_narrow(obj);
-      if(CORBA::is_nil(m1)){
-	INFOS("echec recuperation poignee composant");
-      }
-      else{
-      
-	INFOS("recup m1");
-	SCRUTE(m1->instanceName());
-	INFOS("Lancement de coucou");
-	m1->Coucou(1L);
-	INFOS("On remove le composant");
-	iGenFact->remove_impl(m1) ;
-	sleep(5);
-      }
+    INFOS("Get Handle on MPI Component");
+    m1 = Engines::TestMPIComponent::_narrow(obj);
+    if(CORBA::is_nil(m1)){
+      INFOS("getting handle on MPI component failed");
     }
-    // Clean-up.
-    iGenFact->finalize_removal() ;
-    orb->destroy();
+    else{ 
+      m1->Coucou(1L);
+// // 	sleep(5);
+      INFOS("Unload MPI Component");
+      iGenFact->remove_impl(m1) ;
+    }
+//     }
+//     // Clean-up.
+// //     iGenFact->finalize_removal() ;
+// //     sleep(5);
+    iGenFact->MPIShutdown();
+//     INFOS("shut down corba server for Test MPI Container");
+//     orb->destroy();
   }
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.");
@@ -131,5 +132,7 @@ int main (int argc, char * argv[])
     INFOS("Caught unknown exception.");
   }
 
-  return 0;
+  END_OF(argv[0]);
+  delete myThreadTrace;
+  return 0 ;
 }

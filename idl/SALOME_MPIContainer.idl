@@ -34,6 +34,9 @@ module Engines
     // start MPI container executable
     MPIContainer start_MPIimpl( in string ContainerName, in short nbproc );
 
+    //   shutdown corba server
+    void MPIShutdown() ;
+
     // asynchronous version to load and remove parallel component in parallel
     oneway void SPload_impl(in string nameToRegister, in string componentName);
     oneway void SPremove_impl(in Component component_i);
