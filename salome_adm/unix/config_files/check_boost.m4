@@ -37,7 +37,7 @@ else
   AC_CHECKING(for boost/shared_ptr.hpp header file)
   dnl BOOST headers
   CPPFLAGS_old="${CPPFLAGS}"
-  BOOST_CPPFLAGS="-ftemplate-depth-32 -I`ls -d ${BOOSTDIR}/include/boost-*`"
+  BOOST_CPPFLAGS="-ftemplate-depth-32 -I${BOOSTDIR}"
   CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
 
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
