@@ -26,12 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
+#include "QAD_PyEditor.h"  // this include must be first (see PyInterp_base.h)!
 #include "QAD_RightFrame.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_StudyFrame.h"
 #include "QAD_Tools.h"
-#include "QAD_PyEditor.h"
 #include "QAD_PyInterp.h"
 
 #include <qvaluelist.h>

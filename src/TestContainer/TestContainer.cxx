@@ -120,9 +120,9 @@ int main (int argc, char * argv[])
 	      if (!CORBA::is_nil(theObj))
 		inc = CosNaming::NamingContext::_narrow(theObj);
 	    }
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
-	      INFOS( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
+	      INFOS( "Test Container: CORBA::SystemException: Unable to contact the Naming Service" )
 		}
 	  if(!CORBA::is_nil(inc))
 	    {

@@ -68,6 +68,11 @@ class QFileDialogQFileListView;
 #include "qlineedit.h"
 #endif // QT_H
 
+#if QT_VERSION > 0x030005
+#include <qfiledialog.h>
+#define QFileDialogP QFileDialog
+#else
+
 #ifndef QT_NO_FILEDIALOG
 
 class Q_EXPORT QFileIconProviderP : public QObject
@@ -524,5 +529,7 @@ private:
 };
 
 #endif
+
+#endif // QT_VERSION
 
 #endif // QFILEDIALOG_H

@@ -54,6 +54,11 @@
 #include <qlabel.h>
 #endif // QT_H
 
+#if QT_VERSION > 0x030005
+#include <qworkspace.h>
+#define QWorkspaceP QWorkspace
+#else
+
 class QWorkspacePChild;
 class QShowEvent;
 class QWorkspacePPrivate;
@@ -350,5 +355,5 @@ private:
 
     QTitleBarPPrivate *d;
 };
-
+#endif // QT_VERSION
 #endif // QWORKSPACEP_H

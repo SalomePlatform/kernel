@@ -82,9 +82,9 @@ Session_ServerLauncher::~Session_ServerLauncher()
 
 void Session_ServerLauncher::run()
 {
-  //MESSAGE("Session_ServerLauncher::run");
+  MESSAGE("Session_ServerLauncher::run");
   _GUIMutex->lock(); // lock released by calling thread when ready: wait(mutex)
-  //MESSAGE("Server Launcher thread free to go...");
+  MESSAGE("Server Launcher thread free to go...");
    _GUIMutex->unlock();
 
   CheckArgs();

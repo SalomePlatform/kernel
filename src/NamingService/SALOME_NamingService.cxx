@@ -151,9 +151,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 	{
 	  INFOS("!!!Register() : CosNaming::NamingContext::CannotProceed");
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS("!!!Register() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS("!!!Register() : CORBA::SystemException : unable to contact"
 	       << " the naming service"); 
 	  throw ServiceUnreachable();
 	}
@@ -218,9 +218,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 	    {
 	      INFOS("!!!Register() : CosNaming::NamingContext::InvalidName");
 	    }
-	  catch(CORBA::COMM_FAILURE&)
+	  catch(CORBA::SystemException&)
 	    {
-	      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+	      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 		   << " the naming service"); 
 	      throw ServiceUnreachable();
 	    }
@@ -270,9 +270,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
       INFOS("!!!Register() : CosNaming::NamingContext::AlreadyBound, object will be rebind"); 
       _current_context->rebind(_context_name, ObjRef);
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 	    << " the naming service");
       throw ServiceUnreachable();
     }
@@ -352,9 +352,9 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
     {
       INFOS("!!!Resolve() : CosNaming::NamingContext::InvalidName"); 
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Resolve() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Resolve() :CORBA::SystemException : unable to contact"
 	    << "the naming service");
       throw ServiceUnreachable();
     }
@@ -390,9 +390,9 @@ int SALOME_NamingService::Find(const char* name)
     {
       _Find(name,occurence_number);
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Find() : CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Find() : CORBA::SystemException : unable to contact"
 	   << " the naming service"); 
       throw ServiceUnreachable();
     }
@@ -495,10 +495,10 @@ bool SALOME_NamingService::Create_Directory(const char* Path)
       _return_code = false;
       INFOS("!!!Create_Directory():CosNaming::NamingContext::InvalidName");
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
       _return_code = false;
-      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 	   << " the naming service"); 
       throw ServiceUnreachable();
     }
@@ -588,10 +588,10 @@ bool SALOME_NamingService::Change_Directory(const char* Path)
 	  _return_code = false;
 	  INFOS( "!!!Change_Directory() : CosNaming::NamingContext::InvalidName" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
 	  _return_code = false;
-	  INFOS( "!!!Change_Directory() :CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Change_Directory() :CORBA::SystemException : unable to contact"
 	       << "the naming service")
 	  throw ServiceUnreachable();
 	}
@@ -633,9 +633,9 @@ char* SALOME_NamingService::Current_Directory()
     {
       _current_directory(result_path,i,_ref_context,_continue );
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Current_Directory(): CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Current_Directory(): CORBA::SystemException : unable to contact"
 	   << " the naming service" )
       throw ServiceUnreachable();
     }
@@ -817,9 +817,9 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
 	{
 	  INFOS( "!!!Destroy_Name(): CosNaming::NamingContext::CannotProceed" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS( "!!!Destroy_Name() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Destroy_Name() : CORBA::SystemException : unable to contact"
 	       << " the naming service")
 	  throw ServiceUnreachable();
 	}
@@ -861,9 +861,9 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
     {
       INFOS( "!!!Destroy_Name() : CosNaming::NamingContext::InvalidName")
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Name() :CORBA::COMM_FAILURE : unable to contact" 
+      INFOS( "!!!Destroy_Name() :CORBA::SystemException : unable to contact" 
 	   << " the naming service") 
       throw ServiceUnreachable();
     }
@@ -940,9 +940,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
 	{
 	  INFOS("!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS( "!!!Destroy_Directory() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
 	       << " the naming service" )
 	  throw ServiceUnreachable();
 	}
@@ -984,9 +984,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
     {
       INFOS( "!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() : CORBA::COMM_FAILURE : unable to contact"
+      INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
 	   << " the naming service" )
       throw ServiceUnreachable();
     }
@@ -1003,9 +1003,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
       INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::NoEmpty "
 	   << Path << " is not empty" )
     } 
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() :CORBA::COMM_FAILURE : "
+      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : "
 	   << "unable to contact the naming service") 
       throw ServiceUnreachable();
     }
@@ -1039,9 +1039,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
     {
       INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::InvalidName")
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() :CORBA::COMM_FAILURE : unable to contact" 
+      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : unable to contact" 
 	   << " the naming service") 
       throw ServiceUnreachable();
     }
@@ -1070,9 +1070,9 @@ void SALOME_NamingService::_initialize_root_context()
       ASSERT(!CORBA::is_nil(_root_context)); 
     }
 
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("CORBA::COMM_FAILURE: unable to contact the naming service");
+      INFOS("CORBA::SystemException: unable to contact the naming service");
       throw ServiceUnreachable();
     }
   catch(...)

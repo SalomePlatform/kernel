@@ -22,7 +22,6 @@
 #  File   : salome_shared_modules.py
 #  Module : SALOME
 
-from SALOME_utilities import *
 
 """
 This module with help of import_hook and *_shared_modules
@@ -51,9 +50,10 @@ Usage:
   that could be found in the path SALOMEPATH
 
 """
+import import_hook
+
 import glob,os,sys
 
-import import_hook
 # shared_imported, patterns, register_name, register_pattern
 # will be shared by all Python sub interpretors
 from import_hook import shared_imported
@@ -72,9 +72,12 @@ list_modules=[]
 path=salome_path.split(":")
 for rep in path:
     # Import all *_shared_modules in rep
-    for f in glob.glob(os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
+    for f in glob.glob(os.path.join(rep,"lib","python"+sys.version[:3],"site-packages",
+                                        "salome","shared_modules","*_shared_modules.py")):
         try:
-           m=__import__(os.path.splitext(os.path.basename(f))[0])
+           name=os.path.splitext(os.path.basename(f))[0]
+           register_name(name)
+           m=__import__(name)
            list_modules.append(m)
         except:
            pass
@@ -85,5 +88,5 @@ for rep in path:
 #
 for name,module in sys.modules.items():
     if import_hook.is_shared(name) and shared_imported.get(name) is None:
-       #print "Module shared added to shared_imported: ",name
+       #print "Module shared added to shared_imported: ",name,module
        shared_imported[name]=module

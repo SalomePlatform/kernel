@@ -29,7 +29,7 @@
 #ifndef _QAD_PYINTERP_H_
 #define _QAD_PYINTERP_H_
 
-#include "PyInterp_base.h"
+#include "PyInterp_base.h" // this include must be first (see PyInterp_base.h)!
 
 class QAD_PyInterp : public PyInterp_base
 {

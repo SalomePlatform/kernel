@@ -62,7 +62,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
       if (!CORBA::is_nil(theObj))
 	inc = CosNaming::NamingContext::_narrow(theObj);
       if (!CORBA::is_nil(inc)) break;
-    } catch( CORBA::COMM_FAILURE& ) {
+    } catch( CORBA::SystemException& ) {
     } catch (...) {
     }
   }

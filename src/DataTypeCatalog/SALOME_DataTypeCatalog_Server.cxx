@@ -83,9 +83,9 @@ int main(int argc,char **argv)
 		theObj = orb->resolve_initial_references("NameService");
 	      if (!CORBA::is_nil(theObj))
 		inc = CosNaming::NamingContext::_narrow(theObj);}
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
-	      MESSAGE( "Data Type Catalog: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      MESSAGE( "Data Type Catalog: CORBA::SystemException: Unable to contact the Naming Service" );
 	    }
 	  if(!CORBA::is_nil(inc))
 	    {

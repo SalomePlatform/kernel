@@ -53,6 +53,12 @@
 
 #ifndef QT_NO_ACTION
 
+#if QT_VERSION > 0x030005
+#include <qaction.h>
+#define QActionP QAction
+#define QActionPGroup QActionGroup
+#else
+
 class QActionPPrivate;
 class QActionPGroupPrivate;
 class QStatusBar;
@@ -183,5 +189,7 @@ public:
 };
 
 #endif
+
+#endif // QT_VERSION
 
 #endif

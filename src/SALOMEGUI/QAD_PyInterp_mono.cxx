@@ -12,7 +12,7 @@
 
 
 
-#include "QAD_PyInterp_mono.h"
+#include "QAD_PyInterp_mono.h" // this include must be first (see PyInterp_base.h)!
 #include "utilities.h"
 
 using namespace std;

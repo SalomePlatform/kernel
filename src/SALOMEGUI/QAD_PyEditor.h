@@ -29,6 +29,7 @@
 #ifndef QAD_PyEditor_H
 #define QAD_PyEditor_H
 
+#include "QAD_PyInterp.h" // this include must be first (see PyInterp_base.h)!
 #include <qtextedit.h>
 #include <qevent.h>
 

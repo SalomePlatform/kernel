@@ -31,6 +31,7 @@
   \brief Frame window which contains QAD_LeftFrame and QAD_RightFrame.
 */
 
+#include "QAD_PyInterp.h"  // this include must be first (see PyInterp_base.h)!
 #include "QAD_StudyFrame.h"
 #include "QAD_StudyFrame.h"
 #include "QAD_RightFrame.h"
@@ -40,7 +41,6 @@
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
 #include "QAD_ObjectBrowser.h"
-#include "QAD_PyInterp.h"
 
 #include <qvaluelist.h>
 

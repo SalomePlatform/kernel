@@ -81,6 +81,7 @@ QT_MT_LIBS = @QT_MT_LIBS@
 MOC = @MOC@
 UIC = @UIC@
 
+QT_VERS = @QT_VERS@
 
 #QWT
 

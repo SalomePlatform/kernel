@@ -59,9 +59,10 @@ def is_shared(name):
 
 def get_shared_imported(name):
     return shared_imported.get(name)
+
 def set_shared_imported(name,module):
     shared_imported[name]=module
-    #print "Module %s shared registered" % name
+    #print "Module %s shared registered" % name,module
 
 def get_shared_imported_with_copy(name):
     module_dict= shared_imported.get(name)
@@ -73,6 +74,7 @@ def set_shared_imported_with_copy(name,module):
     #print "Module %s shared registered" % name
 
 def import_hook(name, globals=None, locals=None, fromlist=None):
+    #print "import_hook",name,fromlist
     module=get_shared_imported(name)
     if module:
        sys.modules[name]=module
@@ -99,6 +101,8 @@ def init_shared_modules(shared_module):
     global shared_imported, patterns
     shared_imported=shared_module.shared_imported
     patterns=       shared_module.patterns
+    for k,v in shared_imported.items():
+       if v is not None:sys.modules[k]=v
     shared_imported["salome_shared_modules"]=shared_module
     import salome_shared_modules
     for m in salome_shared_modules.list_modules:

@@ -12,7 +12,7 @@
 #ifndef _PYINTERP_PYQT_H_
 #define _PYINTERP_PYQT_H_
 
-#include "PyInterp_base.h"
+#include "PyInterp_base.h" // this include must be first (see PyInterp_base.h)!
 
 class PyInterp_PyQt : public PyInterp_base
 {

@@ -16,7 +16,13 @@
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
+
+#if QT_VERSION > 0x030005
+#include <sipAPISalomePyQt.h>
+#else
 #include <sipSalomePyQtDeclSalomePyQt.h>
+#endif
+
 #include <sipqtQWorkspace.h>
 #include <sipqtQPopupMenu.h>
 
@@ -41,14 +47,14 @@ void SALOME_PYQT_GUI::setWorkSpace()
   PyLockWrapper aLock = interp->GetLockWrapper();
 
   //   Try to import qt module. If it's not possible don't go on
-  PyObjWrapper qtmodule(PyImport_ImportModule("qt"));
+  PyObjWrapper qtmodule(PyImport_ImportModule("SalomePyQt"));
   if(!qtmodule){
     PyErr_Print();
     return ;
   }  
 
-  PyObjWrapper pyws(sipMapCppToSelf( QAD_Application::getDesktop()->getMainFrame(),
-				     sipClass_QWorkspace));
+  QWorkspaceP *sipRes=QAD_Application::getDesktop()->getMainFrame();
+  PyObjWrapper pyws(sipMapCppToSelf( sipRes, sipClass_QWorkspace));
   PyObjWrapper res(PyObject_CallMethod(_module,"setWorkSpace","O",pyws.get()));
   SCRUTE(pyws->ob_refcnt);
   if(!res){

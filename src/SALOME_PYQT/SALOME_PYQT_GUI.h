@@ -1,5 +1,5 @@
 //=============================================================================
-// File      : SALOME_PYQT_GUI.hxx
+// File      : SALOME_PYQT_GUI.h
 // Created   : mer jun  4 17:17:20 UTC 2003
 // Author    : Paul RASCLE, EDF 
 // Project   : SALOME
@@ -10,8 +10,8 @@
 #ifndef _SALOME_PYQT_GUI_HXX_
 #define _SALOME_PYQT_GUI_HXX_
 
+#include "PyInterp_PyQt.h" // this include must be first (see PyInterp_base.h)!
 #include "QAD_Desktop.h"
-#include "PyInterp_PyQt.h"
 #include "SALOMEGUI.h"
 
 class SALOME_PYQT_GUI: public SALOMEGUI

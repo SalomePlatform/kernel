@@ -15,13 +15,7 @@
 #include <qcombobox.h>
 #include <qpushbutton.h>
 
-// VSR (18/01/2005): use patched QFileDialog only for the official 3.0.5 version of Qt
-#if QT_VERSION == 0x030005
 #include <qfiledialogP.h>
-#else
-#include <qfiledialog.h>
-#define QFileDialogP QFileDialog
-#endif
 
 #include "QAD.h"
 #include "QAD_FileValidator.h"

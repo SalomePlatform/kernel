@@ -111,7 +111,7 @@ int main (int argc, char * argv[])
       cout << m4->instanceName() << endl;
 
     }
-  catch(CORBA::COMM_FAILURE& ex)
+  catch(CORBA::SystemException& ex)
     {
       INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.");
     }

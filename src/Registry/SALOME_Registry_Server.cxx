@@ -118,9 +118,9 @@ int main( int argc , char **argv )
 	  if (!CORBA::is_nil(theObj))
 	    inc = CosNaming::NamingContext::_narrow(theObj);
 	}
-      catch( CORBA::COMM_FAILURE& )
+      catch( CORBA::SystemException& )
 	{
-	  MESSAGE( "Registry Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	  MESSAGE( "Registry Server: CORBA::SystemException: Unable to contact the Naming Service" );
 	}
       if(!CORBA::is_nil(inc))
 	{

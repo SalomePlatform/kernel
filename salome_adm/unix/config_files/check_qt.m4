@@ -75,6 +75,25 @@ then
   fi
 fi
 
+version=`moc -v > mocversion 2>&1;cut -c40-44 mocversion;rm -rf mocversion`
+case "$version" in
+  3.3.3)
+   QT_VERS=v3_3_3
+   AC_MSG_RESULT(QT3.3.3 install detected)
+   qt_ok=yes;;
+  3.0.5)
+   AC_MSG_RESULT(QT3.0.5 install detected)
+   QT_VERS=v3_0_5
+   qt_ok=yes;;
+  *)
+   AC_MSG_RESULT(qt version $version not supported)
+   qt_ok=no
+   QT_VERS=no ;;
+esac
+
+AC_SUBST(QT_VERS)
+AC_MSG_RESULT(qt version $QT_VERS )
+
 AC_SUBST(QTDIR)
 QT_ROOT=$QTDIR
 
@@ -90,14 +109,31 @@ then
 
   AC_MSG_CHECKING(include of qt headers)
 
-  if  test "x$qt_ok" = "xno"
+  if  test "x$qt_ok" = "xyes"
   then
-    AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
-    AC_MSG_RESULT(QTDIR environment variable may be wrong)
-  else
     AC_MSG_RESULT(yes)
     QT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
     QT_MT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
+  else
+    CPPFLAGS_old=$CPPFLAGS
+    CPPFLAGS="$CPPFLAGS -I$QTDIR/include/qt3"
+
+    AC_LANG_CPLUSPLUS
+    AC_CHECK_HEADER(qapp.h,qt_ok=yes ,qt_ok=no)
+
+    CPPFLAGS=$CPPFLAGS_old
+
+    AC_MSG_CHECKING(include of qt headers)
+
+    if  test "x$qt_ok" = "xno"
+    then
+      AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
+      AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    else
+      AC_MSG_RESULT(yes)
+      QT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
+      QT_MT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
+    fi
   fi
 fi
 
@@ -108,7 +144,7 @@ then
   LIBS="$LIBS -L$QTDIR/lib -lqt-mt $OGL_LIBS"
 
   CXXFLAGS_old=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS -I$QTDIR/include"
+  CXXFLAGS="$CXXFLAGS $QT_MT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qt,[
     AC_TRY_LINK(
@@ -143,6 +179,7 @@ AC_SUBST(QT_ROOT)
 AC_SUBST(QT_INCLUDES)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_MT_LIBS)
+AC_SUBST(QT_VERS)
 
 AC_LANG_RESTORE
 

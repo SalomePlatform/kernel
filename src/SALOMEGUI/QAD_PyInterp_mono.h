@@ -12,7 +12,7 @@
 #ifndef _QAD_PYINTERP_MONO_H_
 #define _QAD_PYINTERP_MONO_H_
 
-#include "PyInterp_base.h"
+#include "PyInterp_base.h" // this include must be first (see PyInterp_base.h)!
 
 class QAD_PyInterp_mono: public PyInterp_base
 {

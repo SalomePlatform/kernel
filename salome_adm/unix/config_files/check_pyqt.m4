@@ -56,17 +56,17 @@ fi
   
 AC_CHECK_FILE("$PYUIC",pyqt_ok=yes,pyqt_ok=no)
 
-if test "x$pyqt_ok" = xyes ; then
-  AC_CHECK_FILES("$PYQTLIB/qt.py",pyqt_ok=yes,pyqt_ok=no)
-fi
+dnl if test "x$pyqt_ok" = xyes ; then
+dnl   AC_CHECK_FILES("$PYQTLIB/qt.py",pyqt_ok=yes,pyqt_ok=no)
+dnl fi
 
-if test "x$pyqt_ok" = xno ; then
-  AC_CHECK_FILES("$PYQTLIB/qt/qt.py",pyqt_ok=yes,pyqt_ok=no)
-fi
+dnl if test "x$pyqt_ok" = xno ; then
+dnl  AC_CHECK_FILES("$PYQTLIB/qt/qt.py",pyqt_ok=yes,pyqt_ok=no)
+dnl fi
 
-if test "x$pyqt_ok" = xyes ; then
-  AC_CHECK_FILE("$PYQTLIB/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
-fi
+dnl if test "x$pyqt_ok" = xyes ; then
+dnl   AC_CHECK_FILE("$PYQTLIB/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
+dnl fi
 
 if test "x$pyqt_ok" = xyes ; then
   AC_CHECK_FILES("$PYQT_SIPS/qtmod.sip",pyqt_ok=yes,pyqt_ok=no)
@@ -78,7 +78,7 @@ fi
 if test "x$pyqt_ok" = xyes ; then
   PYQT_ROOT=$PYQTDIR
   PYQT_INCLUDES="-I$PYQT_SIPS"
-  PYQT_LIBS="-L$PYQTLIB -lqtcmodule"
+  PYQT_LIBS="-L$PYQTLIB "
   AC_SUBST(PYQT_ROOT)
   AC_SUBST(PYQT_INCLUDES)
   AC_SUBST(PYQT_LIBS)

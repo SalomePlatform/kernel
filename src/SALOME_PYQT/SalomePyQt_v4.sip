@@ -2,14 +2,11 @@
 
 %Import qtmod.sip
 
-
 class SALOME_Selection : QObject
 {
-
-%HeaderCode
+%TypeHeaderCode
 #include <SALOME_Selection.h>
 %End
-
 
 public:
   SALOME_Selection(const QString &);
@@ -32,8 +29,7 @@ enum MenuName {
 
 class SalomePyQt
 {
-
-%HeaderCode
+%TypeHeaderCode
 #include <SalomePyQt.hxx>
 %End
 

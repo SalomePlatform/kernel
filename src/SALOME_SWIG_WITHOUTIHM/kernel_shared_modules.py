@@ -1,9 +1,10 @@
 """
 
 """
-import glob,os,sys
-
 import import_hook
+
+import glob,os,sys,string,imp
+
 from import_hook import register_name
 from import_hook import register_pattern
 
@@ -11,12 +12,68 @@ register_name("qt")
 register_pattern(lambda(x):x.endswith("_idl"))
 
 register_name("omniORB")
-register_name("CosNaming")
+import omniORB
 
-register_name("Engines")
-register_name("SALOME")
-register_name("SALOMEDS")
-register_name("SALOME_ModuleCatalog")
+# Modify omniORB to use right sys.modules dictionnary 
+# with multi-interpreter feature
+# openModule and newModule are functions of omniORB/__init__.py module
+# modified to register modules to share
+# Function to return a Python module for the required IDL module name
+def openModule(mname, fname=None):
+    # Salome modification start
+    import sys
+    # Salome modification end
+
+    if mname == "CORBA":
+        mod = sys.modules["omniORB.CORBA"]
+    elif sys.modules.has_key(mname):
+        mod = sys.modules[mname]
+    else:
+        mod = newModule(mname)
+
+    # Salome modification start
+    import_hook.set_shared_imported(mname,mod)
+    # Salome modification end
+
+
+    if not hasattr(mod, "__doc__") or mod.__doc__ is None:
+        mod.__doc__ = "omniORB IDL module " + mname + "\n\n" + \
+                      "Generated from:\n\n"
+
+    if fname is not None:
+        mod.__doc__ = mod.__doc__ + "  " + fname + "\n"
+
+    return mod
+
+# Function to create a new module, and any parent modules which do not
+# already exist
+def newModule(mname):
+    # Salome modification start
+    import sys
+    # Salome modification end
+
+    mlist   = string.split(mname, ".")
+    current = ""
+    mod     = None
+
+    for name in mlist:
+        current = current + name
+
+        if sys.modules.has_key(current):
+            mod = sys.modules[current]
+        else:
+            newmod = imp.new_module(current)
+            if mod: setattr(mod, name, newmod)
+            sys.modules[current] = mod = newmod
+
+        current = current + "."
+
+    return mod
+# Replace openModule and newModule by modified ones
+# to take into account the sys.modules that matches
+# the right one (multi-interpreter feature)
+omniORB.openModule=openModule
+omniORB.newModule=newModule
 
 # BE CAREFUL
 # Engines, SALOME, SALOMEDS must be imported in that order because :
@@ -27,36 +84,7 @@ register_name("SALOME_ModuleCatalog")
 import Engines
 import SALOME
 import SALOMEDS
-
 import SALOME_ModuleCatalog
-from SALOME_utilities import MESSAGE
-#
-# We search all Python CORBA (omniorb) modules.
-# A Python CORBA module has 2 associated Python packages 
-# These packages are named : <module_name> and <module_name>__POA
-#
-# Get the SALOMEPATH if set or else use KERNEL_ROOT_DIR that should be set.
-salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
-
-# Register all CORBA modules in the path and python modules in shared_modules
-path=salome_path.split(":")
-#
-for rep in path:
-   rep_salome=os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome")
-   # Find all the *__POA packages in the path
-   for elem in glob.glob(os.path.join(rep_salome,"*__POA")):
-      if os.path.isdir(elem):
-         # Found a directory (Python package) named *__POA 
-         module__POA=os.path.basename(elem)
-         module=module__POA[:-5]
-         MESSAGE( "Register CORBA module: " + module + ". Directory: " + os.path.abspath(elem)[:-5] )
-         register_name(module)
-
-   # Now we import modules found in shared_modules directory
-   for elem in glob.glob(os.path.join(rep_salome,"shared_modules","*.py")):
-       module=os.path.basename(elem)[:-3]
-       MESSAGE( "Register Python module: " + module + ". Location: " + os.path.abspath(elem) )
-       register_name(module)
 
 def init_shared_modules():
    """
@@ -73,3 +101,4 @@ def init_shared_modules():
    sys.modules["_omnipy.poa_func"]=_omnipy.poa_func
    sys.modules["_omnipy.poamanager_func"]=_omnipy.poamanager_func
    sys.modules["_omnipy.orb_func"]=_omnipy.orb_func
+

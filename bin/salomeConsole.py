@@ -66,7 +66,7 @@ class client(orbmodule.client):
       try:
           self.rootContext = obj._narrow(CosNaming.NamingContext)
           return
-      except CORBA.COMM_FAILURE:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           print "It's not a valid naming service"
           self.rootContext = None
           raise

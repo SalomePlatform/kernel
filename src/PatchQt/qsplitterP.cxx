@@ -48,6 +48,7 @@
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qbitmap.h>
+#include <qlayout.h>
 #include <private/qlayoutengine_p.h>
 #if QT_VERSION < 300
   #include <qlist.h>

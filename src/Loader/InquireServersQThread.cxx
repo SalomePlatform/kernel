@@ -312,9 +312,9 @@ bool InquireServersQThread::AskServer(int iteration, QString ** errMessage)
 		IsPassed = true;
 	      break;
 	    }
-	  catch(CORBA::COMM_FAILURE&)
+	  catch(CORBA::SystemException&)
 	    {
-	      MESSAGE("CORBA::COMM_FAILURE: unable to contact the naming service");
+	      MESSAGE("CORBA::SystemException: unable to contact the naming service");
 	    }
 	  catch(...)
 	    {
@@ -399,7 +399,7 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 	      break;
 	    case 4:
 	      {
-		CORBA::Object_var obj = NS.Resolve("Kernel/ModulCatalog");
+		CORBA::Object_var obj = NS.Resolve("/Kernel/ModulCatalog");
 		SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
 		if (!CORBA::is_nil(catalog))
 		  {
@@ -413,7 +413,7 @@ bool InquireServersQThread::pingServer(int iteration, QString& errMessage)
 	      break;
 	    case 5:
 	      {
-		CORBA::Object_var obj = NS.Resolve("Kernel/Session");
+		CORBA::Object_var obj = NS.Resolve("/Kernel/Session");
 		SALOME::Session_var session = SALOME::Session::_narrow(obj) ;
 		if (!CORBA::is_nil(session))
 		  {
