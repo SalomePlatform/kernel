@@ -1152,6 +1152,37 @@ QAD_HelpWindow* QAD_Desktop::getHelpWindow()
 {
   if (!myHelpWindow) {
     myHelpWindow = new QAD_HelpWindow();  
+    
+    QMap<QString,QString>::Iterator it;
+    for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it ) {
+      QCString dir;
+      QString root;
+      
+      // look for index.html and set homeDir
+      // 1. $(MODULE_ROOT_DIR)/doc/index.html
+      // 2. $(MODULE_ROOT_DIR)/doc/html/index.html
+      // 3. $(MODULE_ROOT_DIR)/doc/html/html/index.html
+
+      if (dir = getenv( QString( it.data() + "_ROOT_DIR")) ) {
+	root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+	if ( QFileInfo( root + "index.html" ).exists() ) {
+	  helpContext( root + "index.html", "" );
+	}
+	else {
+	  root = QAD_Tools::addSlash( root + "html" );
+	  if ( QFileInfo( root + "index.html" ).exists() ) {
+	    helpContext( root + "index.html", "" );
+	  }
+	  else {
+	    root = QAD_Tools::addSlash( root + "html" );
+	    if ( QFileInfo( root + "index.html" ).exists() ) {
+	      helpContext( root + "index.html", "" );
+	    }
+	  }
+	}
+      }
+    }
+    
     connect(myHelpWindow, SIGNAL(helpWindowClosed()), this, SLOT(onHelpWindowClosed()));
   }
   return myHelpWindow;
@@ -3217,7 +3248,31 @@ void QAD_Desktop::helpSearch()
 /* Help Contents */
 void QAD_Desktop::helpContents()
 {
-  getHelpWindow()->contents();
+  if (myActiveComp == "")
+    myActiveComp = "Salome";
+
+  QCString dir;
+  QString root;
+  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      helpContext( root + "index.html", "" );
+    }
+    else {
+      root = QAD_Tools::addSlash( root + "html" );
+      if ( QFileInfo( root + "index.html" ).exists() ) {
+	helpContext( root + "index.html", "" );
+      }
+      else {
+	root = QAD_Tools::addSlash( root + "html" );
+	if ( QFileInfo( root + "index.html" ).exists() ) {
+	  helpContext( root + "index.html", "" );
+	}
+      }
+    }
+  }
+  
+  //NRI getHelpWindow()->contents();
   getHelpWindow()->show();
   getHelpWindow()->raise();
   getHelpWindow()->setActiveWindow();
