@@ -1,18 +1,74 @@
 #!/usr/bin/env python
 
-usage="""USAGE: runSalome.py module1 module2 ...
- où modulen est le nom d'un module Salome à charger dans le catalogue
+usage="""USAGE: runSalome.py [options]
+
+[command line options] :
+--help                        : affichage de l'aide
+--gui                         : lancement du GUI
+--logger		      : redirection des messages dans un fichier
+--xterm			      : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
+--modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
+--containers=cpp,python,superv: lancement des containers cpp, python et de supervision
+
  La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
  positionnée (modulen doit etre en majuscule).
  KERNEL_ROOT_DIR est obligatoire.
 """
 
-import sys,os,string,glob,time,signal,pickle
+def message(code, msg=''):
+    if msg: print msg
+    sys.exit(code)
+
+import sys,os,string,glob,time,signal,pickle,getopt
 
 init_time=os.times()
-liste_modules=sys.argv[1:]
+opts, args=getopt.getopt(sys.argv[1:], 'hmglxc:', ['help','modules=','gui','logger','xterm','containers='])
 modules_root_dir={}
 process_id={}
+liste_modules={}
+liste_containers={}
+with_gui=0
+with_logger=0
+with_xterm=0
+
+with_container_cpp=0
+with_container_python=0
+with_container_superv=0
+
+try:
+  for o, a in opts:
+    if o in ('-h', '--help'):
+      print usage
+      sys.exit(1)
+    elif o in ('-g', '--gui'):
+      with_gui=1
+    elif o in ('-l', '--logger'):
+      with_logger=1
+    elif o in ('-x', '--xterm'):
+      with_xterm=1
+    elif o in ('-m', '--modules'):
+      liste_modules = [x.upper() for x in a.split(',')]
+    elif o in ('-c', '--containers'):
+      liste_containers = [x.lower() for x in a.split(',')]
+      for r in liste_containers:
+        if r not in ('cpp', 'python', 'superv'):
+	   message(1, 'Invalid -c/--containers option: %s' % a)
+      if 'cpp' in liste_containers:
+	   with_container_cpp=1
+      else:
+	   with_container_cpp=0
+      if 'python' in liste_containers:
+	   with_container_python=1
+      else:
+	   with_container_python=0
+      if 'superv' in liste_containers:
+	   with_container_superv=1
+      else:
+	   with_container_superv=0
+
+except getopt.error, msg:
+  print usage
+  sys.exit(1)
 
 # -----------------------------------------------------------------------------
 #
@@ -44,6 +100,8 @@ liste_modules[:0]=["KERNEL"]
 #print liste_modules
 #print modules_root_dir
 
+if "SUPERV" in liste_modules:with_container_superv=1
+
 import orbmodule
 
 # -----------------------------------------------------------------------------
@@ -53,8 +111,11 @@ import orbmodule
 
 class Server:
    CMD=[]
-   ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-e']
-   #ARGS=[]
+   if with_xterm:
+	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-e']
+   else:
+   	ARGS=[]	
+
    def run(self):
       args = self.ARGS+self.CMD
       #print "args = ", args
@@ -91,6 +152,17 @@ class ContainerSUPERVServer(Server):
 
 class LoggerServer(Server):
    CMD=['SALOME_Logger_Server', 'logger.log']
+
+class SessionLoader(Server):
+   CMD=['SALOME_Session_Loader']
+   if with_container_cpp:
+       CMD=CMD+['CPP']
+   if with_container_python:
+       CMD=CMD+['PY']
+   if with_container_superv:
+       CMD=CMD+['SUPERV']
+   if with_gui:
+       CMD=CMD+['GUI']
 
 class SessionServer(Server):
    CMD=['SALOME_Session_Server']
@@ -181,6 +253,13 @@ for module in liste_modules_reverse:
 #
    
 def startSalome():
+
+  #
+  # Lancement Session Loader
+  #
+
+  SessionLoader().run()
+
   #
   # Initialisation ORB et Naming Service
   #
@@ -190,8 +269,10 @@ def startSalome():
   # (non obligatoire) Lancement Logger Server et attente de sa disponibilite dans le naming service
   #
 
-  #LoggerServer().run()
-  #clt.waitLogger("Logger")
+  if with_logger:
+	LoggerServer().run()
+	clt.waitLogger("Logger")
+
 
   #
   # Lancement Registry Server
@@ -255,33 +336,33 @@ def startSalome():
   #
   # Lancement Container C++ local
   #
+  if with_container_cpp:
+	  ContainerCPPServer().run()
 
-  ContainerCPPServer().run()
+	  #
+	  # Attente de la disponibilité du Container C++ local dans le Naming Service
+	  #
 
-  #
-  # Attente de la disponibilité du Container C++ local dans le Naming Service
-  #
+	  theComputer = os.getenv("HOSTNAME")
+	  computerSplitName = theComputer.split('.')
+	  theComputer = computerSplitName[0]
 
-  theComputer = os.getenv("HOSTNAME")
-  computerSplitName = theComputer.split('.')
-  theComputer = computerSplitName[0]
-
-  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+	  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
   #
   # Lancement Container Python local
   #
 
-  ContainerPYServer().run()
+  if with_container_python:
+	  ContainerPYServer().run()
 
-  #
-  # Attente de la disponibilité du Container Python local dans le Naming Service
-  #
+	  #
+	  # Attente de la disponibilité du Container Python local dans le Naming Service
+	  #
+	
+	  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
-  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
-
-
-  if "SUPERV" in liste_modules:
+  if with_container_superv:
 
 	#
 	# Lancement Container Supervision local
@@ -295,11 +376,12 @@ def startSalome():
 
 	clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 
+
   #
   # Activation du GUI de Session Server
   #
-
-  session.GetInterface()
+	
+  #session.GetInterface()
 
   end_time = os.times()
   print

@@ -9,7 +9,10 @@ export SUPERV_ROOT_DIR=/Salome2/SUPERV_install
 export VISU_ROOT_DIR=/Salome2/VISU_install
 
 python killSalome.py
-python -i runSalome.py GEOM SMESH VISU SUPERV MED
+python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --xterm --containers=cpp,python
+#python -i runSalome.py --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --logger --xterm
+#python -i runSalome.py --modules=GEOM,SMESH,VISU,SUPERV,MED
+#python -i runSalome.py --help
 
 # -----------------------------------------------------------------------------
 #

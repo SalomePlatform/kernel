@@ -53,6 +53,7 @@ static QString addSlash( const QString& path );
 InquireServersGUI::InquireServersGUI()
      : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder )
 {
+  myGUI = false;
   myThread = new InquireServersQThread(this);
 
   // 1. Polish the appearance
@@ -140,6 +141,7 @@ void InquireServersGUI::ClickOnCancel()
 {
   //it's necessary to stop asking servers
   myThread->stop();
+  myGUI = false;
   //Also we should send QCloseEvent in order to close this widget (and remove from screen) 
   //QThread::postEvent ( this, new QCloseEvent() );
   qApp->exit(1);
@@ -200,7 +202,7 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
   char* cenv;
 
   IsChecking = true;
-  myServersCount = 8;
+  myServersCount = 5;
   //how many times we should repeat attempts to get response from all needed for launching SALOME servers
   myRepeat = 30; // default value, user can change it by setting CSF_RepeatServerRequest env.variable
   cenv = getenv( "CSF_RepeatServerRequest" );
@@ -224,13 +226,22 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
   r->getArgs( _argc, &_argv);
 
   // NRI : Temporary solution for SuperVisionContainer
-  for ( int i=1; i<=_argc; i++) {
-    if (strcmp(_argv[i],"CPP")==0)
+  for ( int i=1; i<=(_argc-1); i++) {
+    if (strcmp(_argv[i],"CPP")==0) {
       myMessages[5] = str + "SALOME_Container FactoryServer" + "...";
-    if (strcmp(_argv[i],"PYTHON")==0)
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"PYTHON")==0) {
       myMessages[6] = str + "SALOME_ContainerPy.py FactoryServerPy" + "...";
-    if (strcmp(_argv[i],"SUPERV")==0)
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"SUPERV")==0) {
       myMessages[7] = str + "SALOME_Container SuperVisionContainer" + "...";
+      myServersCount++;
+    }
+    if (strcmp(_argv[i],"GUI")==0) {
+      r->withGUI(true);
+    }
   }
 }
 
@@ -238,9 +249,18 @@ void InquireServersQThread::run()
 {
 while (IsChecking)
   {
-    for (int i=1; i<=myServersCount; i++)
+    for (int i=1; i<=8; i++)
       {
-	if ( myMessages[i-1].isEmpty() ) continue;
+	if ( myMessages[i-1].isEmpty() ) {
+	  if (i==8) {
+	    IsChecking = false;
+	    //myExitStatus should be 0 because all servers exist and work
+	    myExitStatus = 0;
+	    //we should send QCloseEvent in order to close this widget (and remove from screen) 
+	    QThread::postEvent ( receiver , new QCloseEvent() );
+	  } else
+	    continue;
+	}
 	QString *message = new QString(myMessages[i-1]);
 	QThread::postEvent( receiver, new InquireEvent( ( QEvent::Type )InquireEvent::ProgressEventLabel, message ) );
 	QThread::usleep(200000);
@@ -249,7 +269,7 @@ while (IsChecking)
 	if (result)
 	  {
 	    QThread::postEvent( receiver, new InquireEvent( ( QEvent::Type )InquireEvent::ProgressEvent, new int( i ) ) );
-	    if (i==myServersCount)
+	    if (i==8)
 	      {
 		IsChecking = false;
 		//myExitStatus should be 0 because all servers exist and work

@@ -40,6 +40,51 @@ int main(int argc, char **argv)
   if (myIS.getExitStatus())
     exit(1);
 //VRVcd: T2.4 - Trace management improvement
+  if (myIS.withGUI()) {
+    try
+      {
+	CORBA::ORB_ptr orb = CORBA::ORB_init(argc,argv) ;
+	
+	SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
+	ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
+	NS.init_orb( orb ) ;
+	
+	CORBA::Object_var obj = NS.Resolve("/Kernel/Session");
+	
+	SALOME::Session_var session = SALOME::Session::_narrow(obj) ;
+	ASSERT(! CORBA::is_nil(session));
+	MESSAGE("SALOME::Session::_narrow(obj)");
+	INFOS("Corba initialisation, Distant server");
+	
+	// -------------------------------------------------------------
+	
+	session->GetInterface() ;
+	
+	// -------------------------------------------------------------
+	
+	orb->destroy() ;
+      }
+    catch (ServiceUnreachable&)
+      {
+	INFOS("Caught exception: Naming Service Unreachable");
+      }
+    catch (CORBA::COMM_FAILURE&)
+      {
+	INFOS("Caught CORBA::SystemException CommFailure.");
+      }
+    catch (CORBA::SystemException&)
+      {
+	INFOS("Caught CORBA::SystemException.");
+      }
+    catch (CORBA::Exception&)
+      {
+	INFOS("Caught CORBA::Exception.");
+      }
+    catch (...)
+      {
+	INFOS("Caught unknown exception.");
+      }
+  }
   return 0 ;
 }
 
