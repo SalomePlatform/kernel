@@ -195,6 +195,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._machineName = "localhost"
         return self._machineName
 
+    #-------------------------------------------------------------------------
+
+    def Shutdown(self):
+        self._orb.shutdown(0)
+        pass
+
 #=============================================================================
 
 #initialise the ORB and find the root POA
