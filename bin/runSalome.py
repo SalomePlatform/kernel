@@ -257,8 +257,8 @@ class InterpServer(Server):
     def __init__(self,args):
         self.args=args
         env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        #self.CMD=['xterm', '-iconic', '-sb', '-sl', '500', '-hold','-e']+ env_ld_library_path + ['python']
-        self.CMD=['xterm', '-e', 'python']
+        self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+        #self.CMD=['xterm', '-e', 'python']
        
     def run(self):
         global process_id
@@ -588,8 +588,19 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     # additionnal external python interpreters
     #
-
-    nbaddi = int(args['interp'])
+    nbaddi=0
+    
+    try:
+        if 'interp' in args:
+            if args['interp']:
+                nbaddi = int(args['interp'][0])
+    except:
+        import traceback
+        traceback.print_exc()
+        print "-------------------------------------------------------------"
+        print "-- to get an external python interpreter:runSalome --interp=1"
+        print "-------------------------------------------------------------"
+        
     print "additional external python interpreters: ", nbaddi
     if nbaddi:
         for i in range(nbaddi):
