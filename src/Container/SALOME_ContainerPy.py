@@ -40,6 +40,7 @@ from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 
 from SALOME_utilities import *
+from Utils_Identity import getShortHostName
 
 #=============================================================================
 
@@ -58,10 +59,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._poa = poa
         self._containerName = containerName
 
-        myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+        myMachine=getShortHostName()
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
-        Container_path = "/Containers/" + myMachine[0] + "/" + self._containerName
+        Container_path = "/Containers/" + myMachine + "/" + self._containerName
         MESSAGE( str(Container_path) )
         naming_service.Register(self._this(), Container_path)
             
@@ -69,8 +70,8 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     def start_impl(self, ContainerName):
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
-        myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
-        theContainer = "/Containers/" + myMachine[0] + "/" + ContainerName
+        myMachine=getShortHostName()
+        theContainer = "/Containers/" + myMachine + "/" + ContainerName
         try:
             obj = self._naming_service.Resolve(theContainer)
         except :

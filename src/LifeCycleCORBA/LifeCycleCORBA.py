@@ -36,6 +36,7 @@ import Engines
 import SALOME_ModuleCatalog
 
 from SALOME_utilities import *
+from Utils_Identity import getShortHostName
 
 class LifeCycleCORBA:
     _orb = None
@@ -87,9 +88,9 @@ class LifeCycleCORBA:
             theComputer = ""
             theContainer = containerName
         if theComputer == "" :
-            theComputer = os.getenv("HOSTNAME")
+            theComputer = getShortHostName()
         if theComputer == "localhost" :
-            theComputer = os.getenv("HOSTNAME")
+            theComputer = getShortHostName()
         computerSplitName = theComputer.split('.')
         theComputer = computerSplitName[0]
         MESSAGE( theComputer + theContainer )
@@ -134,8 +135,8 @@ class LifeCycleCORBA:
         aContainer = self.FindContainer( theComputer + "/" + theContainer )
         if aContainer is None :
             if (theContainer == "FactoryServer") | (theContainer == "FactoryServerPy") :
-                myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
-                if theComputer == myMachine[0] :
+                myMachine=getShortHostName()
+                if theComputer == myMachine :
                     rshstr = ""
                 else :
                     rshstr = "rsh -n " + theComputer + " "

@@ -33,12 +33,23 @@ import os
 import socket
 import pwd
 import time
+import string
+
+def getShortHostName():
+    """
+    gives Hostname without domain extension.
+    SALOME naming service needs short Hostnames (without domain extension).
+    HOSTNAME is not allways defined in environment,
+    socket.gethostname() gives short or complete Hostname, depending on
+    defined aliases.
+    """
+    return string.split(socket.gethostname(),'.')[0]
 
 class Identity:
     def __init__(self,name):
         self._name = name
         self._pid =  os.getpid()
-        self._machine = os.getenv( "HOSTNAME" )
+        self._machine = socket.gethostname()
         self._adip	=  socket.gethostbyname(self._machine) # IP adress
         self._uid	= os.getuid() 
         list = pwd.getpwuid(self._uid)

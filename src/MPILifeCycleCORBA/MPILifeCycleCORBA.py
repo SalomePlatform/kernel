@@ -8,6 +8,7 @@
 #==============================================================================
 
 from LifeCycleCORBA import *
+from Utils_Identity import getShortHostName
 
 class MPILifeCycleCORBA(LifeCycleCORBA):
     #-------------------------------------------------------------------------
@@ -24,7 +25,7 @@ class MPILifeCycleCORBA(LifeCycleCORBA):
         aMPIContainer = self.FindContainer( theComputer + "/" + theMPIContainer )
         if aMPIContainer is None :
             if (theMPIContainerRoot == "MPIFactoryServer") | (theMPIContainerRoot == "MPIFactoryServerPy") :
-                if theComputer == os.getenv("HOSTNAME") :
+                if theComputer == getShortHostName() :
                     rshstr = ""
                 else :
                     rshstr = "rsh -n " + theComputer + " "

@@ -502,15 +502,15 @@ def startSalome(args, modules_list, modules_root_dir):
     import SALOME
     session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
+    from Utils_Identity import getShortHostName
+    
     if os.getenv("HOSTNAME") == None:
         if os.getenv("HOST") == None:
-            os.environ["HOSTNAME"]="localhost"
+            os.environ["HOSTNAME"]=getShortHostName()
         else:
             os.environ["HOSTNAME"]=os.getenv("HOST")
 
-    theComputer = os.getenv("HOSTNAME")
-    computerSplitName = theComputer.split('.')
-    theComputer = computerSplitName[0]
+    theComputer = getShortHostName()
   
     #
     # Lancement Container C++ local,
