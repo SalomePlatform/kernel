@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 void Nettoyage( void ) ;
 
 # include <iostream>
 # include "utilities.h"
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
 # include <list>
+using namespace std;
 extern "C"
 {
 # include <stdlib.h>

@@ -24,14 +24,14 @@
 //  File   : HDFobject.cc
 //  Module : SALOME
 
-using namespace std;
 #include "HDFobject.hxx"
 extern "C"
 {
 #include "hdfi.h"
-#include <string.h>
 }
+#include <string>
 #include "utilities.h"
+using namespace std;
 
 HDFobject::HDFobject(char *name)
 {

@@ -29,9 +29,8 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 #include "SALOME_Log.hxx"
+using namespace std;
 
 SALOME_Log* SALOME_Log::_singleton = 0;
 

@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
+using namespace std;
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_AcomponentImpl

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD.h"
 #include "QAD_Popup.h"
 #include "utilities.h"
+using namespace std;
 
 /*****************************************************************************
 **  Class QAD_PopupClientServer

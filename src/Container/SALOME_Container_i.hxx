@@ -50,25 +50,27 @@ public:
   Engines_Container_i(CORBA::ORB_ptr orb, 
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
-                      int argc, char* argv[]);
-// Constructeur pour composant parallele : ne pas faire appel au naming service
-  Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_ptr poa,
-		      char * containerName,
-		      int flag);
+                      int argc, char* argv[],
+		      bool regist = true,
+		      bool activ = true);
   virtual ~Engines_Container_i();
 
-
+  // Launch a new container from the current container
   Engines::Container_ptr start_impl(const char* ContainerName);
 
+  // Load component in current container
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
+
+  // Unload component from current container
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 
   char* name();
   char* machineName();
   void ping();
+
+  // Kill current container
   bool Kill_impl() ;
   char* getHostName();
   long getPID();
@@ -76,17 +78,17 @@ public:
 protected:
 
   SALOME_NamingService *_NS ;
-  string _library_path;
-  string _containerName;
+  std::string _library_path;
+  std::string _containerName;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  map<string, void *> handle_map ;
-  map<string, void *> remove_map ;
+  std::map<std::string, void *> handle_map ;
+  std::map<std::string, void *> remove_map ;
   omni_mutex _numInstanceMutex ; // if several threads on the same object
 
-private: 
+  //private: 
 
   int   _argc ;
   char** _argv ;

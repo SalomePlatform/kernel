@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <stdlib.h>
 
 #if !defined WNT
@@ -52,6 +51,7 @@ using namespace std;
 
 #include <qpixmap.h>
 #include <qintdict.h>
+using namespace std;
 
 /* XPM */
 const char* imageZoomCursor[] = { 

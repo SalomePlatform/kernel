@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer.h"
 #include "VTKViewer_ViewFrame.h"
+using namespace std;
 
 QAD_ViewFrame* VTKViewer::createView(QAD_RightFrame* parent)
 {

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_Message.h"
 #include "QAD_Application.h"
 #include "QAD_Config.h"
@@ -35,6 +34,7 @@ using namespace std;
 #include <qstring.h>
 #include <qpopupmenu.h>
 #include <qmap.h>
+using namespace std;
 
 enum { IdCopy, IdClear, IdSelectAll };
 

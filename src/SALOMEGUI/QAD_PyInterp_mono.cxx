@@ -9,10 +9,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 #include "QAD_PyInterp_mono.h"
 #include "utilities.h"
+using namespace std;
 
 /*!
  * constructor : only one Python interpreter, shared within SALOME studies.

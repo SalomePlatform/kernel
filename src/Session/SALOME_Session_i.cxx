@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 
 #include "SALOME_Session_i.hxx"
@@ -41,6 +40,7 @@ using namespace std;
 #include <OSD_SharedLibrary.hxx>
 #include <OSD_LoadMode.hxx>
 #include <OSD_Function.hxx>
+using namespace std;
 
 //=============================================================================
 /*! SALOME_Session_i

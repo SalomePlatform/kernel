@@ -55,7 +55,7 @@ enable_production=AC_ENABLE_PRODUCTION_DEFAULT)dnl
 
 if test "X$enable_production" = "Xyes"; then
   CFLAGS="$CFLAGS -O"
-  CXXFLAGS="$CXXFLAGS -O -Wno-deprecated "
+  CXXFLAGS="$CXXFLAGS -O "
 fi
 ])
 
@@ -89,7 +89,7 @@ enable_debug=AC_ENABLE_DEBUG_DEFAULT)dnl
 
 if test "X$enable_debug" = "Xyes"; then
   CFLAGS="$CFLAGS -g -D_DEBUG_ "
-  CXXFLAGS="$CXXFLAGS -g -D_DEBUG_ -Wno-deprecated "
+  CXXFLAGS="$CXXFLAGS -g -D_DEBUG_ "
 fi
 ])
 

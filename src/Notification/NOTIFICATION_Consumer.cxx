@@ -25,8 +25,8 @@
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 
-using namespace std;
 #include "NOTIFICATION.hxx"
+using namespace std;
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
     proxy_supplier(0),

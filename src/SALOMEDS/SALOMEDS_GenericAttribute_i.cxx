@@ -9,8 +9,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_StudyBuilder_i.hxx"
+using namespace std;
 
 void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) {
   if (!_myAttr.IsNull() && _myAttr->IsValid() && !CORBA::is_nil(_myOrb)) {

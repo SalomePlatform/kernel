@@ -26,10 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_SComponent_i.hxx"
 #include "utilities.h"
-
+using namespace std;
 
 //============================================================================
 /*! Function : constructor

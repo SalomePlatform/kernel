@@ -9,11 +9,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HArray1OfCharacter.hxx>
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) {
   CheckLocked();

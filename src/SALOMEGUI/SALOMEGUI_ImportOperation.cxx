@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_ImportOperation.h"
+using namespace std;
 
 SALOMEGUI_ImportOperation::SALOMEGUI_ImportOperation( QAD_Study* study ) :
 QAD_Operation( study )

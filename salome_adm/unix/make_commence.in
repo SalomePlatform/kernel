@@ -2,7 +2,8 @@
 inc_builddir=$(top_builddir)/include/salome
 
 @SET_MAKE@
-SHELL=/bin/sh
+# Modifcation B. Secher portage sur osf
+SHELL=@SHELL@
 
 # header missing
 
@@ -10,9 +11,10 @@ HAVE_SSTREAM=@HAVE_SSTREAM@
 
 
 LIBS=@LIBS@ 
-LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
+# LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
+LDFLAGS= @LDFLAGS@ -L$(top_builddir)/lib/salome
 # add libstdc++ to link c++ library with libtool !
-LDFLAGS+= -lstdc++
+LDFLAGS+= @STDLIB@
 
 CP=@CP@
 
@@ -73,6 +75,7 @@ SIP_LIBS = @SIP_LIBS@
 
 # PYQT
 PYQT_SIPS = @PYQT_SIPS@
+PYQT_INCLUDES = @PYQT_INCLUDES@
 PYQT_LIBS = @PYQT_LIBS@
 
 # openGL
@@ -112,8 +115,10 @@ CAS_VIEWER=@CAS_VIEWER@
 CAS_MODELER=@CAS_MODELER@
 CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
 CAS_LDPATH=@CAS_LDPATH@
+# MPI
+MPI_INCLUDES=@MPI_INCLUDES@
+MPI_LIBS=@MPI_LIBS@
 # MPICH
-
 MPICH_INCLUDES=@MPICH_INCLUDES@
 MPICH_LIBS=@MPICH_LIBS@
 

@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
 #include <iostream>
 #include <cstring>
+using namespace std;
 
 //----------------------------------------------------------------------
 /*! Function : SALOME_NamingService

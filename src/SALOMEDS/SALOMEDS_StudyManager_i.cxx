@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
@@ -75,6 +74,7 @@ using namespace std;
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
+using namespace std;
 
 #include <SALOME_GenericObj_i.hh>
 
@@ -96,6 +96,9 @@ static void ReadAttributes(Handle(TDF_Data)& DF,
     if (!strncmp(hdf_dataset->GetName(),"AttributeTreeNode",17)) {
       MESSAGE("Create a Attribute :     AttributeTreeNode");
       char current_strings[5][hdf_dataset->GetSize()/5];
+//       char **current_strings = new (char*)[5];
+//       for(int i=0;i<5;i++)
+//         current_strings[i] = new char[hdf_dataset->GetSize()/5+1];
       hdf_dataset->ReadFromDisk(current_strings);
 
       MESSAGE("Create an Attribute :     AttributeTreeNode"); 
@@ -123,6 +126,9 @@ static void ReadAttributes(Handle(TDF_Data)& DF,
         if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
         aNewNode->SetFirst(aNode);
       }
+//       for(int i=0;i<5;i++)
+//         delete[] current_strings[i];
+//       delete[] current_strings;
     } else {
 
       int size =  hdf_dataset->GetSize();
@@ -571,9 +577,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
+//      char *eStr = new char[strlen(aUrl)+17+1];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
-      
     } 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
@@ -619,6 +625,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
       char eStr[strlen(aUrl)+17];
+//      char *eStr = new char[strlen(aUrl)+17+1];
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
     } 
@@ -1181,6 +1188,9 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
       MESSAGE("attribute AttributeTreeNode with various GUID wrote on file:");
       MESSAGE(aDataSetName);
       delete(aDataSetName);
+//       for(int i=0;i<5;i++)
+// 	delete[] Data[i];
+//       delete[] Data;
     }
   }
 }

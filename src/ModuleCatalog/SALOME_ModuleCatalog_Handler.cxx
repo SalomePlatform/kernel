@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #define WRITE_CATA_COMPONENT
 #include "SALOME_ModuleCatalog_Handler.hxx"
+using namespace std;
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_Handler

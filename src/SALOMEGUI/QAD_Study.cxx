@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_Study QAD_Study.h
   \brief Study for QAD-based application.
@@ -59,6 +58,7 @@ using namespace std;
 
 // QT Include
 #include <qapplication.h>
+using namespace std;
 
 /*!
     Constructor

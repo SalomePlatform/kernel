@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class SALOME_Selection SALOME_Selection.h
   \brief Selection Mechanism of Interactive Object.
@@ -40,6 +39,7 @@ using namespace std;
 
 #include "QAD_Desktop.h"
 #include "utilities.h"
+using namespace std;
 
 static QList<SALOME_Selection>&  SALOME_Sel_GetSelections()
 {

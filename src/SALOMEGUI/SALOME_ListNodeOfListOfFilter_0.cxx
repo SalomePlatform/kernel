@@ -24,7 +24,6 @@
 //  File   : SALOME_ListNodeOfListOfFilter_0.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_ListNodeOfListOfFilter.hxx"
 
 #ifndef _Standard_TypeMismatch_HeaderFile
@@ -40,6 +39,10 @@ using namespace std;
 #ifndef _SALOME_ListIteratorOfListOfFilter_HeaderFile
 #include "SALOME_ListIteratorOfListOfFilter.hxx"
 #endif
+using namespace std;
+
+
+
 SALOME_ListNodeOfListOfFilter::~SALOME_ListNodeOfListOfFilter() {}
  
 

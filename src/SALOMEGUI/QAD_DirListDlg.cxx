@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_DirListDlg.h"
 #include "QAD_Desktop.h"
 #include "QAD_FileDlg.h"
@@ -19,6 +18,7 @@ using namespace std;
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qapplication.h>
+using namespace std;
 
 #define MIN_WIDTH     400
 #define MIN_HEIGHT    200

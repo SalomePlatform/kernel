@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_FileValidator.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -17,6 +16,7 @@ using namespace std;
 
 #include <qfile.h>
 #include <qfileinfo.h>
+using namespace std;
 
 /* constructor */
 QAD_FileValidator::QAD_FileValidator(QWidget* parent) :

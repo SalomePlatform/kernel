@@ -31,6 +31,6 @@ class HDFexception
 {
 public :
   HDFexception(const char *message) { 
-    cerr << message << endl;
+    std::cerr << message << std::endl;
   }
 };

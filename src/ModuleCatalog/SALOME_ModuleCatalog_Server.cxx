@@ -25,8 +25,7 @@
 //  Module : SALOME
 
 /* $Header$ */
-
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "utilities.h"

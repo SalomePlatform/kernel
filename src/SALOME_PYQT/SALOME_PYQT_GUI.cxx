@@ -1,4 +1,3 @@
-using namespace std;
 //=============================================================================
 // File      : SALOME_PYQT_GUI.cxx
 // Created   : mer jun  4 17:17:20 UTC 2003
@@ -26,6 +25,7 @@ using namespace std;
 
 #include <map>
 #include <string>
+using namespace std;
 
 static PyInterp_PyQt *interp = NULL;
 static map<int,PyInterp_PyQt*> mapInterp;

@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() {

@@ -26,11 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
-
+using namespace std;
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 
 {

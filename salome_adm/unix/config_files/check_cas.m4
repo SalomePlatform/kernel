@@ -36,7 +36,6 @@ AC_SUBST(CAS_MODELER)
 AC_SUBST(CAS_OCAF)
 AC_SUBST(CAS_DATAEXCHANGE)
 AC_SUBST(CAS_LDFLAGS)
-
 AC_SUBST(CAS_LDPATH)
 
 CAS_CPPFLAGS=""
@@ -58,7 +57,7 @@ case $host_os in
    irix6.*)
       casdir=Linux
       ;;
-   osf4.*)
+   osf*)
       casdir=Linux
       ;;
    solaris2.*)
@@ -68,6 +67,20 @@ case $host_os in
       casdir=Linux
       ;;
 esac
+
+AC_MSG_CHECKING(for OpenCascade directories)
+if test -d ${CASROOT}/${casdir}/lib; then
+  CAS_LDPATH="-L$CASROOT/$casdir/lib "
+  AC_MSG_RESULT(yes)
+else
+  if test -d ${CASROOT}/lib; then
+    CAS_LDPATH="-L$CASROOT/lib "
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
+fi
+
 
 dnl were is OCC ?
 if test -z $CASROOT; then
@@ -86,32 +99,31 @@ fi
 
 if test "x$occ_ok" = "xyes"; then
 
+dnl test c++ compiler flag for unsigned character
+  for opt in -funsigned-char -unsigned ; do
+    AC_CXX_OPTION($opt,CXXFLAGS,flag=yes,flag=no)
+    if test "$flag" = "yes"; then
+      break
+    fi
+  done
+  
 dnl cascade headers
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -I$CASROOT/inc -Wno-deprecated"
-  CXXFLAGS_old="$CXXFLAGS"
-  CXXFLAGS="$CXXFLAGS -funsigned-char"
+  CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -I$CASROOT/inc"
+  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
 
   AC_CHECK_HEADER(Standard_Type.hxx,occ_ok=yes ,occ_ok=no)
 
-  CPPFLAGS="$CPPFLAGS_old"
-  CXXFLAGS="$CXXFLAGS_old"
 fi
 
 if test "x$occ_ok" = xyes ; then
 
-  CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -I$CASROOT/inc"
-  CAS_CXXFLAGS="-funsigned-char"
-
   AC_MSG_CHECKING(for OpenCascade libraries)
 
-  CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS -Wno-deprecated"
-  CXXFLAGS_old="$CXXFLAGS"
-  CXXFLAGS="$CXXFLAGS $CAS_CXXFLAGS"
   LIBS_old="$LIBS"
-  LIBS="$LIBS -L$CASROOT/$casdir/lib -lTKernel"
+  LIBS="$LIBS $CAS_LDPATH -lTKernel"
+  
   AC_CACHE_VAL(salome_cv_lib_occ,[
     AC_TRY_LINK(
 #include <Standard_Type.hxx>
@@ -123,28 +135,36 @@ if test "x$occ_ok" = xyes ; then
   ])
   occ_ok="$salome_cv_lib_occ"
 
-  CPPFLAGS="$CPPFLAGS_old"
-  CXXFLAGS="$CXXFLAGS_old"
-  LIBS="$LIBS_old"
 fi
+CPPFLAGS="$CPPFLAGS_old"
+LIBS="$LIBS_old"
 
 if test "x$occ_ok" = xno ; then
   AC_MSG_RESULT(no)
   AC_MSG_WARN(Opencascade libraries not found)
 else
   AC_MSG_RESULT(yes)
-  CAS_LDPATH="-L$CASROOT/$casdir/lib "
   CAS_KERNEL="$CAS_LDPATH -lTKernel -lTKMath"
-  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKCAF -lFWOSPlugin -lTKPShape -lTKPCAF -lTKStdSchema -lTKShapeSchema -lPAppStdPlugin -lTKPAppStd -lTKCDF"
-dnl  CAS_VIEWER="-L$CASROOT/$casdir/lib -lTKOpenGl -lTKV3d -lTKV2d -lTKService"
+
+  # E.A. compatibility version 4 and 5.x  
+  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKCAF -lFWOSPlugin -lTKPShape -lTKPCAF -lTKStdSchema -lTKShapeSchema -lPAppStdPlugin"
+  if test $OCC_VERSION_MAJOR -lt 5 ; then
+    CAS_OCAF="$CAS_OCAF -lTKPAppStd"
+  fi
+  CAS_OCAF="$CAS_OCAF -lTKCDF"
+  
   CAS_VIEWER="$CAS_LDPATH -lTKOpenGl -lTKV3d -lTKService"
-#  CAS_MODELER="-L$CASROOT/$casdir/lib -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBool -lTKHLR -lTKFillet -lTKFeat -lTKOffset"
   CAS_MODELER="$CAS_LDPATH -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBool -lTKHLR -lTKFillet -lTKOffset"
-dnl  CAS_DATAEXCHANGE="-L$CASROOT/$casdir/lib -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing -lTKShHealingStd -lTKSTL -lTKVRML "
-  CAS_DATAEXCHANGE="$CAS_LDPATH -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing -lTKShHealingStd"
+
+  # E.A. compatibility version 4 and 5.x  
+  CAS_DATAEXCHANGE="$CAS_LDPATH -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing"
+  if test $OCC_VERSION_MAJOR -lt 5 ; then
+    CAS_DATAEXCHANGE="$CAS_DATAEXCHANGE -lTKShHealingStd"
+  fi
+
+
   CAS_LDFLAGS="$CAS_KERNEL $CAS_OCAF $CAS_VIEWER $CAS_MODELER $CAS_DATAEXCHANGE"  
-  
-  
+
 fi
 
 AC_LANG_RESTORE

@@ -148,7 +148,7 @@ int main (int argc, char * argv[])
       for (int iter = 0; iter < 3 ; iter++)
 	{
 	  INFOS("----------------------------------------------------" << iter);   
-          string dirn = getenv("SALOME_ROOT_DIR");
+          string dirn = getenv("KERNEL_ROOT_DIR");
           dirn += "/lib/salome/libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);

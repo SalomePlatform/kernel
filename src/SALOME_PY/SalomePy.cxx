@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <Python.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
@@ -38,6 +37,7 @@ using namespace std;
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "VTKViewer_ViewFrame.h"
+using namespace std;
 
 extern "C"
 { 

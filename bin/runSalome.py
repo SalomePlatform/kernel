@@ -392,7 +392,12 @@ def startSalome():
   import SALOME
   session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
-
+  if os.getenv("HOSTNAME") == None:
+     if os.getenv("HOST") == None:
+        os.environ["HOSTNAME"]="localhost"
+     else:
+        os.environ["HOSTNAME"]=os.getenv("HOST")
+  
   theComputer = os.getenv("HOSTNAME")
   computerSplitName = theComputer.split('.')
   theComputer = computerSplitName[0]

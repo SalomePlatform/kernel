@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_DataTypeCatalog_impl.hxx"
 #include <fstream>
+using namespace std;
 
 //----------------------------------------------------------------------
 // Function : SALOME_DataTypeCatalogImpl

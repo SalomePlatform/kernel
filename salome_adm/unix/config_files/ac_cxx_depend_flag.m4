@@ -35,17 +35,34 @@ ac_cv_depend_flag,
  echo "conftest.o: conftest.c" > conftest.verif
  echo "int  main() { return 0; }" > conftest.c
 
+dnl Evolution portage sur CCRT/osf system
+ case $host_os in
+   osf*)
+dnl sur CCRT/osf pas d'equivalent de l'option -MG de gcc avec compilo natif
+dnl on utilise donc gnu pour generer les dependances.
+     DEPCC=gcc
+     DEPCXX=g++
+     DEPCXXFLAGS="-Wno-deprecated -funsigned-char"
+     DIFFFLAGS="-w"
+     ;;
+   *)
+     DEPCC=${CC-cc}
+     DEPCXX=${CXX-c++}
+     DEPCXXFLAGS="\${CXXFLAGS}"
+     DIFFFLAGS="-b -B"
+     ;;
+ esac
  C_DEPEND_FLAG=
  for ac_C_DEPEND_FLAG in -xM -MM -M ; do
 
     rm -f conftest.d conftest.err
-    ${CC-cc} ${ac_C_DEPEND_FLAG} -c conftest.c 1> conftest.d 2> conftest.err
+    ${DEPCC} ${ac_C_DEPEND_FLAG} -c conftest.c 1> conftest.d 2> conftest.err
     if test -f conftest.u ; then
        mv conftest.u conftest.d
     fi
 
     rm -f conftest
-    diff -b -B conftest.d conftest.verif > conftest
+    diff ${DIFFFLAGS} conftest.d conftest.verif > conftest
     if test ! -s conftest ; then
        C_DEPEND_FLAG=${ac_C_DEPEND_FLAG}
        break
@@ -54,12 +71,12 @@ ac_cv_depend_flag,
 
 dnl use gcc option -MG : asume unknown file will be construct later
  rm -f conftest.d conftest.err
- ${CC-cc} ${C_DEPEND_FLAG} -MG -c conftest.c 1> conftest.d 2> conftest.err
+ ${DEPCC} ${C_DEPEND_FLAG} -MG -c conftest.c 1> conftest.d 2> conftest.err
  if test -f conftest.u ; then
     mv conftest.u conftest.d
  fi
  rm -f conftest
- diff -b -B conftest.d conftest.verif > conftest
+ diff ${DIFFFLAGS} conftest.d conftest.verif > conftest
  if test ! -s conftest ; then
     C_DEPEND_FLAG=${C_DEPEND_FLAG}" -MG"
  fi
@@ -70,7 +87,7 @@ dnl use gcc option -MG : asume unknown file will be construct later
     exit
  fi
 
- echo -n " C : " ${C_DEPEND_FLAG}
+ printf " C :  ${DEPCC} ${C_DEPEND_FLAG}"
 
  AC_LANG_CPLUSPLUS
  echo "conftest.o: conftest.cxx" > conftest.verif
@@ -80,13 +97,13 @@ dnl use gcc option -MG : asume unknown file will be construct later
  for ac_CXX_DEPEND_FLAG in -xM -MM -M ; do
 
     rm -f conftest.d conftest.err
-    ${CXX-c++} ${ac_CXX_DEPEND_FLAG} -c conftest.cxx 1> conftest.d 2> conftest.err
+    ${DEPCXX} ${ac_CXX_DEPEND_FLAG} -c conftest.cxx 1> conftest.d 2> conftest.err
     if test -f conftest.u ; then
        mv conftest.u conftest.d
     fi
 
     rm -f conftest
-    diff -b -B conftest.d conftest.verif > conftest
+    diff ${DIFFFLAGS} conftest.d conftest.verif > conftest
     if test ! -s conftest ; then
        CXX_DEPEND_FLAG=${ac_CXX_DEPEND_FLAG}
        break
@@ -95,12 +112,12 @@ dnl use gcc option -MG : asume unknown file will be construct later
 
 dnl use g++ option -MG : asume unknown file will be construct later
  rm -f conftest.d conftest.err
- ${CXX-c++} ${CXX_DEPEND_FLAG} -MG -c conftest.cxx 1> conftest.d 2> conftest.err
+ ${DEPCXX} ${CXX_DEPEND_FLAG} -MG -c conftest.cxx 1> conftest.d 2> conftest.err
  if test -f conftest.u ; then
     mv conftest.u conftest.d
  fi
  rm -f conftest
- diff -b -B conftest.d conftest.verif > conftest
+ diff ${DIFFFLAGS} conftest.d conftest.verif > conftest
  if test ! -s conftest ; then
     CXX_DEPEND_FLAG=${CXX_DEPEND_FLAG}" -MG"
  fi
@@ -112,9 +129,12 @@ dnl use g++ option -MG : asume unknown file will be construct later
     exit
  fi
 
- echo -n " C++ : " ${CXX_DEPEND_FLAG}
+ printf " C++ : ${DEPCXX} ${CXX_DEPEND_FLAG}"
  AC_LANG_RESTORE
 
+ AC_SUBST(DEPCC)
+ AC_SUBST(DEPCXX)
+ AC_SUBST(DEPCXXFLAGS)
  AC_SUBST(C_DEPEND_FLAG)
  AC_SUBST(CXX_DEPEND_FLAG)
 ])

@@ -55,6 +55,6 @@ CPPFLAGS+= $(PYTHON_INCLUDES)
 
 LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
-LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS)
+LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS)
 
 @CONCLUDE@

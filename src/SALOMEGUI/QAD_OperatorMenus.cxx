@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_OperatorMenus.h"
 #include "QAD_Desktop.h"
+using namespace std;
 
 /*!
   Constructor.

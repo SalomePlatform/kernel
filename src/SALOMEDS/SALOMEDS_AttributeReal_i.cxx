@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 CORBA::Double SALOMEDS_AttributeReal_i::Value() {
   return Handle(TDataStd_Real)::DownCast(_myAttr)->Get();

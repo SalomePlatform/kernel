@@ -24,7 +24,6 @@
 //  File   : HDFcontainerObject.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
@@ -32,6 +31,7 @@ extern "C"
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
 #include "utilities.h"
+using namespace std;
 
 HDFcontainerObject::HDFcontainerObject(char *name)
   : HDFinternalObject(name)

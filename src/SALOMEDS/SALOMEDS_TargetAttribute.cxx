@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header:  
 
-using namespace std;
 #include "SALOMEDS_TargetAttribute.ixx"
 #include <TDF_Reference.hxx>
 #include <TDF_ListIteratorOfAttributeList.hxx>
 #include "utilities.h"
+using namespace std;
 
 //=======================================================================
 //function : GetID

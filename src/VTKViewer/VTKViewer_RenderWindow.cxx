@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer_RenderWindow.h"
 #include "utilities.h"
 #include "QAD_Settings.h"
@@ -46,6 +45,7 @@ using namespace std;
 #include <vtkRendererCollection.h>
 #include <vtkXOpenGLRenderWindow.h>
 #include <vtkCamera.h>
+using namespace std;
 
 //#include <GL/gl.h>
 //#include <GL/glu.h>

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_OpenWith.h"
 
 #include <qlabel.h>
@@ -34,6 +33,7 @@ using namespace std;
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qlistbox.h>
+using namespace std;
 
 #define SPACING_SIZE             6
 #define MARGIN_SIZE             11

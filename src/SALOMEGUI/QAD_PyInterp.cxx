@@ -26,10 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 #include "QAD_PyInterp.h"
 #include "utilities.h"
+using namespace std;
 
 /*!
  * constructor : multi Python interpreter, one per SALOME study.

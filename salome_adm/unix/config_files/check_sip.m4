@@ -28,10 +28,17 @@ else
            sip_vers=new ;;
          3.5*)
            sip_vers=new ;;
+         3.6*)
+           sip_vers=new ;;
+         3.7*)
+           sip_vers=new ;;
+         3.8*)
+           sip_vers=new ;;
+         3.9*)
+           sip_vers=new ;;
            *)
            sip_vers=no ;;
     esac
-
     sip_ok=no
 
     if test "x$sip_vers" = "xold"
@@ -44,11 +51,11 @@ else
 
     if test "x$sip_vers" = "xnew"
     then
-	if test -d ${SIPDIR}/include ; then
-	   sip_ok=yes
+	sip_ok=yes
+	if test -d ${SIPDIR}/include/python${PYTHON_VERSION} ; then
 	   SIP_ROOT="$SIPDIR"
-	   SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}/include"
-	   SIP_LIBS="-L${SIPDIR}/lib -lsip"
+	   SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}/include/python${PYTHON_VERSION}"
+	   SIP_LIBS="-L${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages -lsip"
 	else
 	   sip_ok=yes
 	   SIP_ROOT="$SIPDIR"

@@ -111,8 +111,8 @@ Standard_EXPORT   void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_
 Standard_EXPORT   Handle_TColStd_HSequenceOfInteger GetSetRowIndices(const Standard_Integer theRow);
 Standard_EXPORT   Handle_TColStd_HSequenceOfInteger GetSetColumnIndices(const Standard_Integer theColumn);
 
-Standard_EXPORT   void ConvertToString(ostrstream& theStream);
-Standard_EXPORT   bool RestoreFromString(istrstream& theStream);
+Standard_EXPORT   void ConvertToString(std::ostrstream& theStream);
+Standard_EXPORT   bool RestoreFromString(std::istrstream& theStream);
 
 Standard_EXPORT ~SALOMEDS_TableOfIntegerAttribute();
 

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
 //SALOMEDS Headers
@@ -68,6 +67,7 @@ using namespace std;
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include <TDF_AttributeIterator.hxx>
+using namespace std;
 
 //============================================================================
 /*! Function : ReturnGUIDForAttribute
@@ -549,7 +549,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
  *  Purpose  : 
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_out obj)
+CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj)
 {
   TDF_Label L = _lab.FindChild(atag,false);
   if (L.IsNull()) return false;

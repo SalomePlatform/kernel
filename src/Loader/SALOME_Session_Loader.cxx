@@ -7,7 +7,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*! \file SALOME_Session_loader.cxx
  */
 
@@ -19,6 +18,7 @@ using namespace std;
 #include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
+using namespace std;
 
 //! CORBA client for SALOME Session server : launch GUI
 /*!

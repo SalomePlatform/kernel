@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_Application.h"
 #include "SALOMEGUI_Desktop.h"
 #include "SALOMEGUI_ImportOperation.h"
@@ -51,6 +50,7 @@ using namespace std;
 // Open CASCADE Include
 #include <Standard_Failure.hxx>
 #include <TCollection_AsciiString.hxx>
+using namespace std;
 
 /*!
     Constructor

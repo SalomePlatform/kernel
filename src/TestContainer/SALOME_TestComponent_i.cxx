@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOME_TestComponent_i.hxx"
 #include <stdio.h>
+using namespace std;
 
 Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
 						 PortableServer::POA_ptr poa,

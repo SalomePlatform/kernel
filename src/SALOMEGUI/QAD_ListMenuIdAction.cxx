@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_ListMenuIdAction.h"
+using namespace std;
 
 QAD_ListMenuIdAction::QAD_ListMenuIdAction(QPopupMenu* theMenu,
 					   int id,

@@ -9,11 +9,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 #include "PyInterp_PyQt.h"
 
 #include "utilities.h"
+using namespace std;
 
 extern "C" PyObject * PyEval_EvalCode(PyObject *co, PyObject *g, PyObject *l);
 

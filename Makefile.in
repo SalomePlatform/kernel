@@ -151,7 +151,11 @@ install-include: $(include_list)
 # install script in $(bindir) :
 install-bin: $(BIN_SCRIPT)
 	$(INSTALL) -d  $(bindir)
-	$(INSTALL_PROGRAM) $^ $(bindir)
+	for f in X $(BIN_SCRIPT); do				\
+	   if test $$f != X; then				\
+	     (cp -p ./bin/$$f $(bindir) || exit 1);		\
+	   fi;							\
+	done
 
 uninstall: uninstall-idl
 

@@ -24,17 +24,17 @@
 //  File   : HDFdataset.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
-#include <string.h>
 }
+#include <string>
 #include "HDFdataset.hxx"
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
 
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 
 herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {
@@ -157,7 +157,7 @@ void HDFdataset::GetDim(hdf_size dim[])
       else
 	ndim = _ndim;
       _dim = new hdf_size[ndim];
-      if ((ret == HDFdatasetGetDim(_id,_dim)) < 0)
+      if ((ret = HDFdatasetGetDim(_id,_dim)) < 0)
 	throw HDFexception("Can't determine the size dimensions of the dataset ");
     }
 

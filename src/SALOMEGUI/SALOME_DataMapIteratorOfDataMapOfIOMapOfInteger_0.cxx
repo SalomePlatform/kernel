@@ -24,7 +24,6 @@
 //  File   : SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger_0.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger.hxx"
 
 #ifndef _Standard_NoSuchObject_HeaderFile
@@ -45,6 +44,7 @@ using namespace std;
 #ifndef _SALOME_DataMapNodeOfDataMapOfIOMapOfInteger_HeaderFile
 #include "SALOME_DataMapNodeOfDataMapOfIOMapOfInteger.hxx"
 #endif
+using namespace std;
  
 
 #define TheKey Handle_SALOME_InteractiveObject

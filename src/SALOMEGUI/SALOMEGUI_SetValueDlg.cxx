@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_SetValueDlg.h"
 #include "QAD_Tools.h"
 
@@ -19,6 +18,7 @@ using namespace std;
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvalidator.h>
+using namespace std;
 
 #define MARGIN_SIZE     11
 #define SPACING_SIZE    6

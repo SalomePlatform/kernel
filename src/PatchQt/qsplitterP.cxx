@@ -24,7 +24,6 @@
 //  File   : qsplitterP.cxx
 //  Module : SALOME
 
-using namespace std;
 /****************************************************************************
 ** $Id$
 **
@@ -80,6 +79,7 @@ using namespace std;
 
 #include <qobjectlist.h>
 #include <qapplication.h> //sendPostedEvents
+using namespace std;
 
 #define SPLITTER_ICON_WIDTH 10
 #define SPLITTER_ICON_HEIGHT 12

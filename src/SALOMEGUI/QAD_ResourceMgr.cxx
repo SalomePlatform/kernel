@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_ResourceMgr QAD_ResourceMgr.h
   \brief ResourceMgr QAD-based application.
@@ -46,6 +45,7 @@ using namespace std;
 #include <qfileinfo.h>
 
 #include <Standard.hxx>
+using namespace std;
 
 /* configuration file */
 static const char* CONFIG_FILE = "config";

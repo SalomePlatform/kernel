@@ -30,22 +30,21 @@ dnl@id $Id$
 dnl ----------------------------------------------------------------
 dnl CHECK_PTHREADS
 AC_DEFUN(CHECK_PTHREADS,[
-AC_REQUIRE([AC_CANONICAL_SYSTEM])dnl
-AC_CHECK_HEADER(pthread.h,AC_DEFINE(HAVE_PTHREAD_H))
-AC_CHECK_LIB(posix4,nanosleep, LIBS_PTHREADS="-lposix4",LIBS_PTHREADS="")
-AC_CHECK_LIB(pthread,pthread_mutex_lock, 
-             LIBS_PTHREADS="-lpthread $LIBS_PTHREADS")
-AC_MSG_CHECKING([parameters for using pthreads])
-case $build_os in
-  freebsd*)
-    CFLAGS_PTHREADS="-pthread"
-    CXXFLAGS_PTHREADS="-pthread"
-    ;;
-  *)
-    ;;
-esac
-AC_MSG_RESULT(["flags: $CFLAGS_PTHREADS\;libs: $LIBS_PTHREADS"])
-threads_ok=yes
+AC_CXX_OPTION(-pthread,CPPFLAGS,flag=yes,flag=no)
+
+if test $flag = no; then
+  AC_REQUIRE([AC_CANONICAL_SYSTEM])dnl
+  AC_CHECK_HEADER(pthread.h,AC_DEFINE(HAVE_PTHREAD_H))
+  AC_CHECK_LIB(posix4,nanosleep, LIBS_PTHREADS="-lposix4",LIBS_PTHREADS="")
+  AC_CHECK_LIB(pthread,pthread_mutex_lock, 
+               LIBS_PTHREADS="-lpthread $LIBS_PTHREADS",LIBS_PTHREADS="")
+fi
+
+if test $flag = no && x$LIBS_PTHREADS = x; then
+  threads_ok=no
+else
+  threads_ok=yes
+fi
 ])dnl
 dnl
 dnl

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header: 
 
-using namespace std;
 #include "SALOMEDS_AttributeUserID_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 char* SALOMEDS_AttributeUserID_i::Value() {
   char aGUID[40];

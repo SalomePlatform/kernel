@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_StudyFrame QAD_StudyFrame.h
   \brief Frame window which contains QAD_LeftFrame and QAD_RightFrame.
@@ -40,6 +39,7 @@ using namespace std;
 #include "QAD_Study.h"
 #include "QAD_ObjectBrowser.h"
 #include <qvaluelist.h>
+using namespace std;
 
 /*!
     Constructor

@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_IORAttribute.ixx"
 #include <TDataStd_Comment.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_Study_i.hxx"
+using namespace std;
 
 //=======================================================================
 //function : GetID

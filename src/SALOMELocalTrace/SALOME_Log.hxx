@@ -61,11 +61,11 @@
 # endif  /* WNT */
 
 
-using namespace std;
 
 #include <iostream>
 #include <strstream>
 
+using namespace std;
 
 class SALOME_Log : public ostrstream
 {

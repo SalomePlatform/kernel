@@ -26,12 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_ChildIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
-
-
+using namespace std;
 
 //============================================================================
 /*! Function : constructor

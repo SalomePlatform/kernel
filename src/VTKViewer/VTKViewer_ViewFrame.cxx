@@ -30,7 +30,12 @@
 #include "VTKViewer_Utilities.h"
 #include "VTKViewer_Trihedron.h"
 #include "VTKViewer_RenderWindow.h"
-#include "VTKViewer_InteractorStyleSALOME.h"
+//#include "VTKViewer_InteractorStyleSALOME.h"
+
+#include "SALOME_Transform.h"
+#include "SALOME_TransformFilter.h"
+#include "SALOME_PassThroughFilter.h"
+#include "SALOME_GeometryFilter.h"
 
 #include "SALOME_Transform.h"
 #include "SALOME_TransformFilter.h"
@@ -43,6 +48,7 @@
 #include "QAD_Desktop.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
+#include "VTKViewer_InteractorStyleSALOME.h"
 
 #include "utilities.h"
 

@@ -42,10 +42,10 @@
 
 # endif  /* WNT */
 
-using namespace std;
-
 #include <strstream.h>
+
 #include "Logger.hh"
+using namespace std;
 
 class SALOME_Trace : public ostrstream  
 {

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header: 
 
-using namespace std;
 #include "SALOMEDS_AttributeTreeNode_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
+using namespace std;
 
 static Handle(TDataStd_TreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
 					 const Handle(TDataStd_TreeNode)& aNode) {

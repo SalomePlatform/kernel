@@ -29,20 +29,20 @@
 #if !defined( __Utils_SALOME_Exception_hxx__ )
 #define __Utils_SALOME_Exception_hxx__
 
-using namespace std;
 # include <exception>
 # include <iostream>
+using namespace std;
 
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 
-class SALOME_Exception : public exception
+class SALOME_Exception : public std::exception
 {
 
 private :
 	SALOME_Exception( void );
 
 protected :
-	const char* _text ;	// pointeur constant et zone pointee constante !!!!
+	char* _text ;	// pointeur
 
 public :
 	SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header: 
 
-using namespace std;
 #include "SALOMEDS_DataMapStringLabel.hxx"
 
 #ifndef _Standard_DomainError_HeaderFile
@@ -47,6 +46,7 @@ using namespace std;
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 #endif
+using namespace std;
  
 
 #define TheKey TCollection_ExtendedString

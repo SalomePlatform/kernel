@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header: 
 
-using namespace std;
 #include "SALOMEDS_SequenceOfRealAttribute.ixx"
 #include <TDataStd_Real.hxx>
+using namespace std;
 
 //=======================================================================
 //function : GetID

@@ -24,15 +24,15 @@
 //  File   : SALOME_RessourcesCatalog_Client.cxx
 //  Module : SALOME
 
-using namespace std;
 /* $Header$ */
 
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_RessourcesCatalog)
 #include <string>
 #include "utilities.h"
+using namespace std;
 
 int main(int argc,char **argv)
 {

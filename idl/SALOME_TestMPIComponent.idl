@@ -1,0 +1,24 @@
+//=============================================================================
+// File      : SALOME_MPITestComponent.idl
+// Created   : mer jui 04 12:08:17 CEST 2003
+// Author    : Bernard SECHER, CEA
+// Project   : SALOME
+// Copyright : CEA 2003
+// $Header$
+//=============================================================================
+
+#include "SALOME_Component.idl"
+#include "SALOME_MPIObject.idl"
+
+module Engines
+{
+  
+  interface TestMPIComponent : Component, MPIObject
+  {
+    // version synchrone (process 0)
+    void Coucou(in long L);
+    // version asynchrone (autres process)
+    oneway void SPCoucou(in long L);
+  };
+
+};

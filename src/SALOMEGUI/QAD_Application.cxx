@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_Application QAD_Application.h
   \brief Study manager for QAD-based application.
@@ -62,6 +61,7 @@ using namespace std;
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_Failure.hxx>
+using namespace std;
 
 static bool checkPermission(QString fileName) {
   if ( QFile::exists( fileName ) ) {

@@ -8,7 +8,6 @@
 //  Author : Yves FRICAUD
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
 #include "SALOMEDS_AttributeComment_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
@@ -24,6 +23,7 @@ using namespace std;
 #include <TDataStd_ChildNodeIterator.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_ChildIterator.hxx>
+using namespace std;
 
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"

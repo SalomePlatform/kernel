@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_ObjectBrowserItem.h"
 #include "QAD_ObjectBrowser.h"
 #include "QAD_Application.h"
@@ -56,6 +55,7 @@ using namespace std;
 #include <qtooltip.h>
 #include <qdragobject.h>
 #include <qstringlist.h>
+using namespace std;
 
 //VRV: porting on Qt 3.0.5
 #if QT_VERSION >= 0x030005

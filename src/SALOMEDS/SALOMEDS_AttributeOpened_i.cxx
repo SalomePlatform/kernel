@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeOpened_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() {
   return (Handle(SALOMEDS_OpenedAttribute)::DownCast(_myAttr)->Get() == 1);

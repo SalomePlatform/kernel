@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #define WRITE_CATA_DATA_TYPE
 #include "SALOME_DataTypeCatalog_Handler.hxx"
+using namespace std;
 
 //----------------------------------------------------------------------
 // Function : SALOME_DataTypeCatalog_Handler

@@ -30,7 +30,6 @@
   \class QAD_Desktop QAD_Desktop.h
   \brief Main desktop of QAD-based application.
 */
-using namespace std;
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
 
@@ -103,6 +102,7 @@ using namespace std;
 #include <OSD_LoadMode.hxx>
 #include <OSD_Function.hxx>
 #include <TCollection_AsciiString.hxx>
+using namespace std;
 
 static const char* SEPARATOR    = ":";
 

@@ -7,9 +7,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "Plot2d_Curve.h"
 #include "utilities.h"
+using namespace std;
 
 /*!
   Constructor

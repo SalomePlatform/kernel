@@ -56,7 +56,7 @@ BIN_SRC =
 BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
-CXXFLAGS+= -ftemplate-depth-42
+CXXFLAGS+= @CXXTMPDPTHFLAGS@
 LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
 @CONCLUDE@

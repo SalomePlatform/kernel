@@ -26,11 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 # include "RegistryService.hxx"
 # include "OpUtil.hxx"
 # include "utilities.h"
+using namespace std;
 
 extern "C"
 {

@@ -24,7 +24,6 @@
 //  File   : SALOME_ListIO_0.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_ListIO.hxx"
 
 #ifndef _Standard_NoSuchObject_HeaderFile
@@ -39,6 +38,7 @@ using namespace std;
 #ifndef _SALOME_ListNodeOfListIO_HeaderFile
 #include "SALOME_ListNodeOfListIO.hxx"
 #endif
+using namespace std;
  
 
 #define Item Handle_SALOME_InteractiveObject

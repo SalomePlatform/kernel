@@ -35,7 +35,7 @@
 #ifndef _Handle_SALOME_InteractiveObject_HeaderFile
 #include "Handle_SALOME_InteractiveObject.hxx"
 #endif
-#include <vector.h>
+#include <vector>
 
 class SALOME_Transform;
 class SALOME_TransformFilter;

@@ -24,12 +24,12 @@
 //  File   : HDFinternalObject.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
 }
 #include "HDFinternalObject.hxx"
+using namespace std;
 
 HDFinternalObject::HDFinternalObject(char *name)
   : HDFobject(name)

@@ -97,8 +97,13 @@ class LifeCycleCORBA:
     #-------------------------------------------------------------------------
 
     def ComputerPath(self, ComputerName ):
+        # Modification provisoire B. Secher en attendant
+        # le gestionnaire de ressources 21/10/2003
+        # Le KERNEL_ROOT_DIR sera a lire dans le catalogue de machines
+        # en attendant on suppose qu'il est identique au KERNEL_ROOT_DIR local
         try:
-            path = self._catalog.GetPathPrefix( ComputerName )
+            #path = self._catalog.GetPathPrefix( ComputerName )
+            path = os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/"
         except SALOME_ModuleCatalog.NotFound, ex:
             path = ""
         return path
@@ -137,14 +142,14 @@ class LifeCycleCORBA:
                 else :
                     rshstr = "rsh -n " + theComputer + " "
                 path = self.ComputerPath( theComputer )
-                if path != "" :
-                    rshstr = rshstr + path + "/../bin/"
-                else :
-                    rshstr = rshstr + os.getenv( "SALOME_ROOT_DIR" ) + "/bin/"
+##                if path != "" :
+##                    rshstr = rshstr + path + "/../bin/"
+##                else :
+##                    rshstr = rshstr + os.getenv( "KERNEL_ROOT_DIR" ) + "/bin/"
                 if theContainer == "FactoryServer" :
-                    rshstr = rshstr + "./runSession ./SALOME_Container "
+                    rshstr = rshstr + path + "SALOME_Container "
                 else :
-                    rshstr = rshstr + "./runSession ./SALOME_ContainerPy.py '"
+                    rshstr = rshstr + path + "SALOME_ContainerPy.py '"
                 rshstr = rshstr + theContainer + " -"
 		omniORBcfg = os.getenv( "OMNIORB_CONFIG" )
                 file = os.open( omniORBcfg , os.O_RDONLY )
@@ -177,7 +182,7 @@ class LifeCycleCORBA:
                     return aContainer
             
         return  aContainer       
-        #os.system("rsh -n dm2s0017 /export/home/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515")
+        #os.system("rsh -n dm2s0017 /export/home/KERNEL_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515")
 
     #-------------------------------------------------------------------------
 

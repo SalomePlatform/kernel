@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeIOR_i.hxx"
 
 
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
+using namespace std;
 
 char* SALOMEDS_AttributeIOR_i::Value()
 {

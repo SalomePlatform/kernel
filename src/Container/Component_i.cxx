@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_Component_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
 #include <stdio.h>
 #include <dlfcn.h>
 #include "utilities.h"
+using namespace std;
 
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
@@ -182,7 +182,7 @@ char* Engines_Component_i::nodeName() {
   return CORBA::string_dup( _nodeName.c_str() ) ;
 }
 
-bool Engines_Component_i::Killer( int ThreadId , int signum ) {
+bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
   if ( ThreadId ) {
     if ( signum == 0 ) {
       if ( pthread_cancel( ThreadId ) ) {
@@ -305,7 +305,7 @@ long Engines_Component_i::CpuUsed() {
   return cpu ;
 }
 
-long Engines_Component_i::CpuUsed_impl() {
+CORBA::Long Engines_Component_i::CpuUsed_impl() {
   long cpu = 0 ;
   if ( _ThreadId || _Executed ) {
     if ( _ThreadId > 0 ) {

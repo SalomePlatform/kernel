@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 
@@ -44,6 +43,7 @@ using namespace std;
 #include "SALOMEDS_LocalIDAttribute.hxx"
 #include "SALOMEDS_PersRefAttribute.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
+using namespace std;
 
 
 #define DIRECTORYID 16661

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_RightFrame.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -39,6 +38,7 @@ using namespace std;
 
 // Open CASCADE Include
 #include <OSD_SharedLibrary.hxx>
+using namespace std;
 
 /*!
   \class QAD_RightFrame QAD_RightFrame.h

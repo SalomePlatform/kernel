@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "PyInterp_base.h"
 #include "utilities.h"
 #include <string>

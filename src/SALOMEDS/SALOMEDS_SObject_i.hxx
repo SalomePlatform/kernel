@@ -30,7 +30,7 @@
 #define __SALOMEDS_SOBJECT_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -60,7 +60,7 @@ protected:
   char*                    _name;  
   char*                    _value;
   char*                    _type;
-  vector<string>           _liste_ba_type;
+  std::vector<std::string>      _liste_ba_type;
 
 public:
   
@@ -73,7 +73,7 @@ public:
   virtual SALOMEDS::SObject_ptr    GetFather() ;
   virtual CORBA::Boolean FindAttribute(SALOMEDS::GenericAttribute_out anAttribute, const char* aTypeOfAttribute);
   virtual CORBA::Boolean ReferencedObject(SALOMEDS::SObject_out obj) ;
-  virtual CORBA::Boolean FindSubObject(long atag, SALOMEDS::SObject_out obj );
+  virtual CORBA::Boolean FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj );
 
   virtual SALOMEDS::Study_ptr    GetStudy() ;
   virtual char* Name();

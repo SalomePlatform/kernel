@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 #include <fstream>
 
 #include <qstringlist.h>
 #include <qfileinfo.h>
+using namespace std;
 
 static const char* SEPARATOR    = ":";
 

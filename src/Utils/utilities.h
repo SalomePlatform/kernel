@@ -50,6 +50,8 @@
 #define COMPILER		"KCC" 
 #elif defined ( __PGI )
 #define COMPILER		"pgCC" 
+#elif defined ( __alpha )
+#define COMPILER		"cxx" 
 #else
 #define COMPILER		"undefined" 
 #endif

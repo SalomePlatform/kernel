@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeTableOfReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfReal.hxx>
@@ -18,6 +17,7 @@ using namespace std;
 
 #include <strstream>
 #include <string>
+using namespace std;
 
 #define SEPARATOR '\1'
 

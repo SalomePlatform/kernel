@@ -7,7 +7,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "InquireServersQThread.h"
 
 #include <qlabel.h>
@@ -36,6 +35,7 @@ using namespace std;
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
 #include "OpUtil.hxx"
+using namespace std;
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
@@ -193,6 +193,7 @@ void InquireServersGUI::customEvent( QCustomEvent* pe )
 int InquireServersGUI::getExitStatus()
 {
   myThread->getExitStatus();
+  return 0;
 }
 
 InquireServersQThread::InquireServersQThread( InquireServersGUI* r )

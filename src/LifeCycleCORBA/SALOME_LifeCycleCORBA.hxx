@@ -54,12 +54,12 @@ public:
 protected:
   SALOME_NamingService *_NS;
   Engines::Container_var _FactoryServer ;
-
-private:
+  std::string ComputerPath( const char * theComputer ) ;
   std::string ContainerName( const char * aComputerContainer ,
                         std::string * theComputer ,
                         std::string * theContainer ) ;
-  std::string ComputerPath( const char * theComputer ) ;
+
+private:
   Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
                                               const std::string theComputer ,
                                               const std::string theContainer ) ;

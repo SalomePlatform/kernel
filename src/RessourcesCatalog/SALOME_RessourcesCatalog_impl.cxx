@@ -25,9 +25,9 @@
 //  Author : Estelle Deville
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_RessourcesCatalog_impl.hxx"
 #include <fstream>
+using namespace std;
 
 //----------------------------------------------------------------------
 // Function : SALOME_RessourcesCatalogImpl

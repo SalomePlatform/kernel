@@ -9,13 +9,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <SALOMEDS_TableOfRealAttribute.ixx>
 #include <Standard_Failure.hxx>
 #include <TColStd_DataMapIteratorOfDataMapOfIntegerReal.hxx>
 
 #include <string>
 #include <stdio.h>
+using namespace std;
 
 const Standard_GUID& SALOMEDS_TableOfRealAttribute::GetID() 
 {

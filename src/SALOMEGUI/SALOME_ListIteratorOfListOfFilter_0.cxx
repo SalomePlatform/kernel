@@ -24,7 +24,6 @@
 //  File   : SALOME_ListIteratorOfListOfFilter_0.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_ListIteratorOfListOfFilter.hxx"
 
 #ifndef _Standard_NoMoreObject_HeaderFile
@@ -42,6 +41,7 @@ using namespace std;
 #ifndef _SALOME_ListNodeOfListOfFilter_HeaderFile
 #include "SALOME_ListNodeOfListOfFilter.hxx"
 #endif
+using namespace std;
  
 
 #define Item Handle_SALOME_Filter

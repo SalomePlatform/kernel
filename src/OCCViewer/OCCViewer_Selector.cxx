@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class OCCViewer_Selector OCCViewer_Selector.h
   \brief Base class for object selection in Open CASCADE Viewer.
 */
 
 #include "OCCViewer_Selector.h"
+using namespace std;
 
 /*!
     Constructor

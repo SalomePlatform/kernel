@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <qapplication.h>
 #include <qlabel.h>
 
@@ -43,6 +42,7 @@ using namespace std;
 // only to use findFile method : perhaps put it in QAD_Tools ???
 #include "QAD_ResourceMgr.h"
 #include <qlabel.h>
+using namespace std;
 
 
 #include <SALOMEconfig.h>

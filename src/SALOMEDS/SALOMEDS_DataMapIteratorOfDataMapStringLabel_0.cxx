@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header: 
 
-using namespace std;
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 
 #ifndef _Standard_NoSuchObject_HeaderFile
@@ -44,6 +43,7 @@ using namespace std;
 #ifndef _SALOMEDS_DataMapNodeOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx"
 #endif
+using namespace std;
  
 
 #define TheKey TCollection_ExtendedString

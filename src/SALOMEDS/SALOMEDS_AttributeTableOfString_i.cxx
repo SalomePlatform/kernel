@@ -8,7 +8,6 @@
 //  Author : Sergey Ruin
 //  Module : SALOME
 
-using namespace std;
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
 
@@ -21,6 +20,7 @@ using namespace std;
 
 #include <strstream>
 #include <string>
+using namespace std;
 
 #define SEPARATOR '\1'
 

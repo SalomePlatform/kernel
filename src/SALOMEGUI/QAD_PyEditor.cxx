@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_PyEditor.h"
 #include "QAD_PyInterp.h"
 #include "QAD_Application.h"
@@ -35,6 +34,7 @@ using namespace std;
 #include "QAD_Tools.h"
 #include "QAD_MessageBox.h"
 //#include "QAD_RightFrame.h"
+using namespace std;
 
 #include <qapplication.h>
 #include <qmap.h>

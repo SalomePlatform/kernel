@@ -8,7 +8,6 @@
 //  Author : Michael Zorin (mzn)
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEGUI_ActivateComponentDlg.h"
 
 #include <qpushbutton.h>
@@ -16,6 +15,7 @@ using namespace std;
 #include <qlayout.h> 
 #include <qlabel.h> 
 #include <qmessagebox.h>
+using namespace std;
 
 
 SALOMEGUI_ActivateComponentDlg::SALOMEGUI_ActivateComponentDlg ( QWidget * parent, const char * name, bool modal, WFlags f )

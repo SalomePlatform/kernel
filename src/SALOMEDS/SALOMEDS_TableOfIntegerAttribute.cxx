@@ -9,12 +9,12 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <SALOMEDS_TableOfIntegerAttribute.ixx>
 #include <Standard_Failure.hxx>
 #include <TColStd_DataMapIteratorOfDataMapOfIntegerInteger.hxx>
 
 #include <string>
+using namespace std;
 
 const Standard_GUID& SALOMEDS_TableOfIntegerAttribute::GetID() 
 {

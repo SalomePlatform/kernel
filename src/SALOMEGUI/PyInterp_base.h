@@ -12,11 +12,11 @@
 #ifndef _PYINTERP_BASE_H_
 #define _PYINTERP_BASE_H_
 
-using namespace std;
 #include <iostream>
 #include <Python.h>
 #include <list>
 #include <string>
+using namespace std;
 
 #define TOP_HISTORY_PY "--- top of history ---"
 #define BEGIN_HISTORY_PY "--- begin of history ---"

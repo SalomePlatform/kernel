@@ -24,7 +24,6 @@
 //  File   : ServiceUnreachable.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "ServiceUnreachable.hxx"
 
 ServiceUnreachable::ServiceUnreachable( void ): SALOME_Exception( "ServiceUnreachable" )

@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+using namespace std;
 
 #include "OpUtil.hxx"
 #include "utilities.h"
@@ -91,19 +91,24 @@ string SALOME_LifeCycleCORBA::ContainerName(
 
 string SALOME_LifeCycleCORBA::ComputerPath(
                                          const char * theComputer ) {
-  CORBA::String_var path;
-  CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
-  SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
-	             SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
-  try {
-    path = Catalog->GetPathPrefix( theComputer );
-  }
-  catch (SALOME_ModuleCatalog::NotFound&) {
-    MESSAGE("GetPathPrefix(" << theComputer << ") not found!");
-    path = "" ;
-  }
+//  CORBA::String_var path;
+//   CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+//   SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
+// 	             SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+//   try {
+//     path = Catalog->GetPathPrefix( theComputer );
+//   }
+//   catch (SALOME_ModuleCatalog::NotFound&) {
+//     MESSAGE("GetPathPrefix(" << theComputer << ") not found!");
+//     path = "" ;
+//   }
+// Modification provisoire B. Secher en attendant le gestionnaire de ressources
+// 21/10/2003
+// Le KERNEL_ROOT_DIR sera a lire dans le catalogue de machines
+// en attendant on suppose qu'il est identique au KERNEL_ROOT_DIR local
+  string path = string(getenv("KERNEL_ROOT_DIR")) + "/bin/salome/";
   SCRUTE( path ) ;
-  return CORBA::string_dup( path ) ;
+  return path;
 }
 
 Engines::Container_var SALOME_LifeCycleCORBA::FindContainer(const char *containerName ) {
@@ -162,7 +167,7 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
     }
     aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
     if ( CORBA::is_nil( aFactoryServer ) ) {
-// rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
+// rsh -n machine_name ${KERNEL_ROOT_DIR}/bin/salome SALOME_Container -ORBInitRef NameService=corbaname::localhost:1515 &
       string rsh( "" ) ;
       if ( theComputer!= GetHostname() ) {
         rsh += "rsh -n " ;
@@ -171,11 +176,8 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
       }
       string path = ComputerPath( theComputer.c_str() ) ;
       SCRUTE( path ) ;
-      if ( path[0] != '\0' ) {
-        rsh += path ;
-        rsh += "/../bin/" ;
-      }
-      rsh += "runSession " ;
+      rsh += path;
+//       rsh += "runSession " ;
       if ( pyCont ) {
         rsh += "SALOME_ContainerPy.py " ;
         rsh += "FactoryServerPy -" ;

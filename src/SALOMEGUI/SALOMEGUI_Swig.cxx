@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_Study.h"
@@ -38,6 +37,7 @@ using namespace std;
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
+using namespace std;
 
 
 /*!
