@@ -1,5 +1,5 @@
 # common directories to put headerfiles
-inc_builddir=$(top_builddir)/include
+inc_builddir=$(top_builddir)/include/salome
 
 @SET_MAKE@
 SHELL=/bin/sh
@@ -106,11 +106,6 @@ OCC_VIEWER_LIBS=@CAS_VIEWER@
 OCC_MODELER_LIBS=@CAS_MODELER@
 OCC_DATAEXCHANGE_LIBS=@CAS_DATAEXCHANGE@
 OCC_LIBS=@CAS_LDFLAGS@
-CAS_KERNEL=@CAS_KERNEL@
-CAS_OCAF=@CAS_OCAF@
-CAS_VIEWER=@CAS_VIEWER@
-CAS_MODELER=@CAS_MODELER@
-CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
 # MPICH
 
 MPICH_INCLUDES=@MPICH_INCLUDES@
@@ -130,7 +125,7 @@ OMNIORB_CXXFLAGS    = @OMNIORB_CXXFLAGS@
 
 OMNIORB_IDL         = @OMNIORB_IDL@
 OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_srcdir)/share/salome/idl
+OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/idl
 
 OMNIORB_IDL_CLN_H   = @OMNIORB_IDL_CLN_H@
 OMNIORB_IDL_CLN_CXX = @OMNIORB_IDL_CLN_CXX@
@@ -190,8 +185,8 @@ LN_S=@LN_S@
 ## Installation points
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-bindir=@bindir@
-libdir=@libdir@
+bindir=@bindir@/salome
+libdir=@libdir@/salome
 # warning : if user give this path in configure we could have salome/salome :-(
 includedir=@includedir@/salome
 datadir=@datadir@/salome
