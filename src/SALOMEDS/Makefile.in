@@ -115,7 +115,16 @@ BIN_CLIENT_IDL =
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lSalomeGenericObj -lSalomeLifeCycleCORBA
+LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace $(CAS_LDPATH) -lTKCAF -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA
+
+# _CS_gbo_090604 Ajout Spécifique Calibre 3, pour l'utilisation de la version 5.12 de la bibliothèque OCC.
+# La bibliothèque OCC5.12 a été compilée sur Calibre 3 avec l'extention Xmu (impossible de compiler sans).
+# On est donc obligé ici, pour permettre l'édition de lien avec les bibliothèques OCC, de spécifier le
+# chemin d'accès aux bibliothèques Xmu
+#
+LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
+LDFLAGS+=$(LDXMUFLAGS)
+
 
 @CONCLUDE@
 
