@@ -34,9 +34,21 @@ def add_path(directory, variable_name):
     if not os.environ.has_key(variable_name):
         os.environ[variable_name] = ""
         pass
-    os.environ[variable_name]=directory + ":" + os.environ[variable_name]
-    if variable_name=="PYTHONPATH":
-        sys.path[:0]=[directory]
+    if os.path.exists(directory):
+        for _dir in os.environ[variable_name].split(":"):
+            if os.path.exists(_dir):
+                if os.path.samefile(_dir, directory):
+                    return
+            else:
+                if os.path.abspath(_dir) == os.path.abspath(directory):
+                    return
+            pass
+        if os.environ[variable_name] == "":
+            os.environ[variable_name] = directory
+        else:
+            os.environ[variable_name] = directory + ":" + os.environ[variable_name]
+        if variable_name == "PYTHONPATH":
+            sys.path[:0] = [directory]
 
 
 init_time = os.times()
@@ -223,7 +235,7 @@ if args['logger']:
 
 # set environment for SMESH plugins
 
-if "SMESH" in args["modules"]:
+if "SMESH" in modules_list:
     os.environ["SMESH_MeshersList"]="StdMeshers"
     if not os.environ.has_key("SALOME_StdMeshersResources"):
         os.environ["SALOME_StdMeshersResources"] = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources"
@@ -373,7 +385,7 @@ def startSalome():
 
   end_time = os.times()
   print
-  print "Start SALOME, elpased time : %5.1f seconds"% (end_time[4] - init_time[4])
+  print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4] - init_time[4])
 
   return clt
 

@@ -95,11 +95,30 @@ class xml_parser:
 ### searching for launch configuration file : $HOME/.$(application_name)/$(application_name).launch
 
 appname = None
+dirname = None
 filename = None
 for bindir in glob.glob(os.environ["KERNEL_ROOT_DIR"]+"/bin/*"):
     appname = string.split(bindir, "/").pop()
     print 'Application name: "'+appname+'"'
-    filename = os.environ["HOME"]+"/."+appname+"/"+appname+".launch"
+    # find version number
+    versnb = ""
+    try:
+      file = open(os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/VERSION", "r")
+      s = file.read()
+      l = string.split(s, ":")
+      vl = string.split(l[1], " ")
+      i = 0
+      while len(versnb) == 0:
+        versnb = vl[i]
+        i += 1
+        pass
+      versnb = string.split(versnb, "\n")[0]
+      print "Version ",versnb
+    except:
+      pass
+    # end find version number
+    dirname = os.environ["HOME"]+"/."+appname+"_"+versnb
+    filename = dirname+"/"+appname+".launch"
     if not os.path.exists(filename) and \
        not os.path.exists(os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/"+appname+".launch"):
         filename = None
@@ -113,9 +132,11 @@ if not appname:
         pass
     sys.exit(1);
 elif not filename or not os.path.exists(filename):
-    filename = os.environ["HOME"]+"/."+appname+"/"+appname+".launch"
+    filename = dirname+"/"+appname+".launch"
+    #filename = os.environ["HOME"]+"/."+appname+"/"+appname+".launch"
     print "Launch configuration file does not exist. Create default:",filename
-    os.system("mkdir -p "+os.environ["HOME"]+"/."+appname)
+    os.system("mkdir -p "+dirname)
+    #os.system("mkdir -p "+os.environ["HOME"]+"/."+appname)
     os.system("cp -f "+os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/"+appname+".launch "+filename)
     pass
 
