@@ -133,6 +133,22 @@ dnl
 
 CHECK_MPICH
 
+dnl
+dnl ---------------------------------------------
+dnl testing OpenPBS
+dnl ---------------------------------------------
+dnl
+
+echo
+echo ---------------------------------------------
+echo testing OpenPBS
+echo ---------------------------------------------
+echo
+
+openpbs_ok=no
+CHECK_OPENPBS
+dnl openpbs_ok is set to yes by CHECK_OPENPBS
+
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC
@@ -292,7 +308,7 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
+variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok openpbs_ok"
  
 for var in $variables
 do
@@ -363,7 +379,7 @@ do
   case "$local_bin" in
         *.in | *~) ;;
         ./bin/CVS | ./bin/salome)                    ;;
-        *) /usr/bin/install -C $i .; echo $local_bin ;;
+        *) /usr/bin/install -c $i .; echo $local_bin ;;
   esac
 done
 cd $ROOT_BUILDDIR
