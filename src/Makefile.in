@@ -16,7 +16,7 @@ VPATH=.:@srcdir@
 
 SUBDIRS = MSG2QM Logger Utils PatchQt NamingService Registry ModuleCatalog DataTypeCatalog \
 	  RessourcesCatalog Notification NOTIFICATION_SWIG Container TestContainer LifeCycleCORBA \
-          HDFPersist OBJECT SALOMEDS SALOMEGUI Plot2d VTKViewer OCCViewer SUPERVGraph Session \
+          HDFPersist OBJECT SALOMEDS SALOMEGUI Plot2d VTKViewer OCCViewer SUPERVGraph Session Loader\
 	  SALOME_SWIG TOOLSGUI SALOME_PY RegistryDisplay ModuleGenerator \
 	  SALOME_PYQT
 
