@@ -286,12 +286,14 @@ SALOMEDS_SObject_i::New(SALOMEDS_Study_i* theStudy,
   if(anIter != anSObjectMap.end())
     aSObjectHolder = anIter->second;
   else{
-    TCollection_AsciiString anEntry;
-    TDF_Tool::Entry(theLabel,anEntry);
     SALOMEDS_SObject_i* aSObject = new SALOMEDS_SObject_i(theStudy,theLabel);
     aSObjectHolder.first = aSObject;
     aSObjectHolder.second = aSObject->_this();
     anSObjectMap[theLabel] = aSObjectHolder;
+
+    //TCollection_AsciiString anEntry;
+    //TDF_Tool::Entry(theLabel,anEntry);
+    //cout<<"APO - SALOMEDS_SObject_i::New - anEntry = "<<anEntry.ToCString()<<endl;
   }
   return aSObjectHolder;
 }
@@ -525,10 +527,10 @@ char* SALOMEDS_SObject_i::GetIOR() {
  *  Purpose  : Returns list of all attributes for this sobject
  */
 //============================================================================
-SALOMEDS_GenericAttribute_i* 
+SALOMEDS_SObject_i::TAttrHolder 
 SALOMEDS_SObject_i::_FindGenAttribute(const Handle(TDF_Attribute)& theAttr)
 {
-  SALOMEDS_GenericAttribute_i* anGenAttr = NULL;
+  TAttrHolder anGenAttr;
 
   Standard_GUID aGUID = theAttr->ID();
 
@@ -540,9 +542,10 @@ SALOMEDS_SObject_i::_FindGenAttribute(const Handle(TDF_Attribute)& theAttr)
     if(anIter != myAttrMap.end())
       anGenAttr = anIter->second;
 
-    if(anGenAttr != NULL){
-      if(anGenAttr->GetAttribute() != theAttr)
-	anGenAttr->SetAttribute(theAttr);
+    SALOMEDS_GenericAttribute_i* anAttr = anGenAttr.first;
+    if(anAttr != NULL){
+      if(anAttr->GetAttribute() != theAttr)
+	anAttr->SetAttribute(theAttr);
     }else{
       anGenAttr = _CreateGenAttribute(theAttr,anAttributeID.c_str());
     }
@@ -559,10 +562,12 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
     Standard_Integer i = 0;
     for(TDF_AttributeIterator iter(_lab); iter.More(); iter.Next()) {
       Handle(TDF_Attribute) anAttr = iter.Value();
-      if(SALOMEDS_GenericAttribute_i* anGenAttr = _FindGenAttribute(anAttr))
+      TAttrHolder anAttrHolder = _FindGenAttribute(anAttr);
+      SALOMEDS::GenericAttribute_var anGenAttr = anAttrHolder.second;
+      if(!anGenAttr->_is_nil())
       {
 	aSeqOfAttr->length(++i);
-	aSeqOfAttr[i-1] = anGenAttr->_this();
+	aSeqOfAttr[i-1] = anGenAttr._retn();
       }
     }
   }
@@ -576,11 +581,11 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
  *  Purpose  : Find attribute of given type on this SObject
  */
 //============================================================================
-SALOMEDS_GenericAttribute_i* 
+SALOMEDS_SObject_i::TAttrHolder 
 SALOMEDS_SObject_i::_CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
 					const char* theType) 
 {
-  
+  SALOMEDS_GenericAttribute_i* anAttr;
   TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
   if(anIter != __AttrID2FunMap__.end()){
     const TAttrID2FunMap::data_type& aValue = anIter->second;
@@ -588,56 +593,66 @@ SALOMEDS_SObject_i::_CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
     if(aValue.myIsCheckLockedStudy())
       _study->CheckLocked();
     
-    return aValue.myNewInstance(theAttr,this);
+    anAttr = aValue.myNewInstance(theAttr,this);
+    return TAttrHolder(anAttr,anAttr->_this());
   }
   
   if(strncmp(theType,"AttributeTreeNode",17) == 0){
-    return new SALOMEDS_AttributeTreeNode_i(theAttr,this);
+    anAttr = new SALOMEDS_AttributeTreeNode_i(theAttr,this);
+    return TAttrHolder(anAttr,anAttr->_this());
   }
   
   if(strncmp(theType,"AttributeUserID",15) == 0){
-    return new SALOMEDS_AttributeUserID_i(theAttr,this);
+    anAttr =  new SALOMEDS_AttributeUserID_i(theAttr,this);
+    return TAttrHolder(anAttr,anAttr->_this());
   }
   
-  return NULL;
+  return TAttrHolder();
 }
 
 
-SALOMEDS_GenericAttribute_i* 
+SALOMEDS_SObject_i::TAttrHolder 
 SALOMEDS_SObject_i::_FindGenAttribute(const char* theType)
 {
-  SALOMEDS_GenericAttribute_i* anGenAttr = NULL;
+  TAttrHolder anAttrHolder;
   TAttrMap::const_iterator anIter = myAttrMap.find(theType);
   if(anIter != myAttrMap.end())
-    anGenAttr = anIter->second;
+    anAttrHolder = anIter->second;
 
   Standard_GUID aGUID = ::GetGUID(theType);
   Handle(TDF_Attribute) anAttr;
 
   if(_lab.FindAttribute(aGUID,anAttr)){
-    if(anGenAttr != NULL){
-      if(anGenAttr->GetAttribute() != anAttr)
-	anGenAttr->SetAttribute(anAttr);
+    SALOMEDS_GenericAttribute_i* aGenAttr = anAttrHolder.first;
+    if(aGenAttr != NULL){
+      if(aGenAttr->GetAttribute() != anAttr)
+	aGenAttr->SetAttribute(anAttr);
     }else{
-      anGenAttr = _CreateGenAttribute(anAttr,theType);
+      anAttrHolder = _CreateGenAttribute(anAttr,theType);
     }
-    if(anGenAttr != NULL)
-      myAttrMap[theType] = anGenAttr;
+    aGenAttr = anAttrHolder.first;
+    if(aGenAttr != NULL)
+      myAttrMap[theType] = anAttrHolder;
   }else{
     myAttrMap.erase(theType);
     //if(anGenAttr != NULL)
     //  anGenAttr->Destroy();
+    return TAttrHolder();
   }
 
-  return anGenAttr;
+  return anAttrHolder;
 }
 
 
 SALOMEDS::GenericAttribute_ptr 
 SALOMEDS_SObject_i::_FindCORBAAttribute(const char* theType)
 {
-  if(SALOMEDS_GenericAttribute_i* anGenAttr = _FindGenAttribute(theType))
-    return anGenAttr->_this();
+  TAttrHolder anAttr = _FindGenAttribute(theType);
+  SALOMEDS::GenericAttribute_var anGenAttr = anAttr.second;
+  if(!CORBA::is_nil(anGenAttr)){
+    return anGenAttr._retn();
+  }
+
   return SALOMEDS::GenericAttribute::_nil();
 }
 
@@ -707,14 +722,19 @@ Handle(TDF_Attribute)
 SALOMEDS::GenericAttribute_ptr 
 SALOMEDS_SObject_i::FindOrCreateAttribute(const char* theType)
 {
-  if(SALOMEDS_GenericAttribute_i* anGenAttr = _FindGenAttribute(theType))
-    return anGenAttr->_this();
+  TAttrHolder anAttrHolder = _FindGenAttribute(theType);
+  SALOMEDS::GenericAttribute_var anGenAttr = anAttrHolder.second;
+  if(!anGenAttr->_is_nil())
+    return anGenAttr._retn();
+
   Handle(TDF_Attribute) anAttr = _AddAttribute(theType);
   if(!anAttr.IsNull()){
-    if(SALOMEDS_GenericAttribute_i* anGenAttr = _CreateGenAttribute(anAttr,theType)){
-      return anGenAttr->_this();
-    }
+    anAttrHolder = _CreateGenAttribute(anAttr,theType);
+    anGenAttr = anAttrHolder.second;
+    if(!anGenAttr->_is_nil())
+      return anGenAttr._retn();
   }
+
   return SALOMEDS::GenericAttribute::_nil();
 }
 
@@ -741,3 +761,23 @@ void SALOMEDS_SObject_i::RemoveAttribute(const char* theType)
   _lab.ForgetAttribute(::GetGUID(theType));
 }
 
+
+void SALOMEDS_SObject_i::OnRemove()
+{
+  Handle(TDF_Reference) aReference;
+  if(_lab.FindAttribute(TDF_Reference::GetID(),aReference)){
+    Handle(SALOMEDS_TargetAttribute) aTarget;
+    if(aReference->Get().FindAttribute(SALOMEDS_TargetAttribute::GetID(),aTarget))
+      aTarget->Remove(_lab);
+  }
+
+  Handle(SALOMEDS_IORAttribute) anAttr; // postponed removing of CORBA objects
+  if(_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr)){
+    _study->AddPostponed(TCollection_AsciiString(anAttr->Get()).ToCString());
+  }
+
+  myAttrMap.clear();
+
+  SALOMEDS_Study_i::TSObjectMap& anSObjectMap = _study->GetSObjectMap();
+  anSObjectMap.erase(_lab);
+}

@@ -54,7 +54,7 @@ class TDF_Label;
 class TCollection_ExtendedString;
 class TDF_Attribute;
 class TDF_RelocationTable;
-
+class SALOMEDS_Study_i;
 
 class SALOMEDS_IORAttribute : public TDataStd_Comment {
 
@@ -79,7 +79,9 @@ public:
  // Methods PUBLIC
  // 
 Standard_EXPORT static const Standard_GUID& GetID() ;
-Standard_EXPORT static Handle_SALOMEDS_IORAttribute Set(const TDF_Label& label,const TCollection_ExtendedString& string, CORBA::ORB_ptr orb) ;
+Standard_EXPORT static Handle_SALOMEDS_IORAttribute Set(const TDF_Label& label,
+							const TCollection_ExtendedString& string,
+							SALOMEDS_Study_i* theStudy) ;
 Standard_EXPORT SALOMEDS_IORAttribute();
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;

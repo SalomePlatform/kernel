@@ -46,8 +46,6 @@ SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(SALOMEDS_Study_i* theStudy,
   _lab(theLabel),
   _study(theStudy)
 {
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry(theLabel,anEntry);
 }
 
 //============================================================================
@@ -66,7 +64,7 @@ SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 //============================================================================
 void SALOMEDS_ChildIterator_i::Init()
 { 
-  _it.Initialize (_lab);
+  _it.Initialize(_lab);
 }
 
 //============================================================================
@@ -74,9 +72,9 @@ void SALOMEDS_ChildIterator_i::Init()
  * 
  */
 //============================================================================
-void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean allLevels)
+void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean theIsAllLevels)
 { 
-  _it.Initialize (_lab, allLevels);
+  _it.Initialize(_lab,theIsAllLevels);
 }
 
 //============================================================================
@@ -97,8 +95,6 @@ CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 void SALOMEDS_ChildIterator_i::Next()
 {
   _it.Next();
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry(_it.Value(),anEntry);
 }
 
 
@@ -113,3 +109,7 @@ SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
   return SALOMEDS_SObject_i::NewRef(_study,_it.Value())._retn();
 }
 
+SALOMEDS_SObject_i* SALOMEDS_ChildIterator_i::GetValue()
+{
+  return SALOMEDS_SObject_i::NewPtr(_study,_it.Value());
+}

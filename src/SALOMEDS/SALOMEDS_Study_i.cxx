@@ -162,6 +162,19 @@ PortableServer::POA_var SALOMEDS_Study_i::GetPOA() const
   return _StudyManager->GetPOA();
 }
 
+
+SALOMEDS_SObject_i* 
+SALOMEDS_Study_i::DownCast(SALOMEDS::SObject_ptr theSObject) const
+{
+  if(!CORBA::is_nil(theSObject)){
+    PortableServer::POA_var aPOA = GetPOA();
+    PortableServer::ServantBase_var aServant = SALOMEDS::GetServant(theSObject,aPOA);
+    if(aServant.in())
+      return dynamic_cast<SALOMEDS_SObject_i*>(aServant.in());
+  }
+  return NULL;
+}
+
 //============================================================================
 /*! Function : SetOnAddSObject
  *  Purpose  : 
@@ -443,14 +456,18 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* theObjectIOR)
 {
   // firstly searching in the datamap for optimization
   char* anIOR = const_cast<char*>(theObjectIOR);
-  if (myIORLabels.IsBound(anIOR)) {
-    SALOMEDS::SObject_var aResult = SALOMEDS_SObject_i::NewRef(this,myIORLabels.Find(anIOR));
+  if(myIORLabels.IsBound(anIOR)){
+    TDF_Label aLabel = myIORLabels.Find(anIOR);
+    TSObjectHolder aSObjectHolder = SALOMEDS_SObject_i::New(this,aLabel);
+    SALOMEDS_SObject_i* aSObjectPtr = aSObjectHolder.first;
+    SALOMEDS::SObject_var aSObject = aSObjectHolder.second;
     // 11 oct 2002: forbidden attributes must be checked here
     SALOMEDS::GenericAttribute_var anAttr;
-    if (!aResult->FindAttribute(anAttr,"AttributeIOR")) {
+    if(!aSObjectPtr->FindAttribute(anAttr,"AttributeIOR")){
       myIORLabels.UnBind(anIOR);
-    } else 
-      return aResult._retn();
+    }else{
+      return aSObject._retn();
+    }
   }
 
   // Iterate to all components defined in the study
@@ -782,27 +799,41 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
  *  Purpose  : Create a ChildIterator from an SObject
  */
 //============================================================================
-SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject_ptr aSO)
+SALOMEDS::ChildIterator_ptr 
+SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject_ptr theSObject)
 {
-  //Convert aSO->GetID in TDF_Label.
-  TDF_Label Lab;
-  TDF_Tool::Label(_doc->GetData(), aSO->GetID(), Lab);
+  SALOMEDS_ChildIterator_i* aServant = 
+    new SALOMEDS_ChildIterator_i(GetChildIterator(theSObject));
 
-  //Create iterator
-  SALOMEDS_ChildIterator_i* aServant = new SALOMEDS_ChildIterator_i(this,Lab);
   return aServant->_this();
 }
 
+SALOMEDS_ChildIterator_i 
+SALOMEDS_Study_i::GetChildIterator(SALOMEDS::SObject_ptr theSObject)
+{
+  TDF_Label aLab;
+  TDF_Tool::Label(_doc->GetData(),theSObject->GetID(),aLab);
+  return SALOMEDS_ChildIterator_i(this,aLab);
+}
 
 //============================================================================
 /*! Function : NewComponentIterator
  *  Purpose  : Create a SComponentIterator
  */
 //============================================================================
-SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
+SALOMEDS::SComponentIterator_ptr 
+SALOMEDS_Study_i::NewComponentIterator()
 {
-  SALOMEDS_SComponentIterator_i* aServant = new SALOMEDS_SComponentIterator_i(this,_doc);
+  SALOMEDS_SComponentIterator_i* aServant = 
+    new SALOMEDS_SComponentIterator_i(GetComponentIterator());
+
   return aServant->_this();
+}
+
+SALOMEDS_SComponentIterator_i 
+SALOMEDS_Study_i::GetComponentIterator()
+{
+  return SALOMEDS_SComponentIterator_i(this,_doc);
 }
 
 //============================================================================
@@ -820,9 +851,14 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
  *  Purpose  : Create a StudyBuilder
  */
 //============================================================================
+SALOMEDS_StudyBuilder_i* SALOMEDS_Study_i::GetBuilder()
+{
+  return _Builder;
+}
+ 
 SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 {
-  return _Builder->_this();
+  return GetBuilder()->_this();
 }
  
 //============================================================================
@@ -994,25 +1030,11 @@ void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR,const char* anEntry) 
   myIORLabels.Bind(TCollection_ExtendedString(IOR), aLabel);
 }
 
-SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb) {
-  Handle(SALOMEDS_IORAttribute) Att;
-  if (theLabel.Root().FindAttribute(SALOMEDS_IORAttribute::GetID(),Att)){
-    char* IOR = CORBA::string_dup(TCollection_AsciiString(Att->Get()).ToCString());
-    CORBA::Object_var obj = orb->string_to_object(IOR);
-    SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
-    ASSERT(!CORBA::is_nil(aStudy));
-    return SALOMEDS::Study::_duplicate(aStudy);
-  } else {
-    MESSAGE("GetStudy: Problem to get study");
-  }
-  return SALOMEDS::Study::_nil();
-}
-
-void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute, CORBA::ORB_ptr orb) {
+void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute) {
   TCollection_AsciiString aString;
-  TDF_Tool::Entry(theAttribute->Label(), aString);
-  GetStudy(theAttribute->Label(), orb)->UpdateIORLabelMap(TCollection_AsciiString(theAttribute->Get()).ToCString(),
-							  aString.ToCString());
+  TDF_Tool::Entry(theAttribute->Label(),aString);
+  TCollection_AsciiString aValue(theAttribute->Get());
+  UpdateIORLabelMap(aValue.ToCString(),aString.ToCString());
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObject_ptr anObject) {
@@ -1026,9 +1048,12 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObj
 }
 
 
-SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties() {
-  SALOMEDS::GenericAttribute_ptr anAttr =  NewBuilder()->FindOrCreateAttribute(FindObjectID("0:1"),
-									       "AttributeStudyProperties");
+SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties(){
+  SALOMEDS::SObject_var aSObject = FindObjectID("0:1");
+
+  SALOMEDS::GenericAttribute_var anAttr =  
+    GetBuilder()->FindOrCreateAttribute(aSObject,"AttributeStudyProperties");
+
   return SALOMEDS::AttributeStudyProperties::_narrow(anAttr);
 }
 
@@ -1111,7 +1136,7 @@ void SALOMEDS_Study_i::Close()
  */
  //============================================================================
 void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
-  if (!NewBuilder()->HasOpenCommand()) return;
+  if (!GetBuilder()->HasOpenCommand()) return;
   try {
     CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
     if (!CORBA::is_nil(obj)) {
@@ -1127,7 +1152,7 @@ void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
 }
 
 void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
-  if (!NewBuilder()->HasOpenCommand()) return;
+  if (!GetBuilder()->HasOpenCommand()) return;
   try {
     CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
     if (!CORBA::is_nil(obj)) {

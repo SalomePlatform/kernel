@@ -38,6 +38,7 @@
 #include <TDF_Label.hxx>
 
 class SALOMEDS_Study_i;
+class SALOMEDS_SObject_i;
 
 class SALOMEDS_ChildIterator_i: public POA_SALOMEDS::ChildIterator,
 				public PortableServer::RefCountServantBase 
@@ -57,7 +58,7 @@ public:
 
   ~SALOMEDS_ChildIterator_i();
   
-  TDF_Label GetValue() { return _it.Value();}
+  SALOMEDS_SObject_i* GetValue();
 
   virtual void Init();
   virtual void InitEx(CORBA::Boolean);

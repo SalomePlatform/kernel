@@ -49,8 +49,10 @@
 
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
-#include "SALOMEDS_SObject_i.hxx"
+
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS_SObject_i.hxx"
+#include "SALOMEDS_StudyBuilder_i.hxx"
 
 #include "SALOMEDS_IORAttribute.hxx"
 #include "SALOMEDS_PersRefAttribute.hxx"
@@ -112,9 +114,11 @@ namespace SALOMEDS{
 //===========================================================================
 //Function : LoadAttributes
 //===========================================================================
-static void ReadAttributes(SALOMEDS::Study_ptr theStudy,
-			   SALOMEDS::SObject_ptr aSO,
-			   HDFdataset* hdf_dataset)
+static 
+void 
+ReadAttributes(SALOMEDS_Study_i* theStudy,
+	       SALOMEDS::SObject_ptr aSO,
+	       HDFdataset* hdf_dataset)
 {
   hdf_dataset->OpenOnDisk();
 
@@ -124,15 +128,15 @@ static void ReadAttributes(SALOMEDS::Study_ptr theStudy,
   hdf_dataset->ReadFromDisk(current_string);
 
   if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
-    anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
+    anAttr = theStudy->GetBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
   } else if (!strcmp(hdf_dataset->GetName(),"Reference")) {
-    theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
+    theStudy->GetBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
     delete(current_string);
     hdf_dataset->CloseOnDisk();
     return;
   } else {
     MESSAGE("Read attribute "<<hdf_dataset->GetName())
-    anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, hdf_dataset->GetName());
+    anAttr = theStudy->GetBuilder()->FindOrCreateAttribute(aSO, hdf_dataset->GetName());
   }
 
   if (!CORBA::is_nil(anAttr)) {
@@ -149,18 +153,18 @@ static void ReadAttributes(SALOMEDS::Study_ptr theStudy,
 //============================================================================
 //Function : Translate_IOR_to_persistentID
 //============================================================================
-static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr theStudy,
-					   SALOMEDS::StudyBuilder_ptr theBuilder,
-					   SALOMEDS::SObject_ptr theSObject,
-					   SALOMEDS::Driver_ptr theEngine,
-					   CORBA::Boolean theIsMultiFile,
-					   CORBA::Boolean theIsASCII)
+static void Translate_IOR_to_persistentID(SALOMEDS_Study_i* theStudy,
+					  SALOMEDS_StudyBuilder_i* theBuilder,
+					  SALOMEDS::SObject_ptr theSObject,
+					  SALOMEDS::Driver_ptr theEngine,
+					  CORBA::Boolean theIsMultiFile,
+					  CORBA::Boolean theIsASCII)
 {
   MESSAGE("In Translate_IOR_to_persistentID");
-  SALOMEDS::ChildIterator_var anIter = theStudy->NewChildIterator(theSObject);
-  for (; anIter->More(); anIter->Next()){
+  SALOMEDS_ChildIterator_i anIter = theStudy->GetChildIterator(theSObject);
+  for(; anIter.More(); anIter.Next()){
     SALOMEDS::GenericAttribute_var anAttr;
-    SALOMEDS::SObject_var aSObject = anIter->Value();
+    SALOMEDS::SObject_var aSObject = anIter.Value();
     if(aSObject->FindAttribute(anAttr,"AttributeIOR")){
       SALOMEDS::AttributeIOR_var anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
       CORBA::String_var aString = anIOR->Value();
@@ -178,7 +182,9 @@ static void Translate_IOR_to_persistentID (SALOMEDS::Study_ptr theStudy,
 //============================================================================
 //Function : BuildlTree
 //============================================================================
-static void BuildTree (SALOMEDS::Study_ptr theStudy,HDFgroup* hdf_current_group)
+static 
+void 
+BuildTree(SALOMEDS_Study_i* theStudy, HDFgroup* hdf_current_group)
 {
   hdf_current_group->OpenOnDisk();
   
@@ -210,7 +216,7 @@ static void BuildTree (SALOMEDS::Study_ptr theStudy,HDFgroup* hdf_current_group)
     else if (type == HDF_GROUP)   {
       MESSAGE( "--> Group: Internal Object Name : " << name);
       HDFgroup* new_group = new HDFgroup(name,hdf_current_group);
-      BuildTree (theStudy, new_group);
+      BuildTree(theStudy, new_group);
       new_group = 0; // will be deleted by father destructor
     }
   }
@@ -245,6 +251,18 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
 {
   // Destroy directory to register open studies
   _name_service.Destroy_Directory("/Study");
+}
+
+SALOMEDS_Study_i* 
+SALOMEDS_StudyManager_i::DownCast(SALOMEDS::Study_ptr theStudy) const
+{
+  if(!CORBA::is_nil(theStudy)){
+    PortableServer::POA_var aPOA = GetPOA();
+    PortableServer::ServantBase_var aServant = SALOMEDS::GetServant(theStudy,aPOA);
+    if(aServant.in())
+      return dynamic_cast<SALOMEDS_Study_i*>(aServant.in());
+  }
+  return NULL;
 }
 
 //============================================================================
@@ -286,7 +304,9 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* theStudyName)
 						   
   // Assign the value of the IOR in the study->root
   CORBA::String_var anIOR = _orb->object_to_string(aStudy);
-  SALOMEDS_IORAttribute::Set(aDocument->Main().Root(),const_cast<char*>(anIOR.in()),_orb);
+  SALOMEDS_IORAttribute::Set(aDocument->Main().Root(),
+			     const_cast<char*>(anIOR.in()),
+			     aStudyServant);
 
   // set Study properties
   SALOMEDS::AttributeStudyProperties_var aProp = aStudyServant->GetProperties();
@@ -350,12 +370,14 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* theURL)
   aStudy->StudyId( _IDcounter );
 
   // Assign the value of the URL in the study object
-  aStudy->URL(theURL);
+  aStudyServant->URL(theURL);
   SCRUTE(theURL);
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var anIOR = _orb->object_to_string(aStudy);
-  SALOMEDS_IORAttribute::Set(Doc->Main().Root(),const_cast<char*>(anIOR.in()),_orb);
+  SALOMEDS_IORAttribute::Set(Doc->Main().Root(),
+			     const_cast<char*>(anIOR.in()),
+			     aStudyServant);
 
   SALOMEDS_PersRefAttribute::Set(Doc->Main(),const_cast<char*>(theURL)); 
 
@@ -370,7 +392,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* theURL)
   Handle(TDF_Data) DF = Doc->GetData();
 
   try{
-    BuildTree (aStudy,hdf_group_study_structure);
+    BuildTree(aStudyServant,hdf_group_study_structure);
   }catch(HDFexception){
     std::ostringstream aStream;
     aStream<<"Can't open file "<<theURL;
@@ -385,7 +407,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* theURL)
   if(!_name_service.Change_Directory("/Study")){
     MESSAGE( "Unable to access the study directory" );
   }else{
-    CORBA::String_var aString(aStudy->Name());
+    CORBA::String_var aString(aStudyServant->Name());
     _name_service.Register(aStudy,aString.in());
   }
 
@@ -590,12 +612,10 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
  *  Purpose  : save the study properties in HDF file
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgroup *hdf_group) 
+void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS_Study_i* theStudy, HDFgroup *hdf_group) 
 {
   // add modifications list (user and date of save)
-  SALOMEDS::AttributeStudyProperties_ptr aProp = aStudy->GetProperties();
-  SALOMEDS::StudyBuilder_var SB= aStudy->NewBuilder();
-//    SB->NewCommand();
+  SALOMEDS::AttributeStudyProperties_ptr aProp = theStudy->GetProperties();
   int aLocked = aProp->IsLocked();
   if (aLocked) 
     aProp->SetLocked(Standard_False);
@@ -609,7 +629,6 @@ void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgro
 			 CORBA::Long(aDate.Year()));
   if(aLocked) 
     aProp->SetLocked(Standard_True);
-//    SB->CommitCommand();
 
   SALOMEDS::StringSeq_var aNames;
   SALOMEDS::LongSeq_var aMinutes, aHours, aDays, aMonths, aYears;
@@ -647,7 +666,7 @@ void SALOMEDS_StudyManager_i::_SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgro
  */
 //============================================================================
 void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl, 
-				      SALOMEDS::Study_ptr aStudy,
+				      SALOMEDS::Study_ptr theStudy,
 				      CORBA::Boolean theMultiFile,
 				      CORBA::Boolean theASCII)
 {
@@ -657,72 +676,66 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
   // * Study Structure -> Exactly what is contained in OCAF document
   //   Informations in data group hdf_group_study_structure
 
-  HDFfile *hdf_file=0;         
-  HDFgroup *hdf_group_study_structure =0;
-  HDFgroup *hdf_sco_group =0;
-  HDFgroup *hdf_sco_group2 =0;
+  if(SALOMEDS_Study_i* aStudy = DownCast(theStudy)){
+    HDFfile *hdf_file=0;         
+    HDFgroup *hdf_group_study_structure =0;
+    HDFgroup *hdf_sco_group =0;
+    HDFgroup *hdf_sco_group2 =0;
 
-  HDFgroup *hdf_group_datacomponent =0;
-  HDFdataset *hdf_dataset =0;
-  hdf_size size[1];
-  hdf_int32 name_len = 0;
+    HDFgroup *hdf_group_datacomponent =0;
+    HDFdataset *hdf_dataset =0;
+    hdf_size size[1];
+    hdf_int32 name_len = 0;
+  
+    int aLocked = aStudy->GetProperties()->IsLocked();
+    if(aLocked) 
+      aStudy->GetProperties()->SetLocked(false);
 
-  int aLocked = aStudy->GetProperties()->IsLocked();
-  if (aLocked) aStudy->GetProperties()->SetLocked(false);
-
-  SALOMEDS::StudyBuilder_var SB= aStudy->NewBuilder();
-
-  ASSERT(!CORBA::is_nil(aStudy));
-  try
-    {
+    SALOMEDS_StudyBuilder_i* SB= aStudy->GetBuilder();
+    try{
       // mpv 15.12.2003: for saving components we have to load all data from all modules
-
-      SALOMEDS::SComponentIterator_var itcomponent1 = aStudy->NewComponentIterator();
-      for (; itcomponent1->More(); itcomponent1->Next())
-	{
-	  SALOMEDS::SComponent_var sco = itcomponent1->Value();
-	  // if there is an associated Engine call its method for saving
-	  CORBA::String_var IOREngine;
-	  try {
+      SALOMEDS_SComponentIterator_i aComponentIter = aStudy->GetComponentIterator();
+      for(; aComponentIter.More(); aComponentIter.Next()){
+	SALOMEDS::SComponent_var sco = aComponentIter.Value();
+	// if there is an associated Engine call its method for saving
+	CORBA::String_var IOREngine;
+	try{
+	  if(!sco->ComponentIOR(IOREngine)){
+	    SALOMEDS::GenericAttribute_var aGeneric;
+	    SALOMEDS::AttributeName_var aName;
+	    if(sco->FindAttribute(aGeneric, "AttributeName"))
+	      aName = SALOMEDS::AttributeName::_narrow(aGeneric);
 	    
-	    if (!sco->ComponentIOR(IOREngine)) {
-	      SALOMEDS::GenericAttribute_var aGeneric;
-	      SALOMEDS::AttributeName_var aName;
-	      if(sco->FindAttribute(aGeneric, "AttributeName"))
-		aName = SALOMEDS::AttributeName::_narrow(aGeneric);
+	    if(!aName->_is_nil()){
+	      CORBA::String_var aCompType = aName->Value();
 
-	      if (!aName->_is_nil()) {
+	      CORBA::String_var aFactoryType;
+	      if(strcmp(aCompType, "SUPERV") == 0) 
+		aFactoryType = "SuperVisionContainer";
+	      else
+		aFactoryType = "FactoryServer";
+	      
+	      Engines::Component_var aComp =
+		SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component(aFactoryType, aCompType);
 		
-		CORBA::String_var aCompType = aName->Value();
-
-		
-		CORBA::String_var aFactoryType;
-		if (strcmp(aCompType, "SUPERV") == 0) aFactoryType = "SuperVisionContainer";
-		else aFactoryType = "FactoryServer";
-		
+	      if(aComp->_is_nil()){
 		Engines::Component_var aComp =
-		  SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component(aFactoryType, aCompType);
+		  SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
+	      }
 		
-		if (aComp->_is_nil()) {
-		  Engines::Component_var aComp =
-		    SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
-		}
-		
-		if (!aComp->_is_nil()) {
-		  SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(aComp);
-		  if (!CORBA::is_nil(aDriver)) {
-		    SB->LoadWith(sco, aDriver);
-		  }
+	      if(!aComp->_is_nil()){
+		SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(aComp);
+		if (!CORBA::is_nil(aDriver)) {
+		  SB->LoadWith(sco, aDriver);
 		}
 	      }
 	    }
-	  } catch(...) {
-	    MESSAGE("Can not restore information to resave it");
-	    return;
 	  }
+	}catch(...){
+	  MESSAGE("Can not restore information to resave it");
+	  return;
 	}
-
-
+      }
 
       CORBA::String_var anOldName = aStudy->Name();
       aStudy->URL(aUrl);
@@ -739,116 +752,112 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
       hdf_group_datacomponent = new HDFgroup("DATACOMPONENT",hdf_file);
       hdf_group_datacomponent->CreateOnDisk();
 
-      SALOMEDS::SComponentIterator_var itcomponent = aStudy->NewComponentIterator();
-      
       //SRN: Added 17 Nov, 2003
       SALOMEDS::SObject_var anAutoSaveSO = aStudy->FindObjectID(AUTO_SAVE_TAG);
       //SRN: End
 
-      for (; itcomponent->More(); itcomponent->Next())
-	{
-	  SALOMEDS::SComponent_var sco = itcomponent->Value();
+      aComponentIter.Init();
+      for(; aComponentIter.More(); aComponentIter.Next()){
+	SALOMEDS::SComponent_var sco = aComponentIter.Value();
 	  
-	  CORBA::String_var scoid = sco->GetID();
-	  hdf_sco_group = new HDFgroup(scoid,hdf_group_datacomponent);
-	  hdf_sco_group->CreateOnDisk();
-
-	  CORBA::String_var componentDataType = sco->ComponentDataType();
-	  MESSAGE ( "Look for  an engine for data type :"<< componentDataType);
-
-	  //SRN: Added 17 Nov 2003: If there is a specified attribute, the component peforms a special save	  
-	  if(!CORBA::is_nil(anAutoSaveSO) && SB->IsGUID(sco, AUTO_SAVE_GUID)) {	    
-       
-	    SALOMEDS::GenericAttribute_var aGeneric;
-	    SALOMEDS::AttributeTableOfString_var aTable;
-	    if(anAutoSaveSO->FindAttribute(aGeneric, "AttributeTableOfString")) {
-	      aTable = SALOMEDS::AttributeTableOfString::_narrow(aGeneric);
-	      Standard_Integer nbRows = aTable->GetNbRows(), k, aTimeOut = 0;
-              if(nbRows > 0 && aTable->GetNbColumns() > 1) {	
-
-		SALOMEDS::StringSeq_var aRow;
-		for(k=1; k<=nbRows; k++) {
-		  aRow = aTable->GetRow(k);
-		  if (strcmp(aRow[0], componentDataType) == 0) {
-		    CORBA::String_var anEntry = CORBA::string_dup(aRow[1]);
-		    SALOMEDS::SObject_var aCompSpecificSO = aStudy->FindObjectID(anEntry);
-		    if(!CORBA::is_nil(aCompSpecificSO)) {
-		      SALOMEDS::AttributeInteger_var anInteger;
-		      if(aCompSpecificSO->FindAttribute(aGeneric, "AttributeInteger")) {
-			anInteger = SALOMEDS::AttributeInteger::_narrow(aGeneric);
-			anInteger->SetValue(-1);
-			while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
-		      }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
-		    }  // if(!CORBA::is_nil(aCompSpecificSO)) 
-		  }  // if (strcmp(aRow[0], componentDataType) == 0)
-		}  // for
-
-	      }  // if(nbRows > 0 && aTable->GetNbColumns() > 1)
-
-	    }  // if(anAutoSaveSO->FindAttribute(aTable, "AttributeTableOfString")
-
-	  }  // if(SB->IsGUID(AUTO_SAVE_GUID)
-
-	  //SRN: End
-
-	  CORBA::String_var IOREngine;
-	  if (sco->ComponentIOR(IOREngine))
-	    {
-	      // we have found the associated engine to write the data 
-	      MESSAGE ( "We have found an engine for data type :"<< componentDataType);
-	      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-	      SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+	CORBA::String_var scoid = sco->GetID();
+	hdf_sco_group = new HDFgroup(scoid,hdf_group_datacomponent);
+	hdf_sco_group->CreateOnDisk();
+	
+	CORBA::String_var componentDataType = sco->ComponentDataType();
+	MESSAGE ( "Look for  an engine for data type :"<< componentDataType);
+	
+	//SRN: Added 17 Nov 2003: If there is a specified attribute, the component peforms a special save	  
+	if(!CORBA::is_nil(anAutoSaveSO) && SB->IsGUID(sco, AUTO_SAVE_GUID)){	    
+	  SALOMEDS::GenericAttribute_var aGeneric;
+	  SALOMEDS::AttributeTableOfString_var aTable;
+	  if(anAutoSaveSO->FindAttribute(aGeneric, "AttributeTableOfString")){
+	    aTable = SALOMEDS::AttributeTableOfString::_narrow(aGeneric);
+	    Standard_Integer nbRows = aTable->GetNbRows(), k, aTimeOut = 0;
+	    if(nbRows > 0 && aTable->GetNbColumns() > 1) {	
+	      SALOMEDS::StringSeq_var aRow;
+	      for(k=1; k<=nbRows; k++){
+		aRow = aTable->GetRow(k);
+		if(strcmp(aRow[0], componentDataType) == 0){
+		  CORBA::String_var anEntry = CORBA::string_dup(aRow[1]);
+		  SALOMEDS::SObject_var aCompSpecificSO = aStudy->FindObjectID(anEntry);
+		  if(!CORBA::is_nil(aCompSpecificSO)) {
+		    SALOMEDS::AttributeInteger_var anInteger;
+		    if(aCompSpecificSO->FindAttribute(aGeneric, "AttributeInteger")) {
+		      anInteger = SALOMEDS::AttributeInteger::_narrow(aGeneric);
+		      anInteger->SetValue(-1);
+		      while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
+		    }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
+		  }  // if(!CORBA::is_nil(aCompSpecificSO)) 
+		}  // if (strcmp(aRow[0], componentDataType) == 0)
+	      }  // for
 	      
-	      if (!CORBA::is_nil(Engine))
-		{
-		  MESSAGE ( "Save the data of type:"<< componentDataType);
-		  MESSAGE("Engine :"<<Engine->ComponentDataType());
+	    }  // if(nbRows > 0 && aTable->GetNbColumns() > 1)
+	    
+	  }  // if(anAutoSaveSO->FindAttribute(aTable, "AttributeTableOfString")
+	  
+	}  // if(SB->IsGUID(AUTO_SAVE_GUID)
+	
+	//SRN: End
+	
+	CORBA::String_var IOREngine;
+	if(sco->ComponentIOR(IOREngine)){
+	  // we have found the associated engine to write the data 
+	  MESSAGE ( "We have found an engine for data type :"<< componentDataType);
+	  CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+	  SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+	  
+	  if(!CORBA::is_nil(Engine)){
+	    MESSAGE ( "Save the data of type:"<< componentDataType);
+	    MESSAGE("Engine :"<<Engine->ComponentDataType());
+	    
+	    SALOMEDS::TMPFile_var aStream;
+	    
+	    if(theASCII) 
+	      aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
+	    else
+	      aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
 
-		  SALOMEDS::TMPFile_var aStream;
-
-                  if (theASCII) aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
-		  else aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
-
-		  HDFdataset *hdf_dataset;
-		  hdf_size aHDFSize[1];
-		  if(aStream->length() > 0) {  //The component saved some auxiliary files, then put them into HDF file 
-
-		    aHDFSize[0] = aStream->length();
-		      
-		    HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		    hdf_dataset->CreateOnDisk();
-		    hdf_dataset->WriteOnDisk((unsigned char*) &aStream[0]);  //Save the stream in the HDF file
-		    hdf_dataset->CloseOnDisk();
-		  }
-		  // store multifile state
-		  aHDFSize[0] = 2;
-		  hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		  hdf_dataset->CreateOnDisk();
-		  hdf_dataset->WriteOnDisk((void*)(theMultiFile?"M":"S")); // save: multi or single
-		  hdf_dataset->CloseOnDisk();
-		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
-
-		  // store ASCII state
-		  aHDFSize[0] = 2;
-		  hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		  hdf_dataset->CreateOnDisk();
-		  hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
-		  hdf_dataset->CloseOnDisk();
-		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
-
-		  Translate_IOR_to_persistentID (aStudy,SB,sco,Engine,theMultiFile, theASCII);
-		  MESSAGE("After Translate_IOR_to_persistentID");
-		  
-		  // Creation of the persistance reference  attribute
-		}
+	    HDFdataset *hdf_dataset;
+	    hdf_size aHDFSize[1];
+	    if(aStream->length() > 0){  //The component saved some auxiliary files, then put them into HDF file 
+	      
+	      aHDFSize[0] = aStream->length();
+	      
+	      HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+	      hdf_dataset->CreateOnDisk();
+	      hdf_dataset->WriteOnDisk((unsigned char*) &aStream[0]);  //Save the stream in the HDF file
+	      hdf_dataset->CloseOnDisk();
 	    }
-	  hdf_sco_group->CloseOnDisk();
-	  hdf_sco_group=0; // will be deleted by hdf_group_datacomponent destructor
+	    // store multifile state
+	    aHDFSize[0] = 2;
+	    hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+	    hdf_dataset->CreateOnDisk();
+	    hdf_dataset->WriteOnDisk((void*)(theMultiFile?"M":"S")); // save: multi or single
+	    hdf_dataset->CloseOnDisk();
+	    hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
+	    
+	    // store ASCII state
+	    aHDFSize[0] = 2;
+	    hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+	    hdf_dataset->CreateOnDisk();
+	    hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
+	    hdf_dataset->CloseOnDisk();
+	    hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
+	    
+	    Translate_IOR_to_persistentID(aStudy,SB,sco,Engine,theMultiFile, theASCII);
+	    MESSAGE("After Translate_IOR_to_persistentID");
+		  
+	    // Creation of the persistance reference  attribute
+	  }
 	}
+	hdf_sco_group->CloseOnDisk();
+	hdf_sco_group=0; // will be deleted by hdf_group_datacomponent destructor
+      }
       hdf_group_datacomponent->CloseOnDisk();
       hdf_group_datacomponent =0;  // will be deleted by hdf_file destructor
-
-
+      
+      
       //-----------------------------------------------------------------------
       //3 - Write the Study Structure
       //-----------------------------------------------------------------------
@@ -856,36 +865,35 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
       hdf_group_study_structure->CreateOnDisk();
 
       // save component attributes
-      SALOMEDS::SComponentIterator_var itcomp = aStudy->NewComponentIterator();
-      for (; itcomp->More(); itcomp->Next()) 
-	{
-	  SALOMEDS::SComponent_var SC = itcomp->Value();
-	  
-	  CORBA::String_var scid = SC->GetID();
-	  hdf_sco_group2 = new HDFgroup(scid,hdf_group_study_structure);
-	  hdf_sco_group2->CreateOnDisk();
-          SaveAttributes(SC, hdf_sco_group2);
-	  // ComponentDataType treatment
-	  CORBA::String_var component_name = SC->ComponentDataType();
-	  MESSAGE("Component data type " << component_name << " treated");
-	  
-	  name_len = (hdf_int32) strlen(component_name.in());
-	  size[0] = name_len +1 ; 
-	  hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
-	  hdf_dataset->CreateOnDisk();
-	  hdf_dataset->WriteOnDisk(const_cast<char*>(component_name.in()));
-	  MESSAGE("component name " <<  component_name << " wrote on file");
-	  hdf_dataset->CloseOnDisk();
-	  hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-	  _SaveObject(aStudy, SC, hdf_sco_group2);
-	  hdf_sco_group2->CloseOnDisk();
- 	  hdf_sco_group2=0; // will be deleted by hdf_group_study_structure destructor
-	}
+      aComponentIter.Init();
+      for(; aComponentIter.More(); aComponentIter.Next()){
+	SALOMEDS::SComponent_var SC = aComponentIter.Value();
+	
+	CORBA::String_var scid = SC->GetID();
+	hdf_sco_group2 = new HDFgroup(scid,hdf_group_study_structure);
+	hdf_sco_group2->CreateOnDisk();
+	SaveAttributes(SC, hdf_sco_group2);
+	// ComponentDataType treatment
+	CORBA::String_var component_name = SC->ComponentDataType();
+	MESSAGE("Component data type " << component_name << " treated");
+	
+	name_len = (hdf_int32) strlen(component_name.in());
+	size[0] = name_len +1 ; 
+	hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
+	hdf_dataset->CreateOnDisk();
+	hdf_dataset->WriteOnDisk(const_cast<char*>(component_name.in()));
+	MESSAGE("component name " <<  component_name << " wrote on file");
+	hdf_dataset->CloseOnDisk();
+	hdf_dataset=0; //will be deleted by hdf_sco_group destructor
+	_SaveObject(aStudy, SC, hdf_sco_group2);
+	hdf_sco_group2->CloseOnDisk();
+	hdf_sco_group2=0; // will be deleted by hdf_group_study_structure destructor
+      }
       //-----------------------------------------------------------------------
       //4 - Write the Study UseCases Structure
       //-----------------------------------------------------------------------
       SALOMEDS::SObject_var aSO = aStudy->FindObjectID(USE_CASE_LABEL_ID);
-      if (!aSO->_is_nil()) {
+      if(!aSO->_is_nil()){
 	HDFgroup *hdf_soo_group = new HDFgroup(USE_CASE_LABEL_ID,hdf_group_study_structure);
 	hdf_soo_group->CreateOnDisk();
 	SaveAttributes(aSO, hdf_soo_group);
@@ -895,7 +903,8 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	hdf_soo_group=0; // will be deleted by hdf_group_study_structure destructor
       }
 
-      if (aLocked) aStudy->GetProperties()->SetLocked(true);
+      if (aLocked) 
+	aStudy->GetProperties()->SetLocked(true);
       //-----------------------------------------------------------------------
       //5 - Write the Study Properties
       //-----------------------------------------------------------------------
@@ -916,18 +925,17 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
       _name_service.Change_Directory("/Study");
       _name_service.Destroy_Name(anOldName);
-      _name_service.Register(aStudy, aStudy->Name());
+      _name_service.Register(theStudy, aStudy->Name());
 
       aStudy->IsSaved(true);
       hdf_group_study_structure =0; // will be deleted by hdf_file destructor
       delete hdf_file; // recursively deletes all hdf objects...
+    }catch(HDFexception){
+      MESSAGE( "HDFexception ! " );
     }
-  catch (HDFexception)
-    {
-      MESSAGE( "HDFexception ! " )
+    if(theASCII){ // save file in ASCII format
+      HDFascii::ConvertFromHDFToASCII(aUrl, true);
     }
-  if (theASCII) { // save file in ASCII format
-    HDFascii::ConvertFromHDFToASCII(aUrl, true);
   }
 }
 
@@ -936,8 +944,8 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
  *  Purpose  :
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS::Study_ptr aStudy, 
-					  SALOMEDS::SObject_ptr SC, 
+void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS_Study_i* theStudy, 
+					  SALOMEDS::SObject_ptr theSObject, 
 					  HDFgroup *hdf_group_datatype)
 {
   // Write in group hdf_group_datatype all informations of SObject SC
@@ -945,36 +953,37 @@ void SALOMEDS_StudyManager_i::_SaveObject(SALOMEDS::Study_ptr aStudy,
   SALOMEDS::SObject_var RefSO;
   HDFgroup *hdf_group_sobject = 0;
 
-  SALOMEDS::ChildIterator_var itchild = aStudy->NewChildIterator(SC);
-  for (; itchild->More(); itchild->Next()) 
-    {
-      SALOMEDS::SObject_var SO = itchild->Value();
+  SALOMEDS_ChildIterator_i aChildIter = theStudy->GetChildIterator(theSObject);
+  for(; aChildIter.More(); aChildIter.Next()){
+    SALOMEDS::SObject_var aSObject = aChildIter.Value();
+    SALOMEDS::ListOfAttributes_var anAllAttributes = aSObject->GetAllAttributes();
+    
+    // mpv: don't save empty labels
+    if(anAllAttributes->length() == 0 && !aSObject->ReferencedObject(RefSO)){
+      SALOMEDS_ChildIterator_i aSubChildIter = theStudy->GetChildIterator(theSObject);
+      if(!aSubChildIter.More())
+	continue;
 
-      // mpv: don't save empty labels
-      if (SO->GetAllAttributes()->length() == 0 && !SO->ReferencedObject(RefSO)) {
-	SALOMEDS::ChildIterator_var subchild = aStudy->NewChildIterator(SC);
-	if (!subchild->More()) {
-	  continue;
-	}
-	subchild->InitEx(true);
-	bool anEmpty = true;
-	for (; subchild->More() && anEmpty; subchild->Next()) 
-	  if (subchild->Value()->GetAllAttributes()->length() != 0 ||
-              subchild->Value()->ReferencedObject(RefSO)) anEmpty = false;
-	if (anEmpty) {
-	  continue;
-	}
+      aSubChildIter.InitEx(true);
+      bool anEmpty = true;
+      for(; aSubChildIter.More() && anEmpty; aSubChildIter.Next()){
+	SALOMEDS::SObject_var aSObj = aSubChildIter.Value();
+	SALOMEDS::ListOfAttributes_var anAllAttr = aSObj->GetAllAttributes();
+	if(anAllAttr->length() != 0 || aSObj->ReferencedObject(RefSO)) 
+	  anEmpty = false;
       }
-
-      CORBA::String_var scoid(SO->GetID());
-      hdf_group_sobject = new HDFgroup(scoid,hdf_group_datatype);
-      hdf_group_sobject->CreateOnDisk();
-      SaveAttributes(SO, hdf_group_sobject);
-      _SaveObject(aStudy,SO, hdf_group_sobject);
-      hdf_group_sobject->CloseOnDisk();
-      hdf_group_sobject =0; // will be deleted by father hdf object destructor
-
+      if(anEmpty)
+	continue;
     }
+
+    CORBA::String_var scoid(aSObject->GetID());
+    hdf_group_sobject = new HDFgroup(scoid,hdf_group_datatype);
+    hdf_group_sobject->CreateOnDisk();
+    SaveAttributes(aSObject, hdf_group_sobject);
+    _SaveObject(theStudy,aSObject, hdf_group_sobject);
+    hdf_group_sobject->CloseOnDisk();
+    hdf_group_sobject =0; // will be deleted by father hdf object destructor
+  }
 }
 
 //============================================================================

@@ -26,10 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_IORAttribute.ixx"
 #include <TDataStd_Comment.hxx>
 #include <TCollection_ExtendedString.hxx>
+
+#include "SALOMEDS_IORAttribute.ixx"
 #include "SALOMEDS_Study_i.hxx"
+
 using namespace std;
 
 //=======================================================================
@@ -52,7 +54,7 @@ const Standard_GUID& SALOMEDS_IORAttribute::GetID ()
 
 Handle(SALOMEDS_IORAttribute) SALOMEDS_IORAttribute::Set (const TDF_Label& L,
 							  const TCollection_ExtendedString& S,
-							  CORBA::ORB_ptr orb) 
+							  SALOMEDS_Study_i* theStudy) 
 {
   Handle(SALOMEDS_IORAttribute) A;
   if (!L.FindAttribute(SALOMEDS_IORAttribute::GetID(),A)) {
@@ -61,7 +63,7 @@ Handle(SALOMEDS_IORAttribute) SALOMEDS_IORAttribute::Set (const TDF_Label& L,
   }
   
   (Handle(TDataStd_Comment)::DownCast(A))->Set (S); 
-  SALOMEDS_Study_i::IORUpdated(A,orb);
+  theStudy->IORUpdated(A);
   return A;
 }
 

@@ -105,8 +105,11 @@ public:
   FindOrCreateAttribute(const char* theTypeOfAttribute);
 
   void RemoveAttribute(const char* theTypeOfAttribute);
+  void OnRemove();
 
   SALOMEDS_Study_i* GetStudyServant(){ return _study;}
+
+  TDF_Label GetLabel(){ return _lab;}
 
   CORBA::ORB_var GetORB() const;
 
@@ -115,14 +118,19 @@ public:
 protected:
   friend class SALOMEDS_GenericAttribute_i;
 
-  SALOMEDS_GenericAttribute_i* 
+  typedef std::string TAttributeID;
+  typedef std::pair<SALOMEDS_GenericAttribute_i*,SALOMEDS::GenericAttribute_var> TAttrHolder;
+  typedef std::map<TAttributeID,TAttrHolder> TAttrMap;
+  TAttrMap myAttrMap;
+
+  TAttrHolder 
   _FindGenAttribute(const Handle(TDF_Attribute)& theAttr);
 
-  SALOMEDS_GenericAttribute_i* 
+  TAttrHolder 
   _CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
 		      const char* theTypeOfAttribute);
 
-  SALOMEDS_GenericAttribute_i* 
+  TAttrHolder 
   _FindGenAttribute(const char* theTypeOfAttribute);
 
   SALOMEDS::GenericAttribute_ptr 
@@ -134,11 +142,6 @@ protected:
   SALOMEDS_Study_i* _study;
   std::string _name;
   TDF_Label _lab;
-
-  typedef std::string TAttributeID;
-  typedef SALOMEDS_GenericAttribute_i* TAttrHolder;
-  typedef std::map<TAttributeID,TAttrHolder> TAttrMap;
-  TAttrMap myAttrMap;
 
   SALOMEDS_SObject_i(SALOMEDS_Study_i* theStudy, 
 		     const TDF_Label& theLabel);

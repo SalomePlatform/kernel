@@ -38,6 +38,7 @@
 #include <TDocStd_Document.hxx>
 
 class SALOMEDS_Study_i;
+class SALOMEDS_SObject_i;
 class SALOMEDS_Callback_i;
 
 class SALOMEDS_StudyBuilder_i: public virtual POA_SALOMEDS::StudyBuilder,
@@ -110,6 +111,8 @@ public:
     throw(SALOME::SALOME_Exception);
   virtual void Load(SALOMEDS::SObject_ptr sco);
 
+  SALOMEDS_SObject_i* RemoveSObject(SALOMEDS::SObject_ptr theSObject,
+				    bool theIsForgetAllAttributes = true);
   virtual void RemoveObject(SALOMEDS::SObject_ptr anObject);
   virtual void RemoveObjectWithChildren(SALOMEDS::SObject_ptr anObject);
 

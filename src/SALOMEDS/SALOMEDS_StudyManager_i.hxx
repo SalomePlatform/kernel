@@ -87,13 +87,13 @@ private:
 		       CORBA::Boolean theMultiFile,
 		       CORBA::Boolean theASCII);
   // _SaveObject private function called by _SaveAs
-  virtual void _SaveObject(SALOMEDS::Study_ptr aStudy, 
-			   SALOMEDS::SObject_ptr SC, 
-			   HDFgroup *hdf_group_datatype);
+  void _SaveObject(SALOMEDS_Study_i* theStudy, 
+		   SALOMEDS::SObject_ptr SC, 
+		   HDFgroup *hdf_group_datatype);
   // _SubstituteSlash function called by Open and GetStudyByName
   virtual std::string _SubstituteSlash(const char *aUrl);
 
-  virtual void _SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgroup *hdf_group);
+  void _SaveProperties(SALOMEDS_Study_i* theStudy, HDFgroup *hdf_group);
 
 public:
   //! standard constructor
@@ -105,6 +105,8 @@ public:
   CORBA::ORB_var GetORB() const { return _orb; }
 
   PortableServer::POA_var GetPOA() const { return _poa; }
+
+  SALOMEDS_Study_i* DownCast(SALOMEDS::Study_ptr theStudy) const;
 
  //! method to Register study Manager in the naming service
   /*!

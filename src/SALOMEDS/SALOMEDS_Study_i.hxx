@@ -49,6 +49,9 @@
 #include "SALOMEDS_DataMapStringLabel.hxx"
 #include "SALOMEDS_IORAttribute.hxx"
 
+#include "SALOMEDS_SComponentIterator_i.hxx"
+#include "SALOMEDS_ChildIterator_i.hxx"
+
 class SALOMEDS_StudyManager_i;
 class SALOMEDS_UseCaseBuilder_i;
 class SALOMEDS_StudyBuilder_i;
@@ -82,7 +85,9 @@ public:
   CORBA::ORB_var GetORB() const;
 
   PortableServer::POA_var GetPOA() const;
-  
+
+  SALOMEDS_SObject_i* DownCast(SALOMEDS::SObject_ptr theSObject) const;
+
   SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
 
   SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
@@ -220,17 +225,20 @@ public:
     \return ChildIterator_ptr arguments, the created ChildIterator
   */  
   virtual SALOMEDS::ChildIterator_ptr NewChildIterator(SALOMEDS::SObject_ptr aSO);
+  SALOMEDS_ChildIterator_i GetChildIterator(SALOMEDS::SObject_ptr theSObject);
 
   //! method to Create a SComponentIterator 
   /*!
     \return SComponentIterator_ptr arguments, the created SComponentIterator
   */  
   virtual SALOMEDS::SComponentIterator_ptr NewComponentIterator();
+  SALOMEDS_SComponentIterator_i GetComponentIterator();
 
   //! method to Create a StudyBuilder
   /*!
     \return StudyBuilder_ptr arguments, the created StudyBuilder
   */  
+  SALOMEDS_StudyBuilder_i* GetBuilder();
   virtual SALOMEDS::StudyBuilder_ptr NewBuilder();
  
   //! method to get study name
@@ -278,9 +286,7 @@ public:
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);
 
-  static SALOMEDS::Study_ptr GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb);
-
-  static void IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute, CORBA::ORB_ptr orb);
+  void IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute);
 
   virtual void UpdateIORLabelMap(const char* anIOR, const char* aLabel);
   
