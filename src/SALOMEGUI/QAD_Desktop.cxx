@@ -1464,14 +1464,14 @@ void QAD_Desktop::onOpenStudy()
 bool QAD_Desktop::loadComponentData( const QString& compName )
 {
   // Open component's data in active study if any
-  MESSAGE("loadComponentData(): Opening component data")
+  MESSAGE("loadComponentData(): Opening " << compName << " component data ")
   if (!myActiveStudy) {
     MESSAGE("loadComponentData(): No active study exists")
     return false;
   }
 
   Engines::Component_var comp ;
-  if ( compName.compare("Supervision") == 0 ) {
+  if ( compName.compare("SUPERV") == 0 ) {
     comp = getEngine( "SuperVisionContainer", compName) ;
   }
   else {
@@ -1484,7 +1484,7 @@ bool QAD_Desktop::loadComponentData( const QString& compName )
   }
 
   SALOMEDS::Study_var aStudy = myActiveStudy->getStudyDocument();
-  SALOMEDS::SComponent_var SCO = SALOMEDS::SComponent::_narrow(aStudy->FindObject(compName));
+  SALOMEDS::SComponent_var SCO = SALOMEDS::SComponent::_narrow(aStudy->FindObject( getComponentUserName(compName) ));
 	   
   if (!SCO->_is_nil()) {
     if (!CORBA::is_nil(comp)) {
