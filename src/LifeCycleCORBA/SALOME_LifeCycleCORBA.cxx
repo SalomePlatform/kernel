@@ -134,6 +134,36 @@ string SALOME_LifeCycleCORBA::ComputerPath(
   return CORBA::string_dup( path ) ;
 }
 
+Engines::Container_ptr SALOME_LifeCycleCORBA::FindContainer(const char *containerName)
+{
+  ASSERT(_NS != NULL);
+  string cont ;
+  if ( strncmp( containerName , "/Containers/" , 12 ) ) { // Compatibility ...
+    string theComputer ;
+    string theContainer ;
+    cont = ContainerName( containerName , &theComputer , &theContainer ) ;
+  }
+  else {
+    cont = containerName ;
+  }
+  try {
+
+    SCRUTE( cont );
+
+    CORBA::Object_var obj = _NS->Resolve( cont.c_str() );
+    if( !CORBA::is_nil( obj ) ) {
+      return Engines::Container::_narrow( obj ) ;
+    }
+  }
+  catch (ServiceUnreachable&) {
+    INFOS("Caught exception: Naming Service Unreachable");
+  }
+  catch (...) {
+    INFOS("Caught unknown exception.");
+  }
+  return Engines::Container::_nil();
+}
+
 Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
                                   (const char *containerName,
 				   const char *componentName)
