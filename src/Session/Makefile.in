@@ -17,27 +17,24 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 @COMMENCE@
 
 EXPORT_HEADERS= SALOME_Session_i.hxx
-LIB_MOC = \
-		  InquireServersQThread.h 
 
 # Libraries targets
 LIB = libSalomeSession.la
 LIB_SRC=\
-	InquireServersQThread.cxx \
 	SALOME_Session_QThread.cxx \
 	SALOME_Session_i.cxx
 
 # Executables targets
-BIN = SALOME_Session_Server SALOME_Session_loader
+BIN = SALOME_Session_Server
 BIN_SRC = 
 #***#BIN_SERVER_IDL = SALOME_Session.idl VISU_Gen.idl MED.idl
 BIN_SERVER_IDL = SALOME_Session.idl
 #***#BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Component.idl SALOME_Exception.idl VISU_Gen.idl
-BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Component.idl SALOME_Exception.idl
+BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(VTK_LIBS) -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lSalomeLoggerServer -lPlot2d
+LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lSalomeLoggerServer
 
 
 @CONCLUDE@
