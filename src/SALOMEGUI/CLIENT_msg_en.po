@@ -30,7 +30,7 @@ msgstr "  "
 
 #: SALOMEGUI_AboutDlg.cxx:42
 msgid "ABOUT_TLT"
-msgstr "About PAL/SALOME"
+msgstr "About SALOME"
 
 #: QAD_Config.cxx:84
 msgid "MEN_APPNAME"
@@ -38,8 +38,8 @@ msgstr "salome"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "PAL/SALOME 2.1.0"
+msgstr "SALOME 2.1.0"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "PAL/SALOME 2.1.0"
+msgstr "SALOME 2.1.0"
