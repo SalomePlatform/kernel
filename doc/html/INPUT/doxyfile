@@ -61,11 +61,7 @@ INPUT                  = ../../../share/salome/idl/SALOME_ModuleCatalog.idl \
                          ../../../share/salome/idl/SALOME_Exception.idl \
                          ../../../share/salome/idl/SALOMEDS_Attributes.idl \
                          ../../../share/salome/idl/SALOME_Session.idl \
-                         ../../../share/salome/idl/MED.idl \
-                         ../../../share/salome/idl/SUPERV.idl \
-                         ../../../share/salome/idl/VISU_Gen.idl \
-                         ../../../share/salome/idl/SALOME_Component.idl \
-                         ../../../share/salome/idl/Med_Gen.idl
+                         ../../../share/salome/idl/SALOME_Component.idl
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 
