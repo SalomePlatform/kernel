@@ -223,7 +223,7 @@ namespace SALOMEDS{
   {
     TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
     if(anIter != __AttrID2FunMap__.end()){
-      const TAttrID2FunMap::data_type& aValue = anIter->second;
+      const TAttrID2FunMap::mapped_type& aValue = anIter->second;
       return aValue.myGetGUID();
     }
     // create tree node GUID by name
@@ -575,7 +575,7 @@ SALOMEDS_SObject_i::_CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
   SALOMEDS_GenericAttribute_i* anAttr;
   TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
   if(anIter != __AttrID2FunMap__.end()){
-    const TAttrID2FunMap::data_type& aValue = anIter->second;
+    const TAttrID2FunMap::mapped_type& aValue = anIter->second;
     
     if(aValue.myIsCheckLockedStudy())
       _study->CheckLocked();
@@ -664,7 +664,7 @@ Handle(TDF_Attribute)
   Handle(TDF_Attribute) anAttr;
   TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
   if(anIter != __AttrID2FunMap__.end()){
-    const TAttrID2FunMap::data_type& aValue = anIter->second;
+    const TAttrID2FunMap::mapped_type& aValue = anIter->second;
     
     if(aValue.myIsCheckLockedStudy())
       _study->CheckLocked();
