@@ -15,8 +15,9 @@ import time
 import os
 
 trace="local"
-if (os.environ["SALOME_trace"] == "with_logger"):
-    trace="logger"
+if (os.environ.has_key("SALOME_trace")):
+    if (os.environ["SALOME_trace"] == "with_logger"):
+        trace="logger"
 
 class SALOME_Trace :
     def __init__(self):
