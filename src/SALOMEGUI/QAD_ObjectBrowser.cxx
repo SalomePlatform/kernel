@@ -150,6 +150,8 @@ QAD_ObjectBrowser::QAD_ObjectBrowser( SALOMEDS::Study_var study, QWidget* parent
   myStudy = SALOMEDS::Study::_duplicate( study );
   myListViewMap.clear();
   myUseCaseMap.clear();
+  myListView=0;    // must be done before setupListView(): setCornerWidget() provoque call to eventFilter
+  myUseCaseView=0; // and test myUseCaseView->viewport() before initialisation
   setupListView();
 }
 
@@ -339,6 +341,7 @@ bool QAD_ObjectBrowser::eventFilter( QObject* o, QEvent* e )
     return QTabWidget::eventFilter( o, e );
 
   SALOMEDS::UseCaseBuilder_var UCBuilder = myStudy->GetUseCaseBuilder();
+  if (! myUseCaseView) return QTabWidget::eventFilter( o, e );
   if (o == myUseCaseView->viewport()) {
     if ( e->type() == QEvent::MouseButtonPress ) {
       // Test if clicked on selection and start drag if necessary
