@@ -162,19 +162,23 @@ namespace MED{
 
   const TEntity2GeomSet& GetEntity2GeomSet();
 
-  template<int EVersion>
+  template<int>
+
   TInt GetNbConn(EGeometrieElement typmai,
+		 EEntiteMaillage typent,
 		 TInt mdim);
   
   template<>
   TInt GetNbConn<eV2_1>(EGeometrieElement typmai,
+			EEntiteMaillage typent,
 			TInt mdim);
 
   template<>
   TInt GetNbConn<eV2_2>(EGeometrieElement typmai,
+			EEntiteMaillage typent,
 			TInt mdim);
 
-  TInt GetNbConnectivities(EGeometrieElement typmai);
+  TInt GetNbNodes(EGeometrieElement typmai);
 
   struct TNameInfo;
   typedef SharedPtr<TNameInfo> PNameInfo;

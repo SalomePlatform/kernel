@@ -24,37 +24,38 @@ using namespace MED;
 
 namespace MED{
 
-  TInt GetNbConnectivities(EGeometrieElement typmai)
+  TInt GetNbNodes(EGeometrieElement typmai)
   {
-    TInt taille = typmai%100;
-    return taille;
+    return typmai%100;
   }
 
   template<>
   TInt GetNbConn<eV2_1>(EGeometrieElement typmai,
+			EEntiteMaillage typent,
 			TInt mdim)
   {
-    TInt edim = typmai / 100;
     TInt nsup = 0;
 
-    if (mdim  == 2 || mdim == 3)
-      if (edim == 1)
-	nsup = 1;
-    
-    if (mdim == 3)
-      if (edim == 2)
-	nsup = 1;
-    
-    TInt taille = nsup+typmai%100;
-    return taille;
+    if(typent == eMAILLE){
+      TInt edim = typmai / 100;
+      if(mdim  == 2 || mdim == 3)
+	if(edim == 1)
+	  nsup = 1;
+      
+      if(mdim == 3)
+	if (edim == 2)
+	  nsup = 1;
+    }
+
+    return nsup + typmai%100;
   }
 
   template<>
   TInt GetNbConn<eV2_2>(EGeometrieElement typmai,
+			EEntiteMaillage typent,
 			TInt mdim)
   {
-    TInt taille = typmai%100;
-    return taille;
+    return typmai%100;
   }
 
   std::string GetString(TInt theId, TInt theStep, 
@@ -127,13 +128,13 @@ void TCellInfo::SetConn(TInt theElemId, TInt theConnId, TInt theVal){
 TConstConnSlice 
 TCellInfo::GetConnSlice(TInt theElemId) const
 {
-  return TConstConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbConnectivities(myTGeom),1));
+  return TConstConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbNodes(myTGeom),1));
 }
 
 TConnSlice 
 TCellInfo::GetConnSlice(TInt theElemId)
 {
-  return TConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbConnectivities(myTGeom),1));
+  return TConnSlice(myConn,std::slice(GetConnDim()*theElemId,GetNbNodes(myTGeom),1));
 }
 
 //---------------------------------------------------------------

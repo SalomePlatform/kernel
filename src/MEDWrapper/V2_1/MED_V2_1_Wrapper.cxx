@@ -509,6 +509,7 @@ namespace MED{
 				  anEntity,
 				  aGeom,
 				  aConn);
+
       if(theErr) 
 	*theErr = aRet;
       else if(aRet < 0)

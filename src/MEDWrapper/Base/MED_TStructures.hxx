@@ -540,8 +540,8 @@ namespace MED{
       myTGeom = theInfo->GetGeom();
       myTConn  = theInfo->GetConn();
       
-      TInt aConnDim = GetNbConnectivities(myTGeom);
-      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myMeshInfo->myDim));
+      TInt aConnDim = GetNbNodes(myTGeom);
+      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myTEntity,myMeshInfo->myDim));
       for(TInt anElemId = 0; anElemId < myNbElem; anElemId++){
 	for(TInt anConnId = 0; anConnId < aConnDim; anConnId++){
 	  SetConn(anElemId,anConnId,theInfo->GetConn(anElemId,anConnId));
@@ -564,7 +564,7 @@ namespace MED{
       myTEntity = theTEntity;
       myTGeom = theTGeom;
       myTConn  = theTConn;
-      myConn.resize(theNbElem*GetNbConn<nV>(theTGeom,theMeshInfo->myDim));
+      myConn.resize(theNbElem*GetNbConn<nV>(theTGeom,myTEntity,theMeshInfo->myDim));
     }
     
     TTCellInfo(const PMeshInfo& theMeshInfo, 
@@ -584,9 +584,9 @@ namespace MED{
       myTGeom = theTGeom;
       myTConn  = theTConn;
 
-      TInt aConnDim = GetNbConnectivities(myTGeom);
+      TInt aConnDim = GetNbNodes(myTGeom);
       myNbElem = theConnectivities.size() / aConnDim;
-      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myMeshInfo->myDim));
+      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myTEntity,myMeshInfo->myDim));
       for(TInt anElemId = 0; anElemId < myNbElem; anElemId++){
 	for(TInt anConnId = 0; anConnId < aConnDim; anConnId++){
 	  SetConn(anElemId,anConnId,theConnectivities[anElemId*aConnDim+anConnId]);
@@ -596,7 +596,7 @@ namespace MED{
     }
 
     virtual TInt GetConnDim() const { 
-      return GetNbConn<nV>(myTGeom,myMeshInfo->myDim);
+      return GetNbConn<nV>(myTGeom,myTEntity,myMeshInfo->myDim);
     }
 
   };
