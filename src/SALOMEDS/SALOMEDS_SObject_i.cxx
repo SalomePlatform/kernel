@@ -623,7 +623,7 @@ SALOMEDS_SObject_i::_FindGenAttribute(const char* theType)
     if(aGenAttr != NULL)
       myAttrMap[theType] = anAttrHolder;
   }else{
-    myAttrMap.erase(theType);
+    //myAttrMap.erase(theType);
     //if(anGenAttr != NULL)
     //  anGenAttr->Destroy();
     return TAttrHolder();
@@ -745,7 +745,7 @@ void SALOMEDS_SObject_i::RemoveAttribute(const char* theType)
   }
   TAttrMap::iterator anIter = myAttrMap.find(theType);
   if(anIter != myAttrMap.end()){
-    myAttrMap.erase(anIter);
+    //myAttrMap.erase(anIter);
   }
   _lab.ForgetAttribute(::GetGUID(theType));
 }
@@ -765,8 +765,8 @@ void SALOMEDS_SObject_i::OnRemove()
     _study->AddPostponed(TCollection_AsciiString(anAttr->Get()).ToCString());
   }
 
-  myAttrMap.clear();
+  //myAttrMap.clear();
 
-  SALOMEDS_Study_i::TSObjectMap& anSObjectMap = _study->GetSObjectMap();
-  anSObjectMap.erase(_lab);
+  //SALOMEDS_Study_i::TSObjectMap& anSObjectMap = _study->GetSObjectMap();
+  //anSObjectMap.erase(_lab);
 }
