@@ -30,22 +30,20 @@
 #define SALOMEDS_AttributeTextHighlightColor_i_HeaderFile
 
 // IDL headers
-#include "SALOMEDS_TextHighlightColorAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_TextHighlightColorAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTextHighlightColor_i: public virtual POA_SALOMEDS::AttributeTextHighlightColor,
-				public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeTextHighlightColor_i(const Handle(SALOMEDS_TextHighlightColorAttribute)& theTextHighlightColorAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theTextHighlightColorAttr;
-  };
-  ~SALOMEDS_AttributeTextHighlightColor_i() {};
+DEFINE_DERIVED_ATTR(AttributeTextHighlightColor,SALOMEDS_TextHighlightColorAttribute,false);
 
+class SALOMEDS_AttributeTextHighlightColor_i: 
+  public virtual POA_SALOMEDS::AttributeTextHighlightColor,
+  public virtual SALOMEDS_TAttributeTextHighlightColor_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTextHighlightColor,SALOMEDS_TextHighlightColorAttribute);
+public:
   SALOMEDS::Color TextHighlightColor();
   void SetTextHighlightColor(const SALOMEDS::Color& value);
 

@@ -32,20 +32,18 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_ExternalFileDef.hxx"
 
-class SALOMEDS_AttributeExternalFileDef_i: public virtual POA_SALOMEDS::AttributeExternalFileDef,
-				   public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeExternalFileDef_i(const Handle(SALOMEDS_ExternalFileDef)& theCommentAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theCommentAttr;
-  }
-  ~SALOMEDS_AttributeExternalFileDef_i() {};
+DEFINE_DERIVED_ATTR(AttributeExternalFileDef,SALOMEDS_ExternalFileDef,false);
 
+class SALOMEDS_AttributeExternalFileDef_i: 
+  public virtual POA_SALOMEDS::AttributeExternalFileDef,
+  public virtual SALOMEDS_TAttributeExternalFileDef_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeExternalFileDef,SALOMEDS_ExternalFileDef);
+public:
   char* Value();
   void SetValue(const char* value);
   

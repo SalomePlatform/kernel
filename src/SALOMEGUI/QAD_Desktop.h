@@ -268,6 +268,7 @@ protected slots:
     void	      onComboActiveComponent( const QString & , bool isLoadData);
     void              onCascade(); 
 
+    void              onKeyAccel( int id );
 /* NRI   void              onHelpWindowClosed(); */
 
 protected:
@@ -346,6 +347,7 @@ private:
     bool                                    _islibso;
 
     ComponentMap                            myComponents;
+    QMap<int, int>                          myAccelMap;
 };
 
 /********************************************************************

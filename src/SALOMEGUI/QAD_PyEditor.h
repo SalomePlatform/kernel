@@ -59,11 +59,11 @@ public:
   bool isCommand(const QString& str) const;
   
 protected:
-  virtual void keyPressEvent (QKeyEvent * e);
-  virtual void mousePressEvent (QMouseEvent * e);
-  virtual void mouseReleaseEvent (QMouseEvent * e);
-  virtual void dropEvent (QDropEvent *e);
-  virtual void customEvent (QCustomEvent *e);
+  virtual void contentsDropEvent( QDropEvent* event );
+  virtual void contentsMouseReleaseEvent( QMouseEvent* event );
+  virtual void keyPressEvent (QKeyEvent* event);
+  virtual void mousePressEvent (QMouseEvent* event);
+  virtual void customEvent (QCustomEvent* event);
   
 public slots:
   void handleReturn();

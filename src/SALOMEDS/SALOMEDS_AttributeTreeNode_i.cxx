@@ -26,15 +26,18 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_AttributeTreeNode_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
-#include "utilities.h"
 #include <TDocStd_Document.hxx>
 #include <TDF_Tool.hxx>
+
+#include "SALOMEDS_AttributeTreeNode_i.hxx"
+
+#include "utilities.h"
+
 using namespace std;
 
 static Handle(TDataStd_TreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
-					 const Handle(TDataStd_TreeNode)& aNode) {
+					 const Handle(TDataStd_TreeNode)& aNode) 
+{
   Handle(TDataStd_TreeNode) aResult = new TDataStd_TreeNode;
   CORBA::String_var aString = CORBA::string_dup(value->Label());
   TDF_Label aLabel;
@@ -51,138 +54,126 @@ static Handle(TDataStd_TreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
   return aResult;
 }
 
-void SALOMEDS_AttributeTreeNode_i::SetFather(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::SetFather(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->SetFather(GetNode(value, aNode));
+  _myAttr->SetFather(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasFather() {
-  return Handle(TDataStd_TreeNode)::DownCast(_myAttr)->HasFather();
+  return _myAttr->HasFather();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFather() {
-  SALOMEDS_AttributeTreeNode_i* aFather = new SALOMEDS_AttributeTreeNode_i(Handle(TDataStd_TreeNode)::DownCast(_myAttr)->Father(), _myOrb);
-  return aFather->POA_SALOMEDS::AttributeTreeNode::_this();
+  SALOMEDS_AttributeTreeNode_i* aTreeNode = 
+    new SALOMEDS_AttributeTreeNode_i(_myAttr->Father(),_mySObject);
+  return aTreeNode->_this();
 }
 
-void SALOMEDS_AttributeTreeNode_i::SetPrevious(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::SetPrevious(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->SetPrevious(GetNode(value, aNode));
+  _myAttr->SetPrevious(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasPrevious() {
-  return Handle(TDataStd_TreeNode)::DownCast(_myAttr)->HasPrevious();
+  return _myAttr->HasPrevious();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetPrevious() {
-  SALOMEDS_AttributeTreeNode_i* aPrevious = new SALOMEDS_AttributeTreeNode_i(Handle(TDataStd_TreeNode)::DownCast(_myAttr)->Previous(), _myOrb);
-  return aPrevious->POA_SALOMEDS::AttributeTreeNode::_this();
+  SALOMEDS_AttributeTreeNode_i* aTreeNode = 
+    new SALOMEDS_AttributeTreeNode_i(_myAttr->Previous(),_mySObject);
+  return aTreeNode->_this();
 }
 
-void SALOMEDS_AttributeTreeNode_i::SetNext(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::SetNext(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->SetNext(GetNode(value, aNode));
+  _myAttr->SetNext(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasNext() {
-  return Handle(TDataStd_TreeNode)::DownCast(_myAttr)->HasNext();
+  return _myAttr->HasNext();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetNext() {
-  SALOMEDS_AttributeTreeNode_i* aNext = new SALOMEDS_AttributeTreeNode_i(Handle(TDataStd_TreeNode)::DownCast(_myAttr)->Next(), _myOrb);
-  return aNext->POA_SALOMEDS::AttributeTreeNode::_this();
+  SALOMEDS_AttributeTreeNode_i* aTreeNode = 
+    new SALOMEDS_AttributeTreeNode_i(_myAttr->Next(),_mySObject);
+  return aTreeNode->_this();
 }
 
-void SALOMEDS_AttributeTreeNode_i::SetFirst(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::SetFirst(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->SetFirst(GetNode(value, aNode));
+  _myAttr->SetFirst(GetNode(theValue,_myAttr));
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::HasFirst() {
-  return Handle(TDataStd_TreeNode)::DownCast(_myAttr)->HasFirst();
+  return _myAttr->HasFirst();
 }
 
 SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFirst() {
-  SALOMEDS_AttributeTreeNode_i* aFirst = new SALOMEDS_AttributeTreeNode_i(Handle(TDataStd_TreeNode)::DownCast(_myAttr)->First(), _myOrb);
-  return aFirst->POA_SALOMEDS::AttributeTreeNode::_this();
+  SALOMEDS_AttributeTreeNode_i* aTreeNode = 
+    new SALOMEDS_AttributeTreeNode_i(_myAttr->First(),_mySObject);
+  return aTreeNode->_this();
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetTreeID(const char* value) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->SetTreeID(Standard_GUID(aNode->ID()));
+  _myAttr->SetTreeID(Standard_GUID(_myAttr->ID()));
 }
 
 char* SALOMEDS_AttributeTreeNode_i::GetTreeID() {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
   char aGUID[40];
-  aNode->ID().ToCString(aGUID);
-  return CORBA::String_var(CORBA::string_dup(aGUID))._retn();
+  _myAttr->ID().ToCString(aGUID);
+  return CORBA::string_dup(aGUID);
 }
 
-void SALOMEDS_AttributeTreeNode_i::Append(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::Append(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->Append(GetNode(value, aNode));
+  _myAttr->Append(GetNode(theValue,_myAttr));
 }
 
-void SALOMEDS_AttributeTreeNode_i::Prepend(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::Prepend(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->Prepend(GetNode(value, aNode));
+  _myAttr->Prepend(GetNode(theValue,_myAttr));
 }
 
-void SALOMEDS_AttributeTreeNode_i::InsertBefore(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::InsertBefore(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->InsertBefore(GetNode(value, aNode));
+  _myAttr->InsertBefore(GetNode(theValue,_myAttr));
 }
 
-void SALOMEDS_AttributeTreeNode_i::InsertAfter(SALOMEDS::AttributeTreeNode_ptr value) {
+void SALOMEDS_AttributeTreeNode_i::InsertAfter(SALOMEDS::AttributeTreeNode_ptr theValue) {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->InsertAfter(GetNode(value, aNode));
+  _myAttr->InsertAfter(GetNode(theValue,_myAttr));
 }
 
 void SALOMEDS_AttributeTreeNode_i::Remove() {
   CheckLocked();
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  aNode->Remove();
+  _myAttr->Remove();
 }
 
 CORBA::Long SALOMEDS_AttributeTreeNode_i::Depth() {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  return aNode->Depth();
+  return _myAttr->Depth();
 }
 
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsRoot() {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  return aNode->IsRoot();
+  return _myAttr->IsRoot();
 }
 
-CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsDescendant(SALOMEDS::AttributeTreeNode_ptr value) {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  return aNode->IsDescendant(GetNode(value, aNode));
+CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsDescendant(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  return _myAttr->IsDescendant(GetNode(theValue,_myAttr));
 }
 
-CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsFather(SALOMEDS::AttributeTreeNode_ptr value) {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  return aNode->IsFather(GetNode(value, aNode));
+CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsFather(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  return _myAttr->IsFather(GetNode(theValue,_myAttr));
 }
 
-CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsChild(SALOMEDS::AttributeTreeNode_ptr value) {
-  Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
-  return aNode->IsChild(GetNode(value, aNode));
+CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsChild(SALOMEDS::AttributeTreeNode_ptr theValue) {
+  return _myAttr->IsChild(GetNode(theValue,_myAttr));
 }
 
 char* SALOMEDS_AttributeTreeNode_i::Label() {
   TCollection_AsciiString aLabelName;
   TDF_Tool::Entry(_myAttr->Label(),aLabelName);
-  return CORBA::String_var(CORBA::string_dup(aLabelName.ToCString()))._retn();
+  return CORBA::string_dup(aLabelName.ToCString());
 }
 
 char* SALOMEDS_AttributeTreeNode_i::Store() {
@@ -204,7 +195,7 @@ void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
   Handle(TDataStd_TreeNode) aNode = Handle(TDataStd_TreeNode)::DownCast(_myAttr);
   Handle(TDF_Data) DF = TDocStd_Document::Get(_myAttr->Label())->GetData();
   
-  char* aCopy = CORBA::string_dup(value);
+  char* aCopy = strdup(value);
   char* adr = strtok(aCopy, " ");
   
   TDF_Label aLabel;
@@ -236,5 +227,4 @@ void SALOMEDS_AttributeTreeNode_i::Restore(const char* value) {
     if (!aLabel.FindAttribute(aNode->ID(), aDepNode)) aDepNode = TDataStd_TreeNode::Set(aLabel, aNode->ID());
     aNode->SetFirst(aDepNode);
   }
-  delete(aCopy);
 }

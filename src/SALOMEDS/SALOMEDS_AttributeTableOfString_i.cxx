@@ -10,9 +10,6 @@
 
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
-
-#include "SALOMEDS_AttributeTableOfString_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfExtendedString.hxx>
 
 #include <Standard_Failure.hxx>
@@ -21,11 +18,14 @@
 #include <strstream>
 #include <string>
 
+#include "SALOMEDS_AttributeTableOfString_i.hxx"
+
 #include "Utils_ExceptHandlers.hxx"
-using namespace std;
+
 UNEXPECT_CATCH(ATS_IncorrectIndex, SALOMEDS::AttributeTableOfString::IncorrectIndex);
 UNEXPECT_CATCH(ATS_IncorrectArgumentLength, SALOMEDS::AttributeTableOfString::IncorrectArgumentLength);
 
+using namespace std;
 #define SEPARATOR '\1'
 
 static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
@@ -45,8 +45,6 @@ static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
   aString.Split(aPos-1);
   return aString;
 }
-
-
 
 void SALOMEDS_AttributeTableOfString_i::SetTitle(const char* theTitle) {
   CheckLocked();

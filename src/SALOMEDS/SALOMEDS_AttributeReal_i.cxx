@@ -27,7 +27,6 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeReal_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <sstream>
 
 using namespace std;

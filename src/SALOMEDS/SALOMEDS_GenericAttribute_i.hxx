@@ -29,66 +29,132 @@
 #ifndef _GENERIC_ATTRIBUTE_I_HXX_
 #define _GENERIC_ATTRIBUTE_I_HXX_
 
+#include <TDF_Attribute.hxx>
+#include <Standard_GUID.hxx>
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-#include <TDF_Attribute.hxx>
-#include "SALOMEDS_SObject_i.hxx"
 
-class SALOMEDS_GenericAttribute_i: public POA_SALOMEDS::GenericAttribute,
-				   public PortableServer::RefCountServantBase {
+class SALOMEDS_SObject_i;
+
+class SALOMEDS_GenericAttribute_i:
+  public virtual POA_SALOMEDS::GenericAttribute,
+  public virtual PortableServer::RefCountServantBase 
+{ 
+private: 
+  friend class SALOMEDS_SObject_i;
+
+  SALOMEDS_GenericAttribute_i(); // Not implemented
+  void operator=(const SALOMEDS_GenericAttribute_i&);  //Not implemented
+
 protected:
-  Handle(TDF_Attribute) _myAttr;
-  CORBA::ORB_ptr        _myOrb;
+  SALOMEDS_SObject_i* _mySObject;
+  Handle(TDF_Attribute) _myBasicAttr;
+
+  SALOMEDS_GenericAttribute_i(const Handle(TDF_Attribute)& theAttr,
+			      SALOMEDS_SObject_i* theSObject);
+  
+  virtual ~SALOMEDS_GenericAttribute_i();
+
+  void SetBasicAttribute(const Handle(TDF_Attribute)& theAttr){
+    _myBasicAttr = theAttr;
+  }
+  
 public:
-  SALOMEDS_GenericAttribute_i() {};
-  
-  void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
+  void Restore(const char*);
 
-  char* Store() {return "";};
+  char* Store();
 
-  void Restore(const char*) {};
-  
   char* Type();
-
+  
   SALOMEDS::SObject_ptr GetSObject();
 
-  ~SALOMEDS_GenericAttribute_i() {};
+  void CheckLocked() 
+    throw (SALOMEDS::GenericAttribute::LockProtection);
 
-  static Standard_GUID GetGUID(const char* theType);
+  virtual void SetAttribute(const Handle(TDF_Attribute)& theAttr) = 0;
 
-  static SALOMEDS::GenericAttribute_ptr CreateAttribute(CORBA::ORB_ptr theOrb, const Handle(TDF_Attribute)& theAttr);
+  virtual const Handle(TDF_Attribute)& GetAttribute() const = 0;
+
 };
 
-// defines for creation attributes objects
 
-//MESSAGE("*** Create new CORBA attribute for "<<#CORBA_Name);
-#define __ReturnCORBAAttribute(OCAF_Name, CORBA_Name) if (theAttr->ID() == OCAF_Name::GetID()) { \
-    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(Handle(OCAF_Name)::DownCast(theAttr), theOrb); \
-    return Attr->CORBA_Name::_this(); \
+template<class TDFAttribute, class TStoreTDFAttribute, bool TIsCheckLockedStudy = true>
+class SALOMEDS_TGenericAttribute_i:
+  public virtual SALOMEDS_GenericAttribute_i
+{
+public:
+  typedef TDFAttribute TAttr;
+  typedef TStoreTDFAttribute TStoreAttr;
+
+  virtual void SetAttribute(const Handle(TDF_Attribute)& theAttr){
+    _myAttr = TStoreAttr::DownCast(theAttr);
+    SetBasicAttribute(theAttr);
+  }
+  virtual const Handle(TDF_Attribute)& GetAttribute() const{
+    return _myAttr;
+  }
+  static bool IsCheckLockedStudy(){
+    return TIsCheckLockedStudy;
+  }
+  static Handle(TDF_Attribute) NewAttribute(){
+    return new TAttr;
   }
 
-//MESSAGE("Create New Attribute "<<#CORBA_Name);
-#define __FindOrCreateAttribute(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
-    Handle(OCAF_Name) anAttr; \
-    if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \
-      anAttr = new OCAF_Name; \
-      Lab.AddAttribute(anAttr); \
-    } \
-    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(anAttr, _orb); \
-    return Attr->CORBA_Name::_this(); \
-  }
+protected:
+  TStoreAttr _myAttr;
 
-//MESSAGE("Create New Attribute "<<#CORBA_Name);
-#define __FindOrCreateAttributeLocked(OCAF_Name, CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
-    Handle(OCAF_Name) anAttr; \
-    if (!Lab.FindAttribute(OCAF_Name::GetID(), anAttr)) { \
-      CheckLocked(); \
-      anAttr = new OCAF_Name; \
-      Lab.AddAttribute(anAttr); \
-    } \
-    SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(anAttr, _orb); \
-    return Attr->CORBA_Name::_this(); \
+  SALOMEDS_TGenericAttribute_i(const Handle(TDF_Attribute)& theAttr,
+			       SALOMEDS_SObject_i* theSObject):
+    SALOMEDS_GenericAttribute_i(theAttr,theSObject),
+    _myAttr(TStoreAttr::DownCast(theAttr))
+  {
   }
+  
+private: 
+  friend class SALOMEDS_SObject_i;
+
+  SALOMEDS_TGenericAttribute_i(); //Not implemented
+  void operator=(const SALOMEDS_TGenericAttribute_i&);  //Not implemented
+
+};
+
+
+#define DEFINE_DERIVED_ATTR(TName,TAttr,TCheck) \
+  typedef SALOMEDS_TGenericAttribute_i<TAttr,Handle_##TAttr,TCheck> \
+    SALOMEDS_T##TName##_i
+
+
+#define DEFINE_DERIVED_ATTR_METH_BASE(TName) \
+public: \
+  friend class SALOMEDS_SObject_i; \
+  static SALOMEDS_GenericAttribute_i* \
+    NewInstance(const Handle(TDF_Attribute)& theAttr, \
+                SALOMEDS_SObject_i* theSObject) \
+      { return new SALOMEDS_##TName##_i(theAttr,theSObject);} \
+private: \
+  SALOMEDS_##TName##_i(const Handle(TDF_Attribute)& theAttr, \
+                       SALOMEDS_SObject_i* theSObject): \
+    SALOMEDS_GenericAttribute_i(theAttr,theSObject), \
+    SALOMEDS_T##TName##_i(theAttr,theSObject) \
+    {} \
+  void operator=(const SALOMEDS_##TName##_i&); \
+  SALOMEDS_##TName##_i()
+
+
+#define DEFINE_DERIVED_ATTR_METH_DEFAULT(TName,TAttr) \
+DEFINE_DERIVED_ATTR_METH_BASE(TName); \
+public: \
+  static Standard_GUID GetGUID(){ return TAttr::GetID(); } \
+private:
+
+
+#define DEFINE_DERIVED_ATTR_METH(TName,theGUID) \
+DEFINE_DERIVED_ATTR_METH_BASE(TName); \
+public: \
+  static Standard_GUID GetGUID(){ return theGUID; } \
+private:
+
 
 #endif

@@ -29,24 +29,21 @@
 #ifndef SALOMEDS_AttributeSequenceOfSequenceOfReal_i_HeaderFile
 #define SALOMEDS_AttributeSequenceOfSequenceOfReal_i_HeaderFile
 
-// IDL headers
 #include "SALOMEDS_SequenceOfRealAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeSequenceOfReal_i: public virtual POA_SALOMEDS::AttributeSequenceOfReal,
-					  public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeSequenceOfReal_i(const Handle(SALOMEDS_SequenceOfRealAttribute)& theSequenceOfRealAttr, 
-				     CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theSequenceOfRealAttr;
-  };
-  ~SALOMEDS_AttributeSequenceOfReal_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeSequenceOfReal,SALOMEDS_SequenceOfRealAttribute,true);
+
+class SALOMEDS_AttributeSequenceOfReal_i: 
+  public virtual POA_SALOMEDS::AttributeSequenceOfReal,
+  public virtual SALOMEDS_TAttributeSequenceOfReal_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeSequenceOfReal,SALOMEDS_SequenceOfRealAttribute);
+public:
   void Assign(const SALOMEDS::DoubleSeq& other);
   SALOMEDS::DoubleSeq* CorbaSequence();
   void Add(CORBA::Double value);
@@ -57,6 +54,7 @@ public:
 
   char* Store();
   void Restore(const char*);
+
 };
 
 

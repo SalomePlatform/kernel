@@ -27,34 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeGraphic_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 
 using namespace std;
-
-/*
-  Class       : SALOMEDS_AttributeGraphic_i
-  Description : This class is intended for storing information about
-                graphic representation of objects in dirrent views
-*/
-
-//=======================================================================
-// function : SALOMEDS_AttributeGraphic_i::SALOMEDS_AttributeGraphic_i
-// purpose  : Constructor
-//=======================================================================
-SALOMEDS_AttributeGraphic_i::SALOMEDS_AttributeGraphic_i(
-  const Handle(SALOMEDS_GraphicAttribute)& attr, CORBA::ORB_ptr orb )
-{
-  _myOrb = CORBA::ORB::_duplicate( orb );
-  _myAttr = attr;
-}
-
-//=======================================================================
-// function : SALOMEDS_AttributeGraphic_i::~SALOMEDS_AttributeGraphic_i
-// purpose  : Destructor
-//=======================================================================
-SALOMEDS_AttributeGraphic_i::~SALOMEDS_AttributeGraphic_i()
-{
-}
 
 //=======================================================================
 // function : SALOMEDS_AttributeGraphic_i::~SetVisibility

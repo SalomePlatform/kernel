@@ -50,12 +50,6 @@
 
 using namespace std;
 
-#if defined __GNUC__
-  #if __GNUC__ == 2
-    #define __GNUC_2__
-  #endif
-#endif
-
 int SALOME_POINT_SIZE = 3;
 
 
@@ -65,7 +59,7 @@ vtkStandardNewMacro(SALOME_Actor);
 SALOME_Actor::SALOME_Actor(){
   myIsHighlighted = myIsPreselected = false;
 
-  myRepresentation = 1;
+  myRepresentation = VTK_WIREFRAME;
   myDisplayMode = myRepresentation - 1;
 
   myProperty = vtkProperty::New();

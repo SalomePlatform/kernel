@@ -143,7 +143,7 @@ int main(int argc, char** argv)
       // We allocate the objects on the heap.  Since these are reference
       // counted objects, they will be deleted by the POA when they are no
       // longer needed.    
-      SALOMEDS_StudyManager_i * myStudyManager_i = new  SALOMEDS_StudyManager_i(orb);
+      SALOMEDS_StudyManager_i * myStudyManager_i = new  SALOMEDS_StudyManager_i(orb,poa);
  
       // Activate the objects.  This tells the POA that the objects are
       // ready to accept requests.

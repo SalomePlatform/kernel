@@ -30,26 +30,24 @@
 #define SALOMEDS_AttributeTarget_i_HeaderFile
 
 // IDL headers
-
-#include "SALOMEDS_TargetAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_TargetAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTarget_i: public virtual POA_SALOMEDS::AttributeTarget,
-  public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeTarget_i(const Handle(SALOMEDS_TargetAttribute)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr; 
-  };  
-  ~SALOMEDS_AttributeTarget_i() {};
+DEFINE_DERIVED_ATTR(AttributeTarget,SALOMEDS_TargetAttribute,false);
 
+class SALOMEDS_AttributeTarget_i: 
+  public virtual POA_SALOMEDS::AttributeTarget,
+  public virtual SALOMEDS_TAttributeTarget_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTarget,SALOMEDS_TargetAttribute);
+public:
   virtual void Add(SALOMEDS::SObject_ptr anObject) ;
   virtual SALOMEDS::Study::ListOfSObject* Get();
   virtual void Remove(SALOMEDS::SObject_ptr anObject);
+
 };
 
 

@@ -29,25 +29,24 @@
 #ifndef SALOMEDS_AttributeReal_i_HeaderFile
 #define SALOMEDS_AttributeReal_i_HeaderFile
 
-// IDL headers
 #include <TDataStd_Real.hxx>
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeReal_i: public virtual POA_SALOMEDS::AttributeReal,
-				public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeReal_i(const Handle(TDataStd_Real)& theRealAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theRealAttr;
-  };
-  ~SALOMEDS_AttributeReal_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeReal,TDataStd_Real,true);
+
+class SALOMEDS_AttributeReal_i: 
+  public virtual POA_SALOMEDS::AttributeReal,
+  public virtual SALOMEDS_TAttributeReal_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeReal,TDataStd_Real);
+public:
   CORBA::Double Value();
-  void SetValue(CORBA::Double value);
+  void SetValue(CORBA::Double theValue);
 
   char* Store();
   void Restore(const char*);

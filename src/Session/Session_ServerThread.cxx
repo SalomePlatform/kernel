@@ -226,7 +226,7 @@ void Session_ServerThread::ActivateSALOMEDS(int argc,
       // longer needed.    
 
       SALOMEDS_StudyManager_i * myStudyManager_i
-	= new  SALOMEDS_StudyManager_i(_orb);
+	= new  SALOMEDS_StudyManager_i(_orb,_root_poa);
       
       // Activate the objects.  This tells the POA that the objects are
       // ready to accept requests.

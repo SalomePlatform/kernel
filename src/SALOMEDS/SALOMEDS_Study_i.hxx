@@ -30,67 +30,74 @@
 #define __SALOMEDS_STUDY_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <map>
+#include <string>
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 // Cascade headers
-#include <TDocStd_Document.hxx>
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
 #include <TDF_Label.hxx>
-#include <stdio.h>
+#include <TDocStd_Document.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
 #include <TColStd_SequenceOfAsciiString.hxx>
 
 //SALOMEDS headers
-#include "SALOMEDS_SComponentIterator_i.hxx"
-#include "SALOMEDS_ChildIterator_i.hxx"
-#include "SALOMEDS_StudyBuilder_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_DataMapStringLabel.hxx"
-#include "SALOMEDS_UseCaseBuilder_i.hxx"
+#include "SALOMEDS_IORAttribute.hxx"
 
-#include "SALOMEDS_Callback_i.hxx"
+class SALOMEDS_StudyManager_i;
+class SALOMEDS_UseCaseBuilder_i;
+class SALOMEDS_StudyBuilder_i;
+class SALOMEDS_SObject_i;
 
-class SALOMEDS_Study_i: public POA_SALOMEDS::Study,
-			public PortableServer::RefCountServantBase {
-private:
-  CORBA::ORB_ptr           _orb;
-  char*                    _name;  
-  Handle(TDocStd_Document) _doc;  // OCAF Document
-  CORBA::Boolean           _isSaved; // True if the Study is saved
-  char*                    _URL; //URL of the persistent reference of the study
-  SALOMEDS::SObject_ptr    _FindObject(SALOMEDS::SObject_ptr SO,
-				       const char* anObjectName,
-				       bool& _find);
-  SALOMEDS::SObject_ptr    _FindObjectIOR(SALOMEDS::SObject_ptr SO,
-					  const char* anObjectIOR,
-					  bool& _find);
-  CORBA::Short             _StudyId;
 
-  SALOMEDS_DataMapStringLabel myIORLabels;
+bool operator<(const TDF_Label& theLeft, const TDF_Label& theRight);
 
-  // data structures for postponed destroying of CORBA object functionality
-  TColStd_SequenceOfAsciiString myPostponedIORs; // ordered set of IORs
-  TColStd_SequenceOfInteger myNbPostponed; // number of IOR in the each transaction
-  int myNbUndos; // number of current Undos, made by user
 
-  TDF_Label                _current;
-  bool                     _autoFill;  
-
+class SALOMEDS_Study_i: public virtual POA_SALOMEDS::Study,
+			public virtual PortableServer::RefCountServantBase 
+{
 public:
+  typedef TDF_Label TSObjectID;
+  typedef SALOMEDS_SObject_i* TSObjectHolder;
+  typedef std::map<TSObjectID,TSObjectHolder> TSObjectMap;
 
-  //! standard constructor
-  SALOMEDS_Study_i(const Handle(TDocStd_Document), 
-		   CORBA::ORB_ptr, 
-		   const char* study_name);
+  SALOMEDS_Study_i(SALOMEDS_StudyManager_i* theStudyManager,
+		   const Handle(TDocStd_Document)& theDoc,
+		   const char* theStudyName);
   
-  //! standard destructor
   virtual ~SALOMEDS_Study_i(); 
   
+
+  SALOMEDS_StudyManager_i* GetStudyManager(){ return _StudyManager; }
+
+  Handle(TDocStd_Document) GetDocument(){ return _doc; }
+
+  TSObjectMap& GetSObjectMap(){ return mySObjectMap;}
+
+  CORBA::ORB_var GetORB() const;
+
+  PortableServer::POA_var GetPOA() const;
+  
+  SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
+
+  SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
+
+  void OnAddSObject(SALOMEDS::SObject_ptr theObject);
+
+  void OnRemoveSObject(SALOMEDS::SObject_ptr theObject);
+
+  void CheckLocked();
+
+
+  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject);
+
+  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR);
+
   //! method to Get persistent reference of study (idem URL())
   /*!
     \sa URL()
@@ -285,9 +292,6 @@ public:
 
   virtual SALOMEDS::ListOfDates* GetModificationsDate();
 
-  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject) {return _orb->object_to_string(theObject); }
-  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };
-
   virtual SALOMEDS::UseCaseBuilder_ptr GetUseCaseBuilder();
 
   virtual void Close();
@@ -303,5 +307,46 @@ public:
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
                                                 // theWay = -1: get back to the list of postponed
+private:
+  friend class SALOMEDS_StudyBuilder_i;
+  friend class SALOMEDS_SObject_i;
+ 
+  SALOMEDS_StudyManager_i* _StudyManager;
+
+  TSObjectMap mySObjectMap;
+
+  SALOMEDS_UseCaseBuilder_i* _UseCaseBuilder;
+  SALOMEDS_StudyBuilder_i* _Builder;
+  SALOMEDS::Callback_var   _callbackOnAdd;
+  SALOMEDS::Callback_var   _callbackOnRemove;
+
+  char*                    _name;  
+  Handle(TDocStd_Document) _doc;  // OCAF Document
+  CORBA::Boolean           _isSaved; // True if the Study is saved
+  char*                    _URL; //URL of the persistent reference of the study
+  CORBA::Short             _StudyId;
+
+  SALOMEDS_DataMapStringLabel myIORLabels;
+
+  // data structures for postponed destroying of CORBA object functionality
+  TColStd_SequenceOfAsciiString myPostponedIORs; // ordered set of IORs
+  TColStd_SequenceOfInteger myNbPostponed; // number of IOR in the each transaction
+  int myNbUndos; // number of current Undos, made by user
+
+  TDF_Label                _current;
+  bool                     _autoFill;  
+
+  SALOMEDS::SObject_ptr    _FindObject(SALOMEDS::SObject_ptr SO,
+				       const char* anObjectName,
+				       bool& _find);
+  SALOMEDS::SObject_ptr    _FindObjectIOR(SALOMEDS::SObject_ptr SO,
+					  const char* anObjectIOR,
+					  bool& _find);
+
+  SALOMEDS_Study_i(); // Not implemented
+  void operator=(const SALOMEDS_Study_i&); // Not implemented
+
 };
+
+
 #endif

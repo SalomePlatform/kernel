@@ -30,10 +30,10 @@
 #define SALOMEDS_AttributeFlags_i_HeaderFile
 
 // IDL headers
-
-#include "SALOMEDS_FlagsAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_FlagsAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
 /*
@@ -47,14 +47,14 @@
                              This attribute is valid for active view only.
 */
 
-class SALOMEDS_AttributeFlags_i: public virtual POA_SALOMEDS::AttributeFlags,
-                                 public virtual SALOMEDS_GenericAttribute_i
+DEFINE_DERIVED_ATTR(AttributeFlags,SALOMEDS_FlagsAttribute,true);
+
+class SALOMEDS_AttributeFlags_i: 
+  public virtual POA_SALOMEDS::AttributeFlags,
+  public virtual SALOMEDS_TAttributeFlags_i
 {
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeFlags,SALOMEDS_FlagsAttribute);
 public:
-  
-                      SALOMEDS_AttributeFlags_i( const Handle(SALOMEDS_FlagsAttribute)&,
-                                                 CORBA::ORB_ptr orb );
-  virtual             ~SALOMEDS_AttributeFlags_i();
 
   CORBA::Long         GetFlags();
   void                SetFlags( CORBA::Long theFlags );

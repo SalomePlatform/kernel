@@ -27,39 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeFlags_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 
 using namespace std;
-
-/*
-  Class       : SALOMEDS_AttributeFlags_i
-  Description : This class is intended for storing different object attributes that
-                have only two states (0 and 1).
-                
-                Avalable attributes:
-                
-                IS_VISIBLE - is equal to 1 if object is visible in 3D view (0 - overwise).
-                             This attribute is valid for active view only.
-*/
-
-//=======================================================================
-// function : SALOMEDS_AttributeFlags_i::SALOMEDS_AttributeFlags_i
-// purpose  : Constructor
-//=======================================================================
-SALOMEDS_AttributeFlags_i::SALOMEDS_AttributeFlags_i(
-  const Handle(SALOMEDS_FlagsAttribute)& attr, CORBA::ORB_ptr orb )
-{
-  _myOrb = CORBA::ORB::_duplicate( orb );
-  _myAttr = attr;
-}
-
-//=======================================================================
-// function : SALOMEDS_AttributeFlags_i::~SALOMEDS_AttributeFlags_i
-// purpose  : Destructor
-//=======================================================================
-SALOMEDS_AttributeFlags_i::~SALOMEDS_AttributeFlags_i()
-{
-}
 
 //=======================================================================
 // function : SALOMEDS_AttributeFlags_i::GetFlags

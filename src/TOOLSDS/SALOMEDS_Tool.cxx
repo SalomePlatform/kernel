@@ -93,11 +93,11 @@ std::string SALOMEDS_Tool::GetTmpDir()
 // function : RemoveTemporaryFiles
 // purpose  : Removes files listed in theFileList
 //============================================================================
-void SALOMEDS_Tool::RemoveTemporaryFiles(const char* theDirectory, 
+void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory, 
 					 const SALOMEDS::ListOfFileNames& theFiles,
 					 const bool IsDirDeleted)
 {
-  TCollection_AsciiString aDirName(const_cast<char*>(theDirectory));
+  TCollection_AsciiString aDirName(const_cast<char*>(theDirectory.c_str()));
 
   int i, aLength = theFiles.length();
   for(i=0; i<aLength; i++) {
@@ -130,7 +130,7 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const char* theDirectory,
 // purpose  : converts the files from a list 'theFiles' to the stream
 //============================================================================
 SALOMEDS::TMPFile* 
-SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
+SALOMEDS_Tool::PutFilesToStream(const std::string& theFromDirectory,
 				const SALOMEDS::ListOfFileNames& theFiles,
 				const int theNamesOnly)
 {
@@ -139,7 +139,8 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
 //    return NULL;
     return (new SALOMEDS::TMPFile);
 
-  TCollection_AsciiString aTmpDir(const_cast<char*>(theFromDirectory)); //Get a temporary directory for saved a file
+  //Get a temporary directory for saved a file
+  TCollection_AsciiString aTmpDir(const_cast<char*>(theFromDirectory.c_str()));
 
   long aBufferSize = 0;
   long aCurrentPos;
@@ -242,11 +243,14 @@ SALOMEDS_Tool::PutFilesToStream(const char* theFromDirectory,
 //============================================================================
 SALOMEDS::ListOfFileNames_var 
 SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
-				const char* theToDirectory,
+				const std::string& theToDirectory,
 				const int theNamesOnly)
 {
-  if(theStream.length() == 0) return NULL;
-  TCollection_AsciiString aTmpDir(const_cast<char*>(theToDirectory)); //Get a temporary directory for saving a file
+  if(theStream.length() == 0) 
+    return NULL;
+
+  //Get a temporary directory for saving a file
+  TCollection_AsciiString aTmpDir(const_cast<char*>(theToDirectory.c_str()));
 
   unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
 
@@ -294,9 +298,10 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 // function : GetNameFromPath
 // purpose  : Returns the name by the path
 //============================================================================
-std::string SALOMEDS_Tool::GetNameFromPath(const char* thePath) {
-  if (thePath == NULL) return string("");
-  OSD_Path aPath = OSD_Path(TCollection_AsciiString((char*)thePath));
+std::string SALOMEDS_Tool::GetNameFromPath(const std::string& thePath) {
+  if(thePath == "") 
+    return "";
+  OSD_Path aPath = OSD_Path(TCollection_AsciiString(const_cast<char*>(thePath.c_str())));
   TCollection_AsciiString aNameString(aPath.Name());
   return aNameString.ToCString();
 }
@@ -305,9 +310,10 @@ std::string SALOMEDS_Tool::GetNameFromPath(const char* thePath) {
 // function : GetDirFromPath
 // purpose  : Returns the dir by the path
 //============================================================================
-std::string SALOMEDS_Tool::GetDirFromPath(const char* thePath) {
-  if (thePath == NULL) return string("");
-  OSD_Path aPath = OSD_Path(TCollection_AsciiString((char*)thePath));
+std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
+  if(thePath == "") 
+    return "";
+  OSD_Path aPath = OSD_Path(TCollection_AsciiString(const_cast<char*>(thePath.c_str())));
   TCollection_AsciiString aDirString(aPath.Trek());
   aDirString.ChangeAll('|','/');
   return aDirString.ToCString();
@@ -337,10 +343,10 @@ bool SALOMEDS_Tool::GetFlag( const int             theFlag,
 //=======================================================================
 bool SALOMEDS_Tool::SetFlag( const int           theFlag,
                              SALOMEDS::Study_var theStudy,
-                             const char*         theEntry,
+                             const std::string&  theEntry,
                              const bool          theValue )
 {
-  SALOMEDS::SObject_var anObj = theStudy->FindObjectID( theEntry );
+  SALOMEDS::SObject_var anObj = theStudy->FindObjectID(theEntry.c_str());
 
   if ( !anObj->_is_nil() )
   {

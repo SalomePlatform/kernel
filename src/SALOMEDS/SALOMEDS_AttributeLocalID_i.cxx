@@ -27,7 +27,7 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeLocalID_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
+
 using namespace std;
 
 CORBA::Long SALOMEDS_AttributeLocalID_i::Value() {

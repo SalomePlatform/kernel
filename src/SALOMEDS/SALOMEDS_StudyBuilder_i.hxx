@@ -29,40 +29,37 @@
 #ifndef __SALOMEDS_STUDYBUIlDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
 
-
-// std C++ headers
-#include <iostream.h>
-
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-#include "SALOMEDS_AttributeComment_i.hxx"
-#include "SALOMEDS_AttributePersistentRef_i.hxx"
-#include "SALOMEDS_AttributeIOR_i.hxx"
-#include "SALOMEDS_AttributeReal_i.hxx"
-#include "SALOMEDS_AttributeInteger_i.hxx"
-#include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
-#include "SALOMEDS_AttributeName_i.hxx"
-#include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
-#include "SALOMEDS_Callback_i.hxx"
-
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
-			  public PortableServer::RefCountServantBase {
-private:
-  CORBA::ORB_ptr           _orb;
+class SALOMEDS_Study_i;
+class SALOMEDS_Callback_i;
+
+class SALOMEDS_StudyBuilder_i: public virtual POA_SALOMEDS::StudyBuilder,
+			       public virtual PortableServer::RefCountServantBase 
+{
+  SALOMEDS_StudyBuilder_i(); // Not implemented
+  void operator=(const SALOMEDS_StudyBuilder_i&); // Not implemented
+
+  SALOMEDS_Study_i*        _study;
   Handle(TDocStd_Document) _doc;  // OCAF Document
-  SALOMEDS::Callback_var   _callbackOnAdd;
-  SALOMEDS::Callback_var   _callbackOnRemove;
+
+  void OnAddSObject(SALOMEDS::SObject_ptr theObject);
+  void OnRemoveSObject(SALOMEDS::SObject_ptr theObject);
+
 public:
-    
-  SALOMEDS_StudyBuilder_i(const Handle(TDocStd_Document), CORBA::ORB_ptr);
+  SALOMEDS_StudyBuilder_i(SALOMEDS_Study_i* theStudy,
+			  const Handle(TDocStd_Document)& theDocument);
 
   ~SALOMEDS_StudyBuilder_i();
+
+  CORBA::ORB_var GetORB() const;
+  PortableServer::POA_var GetPOA() const;
 
   //! NewComponent
   /*!

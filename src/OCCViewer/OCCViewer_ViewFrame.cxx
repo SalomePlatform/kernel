@@ -1135,3 +1135,94 @@ void OCCViewer_ViewFrame::AfterDisplay( SALOME_Displayer* d )
   d->AfterDisplay( this, SALOME_OCCViewType() );
 }
 
+#define INCREMENT_FOR_OP 10
+
+//=======================================================================
+// name    : onPanLeft
+// Purpose : Performs incremental panning to the left
+//=======================================================================
+void OCCViewer_ViewFrame::onPanLeft()
+{
+  myViewPort->incrementalPan( -INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onPanRight
+// Purpose : Performs incremental panning to the right
+//=======================================================================
+void OCCViewer_ViewFrame::onPanRight()
+{
+  myViewPort->incrementalPan( INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onPanUp
+// Purpose : Performs incremental panning to the top
+//=======================================================================
+void OCCViewer_ViewFrame::onPanUp()
+{
+  myViewPort->incrementalPan( 0, INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onPanDown
+// Purpose : Performs incremental panning to the bottom
+//=======================================================================
+void OCCViewer_ViewFrame::onPanDown()
+{
+  myViewPort->incrementalPan( 0, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onZoomIn
+// Purpose : Performs incremental zooming in
+//=======================================================================
+void OCCViewer_ViewFrame::onZoomIn()
+{
+  myViewPort->incrementalZoom( INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onZoomOut
+// Purpose : Performs incremental zooming out
+//=======================================================================
+void OCCViewer_ViewFrame::onZoomOut()
+{
+  myViewPort->incrementalZoom( -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onRotateLeft
+// Purpose : Performs incremental rotating to the left
+//=======================================================================
+void OCCViewer_ViewFrame::onRotateLeft()
+{
+  myViewPort->incrementalRotate( -INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onRotateRight
+// Purpose : Performs incremental rotating to the right
+//=======================================================================
+void OCCViewer_ViewFrame::onRotateRight()
+{
+  myViewPort->incrementalRotate( INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onRotateUp
+// Purpose : Performs incremental rotating to the top
+//=======================================================================
+void OCCViewer_ViewFrame::onRotateUp()
+{
+  myViewPort->incrementalRotate( 0, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onRotateDown
+// Purpose : Performs incremental rotating to the bottom
+//=======================================================================
+void OCCViewer_ViewFrame::onRotateDown()
+{
+  myViewPort->incrementalRotate( 0, INCREMENT_FOR_OP );
+}

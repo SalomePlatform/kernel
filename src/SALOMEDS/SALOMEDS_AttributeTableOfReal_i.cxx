@@ -10,8 +10,9 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeTableOfReal_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
+
 #include <TColStd_HSequenceOfReal.hxx>
+#include <TCollection_AsciiString.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_ErrorHandler.hxx>
 
@@ -19,11 +20,12 @@
 #include <string>
 
 #include "Utils_ExceptHandlers.hxx"
-using namespace std;
 UNEXPECT_CATCH(ATR_IncorrectIndex, SALOMEDS::AttributeTableOfReal::IncorrectIndex);
 UNEXPECT_CATCH(ATR_IncorrectArgumentLength, SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength);
 
 #define SEPARATOR '\1'
+
+using namespace std;
 
 static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
 {
@@ -42,8 +44,6 @@ static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
   aString.Split(aPos-1);
   return aString;
 }
-
-
 
 void SALOMEDS_AttributeTableOfReal_i::SetTitle(const char* theTitle) {
   CheckLocked();

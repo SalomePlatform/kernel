@@ -129,7 +129,12 @@ public:
   
   virtual void	  fitAll( bool withZ = true ) = 0;
   virtual void	  reset() = 0;
-  
+
+  virtual void    incrementalPan   ( const int incrX, const int incrY ) = 0;
+  virtual void    incrementalZoom  ( const int incr ) = 0;
+  virtual void    incrementalRotate( const int incrX, const int incrY ) = 0;
+
+  /* background color */
   virtual QColor  backgroundColor() const;
   virtual void    setBackgroundColor( const QColor& color) = 0;
 

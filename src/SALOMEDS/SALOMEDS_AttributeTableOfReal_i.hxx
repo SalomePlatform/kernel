@@ -12,26 +12,22 @@
 #ifndef SALOMEDS_AttributeTableOfReal_i_HeaderFile
 #define SALOMEDS_AttributeTableOfReal_i_HeaderFile
 
-// IDL headers
 #include "SALOMEDS_TableOfRealAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTableOfReal_i: public virtual POA_SALOMEDS::AttributeTableOfReal,
-  public virtual SALOMEDS_GenericAttribute_i {
-    
-public:
-  
-  SALOMEDS_AttributeTableOfReal_i(const Handle(SALOMEDS_TableOfRealAttribute)& theTableOfRealAttr, 
-				     CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theTableOfRealAttr;
-  };
-  ~SALOMEDS_AttributeTableOfReal_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
- virtual void SetTitle(const char* theTitle);
+DEFINE_DERIVED_ATTR(AttributeTableOfReal,SALOMEDS_TableOfRealAttribute,true);
+
+class SALOMEDS_AttributeTableOfReal_i: 
+  public virtual POA_SALOMEDS::AttributeTableOfReal,
+  public virtual SALOMEDS_TAttributeTableOfReal_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfReal,SALOMEDS_TableOfRealAttribute);
+public:
+  virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
     throw (SALOMEDS::AttributeTableOfReal::IncorrectIndex);

@@ -27,8 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfReal.hxx>
+
 using namespace std;
 
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
@@ -96,7 +96,7 @@ char* SALOMEDS_AttributeSequenceOfReal_i::Store() {
 void SALOMEDS_AttributeSequenceOfReal_i::Restore(const char* value) {
   Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
   
-  char* aCopy =  CORBA::string_dup(value);
+  char* aCopy = strdup(value);
   char* adr = strtok(aCopy, " ");
   char *err = NULL;
   while (adr) {
@@ -105,6 +105,6 @@ void SALOMEDS_AttributeSequenceOfReal_i::Restore(const char* value) {
     else CasCadeSeq->Append(r);
     adr = strtok(NULL, " ");
   }
-  delete(aCopy);
+  free(aCopy);
   Handle(SALOMEDS_SequenceOfRealAttribute)::DownCast(_myAttr)->Assign(CasCadeSeq);
 }

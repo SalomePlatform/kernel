@@ -12,13 +12,12 @@
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HArray1OfCharacter.hxx>
-#include "SALOMEDS_SObject_i.hxx"
+
 using namespace std;
 
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) {
   CheckLocked();
-  char *aSeq = CORBA::string_dup(theSequence);
-  Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->SetObject(aSeq, IsScript);
+  Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->SetObject(const_cast<char*>(theSequence), IsScript);
 }
 
 char* SALOMEDS_AttributePythonObject_i::GetObject() {
@@ -39,8 +38,6 @@ char* SALOMEDS_AttributePythonObject_i::Store() {
   return aResult;
 }
 
-void SALOMEDS_AttributePythonObject_i::Restore(const char* value) {
-  char* aString = CORBA::string_dup(value);
-  SetObject(aString + 1, aString[0]=='s');
-  delete(aString);
+void SALOMEDS_AttributePythonObject_i::Restore(const char* theValue) {
+  SetObject(&theValue[1], theValue[0]=='s');
 }

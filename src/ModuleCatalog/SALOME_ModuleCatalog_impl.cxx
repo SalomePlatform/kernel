@@ -301,6 +301,8 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
     _list_components_icone[ind].modulename=(_personal_module_list[ind].name).c_str();
     _list_components_icone[ind].moduleusername=(_personal_module_list[ind].username).c_str();
     _list_components_icone[ind].moduleicone=(_personal_module_list[ind].icon).c_str();
+    _list_components_icone[ind].moduleversion=(_personal_module_list[ind].version).c_str();
+    _list_components_icone[ind].modulecomment=(_personal_module_list[ind].comment).c_str();
     //if(MYDEBUG) SCRUTE(_list_components_icone[ind].modulename); 
     //if(MYDEBUG) SCRUTE(_list_components_icone[ind].moduleicone);
   }
@@ -325,6 +327,8 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
       _list_components_icone[indice].modulename=_general_module_list[ind].name.c_str();  
       _list_components_icone[indice].moduleusername=_general_module_list[ind].username.c_str();  
       _list_components_icone[indice].moduleicone=_general_module_list[ind].icon.c_str(); 
+      _list_components_icone[indice].moduleversion=_general_module_list[ind].version.c_str();
+      _list_components_icone[indice].modulecomment=_general_module_list[ind].comment.c_str();
       //if(MYDEBUG) SCRUTE(_list_components_icone[indice].modulename) ;
       //if(MYDEBUG) SCRUTE(_list_components_icone[indice].moduleicone);
       

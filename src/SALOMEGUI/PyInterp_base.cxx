@@ -34,7 +34,7 @@ static int MYPYDEBUG = 0;
 #endif
 
 
-static QMutex myMutex(false);
+static QMutex myMutex(true);
 
 
 PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState): 
@@ -248,11 +248,17 @@ int PyInterp_base::run(const char *command)
 {
   if(_atFirst){
     int ret = 0;
-    _atFirst = false;
     ret = simpleRun("from Help import *");
-    if (ret) return ret;
+    if (ret) { 
+      _atFirst = false;
+      return ret;
+    }
     ret = simpleRun("import salome");
-    if (ret) return ret;
+    if (ret) { 
+      _atFirst = false;
+      return ret;
+    }
+    _atFirst = false;
   }
   return simpleRun(command);
 }
@@ -260,7 +266,7 @@ int PyInterp_base::run(const char *command)
 
 int PyInterp_base::simpleRun(const char *command)
 {
-  if(strcmp(command,"") != 0){
+  if( !_atFirst && strcmp(command,"") != 0 ) {
     _history.push_back(command);
     _ith = _history.end();
   }

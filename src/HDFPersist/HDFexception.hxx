@@ -24,6 +24,9 @@
 //  File   : HDFexception.hxx
 //  Module : SALOME
 
+#ifndef __HDFexception_H__
+#define __HDFexception_H__
+
 /* Exception */
 #include <iostream>
 
@@ -35,3 +38,5 @@ public :
     std::cerr << message << std::endl;
   }
 };
+
+#endif

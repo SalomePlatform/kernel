@@ -29,23 +29,21 @@
 #ifndef SALOMEDS_AttributeDrawable_i_HeaderFile
 #define SALOMEDS_AttributeDrawable_i_HeaderFile
 
-// IDL headers
-
 #include "SALOMEDS_DrawableAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeDrawable_i: public virtual POA_SALOMEDS::AttributeDrawable,
-  public virtual SALOMEDS_GenericAttribute_i {
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+DEFINE_DERIVED_ATTR(AttributeDrawable,SALOMEDS_DrawableAttribute,false);
+
+class SALOMEDS_AttributeDrawable_i: 
+  public virtual POA_SALOMEDS::AttributeDrawable,
+  public virtual SALOMEDS_TAttributeDrawable_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeDrawable,SALOMEDS_DrawableAttribute);
 public:
-  
-  SALOMEDS_AttributeDrawable_i(const Handle(SALOMEDS_DrawableAttribute)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr;
-  };  
-  ~SALOMEDS_AttributeDrawable_i() {};
   CORBA::Boolean IsDrawable();
   void SetDrawable(CORBA::Boolean value);
 
@@ -53,7 +51,6 @@ public:
   void Restore(const char*);
 
 };
-
 
 
 #endif

@@ -124,6 +124,9 @@ public:
   void    setVerScaleMode( const int mode, bool update = true );
   int     getVerScaleMode() const { return myYMode; }
 
+  void    incrementalPan ( const int incrX, const int incrY );
+  void    incrementalZoom( const int incrX, const int incrY );
+
 protected:
   void    createActions();
   int     testOperation( const QMouseEvent& );
@@ -154,6 +157,13 @@ public slots:
   void    onSettings();
   void    onFitData();
   void    onChangeBackground();
+
+  void    onPanLeft();
+  void    onPanRight();
+  void    onPanUp();
+  void    onPanDown();
+  void    onZoomIn();
+  void    onZoomOut();
 
 protected slots:
   void    onLegendClicked( long key );

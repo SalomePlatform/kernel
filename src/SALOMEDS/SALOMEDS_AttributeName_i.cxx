@@ -28,7 +28,8 @@
 
 #include "SALOMEDS_AttributeName_i.hxx"
 #include <TCollection_ExtendedString.hxx>
-#include "SALOMEDS_SObject_i.hxx"
+#include <TCollection_AsciiString.hxx>
+
 using namespace std;
 
 char* SALOMEDS_AttributeName_i::Value() {
@@ -37,11 +38,9 @@ char* SALOMEDS_AttributeName_i::Value() {
   return c_s._retn();
 }
 
-void SALOMEDS_AttributeName_i::SetValue(const char* value) {
+void SALOMEDS_AttributeName_i::SetValue(const char* theValue) {
   CheckLocked();
-  //CORBA::String_var Str = CORBA::string_dup(value);
-  //Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
-  Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString((char*)value));
+  Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString((char*)theValue));
 }
 
 char* SALOMEDS_AttributeName_i::Store() {

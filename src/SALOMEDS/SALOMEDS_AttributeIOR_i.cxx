@@ -28,10 +28,10 @@
 
 #include "SALOMEDS_AttributeIOR_i.hxx"
 
-
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
+
 using namespace std;
 
 char* SALOMEDS_AttributeIOR_i::Value()
@@ -44,12 +44,13 @@ char* SALOMEDS_AttributeIOR_i::Value()
 void SALOMEDS_AttributeIOR_i::SetValue(const char* value) 
 {
   CheckLocked();
+  const CORBA::ORB_var& anORB = _mySObject->GetORB();
 
-  SALOMEDS::Study_var aStudy = SALOMEDS_Study_i::GetStudy(_myAttr->Label(), _myOrb);
+  SALOMEDS::Study_var aStudy = SALOMEDS_Study_i::GetStudy(_myAttr->Label(),anORB);
   aStudy->AddCreatedPostponed(value);
   aStudy->AddPostponed(Value());
 
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
-  SALOMEDS_Study_i::IORUpdated(Handle(SALOMEDS_IORAttribute)::DownCast(_myAttr),_myOrb);
+  SALOMEDS_Study_i::IORUpdated(Handle(SALOMEDS_IORAttribute)::DownCast(_myAttr),anORB);
 }

@@ -26,29 +26,38 @@
 //  Module : SALOME
 //  $Header$
 
+#include <TDF_ListIteratorOfLabelList.hxx>
+#include <TDF_LabelList.hxx>
+#include <TDF_Label.hxx>
+#include <TDF_Tool.hxx>
+
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-#include <TDF_LabelList.hxx>
-#include <TDF_ListIteratorOfLabelList.hxx>
+
 using namespace std;
 
-void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) {
+void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject)
+{
   TDF_Label aLabel;
   TDF_Tool::Label(_myAttr->Label().Data(),anObject->GetID(),aLabel,1);
-  (Handle(SALOMEDS_TargetAttribute)::DownCast(_myAttr))->Append(aLabel);
+  _myAttr->Append(aLabel);
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() {
   TDF_LabelList aLList;
+
+  _myAttr->Get(aLList);
   SALOMEDS::Study::ListOfSObject_var aSList = new SALOMEDS::Study::ListOfSObject;
-  (Handle(SALOMEDS_TargetAttribute)::DownCast(_myAttr))->Get(aLList);
+
   if (aLList.Extent() == 0) 
     return aSList._retn();
+
   aSList->length(aLList.Extent());
   TDF_ListIteratorOfLabelList anIter(aLList);
-  int index;
-  for(index=0;anIter.More();anIter.Next(),index++) {
-    SALOMEDS_SObject_i* anSO = new SALOMEDS_SObject_i(anIter.Value(),_myOrb);
+  SALOMEDS_Study_i* aStudy = _mySObject->GetStudyServant();
+  for(int index = 0; anIter.More(); anIter.Next(), index++){
+    const TDF_Label& aLabel = anIter.Value();
+    SALOMEDS_SObject_i* anSO = SALOMEDS_SObject_i::New(aStudy,aLabel);
     aSList[index] = anSO->_this();
   }
   return aSList._retn();
@@ -56,6 +65,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() {
 
 void SALOMEDS_AttributeTarget_i::Remove(SALOMEDS::SObject_ptr anObject) {
   TDF_Label aLabel;
-  TDF_Tool::Label(_myAttr->Label().Data(),anObject->GetID(),aLabel,1);
-  (Handle(SALOMEDS_TargetAttribute)::DownCast(_myAttr))->Remove(aLabel);
+  CORBA::String_var anID = anObject->GetID();
+  TDF_Tool::Label(_myAttr->Label().Data(),anID.inout(),aLabel,1);
+  _myAttr->Remove(aLabel);
 }

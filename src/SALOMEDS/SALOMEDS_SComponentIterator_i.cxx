@@ -27,8 +27,9 @@
 //  $Header$
 
 #include "SALOMEDS_SComponentIterator_i.hxx"
-using namespace std;
+#include "SALOMEDS_SComponent_i.hxx"
 
+using namespace std;
 
 //============================================================================
 /*! Function : constructor
@@ -36,12 +37,12 @@ using namespace std;
  */
 //============================================================================
 
-SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const Handle(TDocStd_Document) aDoc, 
-							     CORBA::ORB_ptr orb) 
+SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(SALOMEDS_Study_i* theStudy,
+							     const Handle(TDocStd_Document)& theDocument): 
+  _it(theDocument->Main()),
+  _lab(theDocument->Main()),
+  _study(theStudy)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
-  _lab = aDoc->Main();
-  _it.Initialize (_lab);
 }
 
 //============================================================================
@@ -96,8 +97,6 @@ void SALOMEDS_SComponentIterator_i::Next()
 //============================================================================
 SALOMEDS::SComponent_ptr SALOMEDS_SComponentIterator_i::Value()
 {
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (_it.Value(),_orb);
-  SALOMEDS::SComponent_var so  = SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this());   //pb d'heritage??
-  return so;
+  return SALOMEDS_SComponent_i::New(_study,_it.Value())->_this();
 }
 

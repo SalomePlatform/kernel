@@ -27,10 +27,9 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
-using namespace std;
 
+using namespace std;
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 
 {
@@ -97,13 +96,13 @@ char* SALOMEDS_AttributeSequenceOfInteger_i::Store() {
 void SALOMEDS_AttributeSequenceOfInteger_i::Restore(const char* value) {
   Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
   
-  char* aCopy = CORBA::string_dup(value);
+  char* aCopy = strdup(value);
   char* adr = strtok(aCopy, " ");
   while (adr) {
     CORBA::Long l =  atol(adr);
     CasCadeSeq->Append(l);
     adr = strtok(NULL, " ");
   }
-  delete(aCopy);
+  free(aCopy);
   Handle(SALOMEDS_SequenceOfIntegerAttribute)::DownCast(_myAttr)->Assign(CasCadeSeq);
 }

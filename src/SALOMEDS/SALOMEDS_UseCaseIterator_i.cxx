@@ -8,10 +8,10 @@
 //  Author : Yves FRICAUD
 //  Module : SALOME
 
+using namespace std;
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
-using namespace std;
 
 
 
@@ -20,14 +20,14 @@ using namespace std;
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const TDF_Label& theLabel, 
-						       const Standard_GUID& theGUID,
-						       const Standard_Boolean allLevels,
-						       CORBA::ORB_ptr orb)
-:_guid(theGUID), _levels(allLevels)
+SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(SALOMEDS_Study_i* theStudy,
+						       const TDF_Label& theLabel, 
+						       const Standard_GUID& theGUID, 
+						       const Standard_Boolean theIsAllLevels):
+  _guid(theGUID), 
+  _levels(theIsAllLevels),
+  _study(theStudy)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
-
   if(theLabel.FindAttribute(_guid, _node)) {
     _it.Initialize (_node, _levels);
   }
@@ -82,8 +82,6 @@ void SALOMEDS_UseCaseIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_UseCaseIterator_i::Value()
 {
   TDF_Label L = _it.Value()->Label();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (L,_orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this());
-  return so._retn();
+  return SALOMEDS_SObject_i::New(_study,L)->_this();
 }
 

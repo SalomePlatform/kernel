@@ -9,20 +9,23 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_AttributeStudyProperties_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
-using namespace std;
+#include <TCollection_ExtendedString.hxx>
+#include <TCollection_AsciiString.hxx>
+
+#include "SALOMEDS_AttributeStudyProperties_i.hxx"
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1
 #define CREATION_MODE_COPY 2
 
+using namespace std;
+
 void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  aProp->SetFirstName((char*)theName);
+  aProp->SetFirstName(const_cast<char*>(theName));
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName() {
@@ -111,7 +114,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 							  CORBA::Long theYear) {
   CheckLocked();
   Handle(SALOMEDS_StudyPropertiesAttribute) aProp = Handle(SALOMEDS_StudyPropertiesAttribute)::DownCast(_myAttr);
-  aProp->SetUserName((char*)theName);
+  aProp->SetUserName(const_cast<char*>(theName));
   aProp->SetModificationDate((int)theMinute, (int)theHour, (int)theDay, (int)theMonth, (int)theYear);
 }
 void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringSeq_out theNames,
@@ -185,7 +188,7 @@ char* SALOMEDS_AttributeStudyProperties_i::Store() {
 }
 
 void SALOMEDS_AttributeStudyProperties_i::Restore(const char* value) {
-  char* aCopy = CORBA::string_dup(value);
+  char* aCopy = strdup(value);
   if (aCopy[0] == 'f') SetCreationMode("from scratch");
   else if (aCopy[0] == 'c') SetCreationMode("copy from");
   else SetCreationMode("none");
@@ -227,5 +230,5 @@ void SALOMEDS_AttributeStudyProperties_i::Restore(const char* value) {
     SetLocked(Standard_True);
   }
   SetModified(0);
-  delete(aCopy);
+  free(aCopy);
 }

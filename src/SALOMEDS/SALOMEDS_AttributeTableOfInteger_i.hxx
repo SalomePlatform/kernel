@@ -12,25 +12,21 @@
 #ifndef SALOMEDS_AttributeTableOfInteger_i_HeaderFile
 #define SALOMEDS_AttributeTableOfInteger_i_HeaderFile
 
-// IDL headers
 #include "SALOMEDS_TableOfIntegerAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTableOfInteger_i: public virtual POA_SALOMEDS::AttributeTableOfInteger,
-  public virtual SALOMEDS_GenericAttribute_i {
-    
-public:
-  
-  SALOMEDS_AttributeTableOfInteger_i(const Handle(SALOMEDS_TableOfIntegerAttribute)& theTableOfIntegerAttr, 
-				     CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theTableOfIntegerAttr;
-  };
-  ~SALOMEDS_AttributeTableOfInteger_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeTableOfInteger,SALOMEDS_TableOfIntegerAttribute,true);
+
+class SALOMEDS_AttributeTableOfInteger_i: 
+  public virtual POA_SALOMEDS::AttributeTableOfInteger,
+  public virtual SALOMEDS_TAttributeTableOfInteger_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfInteger,SALOMEDS_TableOfIntegerAttribute);
+public:
   virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)

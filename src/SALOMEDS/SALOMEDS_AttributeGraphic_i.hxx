@@ -30,10 +30,10 @@
 #define SALOMEDS_AttributeGraphic_i_HeaderFile
 
 // IDL headers
-
-#include "SALOMEDS_GraphicAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_GraphicAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
 /*
@@ -42,19 +42,18 @@
                 graphic representation of objects in dirrent views
 */
 
-class SALOMEDS_AttributeGraphic_i: public virtual POA_SALOMEDS::AttributeGraphic,
-                                   public virtual SALOMEDS_GenericAttribute_i
+DEFINE_DERIVED_ATTR(AttributeGraphic,SALOMEDS_GraphicAttribute,true);
+
+class SALOMEDS_AttributeGraphic_i: 
+  public virtual POA_SALOMEDS::AttributeGraphic,
+  public virtual SALOMEDS_TAttributeGraphic_i
 {
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeGraphic,SALOMEDS_GraphicAttribute);
 public:
-  
-                      SALOMEDS_AttributeGraphic_i( const Handle(SALOMEDS_GraphicAttribute)&,
-                                                   CORBA::ORB_ptr orb );
-  virtual             ~SALOMEDS_AttributeGraphic_i();
 
   void                SetVisibility( CORBA::Long    theViewId,
                                      CORBA::Boolean theValue );
   CORBA::Boolean      GetVisibility( CORBA::Long    theViewId );
-
 };
 
 #endif

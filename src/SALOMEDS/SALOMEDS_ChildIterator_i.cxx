@@ -26,24 +26,28 @@
 //  Module : SALOME
 //  $Header$
 
+#include <TDF_Tool.hxx>
+
 #include "SALOMEDS_ChildIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
+
 using namespace std;
-
-
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(TDF_Label lab,
-						   CORBA::ORB_ptr orb) 
-  : _lab(lab)
+SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(SALOMEDS_Study_i* theStudy,
+						   const TDF_Label& theLabel): 
+  _it(theLabel),
+  _lab(theLabel),
+  _study(theStudy)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
-  _it.Initialize (lab);
+  TCollection_AsciiString anEntry;
+  TDF_Tool::Entry(theLabel,anEntry);
+  //cout<<"SALOMEDS_ChildIterator_i::New - "<<anEntry.ToCString()<<endl;
 }
 
 //============================================================================
@@ -93,6 +97,9 @@ CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 void SALOMEDS_ChildIterator_i::Next()
 {
   _it.Next();
+  TCollection_AsciiString anEntry;
+  TDF_Tool::Entry(_it.Value(),anEntry);
+  //cout<<"SALOMEDS_ChildIterator_i::Next - "<<anEntry.ToCString()<<endl;
 }
 
 
@@ -104,9 +111,6 @@ void SALOMEDS_ChildIterator_i::Next()
 
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
-  TDF_Label L = _it.Value();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (L,_orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this());
-  return so;
+  return SALOMEDS_SObject_i::New(_study,_it.Value())->_this();
 }
 

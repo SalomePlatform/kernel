@@ -27,9 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeInteger_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
-using namespace std;
 
+using namespace std;
 
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() {
   return Handle(TDataStd_Integer)::DownCast(_myAttr)->Get();

@@ -29,22 +29,20 @@
 #ifndef SALOMEDS_AttributeIOR_i_HeaderFile
 #define SALOMEDS_AttributeIOR_i_HeaderFile
 
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_IORAttribute.hxx"
 
-class SALOMEDS_AttributeIOR_i: public virtual POA_SALOMEDS::AttributeIOR,
-			       public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeIOR_i(const Handle(SALOMEDS_IORAttribute)& theIORAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIORAttr;
-  }
-  ~SALOMEDS_AttributeIOR_i() {};
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeIOR,SALOMEDS_IORAttribute,true);
+
+class SALOMEDS_AttributeIOR_i: 
+  public virtual POA_SALOMEDS::AttributeIOR,
+  public virtual SALOMEDS_TAttributeIOR_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeIOR,SALOMEDS_IORAttribute);
+public:
   char* Value();
   void SetValue(const char* value);
   

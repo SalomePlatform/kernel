@@ -38,6 +38,7 @@
 #include <qmap.h>
 #include <qclipboard.h>
 #include <qthread.h>
+#include <qdragobject.h>
 
 // NRI : Temporary added
 // IDL Headers
@@ -57,12 +58,12 @@ static int MYDEBUG = 0;
 #endif
 
 
-#define SIZEPR 4
 enum { IdCopy, IdPaste, IdClear, IdSelectAll };
 
 
-static QString PROMPT = ">>> ";
-
+static QString READY_PROMPT = ">>> ";
+static QString DOTS_PROMPT  = "... ";
+#define PROMPT_SIZE _currentPrompt.length()
 
 class TInitEditorThread : public QThread
 {
@@ -135,7 +136,7 @@ protected:
       if(MYDEBUG) MESSAGE("TExecCommand::run() - myInterp = "<<myInterp<<"; myCommand = '"<<myCommand.latin1()<<"' - "<<ret);
       if(ret < 0)
 	anId = QAD_PyEditor::PYTHON_ERROR;
-      if(ret > 0)
+      else if(ret > 0)
 	anId = QAD_PyEditor::PYTHON_INCOMPLETE;
       myListener->myError = myInterp->getverr().c_str();
       myListener->myOutput = myInterp->getvout().c_str();
@@ -182,7 +183,7 @@ QAD_PyEditor::QAD_PyEditor(QAD_PyInterp*& theInterp, QMutex* theMutex,
   myInitEditorThread = new TInitEditorThread(myInterp,myStudyMutex,myInitEditorMutex,this);
   myExecCommandThread = new TExecCommandThread(myInterp,myStudyMutex,myExecCommandMutex,this);
 
-  _currentPrompt = PROMPT;
+  _currentPrompt = READY_PROMPT;
   setPalette( QAD_Application::getPalette(true) );
   setWordWrap(NoWrap);
 
@@ -235,7 +236,6 @@ void QAD_PyEditor::setText(QString s)
 */
 void QAD_PyEditor::handleReturn()
 {
-  int ret;
   int para=paragraphs()-2;
 
   // NRI : Temporary added
@@ -248,14 +248,14 @@ void QAD_PyEditor::handleReturn()
 			    QObject::tr("WRN_STUDY_LOCKED"),
 			    QObject::tr("BUT_OK") );
 
-    _currentPrompt = ">>> ";
+    _currentPrompt = READY_PROMPT;
     setText(_currentPrompt);
     
     return;
   }  
   // NRI
 
-  _buf.append(text(para).remove(0,SIZEPR));
+  _buf.append(text(para).remove(0,PROMPT_SIZE));
   _buf.truncate( _buf.length() - 1 );
   setReadOnly( true );
   viewport()->setCursor( waitCursor );
@@ -263,9 +263,63 @@ void QAD_PyEditor::handleReturn()
 }
 
 /*
+   Processes drop event: paste dragged text
+*/
+void QAD_PyEditor::contentsDropEvent( QDropEvent* event )
+{
+  event->acceptAction();
+  QString text;
+  if ( QTextDrag::decode( event, text ) ) {
+    int par, col;
+    int endLine = paragraphs() -1;
+    col = charAt( event->pos(), &par );
+    
+    if ( col >= 0 && par >= 0 ) {
+      if ( par != endLine || col < PROMPT_SIZE ) {
+	par = endLine;
+	col = paragraphLength( endLine );
+      }
+      setCursorPosition( par, col );
+      insertAt( text, par, col );
+      removeSelection();
+    }
+  }
+}
+
+/*
+   Processes middle button release event - paste clipboard's contents
+*/
+void QAD_PyEditor::contentsMouseReleaseEvent( QMouseEvent* event )
+{
+  if ( event->button() == LeftButton ) {
+    QTextEdit::contentsMouseReleaseEvent(event);
+    copy();
+  }
+  if ( event->button() == MidButton ) {
+    if (QApplication::clipboard()->supportsSelection()) {
+      int par, col;
+      int endLine = paragraphs() -1;
+      col = charAt( event->pos(), &par );
+      if ( col >= 0 && par >= 0 ) {
+	if ( par != endLine || col < PROMPT_SIZE )
+	  setCursorPosition( endLine, paragraphLength( endLine ) );
+	else
+	  setCursorPosition( par, col );
+	QApplication::clipboard()->setSelectionMode(TRUE);
+	paste();
+	QApplication::clipboard()->setSelectionMode(FALSE);
+      }
+    }
+  }
+  else {
+    QTextEdit::contentsMouseReleaseEvent(event);
+  }
+}
+
+/*
    Processes own popup menu
 */
-void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
+void QAD_PyEditor::mousePressEvent (QMouseEvent* event)
 {
   if ( event->button() == RightButton ) {
     QPopupMenu *popup = new QPopupMenu( this );
@@ -303,40 +357,16 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     else if ( r == idMap[ IdClear ] ) {
       clear();
       setText(myBanner);
+      _currentPrompt = READY_PROMPT;
       setText(_currentPrompt);
     }
     else if ( r == idMap[ IdSelectAll ] ) {
       selectAll();
     }
-    return;
   }
   else {
     QTextEdit::mousePressEvent(event);
   }
-}
-
-/*!
-    Called when a Mouse release event
-*/
-void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
-{
-  //  MESSAGE("mouseReleaseEvent");
-  int curPara, curCol; // for cursor position
-  int endPara, endCol; // for last edited line
-  getCursorPosition(&curPara, &curCol);
-  endPara = paragraphs() -1;
-  if (e->button() != MidButton)
-    QTextEdit::mouseReleaseEvent(e);
-  else if ((curPara == endPara) && (curCol >= SIZEPR))
-    QTextEdit::mouseReleaseEvent(e);
-}
-
-/*!
-    Called when a drop event (Drag & Drop)
-*/
-  void QAD_PyEditor::dropEvent (QDropEvent *e)
-{
-  MESSAGE("dropEvent : not handled");
 }
 
 /*!
@@ -345,183 +375,354 @@ void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
 
 bool QAD_PyEditor::isCommand( const QString& str) const
 {
-  if (str.find(_currentPrompt)==0)
-    return true;
-  return false;
+  // prompt may be '>>> ' or for '... '
+  return ( str.find( READY_PROMPT ) == 0 || str.find( DOTS_PROMPT ) == 0 );
 }
 
 
 /*!
     Called when a keyPress event
 */
-void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
+void QAD_PyEditor::keyPressEvent( QKeyEvent* e )
 {
-  int curLine, curCol; // for cursor position
-  int endLine, endCol; // for last edited line
+  // get cursor position
+  int curLine, curCol;
   getCursorPosition(&curLine, &curCol);
-  endLine = paragraphs() -1;
-  //MESSAGE("current position " << curLine << ", " << curCol);
-  //MESSAGE("last line " << endLine);
-  //MESSAGE(e->key());
-  int aKey=e->key();
-  int keyRange=0;
-  if ((aKey >= Key_Space) && (aKey <= Key_ydiaeresis))
-    keyRange = 0;
-  else
-    keyRange = aKey;
 
-  bool ctrlPressed = ( (e->state() & ControlButton) == ControlButton );
-  bool shftPressed = ( (e->state() & ShiftButton) ==  ShiftButton );
+  // get last edited line
+  int endLine = paragraphs() -1;
 
-  switch (keyRange)
+  // get pressed key code
+  int aKey = e->key();
+
+  // check if <Ctrl> is pressed
+  bool ctrlPressed = e->state() & ControlButton;
+  // check if <Shift> is pressed
+  bool shftPressed = e->state() & ShiftButton;
+  // check if <Alt> is pressed
+  bool altPressed = e->state() & AltButton;
+
+  // process <Ctrl>+<C> key-bindings
+  if ( aKey == Key_C && ctrlPressed ) {
+    _buf.truncate(0);
+    setText("\n");
+    _currentPrompt = READY_PROMPT;
+    setText(_currentPrompt);
+    return;
+  }
+
+  // check for printed key
+  aKey = ( aKey < Key_Space || aKey > Key_ydiaeresis ) ? aKey : 0;
+
+  switch ( aKey ) {
+  case 0 :
+    // any printed key
     {
-    case 0 :
-      {
-	if (curLine <endLine || curCol < SIZEPR )
-	  moveCursor(QTextEdit::MoveEnd, false);
-	QTextEdit::keyPressEvent( e );
-	break;
+      if ( curLine < endLine || curCol < PROMPT_SIZE )
+	moveCursor( QTextEdit::MoveEnd, false );
+      QTextEdit::keyPressEvent( e );
+      break;
+    }
+  case Key_Return:
+  case Key_Enter:
+    // <Enter> key
+    {
+      moveCursor( QTextEdit::MoveEnd, false );
+      QTextEdit::keyPressEvent( e );
+      break;
+    }
+  case Key_Up:
+    // <Up> arrow key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: previous command in history
+    // - with <Ctrl> modifier key pressed:  move cursor one row up without selection
+    // - with <Shift> modifier key pressed: move cursor one row up with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: scroll one row up
+    {
+      if ( ctrlPressed && shftPressed ) {
+	scrollBy( 0, -QFontMetrics( font() ).lineSpacing() );
       }
-    case Key_Return:
-    case Key_Enter:
-      {
-	if (curLine <endLine)
-	  moveCursor(QTextEdit::MoveEnd, false);
-	else
-	  moveCursor(QTextEdit::MoveLineEnd, false);
-	QTextEdit::keyPressEvent( e );
-	break;
+      else if ( shftPressed ) {
+	if ( curLine > 0 )
+	  moveCursor( QTextEdit::MoveUp, true );
       }
-    case Key_Up:
-      {
-	// if Cntr+Key_Up event then move cursor up
-	if (ctrlPressed) {
-	    moveCursor(QTextEdit::MoveUp, false);
-        }
-	// if Shift+Key_Up event then move cursor up and select the text
-	else if ( shftPressed && curLine > 0 ){
-	    moveCursor(QTextEdit::MoveUp, true);
-	}
-	// scroll the commands stack up
-	else { 
-	   QString histLine = _currentPrompt;
-	  if (! _isInHistory)
-	    {
-	      _isInHistory = true;
-	      _currentCommand = text(endLine).remove(0,SIZEPR);
-	      _currentCommand.truncate( _currentCommand.length() - 1 );
-	    }
-	  QString previousCommand = myInterp->getPrevious();
-	  if (previousCommand.compare(BEGIN_HISTORY_PY) != 0)
-	    {
-	      removeParagraph(endLine);
-	      histLine.append(previousCommand);
-	      insertParagraph(histLine, -1);
-	    }
-	  moveCursor(QTextEdit::MoveEnd, false);
-	}
-	break;
+      else if ( ctrlPressed ) {
+	moveCursor( QTextEdit::MoveUp, false );
       }
-    case Key_Down:
-      {
-	// if Cntr+Key_Down event then move cursor down
-	if (ctrlPressed) {
-	  moveCursor(QTextEdit::MoveDown, false);
-	}
-	// if Shift+Key_Down event then move cursor down and select the text
-	else if ( shftPressed && curLine < endLine ) {
-	  moveCursor(QTextEdit::MoveDown, true);
-	}
-	// scroll the commands stack down
-	else {
+      else { 
 	QString histLine = _currentPrompt;
-	  QString nextCommand = myInterp->getNext();
-	  if (nextCommand.compare(TOP_HISTORY_PY) != 0)
-	    {
-	      removeParagraph(endLine);
-	      histLine.append(nextCommand);
-	      insertParagraph(histLine, -1);
-	    }
-	  else
-	    if (_isInHistory)
-	      {
-		_isInHistory = false;
-		removeParagraph(endLine);
-		histLine.append(_currentCommand);
-		insertParagraph(histLine, -1);
-	      }
-	  moveCursor(QTextEdit::MoveEnd, false);
+	if ( ! _isInHistory ) {
+	  _isInHistory = true;
+	  _currentCommand = text( endLine ).remove( 0, PROMPT_SIZE );
+	  _currentCommand.truncate( _currentCommand.length() - 1 );
 	}
-	break;
-      }
-    case Key_Left:
-      {
-	if (!shftPressed && isCommand(text(curLine)) && curCol <= SIZEPR )
-	  {
-	    setCursorPosition((curLine -1), SIZEPR);
-	    moveCursor(QTextEdit::MoveLineEnd, false);
-	  }
-	else QTextEdit::keyPressEvent( e );
-	break;
-      }
-    case Key_Right:
-      {
-	if (!shftPressed && isCommand(text(curLine)) 
-	    && curCol < SIZEPR) setCursorPosition(curLine, SIZEPR);
-	QTextEdit::keyPressEvent( e );
-	break;
-      }
-    case Key_Home: 
-      {
-	horizontalScrollBar()->setValue( horizontalScrollBar()->minValue() );
-	if (isCommand(text(curLine))) {
-	  setCursorPosition(curLine, SIZEPR);
-	  if ( curCol > SIZEPR && shftPressed )
-	    setSelection( curLine, SIZEPR, curLine, curCol );
-	  else
-	    selectAll( false );
+	QString previousCommand = myInterp->getPrevious();
+	if ( previousCommand.compare( BEGIN_HISTORY_PY ) != 0 ) {
+	  removeParagraph( endLine );
+	  histLine.append( previousCommand );
+	  insertParagraph( histLine, -1 );
 	}
-	else moveCursor(QTextEdit::MoveLineStart, shftPressed);
-	break;
+	moveCursor( QTextEdit::MoveEnd, false );
       }
-    case Key_End:
-      {
-	moveCursor(QTextEdit::MoveLineEnd, shftPressed);
-	break;
-      }  
-    case Key_Backspace :
-      {
-	if ((curLine == endLine) && (curCol > SIZEPR))
-	  QTextEdit::keyPressEvent( e );
-	break;
-      }
-    case Key_Delete :
-      {
-	if ((curLine == endLine) && (curCol > SIZEPR-1))
-	  QTextEdit::keyPressEvent( e );
-	break;
-      }
-    case Key_Insert :
-      {
-	if ( ctrlPressed )
-	  copy();
-	else if ( shftPressed ) {
-	  moveCursor(QTextEdit::MoveEnd, false);
-	  paste();
-	}
-	else
-	  QTextEdit::keyPressEvent( e );
-	break;
-      }
+      break;
     }
-  if ( e->key() == Key_C && ( e->state() & ControlButton ) )
+  case Key_Down:
+    // <Down> arrow key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: next command in history
+    // - with <Ctrl> modifier key pressed:  move cursor one row down without selection
+    // - with <Shift> modifier key pressed: move cursor one row down with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: scroll one row down
     {
-      _buf.truncate(0);
-      setText("\n");
-      _currentPrompt = ">>> ";
-      setText(_currentPrompt);
+      if ( ctrlPressed && shftPressed ) {
+	scrollBy( 0, QFontMetrics( font() ).lineSpacing() );
+      }
+      else if ( shftPressed ) {
+	if ( curLine < endLine )
+	  moveCursor( QTextEdit::MoveDown, true );
+      }
+      else if ( ctrlPressed ) {
+	moveCursor( QTextEdit::MoveDown, false );
+      }
+      else { 
+	QString histLine = _currentPrompt;
+	QString nextCommand = myInterp->getNext();
+	if ( nextCommand.compare( TOP_HISTORY_PY ) != 0 ) {
+	  removeParagraph( endLine );
+	  histLine.append( nextCommand );
+	  insertParagraph( histLine, -1 );
+	}
+	else {
+	  if (_isInHistory) {
+	    _isInHistory = false;
+	    removeParagraph( endLine );
+	    histLine.append( _currentCommand );
+	    insertParagraph( histLine, -1 );
+	  }
+	}
+	moveCursor( QTextEdit::MoveEnd, false );
+      }
+      break;
     }
-
+  case Key_Left:
+    // <Left> arrow key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: move one symbol left (taking into account prompt)
+    // - with <Ctrl> modifier key pressed:  move one word left (taking into account prompt)
+    // - with <Shift> modifier key pressed: move one symbol left with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: move one word left with selection
+    {
+      if ( !shftPressed && isCommand( text( curLine ) ) && curCol <= PROMPT_SIZE ) {
+	setCursorPosition( curLine-1, 0 );
+	moveCursor( QTextEdit::MoveLineEnd, false );
+      }
+      else {
+	QTextEdit::keyPressEvent( e );
+      }
+      break;
+    }
+  case Key_Right:
+    // <Right> arrow key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: move one symbol right (taking into account prompt)
+    // - with <Ctrl> modifier key pressed:  move one word right (taking into account prompt)
+    // - with <Shift> modifier key pressed: move one symbol right with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: move one word right with selection
+    {
+      if ( !shftPressed ) {
+	if ( curCol < paragraphLength( curLine ) ) {
+	  if ( isCommand( text( curLine ) ) && curCol < PROMPT_SIZE ) {
+	    setCursorPosition( curLine, PROMPT_SIZE );
+	    break;
+	  }
+	}
+	else {
+	  if ( curLine < endLine && isCommand( text( curLine+1 ) ) ) {
+	    setCursorPosition( curLine+1, PROMPT_SIZE );
+	    break;
+	  }
+	}
+      }
+      QTextEdit::keyPressEvent( e );
+      break;
+    }
+  case Key_PageUp:
+    // <PageUp> key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: first command in history
+    // - with <Ctrl> modifier key pressed:  move cursor one page up without selection
+    // - with <Shift> modifier key pressed: move cursor one page up with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: scroll one page up
+    {
+      if ( ctrlPressed && shftPressed ) {
+	scrollBy( 0, -visibleHeight() );
+      }
+      else if ( shftPressed ) {
+	if ( curLine > 0 )
+	  moveCursor( QTextEdit::MovePgUp, true );
+      }
+      else if ( ctrlPressed ) {
+	moveCursor( QTextEdit::MovePgUp, false );
+      }
+      else { 
+	QString histLine = _currentPrompt;
+	if ( ! _isInHistory ) {
+	  _isInHistory = true;
+	  _currentCommand = text( endLine ).remove( 0, PROMPT_SIZE );
+	  _currentCommand.truncate( _currentCommand.length() - 1 );
+	}
+	QString firstCommand = myInterp->getPrevious();
+	QString pcmd;
+	while ( ( pcmd = QString( myInterp->getPrevious() ) ).compare( BEGIN_HISTORY_PY ) != 0 )
+	  firstCommand = pcmd;
+	if ( firstCommand.compare( BEGIN_HISTORY_PY ) != 0 ) {
+	  removeParagraph( endLine );
+	  histLine.append( firstCommand );
+	  insertParagraph( histLine, -1 );
+	}
+	moveCursor( QTextEdit::MoveEnd, false );
+      }
+      break;
+    }
+  case Key_PageDown:
+    // <PageDown> key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: last command in history
+    // - with <Ctrl> modifier key pressed:  move cursor one page down without selection
+    // - with <Shift> modifier key pressed: move cursor one page down with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: scroll one page down
+    {
+      if ( ctrlPressed && shftPressed ) {
+	scrollBy( 0, visibleHeight() );
+      }
+      else if ( shftPressed ) {
+	if ( curLine < endLine )
+	  moveCursor( QTextEdit::MovePgDown, true );
+      }
+      else if ( ctrlPressed ) {
+	moveCursor( QTextEdit::MovePgDown, false );
+      }
+      else { 
+	if ( _isInHistory ) {
+	  QString histLine = _currentPrompt;
+	  while ( QString( myInterp->getNext() ).compare( TOP_HISTORY_PY ) != 0 );
+	  _isInHistory = false;
+	  removeParagraph( endLine );
+	  histLine.append( _currentCommand );
+	  insertParagraph( histLine, -1 );
+	}
+	moveCursor( QTextEdit::MoveEnd, false );
+      }
+      break;
+    }
+  case Key_Home: 
+    // <Home> key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: move cursor to the beginning of the current line without selection
+    // - with <Ctrl> modifier key pressed:  move cursor to the very first symbol without selection
+    // - with <Shift> modifier key pressed: move cursor to the beginning of the current line with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: move cursor to the very first symbol with selection
+    {
+      if ( ctrlPressed ) { 
+	moveCursor( QTextEdit::MoveHome, shftPressed );
+      }
+      else {
+	if ( isCommand( text( curLine ) ) ) {
+	  int ps1, ps2, cs1, cs2;
+	  bool hasSelection = hasSelectedText();
+	  if ( hasSelection )
+	    getSelection( &ps1, &cs1, &ps2, &cs2 );
+	  removeSelection();
+	  horizontalScrollBar()->setValue( horizontalScrollBar()->minValue() );
+	  if ( curCol > PROMPT_SIZE && shftPressed ) 
+	    setSelection( curLine, PROMPT_SIZE, curLine, ( hasSelection && ps1 == ps2 && ps1 == curLine && cs2 > PROMPT_SIZE ) ? cs2 : curCol );
+	  setCursorPosition( curLine, PROMPT_SIZE );
+	}
+	else {
+	  moveCursor( QTextEdit::MoveLineStart, shftPressed );
+	}
+      }
+      break;
+    }
+  case Key_End:
+    // <End> key: process as follows:
+    // - without <Ctrl>, <Shift> modifiers: move cursor to the end of the current line without selection
+    // - with <Ctrl> modifier key pressed:  move cursor to the very last symbol without selection
+    // - with <Shift> modifier key pressed: move cursor to the end of the current line with selection
+    // - with <Ctrl>+<Shift> modifier keys pressed: move cursor to the very last symbol with selection
+    {
+      if ( ctrlPressed ) { 
+	moveCursor( QTextEdit::MoveEnd, shftPressed );
+      }
+      else {
+	moveCursor( QTextEdit::MoveLineEnd, shftPressed );
+      }
+      break;
+    }  
+  case Key_Backspace :
+    // <Backspace> key: process as follows
+    // - without any modifiers : delete symbol before the cursor / selection (taking into account prompt)
+    // - with <Ctrl> modifier key pressed: delete previous word
+    // works only for last (command) line
+    {
+      if ( curLine == endLine && ( curCol > PROMPT_SIZE || curCol >= PROMPT_SIZE && hasSelectedText() ) ) {
+	if ( ctrlPressed && !hasSelectedText() ) {
+	  QString txt = text( curLine );
+	  int ind = curCol-1;
+	  while ( ind > 0 && txt[ ind ] == ' ' ) ind--;
+	  ind = txt.findRev( ' ', ind ) + 1;
+	  if ( ind > PROMPT_SIZE-1 ) {
+	    setSelection( curLine, ind, curLine, curCol );
+	    removeSelectedText();
+	  }
+	  else {
+	    QTextEdit::keyPressEvent( e );
+	  }
+	}
+	else {
+	  QTextEdit::keyPressEvent( e );
+	}
+      }
+      break;
+    }
+  case Key_Delete :
+    // <Delete> key: process as follows
+    // - without any modifiers : delete symbol after the cursor / selection (taking into account prompt)
+    // - with <Ctrl> modifier key pressed: delete next word
+    // works only for last (command) line
+    {
+      if ( curLine == endLine && curCol > PROMPT_SIZE-1 ) {
+	if ( ctrlPressed && !hasSelectedText() ) {
+	  QString txt = text( curLine );
+	  int ind = curCol;
+	  while ( ind < txt.length()-1 && txt[ ind ] == ' ' ) ind++;
+	  ind = txt.find( ' ', ind );
+	  while ( ind < txt.length()-1 && txt[ ind ] == ' ' ) ind++;
+	  if ( ind > PROMPT_SIZE-1 ) {
+	    setSelection( curLine, curCol, curLine, ind );
+	    removeSelectedText();
+	  }
+	  else {
+	    QTextEdit::keyPressEvent( e );
+	  }
+	}
+	else {
+	  QTextEdit::keyPressEvent( e );
+	}
+      }
+      break;
+    }
+  case Key_Insert :
+    // <Insert> key: process as follows
+    // - with <Ctrl> modifier key pressed:  copy()
+    // - with <Shift> modifier key pressed: paste() to the command line
+    {
+      if ( ctrlPressed ) {
+	copy();
+      }
+      else if ( shftPressed ) {
+	if ( curLine != endLine || curCol < PROMPT_SIZE )
+	  moveCursor( QTextEdit::MoveEnd, false );
+	paste();
+      }
+      else
+	QTextEdit::keyPressEvent( e );
+      break;
+    }
+  }
   // NRI : DEBUG PAS TERRIBLE //
   if (( e->key() == Key_F3) || 
       ( e->key() == Key_F4) ||
@@ -531,7 +732,7 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
   // NRI //
 }
 
-void QAD_PyEditor::customEvent(QCustomEvent *e)
+void QAD_PyEditor::customEvent(QCustomEvent* e)
 {
   switch( e->type() ) {
   case PYTHON_OK:
@@ -540,14 +741,14 @@ void QAD_PyEditor::customEvent(QCustomEvent *e)
       _buf.truncate(0);
       setText(myOutput);
       setText(myError);
-      _currentPrompt = ">>> ";
+      _currentPrompt = READY_PROMPT;
       setText(_currentPrompt);
       break;
     }
   case PYTHON_INCOMPLETE:
     {
       _buf.append("\n");
-      _currentPrompt = "... ";
+      _currentPrompt = DOTS_PROMPT;
       setText(_currentPrompt);
       break;
     }

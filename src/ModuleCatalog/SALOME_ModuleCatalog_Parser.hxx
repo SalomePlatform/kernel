@@ -96,6 +96,8 @@ struct ParserComponent
   ParserInterfaces    interfaces;
   ParserPathPrefixes  prefixes;
   bool                implementationType;
+  std::string         version;
+  std::string         comment;
 };
 
 typedef std::vector<ParserComponent> ParserComponents ;

@@ -29,10 +29,26 @@
 #include "InquireServersQThread.h"
 using namespace std;
 
+void MessageOutput( QtMsgType type, const char *msg )
+{
+  switch ( type ) {
+  case QtDebugMsg:
+    MESSAGE( "Debug: " << msg );
+    break;
+  case QtWarningMsg:
+    MESSAGE( "Warning: " << msg );
+    break;
+  case QtFatalMsg:
+    MESSAGE( "Fatal: " << msg );
+    break;
+  }
+}
+
 int main(int argc, char **argv)
 {
   CORBA::ORB_ptr orb = CORBA::ORB_init(argc,argv) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  qInstallMsgHandler( MessageOutput );
 //VRV: T2.4 - Trace management improvement
   QApplication myQApp(argc, argv) ;
   InquireServersGUI myIS;
@@ -46,7 +62,7 @@ int main(int argc, char **argv)
 //VRV: T2.4 - Trace management improvement
   if (myIS.withGUI()) {
     try
-      {	
+      {
 	SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
 	ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
 	NS.init_orb( orb ) ;
@@ -86,6 +102,7 @@ int main(int argc, char **argv)
       {
 	INFOS("Caught unknown exception.");
       }
+    return 0 ;
   }
   INFOS("Normal Exit"); // without this trace, Splash remains on screen !
   delete myThreadTrace;

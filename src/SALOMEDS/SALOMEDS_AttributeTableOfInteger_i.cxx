@@ -9,16 +9,18 @@
 //  Module : SALOME
 //  $Header$
 
-#include "SALOMEDS_AttributeTableOfInteger_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
+#include <TCollection_AsciiString.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_ErrorHandler.hxx>
+
+#include "SALOMEDS_AttributeTableOfInteger_i.hxx"
 #include "Utils_ExceptHandlers.hxx"
 
 #include <stdexcept>
 #include <strstream>
 #include <string>
+
 using namespace std;
 
 #define SEPARATOR '\1'
@@ -43,8 +45,6 @@ static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
   aString.Split(aPos-1);
   return aString;
 }
-
-
 
 void SALOMEDS_AttributeTableOfInteger_i::SetTitle(const char* theTitle) {
   CheckLocked();

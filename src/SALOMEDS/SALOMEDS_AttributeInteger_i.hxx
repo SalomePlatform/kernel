@@ -29,32 +29,29 @@
 #ifndef SALOMEDS_AttributeInteger_i_HeaderFile
 #define SALOMEDS_AttributeInteger_i_HeaderFile
 
-// IDL headers
-
 #include <TDataStd_Integer.hxx>
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeInteger_i: public virtual POA_SALOMEDS::AttributeInteger,
-				   public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeInteger_i(const Handle(TDataStd_Integer)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr;
-  };  
-  ~SALOMEDS_AttributeInteger_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeInteger,TDataStd_Integer,true);
+
+class SALOMEDS_AttributeInteger_i: 
+  public virtual POA_SALOMEDS::AttributeInteger,
+  public virtual SALOMEDS_TAttributeInteger_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeInteger,TDataStd_Integer);
+public:
   CORBA::Long Value();
-  void SetValue(CORBA::Long value);
+  void SetValue(CORBA::Long theValue);
 
   char* Store();
   void Restore(const char*);
 
 };
-
 
 
 #endif

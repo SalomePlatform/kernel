@@ -29,23 +29,21 @@
 #ifndef SALOMEDS_AttributeFileType_i_HeaderFile
 #define SALOMEDS_AttributeFileType_i_HeaderFile
 
-// IDL headers
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_FileType.hxx"
 
-class SALOMEDS_AttributeFileType_i: public virtual POA_SALOMEDS::AttributeFileType,
-				   public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeFileType_i(const Handle(SALOMEDS_FileType)& theCommentAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theCommentAttr;
-  }
-  ~SALOMEDS_AttributeFileType_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeFileType,SALOMEDS_FileType,true);
+
+class SALOMEDS_AttributeFileType_i: 
+  public virtual POA_SALOMEDS::AttributeFileType,
+  public virtual SALOMEDS_TAttributeFileType_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeFileType,SALOMEDS_FileType);
+public:
   char* Value();
   void SetValue(const char* value);
   

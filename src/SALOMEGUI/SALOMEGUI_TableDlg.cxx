@@ -579,9 +579,10 @@ void SALOMEGUI_TableWidget::setColTitles( QStringList& tlts )
   // !!! first column contains units !!!
   for ( int i = 0; i < tlts.count(); i++ ) {
     myOrientation == Horizontal ? 
-      myTable->horizontalHeader()->setLabel( i+1, tlts[i] ) :
-      myTable->verticalHeader()->setLabel( i+1, tlts[i] );
+      myTable->horizontalHeader()->setLabel( i+1, tlts[i].isNull() ? "" : tlts[i] ) :
+      myTable->verticalHeader()->setLabel( i+1, tlts[i].isNull() ? "" : tlts[i] );
   }
+  setUnitsTitle( tr( "UNITS_TLT" ) );
 }
 /*!
   Sets columns titles
@@ -606,7 +607,7 @@ void SALOMEGUI_TableWidget::getColTitles( QStringList& tlts )
 */
 void SALOMEGUI_TableWidget::setUnitsTitle( const QString& tlt ) {
   // !!! first column contains units !!!
-  myOrientation == Horizontal ? myTable->horizontalHeader()->setLabel( 0, tlt ) : myTable->verticalHeader()->setLabel( 0, tlt );
+  myOrientation == Horizontal ? myTable->horizontalHeader()->setLabel( 0, tlt.isNull() ? "" : tlt ) : myTable->verticalHeader()->setLabel( 0, tlt.isNull() ? "" : tlt );
 }
 /*!
   Sets units
@@ -614,7 +615,7 @@ void SALOMEGUI_TableWidget::setUnitsTitle( const QString& tlt ) {
 void SALOMEGUI_TableWidget::setUnits( QStringList& units )
 {
   for ( int i = 0; i < units.count(); i++ ) {
-    myOrientation == Horizontal ? myTable->setText( i, 0, units[i] ) : myTable->setText( 0, i, units[i] );
+    myOrientation == Horizontal ? myTable->setText( i, 0, units[i].isNull() ? "" : units[i] ) : myTable->setText( 0, i, units[i].isNull() ? "" : units[i] );
   }
 }
 /*!

@@ -29,32 +29,31 @@
 #ifndef __SALOMEDS_CHILDITERATOR_I_H__
 #define __SALOMEDS_CHILDITERATOR_I_H__
 
-// std C++ headers
-#include <iostream.h>
-
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-
-
 // Cascade headers
 #include <TDF_ChildIterator.hxx>
 #include <TDF_Label.hxx>
-#include <stdio.h>
+
+class SALOMEDS_Study_i;
 
 class SALOMEDS_ChildIterator_i: public POA_SALOMEDS::ChildIterator,
-				public PortableServer::RefCountServantBase {
+				public PortableServer::RefCountServantBase 
+{
+  SALOMEDS_ChildIterator_i(); // Not implemented
+  void operator=(const SALOMEDS_ChildIterator_i&); // Not implemented
+
 private:
-  CORBA::ORB_ptr           _orb;
+  SALOMEDS_Study_i*        _study;
   TDF_Label                _lab;
   TDF_ChildIterator        _it;
-public:
 
-  //! standard constructor  
-  SALOMEDS_ChildIterator_i(TDF_Label lab,CORBA::ORB_ptr);
-  
-  //! standard destructor
+public:
+  SALOMEDS_ChildIterator_i(SALOMEDS_Study_i* theStudy,
+			   const TDF_Label& theLabel);
+
   ~SALOMEDS_ChildIterator_i();
   
   virtual void Init();
@@ -63,4 +62,6 @@ public:
   virtual void Next();
   virtual SALOMEDS::SObject_ptr Value();
 };
+
+
 #endif

@@ -13,22 +13,20 @@
 #define SALOMEDS_AttributeStudyProperties_i_HeaderFile
 
 // IDL headers
-#include <SALOMEDS_StudyPropertiesAttribute.hxx>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_StudyPropertiesAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeStudyProperties_i: public virtual POA_SALOMEDS::AttributeStudyProperties,
-                                           public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeStudyProperties_i(const Handle(SALOMEDS_StudyPropertiesAttribute)& theAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theAttr;
-  };
-  ~SALOMEDS_AttributeStudyProperties_i() {};
+DEFINE_DERIVED_ATTR(AttributeStudyProperties,SALOMEDS_StudyPropertiesAttribute,false);
 
+class SALOMEDS_AttributeStudyProperties_i: 
+  public virtual POA_SALOMEDS::AttributeStudyProperties,
+  public virtual SALOMEDS_TAttributeStudyProperties_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeStudyProperties,SALOMEDS_StudyPropertiesAttribute);
+public:
   virtual void SetUserName(const char* theName);
   virtual char* GetUserName() ;
   virtual void SetCreationDate(CORBA::Long theMinute, CORBA::Long theHour, CORBA::Long theDay, CORBA::Long theMonth, CORBA::Long theYear);

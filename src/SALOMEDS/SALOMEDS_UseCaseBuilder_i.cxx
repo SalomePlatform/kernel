@@ -9,11 +9,10 @@
 //  Module : SALOME
 
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
-#include "SALOMEDS_AttributeComment_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
-#include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
-#include "utilities.h"
+
 #include <TDF_Label.hxx>
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
@@ -23,22 +22,28 @@
 #include <TDataStd_ChildNodeIterator.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_ChildIterator.hxx>
-using namespace std;
+
+#include <TDataStd_Integer.hxx>
+#include <TDataStd_Name.hxx>
+#include <Standard_GUID.hxx>
 
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
 
+#include "utilities.h"
+
+using namespace std;
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(const Handle(TDocStd_Document)& theDocument,
-						     CORBA::ORB_ptr orb)
-:_doc(theDocument)
+SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(SALOMEDS_Study_i* theStudy,
+						     const Handle(TDocStd_Document)& theDocument):
+  _doc(theDocument),
+  _study(theStudy)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
   if(_doc.IsNull()) return;
 
   TDF_Label aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG); //Iterate all use cases
@@ -68,6 +73,21 @@ SALOMEDS_UseCaseBuilder_i::~SALOMEDS_UseCaseBuilder_i()
 }
 
 
+//============================================================================
+CORBA::ORB_var SALOMEDS_UseCaseBuilder_i::GetORB() const
+{
+  return _study->GetORB();
+}
+
+
+//============================================================================
+PortableServer::POA_var SALOMEDS_UseCaseBuilder_i::GetPOA() const
+{
+  return _study->GetPOA();
+}
+
+
+//============================================================================
 //============================================================================
 /*! Function : Append
  *  Purpose  : 
@@ -272,7 +292,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetName(const char* theName) {
   if(_root.IsNull()) return 0;
 
   Handle(TDataStd_Name) aNameAttrib;
-  TCollection_ExtendedString aName((char*)theName);
+  TCollection_ExtendedString aName(const_cast<char*>(theName));
 
   if (!_root->FindAttribute(TDataStd_Name::GetID(), aNameAttrib))
     aNameAttrib = TDataStd_Name::Set(_root->Label(), aName);
@@ -299,9 +319,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetCurrentObject()
   TDF_Label aCurrent = aRef->Get();  
   if(aCurrent.IsNull()) return NULL;
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aCurrent, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so._retn();
+  return SALOMEDS_SObject_i::New(_study,aCurrent)->_this();
 }
 
 //============================================================================
@@ -368,12 +386,9 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::AddUseCase(const char* theName)
   TDF_Label aChild = aLabel.FindChild(anInteger->Get());
   aNode = TDataStd_TreeNode::Set(aChild, aBasicGUID);
   aFatherNode->Append(aNode);
-  TDataStd_Name::Set(aChild, TCollection_ExtendedString((char*)theName));
+  TDataStd_Name::Set(aChild, TCollection_ExtendedString(const_cast<char*>(theName)));
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aChild, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-
-  return so._retn();
+  return SALOMEDS_SObject_i::New(_study,aChild)->_this();
 }
 
 //============================================================================
@@ -392,8 +407,6 @@ SALOMEDS::UseCaseIterator_ptr SALOMEDS_UseCaseBuilder_i::GetUseCaseIterator(SALO
     aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG); //Iterate all use cases
   }
 
-  SALOMEDS_UseCaseIterator_i* aServant = new SALOMEDS_UseCaseIterator_i(aLabel, USE_CASE_GUID, Standard_False, _orb);
-  SALOMEDS::UseCaseIterator_var anIterator = SALOMEDS::UseCaseIterator::_narrow(aServant->_this());
-
-  return anIterator._retn(); 
+  SALOMEDS_UseCaseIterator_i* aServant = new SALOMEDS_UseCaseIterator_i(_study,aLabel,USE_CASE_GUID,Standard_False);
+  return aServant->_this(); 
 }

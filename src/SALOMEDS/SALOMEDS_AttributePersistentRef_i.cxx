@@ -28,7 +28,8 @@
 
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include <TCollection_ExtendedString.hxx>
-#include "SALOMEDS_SObject_i.hxx"
+#include <TCollection_AsciiString.hxx>
+
 using namespace std;
 
 char* SALOMEDS_AttributePersistentRef_i::Value()

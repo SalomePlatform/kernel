@@ -27,8 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributePixMap_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TCollection_AsciiString.hxx>
+
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap() {

@@ -1474,6 +1474,20 @@ Handle(VTKViewer_Filter) VTKViewer_InteractorStyleSALOME::GetFilter( const int t
   return IsFilterPresent( theId ) ? myFilters[ theId ] : Handle(VTKViewer_Filter)();
 }
 
+void VTKViewer_InteractorStyleSALOME::IncrementalPan( const int incrX, const int incrY )
+{
+  this->PanXY( incrX, incrY, 0, 0 );
+}
+
+void VTKViewer_InteractorStyleSALOME::IncrementalZoom( const int incr )
+{
+  this->DollyXY( incr, incr );
+}
+
+void VTKViewer_InteractorStyleSALOME::IncrementalRotate( const int incrX, const int incrY )
+{
+  this->RotateXY( incrX, -incrY );
+}
 
 
 

@@ -387,6 +387,21 @@ void Plot2d_ViewFrame::Erase( const Handle(SALOME_InteractiveObject)& IObject, b
   Plot2d_Curve* curve = getCurveByIO( IObject );
   if ( curve )
     eraseCurve( curve, update );
+  // it can be table or container object selected
+  QAD_Study* activeStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOMEDS::SObject_var aSO = activeStudy->getStudyDocument()->FindObjectID(IObject->getEntry());
+  if ( !aSO->_is_nil() ) {
+    SALOMEDS::ChildIterator_var aIter = activeStudy->getStudyDocument()->NewChildIterator( aSO );
+    for ( ; aIter->More(); aIter->Next() ) {
+      SALOMEDS::SObject_var aChildSO = aIter->Value();
+      SALOMEDS::SObject_var refSO;
+      if ( aChildSO->ReferencedObject( refSO ) && !refSO->_is_nil() )
+	aChildSO = refSO;
+      curve = getCurveByIO( new SALOME_InteractiveObject( aChildSO->GetID(), "", "" ) );
+      if ( curve )
+	eraseCurve( curve, update );
+    }
+  }
 }
 /*!
   Actually this method just re-displays all curves which are presented in the viewer
@@ -397,7 +412,7 @@ void Plot2d_ViewFrame::DisplayAll()
   getCurves( clist );
   for ( int i = 0; i < clist.count(); i++ ) {
     updateCurve( clist.at( i ), false );
-  }
+   }
   myPlot->replot();
 }
 /*!
@@ -1432,29 +1447,11 @@ void Plot2d_ViewFrame::plotMouseMoved( const QMouseEvent& me )
 
   if ( myOperation != NoOpId) {
     if ( myOperation == ZoomId ) {
-      QwtDiMap xMap = myPlot->canvasMap( QwtPlot::xBottom );
-      QwtDiMap yMap = myPlot->canvasMap( QwtPlot::yLeft );
-
-      myPlot->setAxisScale( QwtPlot::yLeft, 
-			    myPlot->invTransform( QwtPlot::yLeft, yMap.i1() ), 
-			    myPlot->invTransform( QwtPlot::yLeft, yMap.i2() + dy ) );
-      myPlot->setAxisScale( QwtPlot::xBottom, 
-			    myPlot->invTransform( QwtPlot::xBottom, xMap.i1() ), 
-			    myPlot->invTransform( QwtPlot::xBottom, xMap.i2() - dx ) );
-      myPlot->replot();
+      this->incrementalZoom( dx, dy ); 
       myPnt = me.pos();
     }
     else if ( myOperation == PanId ) {
-      QwtDiMap xMap = myPlot->canvasMap( QwtPlot::xBottom );
-      QwtDiMap yMap = myPlot->canvasMap( QwtPlot::yLeft );
-      
-      myPlot->setAxisScale( QwtPlot::yLeft, 
-			    myPlot->invTransform( QwtPlot::yLeft, yMap.i1()-dy ), 
-			    myPlot->invTransform( QwtPlot::yLeft, yMap.i2()-dy ) );
-      myPlot->setAxisScale( QwtPlot::xBottom, 
-			    myPlot->invTransform( QwtPlot::xBottom, xMap.i1()-dx ),
-			    myPlot->invTransform( QwtPlot::xBottom, xMap.i2()-dx ) ); 
-      myPlot->replot();
+      this->incrementalPan( dx, dy );
       myPnt = me.pos();
     }
   }
@@ -1795,3 +1792,94 @@ void  Plot2d_ViewFrame::AfterDisplay( SALOME_Displayer* d )
 {
   d->AfterDisplay( this, SALOME_Plot2dViewType() );
 }
+
+#define INCREMENT_FOR_OP 10
+
+//=======================================================================
+// Plot2d_ViewFrame::onPanLeft
+// Performs incremental panning to the left
+//=======================================================================
+void Plot2d_ViewFrame::onPanLeft()
+{
+  this->incrementalPan( -INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::onPanRight
+// Performs incremental panning to the right
+//=======================================================================
+void Plot2d_ViewFrame::onPanRight()
+{
+  this->incrementalPan( INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::onPanUp
+// Performs incremental panning to the top
+//=======================================================================
+void Plot2d_ViewFrame::onPanUp()
+{
+  this->incrementalPan( 0, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::onPanDown
+// Performs incremental panning to the bottom
+//=======================================================================
+void Plot2d_ViewFrame::onPanDown()
+{
+  this->incrementalPan( 0, INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::onZoomIn
+// Performs incremental zooming in
+//=======================================================================
+void Plot2d_ViewFrame::onZoomIn()
+{
+  this->incrementalZoom( INCREMENT_FOR_OP, INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::onZoomOut
+// Performs incremental zooming out
+//=======================================================================
+void Plot2d_ViewFrame::onZoomOut()
+{
+  this->incrementalZoom( -INCREMENT_FOR_OP, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::incrementalPan
+// Incremental zooming operation
+//=======================================================================
+void Plot2d_ViewFrame::incrementalPan( const int incrX, const int incrY ) {
+  QwtDiMap xMap = myPlot->canvasMap( QwtPlot::xBottom );
+  QwtDiMap yMap = myPlot->canvasMap( QwtPlot::yLeft );
+  
+  myPlot->setAxisScale( QwtPlot::yLeft,
+		        myPlot->invTransform( QwtPlot::yLeft, yMap.i1()-incrY ),
+		        myPlot->invTransform( QwtPlot::yLeft, yMap.i2()-incrY ) );
+  myPlot->setAxisScale( QwtPlot::xBottom,
+		        myPlot->invTransform( QwtPlot::xBottom, xMap.i1()-incrX ),
+		        myPlot->invTransform( QwtPlot::xBottom, xMap.i2()-incrX ) );
+  myPlot->replot();
+}
+
+//=======================================================================
+// Plot2d_ViewFrame::incrementalZoom
+// Incremental panning operation
+//=======================================================================
+void Plot2d_ViewFrame::incrementalZoom( const int incrX, const int incrY ) {
+  QwtDiMap xMap = myPlot->canvasMap( QwtPlot::xBottom );
+  QwtDiMap yMap = myPlot->canvasMap( QwtPlot::yLeft );
+  
+  myPlot->setAxisScale( QwtPlot::yLeft,
+		       myPlot->invTransform( QwtPlot::yLeft, yMap.i1() ),
+		       myPlot->invTransform( QwtPlot::yLeft, yMap.i2() + incrY ) );
+  myPlot->setAxisScale( QwtPlot::xBottom,
+		       myPlot->invTransform( QwtPlot::xBottom, xMap.i1() ),
+		       myPlot->invTransform( QwtPlot::xBottom, xMap.i2() - incrX ) );
+  myPlot->replot();
+}
+

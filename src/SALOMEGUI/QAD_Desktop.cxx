@@ -77,6 +77,7 @@
 #include "SALOME_Event.hxx"
 
 // QT Includes
+#include <qaccel.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
@@ -97,7 +98,7 @@
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qthread.h>
-
+#include <qtooltip.h>
 #include <qstringlist.h>
 
 #if QT_VERSION > 300
@@ -118,6 +119,18 @@ extern "C"
 {
 # include <string.h>
 }
+
+enum { voPanLeft, 
+       voPanRight, 
+       voPanUp,
+       voPanDown, 
+       voZoomIn, 
+       voZoomOut, 
+       voZoomFit, 
+       voRotateLeft, 
+       voRotateRight, 
+       voRotateUp, 
+       voRotateDown };
 
 QAD_ResourceMgr* QAD_Desktop::resourceMgr = 0;
 QPalette*	 QAD_Desktop::palette = 0;
@@ -292,6 +305,8 @@ myAboutToClose( false )
     QString iconfile = CORBA::string_dup(list_composants[ind].moduleicone) ;
     QString modulename = CORBA::string_dup(list_composants[ind].modulename) ;
     QString moduleusername = CORBA::string_dup(list_composants[ind].moduleusername) ;
+    QString moduleversion = CORBA::string_dup(list_composants[ind].moduleversion) ;
+    QString modulecomment = CORBA::string_dup(list_composants[ind].modulecomment) ;
 
     //    MESSAGE ( " MODULE = " << modulename )
     //    MESSAGE ( " MODULE icon = " << iconfile )
@@ -313,7 +328,10 @@ myAboutToClose( false )
 	QToolButton * toolb = 
 	  new QToolButton( QIconSet( Icone ), moduleusername, QString::null, this, 
 			   SLOT( onButtonActiveComponent () ),tbComponent );
+	QString ttip = QString("<b>") + moduleusername + QString("</b>");
+	if ( !moduleversion.isEmpty() ) ttip += QString("<br>Version:&nbsp;") + moduleversion;
 	toolb->setToggleButton( true );
+	QToolTip::add(toolb, ttip, this->toolTipGroup(), modulecomment);
 	myComponentButton.append(toolb);
       }
     else
@@ -1061,6 +1079,37 @@ void QAD_Desktop::createActions()
     QAD_ASSERT( connect( helpAboutAction, SIGNAL(activated()), this, SLOT( onHelpAbout() )));
     helpAboutAction->addTo( &myHelpPopup );
     myStdActions.insert(HelpAboutId, helpAboutAction );
+
+    /* additional key accelerators */
+    QAccel* accel = new QAccel( this );
+    // pan left
+    myAccelMap[ accel->insertItem( CTRL+Key_Left ) ]  = voPanLeft;
+    // pan right
+    myAccelMap[ accel->insertItem( CTRL+Key_Right ) ] = voPanRight;
+    // pan up
+    myAccelMap[ accel->insertItem( CTRL+Key_Up ) ]    = voPanUp;
+    // pan down
+    myAccelMap[ accel->insertItem( CTRL+Key_Down ) ]  = voPanDown;
+    // zoom in
+    myAccelMap[ accel->insertItem( CTRL+Key_Plus ) ]  = voZoomIn;
+    // zoom out
+    myAccelMap[ accel->insertItem( CTRL+Key_Minus ) ] = voZoomOut;
+    // zoom in
+    myAccelMap[ accel->insertItem( CTRL+Key_Equal ) ] = voZoomIn;
+    // fit all
+    myAccelMap[ accel->insertItem( CTRL+Key_Asterisk ) ] = voZoomFit;
+    // fit all
+    myAccelMap[ accel->insertItem( CTRL+SHIFT+Key_Asterisk ) ] = voZoomFit;
+    // rotate left
+    myAccelMap[ accel->insertItem( ALT+Key_Left ) ]   = voRotateLeft;
+    // rotate right
+    myAccelMap[ accel->insertItem( ALT+Key_Right ) ]  = voRotateRight;
+    // rotate up
+    myAccelMap[ accel->insertItem( ALT+Key_Up ) ]     = voRotateUp;
+    // rotate down
+    myAccelMap[ accel->insertItem( ALT+Key_Down ) ]   = voRotateDown;
+    // connect signal to slot
+    connect( accel, SIGNAL( activated(int) ), this, SLOT( onKeyAccel(int) ) );
   }
   updateActions();
 }
@@ -4057,6 +4106,52 @@ void QAD_Desktop::onViewPopupStatusText( int id )
   }
 }
 
+/* Processes additinal key accelerators, e.g. viewer incremental transfomrations */
+void QAD_Desktop::onKeyAccel( int id )
+{
+  if ( myAccelMap.find( id ) != myAccelMap.end() ) {
+    int cmd = myAccelMap[ id ];
+    if ( myActiveApp != 0 && myActiveApp->getActiveStudy() != 0 && myActiveApp->getActiveStudy()->getActiveStudyFrame() != 0 ) {
+      QAD_ViewFrame* vf = myActiveApp->getActiveStudy()->getActiveStudyFrame()->getRightFrame()->getViewFrame();
+      switch ( cmd ) {
+      case voPanLeft:
+	vf->onPanLeft();
+	break;
+      case voPanRight:
+	vf->onPanRight();
+	break;
+      case voPanUp:
+	vf->onPanUp();
+	break;
+      case voPanDown:
+	vf->onPanDown();
+	break;
+      case voZoomIn:
+	vf->onZoomIn();
+	break;
+      case voZoomOut:
+	vf->onZoomOut();
+	break;
+      case voZoomFit:
+	vf->onViewFitAll();
+	break;
+      case voRotateLeft:
+	vf->onRotateLeft();
+	break;
+      case voRotateRight:
+	vf->onRotateRight();
+	break;
+      case voRotateUp:
+	vf->onRotateUp();
+	break;
+      case voRotateDown:
+	vf->onRotateDown();
+	break;
+      }
+    }
+  }
+}
+
 /*********************************************************************
 ** Class: AppSelectionDlg
 ** Descr: Dialog for the selection of the application when several
@@ -4155,4 +4250,3 @@ void Desktop_AppSelectionDlg::onAppSelected( int id )
 void Desktop_AppSelectionDlg::onHelp()
 {
 }
-

@@ -841,6 +841,97 @@ void VTKViewer_ViewFrame::redisplayAll( QAD_Study* theQADStudy, const bool theTo
     Repaint();
 }
 
+#define INCREMENT_FOR_OP 10
+
+//=======================================================================
+// name    : onPanLeft
+// Purpose : Performs incremental panning to the left
+//=======================================================================
+void VTKViewer_ViewFrame::onPanLeft()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalPan( -INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onPanRight
+// Purpose : Performs incremental panning to the right
+//=======================================================================
+void VTKViewer_ViewFrame::onPanRight()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalPan( INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onPanUp
+// Purpose : Performs incremental panning to the top
+//=======================================================================
+void VTKViewer_ViewFrame::onPanUp()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalPan( 0, INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onPanDown
+// Purpose : Performs incremental panning to the bottom
+//=======================================================================
+void VTKViewer_ViewFrame::onPanDown()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalPan( 0, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onZoomIn
+// Purpose : Performs incremental zooming in
+//=======================================================================
+void VTKViewer_ViewFrame::onZoomIn()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalZoom( INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onZoomOut
+// Purpose : Performs incremental zooming out
+//=======================================================================
+void VTKViewer_ViewFrame::onZoomOut()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalZoom( -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onRotateLeft
+// Purpose : Performs incremental rotating to the left
+//=======================================================================
+void VTKViewer_ViewFrame::onRotateLeft()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalRotate( -INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onRotateRight
+// Purpose : Performs incremental rotating to the right
+//=======================================================================
+void VTKViewer_ViewFrame::onRotateRight()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalRotate( INCREMENT_FOR_OP, 0 );
+}
+
+//=======================================================================
+// name    : onRotateUp
+// Purpose : Performs incremental rotating to the top
+//=======================================================================
+void VTKViewer_ViewFrame::onRotateUp()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalRotate( 0, -INCREMENT_FOR_OP );
+}
+
+//=======================================================================
+// name    : onRotateDown
+// Purpose : Performs incremental rotating to the bottom
+//=======================================================================
+void VTKViewer_ViewFrame::onRotateDown()
+{
+  m_RWInteractor->GetInteractorStyleSALOME()->IncrementalRotate( 0, INCREMENT_FOR_OP );
+}
 
 
 

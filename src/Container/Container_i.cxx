@@ -210,9 +210,29 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     shstr += " " ;
     shstr += _argv[ 3 ] ;
   }
-  shstr += " > /tmp/" ;
-  shstr += ContainerName ;
-  shstr += ".log 2>&1 &" ;
+
+  // asv : 16.11.04 : creation of log file in /tmp/logs/$USER dir. 
+  // "/tmp/logs/$USER" was created by  runSalome.py -> orbmodule.py.
+  string tempfilename = "/tmp/logs/";
+  tempfilename += getenv( "USER" ) ;
+  tempfilename += "/" ;
+  tempfilename += ContainerName ;
+  tempfilename += ".log" ;
+  FILE* f = fopen ( tempfilename.c_str(), "a" );
+  if ( f ) { // check if file can be opened for writing
+    fclose( f );
+    shstr += " > " ;
+    shstr += tempfilename;
+    shstr += " 2>&1 &" ;
+  }
+  else { // if file can't be opened - use a guaranteed temp file name
+    char* tmpFileName = tempnam( NULL, ContainerName );
+    shstr += " > ";
+    shstr += tmpFileName;
+    shstr += " 2>&1 &";
+    free( tmpFileName );    
+  }
+
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
@@ -448,7 +468,7 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
 
 // Get the PID of the Container
 
-CORBA::Long Engines_Container_i::getPID() {
+long Engines_Container_i::getPID() {
     return (long)getpid();
 }
 

@@ -93,6 +93,9 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
                                     const int     theId,
                                     const bool    theIsNode = false );
   
+  void                     IncrementalPan   ( const int incrX, const int incrY );
+  void                     IncrementalZoom  ( const int incr );
+  void                     IncrementalRotate( const int incrX, const int incrY );
 
  protected:
   VTKViewer_InteractorStyleSALOME();

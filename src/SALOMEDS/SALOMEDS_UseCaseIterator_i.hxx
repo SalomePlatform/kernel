@@ -11,38 +11,36 @@
 #ifndef __SALOMEDS_USECASEITERATOR_I_H__
 #define __SALOMEDS_USECASEITERATOR_I_H__
 
-// std C++ headers
-#include <iostream.h>
-
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-
-
 // Cascade headers
-#include <TDF_ChildIterator.hxx>
 #include <TDataStd_ChildNodeIterator.hxx>
 #include <TDataStd_TreeNode.hxx>
 #include <Standard_GUID.hxx>
-#include <stdio.h>
+
+class SALOMEDS_Study_i;
 
 class SALOMEDS_UseCaseIterator_i: public POA_SALOMEDS::UseCaseIterator,
-				public PortableServer::RefCountServantBase {
+				  public PortableServer::RefCountServantBase 
+{
+  SALOMEDS_UseCaseIterator_i(); // Not implemented
+  void operator=(const SALOMEDS_UseCaseIterator_i&); // Not implemented
+
 private:
   Standard_GUID                 _guid;
   Standard_Boolean              _levels;
-  CORBA::ORB_ptr                _orb;
   Handle(TDataStd_TreeNode)     _node;
   TDataStd_ChildNodeIterator    _it;
+  SALOMEDS_Study_i*             _study;
 
 public:
-
   //! standard constructor  
-  SALOMEDS_UseCaseIterator_i(const TDF_Label& theLabel, 
+  SALOMEDS_UseCaseIterator_i(SALOMEDS_Study_i* theStudy,
+			     const TDF_Label& theLabel, 
 			     const Standard_GUID& theGUID, 
-			     const Standard_Boolean allLevels,
-			     CORBA::ORB_ptr);
+			     const Standard_Boolean theIsAllLevels);
   
   //! standard destructor
   ~SALOMEDS_UseCaseIterator_i();
@@ -52,4 +50,6 @@ public:
   virtual void Next();
   virtual SALOMEDS::SObject_ptr Value();
 };
+
+
 #endif

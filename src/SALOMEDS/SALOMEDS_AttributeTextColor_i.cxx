@@ -27,8 +27,8 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeTextColor_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HArray1OfReal.hxx>
+
 using namespace std;
 
 SALOMEDS::Color SALOMEDS_AttributeTextColor_i::TextColor() {

@@ -27,7 +27,7 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeExpandable_i.hxx"
-#include "SALOMEDS_SObject_i.hxx"
+
 using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable() {

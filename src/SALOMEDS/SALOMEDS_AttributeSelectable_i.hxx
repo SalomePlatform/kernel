@@ -29,23 +29,21 @@
 #ifndef SALOMEDS_AttributeSelectable_i_HeaderFile
 #define SALOMEDS_AttributeSelectable_i_HeaderFile
 
-// IDL headers
-
 #include "SALOMEDS_SelectableAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeSelectable_i: public virtual POA_SALOMEDS::AttributeSelectable,
-  public virtual SALOMEDS_GenericAttribute_i {
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+DEFINE_DERIVED_ATTR(AttributeSelectable,SALOMEDS_SelectableAttribute,false);
+
+class SALOMEDS_AttributeSelectable_i: 
+  public virtual POA_SALOMEDS::AttributeSelectable,
+  public virtual SALOMEDS_TAttributeSelectable_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeSelectable,SALOMEDS_SelectableAttribute);
 public:
-  
-  SALOMEDS_AttributeSelectable_i(const Handle(SALOMEDS_SelectableAttribute)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr;
-  };  
-  ~SALOMEDS_AttributeSelectable_i() {};
   CORBA::Boolean IsSelectable();
   void SetSelectable(CORBA::Boolean value);
 
@@ -53,7 +51,6 @@ public:
   void Restore(const char*);
 
 };
-
 
 
 #endif

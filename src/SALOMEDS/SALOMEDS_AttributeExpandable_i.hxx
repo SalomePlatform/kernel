@@ -30,22 +30,20 @@
 #define SALOMEDS_AttributeExpandable_i_HeaderFile
 
 // IDL headers
-
-#include "SALOMEDS_ExpandableAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_ExpandableAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeExpandable_i: public virtual POA_SALOMEDS::AttributeExpandable,
-  public virtual SALOMEDS_GenericAttribute_i {
+DEFINE_DERIVED_ATTR(AttributeExpandable,SALOMEDS_ExpandableAttribute,false);
+
+class SALOMEDS_AttributeExpandable_i: 
+  public virtual POA_SALOMEDS::AttributeExpandable,
+  public virtual SALOMEDS_TAttributeExpandable_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeExpandable,SALOMEDS_ExpandableAttribute);
 public:
-  
-  SALOMEDS_AttributeExpandable_i(const Handle(SALOMEDS_ExpandableAttribute)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr;
-  };  
-  ~SALOMEDS_AttributeExpandable_i() {};
   CORBA::Boolean IsExpandable();
   void SetExpandable(CORBA::Boolean value);
 

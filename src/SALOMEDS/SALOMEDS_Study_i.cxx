@@ -26,49 +26,116 @@
 //  Module : SALOME
 //  $Header$
 
-#include "utilities.h"
-#include "SALOMEDS_Study_i.hxx"
-
-#include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
-#include <TColStd_SequenceOfExtendedString.hxx>
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
 #include <TDataStd_ChildNodeIterator.hxx>
 #include <TDocStd_Application.hxx>
 #include <TDocStd_Owner.hxx>
 #include <CDM_Document.hxx>
 #include <CDM_Application.hxx>
 #include <TDF_ChildIDIterator.hxx>
-#include <SALOME_GenericObj_i.hh>
+
+#include <TColStd_SequenceOfExtendedString.hxx>
+#include <TCollection_ExtendedString.hxx>
+#include <TCollection_AsciiString.hxx>
+
+#include <TColStd_ListIteratorOfListOfInteger.hxx>
+#include <TColStd_ListOfInteger.hxx>
+
+#include "SALOMEDS_Study_i.hxx"
+
+#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_Callback_i.hxx"
+#include "SALOMEDS_SObject_i.hxx"
+
+#include "SALOMEDS_StudyBuilder_i.hxx"
+#include "SALOMEDS_ChildIterator_i.hxx"
+
+#include "SALOMEDS_UseCaseBuilder_i.hxx"
+#include "SALOMEDS_SComponentIterator_i.hxx"
+
+#include "SALOME_GenericObj_i.hh"
 #include "SALOMEDS_LocalIDAttribute.hxx"
 #include "SALOMEDS_PersRefAttribute.hxx"
-#include "SALOMEDS_UseCaseIterator_i.hxx"
-using namespace std;
 
+#include "SALOMEDS_StudyPropertiesAttribute.hxx"
+#include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
+
+#include "utilities.h"
 
 #define DIRECTORYID 16661
 #define FILEID "FILE: "
 #define FILELOCALID 26662 
+
+using namespace std;
+
+
+bool operator<(const TDF_Label& theLeft, const TDF_Label& theRight)
+{
+  TColStd_ListOfInteger aTagLeftList;
+  TDF_Tool::TagList(theLeft,aTagLeftList);
+  TColStd_ListIteratorOfListOfInteger anLeftIter(aTagLeftList);
+
+  TColStd_ListOfInteger aTagRightList;
+  TDF_Tool::TagList(theRight,aTagRightList);
+  TColStd_ListIteratorOfListOfInteger anRightIter(aTagRightList);
+
+  for(;;){
+    Standard_Boolean aLeftMore = anLeftIter.More();
+    Standard_Boolean aRightMore = anRightIter.More();
+    
+    if(!aLeftMore && !aRightMore)
+      return Standard_False;
+
+    if(!aLeftMore)
+      return Standard_True;
+
+    if(!aRightMore)
+      return Standard_False;
+
+    Standard_Integer aLeftTag = anLeftIter.Value();
+    anLeftIter.Next();
+
+    Standard_Integer aRightTag = anRightIter.Value();
+    anRightIter.Next();
+
+    if(aLeftTag == aRightTag)
+      continue;
+
+    return aLeftTag < aRightTag;
+  }
+
+  return Standard_False;
+}
+
 
 //============================================================================
 /*! Function : SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i constructor
  */
 //============================================================================
-SALOMEDS_Study_i::SALOMEDS_Study_i(const Handle(TDocStd_Document) doc,
-				   CORBA::ORB_ptr                 orb,
-				   const char* study_name)
+SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDS_StudyManager_i* theStudyManager,
+				   const Handle(TDocStd_Document)& theDoc,
+				   const char* theStudyName):
+  _StudyManager(theStudyManager),
+  _doc(theDoc),
+  _isSaved(false),
+  _URL(NULL),
+  _StudyId(-1),
+  _autoFill(true),
+  myNbUndos(0)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
-  _doc = doc;
-  _name = new char[strlen(study_name) +1];
-  strcpy(_name,study_name);
-  _isSaved = false ;
-  _URL = NULL;
-  _StudyId = -1;
-  _autoFill = true;
+  _UseCaseBuilder = new SALOMEDS_UseCaseBuilder_i(this,_doc);
+  SALOMEDS::UseCaseBuilder_var aUseCaseBuilder = _UseCaseBuilder->_this();
+
+  _Builder = new SALOMEDS_StudyBuilder_i(this,_doc);
+  SALOMEDS::StudyBuilder_var aStudyBuilder = _Builder->_this(); 
+
+  SALOMEDS_Callback_i* aCallBackServant = new SALOMEDS_Callback_i(aUseCaseBuilder);
+  _callbackOnAdd = aCallBackServant->_this();
+  _callbackOnRemove = _callbackOnAdd;
+
+  _name = new char[strlen(theStudyName) +1];
+  strcpy(_name,theStudyName);
   myNbPostponed.Append(0);
-  myNbUndos = 0;
 }
   
 //============================================================================
@@ -81,6 +148,83 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
   delete [] _name ;
   delete [] _URL ;
 }  
+
+//============================================================================
+CORBA::ORB_var SALOMEDS_Study_i::GetORB() const
+{
+  return _StudyManager->GetORB();
+}
+
+//============================================================================
+PortableServer::POA_var SALOMEDS_Study_i::GetPOA() const
+{
+  return _StudyManager->GetPOA();
+}
+
+//============================================================================
+/*! Function : SetOnAddSObject
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::Callback_ptr SALOMEDS_Study_i::SetOnAddSObject(SALOMEDS::Callback_ptr theCallback)
+{
+  SALOMEDS::Callback_var aRet = _callbackOnAdd;
+  _callbackOnAdd = SALOMEDS::Callback::_duplicate(theCallback);
+  return aRet._retn();
+}
+
+//============================================================================
+/*! Function : SetOnNewSObject
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::Callback_ptr SALOMEDS_Study_i::SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback)
+{
+  SALOMEDS::Callback_var aRet = _callbackOnRemove;
+  _callbackOnAdd = SALOMEDS::Callback::_duplicate(theCallback);
+  return aRet._retn();
+}
+
+//============================================================================
+void SALOMEDS_Study_i::OnAddSObject(SALOMEDS::SObject_ptr theObject)
+{
+  if(!CORBA::is_nil(_callbackOnAdd.in()))
+    _callbackOnAdd->OnAddSObject(theObject);
+}
+
+//============================================================================
+void SALOMEDS_Study_i::OnRemoveSObject(SALOMEDS::SObject_ptr theObject)
+{
+  if(!CORBA::is_nil(_callbackOnRemove.in()))
+    _callbackOnRemove->OnRemoveSObject(theObject);
+}
+
+//============================================================================
+void SALOMEDS_Study_i::CheckLocked()
+{
+  if(_doc->HasOpenCommand()) 
+    return;
+
+  Handle(SALOMEDS_StudyPropertiesAttribute) anAttr;
+  if(_doc->Main().FindAttribute(SALOMEDS_StudyPropertiesAttribute::GetID(),anAttr))
+    if(anAttr->IsLocked())
+      throw SALOMEDS::StudyBuilder::LockProtection();
+}
+
+
+//============================================================================
+char* SALOMEDS_Study_i::ConvertObjectToIOR(CORBA::Object_ptr theObject)
+{
+  return GetORB()->object_to_string(theObject); 
+}
+
+
+//============================================================================
+CORBA::Object_ptr SALOMEDS_Study_i::ConvertIORToObject(const char* theIOR) 
+{ 
+  return GetORB()->string_to_object(theIOR); 
+}
+
 
 //============================================================================
 /*! Function : GetPersistentReference
@@ -138,7 +282,6 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponent (const char* aComponent
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
     name = SC->ComponentDataType();
-    //ED if ( TCollection_AsciiString(name).IsEqual(TCollection_AsciiString(strdup(aComponentName))) ) {
     if(strcmp(aComponentName,name) == 0){
       _find = true;
       return SALOMEDS::SComponent::_narrow(SC); 
@@ -228,10 +371,10 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
   TDF_Label Lab;
   TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab);
   
-  if (Lab.IsNull()) return SALOMEDS::SObject::_nil();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (Lab,_orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so;
+  if (Lab.IsNull()) 
+    return SALOMEDS::SObject::_nil();
+
+  return SALOMEDS_SObject_i::New(this,Lab)->_this();
 
 }
 
@@ -246,11 +389,10 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
   TDF_Label Lab;
   TDF_Tool::Label(_doc->GetData(), (char*)anObjectID, Lab, Standard_True);
   
-  if (Lab.IsNull()) return SALOMEDS::SObject::_nil();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (Lab,_orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so;
+  if (Lab.IsNull()) 
+    return SALOMEDS::SObject::_nil();
 
+  return SALOMEDS_SObject_i::New(this,Lab)->_this();
 }
 
 //============================================================================
@@ -274,7 +416,6 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
   // Iterate on each object and subobject of the component
   // If objectName is found add it to the list of SObjects 
   char *name;
-  char *childName ;
   SALOMEDS::SObject_ptr addSO = SALOMEDS::SObject::_nil();
 
   CORBA::String_var compoId = compo->GetID();
@@ -297,7 +438,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
       }
       
       /* looks also for eventual children */
-      bool found = false ;
+      bool found;
       addSO = _FindObject( CSO, anObjectName, found ) ;
       if( found) {
 	length++ ;
@@ -316,17 +457,18 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
  *  Purpose  : Find an Object with IOR = anObjectIOR
  */
 //============================================================================
-SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
+SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* theObjectIOR)
 {
   // firstly searching in the datamap for optimization
-  CORBA::String_var anIOR = CORBA::string_dup(anObjectIOR);
-  if (myIORLabels.IsBound(TCollection_ExtendedString(anIOR))) {
-    SALOMEDS_SObject_i* aResult = new SALOMEDS_SObject_i(myIORLabels.Find(TCollection_ExtendedString(anIOR)),_orb);
+  char* anIOR = const_cast<char*>(theObjectIOR);
+  if (myIORLabels.IsBound(anIOR)) {
+    SALOMEDS_SObject_i* aResult = SALOMEDS_SObject_i::New(this,myIORLabels.Find(anIOR));
     // 11 oct 2002: forbidden attributes must be checked here
     SALOMEDS::GenericAttribute_var anAttr;
     if (!aResult->FindAttribute(anAttr,"AttributeIOR")) {
-      myIORLabels.UnBind(TCollection_ExtendedString(anIOR));
-    } else return aResult->_this();
+      myIORLabels.UnBind(anIOR);
+    } else 
+      return aResult->_this();
   }
   // Iterate to all components defined in the study
   // After testing the component name, iterate in all objects defined under
@@ -336,23 +478,20 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
 
   SALOMEDS::SComponentIterator_var it = NewComponentIterator();
   for (; it->More();it->Next()){
-    if(!_find)
-      {
-	SALOMEDS::SComponent_var SC = it->Value();
-	SALOMEDS::GenericAttribute_var anAttr;
-	if (SC->FindAttribute(anAttr,"AttributeIOR")) 
-	{
-	  SALOMEDS::AttributeIOR_var IOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-          CORBA::String_var Val = IOR->Value();
-	  if (strcmp(Val, anObjectIOR) == 0)
-	    {
-	      _find = true;
-	      RefSO = SALOMEDS::SObject::_narrow(SC);
-	    }
+    if(!_find){
+      SALOMEDS::SComponent_var SC = it->Value();
+      SALOMEDS::GenericAttribute_var anAttr;
+      if(SC->FindAttribute(anAttr,"AttributeIOR")){
+	SALOMEDS::AttributeIOR_var IOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
+	CORBA::String_var aVal = IOR->Value();
+	if (strcmp(aVal,theObjectIOR) == 0){
+	  _find = true;
+	  RefSO = SALOMEDS::SObject::_narrow(SC);
 	}
-	if (!_find) 
-	  RefSO =  _FindObjectIOR(SC,anObjectIOR, _find);
       }
+      if (!_find) 
+	RefSO =  _FindObjectIOR(SC,theObjectIOR,_find);
+    }
   }
   if (!RefSO->_is_nil()) MESSAGE("SALOMEDS_Study_i::FindObjectIOR: found label with old methods");
 
@@ -372,9 +511,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
   bool isRelative = false;
 
   if(aLength == 0) {  //Empty path - return the current context
-    SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (_current, _orb);
-    aSO = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-    return aSO._retn();
+    return SALOMEDS_SObject_i::New(this,_current)->_this();
   }
 
   if(aPath.Value(1) != '/')  //Relative path 
@@ -390,9 +527,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
   }
   else {
     if(aPath.Length() == 1 && aPath.Value(1) == '/') {    //Root
-      SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (_doc->Main(), _orb);
-      aSO = SALOMEDS::SObject::_narrow(so_servant->_this());
-      return aSO._retn();
+      return SALOMEDS_SObject_i::New (this,_doc->Main())->_this();
     }
     anIterator.Initialize(_doc->Main(), Standard_False);
   }
@@ -408,9 +543,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 	if(anAttr->Get() == aToken) {
 	  aToken = aPath.Token("/", i+1); //Check if it was the last part of the path
 	  if(aToken.Length() == 0) {  //The searched label is found (no part of the path is left)
-	      SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aLabel, _orb);
-	      aSO = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-	      return aSO._retn();
+	    return SALOMEDS_SObject_i::New(this,aLabel)->_this();
 	  }
 
 	  anIterator.Initialize(aLabel, Standard_False);
@@ -433,18 +566,22 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 {
   TCollection_AsciiString aPath("");
-  if(CORBA::is_nil(theObject)) return CORBA::string_dup(aPath.ToCString());
+  if(CORBA::is_nil(theObject)) 
+    return CORBA::string_dup(aPath.ToCString());
 
   SALOMEDS::SObject_var anObject = SALOMEDS::SObject::_narrow(theObject);
   if(anObject->_is_nil()) {
-    anObject = FindObjectIOR(_orb->object_to_string(theObject));
-    if(anObject->_is_nil()) return CORBA::string_dup(aPath.ToCString());
+    CORBA::String_var anIOR = GetORB()->object_to_string(theObject);
+    anObject = FindObjectIOR(anIOR);
+    if(anObject->_is_nil()) 
+      return CORBA::string_dup(aPath.ToCString());
   }
 
   SALOMEDS::GenericAttribute_var anAttr;
   if(anObject->FindAttribute(anAttr, "AttributeName")) {
     SALOMEDS::AttributeName_var aName = SALOMEDS::AttributeName::_narrow(anAttr);
-    if(anAttr->_is_nil()) return CORBA::string_dup(aPath.ToCString());
+    if(anAttr->_is_nil()) 
+      return CORBA::string_dup(aPath.ToCString());
     TCollection_AsciiString aValue(aName->Value());
     aValue.Prepend("/");
     aValue += aPath;
@@ -474,7 +611,7 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 {
   if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
   TCollection_AsciiString aPath(CORBA::string_dup(thePath)), aContext("");
-  bool isInvalid = false, isFound = false;
+  bool isInvalid = false;
   SALOMEDS::SObject_var aSO;
   
   if(aPath.Value(1) != '/') { //Relative path 
@@ -509,10 +646,11 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 //============================================================================
 char* SALOMEDS_Study_i::GetContext() 
 {
-  if(_current.IsNull()) throw SALOMEDS::Study::StudyInvalidContext();   
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (_current, _orb);
-  SALOMEDS::SObject_var aSO = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return GetObjectPath(aSO._retn());
+  if(_current.IsNull()) 
+    throw SALOMEDS::Study::StudyInvalidContext();   
+  SALOMEDS_SObject_i* aServant = SALOMEDS_SObject_i::New(this,_current);
+  SALOMEDS::SObject_var aSObject = aServant->_this(); 
+  return GetObjectPath(aSObject);
 }
 
 //============================================================================
@@ -670,10 +808,8 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
   TDF_Tool::Label(_doc->GetData(), aSO->GetID(), Lab);
 
   //Create iterator
-  SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(Lab,_orb);
-  SALOMEDS::ChildIterator_var it = SALOMEDS::ChildIterator::_narrow(it_servant->_this()); 
-
-  return it;
+  SALOMEDS_ChildIterator_i* aServant = new SALOMEDS_ChildIterator_i(this,Lab);
+  return aServant->_this();
 }
 
 
@@ -684,11 +820,19 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 //============================================================================
 SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 {
-  SALOMEDS_SComponentIterator_i* it_servant = new SALOMEDS_SComponentIterator_i(_doc,_orb);
-  SALOMEDS::SComponentIterator_var it = SALOMEDS::SComponentIterator::_narrow(it_servant->_this()); 
-  return it;
+  SALOMEDS_SComponentIterator_i* aServant = new SALOMEDS_SComponentIterator_i(this,_doc);
+  return aServant->_this();
 }
 
+//============================================================================
+/*! Function : GetUseCaseBuilder
+ *  Purpose  : Returns a UseCase builder
+ */
+//============================================================================
+SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder() 
+{
+  return _UseCaseBuilder->_this();
+}
 
 //============================================================================
 /*! Function : NewBuilder
@@ -697,19 +841,7 @@ SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 //============================================================================
 SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 {
-  SALOMEDS_StudyBuilder_i* it_servant = new SALOMEDS_StudyBuilder_i(_doc,_orb);
-  SALOMEDS::StudyBuilder_var it = SALOMEDS::StudyBuilder::_narrow(it_servant->_this()); 
-
-  if(_autoFill) {
-    SALOMEDS_Callback_i* callback = new SALOMEDS_Callback_i(GetUseCaseBuilder(), _orb);
-    SALOMEDS::Callback_var cb = SALOMEDS::Callback::_narrow(callback->_this()); 
-
-    it->SetOnAddSObject(cb);
-    it->SetOnRemoveSObject(cb);
-  }
-
-  return it;
-
+  return _Builder->_this();
 }
  
 //============================================================================
@@ -814,10 +946,10 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::_FindObject(SALOMEDS::SObject_ptr SO,
 						    const char* anObjectName, 
 						    bool& _find)
 {
+  _find = false;
   // Iterate on each objects and subobjects of the component
   // If objectName find, stop the loop and get the object reference
   SALOMEDS::SObject_ptr RefSO = SALOMEDS::SObject::_nil();
-
   CORBA::String_var soid = SO->GetID();
   SALOMEDS::ChildIterator_var it = NewChildIterator(SO);
   for (; it->More();it->Next()){
@@ -969,19 +1101,6 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate() {
 
 
 //============================================================================
-/*! Function : GetUseCaseBuilder
- *  Purpose  : Returns a UseCase builder
- */
-//============================================================================
-SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder() 
-{
-  SALOMEDS_UseCaseBuilder_i* _caseBuilder = new SALOMEDS_UseCaseBuilder_i(_doc, _orb);
-  SALOMEDS::UseCaseBuilder_var aBuilder = SALOMEDS::UseCaseBuilder::_narrow(_caseBuilder->_this());
-  return aBuilder._retn();
-}
-
-
-//============================================================================
 /*! Function : Close
  *  Purpose  : 
  */
@@ -990,6 +1109,7 @@ void SALOMEDS_Study_i::Close()
 {
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
 
+  const CORBA::ORB_var& anORB = GetORB();
   for (; itcomponent->More(); itcomponent->Next()) {
     SALOMEDS::SComponent_var sco = itcomponent->Value();
 	  
@@ -999,7 +1119,7 @@ void SALOMEDS_Study_i::Close()
     if (sco->ComponentIOR(IOREngine)) {
       // we have found the associated engine to write the data 
       MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
-      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+      CORBA::Object_var obj = anORB->string_to_object(IOREngine);
       if (!CORBA::is_nil(obj)) {
 	SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
 	
@@ -1027,11 +1147,11 @@ void SALOMEDS_Study_i::Close()
 void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
   if (!NewBuilder()->HasOpenCommand()) return;
   try {
-    CORBA::Object_var obj = _orb->string_to_object(theIOR);
+    CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
     if (!CORBA::is_nil(obj)) {
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
       if (!CORBA::is_nil(aGeneric)) {
-	TCollection_AsciiString anIOR((char*)theIOR);
+	TCollection_AsciiString anIOR(const_cast<char*>(theIOR));
 	anIOR.Prepend("d");
 	myPostponedIORs.Append(anIOR); // add prefix: deleted
 	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
@@ -1043,11 +1163,11 @@ void SALOMEDS_Study_i::AddPostponed(const char* theIOR) {
 void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) {
   if (!NewBuilder()->HasOpenCommand()) return;
   try {
-    CORBA::Object_var obj = _orb->string_to_object(theIOR);
+    CORBA::Object_var obj = GetORB()->string_to_object(theIOR);
     if (!CORBA::is_nil(obj)) {
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
       if (!CORBA::is_nil(aGeneric)) {
-	TCollection_AsciiString anIOR((char*)theIOR);
+	TCollection_AsciiString anIOR(const_cast<char*>(theIOR));
 	anIOR.Prepend("c");
 	myPostponedIORs.Append(anIOR); // add prefix: created
 	myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
@@ -1068,6 +1188,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
   int aUndoLimit = theUndoLimit;
   if (theUndoLimit < 0) aUndoLimit = 0;
 
+  const CORBA::ORB_var& anORB = GetORB();
   if (myNbUndos > 0) { // remove undone
     anOld = 0;
     for(anIndex = 1; anIndex < myNbPostponed.Length() - myNbUndos; anIndex++)
@@ -1077,7 +1198,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
     for(anIndex = anOld + 1; anIndex <= aNew; anIndex++) {
       TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
       if (anIOR.Value(1) == 'c') {
-	CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
+	CORBA::Object_var obj = anORB->string_to_object(anIOR.Split(1).ToCString());
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
       }
@@ -1095,7 +1216,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
     for(anIndex = 1; anIndex <= anOld; anIndex++) {
       TCollection_AsciiString anIOR = myPostponedIORs(anIndex);
       if (anIOR.Value(1) == 'd') {
-	CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
+	CORBA::Object_var obj = anORB->string_to_object(anIOR.Split(1).ToCString());
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
       }
@@ -1110,7 +1231,7 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) {
       Handle(SALOMEDS_IORAttribute) anAttr = Handle(SALOMEDS_IORAttribute)::DownCast(anIter.Value());
       CORBA::String_var anIOR = CORBA::string_dup(TCollection_AsciiString(anAttr->Get()).ToCString());
       try {
-	CORBA::Object_var obj = _orb->string_to_object(anIOR);
+	CORBA::Object_var obj = anORB->string_to_object(anIOR);
 	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
       } catch (...) {}

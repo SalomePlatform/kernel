@@ -11,25 +11,21 @@
 #ifndef SALOMEDS_AttributeTableOfString_i_HeaderFile
 #define SALOMEDS_AttributeTableOfString_i_HeaderFile
 
-// IDL headers
 #include "SALOMEDS_TableOfStringAttribute.hxx"
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTableOfString_i: public virtual POA_SALOMEDS::AttributeTableOfString,
-  public virtual SALOMEDS_GenericAttribute_i {
-    
-public:
-  
-  SALOMEDS_AttributeTableOfString_i(const Handle(SALOMEDS_TableOfStringAttribute)& theTableOfStringAttr, 
-				     CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theTableOfStringAttr;
-  };
-  ~SALOMEDS_AttributeTableOfString_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeTableOfString,SALOMEDS_TableOfStringAttribute,true);
+
+class SALOMEDS_AttributeTableOfString_i: 
+  public virtual POA_SALOMEDS::AttributeTableOfString,
+  public virtual SALOMEDS_TAttributeTableOfString_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfString,SALOMEDS_TableOfStringAttribute);
+public:
   virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)

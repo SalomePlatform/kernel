@@ -142,9 +142,41 @@ void QAD_DirListDlg::setPathList(const QStringList& list) {
 /*!
   Validates entered path, returns true if OK
 */
+#ifndef WNT
+#include <pwd.h>
+#endif
 bool QAD_DirListDlg::validate() {
   if (myEdited) {
     QString dirPath = myEdit->text().stripWhiteSpace();
+#ifndef WNT
+    if ( dirPath.startsWith( "~") ) {
+      dirPath = dirPath.remove(0,1);
+      QString user;
+      int slashPos = dirPath.find("/");
+      if ( slashPos >= 0 ) {
+	user = dirPath.left(slashPos);
+	dirPath = dirPath.mid(slashPos);
+      }
+      else {
+	user = dirPath;
+	dirPath = "";
+      }
+      if ( user.isEmpty() )
+	user = getenv( "USER" );
+
+      struct passwd* user_data = getpwnam( user.latin1() );
+      if ( user_data == NULL ) {
+	// unknown user or something another error
+	QAD_MessageBox::error1(this, 
+			       tr("ERR_ERROR"),
+			       tr("Unknown user %1").arg(user), 
+			       tr("BUT_OK"));
+	myEdit->setFocus();
+        return false;
+      }
+      dirPath = user_data->pw_dir + dirPath;
+    }
+#endif
     QDir dir(dirPath);
     QListBoxItem* found = 0;
     for (unsigned i = 0; i < myDirList->count()-1; i++) {

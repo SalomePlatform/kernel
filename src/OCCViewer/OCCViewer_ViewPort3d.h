@@ -71,6 +71,10 @@ class QAD_EXPORT OCCViewer_ViewPort3d: public OCCViewer_ViewPort
   void	                  fitAll( bool withZ = true );
   void	                  reset();
 
+  void                    incrementalPan   ( const int incrX, const int incrY );
+  void                    incrementalZoom  ( const int incr );
+  void                    incrementalRotate( const int incrX, const int incrY );
+
   /* background */
   void		 	  setBackgroundColor( const QColor& color);	
   QColor		  backgroundColor() const;

@@ -26,10 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
+#include <TCollection_ExtendedString.hxx>
+#include <TCollection_AsciiString.hxx>
+
 #include "SALOMEDS_AttributeComment_i.hxx"
 
-#include <TCollection_ExtendedString.hxx>
-#include "SALOMEDS_SObject_i.hxx"
 using namespace std;
 
 char* SALOMEDS_AttributeComment_i::Value()

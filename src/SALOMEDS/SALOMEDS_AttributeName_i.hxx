@@ -29,30 +29,27 @@
 #ifndef SALOMEDS_AttributeName_i_HeaderFile
 #define SALOMEDS_AttributeName_i_HeaderFile
 
-// IDL headers
-
 #include <TDataStd_Name.hxx>
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeName_i: public virtual POA_SALOMEDS::AttributeName,
-				public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeName_i(const Handle(TDataStd_Name)& theNameAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theNameAttr;
-  };
-  ~SALOMEDS_AttributeName_i() {};
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+DEFINE_DERIVED_ATTR(AttributeName,TDataStd_Name,true);
+
+class SALOMEDS_AttributeName_i: 
+  public virtual POA_SALOMEDS::AttributeName,
+  public virtual SALOMEDS_TAttributeName_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeName,TDataStd_Name);
+public:
   char* Value();
   void SetValue(const char* value);
 
   char* Store();
   void Restore(const char*);
-
 };
 
 

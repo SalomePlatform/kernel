@@ -94,7 +94,11 @@ public:
   virtual void           Activate( QAD_Study* ) {}
   // this method is called when parent window of view frame is activated
 
-protected slots:
+public slots:
+  /* basic view operations,
+     most of them are pure virtual
+     and should be redefined in derived classes
+  */
   virtual void           onViewPan() = 0; 
   virtual void           onViewZoom() = 0;
   virtual void           onViewFitAll() = 0;
@@ -111,6 +115,19 @@ protected slots:
   virtual void           onViewTrihedron() = 0; 
   virtual void           onViewDump();
 
+  /* view incremental transformation operations.
+     virtual, can be redefined in derived classes
+  */
+  virtual void           onPanLeft()     {}
+  virtual void           onPanRight()    {}
+  virtual void           onPanUp()       {}
+  virtual void           onPanDown()     {}
+  virtual void           onZoomIn()      {}
+  virtual void           onZoomOut()     {}
+  virtual void           onRotateLeft()  {}
+  virtual void           onRotateRight() {}
+  virtual void           onRotateUp()    {}
+  virtual void           onRotateDown()  {}
 };
 
 #endif

@@ -13,23 +13,20 @@
 #define SALOMEDS_AttributePythonObject_i_HeaderFile
 
 // IDL headers
-
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_PythonObjectAttribute.hxx"
 
-class SALOMEDS_AttributePythonObject_i: public virtual POA_SALOMEDS::AttributePythonObject,
-                                        public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributePythonObject_i(const Handle(SALOMEDS_PythonObjectAttribute)& theObjectAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theObjectAttr;
-  };
-  ~SALOMEDS_AttributePythonObject_i() {};
+DEFINE_DERIVED_ATTR(AttributePythonObject,SALOMEDS_PythonObjectAttribute,true);
 
+class SALOMEDS_AttributePythonObject_i: 
+  public virtual POA_SALOMEDS::AttributePythonObject,
+  public virtual SALOMEDS_TAttributePythonObject_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributePythonObject,SALOMEDS_PythonObjectAttribute);
+public:
   virtual void SetObject(const char* theSequence, CORBA::Boolean IsScript);
   virtual char* GetObject();
   virtual CORBA::Boolean IsScript();
@@ -38,8 +35,5 @@ public:
   virtual void Restore(const char*);
 
 };
-
-
-
 
 #endif

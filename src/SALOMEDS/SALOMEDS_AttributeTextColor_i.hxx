@@ -30,22 +30,20 @@
 #define SALOMEDS_AttributeTextColor_i_HeaderFile
 
 // IDL headers
-#include "SALOMEDS_TextColorAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_TextColorAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTextColor_i: public virtual POA_SALOMEDS::AttributeTextColor,
-				public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeTextColor_i(const Handle(SALOMEDS_TextColorAttribute)& theTextColorAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theTextColorAttr;
-  };
-  ~SALOMEDS_AttributeTextColor_i() {};
+DEFINE_DERIVED_ATTR(AttributeTextColor,SALOMEDS_TextColorAttribute,false);
 
+class SALOMEDS_AttributeTextColor_i: 
+  public virtual POA_SALOMEDS::AttributeTextColor,
+  public virtual SALOMEDS_TAttributeTextColor_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTextColor,SALOMEDS_TextColorAttribute);
+public:
   SALOMEDS::Color TextColor();
   void SetTextColor(const SALOMEDS::Color& value);
 

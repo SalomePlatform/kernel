@@ -61,6 +61,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_component_multistudy = "component-multistudy";
   test_component_icon       = "component-icone" ;
   test_component_impltype   = "component-impltype";
+  test_component_version    = "component-version";
+  test_component_comment    = "component-comment";
 
   test_interface_name       = "component-interface-name" ;
   
@@ -253,6 +255,18 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
   // tag test_component_icon
    if((qName.compare(test_component_icon)==0)) {
      _aModule.icon = content ;
+     return true;
+   }
+
+  // tag test_component_version
+   if((qName.compare(test_component_version)==0)) {
+     _aModule.version = content ;
+     return true;
+   }
+
+  // tag test_component_comment
+   if((qName.compare(test_component_comment)==0)) {
+     _aModule.comment = content ;
      return true;
    }
 

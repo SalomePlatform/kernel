@@ -496,6 +496,7 @@ void QAD_ObjectBrowser::onCreatePopup()
   QAD_Study*   myActiveStudy = Desktop->getActiveStudy();
   SALOME_Selection*      Sel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
 
+  bool canExpand = false;
   /* VSR : Creation of common POPUP menu for Object Browser/Use Case Browser */
   if ( Sel->IObjectCount() > 0 ) {
     QString theContext;
@@ -518,8 +519,7 @@ void QAD_ObjectBrowser::onCreatePopup()
 			     SLOT( onEditAttribute() ) );
       }
 
-      bool canExpand = false;
-      for ( QListViewItemIterator it( getListView() ); it.current() && !canExpand; ++it )
+      for ( QListViewItemIterator it( currentPage() == myListView ? myListView : myUseCaseView ); it.current() && !canExpand; ++it )
 	canExpand = canExpand || ( it.current()->isSelected() && hasCollapsed( it.current() ) );
 
       if ( canExpand ) {
@@ -545,16 +545,19 @@ void QAD_ObjectBrowser::onCreatePopup()
       SALOMEDS::UseCaseBuilder_var UCBuilder = myStudy->GetUseCaseBuilder();
 //      myPopup->clear();
       bool isOne = ucSelected.count() == 1;
-      bool isMany = ucSelected.count() > 1;
-      bool isEmpty = ucSelected.count() == 1;
-      bool obSelected = Sel->IObjectCount() > 0;
       bool isRoot = isOne && isRootItem( ucSelected.at( 0 ) );
       bool manyChildren = myUseCaseView->childCount() > 0 && myUseCaseView->firstChild()->childCount() > 0;
       bool isUseCase = isOne && 
 	( isRoot || UCBuilder->IsUseCase( myStudy->FindObjectID( (( QAD_ObjectBrowserItem* )( ucSelected.at(0) ))->getEntry() ) ) ); 
 
-      if ( isRoot )
+      if ( isRoot ) {
 	myPopup->clear();
+	if ( canExpand ) {
+	  myPopup->insertItem( tr( "EXPAND_ALL_CMD" ),
+			       this,
+			       SLOT( onExpandAll() ) );
+	}
+      }
       QPopupMenu *UseCasePopup = new QPopupMenu( myPopup );
       if ( isOne )
 	UseCasePopup->insertItem( tr( "UC_NEW_ID" ), this, SLOT( onUseCasePopupMenu( int ) ), 0, UC_NEW_EMPTY_ID );
@@ -582,7 +585,7 @@ void QAD_ObjectBrowser::onCreatePopup()
 */
 void QAD_ObjectBrowser::onExpandAll()
 {
-  for ( QListViewItemIterator it( getListView() ); it.current(); ++it )
+  for ( QListViewItemIterator it( currentPage() == myListView ? myListView : myUseCaseView ); it.current(); ++it )
     if ( it.current()->isSelected() )
       expand( it.current() );  
 }
@@ -680,7 +683,8 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
     SALOMEDS::SObject_var             CSO = it->Value();
     SALOMEDS::SObject_var             RefSO;
     QString                           ior = "";
-    QString                           CSOEntry = CORBA::string_dup( CSO->GetID() );
+    CORBA::String_var                 aString(CSO->GetID());
+    QString                           CSOEntry(aString.in());
     SALOMEDS::GenericAttribute_var    anAttr;
     SALOMEDS::AttributeName_var       aName;
     SALOMEDS::AttributeComment_var    aCmnt;
@@ -695,22 +699,23 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
     SALOMEDS::AttributeTextHighlightColor_var  aTextHighlightColor;
 
     QAD_ObjectBrowserItem*            Item = 0;
-    QAD_ObjectBrowserItem*            subItem;
     QString                           valueString;
    
     if ( CSO->ReferencedObject(RefSO) && !RefSO->_is_nil() ) {
       
-      QString RefSOEntry = CORBA::string_dup( RefSO->GetID() );
+      aString = RefSO->GetID();
+      QString RefSOEntry(aString.in());
       if (CSO->FindAttribute(anAttr, "AttributeName") || RefSO->FindAttribute(anAttr, "AttributeName")) {
         aName = SALOMEDS::AttributeName::_narrow(anAttr);
         if (RefSO->FindAttribute(anAttr, "AttributeIOR")) {
           anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-          ior = CORBA::string_dup( anIOR->Value() );
+	  aString = anIOR->Value();
+          ior = aString.in();
         }
  	valueString = getValueFromObject( RefSO );
-//      AddItem (Item, QString(" * ") + CORBA::string_dup( aName->Value() ), RefSOEntry, ior, 2, CSOEntry);
+	aString = aName->Value();
 	Item = AddItem(theParentItem, 
-		       QString(" * ") + CORBA::string_dup( aName->Value() ), 
+		       QString(" * ") + aString.in(), 
 		       RefSOEntry, 
 		       ior, 
 		       2, 
@@ -727,12 +732,14 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
       // getting IOR
       if (CSO->FindAttribute(anAttr, "AttributeIOR"))  {
         anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-        ior = CORBA::string_dup( anIOR->Value() );
+	aString = anIOR->Value();
+	ior = aString.in();
       }
       // getting Name and adding new Item
       if (CSO->FindAttribute(anAttr, "AttributeName") ) {
         aName = SALOMEDS::AttributeName::_narrow(anAttr);
-        Item = AddItem(theParentItem, CORBA::string_dup( aName->Value() ), CSOEntry, ior, 0, "", valueString);
+	aString = aName->Value();
+        Item = AddItem(theParentItem, aString.in(), CSOEntry, ior, 0, "", valueString);
 	myListViewMap[ CSOEntry ].append( Item );
       } 
       else {
@@ -826,9 +833,11 @@ void QAD_ObjectBrowser::Update()
   for (; itcomp->More(); itcomp->Next()) {
     QAD_ObjectBrowserItem*   Item     = 0;
     SALOMEDS::SComponent_var SC       = itcomp->Value();
-    QString                  dataType = CORBA::string_dup( SC->ComponentDataType() );
+    CORBA::String_var        aString  = SC->ComponentDataType();
+    QString                  dataType = aString.in();
     QString                  ior      = "";
-    QString                  SCEntry  = CORBA::string_dup( SC->GetID() );
+    aString = SC->GetID();
+    QString                  SCEntry  = aString.in();
 
     SALOMEDS::GenericAttribute_var    anAttr;
     SALOMEDS::AttributeName_var       aName;
@@ -845,7 +854,8 @@ void QAD_ObjectBrowser::Update()
 
     if (SC->FindAttribute(anAttr, "AttributeIOR")) {
       anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
-      ior = CORBA::string_dup( anIOR->Value() );
+      aString = anIOR->Value();
+      ior = aString.in();
     }
 
     bool caseIAPP = false;
@@ -856,7 +866,8 @@ void QAD_ObjectBrowser::Update()
       if ( ShowIAPP.compare("true") == 0 ) {
 	if (SC->FindAttribute(anAttr, "AttributeName")) {
           aName = SALOMEDS::AttributeName::_narrow(anAttr);
-	  Item = AddItem (myListView, CORBA::string_dup( aName->Value() ), SCEntry, ior, 1, "");
+	  aString = aName->Value();
+	  Item = AddItem (myListView, aString.in(), SCEntry.latin1(), ior, 1, "");
 	  myListViewMap[ SCEntry ].append( Item );
 	} 
         else {
@@ -870,7 +881,8 @@ void QAD_ObjectBrowser::Update()
       caseIAPP = false;
       if (SC->FindAttribute(anAttr, "AttributeName")) {
         aName = SALOMEDS::AttributeName::_narrow(anAttr);
-	Item = AddItem (myListView, CORBA::string_dup( aName->Value() ), SCEntry, ior, 1, "");
+	aString = aName->Value();
+	Item = AddItem (myListView, aString.in(), SCEntry, ior, 1, "");
 	myListViewMap[ SCEntry ].append( Item );
       } 
       else {
@@ -883,7 +895,6 @@ void QAD_ObjectBrowser::Update()
     }
     // add other attributes 
     if (Item) {
-      QAD_ObjectBrowserItem* subItem;
       // Selectable
       if ( SC->FindAttribute(anAttr, "AttributeSelectable") ) {
         aSelectable = SALOMEDS::AttributeSelectable::_narrow(anAttr);
@@ -985,7 +996,8 @@ void QAD_ObjectBrowser::UpdateUseCaseBrowser() {
   QAD_ObjectBrowserItem* root = ( QAD_ObjectBrowserItem* )myUseCaseView->firstChild();
   SALOMEDS::UseCaseBuilder_var  UCBuilder = myStudy->GetUseCaseBuilder();
   SALOMEDS::SObject_var SOCurrent = UCBuilder->GetCurrentObject();
-  QString UCName = CORBA::string_dup( UCBuilder->GetName() );
+  CORBA::String_var aString = UCBuilder->GetName();
+  QString UCName = aString.in();
   if ( UCName.isEmpty() )
     UCName = QString( tr( "Root" ) );
   // creating root item if is not yet created
@@ -1003,7 +1015,8 @@ void QAD_ObjectBrowser::UpdateUseCaseBrowser() {
   if ( !UCIter->_is_nil() ) {
     for ( ; UCIter->More(); UCIter->Next() ) {
       SALOMEDS::SObject_var UCObject = UCIter->Value();
-      QString UCEntry = CORBA::string_dup( UCObject->GetID() );
+      aString = UCObject->GetID();
+      QString UCEntry = aString.in();
       ucList[ UCEntry ] = UCObject;
     }
   }
@@ -1051,29 +1064,32 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
   SALOMEDS::AttributeTextHighlightColor_var  aTextHighlightColor;
   QString                                    valueString;
   QString                                    ior = "";
-  QString                                    UCEntry = CORBA::string_dup( UCObject->GetID() );
+  CORBA::String_var                          aString = UCObject->GetID();
+  QString                                    UCEntry = aString.in();
 
   SALOMEDS::UseCaseBuilder_var               UCBuilder = myStudy->GetUseCaseBuilder();
   SALOMEDS::SObject_var                      SOCurrent = UCBuilder->GetCurrentObject();
+  bool                                       isUseCase = UCBuilder->IsUseCase( UCObject );
 
-  bool bFound = false;
   QAD_ObjectBrowserItem* UCSubItem = 0;
   if ( myUseCaseMap.contains( UCEntry ) && myUseCaseMap[ UCEntry ].count() > 0 )
     UCSubItem = myUseCaseMap[ UCEntry ].first();
 
-//  if ( !bFound ) {
   if ( UCObject->ReferencedObject( RefSO ) && !RefSO->_is_nil() ) {
-    QString RefSOEntry = CORBA::string_dup( RefSO->GetID() );
+    aString = RefSO->GetID();
+    QString RefSOEntry = aString.in();
     if ( UCObject->FindAttribute( anAttr, "AttributeName" ) || RefSO->FindAttribute( anAttr, "AttributeName" ) ) {
       aName = SALOMEDS::AttributeName::_narrow( anAttr );
       if ( RefSO->FindAttribute( anAttr, "AttributeIOR" ) ) {
 	anIOR = SALOMEDS::AttributeIOR::_narrow( anAttr );
-	ior = CORBA::string_dup( anIOR->Value() );
+	aString = anIOR->Value();
+	ior = aString.in();
       }
       valueString = getValueFromObject( RefSO );
+      aString = aName->Value();
       if ( !UCSubItem ) {
 	UCSubItem = AddItem( UCItem, 
-			     QString( " * " ) + CORBA::string_dup( aName->Value() ), 
+			     QString( " * " ) + aString.in(), 
 			     RefSOEntry, 
 			     ior, 
 			     2, 
@@ -1082,7 +1098,7 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
 	myUseCaseMap[ RefSOEntry ].append( UCSubItem );
       }
       else {
-	UCSubItem->setName( QString( " * " ) + CORBA::string_dup( aName->Value() ) );
+	UCSubItem->setName( QString( " * " ) + aString.in() );
 	UCSubItem->setEntry( RefSOEntry );
 	UCSubItem->setIOR( ior );
 	UCSubItem->setReference( UCEntry );
@@ -1097,17 +1113,19 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
     // getting IOR
     if ( UCObject->FindAttribute( anAttr, "AttributeIOR" ) )  {
       anIOR = SALOMEDS::AttributeIOR::_narrow( anAttr );
-      ior = CORBA::string_dup( anIOR->Value() );
+      aString = anIOR->Value();
+      ior = aString.in();
     }
     // getting Name and adding new Item
     if ( UCObject->FindAttribute( anAttr, "AttributeName" ) ) {
       aName = SALOMEDS::AttributeName::_narrow( anAttr );
+      aString = aName->Value();
       if ( !UCSubItem ) {
-	UCSubItem = AddItem( UCItem, CORBA::string_dup( aName->Value() ), UCEntry, ior, 0, "", valueString );
+	UCSubItem = AddItem( UCItem, aString.in(), UCEntry, ior, isUseCase ? 1 : 0, "", valueString );
 	myUseCaseMap[ UCEntry ].append( UCSubItem );
       }
       else {
-	UCSubItem->setName( CORBA::string_dup( aName->Value() ) );
+	UCSubItem->setName( aString.in() );
 	UCSubItem->setEntry( UCEntry );
 	UCSubItem->setIOR( ior );
 	UCSubItem->setReference( "" );
@@ -1172,7 +1190,8 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
     if ( !UCIter->_is_nil() ) {
       for ( ; UCIter->More(); UCIter->Next() ) {
 	SALOMEDS::SObject_var UCSubObject = UCIter->Value();
-	QString UCSubEntry = CORBA::string_dup( UCSubObject->GetID() );
+	aString = UCSubObject->GetID();
+	QString UCSubEntry = aString.in();
 	ucList[ UCSubEntry ] = UCSubObject;
       }
     }
@@ -1436,20 +1455,17 @@ void QAD_ObjectBrowser::onSelectedItem()
 	  if ( !obj->_is_nil() ) {
 	    SALOMEDS::SComponent_var comp = obj->GetFatherComponent();
 	    if ( !comp->_is_nil() ) {
-	      //Standard_CString datatype = comp->ComponentDataType();
-	      const char* datatype = comp->ComponentDataType();
-	      //	      newIO = new SALOME_InteractiveObject( CORBA::string_dup(theEntry),
-	      //		  				    datatype,
-	      //						    CORBA::string_dup(theName) );
-	      newIO = new SALOME_InteractiveObject( theEntry, datatype, theName );
-  	      newIO->setReference( CORBA::string_dup(theRef) );
+	      CORBA::String_var datatype(comp->ComponentDataType());
+	      newIO = new SALOME_InteractiveObject( theEntry.latin1(),
+		  				    datatype.in(),
+						    theName.latin1() );
+  	      newIO->setReference( theRef.latin1() );
             }
 	  } else {
-	    //newIO = new SALOME_InteractiveObject( CORBA::string_dup(theEntry),
-	    //						  "",
-	    //						  CORBA::string_dup(theName) );
-	    newIO = new SALOME_InteractiveObject( theEntry, "", theName );
-	    newIO->setReference( CORBA::string_dup(theRef) );
+	    newIO = new SALOME_InteractiveObject( theEntry.latin1(),
+						  "",
+						  theName.latin1() );
+	    newIO->setReference( theRef.latin1() );
 	  }
           if (!newIO.IsNull()) {
   	    DeltaPos.Append( newIO );
@@ -1542,6 +1558,7 @@ QString QAD_ObjectBrowser::getValueFromObject( SALOMEDS::SObject_ptr SO )
   SALOMEDS::AttributeTableOfInteger_var aTableInt;
   SALOMEDS::AttributeTableOfReal_var    aTableReal;
   SALOMEDS::AttributeComment_var        aComment;
+  CORBA::String_var aString;
 
   // Integer
   if ( SO->FindAttribute( anAttr, "AttributeInteger" ) ) {
@@ -1558,7 +1575,8 @@ QString QAD_ObjectBrowser::getValueFromObject( SALOMEDS::SObject_ptr SO )
   // Table of integer
   if ( SO->FindAttribute( anAttr, "AttributeTableOfInteger" ) ) {
     aTableInt = SALOMEDS::AttributeTableOfInteger::_narrow( anAttr );
-    QString tlt = QString( aTableInt->GetTitle() );
+    aString = aTableInt->GetTitle();
+    QString tlt( aString.in() );
     if ( !tlt.isEmpty() )
       tlt += " ";
     int nbRows  = aTableInt->GetNbRows() ; 
@@ -1569,7 +1587,8 @@ QString QAD_ObjectBrowser::getValueFromObject( SALOMEDS::SObject_ptr SO )
   // Table of real
   if ( SO->FindAttribute( anAttr, "AttributeTableOfReal" ) ) {
     aTableReal = SALOMEDS::AttributeTableOfReal::_narrow( anAttr );
-    QString tlt = QString( aTableReal->GetTitle() );
+    aString = aTableReal->GetTitle();
+    QString tlt( aString.in() );
     if ( !tlt.isEmpty() )
       tlt += " ";
     int nbRows  = aTableReal->GetNbRows() ; 
@@ -1580,7 +1599,8 @@ QString QAD_ObjectBrowser::getValueFromObject( SALOMEDS::SObject_ptr SO )
   // Comment
   if ( SO->FindAttribute(anAttr, "AttributeComment") ) {
     aComment = SALOMEDS::AttributeComment::_narrow( anAttr );
-    QString val = QString( aComment->Value() );
+    aString = aComment->Value();
+    QString val = QString( aString.in() );
     return val;
   }
   return QString::null;
@@ -1823,6 +1843,7 @@ void QAD_ObjectBrowser::onUseCasePopupMenu( int action )
   SALOME_Selection* Sel    = SALOME_Selection::Selection( myActiveStudy->getSelection() );
   SALOMEDS::UseCaseBuilder_var UCBuilder = myStudy->GetUseCaseBuilder();
   SALOMEDS::SObject_var Current = UCBuilder->GetCurrentObject();
+  CORBA::String_var aString;
 
   QList<QListViewItem> ucSelected; 
   ucSelected.setAutoDelete( false );
@@ -1852,15 +1873,16 @@ void QAD_ObjectBrowser::onUseCasePopupMenu( int action )
   if ( action == UC_RENAME_ID ) {
     if ( ucSelected.count() == 1 ) {
       QAD_ObjectBrowserItem* useCaseItem = ( QAD_ObjectBrowserItem* )( ucSelected.at( 0 ) );
+      aString = UCBuilder->GetName();
       if ( isRootItem( useCaseItem ) ) {
-	QString name = SALOMEGUI_NameDlg::getName( QAD_Application::getDesktop(), UCBuilder->GetName() );
+	QString name = SALOMEGUI_NameDlg::getName( QAD_Application::getDesktop(), aString.in() );
 	if ( !name.isEmpty() ) {
-	  bool ok = UCBuilder->SetName( name.latin1() );
+	  UCBuilder->SetName( name.latin1() );
 	  myActiveStudy->updateUseCaseBrowser( );
 	}
       }
       else/* if ( UCBuilder->IsUseCase( myStudy->FindObjectID( (( QAD_ObjectBrowserItem* )( ucSelected.at(0) ))->getEntry() ) ) )*/ {
-	QString name = SALOMEGUI_NameDlg::getName( QAD_Application::getDesktop(), CORBA::string_dup( useCaseItem->getName() ) );
+	QString name = SALOMEGUI_NameDlg::getName( QAD_Application::getDesktop(), aString.in() );
 	if ( !name.isEmpty() ) {
 	  myActiveStudy->renameIObject( Sel->firstIObject(), name );
 	}

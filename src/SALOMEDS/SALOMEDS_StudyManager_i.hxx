@@ -31,40 +31,55 @@
 
 // std C++ headers
 #include <iostream.h>
+#include <stdlib.h>
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 // Cascade headers
-#include "SALOMEDS_OCAFApplication.hxx"
 #include <TDocStd_Document.hxx>
 #include <TDF_Attribute.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDF_Label.hxx>
 #include <TDocStd_Document.hxx>
+#include <Standard_NotImplemented.hxx>
 
-// Naming Service header
+#include "SALOMEDS_OCAFApplication.hxx"
 #include "SALOME_NamingService.hxx"
 
 // HDF
-#include <iostream.h>
 #include "HDFOI.hxx"
-#include <stdlib.h>
 
-//Standard not implemented
-#include <Standard_NotImplemented.hxx>
+class SALOMEDS_Study_i;
+
+namespace SALOMEDS{
+
+  // To convert IOR from SALOMEDS_IORAttribute to CORBA::Object
+  CORBA::Object_var 
+  GetObject(const TDF_Label&, CORBA::ORB_ptr);
+  
+  // To convert CORBA::Object to  PortableServer::ServantBase
+  PortableServer::ServantBase_var 
+  GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
+  
+}
 
 
-class SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
-			       public PortableServer::RefCountServantBase {
+class SALOMEDS_StudyManager_i: 
+  public virtual POA_SALOMEDS::StudyManager,
+  public virtual PortableServer::RefCountServantBase 
+{
+  SALOMEDS_StudyManager_i(); // Not implemented
+  void operator=(const SALOMEDS_StudyManager_i&); // Not implemented
+
 private:
-
-  CORBA::ORB_ptr _orb;
+  CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
+  SALOME_NamingService _name_service;
   Handle (SALOMEDS_OCAFApplication) _OCAFApp;  
-  SALOME_NamingService* _name_service;
-  int _IDcounter;
   Handle(TDocStd_Document) _clipboard;
+  int _IDcounter;
 
   // _SaveAs private function called by Save and SaveAs
   virtual void _SaveAs(const char* aUrl,
@@ -76,17 +91,20 @@ private:
 			   SALOMEDS::SObject_ptr SC, 
 			   HDFgroup *hdf_group_datatype);
   // _SubstituteSlash function called by Open and GetStudyByName
-  virtual const char *_SubstituteSlash(const char *aUrl);
+  virtual std::string _SubstituteSlash(const char *aUrl);
 
   virtual void _SaveProperties(SALOMEDS::Study_ptr aStudy, HDFgroup *hdf_group);
 
 public:
-
   //! standard constructor
-  SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb);
+  SALOMEDS_StudyManager_i(CORBA::ORB_ptr theORB, PortableServer::POA_ptr thePOA);
 
   //! standard destructor
   virtual  ~SALOMEDS_StudyManager_i(); 
+
+  CORBA::ORB_var GetORB() const { return _orb; }
+
+  PortableServer::POA_var GetPOA() const { return _poa; }
 
  //! method to Register study Manager in the naming service
   /*!
@@ -151,16 +169,13 @@ public:
   */ 
   virtual SALOMEDS::Study_ptr GetStudyByID(CORBA::Short aStudyID) ;
 
-
-  Handle(TDocStd_Document) GetDocumentOfStudy(SALOMEDS::Study_ptr theStudy);
-  
-  void CopyLabel(const SALOMEDS::Study_ptr theSourceStudy, 
+  void CopyLabel(SALOMEDS_Study_i* theSourceStudy, 
 		 const SALOMEDS::Driver_ptr theEngine,
 		 const Standard_Integer theSourceStartDepth,
 		 const TDF_Label& theSource,
 		 const TDF_Label& theDestinationMain);
 
-  TDF_Label PasteLabel(const SALOMEDS::Study_ptr theDestinationStudy,
+  TDF_Label PasteLabel(SALOMEDS_Study_i* theDestinationStudy,
 		       const SALOMEDS::Driver_ptr theEngine,
 		       const TDF_Label& theSource,
 		       const TDF_Label& theDestinationStart,

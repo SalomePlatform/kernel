@@ -90,6 +90,21 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
+void MessageOutput( QtMsgType type, const char *msg )
+{
+  switch ( type ) {
+  case QtDebugMsg:
+    MESSAGE( "Debug: " << msg );
+    break;
+  case QtWarningMsg:
+    MESSAGE( "Warning: " << msg );
+    break;
+  case QtFatalMsg:
+    MESSAGE( "Fatal: " << msg );
+    break;
+  }
+}
+
 int main(int argc, char **argv)
 {
   SALOME_Event::GetSessionThread();
@@ -97,6 +112,7 @@ int main(int argc, char **argv)
   int orbArgc = 1;
   CORBA::ORB_var &orb = init( orbArgc , argv ) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  qInstallMsgHandler( MessageOutput );
   try
     {
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");

@@ -11,9 +11,6 @@
 #ifndef __SALOMEDS_USECaseBuilder_I_H__
 #define __SALOMEDS_USECaseBuilder_I_H__
 
-// std C++ headers
-#include <iostream.h>
-
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -22,26 +19,29 @@
 // Cascade headers
 #include <TDataStd_TreeNode.hxx>
 #include <TDocStd_Document.hxx>
-#include <Standard_GUID.hxx>
-#include <stdio.h>
+
+class SALOMEDS_Study_i;
 
 class SALOMEDS_UseCaseBuilder_i: public POA_SALOMEDS::UseCaseBuilder,
-				public PortableServer::RefCountServantBase {
-private:
+				 public PortableServer::RefCountServantBase 
+{
+  SALOMEDS_UseCaseBuilder_i(); // Not implemented
+  void operator=(const SALOMEDS_UseCaseBuilder_i&); // Not implemented
 
-  CORBA::ORB_ptr                _orb;
+private:
   Handle(TDataStd_TreeNode)     _root;
   Handle(TDocStd_Document)      _doc;
+  SALOMEDS_Study_i*             _study;
 
 public:
-
-  //! standard constructor  
-  SALOMEDS_UseCaseBuilder_i(const Handle(TDocStd_Document)& theDocument,
-			    CORBA::ORB_ptr);
+  SALOMEDS_UseCaseBuilder_i(SALOMEDS_Study_i* theStudy,
+			    const Handle(TDocStd_Document)& theDocument);
   
-  //! standard destructor
   ~SALOMEDS_UseCaseBuilder_i();
   
+  CORBA::ORB_var GetORB() const;
+  PortableServer::POA_var GetPOA() const;
+
   virtual CORBA::Boolean Append(SALOMEDS::SObject_ptr theObject);
 
   virtual CORBA::Boolean Remove(SALOMEDS::SObject_ptr theObject);

@@ -27,17 +27,38 @@
 //  $Header$
 
 #include "SALOMEDS_SComponent_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
+
 #include "utilities.h"
+
 using namespace std;
 
+SALOMEDS_SComponent_i* SALOMEDS_SComponent_i::New(SALOMEDS_Study_i* theStudy,
+						  const TDF_Label& theLabel)
+{
+  SALOMEDS_SComponent_i* aSComponent = NULL;
+  SALOMEDS_Study_i::TSObjectMap& anSObjectMap = theStudy->GetSObjectMap();
+  SALOMEDS_Study_i::TSObjectMap::const_iterator anIter = anSObjectMap.find(theLabel);
+  //cout<<"SALOMEDS_SComponent_i::New - "<<theLabel.Tag()<<" - "<<anSObjectMap.size()<<endl;
+  if(anIter != anSObjectMap.end()){
+    SALOMEDS_SObject_i* aSObject = anIter->second;
+    aSComponent = dynamic_cast<SALOMEDS_SComponent_i*>(aSObject);
+  }
+  if(aSComponent == NULL){
+    aSComponent = new SALOMEDS_SComponent_i(theStudy,theLabel);
+    anSObjectMap[theLabel] = aSComponent;
+  }
+  return aSComponent;
+}
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDS_SComponent_i::SALOMEDS_SComponent_i(const TDF_Label lab, CORBA::ORB_ptr orb)
-  :SALOMEDS_SObject_i(lab,orb)
+SALOMEDS_SComponent_i::SALOMEDS_SComponent_i(SALOMEDS_Study_i* theStudy,
+					     const TDF_Label& theLabel):
+  SALOMEDS_SObject_i(theStudy,theLabel)
 {
 }
   
@@ -97,7 +118,7 @@ CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
  *  Purpose  : 
  */
 //============================================================================
-Standard_Boolean SALOMEDS_SComponent_i::IsA(const TDF_Label Lab)
+Standard_Boolean SALOMEDS_SComponent_i::IsA(const TDF_Label& Lab)
 {
   Handle(TDF_Attribute) Att;
   // scomponent must contain comment and belong to the 2th depth label

@@ -169,9 +169,11 @@ This struct contains GUI elements used for representation of the module in %IAPP
 */
   struct IAPP_Affich
   {
-    string modulename; /*!<Name of the module.*/
+    string modulename;     /*!<Name of the module.*/
     string moduleusername; /*!<UserName of the module.*/
-    string moduleicone; /*!<Icone representing the module.*/
+    string moduleicone;    /*!<Icone representing the module.*/
+    string moduleversion;  /*!<Version of the module.*/
+    string modulecomment;  /*!<Comment to the module.*/
   };
 /*!
 List of pair GUI elements (component name, component icone)

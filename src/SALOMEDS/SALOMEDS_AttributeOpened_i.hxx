@@ -30,22 +30,20 @@
 #define SALOMEDS_AttributeOpened_i_HeaderFile
 
 // IDL headers
-
-#include "SALOMEDS_OpenedAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_OpenedAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeOpened_i: public virtual POA_SALOMEDS::AttributeOpened,
-  public virtual SALOMEDS_GenericAttribute_i {
+DEFINE_DERIVED_ATTR(AttributeOpened,SALOMEDS_OpenedAttribute,false);
+
+class SALOMEDS_AttributeOpened_i: 
+  public virtual POA_SALOMEDS::AttributeOpened,
+  public virtual SALOMEDS_TAttributeOpened_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeOpened,SALOMEDS_OpenedAttribute);
 public:
-  
-  SALOMEDS_AttributeOpened_i(const Handle(SALOMEDS_OpenedAttribute)& theIntAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theIntAttr; 
-  };  
-  ~SALOMEDS_AttributeOpened_i() {};
   CORBA::Boolean IsOpened();
   void SetOpened(CORBA::Boolean value);
 

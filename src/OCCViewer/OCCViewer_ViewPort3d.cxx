@@ -84,7 +84,6 @@ void OCCViewer_ViewPort3d::onCreatePopup()
 {
   if ( myPopup ) {	
     QAD_Desktop*     Desktop = (QAD_Desktop*) QAD_Application::getDesktop();
-    QAD_Study*   myActiveStudy = Desktop->getActiveStudy();
     
     QString theContext;
     QString theParent("Viewer");
@@ -385,3 +384,35 @@ void OCCViewer_ViewPort3d::reset()
       myActiveView->Reset();
     }
 }
+
+/*!
+  Incremental panning
+*/
+void OCCViewer_ViewPort3d::incrementalPan( const int incrX, const int incrY )
+{
+  this->pan( incrX, incrY );
+}
+
+/*!
+  Incremental zooming
+*/
+void OCCViewer_ViewPort3d::incrementalZoom( const int incr )
+{
+  int cx = width()  / 2;
+  int cy = height() / 2;
+  this->zoom( cx, cy, cx + incr, cy + incr );
+}
+
+/*!
+  Incremental rotating
+*/
+void OCCViewer_ViewPort3d::incrementalRotate( const int incrX, const int incrY )
+{
+  int cx = width()  / 2;
+  int cy = height() / 2;
+  this->startRotation( cx, cy );
+  this->rotate( cx + incrX, cy + incrY );
+  this->endRotation();
+}
+
+

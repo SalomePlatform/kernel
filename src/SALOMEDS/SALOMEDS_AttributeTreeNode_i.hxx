@@ -30,22 +30,21 @@
 #define SALOMEDS_AttributeTreeNode_i_HeaderFile
 
 // IDL headers
-#include <TDataStd_TreeNode.hxx>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include <TDataStd_TreeNode.hxx>
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributeTreeNode_i: public virtual POA_SALOMEDS::AttributeTreeNode,
-  public virtual SALOMEDS_GenericAttribute_i {
-public:
-  
-  SALOMEDS_AttributeTreeNode_i(const Handle(TDataStd_TreeNode)& theAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = theAttr; 
-  };  
-  ~SALOMEDS_AttributeTreeNode_i() {};
+DEFINE_DERIVED_ATTR(AttributeTreeNode,TDataStd_TreeNode,false);
 
+class SALOMEDS_AttributeTreeNode_i: 
+  public virtual POA_SALOMEDS::AttributeTreeNode,
+  public virtual SALOMEDS_TAttributeTreeNode_i
+{
+  DEFINE_DERIVED_ATTR_METH(AttributeTreeNode,TDataStd_TreeNode::GetDefaultTreeID());
+
+public:
   void SetFather(SALOMEDS::AttributeTreeNode_ptr value);
   CORBA::Boolean HasFather();
   SALOMEDS::AttributeTreeNode_ptr GetFather();
@@ -76,5 +75,6 @@ public:
   void Restore(const char*);
 
 };
+
 
 #endif

@@ -26,6 +26,7 @@ docs:
 	cp -fr $(srcdir)/KERNEL/sources/static/*.* ./KERNEL/
 	cp -fr $(srcdir)/KERNEL/sources/ KERNEL/
 	cp -fr $(srcdir)/KERNEL/HTML/ KERNEL/
+	cp -f $(srcdir)/pythfilter.py KERNEL/
 	rm -fr INPUT
 
 clean:

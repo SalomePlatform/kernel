@@ -153,6 +153,17 @@ public slots:
   void                        onViewTrihedron();
   void                        onAdjustTrihedron();
 
+  void                        onPanLeft();
+  void                        onPanRight();
+  void                        onPanUp();
+  void                        onPanDown();
+  void                        onZoomIn();
+  void                        onZoomOut();
+  void                        onRotateLeft();
+  void                        onRotateRight();
+  void                        onRotateUp();
+  void                        onRotateDown();
+
 protected:
 
   void                        initViewPort();

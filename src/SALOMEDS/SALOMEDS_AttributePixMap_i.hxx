@@ -30,21 +30,20 @@
 #define SALOMEDS_AttributePixMap_i_HeaderFile
 
 // IDL headers
-#include "SALOMEDS_PixMapAttribute.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+
+#include "SALOMEDS_PixMapAttribute.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 
-class SALOMEDS_AttributePixMap_i: public virtual POA_SALOMEDS::AttributePixMap,
-				public virtual SALOMEDS_GenericAttribute_i {
+DEFINE_DERIVED_ATTR(AttributePixMap,SALOMEDS_PixMapAttribute,false);
+
+class SALOMEDS_AttributePixMap_i: 
+  public virtual POA_SALOMEDS::AttributePixMap,
+  public virtual SALOMEDS_TAttributePixMap_i 
+{
+  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributePixMap,SALOMEDS_PixMapAttribute);
 public:
-  
-  SALOMEDS_AttributePixMap_i(const Handle(SALOMEDS_PixMapAttribute)& thePixMapAttr, CORBA::ORB_ptr orb) 
-  {
-    _myOrb = CORBA::ORB::_duplicate(orb);
-    _myAttr = thePixMapAttr;
-  };
-  ~SALOMEDS_AttributePixMap_i() {};
   CORBA::Boolean HasPixMap();
   char* GetPixMap();
   void SetPixMap(const char* value);

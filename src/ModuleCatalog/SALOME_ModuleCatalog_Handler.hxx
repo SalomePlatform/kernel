@@ -116,6 +116,8 @@ private:
   QString test_component_multistudy ;
   QString test_component_icon ;
   QString test_component_impltype;
+  QString test_component_version;
+  QString test_component_comment;
 
   QString test_interface_name;
 

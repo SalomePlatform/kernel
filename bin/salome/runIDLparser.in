@@ -36,10 +36,8 @@ fi
 @ENVSCRIPT@
 
 cd $DIR
-
-#PYTHONPATH=${PYTHONPATH}:${SALOME_HOME_DIR}/bin
 #============================================================
 
 # omiidl ====================================================
-omniidl -bIDLparser -I ${KERNEL_ROOT_DIR}/idl $@
+omniidl -bIDLparser -I ${KERNEL_ROOT_DIR}/idl/salome $@
 #============================================================
