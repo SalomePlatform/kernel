@@ -150,15 +150,17 @@ if "SUPERV" in liste_modules:with_container_superv=1
 class Server:
    CMD=[]
    if with_xterm:
-	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold', '-e']
+	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
    else:
    	ARGS=[]	
 
    def run(self):
-      # (Debian) Transfert variable LD_LIBRARY_PATH aux shells fils (xterm)
-      env_ld_library_path=['env', 'LD_LIBRARY_PATH='+ os.getenv("LD_LIBRARY_PATH")]
-      args = self.ARGS+ env_ld_library_path + self.CMD
-      args = self.ARGS+self.CMD
+      args=self.ARGS
+      if with_xterm:
+         # (Debian) Transfert variable LD_LIBRARY_PATH aux shells fils (xterm)
+         env_ld_library_path=['env', 'LD_LIBRARY_PATH='+ os.getenv("LD_LIBRARY_PATH")]
+         args = args +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+      args = args + self.CMD
       #print "args = ", args
       pid = os.spawnvp(os.P_NOWAIT, args[0], args)
       process_id[pid]=self.CMD
