@@ -193,7 +193,7 @@ namespace Batch {
       } else if ( (*it).first == QUEUE ) {
 	// Already done
 
-      } else if ( (*it).first == STARTDATE ) {
+      } else if ( (*it).first == STARTTIME ) {
 
       } else if ( (*it).first == TMPDIR ) {
 
