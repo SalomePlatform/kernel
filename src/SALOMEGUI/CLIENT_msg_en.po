@@ -20,7 +20,7 @@ msgstr ""
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 2.1.0"
+msgstr "Version 2.2.0"
 
 msgid "INF_COPYRIGHT"
 msgstr "Copyright (C) 2003-2004 OPEN CASCADE, EADS/CCR, LIP6,\nCEA/DEN, CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS"
@@ -38,8 +38,8 @@ msgstr "salome"
 
 #: QAD_Application.cxx:133
 msgid "QAD_Application::APP_DEFAULTTITLE"
-msgstr "SALOME 2.1.0"
+msgstr "SALOME 2.2.0"
 
 #: QAD_Desktop.cxx:424
 msgid "QAD_Desktop::DESK_DEFAULTTITLE"
-msgstr "SALOME 2.1.0"
+msgstr "SALOME 2.2.0"
