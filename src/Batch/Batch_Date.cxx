@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <ctime>
 #include "Batch_Date.hxx"
+using namespace std;
 
 namespace Batch {
 

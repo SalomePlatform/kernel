@@ -11,6 +11,7 @@
 #include "Batch_BatchManager_PBS.hxx"
 #include "Batch_FactBatchManager_PBS.hxx"
 #include "utilities.h"
+using namespace std;
 
 namespace Batch {
 

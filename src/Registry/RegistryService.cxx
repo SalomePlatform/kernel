@@ -26,8 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 # include "RegistryService.hxx"
 # include "OpUtil.hxx"
 # include "utilities.h"
@@ -38,6 +36,7 @@ extern "C"
 }
 
 #include <unistd.h>
+using namespace std;
 
 /* ------------------------------*/
 /* Constructeurs et Destructeurs */

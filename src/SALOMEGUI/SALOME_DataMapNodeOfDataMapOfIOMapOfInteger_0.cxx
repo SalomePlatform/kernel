@@ -24,7 +24,6 @@
 //  File   : SALOME_DataMapNodeOfDataMapOfIOMapOfInteger_0.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_DataMapNodeOfDataMapOfIOMapOfInteger.hxx"
 
 #ifndef _Standard_TypeMismatch_HeaderFile
@@ -46,6 +45,7 @@ using namespace std;
 #ifndef _SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger_HeaderFile
 #include "SALOME_DataMapIteratorOfDataMapOfIOMapOfInteger.hxx"
 #endif
+using namespace std;
 SALOME_DataMapNodeOfDataMapOfIOMapOfInteger::~SALOME_DataMapNodeOfDataMapOfIOMapOfInteger() {}
  
 

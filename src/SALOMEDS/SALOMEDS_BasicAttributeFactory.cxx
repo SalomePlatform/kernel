@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_BasicAttributeFactory.hxx"
 #include "utilities.h"
+using namespace std;
 
 //============================================================================
 /*! Function : Create

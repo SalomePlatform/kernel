@@ -26,6 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_Filter.ixx"
+using namespace std;
 

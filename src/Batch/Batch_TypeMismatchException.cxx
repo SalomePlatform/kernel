@@ -8,6 +8,7 @@
  */
 
 #include "Batch_TypeMismatchException.hxx"
+using namespace std;
 
 namespace Batch {
 

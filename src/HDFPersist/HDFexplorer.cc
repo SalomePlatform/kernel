@@ -24,11 +24,11 @@
 //  File   : HDFexplorer.cc
 //  Module : SALOME
 
-using namespace std;
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
 #include "HDFinternalObject.hxx"
 #include "HDFexplorer.hxx"
+using namespace std;
 
 HDFexplorer::HDFexplorer(HDFcontainerObject *container)
 {

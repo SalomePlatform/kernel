@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_LeftFrame.h"
 #include "QAD_ObjectBrowser.h"
 #include <qlayout.h>
+using namespace std;
 
 /*!
   \class QAD_LeftFrame QAD_LeftFrame.h

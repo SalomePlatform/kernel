@@ -23,6 +23,7 @@
 
 #include "CASCatch_SignalsHandler.h" // CAREFUL ! position of this file is critic : see Lucien PIGNOLONI / OCC
 
+using namespace std;
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB)
 {

@@ -36,12 +36,12 @@ namespace Batch {
   public:
     // Constructeur et destructeur
     //BatchManager_PBS() throw(InvalidArgumentException,ConnexionFailureException); // connexion au serveur par defaut
-    //BatchManager_PBS(string host) throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
+    //BatchManager_PBS(std::string host) throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
     BatchManager_PBS(const FactBatchManager * parent, const char * host="localhost") throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
     virtual ~BatchManager_PBS();
 
     // Recupere le nom du serveur par defaut
-    // static string BatchManager_PBS::getDefaultServer();
+    // static std::string BatchManager_PBS::getDefaultServer();
 
     // Methodes pour le controle des jobs
     virtual const JobId submitJob(const Job & job); // soumet un job au gestionnaire
@@ -65,7 +65,7 @@ namespace Batch {
 #ifdef SWIG
   public:
     // Recupere le l'identifiant d'un job deja soumis au BatchManager
-    //virtual const JobId getJobIdByReference(const string & ref) { return BatchManager::getJobIdByReference(ref); }
+    //virtual const JobId getJobIdByReference(const std::string & ref) { return BatchManager::getJobIdByReference(ref); }
     virtual const JobId getJobIdByReference(const char * ref) { return BatchManager::getJobIdByReference(ref); }
 #endif
 

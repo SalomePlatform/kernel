@@ -9,6 +9,7 @@
  */
 
 #include "Batch_Environnement.hxx"
+using namespace std;
 
 namespace Batch {
 

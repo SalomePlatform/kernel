@@ -9,9 +9,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_PythonObjectAttribute.ixx"
 #include <string>
+using namespace std;
 
 const Standard_GUID& SALOMEDS_PythonObjectAttribute::GetID() 
 {

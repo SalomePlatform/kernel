@@ -9,6 +9,7 @@
 
 #include <string>
 #include "Batch_BoolType.hxx"
+using namespace std;
 
 namespace Batch {
 

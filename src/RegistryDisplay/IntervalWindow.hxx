@@ -16,7 +16,6 @@
 # include <qpushbutton.h>
 # include <qspinbox.h>
 
-using namespace std;
 
 class IntervalWindow : public QDialog
 {

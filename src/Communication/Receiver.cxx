@@ -1,5 +1,6 @@
 #include "Receiver.hxx"
 #include <string.h>
+using namespace std;
 
 /*!
   return a deep copy of the array contained in the servant.

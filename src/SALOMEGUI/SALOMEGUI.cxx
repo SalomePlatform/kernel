@@ -28,6 +28,7 @@
 
 #include "SALOMEGUI.h"
 #include "QAD_Desktop.h"
+using namespace std;
 
 
 //=============================================================================

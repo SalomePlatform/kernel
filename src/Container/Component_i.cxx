@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_Component_i.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
@@ -34,6 +33,7 @@ using namespace std;
 #include <dlfcn.h>
 #include <cstdlib>
 #include "utilities.h"
+using namespace std;
 
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;

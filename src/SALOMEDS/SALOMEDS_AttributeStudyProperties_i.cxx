@@ -9,11 +9,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
+using namespace std;
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1

@@ -10,7 +10,6 @@
 #ifndef _FACTBATCHMANAGER_H_
 #define _FACTBATCHMANAGER_H_
 
-using namespace std;
 #include <string>
 #include <map>
 
@@ -22,15 +21,15 @@ namespace Batch {
   {
   public:
     // Constructeur et destructeur
-    FactBatchManager(const string & type);
+    FactBatchManager(const std::string & type);
     virtual ~FactBatchManager();
 
     virtual BatchManager * operator() (const char * hostname) const = 0;
-    string getType() const;
-    string __repr__() const;
+    std::string getType() const;
+    std::string __repr__() const;
 
   protected:
-    string type;
+    std::string type;
 
   private:
 

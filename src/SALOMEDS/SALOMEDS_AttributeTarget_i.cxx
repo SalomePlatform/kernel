@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TDF_LabelList.hxx>
 #include <TDF_ListIteratorOfLabelList.hxx>
+using namespace std;
 
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) {
   TDF_Label aLabel;

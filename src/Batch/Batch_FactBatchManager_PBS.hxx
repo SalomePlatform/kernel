@@ -10,9 +10,6 @@
 #ifndef _FACTBATCHMANAGER_PBS_H_
 #define _FACTBATCHMANAGER_PBS_H_
 
-using namespace std;
-#include <string>
-#include <map>
 #include "Batch_FactBatchManager.hxx"
 
 namespace Batch {

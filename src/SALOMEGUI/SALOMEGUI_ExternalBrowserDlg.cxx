@@ -3,7 +3,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_ExternalBrowserDlg.h"
 
 #include <qbuttongroup.h>
@@ -14,6 +13,7 @@ using namespace std;
 
 #include "QAD_FileDlg.h"
 #include "QAD_Tools.h"
+using namespace std;
 
 /* 
  *  Constructs a modal SALOMEGUI_ExternalBowserDlg which is a child of 'parent'

@@ -9,6 +9,7 @@
  */
 
 #include "Batch_ConnexionFailureException.hxx"
+using namespace std;
 
 namespace Batch {
 

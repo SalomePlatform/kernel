@@ -53,16 +53,25 @@ no) enable_production=no ;;
 esac],
 enable_production=AC_ENABLE_PRODUCTION_DEFAULT)dnl
 
-CXXFLAGS="$CXXFLAGS -Wno-deprecated -Wparentheses -Wreturn-type -Wmissing-declarations -Wunused "
+# portage alpha/OSF
+# CXXFLAGS="$CXXFLAGS -Wno-deprecated -Wparentheses -Wreturn-type -Wmissing-declarations -Wunused "
+echo $CXX
+AC_CXX_OPTION(-Wparentheses,CXXFLAGS)
+AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
+AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)
+AC_CXX_OPTION(-Wunused,CXXFLAGS)
 
-CXXVERSION=`$CXX --version`
-if test "X$CXXVERSION" != "X2.95.3"; then
-  CXXFLAGS="${CXXFLAGS} -fmessage-length=0 "
-fi
+# supprimer car ne marche qu'avec compilo gnu
+# CXXVERSION=`$CXX --version`
+# if test "X$CXXVERSION" != "X2.95.3"; then
+#  CXXFLAGS="${CXXFLAGS} -fmessage-length=0 "
+# fi
 
 if test "X$enable_production" = "Xyes"; then
   CFLAGS="$CFLAGS -O"
-  CXXFLAGS="$CXXFLAGS -O -Wuninitialized "
+#  CXXFLAGS="$CXXFLAGS -O -Wuninitialized "
+  AC_CXX_OPTION(-Wuninitialized,CXXFLAGS)
+  CXXFLAGS="$CXXFLAGS -O "
 fi
 ])
 

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 //#include "SALOMEDS_StudyBuilder_i.hxx"
@@ -83,6 +82,7 @@ using namespace std;
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
+using namespace std;
 
 #define USE_CASE_LABEL_TAG            2
 #define DIRECTORYID 16661

@@ -21,7 +21,7 @@
 
 #include "CASCatch_SignalsHandler.h"
 #include <OSD.hxx>
-
+using namespace std;
 
 CASCatch_SignalsHandler::CASCatch_SignalsHandler(bool theFloatingSignal)
 {

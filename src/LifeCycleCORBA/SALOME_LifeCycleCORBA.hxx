@@ -55,7 +55,7 @@ protected:
   SALOME_NamingService *_NS;
   Engines::Container_var _FactoryServer ;
 
-private:
+  //private:
   std::string ContainerName( const char * aComputerContainer ,
                         std::string * theComputer ,
                         std::string * theContainer ) ;

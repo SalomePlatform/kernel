@@ -30,6 +30,7 @@
 
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
+using namespace std;
 
 //=============================================================================
 /*! 

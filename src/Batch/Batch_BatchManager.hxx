@@ -10,7 +10,6 @@
 #ifndef _BATCHMANAGER_H_
 #define _BATCHMANAGER_H_
 
-using namespace std;
 #include <string>
 #include <map>
 #include "Batch_Job.hxx"
@@ -29,13 +28,13 @@ namespace Batch {
   {
   public:
     // Constructeur et destructeur
-    //BatchManager(string host="localhost") throw(InvalidArgumentException); // connexion a la machine host
+    //BatchManager(std::string host="localhost") throw(InvalidArgumentException); // connexion a la machine host
     BatchManager(const FactBatchManager * parent, const char * host="localhost") throw(InvalidArgumentException); // connexion a la machine host
     virtual ~BatchManager();
-    virtual string __repr__() const;
+    virtual std::string __repr__() const;
 
     // Recupere le l'identifiant d'un job deja soumis au BatchManager
-    //virtual const JobId getJobIdByReference(const string & ref);
+    //virtual const JobId getJobIdByReference(const std::string & ref);
     virtual const JobId getJobIdByReference(const char * ref);
 
     // Methodes pour le controle des jobs : virtuelles pures
@@ -49,8 +48,8 @@ namespace Batch {
     virtual JobInfo queryJob(const JobId & jobid) = 0; // renvoie l'etat du job
 
   protected:
-    string _hostname; // serveur ou tourne le BatchManager
-    map< const string, const JobId * > jobid_map; // table des jobs deja soumis
+    std::string _hostname; // serveur ou tourne le BatchManager
+    std::map< const std::string, const JobId * > jobid_map; // table des jobs deja soumis
     const FactBatchManager * _parent;
 
   private:

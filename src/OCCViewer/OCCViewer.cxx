@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "OCCViewer.h"
 #include "OCCViewer_ViewFrame.h"
+using namespace std;
 
 QAD_ViewFrame* OCCViewer::createView(QAD_RightFrame* parent)
 {

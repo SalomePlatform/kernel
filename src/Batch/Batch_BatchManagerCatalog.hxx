@@ -10,7 +10,6 @@
 #ifndef _CATALOG_H_
 #define _CATALOG_H_
 
-using namespace std;
 #include <string>
 #include <map>
 #include <pthread.h>
@@ -31,11 +30,11 @@ namespace Batch {
     static void addFactBatchManager(const char * type, FactBatchManager * pFBM);
     virtual FactBatchManager * operator() (const char * type) const;
 
-    virtual map<string, FactBatchManager *> * dict() const;
-    virtual string __repr__() const;
+    virtual std::map<std::string, FactBatchManager *> * dict() const;
+    virtual std::string __repr__() const;
 
   protected:
-    static map<string, FactBatchManager *> * _p_catalog;
+    static std::map<std::string, FactBatchManager *> * _p_catalog;
     static pthread_mutex_t _mutex;
 
   private:

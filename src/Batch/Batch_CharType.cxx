@@ -9,6 +9,7 @@
 
 #include <string>
 #include "Batch_CharType.hxx"
+using namespace std;
 
 namespace Batch {
 

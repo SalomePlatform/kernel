@@ -32,6 +32,7 @@
 #include <vtkDataSet.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
+using namespace std;
 
 vtkCxxRevisionMacro(SALOME_PassThroughFilter, "$Revision$");
 vtkStandardNewMacro(SALOME_PassThroughFilter);

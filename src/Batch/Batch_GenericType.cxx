@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include "Batch_GenericType.hxx"
+using namespace std;
 
 namespace Batch {
 

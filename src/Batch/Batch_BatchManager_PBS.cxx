@@ -17,6 +17,7 @@ extern "C" {
 #include <sstream>
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_BatchManager_PBS.hxx"
+using namespace std;
 
 namespace Batch {
 

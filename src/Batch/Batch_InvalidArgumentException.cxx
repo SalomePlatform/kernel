@@ -9,6 +9,7 @@
  */
 
 #include "Batch_InvalidArgumentException.hxx"
+using namespace std;
 
 namespace Batch {
 

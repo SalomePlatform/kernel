@@ -21,7 +21,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    InvalidKeyException(string ch = "undefined") : GenericException("InvalidKeyException", ch) {}
+    InvalidKeyException(std::string ch = "undefined") : GenericException("InvalidKeyException", ch) {}
 
   protected:
 

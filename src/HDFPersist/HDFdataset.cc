@@ -24,7 +24,6 @@
 //  File   : HDFdataset.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
@@ -35,6 +34,7 @@ extern "C"
 #include "HDFexception.hxx"
 
 #include <iostream.h>
+using namespace std;
 
 herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {

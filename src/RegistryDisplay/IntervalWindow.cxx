@@ -15,6 +15,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 # include "utilities.h"
+using namespace std;
 
 #define MARGIN_SIZE      11
 #define SPACING_SIZE      6

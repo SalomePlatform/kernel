@@ -1,5 +1,6 @@
 #include "ReceiverFactory.hxx"
 #include "Receivers.hxx"
+using namespace std;
 
 #ifdef COMP_CORBA_DOUBLE
 #define CorbaDNoCopyReceiver CorbaNCNoCopyReceiver

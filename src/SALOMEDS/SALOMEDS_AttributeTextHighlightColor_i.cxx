@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HArray1OfReal.hxx>
+using namespace std;
 
 SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() {
   SALOMEDS::Color TextHighlightColor;

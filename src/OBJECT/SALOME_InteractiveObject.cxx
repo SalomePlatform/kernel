@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class SALOME_InteractiveObject SALOME_InteractiveObject.hxx
   \brief ...
 */
 
 #include "SALOME_InteractiveObject.ixx"
+using namespace std;
 
 SALOME_InteractiveObject::SALOME_InteractiveObject()
 {

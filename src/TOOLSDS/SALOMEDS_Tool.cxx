@@ -1,4 +1,3 @@
-using namespace std;
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
@@ -26,6 +25,7 @@ using namespace std;
 
 #include <sys/time.h>
 #include <stdlib.h>
+using namespace std;
 
 //============================================================================
 // function : GetTempDir

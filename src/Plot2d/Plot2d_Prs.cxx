@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "Plot2d_Prs.h"
+using namespace std;
 
 //==========================================================
 /*!

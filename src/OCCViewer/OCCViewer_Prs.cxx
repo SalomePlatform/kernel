@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "OCCViewer_Prs.h"
+using namespace std;
 
 //==========================================================
 /*!

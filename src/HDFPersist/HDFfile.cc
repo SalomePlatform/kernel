@@ -24,7 +24,6 @@
 //  File   : HDFfile.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
@@ -34,6 +33,7 @@ extern "C"
 #include <iostream.h>
 #include "HDFfile.hxx"
 #include "HDFexception.hxx"
+using namespace std;
 
 herr_t file_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {

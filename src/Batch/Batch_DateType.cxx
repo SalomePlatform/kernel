@@ -11,6 +11,7 @@ extern "C" {
 #include <time.h>
 }
 #include "Batch_DateType.hxx"
+using namespace std;
 
 namespace Batch {
 

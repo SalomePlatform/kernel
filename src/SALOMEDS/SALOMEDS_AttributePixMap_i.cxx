@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributePixMap_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TCollection_AsciiString.hxx>
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap() {
   TCollection_ExtendedString S = Handle(SALOMEDS_PixMapAttribute)::DownCast(_myAttr)->Get();

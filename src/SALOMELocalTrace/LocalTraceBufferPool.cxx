@@ -30,11 +30,11 @@
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
 
+using namespace std;
+
 // In case of truncated message, end of trace contains "...\n\0"
 #define TRUNCATED_MESSAGE "...\n"
 #define MAXMESS_LENGTH MAX_TRACE_LENGTH-5
-
-using namespace std;
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex;

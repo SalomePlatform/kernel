@@ -126,8 +126,8 @@ fi])
  AC_MSG_CHECKING([if we need libdb])
  PY_NEEDOPENDB=`nm $PYTHON_LIBA | grep dbopen | grep U`
   if test "x$PY_NEEDOPENDB" != "x"; then
-     PYTHON_LIBS="$PYTHON_LIBS -ldb"
      AC_MSG_RESULT(yes)
+     AC_CHECK_LIB(db,dbopen,PYTHON_LIBS="$PYTHON_LIBS -ldb",db_ok=no)
   else
      AC_MSG_RESULT(no)
   fi
@@ -135,8 +135,8 @@ fi])
  AC_MSG_CHECKING([if we need libdl])
   PY_NEEDOPENDL=`nm $PYTHON_LIBA | grep dlopen | grep U`
   if test "x$PY_NEEDOPENDL" != "x"; then
-     PYTHON_LIBS="$PYTHON_LIBS -ldl"
      AC_MSG_RESULT(yes)
+     AC_CHECK_LIB(dl,dlopen,PYTHON_LIBS="$PYTHON_LIBS -ldl",dl_ok=no)
   else
      AC_MSG_RESULT(no)
   fi
@@ -144,8 +144,8 @@ fi])
  AC_MSG_CHECKING([if we need libutil])
   PY_NEEDOPENPTY=`nm $PYTHON_LIBA | grep openpty | grep U`
   if test "x$PY_NEEDOPENPTY" != "x"; then
-     PYTHON_LIBS="$PYTHON_LIBS -lutil"
      AC_MSG_RESULT(yes)
+     AC_CHECK_LIB(util,openpty,PYTHON_LIBS="$PYTHON_LIBS -lutil",openpty_ok=no)
   else
      AC_MSG_RESULT(no)
   fi
@@ -153,8 +153,8 @@ fi])
  AC_MSG_CHECKING([if we need tcltk])
   PY_NEEDTCLTK=`nm $PYTHON_LIBA | grep Tcl_Init | grep U`
   if test "x$PY_NEEDTCLTK" != "x"; then
-     PYTHON_LIBS="$PYTHON_LIBS -ltcl -ltk"
      AC_MSG_RESULT(yes)
+     AC_CHECK_LIB(tcl,Tcl_Init,PYTHON_LIBS="$PYTHON_LIBS -ltcl -ltk",tclinit_ok=no)
   else
      AC_MSG_RESULT(no)
   fi

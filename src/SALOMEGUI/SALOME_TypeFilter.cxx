@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_TypeFilter.ixx"
 #include "SALOME_InteractiveObject.hxx"
+using namespace std;
 
 SALOME_TypeFilter::SALOME_TypeFilter(const Standard_CString TheKind):
 myKind(TheKind){}

@@ -10,7 +10,6 @@
 #ifndef _BOOLTYPE_H_
 #define _BOOLTYPE_H_
 
-using namespace std;
 #include <string>
 #include "Batch_GenericType.hxx"
 
@@ -23,7 +22,7 @@ namespace Batch {
     BoolType(const bool b=false) : _data(b) {}
 
 		// Conversion en chaine
-    virtual string affiche() const;
+    virtual std::string affiche() const;
 
 		// Operateur d'affectation
     virtual BoolType & operator =(bool);

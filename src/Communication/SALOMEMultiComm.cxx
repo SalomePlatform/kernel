@@ -1,4 +1,5 @@
 #include "SALOMEMultiComm.hxx"
+using namespace std;
 
 SALOMEMultiComm::SALOMEMultiComm():_type(SALOME::CORBA_)
 {

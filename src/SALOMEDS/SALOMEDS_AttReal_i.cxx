@@ -26,12 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttReal_i.hxx"
 #include "utilities.h"
 #include <TDF_Tool.hxx>
 #include <stdio.h>
 #include <cstring>
+using namespace std;
 
 //============================================================================
 /*! Function : Set

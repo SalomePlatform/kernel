@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 # include "Utils_CommException.hxx"
+using namespace std;
 
 CommException::CommException( void ): SALOME_Exception( "CommException" )
 {

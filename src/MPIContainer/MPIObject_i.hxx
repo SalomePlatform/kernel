@@ -28,7 +28,7 @@
 #define _SALOME_POBJECT_I_H_ 
 
 #include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(MPIObject)
+#include CORBA_SERVER_HEADER(SALOME_MPIObject)
 
 class MPIObject_i: public POA_Engines::MPIObject
 {
@@ -48,7 +48,7 @@ class MPIObject_i: public POA_Engines::MPIObject
   // IOR des objets paralleles sur tous les process mpi
   Engines::IORTab* _tior;
   // Echange des IOR de l'objet entre process
-  void BCastIOR(CORBA::ORB_ptr orb,Engines::MPIObject_var pobj,bool amiCont);
+  void BCastIOR(CORBA::ORB_ptr orb,Engines::MPIObject_ptr pobj,bool amiCont);
 } ;
 
 #endif

@@ -34,6 +34,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
+using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;

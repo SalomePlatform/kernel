@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_NameDlg.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
@@ -20,6 +19,7 @@ using namespace std;
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
+using namespace std;
 
 /*!
   Constructor

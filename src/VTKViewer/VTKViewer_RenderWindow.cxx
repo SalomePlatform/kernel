@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer_RenderWindow.h"
 #include "utilities.h"
 #include "QAD_Settings.h"
@@ -54,6 +53,7 @@ using namespace std;
 #if QT_VERSION > 300
 #include <qcursor.h>
 #endif
+using namespace std;
 
 VTKViewer_RenderWindow::VTKViewer_RenderWindow(QWidget *parent, const char *name) :
   QWidget(parent, name, 

@@ -24,7 +24,6 @@
 //  File   : HDFgroup.cc
 //  Module : SALOME
 
-using namespace std;
 extern "C"
 {
 #include "hdfi.h"
@@ -32,6 +31,7 @@ extern "C"
 }
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
+using namespace std;
 
 herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {

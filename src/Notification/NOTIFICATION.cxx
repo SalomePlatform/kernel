@@ -25,12 +25,11 @@
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 
-using namespace std;
 #include "NOTIFICATION.hxx"
 
-using namespace std;
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
+using namespace std;
 
 CosNA_EventChannel_ptr NOTIFICATION_channel() {
     ORB_INIT&      init = *SINGLETON_<ORB_INIT>::Instance(); ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());

@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_TextColorAttribute.ixx"
+using namespace std;
 
 //=======================================================================
 //function : GetID

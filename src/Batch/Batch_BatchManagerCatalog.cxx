@@ -12,6 +12,7 @@
 #include <map>
 #include "Batch_BatchManagerCatalog.hxx"
 #include "Batch_FactBatchManager.hxx"
+using namespace std;
 
 namespace Batch {
 

@@ -14,7 +14,7 @@
 #
 # Created from configure.in.base
 #
-
+AS_SHELL_SANITIZES
 AC_INIT(src)
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
@@ -47,6 +47,10 @@ echo Source root directory : $ROOT_SRCDIR
 echo Build  root directory : $ROOT_BUILDDIR
 echo
 echo
+
+dnl Modification B. Secher portage sur osf
+AC_CHECK_PROG(SHELL,sh)
+AC_SUBST(SHELL)
 
 if test -z "$AR"; then
    AC_CHECK_PROGS(AR,ar xar,:,$PATH)
@@ -86,7 +90,7 @@ dnl Fix up the INSTALL macro if it s a relative path. We want the
 dnl full-path to the binary instead.
 case "$INSTALL" in
    *install-sh*)
-      INSTALL='\${top_srcdir}'/salome_adm/unix/config_files/install-sh
+      INSTALL="${ROOT_SRCDIR}/salome_adm/unix/config_files/install-sh -c"
       ;;
 esac
 
@@ -100,6 +104,8 @@ cc_ok=no
 dnl inutil car libtool
 dnl AC_PROG_CC
 AC_PROG_CXX
+AC_CXX_WARNINGS
+AC_CXX_TEMPLATE_OPTIONS
 AC_DEPEND_FLAG
 # AC_CC_WARNINGS([ansi])
 cc_ok=yes
@@ -107,15 +113,22 @@ cc_ok=yes
 dnl Library libdl :
 AC_CHECK_LIB(dl,dlopen)
 
+dnl Library librt : for alpha/osf
+AC_CHECK_LIB(rt,nanosleep)
+
 dnl add library libm :
 AC_CHECK_LIB(m,ceil)
 
-dnl 
-dnl Well we use sstream which is not in gcc pre-2.95.3
-dnl We must test if it exists. If not, add it in include !
+AC_CXX_USE_STD_IOSTREAM
+AC_CXX_HAVE_SSTREAM
+
+dnl
+dnl ---------------------------------------------
+dnl testing linker
+dnl ---------------------------------------------
 dnl
 
-AC_CXX_HAVE_SSTREAM
+AC_LINKER_OPTIONS
 
 echo
 echo ---------------------------------------------

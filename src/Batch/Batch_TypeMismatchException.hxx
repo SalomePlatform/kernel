@@ -19,7 +19,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    TypeMismatchException(string ch = "undefined") : GenericException("TypeMismatchException", ch) {}
+    TypeMismatchException(std::string ch = "undefined") : GenericException("TypeMismatchException", ch) {}
   };
 
 }

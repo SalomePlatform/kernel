@@ -36,6 +36,8 @@ extern "C"
 
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
 # include "utilities.h"
+using namespace std;
+
 void Nettoyage();
 
 #ifdef _DEBUG_
@@ -43,8 +45,6 @@ static int MYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
 #endif
-
-using namespace std;
 
 static list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs=0 ;
 

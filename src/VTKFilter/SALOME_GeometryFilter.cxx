@@ -43,6 +43,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkVoxel.h>
 #include <vtkWedge.h>
+using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;

@@ -24,8 +24,8 @@
 //  File   : HDFconvert.cc
 //  Module : SALOME
 
-using namespace std;
 #include "HDFconvert.hxx"
+using namespace std;
 
 int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)
 {

@@ -3,11 +3,10 @@
 
 #include <string>
 
-using namespace std;
 
 class MultiCommException {
 private:
-  string _message;
+  std::string _message;
 public:
   MultiCommException(const char *message);
   const char *what() const;

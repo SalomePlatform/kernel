@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 # include <qpushbutton.h>
 # include <qlistview.h>
 # include <qtabwidget.h> 
@@ -49,6 +48,7 @@ using namespace std;
 # include "RegWidget.hxx"
 # include "HelpWindow.hxx" 
 # include "IntervalWindow.hxx"
+using namespace std;
 
 typedef int PIXELS;
 RegWidget* RegWidget::myRegWidgetPtr = 0;

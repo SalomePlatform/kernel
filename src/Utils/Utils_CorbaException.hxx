@@ -45,9 +45,9 @@
                 throw SALOME::SALOME_Exception(ExDescription); \
               }
 
-#include <ostream.h>
+#include <iostream>
 //Dump the CORBA exception type.
-static ostream& operator<<(ostream& os, const CORBA::Exception& e)
+static std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
 {
   CORBA::Any tmp;
   tmp<<= e;

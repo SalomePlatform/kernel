@@ -12,7 +12,6 @@
 #define _GENERICEXCEPTION_H_
 
 
-using namespace std;
 #include <string>
 
 namespace Batch {
@@ -20,11 +19,11 @@ namespace Batch {
   class GenericException
   {
   public:
-    const string type;    // la nature de l'exception
-    const string message; // la raison de l'exception
+    const std::string type;    // la nature de l'exception
+    const std::string message; // la raison de l'exception
 
 		// Constructeur
-    GenericException(const string tp = "GenericException", const string ch = "undefined") : type(tp), message(ch) {}
+    GenericException(const std::string tp = "GenericException", const std::string ch = "undefined") : type(tp), message(ch) {}
   };
 
 }

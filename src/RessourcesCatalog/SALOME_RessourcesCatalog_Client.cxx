@@ -24,7 +24,6 @@
 //  File   : SALOME_RessourcesCatalog_Client.cxx
 //  Module : SALOME
 
-using namespace std;
 /* $Header$ */
 
 #include <iostream.h>
@@ -33,6 +32,7 @@ using namespace std;
 #include CORBA_SERVER_HEADER(SALOME_RessourcesCatalog)
 #include <string>
 #include "utilities.h"
+using namespace std;
 
 int main(int argc,char **argv)
 {

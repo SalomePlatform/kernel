@@ -11,7 +11,6 @@
 #ifndef _COUPLETYPE_H_
 #define _COUPLETYPE_H_
 
-using namespace std;
 #include <string>
 #include "Batch_GenericType.hxx"
 #include "Batch_Couple.hxx"
@@ -25,8 +24,8 @@ namespace Batch {
     CoupleType(const Couple & C) : _data(C) {}
 
 		// Conversion en chaine
-    virtual string affiche() const;
-    virtual operator string() const;
+    virtual std::string affiche() const;
+    virtual operator std::string() const;
 
 		// Operateur d'affectation
     virtual CoupleType & operator =(const Couple & C);

@@ -27,7 +27,7 @@ namespace Batch {
     virtual ~Job() {}
     
     // Operateur pour l'affichage sur un stream
-    friend ostream & operator <<(ostream & os, const Job & job);
+    friend std::ostream & operator <<(std::ostream & os, const Job & job);
 
     // Accesseurs
     Parametre getParametre() const;
@@ -39,8 +39,8 @@ namespace Batch {
     
     // Methodes pour l'interfacage avec Python (SWIG)
     // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
-    string  __str__() const; // SWIG : affichage en Python
-    string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
+    std::string  __str__() const; // SWIG : affichage en Python
+    std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
     Parametre _param; // table des parametres batch du job

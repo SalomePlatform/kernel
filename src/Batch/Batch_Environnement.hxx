@@ -12,13 +12,12 @@
 #define _ENVIRONNEMENT_H_
 
 
-using namespace std;
 #include <string>
 #include <map>
 
 namespace Batch {
 
-  typedef map < string, string > Environnement;
+  typedef std::map < std::string, std::string > Environnement;
 
 }
 

@@ -24,9 +24,9 @@
 //  File   : test7.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "HDFIO.hxx"
 #include <iostream.h>
+using namespace std;
 
 int main()
 {

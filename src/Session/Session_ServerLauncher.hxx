@@ -38,7 +38,6 @@
 #include <qthread.h>
 #include <qwaitcondition.h>
 
-using namespace std;
 
 class ServArg
   {
@@ -78,9 +77,9 @@ private:
   PortableServer::POA_var _root_poa;
   QMutex* _GUIMutex;
   QWaitCondition *_ServerLaunch;
-  list<ServArg> _argServToLaunch;
-  vector<string> _argCopy;
-  list<Session_ServerThread*> _serverThreads;
+  std::list<ServArg> _argServToLaunch;
+  std::vector<std::string> _argCopy;
+  std::list<Session_ServerThread*> _serverThreads;
 };
 
 #endif

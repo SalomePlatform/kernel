@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "OCCViewer_ViewPort3d.h"
 
 #include "QAD.h"
@@ -46,6 +45,7 @@ using namespace std;
 #if !defined WNT
 #include <Xw.hxx>
 #endif
+using namespace std;
 
 /*!
     Constructor

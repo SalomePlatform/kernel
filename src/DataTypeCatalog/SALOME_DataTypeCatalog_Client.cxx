@@ -24,7 +24,6 @@
 //  File   : SALOME_DataTypeCatalog_Client.cxx
 //  Module : SALOME
 
-using namespace std;
 /* $Header$ */
 
 #include <iostream.h>
@@ -32,6 +31,7 @@ using namespace std;
 #include "SALOME_DataTypeCatalog.hh"
 #include <string>
 #include "utilities.h"
+using namespace std;
 
 int main(int argc,char **argv)
 {

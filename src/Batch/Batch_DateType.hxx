@@ -11,7 +11,6 @@
 #ifndef _DATETYPE_H_
 #define _DATETYPE_H_
 
-using namespace std;
 #include <string>
 #include "Batch_GenericType.hxx"
 #include "Batch_Date.hxx"
@@ -25,7 +24,7 @@ namespace Batch {
     DateType(const Date & d)  : _data(d) {};
 
 		// Conversion en chaine
-    virtual string affiche() const;
+    virtual std::string affiche() const;
 
 		// Operateur d'affectation
     virtual DateType & operator =(const Date &);

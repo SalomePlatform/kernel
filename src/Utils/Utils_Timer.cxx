@@ -25,10 +25,10 @@
 //  Module : SALOME
 
 # include "Utils_Timer.hxx"
-# include <stream.h>
-using namespace std;
+# include <iostream>
 
 #include "utilities.h"
+using namespace std;
 
 static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));
 

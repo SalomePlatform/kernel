@@ -20,6 +20,7 @@
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
+using namespace std;
 
 int main (int argc, char * argv[])
 {

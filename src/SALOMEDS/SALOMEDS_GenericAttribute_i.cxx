@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 
 #include <TDataStd_TreeNode.hxx>
 #include <TDataStd_UAttribute.hxx>
@@ -55,6 +54,7 @@ using namespace std;
 #include "SALOMEDS_ExternalFileDef.hxx"
 #include "SALOMEDS_FileType.hxx"
 #include "Utils_ExceptHandlers.hxx"
+using namespace std;
 #define RegisteredAttributes 26
 
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);

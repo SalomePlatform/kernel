@@ -24,7 +24,6 @@
 //  File   : HDFobject.cc
 //  Module : SALOME
 
-using namespace std;
 #include "HDFobject.hxx"
 extern "C"
 {
@@ -32,6 +31,7 @@ extern "C"
 #include <string.h>
 }
 #include "utilities.h"
+using namespace std;
 
 HDFobject::HDFobject(char *name)
 {

@@ -21,7 +21,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    APIInternalFailureException(string ch = "undefined") : GenericException("APIInternalFailureException", ch) {}
+    APIInternalFailureException(std::string ch = "undefined") : GenericException("APIInternalFailureException", ch) {}
   };
 
 }

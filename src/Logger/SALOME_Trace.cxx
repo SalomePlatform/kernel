@@ -8,13 +8,13 @@
 //  Author : Vasily Rusyaev
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_Trace.hxx"
 #include <memory.h>
 #include <string>
 //#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

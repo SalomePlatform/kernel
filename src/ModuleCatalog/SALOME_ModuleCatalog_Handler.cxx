@@ -33,6 +33,7 @@
 #include "utilities.h"
 
 #include <sstream>
+using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;

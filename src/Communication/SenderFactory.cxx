@@ -2,6 +2,7 @@
 #include "utilities.h"
 #include "SALOMEMultiComm.hxx"
 #include "SALOME_Comm_i.hxx"
+using namespace std;
 
 #ifdef COMP_CORBA_DOUBLE
 #define SALOME_CorbaDoubleSender SALOME_CorbaDoubleNCSender_i

@@ -26,12 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
 #include "QAD_Desktop.h"
 #include "QAD_MessageBox.h"
+using namespace std;
 
 void QtCatchCorbaException(const SALOME::SALOME_Exception & S_ex)
 {

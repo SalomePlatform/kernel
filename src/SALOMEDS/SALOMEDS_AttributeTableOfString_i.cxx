@@ -8,7 +8,6 @@
 //  Author : Sergey Ruin
 //  Module : SALOME
 
-using namespace std;
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_AsciiString.hxx>
 
@@ -23,6 +22,7 @@ using namespace std;
 #include <string>
 
 #include "Utils_ExceptHandlers.hxx"
+using namespace std;
 UNEXPECT_CATCH(ATS_IncorrectIndex, SALOMEDS::AttributeTableOfString::IncorrectIndex);
 UNEXPECT_CATCH(ATS_IncorrectArgumentLength, SALOMEDS::AttributeTableOfString::IncorrectArgumentLength);
 

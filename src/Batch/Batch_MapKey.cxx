@@ -10,6 +10,7 @@
 
 #include <string>
 #include "Batch_MapKey.hxx"
+using namespace std;
 
 namespace Batch {
 

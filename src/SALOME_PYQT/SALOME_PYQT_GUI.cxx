@@ -24,6 +24,8 @@ using namespace std;
 #include <map>
 #include <string>
 
+using namespace std;
+
 static PyInterp_PyQt *interp = NULL;
 static map<int,PyInterp_PyQt*> mapInterp;
 

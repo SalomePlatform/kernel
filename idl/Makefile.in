@@ -22,9 +22,8 @@ IDL_FILES = \
   SALOME_Component.idl \
   SALOME_TestComponent.idl \
   SALOME_Registry.idl \
-  TypeData.idl \
-  MPIObject.idl \
-  MPIContainer.idl \
+  SALOME_MPIObject.idl \
+  SALOME_MPIContainer.idl \
   Logger.idl \
   SALOME_GenericObj.idl \
   SALOME_TestModuleCatalog.idl

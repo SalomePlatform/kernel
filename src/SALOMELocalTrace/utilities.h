@@ -36,7 +36,6 @@
 #include <sstream>
 #include <cstdlib>
 
-using namespace std;
 
 #include "LocalTraceBufferPool.hxx"
 
@@ -52,7 +51,7 @@ using namespace std;
  * thread waken up is not garanteed (no fifo or priority rules in Linux Kernel)
  */
 
-#define MESS_INIT(deb) ostringstream os; os<<deb
+#define MESS_INIT(deb) std::ostringstream os; os<<deb
 #define MESS_BEGIN(deb) MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
 #define MESS_END endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
 #define MESS_ABORT endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
@@ -62,7 +61,7 @@ using namespace std;
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
-#define IMMEDIATE_ABORT(code) {cout <<flush; \
+#define IMMEDIATE_ABORT(code) {cout <<std::flush; \
                                cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
                                cerr << "ABORT return code= "<< code << endl; \
                                std::exit(code);}

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <iostream>
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
+using namespace std;
 extern "C"
 {
 #include <math.h>

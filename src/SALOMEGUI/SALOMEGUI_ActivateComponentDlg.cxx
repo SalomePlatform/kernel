@@ -8,7 +8,6 @@
 //  Author : Michael Zorin (mzn)
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEGUI_ActivateComponentDlg.h"
 
 #include <qframe.h>
@@ -16,6 +15,7 @@ using namespace std;
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qpixmap.h>
+using namespace std;
 
 static const char* const default_icon[] = { 
 "48 48 17 1",

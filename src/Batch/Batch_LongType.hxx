@@ -10,7 +10,6 @@
 #ifndef _LONGTYPE_H_
 #define _LONGTYPE_H_
 
-using namespace std;
 #include <string>
 #include "Batch_GenericType.hxx"
 
@@ -23,7 +22,7 @@ namespace Batch {
     LongType(const long l=0L) : _data(l) {}
 
 		// Conversion en chaine
-    virtual string affiche() const;
+    virtual std::string affiche() const;
 
 		// Operateur d'affectation
     virtual LongType & operator =(long);

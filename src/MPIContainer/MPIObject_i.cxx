@@ -24,15 +24,15 @@
 //  File   : MPIObject_i.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "MPIObject_i.hxx"
 #include "utilities.h"
 #include <mpi.h>
+using namespace std;
 
 MPIObject_i::MPIObject_i()
 {
-  _nbproc = 1;
-  _numproc = 0;
+  MPI_Comm_size( MPI_COMM_WORLD, &_nbproc );
+  MPI_Comm_rank( MPI_COMM_WORLD, &_numproc );
   _tior=NULL;
 }
 
@@ -50,11 +50,11 @@ MPIObject_i::~MPIObject_i()
 
 Engines::IORTab* MPIObject_i::tior()
 {
-  Engines::IORTab* tior = new Engines::IORTab;
+  Engines::IORTab_var tior = new Engines::IORTab;
   tior->length(_tior->length());
   for(unsigned int ip=0;ip<tior->length();ip++)
-    (*tior)[ip] = (*_tior)[ip];
-  return tior; 
+    tior[ip] = (*_tior)[ip];
+  return tior._retn(); 
 };
 
 void MPIObject_i::tior(const Engines::IORTab& ior)
@@ -65,23 +65,20 @@ void MPIObject_i::tior(const Engines::IORTab& ior)
     (*_tior)[ip] = ior[ip];
 }
 
-void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_var pobj, 
+void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, 
 			   bool amiCont)
 {
   int err, ip, n;
   char *ior;
   MPI_Status status; /* status de reception de message MPI */
 
-  // Conversion IOR vers string
-  CORBA::String_var sior(orb->object_to_string(pobj));
-
   if( _numproc == 0 ){
 
     //Allocation du tableau des IOR
-    Engines::IORTab *iort = new Engines::IORTab;
+    Engines::IORTab_var iort = new Engines::IORTab;
     iort->length(_nbproc);
 
-    (*iort)[0] = pobj;
+    iort[0] = pobj;
 
     // Process 0 recupere les ior de l'object sur les autres process
     for(ip=1;ip<_nbproc;ip++){
@@ -91,35 +88,38 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_var pobj,
 	exit(1);
       }
       // Allocation de la chaine de longueur n
-      ior = (char*)calloc(n,sizeof(char));
+      ior = new char[n];
       err = MPI_Recv(ior,n,MPI_CHAR,ip,2*ip,MPI_COMM_WORLD,&status);
       if(err){
 	MESSAGE("[" << _numproc << "] MPI_RECV error");
 	exit(1);
       }
-      (*iort)[ip] = Engines::MPIObject::_narrow(orb->string_to_object(ior));
-      free(ior);
+      iort[ip] = orb->string_to_object(ior);
+      delete [] ior;
     }
     // On donne le tableau des ior a l'objet Corba du process 0
     if( amiCont )
-      tior(*iort);
+      tior(*(iort._retn()));
     else
-      pobj->tior(*iort);
+      pobj->tior(*(iort._retn()));
 
   }
   else{
+    // Conversion IOR vers string
+    ior = orb->object_to_string(pobj);
+    n = strlen(ior) + 1;
     // On envoie l'IOR au process 0
-    n = strlen((char*)sior);
     err = MPI_Send(&n,1,MPI_INT,0,_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);
     }
-    err = MPI_Send((char*)sior,n,MPI_CHAR,0,2*_numproc,MPI_COMM_WORLD);
+    err = MPI_Send(ior,n,MPI_CHAR,0,2*_numproc,MPI_COMM_WORLD);
     if(err){
       MESSAGE("[" << _numproc << "] MPI_SEND error");
       exit(1);
     }
+    CORBA::string_free(ior);
   }
 
 }

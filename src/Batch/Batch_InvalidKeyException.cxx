@@ -9,6 +9,7 @@
  */
 
 #include "Batch_InvalidKeyException.hxx"
+using namespace std;
 
 namespace Batch {
 

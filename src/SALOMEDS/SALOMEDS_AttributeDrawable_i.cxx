@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeDrawable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeDrawable_i::IsDrawable() {
   return (Handle(SALOMEDS_DrawableAttribute)::DownCast(_myAttr)->Get() == 1);

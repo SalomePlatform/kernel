@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfReal.hxx>
+using namespace std;
 
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
 {

@@ -25,7 +25,6 @@
 //  Author : Francis KLOSS
 //  Module : SALOME
 
-using namespace std;
 #include "NOTIFICATION.hxx"
 
 class NOTIFICATION_Supplier_Swig {

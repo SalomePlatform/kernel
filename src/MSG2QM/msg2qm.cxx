@@ -15,7 +15,6 @@
 **
 *****************************************************************************/
 
-using namespace std;
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qtextcodec.h>
@@ -23,6 +22,7 @@ using namespace std;
 
 #include <stdio.h>
 #include <stdlib.h>
+using namespace std;
 
 static QString* defaultScope = 0;
 

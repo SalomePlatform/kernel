@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeName_i.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 char* SALOMEDS_AttributeName_i::Value() {
   TCollection_ExtendedString S = Handle(TDataStd_Name)::DownCast(_myAttr)->Get();

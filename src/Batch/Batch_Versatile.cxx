@@ -21,6 +21,7 @@
 #include "Batch_Versatile.hxx"
 #include "Batch_TypeMismatchException.hxx"
 #include "Batch_ListIsFullException.hxx"
+using namespace std;
 
 namespace Batch {
 

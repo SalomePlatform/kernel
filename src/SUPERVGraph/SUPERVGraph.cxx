@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SUPERVGraph.h"
 #include "SUPERVGraph_ViewFrame.h"
+using namespace std;
 
 QAD_ViewFrame* SUPERVGraph::createView(QAD_RightFrame* parent)
 {

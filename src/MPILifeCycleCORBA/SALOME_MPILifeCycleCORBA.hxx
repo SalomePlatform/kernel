@@ -36,8 +36,8 @@ protected:
   Engines::MPIContainer_var _MPIFactoryServer ;
 
 private:
-  Engines::MPIContainer_var FindOrStartMPIContainer(const string theComputer ,
-						    const string theMPIContainerRoot,
+  Engines::MPIContainer_var FindOrStartMPIContainer(const std::string theComputer ,
+						    const std::string theMPIContainerRoot,
 						    const int nbproc) ;
 
 } ;

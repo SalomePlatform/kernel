@@ -25,7 +25,6 @@
 //  Author : Francis KLOSS
 //  Module : SALOME
 
-using namespace std;
 #include "SUPERVGraph_Graph.h"
 
 #include "QAD_Settings.h"
@@ -33,6 +32,7 @@ using namespace std;
 
 #include <qcolordialog.h>
 #include <qpopupmenu.h>
+using namespace std;
 
 
 SUPERVGraph_Graph::SUPERVGraph_Graph(QWidget* parent) : 

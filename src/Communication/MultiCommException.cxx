@@ -1,4 +1,5 @@
 #include "MultiCommException.hxx"
+using namespace std;
 
 MultiCommException::MultiCommException(const char *message)
 {

@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+using namespace std;
 
 vtkCxxRevisionMacro(VTKViewer_VectorText, "$Revision$");
 vtkStandardNewMacro(VTKViewer_VectorText);

@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_SequenceOfIntegerAttribute.ixx"
+using namespace std;
 
 //=======================================================================
 //function : GetID

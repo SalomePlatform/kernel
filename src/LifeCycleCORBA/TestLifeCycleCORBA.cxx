@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include <iostream>
 #include <unistd.h>
@@ -36,6 +35,7 @@ using namespace std;
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include <OpUtil.hxx>
+using namespace std;
 
 int main (int argc, char * argv[])
 {

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <qapplication.h>
 #include <qlabel.h>
 
@@ -48,6 +47,7 @@ using namespace std;
 #include "Utils_CorbaException.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+using namespace std;
 
 //=============================================================================
 /*! SALOME_Session_QThread

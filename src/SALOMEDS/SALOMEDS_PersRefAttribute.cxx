@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_PersRefAttribute.ixx"
 #include <TDataStd_Comment.hxx>
 #include <TCollection_ExtendedString.hxx>
+using namespace std;
 
 //=======================================================================
 //function : GetID

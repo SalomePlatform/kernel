@@ -7,7 +7,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "InquireServersQThread.h"
 
@@ -37,6 +36,7 @@ using namespace std;
 #include "SALOME_NamingService.hxx"
 //#include "utilities.h"
 #include "OpUtil.hxx"
+using namespace std;
 
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)

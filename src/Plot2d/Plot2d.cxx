@@ -9,6 +9,7 @@
 
 #include "Plot2d.h"
 #include "Plot2d_ViewFrame.h"
+using namespace std;
 
 QAD_ViewFrame* Plot2d::createView(QAD_RightFrame* parent)
 {

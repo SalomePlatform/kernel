@@ -24,6 +24,7 @@
 #include <signal.h>
 
 #include "Utils_SignalsHandler.h"
+using namespace std;
 
 
 //============================================================================
@@ -87,7 +88,8 @@ Utils_SignalsHandler::Utils_SignalsHandler()
   StoreSignalHandler(mySigHandlerCont,SIGTERM); // termination
   StoreSignalHandler(mySigHandlerCont,SIGSEGV); // segmentation 
   //StoreSignalHandler(mySigHandlerCont,SIGABRT); // abort (ANSI).  
-  StoreSignalHandler(mySigHandlerCont,SIGSTKFLT); // stack fault.  
+  // portage CCRT
+  //  StoreSignalHandler(mySigHandlerCont,SIGSTKFLT); // stack fault.  
 }
 
 

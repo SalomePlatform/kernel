@@ -26,8 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 # include "Utils_ORB_INIT.hxx"
 # include "RegistryConnexion.hxx"
 # include "SALOME_NamingService.hxx"
@@ -41,6 +39,7 @@ extern "C"
 {
 # include <stdio.h>
 }
+using namespace std;
 
 
 Registry::Components_var Connexion( int argc , char **argv , const char *ptrSessionName ) throw( CommException )

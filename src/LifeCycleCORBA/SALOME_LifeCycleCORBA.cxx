@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -40,6 +39,7 @@ using namespace std;
 #include "SALOME_LifeCycleCORBA.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include "SALOME_NamingService.hxx"
+using namespace std;
 
 SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA()
 {

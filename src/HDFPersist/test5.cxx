@@ -24,10 +24,10 @@
 //  File   : test5.cxx
 //  Module : SALOME
 
-using namespace std;
 #include <iostream.h>
 #include "HDFOI.hxx"
 #include <stdlib.h>
+using namespace std;
 
 
 int main()

@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "ToolsGUI.h"
 #include "ToolsGUI_CatalogGeneratorDlg.h"
 
 #include "utilities.h"
 
 #include <stdlib.h>
+using namespace std;
 
 int ToolsGUI::runCommand(string & arg)
 { 

@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_SpinBoxDbl.h"
 #include <qpushbutton.h>
 #include <qpainter.h>
@@ -19,6 +18,7 @@ using namespace std;
 #include <qpixmapcache.h>
 #include <qapplication.h>
 #include <limits.h>
+using namespace std;
 
 //******************************************************************************
 // QDblRangeControl class

@@ -52,16 +52,15 @@ if test "$WITHMPICH" = yes; then
   if test "$WITHMPICH" = "yes";then
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPI_LIBS $LDFLAGS"
-    AC_CHECK_LIB(mpich,MPI_Init,
-               AC_CHECK_LIB(pmpich, PMPI_Init,WITHMPICH="yes",WITHMPICH="no"),
-               WITHMPICH="no")
+    AC_CHECK_LIB(mpich,MPI_Init,WITHMPICH="yes",WITHMPICH="no")
     AC_CHECK_LIB(mpich,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
     LDFLAGS="$LDFLAGS_old"
   fi
 
   if test "$WITHMPICH" = "yes";then
+     WITHMPI="yes"
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -lpmpich -lmpich"
+     MPI_LIBS="$MPI_LIBS -lmpich"
   else
      mpi_ok=no
   fi

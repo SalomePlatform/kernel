@@ -60,6 +60,7 @@
 #include "SALOME_Session_i.hxx"
 
 #include "Session_ServerLauncher.hxx"
+using namespace std;
 
 extern "C" int HandleSignals(QApplication *theQApplication);
 

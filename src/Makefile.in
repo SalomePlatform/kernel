@@ -45,7 +45,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils CASCatch PatchQt \
           RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
 
 ifeq (@mpi_ok@,yes)
-  SUBDIRS+= MPIContainer
+  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
 endif
 
 ifeq (@WITHOPENPBS@,yes)

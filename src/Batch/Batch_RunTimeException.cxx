@@ -9,6 +9,7 @@
  */
 
 #include "Batch_RunTimeException.hxx"
+using namespace std;
 
 namespace Batch {
 

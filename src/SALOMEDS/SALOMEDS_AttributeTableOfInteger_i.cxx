@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeTableOfInteger_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
@@ -20,6 +19,7 @@ using namespace std;
 #include <stdexcept>
 #include <strstream>
 #include <string>
+using namespace std;
 
 #define SEPARATOR '\1'
 

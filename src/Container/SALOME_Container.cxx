@@ -47,9 +47,9 @@
 
 #include <Python.h>
 
-extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
-
 using namespace std;
+
+extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
 static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
 

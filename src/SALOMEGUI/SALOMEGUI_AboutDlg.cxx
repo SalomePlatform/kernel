@@ -26,13 +26,13 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_AboutDlg.h"
 #include "QAD_Desktop.h"
 #include "QAD_Tools.h"
 #include <qlayout.h>
 #include <qpixmap.h>
 #include <qmessagebox.h>
+using namespace std;
 
 /* 
  * Constructor

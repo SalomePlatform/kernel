@@ -11,7 +11,6 @@
 #define _GENERICTYPE_H_
 
 
-using namespace std;
 #include <iostream>
 #include <string>
 
@@ -25,10 +24,10 @@ namespace Batch {
     virtual ~GenericType() { _nb--; }
 
 		// Operateur pour l'affichage sur un stream
-    friend ostream & operator << (ostream & os, const GenericType & obj);
+    friend std::ostream & operator << (std::ostream & os, const GenericType & obj);
 
 		// Conversion en chaine
-    virtual string affiche() const;
+    virtual std::string affiche() const;
 
 		// Clone duplique l'objet et en fabrique un nouveau a l'aide de new
 		// qu'il faudra detruire ensuite manuellement

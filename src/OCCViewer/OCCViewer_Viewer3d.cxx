@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class OCCViewer_Viewer3d OCCViewer_Viewer3d.h
   \brief Open CASCADE Viewer 3D with viewport 3D and selection.
@@ -62,6 +61,7 @@ using namespace std;
 #include <TColStd_IndexedMapOfInteger.hxx>
 #include <NCollection_DefineBaseCollection.hxx>
 #include <NCollection_DefineDataMap.hxx>
+using namespace std;
 
 DEFINE_BASECOLLECTION( OCCViewer_CollectionOfIndexedMapOfShapes, TopTools_IndexedMapOfShape )
 DEFINE_DATAMAP( OCCViewer_MapOfIOIndexedMapOfShape, OCCViewer_CollectionOfIndexedMapOfShapes, Handle_SALOME_InteractiveObject, TopTools_IndexedMapOfShape)

@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeFileType_i.hxx"
 
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 char* SALOMEDS_AttributeFileType_i::Value()
 {

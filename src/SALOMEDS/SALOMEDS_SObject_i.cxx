@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
 //SALOMEDS Headers
@@ -34,6 +33,7 @@ using namespace std;
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_IORAttribute.hxx"
 #include <TDF_AttributeIterator.hxx>
+using namespace std;
 
 //============================================================================
 /*! Function : constructor

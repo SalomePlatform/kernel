@@ -20,7 +20,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    ConnexionFailureException(string ch = "undefined") : GenericException("ConnexionFailureException", ch) {}
+    ConnexionFailureException(std::string ch = "undefined") : GenericException("ConnexionFailureException", ch) {}
 
   };
 

@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "VTKViewer_Prs.h"
+using namespace std;
 
 //==========================================================
 /*!

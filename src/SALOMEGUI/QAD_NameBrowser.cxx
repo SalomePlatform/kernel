@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_NameBrowser.h"
 
 #include "QAD_Study.h"
@@ -51,6 +50,7 @@ using namespace std;
 #include <qvariant.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+using namespace std;
 
 /*! 
   Constructs a QAD_NameBrowser which is a child of 'parent', with the 

@@ -1,5 +1,6 @@
 #include "poa.h"
 #include "utilities.h"
+using namespace std;
 
 #define TAILLE_SPLIT 100000
 #define TIMEOUT 20

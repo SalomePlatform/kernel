@@ -20,7 +20,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    RunTimeException(string ch = "undefined") : GenericException("RunTimeException", ch) {}
+    RunTimeException(std::string ch = "undefined") : GenericException("RunTimeException", ch) {}
   };
 
 }

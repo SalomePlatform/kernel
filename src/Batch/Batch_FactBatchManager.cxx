@@ -12,6 +12,7 @@
 #include "Batch_BatchManagerCatalog.hxx"
 #include "Batch_FactBatchManager.hxx"
 #include "utilities.h"
+using namespace std;
 
 namespace Batch {
 

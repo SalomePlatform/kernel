@@ -26,6 +26,7 @@
 //  Module : SALOME
 
 #include "VTKViewer_Filter.h"
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE(VTKViewer_Filter, MMgt_TShared)
 IMPLEMENT_STANDARD_RTTIEXT(VTKViewer_Filter, MMgt_TShared)

@@ -36,6 +36,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+using namespace std;
 
 #define DEFAULT_LINE_WIDTH     0     // (default) line width
 #define DEFAULT_MARKER_SIZE    9     // default marker size

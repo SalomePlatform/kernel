@@ -25,11 +25,11 @@
 //  Author : Estelle Deville
 //  Module : SALOME
 
-using namespace std;
 #include "SALOME_RessourcesCatalog_impl.hxx"
 #include <fstream>
 
 #include "Utils_ExceptHandlers.hxx"
+using namespace std;
 UNEXPECT_CATCH(RC_NotFound, SALOME_RessourcesCatalog::NotFound);
 
 //----------------------------------------------------------------------

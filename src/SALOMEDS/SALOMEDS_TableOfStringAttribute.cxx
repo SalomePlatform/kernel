@@ -8,13 +8,13 @@
 //  Author : Sergey Ruin
 //  Module : SALOME
 
-using namespace std;
 #include <SALOMEDS_TableOfStringAttribute.ixx>
 #include <Standard_Failure.hxx>
 #include <SALOMEDS_DataMapIteratorOfDataMapOfIntegerString.hxx>
 
 #include <string>
 #include <stdio.h>
+using namespace std;
 
 const Standard_GUID& SALOMEDS_TableOfStringAttribute::GetID() 
 {

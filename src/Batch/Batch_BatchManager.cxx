@@ -18,6 +18,7 @@
 #include "Batch_InvalidArgumentException.hxx"
 #include "Batch_FactBatchManager.hxx"
 #include "Batch_BatchManager.hxx"
+using namespace std;
 
 namespace Batch {
 

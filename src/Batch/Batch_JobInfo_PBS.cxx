@@ -15,6 +15,7 @@
 #include "Batch_Environnement.hxx"
 #include "Batch_RunTimeException.hxx"
 #include "Batch_JobInfo_PBS.hxx"
+using namespace std;
 
 namespace Batch {
 

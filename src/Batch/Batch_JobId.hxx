@@ -28,7 +28,7 @@ namespace Batch {
     virtual ~JobId();
 
     // Constructeur avec le pointeur sur le BatchManager associe et avec une reference
-    JobId(BatchManager *, string ref);
+    JobId(BatchManager *, std::string ref);
 
     // Operateur d'affectation entre objets
     virtual JobId & operator =(const JobId &);
@@ -37,7 +37,7 @@ namespace Batch {
     JobId(const JobId &);
 
     // Accesseur pour la reference interne
-    virtual string getReference() const;
+    virtual std::string getReference() const;
 
     // Methodes pour le controle du job
     virtual void deleteJob() const; // retire un job du gestionnaire
@@ -52,12 +52,12 @@ namespace Batch {
 
     // Methodes pour l'interfacage avec Python (SWIG)
     // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
-    string  __str__() const; // SWIG : affichage en Python
-    string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
+    std::string  __str__() const; // SWIG : affichage en Python
+    std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
     BatchManager * _p_batchmanager; // pointeur sur le BatchManager qui controle le job
-    string _reference; // reference du job au sein du BatchManager
+    std::string _reference; // reference du job au sein du BatchManager
 
   private:
 

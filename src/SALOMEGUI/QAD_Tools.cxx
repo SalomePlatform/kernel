@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_Tools QAD_Tools.h
   \brief Helpful functions for QAD.
@@ -44,6 +43,7 @@ using namespace std;
 #include <string.h>
 #include <ctype.h>
 #include <qstringlist.h>
+using namespace std;
 
 static char* tempName()
 {

@@ -42,8 +42,8 @@ class RegistryConnexion
 protected :
 	const char*			_Ior		; // engine ior
 	Registry::Components_var	_VarComponents	; // RegistryService reference
-	string				_SessionName	;
-	string				_Name		; // code name
+	std::string			_SessionName	;
+	std::string			_Name		; // code name
 	int   				_Id   		; // code identity returned by RegistryService
 	void add( const char *aName );
 	void remove( void );

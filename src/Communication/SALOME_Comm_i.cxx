@@ -7,6 +7,7 @@
 #include "utilities.h"
 
 #include "SenderFactory.hxx"
+using namespace std;
 
 CORBA::ORB_var &getGlobalORB(){
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();

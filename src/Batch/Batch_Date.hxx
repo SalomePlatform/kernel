@@ -11,7 +11,6 @@
 #ifndef _DATE_H_
 #define _DATE_H_
 
-using namespace std;
 #include <string>
 
 namespace Batch {
@@ -20,14 +19,14 @@ namespace Batch {
   {
   public:
     Date(const long l=0);
-    Date(const string s);
+    Date(const std::string s);
     virtual Date & operator =(long l);
     virtual Date & operator +(long l);
     virtual Date & operator -(long l);
     virtual Date & operator +=(long l);
     virtual Date & operator -=(long l);
-    virtual Date & operator =(const string & s);
-    virtual string str() const;
+    virtual Date & operator =(const std::string & s);
+    virtual std::string str() const;
     virtual long epoch() const;
 
   protected:

@@ -8,12 +8,13 @@
 //  Author : Vasily Rusyaev
 //  Module : SALOME
 
-using namespace std;
 #include <iostream>
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
 #include <unistd.h>
+using namespace std;
+
 omni_mutex Logger::myLock;
 
 /////////////////////////////////////////////////////////////////////

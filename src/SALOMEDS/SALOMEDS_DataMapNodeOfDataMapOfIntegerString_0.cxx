@@ -26,6 +26,7 @@
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapOfIntegerString_HeaderFile
 #include <SALOMEDS_DataMapIteratorOfDataMapOfIntegerString.hxx>
 #endif
+using namespace std;
 SALOMEDS_DataMapNodeOfDataMapOfIntegerString::~SALOMEDS_DataMapNodeOfDataMapOfIntegerString() {}
  
 

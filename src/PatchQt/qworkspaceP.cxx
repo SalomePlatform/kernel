@@ -41,7 +41,6 @@
 **
 **********************************************************************/
 
-using namespace std;
 #include "qworkspaceP.h"
 
 #include <qapplication.h>
@@ -73,6 +72,7 @@ using namespace std;
 
 #include <private/qapplication_p.h>
 #include <private/qinternal_p.h>
+using namespace std;
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14

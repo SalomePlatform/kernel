@@ -21,7 +21,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    InvalidArgumentException(string ch = "undefined") : GenericException("InvalidArgumentException", ch) {}
+    InvalidArgumentException(std::string ch = "undefined") : GenericException("InvalidArgumentException", ch) {}
   };
 
 }

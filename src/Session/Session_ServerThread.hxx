@@ -30,12 +30,10 @@
 #define _SESSION_SERVERTHREAD_HXX_
 
 #include <CORBA.h> 
-#include <string>
 
 #include "SALOME_NamingService.hxx"
 #include <qthread.h>
 
-using namespace std;
 
 class Session_ServerThread
 {

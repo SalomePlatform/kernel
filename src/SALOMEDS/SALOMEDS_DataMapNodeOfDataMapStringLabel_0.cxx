@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx"
 
 #ifndef _Standard_TypeMismatch_HeaderFile
@@ -45,6 +44,7 @@ using namespace std;
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapStringLabel_HeaderFile
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"
 #endif
+using namespace std;
 SALOMEDS_DataMapNodeOfDataMapStringLabel::~SALOMEDS_DataMapNodeOfDataMapStringLabel() {}
  
 

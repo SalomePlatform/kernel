@@ -9,6 +9,7 @@
  */
 
 #include "Batch_CoupleType.hxx"
+using namespace std;
 
 namespace Batch {
 

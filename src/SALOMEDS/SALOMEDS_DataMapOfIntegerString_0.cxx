@@ -28,7 +28,8 @@
 #ifndef _SALOMEDS_DataMapIteratorOfDataMapOfIntegerString_HeaderFile
 #include <SALOMEDS_DataMapIteratorOfDataMapOfIntegerString.hxx>
 #endif
- 
+ using namespace std;
+
 
 #define TheKey Standard_Real
 #define TheKey_hxx <Standard_Real.hxx>

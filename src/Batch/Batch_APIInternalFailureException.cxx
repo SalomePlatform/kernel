@@ -9,6 +9,7 @@
  */
 
 #include "Batch_APIInternalFailureException.hxx"
+using namespace std;
 
 namespace Batch {
 

@@ -10,7 +10,6 @@
 #ifndef _INTTYPE_H_
 #define _INTTYPE_H_
 
-using namespace std;
 #include <string>
 #include "Batch_GenericType.hxx"
 
@@ -23,7 +22,7 @@ namespace Batch {
     IntType(const int i=0) : _data(i) {}
 
 		// Conversion en chaine
-    virtual string affiche() const;
+    virtual std::string affiche() const;
 
 		// Operateur d'affectation
     virtual IntType & operator =(int);

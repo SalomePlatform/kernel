@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_SelectableAttribute.ixx"
 #include <TDataStd_Integer.hxx>
+using namespace std;
 
 //=======================================================================
 //function : GetID

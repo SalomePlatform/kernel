@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_DataTypeCatalog_impl.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include <fstream>
+using namespace std;
 
 UNEXPECT_CATCH(DTC_NotFound, SALOME_DataTypeCatalog::NotFound);
 

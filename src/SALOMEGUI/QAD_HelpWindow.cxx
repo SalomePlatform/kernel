@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class QAD_HelpWindow QAD_HelpWindow.h
   \brief Html browser for help.
@@ -46,6 +45,7 @@ using namespace std;
 #include <qtoolbutton.h>
 #include <qcombobox.h>
 #include <qfileinfo.h>
+using namespace std;
 
 /*!
   Constructor

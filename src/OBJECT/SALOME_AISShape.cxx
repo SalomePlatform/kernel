@@ -26,8 +26,8 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOME_AISShape.ixx"
+using namespace std;
 
 SALOME_AISShape::SALOME_AISShape(const TopoDS_Shape& shape): AIS_Shape(shape) {
 }

@@ -8,6 +8,7 @@
  */
 
 #include "Batch_ListIsFullException.hxx"
+using namespace std;
 
 
 namespace Batch {

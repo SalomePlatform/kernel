@@ -13,6 +13,7 @@
 
 
 #include "Batch_GenericException.hxx"
+using namespace std;
 
 namespace Batch {
 

@@ -21,6 +21,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_MPILifeCycleCORBA.hxx"
 #include "OpUtil.hxx"
+using namespace std;
 
 int main (int argc, char * argv[])
 {

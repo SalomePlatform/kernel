@@ -91,7 +91,7 @@ protected:
   std::map<std::string, void *> remove_map ;
   omni_mutex _numInstanceMutex ; // if several threads on the same object
 
-private: 
+  //private: 
 
   int   _argc ;
   char** _argv ;

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "QAD_Settings.h"
 
 #include <stdio.h>
@@ -36,6 +35,7 @@ using namespace std;
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtextstream.h>
+using namespace std;
 
 /*!
     Class QAD_Settings is a base class for different kind of settings

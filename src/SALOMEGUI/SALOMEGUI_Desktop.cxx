@@ -26,12 +26,12 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEGUI_Desktop.h"
 #include "SALOME_Selection.h"
 #include "SALOME_ListIteratorOfListIO.hxx"
 
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+using namespace std;
 
 /*!
     Constructor 

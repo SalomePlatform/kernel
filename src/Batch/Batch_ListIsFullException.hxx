@@ -18,7 +18,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    ListIsFullException(string ch = "undefined") : GenericException("ListIsFullException", ch) {}
+    ListIsFullException(std::string ch = "undefined") : GenericException("ListIsFullException", ch) {}
   };
 
 }

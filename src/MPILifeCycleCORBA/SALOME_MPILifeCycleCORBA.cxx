@@ -41,15 +41,15 @@ SALOME_MPILifeCycleCORBA::~SALOME_MPILifeCycleCORBA()
 }
 
 Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
-                                              const string theComputer ,
-                                              const string theMPIContainerRoot,
+                                              const std::string theComputer ,
+                                              const std::string theMPIContainerRoot,
 					      const int nbproc)
 {
   char nbp[1024];
 
   sprintf(nbp,"_%d",nbproc);
-  string theMPIContainer = theMPIContainerRoot + nbp; 
-  string aComputerContainer = theComputer + "/" + theMPIContainer;
+  std::string theMPIContainer = theMPIContainerRoot + nbp; 
+  std::string aComputerContainer = theComputer + "/" + theMPIContainer;
 
   SCRUTE( aComputerContainer ) ;
   SCRUTE( theComputer ) ;
@@ -72,7 +72,7 @@ Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
     if ( !strcmp( &theMPIContainerRoot.c_str()[len-2] , "Py" ) ) {
       pyCont = true ;
     }
-    string MPIFactoryServer = theComputer ;
+    std::string MPIFactoryServer = theComputer ;
     if ( pyCont ) {
       MPIFactoryServer += "/MPIFactoryServerPy" ;
     }
@@ -85,13 +85,13 @@ Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
     // On n'a pas trouve le container generique: on lance le container demande
     if ( CORBA::is_nil( aMPIFactoryServer ) ) {
 // rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
-      string rsh( "" ) ;
+      std::string rsh( "" ) ;
       if ( theComputer!= GetHostname() ) {
         rsh += "rsh -n " ;
         rsh += theComputer ;
         rsh += " " ;
       }
-      string path = ComputerPath( theComputer.c_str() ) ;
+      std::string path = ComputerPath( theComputer.c_str() ) ;
       SCRUTE( path ) ;
       //      rsh += "runSession " ;
       if ( pyCont ) {
@@ -105,7 +105,7 @@ Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
         rsh += nbp;
         rsh += theMPIContainer +" -" ;
       }
-      string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
+      std::string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
       ifstream omniORBfile( omniORBcfg.c_str() ) ;
       char ORBInitRef[12] ;
       char nameservice[132] ;

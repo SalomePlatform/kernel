@@ -25,8 +25,8 @@
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 
-using namespace std;
 #include "NOTIFICATION.hxx"
+using namespace std;
 
 long NOTIFICATION_Supplier::_stamp = 0;
 

@@ -22,6 +22,7 @@
 #include <qapplication.h>
 
 #include "CASCatch_SignalsHandler.h" // CAREFUL ! position of this file is critic : see Lucien PIGNOLONI / OCC
+using namespace std;
 
 
 extern "C" int HandleSignals(QApplication *theQApplication)

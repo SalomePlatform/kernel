@@ -7,7 +7,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*! \file SALOME_Session_loader.cxx
  */
 
@@ -28,6 +27,7 @@ using namespace std;
 
 #include <qapplication.h>
 #include "InquireServersQThread.h"
+using namespace std;
 
 int main(int argc, char **argv)
 {

@@ -28,34 +28,55 @@
 #define _SALOME_PCONTAINER_ 
 
 #include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(MPIContainer)
+#include CORBA_SERVER_HEADER(SALOME_MPIContainer)
 #include "SALOME_Container_i.hxx"
-#include "SALOME_NamingService.hxx"
-#include "Utils_SINGLETON.hxx"
-#include "OpUtil.hxx"
 #include "MPIObject_i.hxx"
 
-class MPIContainer_i : public POA_Engines::MPIContainer,
-		     public Engines_Container_i,
-		     public MPIObject_i
+class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
+			       public Engines_Container_i,
+			       public MPIObject_i
 {
 
  public:
   // Constructor
-  MPIContainer_i( int nbproc, int numproc,
-		  CORBA::ORB_ptr orb,
-		  PortableServer::POA_ptr poa,
-		  char * containerName);
+  Engines_MPIContainer_i( int nbproc, int numproc,
+			  CORBA::ORB_ptr orb,
+			  PortableServer::POA_ptr poa,
+			  char * containerName,
+			  int argc, char *argv[]);
+  Engines_MPIContainer_i(int nbproc, int numproc);
   // Destructor
-  ~MPIContainer_i();
+  ~Engines_MPIContainer_i();
 
-  // Load a component
+  // Launch a new MPI container from the current container
+  Engines::MPIContainer_ptr start_MPIimpl(const char* ContainerName,
+					  CORBA::Short nbproc);
+
+  // Load a component in current MPI container
+  // synchronous version for process 0
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
+  // asynchronous version for other process
+  void SPload_impl(const char* nameToRegister, const char* componentName);
 
-  // Unload a component
+  // Unload a component from current MPI container
+  // synchronous version for process 0
   void remove_impl(Engines::Component_ptr component_i);
+  // asynchronous version for other process
+  void SPremove_impl(Engines::Component_ptr component_i);
+
+  // synchronous version for process 0
   void finalize_removal();
+  // asynchronous version for other process
+  void SPfinalize_removal();
+
+ private:
+  // local version to not duplicate code 
+  // called by synchronous and asynchronous version
+  Engines::Component_ptr Lload_impl(const char* nameToRegister,
+				    const char* componentName);
+  void Lremove_impl(Engines::Component_ptr component_i);
+  void Lfinalize_removal();
 
 };
 #endif

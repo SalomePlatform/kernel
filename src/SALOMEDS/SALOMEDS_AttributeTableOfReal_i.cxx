@@ -9,7 +9,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeTableOfReal_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include <TColStd_HSequenceOfReal.hxx>
@@ -20,6 +19,7 @@ using namespace std;
 #include <string>
 
 #include "Utils_ExceptHandlers.hxx"
+using namespace std;
 UNEXPECT_CATCH(ATR_IncorrectIndex, SALOMEDS::AttributeTableOfReal::IncorrectIndex);
 UNEXPECT_CATCH(ATR_IncorrectArgumentLength, SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength);
 

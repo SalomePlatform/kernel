@@ -8,10 +8,10 @@
 //  Author : Yves FRICAUD
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "utilities.h"
+using namespace std;
 
 
 

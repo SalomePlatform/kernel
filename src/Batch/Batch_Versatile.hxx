@@ -10,7 +10,6 @@
 #ifndef _VERSATILE_H_
 #define _VERSATILE_H_
 
-using namespace std;
 #include <iostream>
 #include <list>
 #include <string>
@@ -35,7 +34,7 @@ namespace Batch {
     int maxelem; // le nombre d'elements autorises
   } TypeParam;
 
-  class Versatile : public list< GenericType * >
+  class Versatile : public std::list< GenericType * >
   {
   public:
 		// Constructeur standard et destructeur
@@ -47,14 +46,14 @@ namespace Batch {
 
 		// Constructeur depuis le type de "base"
     Versatile(long   l) : _discriminator(LONG), _maxsize(1), _name("long")   { push_back(new LongType(l)); }
-    Versatile(const string & s) : _discriminator(STRING), _maxsize(1), _name("string") { push_back(new StringType(s)); }
+    Versatile(const std::string & s) : _discriminator(STRING), _maxsize(1), _name("string") { push_back(new StringType(s)); }
     Versatile(const Couple & c) : _discriminator(COUPLE), _maxsize(1), _name("couple") { push_back(new CoupleType(c)); }
 
 		// Operateur d'affectation et de concatenation a partir d'un type de "base"
     Versatile & operator = (const long     l)    throw(TypeMismatchException);
-    Versatile & operator = (const string & ch)   throw(TypeMismatchException);
-    Versatile & operator +=(const string & ch)   throw(TypeMismatchException,ListIsFullException);
-    Versatile & operator , (const string & ch)   throw(TypeMismatchException,ListIsFullException);
+    Versatile & operator = (const std::string & ch)   throw(TypeMismatchException);
+    Versatile & operator +=(const std::string & ch)   throw(TypeMismatchException,ListIsFullException);
+    Versatile & operator , (const std::string & ch)   throw(TypeMismatchException,ListIsFullException);
     Versatile & operator = (const Couple & cp)   throw(TypeMismatchException);
     Versatile & operator +=(const Couple & cp)   throw(TypeMismatchException,ListIsFullException);
     Versatile & operator , (const Couple & cp)   throw(TypeMismatchException,ListIsFullException);
@@ -64,12 +63,12 @@ namespace Batch {
 
 		// Conversion de type vers un type de "base"
     operator long() const throw(TypeMismatchException);
-    operator string() const throw(TypeMismatchException);
+    operator std::string() const throw(TypeMismatchException);
     operator Couple() const throw(TypeMismatchException);
-    string str() const throw(TypeMismatchException);
+    std::string str() const throw(TypeMismatchException);
 
 		// Operateur pour l'affichage sur un stream
-    friend ostream & operator << (ostream & os, const Versatile & );
+    friend std::ostream & operator << (std::ostream & os, const Versatile & );
 
 		// Positionnement et recuperation du type de l'element interne
     void setType(DiscriminatorType) throw(TypeMismatchException);
@@ -80,8 +79,8 @@ namespace Batch {
 		int getMaxSize() const { return _maxsize; }
 
 		// Positionnement et recuperation du nom de l'objet
-    string getName() const;
-    void setName(const string & name);
+    std::string getName() const;
+    void setName(const std::string & name);
 
   protected:
 		// Efface tous les elements internes de l'objet
@@ -89,7 +88,7 @@ namespace Batch {
 
     DiscriminatorType _discriminator; // type de l'element interne
     int _maxsize; // nombre max d'elements internes
-    string _name; // nom de l'objet (sert pour les exceptions)
+    std::string _name; // nom de l'objet (sert pour les exceptions)
 
   private:
 

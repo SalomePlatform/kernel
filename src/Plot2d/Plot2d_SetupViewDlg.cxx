@@ -20,6 +20,7 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qcolordialog.h>
+using namespace std;
 
 #define MARGIN_SIZE          11
 #define SPACING_SIZE         6

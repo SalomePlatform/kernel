@@ -11,7 +11,6 @@
 
 #define TIMEOUT 20
 
-using namespace std;
 
 /*!
   Generic servant class for senders that factorizes all the common methods and attributes necessary to senders.

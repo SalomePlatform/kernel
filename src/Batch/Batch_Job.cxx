@@ -11,6 +11,7 @@
 #include "Batch_Parametre.hxx"
 #include <sstream>
 //#include "MEDMEM_STRING.hxx"
+using namespace std;
 
 namespace Batch {
 

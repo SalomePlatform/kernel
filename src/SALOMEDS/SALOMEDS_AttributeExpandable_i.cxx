@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeExpandable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable() {
   return (Handle(SALOMEDS_ExpandableAttribute)::DownCast(_myAttr)->Get() == 1);

@@ -74,11 +74,11 @@
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
-using namespace std;
 
 #include "SALOME_GenericObj_i.hh"
 
 #include "Utils_ExceptHandlers.hxx"
+using namespace std;
 
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);

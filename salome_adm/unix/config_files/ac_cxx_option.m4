@@ -26,9 +26,9 @@ dnl
 dnl @author Bernard Secher - 15/01/2004
 dnl
 AC_DEFUN([AC_CXX_OPTION], [
-  AC_MSG_CHECKING(CXXFLAGS for $CXX in $1)
+  AC_MSG_CHECKING(wether $CXX accepts $1)
   cat > conftest.cxx <<EOF
-int main(int argc, char **argv) { return 0; }
+int main() { return 0; }
 EOF
   $CXX $1 conftest.cxx > conftest.log 2>&1
   var=`echo $1 | sed -e "s, .*$,," | sed -e "s,^-,,"`

@@ -25,6 +25,7 @@
 #ifndef _SALOMEDS_DataMapNodeOfDataMapOfIntegerString_HeaderFile
 #include <SALOMEDS_DataMapNodeOfDataMapOfIntegerString.hxx>
 #endif
+using namespace std;
  
 
 #define TheKey Standard_Real

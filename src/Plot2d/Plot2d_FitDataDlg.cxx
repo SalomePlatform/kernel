@@ -14,6 +14,7 @@
 #include "QAD_Tools.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
+using namespace std;
 
 #define SPACING_SIZE      6
 #define MARGIN_SIZE       11

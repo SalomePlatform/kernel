@@ -34,6 +34,7 @@
 #include <qapplication.h>
 #include <qthread.h>
 #include <pthread.h>
+using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;

@@ -26,9 +26,9 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeSelectable_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeSelectable_i::IsSelectable() {
   return (Handle(SALOMEDS_SelectableAttribute)::DownCast(_myAttr)->Get() == 1);
