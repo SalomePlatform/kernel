@@ -64,8 +64,10 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 					  PortableServer::POA_ptr poa,
 					  char *containerName ,
                                           int argc , char* argv[],
-					  bool activAndRegist ) :
- _numInstance(0)
+					  bool activAndRegist,
+					  bool isServantAloneInProcess
+					  ) :
+  _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
@@ -149,7 +151,8 @@ void Engines_Container_i::Shutdown()
   _NS->Destroy_Name(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
-  _orb->shutdown(0);
+  if(_isServantAloneInProcess)
+    _orb->shutdown(0);
 }
 
 //! Kill current container

@@ -431,7 +431,7 @@ void Session_ServerThread::ActivateContainer(int argc,
 	}
       
       Engines_Container_i * myContainer 
-	= new Engines_Container_i(_orb, factory_poa, containerName , argc , argv );
+	= new Engines_Container_i(_orb, factory_poa, containerName , argc , argv , true , false);
     }
   catch(CORBA::SystemException&)
     {

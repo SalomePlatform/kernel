@@ -52,7 +52,8 @@ public:
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
                       int argc, char* argv[],
-		      bool activAndRegist = true);
+		      bool activAndRegist = true,
+		      bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
 
@@ -98,7 +99,7 @@ protected:
   int   _argc ;
   char** _argv ;
   long _pid;
-
+  bool _isServantAloneInProcess;
 };
 
 #endif
