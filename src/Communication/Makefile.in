@@ -17,7 +17,7 @@ EXPORT_HEADERS = \
 # Libraries targets
 
 LIB = libSalomeCommunication.la 
-LIB_SRC = SALOME_Comm_i.cxx  SenderFactory.cxx Receiver.cxx MultiCommException.cxx SALOMEMultiComm.cxx ReceiverFactory.cxx
+LIB_SRC = SALOME_Comm_i.cxx  SenderFactory.cxx MultiCommException.cxx SALOMEMultiComm.cxx ReceiverFactory.cxx
 LIB_SERVER_IDL = SALOME_Comm.idl SALOME_Exception.idl
 
 # Executables targets
