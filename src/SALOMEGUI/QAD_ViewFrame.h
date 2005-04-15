@@ -51,6 +51,8 @@ public:
   QAD_ViewFrame(QWidget* parent = 0);
   virtual ~QAD_ViewFrame();
 
+  bool                   event ( QEvent* e );
+
   void                   cleanup();
 
   virtual ViewType       getTypeView() const = 0; 
@@ -128,6 +130,11 @@ public slots:
   virtual void           onRotateRight() {}
   virtual void           onRotateUp()    {}
   virtual void           onRotateDown()  {}
+
+  /* the next slot is used for dumping viewer contents to the image file;
+     called from the context popup menu
+  */
+  void                   onProcessViewDump();
 };
 
 #endif

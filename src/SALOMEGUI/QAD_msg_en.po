@@ -333,6 +333,9 @@ msgstr "Viewer"
 msgid "MEN_VP3D_CHANGEBGR"
 msgstr "Change background..."
 
+msgid "MEN_VP3D_DUMPVIEW"
+msgstr "Camera Dump..."
+
 msgid "MEN_APP_DISPLAY"
 msgstr "Display"
 

@@ -78,7 +78,6 @@ void QAD_ViewFrame::onViewDump()
 {
   if (!getViewWidget())
     return;
-
   QApplication::setOverrideCursor( Qt::waitCursor );
   QPixmap px = QPixmap::grabWindow(getViewWidget()->winId());
   QApplication::restoreOverrideCursor();
@@ -104,4 +103,30 @@ void QAD_ViewFrame::onViewDump()
 			     tr("BUT_OK"));
     }
   }
+}
+
+#define DUMP_EVENT QEvent::User + 123
+/*!
+   This method is used to dump the viewer contents to the image file
+   from the context popup menu (uses event mechanizm to assure redrawing
+   the viewer contents before dumping by sending custom event)
+*/
+void QAD_ViewFrame::onProcessViewDump() 
+{
+  qApp->postEvent( this, new QPaintEvent( QRect( 0, 0, width(), height() ), TRUE ) );
+  qApp->postEvent( this, new QCustomEvent( DUMP_EVENT ) );
+}
+
+/*!
+  Processes the custom event sent by onProcessViewDump() method to
+  call onViewDump() slot: dumping the view contents to the image file
+  (see desription for onProcessViewDump() method above)
+*/
+bool QAD_ViewFrame::event ( QEvent* e )
+{
+  if ( e->type() == DUMP_EVENT ) {
+    onViewDump();
+    return TRUE;
+  }
+  return QMainWindow::event( e );
 }
