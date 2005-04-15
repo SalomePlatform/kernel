@@ -77,6 +77,7 @@ public QWidget, /*virtual public vtkRenderWindow, */
   void ButtonPressed(const QMouseEvent *event) ;
   void ButtonReleased(const QMouseEvent *event) ;
   void KeyPressed(QKeyEvent *event) ;
+  void DumpView();
 
  protected:
   vtkRenderWindow* myRW;

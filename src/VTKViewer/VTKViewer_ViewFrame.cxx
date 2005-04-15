@@ -90,6 +90,7 @@ VTKViewer_ViewFrame::VTKViewer_ViewFrame(QWidget* parent, const char* name)
 void VTKViewer_ViewFrame::InitialSetup() {
   m_RW = new VTKViewer_RenderWindow(this, "RenderWindow");
   m_RW->getRenderWindow()->AddRenderer(m_Renderer);
+  connect(m_RW, SIGNAL(DumpView()), this, SLOT(onProcessViewDump()));
 
   m_Renderer->GetActiveCamera()->ParallelProjectionOn();
   m_Renderer->LightFollowCameraOn();
