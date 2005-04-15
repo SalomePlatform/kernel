@@ -35,7 +35,7 @@ class QAD_EXPORT Plot2d_ViewFrame : public QAD_ViewFrame, public QAD_PopupClient
 
   enum { NoOpId, FitAllId, FitAreaId, ZoomId, PanId, DumpId, 
 	 ModeXLinearId, ModeXLogarithmicId, ModeYLinearId, ModeYLogarithmicId,
-	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId, ChangeBackgroundId };
+	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId, ChangeBackgroundId, DumpViewId };
 public:
   /* Construction/destruction */
   Plot2d_ViewFrame( QWidget* parent, const QString& title = "" );

@@ -244,6 +244,13 @@ void Plot2d_ViewFrame::createActions()
   fitDataAction->setStatusTip ( tr( "PRP_PLOT2D_CHANGE_BACKGROUND" ) );
   myActions.insert( ChangeBackgroundId, changeBGAction );
   connect( changeBGAction, SIGNAL( activated() ), this, SLOT( onChangeBackground() ) );
+
+  // Dump View
+  QActionP* dumpViewAction = new QActionP ( tr( "MEN_VP3D_DUMPVIEW"),
+					    tr( "MEN_VP3D_DUMPVIEW" ), 0, this );
+  dumpViewAction->setStatusTip ( tr( "MEN_VP3D_DUMPVIEW" ) );
+  myActions.insert( DumpViewId, dumpViewAction );
+  connect( dumpViewAction, SIGNAL( activated() ), this, SLOT( onProcessViewDump() ) );
 }
 /*!
   Gets window's central widget
@@ -288,6 +295,7 @@ void Plot2d_ViewFrame::onCreatePopup()
     // Change background
     myPopup->insertSeparator();
     myActions[ ChangeBackgroundId ]->addTo( myPopup );
+    myActions[ DumpViewId ]->addTo( myPopup );
   }
 }
 /*!
