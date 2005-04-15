@@ -189,6 +189,8 @@ void OCCViewer_ViewFrame::initViewPort()
                        this, SIGNAL( vfKeyPress( QKeyEvent* ) ) ) );
   QAD_ASSERT( connect( myViewPort, SIGNAL( vpKeyRelease( QKeyEvent* ) ),
                        this, SIGNAL( vfKeyRelease( QKeyEvent* ) ) ) );
+  QAD_ASSERT( connect( myViewPort, SIGNAL( vpDumpView() ),
+                       this, SLOT( onProcessViewDump() ) ) );
 }
 
 //=======================================================================

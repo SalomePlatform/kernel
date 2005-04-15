@@ -171,6 +171,8 @@ signals:
   void		  vpPaint (QPaintEvent*);
   void		  vpDrawExternal (QPainter* painter);
 
+  void            vpDumpView();
+
 protected slots:
  virtual void	onChangeBackgroundColor() = 0;
 

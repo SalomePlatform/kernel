@@ -99,6 +99,8 @@ void OCCViewer_ViewPort3d::onCreatePopup()
     int id;
     myIDs.append ( id = myPopup->insertItem (tr ("MEN_VP3D_CHANGEBGR")) );	
     QAD_ASSERT ( myPopup->connectItem ( id, this, SLOT(onChangeBackgroundColor())) );
+    myIDs.append ( id = myPopup->insertItem (tr ("MEN_VP3D_DUMPVIEW")) );	
+    QAD_ASSERT ( myPopup->connectItem ( id, this, SIGNAL(vpDumpView())) );
 //    }
   }
 }
