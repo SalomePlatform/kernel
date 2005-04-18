@@ -39,6 +39,16 @@ then
     AC_MSG_RESULT(swig not in PATH variable)
 fi
 
+if test "x$swig_ok" = "xyes" ; then
+   AC_MSG_CHECKING(for swig version)
+   $SWIG -version > .swig_version 2>&1
+   SWIG_VERSION=`cat .swig_version  | awk 'NR==2 {print $(3)}'`
+   # SWIG_VERSION=${SWIG_VERSION::6} # convert 1.3.17u-20040526-1709 into 1.3.17 for instance
+   rm .swig_version
+   AC_MSG_RESULT($SWIG_VERSION)
+   exit
+fi
+
 if  test "x$swig_ok" = "xyes"
 then
    AC_MSG_CHECKING(python wrapper generation with swig)
@@ -57,6 +67,7 @@ EOF
    AC_MSG_RESULT($swig_ok) 
 fi
 
+AC_SUBST(SWIG_VERSION)
 AC_SUBST(SWIG_FLAGS)
 AC_SUBST(SWIG)
 
