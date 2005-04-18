@@ -46,7 +46,6 @@ if test "x$swig_ok" = "xyes" ; then
    # SWIG_VERSION=${SWIG_VERSION::6} # convert 1.3.17u-20040526-1709 into 1.3.17 for instance
    rm .swig_version
    AC_MSG_RESULT($SWIG_VERSION)
-   exit
 fi
 
 if  test "x$swig_ok" = "xyes"
