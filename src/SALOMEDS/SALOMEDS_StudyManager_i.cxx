@@ -831,10 +831,12 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	    
 	    SALOMEDS::TMPFile_var aStream;
 	    
+	    SALOMEDS::unlock();	// asv : fix for PAL8727 
 	    if(theASCII) 
 	      aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
 	    else
 	      aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
+	    SALOMEDS::lock();  // asv : fix for PAL8727
 
 	    HDFdataset *hdf_dataset;
 	    hdf_size aHDFSize[1];
