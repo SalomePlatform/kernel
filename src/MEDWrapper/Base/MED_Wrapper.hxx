@@ -271,6 +271,7 @@ namespace MED{
 		   EGeometrieElement theTGeom,
 		   EConnectivite theTConn,
 		   const TIntVector& theConnectivities,
+		   const TIntVector& theIndexes,
 		   const TIntVector& theFamilyNums,
 		   const TIntVector& theElemNums,
 		   const TStringVector& theElemNames = TStringVector())
@@ -345,6 +346,8 @@ namespace MED{
 		   EGeometrieElement theTGeom,
 		   EConnectivite theTConn,
 		   const TIntVector& theConnectivities,
+		   const TIntVector& theFaces,
+		   const TIntVector& theIndexes,
 		   const TIntVector& theFamilyNums,
 		   const TIntVector& theElemNums,
 		   const TStringVector& theElemNames = TStringVector())

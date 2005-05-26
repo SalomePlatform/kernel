@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string.h>
 #include <map>
+#include <list>
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -337,7 +337,7 @@ Engines::Component_var SALOME_MPILifeCycleCORBA::FindOrLoad_MPIComponent
 	  {
 	    string instanceName = compo->instanceName(); 
 	  }
-	catch (CORBA::COMM_FAILURE&)
+	catch (CORBA::SystemException&)
 	  {
 	    INFOS("Caught CORBA::SystemException CommFailure. Engine "
 		  << path << "does not respond" );

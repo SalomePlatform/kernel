@@ -33,6 +33,7 @@
 #include <CORBA.h>
 #include <vector>
 #include <string>
+#include "Utils_Mutex.hxx"
 
 //class ServiceUnreachable;
 #include "ServiceUnreachable.hxx"
@@ -58,6 +59,10 @@ public:
 
   //! method to get the ObjRef of a symbolic name
   CORBA::Object_ptr Resolve(const char* Path)
+    throw( ServiceUnreachable); 
+
+  //! method to get an ObjRef, given a symbolic name without instance suffix "/Path/Name*.kind"
+  CORBA::Object_ptr ResolveFirst(const char* Path)
     throw( ServiceUnreachable); 
 
   //! method to research a name from the naming service's current directory 
@@ -101,6 +106,7 @@ public:
   char * getIORaddr();
 
 protected:
+  Utils_Mutex _myMutex;
   CORBA::ORB_ptr _orb;
   CosNaming::NamingContext_var _root_context, _current_context;
 

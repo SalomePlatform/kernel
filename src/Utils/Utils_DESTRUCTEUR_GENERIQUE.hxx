@@ -29,6 +29,7 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
+# include <list>
 # include <CORBA.h>
 # include "utilities.h"
 
@@ -56,6 +57,8 @@
 class DESTRUCTEUR_GENERIQUE_
 {
 public :
+  static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
+
   virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
   static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
   virtual void operator()( void )=0 ;//!< performs the destruction
@@ -105,13 +108,13 @@ public :
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-	MESSAGE("deleting ServantBase's _PtrObjet");
+	//MESSAGE("deleting ServantBase's _PtrObjet");
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());
 	aServant->_remove_ref();
       }else{
-	MESSAGE("deleting _PtrObjet");
+	//MESSAGE("deleting _PtrObjet");
 	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);
 	delete aPtr;
       }

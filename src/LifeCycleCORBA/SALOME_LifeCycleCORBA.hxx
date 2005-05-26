@@ -44,32 +44,63 @@ class SALOME_LifeCycleCORBA
 public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
-  Engines::Container_ptr FindContainer(const char *containerName); // for supervision
-  Engines::Component_ptr FindOrLoad_Component(const Engines::MachineParameters& params,
-					      const char *componentName);
-  Engines::Component_ptr FindOrLoad_Component(const char *containerName,
-					      const char *componentName);
+
+  Engines::Container_ptr 
+  FindContainer(const char *containerName); // for supervision
+
+  Engines::Component_ptr
+  FindComponent(const Engines::MachineParameters& params,
+		const char *componentName,
+		int studyId=0,
+		const char *instanceName="");
+
+  Engines::Component_ptr
+  LoadComponent(const Engines::MachineParameters& params,
+		const char *componentName,
+		int studyId=0);
+
+  Engines::Component_ptr 
+  FindOrLoad_Component(const Engines::MachineParameters& params,
+		       const char *componentName,
+		       int studyId=0);
+
+  Engines::Component_ptr
+  FindOrLoad_Component(const char *containerName,
+		       const char *componentName); // for compatibility
+  
   bool isKnownComponentClass(const char *componentName);
+
 protected:
-  //! Establish if a component called "componentName" in a container called "containerName" exists among the list of resources
-  //! in "listOfMachines". This method uses Naming Service to find the component.
-  Engines::Component_ptr FindComponent(const char *containerName,
-					    const char *componentName,
-					    const Engines::MachineList& listOfMachines);
 
-  Engines::Component_ptr LoadComponent(const char *containerName, const char *componentName, const Engines::MachineList& listOfMachines);
+  /*! Establish if a component called "componentName" in a container called
+   *  "containerName"
+   *  exists among the list of resources in "listOfMachines".
+   *  This method uses Naming Service to find the component.
+   */
+  Engines::Component_ptr 
+  FindComponent(const char *containerName,
+		const char *componentName,
+		const Engines::MachineList& listOfMachines);
 
+  Engines::Component_ptr
+  LoadComponent(const char *containerName,
+		const char *componentName,
+		const Engines::MachineList& listOfMachines);
+  
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;
   
   //private:
+
   std::string ContainerName( const char * aComputerContainer ,
 			     std::string * theComputer ,
 			     std::string * theContainer ) ;
   std::string ComputerPath( const char * theComputer ) ;
-  Engines::Container_ptr FindOrStartContainer(const std::string aComputerContainer ,
-                                              const std::string theComputer ,
-                                              const std::string theContainer ) ;
+
+  Engines::Container_ptr 
+  FindOrStartContainer(const std::string aComputerContainer ,
+		       const std::string theComputer ,
+		       const std::string theContainer ) ;
 } ;
 
 #endif

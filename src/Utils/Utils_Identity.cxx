@@ -27,18 +27,24 @@
 //  $Header$
 
 # include <iostream>
+# include "utilities.h"
+# include "Utils_Identity.hxx"
+
+extern "C"
+{
+# include <string.h>
+
+#ifndef WNT /* unix functionality */
+# include <pwd.h>
+#endif
+}
+
+#ifndef WNT /* unix functionality */
+
 # include <arpa/inet.h>
 # include <netinet/in.h>
 # include <sys/types.h>
 # include <netdb.h>
-# include "utilities.h"
-# include "Utils_Identity.hxx"
-using namespace std;
-extern "C"
-{
-# include <string.h>
-# include <pwd.h>
-}
 
 const char* duplicate( const char *const str ) ;
 
@@ -66,6 +72,59 @@ const char* const get_pwname( void )
 	struct passwd *papa = getpwuid( getuid() ) ;
 	return papa->pw_name ;
 }
+
+#else /* Windows functionality */
+
+#include <windows.h>
+#include <direct.h>
+#include <process.h>
+
+const char* duplicate( const char *const str ) ;
+
+const char* get_uname( void )
+{
+	char* hostName = new char[256];
+	DWORD nSize = 256;
+	ASSERT(GetComputerName(hostName, &nSize));
+	return hostName;
+}
+
+const char* get_adip( void )
+{
+  return get_uname();
+}
+
+const char* const get_pwname( void )
+{
+  DWORD                   dwSize = 256 + 1;
+  char* retVal = new char[256];
+  ASSERT(GetUserName ( retVal, &dwSize ));
+  return retVal;
+}
+
+PSID getuid() {
+	PSID         retVal        = NULL;
+	HANDLE       hProcessToken = INVALID_HANDLE_VALUE;
+	PTOKEN_OWNER pTKowner      = NULL;
+	LPVOID buffer = NULL;
+	DWORD dwsize = 0;
+	
+	if (  !OpenProcessToken ( GetCurrentProcess (), TOKEN_QUERY, &hProcessToken )) return 0;
+	if (!GetTokenInformation(hProcessToken, TokenOwner, buffer, dwsize, &dwsize)) return 0;
+	pTKowner = (PTOKEN_OWNER)buffer;
+	if ( pTKowner != NULL ) {
+		retVal = pTKowner->Owner;
+	}
+	if ( hProcessToken != INVALID_HANDLE_VALUE ) CloseHandle ( hProcessToken );
+	
+	return retVal;
+}
+
+#define getcwd _getcwd
+#define getpid _getpid
+
+#endif /* WNT */
+
 
 Identity::Identity( const char *name ):	_name(duplicate(name)),\
 			 				_hostid(get_uname()),\
@@ -103,15 +162,29 @@ const char* const Identity::name (void) const
 {
 	return  _name ;
 }
-const pid_t &Identity::pid(void) const
+#ifndef WNT
+	const pid_t& Identity::pid(void) const
+#else
+	const DWORD& Identity::pid(void) const
+#endif
 {
 	return _pid ;
 }
-const struct utsname &Identity::hostid(void) const
+
+#ifndef WNT
+        const struct utsname &Identity::hostid(void) const
+#else
+        const char* const hostid(void) const
+#endif
 {
-	return _hostid ;
+    return _hostid ;
 }
-const uid_t &Identity::uid(void) const
+
+#ifndef WNT
+	const uid_t& Identity::uid(void) const
+#else
+	const PSID& Identity::uid(void) const
+#endif
 {
 	return _uid ;
 }
@@ -138,7 +211,11 @@ const char* const Identity::adip (void) const
 
 const char* Identity::host_char( void ) const
 {
-	return _hostid.nodename;
+#ifndef WNT
+        return _hostid.nodename;
+#else
+	return _hostid;
+#endif
 }
 
 const char* Identity::start_char(void) const
@@ -146,18 +223,22 @@ const char* Identity::start_char(void) const
 	return ctime(&_start) ;
 }
 
-ostream & operator<< ( ostream& os , const Identity& monid )
+std::ostream & operator<< ( std::ostream& os , const Identity& monid )
 {
 	ASSERT(monid._name!=NULL) ;
-	os << "Identity :" << endl ;
-	os << '\t' << "Component name : " << monid._name << endl ;
-	os << '\t' << "Numero de PID :  " << monid._pid << endl;
-	os << '\t' << "Uid utilisateur  : "   << monid._uid << endl;
-	os << '\t' << "nom utilisateur  : "   << monid._pwname << endl;
-	os << '\t' << "Nom de machine : " << (monid._hostid).nodename << endl;
-	os << '\t' << "Adresse IP : " << monid._adip << endl;
+        os << "Identity :" << std::endl ;
+	os << '\t' << "Component name : " << monid._name << std::endl ;
+	os << '\t' << "Numero de PID :  " << monid._pid << std::endl;
+	os << '\t' << "Uid utilisateur  : "   << monid._uid << std::endl;
+	os << '\t' << "nom utilisateur  : "   << monid._pwname << std::endl;
+#ifndef WNT
+	os << '\t' << "Nom de machine : " << monid._hostid.nodename << std::endl;
+#else
+	os << '\t' << "Nom de machine : " << monid._hostid << std::endl;
+#endif
+	os << '\t' << "Adresse IP : " << monid._adip << std::endl;
 	os << '\t' << "Heure de lancement : " << monid._cstart ; //ctime(&monid._start) ;
-	os << '\t' << "Dans le repertoire : " << monid._dir << endl;
+	os << '\t' << "Dans le repertoire : " << monid._dir << std::endl;
 
 	return os ;
 }

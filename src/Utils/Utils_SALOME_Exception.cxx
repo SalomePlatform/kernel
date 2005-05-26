@@ -29,7 +29,6 @@
 #include <iostream>
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
-using namespace std;
 extern "C"
 {
 #include <math.h>
@@ -89,8 +88,9 @@ SALOME_Exception::~SALOME_Exception() throw ()
 {
 	if ( _text )
 	{
-		delete [] _text ;
-		_text = 0 ;
+		delete [] ((char*)_text);
+		char** pRef = (char**)&_text;
+		*pRef = 0;
 	}
 	ASSERT(_text==NULL) ;
 }
@@ -103,7 +103,7 @@ SALOME_Exception::SALOME_Exception( const SALOME_Exception &ex ): _text(duplicat
 }
 
 
-ostream & operator<<( ostream &os , const SALOME_Exception &ex )
+std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex )
 {
 	os << ex._text ;
 	return os ;

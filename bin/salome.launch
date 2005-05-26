@@ -2,7 +2,6 @@
 	<launchoptions>
 	        <gui>yes</gui>
 		<logger>no</logger>
-		<!-- <file>atrace.log</file> -->
 		<xterm>no</xterm>
 		<portkill>yes</portkill>
 		<killall>no</killall>

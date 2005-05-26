@@ -85,9 +85,9 @@ int main(int argc,char **argv)
 	      if(!CORBA::is_nil(orb)) 
 		theObj = orb->resolve_initial_references("NameService"); 
 	    }
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
-	      INFOS( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Module Catalog Server: CORBA::SystemException: Unable to contact the Naming Service" );
 	    }
 	  if (!CORBA::is_nil(theObj))
 	    {

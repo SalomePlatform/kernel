@@ -51,6 +51,9 @@ AC_DEFUN([CHECK_OPENPBS],
  fi
 
  WITHOPENPBS=$openpbs_ok
+ if test x$WITHOPENPBS = x ; then
+   WITHOPENPBS=no
+ fi
  AC_SUBST(WITHOPENPBS)
 
 ])

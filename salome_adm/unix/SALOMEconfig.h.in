@@ -19,9 +19,17 @@
   See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 ------------------------------------------------------------------------------------*/
 
+#ifndef SALOME_CONFIG_H
+#define SALOME_CONFIG_H
+
 #define DEBUG
 
 #define QUOTE(x)  #x
 #define CORBA_CLIENT_HEADER(x)  QUOTE(x@IDL_CLN_H@)
 #define CORBA_SERVER_HEADER(x)  QUOTE(x@IDL_SRV_H@)
 
+#ifndef @MACHINE@
+  #define @MACHINE@
+#endif
+
+#endif

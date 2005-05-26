@@ -70,6 +70,9 @@ AC_DEFUN([CHECK_LSF],
  dnl AM_CONDITIONAL(WITH_LSF, test $WITH_LSF = 1)
 
  lsf_ok=$WITH_LSF
+ if test $lsf_ok = no ; then
+   lsf_ok=
+ fi
  AC_SUBST(WITH_LSF)
 
 ])

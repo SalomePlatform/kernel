@@ -17,73 +17,11 @@ VPATH=.:@srcdir@:@top_srcdir@/bin:./bin/salome:@top_srcdir@/resources:./bin:@top
 SUBDIRS = idl src examples doc salome_adm
 
 RESOURCES_FILES = \
-back.xpm \
-cascade.png \
 CatalogDataType.xml \
 KERNELCatalog.xml \
-CatalogResources.xml \
 CatalogRessources.xml \
-close.png \
 config \
-default.png \
-dl_delete.png \
-dl_insert.png \
-dl_moveup.png \
-dl_movedown.png \
-forward.xpm \
-help.png \
-home.xpm \
-new.png \
-open.png \
-print.png \
-redo.png \
-reset.png \
-Application-Logo.png \
-Application-Splash.png \
-Application-About.png \
-save.png \
-select1.png \
-tile.png \
-Tools_en.xml \
-undo.png \
-view_back.png \
-view_bottom.png \
-view_camera_dump.png \
-view_fitall.png \
-view_fitarea.png \
-view_front.png \
-view_glpan.png \
-view_left.png \
-view_pan.png \
-view_reset.png \
-view_right.png \
-view_rotate.png \
-view_top.png \
-view_triedre.png \
-view_zoom.png \
-copy.png \
-paste.png \
-plot2d_dump.png \
-plot2d_fitall.png \
-plot2d_fitarea.png \
-plot2d_legend.png \
-plot2d_linear.png \
-plot2d_linear_y.png \
-plot2d_lines.png \
-plot2d_log.png \
-plot2d_log_y.png \
-plot2d_pan.png \
-plot2d_points.png \
-plot2d_settings.png \
-plot2d_splines.png \
-plot2d_zoom.png \
-uc_add.png \
-uc_current.png \
-uc_del.png \
-uc_new.png \
-uc_clear.png \
 channel.cfg \
-Plugin \
 SALOMEDS_Resources
 
 BIN_SCRIPT= \
@@ -175,6 +113,10 @@ install-bin: $(BIN_SCRIPT)
 	$(INSTALL) -d  $(bindir)
 	$(INSTALL_PROGRAM) $^ $(bindir)
 
+# install Plugin file
+install-plugin: $(top_builddir)/resources/Plugin
+	($(INSTALL_DATA) $^ $(datadir)/resources/. || exit 1); \
+       
 uninstall: uninstall-idl
 
 uninstall-idl:
@@ -190,5 +132,5 @@ distclean-other:
 
 @MODULE@
 
-install: install-bin install-include install-make install-end
+install: install-bin install-include install-make install-plugin install-end
 

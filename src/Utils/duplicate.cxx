@@ -31,10 +31,11 @@
  *	It is strongly (and only) used in the Registry environment
  *	(RegistryService, RegistryConnexion, Identity, ...)
  */
-
-#include <cstdlib>
-#include <cstring>
-
+extern "C"
+{
+#include <stdlib.h>
+#include <string.h>
+}
 #include  "utilities.h"
 
 using namespace std;

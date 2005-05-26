@@ -42,6 +42,8 @@ extern "C"{
 
 #include <boost/shared_ptr.hpp>
 
+#include "SALOMEconfig.h"
+
 namespace MED{
 
   enum EVersion {eVUnknown = -1, eV2_1, eV2_2};
@@ -76,12 +78,12 @@ namespace MED{
 
     operator const T& () const 
     { 
-      return *get();
+      return *(this->get());
     }
 
     operator T& () 
     { 
-      return *get();
+      return *(this->get());
     }
   };
 
@@ -141,15 +143,19 @@ namespace MED{
     
     typename TSupperClass::TValue& operator[](size_t theId)
     {
-      return myContainer[GetID(theId)];
+      return myContainer[this->GetID(theId)];
     }
   };
   
 
   typedef enum {eFAUX, eVRAI} EBooleen ; 
   typedef double TFloat;
+#if defined(SUN4SOL2) || defined(PCLINUX) || defined(OSF1_32) || defined(IRIX64_32) || defined(RS6000) || defined(HP9000)
   typedef int TInt;
-
+#endif
+#if defined(IRIX64) || defined(OSF1)
+  typedef long TInt;
+#endif
   typedef hid_t TIdt;
   typedef herr_t TErr;
 

@@ -26,7 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_RessourcesCatalog_impl.hxx"
 #include "utilities.h"
@@ -85,9 +85,9 @@ int main(int argc,char **argv)
 	      if (!CORBA::is_nil(theObj))
 		inc = CosNaming::NamingContext::_narrow(theObj);
 	    }
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
-	      INFOS( "Ressources Catalog: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Ressources Catalog: CORBA::SystemException: Unable to contact the Naming Service" );
 	    }
 	  if(!CORBA::is_nil(inc)) 
 	    {

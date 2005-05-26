@@ -13,6 +13,8 @@
 #include <string>
 #include <list> 
 
+#include "SALOMEDSClient.hxx"
+
 // IDL headers
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -66,6 +68,23 @@ public:
   static void GetAllChildren( SALOMEDS::Study_var               theStudy,
                               SALOMEDS::SObject_var             theObj,
                               std::list<SALOMEDS::SObject_var>& theList );
+
+
+  // Retrieves specified flaf from "AttributeFlags" attribute
+  static bool GetFlag( const int     theFlag,
+                       _PTR(Study)   theStudy,
+                       _PTR(SObject) theObj );
+
+  // Sets/Unsets specified flaf from "AttributeFlags" attribute
+  static bool SetFlag( const int             theFlag,
+                       _PTR(Study) theStudy,
+                       const std::string&    theEntry,
+                       const bool            theValue );
+
+  // Get all entries of children of object. If theObj is null all entries of objects of study are returned
+  static void GetAllChildren( _PTR(Study)               theStudy,
+                              _PTR(SObject)             theObj,
+                              std::list<std::string>&   theList );
 
 };
 #endif

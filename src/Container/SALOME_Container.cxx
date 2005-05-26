@@ -37,6 +37,7 @@
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
 #include "SALOMETraceCollector.hxx"
+#include "OpUtil.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -46,13 +47,11 @@
 #include <mpi.h>
 #endif
 
-#include <Python.h>
+#include "Container_init_python.hxx"
 
 using namespace std;
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
-
-static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
 
 int main(int argc, char* argv[])
 {
@@ -60,16 +59,28 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
   // Initialise the ORB.
-  //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
-    
-  Py_Initialize() ;
-  PySys_SetArgv( argc , argv ) ;
-  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-  
+
+  ASSERT(argc > 1);
+  SCRUTE(argv[1]);
+  bool isSupervContainer = false;
+  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
+
+  if (!isSupervContainer)
+    {
+      int _argc = 1;
+      char* _argv[] = {""};
+      KERNEL_PYTHON::init_python(argc,argv);
+    }
+  else
+    {
+      Py_Initialize() ;
+      PySys_SetArgv( argc , argv ) ;
+    }
+
   try{
     // Obtain a reference to the root POA.
     // obtain the root poa manager
@@ -112,8 +123,8 @@ int main(int argc, char* argv[])
 	  theObj = orb->resolve_initial_references("NameService");
 	if (!CORBA::is_nil(theObj))
 	  inc = CosNaming::NamingContext::_narrow(theObj);
-      }catch(CORBA::COMM_FAILURE&){
-	MESSAGE( "Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+      }catch(CORBA::SystemException&){
+	MESSAGE( "Container: CORBA::SystemException: Unable to contact the Naming Service" );
       }
       if(!CORBA::is_nil(inc)){
 	MESSAGE( "Container: Naming Service was found" );

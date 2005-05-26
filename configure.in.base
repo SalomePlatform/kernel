@@ -182,7 +182,7 @@ echo testing OpenPBS
 echo ---------------------------------------------
 echo
 
-openpbs_ok=no
+dnl openpbs_ok=no
 CHECK_OPENPBS
 dnl openpbs_ok is set to yes by CHECK_OPENPBS
 
@@ -198,7 +198,7 @@ echo testing LSF
 echo ---------------------------------------------
 echo
 
-lsf_ok=no
+dnl lsf_ok=no
 CHECK_LSF
 dnl lsf_ok is set to yes by CHECK_LSF
 

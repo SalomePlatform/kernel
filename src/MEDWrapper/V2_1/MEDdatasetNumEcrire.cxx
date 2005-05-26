@@ -18,6 +18,7 @@
 
 #include "med.hxx"
 #include "med_outils.hxx"
+#include <stdlib.h>
 
 /*
  * - Nom de la fonction : _MEDdatasetNumEcrire

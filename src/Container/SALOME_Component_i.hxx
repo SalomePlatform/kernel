@@ -91,15 +91,26 @@ public:
   void SetCurCpu() ;
   long CpuUsed() ;
   CORBA::Long CpuUsed_impl() ;
+  CORBA::Long getStudyId();
 
+ virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy, CORBA::Boolean isPublished, CORBA::Boolean& isValidScript);
+
+  bool setStudyId(CORBA::Long studyId);
+  static bool isMultiStudy();
+  static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
-  static std::string BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname);
+  static std::string BuildComponentNameForNS(const char *ComponentName,
+					     const char *ContainerName,
+					     const char *hostname);
 protected:
+  static bool _isMultiStudy;
+  static bool _isMultiInstance;
   std::string _instanceName ;
   std::string _interfaceName ;
   std::string _serviceName ;
   std::string _graphName ;
   std::string _nodeName ;
+  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   CORBA::ORB_ptr _orb;
   PortableServer::POA_ptr _poa;
   PortableServer::ObjectId * _id;

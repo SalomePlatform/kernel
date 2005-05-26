@@ -218,4 +218,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         return 0
 
     #-------------------------------------------------------------------------
+   
+    def DumpPython(self, theStudy, isPublished):
+        aBuffer = "def RebuildData(theStudy): pass"
+	return (aBuffer, 1) 
 
+    #-------------------------------------------------------------------------    

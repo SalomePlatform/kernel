@@ -135,7 +135,7 @@ namespace MED{
       TErr aRet = MEDmaaInfo(myFile->Id(),
 			     theMeshId,
 			     &theInfo.myName[0],
-			     &theInfo.myDim);
+			     (med_2_1::med_int *)&theInfo.myDim);
       if(theErr) 
 	*theErr = aRet;
       else if(aRet < 0)
@@ -243,13 +243,13 @@ namespace MED{
 			     &aMeshInfo.myName[0],
 			     theFamId,
 			     &theInfo.myName[0],
-			     &theInfo.myId,
-			     &theInfo.myAttrId[0],
-			     &theInfo.myAttrVal[0],
+			     (med_2_1::med_int *)&theInfo.myId,
+			     (med_2_1::med_int *)&theInfo.myAttrId[0],
+			     (med_2_1::med_int *)&theInfo.myAttrVal[0],
 			     &theInfo.myAttrDesc[0],
-			     &theInfo.myNbAttr,
+			     (med_2_1::med_int *)&theInfo.myNbAttr,
 			     &theInfo.myGroupNames[0],
-			     &theInfo.myNbGroup);
+			     (med_2_1::med_int *)&theInfo.myNbGroup);
       
       if(theErr) 
 	*theErr = aRet;
@@ -278,8 +278,8 @@ namespace MED{
 			   &aMeshInfo.myName[0],
 			   &anInfo.myName[0],
 			   anInfo.myId,
-			   &anInfo.myAttrId[0],
-			   &anInfo.myAttrVal[0],
+			   (med_2_1::med_int *)&anInfo.myAttrId[0],
+			   (med_2_1::med_int *)&anInfo.myAttrVal[0],
 			   &anInfo.myAttrDesc[0],
 			   anInfo.myNbAttr,
 			   &anInfo.myGroupNames[0],
@@ -341,9 +341,9 @@ namespace MED{
       
       MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
 
-      med_repere& aRepere = static_cast<med_repere>(theInfo.mySystem);
-      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
-      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
+      med_repere& aRepere = (med_repere&)(theInfo.mySystem);
+      med_booleen& anIsElemNames = (med_booleen&)(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = (med_booleen&)(theInfo.myIsElemNum);
 
       TErr aRet = MEDnoeudsLire(myFile->Id(),
 				&aMeshInfo.myName[0],
@@ -355,9 +355,9 @@ namespace MED{
 				&theInfo.myCoordUnits[0],
 				&theInfo.myElemNames[0],
 				&anIsElemNames,
-				&theInfo.myElemNum[0],
+				(med_2_1::med_int *)&theInfo.myElemNum[0],
 				&anIsElemNum,
-				&theInfo.myFamNum[0],
+				(med_2_1::med_int *)&theInfo.myFamNum[0],
 				theInfo.myNbElem);
 
       ADDMSG(MYDEBUG," myDim="<<aMeshInfo.myDim<<" myNbElem="<<theInfo.myNbElem<<" ... ");
@@ -381,9 +381,9 @@ namespace MED{
       MED::TNodeInfo& anInfo = const_cast<MED::TNodeInfo&>(theInfo);
       MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
       
-      med_repere& aRepere = static_cast<med_repere>(theInfo.mySystem);
-      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
-      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
+      med_repere& aRepere = (med_repere&)(theInfo.mySystem);
+      med_booleen& anIsElemNames = (med_booleen&)(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = (med_booleen&)(theInfo.myIsElemNum);
 
       TErr aRet = MEDnoeudsEcr(myFile->Id(),
 			       &aMeshInfo.myName[0],
@@ -395,9 +395,9 @@ namespace MED{
 			       &anInfo.myCoordUnits[0],
 			       &anInfo.myElemNames[0],
 			       anIsElemNames,
-			       &anInfo.myElemNum[0],
+			       (med_2_1::med_int *)&anInfo.myElemNum[0],
 			       anIsElemNum,
-			       &anInfo.myFamNum[0],
+			       (med_2_1::med_int *)&anInfo.myFamNum[0],
 			       anInfo.myNbElem,
 			       MED_REMP);
       if(theErr) 
@@ -489,22 +489,22 @@ namespace MED{
       MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
       TInt aNbElem = theInfo.myElemNum.size();
 
-      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
-      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
-      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theInfo.myTGeom);
-      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      med_booleen& anIsElemNames = (med_booleen&)(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = (med_booleen&)(theInfo.myIsElemNum);
+      med_entite_maillage& anEntity = (med_entite_maillage&)(theInfo.myTEntity);
+      med_geometrie_element& aGeom = (med_geometrie_element&)(theInfo.myTGeom);
+      med_connectivite& aConn = (med_connectivite&)(theInfo.myTConn);
 
       TErr aRet = MEDelementsLire(myFile->Id(),
 				  &aMeshInfo.myName[0],
 				  aMeshInfo.myDim,
-				  &theInfo.myConn[0],
+				  (med_2_1::med_int *)&theInfo.myConn[0],
 				  MED_FULL_INTERLACE,
 				  &theInfo.myElemNames[0],
 				  &anIsElemNames,
-				  &theInfo.myElemNum[0],
+				  (med_2_1::med_int *)&theInfo.myElemNum[0],
 				  &anIsElemNum,
-				  &theInfo.myFamNum[0],
+				  (med_2_1::med_int *)&theInfo.myFamNum[0],
 				  aNbElem,
 				  anEntity,
 				  aGeom,
@@ -529,22 +529,22 @@ namespace MED{
       MED::TCellInfo& anInfo = const_cast<MED::TCellInfo&>(theInfo);
       MED::TMeshInfo& aMeshInfo = *anInfo.myMeshInfo;
 
-      med_booleen& anIsElemNames = static_cast<med_booleen>(theInfo.myIsElemNames);
-      med_booleen& anIsElemNum = static_cast<med_booleen>(theInfo.myIsElemNum);
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myTEntity);
-      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(theInfo.myTGeom);
-      med_connectivite& aConn = static_cast<med_connectivite>(theInfo.myTConn);
+      med_booleen& anIsElemNames = (med_booleen&)(theInfo.myIsElemNames);
+      med_booleen& anIsElemNum = (med_booleen&)(theInfo.myIsElemNum);
+      med_entite_maillage& anEntity = (med_entite_maillage&)(theInfo.myTEntity);
+      med_geometrie_element& aGeom = (med_geometrie_element&)(theInfo.myTGeom);
+      med_connectivite& aConn = (med_connectivite&)(theInfo.myTConn);
 
       TErr aRet = MEDelementsEcr(myFile->Id(),
 				 &aMeshInfo.myName[0],
 				 aMeshInfo.myDim,
-				 &anInfo.myConn[0],
+				 (med_2_1::med_int *)&anInfo.myConn[0],
 				 MED_FULL_INTERLACE,
 				 &anInfo.myElemNames[0],
 				 anIsElemNames,
-				 &anInfo.myElemNum[0],
+				 (med_2_1::med_int *)&anInfo.myElemNum[0],
 				 anIsElemNum,
-				 &anInfo.myFamNum[0],
+				 (med_2_1::med_int *)&anInfo.myFamNum[0],
 				 anInfo.myNbElem,
 				 anEntity,
 				 aGeom,
@@ -601,7 +601,7 @@ namespace MED{
       if(theErr && *theErr < 0)
 	return;
       
-      med_type_champ& aType = static_cast<med_type_champ>(theInfo.myType);
+      med_type_champ& aType = (med_type_champ&)(theInfo.myType);
 
       TErr aRet = MEDchampInfo(myFile->Id(),
 			       theFieldId,
@@ -628,7 +628,7 @@ namespace MED{
       
       MED::TFieldInfo& anInfo = const_cast<MED::TFieldInfo&>(theInfo);
       
-      med_type_champ& aType = static_cast<med_type_champ>(theInfo.myType);
+      med_type_champ& aType = (med_type_champ&)(theInfo.myType);
       
       TErr aRet = MEDchampCr(myFile->Id(),
 			     &anInfo.myName[0],
@@ -685,11 +685,11 @@ namespace MED{
       MED::TFieldInfo& anInfo = const_cast<MED::TFieldInfo&>(theInfo);
       TEntityInfo::const_iterator anIter = theEntityInfo.begin();
       for(; anIter != theEntityInfo.end(); anIter++){
-	const med_entite_maillage& anEntity = static_cast<const med_entite_maillage>(anIter->first);
+	const med_entite_maillage& anEntity = (const med_entite_maillage&)(anIter->first);
 	const TGeom& aTGeom = anIter->second;
 	TGeom::const_iterator anGeomIter = aTGeom.begin();
 	for(; anGeomIter != aTGeom.end(); anGeomIter++){
-	  const med_geometrie_element& aGeom = static_cast<const med_geometrie_element>(anGeomIter->first);
+	  const med_geometrie_element& aGeom = (const med_geometrie_element&)(anGeomIter->first);
 	  aNbTimeStamps = MEDnPasdetemps(myFile->Id(),&anInfo.myName[0],anEntity,aGeom);
 	  if(aNbTimeStamps){
 	    theEntity = EEntiteMaillage(anEntity);
@@ -722,10 +722,10 @@ namespace MED{
       MED::TFieldInfo& aFieldInfo = *theInfo.myFieldInfo;
       MED::TMeshInfo& aMeshInfo = *aFieldInfo.myMeshInfo;
       
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(theInfo.myEntity);
+      med_entite_maillage& anEntity = (med_entite_maillage&)(theInfo.myEntity);
       
       TGeom::iterator anIter = aTGeom.begin();
-      med_geometrie_element& aGeom = static_cast<med_geometrie_element>(anIter->first);
+      med_geometrie_element& aGeom = (med_geometrie_element&)(anIter->first);
       
       TErr aRet = MEDpasdetempsInfo(myFile->Id(),
 				    &aFieldInfo.myName[0],
@@ -733,11 +733,11 @@ namespace MED{
 				    aGeom,
 				    theTimeStampId,
 				    &aMeshInfo.myName[0],
-				    &theInfo.myNbGauss,
-				    &theInfo.myNumDt,
+				    (med_2_1::med_int *)&theInfo.myNbGauss,
+				    (med_2_1::med_int *)&theInfo.myNumDt,
 				    &theInfo.myUnitDt[0],
 				    &theInfo.myDt,
-				    &theInfo.myNumOrd);
+				    (med_2_1::med_int *)&theInfo.myNumOrd);
 
       if(theErr) 
 	*theErr = aRet;
@@ -764,11 +764,11 @@ namespace MED{
       MED::TFieldInfo& aFieldInfo = *aTimeStampInfo.myFieldInfo;
       MED::TMeshInfo& aMeshInfo = *aFieldInfo.myMeshInfo;
       
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(aTimeStampInfo.myEntity);
+      med_entite_maillage& anEntity = (med_entite_maillage&)(aTimeStampInfo.myEntity);
       TGeom& aTGeom = aTimeStampInfo.myGeom;
       TGeom::iterator anIter = aTGeom.begin();
       for(; anIter != aTGeom.end(); anIter++){
-	med_geometrie_element& aGeom = static_cast<med_geometrie_element>(anIter->first);
+	med_geometrie_element& aGeom = (med_geometrie_element&)(anIter->first);
 	TInt aNbVal = MEDnVal(anId,
 			      &aFieldInfo.myName[0],
 			      anEntity,
@@ -866,10 +866,10 @@ namespace MED{
       MED::TMeshInfo& aMeshInfo = *aFieldInfo.myMeshInfo;
       MED::TMeshValue& aMeshValue = aVal.myMeshValue;
       
-      med_entite_maillage& anEntity = static_cast<med_entite_maillage>(aTimeStampInfo.myEntity);
+      med_entite_maillage& anEntity = (med_entite_maillage&)(aTimeStampInfo.myEntity);
       TMeshValue::iterator anIter = aMeshValue.begin();
       for(; anIter != aMeshValue.end(); anIter++){
-	med_geometrie_element& aGeom = static_cast<med_geometrie_element>(anIter->first);
+	med_geometrie_element& aGeom = (med_geometrie_element&)(anIter->first);
 	TValue& aValue = aVal.myMeshValue[EGeometrieElement(aGeom)];
 	med_int iEnd = aValue.size();
 	med_int aNbVal = iEnd / aFieldInfo.myNbComp;

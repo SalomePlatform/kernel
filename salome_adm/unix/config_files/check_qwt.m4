@@ -22,19 +22,33 @@ AC_ARG_WITH(qwt_inc,
     ])
 
 if test -z $QWTHOME; then
+  AC_MSG_RESULT(QWTHOME not defined)
   exits_ok=no	
-  AC_CHECK_FILE("/usr/local/lib/libqwt.so",exits_ok=yes,exits_ok=no)
+  if test "x$exits_ok" = "xno"; then
+     for d in /usr/local /usr ; do
+        AC_CHECK_FILE(${d}/lib/libqwt.so,exits_ok=yes,exits_ok=no)
+        if test "x$exits_ok" = "xyes"; then
+           QWTHOME=$d
+           AC_MSG_RESULT(libqwt.so detected in $d/lib)
+        fi
+     done
+  fi
+  if test "x$exits_ok" = "xno"; then
+     for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+        if test -f $d/libqwt.so ; then
+           AC_MSG_RESULT(libqwt.so detected in $d)
+           QWTHOME=$d
+           QWTHOME=`echo ${QWTHOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+           exits_ok=yes
+           break
+        fi
+     done
+  fi
   if test "x$exits_ok" = "xyes"; then
-     QWTHOME="/usr/local/lib"    
      if test -z $QWT_INCLUDES; then
-        QWT_INCLUDES="/usr/local/include/qwt"
+        QWT_INCLUDES=$QWTHOME"/include/qwt"
      fi
-  else
-     QWTHOME="/usr/lib"   
-     if test -z $QWT_INCLUDES; then
-        QWT_INCLUDES="/usr/include/qwt"
-     fi
-  fi	
+  fi
 else
   if test -z $QWT_INCLUDES; then
      QWT_INCLUDES="$QWTHOME/include"

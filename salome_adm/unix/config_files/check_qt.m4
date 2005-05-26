@@ -37,6 +37,11 @@ if test "x$QTDIR" = "x"
 then
    AC_MSG_RESULT(please define QTDIR variable)
    qt_ok=no
+else
+   AC_MSG_RESULT(QTDIR is $QTDIR)
+   QT_VERS=`grep "QT_VERSION_STR" ${QTDIR}/include/qglobal.h | sed -e 's%^#define QT_VERSION_STR\([[:space:]]*\)%%g' -e 's%\"%%g'`
+   AC_MSG_RESULT(Qt version is $QT_VERS)
+   QT_VERS="Qt_"`echo $QT_VERS | sed -e 's%\"%%g' -e 's%\.%_%g'`
 fi
 
 if  test "x$qt_ok" = "xyes"
@@ -143,6 +148,7 @@ AC_SUBST(QT_ROOT)
 AC_SUBST(QT_INCLUDES)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_MT_LIBS)
+AC_SUBST(QT_VERS)
 
 AC_LANG_RESTORE
 

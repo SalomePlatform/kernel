@@ -41,7 +41,7 @@ class SALOME_Trace :
 
               except CosNaming.NamingContext.NotFound, e :
                     if steps == 1: print "Caught exception: Naming Service can't found Logger"
-              except CORBA.COMM_FAILURE, e:
+              except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
                     if steps == 1: print "Caught CORBA::SystemException CommFailure"
               except CORBA.SystemException, e:
                     if steps == 1: print "Caught CORBA::SystemException."

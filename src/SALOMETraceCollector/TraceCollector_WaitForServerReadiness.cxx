@@ -79,10 +79,10 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 	      if (!CORBA::is_nil(theObj))
 		inc = CosNaming::NamingContext::_narrow(theObj);
 	    }  
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
 	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "CORBA::COMM_FAILURE: "
+		   << "CORBA::SystemException: "
 		   << "Unable to contact the Naming Service" << endl;
 	    }
           catch(...)

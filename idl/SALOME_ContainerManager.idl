@@ -9,7 +9,8 @@ module Engines
 /*!
     Type to describe properties of wanted resource.
 */
-struct MachineParameters {
+struct MachineParameters
+{
   string container_name;
   string hostname;
   string OS;
@@ -29,9 +30,13 @@ struct MachineParameters {
 */
   interface ContainerManager
   {
-    Container FindOrStartContainer( in string containerName, in MachineList possibleComputers);
+    Container FindOrStartContainer( in string containerName,
+				    in MachineList possibleComputers);
+
     string FindBest(in MachineList possibleComputers);
-    MachineList GetFittingResources( in MachineParameters params, in string componentName );
+
+    MachineList GetFittingResources( in MachineParameters params,
+				     in string componentName );
     void Shutdown();
     void ShutdownContainers();
   } ;

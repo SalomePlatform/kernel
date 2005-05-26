@@ -28,22 +28,22 @@
 
 # include "Utils_ORB_INIT.hxx" 
 # include "utilities.h" 
-using namespace std;
+
+# include "SALOMEconfig.h"
 
 ORB_INIT::ORB_INIT( void ): _orb( CORBA::ORB::_nil() )
 {
-	;
 }
 
 
 ORB_INIT::~ORB_INIT()
 {
-	if ( ! CORBA::is_nil( _orb ) )
-	{
-		MESSAGE("appel _orb->destroy()") ;
-		_orb->destroy() ;
-		MESSAGE("retour _orb->destroy()") ;
-	}
+  if ( ! CORBA::is_nil( _orb ) )
+  {
+    //MESSAGE("appel _orb->destroy()") ;
+    _orb->destroy() ;
+    //MESSAGE("retour _orb->destroy()") ;
+  }
 }
 
 

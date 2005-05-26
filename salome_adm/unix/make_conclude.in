@@ -58,7 +58,7 @@ $(LIB_BUILD): $(top_builddir)/lib/salome/%.la: %.la
 	ln -sf $(patsubst %.la, %.so, $(CURDIR)/.libs/$<).0 \
 	      $(patsubst %.la, %.so, $@).0 || true
 
-	if test "X$(LIB_SWIG)" != X; then \
+	if ! test -z $(LIB_SWIG) ; then \
 	   ln -sf $(patsubst %.la,%.so, $(CURDIR)/.libs/$<) $(top_builddir)/lib/salome/_$(LIB_SWIG) || true;\
 	fi;
 
@@ -95,7 +95,7 @@ $(BIN:%=$(top_builddir)/bin/salome/%) $(TEST_PROGS:%=$(top_builddir)/bin/salome/
 	ln -sf $(CURDIR)/$< $@
 
 $(BIN) $(TEST_PROGS): %: %.lo $(BIN_OBJ)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGSFORBIN) $(LIBSFORBIN)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(BIN_LIB) $(LDFLAGS) $(LIBS)
 
 # copy python scripts in $(top_builddir)/bin/salome
 #
@@ -147,20 +147,27 @@ $(DEST_HEADERS): $(inc_builddir)/%: %
 	cp -f $< $@
 
 # build resources file (icons and messages) : .qm file from .po file
-resources: $(PO_FILES:%.po=$(top_builddir)/share/salome/resources/%.qm)
+resources: resources-po resources-cp 
+
+resources-po: $(PO_FILES:%.po=$(top_builddir)/share/salome/resources/%.qm)
+
+resources-cp: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+
+$(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
+	cp -f $< $@
 
 # Make installation directories if they don't exist.
 $(libdir) $(includedir) $(bindir) $(datadir) $(idldir) $(sharedpydir):
 	$(INSTALL) -d $@ && chmod 755 $@
 
 # Install the library, the public header files, and programs.
-install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir) $(idldir) install-python install-sharedpyqt install-qm
+install: $(LIB) $(BIN) $(TEST_PROGS) $(libdir) $(includedir) $(bindir) $(datadir) $(idldir) install-python install-sharedpyqt install-qm install-res
 	@for f in X $(LIB); do						      \
 	   if test $$f != X; then					      \
 	      ($(LT_INSTALL_LIB) $$f $(libdir)/. || exit 1);		      \
 	   fi;								      \
 	done
-	@if test "X$(LIB_SWIG)" != X; then				      \
+	@if ! test -z $(LIB_SWIG) ; then				      \
 	  (cd $(libdir); ln -sf $(patsubst %.so, %cmodule.so, $(LIB_SWIG)) _$(LIB_SWIG)  || true); \
         fi;								      
 	@for f in X $(BIN); do						      \
@@ -212,6 +219,15 @@ install-qm: resources
 	     ($(INSTALL_DATA) $$f $(datadir)/resources/. || exit 1);			 \
 	   fi; 										 \
 	done
+
+# generic rule to install resources files (png, ini ...):
+install-res: resources
+	$(INSTALL) -d $(datadir)/resources
+	@for f in X $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%); do \
+	   if test $$f != X; then							 \
+	     ($(INSTALL_DATA) $$f $(datadir)/resources/. || exit 1);			 \
+	   fi; 										 \
+	done  
 
 # Removes those things that `make install' (would have) installed.
 uninstall:
@@ -353,11 +369,7 @@ distclean: clean
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
 $(top_builddir)/share/salome/resources/%.qm: %.po
-	if test -e ${KERNEL_ROOT_DIR}/bin/salome/msg2qm ; then \
-		${KERNEL_ROOT_DIR}/bin/salome/msg2qm $< $@ ; \
-	else \
-		$(top_builddir)/bin/salome/msg2qm $< $@ ; \
-	fi
+	$(MSG2QM_ROOT)/msg2qm $< $@ ; \
 
 #------------------------------------------------------------------------------
 # The following section of this makefile contains dependencies between the
