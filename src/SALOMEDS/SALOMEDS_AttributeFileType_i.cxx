@@ -52,3 +52,17 @@ void SALOMEDS_AttributeFileType_i::SetValue(const char* value)
   //  Handle(SALOMEDS_FileType)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
+
+char* SALOMEDS_AttributeFileType_i::Store() {
+  SALOMEDS::Locker lock;
+  
+  return Value();
+}
+    
+void SALOMEDS_AttributeFileType_i::Restore(const char* value) {
+   SALOMEDS::Locker lock;
+      
+   SetValue(value);
+}  
+
+

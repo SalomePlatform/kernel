@@ -597,8 +597,6 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
   SALOMEDS::ListOfAttributes_var anAttrList = SO->GetAllAttributes();
   for(a = anAttrList->length() - 1; a >= 0; a--) {
     if (strcmp(anAttrList[a]->Type(), "AttributeIOR") == 0) continue; // never write AttributeIOR to file
-    if (strcmp(anAttrList[a]->Type(), "AttributeExternalFileDef") == 0) continue; // never write ExternalFileDef to file
-    if (strcmp(anAttrList[a]->Type(), "AttributeFileType") == 0) continue; // never write FileType to file
     CORBA::String_var aSaveStr(anAttrList[a]->Store());
     size[0] = (hdf_int32) strlen(aSaveStr.in()) + 1;
     HDFdataset *hdf_dataset = new HDFdataset(anAttrList[a]->Type(),hdf_group_sobject,HDF_STRING,size,1);

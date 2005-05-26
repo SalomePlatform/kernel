@@ -52,3 +52,15 @@ void SALOMEDS_AttributeExternalFileDef_i::SetValue(const char* value)
   //  Handle(SALOMEDS_ExternalFileDef)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
+
+char* SALOMEDS_AttributeExternalFileDef_i::Store() {
+  SALOMEDS::Locker lock;
+  return Value();
+}
+    
+void SALOMEDS_AttributeExternalFileDef_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;      
+  SetValue(value);
+}
+
+    
