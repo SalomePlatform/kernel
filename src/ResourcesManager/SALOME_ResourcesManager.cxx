@@ -319,14 +319,14 @@ void SALOME_ResourcesManager::SelectOnlyResourcesWithOS(vector<string>& hosts,co
 //Warning need an updated parsed list : _resourcesList
 void SALOME_ResourcesManager::KeepOnlyResourcesWithModule(vector<string>& hosts,const char *moduleName) const throw(SALOME_Exception)
 {
-   for(vector<string>::iterator iter=hosts.begin();iter!=hosts.end();iter++)
+   for(vector<string>::iterator iter=hosts.begin();iter!=hosts.end();)
      {
        MapOfParserResourcesType::const_iterator it=_resourcesList.find(*iter);
        const map<string,string>& mapOfModulesOfCurrentHost=(((*it).second).ModulesPath);
        if(mapOfModulesOfCurrentHost.find(moduleName)==mapOfModulesOfCurrentHost.end())
-	 {
-	   hosts.erase(iter);
-	 }
+	 hosts.erase(iter);
+       else
+	 iter++;
      }
 }
 
