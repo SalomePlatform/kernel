@@ -1,157 +1,59 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
 //  File   : SALOMEDS_SObject_i.hxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
-//  $Header$
 
 #ifndef __SALOMEDS_SOBJECT_I_H__
 #define __SALOMEDS_SOBJECT_I_H__
 
-#include <map>
-#include <string>
-
-// Cascade headers
-#include <TDF_Label.hxx>
-#include <TDocStd_Document.hxx>
-#include <Standard_GUID.hxx>
-
-#include "SALOMEDS_Study_i.hxx"
+// std C++ headers
+#include <iostream.h>
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_GenericObj_i.hh>
 
-class SALOMEDS_GenericAttribute_i;
-
-
-namespace SALOMEDS
-{
-  const char* Str(const TCollection_ExtendedString& theString);
-
-  std::string GetType(const Handle(TDF_Attribute)& theAttr);
-
-  Standard_GUID GetGUID(const char* theType);
-
-}
-
+// Cascade headers
+#include "SALOMEDSImpl_SObject.hxx"
 
 class SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
-			  public virtual PortableServer::RefCountServantBase 
+			  public virtual PortableServer::RefCountServantBase,
+			  public virtual SALOME::GenericObj_i
 {
+protected:
+  CORBA::ORB_ptr                _orb;
+  Handle(SALOMEDSImpl_SObject)  _impl;
+
 public:
-  static 
-  SALOMEDS_Study_i::TSObjectHolder 
-  New(SALOMEDS_Study_i* theStudy,
-      const TDF_Label& theLabel);
 
-  static 
-  SALOMEDS_SObject_i* 
-  NewPtr(SALOMEDS_Study_i* theStudy,
-	 const TDF_Label& theLabel);
-
-  static 
-  SALOMEDS::SObject_var 
-  NewRef(SALOMEDS_Study_i* theStudy,
-	 const TDF_Label& theLabel);
-
-  virtual SALOMEDS::SObject_ptr GetFather() ;
+  static SALOMEDS::SObject_ptr New(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr); 
+  
+  SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr);
+  
+  virtual ~SALOMEDS_SObject_i();
+  
+  virtual char* GetID();
   virtual SALOMEDS::SComponent_ptr GetFatherComponent();
-  virtual CORBA::Boolean ReferencedObject(SALOMEDS::SObject_out theSObject);
-  virtual CORBA::Boolean FindSubObject(CORBA::Long theTag, SALOMEDS::SObject_out theSObject);
+  virtual SALOMEDS::SObject_ptr    GetFather() ;
+  virtual CORBA::Boolean FindAttribute(SALOMEDS::GenericAttribute_out anAttribute, const char* aTypeOfAttribute);
+  virtual CORBA::Boolean ReferencedObject(SALOMEDS::SObject_out obj) ;
+  virtual CORBA::Boolean FindSubObject(long atag, SALOMEDS::SObject_out obj );
 
-  virtual SALOMEDS::Study_ptr GetStudy();
+  virtual SALOMEDS::Study_ptr    GetStudy() ;
+  virtual char* Name();
+  virtual void  Name(const char*);
   virtual SALOMEDS::ListOfAttributes* GetAllAttributes();
 
   virtual CORBA::Object_ptr GetObject();
-
-  virtual char* GetID();
-  virtual CORBA::Short Tag();
-  virtual CORBA::Short Depth();
-
-  virtual char* Name();
-  virtual void Name(const char* theName);
 
   virtual char* GetName();
   virtual char* GetComment();
   virtual char* GetIOR();
 
-  CORBA::Boolean 
-  FindAttribute(SALOMEDS::GenericAttribute_out theAttribute, 
-		const char* theTypeOfAttribute);
-  
-  SALOMEDS::GenericAttribute_ptr 
-  FindOrCreateAttribute(const char* theTypeOfAttribute);
+  virtual CORBA::Short Tag();
+  virtual CORBA::Short Depth();
 
-  void RemoveAttribute(const char* theTypeOfAttribute);
-  void OnRemove();
-
-  SALOMEDS_Study_i* GetStudyServant(){ return _study;}
-
-  TDF_Label GetLabel(){ return _lab;}
-  TDF_Label GetFatherLabel(){ return _lab.Father();}
-  TDF_Label GetFatherComponentLabel();
-
-  CORBA::ORB_var GetORB() const;
-
-  PortableServer::POA_var GetPOA() const;
-  
-protected:
-  friend class SALOMEDS_GenericAttribute_i;
-
-  typedef std::string TAttributeID;
-  typedef std::pair<SALOMEDS_GenericAttribute_i*,SALOMEDS::GenericAttribute_var> TAttrHolder;
-  typedef std::map<TAttributeID,TAttrHolder> TAttrMap;
-  TAttrMap myAttrMap;
-
-  TAttrHolder 
-  _FindGenAttribute(const Handle(TDF_Attribute)& theAttr);
-
-  TAttrHolder 
-  _CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
-		      const char* theTypeOfAttribute);
-
-  TAttrHolder 
-  _FindGenAttribute(const char* theTypeOfAttribute);
-
-  Handle(TDF_Attribute) 
-    _AddAttribute(const char* theTypeOfAttribute);
-
-  SALOMEDS_Study_i* _study;
-  std::string _name;
-  TDF_Label _lab;
-
-  SALOMEDS_SObject_i(SALOMEDS_Study_i* theStudy, 
-		     const TDF_Label& theLabel);
-  
-  ~SALOMEDS_SObject_i();
-
-private:
-  SALOMEDS_SObject_i(); // Not implemented
-  void operator=(const SALOMEDS_SObject_i&); // Not implemented
-
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
-
 
 #endif

@@ -1,31 +1,27 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
 //  File   : SALOMEDS_AttributeTableOfString_i.hxx
-//  Author : Sergey Ruin
+//  Author : Sergey RUIN
 //  Module : SALOME
 
 #ifndef SALOMEDS_AttributeTableOfString_i_HeaderFile
 #define SALOMEDS_AttributeTableOfString_i_HeaderFile
 
-#include "SALOMEDS_TableOfStringAttribute.hxx"
-#include "SALOMEDS_GenericAttribute_i.hxx"
-
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-DEFINE_DERIVED_ATTR(AttributeTableOfString,SALOMEDS_TableOfStringAttribute,true);
+#include "SALOMEDS_GenericAttribute_i.hxx"
+#include "SALOMEDSImpl_AttributeTableOfString.hxx"
 
-class SALOMEDS_AttributeTableOfString_i: 
-  public virtual POA_SALOMEDS::AttributeTableOfString,
-  public virtual SALOMEDS_TAttributeTableOfString_i 
-{
-  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfString,SALOMEDS_TableOfStringAttribute);
+class SALOMEDS_AttributeTableOfString_i: public virtual POA_SALOMEDS::AttributeTableOfString,
+  public virtual SALOMEDS_GenericAttribute_i {
+    
 public:
+  
+  SALOMEDS_AttributeTableOfString_i(const Handle(SALOMEDSImpl_AttributeTableOfString)& theAttr, CORBA::ORB_ptr orb) 
+    :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
+
+  ~SALOMEDS_AttributeTableOfString_i() {};
+
   virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
@@ -70,9 +66,6 @@ public:
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();
-
-  char* Store();
-  void Restore(const char*);
 
 };
 

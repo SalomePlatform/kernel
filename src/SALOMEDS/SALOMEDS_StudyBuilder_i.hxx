@@ -1,66 +1,34 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
 //  File   : SALOMEDS_StudyBuilder_i.hxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
-//  $Header$
 
-#ifndef __SALOMEDS_STUDYBUIlDER_I_H__
+#ifndef __SALOMEDS_STUDYBUILDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
+
+// std C++ headers
+#include <iostream.h>
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+#include "SALOMEDSImpl_StudyBuilder.hxx"
+
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_Study_i;
-class SALOMEDS_SObject_i;
-class SALOMEDS_Callback_i;
-
-class SALOMEDS_StudyBuilder_i: public virtual POA_SALOMEDS::StudyBuilder,
-			       public virtual PortableServer::RefCountServantBase 
+class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
+                               public PortableServer::RefCountServantBase 
 {
-  SALOMEDS_StudyBuilder_i(); // Not implemented
-  void operator=(const SALOMEDS_StudyBuilder_i&); // Not implemented
-
-  SALOMEDS_Study_i*        _study;
-  Handle(TDocStd_Document) _doc;  // OCAF Document
-
-  void OnAddSObject(SALOMEDS::SObject_ptr theObject);
-  void OnRemoveSObject(SALOMEDS::SObject_ptr theObject);
-
+private:
+  CORBA::ORB_ptr                    _orb;
+  Handle(SALOMEDSImpl_StudyBuilder) _impl;  // OCAF Document
 public:
-  SALOMEDS_StudyBuilder_i(SALOMEDS_Study_i* theStudy,
-			  const Handle(TDocStd_Document)& theDocument);
+    
+  SALOMEDS_StudyBuilder_i(const Handle(SALOMEDSImpl_StudyBuilder), CORBA::ORB_ptr);
 
   ~SALOMEDS_StudyBuilder_i();
-
-  CORBA::ORB_var GetORB() const;
-  PortableServer::POA_var GetPOA() const;
 
   //! NewComponent
   /*!
@@ -111,8 +79,6 @@ public:
     throw(SALOME::SALOME_Exception);
   virtual void Load(SALOMEDS::SObject_ptr sco);
 
-  SALOMEDS_SObject_i* RemoveSObject(SALOMEDS::SObject_ptr theSObject,
-				    bool theIsForgetAllAttributes = true);
   virtual void RemoveObject(SALOMEDS::SObject_ptr anObject);
   virtual void RemoveObjectWithChildren(SALOMEDS::SObject_ptr anObject);
 
@@ -141,9 +107,6 @@ public:
   virtual void UndoLimit(CORBA::Long);
 
   void CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection);
-
-  virtual SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
-  virtual SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
 
   virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);

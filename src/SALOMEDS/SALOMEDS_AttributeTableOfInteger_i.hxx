@@ -1,32 +1,28 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
 //  File   : SALOMEDS_AttributeTableOfInteger_i.hxx
-//  Author : Michael Ponikarov
+//  Author : Sergey RUIN
 //  Module : SALOME
-//  $Header$
 
 #ifndef SALOMEDS_AttributeTableOfInteger_i_HeaderFile
 #define SALOMEDS_AttributeTableOfInteger_i_HeaderFile
-
-#include "SALOMEDS_TableOfIntegerAttribute.hxx"
-#include "SALOMEDS_GenericAttribute_i.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-DEFINE_DERIVED_ATTR(AttributeTableOfInteger,SALOMEDS_TableOfIntegerAttribute,true);
+#include "SALOMEDS_GenericAttribute_i.hxx"
+#include "SALOMEDSImpl_AttributeTableOfInteger.hxx"
 
-class SALOMEDS_AttributeTableOfInteger_i: 
-  public virtual POA_SALOMEDS::AttributeTableOfInteger,
-  public virtual SALOMEDS_TAttributeTableOfInteger_i 
+class SALOMEDS_AttributeTableOfInteger_i: public virtual POA_SALOMEDS::AttributeTableOfInteger,
+                                          public virtual SALOMEDS_GenericAttribute_i 
 {
-  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfInteger,SALOMEDS_TableOfIntegerAttribute);
+    
 public:
+  
+  SALOMEDS_AttributeTableOfInteger_i(const Handle(SALOMEDSImpl_AttributeTableOfInteger)& theAttr, CORBA::ORB_ptr orb) 
+    :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
+
+  ~SALOMEDS_AttributeTableOfInteger_i() {};
+
   virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
@@ -71,10 +67,6 @@ public:
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();
-
-  virtual char* Store();
-  virtual void Restore(const char*);
-
 };
 
 #endif
