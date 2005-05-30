@@ -41,5 +41,7 @@ uninstall-idl:
 
 distclean:
 
+clean:
+
 distclean-other:
 
