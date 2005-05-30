@@ -142,9 +142,10 @@ case $host_os in
 esac
   CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
 
-  if test -z $KERNEL_ROOT_DIR; then
+  if test -n $KERNEL_ROOT_DIR; then
       if test -d $KERNEL_ROOT_DIR/include/salome; then
           CAS_CPPFLAGS="$CAS_CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
+	  CPPFLAGS="$CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
       fi
   fi
   CAS_CPPFLAGS="$CAS_CPPFLAGS -I${ROOT_BUILDDIR}/include/salome"
