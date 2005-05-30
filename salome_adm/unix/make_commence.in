@@ -82,6 +82,8 @@ QT_VERS = @QT_VERS@
 MOC = @MOC@
 UIC = @UIC@
 
+# msg2qm
+MSG2QM = @MSG2QM@
 
 #QWT
 
