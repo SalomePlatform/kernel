@@ -1,4 +1,4 @@
-# Check availability of Salome's KERNEL binary distribution
+# Check availability of Qt's msg2qm tool binary distribution
 #
 # Author : Jerome Roy (CEA, 2003)
 #
@@ -25,23 +25,32 @@ if test "x$MSG2QM_DIR" == "x" ; then
    else
 
     # search MSG2QM binaries in PATH variable
-      AC_PATH_PROG(TEMP, mgs2qm)
+      AC_PATH_PROG(TEMP, msg2qm)
       if test "x$TEMP" != "x" ; then
-         MSG2QM_BIN_DIR=`dirname $TEMP`
-         MSG2QM_DIR=`dirname $MSG2QM_BIN_DIR`
+         MSG2QM_DIR=`dirname $TEMP`
       fi
       
    fi
 # 
 fi
 
+# look for msg2qm in ${MSG2QM_DIR} directory
 if test -f ${MSG2QM_DIR}/msg2qm ; then
    msg2qm_ok=yes
+   MSG2QM="${MSG2QM_DIR}/msg2qm"
    AC_MSG_RESULT(Using MSG2QM executable in ${MSG2QM_DIR})
 else
-   AC_MSG_WARN("Cannot find MSG2QM executable")
+   # if not found, look for msg2qm in ${MSG2QM_DIR}/bin directory
+   if test -f ${MSG2QM_DIR}/bin/msg2qm ; then
+      msg2qm_ok=yes
+      MSG2QM="${MSG2QM_DIR}/bin/msg2qm"
+      AC_MSG_RESULT(Using MSG2QM executable in ${MSG2QM_DIR}/bin)
+   else	    
+      AC_MSG_WARN("Cannot find MSG2QM executable")
+   fi
 fi
 
+AC_SUBST(MSG2QM)
 AC_MSG_RESULT(for MSG2QM: $msg2qm_ok)
  
 ])dnl
