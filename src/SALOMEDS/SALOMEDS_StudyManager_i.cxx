@@ -863,7 +863,9 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	    hdf_dataset->CloseOnDisk();
 	    hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
 	    
+	    SALOMEDS::unlock(); //srn: fix for bug PAL8727
 	    Translate_IOR_to_persistentID(aStudy,SB,sco,Engine,theMultiFile, theASCII);
+	    SALOMEDS::lock();   //srn: fix for bug PAL8727
 	    MESSAGE("After Translate_IOR_to_persistentID");
 		  
 	    // Creation of the persistance reference  attribute
