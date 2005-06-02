@@ -295,20 +295,32 @@ void ActSigIntHandler() {
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
-  INFOS(pthread_self() << "SigIntHandler activated") ;
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==INFOS is commented
+  //  INFOS(pthread_self() << "SigIntHandler activated") ;
 }
 
 void SetCpuUsed() ;
 
 void SigIntHandler(int what , siginfo_t * siginfo ,
                                         void * toto ) {
-  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
-          << "              si_signo " << siginfo->si_signo << endl
-          << "              si_code  " << siginfo->si_code << endl
-          << "              si_pid   " << siginfo->si_pid) ;
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==MESSAGE is commented
+  //  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
+  //          << "              si_signo " << siginfo->si_signo << endl
+  //          << "              si_code  " << siginfo->si_code << endl
+  //          << "              si_pid   " << siginfo->si_pid) ;
   if ( _Sleeping ) {
     _Sleeping = false ;
-    MESSAGE("SigIntHandler END sleeping.") ;
+    //     MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
   else {
@@ -318,13 +330,13 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     else {
       _Sleeping = true ;
-      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+      //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
       }
-      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+      //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
     return ;
   }
