@@ -5,42 +5,40 @@ using namespace std;
 #define TAILLE_SPLIT 100000
 #define TIMEOUT 20
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::CorbaNCNoCopyReceiver(CorbaSender mySender):_mySender(mySender){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::CorbaNCNoCopyReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::~CorbaNCNoCopyReceiver(){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::~CorbaNCNoCopyReceiver(){
   _mySender->release();
-  CORBA::release(_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long &size)
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getDistValue(long &size)
 {
   TSeqCorba seq=_mySender->send();
   size=seq->length();
-  return seq->get_buffer(1);
+  return (T *)seq->get_buffer(1);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getValue(long &size)
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaNCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::CorbaNCWithCopyReceiver(CorbaSender mySender):_mySender(mySender){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::CorbaNCWithCopyReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::~CorbaNCWithCopyReceiver(){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::~CorbaNCWithCopyReceiver(){
   _mySender->release();
-  CORBA::release(_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long &size){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   size=_mySender->getSize();
   long n;
   T *ret=new T[size];
@@ -59,24 +57,23 @@ void *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long
   return ret;
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getValue(long &size)
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaNCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::CorbaWCNoCopyReceiver(CorbaSender mySender):_mySender(mySender){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::CorbaWCNoCopyReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::~CorbaWCNoCopyReceiver(){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::~CorbaWCNoCopyReceiver(){
   _mySender->release();
-  CORBA::release(_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long &size){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   size=_mySender->getSize();
   long n;
   T *ret=new T[size];
@@ -95,24 +92,23 @@ void *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long &
   return ret;
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getValue(long &size)
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaWCNoCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::CorbaWCWithCopyReceiver(CorbaSender mySender):_mySender(mySender){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::CorbaWCWithCopyReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::~CorbaWCWithCopyReceiver(){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::~CorbaWCWithCopyReceiver(){
   _mySender->release();
-  CORBA::release(_mySender);
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long &size){
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   size=_mySender->getSize();
   long n;
   T *ret=new T[size];
@@ -131,26 +127,25 @@ void *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getDistValue(long
   return ret;
 }
 
-template<class T,class TCorba,class TSeqCorba,class CorbaSender>
-void *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender>::getValue(long &size)
+template<class T,class TCorba,class TSeqCorba,class CorbaSender,class servForT,class ptrForT>
+T *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
 #ifdef HAVE_MPI2
 
-template<class T,MPI_Datatype T2>
-MPIReceiver<T,T2>::MPIReceiver(SALOME::MPISender_ptr mySender):_mySender(mySender){
+template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
+MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::MPIReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,MPI_Datatype T2>
-MPIReceiver<T,T2>::~MPIReceiver(){
+template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
+MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::~MPIReceiver(){
   _mySender->release();
-  CORBA::release(_mySender);
 }
 
-template<class T,MPI_Datatype T2>
-void *MPIReceiver<T,T2>::getDistValue(long &size){
+template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
+T *MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   int i=0;
   int myproc;
   int sproc;
@@ -204,10 +199,10 @@ void *MPIReceiver<T,T2>::getDistValue(long &size){
   return _v;
 }
 
-template<class T,MPI_Datatype T2>
-void *MPIReceiver<T,T2>::getValue(long &size)
+template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
+T *MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
 #endif
@@ -221,31 +216,30 @@ void *MPIReceiver<T,T2>::getValue(long &size)
 #include <unistd.h>
 #include <rpc/xdr.h>
 
-template<class T,int (*myFunc)(XDR*,T*)>
-SocketReceiver<T,myFunc>::SocketReceiver(SALOME::SocketSender_ptr mySender) : _mySender(mySender)
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::SocketReceiver(CorbaSender mySender) : _mySender(mySender)
 {
   _clientSockfd = -1;
   _senderDestruc=true;
 }
 
-template<class T,int (*myFunc)(XDR*,T*)>
-SocketReceiver<T,myFunc>::~SocketReceiver()
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::~SocketReceiver()
 {
   if(_senderDestruc)
     {
       _mySender->release();
-      CORBA::release(_mySender);
     }
 }
 
-template<class T,int (*myFunc)(XDR*,T*)>
-void *SocketReceiver<T,myFunc>::getValue(long &size)
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+T *SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
-  return Receiver::getValue(size,_mySender);
+  return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }
 
-template<class T,int (*myFunc)(XDR*,T*)>
-void* SocketReceiver<T,myFunc>::getDistValue(long &size)
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &size)
 {
   int n=0, m;
   T *v;
@@ -296,8 +290,8 @@ void* SocketReceiver<T,myFunc>::getDistValue(long &size)
   return v;
 }
 
-template<class T,int (*myFunc)(XDR*,T*)>
-void SocketReceiver<T,myFunc>::initCom()
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::initCom()
 {
   try{
     _mySender->initCom();
@@ -325,8 +319,8 @@ void SocketReceiver<T,myFunc>::initCom()
 
 }
 
-template<class T,int (*myFunc)(XDR*,T*)>
-void SocketReceiver<T,myFunc>::connectCom(const char *dest_address, int port)
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const char *dest_address, int port)
 {
   struct sockaddr_in serv_addr;
   struct hostent * server;
@@ -377,8 +371,8 @@ void SocketReceiver<T,myFunc>::connectCom(const char *dest_address, int port)
 }
 
 
-template<class T,int (*myFunc)(XDR*,T*)>
-void SocketReceiver<T,myFunc>::closeCom()
+template<class T,int (*myFunc)(XDR*,T*),class CorbaSender,class servForT,class ptrForT>
+void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::closeCom()
 {
   _mySender->closeCom();
   if( _clientSockfd >= 0 ){

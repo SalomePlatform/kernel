@@ -16,25 +16,25 @@ using namespace std;
 #define SALOME_CorbaLongSender SALOME_CorbaLongCSender_i
 #endif
 
-SALOME::Sender_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr)throw(MultiCommException){
+SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab)throw(MultiCommException){
   switch(multiCommunicator.getProtocol())
     {
     case SALOME::CORBA_:
       {
-	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr);
+	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
 	return retc->_this();
       }
 #ifdef HAVE_MPI2
     case SALOME::MPI_:
       {
-	SALOME_MPISender_i* retm=new SALOME_MPISender_i(SALOME::DOUBLE_,tab,lgr,sizeof(double));
+	SALOME_MPISenderDouble_i* retm=new SALOME_MPISenderDouble_i(tab,lgr,ownTab);
 	return retm->_this();
       }
 #endif
 #ifdef HAVE_SOCKET
     case SALOME::SOCKET_:
       {
-	SALOME_SocketSender_i* rets=new SALOME_SocketSender_i(SALOME::DOUBLE_,tab,lgr,sizeof(double));
+	SALOME_SocketSenderDouble_i* rets=new SALOME_SocketSenderDouble_i(tab,lgr,ownTab);
 	return rets->_this();
       }
 #endif
@@ -42,58 +42,61 @@ SALOME::Sender_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator
       {
 	multiCommunicator.setProtocol(SALOME::CORBA_);
 	MESSAGE("PROTOCOL CHANGED TO CORBA");
-	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr);
+	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
 	return retc->_this();
       }
 //       throw MultiCommException("Communication protocol not implemented");
     }
 }
 
-SALOME::Sender_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr)throw(MultiCommException){
+SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab)throw(MultiCommException){
   switch(multiCommunicator.getProtocol())
     {
     case SALOME::CORBA_:
       {
-	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr);
+	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
 	return retc->_this();
       }
 #ifdef HAVE_MPI2
     case SALOME::MPI_:
       {
-	SALOME_MPISender_i* retm=new SALOME_MPISender_i(SALOME::INT_,tab,lgr,sizeof(int));
+	SALOME_MPISenderInt_i* retm=new SALOME_MPISenderInt_i(tab,lgr,ownTab);
 	return retm->_this();
       }
 #endif
 #ifdef HAVE_SOCKET
     case SALOME::SOCKET_:
       {
-	SALOME_SocketSender_i* rets=new SALOME_SocketSender_i(SALOME::INT_,tab,lgr,sizeof(int));
+	SALOME_SocketSenderInt_i* rets=new SALOME_SocketSenderInt_i(tab,lgr,ownTab);
 	return rets->_this();
       }
 #endif
     default:
       {
 	multiCommunicator.setProtocol(SALOME::CORBA_);
-	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr);
+	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
 	return retc->_this();
       }
 //       throw MultiCommException("Communication protocol not implemented"); 
     }
   }
 
-SALOME::Sender_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication NewType,SALOME_Sender_i *src)
+SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderDouble_i *src)
 {
   SALOMEMultiComm mc(NewType);
   long n;
-  const void *data=src->getData(n);
-  switch(src->getTypeOfDataTransmitted())
-    {
-    case SALOME::DOUBLE_:
-      return buildSender(mc,(const double *)data,n);
-    case SALOME::INT_:
-      return buildSender(mc,(const int *)data,n);
-    }
-  
+  const double *data=(const double *)src->getData(n);
+  bool own=src->getOwnerShip();
+  src->setOwnerShip(false);
+  return buildSender(mc,data,n,own);
 }
 
-
+SALOME::SenderInt_ptr SenderFactory::buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderInt_i *src)
+{
+  SALOMEMultiComm mc(NewType);
+  long n;
+  const int *data=(const int *)src->getData(n);
+  bool own=src->getOwnerShip();
+  src->setOwnerShip(false);
+  return buildSender(mc,data,n,own);
+}

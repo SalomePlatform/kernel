@@ -30,22 +30,13 @@ int SALOME_Sender_i::getSizeOf() const {
 }
 
 /*! Unique constructor */
-SALOME_Sender_i::SALOME_Sender_i(SALOME::TypeOfDataTransmitted type,const void *tabToSend,long lgrTabToSend,int sizeOf):_tabToSend(tabToSend),_lgrTabToSend(lgrTabToSend),_type(type),_sizeOf(sizeOf){
+SALOME_Sender_i::SALOME_Sender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend):_tabToSend(tabToSend),_lgrTabToSend(lgrTabToSend),_sizeOf(sizeOf),_ownTabToSend(ownTabToSend){
 }
 
-/*! Method to establish if the CORBA object refered by pCorba is collocalised.\n
-  If it is, the pointer to the servant that incarnates the CORBA object is returned.
-*/
-SALOME_Sender_i *SALOME_Sender_i::find(SALOME::Sender_ptr pCorba){
-  PortableServer::ServantBase *ret;
-  try {
-    ret=PortableServer::POA::_the_root_poa()->reference_to_servant(pCorba);
-  }
-  catch(...){
-    return 0;
-  }
-  ret->_remove_ref();
-  return dynamic_cast<SALOME_Sender_i *>(ret);
+/*! To force ownerShip status */
+void SALOME_Sender_i::setOwnerShip(bool own)
+{
+  _ownTabToSend=own;
 }
 
 /*! Method for the remote destroy of the current servant. This method is used by the receiver to destroy the sender when the transfert is complete.
@@ -57,21 +48,75 @@ void SALOME_Sender_i::release()
   _remove_ref();
 }
 
-/*! Return the type of the element that compose the array. Used by receiverfactory to build the correct receiver.
- */
-SALOME::TypeOfDataTransmitted SALOME_Sender_i::getTypeOfDataTransmitted()
+SALOME_SenderDouble_i::SALOME_SenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
 {
-  return _type;
 }
 
-/*! Return a new sender of the same array but with an another protocol.
+/*! Destructor.
  */
-SALOME::Sender_ptr SALOME_Sender_i::buildOtherWithProtocol(SALOME::TypeOfCommunication type)
+SALOME_SenderDouble_i::~SALOME_SenderDouble_i()
+{
+  if(_ownTabToSend)
+    delete [] (double *)_tabToSend;
+}
+
+/*! Return a new sender of the same array but with an another protocol and delegates to the returned sender the ownership of array.
+ */
+SALOME::SenderDouble_ptr SALOME_SenderDouble_i::buildOtherWithProtocol(SALOME::TypeOfCommunication type)
 {
   return SenderFactory::buildSender(type,this);
 }
 
-SALOME_CorbaDoubleNCSender_i::SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend):SALOME_Sender_i(SALOME::DOUBLE_,tabToSend,lgrTabToSend,sizeof(double)){
+/*! Method to establish if the CORBA object refered by pCorba is collocalised.\n
+  If it is, the pointer to the servant that incarnates the CORBA object is returned.
+*/
+SALOME_SenderDouble_i *SALOME_SenderDouble_i::find(SALOME::SenderDouble_ptr pCorba){
+  PortableServer::ServantBase *ret;
+  try {
+    ret=PortableServer::POA::_the_root_poa()->reference_to_servant(pCorba);
+  }
+  catch(...){
+    return 0;
+  }
+  ret->_remove_ref();
+  return dynamic_cast<SALOME_SenderDouble_i *>(ret);
+}
+
+SALOME_SenderInt_i::SALOME_SenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+{
+}
+
+/*! Destructor.
+ */
+SALOME_SenderInt_i::~SALOME_SenderInt_i()
+{
+  if(_ownTabToSend)
+    delete [] (int *)_tabToSend;
+}
+
+/*! Return a new sender of the same array but with an another protocol.
+ */
+SALOME::SenderInt_ptr SALOME_SenderInt_i::buildOtherWithProtocol(SALOME::TypeOfCommunication type)
+{
+  return SenderFactory::buildSender(type,this);
+}
+
+/*! Method to establish if the CORBA object refered by pCorba is collocalised.\n
+  If it is, the pointer to the servant that incarnates the CORBA object is returned.
+*/
+SALOME_SenderInt_i *SALOME_SenderInt_i::find(SALOME::SenderInt_ptr pCorba){
+  PortableServer::ServantBase *ret;
+  try {
+    ret=PortableServer::POA::_the_root_poa()->reference_to_servant(pCorba);
+  }
+  catch(...){
+    return 0;
+  }
+  ret->_remove_ref();
+  return dynamic_cast<SALOME_SenderInt_i *>(ret);
+}
+
+SALOME_CorbaDoubleNCSender_i::SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend){
 }
 
 SALOME_CorbaDoubleNCSender_i::~SALOME_CorbaDoubleNCSender_i(){
@@ -92,7 +137,7 @@ SALOME::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::send(){
   return c1._retn();
 }
 
-SALOME_CorbaDoubleCSender_i::SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend):SALOME_Sender_i(SALOME::DOUBLE_,tabToSend,lgrTabToSend,sizeof(double)){
+SALOME_CorbaDoubleCSender_i::SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend){
 }
 
 SALOME_CorbaDoubleCSender_i::~SALOME_CorbaDoubleCSender_i(){
@@ -113,7 +158,7 @@ SALOME::vectorOfDouble* SALOME_CorbaDoubleCSender_i::sendPart(CORBA::ULong offse
 
 ////////////////////////
 
-SALOME_CorbaLongNCSender_i::SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend):SALOME_Sender_i(SALOME::INT_,tabToSend,lgrTabToSend,sizeof(int)){
+SALOME_CorbaLongNCSender_i::SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend){
 }
 
 SALOME_CorbaLongNCSender_i::~SALOME_CorbaLongNCSender_i(){
@@ -134,7 +179,7 @@ SALOME::vectorOfLong* SALOME_CorbaLongNCSender_i::send(){
   return c1._retn();
 }
 
-SALOME_CorbaLongCSender_i::SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend):SALOME_Sender_i(SALOME::INT_,tabToSend,lgrTabToSend,sizeof(int)){
+SALOME_CorbaLongCSender_i::SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend){
 }
 
 SALOME_CorbaLongCSender_i::~SALOME_CorbaLongCSender_i(){
@@ -159,7 +204,7 @@ unsigned long SALOME_MPISender_i::_tag1=0;
 
 unsigned long SALOME_MPISender_i::_tag2=1;
 
-SALOME_MPISender_i::SALOME_MPISender_i(SALOME::TypeOfDataTransmitted type,const void *tabToSend,long lgrTabToSend,int sizeOf):SALOME_Sender_i(type,tabToSend,lgrTabToSend,sizeOf){
+SALOME_MPISender_i::SALOME_MPISender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeOf,ownTabToSend){
   _portName=new char[MPI_MAX_PORT_NAME];
 }
 
@@ -203,6 +248,7 @@ SALOME::MPISender::param* SALOME_MPISender_i::getParam()
 
 void SALOME_MPISender_i::send()
 {
+  _type=getTypeOfDataTransmitted();
   _argsForThr=new (void *)[8];
   _argsForThr[0]=_portName;
   _argsForThr[1]=&_lgrTabToSend;
@@ -238,6 +284,7 @@ void* SALOME_MPISender_i::myThread(void *args)
       MPI_Send(argsTab[2],*lgrTabToSend,MPI_INT,*cproc,*tag2,*com);
     }
   omni_thread::exit();
+  return args;
 }
 
 void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
@@ -250,6 +297,18 @@ void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
   MPI_Unpublish_name((char *)service.c_str(),MPI_INFO_NULL,_portName); 
   MPI_Close_port(_portName);
   delete [] _argsForThr;
+}
+
+SALOME_MPISenderDouble_i::SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend)
+  :SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+{
+}
+
+SALOME_MPISenderInt_i::SALOME_MPISenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend)
+  :SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+{
 }
 
 #endif
@@ -267,7 +326,7 @@ void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
 #include <netdb.h>
 #include <unistd.h>
 
-SALOME_SocketSender_i::SALOME_SocketSender_i(SALOME::TypeOfDataTransmitted type,const void *tabToSend,long lgrTabToSend,int sizeOf):SALOME_Sender_i(type,tabToSend,lgrTabToSend,sizeOf){
+SALOME_SocketSender_i::SALOME_SocketSender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeOf,ownTabToSend){
   _IPAddress = inetAddress();
   _serverSockfd = -1;
   _clientSockfd = -1;
@@ -314,6 +373,7 @@ SALOME::SocketSender::param * SALOME_SocketSender_i::getParam()
 
 void SALOME_SocketSender_i::send()
 {
+  _type=getTypeOfDataTransmitted();
   _argsForThr=new void *[6];
   _argsForThr[0]=&_serverSockfd;
   _argsForThr[1]=&_clientSockfd;
@@ -393,6 +453,7 @@ void* SALOME_SocketSender_i::myThread(void *args)
       xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(int), (xdrproc_t)xdr_int );
       xdr_destroy( &xp );
     }
+  return args;
 }
 
 void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
@@ -443,7 +504,6 @@ void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
 void SALOME_SocketSender_i::acceptCom() throw(SALOME::SALOME_Exception)
 {
   socklen_t sin_size;
-  int new_fd;
   struct sockaddr_in client_addr;
   SALOME::ExceptionStruct es;
 
@@ -483,6 +543,18 @@ void SALOME_SocketSender_i::endOfCom()
       throw SALOME::SALOME_Exception(es);
     }
   delete [] _argsForThr;
+}
+
+SALOME_SocketSenderDouble_i::SALOME_SocketSenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend)
+  :SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_SocketSender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+{
+}
+
+SALOME_SocketSenderInt_i::SALOME_SocketSenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend)
+  :SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_SocketSender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+{
 }
 
 //CCRT porting
