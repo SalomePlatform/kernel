@@ -14,6 +14,9 @@ register_pattern(lambda(x):x.endswith("_idl"))
 register_name("omniORB")
 import omniORB
 
+register_name("CosNaming")
+import CosNaming
+
 # Modify omniORB to use right sys.modules dictionnary 
 # with multi-interpreter feature
 # openModule and newModule are functions of omniORB/__init__.py module
