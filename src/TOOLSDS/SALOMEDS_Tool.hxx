@@ -13,7 +13,6 @@
 #include <string>
 #include <list> 
 
-#include "SALOMEDSClient.hxx"
 
 // IDL headers
 #include "SALOMEconfig.h"
