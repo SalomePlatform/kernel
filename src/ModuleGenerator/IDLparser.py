@@ -49,7 +49,7 @@ nb_components = 0
 # catalog=/tmp/myxml.xml
 #--------------------------------------------------
 def getParamValue( param_name, default_value, args ):
-    pattern=param_name+"="
+    pattern="^"+param_name+"="
 
     res = default_value        #initial value
     for opt in args:
@@ -410,12 +410,20 @@ class Component(Tree):
         Tree.__init__(self, 'component', key=name)
         if name is None:  return
                  
-        self.addNamedChild('component-name',       name)
+# ASV : fix for bug PAL8922 (Component name indicated by user in GUI is not taken into account
+	if common_data["COMP_NAME"] != '':
+	    self.addNamedChild('component-name', common_data["COMP_NAME"])
+	else:
+	    self.addNamedChild('component-name', name)
 
+# ASV : if user name is NOT set, then use component-name instead.  Else - default.
         if common_data["COMP_UNAME"] != '':
             self.addNamedChild('component-username',   common_data["COMP_UNAME"])
         else:
-            self.addNamedChild('component-username',   name)
+            if common_data["COMP_NAME"] != '':
+                self.addNamedChild('component-username', common_data["COMP_NAME"] )
+            else:
+                self.addNamedChild('component-username',   name)
             
         self.addNamedChild('component-type',       common_data["COMP_TYPE"])
         self.addNamedChild('component-author',     common_data["AUTHOR"])
@@ -673,7 +681,7 @@ def run(tree, args):
     common_data["ICON"]       = getParamValue("icon",       "",                args)
     common_data["AUTHOR"]     = getParamValue("author",     os.getenv("USER"), args)
     common_data["VERSION"]    = getParamValue("version",    "1",               args)
-    common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
+    common_data["COMP_NAME"]  = getParamValue("name",       "",                args) 
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
     common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
