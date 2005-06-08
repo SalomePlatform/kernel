@@ -42,8 +42,8 @@ SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch Pat
           TOOLSDS SALOMEDS Event \
           SALOMEGUI TOOLSGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
-	  Session SALOME_SWIG SALOME_SWIG_WITHOUTIHM SALOME_PY \
-          RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
+	  Session Communication SALOME_SWIG SALOME_SWIG_WITHOUTIHM SALOME_PY \
+          RegistryDisplay ModuleGenerator SALOME_PYQT Loader
 endif
 
 ifeq (@WITHIHM@,no)
@@ -52,8 +52,8 @@ SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
 	  ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist Prs \
-          TOOLSDS SALOMEDS Event \
-          SALOME_SWIG_WITHOUTIHM ModuleGenerator Loader Communication
+          TOOLSDS SALOMEDS Event Communication \
+          SALOME_SWIG_WITHOUTIHM ModuleGenerator Loader
 endif
 
 ifeq (@mpi_ok@,yes)
