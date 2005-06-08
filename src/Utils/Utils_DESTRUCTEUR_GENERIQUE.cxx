@@ -46,7 +46,7 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
-static list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs=0 ;
+std::list<DESTRUCTEUR_GENERIQUE_*> *DESTRUCTEUR_GENERIQUE_::Destructeurs=0 ;
 
 /*! \class ATEXIT_
  *
@@ -78,9 +78,10 @@ public :
 	  //CCRT
 	  if ( Make_ATEXIT && !ATEXIT_Done ) {
 	    //CCRT
-		ASSERT (Destructeurs==0);
+		ASSERT (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
 		if(MYDEBUG) MESSAGE("Construction ATEXIT"); // message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
-		Destructeurs = new list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
+		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
+                      new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
 								   // il est utilisé puis détruit par la fonction Nettoyage
 		int cr = atexit( Nettoyage );                      // exécute Nettoyage lors de exit, après la destruction des données statiques !
 		ASSERT(cr==0) ;
@@ -111,30 +112,30 @@ static ATEXIT_ nettoyage = ATEXIT_( false );	/* singleton statique */
 void Nettoyage( void )
 {
 	if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
-	ASSERT(Destructeurs) ;
-	if(MYDEBUG) SCRUTE( Destructeurs->size() ) ;
-	if( Destructeurs->size() )
+	ASSERT(DESTRUCTEUR_GENERIQUE_::Destructeurs) ;
+	if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+	if( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() )
 	{
-		list<DESTRUCTEUR_GENERIQUE_*>::iterator it = Destructeurs->end() ;
+		std::list<DESTRUCTEUR_GENERIQUE_*>::iterator it = DESTRUCTEUR_GENERIQUE_::Destructeurs->end() ;
 
 		do
 		{
 			if(MYDEBUG) MESSAGE( "DESTRUCTION d'un SINGLETON");
 			it-- ;
 			DESTRUCTEUR_GENERIQUE_* ptr = *it ;
-			//Destructeurs->remove( *it ) ;
+			//DESTRUCTEUR_GENERIQUE_::Destructeurs->remove( *it ) ;
 			(*ptr)() ;
 			delete ptr ;
-		}while( it!=  Destructeurs->begin() ) ;
+		}while( it!=  DESTRUCTEUR_GENERIQUE_::Destructeurs->begin() ) ;
 
-		Destructeurs->clear() ;
-		if(MYDEBUG) SCRUTE( Destructeurs->size() ) ;
-		ASSERT( Destructeurs->size()==0 ) ;
-		ASSERT( Destructeurs->empty() ) ;
+		DESTRUCTEUR_GENERIQUE_::Destructeurs->clear() ;
+		if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+		ASSERT( DESTRUCTEUR_GENERIQUE_::Destructeurs->size()==0 ) ;
+		ASSERT( DESTRUCTEUR_GENERIQUE_::Destructeurs->empty() ) ;
 	}
 
-	delete Destructeurs;
-	Destructeurs=0;
+	delete DESTRUCTEUR_GENERIQUE_::Destructeurs;
+	DESTRUCTEUR_GENERIQUE_::Destructeurs=0;
 	if(MYDEBUG) END_OF("Nettoyage( void )") ;
 	return ;
 }

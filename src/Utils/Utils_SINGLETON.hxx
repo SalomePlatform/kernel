@@ -147,11 +147,11 @@ template <class TYPE> int SINGLETON_<TYPE>::Destruction( void )
 
 
 		std::list<DESTRUCTEUR_GENERIQUE_ *>::iterator k ;
-		for( k=DESTRUCTEUR_GENERIQUE_::Destructeurs.begin() ; k!=DESTRUCTEUR_GENERIQUE_::Destructeurs.end();k++)
+		for( k=DESTRUCTEUR_GENERIQUE_::Destructeurs->begin() ; k!=DESTRUCTEUR_GENERIQUE_::Destructeurs->end();k++)
 		{
 			if ( *k == PtrSingleton->_Instance )
 			{
-				DESTRUCTEUR_GENERIQUE_::Destructeurs.erase( k ) ;
+				DESTRUCTEUR_GENERIQUE_::Destructeurs->erase( k ) ;
 				break ;
 			}
 		}

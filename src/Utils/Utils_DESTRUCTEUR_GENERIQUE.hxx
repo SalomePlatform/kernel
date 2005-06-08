@@ -29,6 +29,7 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
+# include <list>
 # include <CORBA.h>
 # include "utilities.h"
 
@@ -56,6 +57,8 @@
 class DESTRUCTEUR_GENERIQUE_
 {
 public :
+  static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
+
   virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
   static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
   virtual void operator()( void )=0 ;//!< performs the destruction
