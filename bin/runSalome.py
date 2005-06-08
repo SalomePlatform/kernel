@@ -698,7 +698,7 @@ def useSalome(args, modules_list, modules_root_dir):
 #    filedict = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
 #             + '_' + args['appname'].upper() + '_pidict'
 # replaced args['appname'] by "SALOME" because in killSalome.py use of 'SALOME' in file name is hardcoded.
-    filedict = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
+    filedict = os.getenv("HOME") + '/' + os.getenv('USER') + "_" + str(args['port']) \
                + '_' + 'SALOME' + '_pidict'   
     process_ids = []
     try:
