@@ -38,6 +38,7 @@ LIB_OBJ = $(LIB_OBJ_CXX) $(LIB_OBJ_CC) $(LIB_OBJ_C) $(LIB_CLIENT_OBJ:%.o=%.lo) $
 # LIB_BUILD = $(LIB:%.la=$(top_builddir)/lib/salome/%.la)
 LIB_BUILD = $(patsubst %.la, $(top_builddir)/lib/salome/%.la, $(filter %.la, $(LIB)))
 LIB_BUILD_A = $(patsubst %.a, $(top_builddir)/lib/salome/%.a, $(filter %.a, $(LIB)))
+LIB_BUILD_SO = $(patsubst %.so, $(top_builddir)/lib/salome/%.so, $(filter %.so, $(LIB)))
 
 ifneq ($(findstring cmodule.la,$(filter %.la, $(LIB))),)
 LIB_SWIG = $(patsubst %cmodule.la,%.so, $(filter %.la, $(LIB)))
@@ -45,7 +46,7 @@ else
 LIB_SWIG = 
 endif
 
-lib: $(LIB_BUILD) $(LIB_CLIENT_PY)
+lib: $(LIB_BUILD) $(LIB_BUILD_SO) $(LIB_CLIENT_PY)
 # we don't build static library !
 
 $(LIB_BUILD): $(top_builddir)/lib/salome/%.la: %.la
@@ -66,8 +67,12 @@ $(LIB_BUILD_A): $(top_builddir)/lib/salome/%.a: %.a
 	-$(RM) $@
 	ln -sf $(CURDIR)/$< $@ || true
 
+$(LIB_BUILD_SO): $(top_builddir)/lib/salome/%.so: %.so
+	-$(RM) $@
+	ln -sf $(CURDIR)/$< $@ || true
+
 $(LIB): $(LIB_OBJ)
-	@$(LT) --mode=link $(CXX) -rpath $(libdir) -o $@ $(CXXFLAGS) $(LIB_OBJ) $(LDFLAGS) $(LIBS)
+	@$(LT) --mode=link $(CXX) -shared -rpath $(libdir) -o $@ $(CXXFLAGS) $(LIB_OBJ) $(LDFLAGS) $(LIBS)
 
 # transform idl reference in appropriate obj file
 BIN_CLIENT_SRC = $(BIN_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX))

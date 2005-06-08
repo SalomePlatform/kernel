@@ -37,6 +37,7 @@ AC_SUBST(CAS_OCAF)
 AC_SUBST(CAS_DATAEXCHANGE)
 AC_SUBST(CAS_LDFLAGS)
 AC_SUBST(CAS_LDPATH)
+AC_SUBST(CAS_STDPLUGIN)
 
 OWN_CONFIG_H=no
 
@@ -72,6 +73,19 @@ case $host_os in
 esac
 
 AC_MSG_CHECKING(for OpenCascade directories)
+
+if test -z $CASROOT; then
+  AC_MSG_RESULT(CASROOT not defined)
+  for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+    if test -f $d/libTKernel.so ; then
+      AC_MSG_RESULT(libTKernel.so detected in $d)
+      CASROOT=$d
+      CASROOT=`echo ${CASROOT} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+      break
+    fi
+  done
+fi
+
 if test -d ${CASROOT}/${casdir}/lib; then
   CAS_LDPATH="-L$CASROOT/$casdir/lib "
   AC_MSG_RESULT(yes)
@@ -91,11 +105,16 @@ if test -z $CASROOT; then
 else
   occ_ok=yes
   OCC_VERSION_MAJOR=0
+  OCC_VERSION_MINOR=0
   ff=$CASROOT/inc/Standard_Version.hxx
   if test -f $ff ; then
     grep "define OCC_VERSION_MAJOR" $ff > /dev/null
     if test $? = 0 ; then
       OCC_VERSION_MAJOR=`grep "define OCC_VERSION_MAJOR" $ff | awk '{i=3 ; print $i}'`
+    fi
+    grep "define OCC_VERSION_MINOR" $ff > /dev/null
+    if test $? = 0 ; then
+      OCC_VERSION_MINOR=`grep "define OCC_VERSION_MINOR" $ff | awk '{i=3 ; print $i}'`
     fi
   fi
 fi
@@ -122,6 +141,15 @@ case $host_os in
       ;;
 esac
   CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
+
+  if test -n $KERNEL_ROOT_DIR; then
+      if test -d $KERNEL_ROOT_DIR/include/salome; then
+          CAS_CPPFLAGS="$CAS_CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
+	  CPPFLAGS="$CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
+      fi
+  fi
+  CAS_CPPFLAGS="$CAS_CPPFLAGS -I${ROOT_BUILDDIR}/include/salome"
+  CPPFLAGS="$CPPFLAGS -I${ROOT_BUILDDIR}/salome_adm/unix"
 
   echo
   echo
@@ -186,14 +214,23 @@ else
   CAS_KERNEL="$CAS_LDPATH -lTKernel -lTKMath"
 
   # E.A. compatibility version 4 and 5.x  
-  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKCAF -lFWOSPlugin -lTKPShape -lTKPCAF -lTKStdSchema -lTKShapeSchema -lPAppStdPlugin"
+  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKPShape -lTKCDF -lTKCAF -lTKShapeSchema -lTKPCAF -lFWOSPlugin -lTKStdSchema"
   if test $OCC_VERSION_MAJOR -lt 5 ; then
     CAS_OCAF="$CAS_OCAF -lTKPAppStd"
   fi
-  CAS_OCAF="$CAS_OCAF -lTKCDF"
+  if test -f $CASROOT/$casdir/lib/libPAppStdPlugin.so ; then
+    # this library is absent in CASCADE 5.2.3
+    CAS_OCAF="$CAS_OCAF -lPAppStdPlugin"
+    CAS_STDPLUGIN="PAppStdPlugin"
+  fi
+  if test -f $CASROOT/$casdir/lib/libStdPlugin.so ; then
+    # this libraries are only for CASCADE 5.2.3
+    CAS_STDPLUGIN="StdPlugin"
+    CAS_OCAF="$CAS_OCAF -lStdPlugin -lStdLPlugin -lTKLCAF -lTKPLCAF -lTKStdLSchema"
+  fi
   
   CAS_VIEWER="$CAS_LDPATH -lTKOpenGl -lTKV3d -lTKService"
-  CAS_MODELER="$CAS_LDPATH -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBool -lTKHLR -lTKFillet -lTKOffset"
+  CAS_MODELER="$CAS_LDPATH -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBO -lTKBool -lTKHLR -lTKFillet -lTKOffset -lTKFeat"
 
   # E.A. compatibility version 4 and 5.x  
   CAS_DATAEXCHANGE="$CAS_LDPATH -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing"
