@@ -38,7 +38,17 @@ boolKeys = ( gui_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam
 # values of list type
 listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam )
 
-
+# return application version (uses GUI_ROOT_DIR (or KERNEL_ROOT_DIR in batch mode) +/bin/salome/VERSION)
+def version():
+    root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' )     # KERNEL_ROOT_DIR or "" if not found
+    root_dir = os.environ.get( 'GUI_ROOT_DIR', root_dir )  # GUI_ROOT_DIR or KERNEL_ROOT_DIR or "" if both not found
+    filename = root_dir+'/bin/salome/VERSION'
+    str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
+    match = re.search( r':\s+([\d\.]+)\s*$', str )
+    if match :
+        return match.group( 1 )
+    return ''
+    
 # -----------------------------------------------------------------------------
 
 ### xml reader for launch configuration file usage
@@ -147,7 +157,7 @@ for dir in dirs:
     _opts = p.opts
 
 # SalomeApprc file in user's catalogue
-filename = os.environ['HOME']+'/.'+appname+'rc'
+filename = os.environ['HOME']+'/.'+appname+'rc.'+version()
 try:
     p = xml_parser(filename, _opts)
 except:
