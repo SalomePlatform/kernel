@@ -78,7 +78,10 @@ QAD_XmlHandler::~QAD_XmlHandler()
 void QAD_XmlHandler::setMainWindow(QAD_Desktop* desktop)
 {
   myDesktop       = desktop;
-  myIdList        = TColStd_SequenceOfInteger();
+  // mpv: proting to the gcc 3.4.1 and OCC 5.3.2
+  //myIdList        = TColStd_SequenceOfInteger();
+  TColStd_SequenceOfInteger empty;
+  myIdList        = empty;
   myBackMenu      = true;
   myBackPopupMenus.setAutoDelete(false);
 }
