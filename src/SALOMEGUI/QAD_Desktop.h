@@ -236,7 +236,12 @@ protected slots:
     void              onPlot2d();
     void              onConsoleFontAction();
   //VRV: T2.5 - add default viewer
+#if (QT_VERSION >= 0x030303) // mpv: do not use Qt patch for Qt vewrsion >= 3.3.3
+    void	      onDefaultViewer( QAction * theAction);
+#else
+    void	      onDefaultViewer( QAction * theAction) {};
     void	      onDefaultViewer( QActionP * theAction);
+#endif
   //VRV: T2.5 - add default viewer
 
     void	      onViewerTrihedron();

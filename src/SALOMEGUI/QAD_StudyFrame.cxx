@@ -31,7 +31,9 @@
   \brief Frame window which contains QAD_LeftFrame and QAD_RightFrame.
 */
 
-#include "QAD_PyInterp.h"  // this include must be first (see PyInterp_base.h)!
+// mpv 28.02.2005: if Python 2.4 python includes must be first: it uses "slots" field, redefined in qt
+#include "QAD_PyInterp.h"
+
 #include "QAD_StudyFrame.h"
 #include "QAD_StudyFrame.h"
 #include "QAD_RightFrame.h"
@@ -64,7 +66,10 @@ QAD_StudyFrame::QAD_StudyFrame(QAD_Study* theStudy, QWidget* theParent,
   setPalette(QAD_Application::getPalette());
 
   mySplitter = new QAD_Splitter( Qt::Horizontal, this);
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
   mySplitter->setCompressEnabled( true );
+#endif
 
   setCentralWidget(mySplitter);
   myLeftFrm = new QAD_LeftFrame(myStudy->getStudyDocument(), mySplitter, theTitle );
@@ -134,40 +139,74 @@ void QAD_StudyFrame::closeEvent(QCloseEvent* e)
  */
 void QAD_StudyFrame::compressLeft()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
   if( h ) 
     h->compressBefore();
+
+#endif
 }
 
 void QAD_StudyFrame::compressRight()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
   if( h )
     h->compressAfter();
+
+#endif
 }
 
 void QAD_StudyFrame::unCompressLeft()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
   if( h )
     h->unCompressBefore();
+
+#endif
 }
 
 void QAD_StudyFrame::unCompressRight()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter(myLeftFrm);
   if( h )
     h->unCompressAfter();
+
+#endif
 }
 
 bool QAD_StudyFrame::isCompressedLeft() const
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   return mySplitter->isCompressed(myLeftFrm);
+
+#else
+  return false;
+#endif
 }
 
 bool QAD_StudyFrame::isCompressedRight() const
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   return mySplitter->isCompressed(myRightFrm);
+
+#else
+  return false;
+#endif
 }
 
 /*!

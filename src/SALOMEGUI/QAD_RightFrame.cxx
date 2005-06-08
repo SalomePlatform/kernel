@@ -26,13 +26,15 @@
 //  Module : SALOME
 //  $Header$
 
-#include "QAD_PyEditor.h"  // this include must be first (see PyInterp_base.h)!
+// mpv 28.02.2005: if Python 2.4 python includes must be first: it uses "slots" field, redefined in qt
+#include "QAD_PyInterp.h"
+
 #include "QAD_RightFrame.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include "QAD_StudyFrame.h"
 #include "QAD_Tools.h"
-#include "QAD_PyInterp.h"
+#include "QAD_PyEditor.h"
 
 #include <qvaluelist.h>
 
@@ -62,7 +64,10 @@ QAD_RightFrame::QAD_RightFrame(QWidget *theParent,
   myViewType(theTypeView),
   myInterp(theInterp)
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
   this->setCompressEnabled( true );
+#endif
 
   QAD_Desktop* Desktop = QAD_Application::getDesktop();
   int DesktopHeight = Desktop->getMainFrame()->width();
@@ -193,7 +198,10 @@ QAD_RightFrame::QAD_RightFrame(QWidget *theParent,
   myViewFrame->setMinimumSize( 1, 1 );
   mySplitter = new QAD_Splitter( Qt::Horizontal, this );
   mySplitter->setMinimumSize( 1, 1 );
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
   mySplitter->setCompressEnabled( true );
+#endif
 
   myPyEditor = new QAD_PyEditor(myInterp, theMutex, mySplitter ,"Python Interpreter");
   myPyEditor->setMinimumSize( 1, 1 );
@@ -252,9 +260,14 @@ QAD_PyEditor* QAD_RightFrame::getPyEditor() const
 */
 void QAD_RightFrame::compressUp()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = getHandleAfter(myViewFrame);
   if (h)
     h->compressBefore();
+
+#endif
 }
 
 /*!
@@ -262,9 +275,14 @@ void QAD_RightFrame::compressUp()
 */
 void QAD_RightFrame::unCompressUp()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = getHandleAfter(myViewFrame);
   if (h)
     h->unCompressBefore();
+
+#endif
 }
 
 /*!
@@ -272,9 +290,14 @@ void QAD_RightFrame::unCompressUp()
 */
 void QAD_RightFrame::compressBottom()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = getHandleAfter(myViewFrame);
   if (h)
     h->compressAfter();
+
+#endif
 }
 
 /*!
@@ -282,51 +305,95 @@ void QAD_RightFrame::compressBottom()
 */
 void QAD_RightFrame::unCompressBottom()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = getHandleAfter(myViewFrame);
   if (h)
     h->unCompressAfter();
+
+#endif
 }
 
 void QAD_RightFrame::compressLeft()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
   if( h )
     h->compressBefore();
+
+#endif
 }
 
 void QAD_RightFrame::compressRight()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
   if( h )
     h->compressAfter();
+
+#endif
 }
 
 void QAD_RightFrame::unCompressLeft()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
   if( h )
     h->unCompressBefore();
+
+#endif
 }
 
 void QAD_RightFrame::unCompressRight()
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
   QSplitterPHandle* h = mySplitter->getHandleAfter( getPyEditor() );
   if( h )
     h->unCompressAfter();
+
+#endif
 }
 
 bool QAD_RightFrame::isCompressedViewFrame() const
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
     return isCompressed( myViewFrame );
+#else
+    return false;
+#endif
 }
 
 bool QAD_RightFrame::isCompressedPython() const
 {
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
+
     return mySplitter->isCompressed( getPyEditor() );
+
+#else
+    return false;
+#endif
 }
 
 bool QAD_RightFrame::isCompressedMessage() const
 {
-    return mySplitter->isCompressed( getMessage() );
-}
+#if (QT_VERSION < 0x030303)
+// mpv: do not use patchqt for qt version >= 3.3.3
 
+    return mySplitter->isCompressed( getMessage() );
+
+#else
+    return false;
+#endif
+}

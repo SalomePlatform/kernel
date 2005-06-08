@@ -794,7 +794,11 @@ void QAD_Desktop::createActions()
     myStdActions.insert( DefaultPlot2dId, viewerPlot2dAction1 );
 
     myQAG->addTo( &myDefaultViewer );
-    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP * )), this, SLOT(onDefaultViewer(QActionP *) )));
+#if (QT_VERSION >= 0x030303) // mpv: do not use patches for QT version >= 3.3.3
+    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QAction* )), this, SLOT(onDefaultViewer(QAction*) )));
+#else
+    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP* )), this, SLOT(onDefaultViewer(QActionP *) )));
+#endif
     //VRV: T2.5 - add default viewer
 
     myPrefPopup.insertSeparator();
