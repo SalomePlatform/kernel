@@ -171,8 +171,11 @@ void Plot2d_ViewFrame::createActions()
   logXAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LOGARITHMIC_HOR" ) );
   logXAction->setToggleAction( true );
   myActions.insert( ModeXLogarithmicId, logXAction );
-  connect( modeHorGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onHorMode() ) );
-
+#if (QT_VERSION >= 0x030303) // mpv: do not use patches for qt version >= 3.3.3
+  connect( modeHorGrp, SIGNAL( selected( QAction * ) ), this, SLOT( onHorMode() ) );
+#else
+  connect( modeHorGrp, SIGNAL( selected( QActionP * ) ), this, SLOT( onHorMode() ) );
+#endif
   // Vertical axis
   QActionPGroup* modeVerGrp = new QActionPGroup( this );
   modeVerGrp->setExclusive( TRUE );
@@ -188,8 +191,11 @@ void Plot2d_ViewFrame::createActions()
   logYAction->setStatusTip ( tr( "PRP_PLOT2D_MODE_LOGARITHMIC_VER" ) );
   logYAction->setToggleAction( true );
   myActions.insert( ModeYLogarithmicId, logYAction );
+#if (QT_VERSION >= 0x030303) // mpv: do not use patches for qt version >= 3.3.3
+  connect( modeVerGrp, SIGNAL( selected( QAction* ) ), this, SLOT( onVerMode() ) );
+#else
   connect( modeVerGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onVerMode() ) );
-
+#endif
   /* Legend */
   QActionP* legendAction = new QActionP ( tr( "TOT_PLOT2D_SHOW_LEGEND"),
 				        rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_SHOW_LEGEND") ) ,
@@ -220,8 +226,11 @@ void Plot2d_ViewFrame::createActions()
   splinesAction->setStatusTip ( tr( "PRP_PLOT2D_CURVES_SPLINES" ) );
   splinesAction->setToggleAction( true );
   myActions.insert( CurveSplinesId, splinesAction );
+#if (QT_VERSION >= 0x030303) // mpv: do not use patches for qt version >= 3.3.3
+  connect( curveGrp, SIGNAL( selected( QAction* ) ), this, SLOT( onCurves() ) );
+#else
   connect( curveGrp, SIGNAL( selected( QActionP* ) ), this, SLOT( onCurves() ) );
-
+#endif
   // Settings
   QActionP* settingsAction = new QActionP ( tr( "TOT_PLOT2D_SETTINGS"),
 					  rmgr->loadPixmap( "SALOMEGUI", tr("ICON_PLOT2D_SETTINGS") ) ,
@@ -1252,9 +1261,11 @@ void Plot2d_ViewFrame::setMarkerSize( const int size, bool update )
 	QwtSymbol aSymbol = crv->symbol();
 	aSymbol.setSize( myMarkerSize, myMarkerSize );
 	crv->setSymbol( aSymbol );
+#if QWT_VERSION < 0x040200 // mpv: porting to the QWT 4.2.0
 	int legendIndex = myPlot->getLegend()->findFirstKey( keys[i] );
 	if ( legendIndex != myPlot->getLegend()->itemCnt() )
 	  myPlot->getLegend()->setSymbol( legendIndex, aSymbol );
+#endif
       }
     }
     if ( update )

@@ -203,7 +203,15 @@ public:
 
   void       replot();
   void       getNextMarker( QwtSymbol::Style& typeMarker, QColor& color, Qt::PenStyle& typeLine );
-  QwtLegend* getLegend() { return d_legend; }
+
+
+  QwtLegend* getLegend() { 
+#if QWT_VERSION < 0x040200
+    return d_legend;
+#else
+   return legend(); /* mpv: porting to QWT 4.2.0 */
+#endif
+  }
 
 protected:
   bool       existMarker( const QwtSymbol::Style typeMarker, const QColor& color, const Qt::PenStyle typeLine );
