@@ -28,4 +28,5 @@
 
 //%include "SALOME_NamingService.i"
 %include "SALOMEGUI_Swig.i"
+%include "libSALOME_Comm.i"
 
