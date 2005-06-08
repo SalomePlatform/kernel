@@ -30,7 +30,7 @@
 #define VTKViewer_Algorithm_H
 
 class vtkActor;
-class vtkActorCollection;
+#include <vtkActorCollection.h>
 
 namespace SALOME{
   namespace VTK{
