@@ -43,6 +43,18 @@
 #ifndef QSPLITTERP_H
 #define QSPLITTERP_H
 
+#include <qglobal.h>
+#if (QT_VERSION >= 0x030303)
+
+#include <qsplitter.h>
+// mpv: do not use patches for qt version >= 3.3.3
+#define QSplitterPHandle QSplitterHandle
+#define QSplitterPData QSplitterData
+#define QSplitterPLayoutStruct QSplitterLayoutStruct
+#define QSplitterP QSplitter
+
+#else
+
 #ifndef QT_H
 #include <qframe.h>
 #include <qvaluelist.h>
@@ -211,5 +223,6 @@ private:
     QPushButton* unright;
 };
 
+#endif
 
 #endif // QSPLITTERP_H

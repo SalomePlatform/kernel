@@ -43,6 +43,10 @@
 
 #include "qactionP.h"
 
+#if (QT_VERSION < 0x030303)
+
+#include "qactionP_moc.cxx"
+
 #ifndef QT_NO_ACTION
 
 #include <qtoolbar.h>
@@ -1776,5 +1780,7 @@ void QActionPGroup::addedTo( int index, QPopupMenu *menu )
     Q_UNUSED( index );
     Q_UNUSED( menu );
 }
+
+#endif
 
 #endif

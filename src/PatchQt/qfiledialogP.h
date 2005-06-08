@@ -44,6 +44,17 @@
 #ifndef QFILEDIALOGP_H
 #define QFILEDIALOGP_H
 
+#include <qglobal.h>
+#if (QT_VERSION >= 0x030303)
+
+#include <qfiledialog.h>
+// mpv: do not use patches for qt version >= 3.3.3
+#define QFileIconProviderP QFileIconProvider
+#define QFilePreviewP QFilePreview
+#define QFileDialogP QFileDialog
+
+#else
+
 class QPushButton;
 class QButton;
 class QLabel;
@@ -67,11 +78,6 @@ class QFileDialogQFileListView;
 #include "qlistview.h"
 #include "qlineedit.h"
 #endif // QT_H
-
-#if QT_VERSION > 0x030005
-#include <qfiledialog.h>
-#define QFileDialogP QFileDialog
-#else
 
 #ifndef QT_NO_FILEDIALOG
 
@@ -530,6 +536,6 @@ private:
 
 #endif
 
-#endif // QT_VERSION
+#endif
 
 #endif // QFILEDIALOG_H

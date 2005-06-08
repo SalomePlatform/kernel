@@ -50,6 +50,10 @@
 
 #include "qfiledialogP.h"
 
+#if (QT_VERSION < 0x030303)
+
+#include "qfiledialogP_moc.cxx"
+
 #ifndef QT_NO_FILEDIALOG
 
 #include "qlineedit.h"
@@ -5974,5 +5978,7 @@ QFilePreviewP::QFilePreviewP()
   for the \a url should be shown. Reimplement this
   function to provide file previewing.
 */
+
+#endif
 
 #endif

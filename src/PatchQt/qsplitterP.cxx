@@ -42,13 +42,17 @@
 **********************************************************************/
 
 #include "qsplitterP.h"
+
+#if (QT_VERSION < 0x030303)
+
+#include "qsplitterP_moc.cxx"
+
 #ifndef QT_NO_COMPLEXWIDGETS
 
 #include <qglobal.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qbitmap.h>
-#include <qlayout.h>
 #include <private/qlayoutengine_p.h>
 #if QT_VERSION < 300
   #include <qlist.h>
@@ -1402,3 +1406,5 @@ void QSplitterP::updateSplitterHandles() const {
 	s = data->list.next();
     }
 }
+
+#endif

@@ -44,6 +44,18 @@
 #ifndef QACTIONP_H
 #define QACTIONP_H
 
+#include <qglobal.h>
+#if (QT_VERSION >= 0x030303)
+
+// mpv: do not use patches for qt version >= 3.3.3
+#include <qaction.h>
+#define QActionPPrivate QActionPrivate
+#define QActionPGroupPrivate QActionGroupPrivate
+#define QActionPGroup QActionGroup
+#define QActionP QAction
+
+#else
+
 #ifndef QT_H
 #include <qobject.h>
 #include <qiconset.h>
@@ -52,12 +64,6 @@
 #endif // QT_H
 
 #ifndef QT_NO_ACTION
-
-#if QT_VERSION > 0x030005
-#include <qaction.h>
-#define QActionP QAction
-#define QActionPGroup QActionGroup
-#else
 
 class QActionPPrivate;
 class QActionPGroupPrivate;
@@ -190,6 +196,6 @@ public:
 
 #endif
 
-#endif // QT_VERSION
+#endif
 
 #endif

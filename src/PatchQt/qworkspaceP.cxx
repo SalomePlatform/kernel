@@ -43,6 +43,10 @@
 
 #include "qworkspaceP.h"
 
+#if (QT_VERSION < 0x030303)
+
+#include "qworkspaceP_moc.cxx"
+
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qlayout.h>
@@ -3402,3 +3406,4 @@ QSize QTitleBarP::sizeHint() const
     return QSize( menur.width(), style().pixelMetric( QStyle::PM_TitleBarHeight, this ) );
 }
 
+#endif

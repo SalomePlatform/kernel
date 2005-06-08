@@ -44,6 +44,20 @@
 #ifndef QWORKSPACEP_H
 #define QWORKSPACEP_H
 
+#include <qglobal.h>
+#if (QT_VERSION >= 0x030303)
+
+#include <qworkspace.h>
+// mpv: do not use patches for qt version >= 3.3.3
+#define QWorkspacePChild QWorkspaceChild
+#define QWorkspacePPrivate QWorkspacePrivate
+#define QWidgetResizeHandlerP QWidgetResizeHandler
+#define QTitleBarP QTitleBar
+#define QWorkspaceP QWorkspace
+#define QTitleBarPPrivate QTitleBarPrivate
+
+#else
+
 #ifndef QT_H
 #include <qobject.h>
 #include <qwidget.h>
@@ -53,11 +67,6 @@
 #include <qbutton.h>
 #include <qlabel.h>
 #endif // QT_H
-
-#if QT_VERSION > 0x030005
-#include <qworkspace.h>
-#define QWorkspaceP QWorkspace
-#else
 
 class QWorkspacePChild;
 class QShowEvent;
@@ -355,5 +364,6 @@ private:
 
     QTitleBarPPrivate *d;
 };
-#endif // QT_VERSION
+#endif
+
 #endif // QWORKSPACEP_H
