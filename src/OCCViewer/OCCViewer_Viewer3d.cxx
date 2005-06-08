@@ -796,8 +796,13 @@ void OCCViewer_Viewer3d::localSelectionDone( const bool /*bAdded*/ )
     }
     else
     {
-      aMapsOfShapes.Bind( anObj, TopTools_IndexedMapOfShape() );
-      aMapsOfIndexes.Bind( anObj, TColStd_MapOfInteger() );
+      // mpv: proting to gcc 3.4.1 and OCC 5.2.3
+      //aMapsOfShapes.Bind( anObj, TopTools_IndexedMapOfShape() );
+      //aMapsOfIndexes.Bind( anObj, TColStd_MapOfInteger() );
+      TopTools_IndexedMapOfShape empty1;
+      aMapsOfShapes.Bind( anObj, empty1 );
+      TColStd_MapOfInteger empty2;
+      aMapsOfIndexes.Bind( anObj, empty2 );
     }
   }
 
