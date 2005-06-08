@@ -8,94 +8,82 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../..
+top_builddir=@top_builddir@
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
 
 @COMMENCE@
 
-# PyQt
-# PYQT_SIPS defined in make_commence.in
+# small trick for Mandrake-10.1: PyQt 3.13 does not support Qt 3.3.3
+ifeq ($(QT_VERS),Qt_3_3_3)
+QT_VERS = Qt_3_3_0
+endif
 
-# SIP C++ Python
-# SIP defined in make_commence.in
-#SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
+# Sip flags
+SIP_FLAGS = -t WS_X11 -t $(QT_VERS) -s ".cc" -c . -I $(PYQT_SIPS)
+# Sip common sources
+SIP_SRC = sipSalomePyQtSalomePyQt.cc \
+	  sipSalomePyQtSALOME_Selection.cc
 
+# Sip version-specific sources
+ifeq ($(SIP_VERS),v4)
+SIP_SRC  += sipSalomePyQtcmodule.cc
+else
+SIP_SRC  += SalomePyQtcmodule.cc
+endif
 
-# SIP input file(s)
+# Sip/moc sources
+ifeq ($(SIP_VERS),v4)
+MOC_SRC   = sipSalomePyQtcmodule_moc.cxx
+MOC_H     = sipSalomePyQtcmodule.h
+else 
+ifeq ($(SIP_VERS),v3_new)
+MOC_SRC   = SalomePyQtcmodule_moc.cxx
+MOC_H     = SalomePyQtcmodule.h
+else
+MOC_SRC   = sipSalomePyQtProxySalomePyQt_moc.cxx
+MOC_H     = sipSalomePyQtProxySalomePyQt.h
+endif
+endif
 
-#SIP_FILES = SalomePyQt.sip
-
-# SIP-generated C++ source files (corresponding line should be added for each wrapped class 
-# contained by SalomePyQt module)
-#SIP_SRC=$(CURDIR)/SalomePyQtcmodule.cc \
-#	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
-#	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
-
-ifeq ($(SIP_VERS),v4_1)
-SIP_FLAGS    = -t WS_X11 -t Qt_3_3_0 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
-SIP_SRC=$(CURDIR)/sipSalomePyQtcmodule.cc \
-	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
-	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
-MOC_SRC = sipSalomePyQtcmodule_moc.cxx
-MOC_H = sipSalomePyQtcmodule.h
+# Sip definition files
+ifeq ($(SIP_VERS),v4)
 SIP_FILES = SalomePyQt_v4.sip
-#LDFLAGS+= -lSalomeGUI 
-#LDFLAGS+= -lSalomeGUI -module
-LDFLAGS+= -shared -lSalomeGUI
+else
+SIP_FILES = SalomePyQt.sip
+endif 
 
 # Libraries targets
+ifeq ($(SIP_VERS),v4)
 LIB = SalomePyQt.so
 else
-ifeq ($(SIP_VERS),new2)
-SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
-SIP_SRC=$(CURDIR)/SalomePyQtcmodule.cc \
-	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
-	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
-MOC_SRC = SalomePyQtcmodule_moc.cxx
-MOC_H = SalomePyQtcmodule.h
-SIP_FILES = SalomePyQt.sip
-LDFLAGS+= -lSalomeGUI -lqtcmodule
-
-# Libraries targets
 LIB = libSalomePyQtcmodule.la
+endif 
 
-EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
-else
-SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
-SIP_SRC=$(CURDIR)/SalomePyQtcmodule.cc \
-	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
-	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
-MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
-MOC_H = sipSalomePyQtProxySalomePyQt.h
-SIP_FILES = SalomePyQt.sip
-LDFLAGS+= -lSalomeGUI -lqtcmodule
-
-# Libraries targets
-LIB = libSalomePyQtcmodule.la
-
+# Exported python scripts
+ifneq ($(SIP_VERS),v4)
 EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
 endif
-endif
 
-LIB_SRC += SalomePyQt.cxx SALOME_PYQT_GUI.cxx $(SIP_SRC) $(MOC_SRC) 
-LIB_MOC = SALOME_PYQT_GUI.h
+# Library sources
+LIB_SRC = SalomePyQt.cxx \
+          $(SIP_SRC)     \
+          $(MOC_SRC) 
 
-#LIB_MOC += sipSalomePyQtProxySalomePyQt.h
+# Library moc sources
+LIB_MOC =
 
-#EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
+# Client IDL
+LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_GenericObj.idl
 
-LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_ContainerManager.idl
-
-CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES)
-LIBS+= $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
-#LDFLAGS+= -lSalomeGUI -lqtcmodule
-#LDFLAGS+= -lSalomeGUI 
-
+# Compilation/linkage flags
+CPPFLAGS += $(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) $(BOOST_CPPFLAGS) -DHAVE_CONFIG_H -I${KERNEL_ROOT_DIR}/include/salome
+LIBS     += $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
+#LDFLAGS  += -lsuit -lCAM -lstd -lqtx -lSalomeApp -lEvent -lLogWindow -lVTKViewer -lToolsGUI -L${KERNEL_ROOT_DIR}/lib/salome -lSalomeDS
+LDFLAGS += -lVTKViewer -lToolsGUI -L${KERNEL_ROOT_DIR}/lib/salome -lSalomeDS
 
 # Custom build step: generate C++ wrapping according to $(SIP_FILES)
-
 $(SIP_SRC): $(SIP_FILES)
 	$(SIP) $(SIP_FLAGS) $<
 
