@@ -78,12 +78,12 @@ namespace MED{
 
     operator const T& () const 
     { 
-      return *get();
+      return *(this->get());
     }
 
     operator T& () 
     { 
-      return *get();
+      return *(this->get());
     }
   };
 
@@ -143,7 +143,7 @@ namespace MED{
     
     typename TSupperClass::TValue& operator[](size_t theId)
     {
-      return myContainer[GetID(theId)];
+      return myContainer[this->GetID(theId)];
     }
   };
   
