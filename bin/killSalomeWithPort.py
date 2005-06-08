@@ -3,7 +3,7 @@ import os, sys, pickle, signal, commands
 
 ########## kills all salome processes with the given port ##########
 def killMyPort(port):
-    filedict='/tmp/'+os.getenv('USER')+"_"+port+'_SALOME_pidict'
+    filedict=os.getenv("HOME")+'/'+os.getenv('USER')+"_"+port+'_SALOME_pidict'
     found = 0
     try:
         fpid=open(filedict, 'r')

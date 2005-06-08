@@ -674,7 +674,7 @@ def useSalome(args, modules_list, modules_root_dir):
         
     #print process_id
     
-    filedict = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
+    filedict = os.getenv("HOME") + '/' + os.getenv('USER') + "_" + str(args['port']) \
              + '_' + args['appname'].upper() + '_pidict'
    
     process_ids = []
