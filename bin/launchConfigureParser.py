@@ -140,7 +140,7 @@ try:
   s = file.read()
   while len(s):
     l = string.split(s, ":")
-    if string.split(l[0], " ")[0] == "ORBInitRef":
+    if string.split(l[0], " ")[0] == "ORBInitRef" or string.split(l[0], " ")[0] == "InitRef" :
       my_port = int(l[len(l)-1])
       pass
     s = file.read()
