@@ -35,7 +35,11 @@ depend:.depend
 # we had Makefile target, because we want Makefile rebuild before include .depend
 .depend: $(LIB_DEP) $(TEST_SRC) $(BIN_DEP)
 	@touch .depend
-	@for dep in X $? ; do						      \
+	@# mpv: we have to screen substituted sed paths ('.' symbols are intrpreted by sed as 'any' symbol)
+	@sed_srcdir=`echo $(srcdir) | sed "s%\.%\\\\\.%g"`;                   \
+	sed_top_srcdir=`echo $(top_srcdir) | sed "s%\.%\\\\\.%g"`;            \
+	sed_top_builddir=`echo $(top_builddir) | sed "s%\.%\\\\\.%g"`;        \
+	for dep in X $? ; do						      \
 	   if [ $$dep != "X" ]; then					      \
 	   if [ $$dep != "Makefile" ]; then				      \
 	      case "$$dep" in						      \
@@ -44,9 +48,9 @@ depend:.depend
 	            obj=`basename $$dep .c`.lo;				      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CC) $(C_DEPEND_FLAG) $(CPPFLAGS) $$dep 2>/dev/null |    \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed "s% $$sed_srcdir/% \$$\(srcdir)/%g" |	      \
+                        sed "s% $$sed_top_srcdir/% \$$\(top_srcdir\)/%g" |    \
+                        sed "s% $$sed_top_builddir/% \$$\(top_builddir\)/%g" | \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	         *.cc)							      \
@@ -54,9 +58,9 @@ depend:.depend
 	            obj=`basename $$dep .cc`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed "s% $$sed_srcdir/% \$$\(srcdir)/%g" |	      \
+                        sed "s% $$sed_top_srcdir/% \$$\(top_srcdir\)/%g" |    \
+                        sed "s% $$sed_top_builddir/% \$$\(top_builddir\)/%g" | \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	         *.cxx)							      \
@@ -64,9 +68,9 @@ depend:.depend
 	            obj=`basename $$dep .cxx`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed "s% $$sed_srcdir/% \$$\(srcdir)/%g" |	      \
+                        sed "s% $$sed_top_srcdir/% \$$\(top_srcdir\)/%g" |    \
+                        sed "s% $$sed_top_builddir/% \$$\(top_builddir\)/%g" | \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	      esac;							      \
@@ -79,5 +83,3 @@ depend:.depend
 
 # idl depend
 -include $(top_builddir)/idl/.depidl
-
-
