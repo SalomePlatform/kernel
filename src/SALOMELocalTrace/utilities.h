@@ -52,8 +52,8 @@
 
 #define MESS_INIT(deb) std::ostringstream os; os<<deb
 #define MESS_BEGIN(deb) MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
-#define MESS_END endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
-#define MESS_ABORT endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
+#define MESS_END std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
+#define MESS_ABORT std::endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
 
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
