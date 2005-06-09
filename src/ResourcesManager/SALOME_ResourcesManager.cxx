@@ -222,7 +222,16 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
       system(commandRcp.c_str());
     }
   else if(resInfo.Protocol==ssh)
-    command = "ssh ";
+    {
+      command = "ssh ";
+      string commandScp="scp ";
+      commandScp+=_TmpFileName;
+      commandScp+=" ";
+      commandScp+=machine;
+      commandScp+=":";
+      commandScp+=_TmpFileName;
+      system(commandScp.c_str());
+    }
   else
     throw SALOME_Exception("Unknown protocol");
   command+=machine;
