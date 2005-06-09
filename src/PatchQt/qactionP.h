@@ -64,6 +64,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_ACTION
+#include <qaction.h> // mpv: for QAD_Desktop compilability
 
 class QActionPPrivate;
 class QActionPGroupPrivate;
