@@ -55,6 +55,11 @@ else
    LXLIB=""
 fi
 
+if test "x$x_libraries" = "x/usr/lib"
+then
+   LXLIB=""
+fi
+
 LOCAL_INCLUDES="$OGL_INCLUDES"
 LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS $LXLIB -lX11 -lXt"
 TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS $LXLIB -lX11 -lXt"

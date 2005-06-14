@@ -19,6 +19,9 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 ifeq ($(QT_VERS),Qt_3_3_3)
 QT_VERS = Qt_3_3_0
 endif
+ifeq ($(QT_VERS),Qt_3_3_4)
+QT_VERS = Qt_3_3_0
+endif
 
 # Sip flags
 SIP_FLAGS = -t WS_X11 -t $(QT_VERS) -s ".cc" -c . -I $(PYQT_SIPS)

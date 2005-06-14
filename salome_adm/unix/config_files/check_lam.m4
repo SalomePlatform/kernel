@@ -41,7 +41,12 @@ if test "$WITHLAM" = yes; then
 
   if test "$LAM_HOME"; then
     MPI_INCLUDES="-I$LAM_HOME/include"
-    MPI_LIBS="-L$LAM_HOME/lib"
+    if test "x$LAM_HOME" = "x/usr"
+    then
+      MPI_LIBS=""
+    else
+      MPI_LIBS="-L$LAM_HOME/lib"
+    fi
   fi
 
   CPPFLAGS_old="$CPPFLAGS"

@@ -43,7 +43,12 @@ AC_DEFUN([CHECK_LSF],
  
    dnl LIB directory
 
-   LSF_LDFLAGS="-L${LSF_LIBDIR}"
+   if test "x${LSF_LIBDIR}" = "x/usr/lib"
+   then
+     LSF_LDFLAGS=""
+   else
+     LSF_LDFLAGS="-L${LSF_LIBDIR}"
+   fi
    LSF_LIBS=""
    saved_LDFLAGS=${LDFLAGS}
    saved_LIBS=${LIBS}

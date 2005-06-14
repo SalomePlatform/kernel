@@ -30,7 +30,12 @@ AC_DEFUN([CHECK_OPENPBS],
    CPPFLAGS=${saved_CPPFLAGS}
    AC_SUBST(OPENPBS_INCLUDES)
  
-   OPENPBS_LIBDIR="-L${OPENPBS}/lib"
+   if test "x${OPENPBS}" = "x/usr"
+   then
+     OPENPBS_LIBDIR=""
+   else
+     OPENPBS_LIBDIR="-L${OPENPBS}/lib"
+   fi
    OPENPBS_LIBS="-lpbs"
    saved_LDFLAGS=${LDFLAGS}
    saved_LIBS=${LIBS}

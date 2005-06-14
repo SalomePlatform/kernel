@@ -48,7 +48,12 @@ then
    AC_MSG_WARN(undefined HDF5HOME variable which specify hdf5 installation directory)
 else
    LOCAL_INCLUDES="-I$HDF5HOME/include"
-   LOCAL_LIBS="-L$HDF5HOME/lib"
+   if test "x$HDF5HOME" = "x/usr"
+   then
+      LOCAL_LIBS=""
+   else
+      LOCAL_LIBS="-L$HDF5HOME/lib"
+   fi
 fi
 
 dnl hdf5 headers

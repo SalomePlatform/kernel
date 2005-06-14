@@ -89,11 +89,21 @@ else
         dnl look for (lib)sip.so in ${SIPDIR}
         AC_CHECK_FILE(${SIPDIR}/libsip.so,sip_lib_ok=yes,sip_lib_ok=no)
 	if test "x$sip_lib_ok" == "xyes" ; then
-	    SIP_LIBS="-L${SIPDIR} -lsip"
+            if test "x${SIPDIR}" = "x/usr/lib"
+            then
+              SIP_LIBS="-lsip"
+            else
+              SIP_LIBS="-L${SIPDIR} -lsip"
+            fi
 	else
 	    AC_CHECK_FILE(${SIPDIR}/sip.so,sip_lib_ok=yes,sip_lib_ok=no)
 	    if test "x$sip_lib_ok" == "xyes" ; then
-	        SIP_LIBS="-L${SIPDIR}"
+              if test "x${SIPDIR}" = "x/usr/lib"
+              then
+                SIP_LIBS=""
+              else
+                SIP_LIBS="-L${SIPDIR}"
+              fi
 	    fi
 	fi
 
