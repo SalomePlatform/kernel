@@ -112,7 +112,7 @@ LIB_SRC =	  SALOMEDSImpl_Tool.cxx \
 		  SALOMEDSImpl_StudyBuilder.cxx \
 		  SALOMEDSImpl_Study.cxx \
 		  SALOMEDSImpl_StudyManager.cxx
-		  
+
 
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
@@ -126,7 +126,7 @@ LDFLAGS+= $(HDF5_LIBS) -lSalomeHDFPersist $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSc
 #
 LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
 LDFLAGS+=$(LDXMUFLAGS)
-
+LDFLAGSFORBIN=$(LDFLAGS) -lSalomeHDFPersist
 
 @CONCLUDE@
 

@@ -106,7 +106,7 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTextHighlightColor.cxx \
 		  SALOMEDS_AttributeTreeNode.cxx \
 		  SALOMEDS_AttributeUserID.cxx
-		  
+
 
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client
@@ -132,7 +132,7 @@ LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOME
 #
 LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
 LDFLAGS+=$(LDXMUFLAGS)
-LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector 
+LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector -lSalomeContainer -lSalomeResourcesManager
 
 @CONCLUDE@
 

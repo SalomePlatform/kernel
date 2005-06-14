@@ -84,11 +84,21 @@ if test "x${PYQTDIR}" != "x"; then
   dnl try {PYQTDIR}
   AC_CHECK_FILE(${PYQTDIR}/libqtcmodule.so,pyqt_lib_ok=yes,pyqt_lib_ok=no)
   if test "x$pyqt_lib_ok" == "xyes"; then
-    PYQT_LIBS="-L${PYQTDIR} -lqtcmodule"
+    if test "x${PYQTDIR}" = "x/usr/lib"
+    then
+      PYQT_LIBS="-lqtcmodule"
+    else
+      PYQT_LIBS="-L${PYQTDIR} -lqtcmodule"
+    fi
   else 
     AC_CHECK_FILE(${PYQTDIR}/qt.so,pyqt_lib_ok=yes,pyqt_lib_ok=no)
     if test "x$pyqt_lib_ok" == "xyes"; then
-      PYQT_LIBS="-L${PYQTDIR}"
+      if test "x${PYQTDIR}" = "x/usr/lib"
+      then
+        PYQT_LIBS=""
+      else
+        PYQT_LIBS="-L${PYQTDIR}"
+      fi
     fi
   fi
   if test "x$pyqt_lib_ok" == "xno"; then
@@ -126,11 +136,21 @@ if test "x$pyqt_lib_ok" == "xno"; then
     if test -d ${SIPDIR} ; then
       AC_CHECK_FILE(${SIPDIR}/libqtcmodule.so,pyqt_lib_ok=yes,pyqt_lib_ok=no)
       if test "x$pyqt_lib_ok" == "xyes"; then
-        PYQT_LIBS="-L${SIPDIR} -lqtcmodule"
+        if test "x${SIPDIR}" = "x/usr/lib"
+        then
+          PYQT_LIBS="-lqtcmodule"
+        else
+          PYQT_LIBS="-L${SIPDIR} -lqtcmodule"
+        fi
       else 
         AC_CHECK_FILE(${SIPDIR}/qt.so,pyqt_lib_ok=yes,pyqt_lib_ok=no)
         if test "x$pyqt_lib_ok" == "xyes"; then
-          PYQT_LIBS="-L${SIPDIR}"
+          if test "x${SIPDIR}" = "x/usr/lib"
+          then
+            PYQT_LIBS=""
+          else
+            PYQT_LIBS="-L${SIPDIR}"
+          fi
         fi
       fi
     fi

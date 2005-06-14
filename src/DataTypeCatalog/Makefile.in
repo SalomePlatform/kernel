@@ -55,5 +55,5 @@ BIN_SERVER_IDL = SALOME_DataTypeCatalog.idl
 CPPFLAGS+= $(QT_MT_INCLUDES) 
 CXXFLAGS+= 
 LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
-
+LDFLAGSFORBIN+= -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
 @CONCLUDE@

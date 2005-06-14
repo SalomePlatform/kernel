@@ -41,7 +41,12 @@ if test "$WITHMPICH" = yes; then
 
   if test "$MPICH_HOME"; then
     MPI_INCLUDES="-I$MPICH_HOME/include"
-    MPI_LIBS="-L$MPICH_HOME/lib"
+    if test "x$MPICH_HOME" = "x/usr"
+    then
+      MPI_LIBS=""
+    else
+      MPI_LIBS="-L$MPICH_HOME/lib"
+    fi
   fi
 
   CPPFLAGS_old="$CPPFLAGS"

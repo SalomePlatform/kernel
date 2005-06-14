@@ -59,7 +59,12 @@ fi
 if test ! -z $MED2HOME
 then
    LOCAL_INCLUDES="$LOCAL_INCLUDES -I$MED2HOME/include"
-   LOCAL_LIBS="-L$MED2HOME/lib $LOCAL_LIBS"
+   if test "x$MED2HOME" = "x/usr"
+   then
+     LOCAL_LIBS="-lmed  $LOCAL_LIBS"
+   else
+     LOCAL_LIBS="-L$MED2HOME/lib $LOCAL_LIBS"
+   fi
 fi
 
 dnl check med2 header

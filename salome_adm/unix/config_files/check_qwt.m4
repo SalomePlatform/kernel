@@ -64,7 +64,7 @@ else
    AC_LANG_CPLUSPLUS
    CPPFLAGS_old=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS -I$QWT_INCLUDES"
-   CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
+   CPPFLAGS="$CPPFLAGS $QT_INCLUDES"
 
    AC_CHECK_HEADER(qwt.h,qwt_ok=yes,qwt_ok=no) 
 
@@ -81,10 +81,21 @@ if  test "x$qwt_ok" = "xyes"
 then
   AC_MSG_CHECKING(linking qwt library)
   LIBS_old=$LIBS
-  LIBS="$LIBS -L$QTDIR/lib -lqt-mt -L$QWTHOME/lib -lqwt"
+  if test "x$QTDIR" = "x/usr"
+  then
+    LIBS="$LIBS -lqt-mt"
+  else
+    LIBS="$LIBS -L$QTDIR/lib -lqt-mt"
+  fi
+  if test "x$QWTHOME" = "x/usr/lib"
+  then
+    LIBS="$LIBS -lqwt"
+  else
+    LIBS="$LIBS -L$QWTHOME/lib -lqwt"
+  fi
 
   CXXFLAGS_old=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS -I$QTDIR/include -I$QWT_INCLUDES"
+  CXXFLAGS="$CXXFLAGS $QT_INCLUDES -I$QWT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qwt,[
     AC_TRY_LINK(
@@ -106,7 +117,12 @@ then
     AC_MSG_RESULT(QWTHOME environment variable may be wrong)
   else
     QWT_INCLUDES="-I$QWT_INCLUDES"
-    QWT_LIBS="-L$QWTHOME/lib -lqwt"
+    if test "x$QWTHOME" = "x/usr/lib"
+    then
+      QWT_LIBS=" -lqwt"
+    else
+      QWT_LIBS="-L$QWTHOME/lib -lqwt"
+    fi
 
     AC_SUBST(QWT_INCLUDES)
     AC_SUBST(QWT_LIBS)

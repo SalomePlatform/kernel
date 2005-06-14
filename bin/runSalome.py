@@ -632,7 +632,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
     #
-    # Attente de la disponibilité du Session Server dans le Naming Service
+    # Attente de la disponibilite du Session Server dans le Naming Service
     #
 
     import SALOME
