@@ -60,8 +60,10 @@ endif
 # Libraries targets
 ifeq ($(SIP_VERS),v4)
 LIB = SalomePyQt.so
+LDFLAGS+=-shared -lSalomeGUI
 else
 LIB = libSalomePyQtcmodule.la
+LDFLAGS+=-lSalomeGUI -lqtcmodule
 endif 
 
 # Exported python scripts
@@ -71,11 +73,12 @@ endif
 
 # Library sources
 LIB_SRC = SalomePyQt.cxx \
+	  SALOME_PYQT_GUI.cxx \
           $(SIP_SRC)     \
           $(MOC_SRC) 
 
 # Library moc sources
-LIB_MOC =
+LIB_MOC = SALOME_PYQT_GUI.h
 
 # Client IDL
 LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_GenericObj.idl
@@ -84,7 +87,8 @@ LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_GenericObj.idl
 CPPFLAGS += $(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) $(BOOST_CPPFLAGS) -DHAVE_CONFIG_H -I${KERNEL_ROOT_DIR}/include/salome
 LIBS     += $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
 #LDFLAGS  += -lsuit -lCAM -lstd -lqtx -lSalomeApp -lEvent -lLogWindow -lVTKViewer -lToolsGUI -L${KERNEL_ROOT_DIR}/lib/salome -lSalomeDS
-LDFLAGS += -lVTKViewer -lToolsGUI -L${KERNEL_ROOT_DIR}/lib/salome -lSalomeDS
+#_CS_gboLDFLAGS += -lVTKViewer -lToolsGUI -L${KERNEL_ROOT_DIR}/lib/salome -lSalomeDS
+LDFLAGS += -lVTKViewer -lToolsGUI -lSalomeDS
 
 # Custom build step: generate C++ wrapping according to $(SIP_FILES)
 $(SIP_SRC): $(SIP_FILES)
