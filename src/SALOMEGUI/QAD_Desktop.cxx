@@ -3353,7 +3353,7 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 #ifdef WNT
 	dir = dir + "libSalomePyQtcmodule.dll" ;
 #else
-#ifdef SIP_VERS_v4_1
+#ifdef SIP_VERS_v4
 	dir = dir + "SalomePyQt.so" ;
 #else
 	dir = dir + "libSalomePyQtcmodule.so" ;
