@@ -47,6 +47,9 @@ if test -z $QWTHOME; then
   if test "x$exits_ok" = "xyes"; then
      if test -z $QWT_INCLUDES; then
         QWT_INCLUDES=$QWTHOME"/include/qwt"
+	if test ! -d $QWTHOME"/include/qwt" ; then
+          QWT_INCLUDES=$QWTHOME"/include"
+	fi
      fi
   fi
 else

@@ -67,9 +67,21 @@ TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS $LXLIB -lX11 -lXt"
 if test -z $VTKHOME
 then 
    AC_MSG_WARN(undefined VTKHOME variable which specify where vtk was compiled)
-else
+   if test -f /usr/include/vtk/vtkPlane.h ; then
+      AC_MSG_RESULT(trying /usr)
+      VTKHOME="/usr"
+   fi
+fi
+
+if test ! -z $VTKHOME
+then
    LOCAL_INCLUDES="-I$VTKHOME/include/vtk $LOCAL_INCLUDES"
    LOCAL_LIBS="-L$VTKHOME/lib/vtk $LOCAL_LIBS"
+   dnl E.A. : On mandrake 10.2 with vtk4.4, the libvtk*Python.so
+   dnl E.A. : are separated ...
+   if test -d $VTKHOME/lib/vtk/python ; then
+      LOCAL_LIBS="-L$VTKHOME/lib/vtk/python $LOCAL_LIBS"
+   fi
    TRY_LINK_LIBS="-L$VTKHOME/lib/vtk $TRY_LINK_LIBS"
 fi
 
