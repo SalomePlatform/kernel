@@ -589,7 +589,7 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
 		dynamic_cast<Engines_Component_i*>
 		(_poa->reference_to_servant(iobject));
 	      ASSERT(servant)
-	      int studyId = servant->getStudyId(); 
+	      int studyId = servant->getStudyId();
 	      ASSERT (studyId >= 0);
 	      if (studyId == 0) // multiStudy instance, OK
 		{
@@ -701,7 +701,8 @@ Engines_Container_i::createInstance(string genericRegisterName,
       SCRUTE(aGenRegisterName);
       SCRUTE(_cntInstances_map[aGenRegisterName]);
       //SCRUTE(servant->pd_refCount);
-      ASSERT(servant->setStudyId(studyId));
+      bool ret_studyId = servant->setStudyId(studyId);
+      ASSERT(ret_studyId);
 
       // --- register the engine under the name
       //     containerName(.dir)/instanceName(.object)
