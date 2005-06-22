@@ -254,6 +254,8 @@ string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *c
   command+=containerName;
   command += "_";
   command += GetHostname();
+  command += "_";
+  command += getenv( "USER" ) ;
   command += ".log 2>&1 &" ;
   cout << "Command is ... " << command << endl << flush;
   return command;
