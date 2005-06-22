@@ -10,6 +10,7 @@ from import_hook import register_pattern
 
 register_name("qt")
 register_pattern(lambda(x):x.endswith("_idl"))
+register_pattern(lambda(x):x.endswith("_Swig"))
 
 register_name("omniORB")
 import omniORB
