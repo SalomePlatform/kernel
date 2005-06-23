@@ -10,9 +10,13 @@ from import_hook import register_pattern
 
 register_name("qt")
 register_pattern(lambda(x):x.endswith("_idl"))
+register_pattern(lambda(x):x.endswith("_Swig"))
 
 register_name("omniORB")
 import omniORB
+
+register_name("CosNaming")
+import CosNaming
 
 # Modify omniORB to use right sys.modules dictionnary 
 # with multi-interpreter feature

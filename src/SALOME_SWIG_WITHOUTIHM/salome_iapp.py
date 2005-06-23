@@ -24,7 +24,6 @@
 #  Module : SALOME
 #  $Header$
 
-from libSALOME_Swig import *
 import salome_ComponentGUI
 
     #--------------------------------------------------------------------------
@@ -54,9 +53,6 @@ def SalomeGUIgetAllSelected(self):
         listSelected.append(self.getSelected(i))
     return listSelected
 
-class SalomeGUI(SALOMEGUI_Swig):
-    getAllSelected = SalomeGUIgetAllSelected
-    
     #--------------------------------------------------------------------------
 
 salome_iapp_initial = 1
@@ -67,8 +63,12 @@ def salome_iapp_init():
 
     if salome_iapp_initial:
         salome_iapp_initial=0
+        import libSALOME_Swig
         
+        class SalomeGUI(libSALOME_Swig.SALOMEGUI_Swig):
+            getAllSelected = SalomeGUIgetAllSelected
+
         # create a SALOMEGUI_Swig instance
         sg = SalomeGUI()
-        IN_SALOME_GUI=sg.hasDesktop()
+        IN_SALOME_GUI = sg.hasDesktop()
     return sg
