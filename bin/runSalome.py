@@ -348,23 +348,23 @@ class LoggerServer(Server):
 
 # ---
 
-class SessionLoader(Server):
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-        self.CMD=['SALOME_Session_Loader']
-        if "cppContainer" in self.args['standalone'] \
-        or "cppContainer" in self.args['embedded']:
-            self.CMD=self.CMD+['CPP']
-        if "pyContainer" in self.args['standalone'] \
-        or "pyContainer" in self.args['embedded']:
-            self.CMD=self.CMD+['PY']
-        if "supervContainer" in self.args['containers'] \
-        or "supervContainer" in self.args['standalone']:
-            self.CMD=self.CMD+['SUPERV']
-        if self.args['gui']:
-            self.CMD=self.CMD+['GUI']
-        print self.CMD
+# class SessionLoader(Server):
+#     def __init__(self,args):
+#         self.args=args
+#         self.initArgs()
+#         self.CMD=['SALOME_Session_Loader']
+#         if "cppContainer" in self.args['standalone'] \
+#         or "cppContainer" in self.args['embedded']:
+#             self.CMD=self.CMD+['CPP']
+#         if "pyContainer" in self.args['standalone'] \
+#         or "pyContainer" in self.args['embedded']:
+#             self.CMD=self.CMD+['PY']
+#         if "supervContainer" in self.args['containers'] \
+#         or "supervContainer" in self.args['standalone']:
+#             self.CMD=self.CMD+['SUPERV']
+#         if self.args['gui']:
+#             self.CMD=self.CMD+['GUI']
+#         print self.CMD
 
 # ---
 
@@ -389,6 +389,17 @@ class SessionServer(Server):
             self.SCMD2+=['--with','Container','(','FactoryServer',')']
         if 'SalomeAppEngine' in self.args['embedded']:
             self.SCMD2+=['--with','SalomeAppEngine','(',')']
+            
+        if 'cppContainer' in self.args['standalone'] or 'cppContainer' in self.args['embedded']:
+            self.SCMD2+=['CPP']
+        if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
+            self.SCMD2+=['PY']
+        if 'supervContainer' in self.args['containers'] or 'supervContainer' in self.args['standalone']:
+            self.SCMD2+=['SUPERV']
+        if self.args['gui']:
+            self.SCMD2+=['GUI']
+        if self.args['splash']:
+            self.SCMD2+=['SPLASH']
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
@@ -485,21 +496,20 @@ def startSalome(args, modules_list, modules_root_dir):
     """Launch all SALOME servers requested by args"""
     init_time = os.times()
 
-    #
-    # Lancement Session Loader
-    #
-
     print "startSalome ", args
     
-    #if args['gui']:
-    #    myServer=SessionLoader(args)
-    #    myServer.run()
-
     #
     # Initialisation ORB et Naming Service
     #
    
     clt=orbmodule.client()
+
+    #
+    # Lancement Session Server
+    #
+    mySessionServ = SessionServer(args)
+    mySessionServ.setpath(modules_list,modules_root_dir)
+    mySessionServ.run()
 
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
@@ -622,13 +632,6 @@ def startSalome(args, modules_list, modules_root_dir):
         clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 ##----------------        
 
-    #
-    # Lancement Session Server
-    #
-    mySessionServ = SessionServer(args)
-    mySessionServ.setpath(modules_list,modules_root_dir)
-    mySessionServ.run()
-
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
     #
@@ -645,9 +648,8 @@ def startSalome(args, modules_list, modules_root_dir):
                                                          - init_time[4])
 
     # ASV start GUI without Loader
-    if args['gui']:
-        session.GetInterface()
-
+    #if args['gui']:
+    #    session.GetInterface()
 
     #
     # additionnal external python interpreters

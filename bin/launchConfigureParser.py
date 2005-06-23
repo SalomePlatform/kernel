@@ -13,6 +13,7 @@ val_att = "value"
 # certain values in XML configuration file ("launch" section)
 lanch_nam      = "launch"
 gui_nam        = "gui"
+splash_nam     = "splash"
 logger_nam     = "logger"
 xterm_nam      = "xterm"
 file_nam       = "file"
@@ -33,7 +34,7 @@ appname        = "SalomeApp"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam )
 
 # values of list type
 listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam )
@@ -284,6 +285,7 @@ if opts.has_key("h"):
     --portkill or -p              : kill the salome with current port
     --killall or -k               : kill all salome sessions
     --interp=n or -i=n            : number of additional xterm to open, with session environment
+    -z                            : display splash screen
     
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
@@ -296,6 +298,8 @@ if opts.has_key("h"):
 for opt in opts:
     if opt == 'g':
         args[gui_nam] = 1
+    elif opt == 'z':
+	args[splash_nam] = 1
     elif opt == 'l':
         args[logger_nam] = 1
     elif opt == 'f':
