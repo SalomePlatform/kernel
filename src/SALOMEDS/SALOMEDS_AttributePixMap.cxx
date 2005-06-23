@@ -24,6 +24,7 @@ bool SALOMEDS_AttributePixMap::HasPixMap()
   bool ret;
   if(_isLocal) ret = Handle(SALOMEDSImpl_AttributePixMap)::DownCast(_local_impl)->HasPixMap();
   else ret = SALOMEDS::AttributePixMap::_narrow(_corba_impl)->HasPixMap();
+  return ret;
 }
 
 std::string SALOMEDS_AttributePixMap::GetPixMap()

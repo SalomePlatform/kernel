@@ -296,7 +296,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
   INFOS("try import Python component "<<componentName);
   if (_isSupervContainer)
     {
-      INFOS('Supervision Container does not support Python Component Engines');
+      INFOS("Supervision Container does not support Python Component Engines");
       return false;
     }
   if (_library_map[aCompName])
@@ -355,7 +355,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     {
       if (_isSupervContainer)
 	{
-	  INFOS('Supervision Container does not support Python Component Engines');
+	  INFOS("Supervision Container does not support Python Component Engines");
 	  return Engines::Component::_nil();
 	}
       _numInstanceMutex.lock() ; // lock on the instance number
