@@ -27,6 +27,10 @@ containers_nam = "containers"
 key_nam        = "key"
 interp_nam     = "interp"
 
+# values in XML configuration file giving specific module parameters (<module_name> section)
+# which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
+plugins_nam    = "plugins"
+
 # values passed as arguments, NOT read from XML config file, but set from within this script
 appname_nam    = "appname"
 port_nam       = "port"
@@ -37,7 +41,7 @@ appname        = "SalomeApp"
 boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam )
 
 # values of list type
-listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam )
+listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
 
 # return application version (uses GUI_ROOT_DIR (or KERNEL_ROOT_DIR in batch mode) +/bin/salome/VERSION)
 def version():
@@ -54,12 +58,14 @@ def version():
 
 ### xml reader for launch configuration file usage
 
+section_to_skip = ""
+
 class xml_parser:
     def __init__(self, fileName, _opts ):
         print "Processing ",fileName 
         self.space = []
         self.opts = _opts
-        self.do = 0
+        self.section = section_to_skip
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
         parser.parse(fileName)
@@ -78,33 +84,46 @@ class xml_parser:
         self.space.append(name)
         self.current = None
 
-        # if we are analyzing "section" element and its "name" attribute is "launch" -- set "do" to 1 
-        if self.space == [doc_tag, sec_tag] and \
-           nam_att in attrs.getNames() and \
-           attrs.getValue( nam_att ) == lanch_nam:
-            self.do = 1
-        # if we are analyzing "parameter" elements - children of "section launch" element, then store them
-        # in self.opts assiciative array (key = value of "name" attribute)
-        elif self.do == 1 and \
+        # if we are analyzing "section" element and its "name" attribute is
+        # either "launch" or module name -- set section_name
+        if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
+            section_name = attrs.getValue( nam_att )
+            if section_name == lanch_nam:
+                self.section = section_name # launch section
+            elif self.opts.has_key( modules_nam ) and \
+                 section_name in self.opts[ modules_nam ]:
+                self.section = section_name # <module> section
+            else:
+                self.section = section_to_skip # any other section
+            pass
+
+        # if we are analyzing "parameter" elements - children of either
+        # "section launch" or "section "<module>"" element, then store them
+        # in self.opts assiciative array (key = [<module>_ + ] value of "name" attribute)
+        elif self.section != section_to_skip           and \
              self.space == [doc_tag, sec_tag, par_tag] and \
-             nam_att in attrs.getNames() and \
+             nam_att in attrs.getNames()               and \
              val_att in attrs.getNames():
             nam = attrs.getValue( nam_att )
             val = attrs.getValue( val_att )
+            if self.section == lanch_nam: # key for launch section
+                key = nam
+            else:                         # key for <module> section
+                key = self.section + "_" + nam
             if nam in boolKeys:
-                self.opts[nam] = self.boolValue( val )  # assign boolean value: 0 or 1
+                self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
             elif nam in listKeys:
-                self.opts[nam] = val.split( ',' )       # assign list value: []
+                self.opts[key] = val.split( ',' )       # assign list value: []
             else:
-                self.opts[nam] = val;
+                self.opts[key] = val;
             pass
         pass
 
     def endElement(self, name):
         p = self.space.pop()
         self.current = None
-        if self.do == 1 and name == sec_tag:
-            self.do = 0
+        if self.section != section_to_skip and name == sec_tag:
+            self.section = section_to_skip
         pass
 
     def characters(self, content):
