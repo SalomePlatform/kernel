@@ -19,6 +19,7 @@ SUBDIRS = idl src examples doc salome_adm
 RESOURCES_FILES = \
 CatalogDataType.xml \
 KERNELCatalog.xml \
+CatalogResources.xml \
 CatalogRessources.xml \
 config \
 channel.cfg \
