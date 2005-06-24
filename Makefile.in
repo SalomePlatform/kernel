@@ -39,7 +39,8 @@ launchConfigureParser.py \
 salome.launch \
 envSalome.py \
 salomeConsole.py \
-showNS.py
+showNS.py \
+addToKillList.py
 
 # copy header files in common directory
 OWN_CONFIG_H=@OWN_CONFIG_H@
