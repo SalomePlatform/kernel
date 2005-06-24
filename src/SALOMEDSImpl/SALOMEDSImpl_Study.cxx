@@ -41,6 +41,7 @@ IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_Study, MMgt_TShared )
 SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
 				       const TCollection_AsciiString& study_name)
 {
+  doc->SetUndoLimit(1); // mpv (IPAL9237): if there is no undo limit, operations mechanism couldn't work
   _name = study_name;
   _doc = doc;
   _Saved = false ;
