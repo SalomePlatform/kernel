@@ -155,6 +155,11 @@ int main(int argc, char* argv[])
     if(argc > 1){
       containerName = argv[1] ;
     }
+
+    // add new container to the kill list
+    char aCommand[40];
+    sprintf(aCommand, "addToKillList.py %d SALOME_Container", getpid());
+    system(aCommand);
     
     Engines_Container_i * myContainer 
       = new Engines_Container_i(orb, root_poa, containerName , argc , argv );
