@@ -32,6 +32,11 @@ $(srcdir)/Dependencies: .depend
 
 depend:.depend
 
+# when use the path as regexp, prevent taking "." for "any symbol"
+srcdir_re = $(subst .,[.],$(srcdir))
+top_srcdir_re = $(subst .,[.],$(top_srcdir))
+top_builddir_re = $(subst .,[.],$(top_builddir))
+
 # we had Makefile target, because we want Makefile rebuild before include .depend
 .depend: $(LIB_DEP) $(TEST_SRC) $(BIN_DEP)
 	@touch .depend
@@ -44,9 +49,9 @@ depend:.depend
 	            obj=`basename $$dep .c`.lo;				      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CC) $(C_DEPEND_FLAG) $(CPPFLAGS) $$dep 2>/dev/null |    \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed 's% $(srcdir_re)/% $$(srcdir)/%g' |		      \
+                        sed 's% $(top_srcdir_re)/% $$(top_srcdir)/%g' |	      \
+                        sed 's% $(top_builddir_re)/% $$(top_builddir)/%g' |      \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	         *.cc)							      \
@@ -54,9 +59,9 @@ depend:.depend
 	            obj=`basename $$dep .cc`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed 's% $(srcdir_re)/% $$(srcdir)/%g' |		      \
+                        sed 's% $(top_srcdir_re)/% $$(top_srcdir)/%g' |	      \
+                        sed 's% $(top_builddir_re)/% $$(top_builddir)/%g' |      \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	         *.cxx)							      \
@@ -64,9 +69,9 @@ depend:.depend
 	            obj=`basename $$dep .cxx`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
-                        sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
-                        sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
-                        sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
+                        sed 's% $(srcdir_re)/% $$(srcdir)/%g' |		      \
+                        sed 's% $(top_srcdir_re)/% $$(top_srcdir)/%g' |	      \
+                        sed 's% $(top_builddir_re)/% $$(top_builddir)/%g' |      \
 	                sed 's/\.o/.lo/' >>$@;				      \
 	            ;;							      \
 	      esac;							      \
