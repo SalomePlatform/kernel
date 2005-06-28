@@ -9,6 +9,7 @@ import salome_shared_modules
 
 from omniORB import CORBA
 from LifeCycleCORBA import *
+import SALOME
 import SALOMEDS
 from SALOME_NamingServicePy import *
 
