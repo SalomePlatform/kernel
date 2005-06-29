@@ -637,15 +637,15 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
 
         self.currentService = self.currentInterface.createService \
                                        (node.identifier())
-
-        for c in node.parameters():
-            c.accept(self)
             
         node.returnType().accept(self)
         if (self.currentType != "void"):
             self.currentService.createOutParameter \
                 ("return", self.currentType)
             
+        for c in node.parameters():
+            c.accept(self)
+
         for i in node.comments():
             self.currentInterface.comments.append(str(i))
         
