@@ -77,6 +77,8 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TC
 
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
+  _doc->Modify();
+
   return so;
 }
 
@@ -97,6 +99,9 @@ bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const Handle(SALOMEDSImp
   }
   //add IOR definition 
   SALOMEDSImpl_AttributeIOR::Set(aComponent->GetLabel(), IOR);  
+
+  _doc->Modify();
+
   return true;
 }
 
@@ -137,6 +142,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObject(const Handle(S
   Handle(SALOMEDSImpl_SObject) so = Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSObject(NewLab);
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
+  _doc->Modify();  
   return so;
 }
 
@@ -160,6 +166,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObjectToTag(const Han
 
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
+  _doc->Modify();  
   return so;
 }
 
@@ -193,6 +200,9 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const Handle(SALOMEDSImpl_SObject)&
     SALOMEDSImpl_Study::GetStudy(_doc->Main())->AddPostponed(TCollection_AsciiString(anAttr->Value()).ToCString());
 
   Lab.ForgetAllAttributes();
+ 
+  _doc->Modify();  
+    
   return true;
 }
 
@@ -238,6 +248,9 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSIm
   }
 
   Lab.ForgetAllAttributes(Standard_True);
+
+  _doc->Modify();  
+  
   return true;
 }
 
@@ -437,6 +450,8 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
     return NULL;
   }
 
+  _doc->Modify();  
+
   //The macro adds all necessary checks for standardly behaiving attributes
   __FindOrCreateAttributeForBuilder
   
@@ -490,6 +505,7 @@ bool SALOMEDSImpl_StudyBuilder::FindAttribute(const Handle(SALOMEDSImpl_SObject)
   }
   TDF_Label Lab = anObject->GetLabel();
   if (Lab.FindAttribute(SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute), anAttribute)) {
+    _doc->Modify();  
     return Standard_True;
   }
   return Standard_False;
@@ -519,6 +535,9 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const Handle(SALOMEDSImpl_SObjec
   }
 
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
+    
+  _doc->Modify();  
+    
   return true;
 }
 
@@ -543,6 +562,9 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const Handle(SALOMEDSImpl_SObject)&
   SALOMEDSImpl_AttributeTarget::Set(RefLab)->Add(SALOMEDSImpl_Study::SObject(Lab));
 
   if(!_callbackOnRemove.IsNull() && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+  
+  _doc->Modify();  
+  
   return true;
 }
 
@@ -569,6 +591,9 @@ bool SALOMEDSImpl_StudyBuilder::RemoveReference(const Handle(SALOMEDSImpl_SObjec
   Handle(SALOMEDSImpl_AttributeTarget) aTarget;
   if(RefLab.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) 
     aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
+  
+  _doc->Modify();  
+  
   return true;
 }
 
@@ -641,6 +666,9 @@ bool SALOMEDSImpl_StudyBuilder::AddDirectory(const TCollection_AsciiString& theP
 
   //Set LocalID attribute to identify the directory object
   Handle(SALOMEDSImpl_AttributeLocalID) aLocalID = SALOMEDSImpl_AttributeLocalID::Set(aLabel, DIRECTORYID);
+  
+  _doc->Modify(); 
+  
   return true;
 }
 
@@ -662,6 +690,9 @@ bool SALOMEDSImpl_StudyBuilder::SetGUID(const Handle(SALOMEDSImpl_SObject)& anOb
 
   TDF_Label aLabel = anObject->GetLabel();
   SALOMEDSImpl_AttributeUserID::Set(aLabel, theGUID.ToCString());
+
+  _doc->Modify();  
+
   return true;
 }
 
@@ -727,6 +758,8 @@ void SALOMEDSImpl_StudyBuilder::CommitCommand()
     anAttr->SetModified(aModif+1);
     _doc->CommitCommand();
   }
+  
+  _doc->Modify();  
 }
 
 //============================================================================
@@ -774,6 +807,8 @@ void SALOMEDSImpl_StudyBuilder::Undo()
     _doc->Undo();
     anAttr->SetModified(anAttr->GetModified()-1);
   }
+
+  _doc->Modify();  
 }
 
 //============================================================================
@@ -798,7 +833,9 @@ void SALOMEDSImpl_StudyBuilder::Redo()
     SALOMEDSImpl_Study::GetStudy(_doc->Main())->UndoPostponed(-1);
     anAttr->SetModified(anAttr->GetModified()+1);
   }
- }
+   
+  _doc->Modify();  
+}
 
 //============================================================================
 /*! Function : GetAvailableUndos
@@ -908,6 +945,9 @@ bool SALOMEDSImpl_StudyBuilder::SetName(const Handle(SALOMEDSImpl_SObject)& theS
     return false;
   }
   SALOMEDSImpl_AttributeName::Set(theSO->GetLabel(), theValue);
+
+  _doc->Modify();  
+
   return true;
 }
 
@@ -926,6 +966,9 @@ bool SALOMEDSImpl_StudyBuilder::SetComment(const Handle(SALOMEDSImpl_SObject)& t
     return false;
   }
   SALOMEDSImpl_AttributeComment::Set(theSO->GetLabel(), theValue);
+
+  _doc->Modify();  
+
   return true;
 }
 
@@ -944,6 +987,9 @@ bool SALOMEDSImpl_StudyBuilder::SetIOR(const Handle(SALOMEDSImpl_SObject)& theSO
     return false;
   }
   SALOMEDSImpl_AttributeIOR::Set(theSO->GetLabel(), theValue);
+
+  _doc->Modify();  
+
   return true;
 }
 

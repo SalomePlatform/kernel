@@ -760,6 +760,7 @@ void SALOMEDSImpl_Study::IsSaved(bool save)
 {
   _errorCode = "";
   _Saved = save;
+  if(save) _doc->UnModify();
 }
 
 //============================================================================
@@ -771,11 +772,10 @@ bool SALOMEDSImpl_Study::IsModified()
 {
   _errorCode = "";
 
-  // True if is modified and not saved
-  if (_doc->IsModified())
-    if (!_Saved) return true;
-    else return false;
-  else return false;
+  // True if is modified
+  if (_doc->IsModified()) return true;
+
+  return false;
 }
 
 //============================================================================
