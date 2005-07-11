@@ -994,6 +994,13 @@ bool QAD_Application::saveAsStudy( QAD_Study* study, const QString& fileName )
 #endif    
     if ( !name.isNull() )
     {
+       //SRN:: BugID IPAL9100: Begin       
+       for ( QAD_Study* aStudy = myStudies.first(); aStudy; aStudy = myStudies.next() ) {
+	 if ( aStudy->getStudyDocument()->URL() == name ) //If there is a study, which has been saved in a file
+	   return false;                                  //with the same name as <fileName> then forbid the saving
+       }
+       //SRN:: BugID IPAL9100: End
+    
        /* check permission */
         if (!checkPermission(name))
           return false;
