@@ -33,7 +33,7 @@ VPATH=.:@srcdir@
 @COMMENCE@
 
 SUBDIRS = SALOMELocalTrace SALOMETraceCollector Logger Utils \
-	  CASCatch GenericObj MEDWrapper NamingService Registry \
+	  CASCatch GenericObj NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist \
