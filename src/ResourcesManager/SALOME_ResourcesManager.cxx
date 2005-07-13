@@ -1,5 +1,5 @@
 #include "SALOME_ResourcesManager.hxx"
-#include "SALOME_Container_i.hxx"
+//#include "SALOME_Container_i.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include "OpUtil.hxx"
 
@@ -181,16 +181,6 @@ string SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachi
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
 
-bool Engines_Container_i::isPythonContainer(const char* ContainerName)
-{
-  bool ret=false;
-  int len=strlen(ContainerName);
-  if(len>=2)
-    if(strcmp(ContainerName+len-2,"Py")==0)
-      ret=true;
-  return ret;
-}
-
 bool isPythonContainer(const char* ContainerName)
 {
   bool ret=false;
@@ -268,7 +258,7 @@ string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *c
 {
   _TmpFileName="";
   string command;
-  if(Engines_Container_i::isPythonContainer(containerName))
+  if(isPythonContainer(containerName))
     command="SALOME_ContainerPy.py ";
   else
     command="SALOME_Container ";
@@ -305,7 +295,7 @@ string SALOME_ResourcesManager::BuildCommand(const string& machine,const char *c
 {
 // rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
   const ParserResourcesType& resInfo=_resourcesList[machine];
-  bool pyCont=Engines_Container_i::isPythonContainer(containerName);
+  bool pyCont=isPythonContainer(containerName);
   string command;
   if(resInfo.Protocol==rsh)
     command = "rsh -n " ;
