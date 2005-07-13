@@ -28,15 +28,26 @@
 
 //#define private public
 #include <SALOMEconfig.h>
+#ifndef WNT
 #include CORBA_SERVER_HEADER(SALOME_Component)
+#else
+#include <SALOME_Component.hh>
+#endif
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 #include <string.h>
 #include <stdio.h>
+#ifndef WNT
 #include <dlfcn.h>
 #include <unistd.h>
+#else
+#include "../../adm/win32/SALOME_WNT.hxx"
+#include <signal.h>
+#include <process.h>
+int SIGUSR1 = 1000;
+#endif
 #include <Python.h>
 #include "Container_init_python.hxx"
 
@@ -54,7 +65,12 @@ char ** _ArgV ;
 // Other Containers are started via start_impl of FactoryServer
 
 extern "C" {void ActSigIntHandler() ; }
+#ifndef WNT
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
+#else
+  extern "C" {void SigIntHandler( int ) ; }
+#endif
+
 
 const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
@@ -277,7 +293,11 @@ Engines_Container_i::load_component_Library(const char* componentName)
     }
   
   void* handle;
+#ifndef WNT
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+#else
+  handle = dlopen( impl_name.c_str() , 0 ) ;
+#endif
   if ( handle )
     {
       _library_map[impl_name] = handle;
@@ -528,6 +548,7 @@ bool Engines_Container_i::Kill_impl()
   INFOS("===============================================================");
   //exit( 0 ) ;
   ASSERT(0);
+  return false;
 }
 
 //=============================================================================
@@ -787,11 +808,15 @@ string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName,
 
 void ActSigIntHandler()
 {
+#ifndef WNT
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
-  // DEBUG 03.02.2005 : the first parameter of sigaction is not a mask of signals (SIGINT | SIGUSR1) :
-  // it must be only one signal ===> one call for SIGINT and an other one for SIGUSR1
+#endif
+
+// DEBUG 03.02.2005 : the first parameter of sigaction is not a mask of signals (SIGINT | SIGUSR1) :
+// it must be only one signal ===> one call for SIGINT and an other one for SIGUSR1
+#ifndef WNT
   if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;
     exit(0) ;
@@ -801,10 +826,16 @@ void ActSigIntHandler()
     exit(0) ;
   }
   INFOS(pthread_self() << "SigIntHandler activated") ;
+#else  
+  signal( SIGINT, SigIntHandler );
+  signal( SIGUSR1, SigIntHandler );
+#endif
+
 }
 
 void SetCpuUsed() ;
 
+#ifndef WNT
 void SigIntHandler(int what , siginfo_t * siginfo ,
                                         void * toto )
 {
@@ -835,6 +866,33 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     return ;
   }
 }
+#else // Case WNT
+void SigIntHandler( int what ) {
+  MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
+  if ( _Sleeping ) {
+    _Sleeping = false ;
+    MESSAGE("SigIntHandler END sleeping.") ;
+    return ;
+  }
+  else {
+    ActSigIntHandler() ;
+    if ( what == SIGUSR1 ) {
+      SetCpuUsed() ;
+    }
+    else {
+      _Sleeping = true ;
+      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+      int count = 0 ;
+      while( _Sleeping ) {
+        Sleep( 1000 ) ;
+        count += 1 ;
+      }
+      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+    }
+    return ;
+  }
+}
+#endif
 
 //=============================================================================
 /*! 

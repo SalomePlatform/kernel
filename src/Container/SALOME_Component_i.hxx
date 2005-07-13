@@ -32,7 +32,9 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <string>
 #include <map>
@@ -42,7 +44,21 @@
 
 class RegistryConnexion;
 
-class Engines_Component_i: public virtual POA_Engines::Component,
+#if defined CONTAINER_EXPORTS
+#if defined WIN32
+#define CONTAINER_EXPORT __declspec( dllexport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#else
+#if defined WNT
+#define CONTAINER_EXPORT __declspec( dllimport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#endif
+
+class CONTAINER_EXPORT Engines_Component_i: public virtual POA_Engines::Component,
 			   public virtual PortableServer::RefCountServantBase
 {
 public:
@@ -121,7 +137,11 @@ protected:
   std::map<std::string,CORBA::Any>_fieldsDict;
 
 private:
+#ifndef WNT
   pthread_t _ThreadId ;
+#else
+  pthread_t* _ThreadId ;
+#endif
   long      _StartUsed ;
   long      _ThreadCpuUsed ;
   bool      _Executed ;

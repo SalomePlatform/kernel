@@ -2,7 +2,9 @@
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 #include <sys/types.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <vector>
 
 #define TIME_OUT_TO_LAUNCH_CONT 21
@@ -83,7 +85,11 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char 
   else {
     int count=TIME_OUT_TO_LAUNCH_CONT;
     while ( CORBA::is_nil(ret) && count ) {
+#ifndef WNT
       sleep( 1 ) ;
+#else
+	  Sleep(1000);
+#endif
       count-- ;
       if ( count != 10 )
 	MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);

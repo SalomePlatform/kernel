@@ -32,13 +32,21 @@
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
 #include <stdio.h>
+#ifndef WNT
 #include <dlfcn.h>
+#endif
 #include <cstdlib>
 #include "utilities.h"
 
+#ifndef WNT
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#else
+#include <sys/timeb.h>
+int SIGUSR11 = 1000;
+#endif
+
 
 using namespace std;
 
@@ -322,11 +330,21 @@ bool Engines_Component_i::Kill_impl()
 //          << dec ) ;
 
   bool RetVal = false ;
+#ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , 0 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
+
+#else
+  if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
+    {
+      RetVal = Killer( *_ThreadId , 0 ) ;
+      _ThreadId = (pthread_t* ) 0 ;
+    }
+
+#endif
   return RetVal ;
 }
 
@@ -346,11 +364,19 @@ bool Engines_Component_i::Stop_impl()
   
 
   bool RetVal = false ;
+#ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , 0 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
+#else
+  if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
+    {
+      RetVal = Killer( *_ThreadId , 0 ) ;
+      _ThreadId = (pthread_t* ) 0 ;
+    }
+#endif
   return RetVal ;
 }
 
@@ -369,7 +395,11 @@ bool Engines_Component_i::Suspend_impl()
           << dec << " _ThreadId " << _ThreadId );
 
   bool RetVal = false ;
+#ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#else
+  if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
+#endif
     {
       if ( _Sleeping )
 	{
@@ -377,7 +407,12 @@ bool Engines_Component_i::Suspend_impl()
 	}
     else 
       {
+#ifndef WNT
 	RetVal = Killer( _ThreadId ,SIGINT ) ;
+#else
+	RetVal = Killer( *_ThreadId ,SIGINT ) ;
+#endif
+
       }
     }
   return RetVal ;
@@ -397,7 +432,11 @@ bool Engines_Component_i::Resume_impl()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
   bool RetVal = false ;
+#ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
+#else
+  if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
+#endif
     {
     if ( _Sleeping ) 
       {
@@ -425,7 +464,11 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
     {
     if ( _ThreadId > 0 )
       {
+#ifndef WNT
       if ( pthread_self() != _ThreadId )
+#else
+      if ( pthread_self().p != _ThreadId->p )
+#endif
 	{
         if ( _Sleeping )
 	  {
@@ -434,7 +477,11 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
 	  {
 	    // Get Cpu in the appropriate thread with that object !...
 	    theEngines_Component = this ;
+#ifndef WNT
 	    Killer( _ThreadId ,SIGUSR1 ) ;
+#else
+	    Killer( *_ThreadId ,SIGUSR11 ) ;
+#endif
 	  }
         cpu = _ThreadCpuUsed ;
 	}
@@ -508,7 +555,13 @@ void Engines_Component_i::beginService(const char *serviceName)
 {
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
+#ifndef WNT
   _ThreadId = pthread_self() ;
+#else
+  _ThreadId = new pthread_t;
+  _ThreadId->p = pthread_self().p ;
+  _ThreadId->x = pthread_self().x ;
+#endif
   _StartUsed = 0 ;
   _StartUsed = CpuUsed_impl() ;
   _ThreadCpuUsed = 0 ;
@@ -602,7 +655,11 @@ char* Engines_Component_i::nodeName()
 
 bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 {
+#ifndef WNT
   if ( ThreadId )
+#else
+  if ( ThreadId.p )
+#endif
     {
       if ( signum == 0 )
 	{
@@ -667,6 +724,7 @@ void Engines_Component_i::SetCurCpu()
 long Engines_Component_i::CpuUsed()
 {
   long cpu = 0 ;
+#ifndef WNT
   struct rusage usage ;
   if ( _ThreadId || _Executed )
     {
@@ -686,6 +744,11 @@ long Engines_Component_i::CpuUsed()
       //      << _ThreadId << " " << _serviceName<< " _StartUsed " 
       //      << _StartUsed << endl ;
     }
+#else
+	// NOT implementet yet
+#endif
+
+
   return cpu ;
 }
 

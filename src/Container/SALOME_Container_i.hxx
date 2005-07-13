@@ -35,7 +35,9 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <omnithread.h>
 #include <map>
@@ -43,7 +45,22 @@
 
 class SALOME_NamingService;
 
-class Engines_Container_i: public virtual POA_Engines::Container,
+
+#if defined CONTAINER_EXPORTS
+#if defined WIN32
+#define CONTAINER_EXPORT __declspec( dllexport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#else
+#if defined WNT
+#define CONTAINER_EXPORT __declspec( dllimport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#endif
+
+class CONTAINER_EXPORT Engines_Container_i: public virtual POA_Engines::Container,
 			   public virtual PortableServer::RefCountServantBase
 {
 public:
