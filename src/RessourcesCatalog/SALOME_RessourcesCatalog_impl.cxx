@@ -227,7 +227,11 @@ SALOME_RessourcesCatalogImpl::_verify_ressources(ListOfParserressources ressourc
           _machine_list.push_back(ressourceslist[ind].Parsername);   
 
   // Parse if a computer name is twice in the list of computers
+#ifndef WNT
   for (unsigned int ind = 0; ind < _machine_list.size(); ind++)
+#else
+  for (ind = 0; ind < _machine_list.size(); ind++)
+#endif
     {
      for (unsigned int ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
        {

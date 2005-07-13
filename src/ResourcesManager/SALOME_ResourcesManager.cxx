@@ -6,7 +6,12 @@
 #include <qdom.h>
 
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#else
+#include <io.h>
+#include <process.h>
+#endif
 #include <fstream>
 #include <iostream>
 #include <string.h>
@@ -176,6 +181,26 @@ string SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachi
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
 
+bool Engines_Container_i::isPythonContainer(const char* ContainerName)
+{
+  bool ret=false;
+  int len=strlen(ContainerName);
+  if(len>=2)
+    if(strcmp(ContainerName+len-2,"Py")==0)
+      ret=true;
+  return ret;
+}
+
+bool isPythonContainer(const char* ContainerName)
+{
+  bool ret=false;
+  int len=strlen(ContainerName);
+  if(len>=2)
+    if(strcmp(ContainerName+len-2,"Py")==0)
+      ret=true;
+  return ret;
+}
+
 string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const string& machine,const char *containerName)
 {
   _TmpFileName=BuildTemporaryFileName();
@@ -198,7 +223,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
   // ! env vars
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
-  if(Engines_Container_i::isPythonContainer(containerName))
+  if(isPythonContainer(containerName))
     tempOutputFile << "SALOME_ContainerPy.py ";
   else
     tempOutputFile << "SALOME_Container ";
@@ -374,7 +399,13 @@ string SALOME_ResourcesManager::BuildTemporaryFileName() const
   char *temp=new char[19];
   strcpy(temp,"/tmp/command");
   strcat(temp,"XXXXXX");
+#ifndef WNT
   mkstemp(temp);
+#else
+  char aPID[80];
+  itoa(getpid(), aPID, 10);
+  strcat(temp,aPID);
+#endif
   string command(temp);
   delete [] temp;
   command += ".sh";

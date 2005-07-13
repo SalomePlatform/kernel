@@ -98,7 +98,11 @@ RegistryConnexion::~RegistryConnexion()
 		_VarComponents->remove( _Id ) ;
 	}
 	_Id   = 0 ;
+#ifndef WNT
 	delete [] _Ior;
+#else
+	delete [] (char*) _Ior;
+#endif
 	_Ior = 0;
 	_SessionName = "";
 	_Name = "" ;
@@ -121,7 +125,7 @@ void RegistryConnexion::add( const char *aName )
 		infos.pid	= lesInfos.pid() ;
 		infos.machine	= CORBA::string_dup( lesInfos.host_char() ) ;
 		infos.adip	= CORBA::string_dup( lesInfos.adip() ) ;
-		infos.uid	= lesInfos.uid() ;
+		infos.uid	= (long)lesInfos.uid() ;
 		infos.pwname	= CORBA::string_dup( lesInfos.pwname() ) ;
 		infos.tc_start	= lesInfos.start() ;
 		infos.tc_hello	= 0 ;

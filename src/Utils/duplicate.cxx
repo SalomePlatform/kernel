@@ -37,6 +37,7 @@ extern "C"
 #include <string.h>
 }
 #include  "utilities.h"
+#include "OpUtil.hxx"
 
 using namespace std;
 

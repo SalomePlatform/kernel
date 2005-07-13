@@ -50,13 +50,13 @@ std::list<DESTRUCTEUR_GENERIQUE_*> *DESTRUCTEUR_GENERIQUE_::Destructeurs=0 ;
 
 /*! \class ATEXIT_
  *
- * Mécanisme pour faire exécuter une seule fois DESTRUCTEUR_GENERIQUE_::Nettoyage
- * à la fin du traitement : creation d'un singleton statique de l'objet
+ * M‰canisme pour faire ex‰cuter une seule fois DESTRUCTEUR_GENERIQUE_::Nettoyage
+ * € la fin du traitement : creation d'un singleton statique de l'objet
  * tres specialise ATEXIT_.
  *
- * La création d'un objet de type ATEXIT_ entraîne l'inscription de la fonction
- * Nettoyage() par atexit(). Il suffit donc de créer un singleton statique du type ATEXIT_
- * pour effectuer cet enregistrement une seule fois indépendament de l'utilisateur.
+ * La cr‰ation d'un objet de type ATEXIT_ entraŽne l'inscription de la fonction
+ * Nettoyage() par atexit(). Il suffit donc de cr‰er un singleton statique du type ATEXIT_
+ * pour effectuer cet enregistrement une seule fois ind‰pendament de l'utilisateur.
  */
 
 //CCRT
@@ -67,10 +67,10 @@ class ATEXIT_
 {
 public :
 	/*!
-	 * Allocation dynamique de Destructeurs, une liste chaînée de DESTRUCTEUR_GENERIQUE_* et enregistrement
+	 * Allocation dynamique de Destructeurs, une liste chaŽn‰e de DESTRUCTEUR_GENERIQUE_* et enregistrement
 	 * de la fonction Nettoyage() par atexit().
 	 *
-	 * La liste chaînée Destructeurs est détruite dans la fonction Nettoyage.
+	 * La liste chaŽn‰e Destructeurs est d‰truite dans la fonction Nettoyage.
 	 */
         //CCRT  ATEXIT_( void )
         ATEXIT_( bool Make_ATEXIT )
@@ -81,9 +81,9 @@ public :
 		ASSERT (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
 		if(MYDEBUG) MESSAGE("Construction ATEXIT"); // message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
 		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
-                      new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
-								   // il est utilisé puis détruit par la fonction Nettoyage
-		int cr = atexit( Nettoyage );                      // exécute Nettoyage lors de exit, après la destruction des données statiques !
+                      new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs allou‰ dynamiquement (cf. ci-dessous) ,
+								   // il est utilis‰ puis d‰truit par la fonction Nettoyage
+		int cr = atexit( Nettoyage );                      // ex‰cute Nettoyage lors de exit, aprˆs la destruction des donn‰es statiques !
 		ASSERT(cr==0) ;
 		ATEXIT_Done = true ;
 	  }
@@ -102,10 +102,10 @@ static ATEXIT_ nettoyage = ATEXIT_( false );	/* singleton statique */
 
 
 /*!
- * traitement effectué :
- * -# exécution de tous les objets de type DESTRUCTEUR_DE_ stockés dans la liste Destructeurs (ce qui détruit les
+ * traitement effectu‰ :
+ * -# ex‰cution de tous les objets de type DESTRUCTEUR_DE_ stock‰s dans la liste Destructeurs (ce qui d‰truit les
  *    singletons correspondant) ;
- * -# puis destruction de tous les objets de type DESTRUCTEUR_DE_ stockés dans la liste Destructeurs;
+ * -# puis destruction de tous les objets de type DESTRUCTEUR_DE_ stock‰s dans la liste Destructeurs;
  * -# destruction de la liste Destructeurs.
  */
 

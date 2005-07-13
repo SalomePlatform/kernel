@@ -32,7 +32,7 @@
 
 //! See SALOMETraceCollector instead of LocalTraceCollector for SALOME usage
 
-class LocalTraceCollector
+class SALOMELOCALTRACE_EXPORT LocalTraceCollector
 {
  public:
   static LocalTraceCollector* instance(int typeTrace=0);
@@ -47,7 +47,7 @@ class LocalTraceCollector
   static int _toFile;
   static LocalTraceCollector* _singleton;
   static pthread_mutex_t _singletonMutex;
-  static pthread_t _threadId;
+  static pthread_t* _threadId;
   static std::string _fileName;
 };
 

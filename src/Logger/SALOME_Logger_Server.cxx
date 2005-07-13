@@ -15,6 +15,11 @@
 #ifndef __WIN32__
 # include <unistd.h>
 #endif
+
+#ifdef WNT
+#include <omnithread/pthread_nt.h>
+#endif
+
 omni_mutex Logger::myLock;
 
 /////////////////////////////////////////////////////////////////////
@@ -46,7 +51,11 @@ void Logger::putMessage(const char* message)
 {
   myLock.lock();
   if (m_putIntoFile)
-    m_outputFile << message << std::flush;
+#ifndef WNT
+	m_outputFile << message << std::flush;
+#else
+	m_outputFile << message << flush;
+#endif
   else
     std::cout << message;
   myLock.unlock();
@@ -84,7 +93,11 @@ int main(int argc, char **argv)
 
       for (i = 1; i <= NumberOfTries; i++) 
 	  {
+#ifndef WNT
 		  if (i != 1) nanosleep(&ts_req, &ts_rem);
+#else
+		  if (i != 1) Sleep(TIMESleep / 1000000);
+#endif
 		  try 
 		  {
 			  obj = orb->resolve_initial_references("RootPOA") ;
@@ -154,4 +167,5 @@ int main(int argc, char **argv)
     {
       std::cerr << "Caught unknown exception." << std::endl;
     }
+  return 0;
 }

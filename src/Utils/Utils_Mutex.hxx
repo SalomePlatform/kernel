@@ -30,7 +30,21 @@
 
 #include <pthread.h>
 
-class Utils_Mutex
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+
+class UTILS_EXPORT Utils_Mutex
 {
 public:
   Utils_Mutex();
@@ -46,7 +60,7 @@ private:
   int             myCount;
 };
 
-class Utils_Locker
+class UTILS_EXPORT Utils_Locker
 {
 public:
   Utils_Locker( Utils_Mutex* );

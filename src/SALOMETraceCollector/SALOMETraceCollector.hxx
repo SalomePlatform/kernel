@@ -48,7 +48,7 @@ class SALOMETraceCollector
   static int _toFile;
   static SALOMETraceCollector* _singleton;
   static pthread_mutex_t _singletonMutex;
-  static pthread_t _threadId;
+  static pthread_t* _threadId;
   static std::string _fileName;
   static CORBA::ORB_ptr _orb;
 };

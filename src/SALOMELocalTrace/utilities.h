@@ -60,10 +60,17 @@
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
+#ifdef WNT
+#define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "ABORT return code= "<< code << std::endl; \
+                               /*std::*/exit(code);}
+#else
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
                                std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \
                                std::exit(code);}
+#endif
 
 /* --- To print date and time of compilation of current source --- */
 

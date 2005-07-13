@@ -44,8 +44,12 @@ Utils_Mutex::~Utils_Mutex()
 void Utils_Mutex::lock()
 {
   pthread_mutex_lock( &myHelperMutex );
-  
+
+#ifndef WNT 
   if ( myCount > 0 && myThread == pthread_self() ) {
+#else
+  if ( myCount > 0 && myThread.p == pthread_self().p ) {
+#endif
     myCount++;
   }
   else {
@@ -62,8 +66,12 @@ void Utils_Mutex::lock()
 void Utils_Mutex::unlock()
 {
   pthread_mutex_lock( &myHelperMutex );
-  
+
+#ifndef WNT  
   if ( myThread == pthread_self() ) {
+#else
+  if ( myThread.p == pthread_self().p ) {
+#endif
     if ( myCount && (--myCount) < 1 ) {
       myCount = 0;
       pthread_mutex_unlock( &myMutex );	  

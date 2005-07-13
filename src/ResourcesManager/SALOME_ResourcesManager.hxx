@@ -11,10 +11,26 @@
 #include <fstream>
 #include <vector>
 
+
+
+#if defined RESOURCESMANAGER_EXPORTS
+#if defined WIN32
+#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+#else
+#define RESOURCESMANAGER_EXPORT
+#endif
+#else
+#if defined WNT
+#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
+#else
+#define RESOURCESMANAGER_EXPORT
+#endif
+#endif
+
 //WARNING the call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done in a critical section to be sure to be clean.
 //Only one thread should use the SALOME_ResourcesManager class in a SALOME session.
 
-class SALOME_ResourcesManager
+class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 {
 public:
   //! standard constructor

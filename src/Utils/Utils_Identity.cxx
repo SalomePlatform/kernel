@@ -174,7 +174,7 @@ const char* const Identity::name (void) const
 #ifndef WNT
         const struct utsname &Identity::hostid(void) const
 #else
-        const char* const hostid(void) const
+        const char* const Identity::hostid(void) const
 #endif
 {
     return _hostid ;

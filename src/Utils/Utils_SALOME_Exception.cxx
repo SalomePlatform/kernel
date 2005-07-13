@@ -29,12 +29,17 @@
 #include <iostream>
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
+
+#ifndef WNT
 extern "C"
 {
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef WNT
 }
+#endif
 
 
 const char* duplicate( const char *const str ) ;

@@ -38,7 +38,21 @@
 //class ServiceUnreachable;
 #include "ServiceUnreachable.hxx"
 
-class SALOME_NamingService
+#if defined NAMINGSERVICE_EXPORTS
+#if defined WIN32
+#define NAMINGSERVICE_EXPORT __declspec( dllexport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#else
+#if defined WNT
+#define NAMINGSERVICE_EXPORT __declspec( dllimport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#endif
+
+class NAMINGSERVICE_EXPORT SALOME_NamingService
 {
 public:
   //! default constructor

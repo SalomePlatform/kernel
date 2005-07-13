@@ -34,7 +34,23 @@
 #define ABORT_MESS  1   // for traceType field in struct LocalTrace_TraceInfo
 #define NORMAL_MESS 0
 
-struct LocalTrace_TraceInfo
+#if defined SALOMELOCALTRACE_EXPORTS
+#if defined WIN32
+#define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
+#else
+#define SALOMELOCALTRACE_EXPORT
+#endif
+#else
+#if defined WNT
+#define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
+#else
+#define SALOMELOCALTRACE_EXPORT
+#endif
+#endif
+
+
+
+struct SALOMELOCALTRACE_EXPORT LocalTrace_TraceInfo
 {
   char trace[MAX_TRACE_LENGTH];
   pthread_t threadId;
@@ -42,7 +58,7 @@ struct LocalTrace_TraceInfo
   int position;                  // to check sequence
 };
 
-class LocalTraceBufferPool
+class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool
 {
  public:
   static LocalTraceBufferPool* instance();

@@ -27,9 +27,23 @@
 #ifndef _OPUTIL_HXX
 #define _OPUTIL_HXX
 
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+
 #include <string>
 
-std::string GetHostname();
-const char *duplicate(const char * const);
+UTILS_EXPORT std::string GetHostname();
+UTILS_EXPORT const char *duplicate(const char * const);
 
 #endif

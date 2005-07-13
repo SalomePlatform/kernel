@@ -38,7 +38,7 @@ using namespace std;
 LocalTraceCollector* LocalTraceCollector::_singleton = 0;
 pthread_mutex_t LocalTraceCollector::_singletonMutex;
 int LocalTraceCollector::_threadToClose = 0;
-pthread_t LocalTraceCollector::_threadId = 0; // used to control single run
+pthread_t* LocalTraceCollector::_threadId = 0; // used to control single run
 int LocalTraceCollector::_toFile = 0;
 std::string LocalTraceCollector::_fileName = "";
 
@@ -117,14 +117,21 @@ void* LocalTraceCollector::run(void *bid)
   if (! _threadId)  // only one run
     {
       isOKtoRun = 1;
-      _threadId = pthread_self();
+      if(_threadId == 0) {
+	_threadId = new pthread_t;
+      }
+      *_threadId = pthread_self();
     }
   else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
   if (isOKtoRun)
     { 
-      _threadId = pthread_self();
+      if(_threadId == 0) {
+	_threadId = new pthread_t;
+      }
+
+      *_threadId = pthread_self();
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       LocalTrace_TraceInfo myTrace;
 
@@ -164,16 +171,26 @@ void* LocalTraceCollector::run(void *bid)
 	      switch (_toFile)
 		{
 		case 1 :  // --- trace to file
+#ifndef WNT
 		  traceFile << "INTERRUPTION from thread " << myTrace.threadId
-			    << " : " <<  myTrace.trace;
+        << " : " <<  myTrace.trace;
+#else
+		  traceFile << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+        << " : " <<  myTrace.trace;
+#endif
 		  traceFile.close();
 		  // no break here !
 		case 0 :  // --- trace to standard output
 		default : // --- on standard output, too
 		  cout << flush ;
+#ifndef WNT
 		  cerr << "INTERRUPTION from thread " << myTrace.threadId
 		       << " : " <<  myTrace.trace;
-		  cerr << flush ; 
+#else
+		  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+		       << " : " <<  myTrace.trace;
+#endif
+      cerr << flush ; 
 		  exit(1);     
 		  break;
 		}
@@ -183,12 +200,21 @@ void* LocalTraceCollector::run(void *bid)
 	      switch (_toFile)
 		{
 		case 1 :  // --- trace to file
-		  traceFile << "th. " << myTrace.threadId
+#ifndef WNT
+      traceFile << "th. " << myTrace.threadId
 			    << " " << myTrace.trace;
+#else
+      traceFile << "th. " << (void*)(&myTrace.threadId)
+			    << " " << myTrace.trace;
+#endif
 		  break;
 		case 0 :  // --- trace to standard output
 		default : // --- on standard output, too
+#ifndef WNT
 		  cout << "th. " << myTrace.threadId << " " << myTrace.trace;
+#else
+		  cout << "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace;
+#endif
 		  break;
 		}
 	    }
@@ -197,6 +223,7 @@ void* LocalTraceCollector::run(void *bid)
       if (_toFile==1) traceFile.close();
     }
   pthread_exit(NULL);
+  return NULL;
 }
 
 // ============================================================================
@@ -212,7 +239,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
   myTraceBuffer->insert(NORMAL_MESS,"end of trace "); //needed to wake up thread
   if (_threadId)
     {
-      int ret = pthread_join(_threadId, NULL);
+      int ret = pthread_join(*_threadId, NULL);
       if (ret) cout << "error close LocalTraceCollector : "<< ret << endl;
       else cout << "LocalTraceCollector destruction OK" << endl;
     }

@@ -43,7 +43,7 @@ using namespace std;
 SALOMETraceCollector* SALOMETraceCollector::_singleton = 0;
 pthread_mutex_t SALOMETraceCollector::_singletonMutex;
 int SALOMETraceCollector::_threadToClose = 0;
-pthread_t SALOMETraceCollector::_threadId = 0; // used to control single run
+pthread_t* SALOMETraceCollector::_threadId = 0; // used to control single run
 int SALOMETraceCollector::_toFile = 0;
 std::string SALOMETraceCollector::_fileName = "";
 CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
@@ -125,14 +125,22 @@ void* SALOMETraceCollector::run(void *bid)
   if (! _threadId)  // only one run
     {
       isOKtoRun = 1;
-      _threadId = pthread_self();
+      if(_threadId == 0) {
+	_threadId = new pthread_t;
+      }
+
+      *_threadId = pthread_self();
     }
   else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
   if (isOKtoRun)
     { 
-      _threadId = pthread_self();
+      if(_threadId == 0) {
+	_threadId = new pthread_t;
+      }
+
+      *_threadId = pthread_self();
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       LocalTrace_TraceInfo myTrace;
 
@@ -193,8 +201,13 @@ void* SALOMETraceCollector::run(void *bid)
 		case 2 :  // --- trace collection via CORBA
 		  {
 		    stringstream abortMessage("");
+#ifndef WNT
 		    abortMessage << "INTERRUPTION from thread "
 				 << myTrace.threadId << " : " << myTrace.trace;
+#else
+		    abortMessage << "INTERRUPTION from thread "
+				 << (void*)&myTrace.threadId << " : " << myTrace.trace;
+#endif
 		    CORBA::String_var LogMsg =
 		      CORBA::string_dup(abortMessage.str().c_str());
 		    m_pInterfaceLogger->putMessage(LogMsg);
@@ -202,14 +215,22 @@ void* SALOMETraceCollector::run(void *bid)
 		  }
 		  break;
 		case 1 :  // --- trace to file
+#ifndef WNT
 		  traceFile << "INTERRUPTION from thread " << myTrace.threadId
+#else
+		  traceFile << "INTERRUPTION from thread " << (void*)&myTrace.threadId
+#endif
 			    << " : " <<  myTrace.trace;
 		  traceFile.close();
 		  // no break here !
 		case 0 :  // --- trace to standard output
 		default : // --- on standard output, too
 		  cout << flush ;
+#ifndef WNT
 		  cerr << "INTERRUPTION from thread " << myTrace.threadId
+#else
+		  cerr << "INTERRUPTION from thread " << (void*)&myTrace.threadId
+#endif
 		       << " : " <<  myTrace.trace;
 		  cerr << flush ; 
 		  exit(1);     
@@ -223,7 +244,11 @@ void* SALOMETraceCollector::run(void *bid)
 		case 2 :  // --- trace collection via CORBA
 		  {
 		    stringstream aMessage("");
+#ifndef WNT
 		    aMessage << "th. " << myTrace.threadId
+#else
+		    aMessage << "th. " << (void*)&myTrace.threadId
+#endif
 			     << " " << myTrace.trace;
 		    CORBA::String_var LogMsg =
 		      CORBA::string_dup(aMessage.str().c_str());
@@ -231,12 +256,20 @@ void* SALOMETraceCollector::run(void *bid)
 		  }
 		  break;
 		case 1 :  // --- trace to file
+#ifndef WNT
 		  traceFile << "th. " << myTrace.threadId
+#else
+		  traceFile << "th. " << (void*)&myTrace.threadId
+#endif
 			    << " " << myTrace.trace;
 		  break;
 		case 0 :  // --- trace to standard output
 		default : // --- on standard output, too
+#ifndef WNT
 		  cout << "th. " << myTrace.threadId << " " << myTrace.trace;
+#else
+		  cout << "th. " << &myTrace.threadId << " " << myTrace.trace;
+#endif
 		  break;
 		}
 	    }
@@ -245,6 +278,7 @@ void* SALOMETraceCollector::run(void *bid)
       if (_toFile==1) traceFile.close();
     }
   pthread_exit(NULL);
+  return NULL;
 }
 
 // ============================================================================
@@ -260,7 +294,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
   myTraceBuffer->insert(NORMAL_MESS,"end of trace "); //needed to wake up thread
   if (_threadId)
     {
-      int ret = pthread_join(_threadId, NULL);
+      int ret = pthread_join(*_threadId, NULL);
       if (ret) cout << "error close SALOMETraceCollector : "<< ret << endl;
       else cout << "SALOMETraceCollector destruction OK" << endl;
     }

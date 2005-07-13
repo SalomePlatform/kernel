@@ -702,7 +702,11 @@ char* SALOME_NamingService::Current_Directory()
   char* return_Path = new char[length_path +2];
   return_Path[0] = '/' ;
   return_Path[1] = '\0' ;
+#ifndef WNT
   for (int k = 0 ; k <i ;k++) 
+#else
+  for (k = 0 ; k <i ;k++) 
+#endif
     { 
       //SCRUTE(result_path[k])
 	strcat(return_Path,result_path[k]);

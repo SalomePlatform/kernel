@@ -35,7 +35,9 @@ extern "C"
 # include <time.h>
 }
 
+#ifndef WNT
 #include <unistd.h>
+#endif
 using namespace std;
 
 /* ------------------------------*/
@@ -70,7 +72,11 @@ RegistryService::~RegistryService()
 	_Compteur = -1 ;
 	if ( _SessionName )
 	{
+#ifndef WNT
 		delete [] _SessionName ;
+#else
+		delete [] (char*)_SessionName ;
+#endif
 		_SessionName = 0 ;
 	}
 	END_OF("RegistryService::~RegistryService()") ;
