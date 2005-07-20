@@ -2,11 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_AttributeReference.hxx"
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
 #include <TDF_RelocationTable.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeReference, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeReference, SALOMEDSImpl_GenericAttribute )

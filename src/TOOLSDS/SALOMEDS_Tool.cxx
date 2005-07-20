@@ -11,9 +11,7 @@
 #include "utilities.h"
 
 #include <TCollection_AsciiString.hxx> 
-#include <stdio.h>
-#include <iostream.h> 
-#include <fstream.h>
+
 #include <OSD_Path.hxx>
 #include <OSD_File.hxx>
 #include <OSD_Directory.hxx>
@@ -23,7 +21,13 @@
 #include <OSD_SingleProtection.hxx>
 #include <OSD_FileIterator.hxx>
 
+#ifndef WNT
+#include <stdio.h>
+#include <iostream.h> 
+#include <fstream.h>
 #include <sys/time.h>
+#else
+#endif
 #include <stdlib.h>
 
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)

@@ -25,7 +25,11 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeGraphic,  SALOMEDSImpl_GenericAttr
 
 
 
+#ifndef WNT
 class Standard_EXPORT SALOMEDSImpl_AttributeGraphic : public SALOMEDSImpl_GenericAttribute
+#else
+class SALOMEDSImpl_AttributeGraphic : public SALOMEDSImpl_GenericAttribute
+#endif
 {
 
 public:

@@ -27,7 +27,12 @@
 extern "C"
 {
 #include "hdfi.h"
+#ifndef WNT
 #include <unistd.h>
+#else
+#include <io.h>
+#define F_OK 0
+#endif
 #include <string.h>
 }
 #include <iostream.h>

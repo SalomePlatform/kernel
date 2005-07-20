@@ -38,7 +38,11 @@
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
+#ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
+#else
+#include "SALOME_ModuleCatalog.hh"
+#endif
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
@@ -143,6 +147,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 				     const char *instanceName)
 {
   ASSERT(0);
+  return 0;
 }
 
 //=============================================================================
@@ -161,6 +166,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 				     int studyId)
 {
   ASSERT(0);
+  return 0;
 }
 
 //=============================================================================
@@ -425,7 +431,11 @@ SALOME_LifeCycleCORBA::FindOrStartContainer(const string aComputerContainer ,
   int count = 5 ;
   while ( CORBA::is_nil( aFactoryServer ) && count )
     {
+#ifndef WNT
       sleep( 1 ) ;
+#else
+	  Sleep(1);
+#endif
       count-- ;
       if ( count != 10 )
 	MESSAGE( count << ". Waiting for FactoryServer on " << theComputer)

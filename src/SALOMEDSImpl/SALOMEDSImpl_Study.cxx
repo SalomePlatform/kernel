@@ -2,8 +2,10 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_Study.hxx"
+
+using namespace std;
 
 #include <TColStd_SequenceOfExtendedString.hxx>
 #include <TCollection_ExtendedString.hxx>

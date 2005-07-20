@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_AttributeTextHighlightColor.hxx"
 #include <Standard_GUID.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTextHighlightColor, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTextHighlightColor, SALOMEDSImpl_GenericAttribute )

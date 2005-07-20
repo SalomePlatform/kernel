@@ -3,12 +3,14 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_Study.hxx"
+
+using namespace std;
 
 #include <TDF_AttributeIterator.hxx>
 #include <map>

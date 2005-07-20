@@ -2,11 +2,12 @@
 //  Author : SERGEY_RUIN
 //  Module : SALOME
 
-using namespace std;
 
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_GenericAttribute, TDF_Attribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_GenericAttribute, TDF_Attribute )

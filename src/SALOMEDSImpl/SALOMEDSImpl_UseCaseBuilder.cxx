@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -16,6 +16,8 @@ using namespace std;
 #include <TDF_ListIteratorOfAttributeList.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_ChildIterator.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_UseCaseBuilder, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseBuilder, MMgt_TShared )

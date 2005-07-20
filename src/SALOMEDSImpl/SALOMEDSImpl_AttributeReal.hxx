@@ -25,7 +25,7 @@ private:
   Standard_Real myValue;
 public:
 
-Standard_EXPORT  Standard_EXPORT static const Standard_GUID& GetID() ;
+Standard_EXPORT static const Standard_GUID& GetID() ;
 
 Standard_EXPORT  SALOMEDSImpl_AttributeReal():SALOMEDSImpl_GenericAttribute("AttributeReal") {}
 Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeReal) Set (const TDF_Label& L, const Standard_Real Val);

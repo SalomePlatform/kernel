@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_AttributeLocalID.hxx"
 #include <Standard_GUID.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeLocalID, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeLocalID, SALOMEDSImpl_GenericAttribute )

@@ -30,8 +30,11 @@
 extern "C"
 {
 #include "HDFtypes.h"
+#ifndef WNT
 #include <unistd.h>
 #include <sys/mman.h>
+#else
+#endif
 #include <stdio.h>
 #include <errno.h>
 #include <sys/types.h>

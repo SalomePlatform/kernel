@@ -23,7 +23,11 @@ class Handle(TDF_RelocationTable);
 
 DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeFlags, SALOMEDSImpl_GenericAttribute )
 
+#ifndef WNT
 class Standard_EXPORT SALOMEDSImpl_AttributeFlags :  public SALOMEDSImpl_GenericAttribute
+#else
+class SALOMEDSImpl_AttributeFlags :  public SALOMEDSImpl_GenericAttribute
+#endif
 {
 private:
 Standard_Integer myValue;

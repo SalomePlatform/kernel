@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_AttributeComment.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx" 
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )

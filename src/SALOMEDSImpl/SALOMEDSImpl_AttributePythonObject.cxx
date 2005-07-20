@@ -2,10 +2,11 @@
 //  Author : Michael Ponikarov
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_AttributePythonObject.hxx"
 #include <Standard_GUID.hxx>
 #include <string>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributePythonObject, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributePythonObject, SALOMEDSImpl_GenericAttribute )

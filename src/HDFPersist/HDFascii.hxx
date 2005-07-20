@@ -10,10 +10,10 @@
 #ifndef __HDFascii_H__
 #define __HDFascii_H__
 
+#include <Standard_Macro.hxx>
 
 
-
-class HDFascii                                
+class Standard_EXPORT HDFascii                                
 {
 public:
  

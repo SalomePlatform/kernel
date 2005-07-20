@@ -30,7 +30,9 @@
 #define _SALOME_LIFECYCLECORBA_HXX_
 
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <string>
 
 #include <SALOMEconfig.h>

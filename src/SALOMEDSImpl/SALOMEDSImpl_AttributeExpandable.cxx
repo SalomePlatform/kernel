@@ -2,7 +2,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#ifndef WNT
 using namespace std;
+#endif
 #include "SALOMEDSImpl_AttributeExpandable.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeExpandable, SALOMEDSImpl_GenericAttribute )

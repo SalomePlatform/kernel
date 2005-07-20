@@ -2,13 +2,14 @@
 //  Author : Michael Ponikarov
 //  Module : SALOME
 
-using namespace std;
 #include <SALOMEDSImpl_AttributeTableOfReal.hxx>
 #include <Standard_Failure.hxx>
 #include <TColStd_DataMapIteratorOfDataMapOfIntegerReal.hxx>
 #include <Standard_GUID.hxx>
 #include <stdio.h>
 #include <TColStd_HSequenceOfExtendedString.hxx>  
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfReal, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfReal, SALOMEDSImpl_GenericAttribute )

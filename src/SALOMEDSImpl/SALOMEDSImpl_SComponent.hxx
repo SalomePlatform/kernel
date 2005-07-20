@@ -13,7 +13,7 @@
 DEFINE_STANDARD_HANDLE( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // Cascade headers
 #include <TDF_Label.hxx>

@@ -2,10 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_AttributePixMap.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_GUID.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributePixMap, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributePixMap, SALOMEDSImpl_GenericAttribute )

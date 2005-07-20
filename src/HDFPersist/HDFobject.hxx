@@ -31,8 +31,9 @@ extern "C"
 {
 #include "HDFtypes.h"
 }
+#include <Standard_Macro.hxx>
 
-class HDFobject {
+class Standard_EXPORT HDFobject {
 protected :
   char *_name;
   hdf_idt _id;

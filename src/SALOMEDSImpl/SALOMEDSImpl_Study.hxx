@@ -11,7 +11,7 @@
 DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // Cascade headers
 #include <TDocStd_Document.hxx>

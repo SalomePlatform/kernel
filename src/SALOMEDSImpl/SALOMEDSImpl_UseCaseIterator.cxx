@@ -2,10 +2,11 @@
 //  Author : Serge RUIN
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Study.hxx"
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )

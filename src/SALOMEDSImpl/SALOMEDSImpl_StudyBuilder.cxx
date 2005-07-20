@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 
 #include "SALOMEDSImpl_Attributes.hxx"
+
+using namespace std;
 
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"

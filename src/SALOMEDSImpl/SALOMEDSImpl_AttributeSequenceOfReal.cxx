@@ -2,9 +2,10 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_AttributeSequenceOfReal.hxx"
 #include <Standard_GUID.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeSequenceOfReal, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeSequenceOfReal, SALOMEDSImpl_GenericAttribute )

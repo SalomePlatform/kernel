@@ -2,7 +2,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#ifndef WNT
 using namespace std;
+#endif
 #include "SALOMEDSImpl_AttributeDrawable.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeDrawable, SALOMEDSImpl_GenericAttribute )

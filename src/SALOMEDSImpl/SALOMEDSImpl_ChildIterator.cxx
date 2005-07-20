@@ -48,7 +48,7 @@ bool SALOMEDSImpl_ChildIterator::More()
 
 void SALOMEDSImpl_ChildIterator::Next() 
 {
-  return _it.Next();
+  _it.Next();
 }
 
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_ChildIterator::Value()

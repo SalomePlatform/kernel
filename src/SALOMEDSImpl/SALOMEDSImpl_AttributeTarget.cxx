@@ -2,13 +2,15 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_AttributeTarget.hxx"
 #include "SALOMEDSImpl_AttributeReference.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include <TDF_RelocationTable.hxx>
 #include <TDF_ListIteratorOfAttributeList.hxx>
 #include <Standard_GUID.hxx>
+
+using namespace std;
 
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTarget, SALOMEDSImpl_GenericAttribute )

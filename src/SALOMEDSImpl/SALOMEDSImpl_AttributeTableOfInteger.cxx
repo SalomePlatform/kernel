@@ -2,13 +2,13 @@
 //  Author : Michael Ponikarov
 //  Module : SALOME
 
-using namespace std;
 #include <SALOMEDSImpl_AttributeTableOfInteger.hxx>
 #include <Standard_Failure.hxx>
 #include <TColStd_DataMapIteratorOfDataMapOfIntegerInteger.hxx>
 #include <Standard_GUID.hxx>
 #include <TColStd_HSequenceOfExtendedString.hxx>
 
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfInteger, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfInteger, SALOMEDSImpl_GenericAttribute )

@@ -2,9 +2,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
-
 #include "SALOMEDSImpl_StudyManager.hxx"
+
+using namespace std;
 
 #include <CDF_Session.hxx>
 #include <CDF_DirectoryIterator.hxx>
@@ -30,7 +30,7 @@ using namespace std;
 #include <map>
 
 #include "HDFOI.hxx"
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
@@ -134,8 +134,16 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
   }
   catch (HDFexception)
     {
+#ifndef WNT
       char eStr[strlen(aUrl.ToCString())+17];
+#else
+	  char *eStr;
+	  eStr = new char[strlen(aUrl.ToCString())+17];
+#endif
       sprintf(eStr,"Can't open file %s",aUrl.ToCString());
+#ifdef WNT
+	  delete [] eStr;
+#endif
       _errorCode = TCollection_AsciiString(eStr);
       return NULL;
     } 
@@ -168,7 +176,11 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
   }
   catch (HDFexception)
     {
+#ifndef WNT
       char eStr[strlen(aUrl.ToCString())+17];
+#else
+	  char *eStr = new char [strlen(aUrl.ToCString())+17];
+#endif
       sprintf(eStr,"Can't open file %s", aUrl.ToCString());
       _errorCode = TCollection_AsciiString(eStr);
       return NULL;
@@ -558,7 +570,15 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 		      Handle(SALOMEDSImpl_AttributeInteger) anInteger;
 		      if(aCompSpecificSO->GetLabel().FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anInteger)) {
 			anInteger->SetValue(-1);
-			while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
+			while(anInteger->Value() < 0) { 
+#ifndef WNT
+				sleep(2); 
+#else
+				Sleep(2);
+#endif
+				if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) 
+					break; 
+			}
 		      }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
 		    }  // if(!CORBA::is_nil(aCompSpecificSO)) 
 		  }  // if (strcmp(aRow[0], componentDataType) == 0)

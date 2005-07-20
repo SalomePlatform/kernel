@@ -2,7 +2,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#ifndef WNT
 using namespace std;
+#endif
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include <TCollection_AsciiString.hxx>
 #include "SALOMEDSImpl_Study.hxx"

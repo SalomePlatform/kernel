@@ -2,8 +2,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
 #include "SALOMEDSImpl_AttributeReal.hxx"
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeReal, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeReal, SALOMEDSImpl_GenericAttribute )

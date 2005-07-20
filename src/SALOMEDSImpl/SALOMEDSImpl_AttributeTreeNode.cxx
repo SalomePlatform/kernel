@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
 #include <Standard_DomainError.hxx>
 #include <TDF_Tool.hxx>
@@ -10,6 +10,8 @@ using namespace std;
 #include <TDF_DataSet.hxx>
 #include <TDF_RelocationTable.hxx>
 #include <TCollection_AsciiString.hxx> 
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTreeNode, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTreeNode, SALOMEDSImpl_GenericAttribute )

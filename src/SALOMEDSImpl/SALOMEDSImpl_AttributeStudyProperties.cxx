@@ -2,10 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
 #include <SALOMEDSImpl_AttributeStudyProperties.hxx>
 #include <Standard_GUID.hxx>
 #include <TCollection_ExtendedString.hxx>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeStudyProperties, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeStudyProperties, SALOMEDSImpl_GenericAttribute )

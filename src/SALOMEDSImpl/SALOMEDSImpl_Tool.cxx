@@ -1,4 +1,3 @@
-using namespace std;
 //  File      : SALOMEDSImpl_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
@@ -10,8 +9,8 @@ using namespace std;
 #include "SALOMEDSImpl_Tool.hxx"
 
 #include <stdio.h>
-#include <iostream.h> 
-#include <fstream.h>
+#include <iostream> 
+#include <fstream>
 #include <OSD_Path.hxx>
 #include <OSD_File.hxx>
 #include <OSD_Directory.hxx>
@@ -21,8 +20,14 @@ using namespace std;
 #include <OSD_SingleProtection.hxx>
 #include <OSD_FileIterator.hxx>
 
+#ifndef WNT
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 #include <stdlib.h>
+
+using namespace std;
 
 
 //============================================================================

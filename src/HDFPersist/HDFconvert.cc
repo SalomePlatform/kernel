@@ -27,6 +27,11 @@
 #include "HDFconvert.hxx"
 using namespace std;
 
+#ifdef WNT
+#include <io.h>
+#include <windows.h>
+#endif
+
 int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)
 {
   
@@ -43,7 +48,7 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
     return -1;
   };
   
-  // Lit l'état du fichier
+  // Lit l'‰tat du fichier
   if ( fstat(fd,&status) < 0) {
     perror("HDFConvert::FromAscii");
     return -1;
@@ -54,12 +59,25 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
   
 #ifdef _POSIX_MAPPED_FILES
   
-  // Map le fichier en mémoire
+  // Map le fichier en m‰moire
   if ( (buffer = (char *)  mmap(0,length,PROT_READ,MAP_SHARED,fd,0)) == MAP_FAILED ) {
     perror("HDFConvert::FromAscii");
     return -1;
   };
-  
+#elif defined WNT
+
+#define SHMEMSIZE 4096
+
+  HANDLE hMapObject = CreateFileMapping( 
+           INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, SHMEMSIZE, "");
+  if (hMapObject != NULL) {
+  // Get a pointer to the file-mapped shared memory.
+  buffer = ( char* ) MapViewOfFile( 
+    hMapObject, FILE_MAP_WRITE, 0, 0, 0 );
+  if( buffer == NULL )
+    CloseHandle(hMapObject);
+  };
+
 #else
 
   // Sort de la compilation
@@ -69,7 +87,7 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
   
   // Creation du Dataset utilisateur 
   hdf_dataset = new HDFdataset( (char *) nomdataset.c_str(),            /*discard const */
-                                            (HDFcontainerObject*) &hdf_container,   /*discard const, pas de constructeur par référence */
+                                            (HDFcontainerObject*) &hdf_container,   /*discard const, pas de constructeur par r‰f‰rence */
                                             HDF_STRING,
                                             &length_long,1);
   // Cree le Dataset sur le disk

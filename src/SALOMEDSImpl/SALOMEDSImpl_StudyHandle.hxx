@@ -22,23 +22,27 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_StudyHandle, TDF_Attribute )
 
 #include "SALOMEDSImpl_Study.hxx"
 
+#ifndef WNT
 class Standard_EXPORT SALOMEDSImpl_StudyHandle : public TDF_Attribute
+#else
+class SALOMEDSImpl_StudyHandle : public TDF_Attribute
+#endif
 {
 
 public:
-                                  SALOMEDSImpl_StudyHandle();
-                                  ~SALOMEDSImpl_StudyHandle() { myHandle.Nullify(); }
+Standard_EXPORT                                  SALOMEDSImpl_StudyHandle();
+Standard_EXPORT                                  ~SALOMEDSImpl_StudyHandle() { myHandle.Nullify(); }
 
-  static Handle(SALOMEDSImpl_StudyHandle) Set(const TDF_Label& theLabel, const Handle(SALOMEDSImpl_Study)& theStudy); 
-  static const                    Standard_GUID& GetID() ;
+Standard_EXPORT  static Handle(SALOMEDSImpl_StudyHandle) Set(const TDF_Label& theLabel, const Handle(SALOMEDSImpl_Study)& theStudy); 
+Standard_EXPORT  static const                    Standard_GUID& GetID() ;
 
-  void                            SetHandle(const Handle(SALOMEDSImpl_Study)& theStudy) { myHandle = theStudy; }
-  Handle(SALOMEDSImpl_Study)      GetHandle() { return myHandle; }
-  const Standard_GUID&            ID() const;
-  void                            Restore( const Handle(TDF_Attribute)& theWith );
-  Handle(TDF_Attribute)           NewEmpty() const;
-  void                            Paste( const Handle(TDF_Attribute)& theInto,
-                                         const Handle(TDF_RelocationTable)& ) const;
+Standard_EXPORT  void                            SetHandle(const Handle(SALOMEDSImpl_Study)& theStudy) { myHandle = theStudy; }
+Standard_EXPORT  Handle(SALOMEDSImpl_Study)      GetHandle() { return myHandle; }
+Standard_EXPORT  const Standard_GUID&            ID() const;
+Standard_EXPORT  void                            Restore( const Handle(TDF_Attribute)& theWith );
+Standard_EXPORT  Handle(TDF_Attribute)           NewEmpty() const;
+Standard_EXPORT  void                            Paste( const Handle(TDF_Attribute)& theInto,
+							                            const Handle(TDF_RelocationTable)& ) const;
   
 private:
   Handle(SALOMEDSImpl_Study) myHandle;
