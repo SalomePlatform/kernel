@@ -4,13 +4,12 @@
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
 #include <mpi.h>
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 int main(int argc, char* argv[])
 {
   int nbproc, numproc;
-  int flag;
   Engines_MPIContainer_i * myContainer=NULL;
 
   MPI_Init(&argc,&argv);
@@ -20,7 +19,7 @@ int main(int argc, char* argv[])
   // Initialise the ORB.
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
  
   BEGIN_OF("[" << numproc << "] " << argv[0])
   try {
@@ -69,7 +68,6 @@ int main(int argc, char* argv[])
     pman->activate();
 
     orb->run();
-    orb->destroy();
 
   }
   catch(CORBA::SystemException&){
@@ -90,12 +88,11 @@ int main(int argc, char* argv[])
 
   if(myContainer)
     delete myContainer;
-  MPI_Initialized(&flag);
-  if(flag)
-    MPI_Finalize();
 
   END_OF("[" << numproc << "] " << argv[0]);
   delete myThreadTrace;
-  return 0 ;
+
+  MPI_Finalize();
+
 }
 

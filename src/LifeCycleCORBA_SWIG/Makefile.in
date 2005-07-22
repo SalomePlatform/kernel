@@ -1,5 +1,3 @@
-#  SALOME MPIContainer : implemenation of container based on MPI libraries
-#
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 # 
@@ -34,33 +32,21 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_PYSCRIPTS = 
-
-EXPORT_HEADERS = \
-	MPIObject_i.hxx \
-	MPIContainer_i.hxx
-
 # Libraries targets
 
-LIB = libSalomeMPIContainer.la 
-LIB_SRC = MPIObject_i.cxx  MPIContainer_i.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl
-LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
+LIB = libSALOME_LifeCycleCORBAcmodule.la
+LIB_SRC = 
 
-# Executables targets
-BIN = SALOME_MPIContainer
-BIN_SRC = 
-BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
 
-CPPFLAGS+= $(PYTHON_INCLUDES) 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager
+SWIG_DEF = libSALOME_LifeCycleCORBA.i
 
-ifeq (@WITHMPI@,yes)
-  LIBS += $(PYTHON_LIBS) $(MPI_LIBS)
-  CXXFLAGS+=${MPI_INCLUDES}
-  CXX_DEPEND_FLAG+=${MPI_INCLUDES}
-  LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
-  LIBSFORBIN= $(LIBS)
-endif
+EXPORT_PYSCRIPTS = libSALOME_LifeCycleCORBA.py LifeCycleCORBA.py TestLifeCycleCORBA.py
+
+CPPFLAGS+= $(PYTHON_INCLUDES)
+
+LIBS+= $(PYTHON_LIBS) -lSalomeLifeCycleCORBA
+
+LDFLAGS+= -lSalomeLifeCycleCORBA
 
 @CONCLUDE@

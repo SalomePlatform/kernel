@@ -35,6 +35,9 @@
 #include <string>
 #include "Utils_Mutex.hxx"
 
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Component)
 //class ServiceUnreachable;
 #include "ServiceUnreachable.hxx"
 
@@ -75,9 +78,18 @@ public:
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
 
-  //! method to get an ObjRef, given a symbolic name without instance suffix "/Path/Name*.kind"
+  //! method to get the ObjRef of a component
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0);
+
+ //! method to get an ObjRef, given a symbolic name without instance suffix "/Path/Name*.kind"
   CORBA::Object_ptr ResolveFirst(const char* Path)
     throw( ServiceUnreachable); 
+
+  std::string ContainerName(const char *ContainerName);
+  std::string ContainerName(const Engines::MachineParameters& params);
+
+  std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  std::string BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname);
 
   //! method to research a name from the naming service's current directory 
   int Find(const char* name)
@@ -114,6 +126,10 @@ public:
  
   //! method to destroy a directory if it is empty
   virtual void Destroy_Directory(const char* Path)
+    throw(ServiceUnreachable);
+
+  //! method to destroy a directory even if it is not empty
+  virtual void Destroy_FullDirectory(const char* Path)
     throw(ServiceUnreachable);
 
   //! get IORstring naming service address 
@@ -154,3 +170,4 @@ protected:
 };
 
 #endif // SALOME_NAMINGSERVICE_H
+

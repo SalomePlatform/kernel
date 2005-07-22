@@ -1,4 +1,4 @@
-#  SALOME MPIContainer : implemenation of container based on MPI libraries
+#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,46 +21,21 @@
 #
 #
 #
-#  File   : Makefile.in
+#  File   : LifeCycleCORBA.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
 
+import Engines
+from libSALOME_LifeCycleCORBA import *
 
-@COMMENCE@
+class LifeCycleCORBA (SALOME_LifeCycleCORBA):
 
-EXPORT_PYSCRIPTS = 
+    def __init__(self, orb = None):
+        SALOME_LifeCycleCORBA.__init__(self)
 
-EXPORT_HEADERS = \
-	MPIObject_i.hxx \
-	MPIContainer_i.hxx
-
-# Libraries targets
-
-LIB = libSalomeMPIContainer.la 
-LIB_SRC = MPIObject_i.cxx  MPIContainer_i.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl
-LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
-
-# Executables targets
-BIN = SALOME_MPIContainer
-BIN_SRC = 
-BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
-
-CPPFLAGS+= $(PYTHON_INCLUDES) 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager
-
-ifeq (@WITHMPI@,yes)
-  LIBS += $(PYTHON_LIBS) $(MPI_LIBS)
-  CXXFLAGS+=${MPI_INCLUDES}
-  CXX_DEPEND_FLAG+=${MPI_INCLUDES}
-  LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
-  LIBSFORBIN= $(LIBS)
-endif
-
-@CONCLUDE@
+    def FindOrLoadComponent(self, containerName, componentName):
+        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,
+                                                          containerName,
+                                                          componentName)

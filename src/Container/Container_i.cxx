@@ -56,7 +56,7 @@ using namespace std;
 
 bool _Sleeping = false ;
 
-// Needed by multi-threaded Python
+// // Needed by multi-threaded Python --- Supervision
 int _ArgC ;
 char ** _ArgV ;
 
@@ -72,7 +72,6 @@ extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 #endif
 
 
-const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
 map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
@@ -109,25 +108,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   if(activAndRegist)
     ActSigIntHandler() ;
 
-  _ArgC = argc ;
-  _ArgV = argv ;
-
   _argc = argc ;
   _argv = argv ;
-  int i = strlen( _argv[ 0 ] ) - 1 ;
-  while ( i >= 0 )
-    {
-      if ( _argv[ 0 ][ i ] == '/' )
-	{
-	  _argv[ 0 ][ i+1 ] = '\0' ;
-	  break ;
-	}
-      i -= 1 ;
-    }
+
   string hostname = GetHostname();
   MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
 	  << _argc << " Thread " << pthread_self() ) ;
-  i = 0 ;
+
+  int i = 0 ;
   while ( _argv[ i ] )
     {
       MESSAGE("           argv" << i << " " << _argv[ i ]) ;
@@ -143,8 +131,12 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   _isSupervContainer = false;
   if (strcmp(argv[1],"SuperVisionContainer") == 0) _isSupervContainer = true;
 
-  _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
-  
+  if (_isSupervContainer)
+    {
+      _ArgC = argc ;
+      _ArgV = argv ;
+    }
+
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
   
@@ -159,6 +151,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       CORBA::Object_var obj=_poa->id_to_reference(*_id);
       Engines::Container_var pCont 
 	= Engines::Container::_narrow(obj);
+
+      _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
       SCRUTE(_containerName);
       _NS->Register(pCont, _containerName.c_str());
 
@@ -253,7 +247,7 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
-  _NS->Destroy_Name(_containerName.c_str());
+  _NS->Destroy_FullDirectory(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
@@ -783,25 +777,6 @@ bool Engines_Container_i::isPythonContainer(const char* ContainerName)
 
 //=============================================================================
 /*! 
- *  Returns string = container path + name, to use in Naming service
- */
-//=============================================================================
-
-string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName,
-						    const char *hostname)
-{
-  string ret="/Containers/";
-  ret += hostname;
-  ret+="/";
-  if (strlen(ContainerName)== 0)
-    ret+=_defaultContainerName;
-  else
-    ret += ContainerName;
-  return ret;
-}
-
-//=============================================================================
-/*! 
  *  
  */
 //=============================================================================
@@ -825,7 +800,13 @@ void ActSigIntHandler()
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
-  INFOS(pthread_self() << "SigIntHandler activated") ;
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==INFOS is commented
+  //  INFOS(pthread_self() << "SigIntHandler activated") ;
 #else  
   signal( SIGINT, SigIntHandler );
   signal( SIGUSR1, SigIntHandler );
@@ -837,15 +818,20 @@ void SetCpuUsed() ;
 
 #ifndef WNT
 void SigIntHandler(int what , siginfo_t * siginfo ,
-                                        void * toto )
-{
-  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
-          << "              si_signo " << siginfo->si_signo << endl
-          << "              si_code  " << siginfo->si_code << endl
-          << "              si_pid   " << siginfo->si_pid) ;
+                                        void * toto ) {
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==MESSAGE is commented
+  //  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
+  //          << "              si_signo " << siginfo->si_signo << endl
+  //          << "              si_code  " << siginfo->si_code << endl
+  //          << "              si_pid   " << siginfo->si_pid) ;
   if ( _Sleeping ) {
     _Sleeping = false ;
-    MESSAGE("SigIntHandler END sleeping.") ;
+    //     MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
   else {
@@ -855,13 +841,13 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     else {
       _Sleeping = true ;
-      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+      //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
       }
-      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+      //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
     return ;
   }
@@ -998,3 +984,5 @@ void SigIntHandler( int what ) {
 //   MESSAGE("Engines_Container_i::machineName " << s);
 //    return CORBA::string_dup(s.c_str()) ;
 // }
+
+

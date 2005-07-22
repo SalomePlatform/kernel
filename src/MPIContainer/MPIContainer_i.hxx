@@ -48,38 +48,58 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   // Destructor
   ~Engines_MPIContainer_i();
 
-  // Launch a new MPI container from the current container
-  Engines::MPIContainer_ptr start_MPIimpl(const char* ContainerName,
-					  CORBA::Short nbproc);
+  // shutdown corba server
+  void Shutdown();
+
+  // Load a component library
+  // synchronous version for process 0
+  bool load_component_Library(const char* componentName);
+  // asynchronous version for other process
+  void Asload_component_Library(const char* componentName);
+
+  // Create an instance of component
+  // synchronous version for process 0
+  Engines::Component_ptr
+  create_component_instance( const char* componentName,
+			     CORBA::Long studyId); // 0 for multiStudy
+  // asynchronous version for other process
+  void Ascreate_component_instance( const char* componentName,
+				  CORBA::Long studyId); // 0 for multiStudy
 
   // Load a component in current MPI container
   // synchronous version for process 0
   Engines::Component_ptr load_impl(const char* nameToRegister,
 				   const char* componentName);
-  // shutdown corba server
-  void MPIShutdown();
-
   // asynchronous version for other process
-  void SPload_impl(const char* nameToRegister, const char* componentName);
+  void Asload_impl(const char* nameToRegister, const char* componentName);
 
   // Unload a component from current MPI container
   // synchronous version for process 0
   void remove_impl(Engines::Component_ptr component_i);
   // asynchronous version for other process
-  void SPremove_impl(Engines::Component_ptr component_i);
+  void Asremove_impl(Engines::Component_ptr component_i);
 
   // synchronous version for process 0
   void finalize_removal();
   // asynchronous version for other process
-  void SPfinalize_removal();
+  void Asfinalize_removal();
 
  private:
   // local version to not duplicate code 
   // called by synchronous and asynchronous version
+  bool Lload_component_Library(const char* componentName);
+  Engines::Component_ptr
+  Lcreate_component_instance( const char* componentName,
+			      CORBA::Long studyId); // 0 for multiStudy
   Engines::Component_ptr Lload_impl(const char* nameToRegister,
 				    const char* componentName);
   void Lremove_impl(Engines::Component_ptr component_i);
   void Lfinalize_removal();
+
+  Engines::Component_ptr
+  createMPIInstance(std::string genericRegisterName,
+		    void *handle,
+		    int studyId);
 
 };
 #endif

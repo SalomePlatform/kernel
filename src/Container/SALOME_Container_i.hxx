@@ -75,9 +75,9 @@ public:
 
   // --- CORBA methods
 
-  bool load_component_Library(const char* componentName);
+  virtual bool load_component_Library(const char* componentName);
 
-  Engines::Component_ptr
+  virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
 			     CORBA::Long studyId); // 0 for multiStudy
 
@@ -92,16 +92,16 @@ public:
 
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
-  void Shutdown();
 
   char* getHostName();
   CORBA::Long getPID();
   char* name();
-  void ping();
-
+  char* machineName();
+  virtual void ping();
+  virtual void Shutdown();
+  //! Kill current container
   bool Kill_impl() ;
 
-  //char* machineName();
   //Engines::Component_ptr instance(const char* nameToRegister,
   //				   const char* componentName);
 
@@ -117,13 +117,13 @@ public:
 		 int studyId);
 
   static bool isPythonContainer(const char* ContainerName);
-  static std::string BuildContainerNameForNS(const char *ContainerName,
-					     const char *hostname);
   static void decInstanceCnt(std::string genericRegisterName);
 
 protected:
 
-  static const char *_defaultContainerName;
+  int getArgc() { return _argc; }
+  char **getArgv() { return _argv; }
+
   static std::map<std::string, int> _cntInstances_map;
   static std::map<std::string, void *> _library_map; // library names, loaded
   static std::map<std::string, void *> _toRemove_map;// library names to remove
@@ -131,7 +131,7 @@ protected:
 
   bool _isSupervContainer;
 
-  SALOME_NamingService *_NS ;
+   SALOME_NamingService *_NS ;
   std::string _library_path;
   std::string _containerName;
   CORBA::ORB_var _orb;
@@ -149,4 +149,5 @@ protected:
 };
 
 #endif
+
 

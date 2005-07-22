@@ -36,7 +36,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
 
-EXPORT_PYSCRIPTS = LifeCycleCORBA.py Launchers.py
+EXPORT_PYSCRIPTS = Launchers.py
 
 # Libraries targets
 

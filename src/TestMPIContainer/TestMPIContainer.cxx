@@ -20,7 +20,7 @@
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-#include "LocalTraceCollector.hxx"
+#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 int main (int argc, char * argv[])
@@ -29,7 +29,7 @@ int main (int argc, char * argv[])
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
     
   BEGIN_OF(argv[0])
   try{
@@ -115,7 +115,7 @@ int main (int argc, char * argv[])
 //     // Clean-up.
 // //     iGenFact->finalize_removal() ;
 // //     sleep(5);
-    iGenFact->MPIShutdown();
+    iGenFact->Shutdown();
 //     INFOS("shut down corba server for Test MPI Container");
 //     orb->destroy();
   }

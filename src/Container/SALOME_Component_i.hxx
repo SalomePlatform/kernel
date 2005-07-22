@@ -43,6 +43,7 @@
 #include "NOTIFICATION.hxx"
 
 class RegistryConnexion;
+class Engines_Container_i;
 
 #if defined CONTAINER_EXPORTS
 #if defined WIN32
@@ -87,6 +88,7 @@ public:
   void ping();
 
   Engines::Container_ptr GetContainerRef();
+  Engines_Container_i *GetContainerPtr();
   PortableServer::ObjectId * getId(); 
 
   void setProperties(const Engines::FieldsDict& dico);
@@ -115,9 +117,6 @@ public:
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
-  static std::string BuildComponentNameForNS(const char *ComponentName,
-					     const char *ContainerName,
-					     const char *hostname);
 protected:
   static bool _isMultiStudy;
   static bool _isMultiInstance;
@@ -148,3 +147,4 @@ private:
 };
 
 #endif
+

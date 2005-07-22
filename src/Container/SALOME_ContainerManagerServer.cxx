@@ -1,4 +1,5 @@
 #include "SALOME_ContainerManager.hxx"
+#include "SALOMETraceCollector.hxx"
 #include "utilities.h"
 
 int main(int argc, char* argv[])
@@ -8,6 +9,9 @@ int main(int argc, char* argv[])
   CORBA::Object_var obj;
 
   CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  INFOS_COMPILATION;
+  BEGIN_OF(argv[0]);
   try{ 
 	obj = orb->resolve_initial_references("RootPOA");
 	if(!CORBA::is_nil(obj))
@@ -35,5 +39,7 @@ int main(int argc, char* argv[])
   }catch(...){
     MESSAGE("Caught unknown exception.");
   }
+  END_OF(argv[0]);
+  delete myThreadTrace;
 }
 

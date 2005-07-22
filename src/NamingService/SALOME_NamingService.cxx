@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -69,7 +70,8 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 
 SALOME_NamingService::~SALOME_NamingService()
 {
-  MESSAGE("SALOME_NamingService destruction");
+  // Problem MESSAGE with singleton: late destruction, after trace system destruction ?
+  //MESSAGE("SALOME_NamingService destruction");
 }
 
 //----------------------------------------------------------------------
@@ -377,6 +379,10 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
  * \param Path const char* argument like "/path/name"
  *  search the fist reference like "/path(.dir)/name*(.kind)"
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+
+
+
+
  * \return the object reference
  */
 //----------------------------------------------------------------------
@@ -416,6 +422,109 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
 	}
     }
   return obj;
+}
+
+//----------------------------------------------------------------------
+/*! Function : Resolve Component  from hostname, containername, componentName and number of prcoessors
+ *  Purpose  : method to get the ObjRef of a component
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ * \param hostname const char* argument
+ * \param containername const char* argument
+ * \param componentname const char* argument
+ * \param nbproc const int argument
+ * \return the object reference
+ */
+//----------------------------------------------------------------------
+
+CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+{
+
+  string name="/Containers/";
+  name += hostname;
+  if( strlen(containerName) != 0 ){
+    name += "/";
+    if( nbproc >=1 ){
+      char *newContainerName = new char[strlen(containerName)+8];
+      sprintf(newContainerName,"%s_%d",containerName,nbproc);
+      name += newContainerName;
+    }
+    else
+      name += containerName;
+    name += "/";
+    name += componentName;
+    return ResolveFirst(name.c_str());
+  }
+  else {
+    Change_Directory(name.c_str());
+    vector<string> contList = list_directory();
+    for(unsigned int ind = 0; ind < contList.size(); ind++){
+      name = contList[ind].c_str();
+      name += "/";
+      name += componentName;
+      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
+      if( !CORBA::is_nil(obj) )
+	return obj;
+    }
+    return CORBA::Object::_nil();
+  }
+
+}
+
+string SALOME_NamingService::ContainerName(const char *containerName)
+{
+  string ret;
+
+  if (strlen(containerName)== 0)
+    ret = "FactoryServer";
+  else
+    ret = containerName;
+
+  return ret;
+}
+
+string SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
+{
+  int nbproc;
+  if( !params.isMPI )
+    nbproc = 0;
+  else if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+    nbproc = 1;
+  else if( params.nb_node == 0 )
+    nbproc = params.nb_proc_per_node;
+  else if( params.nb_proc_per_node == 0 )
+    nbproc = params.nb_node;
+  else
+    nbproc = params.nb_node * params.nb_proc_per_node;
+
+  string ret=ContainerName(params.container_name);
+
+  if( nbproc >=1 ){
+    char *suffix = new char[8];
+    sprintf(suffix,"_%d",nbproc);
+    ret += suffix;
+  }
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(containerName);
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(params);
+
+  return ret;
 }
 
 //----------------------------------------------------------------------
@@ -1117,6 +1226,27 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
 }
 
 //----------------------------------------------------------------------
+/*! Function : Destroy_Directory.
+ *  Purpose  : method to destroy a directory if it is empty.
+ *  WARNING : The complete Path  to the directory (from the root_context)
+ *  to destroy should be given.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param Path const char* arguments
+ */
+//----------------------------------------------------------------------
+
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
+  throw(ServiceUnreachable)
+{
+  Change_Directory(Path);
+  vector<string> contList = list_directory();
+  for(unsigned int ind = 0; ind < contList.size(); ind++)
+    Destroy_Name(contList[ind].c_str());
+  Destroy_Directory(Path);
+  Destroy_Name(Path);
+}
+
+//----------------------------------------------------------------------
 /*! Function : _initialize_root_context
  * Purpose  :  method called by constructor to initialize _root_context
  */
@@ -1451,3 +1581,4 @@ char * SALOME_NamingService::getIORaddr()
 {
    return _orb->object_to_string(_root_context);
 }
+

@@ -6,6 +6,7 @@
 #include <SALOMEconfig.h>
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
+#include "SALOME_NamingService.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include <string>
 #include <fstream>
@@ -34,10 +35,10 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 {
 public:
   //! standard constructor
-  SALOME_ResourcesManager();
+  SALOME_ResourcesManager(CORBA::ORB_ptr orb);
 
   //!just for test
-  SALOME_ResourcesManager(const char *xmlFilePath);
+  SALOME_ResourcesManager(CORBA::ORB_ptr orb,const char *xmlFilePath);
   
   //! standard destructor
   ~SALOME_ResourcesManager();
@@ -49,10 +50,10 @@ public:
   std::string FindBest(const Engines::MachineList& listOfMachines);
 
   //! method that builds in a temporary file the script to be launched
-  std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,const char *containerName);
+  std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,const Engines::MachineParameters& params);
 
   //! method that builds the command to be launched.
-  std::string BuildCommandToLaunchLocalContainer(const char *containerName);
+  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params);
 
   //! method that remove the generated temporary file in case of a remote launch.
   void RmTmpFile();
@@ -78,6 +79,7 @@ public:
   const MapOfParserResourcesType& GetList() const;
 
 private:
+  SALOME_NamingService *_NS;
 
   //! method to verify ressources catalog content - return true if verfication is OK
   bool _verify_resources(MapOfParserResourcesType resourceslist);
