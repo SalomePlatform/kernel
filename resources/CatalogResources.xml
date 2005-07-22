@@ -1,8 +1,48 @@
 <!DOCTYPE ResourcesCatalog>
 <resources>
-<machine protocol="r" nbOfNodes="1" mode="i" OS="LINUX" CPUFreqMHz="3200" userName="BS" memInMB="1024" preReqFilePath="/export/home/kloss/Salome2_2.1.0_22.12.04/env_products.sh" nbOfProcPerNode="1" alias="is111793" hostname="is111793" >
-<modules modulePath="/export/home/kloss/Salome2_2.1.0_22.12.04/CCRTTEST_INSTALL" moduleName="CCRTTEST" />
-  <modules modulePath="/export/home/kloss/Salome2_2.1.0_22.12.04/KERNEL_INSTALL" moduleName="KERNEL" /> </machine>
- <machine protocol="r" nbOfNodes="1" mode="i" OS="LINUX" CPUFreqMHz="3200" userName="geay" memInMB="1024" preReqFilePath="/export/home/geay/SALOME_RES_MAN/env_products.sh" nbOfProcPerNode="1" alias="is111918" hostname="is111918" >
-<modules modulePath="/export/home/geay/CCRTTEST/CCRTTEST_INSTALL" moduleName="CCRTTEST" />
-  <modules modulePath="/export/home/geay/SALOME_RES_MAN/KERNEL_INSTALL" moduleName="KERNEL" /> </machine></resources>
+
+<machine hostname="is111790" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL/salome.sh" >
+<modules modulePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL" moduleName="KERNEL" />
+<modules modulePath="/export/home/LGLS/Products/MED_3.0.0" moduleName="MED" />
+<modules modulePath="/export/home/LGLS/Products/GEOM_3.0.0" moduleName="GEOM" />
+<modules modulePath="/export/home/LGLS/Products/SMESH_3.0.0" moduleName="SMESH" />
+<modules modulePath="/export/home/LGLS/Products/SUPERV_3.0.0" moduleName="SUPERV" />
+<modules modulePath="/export/home/LGLS/Products/VISU_3.0.0" moduleName="VISU" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYCOMPO_INSTALL" moduleName="MYCOMPO" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYMPICOMPO_INSTALL" moduleName="MYMPICOMPO" />
+</machine>
+
+<machine hostname="is111915" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL/salome.sh" >
+<modules modulePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL" moduleName="KERNEL" />
+<modules modulePath="/export/home/LGLS/Products/MED_3.0.0" moduleName="MED" />
+<modules modulePath="/export/home/LGLS/Products/GEOM_3.0.0" moduleName="GEOM" />
+<modules modulePath="/export/home/LGLS/Products/SMESH_3.0.0" moduleName="SMESH" />
+<modules modulePath="/export/home/LGLS/Products/SUPERV_3.0.0" moduleName="SUPERV" />
+<modules modulePath="/export/home/LGLS/Products/VISU_3.0.0" moduleName="VISU" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYCOMPO_INSTALL" moduleName="MYCOMPO" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYMPICOMPO_INSTALL" moduleName="MYMPICOMPO" />
+</machine>
+
+<machine hostname="is111918" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL/salome.sh" >
+<modules modulePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL" moduleName="KERNEL" />
+<modules modulePath="/export/home/LGLS/Products/MED_3.0.0" moduleName="MED" />
+<modules modulePath="/export/home/LGLS/Products/GEOM_3.0.0" moduleName="GEOM" />
+<modules modulePath="/export/home/LGLS/Products/SMESH_3.0.0" moduleName="SMESH" />
+<modules modulePath="/export/home/LGLS/Products/SUPERV_3.0.0" moduleName="SUPERV" />
+<modules modulePath="/export/home/LGLS/Products/VISU_3.0.0" moduleName="VISU" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYCOMPO_INSTALL" moduleName="MYCOMPO" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYMPICOMPO_INSTALL" moduleName="MYMPICOMPO" />
+</machine>
+
+<machine hostname="is111996" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL/salome.sh" >
+<modules modulePath="/home/secher/SALOME2_INSTALL/KERNEL_INSTALL" moduleName="KERNEL" />
+<modules modulePath="/export/home/LGLS/Products/MED_3.0.0" moduleName="MED" />
+<modules modulePath="/export/home/LGLS/Products/GEOM_3.0.0" moduleName="GEOM" />
+<modules modulePath="/export/home/LGLS/Products/SMESH_3.0.0" moduleName="SMESH" />
+<modules modulePath="/export/home/LGLS/Products/SUPERV_3.0.0" moduleName="SUPERV" />
+<modules modulePath="/export/home/LGLS/Products/VISU_3.0.0" moduleName="VISU" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYCOMPO_INSTALL" moduleName="MYCOMPO" />
+<modules modulePath="/home/secher/SALOME2_INSTALL/MYMPICOMPO_INSTALL" moduleName="MYMPICOMPO" />
+</machine>
+
+</resources>

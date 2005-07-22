@@ -182,7 +182,7 @@ echo testing OpenPBS
 echo ---------------------------------------------
 echo
 
-dnl openpbs_ok=no
+openpbs_ok=no
 CHECK_OPENPBS
 dnl openpbs_ok is set to yes by CHECK_OPENPBS
 
@@ -198,7 +198,7 @@ echo testing LSF
 echo ---------------------------------------------
 echo
 
-dnl lsf_ok=no
+lsf_ok=no
 CHECK_LSF
 dnl lsf_ok is set to yes by CHECK_LSF
 
@@ -360,7 +360,18 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok openpbs_ok lsf_ok"
+variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
+ 
+for var in $variables
+do
+   eval toto=\$$var
+   if test x$toto != "x"; then
+     printf "   %10s : " `echo \$var | sed -e "s,_ok,,"`
+     eval echo \$$var
+   fi
+done
+echo "---Optional:"
+variables="openpbs_ok lsf_ok"
  
 for var in $variables
 do
@@ -428,13 +439,14 @@ dnl directory
 
 mkdir -p bin/salome
 cd bin/salome
-for i in $ROOT_SRCDIR/bin/*
+for i in  `find $ROOT_SRCDIR/bin`
 do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
+  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
   case "$local_bin" in
         *.in | *~) ;;
-        ./bin/CVS | ./bin/salome) ;;
-        *) $INSTALL $i .; echo $local_bin ;;
+        . | */CVS | */CVS/* | ./salome) ;;
+        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
+        *) $INSTALL $i $local_bin; echo $local_bin ;;
   esac
 done
 cd $ROOT_BUILDDIR
@@ -464,3 +476,4 @@ AC_OUTPUT_COMMANDS([ \
 ])
 
 ## do not delete this line
+

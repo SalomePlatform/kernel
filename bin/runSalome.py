@@ -417,17 +417,6 @@ class SessionServer(Server):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
-
-      # arguments SALOME_Session_Server pour ddd
-        comm_ddd=""
-        for mot in self.CMD:
-            if mot == "(":
-                comm_ddd+='"(" '
-            elif mot == ")":
-                comm_ddd+='")" '
-            else:
-                comm_ddd+=mot+" "
-        print comm_ddd
       
 # ---
 
@@ -632,9 +621,6 @@ def startSalome(args, modules_list, modules_root_dir):
         clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 ##----------------        
 
-    #macomm2=['ddd']
-    #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
-    #
     # Attente de la disponibilite du Session Server dans le Naming Service
     #
 

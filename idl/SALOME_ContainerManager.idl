@@ -18,6 +18,7 @@ struct MachineParameters
   long cpu_clock;
   long nb_proc_per_node;
   long nb_node;
+  boolean isMPI;
 };
 
 /*!
@@ -30,9 +31,7 @@ struct MachineParameters
 */
   interface ContainerManager
   {
-    Container FindOrStartContainer( in string containerName,
-				    in MachineList possibleComputers);
-
+    Container FindOrStartContainer( in MachineParameters params, in MachineList possibleComputers);
     string FindBest(in MachineList possibleComputers);
 
     MachineList GetFittingResources( in MachineParameters params,
