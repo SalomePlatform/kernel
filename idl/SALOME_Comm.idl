@@ -1,3 +1,6 @@
+#ifndef _SALOME_COMM_IDL_
+#define _SALOME_COMM_IDL_
+
 #include "SALOME_Exception.idl"
 
 module SALOME {
@@ -97,3 +100,5 @@ module SALOME {
   interface SocketSenderInt : SenderInt,SocketSender {
   };
 };
+
+#endif
