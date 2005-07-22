@@ -137,7 +137,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfReal_i::GetRowUnits()
   SALOMEDS::StringSeq_var aUnits = new SALOMEDS::StringSeq;
   aUnits->length(aTable->GetNbRows());
   for(int i = 0; i < aUnits->length(); i++)
-    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(aTable->GetRowTitle(i + 1)).ToCString());
+    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(aTable->GetRowUnit(i + 1)).ToCString());
   return aUnits._retn();
 }
 
