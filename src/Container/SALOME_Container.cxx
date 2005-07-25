@@ -33,6 +33,8 @@
 #include <unistd.h>
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
+#include "Utils_ORB_INIT.hxx"
+#include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
@@ -57,7 +59,12 @@ int main(int argc, char* argv[])
 #endif
 
   // Initialise the ORB.
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
+  //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  CORBA::ORB_var orb = init(0 , 0 ) ;
+	  
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
