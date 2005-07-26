@@ -674,12 +674,14 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long theUndoLimit)
   int aLegth = aSeq->Length();
   for(int i = 1; i <= aLegth; i++) {
     TCollection_AsciiString anIOR = aSeq->Value(i);
-    if (anIOR.Value(1) == 'c') {
+    //mkr : fix for bug IPAL9408 : check the length of anIOR
+    //                             before take value from it
+    if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'c') {
       CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
       if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
     }
-    else if (anIOR.Value(1) == 'd') {
+    else if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'd') {
       CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
       if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
