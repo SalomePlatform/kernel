@@ -19,7 +19,9 @@ class Handle(TDF_RelocationTable);
 
 DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributePythonObject, SALOMEDSImpl_GenericAttribute )
 
-
+#ifdef GetObject
+#undef GetObject
+#endif
 
 class SALOMEDSImpl_AttributePythonObject : public SALOMEDSImpl_GenericAttribute 
 {

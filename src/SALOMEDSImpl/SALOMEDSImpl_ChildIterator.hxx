@@ -22,18 +22,18 @@ private:
 
 public:
 
-  SALOMEDSImpl_ChildIterator(const Handle(SALOMEDSImpl_SObject)& theSO);
-  SALOMEDSImpl_ChildIterator(const TDF_Label& theLabel);
-  ~SALOMEDSImpl_ChildIterator() {};
+  Standard_EXPORT SALOMEDSImpl_ChildIterator(const Handle(SALOMEDSImpl_SObject)& theSO);
+  Standard_EXPORT SALOMEDSImpl_ChildIterator(const TDF_Label& theLabel);
+  Standard_EXPORT ~SALOMEDSImpl_ChildIterator() {};
 
-  virtual void Init();
-  virtual void Init(const TDF_Label& theLabel);
-  virtual void InitEx(bool theAllLevels);
-  virtual void InitEx(const TDF_Label& theLabel, bool theAllLevels);
-  virtual bool More();
-  virtual void Next();
-  virtual Handle(SALOMEDSImpl_SObject) Value();
-  virtual TDF_Label Label();
+  Standard_EXPORT virtual void Init();
+  Standard_EXPORT virtual void Init(const TDF_Label& theLabel);
+  Standard_EXPORT virtual void InitEx(bool theAllLevels);
+  Standard_EXPORT virtual void InitEx(const TDF_Label& theLabel, bool theAllLevels);
+  Standard_EXPORT virtual bool More();
+  Standard_EXPORT virtual void Next();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) Value();
+  Standard_EXPORT virtual TDF_Label Label();
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_SObject )

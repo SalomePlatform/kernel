@@ -109,7 +109,9 @@ public:
   ~SALOME_CorbaLongCSender_i();
   CORBA::ULong getSize();
   SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
+#ifndef WNT
   SALOME::CorbaLongCSender_ptr _this();
+#endif
 };
 
 #ifdef HAVE_MPI2

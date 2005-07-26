@@ -34,31 +34,31 @@ protected:
 
 public:
   
-  SALOMEDSImpl_SObject(const TDF_Label& theLabel);
-  ~SALOMEDSImpl_SObject();
+  Standard_EXPORT SALOMEDSImpl_SObject(const TDF_Label& theLabel);
+  Standard_EXPORT ~SALOMEDSImpl_SObject();
   
-  virtual TCollection_AsciiString GetID();
-  virtual Handle(SALOMEDSImpl_SComponent) GetFatherComponent();
-  virtual Handle(SALOMEDSImpl_SObject) GetFather() ;
-  virtual bool FindAttribute(Handle(TDF_Attribute)& theAttribute, const TCollection_AsciiString& theTypeOfAttribute);
-  virtual bool ReferencedObject(Handle(SALOMEDSImpl_SObject)& theObject) ;
-  virtual bool FindSubObject(int theTag, Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual TCollection_AsciiString GetID();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SComponent) GetFatherComponent();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) GetFather() ;
+  Standard_EXPORT virtual bool FindAttribute(Handle(TDF_Attribute)& theAttribute, const TCollection_AsciiString& theTypeOfAttribute);
+  Standard_EXPORT virtual bool ReferencedObject(Handle(SALOMEDSImpl_SObject)& theObject) ;
+  Standard_EXPORT virtual bool FindSubObject(int theTag, Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual Handle(SALOMEDSImpl_Study) GetStudy() ;
-  virtual TCollection_AsciiString Name() { return _name; }
-  virtual void Name(const TCollection_AsciiString& theName) { _name = theName; }
-  virtual Handle(TColStd_HSequenceOfTransient) GetAllAttributes();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) GetStudy() ;
+  Standard_EXPORT virtual TCollection_AsciiString Name() { return _name; }
+  Standard_EXPORT virtual void Name(const TCollection_AsciiString& theName) { _name = theName; }
+  Standard_EXPORT virtual Handle(TColStd_HSequenceOfTransient) GetAllAttributes();
 
-  virtual TCollection_AsciiString GetName();
-  virtual TCollection_AsciiString GetComment();
-  virtual TCollection_AsciiString GetIOR();
+  Standard_EXPORT virtual TCollection_AsciiString GetName();
+  Standard_EXPORT virtual TCollection_AsciiString GetComment();
+  Standard_EXPORT virtual TCollection_AsciiString GetIOR();
 
-  virtual int Tag() { return _lab.Tag(); }
-  virtual int Depth() { return _lab.Depth(); }
+  Standard_EXPORT virtual int Tag() { return _lab.Tag(); }
+  Standard_EXPORT virtual int Depth() { return _lab.Depth(); }
 
-  virtual TDF_Label GetLabel() { return _lab; }   
+  Standard_EXPORT virtual TDF_Label GetLabel() { return _lab; }   
 
-  static Standard_GUID GetGUID(const TCollection_AsciiString& theTypeOfAttribute);
+  Standard_EXPORT static Standard_GUID GetGUID(const TCollection_AsciiString& theTypeOfAttribute);
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_SObject )

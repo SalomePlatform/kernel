@@ -15,7 +15,7 @@
 #include <TDF_Label.hxx>
 #include <stdio.h>
 
-class SALOMEDSImpl_SComponentIterator
+class Standard_EXPORT SALOMEDSImpl_SComponentIterator
 {
 private:
 

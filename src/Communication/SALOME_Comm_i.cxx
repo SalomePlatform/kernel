@@ -1,4 +1,6 @@
+#ifndef WNT
 #include <rpc/xdr.h>
+#endif
 #include "SALOME_Comm_i.hxx"
 #include "poa.h"
 #include "omnithread.h"
@@ -9,11 +11,13 @@
 #include "SenderFactory.hxx"
 using namespace std;
 
+#ifndef WNT
 CORBA::ORB_var &getGlobalORB(){
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
   CORBA::ORB_var &orb = init(0,0);
   return orb;
 }
+#endif
 
 /*! Return the C++ data associated to the array to transmit.
   Used when sender and receiver are collocalized.

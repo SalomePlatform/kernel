@@ -1,5 +1,7 @@
 #include "SALOMEMultiComm.hxx"
+#ifndef WNT
 using namespace std;
+#endif
 
 SALOMEMultiComm::SALOMEMultiComm():_type(SALOME::CORBA_)
 {

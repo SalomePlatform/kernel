@@ -31,74 +31,74 @@ private:
 
 public:
     
-  SALOMEDSImpl_StudyBuilder(const Handle(Standard_Transient)& theOwner);
+  Standard_EXPORT SALOMEDSImpl_StudyBuilder(const Handle(Standard_Transient)& theOwner);
 
-  ~SALOMEDSImpl_StudyBuilder();
+  Standard_EXPORT ~SALOMEDSImpl_StudyBuilder();
 
-  virtual Handle(SALOMEDSImpl_SComponent) NewComponent(const TCollection_AsciiString& ComponentDataType);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SComponent) NewComponent(const TCollection_AsciiString& ComponentDataType);
 
-  virtual bool DefineComponentInstance (const Handle(SALOMEDSImpl_SComponent)&, const TCollection_AsciiString& ComponentIOR);
+  Standard_EXPORT virtual bool DefineComponentInstance (const Handle(SALOMEDSImpl_SComponent)&, const TCollection_AsciiString& ComponentIOR);
   
-  virtual bool RemoveComponent(const Handle(SALOMEDSImpl_SComponent)& aComponent);
+  Standard_EXPORT virtual bool RemoveComponent(const Handle(SALOMEDSImpl_SComponent)& aComponent);
 
-  virtual Handle(SALOMEDSImpl_SObject) NewObject(const Handle(SALOMEDSImpl_SObject)& theFatherObject);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) NewObject(const Handle(SALOMEDSImpl_SObject)& theFatherObject);
 
-  virtual Handle(SALOMEDSImpl_SObject) NewObjectToTag(const Handle(SALOMEDSImpl_SObject)& theFatherObject, 
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) NewObjectToTag(const Handle(SALOMEDSImpl_SObject)& theFatherObject, 
                                                       const int theTag);
 
   //! The methods adds a new subdirectory, the path can be absolute or relative (then the current context is used)
-  virtual bool AddDirectory(const TCollection_AsciiString& thePath);
+  Standard_EXPORT virtual bool AddDirectory(const TCollection_AsciiString& thePath);
 
-  virtual bool LoadWith(const Handle(SALOMEDSImpl_SComponent)& sco, SALOMEDSImpl_Driver* Engine);
-  virtual bool Load(const Handle(SALOMEDSImpl_SObject)& sco);
+  Standard_EXPORT virtual bool LoadWith(const Handle(SALOMEDSImpl_SComponent)& sco, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool Load(const Handle(SALOMEDSImpl_SObject)& sco);
 
-  virtual bool RemoveObject(const Handle(SALOMEDSImpl_SObject)& anObject);
-  virtual bool RemoveObjectWithChildren(const Handle(SALOMEDSImpl_SObject)& anObject);
+  Standard_EXPORT virtual bool RemoveObject(const Handle(SALOMEDSImpl_SObject)& anObject);
+  Standard_EXPORT virtual bool RemoveObjectWithChildren(const Handle(SALOMEDSImpl_SObject)& anObject);
 
-  virtual Handle(TDF_Attribute) FindOrCreateAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
+  Standard_EXPORT virtual Handle(TDF_Attribute) FindOrCreateAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
                                                       const TCollection_AsciiString& aTypeOfAttribute);
-  virtual bool FindAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
+  Standard_EXPORT virtual bool FindAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
                              Handle(TDF_Attribute)& anAttribute, 
                              const TCollection_AsciiString& aTypeOfAttribute);
 
-  virtual bool RemoveAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& aTypeOfAttribute);
+  Standard_EXPORT virtual bool RemoveAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& aTypeOfAttribute);
 
-  virtual bool Addreference(const Handle(SALOMEDSImpl_SObject)& me, 
+  Standard_EXPORT virtual bool Addreference(const Handle(SALOMEDSImpl_SObject)& me, 
                             const Handle(SALOMEDSImpl_SObject)& thereferencedObject);
 
-  virtual bool RemoveReference(const Handle(SALOMEDSImpl_SObject)& me);
+  Standard_EXPORT virtual bool RemoveReference(const Handle(SALOMEDSImpl_SObject)& me);
 
-  virtual bool SetGUID(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& theGUID);
-  virtual bool IsGUID(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& theGUID);
+  Standard_EXPORT virtual bool SetGUID(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& theGUID);
+  Standard_EXPORT virtual bool IsGUID(const Handle(SALOMEDSImpl_SObject)& anObject, const TCollection_AsciiString& theGUID);
 
-  virtual void NewCommand();
-  virtual void CommitCommand();
-  virtual bool HasOpenCommand();
-  virtual void AbortCommand();
-  virtual void Undo();
-  virtual void Redo();
-  bool GetAvailableUndos();
-  bool GetAvailableRedos();
-  bool IsSaved();
-  bool IsModified();
-  virtual int UndoLimit();
-  virtual void UndoLimit(const int);
+  Standard_EXPORT virtual void NewCommand();
+  Standard_EXPORT virtual void CommitCommand();
+  Standard_EXPORT virtual bool HasOpenCommand();
+  Standard_EXPORT virtual void AbortCommand();
+  Standard_EXPORT virtual void Undo();
+  Standard_EXPORT virtual void Redo();
+  Standard_EXPORT bool GetAvailableUndos();
+  Standard_EXPORT bool GetAvailableRedos();
+  Standard_EXPORT bool IsSaved();
+  Standard_EXPORT bool IsModified();
+  Standard_EXPORT virtual int UndoLimit();
+  Standard_EXPORT virtual void UndoLimit(const int);
 
-  void CheckLocked();
+  Standard_EXPORT void CheckLocked();
 
-  virtual Handle(SALOMEDSImpl_Callback) SetOnAddSObject(const Handle(SALOMEDSImpl_Callback)& theCallback);
-  virtual Handle(SALOMEDSImpl_Callback) SetOnRemoveSObject(const Handle(SALOMEDSImpl_Callback)& theCallback);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Callback) SetOnAddSObject(const Handle(SALOMEDSImpl_Callback)& theCallback);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Callback) SetOnRemoveSObject(const Handle(SALOMEDSImpl_Callback)& theCallback);
 
-  virtual bool SetName(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
+  Standard_EXPORT virtual bool SetName(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
 
-  virtual bool SetComment(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
+  Standard_EXPORT virtual bool SetComment(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
 
-  virtual bool SetIOR(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
+  Standard_EXPORT virtual bool SetIOR(const Handle(SALOMEDSImpl_SObject)& theSO, const TCollection_AsciiString& theValue);
 
-  virtual TCollection_AsciiString GetErrorCode() { return _errorCode; }
-  virtual bool IsError() { return _errorCode != ""; }
+  Standard_EXPORT virtual TCollection_AsciiString GetErrorCode() { return _errorCode; }
+  Standard_EXPORT virtual bool IsError() { return _errorCode != ""; }
 
-  virtual Handle(Standard_Transient) GetOwner() { return _study; }
+  Standard_EXPORT virtual Handle(Standard_Transient) GetOwner() { return _study; }
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_StudyBuilder )

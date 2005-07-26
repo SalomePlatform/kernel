@@ -39,87 +39,87 @@ private:
 public:
 
   //! standard constructor
-  SALOMEDSImpl_StudyManager();
+  Standard_EXPORT SALOMEDSImpl_StudyManager();
 
   //! standard destructor
-  virtual  ~SALOMEDSImpl_StudyManager(); 
+  Standard_EXPORT virtual  ~SALOMEDSImpl_StudyManager(); 
 
   //! method to Create a New Study of name study_name
-  virtual Handle(SALOMEDSImpl_Study) NewStudy(const TCollection_AsciiString& study_name);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) NewStudy(const TCollection_AsciiString& study_name);
 
   //! method to Open a Study from it's persistent reference
-  virtual Handle(SALOMEDSImpl_Study) Open(const TCollection_AsciiString& aStudyUrl);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) Open(const TCollection_AsciiString& aStudyUrl);
 
   //! method to close a Study 
-  virtual void Close(const Handle(SALOMEDSImpl_Study)& aStudy);
+  Standard_EXPORT virtual void Close(const Handle(SALOMEDSImpl_Study)& aStudy);
 
   //! method to save a Study 
-  virtual bool Save(const Handle(SALOMEDSImpl_Study)& aStudy, SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
+  Standard_EXPORT virtual bool Save(const Handle(SALOMEDSImpl_Study)& aStudy, SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
 
-  virtual bool SaveASCII(const Handle(SALOMEDSImpl_Study)& aStudy, 
+  Standard_EXPORT virtual bool SaveASCII(const Handle(SALOMEDSImpl_Study)& aStudy, 
 			 SALOMEDSImpl_DriverFactory* aFactory, 
 			 bool theMultiFile);
 
   //! method to save a Study to the persistent reference aUrl
-  virtual bool SaveAs(const TCollection_AsciiString& aUrl,  
+  Standard_EXPORT virtual bool SaveAs(const TCollection_AsciiString& aUrl,  
 		      const Handle(SALOMEDSImpl_Study)& aStudy, 
 		      SALOMEDSImpl_DriverFactory* aFactory,
 		      bool theMultiFile);
 
-  virtual bool SaveAsASCII(const TCollection_AsciiString& aUrl, 
+  Standard_EXPORT virtual bool SaveAsASCII(const TCollection_AsciiString& aUrl, 
 			   const Handle(SALOMEDSImpl_Study)& aStudy, 
 			   SALOMEDSImpl_DriverFactory* aFactory,
 			   bool theMultiFile);
 
   //! method to Get name list of open studies in the session
-  virtual Handle(TColStd_HSequenceOfTransient) GetOpenStudies();
+  Standard_EXPORT virtual Handle(TColStd_HSequenceOfTransient) GetOpenStudies();
 
   //! method to get a Study from it's name
-  virtual Handle(SALOMEDSImpl_Study) GetStudyByName(const TCollection_AsciiString& aStudyName) ;
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) GetStudyByName(const TCollection_AsciiString& aStudyName) ;
 
   //! method to get a Study from it's ID
-  virtual Handle(SALOMEDSImpl_Study) GetStudyByID(int aStudyID) ;
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) GetStudyByID(int aStudyID) ;
 
 
-  Handle(TDocStd_Document) GetDocumentOfStudy(const Handle(SALOMEDSImpl_Study)& theStudy);
+  Standard_EXPORT Handle(TDocStd_Document) GetDocumentOfStudy(const Handle(SALOMEDSImpl_Study)& theStudy);
 
-  Handle(TDocStd_Document) GetClipboard() { return _clipboard; }
+  Standard_EXPORT Handle(TDocStd_Document) GetClipboard() { return _clipboard; }
   
-  bool CopyLabel(const Handle(SALOMEDSImpl_Study)& theSourceStudy, 
+  Standard_EXPORT bool CopyLabel(const Handle(SALOMEDSImpl_Study)& theSourceStudy, 
 		 SALOMEDSImpl_Driver* theEngine,
 		 const int theSourceStartDepth,
 		 const TDF_Label& theSource,
 		 const TDF_Label& theDestinationMain);
 
-  TDF_Label PasteLabel(const Handle(SALOMEDSImpl_Study)& theDestinationStudy,
+  Standard_EXPORT TDF_Label PasteLabel(const Handle(SALOMEDSImpl_Study)& theDestinationStudy,
 		       SALOMEDSImpl_Driver* theEngine,
 		       const TDF_Label& theSource,
 		       const TDF_Label& theDestinationStart,
 		       const int theCopiedStudyID,
 		       const bool isFirstElement);
   
-  virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  virtual bool Copy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  virtual bool CanPaste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  virtual Handle(SALOMEDSImpl_SObject) Paste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool Copy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool CanPaste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) Paste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
 
   // _SaveAs private function called by Save and SaveAs
-  virtual bool Impl_SaveAs(const TCollection_AsciiString& aUrl,
+  Standard_EXPORT virtual bool Impl_SaveAs(const TCollection_AsciiString& aUrl,
 			   const Handle(SALOMEDSImpl_Study)& aStudy,
 			   SALOMEDSImpl_DriverFactory* aFactory,
 			   bool theMultiFile,
 			   bool theASCII);
 
   // _SaveObject private function called by _SaveAs
-  virtual bool Impl_SaveObject(const Handle(SALOMEDSImpl_SObject)& SC, HDFgroup *hdf_group_datatype);
+  Standard_EXPORT virtual bool Impl_SaveObject(const Handle(SALOMEDSImpl_SObject)& SC, HDFgroup *hdf_group_datatype);
 
   // _SubstituteSlash function called by Open and GetStudyByName
-  virtual TCollection_AsciiString Impl_SubstituteSlash(const TCollection_AsciiString& aUrl);
+  Standard_EXPORT virtual TCollection_AsciiString Impl_SubstituteSlash(const TCollection_AsciiString& aUrl);
 
-  virtual bool Impl_SaveProperties(const Handle(SALOMEDSImpl_Study)& aStudy, HDFgroup *hdf_group);
+  Standard_EXPORT virtual bool Impl_SaveProperties(const Handle(SALOMEDSImpl_Study)& aStudy, HDFgroup *hdf_group);
 
-  TCollection_AsciiString GetErrorCode() { return _errorCode; }
-  virtual bool IsError() { return _errorCode != ""; }
+  Standard_EXPORT TCollection_AsciiString GetErrorCode() { return _errorCode; }
+  Standard_EXPORT virtual bool IsError() { return _errorCode != ""; }
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_StudyManager )

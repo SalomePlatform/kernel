@@ -28,38 +28,38 @@ private:
 public:
 
   //! standard constructor  
-  SALOMEDSImpl_UseCaseBuilder(const Handle(TDocStd_Document)& theDocument);
+  Standard_EXPORT SALOMEDSImpl_UseCaseBuilder(const Handle(TDocStd_Document)& theDocument);
   
   //! standard destructor
-  ~SALOMEDSImpl_UseCaseBuilder();
+  Standard_EXPORT ~SALOMEDSImpl_UseCaseBuilder();
   
-  virtual bool Append(const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool Append(const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual bool Remove(const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool Remove(const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual bool AppendTo(const Handle(SALOMEDSImpl_SObject)& theFather, const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool AppendTo(const Handle(SALOMEDSImpl_SObject)& theFather, const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual bool InsertBefore(const Handle(SALOMEDSImpl_SObject)& theFirst, const Handle(SALOMEDSImpl_SObject)& theNext);
+  Standard_EXPORT virtual bool InsertBefore(const Handle(SALOMEDSImpl_SObject)& theFirst, const Handle(SALOMEDSImpl_SObject)& theNext);
 
-  virtual bool  SetCurrentObject(const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool  SetCurrentObject(const Handle(SALOMEDSImpl_SObject)& theObject);
   
-  virtual bool SetRootCurrent();
+  Standard_EXPORT virtual bool SetRootCurrent();
 
-  virtual bool  HasChildren(const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool  HasChildren(const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual bool  IsUseCase(const Handle(SALOMEDSImpl_SObject)& theObject);
+  Standard_EXPORT virtual bool  IsUseCase(const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual bool SetName(const TCollection_AsciiString& theName);
+  Standard_EXPORT virtual bool SetName(const TCollection_AsciiString& theName);
 
-  virtual Handle(SALOMEDSImpl_SObject) GetCurrentObject();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) GetCurrentObject();
 
-  virtual TCollection_AsciiString GetName();
+  Standard_EXPORT virtual TCollection_AsciiString GetName();
 
-  virtual Handle(SALOMEDSImpl_SObject) AddUseCase(const TCollection_AsciiString& theName);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) AddUseCase(const TCollection_AsciiString& theName);
 
-  virtual Handle(SALOMEDSImpl_UseCaseIterator) GetUseCaseIterator(const Handle(SALOMEDSImpl_SObject)& anObject);
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_UseCaseIterator) GetUseCaseIterator(const Handle(SALOMEDSImpl_SObject)& anObject);
 
-  Handle(SALOMEDSImpl_SObject) GetSObject(const TCollection_AsciiString& theEntry);    
+  Standard_EXPORT Handle(SALOMEDSImpl_SObject) GetSObject(const TCollection_AsciiString& theEntry);    
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_UseCaseBuilder )
