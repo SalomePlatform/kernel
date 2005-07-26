@@ -40,16 +40,31 @@
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
+#if defined LIFECYCLECORBA_EXPORTS
+#if defined WIN32
+#define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+#else
+#define LIFECYCLECORBA_EXPORT
+#endif
+#else
+#if defined WNT
+#define LIFECYCLECORBA_EXPORT __declspec( dllimport )
+#else
+#define LIFECYCLECORBA_EXPORT
+#endif
+#endif
+
+
 class SALOME_NamingService;
 
-class IncompatibleComponent : public SALOME_Exception
+class LIFECYCLECORBA_EXPORT IncompatibleComponent : public SALOME_Exception
 {
 public :
 	IncompatibleComponent( void );
 	IncompatibleComponent( const IncompatibleComponent &ex  );
 } ;
 
-class SALOME_LifeCycleCORBA
+class LIFECYCLECORBA_EXPORT SALOME_LifeCycleCORBA
 {
 public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
