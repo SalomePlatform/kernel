@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include "utilities.h"
 
@@ -22,6 +22,8 @@ using namespace std;
 #include "Utils_CorbaException.hxx"
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
+
+using namespace std; 
 
 SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(const Handle(SALOMEDSImpl_StudyBuilder)& theBuilder)
 {

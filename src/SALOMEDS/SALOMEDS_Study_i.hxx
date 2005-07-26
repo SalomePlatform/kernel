@@ -6,7 +6,7 @@
 #define __SALOMEDS_STUDY_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -248,10 +248,17 @@ public:
 
   virtual void AddCreatedPostponed(const char* theIOR);
 
+#ifndef WNT
   virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
                                                 // theWay = -1: get back to the list of postponed
+#else
+  virtual void RemovePostponed(CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
+                                                        // if theUndoLimit==0, removes all
+  virtual void UndoPostponed(CORBA::Long theWay); // theWay = 1: resurrect objects,
+                                                // theWay = -1: get back to the list of postponed
+#endif
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished); 
 

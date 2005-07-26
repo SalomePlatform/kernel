@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeLocalID_i.hxx"
 #include "SALOMEDS.hxx"
+
+using namespace std;
 
 CORBA::Long SALOMEDS_AttributeLocalID_i::Value() 
 {

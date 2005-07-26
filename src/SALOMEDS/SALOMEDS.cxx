@@ -27,7 +27,11 @@
 //  $Header$
 
 
+#ifndef WNT
 #include <SALOMEDS.hxx>
+#else
+#include "SALOMEDS.hxx"
+#endif
 
 using namespace SALOMEDS;
 

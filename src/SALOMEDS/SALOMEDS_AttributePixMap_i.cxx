@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributePixMap_i.hxx"
 #include "SALOMEDS.hxx"
 #include <TCollection_AsciiString.hxx>
+
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap() 
 {

@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include "SALOMEDS_UseCaseBuilder.hxx"
 
@@ -12,6 +12,8 @@ using namespace std;
 #include "SALOMEDS_UseCaseIterator.hxx"
 #include <TCollection_AsciiString.hxx> 
 #include <string>
+
+using namespace std; 
 
 SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(const Handle(SALOMEDSImpl_UseCaseBuilder)& theBuilder)
 {

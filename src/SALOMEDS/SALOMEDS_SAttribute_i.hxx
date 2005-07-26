@@ -30,7 +30,7 @@
 #define __SALOMEDS_SATTRIBUTE_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>

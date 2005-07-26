@@ -17,6 +17,10 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
+#ifdef GetUserName
+#undef GetUserName
+#endif
+
 class SALOMEDS_AttributeStudyProperties: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeStudyProperties
 {
 public:

@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeIOR_i.hxx"
 #include "SALOMEDS.hxx"
 #include <TCollection_ExtendedString.hxx>
+
+using namespace std;
 
 char* SALOMEDS_AttributeIOR_i::Value()
 {

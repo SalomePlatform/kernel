@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeTableOfReal_i.hxx"
 #include "SALOMEDS.hxx"
 
@@ -12,6 +12,8 @@ using namespace std;
 
 #include <strstream>
 #include <string>
+
+using namespace std;
 
 #include "Utils_ExceptHandlers.hxx"
 UNEXPECT_CATCH(ATR_IncorrectIndex, SALOMEDS::AttributeTableOfReal::IncorrectIndex);
@@ -137,7 +139,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfReal_i::GetRowUnits()
   SALOMEDS::StringSeq_var aUnits = new SALOMEDS::StringSeq;
   aUnits->length(aTable->GetNbRows());
   for(int i = 0; i < aUnits->length(); i++)
-    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(aTable->GetRowUnit(i + 1)).ToCString());
+    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(aTable->GetRowTitle(i + 1)).ToCString());
   return aUnits._retn();
 }
 

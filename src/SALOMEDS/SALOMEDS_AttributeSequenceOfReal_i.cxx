@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
 #include "SALOMEDS.hxx" 
 #include <TColStd_HSequenceOfReal.hxx>
+
+using namespace std;
 
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
 {

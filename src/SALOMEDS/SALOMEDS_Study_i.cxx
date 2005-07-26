@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
@@ -35,6 +35,8 @@ using namespace std;
 #endif
 
 #include "OpUtil.hxx"
+
+using namespace std;
 
 //============================================================================
 /*! Function : SALOMEDS_Study_i
@@ -660,7 +662,11 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR)
  *  Purpose  : 
  */
 //============================================================================
+#ifndef WNT
 void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) 
+#else
+void SALOMEDS_Study_i::RemovePostponed(CORBA::Long theUndoLimit) 
+#endif
 {  
   SALOMEDS::Locker lock; 
 
@@ -668,14 +674,12 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit)
   int aLegth = aSeq->Length();
   for(int i = 1; i <= aLegth; i++) {
     TCollection_AsciiString anIOR = aSeq->Value(i);
-    //mkr : fix for bug IPAL9408 : check the length of anIOR
-    //                             before take value from it
-    if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'c') {
+    if (anIOR.Value(1) == 'c') {
       CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
       if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
     }
-    else if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'd') {
+    else if (anIOR.Value(1) == 'd') {
       CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
       if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
@@ -695,7 +699,11 @@ void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit)
  *  Purpose  : 
  */
 //============================================================================
+#ifndef WNT
 void SALOMEDS_Study_i::UndoPostponed(const CORBA::Long theWay) 
+#else
+void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay) 
+#endif
 {
   SALOMEDS::Locker lock; 
 

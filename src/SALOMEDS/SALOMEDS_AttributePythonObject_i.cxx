@@ -2,11 +2,13 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include "SALOMEDS.hxx"
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HArray1OfCharacter.hxx>
+
+using namespace std;
 
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) 
 {

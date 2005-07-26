@@ -2,12 +2,14 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include "SALOMEDS_SComponent.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include <string> 
 #include <TCollection_AsciiString.hxx> 
+
+using namespace std; 
 
 SALOMEDS_SComponent::SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent)
 :SALOMEDS_SObject(theSComponent) 

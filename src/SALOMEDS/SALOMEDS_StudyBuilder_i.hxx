@@ -6,7 +6,7 @@
 #define __SALOMEDS_STUDYBUILDER_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>

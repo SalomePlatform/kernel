@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include "SALOMEDS_UseCaseIterator.hxx"
 #include "SALOMEDS_SObject.hxx"
+
+using namespace std; 
 
 SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(const Handle(SALOMEDSImpl_UseCaseIterator)& theIterator)
 {

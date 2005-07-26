@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeTreeNode_i.hxx"
 #include "utilities.h"
 #include "SALOMEDS.hxx"
@@ -10,6 +10,8 @@ using namespace std;
 #include <TDF_Attribute.hxx>
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
+
+using namespace std;
 
 static Handle(SALOMEDSImpl_AttributeTreeNode) GetNode(SALOMEDS::AttributeTreeNode_ptr value,
 						      const Handle(SALOMEDSImpl_AttributeTreeNode)& aNode) 
@@ -49,7 +51,11 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFather()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aFather;
   aFather = new SALOMEDS_AttributeTreeNode_i(Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl)->GetFather(), _orb);
+#ifndef WNT
   return aFather->POA_SALOMEDS::AttributeTreeNode::_this();
+#else
+  return aFather->AttributeTreeNode::_this();
+#endif
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetPrevious(SALOMEDS::AttributeTreeNode_ptr value) 
@@ -71,7 +77,11 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetPrevious()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aPrevious;
   aPrevious=new SALOMEDS_AttributeTreeNode_i(Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl)->GetPrevious(), _orb);
+#ifndef WNT
   return aPrevious->POA_SALOMEDS::AttributeTreeNode::_this();
+#else
+  return aPrevious->AttributeTreeNode::_this();
+#endif
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetNext(SALOMEDS::AttributeTreeNode_ptr value) 
@@ -93,7 +103,11 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetNext()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aNext;
   aNext = new SALOMEDS_AttributeTreeNode_i(Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl)->GetNext(), _orb);
+#ifndef WNT
   return aNext->POA_SALOMEDS::AttributeTreeNode::_this();
+#else
+  return aNext->AttributeTreeNode::_this();
+#endif
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetFirst(SALOMEDS::AttributeTreeNode_ptr value) 
@@ -115,7 +129,11 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFirst()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aFirst;
   aFirst = new SALOMEDS_AttributeTreeNode_i(Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl)->GetFirst(), _orb);
+#ifndef WNT
   return aFirst->POA_SALOMEDS::AttributeTreeNode::_this();
+#else
+  return aFirst->AttributeTreeNode::_this();
+#endif
 }
 
 void SALOMEDS_AttributeTreeNode_i::SetTreeID(const char* value) 

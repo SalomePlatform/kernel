@@ -6,7 +6,7 @@
 #define __SALOMEDS_STUDYMANAGER_I_H__
 
 // std C++ headers
-#include <iostream.h>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -15,7 +15,6 @@
 // Naming Service header
 #include "SALOME_NamingService.hxx"
 
-#include <iostream.h>
 #include <stdlib.h>
 
 //Standard not implemented

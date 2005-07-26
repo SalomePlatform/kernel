@@ -1,4 +1,4 @@
-using namespace std;  
+
 
 #include "SALOMEDS_Driver_i.hxx"
 #include "utilities.h"
@@ -7,6 +7,8 @@ using namespace std;
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
 #include <stdlib.h>
+
+using namespace std;  
 
 SALOMEDS_Driver_i::~SALOMEDS_Driver_i()
 {

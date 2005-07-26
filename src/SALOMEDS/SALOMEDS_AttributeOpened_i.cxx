@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeOpened_i.hxx"
 #include "SALOMEDS.hxx"
+
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() 
 {

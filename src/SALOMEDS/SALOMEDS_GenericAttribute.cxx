@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include <string>
 #include <TCollection_AsciiString.hxx> 
@@ -20,6 +20,8 @@ using namespace std;
 #endif
 
 #include "OpUtil.hxx"
+
+using namespace std; 
 
 SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
 {

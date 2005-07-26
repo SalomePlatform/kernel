@@ -2,11 +2,13 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS.hxx"
 #include "utilities.h"
 #include <map>
+
+using namespace std;
 
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const Handle(SALOMEDSImpl_SComponent)& theImpl, CORBA::ORB_ptr theORB)
 {

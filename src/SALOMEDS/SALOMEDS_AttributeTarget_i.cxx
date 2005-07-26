@@ -3,13 +3,15 @@
 //  Module : SALOME
 
 
-using namespace std;
+
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDS.hxx"
 
 #include <TColStd_HSequenceOfTransient.hxx>
+
+using namespace std;
 
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) 
 {

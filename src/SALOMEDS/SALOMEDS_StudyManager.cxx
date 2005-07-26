@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 #include "SALOMEDS_StudyManager.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
@@ -25,6 +25,8 @@ using namespace std;
 #include <TColStd_HSequenceOfTransient.hxx>
 
 #include "OpUtil.hxx"
+
+using namespace std; 
 
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
 

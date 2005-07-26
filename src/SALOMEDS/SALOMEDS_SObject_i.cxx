@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
@@ -29,6 +29,8 @@ using namespace std;
 #endif
 
 #include "OpUtil.hxx"
+
+using namespace std;
 
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)& theImpl, CORBA::ORB_ptr theORB)
 {

@@ -3,9 +3,11 @@
 //  Module : SALOME
 
 
-using namespace std;
+
 #include "SALOMEDS_AttributeDrawable_i.hxx"
 #include "SALOMEDS.hxx"
+
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeDrawable_i::IsDrawable() 
 {

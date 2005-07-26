@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeFlags_i.hxx"
 #include "SALOMEDS.hxx"  
+
+using namespace std;
 
 /*
   Class       : SALOMEDS_AttributeFlags_i

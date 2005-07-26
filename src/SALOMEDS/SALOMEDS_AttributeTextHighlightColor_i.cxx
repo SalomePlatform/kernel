@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS.hxx"
 #include <TColStd_HArray1OfReal.hxx>
+
+using namespace std;
 
 SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() 
 {

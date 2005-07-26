@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_SComponentIterator_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
+
+using namespace std;
 
 //============================================================================
 /*! Function : constructor

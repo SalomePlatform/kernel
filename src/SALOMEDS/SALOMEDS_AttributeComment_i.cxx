@@ -2,12 +2,14 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeComment_i.hxx"
 
 #include <TCollection_ExtendedString.hxx>
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
+
+using namespace std;
 
 char* SALOMEDS_AttributeComment_i::Value()
 {

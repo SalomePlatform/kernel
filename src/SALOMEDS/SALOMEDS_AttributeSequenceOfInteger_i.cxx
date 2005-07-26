@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS.hxx"
 #include <TColStd_HSequenceOfInteger.hxx>
+
+using namespace std;
 
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 

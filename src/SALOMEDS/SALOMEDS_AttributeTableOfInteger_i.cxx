@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeTableOfInteger_i.hxx"
 #include "SALOMEDS.hxx"
 
@@ -14,6 +14,8 @@ using namespace std;
 #include <stdexcept>
 #include <strstream>
 #include <string>
+
+using namespace std;
 
 UNEXPECT_CATCH(ATI_IncorrectIndex, SALOMEDS::AttributeTableOfInteger::IncorrectIndex);
 UNEXPECT_CATCH(ATI_IncorrectArgumentLength, SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength);

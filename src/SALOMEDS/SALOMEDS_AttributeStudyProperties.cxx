@@ -36,7 +36,11 @@ std::string SALOMEDS_AttributeStudyProperties::GetUserName()
     TCollection_AsciiString N = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreatorName();
     aName = N.ToCString();
   }
+#ifndef WNT
   else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserName();
+#else
+  else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserNameA();
+#endif
   return aName;
 }
 

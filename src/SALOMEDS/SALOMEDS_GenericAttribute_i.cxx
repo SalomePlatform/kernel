@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "utilities.h"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_Attributes.hxx"
@@ -21,6 +21,8 @@ using namespace std;
 #endif
 
 #include "OpUtil.hxx"
+
+using namespace std;
 
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 

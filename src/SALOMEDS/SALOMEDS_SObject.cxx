@@ -2,7 +2,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;  
+
 
 #include <string>
 #include <TCollection_AsciiString.hxx> 
@@ -27,6 +27,8 @@ using namespace std;
 #endif
 
 #include "OpUtil.hxx"
+
+using namespace std;  
 
 SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
 {

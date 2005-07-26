@@ -2,9 +2,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_AttributeExpandable_i.hxx"
 #include "SALOMEDS.hxx"
+
+using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable() 
 {

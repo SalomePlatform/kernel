@@ -2,12 +2,14 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
 
 #include "SALOMEDSImpl_SObject.hxx"
 #include "utilities.h"
+
 using namespace std;
 
 //============================================================================

@@ -2,10 +2,12 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std; 
+
 
 #include "SALOMEDS_ChildIterator.hxx"
 #include "SALOMEDS_SObject.hxx"
+
+using namespace std; 
 
 SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(const Handle(SALOMEDSImpl_ChildIterator)& theIterator)
 {

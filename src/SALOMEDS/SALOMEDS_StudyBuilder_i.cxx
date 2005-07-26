@@ -2,7 +2,7 @@
 //  Author : Seregy RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "utilities.h"
 #include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
@@ -21,6 +21,8 @@ using namespace std;
 
 #include <TDF_Attribute.hxx>
 #include <stdlib.h> 
+
+using namespace std;
 
 UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception);
 UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection);
