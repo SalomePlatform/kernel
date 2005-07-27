@@ -752,6 +752,12 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 		       CSOEntry, 
 		       valueString);
 	myListViewMap[ RefSOEntry ].append( Item );
+
+	// Opened
+	if ( RefSO->FindAttribute(anAttr, "AttributeOpened") ) {
+	  anOpened = SALOMEDS::AttributeOpened::_narrow(anAttr);
+	  Item->setOpen(anOpened->IsOpened());
+	}
       }
       else {
 	if(MYDEBUG) MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
