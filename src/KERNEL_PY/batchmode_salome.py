@@ -229,13 +229,13 @@ if orb is None:
 lcc = LifeCycleCORBA(orb)
 
 step = 0
-while step < 100 and lcc._catalog is None:
+while step < 100 and lcc is None:
     lcc = LifeCycleCORBA(orb)
     step = step + 1
     time.sleep(4)
     
-if lcc._catalog is None:
-    print "Warning: LifeCycleCORBA object is incomplete !!!"
+if lcc is None:
+    print "Warning: LifeCycleCORBA object has not been initialized !!!"
     
 #create a naming service instance
 naming_service = SALOME_NamingServicePy_i(orb)
