@@ -458,7 +458,7 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent* e )
 	if ( previousCommand.compare( BEGIN_HISTORY_PY ) != 0 ) {
 	  removeParagraph( endLine );
 	  histLine.append( previousCommand );
-	  insertParagraph( histLine, -1 );
+	  append( histLine );
 	}
 	moveCursor( QTextEdit::MoveEnd, false );
       }
@@ -487,14 +487,14 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent* e )
 	if ( nextCommand.compare( TOP_HISTORY_PY ) != 0 ) {
 	  removeParagraph( endLine );
 	  histLine.append( nextCommand );
-	  insertParagraph( histLine, -1 );
+	  append( histLine );
 	}
 	else {
 	  if (_isInHistory) {
 	    _isInHistory = false;
 	    removeParagraph( endLine );
 	    histLine.append( _currentCommand );
-	    insertParagraph( histLine, -1 );
+	    append( histLine );
 	  }
 	}
 	moveCursor( QTextEdit::MoveEnd, false );
