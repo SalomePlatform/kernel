@@ -1291,11 +1291,12 @@ TDF_Label SALOMEDS_StudyManager_i::PasteLabel(SALOMEDS_Study_i* theDestinationSt
 			       aPastedSO->GetFatherComponent());
 	SALOMEDS::lock();
 	TDF_Tool::Label(theDestinationStart.Data(), aDestSO->GetID(), aTargetLabel);
-      }else 
+      }else {
 	// PAL8065: san - PasteLabel() should always be called from some CORBA method protected with a lock
 	SALOMEDS::unlock();
 	theEngine->PasteInto(aTMPFil.in(),anObjID->Get(),aPastedSO);
 	SALOMEDS::lock();
+      }	
     }
   }
 
