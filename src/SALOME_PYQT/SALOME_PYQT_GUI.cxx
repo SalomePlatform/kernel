@@ -16,8 +16,7 @@
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
-
-#if QT_VERSION > 0x030005
+#if defined(SIP_VERS_v4_old) || defined(SIP_VERS_v4_new)
 #include <sipAPISalomePyQt.h>
 #else
 #include <sipSalomePyQtDeclSalomePyQt.h>
