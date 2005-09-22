@@ -24,20 +24,24 @@ QT_VERS = Qt_3_3_0
 endif
 
 # Sip flags
-SIP_FLAGS = -t WS_X11 -t $(QT_VERS) -s ".cc" -c . -I $(PYQT_SIPS)
+SIP_FLAGS = -t WS_X11 -t $(QT_VERS) $(PYQT_SIPFLAGS) -s ".cc" -c . -I $(PYQT_SIPS)
 # Sip common sources
 SIP_SRC = sipSalomePyQtSalomePyQt.cc \
 	  sipSalomePyQtSALOME_Selection.cc
 
 # Sip version-specific sources
-ifeq ($(SIP_VERS),v4)
+ifeq ($(SIP_VERS),v4_old)
+SIP_SRC  += sipSalomePyQtcmodule.cc
+else
+ifeq ($(SIP_VERS),v4_new)
 SIP_SRC  += sipSalomePyQtcmodule.cc
 else
 SIP_SRC  += SalomePyQtcmodule.cc
 endif
+endif
 
 # Sip/moc sources
-ifeq ($(SIP_VERS),v4)
+ifeq ($(SIP_VERS),v4_old)
 MOC_SRC   = sipSalomePyQtcmodule_moc.cxx
 MOC_H     = sipSalomePyQtcmodule.h
 else 
@@ -45,30 +49,45 @@ ifeq ($(SIP_VERS),v3_new)
 MOC_SRC   = SalomePyQtcmodule_moc.cxx
 MOC_H     = SalomePyQtcmodule.h
 else
+ifeq ($(SIP_VERS),v3_old)
 MOC_SRC   = sipSalomePyQtProxySalomePyQt_moc.cxx
 MOC_H     = sipSalomePyQtProxySalomePyQt.h
 endif
 endif
+endif
 
 # Sip definition files
-ifeq ($(SIP_VERS),v4)
+ifeq ($(SIP_VERS),v4_old)
+SIP_FILES = SalomePyQt_v4.sip
+else
+ifeq ($(SIP_VERS),v4_new)
 SIP_FILES = SalomePyQt_v4.sip
 else
 SIP_FILES = SalomePyQt.sip
 endif 
+endif 
 
 # Libraries targets
-ifeq ($(SIP_VERS),v4)
+ifeq ($(SIP_VERS),v4_old)
+LIB = SalomePyQt.so
+LDFLAGS+=-shared -lSalomeGUI
+else
+ifeq ($(SIP_VERS),v4_new)
 LIB = SalomePyQt.so
 LDFLAGS+=-shared -lSalomeGUI
 else
 LIB = libSalomePyQtcmodule.la
 LDFLAGS+=-lSalomeGUI -lqtcmodule
 endif 
+endif 
 
 # Exported python scripts
-ifneq ($(SIP_VERS),v4)
+ifeq ($(SIP_VERS),v3_old)
 EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
+else
+ifeq ($(SIP_VERS),v3_new)
+EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
+endif
 endif
 
 # Library sources

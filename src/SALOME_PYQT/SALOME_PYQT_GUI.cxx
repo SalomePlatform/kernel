@@ -16,6 +16,7 @@
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
+#include "SALOME_PYQT_SipDefs.h"
 #if defined(SIP_VERS_v4_old) || defined(SIP_VERS_v4_new)
 #include <sipAPISalomePyQt.h>
 #else
