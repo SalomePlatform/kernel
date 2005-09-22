@@ -5,6 +5,9 @@ AC_REQUIRE([CHECK_PYTHON])dnl
 AC_REQUIRE([CHECK_QT])dnl
 AC_REQUIRE([CHECK_SIP])dnl
 
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+
 AC_ARG_WITH(pyqt,
     [  --with-pyqt=DIR      root directory path to PyQt installation ],
     [PYQTDIR="$withval"
@@ -250,12 +253,51 @@ if test "x$pyqt_sips_ok" == "xno"; then
   pyqt_ok=no
 else
   PYQT_INCLUDES="-I$PYQT_SIPS"
+  
+  dnl Additional sip flags required for correct wrappers compilation
+  AC_MSG_CHECKING(which qt classes should be excluded)
+
+  PYQT_SIPFLAGS=""
+
+  CXXFLAGS_old=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $QT_INCLUDES"
+  LIBS_old=$LIBS
+  LIBS="$LIBS $QT_LIBS"
+
+  AC_TRY_COMPILE([#include <qcdestyle.h>],
+                 [new QCDEStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_CDE")
+  AC_TRY_COMPILE([#include <qinterlacestyle.h>],
+                 [new QInterlaceStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_INTERLACE")
+  AC_TRY_COMPILE([#include <qmotifstyle.h>],
+                 [new QMotifStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_MOTIF")
+  AC_TRY_COMPILE([#include <qmotifplusstyle.h>],
+                 [new QMotifPlusStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_MOTIFPLUS")
+  AC_TRY_COMPILE([#include <qplatinumstyle.h>],
+                 [new QPlatinumStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_PLATINUM")
+  AC_TRY_COMPILE([#include <qsgistyle.h>],
+                 [new QSGIStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_SGI")
+  AC_TRY_COMPILE([#include <qwindowsstyle.h>],
+                 [new QWindowsStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_WINDOWS")
+  AC_TRY_COMPILE([#include <qwindowsxpstyle.h>],
+                 [new QWindowsXPStyle();],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_STYLE_WINDOWSXP")
+
+  LIBS="$LIBS -lqassistantclient"
+  AC_TRY_LINK([#include <qassistantclient.h>],
+              [new QAssistantClient("foo");],,PYQT_SIPFLAGS="$PYQT_SIPFLAGS -x Qt_ASSISTANTCLIENT")
+
+  AC_MSG_RESULT(done)
+
+  CXXFLAGS=$CXXFLAGS_old
+  LIBS=$LIBS_old
 fi
 
 AC_SUBST(PYQT_INCLUDES)
 AC_SUBST(PYQT_LIBS)
 AC_SUBST(PYQT_SIPS)
 AC_SUBST(PYUIC)
+AC_SUBST(PYQT_SIPFLAGS)
+
+AC_LANG_RESTORE
 
 AC_MSG_RESULT(for pyqt: $pyqt_ok)
 
