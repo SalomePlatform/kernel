@@ -34,7 +34,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_PYSCRIPTS = SALOME_ComponentPy.py SALOME_ContainerPy.py
+EXPORT_PYSCRIPTS = SALOME_ComponentPy.py SALOME_ContainerPy.py SALOME_DriverPy.py
 
 EXPORT_HEADERS = \
 	SALOME_Component_i.hxx \
