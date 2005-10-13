@@ -336,7 +336,7 @@ namespace MED{
       INITMSG(MYDEBUG,"GetNodeInfo ... ");
       TFileWrapper aFileWrapper(myFile,eLECT,theErr);
       
-      if(theErr && *theErr < 0 || theInfo.myNbElem<=0)
+      if(theErr && *theErr < 0)
 	return;
       
       MED::TMeshInfo& aMeshInfo = *theInfo.myMeshInfo;
