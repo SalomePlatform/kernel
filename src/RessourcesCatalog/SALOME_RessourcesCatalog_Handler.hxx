@@ -35,7 +35,21 @@
 #include <string>
 #include <vector>
 
-class SALOME_RessourcesCatalog_Handler : public QXmlDefaultHandler
+#if defined RESSOURCESCatalog_EXPORTS
+#if defined WIN32
+#define RESSOURCESCatalog_EXPORT __declspec( dllexport )
+#else
+#define RESSOURCESCatalog_EXPORT
+#endif
+#else
+#if defined WNT
+#define RESSOURCESCatalog_EXPORT __declspec( dllimport )
+#else
+#define RESSOURCESCatalog_EXPORT
+#endif
+#endif
+
+class RESSOURCESCatalog_EXPORT SALOME_RessourcesCatalog_Handler : public QXmlDefaultHandler
 {
 public :
   //! standard constructor

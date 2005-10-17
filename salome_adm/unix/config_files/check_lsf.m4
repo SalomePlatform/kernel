@@ -43,7 +43,12 @@ AC_DEFUN([CHECK_LSF],
  
    dnl LIB directory
 
-   LSF_LDFLAGS="-L${LSF_LIBDIR}"
+   if test "x${LSF_LIBDIR}" = "x/usr/lib"
+   then
+     LSF_LDFLAGS=""
+   else
+     LSF_LDFLAGS="-L${LSF_LIBDIR}"
+   fi
    LSF_LIBS=""
    saved_LDFLAGS=${LDFLAGS}
    saved_LIBS=${LIBS}
@@ -70,6 +75,9 @@ AC_DEFUN([CHECK_LSF],
  dnl AM_CONDITIONAL(WITH_LSF, test $WITH_LSF = 1)
 
  lsf_ok=$WITH_LSF
+ if test $lsf_ok = no ; then
+   lsf_ok=
+ fi
  AC_SUBST(WITH_LSF)
 
 ])

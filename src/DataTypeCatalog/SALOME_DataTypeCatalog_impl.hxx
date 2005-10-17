@@ -34,7 +34,21 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_DataTypeCatalog)
 
-class SALOME_DataTypeCatalogImpl: public POA_SALOME_DataTypeCatalog::DataCatalog,
+#if defined DATATYPECATALOG_EXPORTS
+#if defined WIN32
+#define DATATYPECATALOG_EXPORT __declspec( dllexport )
+#else
+#define DATATYPECATALOG_EXPORT
+#endif
+#else
+#if defined WNT
+#define DATATYPECATALOG_EXPORT __declspec( dllimport )
+#else
+#define DATATYPECATALOG_EXPORT
+#endif
+#endif
+
+class DATATYPECATALOG_EXPORT SALOME_DataTypeCatalogImpl: public POA_SALOME_DataTypeCatalog::DataCatalog,
 				  public PortableServer::RefCountServantBase 
 {
 public:

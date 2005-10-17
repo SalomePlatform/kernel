@@ -24,7 +24,6 @@
 #include <signal.h>
 
 #include "Utils_SignalsHandler.h"
-using namespace std;
 
 
 //============================================================================
@@ -78,12 +77,15 @@ static void RestoreSigHandler(TSigHandler theSigHandler,
 //=======================================================================
 Utils_SignalsHandler::Utils_SignalsHandler()
 {
-  StoreSignalHandler(mySigHandlerCont,SIGHUP); // end of leader process
-  StoreSignalHandler(mySigHandlerCont,SIGFPE); // floating point exception
-  
-  StoreSignalHandler(mySigHandlerCont,SIGINT); // interrupt
+  // asv 28.02.05 : some signals are not defined on Windows.. why?  I don't know..
+#ifndef WNT
+  StoreSignalHandler(mySigHandlerCont,SIGHUP); // floating point exception
   StoreSignalHandler(mySigHandlerCont,SIGQUIT); // quit
   StoreSignalHandler(mySigHandlerCont,SIGBUS); // bus error
+  StoreSignalHandler(mySigHandlerCont,SIGSTKFLT); // stack fault.
+#endif
+  StoreSignalHandler(mySigHandlerCont,SIGFPE); // floating point exception  
+  StoreSignalHandler(mySigHandlerCont,SIGINT); // interrupt
   StoreSignalHandler(mySigHandlerCont,SIGILL); // illegal instruction
   StoreSignalHandler(mySigHandlerCont,SIGTERM); // termination
   StoreSignalHandler(mySigHandlerCont,SIGSEGV); // segmentation 

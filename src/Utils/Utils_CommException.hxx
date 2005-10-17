@@ -31,7 +31,7 @@
 
 # include "Utils_SALOME_Exception.hxx"
 
-class CommException : public SALOME_Exception
+class UTILS_EXPORT CommException : public SALOME_Exception
 {
 public :
 	CommException( void );

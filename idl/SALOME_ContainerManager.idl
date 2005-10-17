@@ -1,6 +1,7 @@
 #ifndef _SALOME_CONTAINERMANAGER_IDL_
 #define _SALOME_CONTAINERMANAGER_IDL_
 
+#include "SALOME_Exception.idl"
 #include "SALOME_Component.idl"
 
 module Engines
@@ -9,7 +10,8 @@ module Engines
 /*!
     Type to describe properties of wanted resource.
 */
-struct MachineParameters {
+struct MachineParameters
+{
   string container_name;
   string hostname;
   string OS;
@@ -17,6 +19,7 @@ struct MachineParameters {
   long cpu_clock;
   long nb_proc_per_node;
   long nb_node;
+  boolean isMPI;
 };
 
 /*!
@@ -24,15 +27,29 @@ struct MachineParameters {
 */
   typedef sequence<string> MachineList;
 
+/*!
+    exception thrown if a computer is not found in the catalog
+*/
+  exception NotFound {};
+
+
 /*! \brief Interface of the %containerManager
-    This interface is used for interaction with the unique instance of ContainerManager
+    This interface is used for interaction with the unique instance
+    of ContainerManager
 */
   interface ContainerManager
   {
-    Container FindOrStartContainer( in string containerName, in MachineList possibleComputers);
+    Container FindOrStartContainer( in MachineParameters params,
+				    in MachineList possibleComputers);
+
     string FindBest(in MachineList possibleComputers);
-    MachineList GetFittingResources( in MachineParameters params, in string componentName );
+
+    MachineList GetFittingResources( in MachineParameters params,
+				     in string componentName )
+      raises (SALOME::SALOME_Exception);
+
     void Shutdown();
+
     void ShutdownContainers();
   } ;
 };

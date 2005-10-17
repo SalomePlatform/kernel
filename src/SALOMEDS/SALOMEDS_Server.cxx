@@ -53,10 +53,14 @@ int main(int argc, char** argv)
   try 
     {
       // Initialise the ORB.
+#if OMNIORB_VERSION >= 4
+      const char* options[][2] = { { "giopMaxMsgSize", "104857600" }, { 0, 0 } };
+      CORBA::ORB_var orb = CORBA::ORB_init( argc , argv , "omniORB4", options) ;
+#else
       CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
       omniORB::MaxMessageSize(100 * 1024 * 1024);
+#endif      
       // Obtain a reference to the root POA.
-      //
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
       int a;
@@ -83,7 +87,11 @@ int main(int argc, char** argv)
       for (int i = 1; i<=NumberOfTries; i++)
 	{
 	  if (i!=1) 
+#ifndef WNT
 	    a=nanosleep(&ts_req,&ts_rem);
+#else
+		Sleep(TIMESleep/1000000);
+#endif
 	  try
 	    { 
 	      obj = orb->resolve_initial_references("RootPOA");
@@ -106,7 +114,11 @@ int main(int argc, char** argv)
 			for(int j=1; j<=NumberOfTries; j++)
 			  {
 			    if (j!=1) 
+#ifndef WNT
 			      a=nanosleep(&ts_req, &ts_rem);
+#else
+			      Sleep(TIMESleep/1000000);
+#endif
 			    try
 			      {
 				object = inc->resolve(name);

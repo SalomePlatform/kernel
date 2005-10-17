@@ -26,22 +26,51 @@
 
 #include <iostream>
 #include <limits.h>
+#include <cassert>
+
+#ifndef WNT
+#include <dlfcn.h>
+#else
+#endif
 
 #include "LocalTraceBufferPool.hxx"
+#include "BaseTraceCollector.hxx"
+#include "LocalTraceCollector.hxx"
+#include "FileTraceCollector.hxx"
+#include "BasicsGenericDestructor.hxx"
 #include "utilities.h"
 
 using namespace std;
 
 // In case of truncated message, end of trace contains "...\n\0"
+
 #define TRUNCATED_MESSAGE "...\n"
 #define MAXMESS_LENGTH MAX_TRACE_LENGTH-5
 
+// Class static attributes initialisation
+
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
+#ifndef WNT
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
+#else
+pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
+  PTHREAD_MUTEX_INITIALIZER;
+#endif
+BaseTraceCollector *LocalTraceBufferPool::_myThreadTrace = 0;
 
 // ============================================================================
 /*!
- *  guarantees a unique object instance of the class (singleton thread safe)
+ *  Guarantees a unique object instance of the class (singleton thread safe).
+ *  When the LocalTraceBufferPool instance is created, the trace collector is
+ *  also created (singleton). Type of trace collector to create depends on 
+ *  environment variable "SALOME_trace":
+ *  - "local" implies standard err trace, LocalTraceCollector is launched.
+ *  - "file" implies trace in /tmp/tracetest.log
+ *  - "file:pathname" implies trace in file pathname
+ *  - anything else like "other" : try to load dynamically a library named
+ *    otherTraceCollector, and invoque C method instance() to start a singleton
+ *    instance of the trace collector. Example: with_loggerTraceCollector, for
+ *    CORBA Log.
  */
 // ============================================================================
 
@@ -54,6 +83,63 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceBufferPool(); 
+
+  	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
+  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*_singleton);
+
+	  // --- start a trace Collector
+
+	  char* traceKind = getenv("SALOME_trace");
+	  assert(traceKind);
+	  //cerr<<"SALOME_trace="<<traceKind<<endl;
+
+	  if (strcmp(traceKind,"local")==0)
+	    {
+	      _myThreadTrace = LocalTraceCollector::instance();
+	    }
+	  else if (strncmp(traceKind,"file",strlen("file"))==0)
+	    {
+	      char *fileName;
+	      if (strlen(traceKind) > strlen("file"))
+		fileName = &traceKind[strlen("file")+1];
+	      else
+		fileName = "/tmp/tracetest.log";
+	      
+	      _myThreadTrace = FileTraceCollector::instance(fileName);
+	    }
+	  else // --- try a dynamic library
+	    {
+	      void* handle;
+#ifndef WNT
+	      string impl_name = string ("lib") + traceKind 
+		+ string("TraceCollector.so");
+	      handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+#else
+	      string impl_name = string ("lib") + traceKind + string(".dll");
+	      handle = dlopen( impl_name.c_str() , 0 ) ;
+#endif
+	      if ( handle )
+		{
+		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
+		  FACTORY_FUNCTION TraceCollectorFactory =
+		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
+		  char *error ;
+		  if ( (error = dlerror() ) != NULL)
+		    {
+		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
+		      cerr << "dlerror: " << error << endl;
+		      assert(error == NULL); // to give file and line
+		      exit(1);               // in case assert is deactivated
+		    }
+		  _myThreadTrace = (TraceCollectorFactory) ();
+		}
+	      else
+		{
+		  cerr << "library: " << impl_name << " not found !" << endl;
+		  assert(handle); // to give file and line
+		  exit(1);        // in case assert is deactivated
+		}	      
+	    }
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -168,7 +254,7 @@ unsigned long LocalTraceBufferPool::toCollect()
 
 LocalTraceBufferPool::LocalTraceBufferPool()
 {
-  //cout << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
+  //cerr << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
 
   _insertPos   = ULONG_MAX;  // first increment will give 0
   _retrievePos = ULONG_MAX;
@@ -184,6 +270,8 @@ LocalTraceBufferPool::LocalTraceBufferPool()
   if (ret!=0) IMMEDIATE_ABORT(ret);
   ret=pthread_mutex_init(&_incrementMutex,NULL); // default = fast mutex
   if (ret!=0) IMMEDIATE_ABORT(ret);
+
+  //cerr << "LocalTraceBufferPool::LocalTraceBufferPool()-end" << endl;
 }
 
 // ============================================================================
@@ -194,10 +282,20 @@ LocalTraceBufferPool::LocalTraceBufferPool()
 
 LocalTraceBufferPool::~LocalTraceBufferPool()
 {
-  int ret;
-  ret=sem_destroy(&_freeBufferSemaphore);
-  ret=sem_destroy(&_fullBufferSemaphore);
-  ret=pthread_mutex_destroy(&_incrementMutex);
+  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  if (_singleton)
+    {
+      DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()");
+      delete (_myThreadTrace);
+      _myThreadTrace = 0;
+      int ret;
+      ret=sem_destroy(&_freeBufferSemaphore);
+      ret=sem_destroy(&_fullBufferSemaphore);
+      ret=pthread_mutex_destroy(&_incrementMutex);
+      DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()-end");
+      _singleton = 0;
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+    }
 }
 
 // ============================================================================

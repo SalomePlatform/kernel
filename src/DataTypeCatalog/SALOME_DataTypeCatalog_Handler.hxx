@@ -34,7 +34,21 @@
 #include <string>
 #include <vector>
 
-class SALOME_DataTypeCatalog_Handler : public QXmlDefaultHandler 
+#if defined DATATYPECATALOG_EXPORTS
+#if defined WIN32
+#define DATATYPECATALOG_EXPORT __declspec( dllexport )
+#else
+#define DATATYPECATALOG_EXPORT
+#endif
+#else
+#if defined WNT
+#define DATATYPECATALOG_EXPORT __declspec( dllimport )
+#else
+#define DATATYPECATALOG_EXPORT
+#endif
+#endif
+
+class DATATYPECATALOG_EXPORT SALOME_DataTypeCatalog_Handler : public QXmlDefaultHandler 
 {
 public:
   //! standard constructor

@@ -26,19 +26,23 @@
 
 #include "utilities.h" 
 #include "OpUtil.hxx"
-#include <unistd.h>
 #include <errno.h>
 #include <string.h>
+
+#ifndef WNT
+#include <unistd.h>
+#else
+#include <winsock2.h>
+#endif
 using namespace std;
+//int gethostname(char *name, size_t len);
 
-int gethostname(char *name, size_t len);
-
-string GetHostname()
+std::string GetHostname()
 {
-  int ls = 100, r = 0;
+  int ls = 100, r = 1;
   char *s;
 
-  while (ls < 10000) {
+  while (ls < 10000 && r) {
     ls *= 2;
     s = new char[ls];
     r = gethostname(s, ls-1);

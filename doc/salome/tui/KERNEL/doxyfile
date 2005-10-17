@@ -60,7 +60,6 @@ INPUT                  = ../../../share/salome/idl/SALOME_ModuleCatalog.idl \
                          ../../../share/salome/idl/SALOMEDS.idl \
                          ../../../share/salome/idl/SALOME_Exception.idl \
                          ../../../share/salome/idl/SALOMEDS_Attributes.idl \
-                         ../../../share/salome/idl/SALOME_Session.idl \
                          ../../../share/salome/idl/SALOME_Component.idl \
                          ../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.hxx \
                          ../../../share/salome/src/NamingService/SALOME_NamingService.hxx \

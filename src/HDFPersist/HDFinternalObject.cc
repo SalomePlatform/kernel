@@ -29,7 +29,9 @@ extern "C"
 #include "hdfi.h"
 }
 #include "HDFinternalObject.hxx"
+#ifndef WNT
 using namespace std;
+#endif
 
 HDFinternalObject::HDFinternalObject(char *name)
   : HDFobject(name)

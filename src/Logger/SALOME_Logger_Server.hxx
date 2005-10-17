@@ -11,7 +11,12 @@
 #if !defined SALOME_Logger_Server_include
 #define SALOME_Logger_Server_include
 
+#ifndef WNT
 #include <fstream.h>
+#else
+#include <fstream>
+#include <iosfwd>
+#endif
 #include <omnithread.h>
 #include "Logger.hh"
 
@@ -35,7 +40,11 @@ private:
 	//otherwise all messages will be put into terminal via cout 
         bool m_putIntoFile;
 	//ofstream class specialized for disk file output
+#ifndef WNT
         ofstream m_outputFile; 
+#else
+		std::ofstream m_outputFile; 
+#endif
 	//synchronisation object
 	static omni_mutex myLock;
 };

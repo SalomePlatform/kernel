@@ -42,11 +42,11 @@ EXPORT_PYSCRIPTS =
 
 # Libraries targets
 
-LIB = libSALOMETraceCollector.la 
+LIB = libwith_loggerTraceCollector.la 
 LIB_SRC = SALOMETraceCollector.cxx \
 	  TraceCollector_WaitForServerReadiness.cxx
 
 LIB_CLIENT_IDL = Logger.idl 
-LDFLAGS+= 
+LDFLAGS+= -lSALOMELocalTrace
 
 @CONCLUDE@

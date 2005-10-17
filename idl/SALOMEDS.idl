@@ -36,6 +36,7 @@
 #define _SALOMEDS_IDL_
 
 #include "SALOME_Exception.idl"
+#include "SALOME_GenericObj.idl"
 
 /*!
      This package contains the interfaces used for creation, managment
@@ -98,7 +99,6 @@ during each working session.
   interface AttributeStudyProperties;
   interface UseCaseIterator;
   interface UseCaseBuilder;
-  interface Callback;
 
 /*! List of attributes of %SObjects
 */
@@ -367,6 +367,17 @@ during each working session.
     void RemovePostponed(in long theUndoLimit);
 
     void UndoPostponed(in long theWay);
+
+    boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
+
+/*!
+    Private method, returns an implementation of this Study.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the Study is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+
   };
 
   //==========================================================================
@@ -403,6 +414,7 @@ during each working session.
     Defines the instance to the %SComponent.
 */
     void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR) raises(LockProtection);
+        
 /*! \brief Deletion of a %SComponent
 
   Removes a %SComponent.
@@ -606,22 +618,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     boolean GetAvailableRedos();
 /*!
-    This method is called when adding an object into study.
-    It sets the callback for addition of the given %SObject.
-    \param theCallback New assigned callback.
-    \return The previous callback.
-*/
-    Callback SetOnAddSObject(in Callback theCallback);
-/*!
-    This method is called when adding an object into study.
-    It sets the callback for removal of the given %SObject.
-
-    \return The previous callback.
-    \param theCallback New assigned callback.
-*/
-    Callback SetOnRemoveSObject(in Callback theCallback);
-
-/*!
     Puts name attribute with the given string value to the given %SObject
 
     \param theSO Existing SObject to set name attribute.
@@ -778,6 +774,29 @@ Gets the list of open studies
     an object into a study, which is protected for modifications.
 */
     SObject Paste(in SObject theObject) raises (SALOMEDS::StudyBuilder::LockProtection);
+
+/*! \brief Object conversion.
+
+    Converts an object into IOR.
+    \return    IOR
+*/
+    string ConvertObjectToIOR(in Object theObject);
+/*! \brief Object conversion.
+	    
+    Converts IOR into an object.
+    \return    An object
+*/
+    Object ConvertIORToObject(in string theIOR); 
+
+/*!
+    Private method, returns an implementation of this StudyManager.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the StudyManager is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
+
+
   };
 
 
@@ -795,7 +814,7 @@ Gets the list of open studies
 */
   //==========================================================================
 
-  interface SObject
+  interface SObject : SALOME::GenericObj
   {
 /*! Name of the %SObject
 */
@@ -885,6 +904,14 @@ Gets the list of open studies
     Returns empty string if there is no IOR attribute.
 */
     string GetIOR();
+
+/*!
+    Private method, returns an implementation of this SObject.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the SObject is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -894,7 +921,7 @@ Gets the list of open studies
    %Generic attribute is a base interface for all attributes which can be assigned to the SObjects created in the study.
 */
   //==========================================================================
-  interface GenericAttribute
+  interface GenericAttribute : SALOME::GenericObj
   {
 /*! \brief Exception locking all changes
 
@@ -909,13 +936,19 @@ Gets the list of open studies
 */
     void CheckLocked() raises (LockProtection);
 
-    string Store();
-
-    void Restore(in string theData);
-
     string Type();
 
+    string GetClassType(); 	
+	
     SObject GetSObject();
+
+/*!
+    Private method, returns an implementation of this GenericAttribute.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the GenericAttribute is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -951,7 +984,7 @@ Gets the list of open studies
   The search is started from the first %SComponent in the list.
 */
   //==========================================================================
-  interface SComponentIterator
+  interface SComponentIterator : SALOME::GenericObj
   {
 /*!
 Activates the %SComponentIterator.
@@ -982,7 +1015,7 @@ Moves the iterator to the next %SComponent in the list.
     levels.
 */
   //==========================================================================
-  interface ChildIterator
+  interface ChildIterator : SALOME::GenericObj
   {
 /*!
 
@@ -1017,7 +1050,7 @@ Activates the %ChildIterator for all child levels.
 
    This interface contains a set of methods used for iteration over the objects in the use case.
 */
-  interface UseCaseIterator
+  interface UseCaseIterator : SALOME::GenericObj
   {
 /*!
 Activates the %UseCaseIterator.
@@ -1046,7 +1079,7 @@ Activates the %UseCaseIterator.
    Use case in the study represents a user-managed subtree, containing all or some of the objects which exist in the study.
    The %UseCaseBuilder interface contains a set of methods used for management of the use case in the study.
 */
-  interface UseCaseBuilder
+  interface UseCaseBuilder : SALOME::GenericObj
   {
 /*!
    Adds to the use case an object as a child of the current object of the use case.
@@ -1107,25 +1140,6 @@ Activates the %UseCaseIterator.
 */
     UseCaseIterator GetUseCaseIterator(in SObject theObject);
   };
-  //==========================================================================
-  //==========================================================================
-/*! \brief The callback interface
-
-  The %StudyBuilder can be created with the method <VAR>NewBuilder</VAR>. While invocation of this method a new object of the class <VAR>Callback</VAR> is created
-  and this object is assigned to the newly created Builder as callback which should be called when adding and removing of the ojects.
-*/
-  interface Callback
-  {
-/*!
-     Invokes the corresponding method <VAR>Append</VAR> of the %UseCaseBuilder.
-*/
-     void OnAddSObject(in SObject theObject);
-/*!
-     Invokes the corresponding method <VAR>Remove</VAR> of the %UseCaseBuilder.
-*/
-     void OnRemoveSObject(in SObject theObject);
-  };
-
   //==========================================================================
 /*! \brief %Driver interface
 

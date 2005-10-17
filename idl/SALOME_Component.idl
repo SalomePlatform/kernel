@@ -21,20 +21,26 @@
 //
 //  File   : SALOME_Component.idl
 //  Author : Paul RASCLE, EDF
-//  $Header: /dn05/salome/CVS/SALOME_ROOT/idl/SALOME_Component.idl
+//  $Header: 
 
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
 /*!  
-
-This is a package of interfaces used for connecting new components to %SALOME application. It also contains a set of interfaces used
-for management of %MED component in %SALOME application.
+This is a package of interfaces used for connecting new components to %SALOME
+application. It also contains a set of interfaces used for management of %MED
+component in %SALOME application.
 */
 module Engines
 {
-/*!
+  /*! 
+    A byte stream which is used for binary data transfer between different
+    components
+  */
+  typedef sequence<octet> TMPFile;  
+  
+  /*!
     General Key Value Structure to set or get properties, for component
-*/
+  */
   struct KeyValuePair
   {
     string key;
@@ -45,135 +51,234 @@ module Engines
 
   interface Component ;
 
-/*! \brief Interface of the %Container
+  /*! \brief Interface of the %Container
+  This interface defines the process of loading and registration
+  of new components in %SALOME application
+  */
 
-   This interface defines the process of loading and registration
-    of new components in %SALOME application
-*/
   interface Container
   {
 
-/*!
-    Loads into the container a new component, registers it and starts it's CORBA servant.
-    \param nameToRegister     Name of the component which will be registered in Registry (or Name Service)
-    \param componentName     Name of the constructed library of the %component
-    \return a loaded component
-*/
-    Component load_impl(in string nameToRegister, in string componentName);
+    /*!
+      Loads a new component class (dynamic library).
+      \param componentName like COMPONENT, (Python or C++ implementation)
+                           try to make a Python import of COMPONENT,
+                           then a lib open of libCOMPONENTEngine.so
+      \return true if load successfull or already done, false otherwise
+    */
+    boolean load_component_Library(in string componentName);
 
-/*!
-    Loads into the container a new component, registers it and starts it's CORBA servant.
-    \param nameToRegister    Name used to register in Naming Service, the component instance 
-    \param componentName     Name of the %component
-    \return a new instance of the component or the registered component if already registered or Nil if not possible
-*/
-    Component instance(in string nameToRegister, in string componentName);
+    /*!
+      Creates a new servant instance of a component.
+      Component library must be loaded.
+      \param componentName Name of the component which will be registered
+                           in Registry and Name Service,
+                         (instance number suffix added to the registered name)
+      \param studyId        0 if instance is not associated to a study, 
+                            >0 otherwise (== study id)
+      \return a loaded component
+    */
+    Component create_component_instance(in string componentName,
+					in long studyId);
 
-/*!
-    Stops the component servant, and deletes all related objects
-    \param component_i     Component to be removed
-*/
+    /*!
+      Finds a servant instance of a component
+      \param registeredName  Name of the component in Registry or Name Service,
+                             without instance suffix number
+      \param studyId        0 if instance is not associated to a study, 
+                            >0 otherwise (== study id)
+      \return the first instance found with same studyId
+    */
+    Component find_component_instance(in string registeredName,
+				      in long studyId);
+
+    /*!
+      Find a servant instance of a component, or create a new one.
+      Loads the component library if needed.
+      Only applicable to multiStudy components.
+      \param nameToRegister Name of the component which will be registered
+                            in Registry (or Name Service)
+      \param componentName  Name of the constructed library of the %component
+                            (not used any more, give empty string)
+      \return a loaded component
+    */
+    Component load_impl(in string nameToRegister,
+			in string componentName);
+
+    /*!
+      Stops the component servant, and deletes all related objects
+      \param component_i     Component to be removed
+    */
     void remove_impl(in Component component_i);
 
-/*!
-    Discharges all components from the container.
-*/
+    /*!
+      Discharges all components from the container.
+    */
     void finalize_removal() ;
-/*!
-     Determines whether the server has been loaded or not.
-*/
 
+    /*!
+      Determines whether the server has been loaded or not.
+    */
     void ping();
-/*!
-   Name of the %container
-*/
-    readonly attribute string name ;
-/*!
-   Name of the machine containing this container (location of the container).
-*/
-    readonly attribute string machineName ;
-/*!
-   Returns True if the %container has been killed
-*/
-    boolean Kill_impl() ;
-/*!
-   Shutdown the Container process.
-*/
-    oneway void Shutdown();
-/*!
-   Returns the hostname of the container
-*/
-    string getHostName();
-/*!
-   Returns the PID of the container
-*/
-    long getPID();
-  };
-/*! \brief Interface of the %component
 
-    This interface is used for interaction between the %container and the %component and between
-    the components inside the container.
-*/
+    /*!
+      Name of the %container
+    */
+    readonly attribute string name ;
+
+    /*!
+      Shutdown the Container process.
+    */
+    oneway void Shutdown();
+
+    /*!
+      Returns the hostname of the container
+    */
+    string getHostName();
+
+    /*!
+      Returns the PID of the container
+    */
+    long getPID();
+
+    /*!
+      Returns True if the %container has been killed.
+      Kept for Superv compilation but can't work, unless oneway...
+      TO REMOVE !
+    */
+    boolean Kill_impl() ;
+
+    // -------------------------- removed -------------------------------
+
+    /*!
+      Loads into the container a new component, registers it and starts it's
+      CORBA servant.
+      \param nameToRegister    Name used to register in Naming Service,
+                               the component instance 
+      \param componentName     Name of the %component
+      \return a new instance of the component or the registered component
+               if already registered or Nil if not possible
+    */
+    //    Component instance(in string nameToRegister, in string componentName);
+
+
+    /*!
+      Name of the machine containing this container (location of the container).
+    */
+    //    readonly attribute string machineName ;
+
+
+  };
+
+
+
+  /*! \brief Interface of the %component
+  This interface is used for interaction between the %container and the
+  %component and between the components inside the container.
+  */
   interface Component
   {
-/*!
-   The name of the instance of the %Component
-*/
+    /*!
+      The name of the instance of the %Component
+    */
     readonly attribute string instanceName ;
-/*!
-   The name of the interface of the %Component
-*/
+
+    /*!
+      The name of the interface of the %Component
+    */
     readonly attribute string interfaceName ;
-/*!
-    Determines whether the server has already been loaded or not.
-*/
+
+    /*!
+      Determines whether the server has already been loaded or not.
+    */
     void ping();
-/*!
-    Deactivates the %Component.
-*/
+
+//     /*!
+//       Set study associated to component instance
+//       \param studyId
+//       (=0:  multistudy component instance,
+//        >0: study id associated to this instance
+//       \return false if already set with a different value (change not possible)
+//     */
+//     boolean setStudyId(in long studyId);
+
+    /*!
+      get study associated to component instance
+      \return -1: not initialised (Internal Error)
+               0: multistudy component instance
+              >0: study id associated to this instance
+    */
+    long getStudyId();
+
+    /*!
+      Deactivates the %Component.
+      -- TO BE USED BY CONTAINER ONLY (Container housekeeping) --
+      use remove_impl from Container instead !
+    */
     void destroy() ;
-/*!
-    Returns the container that the %Component refers to.
-*/
+
+    /*!
+      Returns the container that the %Component refers to.
+    */
     Container GetContainerRef() ;
-/*!
-    Gives a sequence of (key=string,value=any) to the component. 
-    Base class component stores the sequence in a map.
-    The map is cleared before.
-    This map is for use by derived classes. 
-*/
+
+    /*!
+      Gives a sequence of (key=string,value=any) to the component. 
+      Base class component stores the sequence in a map.
+      The map is cleared before.
+      This map is for use by derived classes. 
+    */
     void setProperties(in FieldsDict dico);
-/*!
-    returns a previously stored map (key=string,value=any) as a sequence.
-    See setProperties(in FieldsDict dico).
-*/
+
+    /*!
+      returns a previously stored map (key=string,value=any) as a sequence.
+      See setProperties(in FieldsDict dico).
+    */
     FieldsDict getProperties();
-/*!
-   This method is used by the %SUPERVISOR component. It sets the names of the graph and of the node.
-   \param aGraphName Name of graph
-   \param aNodeName Name of node
-*/
+
+    /*!
+      This method is used by the %SUPERVISOR component. It sets the names of
+      the graph and of the node.
+      \param aGraphName Name of graph
+      \param aNodeName  Name of node
+    */
     void Names( in string aGraphName , in string aNodeName ) ;
-/*!
-   Returns True if the %Component has been killed.
-*/
+
+    /*!
+      Returns True if the %Component has been killed.
+    */
     boolean Kill_impl() ;
-/*!
-   Returns True if the activity of the %Component has been stopped. (It's action can't be resumed)
-*/
+
+    /*!
+      Returns True if the activity of the %Component has been stopped.
+      (It's action can't be resumed)
+    */
     boolean Stop_impl() ;
-/*!
-   Returns True if the activity of the %Component has been suspended. (It's action can be resumed)
-*/
+
+    /*!
+      Returns True if the activity of the %Component has been suspended.
+      (It's action can be resumed)
+    */
     boolean Suspend_impl() ;
-/*!
-   Returns True if the activity of the %Component has been resumed.
-*/
+
+    /*!
+      Returns True if the activity of the %Component has been resumed.
+    */
     boolean Resume_impl() ;
-/*!
-   Returns the Cpu used (long does not run with python !...)
-*/
+
+    /*!
+      Returns the Cpu used (long does not run with python !...)
+    */
     long CpuUsed_impl() ;
+    
+    /*!
+      Returns a python script, which is being played back reproduces
+      the data model of component
+    */    
+    TMPFile DumpPython(in Object theStudy,
+		       in boolean isPublished, 
+		       out boolean isValidScript); 
+
   } ;
 } ;
 

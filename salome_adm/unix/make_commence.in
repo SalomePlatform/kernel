@@ -55,6 +55,11 @@ LSF_INCLUDES = @LSF_INCLUDES@
 LSF_LIBDIR   = @LSF_LDFLAGS@
 LSF_LIBS     = @LSF_LIBS@
 
+# CPPUNIT
+
+CPPUNIT_INCLUDES = @CPPUNIT_INCLUDES@
+CPPUNIT_LIBS = @CPPUNIT_LIBS@
+
 # JAVA
 
 #JAVA_INCLUDES = @JAVA_INCLUDES@
@@ -77,10 +82,13 @@ QT_INCLUDES = @QT_INCLUDES@
 QT_MT_INCLUDES = @QT_INCLUDES@ -DQT_THREAD_SUPPORT
 QT_LIBS = @QT_LIBS@
 QT_MT_LIBS = @QT_MT_LIBS@
+QT_VERS = @QT_VERS@
 
 MOC = @MOC@
 UIC = @UIC@
 
+# msg2qm
+MSG2QM = @MSG2QM@
 
 #QWT
 
@@ -98,6 +106,7 @@ PYQT_SIPS = @PYQT_SIPS@
 PYQT_LIBS = @PYQT_LIBS@
 PYQT_INCLUDES = @PYQT_INCLUDES@
 PYUIC = @PYUIC@
+PYQT_SIPFLAGS = @PYQT_SIPFLAGS@
 
 # openGL
 OGL_INCLUDES=@OGL_INCLUDES@
@@ -112,12 +121,6 @@ VTK_LIBS=@VTK_LIBS@
 HDF5_INCLUDES=@HDF5_INCLUDES@
 HDF5_LIBS=@HDF5_LIBS@
 HDF5_MT_LIBS=@HDF5_MT_LIBS@
-
-# MED2
-
-MED2_INCLUDES=@MED2_INCLUDES@
-MED2_LIBS=@MED2_LIBS@
-MED2_MT_LIBS=@MED2_MT_LIBS@
 
 # OpenCasCade
 
@@ -192,6 +195,7 @@ CXXFLAGS+= $(CORBA_CXXFLAGS)
 # add corba libs when link salome application ! 
 #LDFLAGS+= $(CORBA_LIBS)
 LIBS+=$(CORBA_LIBS)
+LIBSFORBIN+=$(CORBA_LIBS)
 
 DOXYGEN = @DOXYGEN@
 
@@ -275,8 +279,8 @@ ac_cxx_mutable.m4                 check_mico.m4      libtool.m4		\
 ac_cxx_namespaces.m4              check_omniorb.m4   pyembed.m4		\
 ac_cxx_partial_specialization.m4  check_opengl.m4    python.m4		\
 ac_cxx_typename.m4                check_pthreads.m4  check_cas.m4	\
-ac_cc_warnings.m4                 check_qt.m4        check_med2.m4      \
-check_swig.m4                     check_boost.m4 
+ac_cc_warnings.m4                 check_qt.m4        check_swig.m4      \
+check_boost.m4 
 
 $(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files/%)
 	cd $(top_srcdir) ; aclocal --acdir=adm_local/unix/config_files -I @KERNEL_ROOT_DIR@/salome_adm/unix/config_files

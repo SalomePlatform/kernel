@@ -25,23 +25,35 @@
 //  Module : SALOME
 
 # include "Utils_Timer.hxx"
+
 # include <iostream>
 
 #include "utilities.h"
-using namespace std;
 
+#ifndef WNT
 static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));
+#else
+//timezone *tz=_timezone;
+#endif
 
 #ifndef CLK_TCK
 # define CLK_TCK      CLOCKS_PER_SEC
 #endif
 
 Utils_Timer::Utils_Timer() {
+#ifndef WNT
   RefToInitialTMS = new tms;
   RefToCurrentTMS = new tms;
 
   RefToInitialTimeB = new timeval;
   RefToCurrentTimeB = new timeval;
+#else
+  RefToInitialTMS = new FILETIME;
+  RefToCurrentTMS = new FILETIME;
+
+  RefToInitialTimeB = new time_t;
+  RefToCurrentTimeB = new time_t;
+#endif
 
   Cumul_user      = Cumul_sys = 0.;
   Stopped         = 1;
@@ -58,22 +70,37 @@ Utils_Timer::~Utils_Timer() {
 void Utils_Timer::Start() {
   if (Stopped) {
     Stopped = 0;
+#ifndef WNT
     times(RefToInitialTMS);
     gettimeofday(RefToInitialTimeB,tz);
+#else
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+    SystemTimeToFileTime(&st, RefToInitialTMS);
+	  time(RefToCurrentTimeB);
+#endif
   }
 }
 
 void Utils_Timer::Stop() {
   if (!Stopped) {
+#ifndef WNT
     times(RefToCurrentTMS);
     int diffr_user = RefToCurrentTMS->tms_utime - RefToInitialTMS->tms_utime;
     int diffr_sys  = RefToCurrentTMS->tms_stime - RefToInitialTMS->tms_stime;
     gettimeofday(RefToCurrentTimeB,tz);
-     
+
     Cumul_user += (double) diffr_user / CLK_TCK ;
     Cumul_sys  += (double) diffr_sys  / CLK_TCK ;
-    
-    Stopped = 1;
+#else
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+    SystemTimeToFileTime(&st, RefToCurrentTMS);
+    Cumul_user += (int)(((ULARGE_INTEGER*)(RefToCurrentTMS))->QuadPart - ((ULARGE_INTEGER*)(RefToInitialTMS))->QuadPart) / 10000000;
+	  Cumul_sys = Cumul_user;
+	  time(RefToCurrentTimeB);
+#endif
+   Stopped = 1;
   }
 }
 
@@ -91,6 +118,10 @@ void Utils_Timer::Reset() {
 }
 
 void Utils_Timer::ShowAbsolute(){
+#ifndef WNT
     unsigned long Absolute_user = (unsigned long) ((timeval*)RefToCurrentTimeB)->tv_sec ;
+#else
+    unsigned long Absolute_user = *RefToCurrentTimeB;
+#endif
     MESSAGE("Absolute time: "   << Absolute_user  << " seconds ");
 }

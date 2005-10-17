@@ -1,108 +1,45 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
 //  File   : SALOMEDS_Study_i.hxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
-//  $Header$
 
 #ifndef __SALOMEDS_STUDY_I_H__
 #define __SALOMEDS_STUDY_I_H__
 
 // std C++ headers
-#include <map>
-#include <string>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOME_GenericObj)
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-// Cascade headers
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_Label.hxx>
-#include <TDocStd_Document.hxx>
-#include <TColStd_SequenceOfInteger.hxx>
-#include <TColStd_SequenceOfAsciiString.hxx>
+#include <stdio.h>
 
 //SALOMEDS headers
-#include "SALOMEDS_DataMapStringLabel.hxx"
-#include "SALOMEDS_IORAttribute.hxx"
-
 #include "SALOMEDS_SComponentIterator_i.hxx"
-#include "SALOMEDS_ChildIterator_i.hxx"
+#include "SALOMEDS_StudyBuilder_i.hxx"
+#include "SALOMEDS_SObject_i.hxx"
+#include "SALOMEDS_UseCaseBuilder_i.hxx"
 
-class SALOMEDS_StudyManager_i;
-class SALOMEDS_UseCaseBuilder_i;
-class SALOMEDS_StudyBuilder_i;
-class SALOMEDS_SObject_i;
+#include "SALOMEDSImpl_Study.hxx"
+#include "SALOMEDSImpl_AttributeIOR.hxx"
 
-
-bool operator<(const TDF_Label& theLeft, const TDF_Label& theRight);
-
-
-class SALOMEDS_Study_i: public virtual POA_SALOMEDS::Study,
-			public virtual PortableServer::RefCountServantBase 
+class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study,
+			public PortableServer::RefCountServantBase 
 {
-public:
-  typedef TDF_Label TSObjectID;
-  typedef std::pair<SALOMEDS_SObject_i*,SALOMEDS::SObject_var> TSObjectHolder;
-  typedef std::map<TSObjectID,TSObjectHolder> TSObjectMap;
+private:
+  CORBA::ORB_ptr                 _orb;
+  Handle(SALOMEDSImpl_Study)     _impl;  
+  SALOMEDS_StudyBuilder_i*       _builder;    
 
-  SALOMEDS_Study_i(SALOMEDS_StudyManager_i* theStudyManager,
-		   const Handle(TDocStd_Document)& theDoc,
-		   const char* theStudyName);
+public:
+
+  //! standard constructor
+  SALOMEDS_Study_i(const Handle(SALOMEDSImpl_Study), CORBA::ORB_ptr);
   
+  //! standard destructor
   virtual ~SALOMEDS_Study_i(); 
   
-
-  SALOMEDS_StudyManager_i* GetStudyManager(){ return _StudyManager; }
-
-  Handle(TDocStd_Document) GetDocument(){ return _doc; }
-
-  TSObjectMap& GetSObjectMap(){ return mySObjectMap;}
-
-  CORBA::ORB_var GetORB() const;
-
-  PortableServer::POA_var GetPOA() const;
-
-  SALOMEDS_SObject_i* DownCast(SALOMEDS::SObject_ptr theSObject) const;
-
-  SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
-
-  SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
-
-  void OnAddSObject(SALOMEDS::SObject_ptr theObject);
-
-  void OnRemoveSObject(SALOMEDS::SObject_ptr theObject);
-
-  void CheckLocked();
-
-
-  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject);
-
-  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR);
-
   //! method to Get persistent reference of study (idem URL())
   /*!
     \sa URL()
@@ -225,20 +162,17 @@ public:
     \return ChildIterator_ptr arguments, the created ChildIterator
   */  
   virtual SALOMEDS::ChildIterator_ptr NewChildIterator(SALOMEDS::SObject_ptr aSO);
-  SALOMEDS_ChildIterator_i GetChildIterator(SALOMEDS::SObject_ptr theSObject);
 
   //! method to Create a SComponentIterator 
   /*!
     \return SComponentIterator_ptr arguments, the created SComponentIterator
   */  
   virtual SALOMEDS::SComponentIterator_ptr NewComponentIterator();
-  SALOMEDS_SComponentIterator_i GetComponentIterator();
 
   //! method to Create a StudyBuilder
   /*!
     \return StudyBuilder_ptr arguments, the created StudyBuilder
   */  
-  SALOMEDS_StudyBuilder_i* GetBuilder();
   virtual SALOMEDS::StudyBuilder_ptr NewBuilder();
  
   //! method to get study name
@@ -286,7 +220,9 @@ public:
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);
 
-  void IORUpdated(const Handle(SALOMEDS_IORAttribute) theAttribute);
+  static SALOMEDS::Study_ptr GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb);
+
+  static void IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR) theAttribute);
 
   virtual void UpdateIORLabelMap(const char* anIOR, const char* aLabel);
   
@@ -298,61 +234,36 @@ public:
 
   virtual SALOMEDS::ListOfDates* GetModificationsDate();
 
+  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject) {return _orb->object_to_string(theObject); }
+  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };
+
   virtual SALOMEDS::UseCaseBuilder_ptr GetUseCaseBuilder();
 
   virtual void Close();
 
-  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) { _autoFill = isEnabled; }
+  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) { _impl->EnableUseCaseAutoFilling(isEnabled); }
 
   // postponed destroying of CORBA object functionality
   virtual void AddPostponed(const char* theIOR);
 
   virtual void AddCreatedPostponed(const char* theIOR);
 
+#ifndef WNT
   virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
                                                 // theWay = -1: get back to the list of postponed
-private:
-  friend class SALOMEDS_StudyBuilder_i;
-  friend class SALOMEDS_SObject_i;
- 
-  SALOMEDS_StudyManager_i* _StudyManager;
+#else
+  virtual void RemovePostponed(CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
+                                                        // if theUndoLimit==0, removes all
+  virtual void UndoPostponed(CORBA::Long theWay); // theWay = 1: resurrect objects,
+                                                // theWay = -1: get back to the list of postponed
+#endif
 
-  TSObjectMap mySObjectMap;
+  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished); 
 
-  SALOMEDS_UseCaseBuilder_i* _UseCaseBuilder;
-  SALOMEDS_StudyBuilder_i* _Builder;
-  SALOMEDS::Callback_var   _callbackOnAdd;
-  SALOMEDS::Callback_var   _callbackOnRemove;
+  virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
 
-  char*                    _name;  
-  Handle(TDocStd_Document) _doc;  // OCAF Document
-  CORBA::Boolean           _isSaved; // True if the Study is saved
-  char*                    _URL; //URL of the persistent reference of the study
-  CORBA::Short             _StudyId;
-
-  SALOMEDS_DataMapStringLabel myIORLabels;
-
-  // data structures for postponed destroying of CORBA object functionality
-  TColStd_SequenceOfAsciiString myPostponedIORs; // ordered set of IORs
-  TColStd_SequenceOfInteger myNbPostponed; // number of IOR in the each transaction
-  int myNbUndos; // number of current Undos, made by user
-
-  TDF_Label                _current;
-  bool                     _autoFill;  
-
-  SALOMEDS::SObject_ptr    _FindObject(TDF_Label theLabel,
-				       const char* theObjectIOR, 
-				       bool& theIsFound);
-  SALOMEDS::SObject_ptr    _FindObjectIOR(TDF_Label theLabel,
-					  const char* theObjectIOR, 
-					  bool& theIsFound);
-
-  SALOMEDS_Study_i(); // Not implemented
-  void operator=(const SALOMEDS_Study_i&); // Not implemented
-
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
-
-
 #endif

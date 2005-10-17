@@ -51,18 +51,22 @@ LIB_SRC = \
 		  SALOME_ModuleCatalog_impl.cxx \
 		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 
-CXXFLAGS+=@CXXTMPDPTHFLAGS@
+LIB_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl
+
+CXXFLAGS+=-ftemplate-depth-32
 
 # Executables targets
 # trouble we have client and serveur and build don't known about this with rule
 # in fact client is a test ! So it may go away BIN !
+
 BIN = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
 BIN_SRC = 
-LIB_CLIENT_IDL = SALOME_ModuleCatalog.idl
-BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
+BIN_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
-LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace
+LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lSALOMELocalTrace -lOpUtil -lSALOMEBasics
 
-LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
+LDFLAGSFORBIN+=  -lSalomeNS -lSALOMELocalTrace -lOpUtil -lSALOMEBasics
+
+
 @CONCLUDE@

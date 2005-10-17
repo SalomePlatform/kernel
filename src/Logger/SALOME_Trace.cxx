@@ -16,6 +16,10 @@
 #include <iostream>
 using namespace std;
 
+#ifdef WNT
+#include <omnithread/pthread_nt.h>
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -53,7 +57,11 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 
   // searchin for naming service for 0.25*40=10 seconds
   for (i = 1; i <= NumberOfTries; i++) {
+#ifndef WNT
     if (i != 1) nanosleep(&ts_req,&ts_rem);
+#else
+	if (i != 1) Sleep(TIMESleep / 1000000);
+#endif
     try{ 
       if(CORBA::is_nil(obj))
 	obj = theOrb->resolve_initial_references("RootPOA");
@@ -62,7 +70,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
       if (!CORBA::is_nil(theObj))
 	inc = CosNaming::NamingContext::_narrow(theObj);
       if (!CORBA::is_nil(inc)) break;
-    } catch( CORBA::COMM_FAILURE& ) {
+    } catch( CORBA::SystemException& ) {
     } catch (...) {
     }
   }
@@ -84,7 +92,11 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
     name[0].id=CORBA::string_dup("Logger");    
     
     for(i = 1; i <= NumberOfTries; i++){
+#ifndef WNT
       if (i != 1) nanosleep(&ts_req, &ts_rem);
+#else
+	  if (i != 1) Sleep(TIMESleep / 1000000);
+#endif
       try {
 	obj = inc->resolve(name);
 	if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);

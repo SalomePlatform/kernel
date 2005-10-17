@@ -31,6 +31,7 @@
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
 #include "SALOMEDS_AttributeName_i.hxx"
+#include "HDFOI.hxx"
 using namespace std;
 
 //============================================================================

@@ -1,20 +1,77 @@
-import os, glob, string, sys
+import os, glob, string, sys, re
 import xml.sax
 
+# names of tags in XML configuration file 
+doc_tag = "document"
+sec_tag = "section"
+par_tag = "parameter"
+
+# names of attributes in XML configuration file 
+nam_att = "name"
+val_att = "value"
+
+# certain values in XML configuration file ("launch" section)
+lanch_nam      = "launch"
+gui_nam        = "gui"
+splash_nam     = "splash"
+logger_nam     = "logger"
+xterm_nam      = "xterm"
+file_nam       = "file"
+portkill_nam   = "portkill"
+killall_nam    = "killall"
+modules_nam    = "modules"
+pyModules_nam  = "pyModules"
+embedded_nam   = "embedded"
+standalone_nam = "standalone"
+containers_nam = "containers"
+key_nam        = "key"
+interp_nam     = "interp"
+
+# values in XML configuration file giving specific module parameters (<module_name> section)
+# which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
+plugins_nam    = "plugins"
+
+# values passed as arguments, NOT read from XML config file, but set from within this script
+appname_nam    = "appname"
+port_nam       = "port"
+appname        = "SalomeApp"
+
+# values of boolean type (must be '0' or '1').
+# xml_parser.boolValue() is used for correct setting
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam )
+
+# values of list type
+listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
+
+# return application version (uses GUI_ROOT_DIR (or KERNEL_ROOT_DIR in batch mode) +/bin/salome/VERSION)
+def version():
+    root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' )     # KERNEL_ROOT_DIR or "" if not found
+    root_dir = os.environ.get( 'GUI_ROOT_DIR', root_dir )  # GUI_ROOT_DIR or KERNEL_ROOT_DIR or "" if both not found
+    filename = root_dir+'/bin/salome/VERSION'
+    str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
+    match = re.search( r':\s+([\d\.]+)\s*$', str )
+    if match :
+        return match.group( 1 )
+    return ''
+    
 # -----------------------------------------------------------------------------
 
 ### xml reader for launch configuration file usage
 
+section_to_skip = ""
+
 class xml_parser:
-    def __init__(self, fileName):
+    def __init__(self, fileName, _opts ):
+        print "Processing ",fileName 
         self.space = []
-        self.opts = {}
+        self.opts = _opts
+        self.section = section_to_skip
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
         parser.parse(fileName)
         pass
 
-    def CorrectBoolean(self, str):
+    def boolValue( self, str ):
         if str in ("yes", "y", "1"):
             return 1
         elif str in ("no", "n", "0"):
@@ -24,56 +81,52 @@ class xml_parser:
         pass
 
     def startElement(self, name, attrs):
-        #print "startElement name=",name
-        #print "startElement attrs=",attrs.getNames()
         self.space.append(name)
         self.current = None
 
-        if self.space[:2] == ["Configuration-list","launchoptions"] and len(self.space) == 3:
-            self.current = name
-        elif self.space == ["Configuration-list","modules-list"]:
-            self.opts["modules"] = []
-        elif self.space == ["Configuration-list","modules-list","module"] and "name" in attrs.getNames():
-            for field in attrs.getNames():
-                if field == "name":
-                    self.currentModuleName = str(attrs.getValue("name"))
-                    self.opts["modules"].append(self.currentModuleName)
-                else:
-                    self.opts[str(attrs.getValue("name"))+"_"+str(field)] = self.CorrectBoolean(attrs.getValue(field))
-                    pass
-                pass
-        elif self.space == ["Configuration-list","modules-list","module","plugin"] and "name" in attrs.getNames():
-            key = str(self.currentModuleName)+"_plugins"
-            if not self.opts.has_key(key):
-                self.opts[key]=[]
-                pass
-            self.opts[key].append(attrs.getValue("name"))
-        elif self.space == ["Configuration-list","embedded-list"]:
-            self.opts["embedded"] = []
+        # if we are analyzing "section" element and its "name" attribute is
+        # either "launch" or module name -- set section_name
+        if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
+            section_name = attrs.getValue( nam_att )
+            if section_name == lanch_nam:
+                self.section = section_name # launch section
+            elif self.opts.has_key( modules_nam ) and \
+                 section_name in self.opts[ modules_nam ]:
+                self.section = section_name # <module> section
+            else:
+                self.section = section_to_skip # any other section
             pass
-        elif self.space == ["Configuration-list","standalone-list"]:
-            self.opts["standalone"] = []
-            pass
-        elif self.space == ["Configuration-list","containers-list"]:
-            self.opts["containers"] = []
+
+        # if we are analyzing "parameter" elements - children of either
+        # "section launch" or "section "<module>"" element, then store them
+        # in self.opts assiciative array (key = [<module>_ + ] value of "name" attribute)
+        elif self.section != section_to_skip           and \
+             self.space == [doc_tag, sec_tag, par_tag] and \
+             nam_att in attrs.getNames()               and \
+             val_att in attrs.getNames():
+            nam = attrs.getValue( nam_att )
+            val = attrs.getValue( val_att )
+            if self.section == lanch_nam: # key for launch section
+                key = nam
+            else:                         # key for <module> section
+                key = self.section + "_" + nam
+            if nam in boolKeys:
+                self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
+            elif nam in listKeys:
+                self.opts[key] = val.split( ',' )       # assign list value: []
+            else:
+                self.opts[key] = val;
             pass
         pass
 
     def endElement(self, name):
         p = self.space.pop()
         self.current = None
+        if self.section != section_to_skip and name == sec_tag:
+            self.section = section_to_skip
         pass
 
     def characters(self, content):
-        #print "Characters content:",content
-        if self.current:
-            self.opts[self.current] = self.CorrectBoolean(content)
-        elif self.space == ["Configuration-list","embedded-list", "embeddedserver"]:
-            self.opts["embedded"].append(content)
-        elif self.space == ["Configuration-list","standalone-list", "standaloneserver"]:
-            self.opts["standalone"].append(content)
-        elif self.space == ["Configuration-list","containers-list", "containertype"]:
-            self.opts["containers"].append(content)
         pass
 
     def processingInstruction(self, target, data):
@@ -92,45 +145,62 @@ class xml_parser:
 
 # -----------------------------------------------------------------------------
 
-### searching for launch configuration file : $HOME/applipath()/salome.launch
+### searching for launch configuration files
+# the rule:
+# - environment variable {'appname'+'Config'} (SalomeAppConfig) contains list of directories (';' as devider)
+# - these directories contain 'appname'+'.xml' (SalomeApp.xml) configuration files
+# - these files are analyzed beginning with the last one (last directory in the list)
+# - if a key is found in next analyzed cofiguration file - it will be replaced
+# - the last configuration file to be analyzed - ~/.'appname'+'rc' (~/SalomeApprc) (if it exists)
+# - but anyway, if user specifies a certain option in a command line - it will replace the values
+# - specified in configuration file(s)
+# - once again the order of settings (next setting replaces the previous ones):
+# -     SalomeApp.xml files in directories specified by SalomeAppConfig env variable
+# -     .SalomeApprc file in user's catalogue
+# -     command line
 
-appname="salome"
-import Utils_Identity
-versnb=Utils_Identity.version()
-dirname = os.path.join(os.environ["HOME"],Utils_Identity.getapplipath())
-filename=os.path.join(dirname,"salome.launch")
+config_var = appname+'Config'
+dirs = os.environ[config_var]
+dirs = dirs.split( ';' )
+dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
-if not os.path.exists(filename):
-   print "Launch configuration file does not exist. Create default:",filename
-   os.system("mkdir -p "+dirname)
-   os.system("cp -f "+os.environ["KERNEL_ROOT_DIR"]+"/bin/salome/salome.launch "+filename)
+_opts = {} # assiciative array of options to be filled
 
-### get options from launch configuration file
+# SalomeApp.xml files in directories specified by SalomeAppConfig env variable
+for dir in dirs:
+    filename = dir+'/'+appname+'.xml'
+    try:
+        p = xml_parser(filename, _opts)
+        _opts = p.opts
+    except:
+        print 'Can not read launch configuration file ', filename
+        continue
 
+# SalomeApprc file in user's catalogue
+filename = os.environ['HOME']+'/.'+appname+'rc.'+version()
 try:
-    p = xml_parser(filename)
+    p = xml_parser(filename, _opts)
+    _opts = p.opts
 except:
     print 'Can not read launch configuration file ', filename
-    filename = None
-    pass
 
-if filename:
-    args = p.opts
-else:
-    args = {}
-    pass
 
-# --- args completion
-for aKey in ("containers","embedded","key","modules","standalone"):
-    if not args.has_key(aKey):
+args = _opts
+
+# --- setting default values of keys if they were NOT set in config files ---
+for aKey in listKeys:
+    if not args.has_key( aKey ):
         args[aKey]=[]
-for aKey in ("gui","logger","file","xterm","portkill","killall","interp"):
-    if not args.has_key(aKey):
+        
+for aKey in boolKeys:
+    if not args.has_key( aKey ):
         args[aKey]=0
-if args["file"]:
-    afile=args["file"]
-    args["file"]=[afile]
-args["appname"] = appname
+        
+if args[file_nam]:
+    afile=args[file_nam]
+    args[file_nam]=[afile]
+    
+args[appname_nam] = appname
 
 ### searching for my port
 
@@ -140,7 +210,7 @@ try:
   s = file.read()
   while len(s):
     l = string.split(s, ":")
-    if string.split(l[0], " ")[0] == "ORBInitRef":
+    if string.split(l[0], " ")[0] == "ORBInitRef" or string.split(l[0], " ")[0] == "InitRef" :
       my_port = int(l[len(l)-1])
       pass
     s = file.read()
@@ -148,7 +218,7 @@ try:
 except:
   pass
 
-args["port"] = my_port
+args[port_nam] = my_port
 
 # -----------------------------------------------------------------------------
 
@@ -165,7 +235,7 @@ def options_parser(line):
     list = []
     pass
 
-  print "source=",source
+  #print "source=",source
   
   result = {}
   i = 0
@@ -192,27 +262,27 @@ def options_parser(line):
 # -----------------------------------------------------------------------------
 
 ### read command-line options : each arg given in command line supersedes arg from xml config file
-
+cmd_opts = {}
 try:
-    opts = options_parser(sys.argv[1:])
-    print "opts=",opts
+    cmd_opts = options_parser(sys.argv[1:])
+    #print "opts=",cmd_opts
     kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
 except:
-    opts["h"] = 1
+    cmd_opts["h"] = 1
     pass
 
 ### check all options are right
 
 opterror=0
-for opt in opts:
+for opt in cmd_opts:
     if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i"):
         print "command line error: -", opt
         opterror=1
 
 if opterror == 1:
-    opts["h"] = 1
+    cmd_opts["h"] = 1
 
-if opts.has_key("h"):
+if cmd_opts.has_key("h"):
     print """USAGE: runSalome.py [options]
     [command line options] :
     --help or -h                  : print this help
@@ -235,6 +305,7 @@ if opts.has_key("h"):
     --portkill or -p              : kill the salome with current port
     --killall or -k               : kill all salome sessions
     --interp=n or -i=n            : number of additional xterm to open, with session environment
+    -z                            : display splash screen
     
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
@@ -244,35 +315,37 @@ if opts.has_key("h"):
     pass
 
 ### apply command-line options to the arguments
-for opt in opts:
+for opt in cmd_opts:
     if opt == 'g':
-        args['gui'] = 1
+        args[gui_nam] = 1
+    elif opt == 'z':
+	args[splash_nam] = 1
     elif opt == 'l':
-        args['logger'] = 1
+        args[logger_nam] = 1
     elif opt == 'f':
-        args['file'] = opts['f']
+        args[file_nam] = cmd_opts['f']
     elif opt == 'x':
-        args['xterm'] = 1
+        args[xterm_nam] = 1
     elif opt == 'i':
-        args['interp'] = opts['i']
+        args[interp_nam] = cmd_opts['i']
     elif opt == 'm':
-        args['modules'] = opts['m']
+        args[modules_nam] = cmd_opts['m']
     elif opt == 'e':
-        args['embedded'] = opts['e']
+        args[embedded_nam] = cmd_opts['e']
     elif opt == 's':
-        args['standalone'] = opts['s']
+        args[standalone_nam] = cmd_opts['s']
     elif opt == 'c':
-        args['containers'] = opts['c']
+        args[containers_nam] = cmd_opts['c']
     elif opt == 'p':
-        args['portkill'] = 1
+        args[portkill_nam] = 1
     elif opt == 'k':
-        args['killall'] = 1
+        args[killall_nam] = 1
         pass
     pass
 
 # 'terminal' must be processed in the end: to deny any 'gui' options
-if 't' in opts:
-    args['gui'] = 0
+if 't' in cmd_opts:
+    args[gui_nam] = 0
     pass
 
-print "args=",args
+#print "args=",args

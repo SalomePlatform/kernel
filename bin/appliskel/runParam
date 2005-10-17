@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./runAppli --killall  
+
+#./runSession killSalome.py

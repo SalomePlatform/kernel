@@ -35,10 +35,12 @@
 #include <qfileinfo.h>
 using namespace std;
 
+#include "utilities.h"
+
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
+static int MYDEBUG = 1;
 #else
-static int MYDEBUG = 0;
+static int MYDEBUG = 1;
 #endif
 
 static const char* SEPARATOR    = ":";
@@ -251,7 +253,11 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
+#ifndef WNT
   for(unsigned int ind=0; ind < _general_module_list.size();ind++){
+#else
+  for(ind=0; ind < _general_module_list.size();ind++){
+#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is already defined in 
@@ -312,7 +318,11 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
+#ifndef WNT
   for(unsigned int ind=0; ind < _general_module_list.size();ind++){
+#else
+  for(ind=0; ind < _general_module_list.size();ind++){
+#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is aleready defined in 
@@ -403,7 +413,11 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
+#ifndef WNT
   for (unsigned int ind=0; ind < _general_module_list.size();ind++)
+#else
+  for (ind=0; ind < _general_module_list.size();ind++)
+#endif
     {
       _find = false;
 
@@ -456,12 +470,12 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   ParserComponent *C_parser = NULL;
   ParserPathPrefixes *pp = NULL;
 
-  SALOME_ModuleCatalog::Acomponent_ptr compo = NULL;
-  
+  SALOME_ModuleCatalog::Acomponent_ptr compo
+    = SALOME_ModuleCatalog::Acomponent::_nil();
   C_parser = findComponent(s);
   if (C_parser) {
     
-//    DebugParserComponent(*C_parser);
+    //    DebugParserComponent(*C_parser);
 
     SALOME_ModuleCatalog::Component C_corba;
     duplicate(C_corba, *C_parser);
@@ -477,7 +491,6 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     // return NULL object
     if(MYDEBUG) MESSAGE("Component with name  " << name 
 			<< " not found in catalog");
-    compo = NULL;
   }
   
   return compo;
@@ -508,13 +521,15 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
-      if (name.compare(_personal_module_list[ind].name) == 0)
-        {
-          if(MYDEBUG) MESSAGE("Component named " << name 
-			      << " found in the personal catalog");
-	  C_parser = &(_personal_module_list[ind]);
-	  break;
-	}
+      {
+	if (name.compare(_personal_module_list[ind].name) == 0)
+	  {
+	    if(MYDEBUG) MESSAGE("Component named " << name 
+				<< " found in the personal catalog");
+	    C_parser = &(_personal_module_list[ind]);
+	    break;
+	  }
+      }
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _general_module_list.size();ind++)
@@ -662,16 +677,24 @@ void SALOME_ModuleCatalogImpl::duplicate
   // duplicate out Parameters
   _length = S_parser.outParameters.size();
   S_corba.ServiceoutParameter.length(_length);
-  
+
+#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_corba.ServiceoutParameter[ind2],
 	      S_parser.outParameters[ind2]);
   
   // duplicate in DataStreamParameters
   _length = S_parser.inDataStreamParameters.size();
   S_corba.ServiceinDataStreamParameter.length(_length);
-  
+
+#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_corba.ServiceinDataStreamParameter[ind2],
 	      S_parser.inDataStreamParameters[ind2]);
   
@@ -679,8 +702,12 @@ void SALOME_ModuleCatalogImpl::duplicate
   _length = S_parser.outDataStreamParameters.size();
   if(MYDEBUG) SCRUTE(_length);
   S_corba.ServiceoutDataStreamParameter.length(_length);
-  
+
+#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_corba.ServiceoutDataStreamParameter[ind2],
 	      S_parser.outDataStreamParameters[ind2]);
 }
@@ -790,7 +817,11 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
     }
 
   // Parse if a computer name is twice in the list of computers
+#ifndef WNT
   for (unsigned int ind = 0; ind < _machine_list.size(); ind++)
+#else
+  for (ind = 0; ind < _machine_list.size(); ind++)
+#endif
     {
      for (unsigned int ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
        {

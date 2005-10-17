@@ -18,6 +18,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
+
+#ifdef WNT
+#include <io.h>
+#include <time.h>
+#endif
+
 using namespace std;
 
 bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp);
@@ -289,7 +295,11 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   
   fprintf(fp, "\n");
 
+#ifndef WNT
   for(unsigned j=0; j<nbAttr; j++) {
+#else
+  for(j=0; j<nbAttr; j++) {
+#endif
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);
     delete name;
@@ -506,8 +516,10 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   fscanf(fp, "%i\n", &nbDim);
 
   hdf_size* sizeArray = new hdf_size[nbDim];
+  int dim = 0;
   for(i = 0; i<nbDim; i++) {
-    fscanf(fp, "%i\n", &(sizeArray[i]));
+    fscanf(fp, "%i\n", &dim);
+    sizeArray[i] = dim;
   }
  
   HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim);
@@ -642,13 +654,19 @@ char* GetTmpDir()
 
   TCollection_AsciiString aTmpDir;
 
-#ifdef WIN32
-  aTmpDir = TCollection_AsciiString("C:\\");
+#ifdef WNT
+  char *aTmp;
+  aTmp = getenv("TMP");
+  if(aTmp != NULL)
+	aTmpDir = TCollection_AsciiString(aTmp);
+  else
+	aTmpDir = TCollection_AsciiString("C:\\");
 #else
   aTmpDir = TCollection_AsciiString("/tmp/");
 #endif
 
   srand((unsigned int)time(NULL));
+
   int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
   TCollection_AsciiString aSubDir(aRND);
   if(aSubDir.Length() <= 1) aSubDir = TCollection_AsciiString("123409876");

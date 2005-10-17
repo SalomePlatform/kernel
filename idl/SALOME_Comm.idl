@@ -1,3 +1,6 @@
+#ifndef _SALOME_COMM_IDL_
+#define _SALOME_COMM_IDL_
+
 #include "SALOME_Exception.idl"
 
 module SALOME {
@@ -20,33 +23,40 @@ module SALOME {
 
   interface Sender {
     TypeOfDataTransmitted getTypeOfDataTransmitted();
-    Sender buildOtherWithProtocol(in TypeOfCommunication type);
     void release();
   };
 
+  interface SenderDouble : Sender {
+    SenderDouble buildOtherWithProtocol(in TypeOfCommunication type);
+  };
+
+  interface SenderInt : Sender {
+    SenderInt buildOtherWithProtocol(in TypeOfCommunication type);
+  };
+
   //No compulsory copy between double and CORBA::Double
-  interface CorbaDoubleNCSender : Sender {
+  interface CorbaDoubleNCSender : SenderDouble {
     unsigned long getSize();
     vectorOfDouble sendPart(in unsigned long n1,in unsigned long n2);
     vectorOfDouble send();
   };
 
   //Compulsory copy between double and CORBA::Double
-  interface CorbaDoubleCSender : Sender {
+  interface CorbaDoubleCSender : SenderDouble {
     unsigned long getSize();
     //unsigned long getSize2();
     vectorOfDouble sendPart(in unsigned long n1,in unsigned long n2);
   };
 
   //No compulsory copy between int and CORBA::Long
-  interface CorbaLongNCSender : Sender {
+  interface CorbaLongNCSender : SenderInt {
     unsigned long getSize();
     vectorOfLong sendPart(in unsigned long n1,in unsigned long n2);
     vectorOfLong send();
   };
 
   //Compulsory copy between int and CORBA::Long
-  interface CorbaLongCSender : Sender {
+  interface CorbaLongCSender : SenderInt {
     unsigned long getSize();
     vectorOfLong sendPart(in unsigned long n1,in unsigned long n2);
   };
@@ -61,6 +71,12 @@ module SALOME {
     param getParam();
     void send();
     void close(in param p);
+  };
+
+  interface MPISenderDouble : SenderDouble,MPISender {
+  };
+
+  interface MPISenderInt : SenderInt,MPISender {
   };
 
   interface SocketSender : Sender {
@@ -78,4 +94,11 @@ module SALOME {
     void send();
   };
 
+  interface SocketSenderDouble : SenderDouble,SocketSender {
+  };
+
+  interface SocketSenderInt : SenderInt,SocketSender {
+  };
 };
+
+#endif

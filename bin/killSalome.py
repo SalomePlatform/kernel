@@ -5,7 +5,7 @@ from killSalomeWithPort import killMyPort
 
 def killAllPorts():
     user = os.getenv('USER')
-    for file in os.listdir("/tmp"):
+    for file in os.listdir(os.getenv("HOME")):
         l = string.split(file, "_")
         if len(l) >= 4:
             if file[:len(user)] == user:

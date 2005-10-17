@@ -1,0 +1,28 @@
+<!DOCTYPE ResourcesCatalog>
+<resources>
+  <machine 
+	   protocol="ssh"
+	   nbOfNodes="1"
+	   mode="interactif"
+	   OS="LINUX"
+	   CPUFreqMHz="2800"
+	   userName="prascle"
+	   memInMB="1500"
+	   nbOfProcPerNode="2"
+	   alias="cli76cd"
+	   hostname="cli76cd" >
+  </machine>
+
+  <machine
+	   protocol="ssh"
+	   nbOfNodes="1"
+	   mode="interactif"
+	   OS="LINUX"
+	   CPUFreqMHz="2000"
+	   userName="prascle"
+	   memInMB="1000"
+	   nbOfProcPerNode="1"
+	   alias="cli76ce"
+	   hostname="cli76ce" >
+  </machine>
+</resources>

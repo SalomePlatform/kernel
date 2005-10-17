@@ -17,7 +17,7 @@ touch ${BaseDir}/logs/${Username}/dummy
 \rm -f ${BaseDir}/logs/${Username}/omninames* ${BaseDir}/logs/${Username}/dummy ${BaseDir}/logs/${Username}/*.log
 
 echo "Name Service... "
-aSedCommand="s/ORBInitRef NameService=corbaname::`hostname`:\([[:digit:]]*\)/\1/"
+aSedCommand="s/.*NameService=corbaname::`hostname`:\([[:digit:]]*\)/\1/"
 aPort=`sed -e"$aSedCommand" $OMNIORB_CONFIG`
 omniNames -start $aPort -logdir ${BaseDir}/logs/${Username} &
 

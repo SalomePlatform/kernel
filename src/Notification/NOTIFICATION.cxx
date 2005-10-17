@@ -50,7 +50,7 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
     } catch(CORBA::ORB::InvalidName& ex) {
         MESSAGE("NOTIFICATION Error : service required is invalid [does not exist]");
         return(channel);
-    } catch (CORBA::COMM_FAILURE& ex) {
+    } catch (CORBA::SystemException& ex) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE");
         return(channel);
     } catch (...) {
@@ -70,7 +70,7 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
         };
     } catch(CORBA::ORB::InvalidName& ex) {
         MESSAGE("NOTIFICATION Error : invalid name");
-    } catch (CORBA::COMM_FAILURE& ex) {
+    } catch (CORBA::SystemException& ex) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE while resolving event channel name");
     } catch (...) {
         MESSAGE("NOTIFICATION Error : caught exception while resolving event channel name");

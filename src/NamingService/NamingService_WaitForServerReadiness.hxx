@@ -29,8 +29,13 @@
 
 #include <string>
 #include "SALOME_NamingService.hxx"
+#ifdef WNT
+#include <SALOME_WNT.hxx>
+#else
+#define SALOME_WNT_EXPORT
+#endif
 
-void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
+void SALOME_WNT_EXPORT NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 					  std::string serverName);
 
 #endif

@@ -27,9 +27,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifndef WNT
 # include <sys/times.h>
 # include <sys/time.h>
 # include <unistd.h>
+#else
+# include <windows.h>
+# include <time.h>
+# include <sys/timeb.h>
+#define _POSIX_
+#endif
 
 class Utils_Timer {
  public:
@@ -44,6 +51,11 @@ class Utils_Timer {
   double Cumul_user;
   double Cumul_sys;
   bool Stopped;
+#ifndef WNT
   tms *RefToCurrentTMS, *RefToInitialTMS;
   timeval *RefToCurrentTimeB, *RefToInitialTimeB;
+#else
+  FILETIME *RefToCurrentTMS, *RefToInitialTMS;
+  time_t *RefToCurrentTimeB, *RefToInitialTimeB;
+#endif
 };

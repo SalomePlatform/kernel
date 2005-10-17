@@ -30,7 +30,6 @@
 #ifndef MODULECATALOG_IMPL_H
 #define MODULECATALOG_IMPL_H
 
-#include "utilities.h"
 #include <string>
 #include <map>
 
@@ -39,7 +38,22 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-class SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
+
+#if defined MODULECATALOG_EXPORTS
+#if defined WIN32
+#define MODULECATALOG_EXPORT __declspec( dllexport )
+#else
+#define MODULECATALOG_EXPORT
+#endif
+#else
+#if defined WNT
+#define MODULECATALOG_EXPORT __declspec( dllimport )
+#else
+#define MODULECATALOG_EXPORT
+#endif
+#endif
+
+class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
 				public PortableServer::RefCountServantBase 
 {
 public:

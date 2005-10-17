@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -69,7 +70,8 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 
 SALOME_NamingService::~SALOME_NamingService()
 {
-  MESSAGE("SALOME_NamingService destruction");
+  // Problem MESSAGE with singleton: late destruction, after trace system destruction ?
+  //MESSAGE("SALOME_NamingService destruction");
 }
 
 //----------------------------------------------------------------------
@@ -80,7 +82,8 @@ SALOME_NamingService::~SALOME_NamingService()
 
 void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 {
-  // MESSAGE("SALOME_NamingService initialisation");
+  MESSAGE("SALOME_NamingService initialisation");
+  Utils_Locker lock(&_myMutex);
   _orb = orb ;
   _initialize_root_context();
 }
@@ -100,7 +103,8 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 				    const char* Path) 
   throw(ServiceUnreachable)
 {
-  // MESSAGE("BEGIN OF Register: "<< Path);
+  MESSAGE("BEGIN OF Register: "<< Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -151,9 +155,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 	{
 	  INFOS("!!!Register() : CosNaming::NamingContext::CannotProceed");
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS("!!!Register() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS("!!!Register() : CORBA::SystemException : unable to contact"
 	       << " the naming service"); 
 	  throw ServiceUnreachable();
 	}
@@ -218,9 +222,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 	    {
 	      INFOS("!!!Register() : CosNaming::NamingContext::InvalidName");
 	    }
-	  catch(CORBA::COMM_FAILURE&)
+	  catch(CORBA::SystemException&)
 	    {
-	      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+	      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 		   << " the naming service"); 
 	      throw ServiceUnreachable();
 	    }
@@ -270,9 +274,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
       INFOS("!!!Register() : CosNaming::NamingContext::AlreadyBound, object will be rebind"); 
       _current_context->rebind(_context_name, ObjRef);
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 	    << " the naming service");
       throw ServiceUnreachable();
     }
@@ -298,7 +302,8 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Resolve: " << Path);
+  MESSAGE("BEGIN OF Resolve: " << Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -352,9 +357,9 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
     {
       INFOS("!!!Resolve() : CosNaming::NamingContext::InvalidName"); 
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Resolve() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Resolve() :CORBA::SystemException : unable to contact"
 	    << "the naming service");
       throw ServiceUnreachable();
     }
@@ -366,6 +371,162 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   delete[] resultat_resolve_Path ;
   
   return _obj;
+}
+
+//----------------------------------------------------------------------
+/*! Function : ResolveFirst 
+ *  Purpose  : method to get an ObjRef with a symbolic name
+ * \param Path const char* argument like "/path/name"
+ *  search the fist reference like "/path(.dir)/name*(.kind)"
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+
+
+
+
+ * \return the object reference
+ */
+//----------------------------------------------------------------------
+
+CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
+  throw(ServiceUnreachable)
+{
+  MESSAGE("ResolveFirst");
+  Utils_Locker lock(&_myMutex);
+  SCRUTE(Path);
+  string thePath =Path;
+  string basePath ="/";
+  string name = thePath;
+  string::size_type idx = thePath.rfind('/');
+  if (idx != string::npos) // at least one '/' found
+    {
+      basePath = thePath.substr(0,idx);
+      name = thePath.substr(idx+1);
+      SCRUTE(basePath);
+    }
+  SCRUTE(name);
+  CORBA::Object_ptr obj = CORBA::Object::_nil();
+  bool isOk = Change_Directory(basePath.c_str());
+  if (isOk)
+    {
+      vector<string> listElem = list_directory();
+      vector<string>::iterator its = listElem.begin();
+      while (its != listElem.end())
+	{
+	  MESSAGE(*its);
+	  if ((*its).find(name) == 0)
+	    {
+	      //string instance = basePath + "/" + *its;
+	      return Resolve((*its).c_str());
+	    }
+	  its++;
+	}
+    }
+  return obj;
+}
+
+//----------------------------------------------------------------------
+/*! Function : Resolve Component  from hostname, containername, componentName and number of prcoessors
+ *  Purpose  : method to get the ObjRef of a component
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ * \param hostname const char* argument
+ * \param containername const char* argument
+ * \param componentname const char* argument
+ * \param nbproc const int argument
+ * \return the object reference
+ */
+//----------------------------------------------------------------------
+
+CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+{
+  MESSAGE("ResolveComponent");
+  Utils_Locker lock(&_myMutex);
+
+  string name="/Containers/";
+  name += hostname;
+  if( strlen(containerName) != 0 ){
+    name += "/";
+    if( nbproc >=1 ){
+      char *newContainerName = new char[strlen(containerName)+8];
+      sprintf(newContainerName,"%s_%d",containerName,nbproc);
+      name += newContainerName;
+    }
+    else
+      name += containerName;
+    name += "/";
+    name += componentName;
+    return ResolveFirst(name.c_str());
+  }
+  else {
+    Change_Directory(name.c_str());
+    vector<string> contList = list_directory();
+    for(unsigned int ind = 0; ind < contList.size(); ind++){
+      name = contList[ind].c_str();
+      name += "/";
+      name += componentName;
+      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
+      if( !CORBA::is_nil(obj) )
+	return obj;
+    }
+    return CORBA::Object::_nil();
+  }
+
+}
+
+string SALOME_NamingService::ContainerName(const char *containerName)
+{
+  string ret;
+
+  if (strlen(containerName)== 0)
+    ret = "FactoryServer";
+  else
+    ret = containerName;
+
+  return ret;
+}
+
+string SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
+{
+  int nbproc;
+  if( !params.isMPI )
+    nbproc = 0;
+  else if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+    nbproc = 1;
+  else if( params.nb_node == 0 )
+    nbproc = params.nb_proc_per_node;
+  else if( params.nb_proc_per_node == 0 )
+    nbproc = params.nb_node;
+  else
+    nbproc = params.nb_node * params.nb_proc_per_node;
+
+  string ret=ContainerName(params.container_name);
+
+  if( nbproc >=1 ){
+    char *suffix = new char[8];
+    sprintf(suffix,"_%d",nbproc);
+    ret += suffix;
+  }
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(containerName);
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(params);
+
+  return ret;
 }
 
 //----------------------------------------------------------------------
@@ -384,15 +545,16 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 int SALOME_NamingService::Find(const char* name)
   throw(ServiceUnreachable)
 {
-  // MESSAGE("BEGIN OF Find " << name);
+  MESSAGE("BEGIN OF Find " << name);
+  Utils_Locker lock(&_myMutex);
   CORBA::Long occurence_number = 0 ; 
   try
     {
       _Find(name,occurence_number);
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Find() : CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Find() : CORBA::SystemException : unable to contact"
 	   << " the naming service"); 
       throw ServiceUnreachable();
     }
@@ -411,7 +573,8 @@ int SALOME_NamingService::Find(const char* name)
 bool SALOME_NamingService::Create_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Create_Directory");
+  MESSAGE("BEGIN OF Create_Directory");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path= new char* [dimension_Path];;
   CORBA::Boolean _return_code = true ;
@@ -495,10 +658,10 @@ bool SALOME_NamingService::Create_Directory(const char* Path)
       _return_code = false;
       INFOS("!!!Create_Directory():CosNaming::NamingContext::InvalidName");
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
       _return_code = false;
-      INFOS("!!!Register() :CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
 	   << " the naming service"); 
       throw ServiceUnreachable();
     }
@@ -525,7 +688,8 @@ bool SALOME_NamingService::Create_Directory(const char* Path)
 bool SALOME_NamingService::Change_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Change_Directory " << Path);
+  MESSAGE("BEGIN OF Change_Directory " << Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
   CORBA::Boolean _return_code = true ;
@@ -588,10 +752,10 @@ bool SALOME_NamingService::Change_Directory(const char* Path)
 	  _return_code = false;
 	  INFOS( "!!!Change_Directory() : CosNaming::NamingContext::InvalidName" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
 	  _return_code = false;
-	  INFOS( "!!!Change_Directory() :CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Change_Directory() :CORBA::SystemException : unable to contact"
 	       << "the naming service")
 	  throw ServiceUnreachable();
 	}
@@ -617,7 +781,8 @@ bool SALOME_NamingService::Change_Directory(const char* Path)
 char* SALOME_NamingService::Current_Directory()
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Current_Directory");  
+  MESSAGE("BEGIN OF Current_Directory");  
+  Utils_Locker lock(&_myMutex);
 
   CosNaming::NamingContext_var _ref_context = _current_context;
 
@@ -633,9 +798,9 @@ char* SALOME_NamingService::Current_Directory()
     {
       _current_directory(result_path,i,_ref_context,_continue );
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("!!!Current_Directory(): CORBA::COMM_FAILURE : unable to contact"
+      INFOS("!!!Current_Directory(): CORBA::SystemException : unable to contact"
 	   << " the naming service" )
       throw ServiceUnreachable();
     }
@@ -648,7 +813,11 @@ char* SALOME_NamingService::Current_Directory()
   char* return_Path = new char[length_path +2];
   return_Path[0] = '/' ;
   return_Path[1] = '\0' ;
+#ifndef WNT
   for (int k = 0 ; k <i ;k++) 
+#else
+  for (k = 0 ; k <i ;k++) 
+#endif
     { 
       //SCRUTE(result_path[k])
 	strcat(return_Path,result_path[k]);
@@ -672,6 +841,7 @@ void SALOME_NamingService::list()
   throw(ServiceUnreachable)
 {
   MESSAGE("Begin of list");
+  Utils_Locker lock(&_myMutex);
   CosNaming::BindingList_var _binding_list;
   CosNaming::BindingIterator_var _binding_iterator;
   unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
@@ -748,6 +918,8 @@ vector<string> SALOME_NamingService::list_directory()
 vector<string> SALOME_NamingService::list_directory_recurs()
     throw(ServiceUnreachable)
 {
+  MESSAGE("list_directory_recurs");
+  Utils_Locker lock(&_myMutex);
   vector<string> _list ;
   char *currentDir=Current_Directory();
   _list_directory_recurs(_list,0,currentDir);
@@ -768,6 +940,7 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Destroy_Name");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -817,9 +990,9 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
 	{
 	  INFOS( "!!!Destroy_Name(): CosNaming::NamingContext::CannotProceed" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS( "!!!Destroy_Name() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Destroy_Name() : CORBA::SystemException : unable to contact"
 	       << " the naming service")
 	  throw ServiceUnreachable();
 	}
@@ -861,9 +1034,9 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
     {
       INFOS( "!!!Destroy_Name() : CosNaming::NamingContext::InvalidName")
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Name() :CORBA::COMM_FAILURE : unable to contact" 
+      INFOS( "!!!Destroy_Name() :CORBA::SystemException : unable to contact" 
 	   << " the naming service") 
       throw ServiceUnreachable();
     }
@@ -889,6 +1062,7 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Destroy_Directory");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -940,9 +1114,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
 	{
 	  INFOS("!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
 	}
-      catch(CORBA::COMM_FAILURE&)
+      catch(CORBA::SystemException&)
 	{
-	  INFOS( "!!!Destroy_Directory() : CORBA::COMM_FAILURE : unable to contact"
+	  INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
 	       << " the naming service" )
 	  throw ServiceUnreachable();
 	}
@@ -984,9 +1158,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
     {
       INFOS( "!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() : CORBA::COMM_FAILURE : unable to contact"
+      INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
 	   << " the naming service" )
       throw ServiceUnreachable();
     }
@@ -1003,9 +1177,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
       INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::NoEmpty "
 	   << Path << " is not empty" )
     } 
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() :CORBA::COMM_FAILURE : "
+      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : "
 	   << "unable to contact the naming service") 
       throw ServiceUnreachable();
     }
@@ -1039,9 +1213,9 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
     {
       INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::InvalidName")
     }
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() :CORBA::COMM_FAILURE : unable to contact" 
+      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : unable to contact" 
 	   << " the naming service") 
       throw ServiceUnreachable();
     }
@@ -1051,6 +1225,27 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
       delete [] resultat_resolve_Path[i];     
     }
   delete[] resultat_resolve_Path ;
+}
+
+//----------------------------------------------------------------------
+/*! Function : Destroy_Directory.
+ *  Purpose  : method to destroy a directory if it is empty.
+ *  WARNING : The complete Path  to the directory (from the root_context)
+ *  to destroy should be given.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param Path const char* arguments
+ */
+//----------------------------------------------------------------------
+
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
+  throw(ServiceUnreachable)
+{
+  Change_Directory(Path);
+  vector<string> contList = list_directory();
+  for(unsigned int ind = 0; ind < contList.size(); ind++)
+    Destroy_Name(contList[ind].c_str());
+  Destroy_Directory(Path);
+  Destroy_Name(Path);
 }
 
 //----------------------------------------------------------------------
@@ -1070,9 +1265,9 @@ void SALOME_NamingService::_initialize_root_context()
       ASSERT(!CORBA::is_nil(_root_context)); 
     }
 
-  catch(CORBA::COMM_FAILURE&)
+  catch(CORBA::SystemException&)
     {
-      INFOS("CORBA::COMM_FAILURE: unable to contact the naming service");
+      INFOS("CORBA::SystemException: unable to contact the naming service");
       throw ServiceUnreachable();
     }
   catch(...)
@@ -1284,7 +1479,7 @@ SALOME_NamingService::_current_directory(char** result_path,
   CosNaming::NamingContext_var _temp_context = _current_context;
  
   _current_context->list(nb, _binding_list, _binding_iterator) ;
-
+  if ( !_binding_iterator->_is_nil() ) {
   while ((_binding_iterator->next_one(_binding)) && _continue) {
     CosNaming::Name _bindingName = _binding->binding_name;
     if (_binding->binding_type == CosNaming::ncontext)
@@ -1324,6 +1519,7 @@ SALOME_NamingService::_current_directory(char** result_path,
       }
   }
   _binding_iterator->destroy();  
+  }	
   // We go to the last directory where an occurence was found
   _current_context = _ref_context ; 
 }
@@ -1383,6 +1579,8 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const 
 
 //----------------------------------------------------------------------
 
-char * SALOME_NamingService::getIORaddr(){
+char * SALOME_NamingService::getIORaddr()
+{
    return _orb->object_to_string(_root_context);
 }
+

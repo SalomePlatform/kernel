@@ -26,10 +26,14 @@
 
 /* $Header$ */
 
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include <SALOMEconfig.h>
+#ifndef WNT
 #include CORBA_SERVER_HEADER(SALOME_RessourcesCatalog)
+#else
+#include <SALOME_RessourcesCatalog.hh>
+#endif
 #include <string>
 #include "utilities.h"
 using namespace std;
@@ -62,7 +66,11 @@ int main(int argc,char **argv)
 
   //Get container type list of computer eri
   SALOME_RessourcesCatalog::ListOfContainerType_var list = Catalogue->GetContainerTypeList("eri");
+#ifndef WNT
   for (unsigned int ind = 0; ind < list->length();ind++)
+#else
+  for (ind = 0; ind < list->length();ind++)
+#endif
     {
       MESSAGE("Container type list of eri : " << list[ind]);
     }
@@ -72,7 +80,11 @@ int main(int argc,char **argv)
   MESSAGE("Ressource name : " << computer->name);
   MESSAGE("Ressource OS : " << computer->OS);
   MESSAGE("Ressource OS version : " << computer->OS_version);
+#ifndef WNT
   for (unsigned int ind = 0; ind < computer->procs.length();ind++)
+#else
+  for (ind = 0; ind < computer->procs.length();ind++)
+#endif
     {
       MESSAGE("Processor number : " << computer->procs[ind].number);
       MESSAGE("Processor model name : " << computer->procs[ind].model_name);

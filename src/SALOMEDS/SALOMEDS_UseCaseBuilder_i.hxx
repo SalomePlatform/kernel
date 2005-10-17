@@ -1,47 +1,44 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
 //  File   : SALOMEDS_UseCaseBuilder_i.hxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
 
 #ifndef __SALOMEDS_USECaseBuilder_I_H__
 #define __SALOMEDS_USECaseBuilder_I_H__
 
+// std C++ headers
+#include <iostream>
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+#include <SALOME_GenericObj_i.hh>
 
 // Cascade headers
-#include <TDataStd_TreeNode.hxx>
-#include <TDocStd_Document.hxx>
+#include <Standard_GUID.hxx>
+#include <stdio.h>
 
-class SALOMEDS_Study_i;
+#include "SALOMEDSImpl_UseCaseIterator.hxx"
+#include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
-class SALOMEDS_UseCaseBuilder_i: public POA_SALOMEDS::UseCaseBuilder,
-				 public PortableServer::RefCountServantBase 
+class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
+				 public virtual PortableServer::RefCountServantBase,
+				 public virtual SALOME::GenericObj_i
 {
-  SALOMEDS_UseCaseBuilder_i(); // Not implemented
-  void operator=(const SALOMEDS_UseCaseBuilder_i&); // Not implemented
-
 private:
-  Handle(TDataStd_TreeNode)     _root;
-  Handle(TDocStd_Document)      _doc;
-  SALOMEDS_Study_i*             _study;
+
+  CORBA::ORB_ptr                      _orb;
+  Handle(SALOMEDSImpl_UseCaseBuilder) _impl;
 
 public:
-  SALOMEDS_UseCaseBuilder_i(SALOMEDS_Study_i* theStudy,
-			    const Handle(TDocStd_Document)& theDocument);
+
+  //! standard constructor  
+  SALOMEDS_UseCaseBuilder_i(const Handle(SALOMEDSImpl_UseCaseBuilder)& theDocument,
+			    CORBA::ORB_ptr);
   
+  //! standard destructor
   ~SALOMEDS_UseCaseBuilder_i();
   
-  CORBA::ORB_var GetORB() const;
-  PortableServer::POA_var GetPOA() const;
-
   virtual CORBA::Boolean Append(SALOMEDS::SObject_ptr theObject);
 
   virtual CORBA::Boolean Remove(SALOMEDS::SObject_ptr theObject);

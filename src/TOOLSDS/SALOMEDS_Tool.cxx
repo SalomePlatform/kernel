@@ -11,9 +11,7 @@
 #include "utilities.h"
 
 #include <TCollection_AsciiString.hxx> 
-#include <stdio.h>
-#include <iostream.h> 
-#include <fstream.h>
+
 #include <OSD_Path.hxx>
 #include <OSD_File.hxx>
 #include <OSD_Directory.hxx>
@@ -23,7 +21,13 @@
 #include <OSD_SingleProtection.hxx>
 #include <OSD_FileIterator.hxx>
 
+#ifndef WNT
+#include <stdio.h>
+#include <iostream.h> 
+#include <fstream.h>
 #include <sys/time.h>
+#else
+#endif
 #include <stdlib.h>
 
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
@@ -61,8 +65,6 @@ std::string SALOMEDS_Tool::GetTmpDir()
   int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
   TCollection_AsciiString aSubDir(aRND);
   if(aSubDir.Length() <= 1) aSubDir = TCollection_AsciiString("123409876");
-
-  MESSAGE("#### RND "  << aRND);
 
   aTmpDir += aSubDir; //Get RND sub directory
 
@@ -406,14 +408,6 @@ void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
     }
   }
 }
-
-
-
-
-
-
-
-
 
 
 

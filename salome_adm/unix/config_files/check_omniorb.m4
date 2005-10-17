@@ -99,7 +99,12 @@ dnl omniORB_ok=yes
 
 if test "x$omniORB_ok" = "xyes" 
 then
-  OMNIORB_LDFLAGS="-L$OMNIORB_LIB"
+  if test "x$OMNIORB_LIB" = "x/usr/lib"
+  then
+    OMNIORB_LDFLAGS=""
+  else
+    OMNIORB_LDFLAGS="-L$OMNIORB_LIB"
+  fi
 
   LIBS_old=$LIBS
   LIBS="$LIBS $OMNIORB_LDFLAGS -lomnithread"

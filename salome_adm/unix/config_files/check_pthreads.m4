@@ -29,7 +29,7 @@ dnl@author   (C) Ruslan Shevchenko <Ruslan@Shevchenko.Kiev.UA>, 1998
 dnl@id $Id$
 dnl ----------------------------------------------------------------
 dnl CHECK_PTHREADS
-AC_DEFUN(CHECK_PTHREADS,[
+AC_DEFUN([CHECK_PTHREADS],[
 AC_CXX_OPTION(-pthread,CPPFLAGS,flag=yes,flag=no)
 
 if test $flag = no; then

@@ -12,8 +12,13 @@
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
-#include <unistd.h>
-using namespace std;
+#ifndef __WIN32__
+# include <unistd.h>
+#endif
+
+#ifdef WNT
+#include <omnithread/pthread_nt.h>
+#endif
 
 omni_mutex Logger::myLock;
 
@@ -29,7 +34,7 @@ Logger::Logger()
 Logger::Logger(const char *filename)
 {
   //  m_outputFile.open( filename, ios::out | ios::trunc , filebuf::openprot);
-  m_outputFile.open( filename, ios::out | ios::trunc);
+  m_outputFile.open( filename, std::ios::out | std::ios::trunc);
   if (m_outputFile.is_open())
     m_putIntoFile = true;
   else
@@ -46,9 +51,10 @@ void Logger::putMessage(const char* message)
 {
   myLock.lock();
   if (m_putIntoFile)
-    m_outputFile << message << flush;
+
+	m_outputFile << message << std::flush;
   else
-    cout << message;
+    std::cout << message;
   myLock.unlock();
 }
 
@@ -61,13 +67,13 @@ int main(int argc, char **argv)
 {
   if (argc > 2)
     {
-      cout << "usage: SALOME_Logger_Server [output_file]" << endl;
+      std::cout << "usage: SALOME_Logger_Server [output_file]" << std::endl;
       exit(1);
     }
   try
     {
       //Initialize the ORB
-      const long TIMESleep = 500000000;
+      const long TIMESleep = 250000000;
       const int NumberOfTries = 40;
       int i;
       timespec ts_req = {0, TIMESleep};
@@ -82,42 +88,47 @@ int main(int argc, char **argv)
 
       CORBA::ORB_var orb = CORBA::ORB_init(argc, argv) ;
 
-      for (int i = 1; i <= NumberOfTries; i++){        
-	if (i != 1) nanosleep(&ts_req, &ts_rem);
-	try {
-	  obj = orb->resolve_initial_references("RootPOA") ;
-	  if(!CORBA::is_nil(obj))
-	    poa = PortableServer::POA::_narrow(obj) ;
-	  pman = poa->the_POAManager();
-	  // NB. You can activate the POA before or after
-	  // activating objects in that POA.
-	  
-	  // This activates the object in the root POA (by default), and
-	  // returns a reference to it.
-	  //NB. You can't use SALOME_NamingService class because it uses MESSAGE macro
-	  //Otherwise, you will get segmentation fault.   
-	  //Get initial naming context
-	  if(!CORBA::is_nil(orb)) 
-	    theObj = orb->resolve_initial_references("NameService");
-	  //Narrow to NamingContext
-	  if (!CORBA::is_nil(theObj))
-	    inc = CosNaming::NamingContext::_narrow(theObj);
-	} catch(CORBA::COMM_FAILURE&) {
-	  //cout<<"Logger Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service"<<endl;
-	}
-	catch(...) {
-	  //cout<<"Logger Server: Unknown exception dealed with Naming Service" <<endl;
-	}
-	if (!CORBA::is_nil(inc)) {
-//	  cout<<"Logger Server: Naming Service was found"<<endl; 
-	  break;
-	}
+      for (i = 1; i <= NumberOfTries; i++) 
+	  {
+#ifndef WNT
+		  if (i != 1) nanosleep(&ts_req, &ts_rem);
+#else
+		  if (i != 1) Sleep(TIMESleep / 1000000);
+#endif
+		  try 
+		  {
+			  obj = orb->resolve_initial_references("RootPOA") ;
+			  if(!CORBA::is_nil(obj))
+				  poa = PortableServer::POA::_narrow(obj) ;
+			  pman = poa->the_POAManager();
+			  // NB. You can activate the POA before or after
+			  // activating objects in that POA.
+			  
+			  // This activates the object in the root POA (by default), and
+			  // returns a reference to it.
+			  //NB. You can't use SALOME_NamingService class because it uses MESSAGE macro
+			  //Otherwise, you will get segmentation fault.   
+			  //Get initial naming context
+			  if(!CORBA::is_nil(orb)) 
+				  theObj = orb->resolve_initial_references("NameService");
+			  //Narrow to NamingContext
+			  if (!CORBA::is_nil(theObj))
+				  inc = CosNaming::NamingContext::_narrow(theObj);
+		  } catch(CORBA::COMM_FAILURE&) {
+			  //cout<<"Logger Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service"<<endl;
+		  } catch(...) {
+			  //cout<<"Logger Server: Unknown exception dealed with Naming Service" <<endl;
+		  }
+		  
+		  if (!CORBA::is_nil(inc)) {
+			  //	  cout<<"Logger Server: Naming Service was found"<<endl; 
+			  break;
+		  }
       }
       if (argc == 1)
-	myLogger = new Logger();
+		  myLogger = new Logger();
       else
-	myLogger = new Logger(argv[1]);
-
+		  myLogger = new Logger(argv[1]);
 
       myLoggerRef = myLogger->_this();
       CosNaming::Name name;
@@ -128,29 +139,30 @@ int main(int argc, char **argv)
       pman->activate();   
       orb->run() ;
       orb->destroy() ;
-    }
-  catch(CORBA::COMM_FAILURE& ex) 
-    {
-      cerr << "Caught system exception COMM_FAILURE -- unable to contact the "
-	   << "object." << endl;
+    }  
+  catch(CORBA::COMM_FAILURE& ex)
+	{
+      std::cerr << "Caught system exception COMM_FAILURE -- unable to contact the "
+	   << "object." << std::endl;
     }
   catch(CORBA::SystemException&) 
     {
-      cerr << "Caught CORBA::SystemException." << endl;
+      std::cerr << "Caught CORBA::SystemException." << std::endl;
     }
   catch(CORBA::Exception&) 
     {
-      cerr << "Caught CORBA::Exception." << endl;
+      std::cerr << "Caught CORBA::Exception." << std::endl;
     }
   catch(omniORB::fatalException& fe) 
     {
-      cerr << "Caught omniORB::fatalException:" << endl;
-      cerr << "  file: " << fe.file() << endl;
-      cerr << "  line: " << fe.line() << endl;
-      cerr << "  mesg: " << fe.errmsg() << endl;
+      std::cerr << "Caught omniORB::fatalException:" << std::endl;
+      std::cerr << "  file: " << fe.file() << std::endl;
+      std::cerr << "  line: " << fe.line() << std::endl;
+      std::cerr << "  mesg: " << fe.errmsg() << std::endl;
     }
   catch(...) 
     {
-      cerr << "Caught unknown exception." << endl;
+      std::cerr << "Caught unknown exception." << std::endl;
     }
+  return 0;
 }

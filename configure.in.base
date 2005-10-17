@@ -212,8 +212,6 @@ WITH_BATCH=no
 test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
 AC_SUBST(WITH_BATCH)
 
-
-
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC
@@ -287,6 +285,14 @@ echo
 
 CHECK_QT
 
+echo
+echo ----------------------------------------------
+echo testing CPPUNIT only required for unit testing
+echo ----------------------------------------------
+echo
+
+CHECK_CPPUNIT
+
 if test "X$WITHIHM" = "Xyes"; then
 	echo
 	echo ---------------------------------------------
@@ -339,14 +345,6 @@ CHECK_HDF5
 
 echo
 echo ---------------------------------------------
-echo testing MED2
-echo ---------------------------------------------
-echo
-
-CHECK_MED2
-
-echo
-echo ---------------------------------------------
 echo Testing OpenCascade
 echo ---------------------------------------------
 echo
@@ -368,7 +366,18 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok openpbs_ok lsf_ok"
+variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
+ 
+for var in $variables
+do
+   eval toto=\$$var
+   if test x$toto != "x"; then
+     printf "   %10s : " `echo \$var | sed -e "s,_ok,,"`
+     eval echo \$$var
+   fi
+done
+echo "---Optional:"
+variables="cppunit_ok openpbs_ok lsf_ok"
  
 for var in $variables
 do
@@ -436,13 +445,14 @@ dnl directory
 
 mkdir -p bin/salome
 cd bin/salome
-for i in $ROOT_SRCDIR/bin/*
+for i in  `find $ROOT_SRCDIR/bin`
 do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
+  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
   case "$local_bin" in
         *.in | *~) ;;
-        ./bin/CVS | ./bin/salome) ;;
-        *) $INSTALL $i .; echo $local_bin ;;
+        . | */CVS | */CVS/* | ./salome) ;;
+        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
+        *) $INSTALL $i $local_bin; echo $local_bin ;;
   esac
 done
 cd $ROOT_BUILDDIR
@@ -472,3 +482,4 @@ AC_OUTPUT_COMMANDS([ \
 ])
 
 ## do not delete this line
+

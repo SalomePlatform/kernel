@@ -28,7 +28,21 @@
 #ifndef NOTIFICATION_Consumer_HXX
 #define NOTIFICATION_Consumer_HXX
 
-class NOTIFICATION_Consumer: public POA_CosNotifyComm::StructuredPullConsumer {
+#if defined NOTIFICATION_EXPORTS
+#if defined WIN32
+#define NOTIFICATION_EXPORT __declspec( dllexport )
+#else
+#define NOTIFICATION_EXPORT
+#endif
+#else
+#if defined WNT
+#define NOTIFICATION_EXPORT __declspec( dllimport )
+#else
+#define NOTIFICATION_EXPORT
+#endif
+#endif
+
+class NOTIFICATION_EXPORT NOTIFICATION_Consumer: public POA_CosNotifyComm::StructuredPullConsumer {
   public:
     NOTIFICATION_Consumer();
     virtual ~NOTIFICATION_Consumer();

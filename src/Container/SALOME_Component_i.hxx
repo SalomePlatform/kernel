@@ -32,7 +32,9 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <string>
 #include <map>
@@ -41,9 +43,25 @@
 #include "NOTIFICATION.hxx"
 
 class RegistryConnexion;
+class Engines_Container_i;
 
-class Engines_Component_i: public virtual POA_Engines::Component,
-			   public virtual PortableServer::RefCountServantBase
+#if defined CONTAINER_EXPORTS
+#if defined WIN32
+#define CONTAINER_EXPORT __declspec( dllexport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#else
+#if defined WNT
+#define CONTAINER_EXPORT __declspec( dllimport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#endif
+
+class CONTAINER_EXPORT Engines_Component_i: 
+  public virtual POA_Engines::Component,
+  public virtual PortableServer::RefCountServantBase
 {
 public:
   Engines_Component_i();
@@ -64,42 +82,59 @@ public:
 
   virtual ~Engines_Component_i();
 
+  // --- CORBA methods
+
   char* instanceName();
   char* interfaceName();
 
-  void destroy();
   void ping();
+  void destroy();
 
+  CORBA::Long getStudyId();
   Engines::Container_ptr GetContainerRef();
-  PortableServer::ObjectId * getId(); 
 
   void setProperties(const Engines::FieldsDict& dico);
   Engines::FieldsDict* getProperties();
 
-  void beginService(const char *serviceName);
-  void endService(const char *serviceName);
-  void sendMessage(const char *event_type, const char *message);
-
   void Names( const char * graphName , const char * nodeName ) ;
-  char * graphName() ;
-  char * nodeName() ;
-  bool Killer( pthread_t ThreadId , int signum );
   bool Kill_impl();
   bool Stop_impl();
   bool Suspend_impl();
   bool Resume_impl();
-  void SetCurCpu() ;
-  long CpuUsed() ;
   CORBA::Long CpuUsed_impl() ;
 
+ virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
+				      CORBA::Boolean isPublished,
+				      CORBA::Boolean& isValidScript);
+
+
+  // --- local C++ methods
+
+  PortableServer::ObjectId * getId(); 
+  Engines_Container_i *GetContainerPtr();
+
+  bool setStudyId(CORBA::Long studyId);
+  static bool isMultiStudy();
+  static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
-  static std::string BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname);
+
+  void beginService(const char *serviceName);
+  void endService(const char *serviceName);
+  void sendMessage(const char *event_type, const char *message);
+  char * graphName() ;
+  char * nodeName() ;
+  bool Killer( pthread_t ThreadId , int signum );
+  void SetCurCpu() ;
+  long CpuUsed() ;
+
 protected:
+  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
+  static bool _isMultiStudy;
+  static bool _isMultiInstance;
+
   std::string _instanceName ;
   std::string _interfaceName ;
-  std::string _serviceName ;
-  std::string _graphName ;
-  std::string _nodeName ;
+
   CORBA::ORB_ptr _orb;
   PortableServer::POA_ptr _poa;
   PortableServer::ObjectId * _id;
@@ -109,8 +144,16 @@ protected:
   NOTIFICATION_Supplier* _notifSupplier;
   std::map<std::string,CORBA::Any>_fieldsDict;
 
+  std::string _serviceName ;
+  std::string _graphName ;
+  std::string _nodeName ;
+
 private:
+#ifndef WNT
   pthread_t _ThreadId ;
+#else
+  pthread_t* _ThreadId ;
+#endif
   long      _StartUsed ;
   long      _ThreadCpuUsed ;
   bool      _Executed ;

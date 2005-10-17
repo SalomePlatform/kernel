@@ -33,11 +33,29 @@
 #include <CORBA.h>
 #include <vector>
 #include <string>
+#include "Utils_Mutex.hxx"
 
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Component)
 //class ServiceUnreachable;
 #include "ServiceUnreachable.hxx"
 
-class SALOME_NamingService
+#if defined NAMINGSERVICE_EXPORTS
+#if defined WIN32
+#define NAMINGSERVICE_EXPORT __declspec( dllexport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#else
+#if defined WNT
+#define NAMINGSERVICE_EXPORT __declspec( dllimport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#endif
+
+class NAMINGSERVICE_EXPORT SALOME_NamingService
 {
 public:
   //! default constructor
@@ -59,6 +77,19 @@ public:
   //! method to get the ObjRef of a symbolic name
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
+
+  //! method to get the ObjRef of a component
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0);
+
+ //! method to get an ObjRef, given a symbolic name without instance suffix "/Path/Name*.kind"
+  CORBA::Object_ptr ResolveFirst(const char* Path)
+    throw( ServiceUnreachable); 
+
+  std::string ContainerName(const char *ContainerName);
+  std::string ContainerName(const Engines::MachineParameters& params);
+
+  std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  std::string BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname);
 
   //! method to research a name from the naming service's current directory 
   int Find(const char* name)
@@ -97,10 +128,15 @@ public:
   virtual void Destroy_Directory(const char* Path)
     throw(ServiceUnreachable);
 
+  //! method to destroy a directory even if it is not empty
+  virtual void Destroy_FullDirectory(const char* Path)
+    throw(ServiceUnreachable);
+
   //! get IORstring naming service address 
   char * getIORaddr();
 
 protected:
+  Utils_Mutex _myMutex;
   CORBA::ORB_ptr _orb;
   CosNaming::NamingContext_var _root_context, _current_context;
 
@@ -134,3 +170,4 @@ protected:
 };
 
 #endif // SALOME_NAMINGSERVICE_H
+

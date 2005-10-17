@@ -27,7 +27,7 @@ dnl
 dnl @version $Id$
 dnl @author Luc Maisonobe
 dnl
-AC_DEFUN(AC_CXX_NAMESPACES,
+AC_DEFUN([AC_CXX_NAMESPACES],
 [AC_CACHE_CHECK(whether the compiler implements namespaces,
 ac_cv_cxx_namespaces,
 [AC_LANG_SAVE

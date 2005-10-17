@@ -12,9 +12,11 @@
 class ReceiverFactory
 {
 public:
-  static void *getValue(SALOME::Sender_ptr sender,long &size)throw(MultiCommException);
+  static double *getValue(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException);
+  static int *getValue(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException);
 private:
-  static void *getValueOneShot(SALOME::Sender_ptr sender,long &size)throw(MultiCommException);
+  static double *getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException);
+  static int *getValueOneShot(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException);
 };
 
 #endif

@@ -32,41 +32,70 @@
 extern "C"
 {
 # include <stdlib.h>
-# include <unistd.h>
 # include <time.h>
+#ifndef WNT
+# include <unistd.h>
 # include <sys/utsname.h>
+#else
+# include <windows.h>
+#endif
 }
 
-class Identity
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+class UTILS_EXPORT Identity
 {
 
 protected :
 	const char* const	_name ;
-	const struct utsname	_hostid;
 	const char* const	_adip; // Internet address
-	const uid_t		_uid ;
-	const char* const	_pwname ;
-	const char* const	_dir ;
+
+#ifndef WNT
+        const struct utsname    _hostid;        
 	const pid_t		_pid ;
+	const uid_t		_uid ;
+#else
+	const char* const       _hostid;
+	const DWORD		_pid ;
+	const PSID		_uid ;
+#endif	
+        const char* const	_pwname ;
+	const char* const	_dir ;
 	const time_t		_start;
 	const char* const	_cstart ;
-
 
 private :
 	Identity( void );
 	Identity( const Identity &monid );
-
 
 public :
 	Identity(const char *name);
 	~Identity();
 	friend std::ostream & operator<< ( std::ostream& os , const Identity& monid );
 
-	const char* const	name( void ) const;
-	const pid_t&		pid(void) const;
-	const struct utsname&	hostid(void) const;
-	const char* const	adip(void) const;
+#ifndef WNT
+	const pid_t&	        pid(void) const;
+        const struct utsname&	hostid(void) const;
 	const uid_t&		uid(void) const;
+#else
+	const DWORD&	        pid(void) const;
+        const char* const       hostid(void) const;
+	const PSID&	    	uid(void) const;
+#endif
+
+	const char* const	name( void ) const;
+	const char* const	adip(void) const;
 	const char* const	pwname(void) const;
 	const time_t&		start(void) const;
 	const char* const 	rep (void) const;

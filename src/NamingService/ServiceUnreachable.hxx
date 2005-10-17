@@ -31,9 +31,23 @@
 
 #include "Utils_SALOME_Exception.hxx"
 
+#if defined NAMINGSERVICE_EXPORTS
+#if defined WIN32
+#define NAMINGSERVICE_EXPORT __declspec( dllexport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#else
+#if defined WNT
+#define NAMINGSERVICE_EXPORT __declspec( dllimport )
+#else
+#define NAMINGSERVICE_EXPORT
+#endif
+#endif
+
 //! exception class for NamingService : ServiceUnreachable
 
-class ServiceUnreachable : public SALOME_Exception
+class NAMINGSERVICE_EXPORT ServiceUnreachable : public SALOME_Exception
 {
 public :
 	ServiceUnreachable( void );

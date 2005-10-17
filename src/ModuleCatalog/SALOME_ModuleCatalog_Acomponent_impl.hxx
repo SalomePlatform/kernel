@@ -34,7 +34,21 @@
 
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-class SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent,
+#if defined MODULECATALOG_EXPORTS
+#if defined WIN32
+#define MODULECATALOG_EXPORT __declspec( dllexport )
+#else
+#define MODULECATALOG_EXPORT
+#endif
+#else
+#if defined WNT
+#define MODULECATALOG_EXPORT __declspec( dllimport )
+#else
+#define MODULECATALOG_EXPORT
+#endif
+#endif
+
+class MODULECATALOG_EXPORT SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent,
                       public PortableServer::RefCountServantBase 
 {
 public:

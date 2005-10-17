@@ -48,6 +48,7 @@ LIB_SRC = \
 	SALOME_NamingService.cxx \
 	ServiceUnreachable.cxx \
 	NamingService_WaitForServerReadiness.cxx
+LIB_SERVER_IDL = SALOME_Exception.idl
 
 LDFLAGS+= -lOpUtil
 

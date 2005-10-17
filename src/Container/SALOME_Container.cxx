@@ -30,13 +30,17 @@
 #include <string>
 #include <stdio.h>
 
-//#include "Utils_ORB_INIT.hxx"
-//#include "Utils_SINGLETON.hxx"
+#ifndef WNT
 #include <unistd.h>
-#include "SALOME_NamingService.hxx"
+#else
+#include <process.h>
+#endif
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
+#include "Utils_ORB_INIT.hxx"
+#include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
+#include "OpUtil.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -46,137 +50,111 @@
 #include <mpi.h>
 #endif
 
-#include <Python.h>
+#include "Container_init_python.hxx"
 
 using namespace std;
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
-
-static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
 
 int main(int argc, char* argv[])
 {
 #ifdef HAVE_MPI2
   MPI_Init(&argc,&argv);
 #endif
+
   // Initialise the ORB.
-  //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
+  //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  CORBA::ORB_var orb = init(0 , 0 ) ;
+	  
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
-    
-  Py_Initialize() ;
-  PySys_SetArgv( argc , argv ) ;
-  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-  
-  try{
-    // Obtain a reference to the root POA.
-    // obtain the root poa manager
-    //
-    long TIMESleep = 500000000;
-    int NumberOfTries = 40;
-    int a;
-    timespec ts_req;
-    ts_req.tv_nsec=TIMESleep;
-    ts_req.tv_sec=0;
-    timespec ts_rem;
-    ts_rem.tv_nsec=0;
-    ts_rem.tv_sec=0;
-    CosNaming::NamingContext_var inc;
-    PortableServer::POA_var root_poa;
-    CORBA::Object_var theObj;
-    CORBA::Object_var obj;
-    CORBA::Object_var object;
-    //SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-    int CONTAINER=0;
-    const char * Env = getenv("USE_LOGGER");
-    int EnvL =0;
-    if(Env != NULL && strlen(Env))
-      EnvL=1;
-    
-    CosNaming::Name name;
-    name.length(1);
-    name[0].id=CORBA::string_dup("Logger");    
-    PortableServer::POAManager_var pman; 
-    for(int i = 1; i <= NumberOfTries; i++){
-      if(i != 1) 
-	a=nanosleep(&ts_req,&ts_rem);
-      try{ 
-	obj = orb->resolve_initial_references("RootPOA");
-	if(!CORBA::is_nil(obj))
-	  root_poa = PortableServer::POA::_narrow(obj);
-	if(!CORBA::is_nil(root_poa))
-	  pman = root_poa->the_POAManager();
-	if(!CORBA::is_nil(orb)) 
-	  theObj = orb->resolve_initial_references("NameService");
-	if (!CORBA::is_nil(theObj))
-	  inc = CosNaming::NamingContext::_narrow(theObj);
-      }catch(CORBA::COMM_FAILURE&){
-	MESSAGE( "Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
-      }
-      if(!CORBA::is_nil(inc)){
-	MESSAGE( "Container: Naming Service was found" );
-	if(EnvL == 1){
-	  for(int j = 1; j <= NumberOfTries; j++){
-	    if(j != 1) 
-	      a=nanosleep(&ts_req, &ts_rem);
-	    try{
-	      object = inc->resolve(name);
-	    }catch(CosNaming::NamingContext::NotFound){
-	      MESSAGE( "Container: Logger Server wasn't found" );
-	    }catch(...){
-	      MESSAGE( "Container: Unknown exception" );
-	    }
-	    if(!CORBA::is_nil(object)){
-	      MESSAGE( "Container: Logger Server was found" );
-	      CONTAINER = 1;
-	      break;
-	    }
-	  }
-	}
-      }
-      if(CONTAINER == 1 || (EnvL == 0 && !CORBA::is_nil(inc)))
-	break;
+
+  ASSERT(argc > 1);
+  SCRUTE(argv[1]);
+  bool isSupervContainer = false;
+  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
+
+  if (!isSupervContainer)
+    {
+      int _argc = 1;
+      char* _argv[] = {""};
+      KERNEL_PYTHON::init_python(argc,argv);
+    }
+  else
+    {
+      Py_Initialize() ;
+      PySys_SetArgv( argc , argv ) ;
     }
     
-    char *containerName = "";
-    if(argc > 1){
+  char *containerName = "";
+  if(argc > 1)
+    {
       containerName = argv[1] ;
     }
-    
-    Engines_Container_i * myContainer 
-      = new Engines_Container_i(orb, root_poa, containerName , argc , argv );
 
-    pman->activate();
-    
-#ifdef CHECKTIME
-    Utils_Timer timer;
-    timer.Start();
-    timer.Stop();
-    MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
-    timer.ShowAbsolute();
+  try
+    {  
+      CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+      ASSERT(!CORBA::is_nil(obj));
+      PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+
+      PortableServer::POAManager_var pman = root_poa->the_POAManager();
+
+      // add new container to the kill list
+#ifndef WNT
+      char aCommand[40];
+      sprintf(aCommand, "addToKillList.py %d SALOME_Container", getpid());
+      system(aCommand);
 #endif
-    
-    HandleServerSideSignals(orb);
-  }catch(CORBA::SystemException&){
-    INFOS("Caught CORBA::SystemException.");
-  }catch(PortableServer::POA::WrongPolicy&){
-    INFOS("Caught CORBA::WrongPolicyException.");
-  }catch(PortableServer::POA::ServantAlreadyActive&){
-    INFOS("Caught CORBA::ServantAlreadyActiveException");
-  }catch(CORBA::Exception&){
-    INFOS("Caught CORBA::Exception.");
-  }catch(std::exception& exc){
-    INFOS("Caught std::exception - "<<exc.what()); 
-  }catch(...){
-    INFOS("Caught unknown exception.");
-  }
+      
+      Engines_Container_i * myContainer 
+	= new Engines_Container_i(orb, root_poa, containerName , argc , argv );
+      
+      pman->activate();
+      
+#ifdef CHECKTIME
+      Utils_Timer timer;
+      timer.Start();
+      timer.Stop();
+      MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
+      timer.ShowAbsolute();
+#endif
+      
+      HandleServerSideSignals(orb);
+      
+    }
+  catch(CORBA::SystemException&)
+    {
+      INFOS("Caught CORBA::SystemException.");
+    }
+  catch(PortableServer::POA::ServantAlreadyActive&)
+    {
+      INFOS("Caught CORBA::ServantAlreadyActiveException");
+    }
+  catch(CORBA::Exception&)
+    {
+      INFOS("Caught CORBA::Exception.");
+    }
+  catch(std::exception& exc)
+    {
+      INFOS("Caught std::exception - "<<exc.what()); 
+    }
+  catch(...)
+    {
+      INFOS("Caught unknown exception.");
+    }
+
 #ifdef HAVE_MPI2
   MPI_Finalize();
 #endif
-  END_OF(argv[0]);
-  delete myThreadTrace;
+
+  //END_OF(argv[0]);
+  //LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
+  //bp1->deleteInstance(bp1);
   return 0 ;
 }
 

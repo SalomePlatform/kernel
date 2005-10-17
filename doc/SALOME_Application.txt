@@ -1,0 +1,156 @@
+
+======================================================================
+SALOME Application Concept. Configuration for one or more computers
+======================================================================
+
+*html version of this document is produced with docutils*::
+
+  rest2html < doc.txt > doc.html
+
+This document corresponds to SALOME2 3.1. (alpha version)
+
++-------------------------------------------+
+| **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
++-------------------------------------------+
+
+The following explains how to configure your own application with your list of
+modules, how to define and run this application on one or more computers.
+
+Summary
+-------
+
+`1. General principles`_
+
+`2. Application Directory`_
+
+`2.1 Proposal for env.d scripts`_
+
+`2.2 User run scripts`_
+
+`2.3 SALOME internal run script`_
+
+`2.4 Other configuration files`_
+
+1. General principles
+---------------------
+
+A SALOME application is defined by a set of modules (GEOM, SMESH, ASTER...).
+
+A SALOME User can define several SALOME Applications. These applications are
+runnable from the same user account. These applications may share the same 
+KERNEL and modules. Thus, the application configuration is independant of
+KERNEL and must not be put in KERNEL_ROOT_DIR.
+
+Furthermore, prerequisites may not be the same on all the applications.
+
+A SALOME Session can run on a several computers.
+
+Binary modules and prerequisites are installed on the different computers.
+There is no need to have all the modules on each computer (the minimum is
+KERNEL).
+
+There is no need of standardization or centralised information on the details
+of configuration on each computer (PATH, LD_LIBRARY_PATH, environment
+variables) provided the application modules are version - compatible. Details
+of configuration stay private to the computer, and are held by scripts on each
+computer.
+
+There is no hierarchy between the computers (for example only one master
+computer used to launch application).
+
+The SALOME user has an account on all the computers. Access between
+account@computer is via rsh or ssh and must be configured for use without
+password (key exchange for ssh). Account may be different on each
+computer.
+
+2. Application Directory
+------------------------
+
+The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/salome creates an
+application directory with the given path in parameter. ${APPLI} is a path 
+relative to ${HOME}.
+
+The directory is only a skeleton, the user has to edit several files to
+configure his own application.
+
+Directory ${APPLI} must be created on each computer of the application.
+The easiest way is to use the same relative path (to ${HOME}) on each computer.
+(Sometimes it is not possible to use the same path everywhere, for instance
+when ${HOME} is shared with NFS, so it is possible to define different path
+following the computers).
+
+The ${APPLI} directory contains scripts for environment and runs. Environment
+scripts must be configured (by the user) on each computer. All the environment
+scripts are in the ${APPLI}/env.d directory. 
+
+The script  ${APPLI}/envd sources **all** the files in ${APPLI}/env.d in
+alphanumeric order (after edition, think to remove backup files). the envd
+script is used by run scripts.
+
+2.1 Proposal for env.d scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Each user can define his own configuration for these scripts, following the
+above rules. The following is only a proposal.
+
+atFirst.sh
+    Sets the computer configuration not directly related to SALOME,
+    like useful tools, default PATH.
+
+envProducts.sh
+    Sets the SALOME prerequisites.
+
+envSALOME.sh
+    Sets all the MODULE_ROOT_DIR that can be used in the SALOME application.
+
+2.2 User run scripts
+~~~~~~~~~~~~~~~~~~~~
+
+The SALOME user can use 4 scripts:
+
+runAppli
+   Launches a SALOME Session
+   (similar to ${KERNEL_ROOT_DIR}/bin/salome/runSalome but with a different
+   name to avoid confusions).
+
+runSession
+   Launches a shell script in the SALOME application environment, with access
+   to the current SALOME session (naming service), if any.
+   Without arguments, the script is interactive. With arguments, the script
+   executes the command in the SALOME application environment.
+
+runConsole
+   Gives a python console connected to the current SALOME Session.
+   It is also possible to use runSession, then python.
+
+runTests
+   Similar to runSession, used for unit testing. runSession tries to use an
+   already existing naming service definition from a running session (hostname
+   and port number), runTests defines a new configuration for naming service
+   (new port number).
+
+2.3 SALOME internal run script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For remote calls, SALOME uses one script.
+
+runRemote.sh
+   This script is mainly used to launch containers. The first 2 arguments
+   define the hostname and port userd for naming service, the remaining
+   arguments define the command to execute.
+
+2.4 Other configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SalomeApp.xml
+   This file is similar to the default given in $GUI_ROOT_DIR
+
+CatalogRessources.xml
+   This files describes all the computer the application can use. The given
+   example is minimal and suppose ${APPLI} is the same relative path
+   to ${HOME}, on all the computers. A different directory can be set on a
+   particular computer with a line::
+
+       appliPath="my/specific/path/on/this/computer"
+
+
+

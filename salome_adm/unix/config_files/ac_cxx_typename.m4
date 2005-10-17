@@ -26,7 +26,7 @@ dnl
 dnl @version $Id$
 dnl @author Luc Maisonobe
 dnl
-AC_DEFUN(AC_CXX_TYPENAME,
+AC_DEFUN([AC_CXX_TYPENAME],
 [AC_CACHE_CHECK(whether the compiler recognizes typename,
 ac_cv_cxx_typename,
 [AC_LANG_SAVE

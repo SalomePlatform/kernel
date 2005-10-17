@@ -310,7 +310,11 @@ SALOME_DataTypeCatalogImpl::_verify_data_type(ListOfParserDataType datatypelist)
 
    // Parse if parents data type name of a data type are defined in the 
    // datatype catalog
+#ifndef WNT
   for (unsigned int ind = 0; ind < _datatype_list.size(); ind++)
+#else
+  for (ind = 0; ind < _datatype_list.size(); ind++)
+#endif
     {
       // Scrute data type parents
       // MESSAGE("Treatment of " << _datatype_list[ind].Parserdata_name);

@@ -140,32 +140,32 @@ template <class TYPE> SINGLETON_<TYPE>::SINGLETON_( void )
 template <class TYPE> int SINGLETON_<TYPE>::Destruction( void )
 {
 	int k = - 1 ;
-	BEGIN_OF("SINGLETON_<TYPE>::Destruction( void )") ;
+	//BEGIN_OF("SINGLETON_<TYPE>::Destruction( void )") ;
 	if ( PtrSingleton )
 	{
-		MESSAGE("Destruction du SINGLETON_") ;
+	  //MESSAGE("Destruction du SINGLETON_") ;
 
 
 		std::list<DESTRUCTEUR_GENERIQUE_ *>::iterator k ;
-		for( k=DESTRUCTEUR_GENERIQUE_::Destructeurs.begin() ; k!=DESTRUCTEUR_GENERIQUE_::Destructeurs.end();k++)
+		for( k=DESTRUCTEUR_GENERIQUE_::Destructeurs->begin() ; k!=DESTRUCTEUR_GENERIQUE_::Destructeurs->end();k++)
 		{
 			if ( *k == PtrSingleton->_Instance )
 			{
-				DESTRUCTEUR_GENERIQUE_::Destructeurs.erase( k ) ;
+				DESTRUCTEUR_GENERIQUE_::Destructeurs->erase( k ) ;
 				break ;
 			}
 		}
 		delete PtrSingleton ;
 		PtrSingleton = NULL ;
 	}
-	END_OF("SINGLETON_<TYPE>::Destruction( void )") ;
+	//END_OF("SINGLETON_<TYPE>::Destruction( void )") ;
 	return k ;
 }
 
 
 template <class TYPE> SINGLETON_<TYPE>::~SINGLETON_()
 {
-	MESSAGE("passage dans SINGLETON_<TYPE>::~SINGLETON_( void )") ;
+  //MESSAGE("passage dans SINGLETON_<TYPE>::~SINGLETON_( void )") ;
 }
 
 # endif		/* # if !defined( __SINGLETON__H__ ) */

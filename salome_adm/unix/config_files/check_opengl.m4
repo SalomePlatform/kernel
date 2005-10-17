@@ -49,7 +49,12 @@ if test "x$local_opengl" = "xyes" ; then
    if test -f "${opengl_dir}/include/GL/gl.h" ; then
       OpenGL_ok=yes
       OGL_INCLUDES="-I${opengl_dir}/include"
-      OGL_LIBS="-L${opengl_dir}/lib"
+      if test "x${opengl_dir}" = "x/usr"
+      then
+        OGL_LIBS=""
+      else
+        OGL_LIBS="-L${opengl_dir}/lib"
+      fi
       AC_MSG_RESULT(select OpenGL distribution in ${opengl_dir})
    else
       AC_MSG_RESULT(no gl.h header file in ${opengl_dir}/include/GL)
@@ -91,13 +96,23 @@ then
   for i in $dirs; do
     if test -r "$i/libGL.so"; then
 dnl      AC_MSG_RESULT(in $i)
-      OGL_LIBS="-L$i"
+      if test "x$i" = "x/usr/lib"
+      then
+        OGL_LIBS=""
+      else
+        OGL_LIBS="-L$i"
+      fi
       break
     fi
 # under IRIX ?
     if test -r "$i/libGL.sl"; then
 dnl      AC_MSG_RESULT(in $i)
-      OGL_LIBS="-L$i"
+      if test "x$i" = "x/usr/lib"
+      then
+        OGL_LIBS=""
+      else
+        OGL_LIBS="-L$i"
+      fi
       break
     fi
   done

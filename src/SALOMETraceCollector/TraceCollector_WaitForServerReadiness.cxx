@@ -28,6 +28,10 @@
 #include <iostream>
 #include <ctime>
 
+#ifdef WNT
+#include <omnithread/pthread_nt.h>
+#endif
+
 using namespace std;
 
 // ============================================================================
@@ -79,10 +83,10 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 	      if (!CORBA::is_nil(theObj))
 		inc = CosNaming::NamingContext::_narrow(theObj);
 	    }  
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
 	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "CORBA::COMM_FAILURE: "
+		   << "CORBA::SystemException: "
 		   << "Unable to contact the Naming Service" << endl;
 	    }
           catch(...)
@@ -99,8 +103,8 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 		  obj = inc->resolve(name);
 		  if (!CORBA::is_nil(obj))
 		    {
-		      cout << "TraceCollector_WaitForServerReadiness: "
-			   << serverName << " found in CORBA Name Service" << endl;
+		      //cout << "TraceCollector_WaitForServerReadiness: "
+		      //	   << serverName << " found in CORBA Name Service" << endl;
 		      break;
 		    }
 		}
@@ -109,7 +113,11 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 		  cout << "Caught exception: Naming Service can't found Logger";
 		}
 	    }
+#ifndef WNT
 	  int a = nanosleep(&ts_req,&ts_rem);
+#else
+	  Sleep(TIMESleep / 1000000);
+#endif
 	  cout << "TraceCollector_WaitForServerReadiness: retry look for"
 	       << serverName << endl;
 	}	   

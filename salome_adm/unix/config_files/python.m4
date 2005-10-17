@@ -34,7 +34,7 @@ dnl while those distributed as `classes' are installed under PYTHON_SITE
 dnl (eg, ./python1.5/site-packages).  The default is to install as
 dnl a `module'.
 
-AC_DEFUN(CHECK_PYTHON,
+AC_DEFUN([CHECK_PYTHON],
  [
   AC_ARG_WITH(python,
    [  --with-python=DIR root directory path of python installation ],

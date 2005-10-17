@@ -23,116 +23,141 @@ using namespace std;
 #endif
 
 /*!
-  This method performs the transfert with the remote sender given. If it fails with this sender it tries with an another protocol (CORBA by default).
+  This method performs the transfert of double array with the remote SenderDouble given. If it fails with this SenderDouble it tries with an another protocol (CORBA by default).
  */
-void *ReceiverFactory::getValue(SALOME::Sender_ptr sender,long &size)throw(MultiCommException)
+double *ReceiverFactory::getValue(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException)
 {
-  void *ret;
+  double *ret;
   try{
     ret=getValueOneShot(sender,size);
   }
   catch(MultiCommException&)
     {
-      SALOME::Sender_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
+      SALOME::SenderDouble_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
       MESSAGE("PROTOCOL CHANGED TO CORBA");
       sender->release();
-      CORBA::release(sender);
       ret=getValueOneShot(newSender,size);
+      CORBA::release(newSender);
     }
   return ret;
 }
 
 /*!
-  This method performs the transfert with the remote sender given. If it fails an exception is thrown.
+  This method performs the transfert of int array with the remote SenderInt given. If it fails with this SenderInt it tries with an another protocol (CORBA by default).
  */
-void *ReceiverFactory::getValueOneShot(SALOME::Sender_ptr sender,long &size)throw(MultiCommException)
+int *ReceiverFactory::getValue(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException)
+{
+  int *ret;
+  try{
+    ret=getValueOneShot(sender,size);
+  }
+  catch(MultiCommException&)
+    {
+      SALOME::SenderInt_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
+      MESSAGE("PROTOCOL CHANGED TO CORBA");
+      sender->release();
+      ret=getValueOneShot(newSender,size);
+      CORBA::release(newSender);
+    }
+  return ret;
+}
+
+/*!
+  This method performs the transfert with the remote SenderDouble given. If it fails an exception is thrown.
+ */
+double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &size)throw(MultiCommException)
 {
   SALOME::CorbaDoubleNCSender_ptr cncD_ptr;
   SALOME::CorbaDoubleCSender_ptr cwcD_ptr;
+#ifdef HAVE_MPI2
+  SALOME::MPISenderDouble_ptr mpi_ptr=SALOME::MPISenderDouble::_narrow(sender);
+#endif
+#ifdef HAVE_SOCKET
+  SALOME::SocketSenderDouble_ptr sock_ptr=SALOME::SocketSenderDouble::_narrow(sender);
+#endif
+  cncD_ptr=SALOME::CorbaDoubleNCSender::_narrow(sender);
+  cwcD_ptr=SALOME::CorbaDoubleCSender::_narrow(sender);
+  if(!CORBA::is_nil(cncD_ptr))
+    {
+      CORBA::release(sender);
+      CorbaDNoCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleNCSender_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cncD_ptr);
+      return rec.getValue(size);
+    }
+  else if(!CORBA::is_nil(cwcD_ptr))
+    {
+      CORBA::release(sender);
+      CorbaDWithCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleCSender_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(cwcD_ptr);
+      return rec.getValue(size);
+    }
+#ifdef HAVE_MPI2
+  else if(!CORBA::is_nil(mpi_ptr))
+    {
+      CORBA::release(sender);
+      MPIReceiver<double,MPI_DOUBLE,SALOME::MPISenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(mpi_ptr);
+      return rec.getValue(size);
+    }
+#endif
+#ifdef HAVE_SOCKET
+  else if(!CORBA::is_nil(sock_ptr))
+    {
+      CORBA::release(sender);
+      SocketReceiver<double,xdr_double,SALOME::SocketSenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(sock_ptr);
+      return rec.getValue(size);
+    }
+#endif
+  else
+    {
+      throw MultiCommException("Unknown sender protocol");
+      return 0;
+    }
+}
+
+/*!
+  This method performs the transfert with the remote SenderInt given. If it fails an exception is thrown.
+ */
+int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)throw(MultiCommException)
+{
   SALOME::CorbaLongNCSender_ptr cncL_ptr;
   SALOME::CorbaLongCSender_ptr cwcL_ptr;
 #ifdef HAVE_MPI2
-  SALOME::MPISender_ptr mpi_ptr=SALOME::MPISender::_narrow(sender);
+  SALOME::MPISenderInt_ptr mpi_ptr=SALOME::MPISenderInt::_narrow(sender);
 #endif
 #ifdef HAVE_SOCKET
-  SALOME::SocketSender_ptr sock_ptr=SALOME::SocketSender::_narrow(sender);
+  SALOME::SocketSenderInt_ptr sock_ptr=SALOME::SocketSenderInt::_narrow(sender);
 #endif
- switch(sender->getTypeOfDataTransmitted())
+  cncL_ptr=SALOME::CorbaLongNCSender::_narrow(sender);
+  cwcL_ptr=SALOME::CorbaLongCSender::_narrow(sender);
+  if(!CORBA::is_nil(cncL_ptr))
     {
-    case SALOME::DOUBLE_:
-      cncD_ptr=SALOME::CorbaDoubleNCSender::_narrow(sender);
-      cwcD_ptr=SALOME::CorbaDoubleCSender::_narrow(sender);
-      if(!CORBA::is_nil(cncD_ptr))
-	{
-	  CORBA::release(sender);
-	  CorbaDNoCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleNCSender_ptr> rec(cncD_ptr);
-	  return rec.getValue(size);
-	}
-      else if(!CORBA::is_nil(cwcD_ptr))
-	{
-	  CORBA::release(sender);
-	  CorbaDWithCopyReceiver<double,CORBA::Double,SALOME::vectorOfDouble_var,SALOME::CorbaDoubleCSender_ptr> rec(cwcD_ptr);
-	  return rec.getValue(size);
-	}
+      CORBA::release(sender);
+      CorbaINoCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongNCSender_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(cncL_ptr);
+      return rec.getValue(size);
+    }
+  else if(!CORBA::is_nil(cwcL_ptr))
+    {
+      CORBA::release(sender);
+      CorbaIWithCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongCSender_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(cwcL_ptr);
+      return rec.getValue(size);
+    }
 #ifdef HAVE_MPI2
-      else if(!CORBA::is_nil(mpi_ptr))
-	{
-	  CORBA::release(sender);
-	  MPIReceiver<double,MPI_DOUBLE> rec(mpi_ptr);
-	  return rec.getValue(size);
-	}
+  else if(!CORBA::is_nil(mpi_ptr))
+    {
+      CORBA::release(sender);
+      MPIReceiver<int,MPI_INT,SALOME::MPISenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(mpi_ptr);
+      return rec.getValue(size);
+    }
 #endif
 #ifdef HAVE_SOCKET
-      else if(!CORBA::is_nil(sock_ptr))
-	{
-	  CORBA::release(sender);
-	  SocketReceiver<double,xdr_double> rec(sock_ptr);
-	  return rec.getValue(size);
-	}
+  else if(!CORBA::is_nil(sock_ptr))
+    {
+      CORBA::release(sender);
+      SocketReceiver<int,xdr_int,SALOME::SocketSenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(sock_ptr);
+      return rec.getValue(size);
+    }
 #endif
-      else
-	{
-	  throw MultiCommException("Unknown sender protocol");
-	  return 0;
-	}
-    case SALOME::INT_:
-      cncL_ptr=SALOME::CorbaLongNCSender::_narrow(sender);
-      cwcL_ptr=SALOME::CorbaLongCSender::_narrow(sender);
-      if(!CORBA::is_nil(cncL_ptr))
-	{
-	  CORBA::release(sender);
-	  CorbaINoCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongNCSender_ptr> rec(cncL_ptr);
-	  return rec.getValue(size);
-	}
-      else if(!CORBA::is_nil(cwcL_ptr))
-	{
-	  CORBA::release(sender);
-	  CorbaIWithCopyReceiver<int,CORBA::Long,SALOME::vectorOfLong_var,SALOME::CorbaLongCSender_ptr> rec(cwcL_ptr);
-	  return rec.getValue(size);
-	}
-#ifdef HAVE_MPI2
-      else if(!CORBA::is_nil(mpi_ptr))
-	{
-	  CORBA::release(sender);
-	  MPIReceiver<int,MPI_INT> rec(mpi_ptr);
-	  return rec.getValue(size);
-	}
-#endif
-#ifdef HAVE_SOCKET
-      else if(!CORBA::is_nil(sock_ptr))
-	{
-	  CORBA::release(sender);
-	  SocketReceiver<int,xdr_int> rec(sock_ptr);
-	  return rec.getValue(size);
-	}
-#endif
-      else
-	{
-	  throw MultiCommException("Unknown sender protocol");
-	  return 0;
-	}
-    default:
-      throw MultiCommException("unknown type of data transfered");
+  else
+    {
+      throw MultiCommException("Unknown sender protocol");
       return 0;
     }
 }

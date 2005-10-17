@@ -34,7 +34,21 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_RessourcesCatalog)
 
-class SALOME_RessourcesCatalogImpl: public POA_SALOME_RessourcesCatalog::RessourcesCatalog,
+#if defined RESSOURCESCatalog_EXPORTS
+#if defined WIN32
+#define RESSOURCESCatalog_EXPORT __declspec( dllexport )
+#else
+#define RESSOURCESCatalog_EXPORT
+#endif
+#else
+#if defined WNT
+#define RESSOURCESCatalog_EXPORT __declspec( dllimport )
+#else
+#define RESSOURCESCatalog_EXPORT
+#endif
+#endif
+
+class RESSOURCESCatalog_EXPORT SALOME_RessourcesCatalogImpl: public POA_SALOME_RessourcesCatalog::RessourcesCatalog,
 				  public PortableServer::RefCountServantBase 
 {
 public:

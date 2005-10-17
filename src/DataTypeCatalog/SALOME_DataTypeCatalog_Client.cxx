@@ -26,7 +26,7 @@
 
 /* $Header$ */
 
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_DataTypeCatalog.hh"
 #include <string>

@@ -33,8 +33,9 @@ extern "C"
 }
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
+#include <Standard_Macro.hxx>
 
-class HDFdataset : public HDFinternalObject
+class Standard_EXPORT HDFdataset : public HDFinternalObject
 {
 private :
   HDFcontainerObject *_father;

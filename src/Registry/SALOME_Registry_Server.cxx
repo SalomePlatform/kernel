@@ -27,8 +27,8 @@
 //  $Header$
 
 #include <stdlib.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 
 extern "C"
 {
@@ -54,7 +54,7 @@ int main( int argc , char **argv )
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 
     SCRUTE(argc) 
@@ -105,7 +105,11 @@ int main( int argc , char **argv )
   for (int i = 1; i<=NumberOfTries; i++)
     {
       if (i!=1) 
+#ifndef WNT
 	a=nanosleep(&ts_req,&ts_rem);
+#else
+    Sleep(TIMESleep/1000000);
+#endif
       try
 	{ 
 	  obj = orb->resolve_initial_references("RootPOA");
@@ -118,9 +122,9 @@ int main( int argc , char **argv )
 	  if (!CORBA::is_nil(theObj))
 	    inc = CosNaming::NamingContext::_narrow(theObj);
 	}
-      catch( CORBA::COMM_FAILURE& )
+      catch( CORBA::SystemException& )
 	{
-	  MESSAGE( "Registry Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	  MESSAGE( "Registry Server: CORBA::SystemException: Unable to contact the Naming Service" );
 	}
       if(!CORBA::is_nil(inc))
 	{
@@ -130,7 +134,11 @@ int main( int argc , char **argv )
 	      for(int j=1; j<=NumberOfTries; j++)
 		{
 		  if (j!=1) 
+#ifndef WNT
 		    a=nanosleep(&ts_req, &ts_rem);
+#else
+			Sleep(TIMESleep/1000000);
+#endif
 		  try
 		    {
 		      object = inc->resolve(name);
@@ -211,6 +219,6 @@ int main( int argc , char **argv )
     }
 	
   END_OF( argv[0] ) ;
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0 ;
 }

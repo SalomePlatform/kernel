@@ -29,26 +29,20 @@
 
 #include <string>
 #include "LocalTraceBufferPool.hxx"
+#include "BaseTraceCollector.hxx"
 
-//! See SALOMETraceCollector instead of LocalTraceCollector for SALOME usage
+//! See also other derived Classes in SALOMELocalTrace for usage without CORBA,
+//! see also derived Classes in SALOMETraceCollector for usage with CORBA.
 
-class LocalTraceCollector
+class SALOMELOCALTRACE_EXPORT LocalTraceCollector : public BaseTraceCollector
 {
  public:
-  static LocalTraceCollector* instance(int typeTrace=0);
+  static BaseTraceCollector* instance();
   static void *run(void *bid);
   ~LocalTraceCollector();
 
  protected:
   LocalTraceCollector();
-
- private:
-  static int _threadToClose;
-  static int _toFile;
-  static LocalTraceCollector* _singleton;
-  static pthread_mutex_t _singletonMutex;
-  static pthread_t _threadId;
-  static std::string _fileName;
 };
 
 #endif

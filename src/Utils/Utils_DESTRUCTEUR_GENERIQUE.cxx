@@ -35,9 +35,7 @@ extern "C"
 }
 
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
-# include "utilities.h"
-using namespace std;
-
+//# include "utilities.h"
 void Nettoyage();
 
 #ifdef _DEBUG_
@@ -46,17 +44,19 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
-static list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs=0 ;
+using namespace std;
+
+std::list<DESTRUCTEUR_GENERIQUE_*> *DESTRUCTEUR_GENERIQUE_::Destructeurs=0 ;
 
 /*! \class ATEXIT_
  *
- * Mécanisme pour faire exécuter une seule fois DESTRUCTEUR_GENERIQUE_::Nettoyage
- * à la fin du traitement : creation d'un singleton statique de l'objet
+ * Mecanisme pour faire executer une seule fois DESTRUCTEUR_GENERIQUE_::Nettoyage
+ * a la fin du traitement : creation d'un singleton statique de l'objet
  * tres specialise ATEXIT_.
  *
- * La création d'un objet de type ATEXIT_ entraîne l'inscription de la fonction
- * Nettoyage() par atexit(). Il suffit donc de créer un singleton statique du type ATEXIT_
- * pour effectuer cet enregistrement une seule fois indépendament de l'utilisateur.
+ * La creation d'un objet de type ATEXIT_ entraine l'inscription de la fonction
+ * Nettoyage() par atexit(). Il suffit donc de creer un singleton statique du type ATEXIT_
+ * pour effectuer cet enregistrement une seule fois independament de l'utilisateur.
  */
 
 //CCRT
@@ -67,30 +67,31 @@ class ATEXIT_
 {
 public :
 	/*!
-	 * Allocation dynamique de Destructeurs, une liste chaînée de DESTRUCTEUR_GENERIQUE_* et enregistrement
+	 * Allocation dynamique de Destructeurs, une liste chainee de DESTRUCTEUR_GENERIQUE_* et enregistrement
 	 * de la fonction Nettoyage() par atexit().
 	 *
-	 * La liste chaînée Destructeurs est détruite dans la fonction Nettoyage.
+	 * La liste chainee Destructeurs est detruite dans la fonction Nettoyage.
 	 */
-        //CCRT	ATEXIT_( void )
+        //CCRT  ATEXIT_( void )
         ATEXIT_( bool Make_ATEXIT )
 	{
 	  //CCRT
 	  if ( Make_ATEXIT && !ATEXIT_Done ) {
 	    //CCRT
-		ASSERT (Destructeurs==0);
-		if(MYDEBUG) MESSAGE("Construction ATEXIT"); // message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
-		Destructeurs = new list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
-								   // il est utilisé puis détruit par la fonction Nettoyage
-		int cr = atexit( Nettoyage );                      // exécute Nettoyage lors de exit, après la destruction des données statiques !
-		ASSERT(cr==0) ;
+		assert (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
+		//cerr << "ATEXIT_::ATEXIT_ Construction ATEXIT" << endl;// message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
+		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
+                      new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeur alloue dynamiquement (cf. ci-dessous) ,
+								   // il est utilise puis detruit par la fonction Nettoyage
+		int cr = atexit( Nettoyage );                      // execute Nettoyage lors de exit, aprs la destruction des donnees statiques !
+		assert(cr==0) ;
 		ATEXIT_Done = true ;
 	  }
 	}
 
 	~ATEXIT_( )
 	{
-		if(MYDEBUG) MESSAGE("Destruction ATEXIT") ;
+	  //cerr << "ATEXIT_::~ATEXIT_ Destruction ATEXIT" << endl;
 	}
 };
 
@@ -101,41 +102,42 @@ static ATEXIT_ nettoyage = ATEXIT_( false );	/* singleton statique */
 
 
 /*!
- * traitement effectué :
- * -# exécution de tous les objets de type DESTRUCTEUR_DE_ stockés dans la liste Destructeurs (ce qui détruit les
+ * traitement effectue :
+ * -# execution de tous les objets de type DESTRUCTEUR_DE_ stockes dans la liste Destructeurs (ce qui detruit les
  *    singletons correspondant) ;
- * -# puis destruction de tous les objets de type DESTRUCTEUR_DE_ stockés dans la liste Destructeurs;
+ * -# puis destruction de tous les objets de type DESTRUCTEUR_DE_ stockes dans la liste Destructeurs;
  * -# destruction de la liste Destructeurs.
  */
 
 void Nettoyage( void )
 {
-	if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
-	ASSERT(Destructeurs) ;
-	if(MYDEBUG) SCRUTE( Destructeurs->size() ) ;
-	if( Destructeurs->size() )
+  //cerr << "Nettoyage()" << endl;
+  //if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
+	assert(DESTRUCTEUR_GENERIQUE_::Destructeurs) ;
+	//if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+	if( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() )
 	{
-		list<DESTRUCTEUR_GENERIQUE_*>::iterator it = Destructeurs->end() ;
+		std::list<DESTRUCTEUR_GENERIQUE_*>::iterator it = DESTRUCTEUR_GENERIQUE_::Destructeurs->end() ;
 
 		do
 		{
-			if(MYDEBUG) MESSAGE( "DESTRUCTION d'un SINGLETON");
+		  //if(MYDEBUG) MESSAGE( "DESTRUCTION d'un SINGLETON");
 			it-- ;
 			DESTRUCTEUR_GENERIQUE_* ptr = *it ;
-			//Destructeurs->remove( *it ) ;
+			//DESTRUCTEUR_GENERIQUE_::Destructeurs->remove( *it ) ;
 			(*ptr)() ;
 			delete ptr ;
-		}while( it!=  Destructeurs->begin() ) ;
+		}while( it!=  DESTRUCTEUR_GENERIQUE_::Destructeurs->begin() ) ;
 
-		Destructeurs->clear() ;
-		if(MYDEBUG) SCRUTE( Destructeurs->size() ) ;
-		ASSERT( Destructeurs->size()==0 ) ;
-		ASSERT( Destructeurs->empty() ) ;
+		DESTRUCTEUR_GENERIQUE_::Destructeurs->clear() ;
+		//if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+		assert( DESTRUCTEUR_GENERIQUE_::Destructeurs->size()==0 ) ;
+		assert( DESTRUCTEUR_GENERIQUE_::Destructeurs->empty() ) ;
 	}
 
-	delete Destructeurs;
-	Destructeurs=0;
-	if(MYDEBUG) END_OF("Nettoyage( void )") ;
+	delete DESTRUCTEUR_GENERIQUE_::Destructeurs;
+	DESTRUCTEUR_GENERIQUE_::Destructeurs=0;
+	//if(MYDEBUG) END_OF("Nettoyage( void )") ;
 	return ;
 }
 
@@ -155,7 +157,7 @@ const int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
           nettoyage = ATEXIT_( true ) ;
 	}
 	//CCRT
-	ASSERT(Destructeurs) ;
+	assert(Destructeurs) ;
 	Destructeurs->push_back( &objet ) ;
 	return Destructeurs->size() ;
 }

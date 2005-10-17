@@ -41,7 +41,12 @@ if test "$WITHMPI" = yes; then
   if test "x$withval" != "xyes"; then
     MPI_HOME=$withval
     MPI_INCLUDES="-I$MPI_HOME/include"
-    MPI_LIBS="-L$MPI_HOME/lib"
+    if test "x$MPI_HOME" = "x/usr"
+    then
+      MPI_LIBS=""
+    else
+      MPI_LIBS="-L$MPI_HOME/lib"
+    fi
   fi
 
   CPPFLAGS_old="$CPPFLAGS"

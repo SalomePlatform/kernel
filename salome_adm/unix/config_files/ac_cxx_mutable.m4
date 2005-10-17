@@ -28,7 +28,7 @@ dnl
 dnl @version $Id$
 dnl @author Luc Maisonobe
 dnl
-AC_DEFUN(AC_CXX_MUTABLE,
+AC_DEFUN([AC_CXX_MUTABLE],
 [AC_CACHE_CHECK(whether the compiler supports the mutable keyword,
 ac_cv_cxx_mutable,
 [AC_LANG_SAVE

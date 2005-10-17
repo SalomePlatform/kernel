@@ -1,36 +1,27 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
 //  File   : SALOMEDS_UseCaseIterator_i.cxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
 
-using namespace std;
+
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
+#include "SALOMEDS.hxx"
+
+#include "SALOMEDSImpl_SObject.hxx"
 #include "utilities.h"
 
-
+using namespace std;
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(SALOMEDS_Study_i* theStudy,
-						       const TDF_Label& theLabel, 
-						       const Standard_GUID& theGUID, 
-						       const Standard_Boolean theIsAllLevels):
-  _guid(theGUID), 
-  _levels(theIsAllLevels),
-  _study(theStudy)
+SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const Handle(SALOMEDSImpl_UseCaseIterator)& theImpl, 
+						       CORBA::ORB_ptr orb)
 {
-  if(theLabel.FindAttribute(_guid, _node)) {
-    _it.Initialize (_node, _levels);
-  }
+  _orb = CORBA::ORB::_duplicate(orb);
+  _impl = theImpl;
 }
 
 //============================================================================
@@ -49,7 +40,8 @@ SALOMEDS_UseCaseIterator_i::~SALOMEDS_UseCaseIterator_i()
 //============================================================================
 void SALOMEDS_UseCaseIterator_i::Init(CORBA::Boolean allLevels)
 { 
-  _it.Initialize (_node, allLevels);
+  SALOMEDS::Locker lock;
+  _impl->Init(allLevels);
 }
 
 //============================================================================
@@ -59,17 +51,19 @@ void SALOMEDS_UseCaseIterator_i::Init(CORBA::Boolean allLevels)
 //============================================================================
 CORBA::Boolean SALOMEDS_UseCaseIterator_i::More()
 {
-  return _it.More();
+  SALOMEDS::Locker lock;
+  return _impl->More();
 }
 
- //============================================================================
+//============================================================================
 /*! Function : Next
  * 
  */
 //============================================================================
 void SALOMEDS_UseCaseIterator_i::Next()
 {
-  _it.Next();
+  SALOMEDS::Locker lock;
+  _impl->Next();
 }
 
 
@@ -78,10 +72,11 @@ void SALOMEDS_UseCaseIterator_i::Next()
  *  Purpose  :
  */
 //============================================================================
-
 SALOMEDS::SObject_ptr SALOMEDS_UseCaseIterator_i::Value()
 {
-  TDF_Label L = _it.Value()->Label();
-  return SALOMEDS_SObject_i::NewRef(_study,L)._retn();
+  SALOMEDS::Locker lock;
+  Handle(SALOMEDSImpl_SObject) aSO = _impl->Value();
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
+  return so._retn();
 }
 

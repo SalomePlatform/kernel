@@ -52,18 +52,25 @@
 
 #define MESS_INIT(deb) std::ostringstream os; os<<deb
 #define MESS_BEGIN(deb) MESS_INIT(deb)<<__FILE__ <<" ["<<__LINE__<<"] : "
-#define MESS_END endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
-#define MESS_ABORT endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
+#define MESS_END std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
+#define MESS_ABORT std::endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
 
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
-#define IMMEDIATE_ABORT(code) {cout <<std::flush; \
-                               cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
-                               cerr << "ABORT return code= "<< code << endl; \
+#ifdef WNT
+#define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "ABORT return code= "<< code << std::endl; \
+                               /*std::*/exit(code);}
+#else
+#define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "ABORT return code= "<< code << std::endl; \
                                std::exit(code);}
+#endif
 
 /* --- To print date and time of compilation of current source --- */
 

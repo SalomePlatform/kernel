@@ -44,7 +44,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
   hdf_err ret;
 #ifdef PCLINUX
   int isI32BE = 0;
-  int size;
+  int size = 0;
 #endif
 
   if ((datatype = H5Dget_type(id)) < 0)
@@ -53,10 +53,21 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
 #ifdef PCLINUX
   if((H5Tget_class(datatype) == H5T_INTEGER) && (H5Tget_size(datatype) == 4)) {
     isI32BE = 1; /* See HDFdatasetCreate */
-    size = (int)HDFdatasetGetSize(id) / 4;
+
+    /*SRN : bug IPAL9619:  replaced the method of getting the size of INT32 dataset */ 
+    int i, ndim = HDFdatasetGetnDim(id);
+    if(ndim < 0) return -1;
+    
+    hdf_size *dim = (hdf_size *) malloc(sizeof(hdf_size)*ndim);
+    if ((ret == HDFdatasetGetDim(id, dim)) < 0)  return -1;
+	
+    for(i=0; i<ndim; i++) size+=dim[i];    
+    free(dim);
+    /*SRN : end of the fix */
+    
     if(size == 0) 
       return -1;
-    if(H5Tconvert(H5T_NATIVE_INT, H5T_STD_I32BE, size, (void *)val, NULL, NULL) < 0) 
+    if(H5Tconvert(H5T_NATIVE_INT, H5T_STD_I32BE, size, (void *)val, NULL, (hid_t)0) < 0) 
       return -1;
   }
 #endif
@@ -65,7 +76,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
     return -1;
 
 #ifdef PCLINUX
-  if (isI32BE && (H5Tconvert(H5T_STD_I32BE, H5T_NATIVE_INT, size, (void *)val, NULL, NULL) < 0)) 
+  if (isI32BE && (H5Tconvert(H5T_STD_I32BE, H5T_NATIVE_INT, size, (void *)val, NULL, (hid_t)0) < 0)) 
     return -1;
 #endif
 

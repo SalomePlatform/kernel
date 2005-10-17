@@ -1,33 +1,28 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
 //  File   : SALOMEDS_AttributeTableOfReal_i.hxx
 //  Author : Michael Ponikarov
 //  Module : SALOME
-//  $Header$
 
 #ifndef SALOMEDS_AttributeTableOfReal_i_HeaderFile
 #define SALOMEDS_AttributeTableOfReal_i_HeaderFile
-
-#include "SALOMEDS_TableOfRealAttribute.hxx"
-#include "SALOMEDS_GenericAttribute_i.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-DEFINE_DERIVED_ATTR(AttributeTableOfReal,SALOMEDS_TableOfRealAttribute,true);
+#include "SALOMEDS_GenericAttribute_i.hxx"
+#include "SALOMEDSImpl_AttributeTableOfReal.hxx"
 
-class SALOMEDS_AttributeTableOfReal_i: 
-  public virtual POA_SALOMEDS::AttributeTableOfReal,
-  public virtual SALOMEDS_TAttributeTableOfReal_i 
-{
-  DEFINE_DERIVED_ATTR_METH_DEFAULT(AttributeTableOfReal,SALOMEDS_TableOfRealAttribute);
+class SALOMEDS_AttributeTableOfReal_i: public virtual POA_SALOMEDS::AttributeTableOfReal,
+  public virtual SALOMEDS_GenericAttribute_i {
+    
 public:
-  virtual void SetTitle(const char* theTitle);
+  
+  SALOMEDS_AttributeTableOfReal_i(const Handle(SALOMEDSImpl_AttributeTableOfReal)& theAttr, CORBA::ORB_ptr orb) 
+    :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
+
+  ~SALOMEDS_AttributeTableOfReal_i() {};
+
+ virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
     throw (SALOMEDS::AttributeTableOfReal::IncorrectIndex);
@@ -71,9 +66,6 @@ public:
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();
-
-  virtual char* Store();
-  virtual void Restore(const char*);
 
 };
 

@@ -29,7 +29,7 @@ dnl
 dnl @version $Id$
 dnl @author Luc Maisonobe
 dnl
-AC_DEFUN(AC_CXX_BOOL,
+AC_DEFUN([AC_CXX_BOOL],
 [AC_CACHE_CHECK(whether the compiler recognizes bool as a built-in type,
 ac_cv_cxx_bool,
 [AC_LANG_SAVE

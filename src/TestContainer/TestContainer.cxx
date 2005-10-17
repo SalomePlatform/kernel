@@ -34,6 +34,7 @@
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
+#include "NamingService_WaitForServerReadiness.hxx"
 #include "OpUtil.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
@@ -59,126 +60,56 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
   return os;
 }
 
+Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
+					   string componenttName)
+{
+  bool isLib =
+    iGenFact->load_component_Library(componenttName.c_str());
+  //    iGenFact->load_component_Library("SalomeTestComponent");
+  ASSERT(isLib);
+  CORBA::Object_var obj =
+    //    iGenFact->create_component_instance("SalomeTestComponent",
+    iGenFact->create_component_instance(componenttName.c_str(),
+					0);
+  Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
+  MESSAGE("create anInstance");
+  SCRUTE(anInstance->instanceName());
+  return anInstance._retn();
+}
 
 int main (int argc, char * argv[])
 {
-
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 
   try
     {
-
-
-    
-      // use IOR to find container
-      //if (argc != 2) { return 1; }
-      //CORBA::Object_var obj = orb->string_to_object(argv[1]);
-      //Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
-
-      // Obtain a reference to the root POA
-      //
-      long TIMESleep = 250000000;
-      int NumberOfTries = 40;
-      int a;
-      timespec ts_req;
-      ts_req.tv_nsec=TIMESleep;
-      ts_req.tv_sec=0;
-      timespec ts_rem;
-      ts_rem.tv_nsec=0;
-      ts_rem.tv_sec=0;
-      CosNaming::NamingContext_var inc;
-      PortableServer::POA_var poa;
-      CORBA::Object_var theObj;
-      CORBA::Object_var obj;
-      CORBA::Object_var object;
-      SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-      int TEST_CONTAINER=0;
-      const char * Env = getenv("USE_LOGGER"); 
-      int EnvL =0;
-      if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
-      CosNaming::Name name;
-      name.length(1);
-      name[0].id=CORBA::string_dup("Logger");    
-      PortableServer::POAManager_var manager; 
-      for (int i = 1; i<=NumberOfTries; i++)
-	{
-	  if (i!=1) 
-	    a=nanosleep(&ts_req,&ts_rem);
-	  try
-	    { 
-	      obj = orb->resolve_initial_references("RootPOA");
-	      if(!CORBA::is_nil(obj))
-		poa = PortableServer::POA::_narrow(obj);
-	      if(!CORBA::is_nil(poa))
-		manager = poa->the_POAManager();
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService");
-	      if (!CORBA::is_nil(theObj))
-		inc = CosNaming::NamingContext::_narrow(theObj);
-	    }
-	  catch( CORBA::COMM_FAILURE& )
-	    {
-	      INFOS( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
-		}
-	  if(!CORBA::is_nil(inc))
-	    {
-	      MESSAGE( "Test Container: Naming Service was found" )
-		if(EnvL==1)
-		  {
-		    for(int j=1; j<=NumberOfTries; j++)
-		      {
-			if (j!=1) 
-			  a=nanosleep(&ts_req, &ts_rem);
-			try
-			  {
-			    object = inc->resolve(name);
-			  }
-			catch(CosNaming::NamingContext::NotFound)
-			  {
-			    INFOS( "Test Container: Logger Server wasn't found" );
-			  }
-			catch(...)
-			  {
-			    INFOS( "Test Container: Unknown exception" );
-			  }
-			if (!CORBA::is_nil(object))
-			  {
-			    MESSAGE( "Test Container: Loger Server was found" );
-			    TEST_CONTAINER=1;
-			    break;
-			  }
-		      }
-		  }
-	    }
-	  if ((TEST_CONTAINER==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-            break;
-	}
-
-      // Use Name Service to find container
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
       string hostName = GetHostname();
       containerName += hostName + "/FactoryServer";
+      NamingService_WaitForServerReadiness(&_NS,containerName);
 
-      obj = _NS.Resolve(containerName.c_str()) ;
+      CORBA::Object_var obj = _NS.Resolve(containerName.c_str()) ;
       Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
 
-      Engines::TestComponent_var m1;
-    
-      for (int iter = 0; iter < 3 ; iter++)
-	{
-	  MESSAGE("----------------------------------------------------" << iter);   
-          string dirn = getenv("KERNEL_ROOT_DIR");
-          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
-          obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
-	  m1 = Engines::TestComponent::_narrow(obj);
-	  MESSAGE("recup m1");
-	  SCRUTE(m1->instanceName());
+      int nbInstances = 5;
 
+      vector<Engines::TestComponent_var> instances(nbInstances);
+    
+      MESSAGE("------------------------------- create instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  instances[iter] = create_instance(iGenFact,"SalomeTestComponent");
+	}
+
+      MESSAGE("------------------------------ set env instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  Engines::TestComponent_var anInstance = instances[iter];
+	  SCRUTE(anInstance->instanceName());
 	  Engines::FieldsDict_var dico = new Engines::FieldsDict;
 	  dico->length(3);
 	  dico[0].key=CORBA::string_dup("key_0");
@@ -186,14 +117,18 @@ int main (int argc, char * argv[])
 	  dico[1].key=CORBA::string_dup("key_1");
 	  dico[1].value <<=(CORBA::UShort)72;
 	  dico[2].key=CORBA::string_dup("key_2");
-	  dico[2].value <<="value_2";
-	  m1->setProperties(dico);
+	  dico[2].value <<=(CORBA::ULong)iter;
+	  anInstance->setProperties(dico);
+	  MESSAGE("Coucou " << anInstance->Coucou(iter));
+	  anInstance->Setenv();
+	}
 
-	  MESSAGE("Coucou " << m1->Coucou(1L));
-
-	  m1->Setenv();
-
-	  Engines::FieldsDict_var dico2 =  m1->getProperties();
+      MESSAGE("---------------------------------- get instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  Engines::TestComponent_var anInstance = instances[iter];
+	  SCRUTE(anInstance->instanceName());
+	  Engines::FieldsDict_var dico2 =  anInstance->getProperties();
 	  for (CORBA::ULong i=0; i<dico2->length(); i++)
 	    {
 	      MESSAGE("dico2["<<i<<"].key="<<dico2[i].key);
@@ -205,14 +140,46 @@ int main (int argc, char * argv[])
 		  MESSAGE("dico2["<<i<<"].value="<<value);
 		}
 	    }
+	}
 
-	  iGenFact->remove_impl(m1) ;
+      MESSAGE("------------------------------- remove instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  Engines::TestComponent_var anInstance = instances[iter];
+	  SCRUTE(anInstance->instanceName());
+	  iGenFact->remove_impl(anInstance) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
-          sleep(5);
-	}    
+	} 
+      MESSAGE("------------------------------- PYTHON ");
+      {
+// 	bool isLib =
+// 	  iGenFact->load_component_Library("SALOME_TestComponentPy");
+// 	ASSERT(isLib);
+// 	CORBA::Object_var obj =
+// 	  iGenFact->create_component_instance("SALOME_TestComponentPy",
+// 					      0);
+// 	Engines::TestComponent_var anInstance =
+// 	  Engines::TestComponent::_narrow(obj);
+// 	MESSAGE("create anInstance");
+// 	SCRUTE(anInstance->instanceName());
+      MESSAGE("------------------------------- create instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  instances[iter] = create_instance(iGenFact,"SALOME_TestComponentPy");
+	}
+
+      MESSAGE("---------------------------------- get instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  Engines::TestComponent_var anInstance = instances[iter];
+	  SCRUTE(anInstance->instanceName());
+	  MESSAGE("Coucou " << anInstance->Coucou(iter));
+	}
+      }
+   
       // Clean-up.
       iGenFact->finalize_removal() ;
-      orb->destroy();
+      orb->shutdown(0);
     }
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.")
@@ -227,7 +194,7 @@ int main (int argc, char * argv[])
     INFOS("Caught unknown exception.")
       }
 
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0;
 }
 

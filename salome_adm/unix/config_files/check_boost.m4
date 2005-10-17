@@ -31,7 +31,10 @@ BOOST_CPPFLAGS=""
 boost_ok=no
 
 if test -z ${BOOSTDIR}; then
-  AC_MSG_WARN(You must provide BOOSTDIR variable)
+  AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
+  if test boost_ok = no ; then
+    AC_MSG_WARN(You must provide BOOSTDIR variable)
+  fi
 else
   AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
   AC_CHECKING(for boost/shared_ptr.hpp header file)

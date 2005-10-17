@@ -35,7 +35,9 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <omnithread.h>
 #include <map>
@@ -43,8 +45,24 @@
 
 class SALOME_NamingService;
 
-class Engines_Container_i: public virtual POA_Engines::Container,
-			   public virtual PortableServer::RefCountServantBase
+
+#if defined CONTAINER_EXPORTS
+#if defined WIN32
+#define CONTAINER_EXPORT __declspec( dllexport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#else
+#if defined WNT
+#define CONTAINER_EXPORT __declspec( dllimport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#endif
+
+class CONTAINER_EXPORT Engines_Container_i:
+  public virtual POA_Engines::Container,
+  public virtual PortableServer::RefCountServantBase
 {
 public:
   Engines_Container_i();
@@ -56,32 +74,65 @@ public:
 		      bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
+  // --- CORBA methods
 
-  //! Load component in current container
-  Engines::Component_ptr load_impl(const char* nameToRegister,
-				   const char* componentName);
+  virtual bool load_component_Library(const char* componentName);
 
-  Engines::Component_ptr instance(const char* nameToRegister,
-				   const char* componentName);
+  virtual Engines::Component_ptr
+  create_component_instance( const char* componentName,
+			     CORBA::Long studyId); // 0 for multiStudy
 
-  //! Unload component from current container
+  Engines::Component_ptr
+  find_component_instance( const char* registeredName,
+			   CORBA::Long studyId); // 0 for multiStudy
+
+  Engines::Component_ptr
+  load_impl(const char* nameToRegister,
+	    const char* componentName);
+
+
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 
+  virtual void ping();
   char* name();
-  char* machineName();
-  void ping();
-  void Shutdown();
+  virtual void Shutdown();
+  char* getHostName();
+  CORBA::Long getPID();
   //! Kill current container
   bool Kill_impl() ;
 
-  char* getHostName();
-  CORBA::Long getPID();
-  static bool isPythonContainer(const char* ContainerName);
+  //Engines::Component_ptr instance(const char* nameToRegister,
+  //				   const char* componentName);
 
-  static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
-  static const char *_defaultContainerName;
+  // --- local C++ methods
+
+  Engines::Component_ptr
+  find_or_create_instance( std::string genericRegisterName,
+			   std::string componentLibraryName);
+
+  Engines::Component_ptr
+  createInstance(std::string genericRegisterName,
+		 void *handle,
+		 int studyId);
+
+  static bool isPythonContainer(const char* ContainerName);
+  static void decInstanceCnt(std::string genericRegisterName);
+  //??? char* machineName();
+
+  // --- needed for parallel components, Numerical Platon
+
+  int getArgc() { return _argc; }
+  char **getArgv() { return _argv; }
+
 protected:
+
+  static std::map<std::string, int> _cntInstances_map;
+  static std::map<std::string, void *> _library_map; // library names, loaded
+  static std::map<std::string, void *> _toRemove_map;// library names to remove
+  static omni_mutex _numInstanceMutex ; // lib and instance protection
+
+  bool _isSupervContainer;
 
   SALOME_NamingService *_NS ;
   std::string _library_path;
@@ -90,16 +141,12 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  std::map<std::string, void *> handle_map ;
-  std::map<std::string, void *> remove_map ;
-  omni_mutex _numInstanceMutex ; // if several threads on the same object
+  std::map<std::string,Engines::Component_var> _listInstances_map;
 
-  //private: 
-
-  int   _argc ;
+  int    _argc ;
   char** _argv ;
-  long _pid;
-  bool _isServantAloneInProcess;
+  long   _pid;
+  bool   _isServantAloneInProcess;
 };
 
 #endif

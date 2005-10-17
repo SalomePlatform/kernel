@@ -41,7 +41,7 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
@@ -74,7 +74,11 @@ int main(int argc,char **argv)
       for (int i = 1; i<=NumberOfTries; i++)
 	{
 	  if (i!=1) 
+#ifndef WNT
 	    a=nanosleep(&ts_req,&ts_rem);
+#else
+	    Sleep(TIMESleep/1000000);
+#endif
 	  try
 	    { 
 	      obj = orb->resolve_initial_references("RootPOA");
@@ -85,9 +89,9 @@ int main(int argc,char **argv)
 	      if(!CORBA::is_nil(orb)) 
 		theObj = orb->resolve_initial_references("NameService"); 
 	    }
-	  catch( CORBA::COMM_FAILURE& )
+	  catch( CORBA::SystemException& )
 	    {
-	      INFOS( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Module Catalog Server: CORBA::SystemException: Unable to contact the Naming Service" );
 	    }
 	  if (!CORBA::is_nil(theObj))
 	    {
@@ -103,7 +107,11 @@ int main(int argc,char **argv)
 		      for(int j=1; j<=NumberOfTries; j++)
 			{
 			  if (j!=1) 
+#ifndef WNT
 			    a=nanosleep(&ts_req, &ts_rem);
+#else
+			    Sleep(TIMESleep/1000000);
+#endif
 			  try{
 			    object = inc->resolve(name);}
 			  catch(CosNaming::NamingContext::NotFound)
@@ -166,6 +174,6 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0;
 }

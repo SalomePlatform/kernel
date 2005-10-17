@@ -34,8 +34,21 @@
 
 # include <map>
 
+#if defined REGISTRY_EXPORTS
+#if defined WIN32
+#define REGISTRY_EXPORT __declspec( dllexport )
+#else
+#define REGISTRY_EXPORT
+#endif
+#else
+#if defined WNT
+#define REGISTRY_EXPORT __declspec( dllimport )
+#else
+#define REGISTRY_EXPORT
+#endif
+#endif
 
-class RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
+class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {
 
 public :
@@ -73,8 +86,13 @@ public :
         void ping();
 	virtual CORBA::ULong add (const Registry::Infos & infos);
 	virtual CORBA::ULong size ( void );
+#ifndef WNT
 	virtual void remove( const CORBA::ULong id );
 	virtual void hello( const CORBA::ULong id );
+#else
+	virtual void remove( CORBA::ULong id );
+	virtual void hello( CORBA::ULong id );
+#endif
 	virtual void end(void);
 
 	virtual Registry::AllInfos *getall(void);

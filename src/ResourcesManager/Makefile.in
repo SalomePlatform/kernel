@@ -53,13 +53,13 @@ LIB_SRC = \
 # in fact client is a test ! So it may go away BIN !
 #BIN = test_rc2
 #SALOME_RessourcesCatalog_Server SALOME_RessourcesCatalog_Client test
-LIB_CLIENT_IDL = SALOME_ContainerManager.idl SALOME_Component.idl
+LIB_CLIENT_IDL = SALOME_ContainerManager.idl SALOME_Component.idl SALOME_Exception.idl
 BIN_SRC = 
 BIN_SERVER_IDL = SALOME_ContainerManager.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) -I$(srcdir)/../Container
 CXXFLAGS+= 
-LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
+LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace 
 
 @CONCLUDE@
 

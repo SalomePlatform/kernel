@@ -27,7 +27,7 @@ dnl
 dnl @version $Id$
 dnl @author Marc Tajchman
 dnl
-AC_DEFUN(AC_DEPEND_FLAG,
+AC_DEFUN([AC_DEPEND_FLAG],
 [AC_CACHE_CHECK(which flag for dependency information generation,
 ac_cv_depend_flag,
 [AC_LANG_SAVE
@@ -44,12 +44,14 @@ dnl on utilise donc gnu pour generer les dependances.
      DEPCXX=g++
      DEPCXXFLAGS="-Wno-deprecated"
      DIFFFLAGS="-w"
+     MACHINE="OSF1"
      ;;
    *)
      DEPCC=${CC-cc}
      DEPCXX=${CXX-c++}
      DEPCXXFLAGS="\${CXXFLAGS}"
      DIFFFLAGS="-b -B"
+     MACHINE="PCLINUX"
      ;;
  esac
  C_DEPEND_FLAG=
@@ -137,5 +139,6 @@ dnl use g++ option -MG : asume unknown file will be construct later
  AC_SUBST(DEPCXXFLAGS)
  AC_SUBST(C_DEPEND_FLAG)
  AC_SUBST(CXX_DEPEND_FLAG)
+ AC_SUBST(MACHINE)
 ])
 ])

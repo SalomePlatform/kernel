@@ -33,7 +33,7 @@ extern "C"
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
 
-#include <iostream.h>
+#include <iostream>
 using namespace std;
 
 herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)

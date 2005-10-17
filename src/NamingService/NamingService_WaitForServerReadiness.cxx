@@ -66,7 +66,7 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 	{
 	  if (serverName.length() == 0)
 	    {
-	      string curdir = NS->Current_Directory(); // to wait for naming service
+	      string dummyadr = NS->getIORaddr(); // to wait for naming service
 	      found = 1;
 	      break; // naming service found
 	    }
@@ -79,13 +79,21 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 		  break; // server found, no more try to do
 		}
 	      MESSAGE("Server "<< serverName <<" not yet ready, waiting...");
+#ifndef WNT
 	      int a = nanosleep(&ts_req,&ts_rem); // wait before retry
+#else
+		  Sleep(TIMESleep/1000000);
+#endif
 	    }
 	}
       catch( ServiceUnreachable& )
 	{
 	  MESSAGE("CORBA::COMM_FAILURE: Naming Service not yet ready, waiting...");
+#ifndef WNT
 	  int a = nanosleep(&ts_req,&ts_rem); // wait before retry
+#else
+	  Sleep(TIMESleep/1000000);
+#endif
 	}
     }
   if (!found)

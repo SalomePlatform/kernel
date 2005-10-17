@@ -13,11 +13,18 @@
 #include <string>
 #include <list> 
 
+
 // IDL headers
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDS_Tool                                
+#ifdef WNT
+#include <SALOME_WNT.hxx>
+#else
+#define SALOME_WNT_EXPORT
+#endif
+
+class SALOME_WNT_EXPORT SALOMEDS_Tool                                
 {
 
 public:

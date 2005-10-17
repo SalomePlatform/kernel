@@ -31,23 +31,49 @@
 
 #include <stdexcept>
 
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+
 typedef void (*PVF)();
 
-class Unexpect { //save / retrieve unexpected exceptions treatment
+class UTILS_EXPORT Unexpect { //save / retrieve unexpected exceptions treatment
   PVF old;
   public :
+#ifndef WNT
     Unexpect( PVF f ) 
       { old = std::set_unexpected(f); }
   ~Unexpect() { std::set_unexpected(old); }
+#else
+    Unexpect( PVF f ) 
+      { old = ::set_unexpected(f); }
+  ~Unexpect() { ::set_unexpected(old); }
+#endif
 };
 
-class Terminate {//save / retrieve terminate function
+class UTILS_EXPORT Terminate {//save / retrieve terminate function
   
   PVF old;
   public :
+#ifndef WNT
     Terminate( PVF f ) 
       { old = std::set_terminate(f); }
   ~Terminate() { std::set_terminate(old); }
+#else
+    Terminate( PVF f ) 
+      { old = ::set_terminate(f); }
+  ~Terminate() { ::set_terminate(old); }
+#endif
 };
 
 #define UNEXPECT_CATCH(FuncName, ExceptionConstructor) \
@@ -69,7 +95,7 @@ inline void FuncName () {\
 
 
 //Definitions :
-extern void SalomeException();
-extern void SALOME_SalomeException();
+UTILS_EXPORT extern void SalomeException();
+UTILS_EXPORT extern void SALOME_SalomeException();
 
 #endif

@@ -29,7 +29,7 @@ dnl author Patrick GOLDBRONN
 dnl
  
 # AC_ENABLE_PRODUCTION
-AC_DEFUN(AC_ENABLE_PRODUCTION, [dnl
+AC_DEFUN([AC_ENABLE_PRODUCTION], [dnl
 define([AC_ENABLE_PRODUCTION_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE(production,
 changequote(<<, >>)dnl
@@ -68,10 +68,10 @@ fi
 ])
 
 # AC_DISABLE_PRODUCTION - set the default flag to --disable-production
-AC_DEFUN(AC_DISABLE_PRODUCTION, [AC_ENABLE_PRODUCTION(no)])
+AC_DEFUN([AC_DISABLE_PRODUCTION], [AC_ENABLE_PRODUCTION(no)])
 
 # AC_ENABLE_DEBUG
-AC_DEFUN(AC_ENABLE_DEBUG, [dnl
+AC_DEFUN([AC_ENABLE_DEBUG], [dnl
 define([AC_ENABLE_DEBUG_DEFAULT], ifelse($1, no, no, yes))dnl
 AC_ARG_ENABLE(debug,
 changequote(<<, >>)dnl
@@ -102,5 +102,5 @@ fi
 ])
 
 # AC_DISABLE_DEBUG - set the default flag to --disable-debug
-AC_DEFUN(AC_DISABLE_DEBUG, [AC_ENABLE_DEBUG(no)])
+AC_DEFUN([AC_DISABLE_DEBUG], [AC_ENABLE_DEBUG(no)])
 

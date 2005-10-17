@@ -1,4 +1,7 @@
 #include <Launchers.hxx>
+#include "utilities.h"
+
+using namespace std;
 
 static int Launchers_IsLoaded = 0;
 static PyObject * Launchers_module = 0;
@@ -30,8 +33,14 @@ void releaseMainThread(PyThreadState *tstate){
 }
 
 void Launchers_assertInitialized() {
+  MESSAGE("===========================================================");
+  MESSAGE("Launchers_assertInitialized");
+  MESSAGE("===========================================================");
    PyThreadState *_save; 
    if( !Py_IsInitialized() ) {
+     MESSAGE("===========================================================");
+     MESSAGE("Py_Initialize()");
+     MESSAGE("===========================================================");
          Py_Initialize();
          PyEval_InitThreads();
          PyEval_SaveThread();

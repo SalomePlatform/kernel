@@ -493,16 +493,24 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   // duplicate out Parameters
   _length = S_in.ServiceoutParameter.length();
   S_out.ServiceoutParameter.length(_length);
-  
+
+#ifndef WNT  
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_out.ServiceoutParameter[ind2],
 	      S_in.ServiceoutParameter[ind2]);
   
   // duplicate in DataStreamParameters
   _length = S_in.ServiceinDataStreamParameter.length();
   S_out.ServiceinDataStreamParameter.length(_length);
-  
+
+#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_out.ServiceinDataStreamParameter[ind2],
 	      S_in.ServiceinDataStreamParameter[ind2]);
   
@@ -511,7 +519,11 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   if(MYDEBUG) SCRUTE(_length);
   S_out.ServiceoutDataStreamParameter.length(_length);
   
+#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+#else
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
+#endif
     duplicate(S_out.ServiceoutDataStreamParameter[ind2],
 	      S_in.ServiceoutDataStreamParameter[ind2]);
 }

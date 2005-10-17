@@ -22,7 +22,7 @@ dnl
 dnl This macro defines the PYTHON_EMBED_{CFLAGS,LDFLAGS,LIBS} substitutions
 dnl that should be used when embedding the python interpreter into a program.
 dnl AM_INIT_PYTHON_EMBED
-AC_DEFUN(AM_INIT_PYTHON_EMBED,
+AC_DEFUN([AM_INIT_PYTHON_EMBED],
 [AC_REQUIRE([AM_PATH_PYTHON])
 AC_REQUIRE([AM_INIT_PYEXEC_MOD])
 
@@ -75,7 +75,7 @@ dnl table for python.  The first argument should be the output filename.
 dnl The second argument gives the names of all the modules you want to build
 dnl into the executable.
 dnl AM_PYTHON_CREATE_CONFIG_C(CONFIG_C, MODULE ...)
-AC_DEFUN(AM_PYTHON_CREATE_CONFIG_C,
+AC_DEFUN([AM_PYTHON_CREATE_CONFIG_C],
 [AC_REQUIRE([AM_INIT_PYTHON_EMBED])
 AC_MSG_CHECKING(for config.c.in)
 changequote(,)dnl

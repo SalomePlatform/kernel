@@ -34,38 +34,24 @@ using namespace std;
 
 #include "SALOMETraceCollector.hxx"
 #include "TraceCollector_WaitForServerReadiness.hxx"
-//#include "SALOME_Log.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
 
 // Class attributes initialisation, for class method SALOMETraceCollector::run
 
-SALOMETraceCollector* SALOMETraceCollector::_singleton = 0;
-pthread_mutex_t SALOMETraceCollector::_singletonMutex;
-int SALOMETraceCollector::_threadToClose = 0;
-pthread_t SALOMETraceCollector::_threadId = 0; // used to control single run
-int SALOMETraceCollector::_toFile = 0;
-std::string SALOMETraceCollector::_fileName = "";
 CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
 
 // ============================================================================
 /*!
- *  This class replaces LocalTraceCollector, which is to use outside SALOME,
- *  without CORBA.
+ *  This class is for use with CORBA, inside SALOME.
+ *  Type of trace (and corresponding class) is choosen in LocalTraceBufferPool.
  *
- *  guarantees a unique object instance of the class (singleton thread safe)
+ *  Guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
- *  \param typeTrace 0=standard out, 1=file(/tmp/tracetest.log), 2=CORBA log
- *  If typeTrace=0, checks environment for "SALOME_trace". Test values in
- *  the following order:
- *  - "local"  standard out
- *  - "with_logger" CORBA log
- *  - anything else is kept as a file name
  */
 // ============================================================================
 
-SALOMETraceCollector* SALOMETraceCollector::instance(CORBA::ORB_ptr theOrb,
-						   int typeTrace)
+BaseTraceCollector* SALOMETraceCollector::instance()
 {
   if (_singleton == 0) // no need of lock when singleton already exists
     {
@@ -74,33 +60,17 @@ SALOMETraceCollector* SALOMETraceCollector::instance(CORBA::ORB_ptr theOrb,
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
 	  _singleton = new SALOMETraceCollector();
+	  int argc=0;
+	  char *_argv=0;
+	  char ** argv = &_argv;
+	  _orb = CORBA::ORB_init (argc, argv);
 
-	  _fileName = "/tmp/tracetest.log";
-	  _toFile=0;
-	  _orb = theOrb;
-	  if (typeTrace)       // caller sets a value different from default=0
-	    _toFile = typeTrace; 
-	  else                 // check environment
-	    {
-	      char* traceKind = getenv("SALOME_trace");
-	      //cout<<"SALOME_trace="<<traceKind<<endl;
-	      if (traceKind)
-		{
-		  if (strcmp(traceKind,"local")==0) _toFile=0;
-		  else if (strcmp(traceKind,"with_logger")==0) _toFile=2;
-		  else
-		    {
-		      _toFile=1;
-		      _fileName = traceKind;
-		    }	    
-		}
-	    }
-	  //cout <<"_toFile: "<<_toFile<<" _fileName: "<<_fileName<<endl;
-
+	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
 	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   SALOMETraceCollector::run, (void *)bid);
+	  sem_wait(&_sem);
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -120,131 +90,80 @@ SALOMETraceCollector* SALOMETraceCollector::instance(CORBA::ORB_ptr theOrb,
 
 void* SALOMETraceCollector::run(void *bid)
 {
-  int isOKtoRun = 0;
-  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
-  if (! _threadId)  // only one run
+  _threadId = new pthread_t;
+  *_threadId = pthread_self();
+  sem_post(&_sem); // unlock instance
+
+  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+  LocalTrace_TraceInfo myTrace;
+
+  SALOME_Logger::Logger_var m_pInterfaceLogger;
+  CORBA::Object_var obj;
+
+  obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
+  if (!CORBA::is_nil(obj))
+    m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
+  if (CORBA::is_nil(m_pInterfaceLogger))
     {
-      isOKtoRun = 1;
-      _threadId = pthread_self();
+      cerr << "Logger server not found ! Abort" << endl;
+      cerr << flush ; 
+      exit(1);
+    } 
+  else
+    {
+      CORBA::String_var LogMsg =
+	CORBA::string_dup("\n---Init logger trace---\n");
+      m_pInterfaceLogger->putMessage(LogMsg);
+      DEVTRACE("Logger server found");
     }
-  else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
-  if (isOKtoRun)
-    { 
-      _threadId = pthread_self();
-      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-      LocalTrace_TraceInfo myTrace;
+  // --- Loop until there is no more buffer to print,
+  //     and no ask for end from destructor.
 
-      // if trace in file requested, opens a file with append mode
-      // so, several processes can share the same file
-      // if CORBA collection requested, wait for Logger server readiness
-
-      ofstream traceFile;
-      SALOME_Logger::Logger_var m_pInterfaceLogger;
-      CORBA::Object_var obj;
-
-      switch (_toFile)
+  while ((!_threadToClose) || myTraceBuffer->toCollect() )
+    {
+      if (_threadToClose)
 	{
-	case 1 :  // --- trace to file
-	  {
-	    const char *fileName = _fileName.c_str();
-	    traceFile.open(fileName, ios::out | ios::app);
-	    if (!traceFile)
-	      {
-		cerr << "impossible to open trace file "<< fileName << endl;
-		exit (1);
-	      }
-	  }
-	  break;
-	case 2 :  // --- trace collection via CORBA
-	  obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
-	  if (!CORBA::is_nil(obj))
-	    m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
-	  if (CORBA::is_nil(m_pInterfaceLogger))
-	    {
-	      cerr << "Logger server not found ! Abort" << endl;
-	      cerr << flush ; 
-	      exit(1);
-	    } 
-	  else
-	    {
-	      CORBA::String_var LogMsg =
-		CORBA::string_dup("\n---Init logger trace---\n");
-	      m_pInterfaceLogger->putMessage(LogMsg);
-	      //cout << " Logger server found" << endl;
-	    }
-	  break;
-	case 0 : ; // --- trace to standard output
-	default :  // --- on standard output, too
-	  break;
+	  DEVTRACE("SALOMETraceCollector _threadToClose");
+	  //break;
 	}
 
-      // Loop until there is no more buffer to print,
-      // and no ask for end from destructor.
-
-      while ((!_threadToClose) || myTraceBuffer->toCollect() )
+      int fullBuf = myTraceBuffer->retrieve(myTrace);
+      if (!CORBA::is_nil(_orb))
 	{
-	  int fullBuf = myTraceBuffer->retrieve(myTrace);
 	  if (myTrace.traceType == ABORT_MESS)
 	    {
-	      switch (_toFile)
-		{
-		case 2 :  // --- trace collection via CORBA
-		  {
-		    stringstream abortMessage("");
-		    abortMessage << "INTERRUPTION from thread "
-				 << myTrace.threadId << " : " << myTrace.trace;
-		    CORBA::String_var LogMsg =
-		      CORBA::string_dup(abortMessage.str().c_str());
-		    m_pInterfaceLogger->putMessage(LogMsg);
-		    exit(1);
-		  }
-		  break;
-		case 1 :  // --- trace to file
-		  traceFile << "INTERRUPTION from thread " << myTrace.threadId
-			    << " : " <<  myTrace.trace;
-		  traceFile.close();
-		  // no break here !
-		case 0 :  // --- trace to standard output
-		default : // --- on standard output, too
-		  cout << flush ;
-		  cerr << "INTERRUPTION from thread " << myTrace.threadId
-		       << " : " <<  myTrace.trace;
-		  cerr << flush ; 
-		  exit(1);     
-		  break;
-		}
+	      stringstream abortMessage("");
+#ifndef WNT
+	      abortMessage << "INTERRUPTION from thread "
+			   << myTrace.threadId << " : " << myTrace.trace;
+#else
+	      abortMessage << "INTERRUPTION from thread "
+			   << (void*)&myTrace.threadId 
+			   << " : " << myTrace.trace;
+#endif
+	      CORBA::String_var LogMsg =
+		CORBA::string_dup(abortMessage.str().c_str());
+	      m_pInterfaceLogger->putMessage(LogMsg);
+	      exit(1);
 	    }
 	  else
 	    {
-	      switch (_toFile)
-		{
-		case 2 :  // --- trace collection via CORBA
-		  {
-		    stringstream aMessage("");
-		    aMessage << "th. " << myTrace.threadId
-			     << " " << myTrace.trace;
-		    CORBA::String_var LogMsg =
-		      CORBA::string_dup(aMessage.str().c_str());
-		    m_pInterfaceLogger->putMessage(LogMsg);
-		  }
-		  break;
-		case 1 :  // --- trace to file
-		  traceFile << "th. " << myTrace.threadId
-			    << " " << myTrace.trace;
-		  break;
-		case 0 :  // --- trace to standard output
-		default : // --- on standard output, too
-		  cout << "th. " << myTrace.threadId << " " << myTrace.trace;
-		  break;
-		}
+	      stringstream aMessage("");
+#ifndef WNT
+	      aMessage << "th. " << myTrace.threadId
+#else
+		aMessage << "th. " << (void*)&myTrace.threadId
+#endif
+		       << " " << myTrace.trace;
+	      CORBA::String_var LogMsg =
+		CORBA::string_dup(aMessage.str().c_str());
+	      m_pInterfaceLogger->putMessage(LogMsg);
 	    }
 	}
-
-      if (_toFile==1) traceFile.close();
     }
   pthread_exit(NULL);
+  return NULL;
 }
 
 // ============================================================================
@@ -255,16 +174,25 @@ void* SALOMETraceCollector::run(void *bid)
 
 SALOMETraceCollector:: ~SALOMETraceCollector()
 {
-  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-  _threadToClose = 1;
-  myTraceBuffer->insert(NORMAL_MESS,"end of trace "); //needed to wake up thread
-  if (_threadId)
+  int ret;
+  ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  if (_singleton)
     {
-      int ret = pthread_join(_threadId, NULL);
-      if (ret) cout << "error close SALOMETraceCollector : "<< ret << endl;
-      else cout << "SALOMETraceCollector destruction OK" << endl;
+      DEVTRACE("SALOMETraceCollector:: ~SALOMETraceCollector()");
+      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+      _threadToClose = 1;
+      myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
+      if (_threadId)
+	{
+	  int ret = pthread_join(*_threadId, NULL);
+	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
+	  else DEVTRACE("SALOMETraceCollector destruction OK");
+	  _threadId = 0;
+	  _threadToClose = 0;
+	}
+      _singleton = 0;
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
-  delete myTraceBuffer;
 }
 
 // ============================================================================
@@ -277,6 +205,20 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
 SALOMETraceCollector::SALOMETraceCollector()
 {
   _threadId=0;
+  _threadToClose = 0;
 }
 
+// ============================================================================
+/*!
+ * 
+ */
+// ============================================================================
 
+extern "C"
+{
+  BaseTraceCollector *SingletonInstance(void)
+  {
+    BaseTraceCollector *instance = SALOMETraceCollector::instance();
+    return instance;
+  }
+}

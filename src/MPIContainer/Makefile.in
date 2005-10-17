@@ -52,12 +52,15 @@ BIN = SALOME_MPIContainer
 BIN_SRC = 
 BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
+CPPFLAGS+= $(PYTHON_INCLUDES) 
+LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager
 
 ifeq (@WITHMPI@,yes)
+  LIBS += $(PYTHON_LIBS) $(MPI_LIBS)
   CXXFLAGS+=${MPI_INCLUDES}
   CXX_DEPEND_FLAG+=${MPI_INCLUDES}
-  LDFLAGS+= ${MPI_LIBS}
+  LDFLAGSFORBIN= $(LDFLAGS)
+  LIBSFORBIN= $(LIBS)
 endif
 
 @CONCLUDE@

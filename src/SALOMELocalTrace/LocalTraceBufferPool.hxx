@@ -30,11 +30,13 @@
 
 #include <pthread.h>
 #include <semaphore.h>
+#include "BaseTraceCollector.hxx"
+#include "BasicsGenericDestructor.hxx"
 
 #define ABORT_MESS  1   // for traceType field in struct LocalTrace_TraceInfo
 #define NORMAL_MESS 0
 
-struct LocalTrace_TraceInfo
+struct SALOMELOCALTRACE_EXPORT LocalTrace_TraceInfo
 {
   char trace[MAX_TRACE_LENGTH];
   pthread_t threadId;
@@ -42,22 +44,24 @@ struct LocalTrace_TraceInfo
   int position;                  // to check sequence
 };
 
-class LocalTraceBufferPool
+class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool : public PROTECTED_DELETE
 {
  public:
   static LocalTraceBufferPool* instance();
   int insert(int traceType, const char* msg);
   int retrieve(LocalTrace_TraceInfo& aTrace);
   unsigned long toCollect();
-  ~LocalTraceBufferPool();
 
  protected:
   LocalTraceBufferPool();
+  virtual ~LocalTraceBufferPool();
   unsigned long lockedIncrement(unsigned long& pos);
 
  private:
   static LocalTraceBufferPool* _singleton;
   static pthread_mutex_t _singletonMutex;
+  static BaseTraceCollector *_myThreadTrace;
+
   LocalTrace_TraceInfo _myBuffer[TRACE_BUFFER_SIZE];
   sem_t _freeBufferSemaphore;       // to wait until there is a free buffer
   sem_t _fullBufferSemaphore;       // to wait until there is a buffer to print
@@ -65,7 +69,6 @@ class LocalTraceBufferPool
   unsigned long _position;
   unsigned long _insertPos;
   unsigned long _retrievePos;
-  pthread_t _threadId;
 };
 
 #endif

@@ -1,112 +1,54 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
 //  File   : SALOMEDS_StudyManager_i.hxx
-//  Author : Yves FRICAUD
+//  Author : Sergey RUIN
 //  Module : SALOME
-//  $Header$
 
 #ifndef __SALOMEDS_STUDYMANAGER_I_H__
 #define __SALOMEDS_STUDYMANAGER_I_H__
 
 // std C++ headers
-#include <iostream.h>
-#include <stdlib.h>
+#include <iostream>
 
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-// Cascade headers
-#include <TDocStd_Document.hxx>
-#include <TDF_Attribute.hxx>
-#include <TDataStd_Name.hxx>
-#include <TDF_Label.hxx>
-#include <TDocStd_Document.hxx>
-#include <Standard_NotImplemented.hxx>
-
-#include "SALOMEDS_OCAFApplication.hxx"
+// Naming Service header
 #include "SALOME_NamingService.hxx"
 
-// HDF
-#include "HDFOI.hxx"
+#include <stdlib.h>
 
-class SALOMEDS_Study_i;
+//Standard not implemented
+#include <Standard_NotImplemented.hxx>
+#include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDSImpl_StudyManager.hxx"
 
 namespace SALOMEDS{
 
   // To convert IOR from SALOMEDS_IORAttribute to CORBA::Object
-  CORBA::Object_var 
-  GetObject(const TDF_Label&, CORBA::ORB_ptr);
-  
+  /* CORBA::Object_var GetObject(const TDF_Label&, CORBA::ORB_ptr); */
+
   // To convert CORBA::Object to  PortableServer::ServantBase
-  PortableServer::ServantBase_var 
-  GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
-  
-}
+  PortableServer::ServantBase_var GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
 
+}    
 
-class SALOMEDS_StudyManager_i: 
-  public virtual POA_SALOMEDS::StudyManager,
-  public virtual PortableServer::RefCountServantBase 
-{
-  SALOMEDS_StudyManager_i(); // Not implemented
-  void operator=(const SALOMEDS_StudyManager_i&); // Not implemented
-
+class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
+			       public PortableServer::RefCountServantBase {
 private:
-  CORBA::ORB_var _orb;
-  PortableServer::POA_var _poa;
-  SALOME_NamingService _name_service;
-  Handle (SALOMEDS_OCAFApplication) _OCAFApp;  
-  Handle(TDocStd_Document) _clipboard;
-  int _IDcounter;
 
-  // _SaveAs private function called by Save and SaveAs
-  virtual void _SaveAs(const char* aUrl,
-		       SALOMEDS::Study_ptr aStudy,
-		       CORBA::Boolean theMultiFile,
-		       CORBA::Boolean theASCII);
-  // _SaveObject private function called by _SaveAs
-  void _SaveObject(SALOMEDS_Study_i* theStudy, 
-		   SALOMEDS::SObject_ptr SC, 
-		   HDFgroup *hdf_group_datatype);
-  // _SubstituteSlash function called by Open and GetStudyByName
-  virtual std::string _SubstituteSlash(const char *aUrl);
-
-  void _SaveProperties(SALOMEDS_Study_i* theStudy, HDFgroup *hdf_group);
+  CORBA::ORB_ptr                    _orb;
+  PortableServer::POA_var           _poa;
+  Handle(SALOMEDSImpl_StudyManager) _impl;  
+  SALOME_NamingService*             _name_service;
+  SALOMEDS_DriverFactory_i*         _factory; 
 
 public:
+
   //! standard constructor
-  SALOMEDS_StudyManager_i(CORBA::ORB_ptr theORB, PortableServer::POA_ptr thePOA);
+  SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb, PortableServer::POA_ptr thePOA);
 
   //! standard destructor
   virtual  ~SALOMEDS_StudyManager_i(); 
-
-  CORBA::ORB_var GetORB() const { return _orb; }
-
-  PortableServer::POA_var GetPOA() const { return _poa; }
-
-  SALOMEDS_Study_i* DownCast(SALOMEDS::Study_ptr theStudy) const;
 
  //! method to Register study Manager in the naming service
   /*!
@@ -170,26 +112,20 @@ public:
     \return Study_ptr arguments
   */ 
   virtual SALOMEDS::Study_ptr GetStudyByID(CORBA::Short aStudyID) ;
-
-  void CopyLabel(SALOMEDS_Study_i* theSourceStudy, 
-		 const SALOMEDS::Driver_ptr theEngine,
-		 const Standard_Integer theSourceStartDepth,
-		 const TDF_Label& theSource,
-		 const TDF_Label& theDestinationMain);
-
-  TDF_Label PasteLabel(SALOMEDS_Study_i* theDestinationStudy,
-		       const SALOMEDS::Driver_ptr theEngine,
-		       const TDF_Label& theSource,
-		       const TDF_Label& theDestinationStart,
-		       const int theCopiedStudyID,
-		       const bool isFirstElement);
   
   virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean Copy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
   virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
+
+  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject) {return _orb->object_to_string(theObject); }
+  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
   
   void ping(){};
+
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
 };
 
 #endif 

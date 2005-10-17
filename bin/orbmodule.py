@@ -47,7 +47,7 @@ class client:
       try:
           self.rootContext = obj._narrow(CosNaming.NamingContext)
           return
-      except CORBA.COMM_FAILURE:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
           print "Lancement du Naming Service",
           
@@ -62,7 +62,7 @@ class client:
               obj = self.orb.resolve_initial_references("NameService")
               self.rootContext = obj._narrow(CosNaming.NamingContext)
               break
-          except (CORBA.COMM_FAILURE,CORBA.OBJECT_NOT_EXIST):
+          except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
               self.rootContext = None
               sys.stdout.write('+')
               sys.stdout.flush()
@@ -77,15 +77,16 @@ class client:
 
    def showNScontext(self,context,dec=''):
       bl,bi=context.list(0)
-      ok,b=bi.next_one()
-      while(ok):
-         for s in b.binding_name :
-            print "%s%s.%s" %(dec,s.id,s.kind)
-            if s.kind == "dir":
-               obj=context.resolve([s])
-               scontext = obj._narrow(CosNaming.NamingContext)
-               self.showNScontext(scontext,dec=dec+'  ')
+      if bi is not None:
          ok,b=bi.next_one()
+         while(ok):
+            for s in b.binding_name :
+               print "%s%s.%s" %(dec,s.id,s.kind)
+               if s.kind == "dir":
+                  obj=context.resolve([s])
+                  scontext = obj._narrow(CosNaming.NamingContext)
+                  self.showNScontext(scontext,dec=dec+'  ')
+            ok,b=bi.next_one()
 
    # --------------------------------------------------------------------------
 
@@ -112,7 +113,7 @@ class client:
           obj = None
       except CosNaming.NamingContext.CannotProceed, ex:
           obj = None
-      except CORBA.COMM_FAILURE, ex:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
       return obj
 
@@ -155,7 +156,7 @@ class client:
           obj = None
       except CosNaming.NamingContext.CannotProceed, ex:
           obj = None
-      except CORBA.COMM_FAILURE, ex:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
       return obj
    

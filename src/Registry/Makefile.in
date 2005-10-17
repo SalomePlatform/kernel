@@ -46,7 +46,7 @@ LIB = libRegistry.la
 LIB_SRC = \
 	RegistryConnexion.cxx \
 	RegistryService.cxx
-LIB_CLIENT_IDL = SALOME_Registry.idl
+LIB_CLIENT_IDL = SALOME_Registry.idl SALOME_Exception.idl
 
 # Executables targets
 BIN = SALOME_Registry_Server
@@ -55,6 +55,6 @@ BIN_SERVER_IDL = SALOME_Registry.idl
 
 LDFLAGS+= -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
-LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
+LDFLAGSFORBIN= $(LDFLAGS) -lSALOMEBasics
 
 @CONCLUDE@

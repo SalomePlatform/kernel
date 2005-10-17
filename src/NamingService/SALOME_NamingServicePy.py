@@ -64,7 +64,7 @@ class SALOME_NamingServicePy_i:
 	      MESSAGE(" Name service not found")
 	    else:
 	      ok = 1
-	  except CORBA.COMM_FAILURE, ex:
+	  except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
 	    MESSAGE(" Name service not found")
 	  time.sleep(0.25)
 	  steps = steps - 1
@@ -100,8 +100,8 @@ class SALOME_NamingServicePy_i:
                 MESSAGE ( "Register : CosNaming.NamingContext.InvalidName" )
             except CosNaming.NamingContext.CannotProceed, ex:
                 MESSAGE ( "Register : CosNaming.NamingContext.CannotProceed" )
-            except CORBA.COMM_FAILURE, ex:
-                MESSAGE ( "Register : CORBA.COMM_FAILURE" )
+            except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+                MESSAGE ( "Register : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
 
             if _not_exist:
                 # at least one context of the complete path is not created, we had
@@ -132,8 +132,8 @@ class SALOME_NamingServicePy_i:
         except CosNaming.NamingContext.AlreadyBound, ex:
             MESSAGE ( "Register : CosNaming.NamingContext.AlreadyBound, object will be rebind" )
             self._current_context.rebind(_context_name,ObjRef)
-        except CORBA.COMM_FAILURE, ex:
-            MESSAGE ( "Register : CORBA.COMM_FAILURE" )
+        except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+            MESSAGE ( "Register : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
 
             
     #-------------------------------------------------------------------------
@@ -161,8 +161,8 @@ class SALOME_NamingServicePy_i:
         except CosNaming.NamingContext.CannotProceed, ex:
             MESSAGE ( "Resolve : CosNaming.NamingContext.CannotProceed" )
             self._obj = None
-        except CORBA.COMM_FAILURE, ex:
-            MESSAGE ( "Resolve : CORBA.COMM_FAILURE" )
+        except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+            MESSAGE ( "Resolve : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
             self._obj = None
         return self._obj
 
@@ -191,8 +191,8 @@ class SALOME_NamingServicePy_i:
                 MESSAGE ( "Create_Directory : CosNaming.NamingContext.InvalidName" )
             except CosNaming.NamingContext.CannotProceed, ex:
                 MESSAGE ( "Create_Directory : CosNaming.NamingContext.CannotProceed" )
-            except CORBA.COMM_FAILURE, ex:
-                MESSAGE ( "Create_Directory : CORBA.COMM_FAILURE" )
+            except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+                MESSAGE ( "Create_Directory : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
 
  
 

@@ -5,19 +5,44 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)
 
+#if defined WNT && defined COMMUNICATION_EXPORTS
+#define COMMUNICATION_EXPORT __declspec( dllexport )
+#else
+#define COMMUNICATION_EXPORT
+#endif
+
 class SALOMEMultiComm;
 
-class SALOME_Sender_i;
+class SALOME_SenderDouble_i;
+class SALOME_SenderInt_i;
 
 /*!
   This class implements the factory pattern of GoF by making a sender by giving an array and a communicator.It completely hides the type of sender from the user.
  */
-class SenderFactory
+class COMMUNICATION_EXPORT SenderFactory
 {
 public:
-  static SALOME::Sender_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr) throw(MultiCommException);
-  static SALOME::Sender_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr) throw(MultiCommException);
-  static SALOME::Sender_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_Sender_i *src);
+  static SALOME::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false) throw(MultiCommException);
+  static SALOME::SenderInt_ptr buildSender(SALOMEMultiComm &multiCommunicator,const int *tab,long lgr,bool ownTab=false) throw(MultiCommException);
+  static SALOME::SenderDouble_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderDouble_i *src);
+  static SALOME::SenderInt_ptr buildSender(SALOME::TypeOfCommunication NewType,SALOME_SenderInt_i *src);
+};
+
+template<class T>
+struct mapCppSender {
+  typedef T SenderVarType;
+};
+
+template<>
+struct mapCppSender<int>
+{
+  typedef SALOME::SenderInt_var SenderVarType;
+};
+
+template<>
+struct mapCppSender<double>
+{
+  typedef SALOME::SenderDouble_var SenderVarType;
 };
 
 #endif

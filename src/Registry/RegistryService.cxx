@@ -35,7 +35,9 @@ extern "C"
 # include <time.h>
 }
 
+#ifndef WNT
 #include <unistd.h>
+#endif
 using namespace std;
 
 /* ------------------------------*/
@@ -70,7 +72,11 @@ RegistryService::~RegistryService()
 	_Compteur = -1 ;
 	if ( _SessionName )
 	{
+#ifndef WNT
 		delete [] _SessionName ;
+#else
+		delete [] (char*)_SessionName ;
+#endif
 		_SessionName = 0 ;
 	}
 	END_OF("RegistryService::~RegistryService()") ;
@@ -104,8 +110,11 @@ CORBA::ULong RegistryService::add( const Registry::Infos & infos )
 	return (CORBA::ULong)_Compteur ;
 }
 
-
+#ifndef WNT
 void RegistryService::remove( const CORBA::ULong id)
+#else
+void RegistryService::remove( CORBA::ULong id)
+#endif
 {
 	BEGIN_OF("RegistryService::remove") ;
 	SCRUTE(id) ;
@@ -129,8 +138,11 @@ void RegistryService::remove( const CORBA::ULong id)
 }
 
 
-
+#ifndef WNT
 void RegistryService::hello( const CORBA::ULong id )
+#else
+void RegistryService::hello( CORBA::ULong id )
+#endif
 {
 	BEGIN_OF("RegistryService::hello") ;
 	SCRUTE(id) ;

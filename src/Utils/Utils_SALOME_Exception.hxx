@@ -34,8 +34,21 @@
 
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
 
-class SALOME_Exception : public std::exception
+class UTILS_EXPORT SALOME_Exception : public std::exception
 {
 
 private :

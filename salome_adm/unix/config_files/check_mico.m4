@@ -84,7 +84,12 @@ fi
 
 if test "x$mico_ok" = "xyes" 
 then
-  MICO_LDFLAGS="-L$MICO_LIB"
+  if test "x$MICO_LIB" = "x/usr/lib"
+  then
+    MICO_LDFLAGS=""
+  else
+    MICO_LDFLAGS="-L$MICO_LIB"
+  fi
 
   LIBS_old=$LIBS
   MICO_LIBS="$MICO_LDFLAGS -lmico$MICO_VERSION -ldl"
