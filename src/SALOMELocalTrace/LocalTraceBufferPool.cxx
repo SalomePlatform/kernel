@@ -82,10 +82,10 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
-	  _singleton = new LocalTraceBufferPool(); 
+	 LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
 
   	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
-  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*_singleton);
+  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
 
 	  // --- start a trace Collector
 
@@ -140,6 +140,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		  exit(1);        // in case assert is deactivated
 		}	      
 	    }
+	  _singleton = myInstance;
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }

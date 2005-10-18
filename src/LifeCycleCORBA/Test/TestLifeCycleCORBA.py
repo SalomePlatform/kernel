@@ -3,6 +3,7 @@ import sys, os,signal,string,commands
 import runSalome
 import orbmodule
 import TestKiller
+import addToKillList
 
 # get SALOME environment :
 
@@ -62,6 +63,8 @@ import Engines
 containerManager = clt.waitNS("/ContainerManager",Engines.ContainerManager)
 containerManager.Shutdown()
 
-# kill Test process 
+# kill Test process
+
+addToKillList.killList()
 
 TestKiller.killProcess(runSalome.process_id)

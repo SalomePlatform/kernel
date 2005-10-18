@@ -262,6 +262,7 @@ void Engines_Container_i::Shutdown()
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
     {
+      MESSAGE("Effective Shutdown of container Begins...");
       LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
       bp1->deleteInstance(bp1);
       _orb->shutdown(0);

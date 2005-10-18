@@ -52,7 +52,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
-	  _singleton = new LocalTraceCollector();
+	  BaseTraceCollector* myInstance = new LocalTraceCollector();
 
 	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
@@ -60,6 +60,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
 	  int re2 = pthread_create(&traceThread, NULL,
 				   LocalTraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
+	  _singleton = myInstance; // _singleton known only when init done
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }

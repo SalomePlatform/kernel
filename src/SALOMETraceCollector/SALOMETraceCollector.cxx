@@ -59,7 +59,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
-	  _singleton = new SALOMETraceCollector();
+	  BaseTraceCollector* myInstance = new SALOMETraceCollector();
 	  int argc=0;
 	  char *_argv=0;
 	  char ** argv = &_argv;
@@ -71,6 +71,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 	  int re2 = pthread_create(&traceThread, NULL,
 				   SALOMETraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
+	  _singleton = myInstance; // _singleton known only when init done
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }

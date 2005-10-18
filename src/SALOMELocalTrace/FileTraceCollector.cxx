@@ -57,7 +57,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
 	  DEVTRACE("FileTraceCollector:: instance()");
-	  _singleton = new FileTraceCollector();
+	  BaseTraceCollector* myInstance = new FileTraceCollector();
 	  _fileName = fileName;
 	  DEVTRACE(" _fileName: " << _fileName);
 
@@ -67,6 +67,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 	  int re2 = pthread_create(&traceThread, NULL,
 				   FileTraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
+	  _singleton = myInstance; // _singleton known only when init done
 	  DEVTRACE("FileTraceCollector:: instance()-end");
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock

@@ -97,7 +97,11 @@ void SALOME_ContainerManager::ShutdownContainers()
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
       if(!CORBA::is_nil(cont))
-	cont->Shutdown();
+	{
+	  MESSAGE("ShutdownContainers: " << (*iter));
+	  cont->Shutdown();
+	}
+      else MESSAGE("ShutdownContainers: no container ref for " << (*iter));
     }
 }
 
