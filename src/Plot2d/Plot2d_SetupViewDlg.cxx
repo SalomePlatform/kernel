@@ -81,6 +81,7 @@ Plot2d_SetupViewDlg::Plot2d_SetupViewDlg( QWidget* parent, bool showDefCheck )
   // background color
   QLabel* aBGLab  = new QLabel( tr( "PLOT2D_BACKGROUND_COLOR_LBL" ), this );
   myBackgroundBtn = new QToolButton( this );
+  myBackgroundBtn->setMinimumWidth( 20 );
   // scale mode
   QGroupBox* aScaleGrp = new QGroupBox( tr( "PLOT2D_SCALE_TLT" ), this );
   aScaleGrp->setColumnLayout(0, Qt::Vertical );
