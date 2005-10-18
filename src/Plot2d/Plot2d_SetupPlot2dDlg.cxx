@@ -213,7 +213,7 @@ void Plot2d_SetupPlot2dDlg::getCurvesSource( int& horIndex, QValueList<int>& ver
 {
   /* collecting horizontal and vertical axis items */
   horIndex = -1;
-  int i, j;
+  int i;
   for ( i = 0; i < myItems.count(); i++ ) {
     if ( myItems.at( i )->isHorizontalOn() ) {
       horIndex = i;
@@ -500,6 +500,7 @@ void Plot2d_ItemContainer::createWidgets( QWidget* parentWidget )
   myMarkerCombo->setCurrentItem( 1 ); // CIRCLE by default
 
   myColorBtn = new QToolButton( parentWidget );
+  myColorBtn->setMinimumWidth( 20 );
 
   connect( myAutoCheck, SIGNAL( clicked() ),       this, SLOT( onAutoChanged() ) );
   connect( myColorBtn,  SIGNAL( clicked() ),       this, SLOT( onColorChanged() ) );
