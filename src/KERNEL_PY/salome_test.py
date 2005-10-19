@@ -272,10 +272,10 @@ def addStudy(ior):
     anIOR.SetValue(dataflow.getIOR())
 
 import os
-dir= os.getenv("SUPERV_ROOT_DIR")
+dir= os.getenv("DATA_DIR")
 if dir == None:
-	raise RuntimeError, "SUPERV_ROOT_DIR is not defined"
-xmlfile = dir +"/examples/GraphGeomEssai.xml"
+	raise RuntimeError, "DATA_DIR is not defined"
+xmlfile = dir +"/Superv/Graphs/GraphGeomEssai.xml"
 print "Load dataflow from the file : "
 print xmlfile
 print

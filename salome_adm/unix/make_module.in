@@ -58,10 +58,10 @@ resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
 	cp -fr $< $@;
 
-data:
-	@if test "X$(top_builddir)" = "X."; then							 \
-	((cd examples && $(MAKE) $@) || exit 1);			 \
-	fi;
+#data:
+#	@if test "X$(top_builddir)" = "X."; then							 \
+#	((cd examples && $(MAKE) $@) || exit 1);			 \
+#	fi;
 # Commented because we need not to make docs when we make BUILD 	
 # docs:	
 #	@if test "X$(top_builddir)" = "X."; then \

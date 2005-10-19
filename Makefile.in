@@ -14,7 +14,7 @@ VPATH=.:@srcdir@:@top_srcdir@/bin:./bin/salome:@top_srcdir@/resources:./bin:@top
 
 @COMMENCE@
 
-SUBDIRS = idl src examples doc salome_adm
+SUBDIRS = idl src doc salome_adm
 
 RESOURCES_FILES = \
 CatalogDataType.xml \
