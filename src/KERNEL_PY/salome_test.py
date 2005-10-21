@@ -432,7 +432,7 @@ import VISU
 import visu_gui
 
 medFileName = "pointe.med"
-medFile = os.getenv('KERNEL_ROOT_DIR') + '/examples/' + medFileName
+medFile = os.getenv('DATA_DIR') + '/MedFiles/' + medFileName
 print "Load ", medFile
 
 studyCurrent = salome.myStudyName
