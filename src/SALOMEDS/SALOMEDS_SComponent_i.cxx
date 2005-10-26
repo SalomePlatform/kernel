@@ -129,8 +129,10 @@ CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
   SALOMEDS::Locker lock;
 
   Handle(SALOMEDS_IORAttribute) ior;
-  if (!_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),ior) )
-      return false;
+  if (!_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(),ior)) {
+    IOR = CORBA::string_dup("");
+    return false;
+  }
   TCollection_AsciiString ch(ior->Get());
   IOR = CORBA::string_dup(ch.ToCString());
   return true;
