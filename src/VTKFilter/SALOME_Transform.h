@@ -36,8 +36,10 @@ class VTK_EXPORT SALOME_Transform : public vtkTransform{
   static SALOME_Transform *New();
   vtkTypeMacro(SALOME_Transform,vtkTransform);
 
-  void SetScale(float theScaleX, float theScaleY, float theScaleZ);
+  //void SetScale(float theScaleX, float theScaleY, float theScaleZ);
   int IsIdentity();
+  void SetMatrixScale(double theScaleX, double theScaleY, double theScaleZ);
+  void GetMatrixScale(double theScale[3]);
 
 protected:
   SALOME_Transform() {}

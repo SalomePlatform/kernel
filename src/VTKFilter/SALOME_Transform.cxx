@@ -33,17 +33,44 @@
 
 using namespace std;
 
+static double EPS = 10e-4;
+
 vtkStandardNewMacro(SALOME_Transform);
 
-void SALOME_Transform::SetScale(float theScaleX, float theScaleY, float theScaleZ){ 
+//void SALOME_Transform::SetScale(float theScaleX, float theScaleY, float theScaleZ){ 
+//  double aMatrix[16] = {theScaleX,0,0,0, 
+//                        0,theScaleY,0,0, 
+//                        0,0,theScaleZ,0, 
+//                        0,0,0,1.0000000};
+//  vtkTransform::SetMatrix(aMatrix);
+//}
+
+/*!Sets matrix scale.*/
+void SALOME_Transform::SetMatrixScale(double theScaleX, double theScaleY, double theScaleZ){ 
   double aMatrix[16] = {theScaleX,0,0,0, 
                         0,theScaleY,0,0, 
                         0,0,theScaleZ,0, 
                         0,0,0,1.0000000};
-  vtkTransform::SetMatrix(aMatrix);
+  this->SetMatrix(aMatrix);
+}
+
+/*!Gets matrix scale.*/
+void SALOME_Transform::GetMatrixScale(double theScale[3]){
+  vtkMatrix4x4 *aTMatrix=this->GetMatrix();
+  const double aScaleX = aTMatrix->GetElement(0,0);
+  const double aScaleY = aTMatrix->GetElement(1,1);
+  const double aScaleZ = aTMatrix->GetElement(2,2);
+  theScale[0] = aScaleX;
+  theScale[1] = aScaleY;
+  theScale[2] = aScaleZ;
 }
 
 int SALOME_Transform::IsIdentity(){ 
-  float* aScale = GetScale();
-  return (aScale[0] == 1.0 && aScale[1] == 1.0 && aScale[2] == 1.0);
+  //float* aScale = GetScale();
+  //return (aScale[0] == 1.0 && aScale[1] == 1.0 && aScale[2] == 1.0);
+  double aScale[3];
+  this->GetMatrixScale(aScale);
+  return (fabs(aScale[0] - 1.0) < EPS && 
+	  fabs(aScale[1] - 1.0) < EPS && 
+	  fabs(aScale[2] - 1.0) < EPS);
 }

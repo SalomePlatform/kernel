@@ -608,11 +608,11 @@ void VTKViewer_ViewFrame::Repaint(bool theUpdateTrihedron)
 }
 
 void VTKViewer_ViewFrame::GetScale(double theScale[3]){
-  m_Transform->GetScale(theScale);
+  m_Transform->GetMatrixScale(theScale);
 }
 
 void VTKViewer_ViewFrame::SetScale(double theScale[3]){
-  m_Transform->SetScale(theScale[0], theScale[1], theScale[2]);
+  m_Transform->SetMatrixScale(theScale[0], theScale[1], theScale[2]);
   m_RWInteractor->Render();
   Repaint();
 }
