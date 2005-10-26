@@ -730,12 +730,12 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	      
 	      Engines::Component_var aComp =
 		SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component(aFactoryType, aCompType);
-		
+
 	      if(aComp->_is_nil()){
-		Engines::Component_var aComp =
-		  SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
+		aComp =
+                  SALOME_LifeCycleCORBA(&_name_service).FindOrLoad_Component("FactoryServerPy", aCompType);
 	      }
-		
+
 	      if(!aComp->_is_nil()){
 		SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(aComp);
 		if (!CORBA::is_nil(aDriver)) {
