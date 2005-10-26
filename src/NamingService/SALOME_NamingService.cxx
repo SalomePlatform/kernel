@@ -677,7 +677,8 @@ void SALOME_NamingService::list()
   unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
   CosNaming::Binding_var _binding ;
   CosNaming::NamingContext_var _ref_context = _current_context;
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
+  _current_context->list(nb, _binding_list, _binding_iterator);
+  if (_binding_iterator->_is_nil()) return;
 
   while (_binding_iterator->next_one(_binding)) {
     CosNaming::Name _bindingName = _binding->binding_name;
@@ -1202,7 +1203,8 @@ void SALOME_NamingService::_Find(const char* name,
   CosNaming::NamingContext_var _ref_context = _current_context;
   CosNaming::NamingContext_var _found_context = _current_context;
 
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
+  _current_context->list(nb, _binding_list, _binding_iterator);
+  if (_binding_iterator->_is_nil()) return;
 
   while (_binding_iterator->next_one(_binding)) {
     CosNaming::Name _bindingName = _binding->binding_name;
@@ -1283,7 +1285,8 @@ SALOME_NamingService::_current_directory(char** result_path,
   CosNaming::NamingContext_var _ref_context = _current_context;
   CosNaming::NamingContext_var _temp_context = _current_context;
  
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
+  _current_context->list(nb, _binding_list, _binding_iterator);
+  if (_binding_iterator->_is_nil()) return;
 
   while ((_binding_iterator->next_one(_binding)) && _continue) {
     CosNaming::Name _bindingName = _binding->binding_name;
@@ -1357,7 +1360,9 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const 
     }
   else
     absDir=(char *)absCurDirectory;
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
+
+  _current_context->list(nb, _binding_list, _binding_iterator);
+  if (_binding_iterator->_is_nil()) return;
 
   while (_binding_iterator->next_one(_binding)) {
     CosNaming::Name _bindingName = _binding->binding_name;
