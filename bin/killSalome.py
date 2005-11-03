@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-import os, string, sys
+import os, string, sys, re
 
-from killSalomeWithPort import killMyPort
+from killSalomeWithPort import killMyPort, getPiDict
 
 def killAllPorts():
     user = os.getenv('USER')
+    filedict = "^%s$"%(getPiDict('(\d*)',full=False))
+    fnamere = re.compile(filedict)
     for file in os.listdir(os.getenv("HOME")):
-        l = string.split(file, "_")
-        if len(l) >= 4:
-            if file[:len(user)] == user:
-                if l[len(l)-2] == "SALOME" and l[len(l)-1] == "pidict":
-                    killMyPort(l[len(l)-3])
+        mo = re.match(fnamere,file)
+        if mo and len(mo.groups()):
+            killMyPort(mo.groups()[0])
         pass
 
 if __name__ == "__main__":

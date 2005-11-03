@@ -673,10 +673,10 @@ def useSalome(args, modules_list, modules_root_dir):
         print "--- erreur au lancement Salome ---"
         
     #print process_id
-    
-    filedict = os.getenv("HOME") + '/' + os.getenv('USER') + "_" + str(args['port']) \
-             + '_' + args['appname'].upper() + '_pidict'
-   
+
+    from killSalomeWithPort import getPiDict
+    filedict = getPiDict(args['port'], args['appname'])
+
     process_ids = []
     try:
         fpid=open(filedict, 'r')

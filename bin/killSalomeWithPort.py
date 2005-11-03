@@ -1,9 +1,22 @@
 #!/usr/bin/env python
 import os, sys, pickle, signal, commands
 
+def getPiDict(port,appname='salome',full=True):
+    filedict = []
+    filedict.append( os.getenv('USER') )          # user name
+    filedict.append( os.getenv('HOSTNAME') )      # host name
+    filedict.append( str(port) )                  # port number
+    filedict.append( appname.upper() )            # application name
+    filedict.append( 'pidict' )                   # constant part
+
+    filedict = '_'.join(filedict)
+    if full:
+        filedict = os.getenv("HOME") + '/' + filedict
+    return filedict
+
 ########## kills all salome processes with the given port ##########
 def killMyPort(port):
-    filedict=os.getenv("HOME")+'/'+os.getenv('USER')+"_"+port+'_SALOME_pidict'
+    filedict=getPiDict(port)
     found = 0
     try:
         fpid=open(filedict, 'r')
