@@ -67,7 +67,7 @@ hdf_err HDFdatasetClose(hdf_idt id);
 
 extern
 hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
-			 hdf_size *dimd, int ndim);
+			 hdf_size *dimd, int ndim, hdf_byte_order order);
 
 extern
 hdf_err HDFdatasetWrite(hdf_idt id, void *val);
@@ -86,6 +86,9 @@ hdf_err HDFdatasetGetDim(hdf_idt id,hdf_size dim[]);
 
 extern
 int HDFdatasetGetSize(hdf_idt id);
+
+extern 
+hdf_byte_order HDFdatasetGetOrder(hdf_idt id);
 
 /* Attribute interface */
 extern

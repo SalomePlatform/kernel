@@ -29,7 +29,8 @@ def findFileDict():
     
 def addToKillList(command_pid, command):
     my_port = findFileDict()
-    filedict=os.getenv("HOME")+'/'+os.getenv('USER')+"_"+str(my_port)+'_SALOME_pidict'
+    from killSalomeWithPort import getPiDict
+    filedict=getPiDict(my_port)
     try:
         fpid=open(filedict, 'r')
         process_ids=pickle.load(fpid)
@@ -64,7 +65,8 @@ def addToKillList(command_pid, command):
 
 def killList():
     my_port = findFileDict()
-    filedict=os.getenv("HOME")+'/'+os.getenv('USER')+"_"+str(my_port)+'_SALOME_pidict'
+    from killSalomeWithPort import getPiDict
+    filedict=getPiDict(my_port)
     try:
         fpid=open(filedict, 'r')
         process_ids=pickle.load(fpid)

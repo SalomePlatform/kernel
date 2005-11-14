@@ -44,7 +44,7 @@ herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 }
 
 HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
-		       hdf_size dim[], int dimsize)
+		       hdf_size dim[], int dimsize, hdf_byte_order order)
   : HDFinternalObject(name)
 {
   int i;
@@ -55,6 +55,7 @@ HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type,
   _type = type;
   _ndim = dimsize;
   _dim = new hdf_size[dimsize];
+  _byte_order = order;
   _size = 1;
   _attribute = NULL;
   for (i=0;i<dimsize;i++)
@@ -74,6 +75,7 @@ HDFdataset::HDFdataset(char *name,HDFcontainerObject *father)
   _type = HDF_NONE;
   _ndim = -1;
   _dim = 0;
+  _byte_order = H5T_ORDER_ERROR;
   _size = -1;
   _attribute = NULL;
 }
@@ -85,7 +87,7 @@ HDFdataset::~HDFdataset()
 
 void HDFdataset::CreateOnDisk()
 {
-  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim)) < 0)
+  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim,_byte_order)) < 0)
     throw HDFexception("Can't create dataset");
 }
 
@@ -196,6 +198,14 @@ int HDFdataset::GetSize()
     }
 
   return _size;
+}
+
+hdf_byte_order HDFdataset::GetOrder()
+{
+  if (_byte_order < 0 )
+    if ((_byte_order = HDFdatasetGetOrder( _id )) < 0)
+      throw HDFexception("Can't determine the byte order of the dataset");
+  return _byte_order;
 }
 
 hdf_object_type HDFdataset::GetObjectType()

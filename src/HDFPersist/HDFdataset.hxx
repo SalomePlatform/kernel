@@ -42,13 +42,14 @@ private :
   hdf_idt _fid;
   hdf_type _type;
   hdf_size *_dim;
+  hdf_byte_order _byte_order;
   int _size;
   int _ndim;
   char* _attribute;
 
 public:
   HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
-	     hdf_size dim[],int dimsize);
+	     hdf_size dim[],int dimsize, hdf_byte_order order = H5T_ORDER_NONE);
 
   HDFdataset(char *name,HDFcontainerObject *father);
   virtual ~HDFdataset();
@@ -66,6 +67,7 @@ public:
   void GetDim(hdf_size dim[]);
   int GetSize();
   hdf_object_type GetObjectType();
+  hdf_byte_order GetOrder();
 
   int nAttributes();
   char* GetAttributeName(unsigned idx);

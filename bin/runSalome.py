@@ -660,12 +660,10 @@ def useSalome(args, modules_list, modules_root_dir):
         print "--- erreur au lancement Salome ---"
         
     #print process_id
-    
-#    filedict = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
-#             + '_' + args['appname'].upper() + '_pidict'
-# replaced args['appname'] by "SALOME" because in killSalome.py use of 'SALOME' in file name is hardcoded.
-    filedict = os.getenv("HOME") + '/' + os.getenv('USER') + "_" + str(args['port']) \
-               + '_' + 'SALOME' + '_pidict'   
+
+    from killSalomeWithPort import getPiDict
+    filedict = getPiDict(args['port'])
+
     process_ids = []
     try:
         fpid=open(filedict, 'r')

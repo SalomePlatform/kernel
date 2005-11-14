@@ -41,6 +41,7 @@ typedef hsize_t        hdf_size;
 typedef hid_t          hdf_idt;
 typedef herr_t         hdf_err;
 typedef hbool_t        hdf_bool;
+typedef H5T_order_t    hdf_byte_order;
 
 typedef int            hdf_int32;
 typedef long           hdf_int64;

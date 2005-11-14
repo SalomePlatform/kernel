@@ -73,6 +73,8 @@ relative to ${HOME}.
 The directory is only a skeleton, the user has to edit several files to
 configure his own application.
 
+---- Liste des fichiers a modifier
+
 Directory ${APPLI} must be created on each computer of the application.
 The easiest way is to use the same relative path (to ${HOME}) on each computer.
 (Sometimes it is not possible to use the same path everywhere, for instance
@@ -86,6 +88,7 @@ scripts are in the ${APPLI}/env.d directory.
 The script  ${APPLI}/envd sources **all** the files in ${APPLI}/env.d in
 alphanumeric order (after edition, think to remove backup files). the envd
 script is used by run scripts.
+
 
 2.1 Proposal for env.d scripts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,6 +104,7 @@ envProducts.sh
 
 envSALOME.sh
     Sets all the MODULE_ROOT_DIR that can be used in the SALOME application.
+SalomeAppConfig
 
 2.2 User run scripts
 ~~~~~~~~~~~~~~~~~~~~

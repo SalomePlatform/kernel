@@ -71,6 +71,7 @@ LIB_SRC =  \
 	HDFdatasetGetSize.c \
 	HDFdatasetGetType.c \
 	HDFdatasetGetnDim.c \
+	HDFdatasetGetOrder.c \
 	HDFattrOpen.c \
 	HDFattrClose.c \
 	HDFattrWrite.c \
@@ -96,7 +97,6 @@ LIB_SRC =  \
 #BIN = test9 test8
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES) -DPCLINUX
-LDFLAGS+= $(CAS_LDPATH) -lTKernel $(HDF5_LIBS)
-
+LDFLAGS+= $(CAS_KERNEL) $(HDF5_LIBS)
 
 @CONCLUDE@

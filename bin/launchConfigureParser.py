@@ -49,7 +49,7 @@ def version():
     root_dir = os.environ.get( 'GUI_ROOT_DIR', root_dir )  # GUI_ROOT_DIR or KERNEL_ROOT_DIR or "" if both not found
     filename = root_dir+'/bin/salome/VERSION'
     str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
-    match = re.search( r':\s+([\d\.]+)\s*$', str )
+    match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
     if match :
         return match.group( 1 )
     return ''

@@ -31,9 +31,12 @@ AC_LANG_CPLUSPLUS
 AC_SUBST(CAS_CPPFLAGS)
 AC_SUBST(CAS_CXXFLAGS)
 AC_SUBST(CAS_KERNEL)
+AC_SUBST(CAS_MATH)
 AC_SUBST(CAS_VIEWER)
+AC_SUBST(CAS_TKTopAlgo)
 AC_SUBST(CAS_MODELER)
 AC_SUBST(CAS_OCAF)
+AC_SUBST(CAS_OCAFVIS)
 AC_SUBST(CAS_DATAEXCHANGE)
 AC_SUBST(CAS_LDFLAGS)
 AC_SUBST(CAS_LDPATH)
@@ -211,35 +214,25 @@ if test "x$occ_ok" = xno ; then
   AC_MSG_WARN(Opencascade libraries not found)
 else
   AC_MSG_RESULT(yes)
-  CAS_KERNEL="$CAS_LDPATH -lTKernel -lTKMath"
+  CAS_KERNEL="$CAS_LDPATH -lTKernel"
+  CAS_MATH="$CAS_LDPATH -lTKMath"
 
-  # E.A. compatibility version 4 and 5.x  
-  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKPShape -lTKCDF -lTKCAF -lTKShapeSchema -lTKPCAF -lFWOSPlugin -lTKStdSchema"
-  if test $OCC_VERSION_MAJOR -lt 5 ; then
-    CAS_OCAF="$CAS_OCAF -lTKPAppStd"
-  fi
-  if test -f $CASROOT/$casdir/lib/libPAppStdPlugin.so ; then
-    # this library is absent in CASCADE 5.2.3
-    CAS_OCAF="$CAS_OCAF -lPAppStdPlugin"
-    CAS_STDPLUGIN="PAppStdPlugin"
-  fi
-  if test -f $CASROOT/$casdir/lib/libStdPlugin.so ; then
-    # this libraries are only for CASCADE 5.2.3
-    CAS_STDPLUGIN="StdPlugin"
-    CAS_OCAF="$CAS_OCAF -lStdPlugin -lStdLPlugin -lTKLCAF -lTKPLCAF -lTKStdLSchema"
-  fi
+  CAS_OCAF="$CAS_LDPATH -lTKernel -lTKCDF -lTKLCAF"
+  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lStdPlugin"
   
-  CAS_VIEWER="$CAS_LDPATH -lTKOpenGl -lTKV3d -lTKService"
-  CAS_MODELER="$CAS_LDPATH -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep -lTKGeomAlgo -lTKTopAlgo -lTKPrim -lTKBO -lTKBool -lTKHLR -lTKFillet -lTKOffset -lTKFeat"
+  CAS_TKV3d="$CAS_LDPATH -lTKV3d"
+  CAS_VIEWER="$CAS_TKV3d -lTKService"
 
-  # E.A. compatibility version 4 and 5.x  
-  CAS_DATAEXCHANGE="$CAS_LDPATH -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing"
-  if test $OCC_VERSION_MAJOR -lt 5 ; then
-    CAS_DATAEXCHANGE="$CAS_DATAEXCHANGE -lTKShHealingStd"
-  fi
+  CAS_TKBRep="$CAS_LDPATH -lTKG2d -lTKG3d -lTKGeomBase -lTKBRep"
 
+  CAS_TKTopAlgo="$CAS_TKBRep -lTKGeomAlgo -lTKTopAlgo"
+  CAS_TKPrim="$CAS_TKTopAlgo -lTKPrim"
+  
+  CAS_MODELER="$CAS_TKPrim -lTKBO -lTKBool -lTKHLR -lTKFillet -lTKOffset -lTKFeat"
 
-  CAS_LDFLAGS="$CAS_KERNEL $CAS_OCAF $CAS_VIEWER $CAS_MODELER $CAS_DATAEXCHANGE"  
+  CAS_DATAEXCHANGE="$CAS_LDPATH -lTKIGES -lTKSTEP"
+
+  CAS_LDFLAGS="$CAS_KERNEL $CAS_MATH $CAS_OCAF $CAS_OCAFVIS $CAS_VIEWER $CAS_MODELER $CAS_DATAEXCHANGE"  
 
 fi
 

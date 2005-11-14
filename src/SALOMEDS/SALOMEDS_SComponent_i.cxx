@@ -72,7 +72,10 @@ CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
 {
   SALOMEDS::Locker lock;
   TCollection_AsciiString ior;
-  if(!Handle(SALOMEDSImpl_SComponent)::DownCast(_impl)->ComponentIOR(ior)) return false;
+  if(!Handle(SALOMEDSImpl_SComponent)::DownCast(_impl)->ComponentIOR(ior)) {
+    IOR = CORBA::string_dup("");
+    return false;
+  }
   IOR = CORBA::string_dup(ior.ToCString());
   return true;
 }

@@ -220,7 +220,8 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   long ndim = hdf_dataset->nDim(); //Get number of dimesions
   hdf_size *dim = new hdf_size[ndim];
   hdf_type type = hdf_dataset->GetType();
-  int nbAttr = hdf_dataset->nAttributes(), j; 
+  hdf_byte_order order = hdf_dataset->GetOrder();
+  int nbAttr = hdf_dataset->nAttributes(); 
 
   TCollection_AsciiString anIdent(ident, '\t');
   TCollection_AsciiString anIdentChild(ident+1, '\t');
@@ -247,7 +248,8 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   delete dim;
 
   /*fprintf(fp, "%s%li:", anIdentChild.ToCString(), size);*/
-  fprintf(fp, "%li:", size);
+//   fprintf(fp, "%li:", size);
+  fprintf(fp, "%li %i:", size, order);
 
   if (type == HDF_STRING) {	
     char* val = new char[size];
@@ -507,6 +509,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
 {
   char name[HDF_NAME_MAX_LEN+1];
   hdf_type type;
+  hdf_byte_order order;
   int nbDim, nbAttr;
   long i, size;
 
@@ -522,14 +525,21 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     sizeArray[i] = dim;
   }
  
-  HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim);
+  // order (2-d member) was not written in earlier versions
+  char tmp;
+  int nbRead = fscanf(fp, "%li %i%c", &size, &order, &tmp);
+  if ( nbRead < 2 ) { // fscanf stops before ":"
+    fscanf(fp, "%c", &tmp);
+    order = H5T_ORDER_NONE;
+  }
+  if ( type != HDF_FLOAT64 )  // use order only for FLOAT64
+    order = H5T_ORDER_NONE;
+
+  HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim, order);
   delete new_name;
   delete sizeArray;
 
   hdf_dataset->CreateOnDisk();
-
-  char tmp;
-  fscanf(fp, "%li%c", &size, &tmp);
 
   if (type == HDF_STRING) {	
     char *val = new char[size+1];

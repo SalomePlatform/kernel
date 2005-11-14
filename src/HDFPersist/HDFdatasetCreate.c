@@ -36,17 +36,18 @@ Module : SALOME
  *     - name (IN)     : dataset name
  *     - type (IN)     : dataset type (HDF_STRING,HDF_INT32,HDF_INT64,HDF_FLOAT64)
  *     - dimd (IN)     : dataset size
+ *     - order(IN)     : byte order (H5T_ORDER_NONE, H5T_ORDER_LE, H5T_ORDER_BE)
  * - Result : 
  *     - if success : returns dataset ID
  *     - if failure : -1
  */ 
 
 hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
-			 hdf_size *dimd, int ndim)
+			 hdf_size *dimd, int ndim, hdf_byte_order order)
 {
   hdf_idt dataset, dataspace = 0;
   hdf_err ret;
-  int type_hdf;
+  hdf_idt type_hdf, new_type_hdf = -1;
 
   switch(type)
     {
@@ -71,9 +72,9 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
       break;
 
     case HDF_STRING :           
-      if((type_hdf = H5Tcopy(H5T_C_S1)) < 0)
+      if((new_type_hdf = H5Tcopy(H5T_C_S1)) < 0)
 	return -1;
-      if((ret = H5Tset_size(type_hdf,1)) < 0)
+      if((ret = H5Tset_size(new_type_hdf,1)) < 0)
 	return -1;
       break;
 
@@ -81,18 +82,33 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
       return -1;
     }
 
+  /* set order */
+  if ( order != H5T_ORDER_ERROR && 
+       order != H5T_ORDER_NONE && 
+       type  != HDF_STRING )
+    {
+      if (( new_type_hdf = H5Tcopy( type_hdf )) < 0 )
+        return -1;
+      if (( ret = H5Tset_order (new_type_hdf, order )) < 0 )
+        return -1;
+    }
+
   if ((dataset = H5Dopen(pid,name)) < 0)
     {
       if ((dataspace = H5Screate_simple(ndim, dimd, NULL)) < 0)								
 	return -1;
-      if ((dataset = H5Dcreate(pid,name,type_hdf,dataspace, H5P_DEFAULT)) < 0)
+      if ((dataset = H5Dcreate(pid,name,
+                               new_type_hdf < 0 ? type_hdf : new_type_hdf,
+                               dataspace, H5P_DEFAULT)) < 0)
 	return -1;
     }
   else
     return -1;
 
+  if ( ! (new_type_hdf < 0) && (ret = H5Tclose(new_type_hdf)) < 0)
+    return -1;
   if ((ret = H5Sclose(dataspace)) < 0)
-    return -1;           
+    return -1;
 
   return dataset;
 }
