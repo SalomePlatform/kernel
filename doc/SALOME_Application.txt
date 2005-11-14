@@ -71,9 +71,13 @@ application directory with the given path in parameter. ${APPLI} is a path
 relative to ${HOME}.
 
 The directory is only a skeleton, the user has to edit several files to
-configure his own application.
+configure his own application. These files are described after, the list is:
 
----- Liste des fichiers a modifier
+- env.d/atFirst.sh
+- env.d/envProducts.sh
+- env.d/envSalome.sh
+- CatalogResources.xml
+- SalomeApp.xml
 
 Directory ${APPLI} must be created on each computer of the application.
 The easiest way is to use the same relative path (to ${HOME}) on each computer.
@@ -92,8 +96,8 @@ script is used by run scripts.
 
 2.1 Proposal for env.d scripts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Each user can define his own configuration for these scripts, following the
-above rules. The following is only a proposal.
+Each user **must define** his own configuration for these scripts, following
+the above rules. **The following is only an example not working as it is**.
 
 atFirst.sh
     Sets the computer configuration not directly related to SALOME,
@@ -104,7 +108,14 @@ envProducts.sh
 
 envSALOME.sh
     Sets all the MODULE_ROOT_DIR that can be used in the SALOME application.
-SalomeAppConfig
+
+    SalomeAppConfig is also defined by::
+
+      export SalomeAppConfig=${HOME}/${APPLI}
+
+    where SalomeAppConfig designates the directory containing SalomeApp.xml. 
+    Note that ${APPLI} is already defined by the calling scripts when 
+    envSALOME.sh is sourced.
 
 2.2 User run scripts
 ~~~~~~~~~~~~~~~~~~~~
