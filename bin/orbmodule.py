@@ -141,6 +141,36 @@ class client:
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
+   def waitNSPID(self, theName, thePID, theTypObj = None):
+      aCount = 0
+      aDelta = 0.5
+      anObj = None
+      print "Searching %s in Naming Service " % theName,
+      while(1):
+         try:
+            aPid, aStatus = os.waitpid(thePID,os.WNOHANG)
+         except Exception, exc:
+            raise "Impossible de trouver %s" % theName
+         aCount += 1
+         anObj = self.Resolve(theName)
+         if anObj: 
+            print " found in %s seconds " % ((aCount-1)*aDelta)
+            break
+         else:
+            sys.stdout.write('+')
+            sys.stdout.flush()
+            time.sleep(aDelta)
+            pass
+         pass
+      
+      if theTypObj is None:
+         return anObj
+
+      anObject = anObj._narrow(theTypObj)
+      if anObject is None:
+         print "%s exists but is not a %s" % (theName,theTypObj)
+      return anObject
+
 
    # --------------------------------------------------------------------------
 

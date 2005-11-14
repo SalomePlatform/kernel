@@ -229,6 +229,7 @@ class Server:
     """Generic class for CORBA server launch"""
 
     def initArgs(self):
+        self.PID=None
         self.CMD=[]
         self.ARGS=[]	
         if self.args['xterm']:
@@ -251,6 +252,7 @@ class Server:
         # print "command = ", command
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
+        self.PID = pid
 
 
 class InterpServer(Server):
@@ -266,6 +268,7 @@ class InterpServer(Server):
         print "command = ", command
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
+        self.PID = pid
 
 # ---
 
@@ -514,7 +517,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'registry' not in args['embedded']:
         myServer=RegistryServer(args)
         myServer.run()
-        clt.waitNS("/Registry")
+        clt.waitNSPID("/Registry",myServer.PID)
 
     #
     # Lancement Catalog Server,
@@ -527,7 +530,7 @@ def startSalome(args, modules_list, modules_root_dir):
         cataServer.setpath(modules_list,modules_root_dir)
         cataServer.run()
         import SALOME_ModuleCatalog
-        clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
+        clt.waitNSPID("/Kernel/ModulCatalog",cataServer.PID,SALOME_ModuleCatalog.ModuleCatalog)
 
     #
     # Lancement SalomeDS Server,
@@ -554,7 +557,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'study' not in args['embedded']:
         myServer=SalomeDSServer(args)
         myServer.run()
-        clt.waitNS("/myStudyManager")
+        clt.waitNSPID("/myStudyManager",myServer.PID)
 
     #
     # Lancement ContainerManagerServer
@@ -579,7 +582,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     import SALOME
-    session=clt.waitNS("/Kernel/Session",SALOME.Session)
+    session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
 
     from Utils_Identity import getShortHostName
     
@@ -599,7 +602,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'cppContainer' in args['standalone']:
         myServer=ContainerCPPServer(args)
         myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+        clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
 
     #
     # Lancement Container Python local,
@@ -610,7 +613,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'pyContainer' in args['standalone']:
         myServer=ContainerPYServer(args)
         myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
+        clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
 
     #
     # Lancement Container Supervision local,
@@ -621,7 +624,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'supervContainer' in args['standalone']:
         myServer=ContainerSUPERVServer(args)
         myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+        clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
 
     end_time = os.times()
     print
