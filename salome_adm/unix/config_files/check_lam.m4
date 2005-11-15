@@ -69,7 +69,7 @@ if test "$WITHLAM" = yes; then
   if test "$WITHLAM" = "yes";then
      WITHMPI="yes"
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -lmpi -llam"
+     MPI_LIBS="$MPI_LIBS -llammpi++"
   else
      mpi_ok=no
   fi

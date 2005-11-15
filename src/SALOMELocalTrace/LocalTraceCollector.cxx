@@ -153,8 +153,8 @@ LocalTraceCollector:: ~LocalTraceCollector()
 	  _threadToClose = 0;
 	}
       _singleton = 0;
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
+  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================

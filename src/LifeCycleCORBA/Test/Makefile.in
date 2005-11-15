@@ -44,7 +44,7 @@ EXPORT_PYSCRIPTS = TestLifeCycleCORBA.py
 LIB = libLifeCycleCORBATest.la 
 LIB_SRC = LifeCycleCORBATest.cxx
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_Exception.idl
+		 SALOME_Exception.idl nstest.idl
 
 # Executables targets
 
@@ -62,7 +62,8 @@ LDFLAGSFORBIN+= \
  -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
  -lSALOMETraceCollectorTest \
  -lUtilsTest -lOpUtil \
- -lSalomeNS -lSalomeContainer -lSalomeResourcesManager \
+ -lNamingServiceTest -lSalomeNS \
+ -lSalomeContainer -lSalomeResourcesManager \
  -lRegistry -lSalomeNotification \
  -lLifeCycleCORBATest -lSalomeLifeCycleCORBA
 

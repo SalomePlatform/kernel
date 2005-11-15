@@ -55,6 +55,13 @@ searchFreePort() {
     done
 }
 
+# --- if mpi lam, start lam (seems safe to be done several times)
+#     arret manuel avec lamhalt
+
+if [ "$LAMBHOST" ]; then
+  lamboot
+fi
+
 # --- invoque shell with or without args
 
 searchFreePort

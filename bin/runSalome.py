@@ -106,26 +106,33 @@ def set_env(args, modules_list, modules_root_dir):
     modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
     for module in modules_list :
-        module_root_dir = modules_root_dir[module]
-        modules_root_dir_list[:0] = [module_root_dir]
-        add_path(os.path.join(module_root_dir,"lib",salome_subdir),
-                 "LD_LIBRARY_PATH")
-        add_path(os.path.join(module_root_dir,"bin",salome_subdir),
-                 "PATH")
-        if os.path.exists(module_root_dir + "/examples") :
-            add_path(os.path.join(module_root_dir,"examples"),
+        if modules_root_dir.has_key(module):
+            module_root_dir = modules_root_dir[module]
+            modules_root_dir_list[:0] = [module_root_dir]
+            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+                     "LD_LIBRARY_PATH")
+            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
+                     "PATH")
+            if os.path.exists(module_root_dir + "/examples") :
+                add_path(os.path.join(module_root_dir,"examples"),
+                         "PYTHONPATH")
+                pass
+            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PYTHONPATH")
-        add_path(os.path.join(module_root_dir,"bin",salome_subdir),
-                 "PYTHONPATH")
-        add_path(os.path.join(module_root_dir,"lib",
-                              python_version,"site-packages",salome_subdir),
-                 "PYTHONPATH")
-        add_path(os.path.join(module_root_dir,"lib",salome_subdir),
-                 "PYTHONPATH")
-        add_path(os.path.join(module_root_dir,"lib",
-                              python_version,"site-packages",salome_subdir,
-                              "shared_modules"),
-                 "PYTHONPATH")
+            add_path(os.path.join(module_root_dir,"lib",
+                                  python_version,"site-packages",
+                                  salome_subdir),
+                     "PYTHONPATH")
+            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+                     "PYTHONPATH")
+            add_path(os.path.join(module_root_dir,"lib",
+                                  python_version,"site-packages",
+                                  salome_subdir,
+                                  "shared_modules"),
+                     "PYTHONPATH")
+            pass
+        pass
+
 
     os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
     
@@ -304,13 +311,16 @@ class CatalogServer(Server):
         list_modules = modules_list[:]
         list_modules.reverse()
         for module in ["KERNEL", "GUI"] + list_modules:
-            module_root_dir=modules_root_dir[module]
-            module_cata=module+"Catalog.xml"
-            #print "   ", module_cata
-            cata_path.extend(
-                glob.glob(os.path.join(module_root_dir,
-                                       "share",salome_subdir,
-                                       "resources",module_cata)))
+            if modules_root_dir.has_key(module):
+                module_root_dir=modules_root_dir[module]
+                module_cata=module+"Catalog.xml"
+                #print "   ", module_cata
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,
+                                           "share",salome_subdir,
+                                           "resources",module_cata)))
+                pass
+            pass
         self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
 
 # ---
@@ -438,13 +448,16 @@ class ContainerManagerServer(Server):
         list_modules = modules_list[:]
         list_modules.reverse()
         for module in ["KERNEL", "GUI"] + list_modules:
-            module_root_dir=modules_root_dir[module]
-            module_cata=module+"Catalog.xml"
-            #print "   ", module_cata
-            cata_path.extend(
-                glob.glob(os.path.join(module_root_dir,"share",
-                                       self.args['appname'],"resources",
-                                       module_cata)))
+            if modules_root_dir.has_key(module):
+                module_root_dir=modules_root_dir[module]
+                module_cata=module+"Catalog.xml"
+                #print "   ", module_cata
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,"share",
+                                           self.args['appname'],"resources",
+                                           module_cata)))
+                pass
+            pass
         if 'moduleCatalog' in self.args['embedded']:
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:

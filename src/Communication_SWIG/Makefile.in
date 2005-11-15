@@ -1,0 +1,24 @@
+
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl
+
+@COMMENCE@
+
+# header files 
+EXPORT_HEADERS= libSALOME_Comm.i
+
+# Libraries targets
+
+LIB = libSALOME_Commcmodule.la
+LIB_SERVER_IDL = SALOME_Exception.idl
+
+SWIG_DEF = libSALOME_Comm.i
+EXPORT_PYSCRIPTS = libSALOME_Comm.py 
+
+CPPFLAGS+=$(PYTHON_INCLUDES) $(MPI_INCLUDES) -I$(top_srcdir)/src/Communication/src
+LIBS+= $(PYTHON_LIBS)
+LDFLAGS+= -lSalomeCommunication
+
+@CONCLUDE@

@@ -33,6 +33,7 @@
 #else
 #endif
 
+//#define _DEVDEBUG_
 #include "LocalTraceBufferPool.hxx"
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceCollector.hxx"
@@ -82,10 +83,12 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
-	 LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
+	  DEVTRACE("New buffer pool");
+	  LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
 
   	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
   	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
+	  _singleton = myInstance;
 
 	  // --- start a trace Collector
 
@@ -140,7 +143,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		  exit(1);        // in case assert is deactivated
 		}	      
 	    }
-	  _singleton = myInstance;
+	  DEVTRACE("New buffer pool: end");
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -295,8 +298,8 @@ LocalTraceBufferPool::~LocalTraceBufferPool()
       ret=pthread_mutex_destroy(&_incrementMutex);
       DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()-end");
       _singleton = 0;
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
+  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================

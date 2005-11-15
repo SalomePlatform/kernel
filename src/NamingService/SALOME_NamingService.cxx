@@ -1,23 +1,23 @@
 //  SALOME NamingService : wrapping NamingService services
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org
 //
 //
 //
@@ -37,23 +37,28 @@
 
 using namespace std;
 
-//----------------------------------------------------------------------
-/*! Function : SALOME_NamingService
- *  Purpose  : Constructor and Initialisation of _root_context
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief Default Constructor without ORB reference.
+ *
+ *  After Default Constructor, one needs to initialize ORB.
+ *  \sa init_orb(CORBA::ORB_ptr orb), SALOME_NamingService(CORBA::ORB_ptr orb)
+ */ 
+// ============================================================================
 
 SALOME_NamingService::SALOME_NamingService()
 {
   MESSAGE("SALOME_NamingService default constructor");
   _orb = CORBA::ORB::_nil();
+  _root_context = CosNaming::NamingContext::_nil();
 }
 
-//----------------------------------------------------------------------
-/*! Function : SALOME_NamingService
+// ============================================================================
+/*! \brief Standard Constructor, with ORB reference. 
+ * 
+ * Initializes the naming service root context
  * \param orb CORBA::ORB_ptr arguments
- */
-//----------------------------------------------------------------------
+ */ 
+// ============================================================================
 
 SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 {
@@ -62,421 +67,512 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
   _initialize_root_context();
 }
 
-//----------------------------------------------------------------------
-/*! Function : ~SALOME_NamingService
- *  Purpose  : Destructor
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief Standard destructor.
+ *
+ *  The standard destructor does nothing special.
+ */ 
+// ============================================================================
 
 SALOME_NamingService::~SALOME_NamingService()
 {
-  // Problem MESSAGE with singleton: late destruction, after trace system destruction ?
+  // Problem MESSAGE with singleton: late destruction,
+  // after trace system destruction ?
   //MESSAGE("SALOME_NamingService destruction");
 }
 
-//----------------------------------------------------------------------
-/*! Function : init_orb
- *  initialize ORB reference after default constructor
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief initializes ORB reference and naming service root context.
+ * 
+ *  Initializes ORB reference and naming service root context.
+ *  For use after default constructor.
+ *  \param orb CORBA::ORB_ptr arguments
+ */ 
+// ============================================================================
 
 void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 {
   MESSAGE("SALOME_NamingService initialisation");
-  Utils_Locker lock(&_myMutex);
-  _orb = orb ;
+
+  Utils_Locker lock (&_myMutex);
+  _orb = orb;
+
   _initialize_root_context();
 }
 
-
-//----------------------------------------------------------------------
-/*! Function : Register
- *  Method to create an association in the NamingService between ObjRef
- *  and Path.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown
- * \param ObjRef CORBA::Object_ptr arguments
- * \param Path const char* arguments
+// ============================================================================
+/*! \brief Registers a CORBA object reference under a path.
+ *
+ * Registers a CORBA object reference under a path. If the path ends with '/',
+ * only a directory is created.
+ * If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param ObjRef CORBA object reference to associate to the path. To create
+ *               only a directory, give nil pointer.
+ * \param Path   A relative or absolute pathname to store the object reference.
+ *               If the pathname begins with a '/', pathname is taken
+ *               as an absolute pathname. Else, pathname is taken as a relative
+ *               path, to current context. Prefer absolute pathname, relative
+ *               pathname are not safe, when SALOME_NamingService object is
+ *               shared or use in multithreaded context. 
+ *               If the path ends with '/', only a directory is created.
+ * \sa           Change_Directory(const char* Path),
+ *               Create_Directory(const char* Path)
+ *               CORBA::Object_ptr Resolve(const char* Path)
  */ 
-//----------------------------------------------------------------------
+// ============================================================================
 
 void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
-				    const char* Path) 
+                                    const char* Path)
   throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Register: "<< Path);
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path = new char* [dimension_Path];
+  MESSAGE("BEGIN OF Register: " << Path);
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/')  {
-    _current_context = _root_context;
-    //    MESSAGE("Gone to the _root_context");
-  }
-  
-  //the resolution of the directory path has to be done
-  //to place the currect_context to the correct node
-  int dimension_resultat = 0;
-  _result_resolve_Path (Path, dimension_resultat, resultat_resolve_Path);
-    
-  CosNaming::Name _context_name;
-  CORBA::Boolean _not_exist = false ;
-  CosNaming::NamingContext_var _temp_context;
-  
-  if(dimension_resultat>1)
-    {  
+  Utils_Locker lock (&_myMutex);
+
+  // --- _current_context is replaced to the _root_context
+  //     if the Path begins whith '/'
+
+  if (Path[0] == '/')
+    {
+      _current_context = _root_context;
+    }
+
+  // --- the resolution of the directory path has to be done
+  //      to place the current_context to the correct node
+
+  CosNaming::Name context_name;
+  vector<string> splitPath;
+  int dimension_resultat = _createContextNameDir(Path,
+						 context_name,
+						 splitPath,
+						 true);
+
+  CORBA::Boolean not_exist = false;
+
+  if (dimension_resultat > 0)
+    {
       // A directory is treated (not only an object name)
-      // We had to test if the directory where ObjRef should be recorded 
-      // is already done
-      // If not, the new context has to be created
+      // test if the directory where ObjRef should be recorded already exists
+      // If not, create the new context
 
-      //      MESSAGE("A complet Path has to be treated, not only an object name");
-      _context_name.length(dimension_resultat-1);
+      try
+        {
+          CORBA::Object_var obj = _current_context->resolve(context_name);
+          _current_context = CosNaming::NamingContext::_narrow(obj);
+        }
 
-      _create_context_name_dir(resultat_resolve_Path,dimension_resultat-1,
-			       _context_name);  
+      catch (CosNaming::NamingContext::NotFound &)
+        {
+          // --- failed to resolve, therefore assume cold start
+          not_exist = true;
+        }
+
+      catch (CosNaming::NamingContext::InvalidName &)
+        {
+          INFOS("Register() : CosNaming::NamingContext::InvalidName");
+        }
+
+      catch (CosNaming::NamingContext::CannotProceed &)
+        {
+          INFOS("Register() : CosNaming::NamingContext::CannotProceed");
+        }
+
+      catch (CORBA::SystemException&)
+        {
+          INFOS("Register() : CORBA::SystemException: "
+                << "unable to contact the naming service");
+          throw ServiceUnreachable();
+        }
+
+      if (not_exist)
+        {
+          try
+            {
+              context_name.length(1);
+              for (int i = 0 ; i < dimension_resultat ;i++)
+                {
+                  context_name[0].id =
+                    CORBA::string_dup(splitPath[i].c_str());
+                  context_name[0].kind = CORBA::string_dup("dir");
+                  // SCRUTE(_context_name[0].id);
+                  // --- check if the path is created
+                  try
+                    {
+                      // --- if the context is already created, nothing to do
+                      CORBA::Object_var obj =
+                        _current_context->resolve(context_name);
+                      _current_context =
+                        CosNaming::NamingContext::_narrow(obj);
+                    }
+
+                  catch (CosNaming::NamingContext::NotFound &)
+                    {
+                      // --- the context must be created
+                      CosNaming::NamingContext_var temp_context =
+                        _current_context->bind_new_context(context_name);
+                      _current_context = temp_context;
+                    }
+                }
+            }
+
+          catch (CosNaming::NamingContext::AlreadyBound&)
+            {
+              INFOS("Register() : CosNaming::NamingContext::AlreadyBound");
+            }
+
+          catch (CosNaming::NamingContext::NotFound& ex)
+            {
+              CosNaming::Name n = ex.rest_of_name;
+
+              if (ex.why == CosNaming::NamingContext::missing_node)
+                INFOS("Register() : " << (char *) n[0].id
+                      << " (" << (char *) n[0].kind << ") not found");
+
+              if (ex.why == CosNaming::NamingContext::not_context)
+                INFOS("Register() : " << (char *) n[0].id
+                      << " (" << (char *) n[0].kind
+                      << ") is not a context");
+
+              if (ex.why == CosNaming::NamingContext::not_object)
+                INFOS("Register() : " << (char *) n[0].id
+                      << " (" << (char *) n[0].kind
+                      << ") is not an object");
+            }
+
+          catch (CosNaming::NamingContext::CannotProceed&)
+            {
+              INFOS("Register(): CosNaming::NamingContext::CannotProceed");
+            }
+
+          catch (CosNaming::NamingContext::InvalidName&)
+            {
+              INFOS("Register(): CosNaming::NamingContext::InvalidName");
+            }
+
+          catch (CORBA::SystemException&)
+            {
+              INFOS("Register():CORBA::SystemException: "
+                    << "unable to contact the naming service");
+              throw ServiceUnreachable();
+            }
+        }
+    }
+
+  // --- The current directory is now the directory where the object should
+  //     be recorded
+
+  int sizePath = splitPath.size();
+  if (sizePath > dimension_resultat)
+    {
+      ASSERT(sizePath == dimension_resultat+1);
+      context_name.length(1);
 
       try
 	{
-	  CORBA::Object_var _obj = _current_context->resolve(_context_name);
-	  _current_context = CosNaming::NamingContext::_narrow(_obj);
-	} 
-      catch (CosNaming::NamingContext::NotFound &) 
-	{
-	  // failed to resolve, therefore assume cold start
-	  _not_exist = true;
-	} 
-      catch (CosNaming::NamingContext::InvalidName &) 
-	{
-	  INFOS("!!!Register() : CosNaming::NamingContext::InvalidName"); 
+	  // --- the last element is an object and not a directory
+
+	  context_name[0].id =
+	    CORBA::string_dup(splitPath[dimension_resultat].c_str());
+	  context_name[0].kind = CORBA::string_dup("object");
+	  //SCRUTE(context_name[0].id);
+
+	  _current_context->bind(context_name, ObjRef);
 	}
-      catch (CosNaming::NamingContext::CannotProceed &)
+
+      catch (CosNaming::NamingContext::NotFound& ex)
 	{
-	  INFOS("!!!Register() : CosNaming::NamingContext::CannotProceed");
+	  CosNaming::Name n = ex.rest_of_name;
+
+	  if (ex.why == CosNaming::NamingContext::missing_node)
+	    INFOS("Register() : " << (char *) n[0].id
+		  << " (" << (char *) n[0].kind << ") not found");
+
+	  if (ex.why == CosNaming::NamingContext::not_context)
+	    INFOS("Register() : " << (char *) n[0].id
+		  << " (" << (char *) n[0].kind
+		  << ") is not a context");
+
+	  if (ex.why == CosNaming::NamingContext::not_object)
+	    INFOS("Register() : " << (char *) n[0].id
+		  << " (" << (char *) n[0].kind
+		  << ") is not an object");
 	}
-      catch(CORBA::SystemException&)
+
+      catch (CosNaming::NamingContext::CannotProceed&)
 	{
-	  INFOS("!!!Register() : CORBA::SystemException : unable to contact"
-	       << " the naming service"); 
+	  INFOS("Register(): CosNaming::NamingContext::CannotProceed");
+	}
+
+      catch (CosNaming::NamingContext::InvalidName&)
+	{
+	  INFOS("Register(): CosNaming::NamingContext::InvalidName");
+	}
+
+      catch (CosNaming::NamingContext::AlreadyBound&)
+	{
+	  INFOS("Register(): CosNaming::NamingContext::AlreadyBound, "
+		<< "object will be rebind");
+	  _current_context->rebind(context_name, ObjRef);
+	}
+
+      catch (CORBA::SystemException&)
+	{
+	  INFOS("!!!Register(): CORBA::SystemException: "
+		<< "unable to contact the naming service");
 	  throw ServiceUnreachable();
 	}
-      if(_not_exist)
-	{
-	  try
-	    {
-	      _context_name.length(1);
-	      // MESSAGE("The Path indicated is not yet created. It will soon be done");
-	      for (int i = 0 ; i <dimension_resultat -1 ;i++)
-		{
-		  _context_name[0].id =
-		    CORBA::string_dup(resultat_resolve_Path[i]);
-		  _context_name[0].kind = CORBA::string_dup("dir");
-		  // SCRUTE(_context_name[0].id);
-		  //The Path could be in part already created. 
-		  //We had to test it
-		  try 
-		    {
-		      // this context is already created. 
-		      // Nothing to be done
-		      CORBA::Object_var _obj = 
-			_current_context->resolve(_context_name);
-		      _current_context = 
-			CosNaming::NamingContext::_narrow(_obj);
-		      //MESSAGE("This context was already created");
-		    } 
-		  catch (CosNaming::NamingContext::NotFound &) 
-		    {
-		      // This context is not created. It will be done
-		      _temp_context =
-			_current_context->bind_new_context(_context_name);
-		      _current_context = _temp_context;
-		      //INFOS("This context was'nt created, it's now done");
-		    }
-		}
-	    }
-	  catch (CosNaming::NamingContext::AlreadyBound&)
-	    {
-	      INFOS("!!!Register() : CosNaming::NamingContext::AlreadyBound");	
-	    }
-	  catch(CosNaming::NamingContext::NotFound& ex)
-	    {
-	      CosNaming::Name n = ex.rest_of_name;
-	      if (ex.why == CosNaming::NamingContext::missing_node)
-		INFOS("Register() : " << (char *) n[0].id
-		      << " (" << (char *) n[0].kind << ") not found");
-	      if (ex.why == CosNaming::NamingContext::not_context)
-		INFOS("Register() : " << (char *) n[0].id
-		     << " (" << (char *) n[0].kind
-		     << ") is not a context");
-	      if (ex.why == CosNaming::NamingContext::not_object)
-		INFOS("Register() : " << (char *) n[0].id
-		     << " (" << (char *) n[0].kind
-		     << ") is not an object");
-	    }
-	  catch(CosNaming::NamingContext::CannotProceed&)
-	    {
-	      INFOS("!!!Register() : CosNaming::NamingContext::CannotProceed");
-	    } 
-	  catch(CosNaming::NamingContext::InvalidName&) 
-	    {
-	      INFOS("!!!Register() : CosNaming::NamingContext::InvalidName");
-	    }
-	  catch(CORBA::SystemException&)
-	    {
-	      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
-		   << " the naming service"); 
-	      throw ServiceUnreachable();
-	    }
-	}	
     }
-
-  // The current directory is now the directory where the object should 
-  // be recorded
-  _context_name.length(1);
-  try 
-    {
-      // the last element is an object an not a directory
-      _context_name[0].id = 
-	CORBA::string_dup(resultat_resolve_Path[dimension_resultat -1]);
-      _context_name[0].kind = CORBA::string_dup("object");
-      //SCRUTE(_context_name[0].id);
-	
-      _current_context->bind(_context_name, ObjRef);
-      // MESSAGE("A new element " << _context_name[0].id 
-      //	   << " is recorded in the _current_context");   
-    }
-  catch(CosNaming::NamingContext::NotFound& ex)
-    {
-      CosNaming::Name n = ex.rest_of_name;
-      if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS("Register() : "  << (char *) n[0].id
-	      << " ("  << (char *) n[0].kind << ") not found");
-      if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS("Register() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not a context");
-      if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS("Register() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not an object");
-    }
-  catch(CosNaming::NamingContext::CannotProceed&)
-    {
-      INFOS("!!!Register() : CosNaming::NamingContext::CannotProceed"); 
-    } 
-  catch(CosNaming::NamingContext::InvalidName&) 
-    {
-      INFOS("!!!Register() : CosNaming::NamingContext::InvalidName"); 
-    }
-  catch(CosNaming::NamingContext::AlreadyBound&) 
-    {
-      INFOS("!!!Register() : CosNaming::NamingContext::AlreadyBound, object will be rebind"); 
-      _current_context->rebind(_context_name, ObjRef);
-    }
-  catch(CORBA::SystemException&)
-    {
-      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
-	    << " the naming service");
-      throw ServiceUnreachable();
-    }
-  
-  
-  // Memory destruction
-  for (int i = 0 ; i <dimension_resultat ;i++) 
-    {
-      delete [] resultat_resolve_Path[i];     
-    }
-  delete[] resultat_resolve_Path ;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Resolve 
- *  Purpose  : method to get the ObjRef of a symbolic name
+// ============================================================================
+/*! \brief get the CORBA object reference associated to a name.
+ * 
+ *  get the CORBA object reference associated to a complete name with a path.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
- * \param Path const char* arguments
- * \return the object reference
- */
-//----------------------------------------------------------------------
+ * \param Path pathname. If the pathname begins with a '/', pathname is taken
+ *             as an absolute pathname. Else, pathname is taken as a relative
+ *             path, to current context. Prefer absolute pathname, relative
+ *             pathname are not safe, when SALOME_NamingService object is
+ *             shared or use in multithreaded context.
+ * \return the object reference if it exists under the pathname,
+ *             or nil reference in other cases.
+ * \sa         Register(CORBA::Object_ptr ObjRef, const char* Path),
+ *             Change_Directory(const char* Path)
+ */ 
+// ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Resolve: " << Path);
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path = new char* [dimension_Path];
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/') _current_context = _root_context;
+  Utils_Locker lock (&_myMutex);
 
-  
-  //the resolution of the directory path has to be done
-  //to place the currect_context to the correct node
-  int dimension_resultat = 0;
-  _result_resolve_Path (Path, dimension_resultat, resultat_resolve_Path);
-    
-  CosNaming::Name _context_name;
-  _context_name.length(dimension_resultat);
-  CORBA::Object_ptr _obj = NULL ;
-    
-  _create_context_name_dir(resultat_resolve_Path,dimension_resultat-1,
-			   _context_name);
-  // the last element is an object an not a directory
-  _context_name[dimension_resultat -1].id = 
-    CORBA::string_dup(resultat_resolve_Path[dimension_resultat -1]);
-  _context_name[dimension_resultat -1].kind = CORBA::string_dup("object");
-  // SCRUTE(_context_name[dimension_resultat -1].id);
-  ASSERT(!CORBA::is_nil(_current_context));
-  // Context creation
-  try 
+  // --- _current_context is replaced to the _root_context
+  //     if the Path begins whith '/'
+
+  if (Path[0] == '/')
     {
-      _obj =_current_context->resolve(_context_name);
+      _current_context = _root_context;
     }
-  catch(CosNaming::NamingContext::NotFound& ex)
+
+  // --- the resolution of the directory path has to be done
+  //     to place the current_context to the correct node
+
+  CosNaming::Name context_name;
+  vector<string> splitPath;
+  int dimension_resultat = _createContextNameDir(Path,
+						 context_name,
+						 splitPath,
+						 false);
+
+  ASSERT(!CORBA::is_nil(_current_context));
+
+  CORBA::Object_ptr obj =  CORBA::Object::_nil();
+
+  try
+    {
+      obj = _current_context->resolve(context_name);
+    }
+
+  catch (CosNaming::NamingContext::NotFound& ex)
     {
       CosNaming::Name n = ex.rest_of_name;
+
       if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS("Resolve() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found");
+        INFOS("Resolve() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind << ") not found");
+
       if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS("Resolve() : "
-	     << (char *) n[0].id  << " (" << (char *) n[0].kind
-	     << ") is not a context");
+        INFOS("Resolve() : "
+              << (char *) n[0].id << " (" << (char *) n[0].kind
+              << ") is not a context");
+
       if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS("Resolve() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not an object");
+        INFOS("Resolve() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind
+              << ") is not an object");
     }
-  catch(CosNaming::NamingContext::CannotProceed&)
+
+  catch (CosNaming::NamingContext::CannotProceed&)
     {
-      INFOS("!!!Resolve() : CosNaming::NamingContext::CannotProceed"); 
-    } 
-  catch(CosNaming::NamingContext::InvalidName&) 
-    {
-      INFOS("!!!Resolve() : CosNaming::NamingContext::InvalidName"); 
+      INFOS("Resolve(): CosNaming::NamingContext::CannotProceed");
     }
-  catch(CORBA::SystemException&)
+
+  catch (CosNaming::NamingContext::InvalidName&)
     {
-      INFOS("!!!Resolve() :CORBA::SystemException : unable to contact"
-	    << "the naming service");
+      INFOS("Resolve(): CosNaming::NamingContext::InvalidName");
+    }
+
+  catch (CORBA::SystemException&)
+    {
+      INFOS("Resolve():CORBA::SystemException : unable to contact"
+            << "the naming service");
       throw ServiceUnreachable();
     }
-  // Memory destruction
-  for (int i = 0 ; i <dimension_resultat ;i++) 
-    {
-      delete [] resultat_resolve_Path[i];     
-    }
-  delete[] resultat_resolve_Path ;
-  
-  return _obj;
+
+  return obj;
 }
 
-//----------------------------------------------------------------------
-/*! Function : ResolveFirst 
- *  Purpose  : method to get an ObjRef with a symbolic name
- * \param Path const char* argument like "/path/name"
- *  search the fist reference like "/path(.dir)/name*(.kind)"
+// ============================================================================
+/*! \brief get the CORBA object reference associated to an uncomplete name.
+ *
+ *  get the CORBA object reference associated to an uncomplete name with a
+ *  path. Look for the first occurence of name*.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
-
-
-
-
- * \return the object reference
+ * \param Path pathname under the form "/path/name" (Absolute reference !)
+ *             search the fist reference like "/path(.dir)/name*(.kind)"
+ * \return     the object reference if found, or nil reference.
+ * \sa         Resolve(const char* Path)
  */
-//----------------------------------------------------------------------
+// ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("ResolveFirst");
-  Utils_Locker lock(&_myMutex);
+
+  Utils_Locker lock (&_myMutex);
   SCRUTE(Path);
-  string thePath =Path;
-  string basePath ="/";
+
+  string thePath = Path;
+  string basePath = "";
   string name = thePath;
+
   string::size_type idx = thePath.rfind('/');
+
   if (idx != string::npos) // at least one '/' found
     {
-      basePath = thePath.substr(0,idx);
-      name = thePath.substr(idx+1);
+      basePath = thePath.substr(0, idx);
+      name = thePath.substr(idx + 1);
       SCRUTE(basePath);
     }
+
   SCRUTE(name);
   CORBA::Object_ptr obj = CORBA::Object::_nil();
-  bool isOk = Change_Directory(basePath.c_str());
+
+  bool isOk = false;
+  if (basePath.empty())
+    isOk =true;
+  else
+    isOk = Change_Directory(basePath.c_str());
+  
   if (isOk)
     {
       vector<string> listElem = list_directory();
       vector<string>::iterator its = listElem.begin();
+      
       while (its != listElem.end())
 	{
 	  MESSAGE(*its);
+	  
 	  if ((*its).find(name) == 0)
 	    {
-	      //string instance = basePath + "/" + *its;
 	      return Resolve((*its).c_str());
 	    }
+	  
 	  its++;
 	}
     }
+
   return obj;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Resolve Component  from hostname, containername, componentName and number of prcoessors
- *  Purpose  : method to get the ObjRef of a component
- *  If the NamingService is out, the exception ServiceUnreachable is thrown 
- * \param hostname const char* argument
- * \param containername const char* argument
- * \param componentname const char* argument
- * \param nbproc const int argument
+// ============================================================================
+/*! \brief find a component instance from hostname, containername,
+ *         componentName and number of processors.
+ *
+ *  find a component instance from hostname, containername, componentName and
+ *  number of processors.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param hostname      name of the machine on which the component is searched.
+ * \param containername name of the container in which the component is
+                        instanciated.
+ * \param componentname name of the component we are looking for an existing 
+                        instance.
+ * \param nbproc        in case of multi processor machine, container name is
+ *                      suffixed with _nbproc.
  * \return the object reference
- */
-//----------------------------------------------------------------------
+ */ 
+// ============================================================================
 
-CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+CORBA::Object_ptr
+SALOME_NamingService::ResolveComponent(const char* hostname,
+				       const char* containerName,
+				       const char* componentName,
+				       const int nbproc)
+  throw(ServiceUnreachable)
 {
   MESSAGE("ResolveComponent");
-  Utils_Locker lock(&_myMutex);
 
-  string name="/Containers/";
+  Utils_Locker lock (&_myMutex);
+
+  string name = "/Containers/";
+
   name += hostname;
-  if( strlen(containerName) != 0 ){
-    name += "/";
-    if( nbproc >=1 ){
-      char *newContainerName = new char[strlen(containerName)+8];
-      sprintf(newContainerName,"%s_%d",containerName,nbproc);
-      name += newContainerName;
-    }
-    else
-      name += containerName;
-    name += "/";
-    name += componentName;
-    return ResolveFirst(name.c_str());
-  }
-  else {
-    Change_Directory(name.c_str());
-    vector<string> contList = list_directory();
-    for(unsigned int ind = 0; ind < contList.size(); ind++){
-      name = contList[ind].c_str();
-      name += "/";
-      name += componentName;
-      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
-      if( !CORBA::is_nil(obj) )
-	return obj;
-    }
-    return CORBA::Object::_nil();
-  }
 
+  if ( strlen(containerName) != 0 )
+    {
+      name += "/";
+
+      if ( nbproc >= 1 )
+        {
+          char *newContainerName = new char[strlen(containerName) + 8];
+          sprintf(newContainerName, "%s_%d", containerName, nbproc);
+          name += newContainerName;
+	  delete [] newContainerName;
+        }
+
+      else
+        name += containerName;
+
+      name += "/";
+
+      name += componentName;
+
+      return ResolveFirst(name.c_str());
+    }
+
+  else
+    {
+      SCRUTE(name);
+      if (Change_Directory(name.c_str()))
+	{
+	  vector<string> contList = list_subdirs();
+
+	  for (unsigned int ind = 0; ind < contList.size(); ind++)
+	    {
+	      name = contList[ind].c_str();
+	      name += "/";
+	      name += componentName;
+	      SCRUTE(name);
+	      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
+
+	      if ( !CORBA::is_nil(obj) )
+		return obj;
+	    }
+	}
+
+      return CORBA::Object::_nil();
+    }
 }
+
+// ============================================================================
+/*! \brief provide a default container name if empty.
+ *
+ *  the given container name is returned unchanged, unless it is empty.
+ * \param  containerName
+ * \return container name, where empty input is replaced by "FactoryServer",
+ *         without the path.
+ * \sa BuildContainerNameForNS(const char *containerName, const char *hostname)
+ */
+// ============================================================================
 
 string SALOME_NamingService::ContainerName(const char *containerName)
 {
   string ret;
 
-  if (strlen(containerName)== 0)
+  if (strlen(containerName) == 0)
     ret = "FactoryServer";
   else
     ret = containerName;
@@ -484,1103 +580,1250 @@ string SALOME_NamingService::ContainerName(const char *containerName)
   return ret;
 }
 
-string SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
+// ============================================================================
+/*! \brief build a container name, given a MachineParameters struct.
+ *
+ *  Build a container name with a MachineParameters struct. In case of multi
+ *  processor machine, container name is suffixed with _nbproc. nproc equals
+ *  (number of nodes)*(number of processor per nodes).
+ * \param params struct from which we get container name (may be
+ *               empty),  number of nodes and number of processor
+ *               per node.
+ * \return a container name without the path.
+ * \sa BuildContainerNameForNS(const Engines::MachineParameters& params,
+ *                             const char *hostname)
+ */
+// ============================================================================
+
+string 
+SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
 {
   int nbproc;
-  if( !params.isMPI )
+
+  if ( !params.isMPI )
     nbproc = 0;
-  else if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+  else if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
     nbproc = 1;
-  else if( params.nb_node == 0 )
+  else if ( params.nb_node == 0 )
     nbproc = params.nb_proc_per_node;
-  else if( params.nb_proc_per_node == 0 )
+  else if ( params.nb_proc_per_node == 0 )
     nbproc = params.nb_node;
   else
     nbproc = params.nb_node * params.nb_proc_per_node;
 
-  string ret=ContainerName(params.container_name);
+  string ret = ContainerName(params.container_name);
 
-  if( nbproc >=1 ){
-    char *suffix = new char[8];
-    sprintf(suffix,"_%d",nbproc);
-    ret += suffix;
-  }
+  if ( nbproc >= 1 )
+    {
+      char *suffix = new char[8];
+      sprintf(suffix, "_%d", nbproc);
+      ret += suffix;
+    }
 
   return ret;
 }
 
-string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
+// ============================================================================
+/*! \brief build a string representing a container in Naming Service.
+ *
+ *  Build a string representing the absolute pathname of a container in
+ *  SALOME_NamingService. This form gives a suffixed containerName in case of
+ *  multi processor machine.
+ * \param params struct from which we get container name (may be
+ *               empty),  number of nodes and number of processor
+ *               per node.
+ * /param hostname name of the host of the container, without domain names.
+ * /return the path under the form /Containers/hostname/containerName
+ * /sa ContainerName(const Engines::MachineParameters& params)
+ */
+// ============================================================================
+
+string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
+						     const char *hostname)
 {
-  string ret="/Containers/";
+  string ret = "/Containers/";
   ret += hostname;
-  ret+="/";
-  ret+=ContainerName(containerName);
+  ret += "/";
+  ret += ContainerName(containerName);
 
   return ret;
 }
 
-string SALOME_NamingService::BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname)
+// ============================================================================
+/*! \brief build a string representing a container in Naming Service.
+ *
+ *  Build a string representing the absolute pathname of a container in
+ *  SALOME_NamingService.
+ * /param params used as it is, or replaced by FactoryServer if empty.
+ * /param hostname name of the host of the container, without domain names.
+ * /return the path under the form /Containers/hostname/containerName
+ * /sa ContainerName(const char *containerName)
+ */
+// ============================================================================
+
+string
+SALOME_NamingService::
+BuildContainerNameForNS(const Engines::MachineParameters& params,
+			const char *hostname)
 {
-  string ret="/Containers/";
+  string ret = "/Containers/";
   ret += hostname;
-  ret+="/";
-  ret+=ContainerName(params);
+  ret += "/";
+  ret += ContainerName(params);
 
   return ret;
 }
 
-//----------------------------------------------------------------------
-/*!  Function : Find
- *  Purpose  : method to research a name from the current directory 
- *            of the naming service. 
- *  The naming service changes directory to go to the directory where 
- *  the last occurence was found.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown
- *  \param name const char* arguments
- *  \return the number of occurences found
- *  \sa _Find
- */   
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief search a name in current directory.
+ *
+ *  Search a name in the current directory. after call, the current directory
+ *  is changed to the directory containing the last occurence of name found.
+ *  If no occurence found (see return value), current directory remains
+ *  unchanged.
+ *
+ * \param  name the name to search.
+ * \return number of occurences found.
+ * \sa Change_Directory(const char* Path)
+ */ 
+// ============================================================================
 
 int SALOME_NamingService::Find(const char* name)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Find " << name);
-  Utils_Locker lock(&_myMutex);
-  CORBA::Long occurence_number = 0 ; 
+
+  Utils_Locker lock (&_myMutex);
+
+  CORBA::Long occurence_number = 0 ;
+
   try
     {
-      _Find(name,occurence_number);
+      _Find(name, occurence_number);
     }
-  catch(CORBA::SystemException&)
+
+  catch (CORBA::SystemException&)
     {
       INFOS("!!!Find() : CORBA::SystemException : unable to contact"
-	   << " the naming service"); 
+            << " the naming service");
       throw ServiceUnreachable();
     }
+
   return occurence_number;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Create_Directory 
- *  Purpose  : method to create a directory from the current directory.
- * If the NamingService is out, the exception ServiceUnreachable is thrown
- *  \param Path const char* arguments
- *  \return a boolean to indicate if the creation succeeded
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief Creates a directory (context_name)
+ *
+ *  Creates a directory (context_name) relative to the current directory 
+ *  (current context) or relative to the root directory (root context), if
+ *  the path given begins with a '/'.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param Path   A relative or absolute pathname to store the object reference.
+ *               If the pathname begins with a '/', pathname is taken
+ *               as an absolute pathname. Else, pathname is taken as a relative
+ *               path, to current context. Prefer absolute pathname, relative
+ *               pathname are not safe, when SALOME_NamingService object is
+ *               shared or use in multithreaded context.   
+ *  \return true if successfull
+ *          (creation not strictly garanteed if true, because Register may
+ *           catch some specific unlikely exception without throw anything
+ *           --- to be corrected ---)
+ *  \sa RegisterCORBA::Object_ptr ObjRef, const char* Path)
+ */ 
+// ============================================================================
 
 bool SALOME_NamingService::Create_Directory(const char* Path)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Create_Directory");
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path= new char* [dimension_Path];;
-  CORBA::Boolean _return_code = true ;
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/') _current_context = _root_context;
+  Utils_Locker lock (&_myMutex);
 
-  int dimension_resultat = 0;
-  _result_resolve_Path (Path, dimension_resultat, resultat_resolve_Path);
+  string path(Path);
 
- 
-  // We had to test if a part of the directory to treat 
-  // is already done
-  // If not, the new context has to be created
- 
-  CosNaming::Name _context_name;
-  _context_name.length(1);
-  CosNaming::NamingContext_var _temp_context;
-  ASSERT(!CORBA::is_nil(_current_context));
-  // Context creation
-  try
+  // --- if path empty, nothing to create, no context change
+
+  if (path.empty())
+    return false;
+
+  // --- if path ='/', nothing to create, only change to root_context
+
+  if (path == "/")
     {
-	
-      for (int i = 0 ; i <dimension_resultat ;i++)
-	{
-	  _context_name[0].id =
-	    CORBA::string_dup(resultat_resolve_Path[i]);
-	  _context_name[0].kind = CORBA::string_dup("dir");
-	  // SCRUTE(_context_name[0].id);
-	  //The Path could be in part already created. 
-	  //We had to test it
-	  try 
-	    {
-	      // this context is already created. 
-	      // Nothing to be done
-	      CORBA::Object_var _obj = 
-		_current_context->resolve(_context_name);
-	      _current_context = 
-		CosNaming::NamingContext::_narrow(_obj);
-	      MESSAGE("This context was already created");
-		} 
-	  catch (CosNaming::NamingContext::NotFound &) 
-	    {
-	      // This context is not created. It will be done
-	      _temp_context =
-		_current_context->bind_new_context(_context_name);
-	      _current_context = _temp_context;
-	      INFOS("This context was'nt created, it's now done");
-		}
-	}
+      MESSAGE("Create Directory '/', just change to root_context");
+      _current_context = _root_context;
+      return true;
     }
-  catch (CosNaming::NamingContext::AlreadyBound&)
-    {
-      INFOS("!!! Create_Directory() CosNaming::NamingContext::AlreadyBound");
-      _return_code = false;	
-    }
-  catch(CosNaming::NamingContext::NotFound& ex)
-    {
-      _return_code = false;
-      CosNaming::Name n = ex.rest_of_name;
-      if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS("Create_Directory() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found");
-      if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS("Create_Directory() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not a context");
-      if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS("Create_Directory() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not an object");
-    }
-  catch(CosNaming::NamingContext::CannotProceed&)
-    {
-      _return_code = false;
-      INFOS("!!!Create_Directory():CosNaming::NamingContext::CannotProceed"); 
-    } 
-  catch(CosNaming::NamingContext::InvalidName&) 
-    {
-      _return_code = false;
-      INFOS("!!!Create_Directory():CosNaming::NamingContext::InvalidName");
-    }
-  catch(CORBA::SystemException&)
-    {
-      _return_code = false;
-      INFOS("!!!Register() :CORBA::SystemException : unable to contact"
-	   << " the naming service"); 
-      throw ServiceUnreachable();
-    }
-  // Memory destruction
-  for (int i = 0 ; i <dimension_resultat;i++) 
-    {
-      delete [] resultat_resolve_Path[i];     
-    }
-  delete[] resultat_resolve_Path ;
-  return _return_code;
+
+  // --- path must end with '/'
+  
+  if (path[path.length()-1] != '/') path += '/';
+
+  Register(CORBA::Object::_nil(), path.c_str());
+  return true;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Change_Directory 
- *  Purpose  : method to change the current directory to the
- *             directory Path indicated in "in" Parameter.
+// ============================================================================
+/*! \brief change current directory to the given path
+ *
+ *  change the current directory to the given path in parameter.
+ *  Warning: avoid use when the SALOME_NamingService instance is shared by
+ *  several threads (current context may be modified by another thread).
+ *  If the path is empty, nothing done return OK.
  *  If Path ="/", the current directory changes to the root directory.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
- * \param Path const char* arguments
- * \return a boolean to indicate if the change succeeded
- */
-//----------------------------------------------------------------------
+ * \param  Path the new current directory
+ * \return true if the change succeeded
+ */ 
+// ============================================================================
 
 bool SALOME_NamingService::Change_Directory(const char* Path)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Change_Directory " << Path);
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path = new char* [dimension_Path];
-  CORBA::Boolean _return_code = true ;
+  Utils_Locker lock (&_myMutex);
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/') _current_context = _root_context;
+  string path(Path);
 
-  if ((Path[0]=='/') && (dimension_Path == 2))
+  // --- if path empty, nothing to do
+
+  if (path.empty())
+    return true;
+
+  // --- if path ='/', nothing to resolve, only change to root_context
+
+  if (path == "/")
     {
       MESSAGE("Change_Directory is called to go to the root_context");
+      _current_context = _root_context;
+      return true;
     }
-  //nothing to de done, the change_dur is called to go to the root_context
-  // no Path to resolve
-  else
-    //the resolution of the directory path has to be done
-    //to place the currect_context to the correct node
+
+  CosNaming::NamingContext_var current_context = _current_context;
+  bool changeOK = false;
+
+  // --- replace _current_context with _root_context if Path begins whith '/'
+
+  if (path[0] == '/')
+    current_context = _root_context;
+
+  // --- need to resolve directory path
+
+  ASSERT(!CORBA::is_nil(current_context));
+  
+  if (path[path.length()-1] != '/') path += '/';
+  SCRUTE(path);
+  CosNaming::Name context_name;
+  vector<string> splitPath;
+  int dimension_resultat = _createContextNameDir(path.c_str(),
+						 context_name,
+						 splitPath,
+						 true);
+  
+  // --- Context creation
+  
+  try
     {
-      int dimension_resultat = 0;
-      _result_resolve_Path(Path,dimension_resultat,resultat_resolve_Path);
-	  
-      CosNaming::Name _context_name;
-      _context_name.length(dimension_resultat);
-      CORBA::Object_var _obj;
-
-      _create_context_name_dir(resultat_resolve_Path,dimension_resultat,
-			       _context_name);
-
-      ASSERT(!CORBA::is_nil(_current_context));
-      // Context creation
-      try 
-	{
-	  _obj =_current_context->resolve(_context_name);
-	  _current_context = CosNaming::NamingContext::_narrow(_obj);
-	  ASSERT(!CORBA::is_nil(_current_context))
-	    }
-      catch(CosNaming::NamingContext::NotFound& ex)
-	{
-	  _return_code = false;
-	  CosNaming::Name n = ex.rest_of_name;
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS( "Change_Directory() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind << ") not found")
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS("Change_Directory() : " << (char *) n[0].id
-		 << " (" << (char *) n[0].kind
-		 << ") is not a context" )
-	  if (ex.why == CosNaming::NamingContext::not_object)
-	    INFOS( "Change_Directory() : " << (char *) n[0].id
-		 << " (" << (char *) n[0].kind
-		 << ") is not an object" )
-	}
-      catch(CosNaming::NamingContext::CannotProceed&)
-	{
-	  _return_code = false;
-	  INFOS( "!!!Change_Directory() : CosNaming::NamingContext::CannotProceed" )
-	} 
-      catch(CosNaming::NamingContext::InvalidName&) 
-	{
-	  _return_code = false;
-	  INFOS( "!!!Change_Directory() : CosNaming::NamingContext::InvalidName" )
-	}
-      catch(CORBA::SystemException&)
-	{
-	  _return_code = false;
-	  INFOS( "!!!Change_Directory() :CORBA::SystemException : unable to contact"
-	       << "the naming service")
-	  throw ServiceUnreachable();
-	}
-      // Memory destruction
-      for (int i = 0 ; i <dimension_resultat ;i++) 
-	{
-	  delete [] resultat_resolve_Path[i];     
-	}
-      delete[] resultat_resolve_Path ;
+      CORBA::Object_var obj = current_context->resolve(context_name);
+      current_context = CosNaming::NamingContext::_narrow(obj);
+      ASSERT(!CORBA::is_nil(current_context));
+      _current_context = current_context;
+      changeOK = true;
     }
-  return _return_code;
+  
+  catch (CosNaming::NamingContext::NotFound& ex)
+    {
+      CosNaming::Name n = ex.rest_of_name;
+      
+      if (ex.why == CosNaming::NamingContext::missing_node)
+	INFOS( "Change_Directory() : " << (char *) n[0].id
+	       << " (" << (char *) n[0].kind << ") not found");
+      if (ex.why == CosNaming::NamingContext::not_context)
+	INFOS("Change_Directory() : " << (char *) n[0].id
+	      << " (" << (char *) n[0].kind
+		  << ") is not a context" );
+      if (ex.why == CosNaming::NamingContext::not_object)
+	INFOS( "Change_Directory() : " << (char *) n[0].id
+	       << " (" << (char *) n[0].kind
+	       << ") is not an object" );
+    }
+  
+  catch (CosNaming::NamingContext::CannotProceed&)
+    {
+      INFOS("Change_Directory(): CosNaming::NamingContext::CannotProceed");
+    }
+  
+  catch (CosNaming::NamingContext::InvalidName&)
+    {
+      INFOS("Change_Directory(): CosNaming::NamingContext::InvalidName");
+    }
+  
+  catch (CORBA::SystemException&)
+    {
+      INFOS("Change_Directory():CORBA::SystemException : unable to contact"
+	    << "the naming service");
+      throw ServiceUnreachable();
+    }
+
+  return changeOK;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Current_Directory 
- *  Purpose  : method to get the current directory.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown
+// ============================================================================
+/*! \brief get the current directory path
+ *
+ *  Get the current directory path.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \return the path of the current_context
  * \sa  _current_directory
  */ 
-//----------------------------------------------------------------------
+// ============================================================================
 
 char* SALOME_NamingService::Current_Directory()
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Current_Directory");  
-  Utils_Locker lock(&_myMutex);
+  MESSAGE("BEGIN OF Current_Directory");
 
-  CosNaming::NamingContext_var _ref_context = _current_context;
+  Utils_Locker lock (&_myMutex);
 
-  int i = 0;
-  int length_path = 0;
-  char** result_path = new char*[50]; // 50 is it enough?
+  CosNaming::NamingContext_var ref_context = _current_context;
 
- 
-  // We go to the root_context to begin the search from the root
+  vector<string> splitPath;
+  splitPath.resize(0);
+  int lengthPath = 0;
+  bool notFound = true ;
+
+  // --- start search from root context
+
   _current_context = _root_context ;
-  CORBA::Boolean _continue = true ;
+
   try
     {
-      _current_directory(result_path,i,_ref_context,_continue );
+      _current_directory(splitPath, lengthPath, ref_context, notFound );
     }
-  catch(CORBA::SystemException&)
+
+  catch (CORBA::SystemException&)
     {
-      INFOS("!!!Current_Directory(): CORBA::SystemException : unable to contact"
-	   << " the naming service" )
+      INFOS("Current_Directory(): CORBA::SystemException: unable to contact"
+            << " the naming service" )
       throw ServiceUnreachable();
     }
-  for (int k = 0 ; k <i ;k++) 
-    { 
-      // We count the length of the char* + 1 for the '/' to separate
-      // the directories
-      length_path = length_path + strlen(result_path[k]) + 1;
+
+  string path;
+  lengthPath = splitPath.size();
+  for (int k = 0 ; k < lengthPath ;k++)
+    {
+      path += "/";
+      path += splitPath[k];
     }
-  char* return_Path = new char[length_path +2];
-  return_Path[0] = '/' ;
-  return_Path[1] = '\0' ;
-#ifndef WNT
-  for (int k = 0 ; k <i ;k++) 
-#else
-  for (k = 0 ; k <i ;k++) 
-#endif
-    { 
-      //SCRUTE(result_path[k])
-	strcat(return_Path,result_path[k]);
-      strcat(return_Path,"/");
-    }
-  //SCRUTE(return_Path)
-    _current_context = _ref_context ;
- 
-  return return_Path;
+
+  SCRUTE(path)
+  _current_context = ref_context ;
+
+  return strdup(path.c_str());
 }
 
-//----------------------------------------------------------------------
-/*! Function : list
- *  Purpose  : method to list and print all the context contained from
- *            the current context
+// ============================================================================
+/*! \brief list recursively all objects in the current context
+ *
+ *  List and print via trace all directories and objects in the current
+ *  context. Trace must be activated: compile option _DEBUG_
  *  If the NamingService is out, the exception ServiceUnreachable is thrown
  */ 
-//----------------------------------------------------------------------
+// ============================================================================
 
 void SALOME_NamingService::list()
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   MESSAGE("Begin of list");
-  Utils_Locker lock(&_myMutex);
-  CosNaming::BindingList_var _binding_list;
-  CosNaming::BindingIterator_var _binding_iterator;
-  unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
-  CosNaming::Binding_var _binding ;
-  CosNaming::NamingContext_var _ref_context = _current_context;
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
 
-  while (_binding_iterator->next_one(_binding)) {
-    CosNaming::Name _bindingName = _binding->binding_name;
-    if (_binding->binding_type == CosNaming::ncontext) {
-      MESSAGE( "Context : " << _bindingName[0].id );
-      try
+  Utils_Locker lock (&_myMutex)
+
+    ;
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding ;
+
+  unsigned long nb = 0 ; // --- only for the BindingIterator use,
+                         //     to access the bindings
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+
+  _current_context->list(nb, binding_list, binding_iterator) ;
+
+  if (! CORBA::is_nil(binding_iterator))
+    {
+      while (binding_iterator->next_one(binding))
 	{
-	  Change_Directory(_bindingName[0].id);
-	}
-      catch (ServiceUnreachable&)
-	{
-	  INFOS( "!!!list(): ServiceUnreachable" )
-	  throw ServiceUnreachable(); 
+	  CosNaming::Name bindingName = binding->binding_name;
+
+	  if (binding->binding_type == CosNaming::ncontext)
+	    {
+	      MESSAGE( "Context : " << bindingName[0].id );
+
+	      try
+		{
+		  Change_Directory(bindingName[0].id);
+		}
+
+	      catch (ServiceUnreachable&)
+		{
+		  INFOS( "list(): ServiceUnreachable" )
+		    throw ServiceUnreachable();
+		}
+
+	      list();
+	      _current_context = ref_context ;
+	    }
+
+	  else if (binding->binding_type == CosNaming::nobject)
+	    {
+	      MESSAGE( "Object : " << bindingName[0].id );
+	    }
 	}
 
-      list();
-      _current_context = _ref_context ;
+      binding_iterator->destroy();
     }
-    else if (_binding->binding_type == CosNaming::nobject) {
-      MESSAGE( "Object : " << _bindingName[0].id );
-    }
-  }
-  _binding_iterator->destroy();
 }
 
-//----------------------------------------------------------------------
-/*! Function : list_directory
- *  Purpose  : method to get all the contexts contained in the current 
- *             directory
- *             Get only objects, isn't iterative 
- *  If the NamingService is out, the exception ServiceUnreachable is thrown
+// ============================================================================
+/*! \brief list all the objects in the current directory.
+ *
+ *  get a list of all the objects in the current directory, without recursion
+ *  on the subdirectories. Only the objects are listed, not the directories.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \return list of strings with objects found.
+ * \sa vector<string> list_directory_recurs()
  */ 
-//----------------------------------------------------------------------
+// ============================================================================
+
 vector<string> SALOME_NamingService::list_directory()
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
-  vector<string> _list ;
-  _list.resize(0);
-  CosNaming::BindingList_var _binding_list;
-  CosNaming::BindingIterator_var _binding_iterator;
-  unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
-  CosNaming::Binding_var _binding ;
-  CosNaming::NamingContext_var _ref_context = _current_context;
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
-  if (_binding_iterator->_is_nil()) return _list;
+  MESSAGE("list_directory");
+  vector<string> dirList ;
+  dirList.resize(0);
 
-  while (_binding_iterator->next_one(_binding)) {
-    CosNaming::Name _bindingName = _binding->binding_name;
-    if (_binding->binding_type == CosNaming::nobject) {
-      _list.push_back(CORBA::string_dup(_bindingName[0].id));
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding ;
+
+  unsigned long nb = 0 ; // --- only for the BindingIterator use,
+                         //     to access the bindings
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+
+  _current_context->list(nb, binding_list, binding_iterator);
+
+  if (binding_iterator->_is_nil())
+    return dirList;
+
+  while (binding_iterator->next_one(binding))
+    {
+      CosNaming::Name bindingName = binding->binding_name;
+
+      if (binding->binding_type == CosNaming::nobject)
+        {
+          dirList.push_back(CORBA::string_dup(bindingName[0].id));
+        }
     }
-  }
-  //for (unsigned int ind = 0; ind < _list.size(); ind++)
-  //  MESSAGE("list_directory : Object : " << _list[ind]);
 
-  _binding_iterator->destroy();
-  return _list;
+  for (unsigned int ind = 0; ind < dirList.size(); ind++)
+    MESSAGE("list_directory : Object : " << dirList[ind]);
+
+  binding_iterator->destroy();
+
+  return dirList;
 }
 
-//----------------------------------------------------------------------
-/*! Function : list_directory_recurs
- *  Purpose  : method to get all the contexts contained in the current 
- *             directory
- *             Get only objects and is recursive 
- *  If the NamingService is out, the exception ServiceUnreachable is thrown
+
+// ============================================================================
+/*! \brief list all the subdirectories in the current directory.
+ *
+ *  get a list of all the subdirectories in the current directory,
+ *  without recursion on the subdirectories.
+ *  Only the subdirectories are listed, not the objects.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \return list of strings with directories found.
+ * \sa vector<string> list_directory()
  */ 
-//----------------------------------------------------------------------
+// ============================================================================
+
+vector<string> SALOME_NamingService::list_subdirs()
+throw(ServiceUnreachable)
+{
+  MESSAGE("list_subdirs");
+  vector<string> dirList ;
+  dirList.resize(0);
+
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding ;
+
+  unsigned long nb = 0 ; // --- only for the BindingIterator use,
+                         //     to access the bindings
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+
+  _current_context->list(nb, binding_list, binding_iterator) ;
+
+  if (binding_iterator->_is_nil())
+    return dirList;
+
+  while (binding_iterator->next_one(binding))
+    {
+      CosNaming::Name bindingName = binding->binding_name;
+
+      if (binding->binding_type == CosNaming::ncontext)
+        {
+          dirList.push_back(CORBA::string_dup(bindingName[0].id));
+        }
+    }
+
+  for (unsigned int ind = 0; ind < dirList.size(); ind++)
+    MESSAGE("list_directory : Object : " << dirList[ind]);
+
+  binding_iterator->destroy();
+
+  return dirList;
+}
+
+// ============================================================================
+/*! \brief  list all the objects in the current directory and subdirectories.
+ *
+ *  get a list of all the objects in the current directory, with recursion
+ *  on the subdirectories. Only the objects are listed, not the directories.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \return list of strings with objects found.
+ * \sa vector<string> list_directory()
+ */ 
+// ============================================================================
+
 vector<string> SALOME_NamingService::list_directory_recurs()
-    throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   MESSAGE("list_directory_recurs");
-  Utils_Locker lock(&_myMutex);
-  vector<string> _list ;
-  char *currentDir=Current_Directory();
-  _list_directory_recurs(_list,0,currentDir);
-  delete [] currentDir;
-  return _list;
+
+  Utils_Locker lock (&_myMutex);
+
+  vector<string> dirList ;
+
+  string currentDir = Current_Directory();
+
+  _list_directory_recurs(dirList, "", currentDir);
+
+  return dirList;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Destroy_Name 
- *  Purpose  : method to destroy an association Path-Object Reference.
- *             WARNING : The complete Path should be given.
+// ============================================================================
+/*! \brief destroy an entry in naming service.
+ *
+ *  Destroy an association Path - Object Reference.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
- * \param Path const char* arguments
- */
-//----------------------------------------------------------------------
+ * \param Path object path
+ */ 
+// ============================================================================
 
 void SALOME_NamingService::Destroy_Name(const char* Path)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Destroy_Name");
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path = new char* [dimension_Path];
+  MESSAGE("BEGIN OF Destroy_Name " << Path);
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/') _current_context = _root_context;
+  Utils_Locker lock (&_myMutex);
 
-  
-  //the resolution of the directory path has to be done
-  //to place the currect_context to the correct node
-  int dimension_resultat = 0;
-  _result_resolve_Path (Path, dimension_resultat, resultat_resolve_Path);
-    
-  CosNaming::Name _context_name;
-  if (dimension_resultat>1)
+  string path(Path);
+
+  // --- if path empty, nothing to do
+
+  if (path.empty())
+    return;
+
+  // --- if path = '/' not applicable, nothing to do
+
+  if (path == "/")
+    return;
+
+  // --- if path begins with '/', set current directory to root context
+
+  if (path[0] == '/')
+    _current_context = _root_context;
+
+  // --- context of the directory containing the object
+
+  CosNaming::Name context_name;
+  vector<string> splitPath;
+  int dimension_resultat = _createContextNameDir(path.c_str(),
+						 context_name,
+						 splitPath,
+						 true);
+
+  bool exist = false;
+
+  if (dimension_resultat > 0)
     {
-      // We go in the directory where the object to destroy is
-      _context_name.length(dimension_resultat-1);
-  
-      _create_context_name_dir(resultat_resolve_Path,dimension_resultat -1,
-			       _context_name); 
+      // --- path contains a directory, not only an object name
+      //     switch to the new directory (or return if directory not found)
+
       try
-	{
-	  CORBA::Object_var _obj = _current_context->resolve(_context_name);
-	  _current_context = CosNaming::NamingContext::_narrow(_obj);
-	} 
-      catch (CosNaming::NamingContext::NotFound& ex) 
-	{
-	  CosNaming::Name n = ex.rest_of_name;
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS(  "Destroy_Name() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind << ") not found" )
+        {
+          CORBA::Object_var obj = _current_context->resolve(context_name);
+          _current_context = CosNaming::NamingContext::_narrow(obj);
+	  exist = true;
+        }
+
+      catch (CosNaming::NamingContext::NotFound &ex)
+        {
+          // --- failed to resolve
+          exist = false;
+
+          CosNaming::Name n = ex.rest_of_name;
+
+          if (ex.why == CosNaming::NamingContext::missing_node)
+            INFOS( "Destroy_Name(): " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind << ") not found" );
 	  if (ex.why == CosNaming::NamingContext::not_context)
 	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		 << " (" << (char *) n[0].kind
-		 << ") is not a context" )
+		   << " (" << (char *) n[0].kind
+		   << ") is not a context" );
 	  if (ex.why == CosNaming::NamingContext::not_object)
 	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		 << " ("  << (char *) n[0].kind
-		 << ") is not an object" )
-	} 
-      catch (CosNaming::NamingContext::InvalidName &) 
-	{
-	  INFOS( "!!!Destroy_Name() : CosNaming::NamingContext::InvalidName" )
-	}
+		   << " (" << (char *) n[0].kind
+		   << ") is not an object" );
+        }
+
+      catch (CosNaming::NamingContext::InvalidName &)
+        {
+          INFOS("Destroy_Name: CosNaming::NamingContext::InvalidName");
+        }
+
       catch (CosNaming::NamingContext::CannotProceed &)
+        {
+          INFOS("Destroy_Name: CosNaming::NamingContext::CannotProceed");
+        }
+
+      catch (CORBA::SystemException&)
+        {
+          INFOS("Destroy_Name : CORBA::SystemException: "
+                << "unable to contact the naming service");
+          throw ServiceUnreachable();
+        }
+
+      if (! exist) return;
+    }
+
+  ASSERT(!CORBA::is_nil(_current_context));
+
+  // --- The current directory is now the directory where the object should
+  //     be destroyed
+
+  int sizePath = splitPath.size();
+  if (sizePath > dimension_resultat)
+    {
+      ASSERT(sizePath == dimension_resultat+1);
+      context_name.length(1);
+
+      try
 	{
-	  INFOS( "!!!Destroy_Name(): CosNaming::NamingContext::CannotProceed" )
+	  // --- the last element is an object and not a directory
+
+	  context_name[0].id =
+	    CORBA::string_dup(splitPath[dimension_resultat].c_str());
+	  context_name[0].kind = CORBA::string_dup("object");
+	  SCRUTE(context_name[0].id);
+ 
+	  _current_context->unbind(context_name);
+	  MESSAGE("The object " << context_name[0].id << " has been deleted");
 	}
-      catch(CORBA::SystemException&)
+
+      catch (CosNaming::NamingContext::NotFound& ex)
 	{
-	  INFOS( "!!!Destroy_Name() : CORBA::SystemException : unable to contact"
-	       << " the naming service")
+	  CosNaming::Name n = ex.rest_of_name;
+
+	  if (ex.why == CosNaming::NamingContext::missing_node)
+	    INFOS( "Destroy_Name() : " << (char *) n[0].id
+		   << " (" << (char *) n[0].kind << ") not found" );
+	  if (ex.why == CosNaming::NamingContext::not_context)
+	    INFOS( "Destroy_Name() : " << (char *) n[0].id
+		   << " (" << (char *) n[0].kind
+		   << ") is not a context" );
+          if (ex.why == CosNaming::NamingContext::not_object)
+            INFOS( "Destroy_Name() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not an object" );
+          }
+
+      catch (CosNaming::NamingContext::CannotProceed&)
+	{
+	  INFOS( "Destroy_Name(): CosNaming::NamingContext::CannotProceed");
+	}
+
+      catch (CosNaming::NamingContext::InvalidName&)
+	{
+	  INFOS( "Destroy_Name(): CosNaming::NamingContext::InvalidName");
+	}
+
+      catch (CORBA::SystemException&)
+	{
+	  INFOS( "Destroy_Name(): CORBA::SystemException: unable to contact"
+		 << " the naming service");
 	  throw ServiceUnreachable();
 	}
     }
-
-  // the last element is the object to destroy
-  _context_name.length(1);  
-  _context_name[0].id = 
-    CORBA::string_dup(resultat_resolve_Path[dimension_resultat -1]);
-  _context_name[0].kind = CORBA::string_dup("object");
-  SCRUTE(_context_name[0].id);
-  ASSERT(!CORBA::is_nil(_current_context));
-  // Object destruction
-  try 
-    {
-      _current_context->unbind(_context_name);
-      MESSAGE( "The object " << _context_name[0].id  << " has been deleted" )
-    }
-  catch(CosNaming::NamingContext::NotFound& ex)
-    {
-      CosNaming::Name n = ex.rest_of_name;
-      if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS(  "Destroy_Name() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found" )
-      if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS( "Destroy_Name() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not a context" )
-      if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS( "Destroy_Name() : " << (char *) n[0].id
-	     << " ("  << (char *) n[0].kind
-	     << ") is not an object" )
-    }
-  catch(CosNaming::NamingContext::CannotProceed&)
-    {
-      INFOS( "!!!Destroy_Name() : CosNaming::NamingContext::CannotProceed")
-    } 
-  catch(CosNaming::NamingContext::InvalidName&) 
-    {
-      INFOS( "!!!Destroy_Name() : CosNaming::NamingContext::InvalidName")
-    }
-  catch(CORBA::SystemException&)
-    {
-      INFOS( "!!!Destroy_Name() :CORBA::SystemException : unable to contact" 
-	   << " the naming service") 
-      throw ServiceUnreachable();
-    }
-  // Memory destruction
-  for (int i = 0 ; i <dimension_resultat ;i++) 
-    {
-      delete [] resultat_resolve_Path[i];     
-    }
-  delete[] resultat_resolve_Path ;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Destroy_Directory.
- *  Purpose  : method to destroy a directory if it is empty.
- *  WARNING : The complete Path  to the directory (from the root_context)
- *  to destroy should be given.
+// ============================================================================
+/*! \brief Destroy an empty directory
+ *
+ *  Destroy an empty directory in Naming Service.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
- * \param Path const char* arguments
- */
-//----------------------------------------------------------------------
+ * \param Path directory path
+ */ 
+// ============================================================================
 
 void SALOME_NamingService::Destroy_Directory(const char* Path)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Destroy_Directory");
-  Utils_Locker lock(&_myMutex);
-  int dimension_Path = strlen(Path) + 1;
-  char** resultat_resolve_Path = new char* [dimension_Path];
+  MESSAGE("BEGIN OF Destroy_Directory" << Path);
 
-  // _current_context is replaced to the _root_context 
-  // if the Path begins whith '/'
-  if (Path[0]=='/') _current_context = _root_context;
+  Utils_Locker lock (&_myMutex);
 
-  CosNaming::NamingContext_var _ref_context = _current_context;
- 
-  //the resolution of the directory path has to be done
-  //to place the currect_context to the correct node
-  int dimension_resultat = 0;
-  _result_resolve_Path (Path, dimension_resultat, resultat_resolve_Path);
-    
-  CosNaming::Name _context_name;
-  if (dimension_resultat>1)
+  string path(Path);
+
+  // --- if path empty, nothing to do
+
+  if (path.empty())
+    return;
+
+  // --- if path begins with '/', set current directory to root context
+
+  if (path[0] == '/')
+    _current_context = _root_context;
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+
+  // --- path must ends with '/' for a directory
+
+  if (path[path.size() -1] != '/')
+    path += '/';
+
+  // --- context of the directory
+
+  CosNaming::Name context_name;
+  vector<string> splitPath;
+  int dimension_resultat = _createContextNameDir(path.c_str(),
+						 context_name,
+						 splitPath,
+						 true);
+  bool exist = false;
+
+  if (dimension_resultat > 0)
     {
-      // We go in the directory where the context to destroy is
-      _context_name.length(dimension_resultat-1);
-  
-      _create_context_name_dir(resultat_resolve_Path,dimension_resultat -1,
-			       _context_name); 
+      // --- path contains a directory, not only an object name
+      //     switch to the new directory (or return if directory not found)
+
       try
-	{
-	  CORBA::Object_var _obj = _current_context->resolve(_context_name);
-	  _current_context = CosNaming::NamingContext::_narrow(_obj);
-          _ref_context = _current_context ;
-	} 
-      catch (CosNaming::NamingContext::NotFound& ex) 
-	{
-	  CosNaming::Name n = ex.rest_of_name;
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS(  "Destroy_Directory() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind << ") not found")
+        {
+          CORBA::Object_var obj = _current_context->resolve(context_name);
+          _current_context = CosNaming::NamingContext::_narrow(obj);
+	  exist = true;
+        }
+
+      catch (CosNaming::NamingContext::NotFound &ex)
+        {
+          // --- failed to resolve
+          exist = false;
+
+          CosNaming::Name n = ex.rest_of_name;
+
+          if (ex.why == CosNaming::NamingContext::missing_node)
+            INFOS( "Destroy_Directory(): " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind << ") not found" );
 	  if (ex.why == CosNaming::NamingContext::not_context)
 	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		 << " (" << (char *) n[0].kind
-		 << ") is not a context" )
+		   << " (" << (char *) n[0].kind
+		   << ") is not a context" );
 	  if (ex.why == CosNaming::NamingContext::not_object)
 	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		 << " ("  << (char *) n[0].kind
-		 << ") is not an object" )
-	} 
-      catch (CosNaming::NamingContext::InvalidName &) 
-	{
-	  INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::InvalidName" )
-	}
+		   << " (" << (char *) n[0].kind
+		   << ") is not an object" );
+        }
+
+      catch (CosNaming::NamingContext::InvalidName &)
+        {
+          INFOS("Destroy_Directory: CosNaming::NamingContext::InvalidName");
+        }
+
       catch (CosNaming::NamingContext::CannotProceed &)
-	{
-	  INFOS("!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
-	}
-      catch(CORBA::SystemException&)
-	{
-	  INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
-	       << " the naming service" )
-	  throw ServiceUnreachable();
-	}
-    }
+        {
+          INFOS("Destroy_Directory: CosNaming::NamingContext::CannotProceed");
+        }
 
-  // the last element is the context to destroy
-  _context_name.length(1);  
-  _context_name[0].id = 
-    CORBA::string_dup(resultat_resolve_Path[dimension_resultat -1]);
-  _context_name[0].kind = CORBA::string_dup("dir");
-  SCRUTE(_context_name[0].id);
+      catch (CORBA::SystemException&)
+        {
+          INFOS("Destroy_Directory : CORBA::SystemException: "
+                << "unable to contact the naming service");
+          throw ServiceUnreachable();
+        }
 
-  try
-    {
-      // We go in the context to destroy
-      CORBA::Object_var _obj = _current_context->resolve(_context_name);
-      _current_context = CosNaming::NamingContext::_narrow(_obj);
-    } 
-  catch (CosNaming::NamingContext::NotFound& ex) 
-    {
-      CosNaming::Name n = ex.rest_of_name;
-      if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS(  "Destroy_Directory() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found" )
-      if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS( "Destroy_Directory() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not a context" )
-      if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS( "Destroy_Directory() : " << (char *) n[0].id
-	     << " ("  << (char *) n[0].kind
-	     << ") is not an object" )
-    } 
-  catch (CosNaming::NamingContext::InvalidName &) 
-    {
-      INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::InvalidName" )
-    }
-  catch (CosNaming::NamingContext::CannotProceed &)
-    {
-      INFOS( "!!!Destroy_Directory(): CosNaming::NamingContext::CannotProceed" )
-    }
-  catch(CORBA::SystemException&)
-    {
-      INFOS( "!!!Destroy_Directory() : CORBA::SystemException : unable to contact"
-	   << " the naming service" )
-      throw ServiceUnreachable();
+      if (! exist) return;
     }
 
   ASSERT(!CORBA::is_nil(_current_context));
-  // Context Destruction
-  try 
-    {
-      _current_context->destroy();
-      MESSAGE( "The context " << _context_name[0].id << " has been deleted" )
-    }
-  catch(CosNaming::NamingContext::NotEmpty&)
-    {
-      INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::NoEmpty "
-	   << Path << " is not empty" )
-    } 
-  catch(CORBA::SystemException&)
-    {
-      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : "
-	   << "unable to contact the naming service") 
-      throw ServiceUnreachable();
-    }
-  // We go to the directory just before the context to delete
-  _current_context = _ref_context ; 
+
+  // --- Context Destruction
+
+  bool isContextDestroyed = false;
   try
     {
-      _current_context->unbind(_context_name);
-      MESSAGE( "The bind to the context " << _context_name[0].id  << " has been deleted" )
+      _current_context->destroy();
+      MESSAGE( "The context " << path << " has been deleted" );
+      isContextDestroyed = true;
     }
-  catch(CosNaming::NamingContext::NotFound& ex)
+
+  catch (CosNaming::NamingContext::NotEmpty&)
     {
-      CosNaming::Name n = ex.rest_of_name;
-      if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS(  "Destroy_Directory() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found" )
-      if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS( "Destroy_Directory() : " << (char *) n[0].id
-	     << " (" << (char *) n[0].kind
-	     << ") is not a context" )
-      if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS( "Destroy_Directory() : " << (char *) n[0].id
-	     << " ("  << (char *) n[0].kind
-	     << ") is not an object" )
+      INFOS( "Destroy_Directory(): CosNaming::NamingContext::NoEmpty "
+             << path << " is not empty" );
     }
-  catch(CosNaming::NamingContext::CannotProceed&)
+
+  catch (CORBA::SystemException&)
     {
-      INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::CannotProceed")
-    } 
-  catch(CosNaming::NamingContext::InvalidName&) 
-    {
-      INFOS( "!!!Destroy_Directory() : CosNaming::NamingContext::InvalidName")
-    }
-  catch(CORBA::SystemException&)
-    {
-      INFOS( "!!!Destroy_Directory() :CORBA::SystemException : unable to contact" 
-	   << " the naming service") 
+      INFOS( "Destroy_Directory():CORBA::SystemException : "
+             << "unable to contact the naming service");
       throw ServiceUnreachable();
     }
-  // Memory destruction
-  for (int i = 0 ; i <dimension_resultat ;i++) 
+
+  // --- go to the reference directory
+
+  _current_context = ref_context ;
+
+  ASSERT(!CORBA::is_nil(_current_context));
+
+  if (isContextDestroyed)
     {
-      delete [] resultat_resolve_Path[i];     
+      try
+	{
+	  _current_context->unbind(context_name);
+	  MESSAGE( "The bind to the context "
+		   << context_name[0].id
+		   << " has been deleted" );
+	}
+
+      catch (CosNaming::NamingContext::NotFound& ex)
+	{
+	  CosNaming::Name n = ex.rest_of_name;
+
+	  if (ex.why == CosNaming::NamingContext::missing_node)
+	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
+		   << " (" << (char *) n[0].kind << ") not found" );
+	  if (ex.why == CosNaming::NamingContext::not_context)
+	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
+		   << " (" << (char *) n[0].kind
+		   << ") is not a context" );
+	  if (ex.why == CosNaming::NamingContext::not_object)
+	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
+		   << " (" << (char *) n[0].kind
+		   << ") is not an object" );
+	}
+
+      catch (CosNaming::NamingContext::CannotProceed&)
+	{
+	  INFOS("Destroy_Directory: CosNaming::NamingContext::CannotProceed");
+	}
+
+      catch (CosNaming::NamingContext::InvalidName&)
+	{
+	  INFOS("Destroy_Directory: CosNaming::NamingContext::InvalidName");
+	    }
+
+      catch (CORBA::SystemException&)
+	{
+	  INFOS("Destroy_Directory:CORBA::SystemException : unable to contact"
+		 << " the naming service");
+	  throw ServiceUnreachable();
+	}
     }
-  delete[] resultat_resolve_Path ;
 }
 
-//----------------------------------------------------------------------
-/*! Function : Destroy_Directory.
- *  Purpose  : method to destroy a directory if it is empty.
- *  WARNING : The complete Path  to the directory (from the root_context)
- *  to destroy should be given.
+// ============================================================================
+/*! \brief Destroy a directory with its contents.
+ *
+ *  Destroy the objects associations in a directory, and the directory itself,
+ *  if there is no subdirectories. 
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
- * \param Path const char* arguments
- */
-//----------------------------------------------------------------------
+ * \param Path the directory path.
+ */ 
+// ============================================================================
 
 void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
-  throw(ServiceUnreachable)
+throw(ServiceUnreachable)
 {
   Change_Directory(Path);
   vector<string> contList = list_directory();
-  for(unsigned int ind = 0; ind < contList.size(); ind++)
+
+  for (unsigned int ind = 0; ind < contList.size(); ind++)
     Destroy_Name(contList[ind].c_str());
+
   Destroy_Directory(Path);
+
   Destroy_Name(Path);
 }
 
-//----------------------------------------------------------------------
-/*! Function : _initialize_root_context
- * Purpose  :  method called by constructor to initialize _root_context
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief  initialize root context (root directory)
+ *
+ * the root context initialisation must be done when the SALOME_NamingService
+ * instance is created and before any othe call. See constructors.
+ */ 
+// ============================================================================
 
 void SALOME_NamingService::_initialize_root_context()
 {
   //MESSAGE("Get the root context");
+
   try
     {
       CORBA::Object_var obj = _orb->resolve_initial_references("NameService");
       _root_context = CosNaming::NamingContext::_narrow(obj);
       _current_context = _root_context ;
-      ASSERT(!CORBA::is_nil(_root_context)); 
+      ASSERT(!CORBA::is_nil(_root_context));
     }
 
-  catch(CORBA::SystemException&)
+  catch (CORBA::SystemException&)
     {
       INFOS("CORBA::SystemException: unable to contact the naming service");
       throw ServiceUnreachable();
     }
-  catch(...)
+
+  catch (...)
     {
       INFOS("Unknown Exception: unable to contact the naming service");
       throw ServiceUnreachable();
     }
 }
 
-//----------------------------------------------------------------------
-/*! Function : _resolve_Path
- * Purpose  : method to decompose a Path : /Kernel/Services/Sessions.
- * 
- * \return a char* containing the first char between '/' (in this case Kernel)
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief transform a string path in CosNaming structure.
+ *
+ *  Transform a path given as a string in a CosNaming structure.
+ *  \param path         a relative or absolute path, with or without an object.
+ *                      An absolute path begins with '/'.
+ *                      A path without an object ends with '/'.
+ *  \param context_name CosNaming structure to put the path.
+ *  \param splitPath    a vector of string with subdirectories and final
+ *                      object, if any.
+ *  \param onlyDir      if true, final object (if any) is ommited
+ *                      in context_name.
+ *                      if false, final object (if any) is included in
+ *                      context_name.
+ *  \return             dimension of context_name
+ */ 
+// ============================================================================
 
-char* SALOME_NamingService::_resolve_Path(char* Path)
+int
+SALOME_NamingService::_createContextNameDir(string path,
+					    CosNaming::Name& context_name,
+					    vector<string>& splitPath,
+					    bool onlyDir)
 {
-  int i = 0 ;
-  int length = strlen(Path);
-  char *resultat;
+  if (path.empty())
+    return 0;
 
-  if (length==0) return NULL;
-  else
+  string::size_type begIdx, endIdx;
+  const string delims("/");
+  splitPath.resize(0);
+  bool endWithDelim = false;
+
+  begIdx = path.find_first_not_of(delims);
+  while (begIdx != string::npos)
     {
-      while ((i<length) && (Path[i]!='/'))
-	i++;
-      resultat = new char[i+1];
-      strncpy(resultat,Path,i);
-      resultat[i]='\0';    
-      return resultat;
+      endIdx = path.find_first_of(delims, begIdx);
+      if (endIdx == path.length()-1)
+	endWithDelim = true;
+      if (endIdx == string::npos)
+	endIdx = path.length();
+      int lsub = endIdx - begIdx;
+      if (lsub > 1)
+	splitPath.push_back(path.substr(begIdx, lsub));
+      begIdx = path.find_first_not_of(delims, endIdx);
     }
-}
 
-//----------------------------------------------------------------------
-/*! Function : _result_resolve_Path.
- *  Purpose  : method to decompose a Path : /Kernel/Services/Sessions.
- *  Gives an array of char* containing Kernel, Services, Sessions.
- * \param  Path const char* arguments, the Path to decompose
- * \param j int& arguments, the size of the array of char*
- * \param resultat_resolve_Path char** arguments
- */
-//----------------------------------------------------------------------
-
-void 
-SALOME_NamingService::_result_resolve_Path(const char* Path, 
-					   int& j, 
-					   char ** resultat_resolve_Path)
-{  
-  //MESSAGE("BEGIN OF _result_resolve_Path");
-  int dimension_Path = strlen(Path) + 1;
-  char** temp= new char* [dimension_Path];
-  char** tempslash = new char* [dimension_Path];
-
-  temp[j] = new char[dimension_Path];
-  strcpy(temp[j],Path);
-
-  while (strlen(temp[j])>0)
+  int dim;
+  if (onlyDir)                  // only directory part
     {
-      // temp[j] contains the characters to be treated :
-      //  (Path - characters already treted)
-      // tempslash[j] = temp[j] if the string temp[j] doesn't begin whith '/'
-      // tempslash[j] = temp[j] without '/' if the string begins whith '/'
-      int length_temp = strlen(temp[j]);
-      if (temp[j][0]=='/')
+      dim = splitPath.size()-1; // omit final object
+      if (endWithDelim)         // unless the path ends with a delimiter 
+	dim++;
+      endWithDelim = true;
+    }
+  else
+    dim = splitPath.size();     // directories and final object
+
+  context_name.length(dim);
+  for (int i=0; i<dim; i++)
+    {
+      SCRUTE(splitPath[i]);
+      context_name[i].id = CORBA::string_dup(splitPath[i].c_str());
+      if (!endWithDelim && (i == dim-1)) // here, the last string is an object
 	{
-	  // the characters to be treated begin whith '/'
-	  // we don't have to take the '/'
-	  tempslash[j] = new char [length_temp] ;
-	  for (int k = 0; k < length_temp-1; k++) 
-	    tempslash[j][k] = temp[j][k+1];
-          tempslash[j][length_temp-1]='\0';
+	  context_name[i].kind = CORBA::string_dup("object");
+	  MESSAGE("--- " <<splitPath[i] <<".object");
 	}
       else
 	{
-	  //the characters to be trated don't begin with '/'
-	  // Nothing to be done on the char
-	  tempslash[j] = new char [length_temp+1] ;
-	  strcpy(tempslash[j],temp[j]);	  
+	  context_name[i].kind = CORBA::string_dup("dir");
+	  MESSAGE("--- " <<splitPath[i] <<".dir");
 	}
-      // decomposition of the Path 
-      resultat_resolve_Path[j]= _resolve_Path(tempslash[j]);
-      //SCRUTE(resultat_resolve_Path[j]);
-
-      int length_resultat = strlen(resultat_resolve_Path[j]) ;
-      int dimension_temp = length_temp -length_resultat ;
-      j++;
-      temp[j] = new char[dimension_temp +1];
-      for (int i = 0 ; i <dimension_temp  ;i++)
-	{
-	  temp[j][i] =tempslash[j-1][i+ length_resultat];
-	}
-      temp[j][dimension_temp]= '\0';
-      //SCRUTE(temp[j]);
-    } 
-  // Memory destruction
-  for (int i = 0 ; i <j;i++) 
-    {
-      delete [] temp[i];
-      delete [] tempslash[i];    
     }
-  delete[] temp;
-  delete [] tempslash ;
+  return dim;
 }
 
-//----------------------------------------------------------------------
-/*! Function : _Find.
- *  Purpose  : method to research a name from the current directory 
- *             of the naming service.   
- *  The naming service changes directory to go to the directory where 
- *  the last occurence was found.
- *  \param name const char* arguments
- *  \param occurence_number CORBA::LONG (by value)
- */   
-//----------------------------------------------------------------------
-
-void SALOME_NamingService::_Find(const char* name, 
-				 CORBA::Long& occurence_number)
-{
-  //MESSAGE("BEGIN OF _Find") SCRUTE(name); 
-  CosNaming::BindingList_var _binding_list;
-  CosNaming::BindingIterator_var _binding_iterator;
-  unsigned long nb=0 ; //for using only the BindingIterator 
-                       // to access the bindings
-  CosNaming::Binding_var _binding ;
-  CosNaming::NamingContext_var _ref_context = _current_context;
-  CosNaming::NamingContext_var _found_context = _current_context;
-
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
-
-  while (_binding_iterator->next_one(_binding)) {
-    CosNaming::Name _bindingName = _binding->binding_name;
-    if (_binding->binding_type == CosNaming::ncontext) {
-      // We work on a directory, the search should be done in this directory
-      Change_Directory(_bindingName[0].id);
-      _Find(name,occurence_number);
-      // We'll go back to the initial context
-      _current_context = _ref_context ;
-    }
-    else if (_binding->binding_type == CosNaming::nobject) {
-      // We work on an object...
-      if (!strcmp( _bindingName[0].id,name))
-	{
-	  //MESSAGE("One occurence was found");
-	  occurence_number++;
-	  // We keep in memory the directory where one occurence was found
-	  _found_context = _current_context ;
-	}
-    }
-  }
-  _binding_iterator->destroy();  
-  // We go to the last directory where an occurence was found
-  _current_context = _found_context ;
-  //SCRUTE(occurence_number);
-}
-
-//----------------------------------------------------------------------
-/*! Function : _create_context_name_dir.
- *  Purpose  : method to create a Context_name from an array of char.
- *             The number of elements to be copied are indicated 
- *             with lenth_copy.
+// ============================================================================
+/*! \brief search a name in current directory.
  *
- * \param resultat_resolve_Path char** arguments
- * \param length_copy int arguments
- * \param _context_name CosNaming::Name arguments (by value)
- */
-//----------------------------------------------------------------------
+ *  Search a name in the current directory. after call, the current directory
+ *  is changed to the directory containing the last occurence of name found.
+ *  If no occurence found (see return value), current directory remains
+ *  unchanged. The call is recursive.
+ *
+ * \param  name the name to search.
+ * \param  occurence_number number of occurence already found (incremented)
+ */ 
+// ============================================================================
 
-void 
-SALOME_NamingService::_create_context_name_dir(char** resultat_resolve_Path
-					       ,int length_copy,
-					       CosNaming::Name& _context_name) 
+void SALOME_NamingService::_Find(const char* name,
+                                 CORBA::Long& occurence_number)
 {
-  //MESSAGE("BEGIN OF _create_context_name_dir");
-  for (int i = 0 ; i < length_copy;i++)
+  MESSAGE("BEGIN OF _Find "<<  occurence_number << " " << name);
+
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding;
+
+  unsigned long nb = 0 ; // --- only for the use of the BindingIterator,
+                         //     to access the bindings
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+  CosNaming::NamingContext_var found_context = _current_context;
+
+  _current_context->list(nb, binding_list, binding_iterator) ;
+
+  if (! CORBA::is_nil(binding_iterator))
     {
-      _context_name[i].id = CORBA::string_dup(resultat_resolve_Path[i]);
-      _context_name[i].kind = CORBA::string_dup("dir");
-      //SCRUTE(_context_name[i].id);
+      while (binding_iterator->next_one(binding))
+	{
+	  CosNaming::Name bindingName = binding->binding_name;
+	  
+	  if (binding->binding_type == CosNaming::ncontext)
+	    {
+	      // --- We work on a directory,
+	      //     the search should be done in this directory
+	      
+	      Change_Directory(bindingName[0].id);
+	      _Find(name, occurence_number);
+	      
+	      // --- We'll go back to the initial context
+	      
+	      _current_context = ref_context ;
+	    }
+	  
+	  else if (binding->binding_type == CosNaming::nobject)
+	    {
+	      // --- We work on an object...
+	      
+	      if (!strcmp( bindingName[0].id, name))
+		{
+		  //MESSAGE("One occurence was found");
+		  occurence_number++;
+		  
+		  // --- We keep in memory the directory where
+		  //     one occurence was found
+		  
+		  found_context = _current_context ;
+		}
+	    }
+	}
+      
+      binding_iterator->destroy();
     }
+  // --- We go to the last directory where an occurence was found
+
+  _current_context = found_context;
+
+  SCRUTE(occurence_number);
 }
 
-//----------------------------------------------------------------------
-/*! Function : _current_directory.
- * Purpose  : method to parse the naming service tree to find a context
- *            and determine the path to go to this context from the 
- *            _root_context.
- *  \param result_path char** arguments
- *  \param length_result int arguments by value
- *  \param context_to_found CosNaming::NamingContext_var arguments
- *  \param _continue boolean arguments
- */
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief find the current directory path.
+ * 
+ *  Parse the naming service tree to find the current context and give the
+ *  associated directory path (relative to root context).
+ * \param splitPath 
+ * \param lengthResult
+ * \param contextToFind
+ * \param _notFound
+ */ 
+// ============================================================================
 
 void
-SALOME_NamingService::_current_directory(char** result_path,
-					 int& length_result,
-					 CosNaming::NamingContext_var context_to_found,
-					 CORBA::Boolean& _continue) 
+SALOME_NamingService::
+_current_directory(vector<string>& splitPath,
+		   int& lengthResult,
+		   CosNaming::NamingContext_var contextToFind,
+		   bool& notFound)
 {
-  //MESSAGE("BEGIN OF _current_Directory");  
-  CosNaming::BindingList_var _binding_list;
-  CosNaming::BindingIterator_var _binding_iterator;
-  unsigned long nb=0 ; //for using only the BindingIterator 
-                       // to access the bindings
-  CosNaming::Binding_var _binding ;
-  CosNaming::NamingContext_var _ref_context = _current_context;
-  CosNaming::NamingContext_var _temp_context = _current_context;
- 
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
-  if ( !_binding_iterator->_is_nil() ) {
-  while ((_binding_iterator->next_one(_binding)) && _continue) {
-    CosNaming::Name _bindingName = _binding->binding_name;
-    if (_binding->binding_type == CosNaming::ncontext)
-      {
-	// We work on a directory, the search should be done in this directory
- 
-	result_path[length_result] = new char(strlen(_bindingName[0].id) + 1);
-	strcpy(result_path[length_result],_bindingName[0].id);
-	//SCRUTE(result_path[length_result])
-	  length_result++;
+  MESSAGE("BEGIN OF _current_Directory");
 
-	CORBA::Object_var  _obj =_current_context->resolve(_bindingName);
-	_temp_context = CosNaming::NamingContext::_narrow(_obj);
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding;
 
-	if (_temp_context->_is_equivalent(context_to_found)) 
-	  {
-	    //MESSAGE("The context is found, we stop the search");
-	    _continue = false; 
-	    //SCRUTE(_continue);
-	  }
-	if(_continue)
-	  {
-            //SCRUTE(_bindingName[0].id);
-	    Change_Directory(_bindingName[0].id);
-	    _current_directory(result_path,length_result,
-			       context_to_found, _continue );
-	    if (_continue)
-	      {
-		// We'll go back to the initial context
-		_current_context = _ref_context ;
-		//MESSAGE("Just before the delete of ")
-		//SCRUTE(result_path[length_result-1]);
-		delete result_path[length_result-1];
-		length_result--;
-	      }
-	  }
-      }
-  }
-  _binding_iterator->destroy();  
-  }	
-  // We go to the last directory where an occurence was found
-  _current_context = _ref_context ; 
+  unsigned long nb = 0 ; // --- only for the BindingIterator use,
+                         //     to access the bindings
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+  CosNaming::NamingContext_var temp_context = _current_context;
+
+  _current_context->list(nb, binding_list, binding_iterator);
+
+  if ( !binding_iterator->_is_nil() )
+    {
+      while ((binding_iterator->next_one(binding)) && notFound)
+        {
+          CosNaming::Name bindingName = binding->binding_name;
+
+          if (binding->binding_type == CosNaming::ncontext)
+            {
+              // --- directory, search in it
+
+	      splitPath.push_back(CORBA::string_dup(bindingName[0].id));
+              lengthResult++;
+
+              CORBA::Object_var obj = _current_context->resolve(bindingName);
+              temp_context = CosNaming::NamingContext::_narrow(obj);
+
+              if (temp_context->_is_equivalent(contextToFind))
+                {
+                  MESSAGE("The context is found, we stop the search");
+                  notFound = false;
+                  SCRUTE(notFound);
+                }
+
+              if (notFound)
+                {
+                  SCRUTE(bindingName[0].id);
+                  Change_Directory(bindingName[0].id);
+                  _current_directory(splitPath,
+				     lengthResult,
+                                     contextToFind,
+				     notFound);
+
+                  if (notFound)
+                    {
+                      // --- go back to the initial context
+
+                      _current_context = ref_context;
+
+                      MESSAGE("Just before the delete of "
+			      << splitPath[lengthResult-1]);
+		      splitPath.pop_back();
+                      lengthResult--;
+                    }
+                }
+            }
+        }
+
+      binding_iterator->destroy();
+    }
+
+  // --- return to the last directory where an occurence was found
+
+  _current_context = ref_context ;
 }
 
 
-//----------------------------------------------------------------------
-/*! Function :_list_directory_recurs.
+// ============================================================================
+/*! \brief list recursively all objects in the given directory and subdirs.
+ *
+ *  get a list of all the objects in the current directory, with recursion
+ *  on the subdirectories. Only the objects are listed, not the directories.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param myList the list of objects
+ * \
+Function :_list_directory_recurs.
  * Purpose  : method to list recursively all the objects contained in the tree of absCurDirectory/relativeSubDir.
  *  \param myList The list that will be filled.
  *  \param relativeSubDir The directory from absCurDirectory in which the objects are found.
  *  \param absCurDirectory The directory in ABSOLUTE form.
  *  _current_context must refer to absCurDirectory.
- */
-//----------------------------------------------------------------------
-void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const char *relativeSubDir,const char *absCurDirectory)
+ */ 
+// ============================================================================
+
+void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
+						  string relativeSubDir,
+						  string absCurDirectory)
 {
-  CosNaming::BindingList_var _binding_list;
-  CosNaming::BindingIterator_var _binding_iterator;
-  unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
-  CosNaming::Binding_var _binding ;
-  char *absDir;
+  CosNaming::BindingList_var binding_list;
+  CosNaming::BindingIterator_var binding_iterator;
+  CosNaming::Binding_var binding ;
 
-  CosNaming::NamingContext_var _ref_context = _current_context;
-  if(relativeSubDir)
+  unsigned long nb = 0 ; // --- only for thethe use of BindingIterator
+                         //     to access the bindings
+
+  string absDir;
+
+  CosNaming::NamingContext_var ref_context = _current_context;
+
+  if (! relativeSubDir.empty())
     {
-      Change_Directory(relativeSubDir);
-      absDir=new char[strlen(absCurDirectory)+2+strlen(relativeSubDir)];
-      strcpy(absDir,absCurDirectory);
-      strcat(absDir,relativeSubDir);
-      strcat(absDir,"/");
+      Change_Directory(relativeSubDir.c_str());
+      absDir = absCurDirectory + "/" + relativeSubDir;
     }
+
   else
-    absDir=(char *)absCurDirectory;
-  _current_context->list(nb, _binding_list, _binding_iterator) ;
+    absDir = absCurDirectory;
 
-  while (_binding_iterator->next_one(_binding)) {
-    CosNaming::Name _bindingName = _binding->binding_name;
-    if (_binding->binding_type == CosNaming::ncontext) {
-      _list_directory_recurs(myList,_bindingName[0].id,absDir);
-    }
-    else if (_binding->binding_type == CosNaming::nobject) {
-      char *elt=new char[strlen(absDir)+2+strlen(_bindingName[0].id)];
-      strcpy(elt,absDir);
-      strcat(elt,_bindingName[0].id);
-      myList.push_back(elt);
-      delete [] elt;
-    }
-  }
-  if(relativeSubDir)
+  SCRUTE(absDir);
+  _current_context->list(nb, binding_list, binding_iterator) ;
+
+  if (! CORBA::is_nil(binding_iterator))
     {
-      _current_context = _ref_context ;
-      delete [] absDir;
-    }
+      while (binding_iterator->next_one(binding))
+	{
+	  CosNaming::Name bindingName = binding->binding_name;
 
-  _binding_iterator->destroy();
+	  if (binding->binding_type == CosNaming::ncontext)
+	    {
+	      string relativeSdir(bindingName[0].id);
+	      _list_directory_recurs(myList, relativeSdir, absDir);
+	    }
+
+	  else if (binding->binding_type == CosNaming::nobject)
+	    {
+	      string objName(bindingName[0].id);
+	      string elt = absDir + "/" + objName;
+	      SCRUTE(elt);
+	      myList.push_back(elt);
+	    }
+	}
+
+      binding_iterator->destroy();
+    }
+  if (! relativeSubDir.empty())
+    {
+      _current_context = ref_context;
+    }
 }
 
-//----------------------------------------------------------------------
+// ============================================================================
+/*! \brief return a stringified reference of root context
+ *
+ * \return a stringified reference of root context
+ */
+// ============================================================================
 
 char * SALOME_NamingService::getIORaddr()
 {
-   return _orb->object_to_string(_root_context);
+  return _orb->object_to_string(_root_context);
 }
 

@@ -1,0 +1,18 @@
+
+#ifndef NSTEST_IDL
+#define NSTEST_IDL
+
+module NSTEST
+{
+  interface echo
+  {
+    long getId();
+  };
+
+  interface aFactory
+  {
+    echo createInstance();
+  };
+};
+
+#endif

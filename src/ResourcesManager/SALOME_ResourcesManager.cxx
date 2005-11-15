@@ -461,6 +461,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
       o << nbproc << " ";
 
       command += o.str();
+      command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 
       if (isPythonContainer(params.container_name))
         command += "pyMPI SALOME_ContainerPy.py ";

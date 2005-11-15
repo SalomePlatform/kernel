@@ -5,12 +5,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)
 
-#if defined WNT && defined COMMUNICATION_EXPORTS
-#define COMMUNICATION_EXPORT __declspec( dllexport )
-#else
-#define COMMUNICATION_EXPORT
-#endif
-
 class SALOMEMultiComm;
 
 class SALOME_SenderDouble_i;
@@ -19,7 +13,7 @@ class SALOME_SenderInt_i;
 /*!
   This class implements the factory pattern of GoF by making a sender by giving an array and a communicator.It completely hides the type of sender from the user.
  */
-class COMMUNICATION_EXPORT SenderFactory
+class SenderFactory
 {
 public:
   static SALOME::SenderDouble_ptr buildSender(SALOMEMultiComm &multiCommunicator,const double *tab,long lgr,bool ownTab=false) throw(MultiCommException);

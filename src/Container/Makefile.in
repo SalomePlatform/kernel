@@ -60,7 +60,7 @@ BIN = SALOME_Container SALOME_ContainerManagerServer
 BIN_SRC = SALOME_Container_SignalsHandler.cxx
 BIN_SERVER_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
 
-CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES) $(QT_MT_INCLUDES)
+CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDES) $(OCC_INCLUDES) $(QT_MT_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
 
 LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager

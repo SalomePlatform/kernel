@@ -29,16 +29,14 @@
 #ifndef SALOME_NAMINGSERVICE_H
 #define SALOME_NAMINGSERVICE_H
 
-#include "utilities.h"
-#include <CORBA.h>
-#include <vector>
-#include <string>
-#include "Utils_Mutex.hxx"
-
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
-//class ServiceUnreachable;
+
+#include <vector>
+#include <string>
+#include "utilities.h"
+#include "Utils_Mutex.hxx"
 #include "ServiceUnreachable.hxx"
 
 #if defined NAMINGSERVICE_EXPORTS
@@ -58,114 +56,73 @@
 class NAMINGSERVICE_EXPORT SALOME_NamingService
 {
 public:
-  //! default constructor
   SALOME_NamingService();
-
-  //! standard constructor
   SALOME_NamingService(CORBA::ORB_ptr orb);
 
-  //! standard destructor
   virtual ~SALOME_NamingService();
 
-  //! initialize ORB reference after default constructor
   void init_orb(CORBA::ORB_ptr orb);
- 
-  //! method to create an association in the NamingService between an object reference and a path
-  void Register(CORBA::Object_ptr ObjRef, const char* Path) 
+  void Register(CORBA::Object_ptr ObjRef,
+		const char* Path) 
     throw(ServiceUnreachable);
-
-  //! method to get the ObjRef of a symbolic name
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
-
-  //! method to get the ObjRef of a component
-  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0);
-
- //! method to get an ObjRef, given a symbolic name without instance suffix "/Path/Name*.kind"
   CORBA::Object_ptr ResolveFirst(const char* Path)
     throw( ServiceUnreachable); 
-
+  CORBA::Object_ptr ResolveComponent(const char* hostname,
+				     const char* containerName,
+				     const char* componentName,
+				     const int nbproc=0)
+    throw(ServiceUnreachable);
   std::string ContainerName(const char *ContainerName);
   std::string ContainerName(const Engines::MachineParameters& params);
-
-  std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
-  std::string BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname);
-
-  //! method to research a name from the naming service's current directory 
+  std::string BuildContainerNameForNS(const char *ContainerName,
+				      const char *hostname);
+  std::string 
+  BuildContainerNameForNS(const Engines::MachineParameters& params,
+			  const char *hostname);
   int Find(const char* name)
     throw(ServiceUnreachable);
-  
-  //! method to create a directory from the current directory
   bool Create_Directory(const char* Path)
     throw(ServiceUnreachable);
-  
-  //! method to change the current directory to the directory Path indicated in "in" Parameter
   bool Change_Directory(const char* Path)
     throw(ServiceUnreachable);
- 
-  //!method to get the current directory
   char* Current_Directory()
     throw(ServiceUnreachable);
-
-  //!method to print all the contexts contained from the current directory
   void list()
     throw(ServiceUnreachable);
-
-  //!method to get all the contexts contained in the current direcotry
-  // Get only objects, isn't iterative
   std::vector<std::string> list_directory()
     throw(ServiceUnreachable);
-
-  //!methods that lists all objects RECUSIVELY in the current directory
+  std::vector<std::string> list_subdirs()
+    throw(ServiceUnreachable);
   std::vector<std::string> list_directory_recurs()
     throw(ServiceUnreachable);
- 
-  //! method to destroy an association Path-Object Reference
   void Destroy_Name(const char* Path)
     throw(ServiceUnreachable);
- 
-  //! method to destroy a directory if it is empty
   virtual void Destroy_Directory(const char* Path)
     throw(ServiceUnreachable);
-
-  //! method to destroy a directory even if it is not empty
   virtual void Destroy_FullDirectory(const char* Path)
     throw(ServiceUnreachable);
-
-  //! get IORstring naming service address 
-  char * getIORaddr();
+  char* getIORaddr();
 
 protected:
   Utils_Mutex _myMutex;
   CORBA::ORB_ptr _orb;
   CosNaming::NamingContext_var _root_context, _current_context;
 
-  //! method called by constructor to initialize _root_context
   void _initialize_root_context();
-  
-  //! method to decompose a Path : /Kernel/Services/Sessions
-  char* _resolve_Path(char* Path);
-
-  //! method to decompose a Path : /Kernel/Services/Sessions
-  void _result_resolve_Path(const char* Path, int& j,
-			    char ** resultat_resolve_Path);
-
-  //! internal method called by Find to research a name from the naming service's current directory 
+  int _createContextNameDir(std::string path,
+			    CosNaming::Name& context_name,
+			    std::vector<std::string>& splitPath,
+			    bool onlyDir);
   void _Find(const char* name, CORBA::Long& occurence_number);
-
-  //! internal method to create a context name from a Path
-  void _create_context_name_dir(char** resultat_resolve_Path,
-				int length_copy,
-				CosNaming::Name& _context_name);
-
-  //! internal method to create a parse the naming service tree 
-  void _current_directory(char** result_path,
-			  int& length_result,
-			  CosNaming::NamingContext_var context_to_found,
-			  CORBA::Boolean& _continue);
-
-  //! internal method to list all (recursively) the objects contains in absCurDirectory/relativeSubDir.
-  void _list_directory_recurs(std::vector<std::string>& myList, const char *relativeSubDir,const char *absCurDirectory);
+  void _current_directory(std::vector<std::string>& splitPath,
+			  int& lengthResult,
+			  CosNaming::NamingContext_var contextToFind,
+			  bool& notFound);
+  void _list_directory_recurs(std::vector<std::string>& myList,
+			      std::string relativeSubDir,
+			      std::string absCurDirectory);
 
 };
 

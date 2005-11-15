@@ -31,6 +31,7 @@
 
 using namespace std;
 
+//#define _DEVDEBUG_
 #include "FileTraceCollector.hxx"
 
 // Class attributes initialisation, for class method FileTraceCollector::run
@@ -88,6 +89,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 
 void* FileTraceCollector::run(void *bid)
 {
+  //DEVTRACE("init run");
   _threadId = new pthread_t;
   *_threadId = pthread_self();
   sem_post(&_sem); // unlock instance
@@ -100,6 +102,7 @@ void* FileTraceCollector::run(void *bid)
 
   ofstream traceFile;
   const char *theFileName = _fileName.c_str();
+  DEVTRACE("try to open trace file "<< theFileName);
   traceFile.open(theFileName, ios::out | ios::app);
   if (!traceFile)
     {
@@ -109,7 +112,7 @@ void* FileTraceCollector::run(void *bid)
 
   // --- Loop until there is no more buffer to print,
   //     and no ask for end from destructor.
-
+  DEVTRACE("Begin loop");
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
@@ -183,8 +186,8 @@ FileTraceCollector:: ~FileTraceCollector()
 	  _threadToClose = 0;
 	}
       _singleton = 0;
-      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
+  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 }
 
 // ============================================================================

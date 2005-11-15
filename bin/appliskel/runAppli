@@ -55,6 +55,13 @@ searchFreePort() {
     done
 }
 
+# --- if mpi lam, start lam (seems safe to be done several times)
+#     arret manuel avec lamhalt
+
+if [ "$LAMBHOST" ]; then
+  lamboot
+fi
+
 # --- run SALOME
 #    (default arguments defined in local salome.launch could be completed
 #     by arguments to this command)
@@ -63,9 +70,9 @@ searchFreePort
 
 if [ $# -ne 0 ] ; then
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+    # --- todo delete omniORB config files in relation to the naming service kill
+    rm ${OMNIORB_CONFIG}
+    rm ${LAST_RUNNING_CONFIG}
 else
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
 fi
-
-rm ${OMNIORB_CONFIG}
-rm ${LAST_RUNNING_CONFIG}
