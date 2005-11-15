@@ -24,6 +24,7 @@
 #  Module : SALOME
 #  $Header$
 
+import omnipatch
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
