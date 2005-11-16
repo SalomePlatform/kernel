@@ -161,7 +161,7 @@ class xml_parser:
 
 config_var = appname+'Config'
 dirs = os.environ[config_var]
-dirs = dirs.split( ';' )
+dirs = re.split('[;|:]', dirs )
 dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
 _opts = {} # assiciative array of options to be filled
