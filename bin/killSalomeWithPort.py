@@ -2,6 +2,14 @@
 import os, sys, pickle, signal, commands
 
 def getPiDict(port,appname='salome',full=True):
+    from Utils_Identity import getShortHostName
+    
+    if os.getenv("HOSTNAME") == None:
+        if os.getenv("HOST") == None:
+            os.environ["HOSTNAME"]=getShortHostName()
+        else:
+            os.environ["HOSTNAME"]=os.getenv("HOST")
+
     filedict = []
     filedict.append( os.getenv('USER') )          # user name
     filedict.append( os.getenv('HOSTNAME') )      # host name
