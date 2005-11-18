@@ -31,13 +31,11 @@
 import os
 import sys
 import string
+import omnipatch
 from omniORB import CORBA, PortableServer
-# import SALOMEDS before other SALOME modules
-# (if not, incomplete import done by SALOME module: no load of SALOMEDS_attributes)
 import SALOMEDS 
 import Engines, Engines__POA
-reload(Engines)
-reload(Engines__POA)
+import SALOME
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 
