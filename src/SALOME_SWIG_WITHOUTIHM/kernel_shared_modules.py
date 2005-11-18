@@ -15,15 +15,12 @@ register_pattern(lambda(x):x.endswith("_Swig"))
 register_name("omniORB")
 import omniORB
 
+register_name("CosNaming")
+import CosNaming
+
 register_name("omnipatch")
 import omnipatch
 
-# BE CAREFUL
-# Engines, SALOME, SALOMEDS must be imported in that order because :
-# Engines imports SALOME_Component_idl
-# SALOME imports SALOME_Session_idl and SALOME_Exception_idl which imports SALOME_Component_idl
-# and SALOMEDS imports SALOMEDS_idl and SALOMEDS_Attributes_idl which imports SALOME_Exception_idl
-# If SALOME is imported before Engines, that module would not be completely imported
 import Engines
 import SALOME
 import SALOMEDS
