@@ -240,7 +240,11 @@ int compile_command(const char *command,PyObject *context)
     return 1;
   }else{
     // Complete and correct text. We evaluate it.
+#if PY_VERSION_HEX < 0x02040000 // python version earlier than 2.4.0
     PyObjWrapper r(PyEval_EvalCode(v,context,context));
+#else
+    PyObjWrapper r(PyEval_EvalCode((PyCodeObject *)(void *)v,context,context));
+#endif
     if(!r){
       // Execution error. We return -1
       PyErr_Print();

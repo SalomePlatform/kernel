@@ -65,7 +65,11 @@ void PyInterp_PyQt::run(const char *command)
     PyErr_Print();
     return;
   }
+#if PY_VERSION_HEX < 0x02040000 // python version earlier than 2.4.0
   PyObject *r = PyEval_EvalCode(code,_g,_g);
+#else
+  PyObject *r = PyEval_EvalCode((PyCodeObject*)code,_g,_g);
+#endif
   Py_DECREF(code);
   if(!r){
     // Une erreur s est produite a l execution

@@ -24,7 +24,9 @@
 class QSemaphore;
 class QMutex;
 
+#if PY_VERSION_HEX < 0x02040000 // python version earlier than 2.4.0
 extern "C" PyObject * PyEval_EvalCode(PyObject *co, PyObject *g, PyObject *l);
+#endif
 
 #define TOP_HISTORY_PY "--- top of history ---"
 #define BEGIN_HISTORY_PY "--- begin of history ---"
