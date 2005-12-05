@@ -206,9 +206,8 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
 {
   SALOMEDS::Locker lock;
   Handle(SALOMEDSImpl_SObject) aSO;
-  char* anID = anObject->GetID();  
-  aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject(anID);
-  delete [] anID;
+  CORBA::String_var anID = anObject->GetID();
+  aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject(anID.inout());
   Handle(TDF_Attribute) anAttr;
   try {
      anAttr = _impl->FindOrCreateAttribute(aSO, TCollection_AsciiString((char*)aTypeOfAttribute));

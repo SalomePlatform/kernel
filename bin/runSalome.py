@@ -408,6 +408,11 @@ class SessionServer(Server):
             self.SCMD2+=['GUI']
         if self.args['splash']:
             self.SCMD2+=['SPLASH']
+        if self.args.has_key('modules'):
+            self.SCMD2+=['--modules (']
+            for mod in self.args['modules']:
+                self.SCMD2+=[mod + ':']
+            self.SCMD2+=[')']    
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
@@ -610,6 +615,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     # Lancement Session Server
     #
+
     mySessionServ = SessionServer(args)
     mySessionServ.setpath(modules_list,modules_root_dir)
     mySessionServ.run()

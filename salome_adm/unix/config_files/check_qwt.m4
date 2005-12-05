@@ -90,7 +90,7 @@ then
   else
     LIBS="$LIBS -L$QTDIR/lib -lqt-mt"
   fi
-  if test "x$QWTHOME" = "x/usr/lib"
+  if test "x$QWTHOME" = "x/usr"
   then
     LIBS="$LIBS -lqwt"
   else
@@ -120,7 +120,7 @@ then
     AC_MSG_RESULT(QWTHOME environment variable may be wrong)
   else
     QWT_INCLUDES="-I$QWT_INCLUDES"
-    if test "x$QWTHOME" = "x/usr/lib"
+    if test "x$QWTHOME" = "x/usr"
     then
       QWT_LIBS=" -lqwt"
     else

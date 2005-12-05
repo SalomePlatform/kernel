@@ -1,7 +1,7 @@
+#include "SALOME_Comm_i.hxx"
 #include "SenderFactory.hxx"
 #include "utilities.h"
 #include "SALOMEMultiComm.hxx"
-#include "SALOME_Comm_i.hxx"
 using namespace std;
 
 #ifdef COMP_CORBA_DOUBLE

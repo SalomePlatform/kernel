@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
-
-. `dirname $0`/setAppliPath.sh
-
-# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
-
-. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
-
 # --- define port for CORBA naming service
 
 searchFreePort() {
@@ -27,7 +19,7 @@ searchFreePort() {
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             echo "InitRef = $initref" > $OMNIORB_CONFIG
-            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_test.cfg
+            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
 	    rm ${LAST_RUNNING_CONFIG}
             ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
             break
@@ -43,23 +35,3 @@ searchFreePort() {
     done
 }
 
-# --- if mpi lam, start lam (seems safe to be done several times)
-#     arret manuel avec lamhalt
-
-if [ "$LAMBHOST" ]; then
-  lamboot
-fi
-
-# --- invoque shell with or without args
-
-searchFreePort
-
-if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
-else
-
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
-fi
-
-rm ${OMNIORB_CONFIG}
-rm ${LAST_RUNNING_CONFIG}

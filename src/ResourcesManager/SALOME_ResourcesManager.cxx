@@ -357,10 +357,12 @@ bool isPythonContainer(const char* ContainerName)
 string
 SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
 (const string& machine,
- const Engines::MachineParameters& params)
+ const Engines::MachineParameters& params, const long id)
 {
   string command;
-
+  int nbproc;
+  char idc[3*sizeof(long)];
+	  
   if ( ! _isAppliSalomeDefined )
     command = BuildTempFileToLaunchRemoteContainer(machine, params);
 
@@ -370,8 +372,6 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
 
       if (params.isMPI)
         {
-          int nbproc;
-
           if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
             nbproc = 1;
           else if ( params.nb_node == 0 )
@@ -418,9 +418,33 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
       ASSERT(getenv("NSPORT"));
       command += getenv("NSPORT"); // port of CORBA name server
 
-      command += " SALOME_Container ";
+      if(params.isMPI)
+	{
+	  command += " mpirun -np ";
+	  std::ostringstream o;
+	  o << nbproc << " ";
+	  command += o.str();
+#ifdef WITHLAM
+	  command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif	
+	  command += " SALOME_MPIContainer ";
+	}
+      else
+	command += " SALOME_Container ";
+
       command += _NS->ContainerName(params);
-      command += "&";
+      command += " -id ";
+      sprintf(idc,"%ld",id);
+      command += idc;
+      command += " -";
+      AddOmninamesParams(command);
+      command += " > /tmp/";
+      command += _NS->ContainerName(params);
+      command += "_";
+      command += GetHostname();
+      command += "_";
+      command += getenv( "USER" ) ;
+      command += ".log 2>&1 &" ;
 
       MESSAGE("command =" << command);
     }
@@ -437,11 +461,12 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
 
 string
 SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
-(const Engines::MachineParameters& params)
+(const Engines::MachineParameters& params, const long id)
 {
   _TmpFileName = "";
   string command;
   int nbproc = 0;
+  char idc[3*sizeof(long)];
 
   if (params.isMPI)
     {
@@ -461,7 +486,9 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
       o << nbproc << " ";
 
       command += o.str();
+#ifdef WITHLAM
       command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif
 
       if (isPythonContainer(params.container_name))
         command += "pyMPI SALOME_ContainerPy.py ";
@@ -478,6 +505,9 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
     }
 
   command += _NS->ContainerName(params);
+  command += " -id ";
+  sprintf(idc,"%ld",id);
+  command += idc;
   command += " -";
   AddOmninamesParams(command);
   command += " > /tmp/";
@@ -771,6 +801,9 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
       std::ostringstream o;
 
       tempOutputFile << nbproc << " ";
+#ifdef WITHLAM
+      tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif
     }
 
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second

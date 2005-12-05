@@ -45,25 +45,52 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 					       int argc, char *argv[]) 
   : Engines_Container_i(orb,poa,containerName,argc,argv,false), MPIObject_i(nbproc,numproc)
 {
+  long id=0;
+  string IdContainerinNS;
+  char idc[3*sizeof(long)];
+
   MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);
-//   this->_add_ref();
+
+  if(argc>1)
+    {
+      for(int i=0;i<argc;i++)
+	{
+	  if(strcmp(argv[i],"-id")==NULL)
+	    {
+	      id = atoi(argv[i+1]);
+	      continue;
+	    }
+	}
+    }
+  SCRUTE(id);
 
   if(numproc==0){
 
     _NS = new SALOME_NamingService();
-//     _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
-//     ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
     _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
 
-//     Engines::Container_ptr pCont 
-//       = Engines::Container::_narrow(POA_Engines::MPIContainer::_this());
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
     Engines::Container_var pCont = Engines::Container::_narrow(obj);
+
     string hostname = GetHostname();
     _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
+
+    // A parallel container registers in Naming Service
+    // on the machine where is process 0. ContainerManager does'nt know the name
+    // of this machine before the launch of the parallel container. So to get
+    // the IOR of the parallel container in Naming Service, ContainerManager
+    // gives a unique Id. The parallel container registers his name under
+    // /ContainerManager/Id directory in NamingService
+
+    IdContainerinNS = "/ContainerManager/id";
+    sprintf(idc,"%ld",id);
+    IdContainerinNS += idc;
+    SCRUTE(IdContainerinNS);
+    _NS->Register(pCont, IdContainerinNS.c_str());
+
   }
 
   // Root recupere les ior des container des autre process

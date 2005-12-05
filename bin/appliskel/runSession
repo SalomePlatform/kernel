@@ -5,28 +5,27 @@
 # Use it without args to run an interactive shell under Salome env
 #
 
-# --- retrieve APPLI path, relative to $HOME
-#     on sarge, "which" gives not allways the absolute path...
-     
-comName=`which $0`
-aa=${comName:0:1}
-if test x$aa == x\/; then
-  mycom=${comName}
-elif test x$aa == x\.; then
-  mycom=${PWD}/${comName:2}
-else
-  mycom=${PWD}/${comName}
-fi
-APPLI=`echo ${HOME} \`dirname $mycom\` | awk ' { print substr($2,length($1)+2) } '`
-echo $APPLI
-export APPLI
+# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+
+. `dirname $0`/setAppliPath.sh
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
+# --- set omniORB configuration to current session if any
+
 myhost=`hostname`
-export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+fileOmniConfig=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+
+if [ -f $fileOmniConfig ]; then
+  export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+
+  # --- set environment variables for port and hostname of NamingService
+
+  export NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
+  export NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+fi
 
 # --- invoque shell with or without args
 

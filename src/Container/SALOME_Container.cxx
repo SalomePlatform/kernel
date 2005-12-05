@@ -26,6 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
+#ifdef HAVE_MPI2
+#include <mpi.h>
+#endif
+
 #include <iostream>
 #include <string>
 #include <stdio.h>
@@ -44,10 +48,6 @@
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
-#endif
-
-#ifdef HAVE_MPI2
-#include <mpi.h>
 #endif
 
 #include "Container_init_python.hxx"

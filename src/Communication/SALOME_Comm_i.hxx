@@ -1,12 +1,12 @@
 #ifndef _SALOME_COMM_I_HXX_
 #define _SALOME_COMM_I_HXX_
 
-#include <string>
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOME_Comm)
 #ifdef HAVE_MPI2
 #include "mpi.h"
 #endif
+#include <string>
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOME_Comm)
 
 #define TIMEOUT 20
 

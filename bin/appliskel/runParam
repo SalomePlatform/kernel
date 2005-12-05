@@ -1,5 +1,6 @@
 #!/bin/bash
 
-./runAppli --killall  
+./KillCurrentPort
 
-#./runSession killSalome.py
+./runAppli --logger  
+

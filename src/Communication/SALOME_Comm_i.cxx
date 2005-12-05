@@ -1,7 +1,7 @@
+#include "SALOME_Comm_i.hxx"
 #ifndef WNT
 #include <rpc/xdr.h>
 #endif
-#include "SALOME_Comm_i.hxx"
 #include "poa.h"
 #include "omnithread.h"
 #include "Utils_SINGLETON.hxx"

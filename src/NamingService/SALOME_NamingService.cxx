@@ -543,6 +543,16 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 	  for (unsigned int ind = 0; ind < contList.size(); ind++)
 	    {
 	      name = contList[ind].c_str();
+
+	      if ( nbproc >= 1 )
+		{
+		  char *str_nbproc = new char[8];
+		  sprintf(str_nbproc, "_%d", nbproc);
+		  if( strstr(name.c_str(),str_nbproc) == NULL)
+		    continue; // check only containers with _%d in name
+		  delete [] str_nbproc;
+		}
+
 	      name += "/";
 	      name += componentName;
 	      SCRUTE(name);
@@ -1458,15 +1468,17 @@ throw(ServiceUnreachable)
 void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
 throw(ServiceUnreachable)
 {
-  Change_Directory(Path);
-  vector<string> contList = list_directory();
+  if( Change_Directory(Path) )
+    {
+      vector<string> contList = list_directory();
 
-  for (unsigned int ind = 0; ind < contList.size(); ind++)
-    Destroy_Name(contList[ind].c_str());
-
-  Destroy_Directory(Path);
-
-  Destroy_Name(Path);
+      for (unsigned int ind = 0; ind < contList.size(); ind++)
+	Destroy_Name(contList[ind].c_str());
+      
+      Destroy_Directory(Path);
+      
+      Destroy_Name(Path);
+    }
 }
 
 // ============================================================================
@@ -1543,7 +1555,7 @@ SALOME_NamingService::_createContextNameDir(string path,
       if (endIdx == string::npos)
 	endIdx = path.length();
       int lsub = endIdx - begIdx;
-      if (lsub > 1)
+      if (lsub >= 1)
 	splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
     }

@@ -53,10 +53,10 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::string BuildCommandToLaunchRemoteContainer
     (const std::string& machine,
-     const Engines::MachineParameters& params);
+     const Engines::MachineParameters& params, const long id);
 
     std::string BuildCommandToLaunchLocalContainer
-    (const Engines::MachineParameters& params);
+    (const Engines::MachineParameters& params, const long id);
 
     void RmTmpFile();
 

@@ -1,11 +1,11 @@
 #ifndef _RECEIVERS_HXX_
 #define _RECEIVERS_HXX_
 
-#include "SALOME_Comm_i.hxx"
-#include "Receiver.hxx"
 #ifdef HAVE_MPI2
 #include "mpi.h"
 #endif
+#include "SALOME_Comm_i.hxx"
+#include "Receiver.hxx"
 
 /*!
   Receiver used for transfert with CORBA when no copy is required remotely and locally.

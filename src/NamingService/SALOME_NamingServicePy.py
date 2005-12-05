@@ -50,7 +50,7 @@ class SALOME_NamingServicePy_i:
         self._orb = orb
         # initialize root context and current context
 	ok = 0
-	steps = 40
+	steps = 240
 	while steps > 0 and ok == 0:
 	  try:
             obj =self._orb.resolve_initial_references("NameService")
@@ -68,7 +68,7 @@ class SALOME_NamingServicePy_i:
 	    MESSAGE(" Name service not found")
 	  time.sleep(0.25)
 	  steps = steps - 1
-        if steps == 0: 
+        if steps == 0 and self._root_context is None: 
           MESSAGE ( "Name Service Reference is invalid" )
           sys.exit(1)
     #-------------------------------------------------------------------------

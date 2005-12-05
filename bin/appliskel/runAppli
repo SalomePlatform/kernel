@@ -1,20 +1,8 @@
 #!/bin/bash
 
-# --- retrieve APPLI path, relative to $HOME
-#     on sarge, "which" gives not allways the absolute path...
-     
-comName=`which $0`
-aa=${comName:0:1}
-if test x$aa == x\/; then
-  mycom=${comName}
-elif test x$aa == x\.; then
-  mycom=${PWD}/${comName:2}
-else
-  mycom=${PWD}/${comName}
-fi
-APPLI=`echo ${HOME} \`dirname $mycom\` | awk ' { print substr($2,length($1)+2) } '`
-#echo $APPLI
-export APPLI
+# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+
+. `dirname $0`/setAppliPath.sh
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
@@ -22,38 +10,8 @@ export APPLI
 
 # --- define port for CORBA naming service
 
-searchFreePort() {
-    echo -n "Searching for a free port for naming service: "
-    export NSPORT=2810
-    local limit=$NSPORT
-    let limit=limit+100
-    while [ 1 ]
-    do
-        aRes=`netstat -ltn | grep -E :${NSPORT}`
-        if [ -z "$aRes" ]; then
-            echo ${NSPORT} - Ok
-	    local myhost=`hostname`
-            export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
-	    export NSPORT
-            export NSHOST=${myhost}
-            local initref="NameService=corbaname::"`hostname`":$NSPORT"
-            #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
-            echo "InitRef = $initref" > $OMNIORB_CONFIG
-            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
-	    rm ${LAST_RUNNING_CONFIG}
-            ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
-            break
-        fi
-        echo -n "${NSPORT} "
-        if [[ $NSPORT -eq $limit ]] ; then
-            echo
-            echo "Can't find a free port to launch omniNames"
-            echo "Try to kill the running servers and then launch SALOME again."
-            exit
-        fi
-        let NSPORT=NSPORT+1
-    done
-}
+. `dirname $0`/searchFreePort.sh
+searchFreePort
 
 # --- if mpi lam, start lam (seems safe to be done several times)
 #     arret manuel avec lamhalt
@@ -66,13 +24,9 @@ fi
 #    (default arguments defined in local salome.launch could be completed
 #     by arguments to this command)
 
-searchFreePort
-
 if [ $# -ne 0 ] ; then
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
-    # --- todo delete omniORB config files in relation to the naming service kill
-    rm ${OMNIORB_CONFIG}
-    rm ${LAST_RUNNING_CONFIG}
+
 else
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
 fi

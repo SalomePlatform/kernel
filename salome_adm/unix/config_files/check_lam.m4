@@ -59,17 +59,51 @@ if test "$WITHLAM" = yes; then
     LIBS_old="$LIBS"
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPI_LIBS $LDFLAGS"
-    AC_CHECK_LIB(lam,lam_mp_init,,WITHLAM="no")
-    AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
-    AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
-    LDFLAGS="$LDFLAGS_old"
-    LIBS="$LIBS_old"
+  fi
+
+  if test "$WITHLAM" = "yes";then
+    WITHLAM="no"
+
+    if test "$WITHLAM" = "no";then
+      CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
+      LIBS="$LIBS -lmpi++"
+      AC_TRY_LINK([
+      #include <mpi.h>
+      ], [int argc=0; char **argv=0; MPI_Init(&argc,&argv);],
+      WITHLAM="yes",WITHLAM="no")
+      if test "$WITHLAM" = "yes";then
+        MPI_LIBS="$MPI_LIBS -lmpi++"
+      fi
+      LIBS="$LIBS_old"
+      CPPFLAGS="$CPPFLAGS_old"
+
+      AC_CHECK_LIB(mpi++,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
+      LDFLAGS="$LDFLAGS_old"
+      LIBS="$LIBS_old"
+    fi
+
+    if test "$WITHLAM" = "no";then
+      AC_CHECK_LIB(lam,lam_mp_init,WITHLAM="yes",WITHLAM="no")
+      if test "$WITHLAM" = "yes";then
+        MPI_LIBS="$MPI_LIBS -llam"
+        LIBS="$LIBS -llam"
+      fi
+
+      AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
+      if test "$WITHLAM" = "yes";then
+        MPI_LIBS="$MPI_LIBS -lmpi"
+      fi
+
+      AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
+      LDFLAGS="$LDFLAGS_old"
+      LIBS="$LIBS_old"
+    fi
   fi
 
   if test "$WITHLAM" = "yes";then
      WITHMPI="yes"
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -llammpi++"
+     CPPFLAGS="-DWITHLAM $CPPFLAGS"
   else
      mpi_ok=no
   fi

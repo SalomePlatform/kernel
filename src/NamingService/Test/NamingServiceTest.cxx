@@ -273,6 +273,15 @@ NamingServiceTest::testRegisterResolveAbsWithPath()
   NSTEST::echo_var anEchoRef1a = NSTEST::echo::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef1a));
   CPPUNIT_ASSERT(anEchoRef1->getId() == anEchoRef1a->getId());
+
+  NSTEST::echo_var anEchoRef2 = myFactory->createInstance();
+  _NS.Register(anEchoRef2,"/nstest2/1/2/3/4/echo_1");
+
+  obj = _NS.Resolve("/nstest2/1/2/3/4/echo_1");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  NSTEST::echo_var anEchoRef2a = NSTEST::echo::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef2a));
+  CPPUNIT_ASSERT(anEchoRef2->getId() == anEchoRef2a->getId());
 }
 
 // ============================================================================

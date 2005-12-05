@@ -1,9 +1,9 @@
+#include <mpi.h>
 #include <iostream>
 #include "MPIContainer_i.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
-#include <mpi.h>
 #include "SALOMETraceCollector.hxx"
 using namespace std;
 

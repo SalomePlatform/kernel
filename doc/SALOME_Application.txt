@@ -115,7 +115,7 @@ envSALOME.sh
 
     where SalomeAppConfig designates the directory containing SalomeApp.xml. 
     Note that ${APPLI} is already defined by the calling scripts when 
-    envSALOME.sh is sourced.
+    env.d/envSalome.sh is sourced.
 
 2.2 User run scripts
 ~~~~~~~~~~~~~~~~~~~~
@@ -143,8 +143,11 @@ runTests
    and port number), runTests defines a new configuration for naming service
    (new port number).
 
-2.3 SALOME internal run script
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.3 SALOME internal run scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+envd
+   Sets SALOME application environment, envd is sourced by other scripts.
 
 For remote calls, SALOME uses one script.
 
@@ -157,7 +160,8 @@ runRemote.sh
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SalomeApp.xml
-   This file is similar to the default given in $GUI_ROOT_DIR
+   This file is similar to the default given
+   in ${GUI_ROOT_DIR}/share/salome/resources
 
 CatalogRessources.xml
    This files describes all the computer the application can use. The given

@@ -1,3 +1,6 @@
+#ifdef HAVE_MPI2
+#include "mpi.h"
+#endif
 #include "ReceiverFactory.hxx"
 #include "Receivers.hxx"
 using namespace std;

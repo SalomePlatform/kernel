@@ -1,42 +1,117 @@
+=======================================
 Set of scripts for a SALOME application
 =======================================
+*html version of this document is produced with docutils*::
 
-#     - A SALOME application distributed on several computers needs APPLI
-#       directories on the same path ($APPLI) relative to $HOME directory
-#       of the user, on each computer.
+  rest2html < doc.txt > doc.html
 
-user scripts:
--------------
+This document corresponds to SALOME2 3.1. (alpha version)
 
-runAppli   : SALOME launch (idem runSalome but different name to avoid
-             confusion with ${KERNEL_ROOT_DIR}/bin/salome/runSalome
++-------------------------------------------+
+| **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
++-------------------------------------------+
 
-runConsole : a python console in the current SALOME session environment
+SALOME Application concept
+--------------------------
 
-runSession : a shell in SALOME environment, either interactive (without args)
-             or used to run a program (defined by given args)
+See SALOME_Application_ to define your own configuration of SALOME and run it
+on one or several computers. This is the recommended way of configuration.
 
-internal application scripts:
------------------------------
+.. _SALOME_Application: ../../doc/SALOME_Application.html
 
-runRemote.sh : called from remote computer, via ssh, rsh...
-               used for instance to create container
 
-envd         : sets SALOME application environment
-               sourced by other scripts
+User run scripts
+----------------
 
-The following files must be adapted to your environment and SALOME Application:
--------------------------------------------------------------------------------
+The SALOME user can use the following scripts:
 
-SalomeApp.xml        - list of modules, options on server launch and resources...
-CatalogResources.xml - configuration of machines used in SALOME application
-                       (no need of modules list and path here)
+runAppli
+   Launches a SALOME Session
+   (similar to ${KERNEL_ROOT_DIR}/bin/salome/runSalome but with a different
+   name to avoid confusions).
 
-env.d directory must contain the necessary files to source, to define 
-the SALOME Application environment :
-  (  envd script source these files in alphanumeric order )
+runSession
+   Launches a shell script in the SALOME application environment, with access
+   to the current SALOME session (naming service), if any.
+   Without arguments, the script is interactive. With arguments, the script
+   executes the command in the SALOME application environment.
 
-For instance,
- atFirst.sh     - general presets
- envProducts.sh - prerequisite SALOME environment
- envSalome.sh   - list of MODULE_ROOT_DIR
+runConsole
+   Gives a python console connected to the current SALOME Session.
+   It is also possible to use runSession, then python.
+
+runTests
+   Similar to runSession, used for unit testing. runTests defines a new 
+   configuration for naming service (new port number) to avoid interferences
+   with a running SALOME session. runSession tries to use an already existing
+   naming service definition from a running session (hostname & port number).
+
+killCurrentPort
+   Kills the last SALOME session corresponding to this application, and 
+   intially launched from this computer.
+   Cleans associated config files.
+
+SALOME internal run scripts
+---------------------------
+
+envd
+   Sets SALOME application environment, envd is sourced by other scripts.
+
+setAppliPath.sh
+   Used by other scripts to define the Application Path.
+
+searchFreePort.sh
+   Used by other scripts to find a free port for naming service.
+
+For remote calls, SALOME uses one script.
+
+runRemote.sh
+   This script is mainly used to launch containers. The first 2 arguments
+   define the hostname and port userd for naming service, the remaining
+   arguments define the command to execute.
+
+
+The following files must be adapted to your environment and SALOME Application
+------------------------------------------------------------------------------
+
+- CatalogResources.xml
+- SalomeApp.xml
+- env.d/atFirst.sh
+- env.d/envProducts.sh
+- env.d/envSalome.sh
+
+CatalogRessources.xml
+   This files describes all the computer the application can use. The given
+   example is minimal and suppose ${APPLI} is the same relative path
+   to ${HOME}, on all the computers. A different directory can be set on a
+   particular computer with a line::
+
+       appliPath="my/specific/path/on/this/computer"
+
+SalomeApp.xml
+   This file is similar to the default given
+   in ${GUI_ROOT_DIR}/share/salome/resources
+
+
+Proposal for env.d scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Each user **must define** his own configuration for these scripts, following
+the above rules. **The following is only an example not working as it is**.
+
+atFirst.sh
+    Sets the computer configuration not directly related to SALOME,
+    like useful tools, default PATH.
+
+envProducts.sh
+    Sets the SALOME prerequisites.
+
+envSALOME.sh
+    Sets all the MODULE_ROOT_DIR that can be used in the SALOME application.
+
+    SalomeAppConfig is also defined by::
+
+      export SalomeAppConfig=${HOME}/${APPLI}
+
+    where SalomeAppConfig designates the directory containing SalomeApp.xml. 
+    Note that ${APPLI} is already defined by the calling scripts when 
+    env.d/envSalome.sh is sourced.

@@ -312,8 +312,8 @@ unsigned long LocalTraceBufferPool::lockedIncrement(unsigned long& pos)
 {
   int ret;
   ret = pthread_mutex_lock(&_incrementMutex);   // lock access to counters
-  pos++;
+  unsigned long mypos = ++pos;
   ret = pthread_mutex_unlock(&_incrementMutex); // release lock
-  return pos;
+  return mypos;
 }
 

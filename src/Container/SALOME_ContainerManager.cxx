@@ -29,6 +29,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
   MESSAGE("constructor");
   _NS = new SALOME_NamingService(orb);
   _ResManager = new SALOME_ResourcesManager(orb);
+  _id=0;
   PortableServer::POA_var root_poa = PortableServer::POA::_the_root_poa();
   PortableServer::POAManager_var pman = root_poa->the_POAManager();
   PortableServer::POA_var my_poa;
@@ -118,6 +119,10 @@ SALOME_ContainerManager::
 FindOrStartContainer(const Engines::MachineParameters& params,
 		     const Engines::MachineList& possibleComputers)
 {
+  long id;
+  string containerNameInNS;
+  char idc[3*sizeof(long)];
+
   Engines::Container_ptr ret = FindContainer(params,possibleComputers);
   if(!CORBA::is_nil(ret))
     return ret;
@@ -128,6 +133,15 @@ FindOrStartContainer(const Engines::MachineParameters& params,
   string theMachine=_ResManager->FindBest(possibleComputers);
   MESSAGE("try to launch it on " << theMachine);
 
+  // Get Id for container: a parallel container registers in Naming Service
+  // on the machine where is process 0. ContainerManager does'nt know the name
+  // of this machine before the launch of the parallel container. So to get
+  // the IOR of the parallel container in Naming Service, ContainerManager
+  // gives a unique Id. The parallel container registers his name under
+  // /ContainerManager/Id directory in NamingService
+
+  id = GetIdForContainer();
+
   string command;
   if(theMachine=="")
     {
@@ -137,11 +151,11 @@ FindOrStartContainer(const Engines::MachineParameters& params,
     }
   else if(theMachine==GetHostname())
     {
-      command=_ResManager->BuildCommandToLaunchLocalContainer(params);
+      command=_ResManager->BuildCommandToLaunchLocalContainer(params,id);
     }
   else
     command =
-      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params);
+      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
 
   _ResManager->RmTmpFile();
   int status=system(command.c_str());
@@ -170,8 +184,15 @@ FindOrStartContainer(const Engines::MachineParameters& params,
 	  count-- ;
 	  if ( count != 10 )
 	    MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);
-	  string containerNameInNS =
-	    _NS->BuildContainerNameForNS(params,theMachine.c_str());
+	  if(params.isMPI)
+	    {
+	      containerNameInNS = "/ContainerManager/id";
+	      sprintf(idc,"%ld",id);
+	      containerNameInNS += idc;
+	    }
+	  else
+	    containerNameInNS =
+	      _NS->BuildContainerNameForNS(params,theMachine.c_str());
 	  SCRUTE(containerNameInNS);
 	  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
 	  ret=Engines::Container::_narrow(obj);
@@ -273,3 +294,22 @@ FindContainer(const Engines::MachineParameters& params,
   MESSAGE("FindContainer: not found");
   return Engines::Container::_nil();
 }
+
+//=============================================================================
+/*! 
+ * Get Id for container: a parallel container registers in Naming Service
+ * on the machine where is process 0. ContainerManager does'nt know the name
+ * of this machine before the launch of the parallel container. So to get
+ * the IOR of the parallel container in Naming Service, ContainerManager
+ * gives a unique Id. The parallel container registers his name under
+ * /ContainerManager/Id directory in NamingService
+ */
+//=============================================================================
+
+
+long SALOME_ContainerManager::GetIdForContainer(void)
+{
+  _id++;
+  return _id;
+}
+

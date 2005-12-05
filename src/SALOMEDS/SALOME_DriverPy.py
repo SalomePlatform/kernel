@@ -2,12 +2,13 @@ import SALOMEDS__POA
 
 class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     """
+    Python implementation of generic SALOMEDS driver.
+    Should be inherited by any Python module's engine
+    to provide persistence mechanism.
     """
-    _ComponentDataType = None
-
     def __init__ (self, componentDataType):
         print "SALOME_DriverPy.__init__: ",componentDataType
-        _ComponentDataType = componentDataType
+        self._ComponentDataType = componentDataType
 
     def IORToLocalPersistentID(self, theSObject, IORString, isMultiFile, isASCII):
         return theSObject.GetID()
@@ -16,7 +17,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         return ""
 
     def ComponentDataType(self):
-        return _ComponentDataType
+        return self._ComponentDataType
 
     def Save(self, theComponent, theURL, isMultiFile):
         return NULL
