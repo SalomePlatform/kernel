@@ -6,6 +6,7 @@
 #include <SALOMEconfig.h>
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
+#include "SALOME_NamingService.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include <string>
 #include <fstream>
@@ -18,7 +19,7 @@ class SALOME_ResourcesManager
 {
 public:
   //! standard constructor
-  SALOME_ResourcesManager();
+  SALOME_ResourcesManager(CORBA::ORB_ptr orb);
 
   //!just for test
   SALOME_ResourcesManager(const char *xmlFilePath);
@@ -72,14 +73,13 @@ private:
   //! method that keep from hosts only those having component of name moduleName.
   void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,const char *moduleName) const throw(SALOME_Exception);
 
-  //! methode that add to command all options relative to naming service.
-  void AddOmninamesParams(std::string& command) const;
-
   //! method that add to command all options relative to naming service.
-  void AddOmninamesParams(std::ofstream& fileStream) const;
+  void AddOmninamesParams(std::ostream& fileStream) const;
 
   //! method that generate a file name in /tmp directory
   std::string BuildTemporaryFileName() const;
+
+  SALOME_NamingService *_NS;
 
   // will contain the path to the ressources catalog
   QString _path_resources;

@@ -1,6 +1,8 @@
 %{
   #include "ReceiverFactory.hxx"
   #include "SALOME_Comm_i.hxx"
+  #include "SALOMEMultiComm.hxx"
+  #include "SenderFactory.hxx"
 %}
 
 %typemap(python,in) SALOME::SenderDouble_ptr
@@ -33,6 +35,24 @@
   $1 = t;
 }
 
+%typemap(python,out) SALOME::SenderDouble_ptr
+{  
+   PyObject* pdict = PyDict_New();
+   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
+   PyRun_String("import CORBA", Py_single_input, pdict, pdict);
+   PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
+                   pdict, pdict);
+   PyObject* orb = PyDict_GetItemString(pdict, "o");
+   // Get the orb Corba C++
+   int argc = 0;
+   char *xargv = "";
+   char **argv = &xargv;
+   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+   string s =  ORB->object_to_string($1);
+   PyObject * tmp = PyString_FromString(s.c_str());
+   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
+}
+
 PyObject * getValueForSender(SALOME::SenderDouble_ptr senderDouble);
 
 %{
@@ -56,5 +76,28 @@ PyObject * getValueForSender(SALOME::SenderDouble_ptr senderDouble)
   delete [] ret;
   Py_DECREF(py_list);
   return result;
+}
+%}
+
+SALOME::SenderDouble_ptr buildSenderFromList(PyObject *pylist);
+%{
+SALOME::SenderDouble_ptr buildSenderFromList(PyObject *pylist)
+{
+  if (PyList_Check(pylist)) 
+  {
+    int listLgth = PyList_Size(pylist);
+    double *tab=new double[listLgth];
+    for (int i=0;i<listLgth;i++)
+	{
+	  tab[i]=PyFloat_AsDouble(PyList_GetItem(pylist,i));
+	}
+    SALOMEMultiComm communicator;
+    return SenderFactory::buildSender(communicator,tab,listLgth,true);
+  }
+  else
+  { 
+    PyErr_SetString(PyExc_TypeError,"not a list");
+    return SALOME::SenderDouble::_nil();
+  }
 }
 %}

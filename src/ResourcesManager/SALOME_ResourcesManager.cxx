@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include <map>
 #include <list>
@@ -25,8 +26,9 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(const char *xmlFilePath):_path_
 {
 }
 
-SALOME_ResourcesManager::SALOME_ResourcesManager()
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 {
+  _NS = new SALOME_NamingService(orb);
   _path_resources=getenv("KERNEL_ROOT_DIR");
   _path_resources+="/share/salome/resources/CatalogResources.xml";
   ParseXmlFile();
@@ -34,6 +36,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager()
 
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
+  delete _NS;
 }
 
 vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,const char *moduleName) throw(SALOME_Exception)
@@ -184,14 +187,15 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   const ParserResourcesType& resInfo=_resourcesList[machine];
   tempOutputFile << "#! /bin/sh" << endl;
   //set env vars
+  tempOutputFile << "python_version=`python -c \"import sys; print sys.version[:3]\"`" << endl;
   for(map<string,string>::const_iterator iter=resInfo.ModulesPath.begin();iter!=resInfo.ModulesPath.end();iter++)
     {
       string curModulePath((*iter).second);
       tempOutputFile << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
       tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
       tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
-      tempOutputFile << curModulePath << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
+      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/salome:" << curModulePath << "/lib/python${python_version}/site-packages/salome:";
+      tempOutputFile << curModulePath << "/lib/python${python_version}/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
     }
   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
   tempOutputFile << "export PYTHONPATH" << endl;
@@ -251,21 +255,16 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
 string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *containerName)
 {
   _TmpFileName="";
-  string command;
+  ostringstream command;
   if(Engines_Container_i::isPythonContainer(containerName))
-    command="SALOME_ContainerPy.py ";
+    command << "SALOME_ContainerPy.py ";
   else
-    command="SALOME_Container ";
-  command+=containerName;
-  command+=" -";
+    command << "SALOME_Container ";
+  command << containerName << " -";
   AddOmninamesParams(command);
-  command+=" > /tmp/";
-  command+=containerName;
-  command += "_";
-  command += GetHostname();
-  command += ".log 2>&1 &" ;
-  cout << "Command is ... " << command << endl << flush;
-  return command;
+  command << " > /tmp/" << containerName << "_" << GetHostname() << ".log 2>&1 &";
+  cout << "Command is ... " << command.str() << endl << flush;
+  return command.str();
 }
 
 void SALOME_ResourcesManager::RmTmpFile()
@@ -288,32 +287,26 @@ string SALOME_ResourcesManager::BuildCommand(const string& machine,const char *c
 // rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
   const ParserResourcesType& resInfo=_resourcesList[machine];
   bool pyCont=Engines_Container_i::isPythonContainer(containerName);
-  string command;
+  ostringstream command;
   if(resInfo.Protocol==rsh)
-    command = "rsh -n " ;
+    command << "rsh -n " ;
   else if(resInfo.Protocol==ssh)
-    command = "ssh -f -n ";
+    command << "ssh -f -n ";
   else
     throw SALOME_Exception("Not implemented yet...");
-      command += machine;
-  command += " ";
+  command << machine << " ";
   string path = (*(resInfo.ModulesPath.find("KERNEL"))).second;
-  command +=path;
-  command += "/bin/salome/";
+  command << path <<"/bin/salome/";
   if ( pyCont )
-    command += "SALOME_ContainerPy.py ";
+    command << "SALOME_ContainerPy.py ";
   else
-    command += "SALOME_Container ";
-  command += containerName;
-  command += " -";
+    command << "SALOME_Container ";
+  command << containerName;
+  command << " -";
   AddOmninamesParams(command);
-  command += " > /tmp/";
-  command += containerName;
-  command += "_";
-  command += machine;
-  command += ".log 2>&1 &" ;
+  command << " > /tmp/" << containerName << "_" << machine << ".log 2>&1 &" ;
   SCRUTE( command );
-  return command;
+  return command.str();
 }
 
 // Warning need an updated parsed list : _resourcesList
@@ -339,40 +332,10 @@ void SALOME_ResourcesManager::KeepOnlyResourcesWithModule(vector<string>& hosts,
      }
 }
 
-void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
+void SALOME_ResourcesManager::AddOmninamesParams(ostream& fileStream) const
 {
-  string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-  ifstream omniORBfile( omniORBcfg.c_str() ) ;
-  char ORBInitRef[12] ;
-  char nameservice[132] ;
-  omniORBfile >> ORBInitRef ;
-  command += ORBInitRef ;
-  command += " " ;
-  omniORBfile >> nameservice ;
-  omniORBfile.close() ;
-  char * bsn = strchr( nameservice , '\n' ) ;
-  if ( bsn ) {
-    bsn[ 0 ] = '\0' ;
-  }
-  command += nameservice ;
-}
-
-void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
-{
-  string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-  ifstream omniORBfile( omniORBcfg.c_str() ) ;
-  char ORBInitRef[12] ;
-  char nameservice[132] ;
-  omniORBfile >> ORBInitRef ;
-  fileStream << ORBInitRef;
-  fileStream << " ";
-  omniORBfile >> nameservice ;
-  omniORBfile.close() ;
-  char * bsn = strchr( nameservice , '\n' ) ;
-  if ( bsn ) {
-    bsn[ 0 ] = '\0' ;
-  }
-  fileStream << nameservice;
+  char *iorstr = _NS->getIORaddr();
+  fileStream << "ORBInitRef NameService=" << iorstr;
 }
 
 string SALOME_ResourcesManager::BuildTemporaryFileName() const
@@ -387,5 +350,3 @@ string SALOME_ResourcesManager::BuildTemporaryFileName() const
   command += ".sh";
   return command;
 }
-
-

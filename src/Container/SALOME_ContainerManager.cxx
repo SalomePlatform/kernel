@@ -11,7 +11,7 @@ using namespace std;
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS="/ContainerManager";
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb):_ResManager(orb)
 {
   _NS=new SALOME_NamingService(orb);
   PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();

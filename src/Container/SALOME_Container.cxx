@@ -61,7 +61,13 @@ int main(int argc, char* argv[])
 #endif
   // Initialise the ORB.
   //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+#if OMNIORB_VERSION >= 4
+      const char* options[][2] = { { "giopMaxMsgSize", "104857600" }, { 0, 0 } };
+      CORBA::ORB_var orb = CORBA::ORB_init( argc , argv , "omniORB4", options) ;
+#else
+      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
+      omniORB::MaxMessageSize(100 * 1024 * 1024);
+#endif      // Obtain a reference to the root POA.
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
