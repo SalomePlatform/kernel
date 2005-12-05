@@ -119,6 +119,8 @@ public:
   void testGetIorAddr();
 
 protected:
+  void _destroyDirectoryRecurs(std::string path);
+
   CORBA::ORB_var _orb;
   SALOME_NamingService _NS;
 

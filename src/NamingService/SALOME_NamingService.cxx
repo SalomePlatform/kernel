@@ -1293,7 +1293,7 @@ throw(ServiceUnreachable)
 void SALOME_NamingService::Destroy_Directory(const char* Path)
 throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Destroy_Directory" << Path);
+  MESSAGE("BEGIN OF Destroy_Directory " << Path);
 
   Utils_Locker lock (&_myMutex);
 
@@ -1468,6 +1468,7 @@ throw(ServiceUnreachable)
 void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
 throw(ServiceUnreachable)
 {
+  MESSAGE("begin of Destroy_FullDirectory " << Path);
   if( Change_Directory(Path) )
     {
       vector<string> contList = list_directory();
@@ -1476,8 +1477,6 @@ throw(ServiceUnreachable)
 	Destroy_Name(contList[ind].c_str());
       
       Destroy_Directory(Path);
-      
-      Destroy_Name(Path);
     }
 }
 

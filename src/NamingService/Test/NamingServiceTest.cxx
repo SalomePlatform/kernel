@@ -729,7 +729,7 @@ NamingServiceTest::testResolveComponentUnknownComponentName()
 
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,
-	       "/Containers/theHostName/theContaine:rName/theComponentName");
+	       "/Containers/theHostName/theContainerName/theComponentName");
 
   obj = _NS.ResolveComponent("theHostName",
 			     "theContainerName",
@@ -1134,16 +1134,44 @@ NamingServiceTest::testDestroyDirectory()
 
 // ============================================================================
 /*!
- * Test 
+ * DestroyFullDirectory is not recursive
+ * Need Housekeeping of /Containers for further tests !
  */
 // ============================================================================
+
+void NamingServiceTest::_destroyDirectoryRecurs(string path)
+{
+  string current = path;
+  SCRUTE(path);
+  if (_NS.Change_Directory(path.c_str()))
+    {
+      vector<string> subdirs = _NS.list_subdirs();
+      for (int i=0; i<subdirs.size(); i++)
+	{
+	  string subpath=path + "/" +subdirs[i];
+	  _destroyDirectoryRecurs(subpath);
+	}
+      if (_NS.Change_Directory(path.c_str()))
+	{
+	  _NS.Destroy_FullDirectory(path.c_str());
+	}
+    }
+}
 
 void
 NamingServiceTest::testDestroyFullDirectory()
 {
   _NS.Destroy_FullDirectory("/Containers");
+  CPPUNIT_ASSERT(_NS.Change_Directory("/Containers"));
+  vector<string> subdirs = _NS.list_subdirs();
+  CPPUNIT_ASSERT(subdirs.size() >0);
+  _NS.list_directory_recurs();
+  string path = "/Containers";
+  _destroyDirectoryRecurs(path);
+  CPPUNIT_ASSERT( ! _NS.Change_Directory("/Containers"));
   _NS.Change_Directory("/");
   _NS.list_subdirs();
+  _NS.list_directory_recurs();
 }
 
 // ============================================================================
