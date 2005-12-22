@@ -250,7 +250,7 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
-  MESSAGE("Engines_Component_i::GetContainerRef");
+  //  MESSAGE("Engines_Component_i::GetContainerRef");
   CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }

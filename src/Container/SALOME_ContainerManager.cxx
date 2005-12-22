@@ -249,7 +249,7 @@ GetFittingResources(const Engines::MachineParameters& params,
       //return ret;
     }
 
-  MESSAGE("Machine list length "<<vec.size());
+  //  MESSAGE("Machine list length "<<vec.size());
   ret->length(vec.size());
   for(unsigned int i=0;i<vec.size();i++)
     {

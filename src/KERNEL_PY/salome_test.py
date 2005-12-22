@@ -275,7 +275,7 @@ import os
 dir= os.getenv("DATA_DIR")
 if dir == None:
 	raise RuntimeError, "DATA_DIR is not defined"
-xmlfile = dir +"/Superv/Graphs/GraphGeomEssai.xml"
+xmlfile = dir + "/Superv/Graphs/GraphGeomEssaiGates.xml"
 print "Load dataflow from the file : "
 print xmlfile
 print

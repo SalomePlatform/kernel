@@ -124,7 +124,7 @@ GetFittingResources(const Engines::MachineParameters& params,
                     const char *moduleName)
 throw(SALOME_Exception)
 {
-  MESSAGE("ResourcesManager::GetFittingResources");
+//   MESSAGE("ResourcesManager::GetFittingResources");
   vector <std::string> ret;
 
   // --- To be sure that we search in a correct list.
@@ -135,14 +135,14 @@ throw(SALOME_Exception)
 
   if (hostname[0] != '\0')
     {
-      MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
+//       MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
 
       if ( strcmp(hostname, "localhost") == 0 ||
            strcmp(hostname, GetHostname().c_str()) == 0 )
         {
-          MESSAGE("ResourcesManager::GetFittingResources : localhost" );
+//           MESSAGE("ResourcesManager::GetFittingResources : localhost" );
           ret.push_back(GetHostname().c_str());
-          MESSAGE("ResourcesManager::GetFittingResources : " << ret.size());
+// 	  MESSAGE("ResourcesManager::GetFittingResources : " << ret.size());
         }
 
       else if (_resourcesList.find(hostname) != _resourcesList.end())
@@ -197,7 +197,7 @@ throw(SALOME_Exception)
         ret[i++] = (*iter2)._hostName;
     }
 
-  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
+  //  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
   return ret;
 }
 

@@ -30,14 +30,14 @@
 
 %typemap(python,out) Engines::Container_ptr, Engines::Component_ptr
 {
-  MESSAGE("typemap out on CORBA object ptr");
-  SCRUTE($1);
+  //MESSAGE("typemap out on CORBA object ptr");
+  //SCRUTE($1);
 
   // --- Get the Python orb
 
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
-  PyRun_String("import CORBA", Py_single_input, pdict, pdict);
+  PyRun_String("from omniORB import CORBA", Py_single_input, pdict, pdict);
   PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
                    pdict, pdict);
   PyObject* orb = PyDict_GetItemString(pdict, "o");
@@ -49,11 +49,11 @@
   char **argv = &xargv;
   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
   string s =  ORB->object_to_string($1);
-  SCRUTE(s);
+  //SCRUTE(s);
   PyObject * tmp = PyString_FromString(s.c_str());
-  SCRUTE(tmp);
+  //SCRUTE(tmp);
   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
-  SCRUTE($result);
+  //SCRUTE($result);
 }
 
 

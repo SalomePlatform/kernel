@@ -47,8 +47,11 @@ if test -z $QWTHOME; then
   if test "x$exits_ok" = "xyes"; then
      if test -z $QWT_INCLUDES; then
         QWT_INCLUDES=$QWTHOME"/include/qwt"
-        if test ! -d $QWT_INCLUDES; then
-           QWT_INCLUDES=$QWTHOME"/include"
+        if test ! -f $QWT_INCLUDES/qwt.h ; then
+          QWT_INCLUDES=$QWTHOME"/include"
+        fi
+        if test ! -f $QWT_INCLUDES/qwt.h ; then
+          QWT_INCLUDES=/usr/lib/qt3/include/qwt
         fi
      fi
   fi

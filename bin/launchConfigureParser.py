@@ -26,6 +26,7 @@ standalone_nam = "standalone"
 containers_nam = "containers"
 key_nam        = "key"
 interp_nam     = "interp"
+except_nam     = "noexcepthandler"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -38,7 +39,7 @@ appname        = "SalomeApp"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam, except_nam )
 
 # values of list type
 listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
@@ -275,7 +276,7 @@ except:
 
 opterror=0
 for opt in cmd_opts:
-    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i"):
+    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i","r"):
         print "command line error: -", opt
         opterror=1
 
@@ -306,6 +307,7 @@ if cmd_opts.has_key("h"):
     --killall or -k               : kill all salome sessions
     --interp=n or -i=n            : number of additional xterm to open, with session environment
     -z                            : display splash screen
+    -r                            : disable centralized exception handling mechanism
     
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
@@ -320,6 +322,8 @@ for opt in cmd_opts:
         args[gui_nam] = 1
     elif opt == 'z':
 	args[splash_nam] = 1
+    elif opt == 'r':
+	args[except_nam] = 1
     elif opt == 'l':
         args[logger_nam] = 1
     elif opt == 'f':

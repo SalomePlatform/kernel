@@ -344,7 +344,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Resolve: " << Path);
+//   MESSAGE("BEGIN OF Resolve: " << Path);
 
   Utils_Locker lock (&_myMutex);
 
@@ -430,10 +430,10 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
   throw(ServiceUnreachable)
 {
-  MESSAGE("ResolveFirst");
+//   MESSAGE("ResolveFirst");
 
   Utils_Locker lock (&_myMutex);
-  SCRUTE(Path);
+//   SCRUTE(Path);
 
   string thePath = Path;
   string basePath = "";
@@ -445,10 +445,10 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
     {
       basePath = thePath.substr(0, idx);
       name = thePath.substr(idx + 1);
-      SCRUTE(basePath);
+//       SCRUTE(basePath);
     }
 
-  SCRUTE(name);
+//   SCRUTE(name);
   CORBA::Object_ptr obj = CORBA::Object::_nil();
 
   bool isOk = false;
@@ -503,7 +503,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 				       const int nbproc)
   throw(ServiceUnreachable)
 {
-  MESSAGE("ResolveComponent");
+//   MESSAGE("ResolveComponent");
 
   Utils_Locker lock (&_myMutex);
 
@@ -791,7 +791,7 @@ throw(ServiceUnreachable)
 bool SALOME_NamingService::Change_Directory(const char* Path)
 throw(ServiceUnreachable)
 {
-  MESSAGE("BEGIN OF Change_Directory " << Path);
+//   MESSAGE("BEGIN OF Change_Directory " << Path);
   Utils_Locker lock (&_myMutex);
 
   string path(Path);
@@ -805,7 +805,7 @@ throw(ServiceUnreachable)
 
   if (path == "/")
     {
-      MESSAGE("Change_Directory is called to go to the root_context");
+//       MESSAGE("Change_Directory is called to go to the root_context");
       _current_context = _root_context;
       return true;
     }
@@ -823,7 +823,7 @@ throw(ServiceUnreachable)
   ASSERT(!CORBA::is_nil(current_context));
   
   if (path[path.length()-1] != '/') path += '/';
-  SCRUTE(path);
+//   SCRUTE(path);
   CosNaming::Name context_name;
   vector<string> splitPath;
   int dimension_resultat = _createContextNameDir(path.c_str(),
@@ -1010,7 +1010,7 @@ throw(ServiceUnreachable)
 vector<string> SALOME_NamingService::list_directory()
 throw(ServiceUnreachable)
 {
-  MESSAGE("list_directory");
+//   MESSAGE("list_directory");
   vector<string> dirList ;
   dirList.resize(0);
 
@@ -1038,8 +1038,8 @@ throw(ServiceUnreachable)
         }
     }
 
-  for (unsigned int ind = 0; ind < dirList.size(); ind++)
-    MESSAGE("list_directory : Object : " << dirList[ind]);
+//   for (unsigned int ind = 0; ind < dirList.size(); ind++)
+//     MESSAGE("list_directory : Object : " << dirList[ind]);
 
   binding_iterator->destroy();
 
@@ -1573,17 +1573,17 @@ SALOME_NamingService::_createContextNameDir(string path,
   context_name.length(dim);
   for (int i=0; i<dim; i++)
     {
-      SCRUTE(splitPath[i]);
+//       SCRUTE(splitPath[i]);
       context_name[i].id = CORBA::string_dup(splitPath[i].c_str());
       if (!endWithDelim && (i == dim-1)) // here, the last string is an object
 	{
 	  context_name[i].kind = CORBA::string_dup("object");
-	  MESSAGE("--- " <<splitPath[i] <<".object");
+// 	  MESSAGE("--- " <<splitPath[i] <<".object");
 	}
       else
 	{
 	  context_name[i].kind = CORBA::string_dup("dir");
-	  MESSAGE("--- " <<splitPath[i] <<".dir");
+// 	  MESSAGE("--- " <<splitPath[i] <<".dir");
 	}
     }
   return dim;

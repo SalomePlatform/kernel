@@ -267,15 +267,18 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 				const std::string& theToDirectory,
 				const int theNamesOnly)
 {
-  if(theStream.length() == 0) 
-    return NULL;
+  SALOMEDS::ListOfFileNames_var aFiles = new SALOMEDS::ListOfFileNames;
+
+  if(theStream.length() == 0)
+    return aFiles;
 
   //Get a temporary directory for saving a file
   TCollection_AsciiString aTmpDir(const_cast<char*>(theToDirectory.c_str()));
 
   unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
 
-  if(aBuffer == NULL) return NULL;
+  if(aBuffer == NULL)
+    return aFiles;
 
   long aFileSize, aCurrentPos = 4;
   int i, aFileNameSize, aNbFiles = 0;
@@ -283,7 +286,6 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
   //Copy the number of files in the stream
   memcpy(&aNbFiles, aBuffer, sizeof(int)); 
 
-  SALOMEDS::ListOfFileNames_var aFiles = new SALOMEDS::ListOfFileNames;
   aFiles->length(aNbFiles);
 
   for(i=0; i<aNbFiles; i++) {

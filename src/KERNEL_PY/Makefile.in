@@ -31,7 +31,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py salome_shared_modules.py batchmode_salome.py import_hook.py salome_test.py salome_kernel.py salome_study.py salome_iapp.py salome_ComponentGUI.py
+EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py salome_shared_modules.py batchmode_salome.py import_hook.py salome_test.py salome_kernel.py salome_study.py salome_iapp.py salome_ComponentGUI.py omnipatch.py
 
 EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
 

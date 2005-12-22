@@ -56,7 +56,8 @@ import glob,os,sys
 import import_hook
 # shared_imported, patterns, register_name, register_pattern
 # will be shared by all Python sub interpretors
-from import_hook import shared_imported
+from omnipatch import shared_imported
+import_hook.shared_imported=shared_imported
 from import_hook import patterns
 from import_hook import register_name
 from import_hook import register_pattern

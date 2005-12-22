@@ -100,7 +100,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     const MapOfParserResourcesType& GetList() const;
 
-  private:
+  protected:
     SALOME_NamingService *_NS;
 
     std::string BuildTempFileToLaunchRemoteContainer

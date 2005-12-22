@@ -184,9 +184,12 @@ def set_env(args, modules_list, modules_root_dir):
         if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
         pass   
 
-    os.environ["CSF_PluginDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
+    # set CSF_PluginDefaults variable only if it is not customized
+    # by the user
+    if not os.getenv("CSF_PluginDefaults"):
+        os.environ["CSF_PluginDefaults"] \
+        = os.path.join(modules_root_dir["KERNEL"],"share",
+                       salome_subdir,"resources")
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
                    salome_subdir,"resources")
@@ -408,6 +411,8 @@ class SessionServer(Server):
             self.SCMD2+=['GUI']
         if self.args['splash']:
             self.SCMD2+=['SPLASH']
+        if self.args['noexcepthandler']:
+            self.SCMD2+=['noexcepthandler']
         if self.args.has_key('modules'):
             self.SCMD2+=['--modules (']
             for mod in self.args['modules']:

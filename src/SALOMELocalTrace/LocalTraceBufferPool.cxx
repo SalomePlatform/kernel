@@ -169,7 +169,12 @@ int LocalTraceBufferPool::insert(int traceType, const char* msg)
 
   // wait until there is a free buffer in the pool
 
-  int ret = sem_wait(&_freeBufferSemaphore);
+  int ret = -1;
+  while (ret)
+    {
+      ret = sem_wait(&_freeBufferSemaphore);
+      if (ret) perror(" LocalTraceBufferPool::insert, sem_wait");
+    }
 
   // get the next free buffer available (mutex protected) 
 
@@ -209,7 +214,12 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
 
   // wait until there is a buffer in the pool, with a message to print
 
-  int ret = sem_wait(&_fullBufferSemaphore);
+  int ret = -1;
+  while (ret)
+    {
+      ret = sem_wait(&_fullBufferSemaphore);
+      if (ret) perror(" LocalTraceBufferPool::retrieve, sem_wait");
+    }
 
   // get the next buffer to print
 

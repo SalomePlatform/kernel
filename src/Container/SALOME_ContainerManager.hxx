@@ -68,7 +68,7 @@ public:
 
   static const char *_ContainerManagerNameInNS;
 
-private:
+protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
 		const Engines::MachineList& possibleComputers);

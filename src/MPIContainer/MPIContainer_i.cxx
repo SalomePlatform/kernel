@@ -33,6 +33,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
 #include "utilities.h"
+#include <pthread.h>  // must be before Python.h !
 #include <Python.h>
 #include "Container_init_python.hxx"
 using namespace std;

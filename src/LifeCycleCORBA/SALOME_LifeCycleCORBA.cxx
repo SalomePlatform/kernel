@@ -244,13 +244,13 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     }
   params->isMPI = false;
   SCRUTE(params->container_name);
-  SCRUTE(params->hostname);
-  SCRUTE(params->OS);
-  SCRUTE(params->mem_mb);
-  SCRUTE(params->cpu_clock);
-  SCRUTE(params->nb_proc_per_node);
-  SCRUTE(params->nb_node);
-  SCRUTE(params->isMPI);
+//   SCRUTE(params->hostname);
+//   SCRUTE(params->OS);
+//   SCRUTE(params->mem_mb);
+//   SCRUTE(params->cpu_clock);
+//   SCRUTE(params->nb_proc_per_node);
+//   SCRUTE(params->nb_node);
+//   SCRUTE(params->isMPI);
   free(stContainer);
   return FindOrLoad_Component(params,componentName);
   
@@ -381,8 +381,8 @@ _FindComponent(const Engines::MachineParameters& params,
 
   const char *containerName = params.container_name;
   int nbproc = NbProc(params);
-  MESSAGE("_FindComponent, required " << containerName <<
-	  " " << componentName << " " << nbproc);
+//   MESSAGE("_FindComponent, required " << containerName <<
+// 	  " " << componentName << " " << nbproc);
 
   Engines::MachineList_var machinesOK = new Engines::MachineList;
 
@@ -392,7 +392,7 @@ _FindComponent(const Engines::MachineParameters& params,
   for(unsigned int i=0; i<listOfMachines.length(); i++)
     {
       const char *currentMachine=listOfMachines[i];
-      MESSAGE("_FindComponent, look at " << currentMachine);
+//       MESSAGE("_FindComponent, look at " << currentMachine);
       CORBA::Object_var obj = _NS->ResolveComponent(currentMachine,
 						    containerName,
 						    componentName,

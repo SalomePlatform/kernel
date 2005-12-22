@@ -536,8 +536,8 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
       {
 	if (name.compare(_general_module_list[ind].name) == 0)
 	  {
-	    if(MYDEBUG) MESSAGE("Component named " << name 
-				<< " found in the general catalog");
+	    //	    if(MYDEBUG) MESSAGE("Component named " << name 
+	    //			<< " found in the general catalog");
 	    C_parser = &(_general_module_list[ind]);
 	    break;
 	  }
@@ -638,7 +638,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   
   // duplicate service list
   unsigned int _length = I_parser.services.size();
-  if(MYDEBUG) SCRUTE(_length);
+  //  if(MYDEBUG) SCRUTE(_length);
   //  I_corba.interfaceservicelist 
   //  = new SALOME_ModuleCatalog::ListOfInterfaceService;
   I_corba.interfaceservicelist.length(_length);
@@ -700,7 +700,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   
   // duplicate out DataStreamParameters
   _length = S_parser.outDataStreamParameters.size();
-  if(MYDEBUG) SCRUTE(_length);
+  //  if(MYDEBUG) SCRUTE(_length);
   S_corba.ServiceoutDataStreamParameter.length(_length);
 
 #ifndef WNT

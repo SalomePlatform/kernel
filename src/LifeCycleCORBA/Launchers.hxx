@@ -17,6 +17,7 @@
 //
 // See http://www.salome-platform.org/
 //
+#include <pthread.h>  // must be before Python.h !
 #include <Python.h>
 #define elDEBUG 0
 

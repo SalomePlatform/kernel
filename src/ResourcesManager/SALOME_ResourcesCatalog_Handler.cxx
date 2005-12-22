@@ -75,7 +75,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
 
 SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 {
-  MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
+  //  MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
 }
 
 //=============================================================================
@@ -101,7 +101,7 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 bool SALOME_ResourcesCatalog_Handler::startDocument()
 {
-  MESSAGE("Begin parse document");
+  //  MESSAGE("Begin parse document");
 
   // --- Empty private elements
 
@@ -261,21 +261,21 @@ bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
 
 bool SALOME_ResourcesCatalog_Handler::endDocument()
 {
-  for (map<string, ParserResourcesType>::const_iterator iter =
-         _resources_list.begin();
-       iter != _resources_list.end();
-       iter++)
-    {
-      SCRUTE((*iter).second.Alias);
-      SCRUTE((*iter).second.UserName);
-      SCRUTE((*iter).second.AppliPath);
-      SCRUTE((*iter).second.PreReqFilePath);
-      SCRUTE((*iter).second.OS);
-      SCRUTE((*iter).second.Protocol);
-      SCRUTE((*iter).second.Mode);
-   }
+//   for (map<string, ParserResourcesType>::const_iterator iter =
+//          _resources_list.begin();
+//        iter != _resources_list.end();
+//        iter++)
+//     {
+//       SCRUTE((*iter).second.Alias);
+//       SCRUTE((*iter).second.UserName);
+//       SCRUTE((*iter).second.AppliPath);
+//       SCRUTE((*iter).second.PreReqFilePath);
+//       SCRUTE((*iter).second.OS);
+//       SCRUTE((*iter).second.Protocol);
+//       SCRUTE((*iter).second.Mode);
+//    }
   
-  MESSAGE("This is the end of document");
+//  MESSAGE("This is the end of document");
   return true;
 }
 

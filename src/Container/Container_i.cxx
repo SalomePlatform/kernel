@@ -33,6 +33,8 @@
 #else
 #include <SALOME_Component.hh>
 #endif
+#include <pthread.h>  // must be before Python.h !
+#include <Python.h>
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
@@ -48,7 +50,6 @@
 #include <process.h>
 int SIGUSR1 = 1000;
 #endif
-#include <Python.h>
 #include "Container_init_python.hxx"
 
 #include "utilities.h"
@@ -219,7 +220,7 @@ char* Engines_Container_i::name()
 char* Engines_Container_i::getHostName()
 {
   string s = GetHostname();
-  MESSAGE("Engines_Container_i::getHostName " << s);
+  //  MESSAGE("Engines_Container_i::getHostName " << s);
   return CORBA::string_dup(s.c_str()) ;
 }
 
@@ -816,15 +817,19 @@ void ActSigIntHandler()
 // (SIGINT | SIGUSR1) :
 // it must be only one signal ===> one call for SIGINT 
 // and an other one for SIGUSR1
+
 #ifndef WNT
-  if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
-    perror("SALOME_Container main ") ;
-    exit(0) ;
-  }
-  if ( sigaction( SIGUSR1 , &SigIntAct, NULL ) ) {
-    perror("SALOME_Container main ") ;
-    exit(0) ;
-  }
+  if ( sigaction( SIGINT , &SigIntAct, NULL ) ) 
+    {
+      perror("SALOME_Container main ") ;
+      exit(0) ;
+    }
+  if ( sigaction( SIGUSR1 , &SigIntAct, NULL ) )
+    {
+      perror("SALOME_Container main ") ;
+      exit(0) ;
+    }
+
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
   //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
@@ -832,6 +837,7 @@ void ActSigIntHandler()
   //             may have a "Dead-Lock" ===HangUp
   //==INFOS is commented
   //  INFOS(pthread_self() << "SigIntHandler activated") ;
+
 #else  
   signal( SIGINT, SigIntHandler );
   signal( SIGUSR1, SigIntHandler );
@@ -842,8 +848,10 @@ void ActSigIntHandler()
 void SetCpuUsed() ;
 
 #ifndef WNT
-void SigIntHandler(int what , siginfo_t * siginfo ,
-                                        void * toto ) {
+void SigIntHandler(int what ,
+		   siginfo_t * siginfo ,
+		   void * toto ) 
+{
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
   //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
@@ -854,160 +862,66 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
   //          << "              si_signo " << siginfo->si_signo << endl
   //          << "              si_code  " << siginfo->si_code << endl
   //          << "              si_pid   " << siginfo->si_pid) ;
-  if ( _Sleeping ) {
-    _Sleeping = false ;
-    //     MESSAGE("SigIntHandler END sleeping.") ;
-    return ;
-  }
-  else {
-    ActSigIntHandler() ;
-    if ( siginfo->si_signo == SIGUSR1 ) {
-      SetCpuUsed() ;
+
+  if ( _Sleeping )
+    {
+      _Sleeping = false ;
+      //     MESSAGE("SigIntHandler END sleeping.") ;
+      return ;
     }
-    else {
-      _Sleeping = true ;
-      //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
-      int count = 0 ;
-      while( _Sleeping ) {
-        sleep( 1 ) ;
-        count += 1 ;
-      }
-      //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+  else
+    {
+      ActSigIntHandler() ;
+      if ( siginfo->si_signo == SIGUSR1 )
+	{
+	  SetCpuUsed() ;
+	}
+      else 
+	{
+	  _Sleeping = true ;
+	  //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+	  int count = 0 ;
+	  while( _Sleeping )
+	    {
+	      sleep( 1 ) ;
+	      count += 1 ;
+	    }
+	  //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+	}
+      return ;
     }
-    return ;
-  }
 }
 #else // Case WNT
-void SigIntHandler( int what ) {
+void SigIntHandler( int what )
+{
   MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
-  if ( _Sleeping ) {
-    _Sleeping = false ;
-    MESSAGE("SigIntHandler END sleeping.") ;
-    return ;
-  }
-  else {
-    ActSigIntHandler() ;
-    if ( what == SIGUSR1 ) {
-      SetCpuUsed() ;
+  if ( _Sleeping )
+    {
+      _Sleeping = false ;
+      MESSAGE("SigIntHandler END sleeping.") ;
+      return ;
     }
-    else {
-      _Sleeping = true ;
-      MESSAGE("SigIntHandler BEGIN sleeping.") ;
-      int count = 0 ;
-      while( _Sleeping ) {
-        Sleep( 1000 ) ;
-        count += 1 ;
-      }
-      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+  else
+    {
+      ActSigIntHandler() ;
+      if ( what == SIGUSR1 )
+	{
+	  SetCpuUsed() ;
+	}
+      else
+	{
+	  _Sleeping = true ;
+	  MESSAGE("SigIntHandler BEGIN sleeping.") ;
+	  int count = 0 ;
+	  while( _Sleeping ) 
+	    {
+	      Sleep( 1000 ) ;
+	      count += 1 ;
+	    }
+	  MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+	}
+      return ;
     }
-    return ;
-  }
 }
 #endif
-
-//=============================================================================
-/*! 
- *  CORBA method: Create one instance of componentName component 
- *  and register it as genericRegisterName in naming service
- */
-//=============================================================================
-
-// Engines::Component_ptr Engines_Container_i::instance( const char* genericRegisterName,
-// 	                                              const char* componentName )
-// {
-//   _numInstanceMutex.lock() ; // lock on the instance number
-//   BEGIN_OF( "Container_i::instance " << componentName ) ;
-
-//   string _genericRegisterName = genericRegisterName;
-//   string component_registerName = _containerName + "/" + _genericRegisterName;
-  
-//   Engines::Component_var iobject = Engines::Component::_nil() ;
-  
-//   try 
-//     {
-//       CORBA::Object_var obj = _NS->Resolve( component_registerName.c_str() ) ;
-//       if (! CORBA::is_nil( obj ) )
-// 	{
-// 	  MESSAGE( "Container_i::instance " << component_registerName.c_str() << " already registered" ) ;
-// 	  iobject = Engines::Component::_narrow( obj ) ;
-// 	}
-//       else
-// 	{
-// 	  string _compo_name = componentName;
-// 	  string _impl_name = "lib" + _compo_name + "Engine.so";
-// 	  SCRUTE(_impl_name);
-      
-// 	  void* handle;
-// 	  handle = dlopen( _impl_name.c_str() , RTLD_LAZY ) ;
-	  
-// 	  if ( handle )
-// 	    {
-// 	      string factory_name = _compo_name + "Engine_factory";
-// 	      SCRUTE(factory_name) ;
-	      
-// 	      typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
-// 		(CORBA::ORB_ptr,
-// 		 PortableServer::POA_ptr, 
-// 		 PortableServer::ObjectId *, 
-// 		 const char *, 
-// 		 const char *) ; 
-// 	      FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
-
-// 	      char *error ;
-// 	      if ( (error = dlerror() ) == NULL)
-// 		{
-// 		  // Instanciate required CORBA object
-// 		  _numInstance++ ;
-// 		  char _aNumI[12];
-// 		  sprintf( _aNumI , "%d" , _numInstance ) ;
-// 		  string instanceName = _compo_name + "_inst_" + _aNumI ;
-// 		  SCRUTE(instanceName);
-		  
-// 		  PortableServer::ObjectId * id ;
-// 		  id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str() ,
-// 					     _genericRegisterName.c_str() ) ;
-// 		  // get reference from id
-// 		  obj = _poa->id_to_reference(*id);
-// 		  iobject = Engines::Component::_narrow( obj ) ;
-		  
-// 		  // register the engine under the name containerName.dir/genericRegisterName.object
-// 		  _NS->Register( iobject , component_registerName.c_str() ) ;
-// 		  MESSAGE( "Container_i::instance " << component_registerName.c_str() << " registered" ) ;
-// 		  _handle_map[instanceName] = handle;
-// 		}
-// 	      else
-// 		{
-// 		  INFOS("Can't resolve symbol: " + factory_name);
-// 		  SCRUTE(error);
-// 		}  
-// 	    }
-// 	  else
-// 	    {
-// 	      INFOS("Can't load shared library : " << _impl_name);
-// 	      INFOS("error dlopen: " << dlerror());
-// 	    }      
-// 	}
-//     }
-//   catch (...)
-//     {
-//       INFOS( "Container_i::instance exception caught" ) ;
-//     }
-//   END_OF("Container_i::instance");
-//   _numInstanceMutex.unlock() ;
-//   return Engines::Component::_duplicate(iobject);
-// }
-
-//=============================================================================
-/*! 
- *  CORBA attribute: Machine Name (hostname without domain extensions)
- */
-//=============================================================================
-
-// char* Engines_Container_i::machineName()
-// {
-//   string s = GetHostname();
-//   MESSAGE("Engines_Container_i::machineName " << s);
-//    return CORBA::string_dup(s.c_str()) ;
-// }
-
 
