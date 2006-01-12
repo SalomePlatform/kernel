@@ -59,7 +59,7 @@ def get_config():
 
     to_remove_list=[]
     for module in modules_list :
-        module_variable=module.upper()+"_ROOT_DIR"
+        module_variable=module+"_ROOT_DIR"
         if not os.environ.has_key(module_variable):
             print "*******************************************************"
             print "*"
@@ -149,10 +149,18 @@ def set_env(args, modules_list, modules_root_dir):
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
-                if os.environ.has_key(plugin.upper()+"_ROOT_DIR"):
+                plugin_root = ""
+                if os.environ.has_key(plugin+"_ROOT_DIR"):
+                    plugin_root = os.environ[plugin+"_ROOT_DIR"]
+                else:
+                    # workaround to avoid modifications of existing environment
+                    if os.environ.has_key(plugin.upper()+"_ROOT_DIR"):
+                        plugin_root = os.environ[plugin.upper()+"_ROOT_DIR"]
+                        pass
+                    pass
+                if plugin_root != "":
                     os.environ["SMESH_MeshersList"] \
                     = os.environ["SMESH_MeshersList"]+":"+plugin
-                    plugin_root = os.environ[plugin.upper()+"_ROOT_DIR"]
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
                         = plugin_root+"/share/"+args["appname"]+"/resources"
@@ -172,7 +180,8 @@ def set_env(args, modules_list, modules_root_dir):
 
     # set environment for SUPERV module
     os.environ["ENABLE_MACRO_NODE"]="1"
-   
+
+    pass
 
 # -----------------------------------------------------------------------------
 
