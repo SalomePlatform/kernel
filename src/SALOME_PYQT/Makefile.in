@@ -27,7 +27,7 @@ endif
 SIP_FLAGS = -t WS_X11 -t $(QT_VERS) $(PYQT_SIPFLAGS) -s ".cc" -c . -I $(PYQT_SIPS)
 # Sip common sources
 SIP_SRC = sipSalomePyQtSalomePyQt.cc \
-	  sipSalomePyQtSALOME_Selection.cc
+	  sipSalomePyQtSalomePyQt_Selection.cc
 
 # Sip version-specific sources
 ifeq ($(SIP_VERS),v4_old)
@@ -97,7 +97,8 @@ LIB_SRC = SalomePyQt.cxx \
           $(MOC_SRC) 
 
 # Library moc sources
-LIB_MOC = SALOME_PYQT_GUI.h
+LIB_MOC = SALOME_PYQT_GUI.h \
+	  SalomePyQt.h
 
 # Client IDL
 LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_GenericObj.idl

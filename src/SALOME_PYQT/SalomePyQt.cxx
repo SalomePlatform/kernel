@@ -5,7 +5,7 @@
 //  File   : SalomePyQt.cxx
 //  Module : SALOME
 
-#include "SalomePyQt.hxx"
+#include "SalomePyQt.h"
 
 #include <qapplication.h>
 #include <qmenubar.h>
@@ -20,6 +20,118 @@
 
 #include "QAD_Config.h"
 #include "QAD_Settings.h"
+
+//====================================================================================
+// SalomePyQt_Selection class.
+//====================================================================================
+static QMap<QAD_Study*, SalomePyQt_Selection*> SelMap;
+
+/*!
+  SalomePyQt_Selection::GetSelection
+  Creates or finds the selection object (one per study).
+*/
+SalomePyQt_Selection* SalomePyQt_Selection::GetSelection( QAD_Study* study )
+{
+  SalomePyQt_Selection* sel = 0;
+  if ( study && SelMap.find( study ) != SelMap.end() )
+    sel = SelMap[ study ];
+  else 
+    sel = SelMap[ study ] = new SalomePyQt_Selection( study );
+  return sel;
+}
+
+/*!
+  SalomePyQt_Selection::SalomePyQt_Selection
+  Selection constructor.
+*/
+SalomePyQt_Selection::SalomePyQt_Selection( QObject* p ) :
+  QObject( p ), myStudy( 0 ), mySelection( 0 )
+{
+  myStudy = dynamic_cast<QAD_Study*>( p );
+  if ( myStudy ) {
+    mySelection = SALOME_Selection::Selection( myStudy->getSelection() );
+    if ( mySelection ) {
+      connect( mySelection, SIGNAL( currentSelectionChanged() ), 
+	       this,        SIGNAL( currentSelectionChanged() ) );
+      connect( mySelection, SIGNAL( destroyed() ),        
+	       this,        SLOT  ( onSelectionDestroyed() ) );
+      connect( myStudy,     SIGNAL( selectionModified( QAD_Study* ) ),        
+	       this,        SLOT  ( onSelectionModified() ) );
+    }
+  }
+}
+/*!
+  SalomePyQt_Selection::~SalomePyQt_Selection
+  Selection destructor. Removes selection object from the map.
+*/
+SalomePyQt_Selection::~SalomePyQt_Selection()
+{
+  if ( myStudy && SelMap.find( myStudy ) != SelMap.end() )
+    SelMap.remove( myStudy );
+}
+
+/*!
+  SalomePyQt_Selection::onSelectionDestroyed
+  Watches for the selection destroying (e.g. when study is closed).
+*/
+void SalomePyQt_Selection::onSelectionDestroyed()
+{
+  mySelection = 0;
+}
+
+/*!
+  SalomePyQt_Selection::onSelectionModified
+  Updates and reconnect selection when it is changed (e.g. when study is saved).
+*/
+void SalomePyQt_Selection::onSelectionModified()
+{
+  if ( mySelection ) {
+    disconnect( mySelection, SIGNAL( currentSelectionChanged() ), 
+	        this,        SIGNAL( currentSelectionChanged() ) );
+    disconnect( mySelection, SIGNAL( destroyed() ),        
+	        this,        SLOT  ( onSelectionDestroyed() ) );
+  }
+  
+  mySelection = myStudy ? SALOME_Selection::Selection( myStudy->getSelection() ) : 0;
+    
+  if ( mySelection ) {
+    connect( mySelection, SIGNAL( currentSelectionChanged() ), 
+	     this,        SIGNAL( currentSelectionChanged() ) );
+    connect( mySelection, SIGNAL( destroyed() ),        
+	     this,        SLOT  ( onSelectionDestroyed() ) );
+  }
+}
+
+/*!
+  SalomePyQt_Selection::Clear
+  Clears the selection.
+*/
+void SalomePyQt_Selection::Clear()
+{
+  if ( mySelection ) mySelection->Clear();
+}
+
+/*!
+  SalomePyQt_Selection::ClearIObjects
+  Clears the selection and emits the signal.
+*/
+void SalomePyQt_Selection::ClearIObjects()
+{
+  if ( mySelection ) mySelection->ClearIObjects();
+}
+
+/*!
+  SalomePyQt_Selection::ClearFilters
+  Removes all selection filters.
+*/
+void SalomePyQt_Selection::ClearFilters()
+{
+  if ( mySelection ) mySelection->ClearFilters();
+}
+
+//====================================================================================
+// SalomePyQt class
+//====================================================================================
 
 using namespace std;
 
@@ -43,9 +155,9 @@ int SalomePyQt::getStudyId()
   return QAD_Application::getDesktop()->getActiveApp()->getActiveStudy()->getStudyId();
 }
 
-SALOME_Selection* SalomePyQt::getSelection()
+SalomePyQt_Selection* SalomePyQt::getSelection()
 {
-  return SALOME_Selection::Selection(QAD_Application::getDesktop()->getActiveApp()->getActiveStudy()->getSelection());
+  return SalomePyQt_Selection::GetSelection(QAD_Application::getDesktop()->getActiveApp()->getActiveStudy());
 }
 
 void SalomePyQt::putInfo( const QString& msg )

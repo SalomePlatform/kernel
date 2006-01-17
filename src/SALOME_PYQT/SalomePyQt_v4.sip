@@ -2,16 +2,20 @@
 
 %Import qtmod.sip
 
-class SALOME_Selection : QObject
+
+class SalomePyQt_Selection : QObject
 {
 %TypeHeaderCode
-#include <SALOME_Selection.h>
+#include <SalomePyQt.h>
 %End
 
 public:
-  SALOME_Selection(const QString &);
   void Clear();
   void ClearIObjects();
+  void ClearFilters();
+
+private:
+  SalomePyQt_Selection( QObject* /TransferThis/ );
 
 signals:
   void currentSelectionChanged();
@@ -30,33 +34,41 @@ enum MenuName {
 class SalomePyQt
 {
 %TypeHeaderCode
-#include <SalomePyQt.hxx>
+#include <SalomePyQt.h>
 %End
 
 public:
-  static QWidget*    getDesktop();
-  static QWorkspace* getMainFrame();
-  static QMenuBar*   getMainMenuBar();
-  static QPopupMenu* getPopupMenu( const MenuName );
-  static SALOME_Selection* getSelection();
-  static int getStudyId();
-  static void putInfo( const QString& );
-  static void putInfo( const QString&, int );
+  static QWidget*              getDesktop();
+  static QWorkspace*           getMainFrame();
+  static QMenuBar*             getMainMenuBar();
+  static QPopupMenu*           getPopupMenu( const MenuName );
+  static SalomePyQt_Selection* getSelection() /Factory/;
+  static int                   getStudyId();
+  static void                  putInfo( const QString& );
+  static void                  putInfo( const QString&, int );
 
-  static const QString& getActiveComponent();
+  static const QString&        getActiveComponent();
 
-  static void updateObjBrowser( int, bool );
+  static void                  updateObjBrowser( int, bool );
 
 
-  static bool removeSettings(QString);
-  static QString getSetting(QString);
-  static void addStringSetting(QString, QString, bool);
-  static void addIntSetting(QString, int, bool);
-  static void addDoubleSetting(QString, double, bool);
+  static bool                  removeSettings(QString);
+  static QString               getSetting(QString);
+  static void                  addStringSetting(QString, QString, bool);
+  static void                  addIntSetting(QString, int, bool);
+  static void                  addDoubleSetting(QString, double, bool);
 
-  static QString getFileName(QWidget*, const QString&, const QStringList&, const QString&, bool);
-  static QStringList getOpenFileNames(QWidget*, const QString&, const QStringList&, const QString&);
-  static QString getExistingDirectory(QWidget*, const QString&, const QString&);
-  static void helpContext(const QString&, const QString&);
-  static bool dumpView(const QString&);
+  static QString               getFileName(QWidget*, 
+                                           const QString&,
+                                           const QStringList&,
+                                           const QString&, bool) /ReleaseGIL/;
+  static QStringList           getOpenFileNames(QWidget*, 
+                                                const QString&,
+                                                const QStringList&,
+                                                const QString&) /ReleaseGIL/;
+  static QString               getExistingDirectory(QWidget*, 
+                                                    const QString&, 
+                                                    const QString&) /ReleaseGIL/;
+  static void                  helpContext(const QString&, const QString&);
+  static bool                  dumpView(const QString&);
 };

@@ -1333,6 +1333,8 @@ void QAD_Study::Selection( QString aSelection )
   SALOME_Selection* Sel = SALOME_Selection::Selection( QString(myTitle + "_" + aSelection) );
 
   mySelection = aSelection;
+
+  emit selectionModified( this );
 }
 
 /*!

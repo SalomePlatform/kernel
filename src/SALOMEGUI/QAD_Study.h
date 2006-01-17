@@ -162,6 +162,7 @@ signals:
   void		  docOperationTerminated( bool );
   void            closed();
   void            supervStudyFrameClosing( QAD_ViewFrame* );
+  void            selectionModified( QAD_Study* );
 
 public slots:
   void		  onStudyFrameActivated( QAD_StudyFrame* );
