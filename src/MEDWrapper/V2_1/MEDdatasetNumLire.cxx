@@ -19,6 +19,7 @@
 #include "med.hxx"
 #include "med_outils.hxx"
 #include <stdlib.h>
+#include "hdf5_version2api.hxx"
 
 /*
  * - Nom de la fonction : _MEDdatasetNumLire
@@ -48,7 +49,11 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 		   unsigned char *val)
 {
   med_idt    dataset, dataspace = 0, memspace = 0;
+#ifdef HDF_NEW_API
+  med_size  start_mem[1],start_data[1],*pflmem=0,*pfldsk=0;
+#else
   med_ssize  start_mem[1],start_data[1],*pflmem=0,*pfldsk=0;
+#endif
   med_size   stride[1],count[1],pcount[1],size[1],pflsize[1];
   med_err    ret;
   int        i,j,index,type_hdf;
@@ -153,8 +158,13 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 
 	pflsize [0] = psize*ngauss*nbdim;
 	pcount  [0] = psize*ngauss*dimutil;
+#ifdef HDF_NEW_API
+	pflmem     = (med_size *) malloc (sizeof(med_size)*pcount[0]);
+	pfldsk     = (med_size *) malloc (sizeof(med_size)*pcount[0]);
+#else
 	pflmem     = (med_ssize *) malloc (sizeof(med_ssize)*pcount[0]);
 	pfldsk     = (med_ssize *) malloc (sizeof(med_ssize)*pcount[0]);
+#endif
 	
 	switch(pflmod)
 	  { /* switch pflmod pour FULL_INTERLACE*/
@@ -174,11 +184,19 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 		}
 	    }
 	    
+#ifdef HDF_NEW_API
+	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hsize_t **) pflmem ) ) <0) 
+	      return -1; 
+	    
+	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET, pcount[0], (const hsize_t **) pfldsk ) ) <0) 
+	      return -1; 
+#else
 	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hssize_t **) pflmem ) ) <0) 
 	      return -1; 
 	    
 	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET, pcount[0], (const hssize_t **) pfldsk ) ) <0) 
 	      return -1; 
+#endif
 	    
 	    break;
 	
@@ -201,11 +219,19 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 		}	      
 	    }
 	    
+#ifdef HDF_NEW_API
+	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hsize_t **) pflmem ) ) <0) 
+	      return -1; 
+	    
+	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET, pcount[0], (const hsize_t **) pfldsk ) ) <0) 
+	      return -1; 
+#else
 	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hssize_t **) pflmem ) ) <0) 
 	      return -1; 
 	    
 	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET, pcount[0], (const hssize_t **) pfldsk ) ) <0) 
 	      return -1; 
+#endif
 	    
 	    break;
 
@@ -260,7 +286,11 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 
 	pflsize [0] = psize*ngauss*nbdim;	
   	pcount  [0] = psize*ngauss*dimutil; /* nom pas très coherent avec count !!! A revoir */	
+#ifdef HDF_NEW_API
+	pfldsk      = (med_size *) malloc(sizeof(med_size)*pcount[0]);
+#else
 	pfldsk      = (med_ssize *) malloc(sizeof(med_ssize)*pcount[0]);
+#endif
 	
 	switch(pflmod)
 	  { /*switch plfmod pour NO_INTERLACE */
@@ -275,8 +305,13 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 		}
 	    }
 	    
+#ifdef HDF_NEW_API
+	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET,pcount[0], (const hsize_t **) pfldsk ) ) <0) 
+	      return -1;
+#else
 	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET,pcount[0], (const hssize_t **) pfldsk ) ) <0) 
 	      return -1;
+#endif
 	    
 	    if ((ret = H5Dread(dataset,type_hdf,dataspace,dataspace,H5P_DEFAULT, val)) < 0)
 	      return -1;
@@ -292,7 +327,11 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 	    if ( (memspace = H5Screate_simple (1, pflsize, NULL)) <0)
 	      return -1;
 
+#ifdef HDF_NEW_API
+	    pflmem     = (med_size *) malloc (sizeof(med_size)*pcount[0]);
+#else
 	    pflmem     = (med_ssize *) malloc (sizeof(med_ssize)*pcount[0]);
+#endif
 	    
 	    /* Le profil COMPACT est contigüe, mais il est possible que l'on selectionne uniquemenent une dimension*/
 
@@ -306,11 +345,19 @@ _MEDdatasetNumLire(med_idt pere,char *nom,med_type_champ type,
 		}
 	    }
 	    
+#ifdef HDF_NEW_API
+	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hsize_t **) pflmem ) ) <0) 
+	      return -1; 
+	    
+	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET,pcount[0], (const hsize_t **) pfldsk ) ) <0) 
+	      return -1;	  
+#else
 	    if ( (ret = H5Sselect_elements(memspace ,H5S_SELECT_SET, pcount[0], (const hssize_t **) pflmem ) ) <0) 
 	      return -1; 
 	    
 	    if ( (ret = H5Sselect_elements(dataspace,H5S_SELECT_SET,pcount[0], (const hssize_t **) pfldsk ) ) <0) 
 	      return -1;	  
+#endif
 	    
 	    if ((ret = H5Dread(dataset,type_hdf,memspace,dataspace,H5P_DEFAULT, val)) < 0)
 	      return -1;

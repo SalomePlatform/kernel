@@ -155,7 +155,8 @@ LIB_SRC = \
 EXPORT_HEADERS = \
 	MED_V2_1_Wrapper.hxx \
 	med.hxx \
-	med_proto.hxx
+	med_proto.hxx \
+	hdf5_version2api.hxx
 
 # Executables targets
 BIN = mdump_V2_1 test1_V2_1
