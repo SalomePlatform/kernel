@@ -416,3 +416,14 @@ QString QAD_FileDlg::getExistingDirectory ( QWidget*       parent,
   return dirname;
 }
 
+/*!
+  QFileDialog::dirPath() has a bug on Linux Debian (1 level up from correct
+  directory is returned).  This function fixes the bug. 
+*/
+QString QAD_FileDlg::dirPath() const
+{
+  if ( !mySelectedFile.isNull() )
+    return QFileInfo( mySelectedFile ).dirPath();
+  
+  return QFileDialog::dirPath();
+}
