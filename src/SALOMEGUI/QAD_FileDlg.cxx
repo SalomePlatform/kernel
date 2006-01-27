@@ -425,5 +425,5 @@ QString QAD_FileDlg::dirPath() const
   if ( !mySelectedFile.isNull() )
     return QFileInfo( mySelectedFile ).dirPath();
   
-  return QFileDialog::dirPath();
+  return QFileDialogP::dirPath();
 }
