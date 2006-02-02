@@ -52,10 +52,10 @@ public:
   virtual _PTR(Study) NewStudy(const std::string& study_name);
   virtual _PTR(Study) Open(const std::string& theStudyUrl);
   virtual void Close(const _PTR(Study)& theStudy);
-  virtual void Save(const _PTR(Study)& theStudy, bool theMultiFile);
-  virtual void SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile);
-  virtual void SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
-  virtual void SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual bool Save(const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual bool SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual bool SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual bool SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
   virtual std::vector<std::string> GetOpenStudies();
   virtual _PTR(Study) GetStudyByName(const std::string& theStudyName) ;
   virtual _PTR(Study) GetStudyByID(int theStudyID) ;

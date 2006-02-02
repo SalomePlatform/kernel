@@ -30,6 +30,7 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_ClientAttributes.hxx"
+#include "SALOMEDS.hxx"
 
 #ifdef WIN32
 #include <process.h>
@@ -77,7 +78,8 @@ SALOMEDS_GenericAttribute::~SALOMEDS_GenericAttribute()
 
 void SALOMEDS_GenericAttribute::CheckLocked() 
 {
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     try {
       _local_impl->CheckLocked();
     }
@@ -93,7 +95,8 @@ void SALOMEDS_GenericAttribute::CheckLocked()
 std::string SALOMEDS_GenericAttribute::Type()
 {
   std::string aType;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     aType = _local_impl->Type().ToCString();
   }
   else {
@@ -105,7 +108,8 @@ std::string SALOMEDS_GenericAttribute::Type()
 std::string SALOMEDS_GenericAttribute::GetClassType()
 {
   std::string aType;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     aType = _local_impl->GetClassType().ToCString();
   }
   else {
@@ -117,7 +121,8 @@ std::string SALOMEDS_GenericAttribute::GetClassType()
 _PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
 {
   SALOMEDSClient_SObject* aSO = NULL;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     aSO = new SALOMEDS_SObject(_local_impl->GetSObject());
   }
   else {
@@ -128,12 +133,15 @@ _PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
 }
 
 
-SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
+SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute
+                           (const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
 {
+  SALOMEDS::Locker lock;
+
   SALOMEDS_GenericAttribute* aGA = NULL;
   std::string aTypeOfAttribute = theGA->GetClassType().ToCString();
   __CreateGenericClientAttributeLocal
-  return aGA;  
+  return aGA;
 }
 
 SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA)
@@ -141,6 +149,5 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::
   SALOMEDS_GenericAttribute* aGA = NULL;
   std::string aTypeOfAttribute = theGA->GetClassType();
   __CreateGenericClientAttributeCORBA
-  return aGA;  
+  return aGA;
 }
-

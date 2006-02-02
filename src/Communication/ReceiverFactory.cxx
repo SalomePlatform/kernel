@@ -115,7 +115,7 @@ double *ReceiverFactory::getValueOneShot(SALOME::SenderDouble_ptr sender,long &s
   else if(!CORBA::is_nil(mpi_ptr))
     {
       CORBA::release(sender);
-      MPIReceiver<double,MPI_DOUBLE,SALOME::MPISenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(mpi_ptr);
+      MPIReceiver<double,SALOME::MPISenderDouble_ptr,SALOME::SenderDouble_ptr,SALOME_SenderDouble_i> rec(mpi_ptr);
       return rec.getValue(size);
     }
 #endif
@@ -165,7 +165,7 @@ int *ReceiverFactory::getValueOneShot(SALOME::SenderInt_ptr sender,long &size)th
   else if(!CORBA::is_nil(mpi_ptr))
     {
       CORBA::release(sender);
-      MPIReceiver<int,MPI_INT,SALOME::MPISenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(mpi_ptr);
+      MPIReceiver<int,SALOME::MPISenderInt_ptr,SALOME::SenderInt_ptr,SALOME_SenderInt_i> rec(mpi_ptr);
       return rec.getValue(size);
     }
 #endif

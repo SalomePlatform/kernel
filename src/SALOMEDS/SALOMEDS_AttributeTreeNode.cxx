@@ -22,8 +22,10 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeTreeNode.hxx"
+#include "SALOMEDS.hxx"
 
 #include <string>
+
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_GUID.hxx>
@@ -47,7 +49,9 @@ SALOMEDS_AttributeTreeNode::~SALOMEDS_AttributeTreeNode()
 void SALOMEDS_AttributeTreeNode::SetFather(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, aFather;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aFather = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -63,8 +67,10 @@ void SALOMEDS_AttributeTreeNode::SetFather(const _PTR(AttributeTreeNode)& value)
 bool SALOMEDS_AttributeTreeNode::HasFather()
 {
   bool ret;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     ret = aNode->HasFather();
   }
   else {
@@ -77,8 +83,10 @@ bool SALOMEDS_AttributeTreeNode::HasFather()
 _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFather()
 {
   SALOMEDSClient_AttributeTreeNode* aTN  = NULL;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aTN = new SALOMEDS_AttributeTreeNode(aNode->GetFather());
   }
   else {
@@ -91,7 +99,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFather()
 void SALOMEDS_AttributeTreeNode::SetPrevious(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, aPrev;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aPrev = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -107,8 +117,10 @@ void SALOMEDS_AttributeTreeNode::SetPrevious(const _PTR(AttributeTreeNode)& valu
 bool SALOMEDS_AttributeTreeNode::HasPrevious()
 {
   bool ret;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     ret = aNode->HasPrevious();
   }
   else {
@@ -121,8 +133,10 @@ bool SALOMEDS_AttributeTreeNode::HasPrevious()
 _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetPrevious()
 {
   SALOMEDSClient_AttributeTreeNode* aTN = NULL;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aTN = new SALOMEDS_AttributeTreeNode(aNode->GetPrevious());
   }
   else {
@@ -135,7 +149,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetPrevious()
 void SALOMEDS_AttributeTreeNode::SetNext(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, aNext;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aNext = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -151,8 +167,10 @@ void SALOMEDS_AttributeTreeNode::SetNext(const _PTR(AttributeTreeNode)& value)
 bool SALOMEDS_AttributeTreeNode::HasNext()
 {
   bool ret;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     ret = aNode->HasNext();
   }
   else {
@@ -165,8 +183,10 @@ bool SALOMEDS_AttributeTreeNode::HasNext()
 _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetNext()
 {
   SALOMEDSClient_AttributeTreeNode* aTN = NULL;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aTN = new SALOMEDS_AttributeTreeNode(aNode->GetNext());
   }
   else {
@@ -179,7 +199,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetNext()
 void SALOMEDS_AttributeTreeNode::SetFirst(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, aFirst;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aFirst = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -195,8 +217,10 @@ void SALOMEDS_AttributeTreeNode::SetFirst(const _PTR(AttributeTreeNode)& value)
 bool SALOMEDS_AttributeTreeNode::HasFirst()
 {
   bool ret;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     ret = aNode->HasFirst();
   }
   else {
@@ -209,8 +233,10 @@ bool SALOMEDS_AttributeTreeNode::HasFirst()
 _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFirst()
 {
   SALOMEDSClient_AttributeTreeNode* aTN = NULL;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aTN = new SALOMEDS_AttributeTreeNode(aNode->GetFirst());
   }
   else {
@@ -222,8 +248,11 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFirst()
 
 void SALOMEDS_AttributeTreeNode::SetTreeID(const std::string& value)
 {
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     aNode->SetTreeID(Standard_GUID((char*)value.c_str()));
   }
   else {
@@ -235,8 +264,10 @@ void SALOMEDS_AttributeTreeNode::SetTreeID(const std::string& value)
 std::string SALOMEDS_AttributeTreeNode::GetTreeID()
 {
   TCollection_AsciiString aGUID;
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode) aNode =
+      Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     char guid[40];
     aNode->GetTreeID().ToCString(guid);
     aGUID = TCollection_AsciiString(guid);
@@ -252,7 +283,9 @@ std::string SALOMEDS_AttributeTreeNode::GetTreeID()
 void SALOMEDS_AttributeTreeNode::Append(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -268,7 +301,9 @@ void SALOMEDS_AttributeTreeNode::Append(const _PTR(AttributeTreeNode)& value)
 void SALOMEDS_AttributeTreeNode::Prepend(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -284,7 +319,9 @@ void SALOMEDS_AttributeTreeNode::Prepend(const _PTR(AttributeTreeNode)& value)
 void SALOMEDS_AttributeTreeNode::InsertBefore(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -300,7 +337,9 @@ void SALOMEDS_AttributeTreeNode::InsertBefore(const _PTR(AttributeTreeNode)& val
 void SALOMEDS_AttributeTreeNode::InsertAfter(const _PTR(AttributeTreeNode)& value)
 {
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -315,14 +354,21 @@ void SALOMEDS_AttributeTreeNode::InsertAfter(const _PTR(AttributeTreeNode)& valu
 
 void SALOMEDS_AttributeTreeNode::Remove()
 {
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->Remove();
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->Remove();
+  }
   else SALOMEDS::AttributeTreeNode::_narrow(_corba_impl)->Remove();
 }
 
 int SALOMEDS_AttributeTreeNode::Depth()
 {
   int aDepth;
-  if(_isLocal) aDepth = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->Depth();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aDepth = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->Depth();
+  }
   else aDepth =  SALOMEDS::AttributeTreeNode::_narrow(_corba_impl)->Depth();
   return aDepth;
 }
@@ -330,7 +376,10 @@ int SALOMEDS_AttributeTreeNode::Depth()
 bool SALOMEDS_AttributeTreeNode::IsRoot()
 {
   bool ret;
-  if(_isLocal) ret = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->IsRoot();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    ret = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl)->IsRoot();
+  }
   else ret =  SALOMEDS::AttributeTreeNode::_narrow(_corba_impl)->IsRoot();
   return ret;
 }
@@ -339,7 +388,8 @@ bool SALOMEDS_AttributeTreeNode::IsDescendant(const _PTR(AttributeTreeNode)& val
 {
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -357,7 +407,8 @@ bool SALOMEDS_AttributeTreeNode::IsFather(const _PTR(AttributeTreeNode)& value)
 {
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -375,7 +426,8 @@ bool SALOMEDS_AttributeTreeNode::IsChild(const _PTR(AttributeTreeNode)& value)
 {
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode, anOther;
     aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
     anOther = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(aTN->_local_impl);
@@ -391,10 +443,13 @@ bool SALOMEDS_AttributeTreeNode::IsChild(const _PTR(AttributeTreeNode)& value)
 
 std::string SALOMEDS_AttributeTreeNode::Label()
 {
-  TCollection_AsciiString aLabel;
-  if(_isLocal) TDF_Tool::Entry(_local_impl->Label(), aLabel);
+  string aLabel;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    TCollection_AsciiString anAsciiLabel;
+    TDF_Tool::Entry(_local_impl->Label(), anAsciiLabel);
+    aLabel = std::string(anAsciiLabel.ToCString());
+  }
   else aLabel = SALOMEDS::AttributeTreeNode::_narrow(_corba_impl)->Label();
-  return std::string(aLabel.ToCString());
+  return aLabel;
 }
-
-

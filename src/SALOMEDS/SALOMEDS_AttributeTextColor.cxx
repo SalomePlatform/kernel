@@ -22,10 +22,12 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeTextColor.hxx"
+#include "SALOMEDS.hxx"
 
 #include <TColStd_HArray1OfReal.hxx>
 
-SALOMEDS_AttributeTextColor::SALOMEDS_AttributeTextColor(const Handle(SALOMEDSImpl_AttributeTextColor)& theAttr)
+SALOMEDS_AttributeTextColor::SALOMEDS_AttributeTextColor
+                  (const Handle(SALOMEDSImpl_AttributeTextColor)& theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -40,8 +42,10 @@ SALOMEDS_AttributeTextColor::~SALOMEDS_AttributeTextColor()
 STextColor SALOMEDS_AttributeTextColor::TextColor()
 {
   STextColor aColor;
-  if(_isLocal) {
-    Handle(TColStd_HArray1OfReal) aSeq = Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->TextColor();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(TColStd_HArray1OfReal) aSeq =
+      Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->TextColor();
     aColor.R = aSeq->Value(1);
     aColor.G = aSeq->Value(2);
     aColor.B = aSeq->Value(3);	
@@ -54,11 +58,12 @@ STextColor SALOMEDS_AttributeTextColor::TextColor()
   }
   return aColor;
 }
- 
+
 void SALOMEDS_AttributeTextColor::SetTextColor(STextColor value)
 {
-  CheckLocked();
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(TColStd_HArray1OfReal) aSeq = new TColStd_HArray1OfReal(1, 3);
     aSeq->SetValue(1, value.R);
     aSeq->SetValue(2, value.G);

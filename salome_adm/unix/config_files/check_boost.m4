@@ -28,6 +28,13 @@ AC_LANG_CPLUSPLUS
 
 AC_SUBST(BOOST_CPPFLAGS)
 BOOST_CPPFLAGS=""
+
+AC_SUBST(BOOST_LIBS)
+BOOST_LIBS=""
+
+AC_SUBST(BOOST_LIBTHREAD)
+BOOST_LIBTHREAD=""
+
 boost_ok=no
 
 if test -z ${BOOSTDIR}; then
@@ -37,16 +44,41 @@ if test -z ${BOOSTDIR}; then
   fi
 else
   AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
-  AC_CHECKING(for boost/shared_ptr.hpp header file)
+
   dnl BOOST headers
+  AC_CHECKING(for boost/shared_ptr.hpp header file)
   CPPFLAGS_old="${CPPFLAGS}"
-  BOOST_CPPFLAGS="-I${BOOSTDIR}"
+  BOOST_CPPFLAGS="-I${BOOSTDIR}/include"
   CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
 
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
 
   CPPFLAGS="${CPPFLAGS_old}"
+
+  if test "x${boost_ok}" = "xyes" ; then
+    AC_MSG_RESULT(\$BOOST_CPPFLAGS = ${BOOST_CPPFLAGS})
+    dnl BOOST libs
+    AC_CHECKING(for libboost_thread-mt.so library file)
+    AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread-mt.so,boost_ok=yes,boost_ok=no)
+    if test "x${boost_ok}" = "xyes" ; then
+      BOOST_LIBS="-L${BOOSTDIR}/lib"
+      AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+      BOOST_LIBTHREAD="libboost_thread-mt.so"
+      AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+    else
+      AC_CHECKING(for libboost_thread.so library file)
+      AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread.so,boost_ok=yes,boost_ok=no)
+      if test "x${boost_ok}" = "xyes" ; then
+        BOOST_LIBS="-L${BOOSTDIR}/lib"
+        AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+        BOOST_LIBTHREAD="libboost_thread.so"
+        AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+      fi
+    fi
+  fi
 fi
+
+AC_MSG_RESULT(for boost: $boost_ok)
 
 AC_LANG_RESTORE
 

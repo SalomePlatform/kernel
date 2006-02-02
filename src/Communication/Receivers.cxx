@@ -154,17 +154,17 @@ T *CorbaWCWithCopyReceiver<T,TCorba,TSeqCorba,CorbaSender,servForT,ptrForT>::get
 
 #ifdef HAVE_MPI2
 
-template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
-MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::MPIReceiver(CorbaSender mySender):_mySender(mySender){
+template<class T,class CorbaSender,class servForT,class ptrForT>
+MPIReceiver<T,CorbaSender,servForT,ptrForT>::MPIReceiver(CorbaSender mySender):_mySender(mySender){
 }
 
-template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
-MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::~MPIReceiver(){
+template<class T,class CorbaSender,class servForT,class ptrForT>
+MPIReceiver<T,CorbaSender,servForT,ptrForT>::~MPIReceiver(){
   _mySender->release();
 }
 
-template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
-T *MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
+template<class T,class CorbaSender,class servForT,class ptrForT>
+T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   int i=0;
   int myproc;
   int sproc;
@@ -211,15 +211,15 @@ T *MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   }
   MPI_Recv( &_n, 1, MPI_LONG, sproc,p->tag1,com,&status);
   _v = new T[_n];
-  MPI_Recv( _v, _n, T2, sproc,p->tag2,com,&status);
+  MPI_Recv( _v, _n, MPITRAITS<T>::MpiType, sproc,p->tag2,com,&status);
   _mySender->close(p);
   MPI_Comm_disconnect( &com );  
   size=_n;
   return _v;
 }
 
-template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
-T *MPIReceiver<T,T2,CorbaSender,servForT,ptrForT>::getValue(long &size)
+template<class T,class CorbaSender,class servForT,class ptrForT>
+T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getValue(long &size)
 {
   return Receiver<T,servForT,ptrForT>::getValue(size,_mySender);
 }

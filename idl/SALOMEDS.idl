@@ -695,13 +695,13 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 <BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
-    void  Save(in  Study aStudy, in boolean theMultiFile);
+    boolean  Save(in  Study aStudy, in boolean theMultiFile);
 /*! \brief Saving a study in a ASCII file (or files).
 
     Saves a study in an ASCII format file (or files).
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    void  SaveASCII(in  Study aStudy, in boolean theMultiFile);
+    boolean  SaveASCII(in  Study aStudy, in boolean theMultiFile);
 /*! \brief Saving the study in a specified HDF file (or files).
 
     Saves the study in a specified file (or files).
@@ -711,7 +711,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
-    void  SaveAs(in URL   aUrl, // if the file already exists
+    boolean  SaveAs(in URL   aUrl, // if the file already exists
 		in Study aStudy,
 		in boolean theMultiFile); // overwrite (as option)
 /*! \brief Saving the study in a specified ASCII file (or files).
@@ -722,7 +722,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 */
-    void  SaveAsASCII(in URL   aUrl, // if the file already exists
+    boolean  SaveAsASCII(in URL   aUrl, // if the file already exists
 		      in Study aStudy,
 		      in boolean theMultiFile); // overwrite (as option)
 

@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeStudyProperties.hxx"
+#include "SALOMEDS.hxx"
 
 #include <string>
 #include <TCollection_AsciiString.hxx>
@@ -46,6 +47,8 @@ SALOMEDS_AttributeStudyProperties::~SALOMEDS_AttributeStudyProperties()
 void SALOMEDS_AttributeStudyProperties::SetUserName(const std::string& theName)
 {
   if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeStudyProperties) anImpl =
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl);
     anImpl->ChangeCreatorName((char*)theName.c_str());
@@ -57,6 +60,7 @@ std::string SALOMEDS_AttributeStudyProperties::GetUserName()
 {
   std::string aName;
   if (_isLocal) {
+    SALOMEDS::Locker lock;
     TCollection_ExtendedString S =
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreatorName();
     aName = TCollection_AsciiString(S).ToCString();
@@ -73,6 +77,8 @@ void SALOMEDS_AttributeStudyProperties::SetCreationDate
               (int theMinute, int theHour, int theDay, int theMonth, int theYear)
 {
   if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeStudyProperties) anImpl =
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl);
     int aTmp;
@@ -96,6 +102,7 @@ bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
 {
   bool ret;
   if (_isLocal) {
+    SALOMEDS::Locker lock;
     ret = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast
       (_local_impl)->GetCreationDate(theMinute, theHour, theDay, theMonth, theYear);
   } else {
@@ -117,6 +124,8 @@ bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
 void SALOMEDS_AttributeStudyProperties::SetCreationMode(const std::string& theMode)
 {
   if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     if (theMode == "from scratch")
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetCreationMode(1);
     else if (theMode == "copy from")
@@ -131,6 +140,7 @@ std::string SALOMEDS_AttributeStudyProperties::GetCreationMode()
 {
   std::string aMode;
   if (_isLocal) {
+    SALOMEDS::Locker lock;
     int mode  = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreationMode();
     if (mode == 1) aMode = "from scratch";
     if (mode == 2) aMode = "copy from";
@@ -142,8 +152,10 @@ std::string SALOMEDS_AttributeStudyProperties::GetCreationMode()
 
 void SALOMEDS_AttributeStudyProperties::SetModified(int theModified)
 {
-  if (_isLocal)
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetModified(theModified);
+  }
   else
     SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetModified(theModified);
 }
@@ -151,8 +163,10 @@ void SALOMEDS_AttributeStudyProperties::SetModified(int theModified)
 bool SALOMEDS_AttributeStudyProperties::IsModified()
 {
   bool ret;
-  if (_isLocal)
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     ret = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->IsModified();
+  }
   else
     ret = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->IsModified();
   return ret;
@@ -161,8 +175,10 @@ bool SALOMEDS_AttributeStudyProperties::IsModified()
 int SALOMEDS_AttributeStudyProperties::GetModified()
 {
   int isModified;
-  if (_isLocal)
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     isModified = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetModified();
+  }
   else
     isModified = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetModified();
   return isModified;
@@ -170,8 +186,10 @@ int SALOMEDS_AttributeStudyProperties::GetModified()
 
 void SALOMEDS_AttributeStudyProperties::SetLocked(bool theLocked)
 {
-  if (_isLocal)
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetLocked(theLocked);
+  }
   else
     SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetLocked(theLocked);
 }
@@ -179,8 +197,10 @@ void SALOMEDS_AttributeStudyProperties::SetLocked(bool theLocked)
 bool SALOMEDS_AttributeStudyProperties::IsLocked()
 {
   bool ret;
-  if (_isLocal)
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     ret = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->IsLocked();
+  }
   else
     ret = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->IsLocked();
   return ret;
@@ -194,6 +214,8 @@ void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theNa
 							int theYear)
 {
   if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_AttributeStudyProperties) anImpl =
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl);
     anImpl->SetModification((char*)theName.c_str(), theMinute, theHour, theDay, theMonth, theYear);
@@ -217,6 +239,7 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
   int i, aLength;
 
   if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(TColStd_HSequenceOfExtendedString) aNames;
     Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
     Handle(SALOMEDSImpl_AttributeStudyProperties) anImpl =

@@ -22,8 +22,10 @@
 //  Module : SALOME
 
 #include "SALOMEDS_SComponentIterator.hxx"
-#include "SALOMEDSImpl_SComponent.hxx"
+
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_SComponent.hxx"
+#include "SALOMEDSImpl_SComponent.hxx"
 
 SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(const SALOMEDSImpl_SComponentIterator& theIterator)
 :_local_impl(theIterator)
@@ -45,28 +47,40 @@ SALOMEDS_SComponentIterator::~SALOMEDS_SComponentIterator()
 
 void SALOMEDS_SComponentIterator::Init()
 {
-  if(_isLocal) _local_impl.Init();
+  if (_isLocal) {
+    SALOMEDS::Locker lock; 
+    _local_impl.Init();
+  }
   else _corba_impl->Init();
 }
 
 bool SALOMEDS_SComponentIterator::More()
 {
   bool ret;
-  if(_isLocal) ret = _local_impl.More();
+  if (_isLocal) {
+    SALOMEDS::Locker lock; 
+    ret = _local_impl.More();
+  }
   else ret = _corba_impl->More();
   return ret;
 }
- 
+
 void SALOMEDS_SComponentIterator::Next()
 {
-  if(_isLocal) _local_impl.Next();
+  if (_isLocal) {
+    SALOMEDS::Locker lock; 
+    _local_impl.Next();
+  }
   else _corba_impl->Next();
 }
- 
+
 _PTR(SComponent) SALOMEDS_SComponentIterator::Value()  
 {
   SALOMEDSClient_SComponent* aSCO = NULL;
-  if(_isLocal) aSCO = new SALOMEDS_SComponent(_local_impl.Value());
+  if (_isLocal) {
+    SALOMEDS::Locker lock; 
+    aSCO = new SALOMEDS_SComponent(_local_impl.Value());
+  }
   else aSCO = new SALOMEDS_SComponent(_corba_impl->Value());
   return _PTR(SComponent)(aSCO);
 }

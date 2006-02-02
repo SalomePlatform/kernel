@@ -272,7 +272,7 @@ SALOME::MPISender::param* SALOME_MPISender_i::getParam()
 void SALOME_MPISender_i::send()
 {
   _type=getTypeOfDataTransmitted();
-  _argsForThr=new (void *)[8];
+  _argsForThr=new void *[8];
   _argsForThr[0]=_portName;
   _argsForThr[1]=&_lgrTabToSend;
   _argsForThr[2]=(void *)_tabToSend;

@@ -207,30 +207,30 @@ void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
  *  Purpose  : Save a Study to it's persistent reference
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
     MESSAGE("Save error: Study is null");
-    return;
+    return false;
   }
 
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  _impl->Save(aStudyImpl, _factory, theMultiFile);
+  return _impl->Save(aStudyImpl, _factory, theMultiFile);
 }
 
-void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
     MESSAGE("SaveASCII error: Study is null");
-    return;
+    return false;
   }
 
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  _impl->SaveASCII(aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveASCII(aStudyImpl, _factory, theMultiFile);
 }
 
 //=============================================================================
@@ -238,30 +238,30 @@ void SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CORBA::Boole
  *  Purpose  : Save a study to the persistent reference aUrl
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
     MESSAGE("SaveASCII error: Study is null");
-    return;
+    return false;
   }
 
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  _impl->SaveAs(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAs(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
-void SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
+CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
 {
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) {
     MESSAGE("SaveASCII error: Study is null");
-    return;
+    return false;
   }
 
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  _impl->SaveAsASCII(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAsASCII(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================

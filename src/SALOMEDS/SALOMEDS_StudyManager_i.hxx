@@ -100,17 +100,17 @@ public:
   /*!
     \param Study_ptr arguments
   */
-  virtual void Save( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean Save( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
-  virtual void SaveASCII( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveASCII( SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
   //! method to save a Study to the persistent reference aUrl
   /*!
     \param char* arguments, the new URL of the study
     \param Study_ptr arguments
   */
-  virtual void SaveAs(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
-  virtual void SaveAsASCII(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveAs(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
+  virtual CORBA::Boolean SaveAsASCII(const char* aUrl,  SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile);
 
  //! method to Get name list of open studies in the session
   /*!

@@ -24,10 +24,13 @@
 
 #include "SALOMEDS_StudyManager.hxx"
 
-#include "SALOMEDSImpl_Study.hxx"
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDS_SObject.hxx"
+
 #include "SALOMEDS_Driver_i.hxx"
+
+#include "SALOMEDSImpl_Study.hxx"
 
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
@@ -45,7 +48,7 @@
 
 #include "OpUtil.hxx"
 
-using namespace std; 
+using namespace std;
 
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
 
@@ -107,7 +110,7 @@ _PTR(Study) SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
   SALOMEDSClient_Study* aStudy = NULL;
 
   SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
-  if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy); 
+  if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
   aStudy = new SALOMEDS_Study(aStudy_impl);
 
   return _PTR(Study)(aStudy);
@@ -119,7 +122,7 @@ _PTR(Study) SALOMEDS_StudyManager::Open(const std::string& theStudyUrl)
   SALOMEDSClient_Study* aStudy = NULL;
 
   SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
-  if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy); 
+  if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy);
     
   aStudy = new SALOMEDS_Study(aStudy_impl.in());
 
@@ -133,32 +136,32 @@ void SALOMEDS_StudyManager::Close(const _PTR(Study)& theStudy)
   _corba_impl->Close(aStudy);
 }
  
-void SALOMEDS_StudyManager::Save(const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::Save(const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->Save(aStudy, theMultiFile);
+  return _corba_impl->Save(aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveASCII(aStudy, theMultiFile);
+  return _corba_impl->SaveASCII(aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
 
 std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
@@ -166,7 +169,9 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
   std::vector<std::string> aVector;
   int aLength, i;
 
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->GetOpenStudies();
     aLength = aSeq->Length();
     for(i = 1; i <= aLength; i++) 
@@ -180,18 +185,20 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
   }
   return aVector;
 }
- 
+
 _PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyName) 
 {
   SALOMEDSClient_Study* aStudy = NULL;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByName((char*)theStudyName.c_str());
     if(aStudy_impl.IsNull()) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else  {
     SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName((char*)theStudyName.c_str());
-    if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy); 
+    if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   return _PTR(Study)(aStudy);
@@ -200,25 +207,29 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyNam
 _PTR(Study) SALOMEDS_StudyManager::GetStudyByID(int theStudyID) 
 {
   SALOMEDSClient_Study* aStudy = NULL;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByID(theStudyID);
     if(aStudy_impl.IsNull()) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else { 
     SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByID(theStudyID);
-    if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy); 
+    if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
-  return _PTR(Study)(aStudy); 
+  return _PTR(Study)(aStudy);
 }
- 
+
 bool SALOMEDS_StudyManager::CanCopy(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   bool ret;
 
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->CanCopy(aSO_impl, aDriver);
@@ -230,12 +241,14 @@ bool SALOMEDS_StudyManager::CanCopy(const _PTR(SObject)& theSO)
 
   return ret;
 }
- 
+
 bool SALOMEDS_StudyManager::Copy(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   bool ret;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->Copy(aSO_impl, aDriver);
@@ -246,13 +259,15 @@ bool SALOMEDS_StudyManager::Copy(const _PTR(SObject)& theSO)
   }
   return ret;
 }
- 
+
 bool SALOMEDS_StudyManager::CanPaste(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   bool ret;
 
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->CanPaste(aSO_impl, aDriver);
@@ -264,13 +279,15 @@ bool SALOMEDS_StudyManager::CanPaste(const _PTR(SObject)& theSO)
 
   return ret;
 }
- 
+
 _PTR(SObject) SALOMEDS_StudyManager::Paste(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   SALOMEDSClient_SObject* aResult = NULL;
 
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     Handle(SALOMEDSImpl_SObject) aNewSO = _local_impl->Paste(aSO_impl, aDriver);
@@ -290,9 +307,9 @@ _PTR(SObject) SALOMEDS_StudyManager::Paste(const _PTR(SObject)& theSO)
 
 void SALOMEDS_StudyManager::init_orb()
 {
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
-  _orb = init(0 , 0 ) ;     
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  _orb = init(0 , 0 );
 }
 
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
@@ -307,7 +324,7 @@ SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORB
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
-  }  
+  }
 
   return driver;
 }

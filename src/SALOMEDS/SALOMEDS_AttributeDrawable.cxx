@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeDrawable.hxx"
+#include "SALOMEDS.hxx"
 
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
@@ -40,14 +41,20 @@ SALOMEDS_AttributeDrawable::~SALOMEDS_AttributeDrawable()
 bool SALOMEDS_AttributeDrawable::IsDrawable()
 {
   bool aValue;
-  if(_isLocal) aValue = (bool)Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->IsDrawable();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aValue = (bool)Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->IsDrawable();
+  }
   else aValue = SALOMEDS::AttributeDrawable::_narrow(_corba_impl)->IsDrawable();
   return aValue;
 }
- 
+
 void SALOMEDS_AttributeDrawable::SetDrawable(bool value)
 {
-  CheckLocked();
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->SetDrawable((int)value);
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->SetDrawable((int)value);
+  }
   else SALOMEDS::AttributeDrawable::_narrow(_corba_impl)->SetDrawable(value);
 }

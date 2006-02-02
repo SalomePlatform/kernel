@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeReal.hxx"
+#include "SALOMEDS.hxx"
 
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
@@ -40,14 +41,20 @@ SALOMEDS_AttributeReal::~SALOMEDS_AttributeReal()
 double SALOMEDS_AttributeReal::Value()
 {
   double aValue;
-  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->Value();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->Value();
+  }
   else aValue = SALOMEDS::AttributeReal::_narrow(_corba_impl)->Value();
   return aValue;
 }
- 
+
 void SALOMEDS_AttributeReal::SetValue(double value)
 {
-  CheckLocked();
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->SetValue(value);
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->SetValue(value);
+  }
   else SALOMEDS::AttributeReal::_narrow(_corba_impl)->SetValue(value);
 }

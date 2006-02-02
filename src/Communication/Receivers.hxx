@@ -94,7 +94,19 @@ private:
 /*!
   Receiver for MPI transfert.
  */
-template<class T,MPI_Datatype T2,class CorbaSender,class servForT,class ptrForT>
+template<class T>
+struct MPITRAITS
+{
+  static MPI_Datatype MpiType;
+};
+
+template<>
+MPI_Datatype MPITRAITS<double>::MpiType=MPI_DOUBLE;
+
+template<>
+MPI_Datatype MPITRAITS<int>::MpiType=MPI_INT;
+
+template<class T,class CorbaSender,class servForT,class ptrForT>
 class MPIReceiver : public Receiver<T,servForT,ptrForT>
 {
 private:

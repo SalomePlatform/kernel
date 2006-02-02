@@ -28,11 +28,14 @@
 #include <TColStd_HSequenceOfTransient.hxx>
 
 #include "SALOMEDS_SObject.hxx"
+
+#include "SALOMEDS.hxx"
 #include "SALOMEDS_SComponent.hxx"
-#include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
-#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDS_Study.hxx"
+
+#include "SALOMEDSImpl_SComponent.hxx"
+#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
 #include "Utils_ORB_INIT.hxx" 
@@ -90,15 +93,20 @@ SALOMEDS_SObject::~SALOMEDS_SObject()
 std::string SALOMEDS_SObject::GetID()
 {
   std::string aValue;
-  if(_isLocal) aValue = _local_impl->GetID().ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aValue = _local_impl->GetID().ToCString();
+  }
   else aValue = _corba_impl->GetID();  
   return aValue;
 }
 
 _PTR(SComponent) SALOMEDS_SObject::GetFatherComponent()
 {
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_SComponent) aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(_local_impl->GetFatherComponent());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    Handle(SALOMEDSImpl_SComponent) aSCO =
+      Handle(SALOMEDSImpl_SComponent)::DownCast(_local_impl->GetFatherComponent());
     return _PTR(SComponent)(new SALOMEDS_SComponent(aSCO));
   }
   return _PTR(SComponent)(new SALOMEDS_SComponent(_corba_impl->GetFatherComponent()));
@@ -106,14 +114,19 @@ _PTR(SComponent) SALOMEDS_SObject::GetFatherComponent()
 
 _PTR(SObject) SALOMEDS_SObject::GetFather()
 {
-  if(_isLocal) return _PTR(SObject)(new SALOMEDS_SObject(_local_impl->GetFather()));
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _PTR(SObject)(new SALOMEDS_SObject(_local_impl->GetFather()));
+  }
   return _PTR(SObject)(new SALOMEDS_SObject(_corba_impl->GetFather()));
 }
 
-bool SALOMEDS_SObject::FindAttribute(_PTR(GenericAttribute)& anAttribute, const std::string& aTypeOfAttribute)
+bool SALOMEDS_SObject::FindAttribute(_PTR(GenericAttribute)& anAttribute,
+                                     const std::string& aTypeOfAttribute)
 {
   bool ret = false;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_GenericAttribute) anAttr;
     ret = _local_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute.c_str());
     if(ret) anAttribute = _PTR(GenericAttribute)(SALOMEDS_GenericAttribute::CreateAttribute(anAttr));
@@ -130,7 +143,8 @@ bool SALOMEDS_SObject::FindAttribute(_PTR(GenericAttribute)& anAttribute, const 
 bool SALOMEDS_SObject::ReferencedObject(_PTR(SObject)& theObject)
 {
   bool ret = false;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_SObject) aSO;
     ret = _local_impl->ReferencedObject(aSO);
     if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
@@ -148,7 +162,8 @@ bool SALOMEDS_SObject::ReferencedObject(_PTR(SObject)& theObject)
 bool SALOMEDS_SObject::FindSubObject(int theTag, _PTR(SObject)& theObject)
 {
   bool ret = false;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(SALOMEDSImpl_SObject) aSO;
     ret = _local_impl->FindSubObject(theTag, aSO);
     if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
@@ -164,14 +179,20 @@ bool SALOMEDS_SObject::FindSubObject(int theTag, _PTR(SObject)& theObject)
 
 _PTR(Study) SALOMEDS_SObject::GetStudy()
 {
-  if(_isLocal) return _PTR(Study)(new SALOMEDS_Study(_local_impl->GetStudy()));
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _PTR(Study)(new SALOMEDS_Study(_local_impl->GetStudy()));
+  }
   return _PTR(Study)(new SALOMEDS_Study(_corba_impl->GetStudy()));
 }
 
 std::string SALOMEDS_SObject::Name()
 {
   std::string aName;
-  if(_isLocal) aName = _local_impl->Name().ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aName = _local_impl->Name().ToCString();
+  }
   else aName = _corba_impl->Name();
 
   return aName;
@@ -179,7 +200,10 @@ std::string SALOMEDS_SObject::Name()
 
 void  SALOMEDS_SObject::Name(const std::string& theName)
 {
-  if(_isLocal) _local_impl->Name((char*)theName.c_str());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Name((char*)theName.c_str());
+  }
   else _corba_impl->Name(theName.c_str());
 }
 
@@ -189,18 +213,20 @@ vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
   int aLength = 0;
   SALOMEDSClient_GenericAttribute* anAttr;
 
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->GetAllAttributes();
     aLength = aSeq->Length();
-    for(int i = 1; i <= aLength; i++) {
-      anAttr = SALOMEDS_GenericAttribute::CreateAttribute(Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i)));
+    for (int i = 1; i <= aLength; i++) {
+      anAttr = SALOMEDS_GenericAttribute::CreateAttribute
+        (Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i)));
       aVector.push_back(_PTR(GenericAttribute)(anAttr));
     }
   }
   else {
     SALOMEDS::ListOfAttributes_var aSeq = _corba_impl->GetAllAttributes();
     aLength = aSeq->length();
-    for(int i = 0; i < aLength; i++) {
+    for (int i = 0; i < aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(aSeq[i]);
       aVector.push_back(_PTR(GenericAttribute)(anAttr));
     }
@@ -212,7 +238,10 @@ vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
 std::string SALOMEDS_SObject::GetName()
 {
   std::string aName;
-  if(_isLocal) aName = _local_impl->GetName().ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aName = _local_impl->GetName().ToCString();
+  }
   else aName = _corba_impl->GetName();
 
   return aName;
@@ -221,7 +250,10 @@ std::string SALOMEDS_SObject::GetName()
 std::string SALOMEDS_SObject::GetComment()
 {
   std::string aComment;
-  if(_isLocal) aComment = _local_impl->GetComment().ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aComment = _local_impl->GetComment().ToCString();
+  }
   else aComment = _corba_impl->GetComment();
 
   return aComment;
@@ -230,7 +262,10 @@ std::string SALOMEDS_SObject::GetComment()
 std::string SALOMEDS_SObject::GetIOR()
 {
   std::string anIOR;
-  if(_isLocal) anIOR = _local_impl->GetIOR().ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    anIOR = _local_impl->GetIOR().ToCString();
+  }
   else anIOR = _corba_impl->GetIOR();
 
   return anIOR;
@@ -238,20 +273,27 @@ std::string SALOMEDS_SObject::GetIOR()
 
 int SALOMEDS_SObject::Tag()
 {
-  if(_isLocal) return _local_impl->Tag();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _local_impl->Tag();
+  }
   return _corba_impl->Tag(); 
 }
 
 int SALOMEDS_SObject::Depth()
 {
-  if(_isLocal) return _local_impl->Depth();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _local_impl->Depth();
+  }
   return _corba_impl->Depth();  
 }
 
 CORBA::Object_ptr SALOMEDS_SObject::GetObject()
 {
   CORBA::Object_var obj;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     std::string anIOR = GetIOR();
     if (!anIOR.empty())
       obj = _orb->string_to_object(anIOR.c_str());

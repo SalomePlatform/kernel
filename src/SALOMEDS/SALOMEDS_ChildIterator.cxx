@@ -25,11 +25,14 @@
 
 #include "SALOMEDS_ChildIterator.hxx"
 #include "SALOMEDS_SObject.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std; 
 
 SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(const Handle(SALOMEDSImpl_ChildIterator)& theIterator)
 {
+  SALOMEDS::Locker lock;
+
   _isLocal = true;
   _local_impl = theIterator;
   _corba_impl = SALOMEDS::ChildIterator::_nil();
@@ -49,34 +52,49 @@ SALOMEDS_ChildIterator::~SALOMEDS_ChildIterator()
 
 void SALOMEDS_ChildIterator::Init()
 {
-  if(_isLocal) _local_impl->Init();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Init();
+  }
   else _corba_impl->Init();
 }
 
 void SALOMEDS_ChildIterator::InitEx(bool theAllLevels)
 {
-  if(_isLocal) _local_impl->InitEx(theAllLevels);
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->InitEx(theAllLevels);
+  }
   else _corba_impl->InitEx(theAllLevels);
 }
 
 bool SALOMEDS_ChildIterator::More()
 {
   bool ret;
-  if(_isLocal) ret = _local_impl->More();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    ret = _local_impl->More();
+  }
   else ret = _corba_impl->More();
   return ret;
 }
 
 void SALOMEDS_ChildIterator::Next() 
 {
-  if(_isLocal) _local_impl->Next();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Next();
+  }
   else _corba_impl->Next();
 }
 
 _PTR(SObject) SALOMEDS_ChildIterator::Value()
 {
   SALOMEDSClient_SObject* aSO;
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->Value());
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aSO = new SALOMEDS_SObject(_local_impl->Value());
+  }
   else aSO = new SALOMEDS_SObject(_corba_impl->Value());
   return _PTR(SObject)(aSO);
 }

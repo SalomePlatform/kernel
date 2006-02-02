@@ -88,7 +88,24 @@ if test "$WITHLAM" = yes; then
       AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
       if test "$WITHLAM" = "yes";then
         MPI_LIBS="-lmpi $MPI_LIBS"
+        LIBS="-lmpi $LIBS"
       fi
+
+      AC_LANG_SAVE
+      AC_LANG_CPLUSPLUS
+      LIBS="-llammpi++ $LIBS"
+      AC_MSG_CHECKING(for MPI_Init in -llammpi++)
+      AC_TRY_LINK([
+  	  #include <mpi.h>
+  	  ], [MPI::Init();],
+  	  WITHLAM="yes",WITHLAM="no")
+      if test "$WITHLAM" = "yes";then
+        AC_MSG_RESULT(yes)
+        MPI_LIBS="-llammpi++ $MPI_LIBS"
+      else
+        AC_MSG_RESULT(no)
+      fi
+      AC_LANG_RESTORE
 
       AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
 

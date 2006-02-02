@@ -280,7 +280,8 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSIm
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& anSCO, SALOMEDSImpl_Driver* aDriver) 
+bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& anSCO,
+                                         SALOMEDSImpl_Driver* aDriver) 
 {
   _errorCode = "";
 
@@ -291,7 +292,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
   if (_doc->Main().FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(),Att)) {
     int aLocked = anSCO->GetStudy()->GetProperties()->IsLocked();
     if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(false);
-    
+
     TCollection_ExtendedString Res(Att->Value());
 
     Handle(SALOMEDSImpl_AttributeComment) type;
@@ -313,24 +314,22 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     }
 
     DefineComponentInstance (anSCO, aDriver->GetIOR());
-    
+
     TCollection_AsciiString aHDFPath(Res);
-    
-    char* aHDFUrl;
+
+    TCollection_AsciiString aHDFUrl;
     bool isASCII = false;
     if (HDFascii::isASCII(aHDFPath.ToCString())) {
       isASCII = true;
-      char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aHDFPath.ToCString());
-      aHDFUrl = new char[strlen(aResultPath) + 19];
-      sprintf(aHDFUrl, "%shdf_from_ascii.hdf", aResultPath);
-      delete(aResultPath);
+      aHDFUrl = HDFascii::ConvertFromASCIIToHDF(aHDFPath.ToCString());
+      aHDFUrl += "hdf_from_ascii.hdf";
     } else {
-      aHDFUrl = aHDFPath.ToCString();
+      aHDFUrl = aHDFPath;
     }
 
     //Open the Study HDF file 
-    HDFfile *hdf_file = new HDFfile(aHDFUrl); 
-    
+    HDFfile *hdf_file = new HDFfile(aHDFUrl.ToCString()); 
+
     char aMultifileState[2];
     char ASCIIfileState[2];
     try {
@@ -340,7 +339,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       hdf_group->OpenOnDisk();
       HDFgroup *hdf_sco_group = new HDFgroup(scoid.ToCString(), hdf_group);
       hdf_sco_group->OpenOnDisk();
-	
+
       unsigned char* aStreamFile = NULL;
       int aStreamSize = 0;
 
@@ -353,16 +352,17 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	hdf_dataset->ReadFromDisk(aStreamFile);
 	hdf_dataset->CloseOnDisk();
 	hdf_dataset = 0;
-      } else aStreamFile = NULL;
-     
+      } else
+        aStreamFile = NULL;
+
       HDFdataset *multifile_hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group);
       multifile_hdf_dataset->OpenOnDisk();
       multifile_hdf_dataset->ReadFromDisk(aMultifileState);
-      
+
       HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
       ascii_hdf_dataset->OpenOnDisk();
       ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
-      
+
       // set path without file name from URL 
       int aFileNameSize = Res.Length();
       char* aDir = new char[aFileNameSize];
@@ -372,7 +372,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	  aDir[aCounter+1] = 0;
 	  break;
 	}
-      
+
       bool aResult = (ASCIIfileState[0]=='A')?
 	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M'):
 	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M');
@@ -385,14 +385,14 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	_errorCode = "Can't load component";
 	throw HDFexception("Unable to load component");
       }
-   
+
       if(aDir != NULL) delete []aDir;
 
       multifile_hdf_dataset->CloseOnDisk();
       multifile_hdf_dataset = 0;
       ascii_hdf_dataset->CloseOnDisk();
       ascii_hdf_dataset = 0;
-   
+
       hdf_sco_group->CloseOnDisk();
       hdf_sco_group = 0;
       hdf_group->CloseOnDisk();
@@ -403,10 +403,9 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       if (isASCII) {
 	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
 	aFilesToRemove->Append(aHDFUrl);
-	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
+                                                aFilesToRemove, true);
       }      
-
-      delete aHDFUrl;
     }
     catch (HDFexception) {
       delete hdf_file;
@@ -416,7 +415,6 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	aFilesToRemove->Append(aHDFUrl);
 	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
       }
-      delete aHDFUrl;
 
       if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
       _errorCode = "No persistent file";   

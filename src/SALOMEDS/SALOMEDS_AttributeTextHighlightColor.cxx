@@ -22,14 +22,17 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeTextHighlightColor.hxx"
+#include "SALOMEDS.hxx"
 
 #include <TColStd_HArray1OfReal.hxx>
 
-SALOMEDS_AttributeTextHighlightColor::SALOMEDS_AttributeTextHighlightColor(const Handle(SALOMEDSImpl_AttributeTextHighlightColor)& theAttr)
+SALOMEDS_AttributeTextHighlightColor::SALOMEDS_AttributeTextHighlightColor
+                  (const Handle(SALOMEDSImpl_AttributeTextHighlightColor)& theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
-SALOMEDS_AttributeTextHighlightColor::SALOMEDS_AttributeTextHighlightColor(SALOMEDS::AttributeTextHighlightColor_ptr theAttr)
+SALOMEDS_AttributeTextHighlightColor::SALOMEDS_AttributeTextHighlightColor
+                  (SALOMEDS::AttributeTextHighlightColor_ptr theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -40,7 +43,8 @@ SALOMEDS_AttributeTextHighlightColor::~SALOMEDS_AttributeTextHighlightColor()
 STextColor SALOMEDS_AttributeTextHighlightColor::TextHighlightColor()
 {
   STextColor aColor;
-  if(_isLocal) {
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
     Handle(TColStd_HArray1OfReal) aSeq;
     aSeq = Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast(_local_impl)->TextHighlightColor();
     aColor.R = aSeq->Value(1);
@@ -48,17 +52,20 @@ STextColor SALOMEDS_AttributeTextHighlightColor::TextHighlightColor()
     aColor.B = aSeq->Value(3);	
   }
   else {
-    SALOMEDS::Color anImplColor = SALOMEDS::AttributeTextHighlightColor::_narrow(_corba_impl)->TextHighlightColor();
+    SALOMEDS::Color anImplColor =
+      SALOMEDS::AttributeTextHighlightColor::_narrow(_corba_impl)->TextHighlightColor();
     aColor.R = anImplColor.R;
     aColor.G = anImplColor.G;
     aColor.B = anImplColor.B;
   }
   return aColor;
 }
- 
+
 void SALOMEDS_AttributeTextHighlightColor::SetTextHighlightColor(STextColor value)
 {
-  if(_isLocal) {
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
     Handle(TColStd_HArray1OfReal) aSeq = new TColStd_HArray1OfReal(1, 3);
     aSeq->SetValue(1, value.R);
     aSeq->SetValue(2, value.G);

@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDS_AttributeComment.hxx"
+#include "SALOMEDS.hxx"
 
 #include <string>
 #include <TCollection_AsciiString.hxx> 
@@ -41,15 +42,21 @@ SALOMEDS_AttributeComment::~SALOMEDS_AttributeComment()
 std::string SALOMEDS_AttributeComment::Value()
 {
   std::string aValue;
-  if(_isLocal) 
-    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->Value()).ToCString();
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeComment)::
+                                     DownCast(_local_impl)->Value()).ToCString();
+  }
   else aValue = SALOMEDS::AttributeComment::_narrow(_corba_impl)->Value();
   return aValue;
 }
  
 void SALOMEDS_AttributeComment::SetValue(const std::string& value)
 {
-  CheckLocked();
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock; 
+    Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+  }
   else SALOMEDS::AttributeComment::_narrow(_corba_impl)->SetValue(value.c_str());
 }
