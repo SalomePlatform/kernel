@@ -1214,7 +1214,8 @@ static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
 
   if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
-  } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference")) {
+  } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
+             !strcmp(hdf_dataset->GetName(),"Reference")) { // Old format maintainance
     theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
     delete(current_string);
     hdf_dataset->CloseOnDisk();
