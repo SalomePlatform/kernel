@@ -16,7 +16,7 @@
 		<component-username>Salome</component-username>
 		<component-type>Other</component-type>
 		<component-author>NRI</component-author>
-		<component-version>3.1.0</component-version>
+		<component-version>3.2.0a1</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
 		<component-multistudy>1</component-multistudy>
 
@@ -27,7 +27,7 @@
 		<component-username>SalomeTestComponent</component-username>
 		<component-type>Other</component-type>
 		<component-author>NRI</component-author>
-		<component-version>3.1.0</component-version>
+		<component-version>3.2.0a1</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
 		<component-multistudy>1</component-multistudy>
 		<constraint>'linux' ~ OS</constraint>
@@ -37,7 +37,7 @@
 		<component-username>SALOME_TestComponentPy</component-username>
 		<component-type>Other</component-type>
 		<component-author>NRI</component-author>
-		<component-version>3.1.0</component-version>
+		<component-version>3.2.0a1</component-version>
 		<component-comment>GUI Neutral Context</component-comment>
 		<component-multistudy>1</component-multistudy>
 		<constraint>'linux' ~ OS</constraint>
