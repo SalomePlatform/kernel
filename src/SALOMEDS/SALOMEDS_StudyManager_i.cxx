@@ -802,7 +802,12 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 		    if(aCompSpecificSO->FindAttribute(aGeneric, "AttributeInteger")) {
 		      anInteger = SALOMEDS::AttributeInteger::_narrow(aGeneric);
 		      anInteger->SetValue(-1);
-		      while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
+		      while(anInteger->Value() < 0) {
+                        SALOMEDS::unlock();
+                        sleep(2);
+                        SALOMEDS::lock();
+                        if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break;
+                      }
 		    }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
 		  }  // if(!CORBA::is_nil(aCompSpecificSO)) 
 		}  // if (strcmp(aRow[0], componentDataType) == 0)
