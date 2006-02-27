@@ -41,7 +41,7 @@ static const char* write_double(double value)
     unsigned tmp = (unsigned short)array[i];
     os << " " << tmp;
   }
-  return os.str().c_str();
+  return strdup( os.str().c_str() );
 }
 
 static double read_double(const char* str)
