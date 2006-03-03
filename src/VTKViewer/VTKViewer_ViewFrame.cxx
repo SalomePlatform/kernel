@@ -515,14 +515,8 @@ void VTKViewer_ViewFrame::DisplayOnly(const Handle(SALOME_InteractiveObject)& th
   //m_RWInteractor->EraseAll();
   EraseAll();
 
-  using namespace SALOME::VTK;
-  ForEachIf<SALOME_Actor>(getRenderer()->GetActors(),
-			  TIsSameIObject<SALOME_Actor>(theIObject),
-			  TDisplayAction(aSel,theIObject));
-
-  ToolsGUI::SetVisibility(
-    aStudy->getStudyDocument(), theIObject->getEntry(), true, this );
-
+  Display(theIObject, true);
+  
   Repaint();
 }
 
