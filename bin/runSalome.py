@@ -355,7 +355,7 @@ class LoggerServer(Server):
 
 class SessionLoader(Server):
     def __init__(self,args):
-        self.args=args
+        self.args = args.copy()
         # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
         self.args['xterm']=0
         #
@@ -378,7 +378,7 @@ class SessionLoader(Server):
 
 class SessionServer(Server):
     def __init__(self,args):
-        self.args=args
+        self.args = args.copy()
         # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
         self.args['xterm']=0
         #
