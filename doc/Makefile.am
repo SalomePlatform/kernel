@@ -9,12 +9,16 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS = salome
 
-doc_DATA = \
+doc_DATA =
+
+if RST2HTML_IS_OK
+  doc_DATA += \
 	index.html \
 	UnitTests.html \
 	SALOME_Application.html \
 	INSTALL.html \
 	kernel_resources.html
+endif
 
 EXTRA_DIST=$(doc_DATA)
 

@@ -54,5 +54,7 @@ if test "x$RST2HTML" = "x"; then
 fi
 AC_SUBST(RST2HTML)
 
+AM_CONDITIONAL(RST2HTML_IS_OK, [test x"$rst2html_ok" = xyes])
+
 ])dnl
 dnl
