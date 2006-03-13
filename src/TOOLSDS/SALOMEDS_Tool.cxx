@@ -150,112 +150,133 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 // function : PutFilesToStream
 // purpose  : converts the files from a list 'theFiles' to the stream
 //============================================================================
+namespace
+{
+  SALOMEDS::TMPFile* 
+  PutFilesToStream(const std::string& theFromDirectory,
+		   const SALOMEDS::ListOfFileNames& theFiles,
+		   const SALOMEDS::ListOfFileNames& theFileNames,
+		   const int theNamesOnly)
+  {
+    int i, aLength = theFiles.length();
+    if(aLength == 0)
+      return (new SALOMEDS::TMPFile);
+    
+    //Get a temporary directory for saved a file
+    TCollection_AsciiString aTmpDir(const_cast<char*>(theFromDirectory.c_str()));
+    
+    long aBufferSize = 0;
+    long aCurrentPos;
+    
+    int aNbFiles = 0;
+    int* aFileNameSize= new int[aLength];
+    long* aFileSize= new long[aLength];
+    
+    //Determine the required size of the buffer
+    
+    for(i=0; i<aLength; i++) {
+      
+      //Check if the file exists
+      
+      if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
+	TCollection_AsciiString aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());   
+	OSD_Path anOSDPath(aFullPath);
+	OSD_File anOSDFile(anOSDPath);
+	if(!anOSDFile.Exists()) continue;
+#ifdef WNT
+	ifstream aFile(aFullPath.ToCString(), ios::binary);
+#else
+	ifstream aFile(aFullPath.ToCString());
+#endif
+	aFile.seekg(0, ios::end);
+	aFileSize[i] = aFile.tellg();
+	aBufferSize += aFileSize[i];              //Add a space to store the file
+      }
+      aFileNameSize[i] = strlen(theFileNames[i])+1;
+      aBufferSize += aFileNameSize[i];          //Add a space to store the file name
+      aBufferSize += (theNamesOnly)?4:12;       //Add 4 bytes: a length of the file name,
+      //    8 bytes: length of the file itself
+      aNbFiles++;
+    } 
+    
+    aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
+    unsigned char* aBuffer = new unsigned char[aBufferSize];  
+    if(aBuffer == NULL)
+      return (new SALOMEDS::TMPFile);
+    
+    //Initialize 4 bytes of the buffer by 0
+    memset(aBuffer, 0, 4); 
+    //Copy the number of files that will be written to the stream
+    memcpy(aBuffer, &aNbFiles, ((sizeof(int) > 4) ? 4 : sizeof(int))); 
+    
+    
+    aCurrentPos = 4;
+    
+    for(i=0; i<aLength; i++) {
+      ifstream *aFile;
+      if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
+	TCollection_AsciiString aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());
+	OSD_Path anOSDPath(aFullPath);
+	OSD_File anOSDFile(anOSDPath);
+	if(!anOSDFile.Exists()) continue;
+#ifdef WNT
+	aFile = new ifstream(aFullPath.ToCString(), ios::binary);
+#else
+	aFile = new ifstream(aFullPath.ToCString());
+#endif  
+      }
+      //Initialize 4 bytes of the buffer by 0
+      memset((aBuffer + aCurrentPos), 0, 4); 
+      //Copy the length of the file name to the buffer
+      memcpy((aBuffer + aCurrentPos), (aFileNameSize + i), ((sizeof(int) > 4) ? 4 : sizeof(int))); 
+      aCurrentPos += 4;
+      
+      //Copy the file name to the buffer
+      memcpy((aBuffer + aCurrentPos), theFileNames[i], aFileNameSize[i]);
+      aCurrentPos += aFileNameSize[i];
+      
+      if (!theNamesOnly) { // mpv 15.01.2003: we don't copy file content to the buffer if !theNamesOnly
+	//Initialize 8 bytes of the buffer by 0
+	memset((aBuffer + aCurrentPos), 0, 8); 
+	//Copy the length of the file to the buffer
+	memcpy((aBuffer + aCurrentPos), (aFileSize + i), ((sizeof(long) > 8) ? 8 : sizeof(long)));
+	aCurrentPos += 8;
+	
+	aFile->seekg(0, ios::beg);
+	aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
+	aFile->close();
+	delete(aFile);
+	aCurrentPos += aFileSize[i];
+      }
+    }
+    
+    delete[] aFileNameSize;
+    delete[] aFileSize;
+    
+    
+    CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
+    
+    return (new SALOMEDS::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1));
+  }
+  
+}
+
+
 SALOMEDS::TMPFile* 
 SALOMEDS_Tool::PutFilesToStream(const std::string& theFromDirectory,
 				const SALOMEDS::ListOfFileNames& theFiles,
 				const int theNamesOnly)
 {
-  int i, aLength = theFiles.length();
-  if(aLength == 0)
-//    return NULL;
-    return (new SALOMEDS::TMPFile);
-
-  //Get a temporary directory for saved a file
-  TCollection_AsciiString aTmpDir(const_cast<char*>(theFromDirectory.c_str()));
-
-  long aBufferSize = 0;
-  long aCurrentPos;
-
-  int aNbFiles = 0;
-  int* aFileNameSize= new int[aLength];
-  long* aFileSize= new long[aLength];
-
-  //Determine the required size of the buffer
-
-  for(i=0; i<aLength; i++) {
-
-    //Check if the file exists
-    
-    if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
-      TCollection_AsciiString aFullPath = aTmpDir + CORBA::string_dup(theFiles[i]);   
-      OSD_Path anOSDPath(aFullPath);
-      OSD_File anOSDFile(anOSDPath);
-      if(!anOSDFile.Exists()) continue;
-#ifdef WNT
-      ifstream aFile(aFullPath.ToCString(), ios::binary);
-#else
-      ifstream aFile(aFullPath.ToCString());
-#endif
-      aFile.seekg(0, ios::end);
-      aFileSize[i] = aFile.tellg();
-      aBufferSize += aFileSize[i];              //Add a space to store the file
-    }
-    aFileNameSize[i] = strlen(theFiles[i])+1;
-    aBufferSize += aFileNameSize[i];          //Add a space to store the file name
-    aBufferSize += (theNamesOnly)?4:12;       //Add 4 bytes: a length of the file name,
-                                              //    8 bytes: length of the file itself
-    aNbFiles++;
-  } 
-
-  aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
-  unsigned char* aBuffer = new unsigned char[aBufferSize];  
-  if(aBuffer == NULL)
-//    return NULL; 
-    return (new SALOMEDS::TMPFile);
-
-  //Initialize 4 bytes of the buffer by 0
-  memset(aBuffer, 0, 4); 
-  //Copy the number of files that will be written to the stream
-  memcpy(aBuffer, &aNbFiles, ((sizeof(int) > 4) ? 4 : sizeof(int))); 
+  SALOMEDS::ListOfFileNames aFileNames(theFiles);
+  return ::PutFilesToStream(theFromDirectory,theFiles,aFileNames,theNamesOnly);
+}
 
 
-  aCurrentPos = 4;
-
-  for(i=0; i<aLength; i++) {
-    ifstream *aFile;
-    if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
-      TCollection_AsciiString aFullPath = aTmpDir + CORBA::string_dup(theFiles[i]);
-      OSD_Path anOSDPath(aFullPath);
-      OSD_File anOSDFile(anOSDPath);
-      if(!anOSDFile.Exists()) continue;
-#ifdef WNT
-      aFile = new ifstream(aFullPath.ToCString(), ios::binary);
-#else
-      aFile = new ifstream(aFullPath.ToCString());
-#endif  
-    }
-    //Initialize 4 bytes of the buffer by 0
-    memset((aBuffer + aCurrentPos), 0, 4); 
-    //Copy the length of the file name to the buffer
-    memcpy((aBuffer + aCurrentPos), (aFileNameSize + i), ((sizeof(int) > 4) ? 4 : sizeof(int))); 
-    aCurrentPos += 4;
-
-    //Copy the file name to the buffer
-    memcpy((aBuffer + aCurrentPos), theFiles[i], aFileNameSize[i]);
-    aCurrentPos += aFileNameSize[i];
-    
-    if (!theNamesOnly) { // mpv 15.01.2003: we don't copy file content to the buffer if !theNamesOnly
-      //Initialize 8 bytes of the buffer by 0
-      memset((aBuffer + aCurrentPos), 0, 8); 
-      //Copy the length of the file to the buffer
-      memcpy((aBuffer + aCurrentPos), (aFileSize + i), ((sizeof(long) > 8) ? 8 : sizeof(long)));
-      aCurrentPos += 8;
-      
-      aFile->seekg(0, ios::beg);
-      aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
-      aFile->close();
-      delete(aFile);
-      aCurrentPos += aFileSize[i];
-    }
-  }
-
-  delete[] aFileNameSize;
-  delete[] aFileSize;
-  
-  
-  CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
-  
-  return (new SALOMEDS::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1));
+SALOMEDS::TMPFile* 
+SALOMEDS_Tool::PutFilesToStream(const SALOMEDS::ListOfFileNames& theFiles,
+				const SALOMEDS::ListOfFileNames& theFileNames)
+{
+  return ::PutFilesToStream("",theFiles,theFileNames,0);
 }
 
 //============================================================================

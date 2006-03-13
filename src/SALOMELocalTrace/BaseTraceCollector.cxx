@@ -29,15 +29,15 @@
 #include <fstream>
 #include <cstdlib>
 
-using namespace std;
-
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
+
+using namespace std;
 
 // Class attributes initialisation, for class method BaseTraceCollector::run
 
 BaseTraceCollector* BaseTraceCollector::_singleton = 0;
-pthread_mutex_t BaseTraceCollector::_singletonMutex;
+pthread_mutex_t BaseTraceCollector::_singletonMutex = PTHREAD_MUTEX_INITIALIZER ;
 sem_t BaseTraceCollector::_sem;
 int BaseTraceCollector::_threadToClose = 0;
 pthread_t* BaseTraceCollector::_threadId = 0; // used to control single run

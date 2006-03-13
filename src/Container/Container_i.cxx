@@ -27,20 +27,10 @@
 //  $Header$
 
 //#define private public
-#include <SALOMEconfig.h>
-#ifndef WNT
-#include CORBA_SERVER_HEADER(SALOME_Component)
-#else
-#include <SALOME_Component.hh>
-#endif
-#include <pthread.h>  // must be before Python.h !
-#include <Python.h>
-#include "SALOME_Container_i.hxx"
-#include "SALOME_Component_i.hxx"
-#include "SALOME_NamingService.hxx"
-#include "OpUtil.hxx"
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 #ifndef WNT
 #include <dlfcn.h>
 #include <unistd.h>
@@ -50,9 +40,23 @@
 #include <process.h>
 int SIGUSR1 = 1000;
 #endif
-#include "Container_init_python.hxx"
 
 #include "utilities.h"
+#include <SALOMEconfig.h>
+#ifndef WNT
+#include CORBA_SERVER_HEADER(SALOME_Component)
+#else
+#include <SALOME_Component.hh>
+#endif
+#include <pthread.h>  // must be before Python.h !
+#include "SALOME_Container_i.hxx"
+#include "SALOME_Component_i.hxx"
+#include "SALOME_NamingService.hxx"
+#include "OpUtil.hxx"
+
+#include <Python.h>
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 bool _Sleeping = false ;
@@ -96,7 +100,7 @@ Engines_Container_i::Engines_Container_i () :
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-					  PortableServer::POA_ptr poa,
+					  PortableServer::POA_var poa,
 					  char *containerName ,
                                           int argc , char* argv[],
 					  bool activAndRegist,
@@ -307,10 +311,12 @@ Engines_Container_i::load_component_Library(const char* componentName)
     }
   
   void* handle;
-#ifndef WNT
-  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
-#else
+#if defined( WNT )
   handle = dlopen( impl_name.c_str() , 0 ) ;
+//#elif defined( __osf1__ )
+//  handle = dlopen( impl_name.c_str() , RTLD_NOW ) ;
+#else
+  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #endif
   if ( handle )
     {
@@ -417,8 +423,11 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       SCRUTE(iors);
       Py_RELEASE_NEW_THREAD;
   
-      CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-      iobject = Engines::Component::_narrow( obj ) ;
+      if( iors!="" )
+      {
+	CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+	iobject = Engines::Component::_narrow( obj ) ;
+      }
       return iobject._retn();
     }
   

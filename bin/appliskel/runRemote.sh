@@ -31,9 +31,12 @@
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 
-export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
-export NSHOST=$1
-export NSPORT=$2
+OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
+export OMNIORB_CONFIG
+NSHOST=$1
+export NSHOST
+NSPORT=$2
+export NSPORT
 initref="NameService=corbaname::"$1":$2"
 echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
@@ -41,4 +44,4 @@ echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
 shift 2
 
-${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile $HOME/$APPLI/.bashrc -c "$*"
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"

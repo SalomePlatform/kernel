@@ -62,7 +62,7 @@ except CosNaming.NamingContext.NotFound, ex:
     sys.exit(1)
 
 container = obj._narrow(Engines.Container)
-print container._get_machineName()
+print container.getHostName()
 comp = container.load_impl("SALOME_TestComponentPy","SALOME_TestComponentPy")
 print comp._get_instanceName()
 comp.ping()

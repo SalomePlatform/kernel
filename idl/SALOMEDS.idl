@@ -97,6 +97,7 @@ during each working session.
   interface ChildIterator;
   interface Driver;
   interface AttributeStudyProperties;
+  interface AttributeParameter;
   interface UseCaseIterator;
   interface UseCaseBuilder;
 
@@ -369,6 +370,29 @@ during each working session.
     void UndoPostponed(in long theWay);
 
     boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
+
+/*!
+    Returns an AttributeParameter used to store common parameters for given %theSavePoint.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint);
+
+/*!
+    Returns an AttributeParameter used to store parameters for given %theModuleName.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theModuleName is a name of the module (Example: "Geometry")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint);
+
+
+/*!
+    Returns a default Python script to restore visual parameters for given %theModuleName.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theModuleName is a name of the module (Example: "Geometry")
+*/
+    string GetDefaultScript(in string theID, in string theModuleName);
 
 /*!
     Private method, returns an implementation of this Study.
@@ -876,14 +900,14 @@ Gets the list of open studies
     ListOfAttributes     GetAllAttributes();
 /*! Gets the study of a given %SObject.
 
-    /return The study containing the given %SObject.
+    \return The study containing the given %SObject.
 */
     Study GetStudy();
 
 /*! Gets the CORBA object by its own IOR attribute.
     Returns nil, if can't.
 
-    /return The CORBA object of the %SObject.
+    \return The CORBA object of the %SObject.
 */
     Object GetObject();
 

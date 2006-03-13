@@ -41,5 +41,18 @@ if test "x$PDFLATEX" = "x" ; then
 fi
 AC_SUBST(PDFLATEX)
 
+rst2html_ok=yes
+dnl were is rst2html ?
+AC_PATH_PROG(RST2HTML,rst2html) 
+if test "x$RST2HTML" = "x"; then
+  AC_PATH_PROG(RST2HTML,rst2html.py)
+fi
+
+if test "x$RST2HTML" = "x"; then
+  AC_MSG_WARN(rst2html not found)
+  rst2html_ok=no
+fi
+AC_SUBST(RST2HTML)
+
 ])dnl
 dnl

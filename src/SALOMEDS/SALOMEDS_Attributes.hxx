@@ -54,6 +54,7 @@
 #include "SALOMEDSImpl_AttributeFileType.hxx"
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
@@ -84,6 +85,7 @@
 #include "SALOMEDS_AttributeFileType_i.hxx"
 #include "SALOMEDS_AttributeFlags_i.hxx"
 #include "SALOMEDS_AttributeGraphic_i.hxx"
+#include "SALOMEDS_AttributeParameter_i.hxx"
 
 #define __CreateCORBAAttribute(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
     Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theAttr); \
@@ -121,6 +123,7 @@ __CreateCORBAAttribute(AttributeFileType) \
 __CreateCORBAAttribute(AttributeFlags) \
 __CreateCORBAAttribute(AttributeGraphic) \
 __CreateCORBAAttribute(AttributeTreeNode) \
-__CreateCORBAAttribute(AttributeUserID)
+__CreateCORBAAttribute(AttributeUserID) \
+__CreateCORBAAttribute(AttributeParameter)
 
 #endif

@@ -37,7 +37,9 @@ using namespace std;
 void HouseKeeping();
 
 std::list<PROTECTED_DELETE*> PROTECTED_DELETE::_objList;
-pthread_mutex_t PROTECTED_DELETE::_listMutex;
+//CCRT
+pthread_mutex_t PROTECTED_DELETE::_listMutex = PTHREAD_MUTEX_INITIALIZER ;
+//pthread_mutex_t PROTECTED_DELETE::_listMutex ;
 
 std::list<GENERIC_DESTRUCTOR*> *GENERIC_DESTRUCTOR::Destructors = 0;
 static bool atExitSingletonDone = false ;

@@ -18,7 +18,7 @@ touch ${BaseDir}/logs/${Username}/dummy
 
 echo "Name Service... "
 aSedCommand="s/.*NameService=corbaname::`hostname`:\([[:digit:]]*\)/\1/"
-aPort=`sed -e"$aSedCommand" $OMNIORB_CONFIG`
+aPort=`cat $OMNIORB_CONFIG | grep NameService | sed -e"$aSedCommand"`
 omniNames -start $aPort -logdir ${BaseDir}/logs/${Username} &
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested

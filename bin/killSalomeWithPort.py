@@ -34,7 +34,21 @@ def killMyPort(port):
         pass
         
     if found:
-        a = os.system("pid=`ps -eo pid,command | egrep \"[0-9] omniNames -start "+str(port)+"\" | sed -e \"s%[^0-9]*\([0-9]*\) .*%\\1%g\"`; kill -9 $pid >& /dev/null")
+        cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'"` ; echo $pid > /tmp/logs/'+os.getenv('USER')+"/_"+port+'_Pid_omniNames.log'
+        a = os.system(cmd)
+        try:
+            fpidomniNames=open('/tmp/logs/'+os.getenv('USER')+"/_"+port+'_Pid_omniNames.log')
+            prc = fpidomniNames.read()
+            fpidomniNames.close()
+            if prc != None :
+                for field in prc.split(" ") :
+                    if field == "omniNames" :
+                        if pidfield != "egrep" :
+                            print 'stop process '+pidfield+' : omniNames'
+                            os.system('kill -9 '+pidfield)
+                    pidfield = field
+        except:
+            pass
         try:
             process_ids=pickle.load(fpid)
             fpid.close()

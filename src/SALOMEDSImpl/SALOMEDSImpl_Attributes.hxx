@@ -63,6 +63,7 @@ public :
 #include "SALOMEDSImpl_AttributeFileType.hxx"
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 
 
 #define __AttributeTypeToGUIDForSObject \
@@ -93,7 +94,8 @@ public :
 	if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
 	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
         if(theType == "AttributeGraphic") return SALOMEDSImpl_AttributeGraphic::GetID(); \
-	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID();
+	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
+	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID();
 
 
 #define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
@@ -129,6 +131,7 @@ __FindOrCreateAttributeLocked(AttributeTableOfInteger) \
 __FindOrCreateAttributeLocked(AttributeTableOfReal) \
 __FindOrCreateAttributeLocked(AttributeTableOfString) \
 __FindOrCreateAttributeLocked(AttributePythonObject) \
+__FindOrCreateAttributeLocked(AttributeParameter) \
 __FindOrCreateAttribute(AttributePersistentRef) \
 __FindOrCreateAttribute(AttributeDrawable) \
 __FindOrCreateAttribute(AttributeSelectable) \

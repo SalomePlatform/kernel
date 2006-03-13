@@ -25,13 +25,14 @@ AC_DEFUN([CHECK_MPICH],[
 AC_REQUIRE([AC_PROG_CC])dnl
 
 AC_ARG_WITH(mpich,
-	    --with-mpich=DIR root directory path of MPICH installation,
-	    WITHMPICH="yes",WITHMPICH="no")
+  [AC_HELP_STRING([--with-mpich=DIR],[root directory path of MPICH installation])],
+  WITHMPICH="yes",WITHMPICH="no")
 
 MPI_INCLUDES=""
 MPI_LIBS=""
 if test "$WITHMPICH" = yes; then
 
+  MPIREQUESTED="yes"
   echo
   echo ---------------------------------------------
   echo testing mpich

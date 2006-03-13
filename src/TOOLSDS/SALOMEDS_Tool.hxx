@@ -64,6 +64,10 @@ public:
 					     const SALOMEDS::ListOfFileNames& theFiles,
 					     const int theNamesOnly = 0);
 
+  // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
+  static SALOMEDS::TMPFile* PutFilesToStream(const SALOMEDS::ListOfFileNames& theFiles,
+					     const SALOMEDS::ListOfFileNames& theFileNames);
+
   // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
   static SALOMEDS::ListOfFileNames_var PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 							const std::string& theToDirectory,

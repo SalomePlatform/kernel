@@ -5,7 +5,7 @@ SALOME Application Concept. Configuration for one or more computers
 
 *html version of this document is produced with docutils*::
 
-  rest2html < doc.txt > doc.html
+  rst2html doc.txt > doc.html
 
 This document corresponds to SALOME2 3.1. (alpha version)
 
@@ -16,23 +16,12 @@ This document corresponds to SALOME2 3.1. (alpha version)
 The following explains how to configure your own application with your list of
 modules, how to define and run this application on one or more computers.
 
-Summary
--------
+.. contents::
+.. sectnum::
 
-`1. General principles`_
 
-`2. Application Directory`_
-
-`2.1 Proposal for env.d scripts`_
-
-`2.2 User run scripts`_
-
-`2.3 SALOME internal run script`_
-
-`2.4 Other configuration files`_
-
-1. General principles
----------------------
+General principles
+------------------
 
 A SALOME application is defined by a set of modules (GEOM, SMESH, ASTER...).
 
@@ -63,8 +52,8 @@ account@computer is via rsh or ssh and must be configured for use without
 password (key exchange for ssh). Account may be different on each
 computer.
 
-2. Application Directory
-------------------------
+Application Directory
+---------------------
 
 The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/salome creates an
 application directory with the given path in parameter. ${APPLI} is a path 
@@ -94,8 +83,8 @@ alphanumeric order (after edition, think to remove backup files). the envd
 script is used by run scripts.
 
 
-2.1 Proposal for env.d scripts
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Proposal for env.d scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 Each user **must define** his own configuration for these scripts, following
 the above rules. **The following is only an example not working as it is**.
 
@@ -117,8 +106,8 @@ envSALOME.sh
     Note that ${APPLI} is already defined by the calling scripts when 
     env.d/envSalome.sh is sourced.
 
-2.2 User run scripts
-~~~~~~~~~~~~~~~~~~~~
+User run scripts
+~~~~~~~~~~~~~~~~
 
 The SALOME user can use 4 scripts:
 
@@ -143,8 +132,8 @@ runTests
    and port number), runTests defines a new configuration for naming service
    (new port number).
 
-2.3 SALOME internal run scripts
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SALOME internal run scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 envd
    Sets SALOME application environment, envd is sourced by other scripts.
@@ -156,8 +145,8 @@ runRemote.sh
    define the hostname and port userd for naming service, the remaining
    arguments define the command to execute.
 
-2.4 Other configuration files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Other configuration files
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SalomeApp.xml
    This file is similar to the default given

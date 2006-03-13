@@ -26,9 +26,13 @@
 //  Module : KERNEL
 //  $Header$
 
-#include "Container_init_python.hxx"
+#include <time.h>
+#include <sys/time.h>
 
 #include "utilities.h"
+
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 PyThreadState *KERNEL_PYTHON::_gtstate = 0;

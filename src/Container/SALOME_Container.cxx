@@ -31,8 +31,12 @@
 #endif
 
 #include <iostream>
+#include <strstream>
 #include <string>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
+#include <dlfcn.h>
 
 #ifndef WNT
 #include <unistd.h>
@@ -43,7 +47,6 @@
 #include "utilities.h"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
 #ifdef CHECKTIME
@@ -67,7 +70,7 @@ int main(int argc, char* argv[])
   //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  CORBA::ORB_var orb = init(0 , 0 ) ;
+  CORBA::ORB_ptr orb = init(0 , 0 ) ;
 	  
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
@@ -106,9 +109,9 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WNT
-      char aCommand[40];
-      sprintf(aCommand, "addToKillList.py %d SALOME_Container", getpid());
-      system(aCommand);
+      ostrstream aCommand ;
+      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
+      system(aCommand.str());
 #endif
       
       Engines_Container_i * myContainer 
@@ -120,10 +123,9 @@ int main(int argc, char* argv[])
       Utils_Timer timer;
       timer.Start();
       timer.Stop();
-      MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
       timer.ShowAbsolute();
 #endif
-      
+
       HandleServerSideSignals(orb);
       
     }

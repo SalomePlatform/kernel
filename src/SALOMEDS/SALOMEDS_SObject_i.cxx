@@ -205,7 +205,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
  *  Purpose  :
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_out obj)
+CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj)
 {
   SALOMEDS::Locker lock;
   Handle(SALOMEDSImpl_SObject) aSubObj;
@@ -318,7 +318,7 @@ char* SALOMEDS_SObject_i::GetIOR()
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::Long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();

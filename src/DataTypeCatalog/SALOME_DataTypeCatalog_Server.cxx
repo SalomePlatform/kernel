@@ -30,7 +30,6 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_DataTypeCatalog_impl.hxx"
 #include "utilities.h"
-#include "SALOMETraceCollector.hxx"
 #include "Utils_SINGLETON.hxx"
 using namespace std;
 
@@ -38,7 +37,6 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
-  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;

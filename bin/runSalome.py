@@ -56,8 +56,9 @@ def get_config():
     modules_list = []
     if args.has_key("modules"):
         modules_list += args["modules"]
-    # KERNEL must be last in the list to locate it at the first place in PATH 
-    modules_list[:0] = ["GUI"]
+    # KERNEL must be last in the list to locate it at the first place in PATH
+    if args["gui"] :
+        modules_list[:0] = ["GUI"]
     modules_list[:0] = ["KERNEL"]
     modules_list.reverse()
 
@@ -103,7 +104,8 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
-    modules_list = modules_list[:] + ["GUI"] 
+    if args["gui"] :
+        modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
     for module in modules_list :
         if modules_root_dir.has_key(module):
@@ -187,10 +189,10 @@ def set_env(args, modules_list, modules_root_dir):
     # set environment for SUPERV module
     os.environ["ENABLE_MACRO_NODE"]="1"
     # set resources variables if not yet set
-    if os.getenv("GUI_ROOT_DIR"):
-        if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
-        if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
-        pass   
+    # Done now by launchConfigureParser.py
+    #if os.getenv("GUI_ROOT_DIR"):
+        #if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
+        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
 
     # set CSF_PluginDefaults variable only if it is not customized
     # by the user
@@ -324,7 +326,11 @@ class CatalogServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
+        if self.args["gui"] :
+            list_modules = ["KERNEL", "GUI"] + list_modules
+        else :
+            list_modules = ["KERNEL"] + list_modules
+        for module in list_modules:
             if modules_root_dir.has_key(module):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
@@ -389,7 +395,10 @@ class LoggerServer(Server):
 
 class SessionServer(Server):
     def __init__(self,args):
-        self.args=args
+        self.args = args.copy()
+        # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
+        self.args['xterm']=0
+        #
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
         self.SCMD2=[]
@@ -417,7 +426,7 @@ class SessionServer(Server):
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
             self.SCMD2+=['GUI']
-        if self.args['splash']:
+        if self.args['splash'] and self.args['gui']:
             self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
@@ -431,7 +440,11 @@ class SessionServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
+        if self.args["gui"] :
+            list_modules = ["KERNEL", "GUI"] + list_modules
+        else :
+            list_modules = ["KERNEL"] + list_modules
+        for module in list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             #print "   ", module_cata
@@ -439,7 +452,7 @@ class SessionServer(Server):
                 glob.glob(os.path.join(module_root_dir,"share",
                                        salome_subdir,"resources",
                                        module_cata)))
-        if 'moduleCatalog' in self.args['embedded']:
+        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
@@ -452,23 +465,26 @@ class ContainerManagerServer(Server):
         self.initArgs()
         self.SCMD1=['SALOME_ContainerManagerServer']
         self.SCMD2=[]
-        if 'registry' in self.args['embedded']:
-            self.SCMD1+=['--with','Registry',
-                         '(','--salome_session','theSession',')']
-        if 'moduleCatalog' in self.args['embedded']:
-            self.SCMD1+=['--with','ModuleCatalog','(','-common']
-            self.SCMD2+=['-personal',
-                         '${HOME}/Salome/resources/CatalogModulePersonnel.xml',')']
-        if 'study' in self.args['embedded']:
-            self.SCMD2+=['--with','SALOMEDS','(',')']
-        if 'cppContainer' in self.args['embedded']:
-            self.SCMD2+=['--with','Container','(','FactoryServer',')']
+        if args["gui"] :
+            if 'registry' in self.args['embedded']:
+                self.SCMD1+=['--with','Registry',
+                             '(','--salome_session','theSession',')']
+            if 'moduleCatalog' in self.args['embedded']:
+                self.SCMD1+=['--with','ModuleCatalog','(','-common']
+                self.SCMD2+=['-personal',
+                             '${HOME}/Salome/resources/CatalogModulePersonnel.xml',')']
+            if 'study' in self.args['embedded']:
+                self.SCMD2+=['--with','SALOMEDS','(',')']
+            if 'cppContainer' in self.args['embedded']:
+                self.SCMD2+=['--with','Container','(','FactoryServer',')']
         
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
+        if self.args["gui"] :
+            list_modules = ["GUI"] + list_modules
+        for module in ["KERNEL"] + list_modules:
             if modules_root_dir.has_key(module):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
@@ -479,7 +495,7 @@ class ContainerManagerServer(Server):
                                            module_cata)))
                 pass
             pass
-        if 'moduleCatalog' in self.args['embedded']:
+        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
@@ -503,7 +519,13 @@ class NotifyServer(Server):
 
 def startGUI():
     """Salome Session Graphic User Interface activation"""
+    import Engines
     import SALOME
+    import SALOMEDS
+    import SALOME_ModuleCatalog
+    reload(Engines)
+    reload(SALOME)
+    reload(SALOMEDS)
     import SALOME_Session_idl
     session=clt.waitNS("/Kernel/Session",SALOME.Session)
     session.GetInterface()
@@ -544,7 +566,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Registry dans le Naming Service
     #
 
-    if 'registry' not in args['embedded']:
+    if ('registry' not in args['embedded']) | (args["gui"] == 0) :
         myServer=RegistryServer(args)
         myServer.run()
         clt.waitNSPID("/Registry",myServer.PID)
@@ -555,7 +577,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     
 
-    if 'moduleCatalog' not in args['embedded']:
+    if ('moduleCatalog' not in args['embedded']) | (args["gui"] == 0):
         cataServer=CatalogServer(args)
         cataServer.setpath(modules_list,modules_root_dir)
         cataServer.run()
@@ -568,7 +590,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     #print "ARGS = ",args
-    if 'study' not in args['embedded']:
+    if ('study' not in args['embedded']) | (args["gui"] == 0):
         print "RunStudy"
         myServer=SalomeDSServer(args)
         myServer.run()
@@ -629,17 +651,24 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Session Server
     #
 
-    mySessionServ = SessionServer(args)
-    mySessionServ.setpath(modules_list,modules_root_dir)
-    mySessionServ.run()
+    if args["gui"]:
+        mySessionServ = SessionServer(args)
+        mySessionServ.setpath(modules_list,modules_root_dir)
+        mySessionServ.run()
 ##----------------        
 
-    # Attente de la disponibilite du Session Server dans le Naming Service
-    #
+        # Attente de la disponibilite du Session Server dans le Naming Service
+        #
 
-    import SALOME
-    import SALOME_Session_idl
-    session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
+        import Engines
+        import SALOME
+        import SALOMEDS
+        import SALOME_ModuleCatalog
+        reload(Engines)
+        reload(SALOME)
+        reload(SALOMEDS)
+        import SALOME_Session_idl
+        session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
 
     end_time = os.times()
     print

@@ -36,7 +36,6 @@ extern "C"
 }
 
 #include "utilities.h"
-#include "SALOMETraceCollector.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"

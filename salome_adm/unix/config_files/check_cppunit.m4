@@ -8,18 +8,18 @@ cppunit_ok=yes
 dnl were is cppunit ?
 
 AC_ARG_WITH(cppunit,
-    [  --with-cppunit=DIR     directory path to CPPUNIT installation ],
+    [AC_HELP_STRING([--with-cppunit=DIR],[directory path to CPPUNIT installation])],
     [CPPUNITHOME="$withval"
       AC_MSG_RESULT("select $withval as path to CPPUNIT")
     ])
 
 AC_ARG_WITH(cppunit_inc,
-    [  --with-cppunit_inc=DIR   directory path to CPPUNIT includes ],
+    [AC_HELP_STRING([--with-cppunit_inc=DIR],[directory path to CPPUNIT includes])],
     [CPPUNIT_INCLUDES="$withval"
       AC_MSG_RESULT("select $withval as path to CPPUNIT includes")
     ])
 
-if test -z $CPPUNITHOME; then
+if test -z "$CPPUNITHOME"; then
   AC_MSG_RESULT(CPPUNITHOME not defined)
   exits_ok=no	
   if test "x$exits_ok" = "xno"; then
@@ -43,12 +43,12 @@ if test -z $CPPUNITHOME; then
      done
   fi
   if test "x$exits_ok" = "xyes"; then
-     if test -z $CPPUNIT_INCLUDES; then
+     if test -z "$CPPUNIT_INCLUDES"; then
         CPPUNIT_INCLUDES=$CPPUNITHOME"/include"
      fi
   fi
 else
-  if test -z $CPPUNIT_INCLUDES; then
+  if test -z "$CPPUNIT_INCLUDES"; then
      CPPUNIT_INCLUDES="$CPPUNITHOME/include"
   fi   	
 fi
@@ -96,11 +96,11 @@ else
     AC_SUBST(CPPUNIT_INCLUDES)
     AC_SUBST(CPPUNIT_LIBS)
     AC_SUBST(cppunit_ok)
-
     AC_MSG_RESULT(yes)
   fi
-
 fi
+
+AM_CONDITIONAL(CPPUNIT_IS_OK, [test x"$cppunit_ok" = xyes])
 
 AC_LANG_RESTORE
 

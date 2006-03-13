@@ -3,11 +3,11 @@
 comName=`which $0`
 rep=`dirname $comName`
 
-if [ $# -ne 1 ]
+if [ $# -ne 1 ]; then
   echo "--- usage:"
   echo $0 AppliName
   echo "--- In which AppliName is a directory to create with SALOME application scripts"
-elif [ -d $1]
+elif [ -d $1 ]; then
   echo $1 "directory already exists, nothing done"
 else
   mkdir -p $1

@@ -18,7 +18,6 @@
 // See http://www.salome-platform.org/
 //
 #include "SALOME_ContainerManager.hxx"
-#include "SALOMETraceCollector.hxx"
 #include "utilities.h"
 
 int main(int argc, char* argv[])
@@ -27,7 +26,7 @@ int main(int argc, char* argv[])
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;
 
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  CORBA::ORB_ptr orb = CORBA::ORB_init( argc , argv ) ;
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);

@@ -26,7 +26,7 @@ AC_REQUIRE([CHECK_PYTHON])dnl
 swig_ok=yes
 
 AC_ARG_WITH(swig,
-    [  --with-swig=EXEC swig executable ],
+    [AC_HELP_STRING([--with-swig=EXEC],[swig executable])],
     [SWIG="$withval"
       AC_MSG_RESULT("select $withval as swig executable")
     ], [

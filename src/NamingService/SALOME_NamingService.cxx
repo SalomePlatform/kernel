@@ -642,9 +642,9 @@ SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
  * \param params struct from which we get container name (may be
  *               empty),  number of nodes and number of processor
  *               per node.
- * /param hostname name of the host of the container, without domain names.
- * /return the path under the form /Containers/hostname/containerName
- * /sa ContainerName(const Engines::MachineParameters& params)
+ * \param hostname name of the host of the container, without domain names.
+ * \return the path under the form /Containers/hostname/containerName
+ * \sa ContainerName(const Engines::MachineParameters& params)
  */
 // ============================================================================
 
@@ -664,10 +664,10 @@ string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
  *
  *  Build a string representing the absolute pathname of a container in
  *  SALOME_NamingService.
- * /param params used as it is, or replaced by FactoryServer if empty.
- * /param hostname name of the host of the container, without domain names.
- * /return the path under the form /Containers/hostname/containerName
- * /sa ContainerName(const char *containerName)
+ * \param params used as it is, or replaced by FactoryServer if empty.
+ * \param hostname name of the host of the container, without domain names.
+ * \return the path under the form /Containers/hostname/containerName
+ * \sa ContainerName(const char *containerName)
  */
 // ============================================================================
 
@@ -1759,14 +1759,12 @@ _current_directory(vector<string>& splitPath,
  *  get a list of all the objects in the current directory, with recursion
  *  on the subdirectories. Only the objects are listed, not the directories.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
- * \param myList the list of objects
- * \
-Function :_list_directory_recurs.
- * Purpose  : method to list recursively all the objects contained in the tree of absCurDirectory/relativeSubDir.
- *  \param myList The list that will be filled.
- *  \param relativeSubDir The directory from absCurDirectory in which the objects are found.
- *  \param absCurDirectory The directory in ABSOLUTE form.
  *  _current_context must refer to absCurDirectory.
+ *
+ *  \param myList          The list that will be filled.
+ *  \param relativeSubDir  The directory relative to absCurDirectory in which
+ *                         the objects are found.
+ *  \param absCurDirectory The current directory, absolute path
  */ 
 // ============================================================================
 

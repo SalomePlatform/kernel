@@ -32,13 +32,14 @@ int main() { return 0; }
 EOF
   $CXX $1 conftest.cxx > conftest.log 2>&1
   var=`echo $1 | sed -e "s, .*$,," | sed -e "s,^-,,"`
-  if ! grep -e $var conftest.log > /dev/null 2>&1 ; then
+#CCRT  if ! grep -e $var conftest.log > /dev/null 2>&1 ; then
+  if grep -e $var conftest.log > /dev/null 2>&1 ; then
+    AC_MSG_RESULT(no)
+    eval $4
+  else
     AC_MSG_RESULT(yes)
     $2="${$2} $1"
     eval $3
-  else
-    AC_MSG_RESULT(no)
-    eval $4
   fi
 ])
 

@@ -30,7 +30,6 @@
 #include "Batch_Versatile.hxx"
 #include "Batch_InvalidKeyException.hxx"
 #include "Batch_Parametre.hxx"
-using namespace std;
 
 // Definition des membres constants statiques
 // Definition des noms globaux pour les clefs en tant que references
@@ -72,14 +71,15 @@ def_static_MapKey(USEDDISKSIZE);
 def_static_MapKey(USEDRAMSIZE);
 def_static_MapKey(USEDWALLTIME);
 def_static_MapKey(USER);
+def_static_MapKey(WORKDIR);
 
 namespace Batch {
 
-	// Constructeur standard
-	// La map interne TypeMap possede les memes clefs que la map principale, mais les
-	// valeurs associees contiennent le type des clefs de la map principale ainsi que
-	// le nombre de valeurs autorisees dans l'objet Versatile (0=nombre quelconque,
-	// sinon valeur precisee)
+  // Constructeur standard
+  // La map interne TypeMap possede les memes clefs que la map principale, mais les
+  // valeurs associees contiennent le type des clefs de la map principale ainsi que
+  // le nombre de valeurs autorisees dans l'objet Versatile (0=nombre quelconque,
+  // sinon valeur precisee)
   Parametre::Parametre() : map< string, Versatile >()
   {
     TypeMap[ACCOUNT].type = STRING;
@@ -192,23 +192,26 @@ namespace Batch {
 
     TypeMap[USER].type = STRING;
     TypeMap[USER].maxelem = 1;
+
+    TypeMap[WORKDIR].type = STRING;
+    TypeMap[WORKDIR].maxelem = 1;
   }
 
-	// Operateur de recherche dans la map
-	// Cet operateur agit sur les objets NON CONSTANTS, il autorise la modification de
-	// la valeur associée à la clef car il retourne une reference non constante
+  // Operateur de recherche dans la map
+  // Cet operateur agit sur les objets NON CONSTANTS, il autorise la modification de
+  // la valeur associée à la clef car il retourne une reference non constante
   Versatile & Parametre::operator [] (const string & mk)
   {
-		// On controle que la clef est valide
+    // On controle que la clef est valide
     if (TypeMap.find(mk) == TypeMap.end()) throw InvalidKeyException(mk.c_str());
 
-		// On recherche la valeur associee...
+    // On recherche la valeur associee...
     Versatile & V = map< string, Versatile >::operator [] (mk);
 
-		// ... et on l'initialise systematiquement
-		// ATTENTION : si un probleme de type survient (ie, on stocke une valeur d'un type
-		// different de celui inscrit dans TypeMap) une exception TypeMismatchException est
-		// levee
+    // ... et on l'initialise systematiquement
+    // ATTENTION : si un probleme de type survient (ie, on stocke une valeur d'un type
+    // different de celui inscrit dans TypeMap) une exception TypeMismatchException est
+    // levee
     V.setName(mk);
     V.setType(TypeMap[mk].type);
     V.setMaxSize(TypeMap[mk].maxelem);
@@ -216,35 +219,36 @@ namespace Batch {
     return V;
   }
 
-	// Operateur de recherche dans la map
-	// Cet operateur agit sur les objets CONSTANTS
+  // Operateur de recherche dans la map
+  // Cet operateur agit sur les objets CONSTANTS
   const Versatile & Parametre::operator [] (const string & mk) const
   {
-		// On controle que la clef est valide
+    // On controle que la clef est valide
     if (TypeMap.find(mk) == TypeMap.end()) throw InvalidKeyException(mk.c_str());
  
-		// On recherche la valeur associee
-		Parametre::const_iterator it = find(mk);
+    // On recherche la valeur associee
+    Parametre::const_iterator it = find(mk);
+    if (it == end()) throw InvalidKeyException(mk.c_str());
     const Versatile & V = (*it).second;
 
     return V;
   }
 
-	// Operateur d'affectation
+  // Operateur d'affectation
   Parametre & Parametre::operator =(const Parametre & PM)
   {
-		// On ne reaffecte pas l'objet a lui-meme, sinon aie, aie, aie
+    // On ne reaffecte pas l'objet a lui-meme, sinon aie, aie, aie
     if (this == &PM) return *this;
 
-		// On efface toute la map
+    // On efface toute la map
     erase(begin(), end());
 
-		// On recopie la map interne
-		// Meme si cela ne sert a rien pour le moment car les maps internes sont identiques,
-		// il n'est pas exclu que dans un avenir proche elles puissent etre differentes
+    // On recopie la map interne
+    // Meme si cela ne sert a rien pour le moment car les maps internes sont identiques,
+    // il n'est pas exclu que dans un avenir proche elles puissent etre differentes
     (*this).TypeMap = PM.TypeMap;
 
-		// On recree la structure interne de la map avec les valeurs de celle passee en argument
+    // On recree la structure interne de la map avec les valeurs de celle passee en argument
     Parametre::const_iterator it;
     for(it=PM.begin(); it!=PM.end(); it++)
       insert(make_pair( (*it).first ,
@@ -254,26 +258,26 @@ namespace Batch {
     return *this;
   }
 
-	// Constructeur par recopie
+  // Constructeur par recopie
   Parametre::Parametre(const Parametre & PM)
   {
-		// inutile car l'objet est vierge : il vient d'etre cree
-		// On efface toute la map
+    // inutile car l'objet est vierge : il vient d'etre cree
+    // On efface toute la map
     // erase(begin(), end());
 
-		// On recopie la map interne
+    // On recopie la map interne
     (*this).TypeMap = PM.TypeMap;
 
- 		// On cree la structure interne de la map avec les valeurs de celle passee en argument
-		Parametre::const_iterator it;
-		for(it=PM.begin(); 
-				it!=PM.end(); 
-				it++)
+    // On cree la structure interne de la map avec les valeurs de celle passee en argument
+    Parametre::const_iterator it;
+    for(it=PM.begin(); 
+	it!=PM.end(); 
+	it++)
       insert(
-						 make_pair( 
-											 (*it).first ,
-											 Versatile( (*it).second)
-											 ) );
+	     make_pair( 
+		       (*it).first ,
+		       Versatile( (*it).second)
+		       ) );
   }
 
   //   map< string, TypeParam > Parametre::getTypeMap() const

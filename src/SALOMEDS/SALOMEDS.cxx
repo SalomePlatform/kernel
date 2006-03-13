@@ -26,12 +26,27 @@
 //  Module : SALOME
 //  $Header$
 
-
 #ifndef WNT
 #include <SALOMEDS.hxx>
+#include <SALOMEDS_StudyManager.hxx>
+#include <SALOMEDS_Study.hxx>
+#include <SALOMEDS_SObject.hxx>
+#include <SALOMEDS_SComponent.hxx>
+#include <SALOMEDSClient.hxx>
+#include <SALOMEDS_StudyManager_i.hxx>
 #else
 #include "SALOMEDS.hxx"
+#include "SALOMEDS_StudyManager.hxx"
+#include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_SObject.hxx"
+#include "SALOMEDS_SComponent.hxx"
+#include "SALOMEDSClient.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #endif
+
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
 
 using namespace SALOMEDS;
 
@@ -54,4 +69,49 @@ void SALOMEDS::lock()
 void SALOMEDS::unlock()
 {
   Locker::MutexDS.unlock();
+}
+
+
+
+// srn: Added new library methods that create basic SALOMEDS objects (StudyManager, Study, SComponent, SObject)
+
+//=============================================================================
+/*!
+ * C factory, accessible with dlsym, after dlopen
+ */
+//=============================================================================
+
+
+extern "C"
+{
+
+SALOMEDSClient_StudyManager* StudyManagerFactory()
+{
+  return new SALOMEDS_StudyManager();
+}
+
+SALOMEDSClient_Study* StudyFactory(SALOMEDS::Study_ptr theStudy)
+{
+  return new SALOMEDS_Study(theStudy);
+}
+
+SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
+{
+  return new SALOMEDS_SObject(theSObject);
+}
+
+SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
+{
+  return new SALOMEDS_SComponent(theSComponent);
+}
+
+SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+{
+  SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
+  // Activate the objects.  This tells the POA that the objects are ready to accept requests.
+  PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
+  aStudyManager_i->register_name("/myStudyManager");
+  return new SALOMEDS_StudyManager();
+}
+
 }

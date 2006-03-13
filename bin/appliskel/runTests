@@ -21,13 +21,16 @@ searchFreePort() {
         if [ -z "$aRes" ]; then
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
-            export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
+            OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
+            export OMNIORB_CONFIG
 	    export NSPORT
-            export NSHOST=${myhost}
+            NSHOST=${myhost}
+            export NSHOST
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             echo "InitRef = $initref" > $OMNIORB_CONFIG
-            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_test.cfg
+            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_test.cfg
+            export LAST_RUNNING_CONFIG
 	    rm ${LAST_RUNNING_CONFIG}
             ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
             break
@@ -55,10 +58,10 @@ fi
 searchFreePort
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
 else
 
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc
 fi
 
 rm ${OMNIORB_CONFIG}

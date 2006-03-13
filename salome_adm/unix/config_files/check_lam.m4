@@ -25,13 +25,14 @@ AC_DEFUN([CHECK_LAM],[
 AC_REQUIRE([AC_PROG_CC])dnl
 
 AC_ARG_WITH(lam,
-	    --with-lam=DIR root directory path of LAM installation,
-	    WITHLAM="yes",WITHLAM="no")
+  [AC_HELP_STRING([--with-lam=DIR],[root directory path of LAM installation])],
+  WITHLAM="yes",WITHLAM="no")
 
 MPI_INCLUDES=""
 MPI_LIBS=""
 if test "$WITHLAM" = yes; then
 
+  MPIREQUESTED="yes"
   echo
   echo ---------------------------------------------
   echo testing lam

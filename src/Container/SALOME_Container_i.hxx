@@ -67,7 +67,7 @@ class CONTAINER_EXPORT Engines_Container_i:
 public:
   Engines_Container_i();
   Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_ptr poa,
+		      PortableServer::POA_var poa,
 		      char * containerName ,
                       int argc, char* argv[],
 		      bool activAndRegist = true,

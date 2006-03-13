@@ -17,8 +17,13 @@
 //
 // See http://www.salome-platform.org/
 //
-#include <Launchers.hxx>
+
+#include <time.h>
+#include <sys/time.h>
+
 #include "utilities.h"
+
+#include <Launchers.hxx>
 
 using namespace std;
 

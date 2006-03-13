@@ -25,7 +25,7 @@ AC_REQUIRE([AC_PROG_CPP])dnl
 AC_CHECKING(for HDF5)
 
 AC_ARG_WITH(hdf5,
-    [  --with-hdf5=DIR                 root directory path to hdf5 installation ],
+    [AC_HELP_STRING([--with-hdf5=DIR],[root directory path to hdf5 installation])],
     [HDF5HOME="$withval"
       AC_MSG_RESULT("select $withval as path to hdf5")
     ])

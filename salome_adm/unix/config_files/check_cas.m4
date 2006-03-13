@@ -42,13 +42,11 @@ AC_SUBST(CAS_LDFLAGS)
 AC_SUBST(CAS_LDPATH)
 AC_SUBST(CAS_STDPLUGIN)
 
-OWN_CONFIG_H=no
-
 CAS_CPPFLAGS=""
 CAS_CXXFLAGS=""
 CAS_LDFLAGS=""
 occ_ok=no
-own_config_h=no
+config_h=no
 
 dnl libraries directory location
 case $host_os in
@@ -77,7 +75,7 @@ esac
 
 AC_MSG_CHECKING(for OpenCascade directories)
 
-if test -z $CASROOT; then
+if test -z "$CASROOT"; then
   AC_MSG_RESULT(CASROOT not defined)
   for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
     if test -f $d/libTKernel.so ; then
@@ -103,7 +101,7 @@ fi
 
 
 dnl were is OCC ?
-if test -z $CASROOT; then
+if test -z "$CASROOT"; then
   AC_MSG_WARN(You must provide CASROOT variable : see OCC installation manual)
 else
   occ_ok=yes
@@ -145,47 +143,24 @@ case $host_os in
 esac
   CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
 
-  if test -n $KERNEL_ROOT_DIR; then
-      if test -d $KERNEL_ROOT_DIR/include/salome; then
-          CAS_CPPFLAGS="$CAS_CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
-	  CPPFLAGS="$CPPFLAGS -I$KERNEL_ROOT_DIR/include/salome"
-      fi
-  fi
-  CAS_CPPFLAGS="$CAS_CPPFLAGS -I${ROOT_BUILDDIR}/include/salome"
-  CPPFLAGS="$CPPFLAGS -I${ROOT_BUILDDIR}/salome_adm/unix"
-
-  echo
   echo
   echo testing config.h
-  echo
-  echo
 
-  AC_CHECK_HEADER(config.h, own_config_h=no, [
-	echo
-	echo
-	echo "config.h file not found! Generating it..."
-	echo
-	echo
-	mv confdefs.h backup_confdefs.h
-	${ROOT_SRCDIR}/make_config
-	rm -rf ${ROOT_BUILDDIR}/*.log
-	rm -rf ${ROOT_BUILDDIR}/*.status
-	mv backup_confdefs.h confdefs.h
-	rm -f backup_confdefs.h
-	own_config_h=yes
-	echo
-	echo
+  AC_CHECK_HEADER(config.h, config_h=yes, [
+	echo "config.h file not found!"
   ])
 
-  if test "x$own_config_h" = xyes ; then
-    OWN_CONFIG_H=yes
+  if test "x$config_h" = xno ; then
+      AC_MSG_WARN(config.h file not found)
+      dnl There is no consequence for SALOME building because
+      dnl this file is not used. SALOME uses SALOMEconfig.h instead!
+  else
+      AC_MSG_RESULT(config.h file ok)    
   fi
 
   AC_CHECK_HEADER(Standard_Type.hxx,occ_ok=yes ,occ_ok=no)
 
 fi
-
-AC_SUBST(OWN_CONFIG_H)
 
 if test "x$occ_ok" = xyes ; then
 

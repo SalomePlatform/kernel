@@ -1,0 +1,125 @@
+
+=================================================================
+User's guide, for developpers and users
+=================================================================
+
+.. contents::
+.. sectnum::
+
+This guide provides you with some basic concepts for developing and
+using the SALOME platform. You will find some information on the
+general technical architecture ...
+
+Introduction
+============
+
+General information
+-------------------
+
+This document has been initialized by collecting and updating an existing
+documentation. The restructured text format has been selected for
+writing. This format can be read with a basic editor except for
+pictures and some hypertext links. You can build the html pages using
+the docutils scripts provided with python packages on most platform.
+
+Definitions
+-----------
+
+``WORK IN PROGRESS``
+
+Module
+   definition of a module and/or link to the definition
+
+Container
+   definition of a container
+  
+
+General concepts
+================
+modules et dépendances (s'inspirer de PYHELLO)
+
+
+Filesystem organisation
+========================
+
+Voir doc de JR "Organisation de la plate-forme"
+
+A typical source working directory
+----------------------------------
+organisation type des sources d'un module standard (spécifications techniques)
+
+A typical installation directory
+--------------------------------
+organisation type des produits installés
+
+
+Building process
+================
+Procédures de compilation (renvoie au install.sh)
+
+
+Developer's guide - basic concepts
+=========================================
+
+Guide du développeur: éléments de conception
+  - zoom sur certains éléments techniques bons à connaitre pour faire
+    évoluer le KERNEL sans tout casser.
+  - les ressources du kernel:
+    - trace, debug, exception (cf. kernel_ressources.tex)
+    - classes batch (présentation puis renvoi à la doc d'Ivan)
+  - développement de tests unitaires
+
+Developer's guide - managing the development space
+==================================================
+
+- Guide du développeur: gestion de l'espace de développement
+  - principe de mise en oeuvre (rôle des étapes: build_configure, ...)
+  - description des fichiers m4 et du principe de mise en oeuvre
+  - les Makefile.in, ... (cf. doc guide du développeur).
+  - évolution des procédures de construction
+  - personalisation des procédures de construction
+
+Developer' guide - integration tools
+==================================== 
+- Guide de l'intégrateur (développeur de nouveaux modules)
+(on lui montre ici le principe de construction et les ressources à
+disposition pour faire le travail)
+  - création d'un modules
+  - intégration code boîte noire (perfect, solver)
+  - intégration bibliothèque de fonctions (hxx2salome, voir avec
+    N.Crouzet)
+  - intégration de modèles de données (xdata) 
+
+
+End user's guide
+================
+- Guide de l'utilisateur
+  - concept d'application (renvoie doc Paul)
+  - commandes avancées (showNS, exemple de contact de la
+    session, d'un engine, utilisation du lifeCycle, du module salome,
+    des modules geompy et smesh)
+  - utilisation en mode distribué (doc de B. Sechet)
+  - GUI and TUI documentation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RST Exemples
+============
+
+See INSTALL_ for general information on required configuration and 
+prerequisites, compilation procedure, setting environment principles.
+
+.. _INSTALL: ./INSTALL.html
+

@@ -34,6 +34,7 @@
 #include "SALOMEDS_ChildIterator.hxx"
 #include "SALOMEDS_SComponentIterator.hxx"
 #include "SALOMEDS_AttributeStudyProperties.hxx"
+#include "SALOMEDS_AttributeParameter.hxx"
 #include "SALOMEDS_UseCaseBuilder.hxx"
 
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -42,6 +43,7 @@
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
@@ -634,10 +636,10 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished)
+bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
-  bool ret = _corba_impl->DumpStudy((char*)thePath.c_str(), (char*)theBaseName.c_str(), isPublished);
+  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished);
   return ret;
 }     
 
@@ -681,4 +683,35 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
   }
 
   return SALOMEDS::Study::_nil();
+}
+
+_PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if(theSavePoint >= 0) {
+    if (_isLocal) {
+      SALOMEDS::Locker lock;
+      AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+    }
+    else {
+      AP = new SALOMEDS_AttributeParameter(_corba_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+    }
+  }
+  return _PTR(AttributeParameter)(AP);
+}
+
+_PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const string& theID, 
+							     const string& theModuleName, int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if(theSavePoint > 0) {
+    if (_isLocal) {
+      SALOMEDS::Locker lock;
+      AP = new SALOMEDS_AttributeParameter(_local_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+    }
+    else {
+      AP = new SALOMEDS_AttributeParameter(_corba_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+    }
+  }
+  return _PTR(AttributeParameter)(AP);
 }

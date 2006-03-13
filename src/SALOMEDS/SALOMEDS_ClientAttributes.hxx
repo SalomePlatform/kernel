@@ -55,6 +55,7 @@
 #include "SALOMEDSImpl_AttributeFileType.hxx"
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDS_AttributeName.hxx"
@@ -85,6 +86,7 @@
 #include "SALOMEDS_AttributeFileType.hxx"
 #include "SALOMEDS_AttributeFlags.hxx"
 #include "SALOMEDS_AttributeGraphic.hxx"
+#include "SALOMEDS_AttributeParameter.hxx"
 
 #define __CreateClientAttributeLocal(CORBA_Name) if (strcmp(aTypeOfAttribute.c_str(), #CORBA_Name) == 0) { \
     Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theGA); \
@@ -124,7 +126,8 @@ __CreateClientAttributeLocal(AttributeFileType) \
 __CreateClientAttributeLocal(AttributeFlags) \
 __CreateClientAttributeLocal(AttributeGraphic) \
 __CreateClientAttributeLocal(AttributeTreeNode) \
-__CreateClientAttributeLocal(AttributeUserID)
+__CreateClientAttributeLocal(AttributeUserID) \
+__CreateClientAttributeLocal(AttributeParameter)
 
 #define __CreateGenericClientAttributeCORBA \
 __CreateClientAttributeCORBA(AttributeReal) \
@@ -154,6 +157,7 @@ __CreateClientAttributeCORBA(AttributeFileType) \
 __CreateClientAttributeCORBA(AttributeFlags) \
 __CreateClientAttributeCORBA(AttributeGraphic) \
 __CreateClientAttributeCORBA(AttributeTreeNode) \
-__CreateClientAttributeCORBA(AttributeUserID)
+__CreateClientAttributeCORBA(AttributeUserID) \
+__CreateClientAttributeCORBA(AttributeParameter)
 
 #endif

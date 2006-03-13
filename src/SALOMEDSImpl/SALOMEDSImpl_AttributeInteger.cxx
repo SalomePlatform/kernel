@@ -21,10 +21,11 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#include "SALOMEDSImpl_AttributeInteger.hxx"
+
 #ifndef WNT
 using namespace std;
 #endif
-#include "SALOMEDSImpl_AttributeInteger.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeInteger,  SALOMEDSImpl_GenericAttribute)
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeInteger, SALOMEDSImpl_GenericAttribute )

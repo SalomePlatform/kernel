@@ -27,6 +27,7 @@
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
+#include "SALOMEDS_AttributeParameter_i.hxx"
 #include "SALOMEDS_ChildIterator_i.hxx"
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS.hxx"
@@ -35,7 +36,9 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_ChildIterator.hxx"
+#include "SALOMEDSImpl_IParameters.hxx"
 
 #include <TColStd_SequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfAsciiString.hxx>
@@ -737,7 +740,9 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
  *  Purpose  : 
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished)
+CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, 
+					   const char* theBaseName, 
+					   CORBA::Boolean isPublished)
 {
   SALOMEDS::Locker lock; 
 
@@ -748,10 +753,53 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theB
   return ret;
 }
 
+//============================================================================
+/*! Function : GetCommonParameters
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetCommonParameters(const char* theID, CORBA::Long theSavePoint)
+{
+  SALOMEDS::Locker lock; 
+  
+  Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetCommonParameters(theID, theSavePoint);
+  SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
+  return SP->AttributeParameter::_this();
+}
+ 
+//============================================================================
+/*! Function : GetCommonModuleParameters
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const char* theID, 
+								       const char* theModuleName, 
+								       CORBA::Long theSavePoint)
+{
+  SALOMEDS::Locker lock; 
+  
+  Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetModuleParameters(theID, theModuleName, theSavePoint);
+  SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
+  return SP->AttributeParameter::_this();
+}
+
+//============================================================================
+/*! Function : GetDefaultScript
+ *  Purpose  : 
+ */
+//============================================================================
+char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* theShift)
+{
+  SALOMEDS::Locker lock; 
+
+  string script = SALOMEDSImpl_IParameters::getDefaultScript(_impl, theModuleName, theShift);
+  return CORBA::string_dup(script.c_str());
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();

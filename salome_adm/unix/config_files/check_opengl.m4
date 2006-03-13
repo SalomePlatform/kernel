@@ -23,12 +23,12 @@ AC_DEFUN([CHECK_OPENGL],[
 AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_CPP])dnl
 AC_ARG_WITH(opengl,
-   [  --with-opengl=DIR root directory path of OpenGL installation ],
-   [
-      opengl_dir="$withval"
-      local_opengl=yes
-    ], [
-      dirs="/usr/lib /usr/local/lib /opt/graphics/OpenGL/lib /usr/openwin/lib /usr/X11R6/lib"
+  [AC_HELP_STRING([--with-opengl=DIR],[root directory path of OpenGL installation])],
+  [
+    opengl_dir="$withval"
+    local_opengl=yes
+  ], [
+    dirs="/usr/lib /usr/local/lib /opt/graphics/OpenGL/lib /usr/openwin/lib /usr/X11R6/lib"
     ])dnl
 
 AC_CHECKING(for OpenGL)

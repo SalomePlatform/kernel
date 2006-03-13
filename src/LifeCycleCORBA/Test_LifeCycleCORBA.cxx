@@ -41,7 +41,6 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "utilities.h"
-#include "SALOMETraceCollector.hxx"
 #include <OpUtil.hxx>
 
 using namespace std;

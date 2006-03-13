@@ -1334,5 +1334,130 @@ Sets the item to be selectable
 */
     boolean IsScript();
   };
+  //==========================================================================
+/*! \brief %AttributeParameter interface
+
+    Attribute is a universal container of basic types
+*/
+  //==========================================================================
+  interface AttributeParameter : GenericAttribute
+  {
+/*!
+  Associates a integer value with the ID
+  \param theID        An ID of a parameter.
+  \param theValue     A value of the parameter
+*/
+    void SetInt(in string theID, in long theValue);
+/*!
+  Returns a int value associated with the given ID
+  \param theID        An ID of a parameter.
+*/
+    long GetInt(in string theID);
+
+/*!
+  Associates a real value with the ID
+  \param theID        An ID of a parameter.
+  \param theValue     A value of the parameter
+*/
+    void SetReal(in string theID, in double theValue);
+/*!
+  Returns a real value associated with the given ID
+  \param theID        An ID of a parameter.
+*/
+    double GetReal(in string theID);
+
+/*!
+  Associates a string value with the ID
+  \param theID        An ID of a parameter.
+  \param theValue     A value of the parameter
+*/
+    void SetString(in string theID, in string theValue);
+/*!
+  Returns a string value associated with the given ID
+  \param theID        An ID of a parameter.
+*/
+    string GetString(in string theID);
+  
+/*!
+  Associates a boolean value with the ID
+  \param theID        An ID of a parameter.
+  \param theValue     A value of the parameter
+*/
+    void SetBool(in string theID, in boolean theValue);
+/*!
+  Returns a boolean value associated with the given ID
+  \param theID        An ID of a parameter.
+*/
+    boolean GetBool(in string theID);
+  
+/*!
+  Associates an array of real values with the ID
+  \param theID        An ID of a parameter.
+  \param theArray     The array of real values
+*/
+    void SetRealArray(in string theID, in DoubleSeq theArray);
+/*!
+  Returns an array of real values associated with the ID
+  \param theID        An ID of a parameter.
+*/
+    DoubleSeq GetRealArray(in string theID);
+
+/*!
+  Associates an array of integer values with the ID
+  \param theID        An ID of a parameter.
+  \param theArray     The array of integer values
+*/
+    void SetIntArray(in string theID, in LongSeq theArray);
+/*!
+  Returns an array of integer values associated with the ID
+  \param theID        An ID of a parameter.
+*/
+    LongSeq GetIntArray(in string theID);
+
+/*!
+  Associates an array of string values with the ID
+  \param theID        An ID of a parameter.
+  \param theArray     The array of string values
+*/
+    void SetStrArray(in string theID, in StringSeq theArray);
+/*!
+  Returns an array of string values associated with the ID
+  \param theID        An ID of a parameter.
+*/
+    StringSeq GetStrArray(in string theID);
+/*!
+  Returns True if for the ID of given type was assigned a value in the attribute
+  \param theID        An ID of a parameter.
+  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
+*/
+    boolean IsSet(in string theID, in long theType);
+/*!
+  Removes a parameter with given ID and Type, returns True if succeded
+  \param theID        An ID of a parameter.
+  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
+*/
+    boolean RemoveID(in string theID, in long theType);
+/*!
+   Returns a father attribute of this attribute
+*/
+    AttributeParameter GetFather();
+/*!
+   Returns True if this attribute has a father attribute
+*/
+    boolean HasFather();
+/*!
+   Returns True if this attribute is a root attribute
+*/
+    boolean IsRoot();
+/*!
+   Clears the content of the attribute
+*/
+    void Clear();
+/*!   
+  Returns a sequence of ID's of the give type
+  \param theType      A type of parameter [0(Int), 1(Real), 2(Boolean), 3(String), 4(RealArray), 5(IntArray), 6(StrArray)].
+ */ 
+    StringSeq GetIDs(in long theType);
+  };
 };
 #endif

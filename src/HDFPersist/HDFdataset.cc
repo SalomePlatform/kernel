@@ -159,7 +159,7 @@ void HDFdataset::GetDim(hdf_size dim[])
       else
 	ndim = _ndim;
       _dim = new hdf_size[ndim];
-      if ((ret == HDFdatasetGetDim(_id,_dim)) < 0)
+      if ((ret = HDFdatasetGetDim(_id,_dim)) < 0)
 	throw HDFexception("Can't determine the size dimensions of the dataset ");
     }
 

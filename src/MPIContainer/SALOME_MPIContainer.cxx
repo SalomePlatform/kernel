@@ -23,7 +23,6 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
-#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 int main(int argc, char* argv[])

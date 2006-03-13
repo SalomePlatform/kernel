@@ -29,6 +29,7 @@
 #ifndef _PARAMETRE_H_
 #define _PARAMETRE_H_
 
+using namespace std;
 #include <map>
 #include <string>
 #include "Batch_InvalidKeyException.hxx"
@@ -40,70 +41,71 @@
 // TODO : remplacer ce mecanisme statique par la lecture
 // TODO : d'une descrption dans un fichier exterieur (genre XML)
 
-#define def_extern_MapKey(mk) extern const std::string & mk;
-#define def_static_MapKey(mk) const std::string Batch::Parametre::mk(#mk);	\
-  const std::string & mk = Batch::Parametre::mk;
+#define def_extern_MapKey(mk) extern const string & mk;
+#define def_static_MapKey(mk) const string Batch::Parametre::mk(#mk);	\
+  const string & mk = Batch::Parametre::mk;
 
 namespace Batch {
 
-  class Parametre : public std::map< std::string, Versatile >
+  class Parametre : public map< string, Versatile >
   {
   public:
     // Constructeur standard
     Parametre();
 
     // Constructeur par recopie
-    Parametre(const Batch::Parametre & PM);
+    Parametre::Parametre(const Parametre & PM);
 
     // Operateur de recherche dans la map
-    Versatile & operator [] (const std::string &);
-    const Versatile & operator [] (const std::string &) const;
+    Versatile & operator [] (const string &);
+    const Versatile & operator [] (const string &) const;
 
     // Operateur d'affectation
-    Parametre & operator =(const Batch::Parametre & PM);
+    Parametre & operator =(const Parametre & PM);
 
     // Declarations statique des clefs de la map
     // TODO : supprimer les declarations statiques des clefs de la map
-    static const std::string ACCOUNT;
-    static const std::string ARGUMENTS;
-    static const std::string CHECKPOINT;
-    static const std::string CKPTINTERVAL;
-    static const std::string CREATIONTIME;
-    static const std::string EGROUP;
-    static const std::string ELIGIBLETIME;
-    static const std::string ENDTIME;
-    static const std::string EUSER;
-    static const std::string EXECUTABLE;
-    static const std::string EXECUTIONHOST;
-    static const std::string EXITCODE;
-    static const std::string HOLD;
-    static const std::string ID;
-    static const std::string INFILE;
-    static const std::string MAIL;
-    static const std::string MAXCPUTIME;
-    static const std::string MAXDISKSIZE;
-    static const std::string MAXRAMSIZE;
-    static const std::string MAXWALLTIME;
-    static const std::string MODIFICATIONTIME;
-    static const std::string NAME;
-    static const std::string NBPROC;
-    static const std::string OUTFILE;
-    static const std::string PID;
-    static const std::string QUEUE;
-    static const std::string QUEUEDTIME;
-    static const std::string SERVER;
-    static const std::string STARTTIME;
-    static const std::string STATE;
-    static const std::string TEXT;
-    static const std::string TMPDIR;
-    static const std::string USEDCPUTIME;
-    static const std::string USEDDISKSIZE;
-    static const std::string USEDRAMSIZE;
-    static const std::string USEDWALLTIME;
-    static const std::string USER;
+    static const string ACCOUNT;
+    static const string ARGUMENTS;
+    static const string CHECKPOINT;
+    static const string CKPTINTERVAL;
+    static const string CREATIONTIME;
+    static const string EGROUP;
+    static const string ELIGIBLETIME;
+    static const string ENDTIME;
+    static const string EUSER;
+    static const string EXECUTABLE;
+    static const string EXECUTIONHOST;
+    static const string EXITCODE;
+    static const string HOLD;
+    static const string ID;
+    static const string INFILE;
+    static const string MAIL;
+    static const string MAXCPUTIME;
+    static const string MAXDISKSIZE;
+    static const string MAXRAMSIZE;
+    static const string MAXWALLTIME;
+    static const string MODIFICATIONTIME;
+    static const string NAME;
+    static const string NBPROC;
+    static const string OUTFILE;
+    static const string PID;
+    static const string QUEUE;
+    static const string QUEUEDTIME;
+    static const string SERVER;
+    static const string STARTTIME;
+    static const string STATE;
+    static const string TEXT;
+    static const string TMPDIR;
+    static const string USEDCPUTIME;
+    static const string USEDDISKSIZE;
+    static const string USEDRAMSIZE;
+    static const string USEDWALLTIME;
+    static const string USER;
+    static const string WORKDIR;
 
   protected:
-    std::map< std::string, TypeParam > TypeMap; // map interne servant a controler le type de la valeur associee a chaque clef
+    map< string, TypeParam > TypeMap; // map interne servant a controler le type de la valeur associee a chaque clef
 
   private:
 
@@ -148,5 +150,6 @@ def_extern_MapKey(USEDDISKSIZE);
 def_extern_MapKey(USEDRAMSIZE);
 def_extern_MapKey(USEDWALLTIME);
 def_extern_MapKey(USER);
+def_extern_MapKey(WORKDIR);
 
 #endif

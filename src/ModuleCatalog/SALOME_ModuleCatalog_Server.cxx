@@ -29,7 +29,6 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "utilities.h"
-#include "SALOMETraceCollector.hxx"
 #include "Utils_SINGLETON.hxx"
 
 #ifdef CHECKTIME

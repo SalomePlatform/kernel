@@ -279,10 +279,17 @@ public:
                                                 // theWay = -1: get back to the list of postponed
 #endif
 
-  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished); 
+  virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
+  virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 
+							       const char* theModuleName, 
+							       CORBA::Long theSavePoint);
+
+  virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
+
+  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);
 
   virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
 
-  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 #endif

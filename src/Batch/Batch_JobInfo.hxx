@@ -30,6 +30,7 @@
 #ifndef _JOBINFO_H_
 #define _JOBINFO_H_
 
+using namespace std;
 #include <iostream>
 #include <string>
 #include "Batch_Parametre.hxx"
@@ -45,23 +46,26 @@ namespace Batch {
     virtual ~JobInfo();
 
     // Constructeur par recopie
-    JobInfo(const Batch::JobInfo & jinfo) : _param(jinfo._param), _env(jinfo._env) {};
+    JobInfo(const JobInfo & jinfo) : _param(jinfo._param), _env(jinfo._env) {};
 
     // Operateur pour l'affichage sur un stream
-    friend std::ostream & operator <<(std::ostream & os, const Batch::JobInfo & ji);
+    friend ostream & operator <<(ostream & os, const JobInfo & ji);
 
     // Accesseurs
+    // _CS_gbo Ajout explicite du namespace pour les besoins de swig (mauvaise gestion
+    // des namespace par swig.
     virtual Batch::Parametre getParametre() const;
     virtual Batch::Environnement getEnvironnement() const; 
 
     // Methodes pour l'interfacage avec Python (SWIG)
     // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
-    std::string  __str__() const; // SWIG : affichage en Python
-    std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
+    string  __str__() const; // SWIG : affichage en Python
+    string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
-    Batch::Parametre _param; // parametres du job
-    Batch::Environnement _env; // variables d'environnement du job
+    Parametre _param; // parametres du job
+    Environnement _env; // variables d'environnement du job
+    JobInfo(const Parametre & param, const Environnement & env) : _param(param), _env(env) {};
 
   private:
 

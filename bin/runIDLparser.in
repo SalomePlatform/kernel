@@ -1,0 +1,37 @@
+#! /bin/sh
+
+# print the help message ====================================
+
+# test $@="-h" -o -z $@
+
+hh=0
+
+if test "$#" = "0";then
+    hh=1
+else
+    for a in $@; do
+	if test "$a" = "-h"; then
+	    hh=1
+	fi
+    done
+fi
+
+if test "$hh" = "1" ; then
+    echo ""
+    echo "Usage : "
+    echo ""
+    echo "   to run IDLparser:"
+    echo ""
+    echo "        $0 -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,multistudy=<component_multistudy>][,remove=component_name] <file.idl>   "
+    echo ""
+    echo "   to have omniidl help:"
+    echo ""
+    echo "        $0 -u "
+    echo ""
+    exit 1
+fi
+#============================================================
+
+# omiidl ====================================================
+omniidl -bIDLparser -I ${KERNEL_ROOT_DIR}/idl/salome $@
+#============================================================

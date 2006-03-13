@@ -20,6 +20,7 @@
 
 
 #include "SALOMEDS_Driver_i.hxx"
+#include <SALOMEDS_TMPFile_i.hxx>
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
@@ -33,44 +34,38 @@ SALOMEDS_Driver_i::~SALOMEDS_Driver_i()
 {
 }
 
-unsigned char* SALOMEDS_Driver_i::Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-				       const TCollection_AsciiString& theURL,
-				       long& theStreamLength,
-				       bool isMultiFile)
+Handle(SALOMEDSImpl_TMPFile) SALOMEDS_Driver_i::Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+						     const TCollection_AsciiString& theURL,
+						     long& theStreamLength,
+						     bool isMultiFile)
 {  
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
-  SALOMEDS::TMPFile_var aStream;
   CORBA::String_var url = CORBA::string_dup(theURL.ToCString());
+
   SALOMEDS::unlock();
-  aStream = _driver->Save(sco.in(), url, isMultiFile);
+  SALOMEDS::TMPFile_var aStream = _driver->Save(sco.in(), url, isMultiFile);
+  Handle(SALOMEDSImpl_TMPFile) aTMPFile(new SALOMEDS_TMPFile_i(aStream._retn()));
+  theStreamLength = aTMPFile->Size();
   SALOMEDS::lock();
-  theStreamLength = aStream->length();
-  unsigned char* aRetStream = NULL;
-  if (theStreamLength > 0) {
-    aRetStream = new unsigned char[theStreamLength];
-    memcpy(aRetStream, aStream->NP_data(), theStreamLength);
-  }
-  return aRetStream;
+
+  return aTMPFile;
 }
 
-unsigned char* SALOMEDS_Driver_i::SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-					    const TCollection_AsciiString& theURL,
-					    long& theStreamLength,
-					    bool isMultiFile)
+Handle(SALOMEDSImpl_TMPFile) SALOMEDS_Driver_i::SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+							  const TCollection_AsciiString& theURL,
+							  long& theStreamLength,
+							  bool isMultiFile)
 {
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
-  SALOMEDS::TMPFile_var aStream;
   CORBA::String_var url = CORBA::string_dup(theURL.ToCString());
+
   SALOMEDS::unlock();
-  aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
+  SALOMEDS::TMPFile_var aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
+  Handle(SALOMEDSImpl_TMPFile) aTMPFile(new SALOMEDS_TMPFile_i(aStream._retn()));
+  theStreamLength = aTMPFile->Size();
   SALOMEDS::lock();
-  theStreamLength = aStream->length();
-  unsigned char* aRetStream = NULL;
-  if (theStreamLength > 0) {
-    aRetStream = new unsigned char[theStreamLength];
-    memcpy(aRetStream, aStream->NP_data(), theStreamLength);
-  }
-  return aRetStream; 
+
+  return aTMPFile;
 }
   
 bool SALOMEDS_Driver_i::Load(const Handle(SALOMEDSImpl_SComponent)& theComponent,
@@ -92,6 +87,7 @@ bool SALOMEDS_Driver_i::Load(const Handle(SALOMEDSImpl_SComponent)& theComponent
   SALOMEDS::unlock();
   bool isOk = _driver->Load(sco.in(), aStream.in(), url, isMultiFile);
   SALOMEDS::lock();
+
   return isOk;
 }
 
@@ -114,12 +110,14 @@ bool SALOMEDS_Driver_i::LoadASCII(const Handle(SALOMEDSImpl_SComponent)& theComp
   SALOMEDS::unlock();
   bool isOk = _driver->LoadASCII(sco.in(), aStream.in(), url, isMultiFile);
   SALOMEDS::lock();
+
   return isOk;
 }
 
 void SALOMEDS_Driver_i::Close(const Handle(SALOMEDSImpl_SComponent)& theComponent)
 {
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
+
   SALOMEDS::unlock();
   _driver->Close(sco.in());
   SALOMEDS::lock();
@@ -134,9 +132,11 @@ TCollection_AsciiString SALOMEDS_Driver_i::IORToLocalPersistentID(const Handle(S
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theSObject, _orb);
   CORBA::String_var ior = CORBA::string_dup(IORString.ToCString());
+
   SALOMEDS::unlock();
   CORBA::String_var pers_string =_driver->IORToLocalPersistentID(so.in(), ior.in(), isMultiFile, isASCII);
   SALOMEDS::lock();
+
   return TCollection_AsciiString(pers_string);
 }
 
@@ -157,35 +157,30 @@ TCollection_AsciiString SALOMEDS_Driver_i::LocalPersistentIDToIOR(const Handle(S
 bool SALOMEDS_Driver_i::CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject)
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theObject, _orb);
+
   SALOMEDS::unlock();
   bool isOk = _driver->CanCopy(so.in());
   SALOMEDS::lock();
+
   return isOk;
 }
 
 
-unsigned char* SALOMEDS_Driver_i::CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
-					   int& theObjectID,
-					   long& theStreamLength)
+Handle(SALOMEDSImpl_TMPFile) SALOMEDS_Driver_i::CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
+							 int& theObjectID,
+							 long& theStreamLength)
 {
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (theObject, _orb);
-  SALOMEDS::TMPFile_var aStream;
-  CORBA::Long anObjectID;
 
   SALOMEDS::unlock();
-  aStream = _driver->CopyFrom(so.in(), anObjectID);
+  CORBA::Long anObjectID;
+  SALOMEDS::TMPFile_var aStream = _driver->CopyFrom(so.in(), anObjectID);
+  Handle(SALOMEDSImpl_TMPFile) aTMPFile(new SALOMEDS_TMPFile_i(aStream._retn()));
+  theStreamLength = aTMPFile->Size();
+  theObjectID = anObjectID;
   SALOMEDS::lock();
 
-  theObjectID = anObjectID;
-  theStreamLength = aStream->length();
-
-  unsigned char* aRetStream = NULL;
-  if(theStreamLength > 0) {
-    aRetStream = new unsigned char[theStreamLength];
-    memcpy(aRetStream, aStream->NP_data(), theStreamLength);
-  }
-
-  return aRetStream;
+  return aTMPFile;
 }
 
 bool SALOMEDS_Driver_i::CanPaste(const TCollection_AsciiString& theComponentName, int theObjectID)
@@ -217,30 +212,24 @@ TCollection_AsciiString SALOMEDS_Driver_i::PasteInto(const unsigned char* theStr
   return TCollection_AsciiString((char*)ret_so->GetID());
 }
 
-unsigned char* SALOMEDS_Driver_i::DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
-					     bool isPublished, 
-					     bool& isValidScript,
-					     long& theStreamLength)
+Handle(SALOMEDSImpl_TMPFile) SALOMEDS_Driver_i::DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
+							   bool isPublished, 
+							   bool& isValidScript,
+							   long& theStreamLength)
 {
   SALOMEDS_Study_i *  st_servant = new SALOMEDS_Study_i (theStudy, _orb);
   SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
-  Engines::TMPFile_var aStream;
-  CORBA::Boolean aValidScript, aPublished;
-  aPublished = isPublished;
   Engines::Component_ptr aComponent = Engines::Component::_narrow(_driver);
+
   SALOMEDS::unlock();
-  aStream = aComponent->DumpPython(st.in(), aPublished, aValidScript);
-  SALOMEDS::lock();
+  CORBA::Boolean aValidScript, aPublished = isPublished;
+  Engines::TMPFile_var aStream = aComponent->DumpPython(st.in(), aPublished, aValidScript);
+  Handle(SALOMEDSImpl_TMPFile) aTMPFile(new Engines_TMPFile_i(aStream._retn()));
+  theStreamLength = aTMPFile->Size();
   isValidScript = aValidScript;
-  theStreamLength = aStream->length();
-  unsigned char* aRetStream = NULL;
+  SALOMEDS::lock();
 
-  if(theStreamLength > 0) {
-    aRetStream = new unsigned char[theStreamLength];
-    memcpy(aRetStream, aStream->NP_data(), theStreamLength);
-  }
-
-  return aRetStream;
+  return aTMPFile;
 }
 
 //###############################################################################################################

@@ -1,0 +1,86 @@
+
+=================================================================
+General information, for developpers and users
+=================================================================
+
+.. contents::
+.. sectnum::
+
+
+*html version of this document is produced with docutils*::
+
+  rst2html < doc.txt > doc.html
+
+This document corresponds to SALOME2 3.1. (alpha version)
+
++-------------------------------------------+
+| **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
++-------------------------------------------+
+
+Developpers and users, which documentation ?
+============================================
+
+Following your kind of usage of SALOME, you will find some specific 
+introductory documentation, listed below.
+
+Module maintainer
+-----------------
+Module maintainers are in charge of the development and debug of the SALOME
+modules. Each SALOME module is stored in a CVS base. CVS bases are organised
+in separate branches for developments and debug. All official or development
+releases are identified by a CVS tag.
+
+
+Application Integrator
+----------------------
+
+Applications integrators are in charge of configuration and installation of
+specific SALOME applications over a local network. Application Integrators 
+built SALOME modules binaries from sources tarballs.
+
+End user
+--------
+
+The end user may have to configure his own SALOME applicatin by selection of a
+subset of availables SALOME modules. He also may want to install his
+application on several computers. 
+
+
+Documentation for developpers and module maintainers
+====================================================
+
+Source code structuration and Unit Tests
+----------------------------------------
+
+See UnitTests_ for general information on code directories structure,
+unit tests associated to the different kind of classes, and how to run
+the unit tests.
+
+.. _UnitTests: ./UnitTests.html
+
+Documentation for application integrators and adminstrators
+===========================================================
+
+How to install SALOME
+---------------------
+
+See INSTALL_ for general information on required configuration and 
+prerequisites, compilation procedure, setting environment principles.
+
+.. _INSTALL: ./INSTALL.html
+
+How to run SALOME on one or more computers, SALOME Application concept
+----------------------------------------------------------------------
+
+See SALOME_Application_ to define your own configuration of SALOME and run it  
+on one or several computers. This is the recommended way of configuration.
+
+.. _SALOME_Application: ./SALOME_Application.html
+
+
+End User documentation
+======================
+
+link to end user documentation.
+
+

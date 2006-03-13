@@ -70,6 +70,12 @@ then
       ;;
   esac
   case $build_os in
+    osf*)
+      AC_DEFINE(__osf1__)
+      __OSVERSION__=5
+      AC_DEFINE(__OSVERSION__)
+      OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__osf1__"
+      ;;
     solaris*)
       AC_DEFINE(__sunos__)
       __OSVERSION__=5

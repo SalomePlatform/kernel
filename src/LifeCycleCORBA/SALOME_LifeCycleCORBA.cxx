@@ -31,14 +31,15 @@
 #include <sstream>
 #include <iomanip>
 
+#include <time.h>
+#include <sys/time.h>
+
 #include "OpUtil.hxx"
 #include "utilities.h"
-#include "Launchers.hxx"
 
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
-#include "SALOMETraceCollector.hxx"
 #ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #else
@@ -47,6 +48,8 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "Launchers.hxx"
+
 using namespace std;
 
 IncompatibleComponent::IncompatibleComponent( void ):

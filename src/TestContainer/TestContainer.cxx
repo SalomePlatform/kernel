@@ -40,7 +40,6 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 static ostream& operator<<(ostream& os, const CORBA::Exception& e)
@@ -81,7 +80,7 @@ int main (int argc, char * argv[])
 {
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
+  CORBA::ORB_ptr orb = init( argc , argv ) ;
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 
   try
@@ -94,6 +93,7 @@ int main (int argc, char * argv[])
 
       CORBA::Object_var obj = _NS.Resolve(containerName.c_str()) ;
       Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
+      iGenFact->ping() ;
 
       int nbInstances = 5;
 

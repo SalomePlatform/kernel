@@ -25,12 +25,14 @@ AC_DEFUN([CHECK_MPI],[
 AC_REQUIRE([AC_PROG_CC])dnl
 
 AC_ARG_WITH(mpi,
-	    --with-mpi=DIR root directory path of MPICH installation,
-	    WITHMPI="yes",WITHMPI="no")
+   [AC_HELP_STRING([--with-mpi=DIR],[root directory path of MPICH installation])],
+   MPIREQUESTED="yes",MPIREQUESTED="no")
 
 MPI_INCLUDES=""
 MPI_LIBS=""
-if test "$WITHMPI" = yes; then
+WITHMPI=no
+mpi_ok=no
+if test x"$MPIREQUESTED" = xyes; then
 
   echo
   echo ---------------------------------------------
@@ -96,7 +98,7 @@ dnl
 
 fi
 
-if test "$WITHMPI2" = "yes";then
+if test x$WITHMPI2 = xyes; then
   CPPFLAGS="-DHAVE_MPI2 $CPPFLAGS"
   CORBA_IDLCXXFLAGS="-DHAVE_MPI2 $CORBA_IDLCXXFLAGS"
   CORBA_IDLPYFLAGS="-DHAVE_MPI2 $CORBA_IDLPYFLAGS"
@@ -106,4 +108,5 @@ AC_SUBST(WITHMPI)
 AC_SUBST(MPI_INCLUDES)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(mpi_ok)
+AM_CONDITIONAL(MPI_IS_OK, [test x"$mpi_ok" = xyes])
 ])dnl

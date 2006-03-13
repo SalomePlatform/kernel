@@ -51,12 +51,12 @@ using namespace std;
 // Class static attributes initialisation
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
-#ifndef WNT
-pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
-#else
+//#ifndef WNT
+//pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
+//#else
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
   PTHREAD_MUTEX_INITIALIZER;
-#endif
+//#endif
 BaseTraceCollector *LocalTraceBufferPool::_myThreadTrace = 0;
 
 // ============================================================================

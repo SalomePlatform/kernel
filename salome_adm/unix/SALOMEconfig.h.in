@@ -32,4 +32,26 @@
   #define @MACHINE@
 #endif
 
+
+/* A path to a rcp-like command */
+#define RCP "@RCP@"
+
+/* A path to a rm-like command */
+#define RM "@RM@"
+
+/* A path to a cp-like command */
+#define CP "@CP@"
+
+/* A path to a rsh-like command */
+#define RSH "@RSH@"
+
+/* A path to a scp-like command */
+#define SCP "@SCP@"
+
+/* A path to a sh-like command */
+#define SH "@SH@"
+
+/* A path to a ssh-like command */
+#define SSH "@SSH@"
+
 #endif

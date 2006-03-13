@@ -1,0 +1,54 @@
+#! /bin/sh
+
+chmodParams=""
+dirParams=""
+dirPath=""
+args=""
+
+while [ x"$1" != x ]; do
+if test $# != "1"; then
+case $1 in
+-c) shift;
+continue;;
+
+-d) dirParams="yes"
+shift;
+continue;;
+
+-m) shift;
+chmodParams=$1
+shift;
+continue;;
+
+*) args="$args $1"
+shift;
+continue;;
+esac
+else
+dirPath=$1
+fi
+shift;
+done
+
+if test x$dirParams = "xyes"; then
+mkdir -p $dirPath
+else
+cp -f $args $dirPath
+for arg in $args; do
+myArg=`basename $arg`
+if test x$chmodParams != x; then
+if test -d $dirPath; then
+chmod $chmodParams $dirPath/$myArg
+else
+chmod $chmodParams $dirPath
+fi
+else
+if test -d $dirPath; then
+chmod a+x $dirPath/$myArg
+else
+chmod a+x $dirPath
+fi
+fi
+done
+fi
+

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ROOT_SRCDIR=@ROOT_SRCDIR@
 export ROOT_SRCDIR

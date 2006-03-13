@@ -72,7 +72,7 @@ AC_DEFUN([CHECK_LSF],
 
  fi
 
- dnl AM_CONDITIONAL(WITH_LSF, test $WITH_LSF = 1)
+ AM_CONDITIONAL(WITH_LSF, test $WITH_LSF = yes)
 
  lsf_ok=$WITH_LSF
  if test $lsf_ok = no ; then

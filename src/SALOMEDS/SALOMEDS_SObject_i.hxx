@@ -60,7 +60,7 @@ public:
   virtual SALOMEDS::SObject_ptr    GetFather() ;
   virtual CORBA::Boolean FindAttribute(SALOMEDS::GenericAttribute_out anAttribute, const char* aTypeOfAttribute);
   virtual CORBA::Boolean ReferencedObject(SALOMEDS::SObject_out obj) ;
-  virtual CORBA::Boolean FindSubObject(long atag, SALOMEDS::SObject_out obj );
+  virtual CORBA::Boolean FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj );
 
   virtual SALOMEDS::Study_ptr    GetStudy() ;
   virtual char* Name();
@@ -76,7 +76,7 @@ public:
   virtual CORBA::Short Tag();
   virtual CORBA::Short Depth();
 
-  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 
 #endif

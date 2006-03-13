@@ -161,6 +161,17 @@ class xml_parser:
 # -     command line
 
 config_var = appname+'Config'
+# set resources variables if not yet set
+if os.getenv("GUI_ROOT_DIR"):
+    if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
+    if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+    pass
+else :
+    if not os.getenv("SUITRoot"):
+        os.environ["SUITRoot"] = ""
+    if not os.getenv("SalomeAppConfig"):
+        os.environ["SalomeAppConfig"] = ""
+
 dirs = os.environ[config_var]
 dirs = re.split('[;|:]', dirs )
 dirs.reverse() # reverse order, like in "path" variable - FILO-style processing

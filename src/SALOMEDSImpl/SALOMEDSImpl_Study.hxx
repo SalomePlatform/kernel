@@ -56,6 +56,7 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_Callback.hxx"
 #include "SALOMEDSImpl_Driver.hxx" 
 #include "SALOMEDSImpl_ChildIterator.hxx" 
@@ -254,9 +255,9 @@ public:
   Standard_EXPORT virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   Standard_EXPORT virtual bool DumpStudy(const TCollection_AsciiString& thePath, 
-		         const TCollection_AsciiString& theBaseName, 
-		         bool isPublished,
-			 SALOMEDSImpl_DriverFactory* theFactory);
+					 const TCollection_AsciiString& theBaseName, 
+					 bool isPublished,
+					 SALOMEDSImpl_DriverFactory* theFactory);
 
   Standard_EXPORT static TCollection_AsciiString GetDumpStudyComment(const char* theComponentName = 0);
 
@@ -267,6 +268,12 @@ public:
 
   //This method marks the study as being modified
   Standard_EXPORT void Modify();
+
+  Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetCommonParameters(const char* theID, int theSavePoint);
+
+  Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetModuleParameters(const char* theID, 
+									      const char* theModuleName,
+									      int theSavePoint);
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )

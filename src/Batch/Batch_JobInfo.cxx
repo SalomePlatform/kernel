@@ -32,7 +32,6 @@
 #include <sstream>
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_JobInfo.hxx"
-using namespace std;
 
 namespace Batch {
 

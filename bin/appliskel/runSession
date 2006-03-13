@@ -19,19 +19,22 @@ myhost=`hostname`
 fileOmniConfig=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
 
 if [ -f $fileOmniConfig ]; then
-  export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+  export OMNIORB_CONFIG
 
   # --- set environment variables for port and hostname of NamingService
 
-  export NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
-  export NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+  NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
+  export NSHOST
+  NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+  export NSPORT
 fi
 
 # --- invoque shell with or without args
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
 else
 
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc
 fi
