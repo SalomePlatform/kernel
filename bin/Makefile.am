@@ -53,7 +53,7 @@ clean-local:
 install-exec-local:
 	$(INSTALL) -d $(salomescriptdir)
 	cp -r $(srcdir)/appliskel $(salomescriptdir)
-	find $(salomescriptdir) -name CVS | xargs rm -rf
+	find $(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
 
 uninstall-local:
 	find $(salomescriptdir)/appliskel -exec chmod +w {} \;
