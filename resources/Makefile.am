@@ -13,6 +13,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 
+DEPRECATED_FILES=\
+	DEPRECATED/Plugin
 
 dist_salomeres_DATA=\
 	CatalogDataType.xml \
@@ -23,4 +25,5 @@ dist_salomeres_DATA=\
 	channel.cfg \
 	KERNELCatalog.xml \
 	salomeCommonModel.spml \
-	SALOMEDS_Resources
+	SALOMEDS_Resources \
+	$(DEPRECATED_FILES)

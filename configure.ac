@@ -476,6 +476,7 @@ AC_OUTPUT([ \
 	./doc/salome/tui/Makefile \
 	./idl/Makefile \
 	./resources/Makefile \
+	./resources/DEPRECATED/Plugin \
 	./src/Makefile \
 	./src/Basics/Makefile \
 	./src/Basics/Test/Makefile \
