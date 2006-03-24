@@ -80,7 +80,7 @@ else
 	if test -d /usr/include/python${PYTHON_VERSION} ; then
             AC_CHECK_FILE(/usr/include/python${PYTHON_VERSION}/sip.h,sip_ok=yes,sip_ok=no)
 	    if test "x$sip_ok" == "xyes" ; then
-	        SIP_INCLUDES="/usr/include/python${PYTHON_VERSION}"
+	        SIP_INCLUDES="-I/usr/include/python${PYTHON_VERSION}"
             fi
 	fi
     fi
