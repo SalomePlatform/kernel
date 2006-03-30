@@ -47,7 +47,7 @@
 #include <Xw_Window.hxx>
 #include <Graphic3d_GraphicDevice.hxx>
 #include <Xw_Driver.hxx>
-#include <Xdps_Driver.hxx>
+//#include <Xdps_Driver.hxx>
 #include <Xw_TypeOfMapping.hxx>
 #endif
 using namespace std;
@@ -182,7 +182,7 @@ Handle(V2d_View) OCCViewer_VService::XView( const Handle(V2d_Viewer)& aViewer,
   if(Update) V->Update();
   return V;
 }
-
+/*
 Handle(V2d_View)  OCCViewer_VService::XdpsView( const Handle(V2d_Viewer)& aViewer,
 						const Standard_Integer hiwin,
 						const Standard_Integer lowin,
@@ -206,7 +206,7 @@ Handle(V2d_View)  OCCViewer_VService::XdpsView( const Handle(V2d_Viewer)& aViewe
   if(Update) V->Update();
   return V;
 }
-
+*/
 Handle(V2d_Viewer) OCCViewer_VService::Viewer( const Standard_CString aDisplay,
 					       const Standard_ExtString aName,
 					       const Standard_CString aDomain) 
@@ -247,7 +247,7 @@ Handle(Aspect_WindowDriver) OCCViewer_VService::WindowDriver( const Standard_CSt
   return new Xw_Driver(W);
 #endif
 }
-
+/*
 Handle(Aspect_WindowDriver) OCCViewer_VService::XdpsDriver( const Standard_CString aDisplay, 
 							    const Standard_Integer ahiwin,
 							    const Standard_Integer alowin,
@@ -263,7 +263,7 @@ Handle(Aspect_WindowDriver) OCCViewer_VService::XdpsDriver( const Standard_CStri
   return new Xdps_Driver(W);
 #endif
 }
-
+*/
 Handle(Aspect_WindowDriver) OCCViewer_VService::ImageDriver( const Standard_CString aDisplay,
 							     const Standard_Integer ahiwin, 
 							     const Standard_Integer alowin,
