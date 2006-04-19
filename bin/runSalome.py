@@ -592,12 +592,6 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
-    #
-    # Attente de la disponibilite du Session Server dans le Naming Service
-    #
-
-    import SALOME
-    session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
 
     from Utils_Identity import getShortHostName
     
@@ -630,6 +624,7 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer.run()
         clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
 
+
     #
     # Lancement Container Supervision local,
     # attente de la disponibilite du Container Supervision local
@@ -640,6 +635,13 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=ContainerSUPERVServer(args)
         myServer.run()
         clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
+
+    #
+    # Attente de la disponibilite du Session Server dans le Naming Service
+    #
+
+    import SALOME
+    session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
 
     end_time = os.times()
     print
