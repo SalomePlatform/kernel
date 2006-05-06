@@ -5,7 +5,9 @@ import os
 import Engines
 import LifeCycleCORBA
 
-host = os.getenv( 'HOST' )
+import Utils_Identity
+host  = Utils_Identity.getShortHostName()
+#host = os.getenv( 'HOST' )
 
 lcc = LifeCycleCORBA.LifeCycleCORBA()
 

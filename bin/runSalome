@@ -47,13 +47,13 @@ fi
 # ---------
 #  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome
 #
-#     - parameters for launching are taken from $HOME/.salome/salome.launch;
+#     - parameters for launching are taken from SalomeApp.xml;
 #     - if the config file does not exist, it is created with default values.
 #
 #  
 #  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,SUPERV,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer,supervContainer --xterm --killall
 #
-#     parameters from command line supersede those from $HOME/.salome/salome.launch
+#     parameters from command line supersede those from SalomeApp.xml
 #
 # Some CORBA servers can be launched in the SALOME_Session_Server's process
 # (embedded = same process) or in a separate process (standalone):

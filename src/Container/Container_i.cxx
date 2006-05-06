@@ -51,6 +51,8 @@ int SIGUSR1 = 1000;
 #include <pthread.h>  // must be before Python.h !
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
+#include "SALOME_FileRef_i.hxx"
+#include "SALOME_FileTransfer_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 
@@ -189,6 +191,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 	  PyRun_SimpleString((char*)myCommand.c_str());
 	  Py_RELEASE_NEW_THREAD;
 	}
+
+      fileTransfer_i* aFileTransfer = new fileTransfer_i();
+      _fileTransfer = Engines::fileTransfer::_narrow(aFileTransfer->_this());
     }
 }
 
@@ -577,6 +582,60 @@ bool Engines_Container_i::Kill_impl()
   ASSERT(0);
   return false;
 }
+
+//=============================================================================
+/*! 
+ *  CORBA method: get or create a fileRef object associated to a local file
+ *  (a file on the computer on which runs the container server), which stores
+ *  a list of (machine, localFileName) corresponding to copies already done.
+ * 
+ *  \param  origFileName absolute path for a local file to copy on other
+ *          computers
+ *  \return a fileRef object associated to the file.
+ */
+//=============================================================================
+
+Engines::fileRef_ptr
+Engines_Container_i::createFileRef(const char* origFileName)
+{
+  string origName(origFileName);
+  Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
+
+  if (origName[0] != '/')
+    {
+      INFOS("path of file to copy must be an absolute path begining with '/'");
+      return Engines::fileRef::_nil();
+    }
+
+  if (CORBA::is_nil(_fileRef_map[origName]))
+    {
+      CORBA::Object_var obj=_poa->id_to_reference(*_id);
+      Engines::Container_var pCont = Engines::Container::_narrow(obj);
+      fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
+      theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+      _fileRef_map[origName] = theFileRef;
+    }
+  
+  theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
+  ASSERT(! CORBA::is_nil(theFileRef));
+  return theFileRef._retn();
+}
+
+//=============================================================================
+/*! 
+ *  CORBA method:
+ *  \return a reference to the fileTransfer object
+ */
+//=============================================================================
+
+Engines::fileTransfer_ptr
+Engines_Container_i::getFileTransfer()
+{
+  Engines::fileTransfer_var aFileTransfer
+    = Engines::fileTransfer::_duplicate(_fileTransfer);
+  return aFileTransfer._retn();
+}
+
 
 //=============================================================================
 /*! 

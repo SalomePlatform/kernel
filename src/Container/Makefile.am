@@ -38,6 +38,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
 	SALOME_Component_i.hxx \
 	SALOME_Container_i.hxx \
+	SALOME_FileTransfer_i.hxx \
+	SALOME_FileRef_i.hxx \
 	SALOME_ContainerManager.hxx \
 	Container_init_python.hxx
 
@@ -96,6 +98,8 @@ lib_LTLIBRARIES = libSalomeContainer.la
 libSalomeContainer_la_SOURCES=\
 	Component_i.cxx \
 	Container_i.cxx \
+	SALOME_FileTransfer_i.cxx \
+	SALOME_FileRef_i.cxx \
 	SALOME_ContainerManager.cxx \
 	Container_init_python.cxx 
 

@@ -25,6 +25,7 @@
 
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
+
 /*!  
 This is a package of interfaces used for connecting new components to %SALOME
 application. It also contains a set of interfaces used for management of %MED
@@ -50,6 +51,8 @@ module Engines
   typedef sequence<KeyValuePair> FieldsDict;
 
   interface Component ;
+  interface fileRef ;
+  interface fileTransfer ;
 
   /*! \brief Interface of the %Container
   This interface defines the process of loading and registration
@@ -148,25 +151,20 @@ module Engines
     */
     boolean Kill_impl() ;
 
-    // -------------------------- removed -------------------------------
+    /*!
+      returns a fileRef object if origFileName exists and is readable
+      else returns null object. Only one fileRef is created for a given
+      file name, so, several calls with the same file name returns the 
+      same object.
+    */
+    fileRef createFileRef(in string origFileName);
 
     /*!
-      Loads into the container a new component, registers it and starts it's
-      CORBA servant.
-      \param nameToRegister    Name used to register in Naming Service,
-                               the component instance 
-      \param componentName     Name of the %component
-      \return a new instance of the component or the registered component
-               if already registered or Nil if not possible
+      returns a fileTransfer object used to copy files from the container
+      machine to the clients machines. Only one fileTransfer instance is
+      created in a container.
     */
-    //    Component instance(in string nameToRegister, in string componentName);
-
-
-    /*!
-      Name of the machine containing this container (location of the container).
-    */
-    //    readonly attribute string machineName ;
-
+    fileTransfer getFileTransfer();
 
   };
 
@@ -280,6 +278,49 @@ module Engines
 		       out boolean isValidScript); 
 
   } ;
+
+  typedef sequence<octet> fileBlock;
+
+  /*! 
+     file transfer object. open method returns a key (fileId) that identifies
+     the structure (ex: C FILE) on the server, created for transfer.
+   */
+  interface fileTransfer
+  {
+    long open(in string fileName);
+
+    void close(in long fileId);
+
+    fileBlock getBlock(in long fileId);
+  };
+
+  /*!
+     A fileRef object is associated to an original file (origFileName) on a
+     machine (refMachine).
+     It is created by a container (factoryServer) on refMachine,
+     with createFileRef(in string origFileName) method.
+     fileRef object maintains a list of (machine,filename) for copies. 
+     If a copy exists on myMachine, getRef(myMachine) returns the file name
+     of the copy on myMachine, else returns empy string.
+     If there is no copy on myMachine, method getFileTransfer() from container
+     factoryServer on refMachine provides a fileTransfer object dedicated to
+     CORBA file copy.
+     After the copy, addRef(myMachine, localFileNameOnMyMachine) registers
+     the file name of the copy on myMachine.
+   */
+  interface fileRef
+  {
+    readonly attribute string origFileName;
+    readonly attribute string refMachine;
+
+    Container getContainer();
+
+    boolean addRef(in string machine,
+		in string fileName);
+
+    string getRef(in string machine);
+  };
+
 } ;
 
 #endif

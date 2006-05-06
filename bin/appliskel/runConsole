@@ -1,8 +1,10 @@
 #!/bin/bash
 
+APPLI_HOME=`dirname $0`
+
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
-. `dirname $0`/setAppliPath.sh
+. ${APPLI_HOME}/setAppliPath.sh
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 

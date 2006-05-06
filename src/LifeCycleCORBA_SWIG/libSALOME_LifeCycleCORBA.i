@@ -24,49 +24,121 @@
 %{
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
+#include "SALOME_NamingService.hxx"
+#include "ServiceUnreachable.hxx"
 
   using namespace std;
+
+//--- from omniORBpy.h (not present on Debian Sarge packages)
+
+struct omniORBpyAPI {
+
+  PyObject* (*cxxObjRefToPyObjRef)(const CORBA::Object_ptr cxx_obj,
+				   CORBA::Boolean hold_lock);
+  // Convert a C++ object reference to a Python object reference.
+  // If <hold_lock> is true, caller holds the Python interpreter lock.
+
+  CORBA::Object_ptr (*pyObjRefToCxxObjRef)(PyObject* py_obj,
+					   CORBA::Boolean hold_lock);
+  // Convert a Python object reference to a C++ object reference.
+  // Raises BAD_PARAM if the Python object is not an object reference.
+  // If <hold_lock> is true, caller holds the Python interpreter lock.
+
+
+  omniORBpyAPI();
+  // Constructor for the singleton. Sets up the function pointers.
+};
+
+  omniORBpyAPI* api;
+
 %}
 
-%typemap(python,out) Engines::Container_ptr, Engines::Component_ptr
-{
-  //MESSAGE("typemap out on CORBA object ptr");
-  //SCRUTE($1);
 
-  // --- Get the Python orb
+%init
+%{
+  // init section
 
-  PyObject* pdict = PyDict_New();
-  PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
-  PyRun_String("from omniORB import CORBA", Py_single_input, pdict, pdict);
-  PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
-                   pdict, pdict);
-  PyObject* orb = PyDict_GetItemString(pdict, "o");
+  PyObject* omnipy = PyImport_ImportModule((char*)"_omnipy");
+  if (!omnipy)
+  {
+    PyErr_SetString(PyExc_ImportError,
+		    (char*)"Cannot import _omnipy");
+    return;
+  }
+  PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
+  api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
+  Py_DECREF(pyapi);
+%}
 
-  // --- Get the C++ orb
 
-  int argc = 0;
-  char *xargv = "";
-  char **argv = &xargv;
-  CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
-  string s =  ORB->object_to_string($1);
-  //SCRUTE(s);
-  PyObject * tmp = PyString_FromString(s.c_str());
-  //SCRUTE(tmp);
-  $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
-  //SCRUTE($result);
+%exception {
+    try {
+      $action
+    }
+    catch (ServiceUnreachable) {
+      PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
+      return NULL;
+    }
+    catch (...) {
+      PyErr_SetString(PyExc_RuntimeError, "unknown exception");
+      return NULL;
+    }
 }
 
 
-%typemap(typecheck) const Engines::MachineParameters &
+%typemap(python,out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr
 {
-  $1 = ($input != 0);
+  MESSAGE("typemap out on CORBA object ptr");
+  SCRUTE($1);
+  $result = api->cxxObjRefToPyObjRef($1, 1);
+  SCRUTE($result);
 }
+
+%typemap(python,out) std::string, 
+		    string
+{
+  MESSAGE("typemap out on std::string");
+  SCRUTE($1);
+  $result = PyString_FromString($1.c_str());
+}
+
+%typemap(typecheck) const Engines::MachineParameters &,
+                    Engines::MachineParameters const &
+{
+  $1 = PyDict_Check($input);
+}
+
+%typemap(typecheck) std::string, 
+		    string
+{
+  $1 = PyString_Check($input);
+}
+
+%typemap(python,in) std::string, 
+		    string
+{
+  MESSAGE("typemap in on std::string");
+  std::string str;
+  if (PyString_Check($input) == 1)
+    {
+      char* value = PyString_AsString($input);
+      str = value;
+      $1 = str;
+    }
+  else 
+    {
+       MESSAGE("Not a string");
+       PyErr_SetString(PyExc_TypeError,"Must Be a Python string");
+       return NULL;
+    }
+}
+
 
 %typemap(python,in) const Engines::MachineParameters &
 {
-  printf("typemap in on Engines::MachineParameters\n");
-  //MESSAGE("typemap in on Engines::MachineParameters");
-  //ASSERT (PyDict_Check($input))
+  //printf("typemap in on Engines::MachineParameters\n");
+  MESSAGE("typemap in on Engines::MachineParameters");
   if (PyDict_Check($input) == 1)
     {
       Engines::MachineParameters *param = new Engines::MachineParameters ;
@@ -121,10 +193,12 @@
     }
   else 
     {
-       printf("pas un dico\n");
+       MESSAGE("Not a dictionnary");
+       PyErr_SetString(PyExc_TypeError,"Must Be a Python Dictionnary");
        return NULL;
     }
 }
+
 
 %typemap(python,freearg) const Engines::MachineParameters &
 {
@@ -133,3 +207,4 @@
 }
 
 %include "SALOME_LifeCycleCORBA.hxx"
+%include "SALOME_FileTransferCORBA.hxx"

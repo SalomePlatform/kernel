@@ -20,6 +20,7 @@
 
 #include "LifeCycleCORBATest.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
@@ -609,7 +610,43 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
   CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
 }
 
+// ============================================================================
+/*!
+ * Check SALOME_FileTransferCORBA on local machine
+ */
+// ============================================================================
 
+void  LifeCycleCORBATest::testgetLocalFile_localComputer()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+  string origFileName = getenv("KERNEL_ROOT_DIR");
+  origFileName += "/lib/salome/libSalomeLifeCycleCORBA.so.0.0.0";
+  SALOME_FileTransferCORBA transfer( GetHostname(),
+				     origFileName);
+  string local = transfer.getLocalFile();
+  CPPUNIT_ASSERT(!local.empty());
+  CPPUNIT_ASSERT_EQUAL(local, origFileName);
+}
+
+// ============================================================================
+/*!
+ * Check SALOME_FileTransferCORBA on remote machine
+ */
+// ============================================================================
+
+void  LifeCycleCORBATest::testgetLocalFile_remoteComputer()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+  string origFileName = getenv("KERNEL_ROOT_DIR");
+  origFileName += "/lib/salome/libSalomeContainer.so.0.0.0";
+  SALOME_FileTransferCORBA transfer( GetRemoteHost(),
+				     origFileName);
+  string local = transfer.getLocalFile();
+  CPPUNIT_ASSERT(!local.empty());
+  string local2 = transfer.getLocalFile();
+  CPPUNIT_ASSERT(!local2.empty());
+  CPPUNIT_ASSERT_EQUAL(local, local2);
+}
 
 // ============================================================================
 /*!
@@ -621,10 +658,6 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
 // LifeCycleCORBATest::testFindOrLoad_Component_()
 // {
 // }
-
-
-
-
 
 
 

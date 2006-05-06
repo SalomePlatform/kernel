@@ -305,6 +305,17 @@ dnl localbatch_ok is set to yes by CHECK_LOCAL
 
 WITH_BATCH=no
 test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
+
+AC_ARG_ENABLE(batch,
+  [AC_HELP_STRING([--enable-batch],[Batch [default=yes]])],
+  [case "${enableval}" in
+     yes) test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes;;
+     no)  WITH_BATCH=no ;;
+     *) AC_MSG_ERROR(bad value ${enableval} for --enable-batch) ;;
+  esac],[test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes])
+
+echo Batch mode = $WITH_BATCH
+
 AC_SUBST(WITH_BATCH)
 AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
 
@@ -365,7 +376,12 @@ function check_fatal_error {
 
 # --------------------------------------
 
-basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+if test x$corba_gen = xtrue; then
+  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+else
+  basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
+fi
+
 echo --- General mandatory products - Light configuration:
 summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
@@ -378,6 +394,13 @@ if test x$corba_gen = xtrue; then
   check_fatal_error $corba_mandatory_products
 else
   echo --- CORBA products not required - option --disable-corba-gen
+  if test x"$WITH_BATCH" = xyes; then
+    echo --- BATCH mode mandatory products - default configuration:
+    summary "python_ok"
+    check_fatal_error "python_ok"
+  else 
+    echo --- Python not required - option --enable-batch=no
+  fi
 fi
 echo
 
@@ -472,7 +495,6 @@ AC_OUTPUT([ \
 	./doc/salome/Makefile \
 	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
 	./doc/salome/DevelopersGuide/Makefile \
-	./doc/salome/gui/Makefile \
 	./doc/salome/tui/Makefile \
 	./idl/Makefile \
 	./resources/Makefile \
@@ -486,13 +508,13 @@ AC_OUTPUT([ \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
-	./src/DataTypeCatalog/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
 	./src/LifeCycleCORBA/Makefile \
 	./src/LifeCycleCORBA/Test/Makefile \
 	./src/LifeCycleCORBA_SWIG/Makefile \
+	./src/LifeCycleCORBA_SWIG/Test/Makefile \
 	./src/Logger/Makefile \
 	./src/Logger/Test/Makefile \
 	./src/ModuleCatalog/Makefile \
@@ -505,7 +527,6 @@ AC_OUTPUT([ \
 	./src/NOTIFICATION_SWIG/Makefile \
 	./src/Registry/Makefile \
 	./src/ResourcesManager/Makefile \
-	./src/RessourcesCatalog/Makefile \
 	./src/SALOMEDS/Makefile \
 	./src/SALOMEDS/Test/Makefile \
 	./src/SALOMEDSClient/Makefile \

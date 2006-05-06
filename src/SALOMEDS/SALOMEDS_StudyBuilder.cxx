@@ -32,6 +32,7 @@
 #include "SALOMEDS_SComponent.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDS_StudyManager.hxx"
+#include "SALOMEDS_StudyBuilder_i.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
 
@@ -513,6 +514,21 @@ void SALOMEDS_StudyBuilder::SetIOR(const _PTR(SObject)& theSO, const std::string
     _local_impl->SetIOR(aSO->GetLocalImpl(), (char*)theValue.c_str());
   }
   else _corba_impl->SetIOR(aSO->GetCORBAImpl(), (char*)theValue.c_str());
+}
+
+SALOMEDS::StudyBuilder_ptr SALOMEDS_StudyBuilder::GetBuilder()
+{
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::StudyBuilder::_duplicate(_corba_impl);
+    SALOMEDS_StudyBuilder_i* servant = new SALOMEDS_StudyBuilder_i(_local_impl, _orb);
+    SALOMEDS::StudyBuilder_var aBuilder = servant->StudyBuilder::_this();
+    _corba_impl = SALOMEDS::StudyBuilder::_duplicate(aBuilder);
+    return aBuilder._retn();
+  }
+  else {
+    return SALOMEDS::StudyBuilder::_duplicate(_corba_impl);
+  }
+  return SALOMEDS::StudyBuilder::_nil();
 }
 
 void SALOMEDS_StudyBuilder::init_orb()

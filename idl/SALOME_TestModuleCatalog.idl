@@ -27,7 +27,7 @@
 
 #include "SALOME_Component.idl"
 
-module SuperVisionTest {
+module SALOME_TestModuleCatalog {
 
   interface Adder ;
 

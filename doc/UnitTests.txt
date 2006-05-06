@@ -11,50 +11,57 @@ the unit tests.
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
 +-------------------------------------------+
 
-1. SALOME KERNEL source code structuration
-==========================================
+.. contents::
+.. sectnum::
 
-1.1 General structure of KERNEL_SRC
------------------------------------
+
+SALOME KERNEL source code structuration
+=======================================
+
+General structure of KERNEL_SRC
+-------------------------------
 
 KERNEL_SRC
    Some README files and configuration tools for build
 
 KERNEL_SRC/adm_local
-   Part of the configuration files
+   Part of the configuration files, other modules have a directory with the
+   same name. Not used in KERNEL.
 
 KERNEL_SRC/bin
    Python and shell scripts used at run time.
+   Kit to install a SALOME Application.
 
 KERNEL_SRC/doc
-   Kit for end user documentation production: public interfaces, graphic,
-   Python, CORBA. Developper documentation.
-
-KERNEL_SRC/examples
-   To be removed.
+   Kit for KERNEL end user documentation production:
+   public interfaces, Python, CORBA.
+   Integrator and Developper documentation.
 
 KERNEL_SRC/idl
    All CORBA interfaces from KERNEL are regrouped here.
 
 KERNEL_SRC/resources
-   Configuration files for servers (examples). Icons for Graphic interface
-   (to be removed ?)
+   Configuration files for servers (examples).
+   Interfaces definitions for KERNEL test components.
 
 KERNEL_SRC/salome_adm
-   Makefile includes and configuration files (M4 macros)
+   Configuration files used by autotools (M4 macros & co.)
 
 KERNEL_SRC/src
    The source code (C++ and Python)
    
 
-1.2 Directory src: C++ and Python source code
----------------------------------------------
+Directory src: C++ and Python source code
+-----------------------------------------
 
-1.2.1 Basic services non related to CORBA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic services non related to CORBA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Basics
-  A set of general purpose C++ services.
+  A set of general purpose C++ services, not related to CORBA.
+  Some general purpose services that are in Utils directory (CORBA related),
+  are progressivley moved here, as they are not related to CORBA.
+  
 
 SALOMELocalTrace
   A multithread trace system that allows message tracing on standard error
@@ -66,8 +73,8 @@ CASCatch
 HDFPersist
   A C++ interface to HDF.
 
-1.2.2 Basic CORBA services
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic CORBA services
+~~~~~~~~~~~~~~~~~~~~
 
 Logger
   A CORBA server that collects the trace messages from differents CORBA 
@@ -79,7 +86,7 @@ SALOMETraceCollector
 
 Utils
   A set of general purpose services related to CORBA, such as basic CORBA
-  exception system.
+  exception system. See also Basics directory above.
 
 NamingService
   C++ and Python interfaces to name, store and retrieve CORBA objects
@@ -88,25 +95,31 @@ GenericObj
   A generic CORBA interface for CORBA objects, to count distributed references,
   and to allow destruction by client. 
 
-1.2.3 Miscellaneous CORBA servers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Miscellaneous CORBA servers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Registry
+  Implements SALOME_registry.idl.
+  Provides a CORBA server library and a separate server program.
 
 ModuleCatalog
+  Implements SALOME_moduleCatalog.idl.
+  Provide a CORBA server library and separate server and client programs.
 
-DataTypeCatalog
-
-RessourcesCatalog
+ModuleGenerator
+  Tool to generate a module catalog from CORBA idl
 
 ResourcesManager
+  library included in container server
 
 Notification
+  library included in differents servers (container)
 
 NOTIFICATION_SWIG
 
-1.2.4 CORBA Containers for SALOME Modules
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CORBA Containers for SALOME Modules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Container
 
@@ -116,8 +129,8 @@ LifeCycleCORBA
 
 LifeCycleCORBA_SWIG
 
-1.2.5 STUDY server and related interfaces and tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+STUDY server and related interfaces and tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SALOMEDSClient
 
@@ -127,8 +140,40 @@ SALOMEDSImpl
 
 SALOMEDS
 
-2. Tools and principles used for Unit testing
-=============================================
+Python interface to SALOME
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+KERNEL_PY
+
+Efficient CORBA transfer services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Communication
+
+Communication_SWIG
+
+A Parallel container with MPI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+MPIContainer
+
+TestMPIContainer
+
+Batch interface library
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Batch
+
+Batch_SWIG
+
+Unit tests
+~~~~~~~~~~
+
+UnitTests
+
+
+Tools and principles used for Unit testing
+==========================================
 
 **TO BE COMPLETED**
 

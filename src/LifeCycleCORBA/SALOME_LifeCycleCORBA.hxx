@@ -98,6 +98,8 @@ public:
 
   void preSet(Engines::MachineParameters& params);
 
+  Engines::ContainerManager_ptr getContainerManager();
+
 protected:
 
   /*! Establish if a component called "componentName" in a container called

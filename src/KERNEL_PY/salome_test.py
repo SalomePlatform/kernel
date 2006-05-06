@@ -18,6 +18,19 @@ import os
 import SALOME_ModuleCatalog
 
 print "======================================================================"
+print "           Check, that there is no data of MED component in the Study "
+print "======================================================================"
+
+MedComp = salome.myStudy.FindComponent("MED")
+if MedComp is not None:
+	print ""
+	print "This script cannot work properly, because there are"
+	print "some MED component data already exists in the study."
+	print "Execution aborted."
+	print ""
+	raise RuntimeError, "Please, run this script only in a new empty study."
+
+print "======================================================================"
 print "           Get Catalog "
 print "======================================================================"
 obj = salome.naming_service.Resolve('Kernel/ModulCatalog')

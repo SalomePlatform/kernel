@@ -32,7 +32,11 @@
 # include <exception>
 # include <iostream>
 
+#ifdef _DEBUG_
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
+#else
+# define LOCALIZED(message) #message
+#endif
 
 #if defined UTILS_EXPORTS
 #if defined WIN32

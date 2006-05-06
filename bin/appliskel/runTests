@@ -58,10 +58,10 @@ fi
 searchFreePort
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
 else
 
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
 fi
 
 rm ${OMNIORB_CONFIG}

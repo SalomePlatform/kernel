@@ -40,6 +40,7 @@
 #endif
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
 #include "utilities.h"
 #include <OpUtil.hxx>
 
@@ -50,71 +51,89 @@ int main (int argc, char * argv[])
 
   try
     {
-      // Initializing omniORB
+      // --- Initialize omniORB
+
       CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-      //      LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
     
-      // Obtain a reference to the root POA
+      // --- Obtain a reference to the root POA
+
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA") ;
       PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
+
+      // --- Naming Service and LifeCycleCORBA interfaces
     
       SALOME_NamingService _NS(orb) ;
-
       SALOME_LifeCycleCORBA _LCC(&_NS) ;
 
-      // get a local container (with a name based on local hostname),
-      // load an engine, and invoque methods on that engine
+      // --- get a local container,
+      //     load an engine, and invoque methods on that engine
 
-      string containerName = GetHostname();
-
-      cout << containerName << endl;
-      cout << "FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" << endl;
+      string containerName = "myServer";
       MESSAGE("FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" );
 
       Engines::Component_var mycompo =
 	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
-
       ASSERT(!CORBA::is_nil(mycompo));
-
       Engines::TestComponent_var m1;
       m1 = Engines::TestComponent::_narrow(mycompo);
-
       ASSERT(!CORBA::is_nil(m1));
-
       SCRUTE(m1->instanceName());
       MESSAGE("Coucou " << m1->Coucou(1L));
 
-      // get another container (with a fixed name),
-      // load an engine, and invoque methods on that engine
+      // --- get another container,
+      //     load an engine, and invoque methods on that engine
 
-      string containerName2 = "FactoryServerPy";
+      string containerName2 = "otherServer";
 
       Engines::Component_var mycompo2 =
 	_LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
-
       ASSERT(!CORBA::is_nil(mycompo2));
-
       Engines::TestComponent_var m2;
       m2 = Engines::TestComponent::_narrow(mycompo2);
-
       ASSERT(!CORBA::is_nil(m2));
-
       SCRUTE(m2->instanceName());
       cout << m2->instanceName() << endl;
       MESSAGE("Coucou " << m2->Coucou(1L));
 
-      Engines::Component_var mycompo3 = _LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
+      // --- get a third container,
+      //     load an engine, and invoque methods on that engine
+
+      Engines::Component_var mycompo3 =
+	_LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo3));
       Engines::TestComponent_var m3 = Engines::TestComponent::_narrow(mycompo3);
       ASSERT(!CORBA::is_nil(m3));
       cout << m3->instanceName() << endl;
 
-      string containerName4 = containerName + "/titiPy";
-      Engines::Component_var mycompo4 = _LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
+      // --- yet another container, with hostname,
+      //     load an engine, and invoque methods on that engine
+
+      string containerName4 = GetHostname();
+      containerName4  += "/titiPy";
+      Engines::Component_var mycompo4 = 
+	_LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo4));
       Engines::TestComponent_var m4 = Engines::TestComponent::_narrow(mycompo4);
       ASSERT(!CORBA::is_nil(m4));
       cout << m4->instanceName() << endl;
+
+      // --- try a local file transfer
+
+      string origFileName = "/home/prascle/petitfichier";
+      SALOME_FileTransferCORBA transfer( GetHostname(),
+					 origFileName);
+      string local = transfer.getLocalFile();
+      SCRUTE(local);
+
+      // --- try a file transfer from another computer
+
+      origFileName = "/home/prascle/occ60.tgz";
+      SALOME_FileTransferCORBA transfer2( "cli76ce",
+					 origFileName);
+      local = transfer2.getLocalFile();
+      SCRUTE(local);
+      local = transfer2.getLocalFile();
+      SCRUTE(local);
 
     }
   catch(CORBA::SystemException& ex)

@@ -665,7 +665,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    if (!CORBA::is_nil(_corba_impl)) return _corba_impl;
+    if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::Study::_duplicate(_corba_impl);
     std::string anIOR = _local_impl->GetTransientReference().ToCString();
     SALOMEDS::Study_var aStudy;
     if (!_local_impl->IsError() && anIOR != "") {
@@ -676,14 +676,16 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
       aStudy = aStudy_servant->_this();
       _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
     }
+    _corba_impl = SALOMEDS::Study::_duplicate(aStudy);
     return aStudy._retn();
   }
   else {
-    return _corba_impl;
+    return SALOMEDS::Study::_duplicate(_corba_impl);
   }
 
   return SALOMEDS::Study::_nil();
 }
+
 
 _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
 {

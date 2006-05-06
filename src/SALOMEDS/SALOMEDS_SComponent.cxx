@@ -76,15 +76,14 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
 
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
 {
-  if (_isLocal) {
-    if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
-    SALOMEDS::SComponent_var aSCO =
-      SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
+    SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+    _corba_impl = SALOMEDS::SComponent::_duplicate(aSCO);
     return aSCO._retn();
   }
   else {
-    return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
+    return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
   }
-
   return SALOMEDS::SComponent::_nil();
 }

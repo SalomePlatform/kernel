@@ -245,11 +245,10 @@ def getActiveStudy(theStudyId=0):
     global salome_study_ID
     
     print "getActiveStudy"
-    sg = salome_iapp.salome_iapp_init()
     if salome_study_ID == -1:
-        if sg.hasDesktop():
+        if salome_iapp.hasDesktop():
             print "---in gui"
-            salome_study_ID = sg.getActiveStudyId()
+            salome_study_ID = salome_iapp.sg.getActiveStudyId()
         else:
             print "---outside gui"
             if theStudyId:

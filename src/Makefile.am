@@ -38,8 +38,6 @@ SUBDIR_CORBA = \
   GenericObj \
   Registry \
   ModuleCatalog \
-  DataTypeCatalog \
-  RessourcesCatalog \
   ResourcesManager \
   Notification \
   NOTIFICATION_SWIG \
@@ -66,6 +64,7 @@ SUBDIR_CPPUNIT_CORBA = \
   Utils/Test \
   NamingService/Test \
   LifeCycleCORBA/Test \
+  LifeCycleCORBA_SWIG/Test \
   SALOMEDSImpl/Test \
   SALOMEDS/Test
 

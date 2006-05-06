@@ -55,20 +55,107 @@ def SalomeGUIgetAllSelected(self):
 
     #--------------------------------------------------------------------------
 
+def hasDesktop():
+    return IN_SALOME_GUI
+
+    #--------------------------------------------------------------------------
+
 salome_iapp_initial = 1
 
-def salome_iapp_init():
+class SalomeOutsideGUI:
+    """
+    Provides a replacement for class SalomeGUI outside GUI process.
+    Do almost nothing
+    """
+    global myStudyId, myStudyName
+    
+    def hasDesktop(self):
+        return False
+    
+    def updateObjBrowser(self, bid):
+        print "SalomeOutsideGUI: no objectBrowser update outside GUI"
+        pass
+    
+    def getActiveStudyId(self):
+        print "SalomeOutsideGUI.getActiveStudyId: avoid use outside GUI"
+        return myStudyId
+    
+    def getActiveStudyName(self):
+        print "SalomeOutsideGUI.getActiveStudyName: avoid use outside GUI"
+        return myStudyName
+    
+    def SelectedCount(self):
+        print "SalomeOutsideGUI: no selection mecanism available outside GUI"
+        return 0
+    
+    def getSelected(self, i):
+        print "SalomeOutsideGUI: no selection mecanism available outside GUI"
+        return none
+    
+    def AddIObject(self, Entry):
+        print "SalomeOutsideGUI.AddIOObject: not available outside GUI"
+        pass
+    
+    def RemoveIObject(self, Entry):
+        print "SalomeOutsideGUI.REmoveIOObject: not available outside GUI"
+        pass
+    
+    def ClearIObjects(self):
+        print "SalomeOutsideGUI.ClearIOObject: not available outside GUI"
+        pass
+    
+    def Display(self, Entry):
+        print "SalomeOutsideGUI.Display: not available outside GUI"
+        pass
+    
+    def DisplayOnly(self, Entry):
+        print "SalomeOutsideGUI.DisplayOnly: not available outside GUI"
+        pass
+    
+    def Erase(self, Entry):
+        print "SalomeOutsideGUI.Erase: not available outside GUI"
+        pass
+    
+    def DisplayAll(self):
+        print "SalomeOutsideGUI.Erase: not available outside GUI"
+        pass
+    
+    def EraseAll(self):
+        print "SalomeOutsideGUI.EraseAll: not available outside GUI"
+        pass
+
+    def IsInCurrentView(self, Entry):
+        print "SalomeOutsideGUI.IsIncurentView: not available outside GUI"
+        return False
+        
+    def getComponentName(self, ComponentUserName ):
+        print "SalomeOutsideGUI.getComponentName: not available outside GUI"
+        return ""
+   
+    def getComponentUserName( self, ComponentName ):
+        print "SalomeOutsideGUI.getComponentUserName: not available outside GUI"
+        return ""
+        
+    #--------------------------------------------------------------------------
+
+    
+def salome_iapp_init(embedded):
     global salome_iapp_initial
     global sg,IN_SALOME_GUI
 
     if salome_iapp_initial:
         salome_iapp_initial=0
-        import libSALOME_Swig
+        if embedded:
+            import libSALOME_Swig
         
-        class SalomeGUI(libSALOME_Swig.SALOMEGUI_Swig):
-            getAllSelected = SalomeGUIgetAllSelected
+            class SalomeGUI(libSALOME_Swig.SALOMEGUI_Swig):
+                getAllSelected = SalomeGUIgetAllSelected
 
-        # create a SALOMEGUI_Swig instance
-        sg = SalomeGUI()
-        IN_SALOME_GUI = sg.hasDesktop()
+            # create a SALOMEGUI_Swig instance
+            sg = SalomeGUI()
+            IN_SALOME_GUI = sg.hasDesktop()
+        else:
+            # Not embedded in GUI
+            sg=SalomeOutsideGUI()
+            IN_SALOME_GUI=0
     return sg

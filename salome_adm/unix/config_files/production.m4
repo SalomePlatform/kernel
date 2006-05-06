@@ -59,6 +59,7 @@ AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
 AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)
 AC_CXX_OPTION(-fmessage-length=0,CXXFLAGS)
 AC_CXX_OPTION(-Wunused,CXXFLAGS)
+AC_CXX_OPTION(-pipe,CXXFLAGS)
 
 if test "X$enable_production" = "Xyes"; then
   CFLAGS="$CFLAGS -O"
@@ -103,4 +104,3 @@ fi
 
 # AC_DISABLE_DEBUG - set the default flag to --disable-debug
 AC_DEFUN([AC_DISABLE_DEBUG], [AC_ENABLE_DEBUG(no)])
-

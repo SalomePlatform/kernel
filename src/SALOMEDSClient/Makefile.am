@@ -48,6 +48,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_UseCaseBuilder.hxx \
                 SALOMEDSClient_UseCaseIterator.hxx \
 		SALOMEDSClient_ClientFactory.hxx \
+		SALOMEDSClient_IParameters.hxx \
 		SALOMEDSClient.hxx
 
 #
@@ -79,5 +80,5 @@ libSalomeDSClient_la_SOURCES = 	\
 
 
 libSalomeDSClient_la_CPPFLAGS = $(COMMON_CPPFLAGS)
-libSalomeDSClient_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDSClient_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0
 libSalomeDSClient_la_LIBADD   = $(COMMON_LIBS)

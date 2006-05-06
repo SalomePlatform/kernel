@@ -26,8 +26,14 @@ AC_REQUIRE([AC_PROG_CXX])dnl
 AC_REQUIRE([AC_PROG_CPP])dnl
 AC_REQUIRE([AC_PROG_CXXCPP])dnl
 AC_REQUIRE([CHECK_OPENGL])dnl
+AC_REQUIRE([AC_LINKER_OPTIONS])dnl
 
-AC_CHECKING(for QT)
+AC_CHECKING(for Qt)
+
+if test "x$OpenGL_ok" != "xyes" ; then
+   AC_MSG_WARN(Qt needs OpenGL correct configuration, check configure output)
+fi
+
 qt_ok=yes
 
 AC_LANG_SAVE
@@ -117,7 +123,7 @@ then
   then
     LIBS="$LIBS -lqt-mt $OGL_LIBS"
   else
-    LIBS="$LIBS -L$QTDIR/lib -lqt-mt $OGL_LIBS"
+    LIBS="$LIBS -L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt $OGL_LIBS"
   fi
 
   CXXFLAGS_old=$CXXFLAGS
@@ -145,8 +151,8 @@ then
          QT_LIBS=" -lqt-mt"
       QT_MT_LIBS=" -lqt-mt"
     else
-         QT_LIBS="-L$QTDIR/lib -lqt-mt"
-      QT_MT_LIBS="-L$QTDIR/lib -lqt-mt"
+         QT_LIBS="-L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt"
+      QT_MT_LIBS="-L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt"
     fi
   fi
 
@@ -167,7 +173,7 @@ AC_SUBST(QT_VERS)
 
 AC_LANG_RESTORE
 
-AC_MSG_RESULT(for qt: $qt_ok)
+AC_MSG_RESULT(for Qt: $qt_ok)
 
 # Save cache
 AC_CACHE_SAVE

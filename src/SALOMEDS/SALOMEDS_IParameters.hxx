@@ -24,11 +24,12 @@
 #include <map>
 
 #include "SALOMEDSClient.hxx"
+#include "SALOMEDSClient_IParameters.hxx"
 
 /*! 
   Class which an interface to store the parameters of the objects
 */
-class SALOMEDS_IParameters
+class SALOMEDS_IParameters: public SALOMEDSClient_IParameters
 {
 public:
   SALOMEDS_IParameters(const _PTR(AttributeParameter)& ap); 
@@ -127,17 +128,17 @@ public:
   /*!
     Enables/Disables the dumping visual parameters
    */
-  static void setDumpPython(_PTR(Study) study, const std::string& theID = "");
+  virtual void setDumpPython(_PTR(Study) study, const std::string& theID = "");
 
   /*!
     Returns whether there is the dumping visual parameters
    */
-  static bool isDumpPython(_PTR(Study) study, const std::string& theID = "");  
+  virtual bool isDumpPython(_PTR(Study) study, const std::string& theID = "");  
 
   /*!
     Returns a default name of the component where the visula parameters are stored.
   */
-  static std::string getDefaultVisualComponent();
+  virtual std::string getDefaultVisualComponent();
 
 private:
   _PTR(AttributeParameter) _ap;

@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------
 # General configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "SALOME v.3.2.0a2"
+PROJECT_NAME           = "SALOME v.3.2.0b1"
 PROJECT_NUMBER         = id#1.1
 OUTPUT_DIRECTORY       = ../
 OUTPUT_LANGUAGE        = English
@@ -56,17 +56,23 @@ WARN_LOGFILE           = log.txt
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ../../../share/salome/idl/SALOME_ModuleCatalog.idl \
-                         ../../../share/salome/idl/SALOMEDS.idl \
-                         ../../../share/salome/idl/SALOME_Exception.idl \
-                         ../../../share/salome/idl/SALOMEDS_Attributes.idl \
-                         ../../../share/salome/idl/SALOME_Component.idl \
-                         ../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.hxx \
-                         ../../../share/salome/src/NamingService/SALOME_NamingService.hxx \
-                         ../../../share/salome/src/NamingService/SALOME_NamingService.cxx \
-                         ../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.cxx
-FILE_PATTERNS          = 
-RECURSIVE              = NO
+INPUT                  = ../../../../share/salome/idl/SALOME_ModuleCatalog.idl \
+			../../../../share/salome/idl/SALOMEDS.idl \
+			../../../../share/salome/idl/SALOME_Exception.idl \
+			../../../../share/salome/idl/SALOMEDS_Attributes.idl \
+			../../../../share/salome/idl/SALOME_Component.idl \
+			../../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.hxx \
+			../../../../share/salome/src/NamingService/SALOME_NamingService.hxx \
+			../../../../share/salome/src/NamingService/SALOME_NamingService.cxx \
+			../../../../share/salome/src/LifeCycleCORBA/SALOME_LifeCycleCORBA.cxx \
+			../../../../build/salome/bin/salome \
+			../../../../build/salome/src/Batch_SWIG \
+			../../../../build/salome/src/Communication_SWIG \
+			../../../../build/salome/src/LifeCycleCORBA_SWIG \
+			../../../../build/salome/src/LifeCycleCORBA_SWIG \
+			../../../../build/salome/src/NOTIFICATION_SWIG
+FILE_PATTERNS          = *.idl *.hxx *.cxx python_extension_must_be_here
+RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 

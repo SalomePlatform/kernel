@@ -79,7 +79,6 @@ clt.showNS()
 session=clt.waitNS("/Kernel/Session")
 catalog=clt.waitNS("/Kernel/ModulCatalog")
 studyMgr=clt.waitNS("/myStudyManager")
-lcc = LifeCycleCORBA.LifeCycleCORBA(clt.orb)
-
-#c=lcc.FindOrStartContainer("","totoPy")
-#print c
+import salome
+salome.salome_init()
+from salome import lcc

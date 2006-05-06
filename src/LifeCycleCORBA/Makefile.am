@@ -35,11 +35,12 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-	SALOME_LifeCycleCORBA.hxx
+	SALOME_LifeCycleCORBA.hxx \
+	SALOME_FileTransferCORBA.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA =\
-	Launchers.py
+#dist_salomescript_DATA =\
+#	Launchers.py
 
 #
 # ===============================================================
@@ -77,8 +78,7 @@ COMMON_LIBS =\
 lib_LTLIBRARIES = libSalomeLifeCycleCORBA.la
 libSalomeLifeCycleCORBA_la_SOURCES  = \
 	SALOME_LifeCycleCORBA.cxx \
-	Launchers.cxx \
-	Launchers.hxx
+	SALOME_FileTransferCORBA.cxx
 libSalomeLifeCycleCORBA_la_CPPFLAGS = \
 	$(COMMON_CPPFLAGS) \
 	@PYTHON_INCLUDES@ \

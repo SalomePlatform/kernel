@@ -12,7 +12,6 @@ BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \
   SALOME_ModuleCatalog.idl \
-  SALOME_DataTypeCatalog.idl \
   SALOME_RessourcesCatalog.idl \
   SALOMEDS.idl \
   SALOMEDS_Attributes.idl \
@@ -22,6 +21,7 @@ BASEIDL_FILES = \
   SALOME_Registry.idl \
   Logger.idl \
   SALOME_GenericObj.idl \
+  SALOME_Session.idl \
   SALOME_TestModuleCatalog.idl \
   nstest.idl
 
@@ -49,7 +49,6 @@ BASEIDL_SOURCES =\
   SALOME_ExceptionSK.cc \
   SALOME_CommSK.cc \
   SALOME_ModuleCatalogSK.cc \
-  SALOME_DataTypeCatalogSK.cc \
   SALOME_RessourcesCatalogSK.cc \
   SALOMEDSSK.cc \
   SALOMEDS_AttributesSK.cc \
@@ -59,6 +58,7 @@ BASEIDL_SOURCES =\
   SALOME_RegistrySK.cc \
   LoggerSK.cc \
   SALOME_GenericObjSK.cc \
+  SALOME_SessionSK.cc \
   SALOME_TestModuleCatalogSK.cc \
   nstestSK.cc
 

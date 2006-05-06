@@ -33,7 +33,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-#include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
 class Standard_EXPORT SALOMEDS_SObject: public virtual SALOMEDSClient_SObject

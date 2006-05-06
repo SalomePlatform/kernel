@@ -80,6 +80,8 @@ public:
   virtual void SetComment(const _PTR(SObject)& theSO, const std::string& theValue);
   virtual void SetIOR(const _PTR(SObject)& theSO, const std::string& theValue);
 
+  SALOMEDS::StudyBuilder_ptr GetBuilder();
+
 private:
   void CheckLocked();
   void init_orb();

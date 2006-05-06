@@ -74,7 +74,7 @@ COMMON_CPPFLAGS=\
 	@HDF5_INCLUDES@
 
 # This flag is used to resolve the dependencies of OCC libraries.
-LDXMUFLAGS = -L/usr/X11R6/lib -lXmu
+LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\

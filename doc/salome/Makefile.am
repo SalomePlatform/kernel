@@ -7,7 +7,7 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS= tui DevelopersGuide gui
+SUBDIRS= tui DevelopersGuide
 
 index_html:
 	$(INSTALL) -d $(docdir); 

@@ -53,7 +53,7 @@ COMMON_CPPFLAGS=\
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This flag is used to resolve the dependencies of OCC libraries.
-LDXMUFLAGS = -L/usr/X11R6/lib -lXmu
+LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -307,7 +307,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_TMPFile_i.hxx
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
-libSalomeDS_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDS_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0 @LDEXPDYNFLAGS@
 libSalomeDS_la_LIBADD    = $(COMMON_LIBS)
 
 #

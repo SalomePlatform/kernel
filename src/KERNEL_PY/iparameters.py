@@ -28,6 +28,34 @@ def getSession():
     return vp_session 
 
 class IParameters:
+    """
+    Interface IParameters was designed to provide a common way to set up
+    named parameters. The interface is initialized by AttributeParameter that
+    is used as a container of stored data.
+    The interface supports 3 types of named parameters:
+    1. Named list - a named list consists of string values.
+       One can append value to list (method 'append'), get a number of values
+       in the list (method 'nbValues'), get all values of the given list
+       (method 'getValues') and get names of all created named lists.
+    2. Parameters - that is a set of named string values associated with some named
+       entity. Parameter consists of tree elements: entity name, a parameter name
+       and a parameter value. Thus for one named entity there are an arbitrary number
+       of pair 'name parameter : value'.
+       One can add a new parameter to entry (method 'setParameter'), get a value of
+       a given named parameter of the given entry (method 'getParameter'), get a number
+       of parameters of the given entry (method 'getNbParameters'), get all names of
+       parameters for the given entry (method 'getAllParameterNames'), get all
+       values of parameters for the entry (method 'getAllParameterValues') and get all
+       stored entries (method 'getEntries')
+    3. Property - a property has a name and a string value.
+       One can set property (method 'setProperty'), getProperty (method 'getProperty') and
+       get a list of all stored properties (method 'getProperties').
+
+    Note:   
+          Methods not mentioned above are private and is not supposed to be used
+          by module's developers.   
+       
+    """
     def __init__(self, attributeParameter):
         """Initializes the instance"""
         self._ap = attributeParameter

@@ -561,6 +561,14 @@ def startSalome(args, modules_list, modules_root_dir):
     myServer=NotifyServer(args,modules_root_dir)
     myServer.run()
 
+    # Lancement Session Server (to show splash ASAP)
+    #
+
+    if args["gui"]:
+        mySessionServ = SessionServer(args)
+        mySessionServ.setpath(modules_list,modules_root_dir)
+        mySessionServ.run()
+
     #
     # Lancement Registry Server,
     # attente de la disponibilite du Registry dans le Naming Service
@@ -648,18 +656,11 @@ def startSalome(args, modules_list, modules_root_dir):
         clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
 
     #
-    # Lancement Session Server
+    # Attente de la disponibilite du Session Server dans le Naming Service
     #
-
+    
     if args["gui"]:
-        mySessionServ = SessionServer(args)
-        mySessionServ.setpath(modules_list,modules_root_dir)
-        mySessionServ.run()
 ##----------------        
-
-        # Attente de la disponibilite du Session Server dans le Naming Service
-        #
-
         import Engines
         import SALOME
         import SALOMEDS

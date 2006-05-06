@@ -26,10 +26,10 @@
 #  Module : SALOME
 #  $Header$
 
-salomeincludedir            = $(includedir)/@PACKAGE@
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
 salomeinclude_HEADERS       = BasicsGenericDestructor.hxx
 
-libdir                      = $(prefix)/lib/@PACKAGE@
 lib_LTLIBRARIES             = libSALOMEBasics.la
 libSALOMEBasics_la_SOURCES  = \
 	BasicsGenericDestructor.cxx \

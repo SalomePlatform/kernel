@@ -118,6 +118,12 @@ module SALOME {
 
   interface SocketSenderInt : SenderInt,SocketSender {
   };
+
+  interface Matrix {
+    SenderDouble getData();
+    long getSizeOfColumn();
+    void release();
+  };
 };
 
 #endif

@@ -21,10 +21,13 @@
 
 %{
   #include "ReceiverFactory.hxx"
+  #include "MatrixClient.hxx"
   #undef SEEK_SET
   #undef SEEK_CUR
   #undef SEEK_END
   #include "SALOME_Comm_i.hxx"
+  #include "SALOMEMultiComm.hxx"
+  #include "SenderFactory.hxx"
 %}
 
 %typemap(python,in) SALOME::SenderDouble_ptr
@@ -87,6 +90,42 @@
   $1 = t;
 }
 
+%typemap(python,out) SALOME::SenderDouble_ptr
+{  
+   PyObject* pdict = PyDict_New();
+   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
+   PyRun_String("import CORBA", Py_single_input, pdict, pdict);
+   PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
+                   pdict, pdict);
+   PyObject* orb = PyDict_GetItemString(pdict, "o");
+   // Get the orb Corba C++
+   int argc = 0;
+   char *xargv = "";
+   char **argv = &xargv;
+   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+   std::string s =  ORB->object_to_string($1);
+   PyObject * tmp = PyString_FromString(s.c_str());
+   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
+}
+
+%typemap(python,out) SALOME::SenderInt_ptr
+{  
+   PyObject* pdict = PyDict_New();
+   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
+   PyRun_String("import CORBA", Py_single_input, pdict, pdict);
+   PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
+                   pdict, pdict);
+   PyObject* orb = PyDict_GetItemString(pdict, "o");
+   // Get the orb Corba C++
+   int argc = 0;
+   char *xargv = "";
+   char **argv = &xargv;
+   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
+   std::string s =  ORB->object_to_string($1);
+   PyObject * tmp = PyString_FromString(s.c_str());
+   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
+}
+
 PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble);
 
 %{
@@ -137,5 +176,81 @@ PyObject * getValueForSenderInt(SALOME::SenderInt_ptr senderInt)
   delete [] ret;
   Py_DECREF(py_list);
   return result;
+}
+%}
+
+PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix);
+%{
+PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix)
+{
+  PyObject *py_list;
+  int column,row;
+  double *ret=MatrixClient::getValue(matrix,column,row);
+  py_list = PyList_New(row);
+  for(int i=0;i<row;i++)
+    {
+       PyObject *tmpRow=PyList_New(column);
+       for(int j=0;j<column;j++)
+         {
+           int err = PyList_SetItem(tmpRow, j, Py_BuildValue("d", (double) ret[i*column+j]));
+            if(err)
+              {
+                char * message = "PyList_SetItem matrix sent may be invalid";
+                PyErr_SetString(PyExc_RuntimeError, message);
+                return NULL;
+              }
+         }
+       PyList_SetItem(py_list,i,tmpRow);
+       Py_DECREF(tmpRow);
+    }
+  delete [] ret;
+  Py_DECREF(py_list);
+  return py_list;
+}
+%}
+
+SALOME::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist);
+%{
+SALOME::SenderDouble_ptr buildSenderDoubleFromList(PyObject *pylist)
+{
+  if (PyList_Check(pylist)) 
+  {
+    int listLgth = PyList_Size(pylist);
+    double *tab=new double[listLgth];
+    for (int i=0;i<listLgth;i++)
+	{
+	  tab[i]=PyFloat_AsDouble(PyList_GetItem(pylist,i));
+	}
+    SALOMEMultiComm communicator;
+    return SenderFactory::buildSender(communicator,tab,listLgth,true);
+  }
+  else
+  { 
+    PyErr_SetString(PyExc_TypeError,"not a list");
+    return SALOME::SenderDouble::_nil();
+  }
+}
+%}
+
+SALOME::SenderInt_ptr buildSenderIntFromList(PyObject *pylist);
+%{
+SALOME::SenderInt_ptr buildSenderIntFromList(PyObject *pylist)
+{
+  if (PyList_Check(pylist)) 
+  {
+    int listLgth = PyList_Size(pylist);
+    int *tab=new int[listLgth];
+    for (int i=0;i<listLgth;i++)
+	{
+	  tab[i]=PyInt_AsLong(PyList_GetItem(pylist,i));
+	}
+    SALOMEMultiComm communicator;
+    return SenderFactory::buildSender(communicator,tab,listLgth,true);
+  }
+  else
+  { 
+    PyErr_SetString(PyExc_TypeError,"not a list");
+    return SALOME::SenderInt::_nil();
+  }
 }
 %}

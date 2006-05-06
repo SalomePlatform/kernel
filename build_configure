@@ -9,6 +9,10 @@
 # ====================================================================
 #
 
+# CONF_DIR is the path containing the present script
+
+CONF_DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
+cd ${CONF_DIR}
 
 # ____________________________________________________________________
 # aclocal creates the aclocal.m4 file from the standard macro and the

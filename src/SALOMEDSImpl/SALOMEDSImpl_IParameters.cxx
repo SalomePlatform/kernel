@@ -201,7 +201,7 @@ string SALOMEDSImpl_IParameters::decodeEntry(const string& entry)
   
   if(_compNames.find(compName) == _compNames.end()) {
     Handle(SALOMEDSImpl_SObject) so = _study->FindComponent((char*)compName.c_str());
-    if(!so) return entry;
+    if(so.IsNull()) return entry;
     compID = so->GetID().ToCString();
     _compNames[compName] = compID;
   }

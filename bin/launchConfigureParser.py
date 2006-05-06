@@ -20,7 +20,6 @@ file_nam       = "file"
 portkill_nam   = "portkill"
 killall_nam    = "killall"
 modules_nam    = "modules"
-pyModules_nam  = "pyModules"
 embedded_nam   = "embedded"
 standalone_nam = "standalone"
 containers_nam = "containers"
@@ -54,7 +53,54 @@ def version():
     if match :
         return match.group( 1 )
     return ''
-    
+
+# calculate and return configuration file id in order to unically identify it
+# for example: for 3.1.0a1 the id is 301000101
+def version_id( fname ):
+    vers = fname.split(".")
+    major   = int(vers[0])
+    minor   = int(vers[1])
+    mr = re.search(r'^([0-9]+)([A-Za-z]?)([0-9]*)',vers[2])
+    release = dev = 0
+    if mr:
+        release = int(mr.group(1))
+        dev1 = dev2 = 0
+        if len(mr.group(2)): dev1 = ord(mr.group(2))
+        if len(mr.group(3)): dev2 = int(mr.group(3))
+        dev = dev1 * 100 + dev2
+    else:
+        return None
+    ver = major
+    ver = ver * 100 + minor
+    ver = ver * 100 + release
+    ver = ver * 10000 + dev
+    return ver
+
+# get user configuration file name
+def userFile():
+    v = version()
+    if not v:
+        return ""        # not unknown version
+    filename = "%s/.%src.%s" % (os.environ['HOME'], appname, v)
+    if os.path.exists(filename):
+        return filename  # user preferences file for the current version exists
+    # initial id
+    id0 = version_id( v )
+    # get all existing user preferences files
+    files = glob.glob( os.environ['HOME'] + "/." + appname + "rc.*" )
+    f2v = {}
+    for file in files:
+        match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, file )
+        if match: f2v[file] = match.group(1)
+    last_file = ""
+    last_version = 0
+    for file in f2v:
+        ver = version_id( f2v[file] )
+        if ver and abs(last_version-id0) > abs(ver-id0):
+            last_version = ver
+            last_file = file
+    return last_file
+        
 # -----------------------------------------------------------------------------
 
 ### xml reader for launch configuration file usage
@@ -63,7 +109,7 @@ section_to_skip = ""
 
 class xml_parser:
     def __init__(self, fileName, _opts ):
-        print "Processing ",fileName 
+        print "Configure parser: processing %s ..." % fileName 
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -163,14 +209,16 @@ class xml_parser:
 config_var = appname+'Config'
 # set resources variables if not yet set
 if os.getenv("GUI_ROOT_DIR"):
-    if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
-    if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+    if not os.getenv("SUITRoot"):
+        os.environ["SUITRoot"] = os.getenv("GUI_ROOT_DIR") + "/share/salome"
+    if not os.getenv(config_var):
+        os.environ[config_var] = os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
     pass
 else :
     if not os.getenv("SUITRoot"):
         os.environ["SUITRoot"] = ""
-    if not os.getenv("SalomeAppConfig"):
-        os.environ["SalomeAppConfig"] = ""
+    if not os.getenv(config_var):
+        os.environ[config_var] = ""
 
 dirs = os.environ[config_var]
 dirs = re.split('[;|:]', dirs )
@@ -181,21 +229,26 @@ _opts = {} # assiciative array of options to be filled
 # SalomeApp.xml files in directories specified by SalomeAppConfig env variable
 for dir in dirs:
     filename = dir+'/'+appname+'.xml'
+    if not os.path.exists(filename):
+        print "Configure parser: Warning : could not find configuration file %s" % filename
+    else:
+        try:
+            p = xml_parser(filename, _opts)
+            _opts = p.opts
+        except:
+            print "Configure parser: Error : can not read configuration file %s" % filename
+        pass
+
+# SalomeApprc file in user's catalogue
+filename = userFile()
+if filename and not os.path.exists(filename):
+    print "Configure parser: Warning : could not find user configuration file"
+else:
     try:
         p = xml_parser(filename, _opts)
         _opts = p.opts
     except:
-        print 'Can not read launch configuration file ', filename
-        continue
-
-# SalomeApprc file in user's catalogue
-filename = os.environ['HOME']+'/.'+appname+'rc.'+version()
-try:
-    p = xml_parser(filename, _opts)
-    _opts = p.opts
-except:
-    print 'Can not read launch configuration file ', filename
-
+        print 'Configure parser: Error : can not read user configuration file'
 
 args = _opts
 
@@ -247,8 +300,6 @@ def options_parser(line):
     list = []
     pass
 
-  #print "source=",source
-  
   result = {}
   i = 0
   while i < len(source):
@@ -277,7 +328,6 @@ def options_parser(line):
 cmd_opts = {}
 try:
     cmd_opts = options_parser(sys.argv[1:])
-    #print "opts=",cmd_opts
     kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
 except:
     cmd_opts["h"] = 1
@@ -288,7 +338,7 @@ except:
 opterror=0
 for opt in cmd_opts:
     if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i","r"):
-        print "command line error: -", opt
+        print "Configure parser: Error : command line error : -%s" % opt
         opterror=1
 
 if opterror == 1:
@@ -358,9 +408,20 @@ for opt in cmd_opts:
         pass
     pass
 
+# if --modules (-m) command line option is not given
+# try SALOME_MODULES environment variable
+if not cmd_opts.has_key( "m" ) and os.getenv( "SALOME_MODULES" ):
+    args[modules_nam] = re.split( "[:;,]", os.getenv( "SALOME_MODULES" ) )
+    pass
+
 # 'terminal' must be processed in the end: to deny any 'gui' options
 if 't' in cmd_opts:
     args[gui_nam] = 0
     pass
 
-#print "args=",args
+# now modify SalomeAppConfig environment variable
+dirs = re.split('[;|:]', os.environ[config_var] )
+for m in args[modules_nam]:
+    if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
+        dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources" )
+os.environ[config_var] = ":".join(dirs)

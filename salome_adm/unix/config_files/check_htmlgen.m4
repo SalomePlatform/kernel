@@ -12,6 +12,49 @@ then
   AC_MSG_WARN(doxygen not found)
   doxygen_ok=no
 fi
+if test "x$doxygen_ok" = "xyes"
+then
+  version=`$DOXYGEN --version`
+  AC_MSG_RESULT(doxygen version $version)
+  case "$version" in
+	1.4.4*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=no
+	  ;;
+	1.4.5*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	1.4.6*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	1.4.7*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	1.4.8*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	1.4.9*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	[1-9].[5-9]*)
+	  DOXYGEN_WITH_PYTHON=yes
+	  DOXYGEN_WITH_STL=yes
+	  ;;
+	*)
+	  DOXYGEN_WITH_PYTHON=no
+	  DOXYGEN_WITH_STL=no
+	  ;;
+  esac
+  AC_MSG_RESULT(doxygen with support STL    - $DOXYGEN_WITH_STL)
+  AC_MSG_RESULT(doxygen with support PYTHON - $DOXYGEN_WITH_PYTHON)
+  AC_SUBST(DOXYGEN_WITH_PYTHON)
+  AC_SUBST(DOXYGEN_WITH_STL)
+fi
 dnl AC_SUBST(DOXYGEN)
 
 graphviz_ok=yes

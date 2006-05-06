@@ -5,9 +5,11 @@
 # Use it without args to run an interactive shell under Salome env
 #
 
+APPLI_HOME=`dirname $0`
+
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
-. `dirname $0`/setAppliPath.sh
+. ${APPLI_HOME}/setAppliPath.sh
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
@@ -30,11 +32,11 @@ if [ -f $fileOmniConfig ]; then
   export NSPORT
 fi
 
-# --- invoque shell with or without args
+# --- invoke shell with or without args
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py $*
 else
 
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile ${HOME}/${APPLI}/.bashrc
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
 fi

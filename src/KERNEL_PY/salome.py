@@ -30,7 +30,7 @@ from salome_study import *
 from salome_iapp import *
 
 salome_initial=1
-def salome_init(theStudyId=0):
+def salome_init(theStudyId=0,embedded=0):
     """
     Performs only once SALOME general purpose intialisation for scripts.
     optional argument : theStudyId
@@ -55,10 +55,26 @@ def salome_init(theStudyId=0):
     global orb, lcc, naming_service, cm
     global sg
     global myStudyManager, myStudyId, myStudy, myStudyName
-    
-    if salome_initial:
-        salome_initial=0
-        sg = salome_iapp_init()
-        orb, lcc, naming_service, cm = salome_kernel_init()
-        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
 
+    try:
+        if salome_initial:
+            salome_initial=0
+            sg = salome_iapp_init(embedded)
+            orb, lcc, naming_service, cm = salome_kernel_init()
+            myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
+            pass
+        pass
+    except RuntimeError, inst:
+        # wait a little to avoid trace mix
+        import time
+        time.sleep(0.2)
+        x = inst
+        print "salome.salome_init():", x
+        print """
+        ============================================
+        May be there is no running SALOME session
+        salome.salome_init() is intented to be used
+        within an already running session
+        ============================================
+        """
+        raise

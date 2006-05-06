@@ -7,7 +7,7 @@ SALOME Application Concept. Configuration for one or more computers
 
   rst2html doc.txt > doc.html
 
-This document corresponds to SALOME2 3.1. (alpha version)
+This document corresponds to SALOME2 3.2. (alpha version)
 
 +-------------------------------------------+
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
@@ -55,6 +55,12 @@ computer.
 Application Directory
 ---------------------
 
+Two ways for creation of an application directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First way - references to different module directories
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/salome creates an
 application directory with the given path in parameter. ${APPLI} is a path 
 relative to ${HOME}.
@@ -68,6 +74,23 @@ configure his own application. These files are described after, the list is:
 - CatalogResources.xml
 - SalomeApp.xml
 
+Second way - one single virtual install directory
+'''''''''''''''''''''''''''''''''''''''''''''''''
+
+The user must create an application directory in which he copies
+appli_install.sh, appli_clean.sh and virtual_salome.py,
+from ${KERNEL_ROOT_DIR}/bin/salome.
+
+appli_install.sh needs to be edited, to define a list of modules with their
+install paths.
+Then, the script appli_install.sh creates a virtual installation of SALOME
+in the application directory (bin, lib, doc, share...), with,
+for each file (executable, script, data,library, resources...),
+symbolic links to the actual file.
+
+General rules
+-------------
+
 Directory ${APPLI} must be created on each computer of the application.
 The easiest way is to use the same relative path (to ${HOME}) on each computer.
 (Sometimes it is not possible to use the same path everywhere, for instance
@@ -78,15 +101,22 @@ The ${APPLI} directory contains scripts for environment and runs. Environment
 scripts must be configured (by the user) on each computer. All the environment
 scripts are in the ${APPLI}/env.d directory. 
 
-The script  ${APPLI}/envd sources **all** the files in ${APPLI}/env.d in
-alphanumeric order (after edition, think to remove backup files). the envd
+The script  ${APPLI}/envd sources **all** the files (\*.sh) in ${APPLI}/env.d
+in alphanumeric order (after edition, think to remove backup files). the envd
 script is used by run scripts.
 
 
-Proposal for env.d scripts
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+env.d scripts
+~~~~~~~~~~~~~
+
 Each user **must define** his own configuration for these scripts, following
-the above rules. **The following is only an example not working as it is**.
+the above rules. With the virtual installation (second way, above), env.d
+scripts are built by appli_install.sh (given it's parameters). Otherwise, the
+scripts must be manually defined.
+
+
+ **The following is only an example proposed by createAppli.sh,
+ not working as it is**.
 
 atFirst.sh
     Sets the computer configuration not directly related to SALOME,
@@ -118,7 +148,7 @@ runAppli
 
 runSession
    Launches a shell script in the SALOME application environment, with access
-   to the current SALOME session (naming service), if any.
+   to the current (last launched) SALOME session (naming service), if any.
    Without arguments, the script is interactive. With arguments, the script
    executes the command in the SALOME application environment.
 
@@ -152,6 +182,7 @@ SalomeApp.xml
    This file is similar to the default given
    in ${GUI_ROOT_DIR}/share/salome/resources
 
+
 CatalogRessources.xml
    This files describes all the computer the application can use. The given
    example is minimal and suppose ${APPLI} is the same relative path
@@ -161,4 +192,146 @@ CatalogRessources.xml
        appliPath="my/specific/path/on/this/computer"
 
 
+Examples of use
+---------------
+
+Launch a SALOME session with a GUI interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Launch is done with a command like::
+
+   ./runAppli --logger
+
+The --logger option means here : collect all the traces from the all the
+distributed process, via CORBA, in a single file : logger.log.
+
+There are a lot of options, a complete list is given by::
+
+   ./runAppli --help
+
+Note that, without argument, runAppli is a non interactive Python application,
+and, with arguments, runAppli is an interactive Python interpreter.
+
+Several options are already defined by default in SalomeApp.xml files. Optional
+arguments given in the command override the SalomeApp.xml configuration.
+
+Several sessions can run simultaneously, each session use a different port for
+CORBA naming service, so the sessions are totally separated from each other.
+
+When the GUI is closed, the different SALOME servers are still running.
+
+Close a SALOME session, kill all the servers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Inside the interactive python interpreter you get when you use runAppli
+with arguments, you can kill all the servers of your session with::
+
+   >>> killLocalPort()
+
+or the servers of all the sessions with::
+
+   >>> killAllPorts()
+
+If you have no active Python interpreter connected to your session, you can
+kill all the SALOME servers of **all the sessions** on a given computer::
+
+   ./runSession killSalome.py
+
+Remember! it's the same idea in *Windows (R) operating system* [#]_ :
+use the start menu to stop...
+
+When you use only one session at a time, you don't need more.
+
+To kill a given session (when several session are running), one needs
+the naming service port number::
+
+   ./runSession killSalomeWithPort 2810
+
+Note that the port number of the last launched session can be found on Linux,
+in the prompt, within a runSession shell (see below).
+
+It is also possible to get the Naming Service host and port number of
+the last launched session with::
+
+   ./runSession NSparam.py
+
+.. [#] Microsoft and Windows are either registered trademarks or trademarks of
+       Microsoft Corporation in the United States and/or other countries.
+
+Launch a SALOME session without GUI interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is used to launch a SALOME Python script without GUI
+(no GUI server = SALOME_session_server)
+
+Example of script (test_session_geom.py)::
+
+   import salome_session
+   salome_session.startSession(modules=["GEOM"])
+   import GEOM_usinggeom
+   raw_input("Press a key and the servers will be killed ...")
+
+This script is run in a non interactive way with::
+
+   ./runSession python test_session_geom.py
+
+All the process are automatically killed when Python is closed
+(with salome_session delete).
+
+Add an external Python interpretor to a running session
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's often easier to develop and try Python scripts outside the GUI embedded
+Python interpreter. Imagine, for instance, you are writing a script involving
+geometry and mesh modules.
+first, launch a SALOME session with gui, then, on another terminal::
+
+   ./runSession
+   python
+
+Import salome module. salome_init() without arguments creates a new study
+in the running session (note: salome_init(n) attachs to a running session whose
+studyId is n)::
+
+   import salome
+   salome.salome_init()
+
+An example of script given with SMESH::
+
+   import ex01_cube2build
+
+It is possible to connect the GUI interface to the study created in the above
+script with the file/connect menu, then browse study and display objects.
+Further modifications on study can be done either with GUI or external script
+(use refresh popup in GUI object browser to see study modifications generated
+by the external script). **AVOID modifications with GUI when a Python script
+is running**. Not all the modules are protected against concurrent actions...
+
+
+Different uses of the runSession shell interpreter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+runSession invoked without arguments gives an interactive shell with the full
+environment of SALOME (PATH, LD_LIBRARY_PATH, PYTHONPATH, other variables).
+If there are running sessions of the same SALOME application, runSession
+connects to the last launched session (i.e. gets the naming service references
+of the session: hostname and port)
+
+On Linux, the shell prompt (bash) gives information on naming service
+references, hostname and port::
+
+   [NS=cli76cc:2811]prascle@cli76cc:~/SALOME2/Run/Virtual$
+
+If there is no running session, prompt looks like::
+
+   [NS=:]prascle@cli76cc:~/SALOME2/Run/Virtual$
+
+runSession is useful to launch any script or program which needs the complete
+SALOME environment, with or without a session already running.
+For instance, to launch the ddd debugger interface on the gui server, first
+launch a SALOME session with gui, then, on another terminal::
+
+   ./runSession ddd
+
+Then attach to the running SALOME_Session_Server process.
 

@@ -11,7 +11,9 @@ salomeinclude_HEADERS = \
 	SenderFactory.hxx \
 	SALOMEMultiComm.hxx \
 	MultiCommException.hxx \
-	SALOME_Comm_i.hxx
+	SALOME_Comm_i.hxx \
+	MatrixClient.hxx \
+	SALOME_Matrix_i.hxx
 
 # Scripts to be installed
 
@@ -50,15 +52,19 @@ OPT_LDFLAGS  = -Xlinker -export-dynamic
 lib_LTLIBRARIES = libSalomeCommunication.la 
 libSalomeCommunication_la_SOURCES =\
 	SALOME_Comm_i.cxx \
+	SALOME_Matrix_i.cxx \
 	SenderFactory.cxx \
 	MultiCommException.cxx \
 	SALOMEMultiComm.cxx \
 	ReceiverFactory.cxx \
+	MatrixClient.cxx \
 	\
 	MultiCommException.hxx \
 	SALOME_Comm_i.hxx \
+	SALOME_Matrix_i.hxx \
 	SenderFactory.hxx \
 	ReceiverFactory.hxx \
+        MatrixClient.hxx \
 	SALOMEMultiComm.hxx \
 	Receivers.hxx \
 	Receiver.hxx

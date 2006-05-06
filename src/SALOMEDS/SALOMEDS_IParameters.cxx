@@ -255,7 +255,7 @@ void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const string& theID)
   else anID = theID;
 
   _PTR(AttributeParameter) ap = study->GetCommonParameters(anID, 0);
-  ap->SetBool(_AP_DUMP_PYTHON_, true);
+  ap->SetBool(_AP_DUMP_PYTHON_, !isDumpPython(study, theID));
 }
 
 bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const string& theID)

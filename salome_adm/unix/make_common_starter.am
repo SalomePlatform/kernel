@@ -8,7 +8,7 @@
 
 # Standard directory for installation
 salomeincludedir   = $(includedir)/@PACKAGE@
-libdir             = $(prefix)/lib/@PACKAGE@
+libdir             = $(prefix)/lib@LIB_LOCATION_SUFFIX@/@PACKAGE@
 bindir             = $(prefix)/bin/@PACKAGE@
 salomescriptdir    = $(bindir)
 

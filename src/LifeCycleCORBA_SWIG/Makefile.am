@@ -60,7 +60,9 @@ pkgpyexec_LTLIBRARIES = _libSALOME_LifeCycleCORBA.la
 _libSALOME_LifeCycleCORBA_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libSALOME_LifeCycleCORBA_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
-	-I$(srcdir) -I$(srcdir)/../LifeCycleCORBA \
+	-I$(srcdir) \
+	-I$(srcdir)/../NamingService \
+	-I$(srcdir)/../LifeCycleCORBA \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Utils \

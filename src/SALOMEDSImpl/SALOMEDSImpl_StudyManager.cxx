@@ -209,7 +209,7 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
 
   if (isASCII) {
     Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-    aFilesToRemove->Append(aHDFUrl);
+    aFilesToRemove->Append("hdf_from_ascii.hdf");
     SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
   }
 

@@ -1301,8 +1301,11 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   //set sys.path and add a creation of the study.
   fp << GetDumpStudyComment().ToCString() << endl << endl;
   fp << "import sys" << endl;
-  fp << "import " << aBatchModeScript << "\n" << endl;
-  fp << "sys.path.insert( 0, \'" << thePath << "\')\n" << endl;
+  fp << "import " << aBatchModeScript << endl << endl;
+
+  fp << aBatchModeScript << ".salome_init()" << endl << endl;
+
+  fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
 
 
   //Check if it's necessary to dump visual parameters
@@ -1311,8 +1314,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   if(isDumpVisuals) {
     lastSavePoint = SALOMEDSImpl_IParameters::getLastSavePoint(this);
     if(lastSavePoint > 0) {
-      fp << SALOMEDSImpl_IParameters::getStudyScript(this, lastSavePoint);
-      fp << "\n" << endl;
+      fp << SALOMEDSImpl_IParameters::getStudyScript(this, lastSavePoint) << endl << endl;
     }
   }
   
@@ -1337,12 +1339,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
 	  if (aDriver != NULL) {
 	    Handle(SALOMEDSImpl_StudyBuilder) SB = NewBuilder();
-	    cout << "Before SB" << endl;
 	    if(!SB->LoadWith(sco, aDriver)) {
 	      _errorCode = SB->GetErrorCode();
 	      return false;
 	    }
-	    cout << "After SB" << endl;
 	  }
 	  else continue;
 	}
@@ -1401,11 +1401,14 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     fp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << endl;
   }
 
+  fp << endl;
+  fp << "if salome.sg.hasDesktop():" << endl;
+  fp << "\tsalome.sg.updateObjBrowser(1)" << endl;
+
   if(isDumpVisuals) { //Output the call to Session's method restoreVisualState
-    fp << "iparameters.getSession().restoreVisualState(1)" << endl;
+    fp << "\tiparameters.getSession().restoreVisualState(1)" << endl;
   }
 
-  fp << "salome.sg.updateObjBrowser(1)" << endl;
 
   fp.close();
   return isOk;

@@ -271,14 +271,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     #-------------------------------------------------------------------------
    
-    def DumpPython(self, theStudy, isPublished, isValidScript):
-        aBuffer = "def RebuildData(theStudy): pass"
-        aBufferSize = len(aBuffer) + 1
-        anOctetBuf = aBuffer._narrow(CORBA.Octet)
-        aTMPFile = Engines.TMPFile(aBufferSize, aBufferSize, anOctetBuf._this(), 1)
-        isValidScript = 1
-	#return (aBuffer, 1)
-        return aTMPFile._this()
+    def DumpPython(self, theStudy, isPublished):
+        aBuffer = "def RebuildData(theStudy): pass\n\0"
+	return (aBuffer, 1)
 
     #-------------------------------------------------------------------------    
 

@@ -48,7 +48,6 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "Launchers.hxx"
 
 using namespace std;
 
@@ -359,6 +358,20 @@ int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
   else
     return params.nb_node * params.nb_proc_per_node;
 }
+
+//=============================================================================
+/*! Public -
+ *  \return the container Manager
+ */
+//=============================================================================
+
+Engines::ContainerManager_ptr SALOME_LifeCycleCORBA::getContainerManager()
+{
+ Engines::ContainerManager_var contManager =
+   Engines::ContainerManager::_duplicate(_ContManager);
+ return contManager._retn();
+}
+
 
 //=============================================================================
 /*! Protected -

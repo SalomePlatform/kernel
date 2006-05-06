@@ -410,7 +410,7 @@ else
 fi
 
 # make other build directories
-for rep in salome_adm adm_local doc bin/salome include/salome lib/salome share/salome/resources idl
+for rep in salome_adm adm_local doc bin/salome include/salome lib${LIB_LOCATION_SUFFIX}/salome share/salome/resources idl
 do
 #   if test ! -d $rep ; then
 #      eval mkdir $rep

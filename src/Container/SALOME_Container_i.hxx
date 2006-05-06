@@ -100,10 +100,11 @@ public:
   char* getHostName();
   CORBA::Long getPID();
   //! Kill current container
-  bool Kill_impl() ;
+  bool Kill_impl();
 
-  //Engines::Component_ptr instance(const char* nameToRegister,
-  //				   const char* componentName);
+  Engines::fileRef_ptr createFileRef(const char* origFileName);
+  Engines::fileTransfer_ptr getFileTransfer();
+
 
   // --- local C++ methods
 
@@ -142,6 +143,8 @@ protected:
   PortableServer::ObjectId * _id ;
   int _numInstance ;
   std::map<std::string,Engines::Component_var> _listInstances_map;
+  std::map<std::string,Engines::fileRef_var> _fileRef_map;
+  Engines::fileTransfer_var _fileTransfer;
 
   int    _argc ;
   char** _argv ;

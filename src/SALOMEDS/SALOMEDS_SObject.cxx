@@ -33,6 +33,7 @@
 #include "SALOMEDS_SComponent.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_SObject_i.hxx"
 
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
@@ -310,12 +311,13 @@ CORBA::Object_ptr SALOMEDS_SObject::GetObject()
 SALOMEDS::SObject_ptr SALOMEDS_SObject::GetSObject()
 {
   if(_isLocal) {
-    if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SObject::_duplicate(_corba_impl);
     SALOMEDS::SObject_var aSO = SALOMEDS_SObject_i::New(_local_impl, _orb);
+    _corba_impl = SALOMEDS::SObject::_duplicate(aSO);
     return aSO._retn();
   }
   else {
-    return _corba_impl;
+    return SALOMEDS::SObject::_duplicate(_corba_impl);
   }
   return SALOMEDS::SObject::_nil();
 }

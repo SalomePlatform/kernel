@@ -26,6 +26,16 @@ dnl
 dnl @author Bernard Secher (CEA) - 04/12/2003
 dnl
 AC_DEFUN([AC_LINKER_OPTIONS],[
+
+  AC_CHECKING(for LIB_LOCATION_SUFFIX)
+  LIB_LOCATION_SUFFIX=""
+  case "$build_cpu" in
+  x86_64*)  LIB_LOCATION_SUFFIX="64" ;;
+  *)        LIB_LOCATION_SUFFIX="" ;;
+  esac
+  AC_SUBST(LIB_LOCATION_SUFFIX)
+  AC_MSG_RESULT(LIB_LOCATION_SUFFIX is $LIB_LOCATION_SUFFIX)
+
   for opt in "-Xlinker -export-dynamic" -transitive_link; do
     AC_CXX_OPTION($opt,LDEXPDYNFLAGS,flag=yes,flag=no)
     if test "$flag" = "yes"; then
@@ -33,6 +43,7 @@ AC_DEFUN([AC_LINKER_OPTIONS],[
     fi
   done
   AC_SUBST(LDEXPDYNFLAGS)
+
 dnl 
   case $host_os in
     osf*)
