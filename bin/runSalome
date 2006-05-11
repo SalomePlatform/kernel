@@ -1,5 +1,7 @@
 #!/bin/bash
 
+save_config=$1
+
 searchFreePort() {
     echo -n "Searching for a free port for naming service: "
     export NSPORT=2810
@@ -18,6 +20,10 @@ searchFreePort() {
                 echo "InitRef = $initref" > $OMNIORB_CONFIG
     	    else
 	        echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+	    fi
+	    if [[ "$save_config" == "--save-config" ]] ; then
+		ln -sf $OMNIORB_CONFIG ${HOME}/.omniORB_current.cfg
+		export OMNIORB_CONFIG=${HOME}/.omniORB_current.cfg
 	    fi
             break
         fi

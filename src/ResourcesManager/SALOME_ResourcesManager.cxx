@@ -780,6 +780,8 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
   // --- set env vars
 
+  tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
+
   for (map<string, string>::const_iterator iter = resInfo.ModulesPath.begin();
        iter != resInfo.ModulesPath.end();
        iter++)
@@ -791,15 +793,15 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 		     << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
       tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:"
 		     << curModulePath << "/lib/salome:" << curModulePath
-		     << "/lib/python2.2/site-packages/salome:";
+		     << "/lib/python${PYTHON_VERSION}/site-packages/salome:";
       tempOutputFile << curModulePath
-      << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}"
+      << "/lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules:${PYTHONPATH}"
       << endl;
     }
 
   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
   tempOutputFile << "export PYTHONPATH" << endl;
-  tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
+  //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
   // ! env vars
 
