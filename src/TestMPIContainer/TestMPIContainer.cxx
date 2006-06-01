@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 // using namespace std;
 //=============================================================================
@@ -23,7 +23,6 @@
 // Created   : mer jui 4 13:11:27 CEST 2003
 // Author    : Bernard SECHER, 2003
 // Project   : SALOME
-// Copyright : CEA 2003
 // $Header$
 //=============================================================================
 

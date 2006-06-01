@@ -97,23 +97,23 @@ div.topic {
 
 H1.title
 {
-    FONT-SIZE: 200%;
+    FONT-SIZE: 150%;
     COLOR: #00008B;
     text-align: center
 }
 H1
 {
-    FONT-SIZE: 150%;
+    FONT-SIZE: 125%;
 }
 H2
 {
-    FONT-SIZE: 125%;
+    FONT-SIZE: 108%;
 }
 h2.subtitle {
   text-align: center }
 H3
 {
-    FONT-SIZE: 108%;
+    FONT-SIZE: 100%;
 }
 BODY
 {

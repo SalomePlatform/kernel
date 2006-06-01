@@ -38,6 +38,10 @@ AC_ARG_WITH(boost,
    [BOOSTDIR="$withval"
     AC_MSG_RESULT("select $withval as path to BOOST library")
    ])
+   
+if test "x${BOOSTDIR}" = "x" ; then
+  BOOSTDIR="/usr"
+fi
 
 AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
 
@@ -46,7 +50,7 @@ LIBS_old=$LIBS
 
 if test "x${BOOSTDIR}" != "x" ; then
   BOOST_CPPFLAGS="-I${BOOSTDIR}/include"
-  BOOST_LIBS="-L${BOOSTDIR}/lib"
+  BOOST_LIBS="-L${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}"
 fi
 
 boost_ok=no
@@ -83,12 +87,12 @@ if test "x${boost_headers_ok}" = "xyes" ; then
   AC_CHECKING(for BOOST binaries)
   boost_lib_dir_ok=yes
   if test "x${BOOSTDIR}" != "x" ; then
-    AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread${BOOST_LIBSUFFIX}.so,
+    AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
                   boost_lib_dir_ok=yes,
                   boost_lib_dir_ok=no)
     if test "x${boost_lib_dir_ok}" = "xno" ; then
       BOOST_LIBSUFFIX=""
-      AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread${BOOST_LIBSUFFIX}.so,
+      AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
                     boost_lib_dir_ok=yes,
                     boost_lib_dir_ok=no)
     fi

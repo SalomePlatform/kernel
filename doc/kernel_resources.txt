@@ -6,6 +6,8 @@ SALOME Kernel resources for developer
 
   rst2html doc.txt > doc.html
 
+*This document corresponds to SALOME2 3.2.0 (beta version)*
+
 :Authors:
    Antoine Yessayan,
    Paul Rascle
@@ -15,6 +17,8 @@ SALOME Kernel resources for developer
 +-------------------------------------------+
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
 +-------------------------------------------+
+
+-------------------------------------------------------------------------------
 
 **Abstract**
 
@@ -31,6 +35,8 @@ connection and disconnection.
 
 .. contents::
 .. sectnum::
+
+-------------------------------------------------------------------------------
 
 Trace and debug Utilities
 =========================
@@ -489,3 +495,13 @@ design:
 
 * the ``Nettoyage()`` C  function using ``atexit()`` C  function 
   is embedded in a static single object ``ATEXIT_()``.
+
+
+-------------------------------------------------------------------------------
+
++----------------------------------+------------------------------------------+
+| `General KERNEL documentation`_  | `End User KERNEL Doxygen documentation`_ |
++----------------------------------+------------------------------------------+
+
+.. _`General KERNEL documentation`:           ./index.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html

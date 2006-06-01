@@ -15,7 +15,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -39,7 +39,8 @@ pkgpython_PYTHON = \
 	salome_iapp.py \
 	salome_ComponentGUI.py \
 	omnipatch.py \
-	iparameters.py
+	iparameters.py \
+	salome_version.py
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py
 

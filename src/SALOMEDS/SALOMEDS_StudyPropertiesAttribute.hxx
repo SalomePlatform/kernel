@@ -1,8 +1,8 @@
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
 //
 //  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
+//  
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_StudyPropertiesAttribute.hxx
 //  Author : Yves FRICAUD

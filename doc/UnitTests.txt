@@ -1,19 +1,25 @@
-
 =================================================================
 Source code structuration and Unit Tests
 =================================================================
 
-You will find here general information on code directories structure,
-unit tests associated to the different kind of classes, and how to run
-the unit tests.
+*html version of this document is produced with docutils*::
+
+  rst2html < doc.txt > doc.html
+
+*This document corresponds to SALOME2 3.2.0 (beta version)*
+
+.. contents::
+.. sectnum::
 
 +-------------------------------------------+
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
 +-------------------------------------------+
 
-.. contents::
-.. sectnum::
+-------------------------------------------------------------------------------
 
+You will find here general information on code directories structure,
+unit tests associated to the different kind of classes, and how to run
+the unit tests.
 
 SALOME KERNEL source code structuration
 =======================================
@@ -200,3 +206,12 @@ to test LifeCycleCORBA_SWIG interface.
 
 
 
+
+-------------------------------------------------------------------------------
+
++----------------------------------+------------------------------------------+
+| `General KERNEL documentation`_  | `End User KERNEL Doxygen documentation`_ |
++----------------------------------+------------------------------------------+
+
+.. _`General KERNEL documentation`:           ./index.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html

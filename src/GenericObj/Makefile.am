@@ -1,4 +1,5 @@
 #  Copyright (C) 2003  CEA/DEN, EDF R&D
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)

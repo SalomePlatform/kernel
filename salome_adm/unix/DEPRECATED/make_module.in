@@ -48,12 +48,15 @@ depend:
 RESOURCES_FILES_ALL := $(notdir $(wildcard $(srcdir)/resources/*))
 RESOURCES_FILES_ALL := $(filter-out CVS, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES_ALL := $(filter-out %.po, $(RESOURCES_FILES_ALL))
+RESOURCES_FILES_ALL := $(filter-out %.in, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
-resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+resources: resources-cp
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done
+
+resources-cp: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
 	cp -fr $< $@;
@@ -104,10 +107,10 @@ distclean: clean
 	-$(RM) $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 	-$(RM) Makefile
 
-install-resources:
+install-resources: resources-cp
 # one resources directory for all salome modules
 	$(INSTALL) -d $(datadir)/resources
-	for f in X $(RESOURCES_FILES:%=$(srcdir)/resources/%); do \
+	@for f in X $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%); do \
 	   if test $$f != X; then							 \
 	     ($(INSTALL_DATA) $$f $(datadir)/resources/. || exit 1);			 \
 	   fi; 										 \

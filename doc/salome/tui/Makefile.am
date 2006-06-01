@@ -1,3 +1,21 @@
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
 # -* Makefile *- 
 #
 # Author : Paul RASCLE (EDF)
@@ -12,27 +30,23 @@ EXTRA_DIST = $(srcdir)/KERNEL
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 
-userdoc:
-	cp -fr $(srcdir)/KERNEL ./INPUT; \
-	cd INPUT; \
-	sed 's|../../../share/salome|@top_srcdir@|' ./doxyfile > ./doxyfile1; \
-	sed 's|../../../build/salome|@top_builddir@|' ./doxyfile1 > ./doxyfile2; \
-	mv -f doxyfile2 doxyfile1; \
+dev_docs:
+	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
+	cd ./INPUT; \
+        pwd; ls;\
 	echo "DOXYGEN SUPPORT PYTHON - $(DOXYGEN_WITH_PYTHON)"; \
 	if( test "x$(DOXYGEN_WITH_PYTHON)" = "xyes"); then \
-	  sed 's|python_extension_must_be_here|*.py|' ./doxyfile1 > ./doxyfile2; \
-	  mv -f doxyfile2 doxyfile1; \
-	  $(DOXYGEN) -u ./doxyfile1; \
+	  sed 's|python_extension_must_be_here|*.py|' ./doxyuser > ./doxyuser1; \
+	  $(DOXYGEN) -u ./doxyuser1; \
 	else \
-	  sed 's|python_extension_must_be_here||' ./doxyfile1 > ./doxyfile2; \
-	  mv -f doxyfile2 doxyfile1; \
+	  sed 's|python_extension_must_be_here||' ./doxyuser > ./doxyuser1; \
 	fi; \
+	echo "DOXYGEN SUPPORT STL - $(DOXYGEN_WITH_STL)"; \
 	if( test "x$(DOXYGEN_WITH_STL)" = "xyes"); then \
-	  sed -e 's|BUILTIN_STL_SUPPORT    = NO|BUILTIN_STL_SUPPORT    = YES|' ./doxyfile1 > ./doxyfile2; \
-	  mv -f doxyfile2 doxyfile1; \
+	  sed -e 's|BUILTIN_STL_SUPPORT    = NO|BUILTIN_STL_SUPPORT    = YES|' ./doxyuser1 > ./doxyuser2; \
+	  mv -f doxyuser2 doxyuser1; \
 	fi; \
-	mv -f doxyfile1 doxyfile; \
-	$(DOXYGEN) ./doxyfile; \
+	$(DOXYGEN) ./doxyuser1; \
 	cd ..;
 	$(INSTALL) -d $(docdir)/tui/KERNEL;
 	cp -fr KERNEL $(docdir)/tui

@@ -1,13 +1,23 @@
-
 =================================================================
 Installation instructions, up to date for 3.0 version
 =================================================================
 
-You'll find here generic instructions for installing the SALOME2 platform.
+*html version of this document is produced with docutils*::
+
+  rst2html < doc.txt > doc.html
+
+*This document corresponds to SALOME2 3.1.0*
+
+.. contents::
+.. sectnum::
 
 +-------------------------------------------+
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
 +-------------------------------------------+
+
+-------------------------------------------------------------------------------
+
+You'll find here generic instructions for installing the SALOME2 platform.
 
 Summary
 -------
@@ -378,3 +388,12 @@ For convenience or customization, we suggest the following organisation:
     $ source <salomeroot>/envSalome.sh
     $ ./runSalome
 
+
+-------------------------------------------------------------------------------
+
++----------------------------------+------------------------------------------+
+| `General KERNEL documentation`_  | `End User KERNEL Doxygen documentation`_ |
++----------------------------------+------------------------------------------+
+
+.. _`General KERNEL documentation`:           ./index.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html

@@ -16,7 +16,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -49,24 +49,31 @@ UnitTests_CPPFLAGS =\
 	@CPPUNIT_INCLUDES@ \
 	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \
 	-I$(srcdir)/../SALOMELocalTrace -I$(srcdir)/../SALOMELocalTrace/Test \
+	-I$(top_builddir)/salome_adm/unix
+
+if CORBA_GEN
+  UnitTests_CPPFLAGS +=\
+	-DWITH_CORBA \
 	-I$(srcdir)/../SALOMETraceCollector -I$(srcdir)/../SALOMETraceCollector/Test \
 	-I$(srcdir)/../NamingService -I$(srcdir)/../NamingService/Test \
 	-I$(srcdir)/../Utils -I$(srcdir)/../Utils/Test \
-	-I$(srcdir)/../Registry \
-	-I$(srcdir)/../Notification \
-	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../LifeCycleCORBA/Test \
 	-I$(srcdir)/../SALOMDESImpl -I$(srcdir)/../SALOMEDSImpl/Test \
 	-I$(srcdir)/../SALOMDES -I$(srcdir)/../SALOMEDS/Test \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
+	-I$(srcdir)/../Registry \
+	-I$(srcdir)/../Notification \
+	-I$(srcdir)/../ResourcesManager \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
-
+endif
 
 UnitTests_LDADD    =\
 	@CPPUNIT_LIBS@ \
 	../Basics/libSALOMEBasics.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la ../SALOMELocalTrace/Test/libSALOMELocalTraceTest.la \
+	../SALOMELocalTrace/libSALOMELocalTrace.la ../SALOMELocalTrace/Test/libSALOMELocalTraceTest.la
+
+if CORBA_GEN
+  UnitTests_LDADD    +=\
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
@@ -79,5 +86,4 @@ UnitTests_LDADD    =\
 	../SALOMEDS/libSalomeDS.la ../SALOMEDS/Test/libSALOMEDSTest.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
-
-
+endif

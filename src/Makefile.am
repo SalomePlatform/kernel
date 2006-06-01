@@ -15,7 +15,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -109,7 +109,15 @@ if WITH_BATCH
 endif
 
 if CPPUNIT_IS_OK
-  SUBDIRS += $(SUBDIR_CPPUNIT_BASE)
-  SUBDIRS += $(SUBDIR_CPPUNIT_CORBA)
-  SUBDIRS += $(SUBDIR_CPPUNIT_GENERAL)
+if CORBA_GEN
+  SUBDIRS += \
+	$(SUBDIR_CPPUNIT_BASE)   \
+	$(SUBDIR_CPPUNIT_CORBA)  \
+	$(SUBDIR_CPPUNIT_GENERAL)
+else
+  SUBDIRS += \
+	$(SUBDIR_CPPUNIT_BASE)   \
+	$(SUBDIR_CPPUNIT_GENERAL)
 endif
+endif
+

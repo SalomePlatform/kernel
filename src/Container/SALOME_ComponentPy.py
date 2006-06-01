@@ -19,7 +19,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -119,6 +119,12 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         MESSAGE(  "SALOME_ComponentPy_i::_get_instanceName" )
         return self._instanceName
     
+    #-------------------------------------------------------------------------
+
+    def _get_interfaceName(self):
+        MESSAGE(  "SALOME_ComponentPy_i::_get_interfaceName" )
+        return self._interfaceName
+
     #-------------------------------------------------------------------------
 
     def ping(self):

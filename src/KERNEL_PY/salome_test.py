@@ -1,7 +1,7 @@
 #  SALOME SALOME_SWIG : binding of C++ implementation and Python
 #
 #  Copyright (C) 2003  CEA/DEN, EDF R&D
-#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #  File   : salome_test.py

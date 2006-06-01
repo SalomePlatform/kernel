@@ -1,4 +1,3 @@
-
 ======================================================================
 SALOME Application Concept. Configuration for one or more computers
 ======================================================================
@@ -9,16 +8,17 @@ SALOME Application Concept. Configuration for one or more computers
 
 This document corresponds to SALOME2 3.2. (alpha version)
 
+.. contents::
+.. sectnum::
+
 +-------------------------------------------+
 | **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
 +-------------------------------------------+
 
+-------------------------------------------------------------------------------
+
 The following explains how to configure your own application with your list of
 modules, how to define and run this application on one or more computers.
-
-.. contents::
-.. sectnum::
-
 
 General principles
 ------------------
@@ -335,3 +335,12 @@ launch a SALOME session with gui, then, on another terminal::
 
 Then attach to the running SALOME_Session_Server process.
 
+
+-------------------------------------------------------------------------------
+
++----------------------------------+------------------------------------------+
+| `General KERNEL documentation`_  | `End User KERNEL Doxygen documentation`_ |
++----------------------------------+------------------------------------------+
+
+.. _`General KERNEL documentation`:           ./index.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html

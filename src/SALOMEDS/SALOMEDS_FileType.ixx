@@ -12,6 +12,7 @@
 // At the termination of the contract, the software and all copies of this
 // software must be deleted.
 //
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #include <SALOMEDS_FileType.jxx>
 
 #ifndef _Standard_TypeMismatch_HeaderFile

@@ -1,0 +1,152 @@
+=================================================================
+KERNEL Services for end user (Python interface)
+=================================================================
+
+*html version of this document is produced with docutils*::
+
+  rst2html < doc.txt > doc.html
+
+This document corresponds to SALOME2 3.2.0 (beta version)
+
+.. contents::
+.. sectnum::
+
++-------------------------------------------+
+| **WORK in PROGRESS, INCOMPLETE DOCUMENT** |
++-------------------------------------------+
+
+-------------------------------------------------------------------------------
+
+In a SALOME application, distributed components, servers and clients use
+the CORBA middleware for comunication. CORBA interfaces are defined via idl
+files. All the different CORBA interfaces are available for users in Python,
+see CORBA interfaces below.
+
+For some general purpose services, CORBA interfaces have been encapsulated
+in order to provide a simple interface (encapsulation is generally done in
+C++ classes, and a Python SWIG interface is also generated from C++, to 
+ensure a consistent behavior between C++ modules and Python modules or user
+script).
+
+General purpose services
+========================
+
+Container and component instanciation
+-------------------------------------
+
+See LifeCycleCORBA_ for the C++ interface (Python interface obtained with SWIG
+is very similar).
+
+.. _LifeCycleCORBA: ./tui/KERNEL/classSALOME__LifeCycleCORBA.html
+
+File transfer service
+---------------------
+
+See FileTransferCORBA_ for the C++ interface (Python interface obtained with
+SWIG is very similar).
+
+.. _FileTransferCORBA: ./tui/KERNEL/classSALOME__FileTransferCORBA.html
+
+CORBA Naming service access
+---------------------------
+
+See SALOME_NamingService_ for the C++ interface (Python interface obtained with
+SWIG is very similar).
+
+.. _SALOME_NamingService: ./tui/KERNEL/classSALOME__NamingService.html
+
+
+IDL Interfaces
+==============
+
++-----------------------------+-----------------------------------------------+
+| Engines_                    | Engines CORBA module                          |
++=============================+===============================================+
+| Component_                  | Generic component interface                   |
++-----------------------------+-----------------------------------------------+
+| Container_                  | Container interface                           |
++-----------------------------+-----------------------------------------------+
+| FileTransfer_               |                                               |
++-----------------------------+-----------------------------------------------+
+| FileRef_                    |                                               |
++-----------------------------+-----------------------------------------------+
+| ContainerManager_           |                                               |
++-----------------------------+-----------------------------------------------+
+| MPIContainer_               |                                               |
++-----------------------------+-----------------------------------------------+
+| MPIObject_                  |                                               |
++-----------------------------+-----------------------------------------------+
+
++-----------------------------+-----------------------------------------------+
+| SALOMEDS_                   | SALOMEDS CORBA module                         |
++=============================+===============================================+
+| SALOMEDSidl_                |                                               |
++-----------------------------+-----------------------------------------------+
+| SALOMEDS_Attributes_        |                                               |
++-----------------------------+-----------------------------------------------+
+
++-----------------------------+-----------------------------------------------+
+| SALOME_                     | SALOME CORBA module                           |
++=============================+===============================================+
+| SALOME_Comm_                |                                               |
++-----------------------------+-----------------------------------------------+
+|SALOME_GenericObj_           |                                               |
++-----------------------------+-----------------------------------------------+
+|SALOME_Exception_            |                                               |
++-----------------------------+-----------------------------------------------+
+| SALOME_Session_             |                                               |
++-----------------------------+-----------------------------------------------+
+
++-----------------------------+-----------------------------------------------+
+|                             | other CORBA modules                           |
++=============================+===============================================+
+| SALOME_ModuleCatalog_       |                                               |
++-----------------------------+-----------------------------------------------+
+| SALOME_RessourcesCatalog_   |                                               |
++-----------------------------+-----------------------------------------------+
+| SALOME_Registry_            |                                               |
++-----------------------------+-----------------------------------------------+
+| Logger_                     |                                               |
++-----------------------------+-----------------------------------------------+
+
+**Other idl for test purposes**
+nstest.idl
+SALOME_TestComponent.idl
+SALOME_TestModuleCatalog.idl
+SALOME_TestMPIComponent.idl
+TestNotif.idl
+
+.. _Engines:           ./tui/KERNEL/namespaceEngines.html
+.. _Component:         ./tui/KERNEL/interfaceEngines_1_1Component.html
+.. _Container:         ./tui/KERNEL/interfaceEngines_1_1Container.html
+.. _fileTransfer:      ./tui/KERNEL/interfaceEngines_1_1fileTransfer.html
+.. _fileRef:           ./tui/KERNEL/interfaceEngines_1_1fileRef.html
+.. _ContainerManager:  ./tui/KERNEL/interfaceEngines_1_1ContainerManager.html
+.. _MPIContainer:      ./tui/KERNEL/interfaceEngines_1_1MPIContainer.html
+.. _MPIObject:         ./tui/KERNEL/interfaceEngines_1_1MPIObject.html
+.. _SALOME:                   ./tui/KERNEL/namespaceSALOME.html
+.. _SALOMEDS:                 ./tui/KERNEL/namespaceSALOMEDS.html
+.. _SALOME_Component:         ./tui/KERNEL/SALOME__Component_8idl.html
+.. _SALOME_ContainerManager:  ./tui/KERNEL/SALOME__ContainerManager_8idl.html
+.. _SALOMEDSidl:              ./tui/KERNEL/SALOMEDS_8idl.html
+.. _SALOMEDS_Attributes:      ./tui/KERNEL/SALOMEDS__Attributes_8idl.html
+.. _SALOME_ModuleCatalog:     ./tui/KERNEL/SALOME__ModuleCatalog_8idl.html
+.. _SALOME_RessourcesCatalog: ./tui/KERNEL/SALOME__RessourcesCatalog_8idl.html
+.. _SALOME_Registry:          ./tui/KERNEL/SALOME__Registry_8idl.html
+.. _Logger:                   ./tui/KERNEL/Logger_8idl.html
+.. _SALOME_Comm:              ./tui/KERNEL/SALOME__Comm_8idl.html
+.. _SALOME_GenericObj:        ./tui/KERNEL/SALOME__GenericObj_8idl.html
+.. _SALOME_Exception:         ./tui/KERNEL/SALOME__Exception_8idl.html
+.. _SALOME_Session:           ./tui/KERNEL/SALOME__Session_8idl.html
+.. _SALOME_MPIContainer:      ./tui/KERNEL/SALOME__MPIContainer_8idl.html
+.. _SALOME_MPIObject:         ./tui/KERNEL/SALOME__MPIObject_8idl.html
+
+
+-------------------------------------------------------------------------------
+
++----------------------------------+------------------------------------------+
+| `General KERNEL documentation`_  | `End User KERNEL Doxygen documentation`_ |
++----------------------------------+------------------------------------------+
+
+.. _`General KERNEL documentation`:           ./index.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html

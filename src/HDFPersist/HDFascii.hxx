@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File      : HDFascii.hxx
 //  Created   : Mon Jun 10 16:24:50 2003
@@ -23,7 +23,6 @@
 
 //  Project   : SALOME
 //  Module    : HDFPersist
-//  Copyright : Open CASCADE
 
 
 #ifndef __HDFascii_H__

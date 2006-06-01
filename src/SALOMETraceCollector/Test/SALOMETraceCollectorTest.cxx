@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "SALOMETraceCollectorTest.hxx"
@@ -101,9 +101,9 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 
 void *PrintHello(void *threadid)
 {
-  int id_thread = (int)threadid;
-  for (int i=0; i<NUM_MESSAGES;i++)
-    MESSAGE("Hello World! This is a trace test : " << id_thread 
-	    << " - iter " << i);
+  long id_thread = (long)threadid;
+      for (int i=0; i<NUM_MESSAGES;i++)	
+	MESSAGE("Hello World! This is a trace test : " << id_thread 
+	        << " - iter " << i);
   pthread_exit(NULL);
 }
