@@ -6,7 +6,7 @@ SALOME Kernel resources for developer
 
   rst2html doc.txt > doc.html
 
-*This document corresponds to SALOME2 3.2.0 (beta version)*
+*This document corresponds to SALOME2 3.2.0*
 
 :Authors:
    Antoine Yessayan,

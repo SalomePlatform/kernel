@@ -6,7 +6,7 @@ KERNEL Services for end user (Python interface)
 
   rst2html < doc.txt > doc.html
 
-This document corresponds to SALOME2 3.2.0 (beta version)
+This document corresponds to SALOME2 3.2.0
 
 .. contents::
 .. sectnum::
@@ -160,13 +160,30 @@ SWIG is very similar).
 
 .. _FileTransferCORBA: ./tui/KERNEL/classSALOME__FileTransferCORBA.html
 
+The following example shows how to tranfer a file from a remote host to the
+client computer. Remote hostname is 'cli76cc', we would like to copy
+'tkcvs_8_0_3.tar.gz' from remote to local computer. A full pathname is
+required. A container is created on remote computer if it does not exist,
+to handle the file transfer::
+
+   import salome
+   salome.salome_init()
+
+   import LifeCycleCORBA
+   remotefile="/home/prascle/tkcvs_8_0_3.tar.gz"
+   aFileTransfer=LifeCycleCORBA.SALOME_FileTransferCORBA('cli76cc',remotefile)
+   localFile=aFileTransfer.getLocalFile()
+
+
 CORBA Naming service access
 ---------------------------
 
-See SALOME_NamingService_ for the C++ interface (Python interface obtained with
-SWIG is very similar).
+See SALOME_NamingService_ for the C++ interface. The Python interface
+SALOME_NamingServicePy_ is not yet derived from the C++ interface and offers
+only the most useful functions.
 
 .. _SALOME_NamingService: ./tui/KERNEL/classSALOME__NamingService.html
+.. _SALOME_NamingServicePy: ./tui/KERNEL/classSALOME__NamingServicePy_1_1SALOME__NamingServicePy__i.html
 
 Batch services
 --------------

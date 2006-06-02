@@ -6,7 +6,7 @@ SALOME Application Concept. Configuration for one or more computers
 
   rst2html doc.txt > doc.html
 
-This document corresponds to SALOME2 3.2. (alpha version)
+This document corresponds to SALOME2 3.2.0
 
 .. contents::
 .. sectnum::

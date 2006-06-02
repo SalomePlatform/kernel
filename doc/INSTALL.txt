@@ -7,6 +7,7 @@ Installation instructions, up to date for 3.0 version
   rst2html < doc.txt > doc.html
 
 *This document corresponds to SALOME2 3.1.0*
+*NOT UP TO DATE with 3.2.0*
 
 .. contents::
 .. sectnum::
