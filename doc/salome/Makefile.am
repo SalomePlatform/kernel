@@ -25,21 +25,27 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS= tui DevelopersGuide
-SUBDIRSGUI= DevelopersGuide
+SUBDIRS= tui
+SUBDIRSGUI= tui
 SUBDIRSTUI= tui
 
 index_html:
 	$(INSTALL) -d $(docdir); 
 
-docs: index_html
+usr_docs: index_html
 	list='$(SUBDIRSGUI)'; for subdir in $$list; do \
-	  echo "Making userdoc in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) docs) \
+	  echo "Making usr_docs in $$subdir"; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) usr_docs) \
 	done;
 
 dev_docs: index_html
 	list='$(SUBDIRSTUI)'; for subdir in $$list; do \
-	  echo "Making userdoc in $$subdir"; \
+	  echo "Making dev_docs in $$subdir"; \
 	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) dev_docs) \
 	done;
+
+
+info_TEXINFOS = Batch.texi
+
+install-data-local:  html usr_docs
+	cp -rp $(top_builddir)/doc/salome/Batch.html $(docdir)

@@ -46,5 +46,10 @@ EXTRA_DIST = \
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 
-userdoc:
-	(cd doc && $(MAKE) $(AM_MAKEFLAGS) userdoc)
+usr_docs:
+	(cd doc && $(MAKE) $(AM_MAKEFLAGS) usr_docs)
+
+docs:usr_docs
+
+dev_docs:
+	(cd doc && $(MAKE) $(AM_MAKEFLAGS) dev_docs)

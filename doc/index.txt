@@ -1,5 +1,5 @@
 =================================================================
-General information, for users, integrators and developers
+KERNEL common Services
 =================================================================
 
 *html version of this document is produced with docutils*::
@@ -17,7 +17,10 @@ General information, for users, integrators and developers
 
 -------------------------------------------------------------------------------
 
+**General information, for users, integrators and developers**
+
 **Users, integrators and developers, which documentation ?**
+
 Following your kind of usage of SALOME, you will find some specific 
 introductory documentation, listed below.
 

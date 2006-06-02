@@ -496,10 +496,9 @@ AC_OUTPUT([ \
 	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
-	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
-	./doc/salome/DevelopersGuide/Makefile \
 	./doc/salome/tui/Makefile \
 	./doc/salome/tui/INPUT/doxyuser:./doc/salome/tui/KERNEL/doxyuser.in \
+	./doc/salome/tui/INPUT/doxydev:./doc/salome/tui/KERNEL/doxydev.in \
 	./doc/salome/tui/INPUT/sources/static/tree.js:./doc/salome/tui/KERNEL/sources/static/tree.js.in \
 	./idl/Makefile \
 	./resources/Makefile \

@@ -30,7 +30,7 @@ EXTRA_DIST = $(srcdir)/KERNEL
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 
-dev_docs:
+usr_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
 	cd ./INPUT; \
         pwd; ls;\
@@ -55,3 +55,27 @@ dev_docs:
 	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
 	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
 
+dev_docs:
+	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
+	cd ./INPUT; \
+        pwd; ls;\
+	echo "DOXYGEN SUPPORT PYTHON - $(DOXYGEN_WITH_PYTHON)"; \
+	if( test "x$(DOXYGEN_WITH_PYTHON)" = "xyes"); then \
+	  sed 's|python_extension_must_be_here|*.py|' ./doxydev > ./doxydev1; \
+	  $(DOXYGEN) -u ./doxydev1; \
+	else \
+	  sed 's|python_extension_must_be_here||' ./doxydev > ./doxydev1; \
+	fi; \
+	echo "DOXYGEN SUPPORT STL - $(DOXYGEN_WITH_STL)"; \
+	if( test "x$(DOXYGEN_WITH_STL)" = "xyes"); then \
+	  sed -e 's|BUILTIN_STL_SUPPORT    = NO|BUILTIN_STL_SUPPORT    = YES|' ./doxydev1 > ./doxydev2; \
+	  mv -f doxydev2 doxydev1; \
+	fi; \
+	$(DOXYGEN) ./doxydev1; \
+	cd ..;
+	$(INSTALL) -d $(docdir)/tui/KERNEL;
+#	cp -fr KERNEL $(docdir)/tui
+#	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir)/tui/KERNEL;
+#	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
+#	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
+#	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;

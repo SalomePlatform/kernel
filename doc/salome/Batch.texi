@@ -1,0 +1,4962 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename Batch.info
+@settitle Documentation de Batch
+@setchapternewpage odd
+@iftex
+@afourpaper
+@end iftex
+
+@include version.texi
+
+@dircategory Bibliotheque de classes Batch
+@direntry
+* Batch: (Batch);       Documentation de la bibliotheque de classes Batch.
+@end direntry
+
+@c %**end of header
+
+
+
+@titlepage
+@sp 10
+@comment The title is printed in a large font.
+@title Bibliotheque de classes Batch
+@subtitle Documentation - version @value{VERSION}
+@subtitle @value{UPDATED}
+@author Ivan DUTKA-MALEN - EDF R&D
+
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2003-2004 EDF R&D sous licence GPL
+@end titlepage
+
+@contents
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Top,       Description, Index   , (dir)
+@comment node-name, next,        previous,  up
+@ifinfo
+Copyright @copyright{} 2003-2004 EDF R&D sous licence GPL
+@end ifinfo
+
+@unnumbered Introduction
+
+Ceci est la documentation de la bibliotheque de classes Batch version
+@value{VERSION}.
+
+Ce manuel est normalement disponible sous la forme de fichiers
+@file{.info}, PostScript @file{.ps}, PDF @file{.pdf} et HTML
+@file{.html}. Merci a Texinfo. 
+
+
+@menu
+* Description::                         Le batch, c'est quoi ? Ca sert a quoi ?
+* Classes::                             Une description des classes internes.
+* Utilisation::                         Comment on s'en sert ? Quelques exemples.
+* Installation de la bibliotheque::     Comment ca s'installe ?
+* Divers::                              D'autres petits details.
+* Index::                               Index generaux.
+@end menu
+
+
+
+
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Description,   Classes,       Top,      Top
+@comment node-name,     next,          previous, up
+@chapter Description Generale
+@cindex  description
+
+Dans le domaine du batch, nombreux sont les gestionnaires qui sont
+apparus et se sont popularises en fonction des plates-formes et des
+constructeurs. On peut notamment citer NQS, le premier de tous, LSF,
+LoadLeveler, PBS (et ses derives OpenPBS et PBS Pro), etc. qui se
+prevalent tous d'une compatibilite avec NQS.
+
+Si l'ensemble de ces produits offrent les fonctionnalites de base de
+NQS, a savoir soumission, controle, destruction, modification, etc. de
+travaux batch, ils se distinguent tous par leur incompatibilite mutuelle
+et par les syntaxes de fichiers et les appels de fonction specifiques
+qu'ils ont developpes.
+
+Or il est interessant de pouvoir acceder d'une facon homogene et
+generique aux fonctionnalites de ces gestionnaires quitte a se
+restreindre a un sous-ensemble minimal mais essentiel de leurs
+possibilites.
+
+La bibliotheque de classes Batch fournit ce moyen de soumettre et
+controler des travaux batch depuis une machine cliente sans s'occuper du
+type de gestionnaire present sur le serveur sur lequel se deroule
+l'execution du travail. Seul doit etre precise le nom du serveur sur
+lequel sera soumis le travail batch et le type de gestionnaire qui s'y
+trouve. Tout le reste est generique et ne depend plus de l'implementation.
+
+
+
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes,    Terminologie,  Description, Top
+@comment  node-name,  next,          previous,    up
+@chapter  Classes Internes
+@cindex   classe
+
+Les classes de la bibliotheque reposent sur des concepts issus du monde
+de la gestion de batch, qui meritent d'etre reprecises pour ne pas
+introduire d'ambiguite semantique dans le discours.
+
+@menu
+* Terminologie::        Description des termes employes.
+* Classes generiques::  Les classes communes a tous les gestionnaires.
+* Classes specifiques:: Les classes d'implementation.
+@end menu
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Terminologie, Batch,  Classes,   Classes
+@comment  node-name,    next,   previous,  up
+@section  Terminologie
+@cindex   terminologie
+
+Pour les non-inities aux mysteres de la gestion de batch, un petit
+glossaire des termes employes dans cette documentation, assaisonne a la
+sauce de la bibliotheque de classes Batch.
+
+@menu
+* Batch::                Gestion par lots, execution differee.
+* BatchManager::         Gestionnaire de batch.
+* Job::                  Travail.
+* Parametre::            Configuration de l'execution.
+* Environnement::        Environnement d'execution.
+* JobId::                Identifiant de travail.
+* JobInfo::              Informations sur le travail.
+@end menu
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Batch,      BatchManager, Terminologie, Terminologie
+@comment  node-name,  next,          previous,     up
+@subsection Batch
+@cindex     batch
+
+Le traitement batch (batch processing en anglais), ou traitement par
+lot, fait reference au mode de sequencage et d'utilisation des
+ressources d'un calculateur tel qu'il a ete premierement employe dans
+les debuts de l'ere informatique. Mais il faut preciser que cette
+anteriorite ne condamne pas le traitement batch aux oubliettes au motif
+d'une quelconque obsolescence. Si le traitement par lot a vu le jour et
+existe encore aujourd'hui, c'est parce qu'il repond de maniere
+satisfaisante a une certaine utilisation des ressources d'un
+calculateur, et que cette utilisation est encore d'actualite. Present
+depuis plus de quarante ans, le batch est encore largement utilise sur
+les grands serveurs, et le sera vraisemblablement pour quelques annees
+encore.
+
+Le traitement par lot se distingue de l'execution interactive par le
+fait que les travaux a effectuer sont places dans une file d'attente
+avec une indication pour chaque lot des ressources dont il doit disposer
+pour aboutir correctement. Une fois les travaux inscrits dans la file,
+c'est au systeme de traitement batch (@xref{BatchManager}.) de veiller a
+leur bonne execution en leur fournissant les ressources demandees. Tout
+travail qui ne disposerait pas des ressources adequates ne peut pas etre
+active.
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     BatchManager, Job,   Batch,     Terminologie
+@comment  node-name,    next,  previous,  up
+@subsection Batch Manager
+@cindex     batch manager
+@cindex     gestionnaire
+
+Le role du gestionnaire de batch, ou batch manager en anglais, est
+d'executer et eventuellement d'ordonner les travaux places en file
+d'attente en leur allouant exclusivement les ressources necessaires a
+leur execution. Son objectif est d'optimiser les ressources du systeme
+dont il a la charge de maniere a ecouler le maximum de travaux en un
+minimum de temps et un minimum de ressources materielles.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Job,        Parametre, BatchManager, Terminologie
+@comment  node-name,  next,      previous,      up
+@subsection Job
+@cindex     Job
+@cindex     travail
+
+Le travail, ou job en anglais, est l'unite elementaire de traitement qui
+peut etre soumis au gestionnaire de batch. Il peut s'agir d'une simple
+commande systeme, comme d'une application ou bien meme de l'enchainement
+complexe mais indivisible de plusieurs applications ou commandes.
+
+Pour s'executer correctement, c'est-a-dire sans erreur, le job doit
+disposer de certaines ressources --- de la memoire, du temps, de
+l'espace disque @dots{} --- pendant toute la duree de son
+execution. C'est au gestionnaire de batch (@xref{BatchManager}.) de
+garantir au job la presence et la persistence de ces ressources pendant
+l'execution du job.
+
+Par contre c'est a l'utilisateur qui soumet le job d'informer le
+gestionnaire de batch des ressources necessaires au job. Pour des
+raisons evidentes de bonne gestion des ressources, le job ne peut
+consommer plus de ressources que celles qu'il a demande et obtenu du
+gestionnaire de batch sans etre arrete ou reclasse.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Parametre,  Environnement, Job,       Terminologie
+@comment  node-name,  next,          previous,  up
+@subsection Parametre
+@cindex     parametre
+
+Le premier type de ressource necessaire a un job concerne les elements
+materiels ou temporels, en un mot, physiques. Parmi ces ressources, on
+trouve le temps de calcul, le temps de presence en machine, l'espace
+disque, la quantite de memoire vive, l'architecture du calculateur, etc.
+
+Dans la terminologie de la bibliotheque de classes Batch, tous ces
+elements ont ete regroupes sous le terme de @emph{Parametre}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Environnement, JobId, Parametre, Terminologie
+@comment  node-name,     next,  previous,  up
+@subsection Environnement
+@cindex     environnement
+
+Le second type de ressource necessaire a un job concerne les elements
+logiciels. Cela se traduit le plus souvent, et particulierement, dans
+les systemes Unix par la notion de variable d'environnement. Lorsque le
+job s'execute, il doit pouvoir trouver l'ensemble des commandes et des
+applications auquel il souhaite faire appel. Les variables
+d'environnement decrivent donc les localisations des ces
+programmes. Elles peuvent egalement contenir des informations influant
+sur le comportement des programmes.
+
+Dans la terminologie de la bibliotheque de classes Batch, tous ces
+elements on ete regroupes sous le terme de @emph{Environnement}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     JobId,      JobInfo, Environnement, Terminologie
+@comment  node-name,  next,    previous,      up
+@subsection JobId
+@cindex     jobid
+@cindex     identifier
+
+Si un job (@xref{Job}.) decrit les actions qui doivent etre effectues
+par le systeme sous le controle du gestionnaire de batch, il est clair
+qu'il est possible de soumettre plusieurs fois de suite le meme job, et
+par la-meme d'executer plusieurs fois (et parfois simultanement) ces
+memes actions. On a donc plusieurs instances du meme job qui sont
+presentes en machine. Chaque instance peut etre distinguee des autres
+par un identifiant unique qui lui est propre : c'est le @emph{jobId}.
+
+Le JobId est determine par le gestionnaire de batch au moment de la
+soumission.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     JobInfo,    Classes generiques, JobId,     Terminologie
+@comment  node-name,  next,               previous,  up
+@subsection JobInfo
+@cindex     jobinfo
+
+
+Des qu'un job (@xref{Job}.) est soumis donc des qu'il dispose d'un
+JobId (@xref{JobId}.), il est possible d'interroger le gestionnaire de
+batch pour etre informe de son comportement, de son evolution au sein du
+systeme pendant son execution.
+
+On peut ainsi connaitre les parametres reellement consommes par rapport
+aux parametres alloues, ainsi que l'environnement d'execution du job.
+
+Le JobInfo est une structure qui collecte ses informations sur l'etat du
+job.
+
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes generiques, Namespace, JobInfo,   Classes
+@comment  node-name,          next,                previous,  up
+@section  Classes generiques
+@cindex   classes generiques
+
+Schematiquement, les classes composant la bibliotheque sont regroupees
+en trois categories. Celles appartenant au groupe @emph{Types de base}
+ne servent que de support au fonctionnement des classes de plus haut
+niveau, egalement appellees @emph{Classes utilisateur}. Seules ces
+dernieres sont vraiment interessantes pour l'utilisateur de la
+bibliotheque. Les exceptions sont regroupees dans une categorie qui leur
+est propre.
+
+@menu
+* Namespace::                   Espace de noms pour la bibliotheque.
+* Types de base::               Les classes elementaires.
+* Classes utilisateur::         Les classes de haut-niveau.
+* Exceptions::                  Les exceptions de la bibliotheque.
+@end menu
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node Namespace, Types de base, Classes generiques, Classes generiques
+@comment  node-name,  next,  previous,  up
+@subsection Namespace
+@cindex     namespace
+
+Toutes les classes de la bibliotheque sont regroupees dans un unique
+namespace nomme @emph{Batch} afin de ne pas introduire de conflit avec
+d'autres classes de meme nom.
+
+Ainsi lorsque par exemple on cite la classe @emph{BatchManager}, il
+faudra declarer un objet @emph{Batch::BatchManager} ou bien faire appel
+au namespace @emph{Batch} en C++. En Python, les objets sont regroupes
+dans un module nomme @emph{libBatch_Swig}.
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Types de base, Classe Couple, Namespace, Classes generiques
+@comment  node-name,  next,  previous,  up
+@subsection Types de base
+@cindex     types de base
+
+Les classes decrites ici sont toutes utilisees ou utilisables par les
+classes utilisateur de la bibliotheque, et en particulier par la classe
+Versatile. @xref{Classe Versatile}.
+
+Ces classes implementent sous forme d'objet les types de base du langage
+C++. Ainsi la classe @emph{Booltype} implemente le type de base
+@emph{bool}. Certains types de base n'existant pas dans le langage ont
+ete crees et encapsules dans une classe : c'est le cas notamment du type
+de base @emph{Date} et de la classe @emph{DateType}, et du type de base
+@emph{Couple} et de la classe @emph{CoupleType}.
+
+Tous les classes heritent de la classe generique @emph{GenericType}.
+
+@menu
+-- Types de base --
+
+* Classe Couple::               Association de fichiers.
+* Classe Date::                 Type elementaire de date.
+
+-- Classes d'implementation des types de base --
+
+* Classe GenericType::          Classe-mere de tous les types.
+* Classe BoolType::             Encapsulation du type bool.
+* Classe CharType::             Encapsulation du type char.
+* Classe CoupleType::           Encapsulation du type Couple.
+* Classe DateType::             Encapsulation du type Date.
+* Classe IntType::              Encapsulation du type int.
+* Classe LongType::             Encapsulation du type long.
+* Classe StringType::           Encapsulation du type string.
+
+@end menu
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Couple, Classe Date, Types de base, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Couple
+@findex        Couple
+
+La classe @emph{Couple} implemente le comportement d'un couple de deux
+chaines de type @emph{string} qui sont respectivement nommees
+@emph{local} et @emph{remote}.
+
+Cette classe est utilisee essentiellement pour la designation des
+fichiers a transferer lors des soumissions de travaux, d'ou les noms
+employes.
+
+@cartouche
+Il faut toutefois faire attention a designer correctement ce qui est
+local ou distant. Ainsi dans la bibliotheque de classes Batch, on a
+adopte la convention qu'un fichier dit @emph{local} est celui present
+sur la machine qui execute la bibliotheque de classes Batch, alors qu'un
+fichier dit @emph{remote} (ou distant) est celui present sur le serveur
+du gestionnaire de batch. 
+L'approche est donc clairement orientee utilisateur plutot que serveur.
+@end cartouche
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class Couple
+@{
+  public:
+    // Constructeur standard
+    Couple(const string & local, const string & remote);
+
+    // Constructeur par recopie
+    Couple(const Couple & C);
+
+    // Operateur pour l'affichage sur un stream
+    friend ostream & operator << (ostream & os, const Couple & cp);
+
+    // Operateur d'affectation
+    virtual Couple & operator =(const Couple &);
+
+    // Conversion en chaine
+    virtual string str() const;
+
+    // Accesseurs
+    virtual string getLocal() const;
+    virtual string getRemote() const;
+
+  protected:
+    string _local;  // chemin d'acces au fichier local
+    string _remote; // chemin d'acees au fichier distant
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Date, Classe GenericType, Classe Couple, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Date
+@findex        Date
+
+La classe @emph{Date} sert a stocker n'importe quelle information de
+temps et peut la representer sous une forme plus lisible a l'utilisateur
+que le traditionnel appel a la fonction @emph{ctime}. @xref{(*manpages*)ctime}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class Date
+@{
+  public:
+    // Constructeur standard (a partir d'une valeur epoch)
+    Date(const long l=0);
+
+    // Constructeur a partir d'une chaine hh:mm:ss
+    Date(const string s);
+
+    // Operateurs portant sur les Dates
+    virtual Date & operator =(long l);
+    virtual Date & operator +(long l);
+    virtual Date & operator -(long l);
+    virtual Date & operator +=(long l);
+    virtual Date & operator -=(long l);
+    virtual Date & operator =(const string & s);
+
+    // Conversions en types standards
+    virtual string str() const;
+    virtual long epoch() const;
+
+  protected:
+    int _day, _month, _year;
+    int _hour, _min, _sec;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe GenericType, Classe BoolType, Classe Date, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection GenericType
+@findex        GenericType
+
+La classe @emph{GenericType} est la classe-mere de toutes les classes
+utilisees par la classe @emph{Versatile}. @xref{Classe Versatile}.
+
+Elle definit une interface que @emph{Versatile} utilise pour controler
+les objets : constructeur simple et destructeur, operateur sur
+@emph{ostream}, conversion en chaine et surtout methode @emph{clone}.
+
+La methode @emph{clone} permet de recuperer un nouvel objet identique au
+premier qui sera automatiquement alloue sur le tas par un appel a
+@emph{new}. Il est important de noter ici que le nouvel objet @strong{DEVRA}
+etre desalloue par un appel a @emph{delete}. Cette desallocation est a
+la charge de l'utilisateur de l'objet sans quoi une fuite memoire en
+resultera.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class GenericType
+@{
+  public:
+    // Constructeur et destructeur
+    GenericType();
+    virtual ~GenericType();
+
+    // Operateur pour l'affichage sur un stream
+    friend ostream & operator << (ostream & os, 
+                                  const GenericType & obj);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+    // Retourne le nombre d'objets GenericType et al.
+    static int getNb();
+
+    protected:
+
+    private:
+      static int _nb; // nombre total d'objets GenericType et al.
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe BoolType, Classe CharType, Classe GenericType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection BoolType
+@findex        BoolType
+
+Cette classe encapsule le type C++ @emph{bool} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class BoolType : public GenericType
+@{
+  public:
+    // Constructeur
+    BoolType(const bool b=false);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Operateur d'affectation
+    virtual BoolType & operator =(bool);
+
+    // Conversion en bool
+    virtual operator bool() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    bool _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe CharType, Classe CoupleType, Classe BoolType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection CharType
+@findex        CharType
+
+Cette classe encapsule le type C++ @emph{char} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class CharType : public GenericType
+@{
+  public:
+    // Constructeur
+    CharType(const char c=0);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Operateur d'affectation
+    virtual CharType & operator =(char);
+
+    // Conversion en char
+    virtual operator char() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    char _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe CoupleType, Classe DateType, Classe CharType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection CoupleType
+@findex        CoupleType
+
+Cette classe encapsule le type interne @emph{Couple} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class CoupleType : public GenericType
+@{
+  public:
+    // Constructeur
+    CoupleType(const Couple & C);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+    virtual operator string() const;
+
+    // Operateur d'affectation
+    virtual CoupleType & operator =(const Couple & C);
+
+    // Conversion en char
+    virtual operator Couple() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    Couple _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe DateType, Classe IntType, Classe CoupleType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection DateType
+@findex        DateType
+
+Cette classe encapsule le type interne @emph{Date} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class DateType : public GenericType
+@{
+  public:
+    // Constructeur
+    DateType(const Date & d);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Operateur d'affectation
+    virtual DateType & operator =(const Date &);
+
+    // Conversion en Date
+    virtual operator Date() const;
+
+    // Conversion en long
+    virtual operator long() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    Date _data;
+
+  private:
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe IntType, Classe LongType, Classe DateType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection IntType
+@findex        IntType
+
+Cette classe encapsule le type C++ @emph{int} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class IntType : public GenericType
+@{
+  public:
+    // Constructeur
+    IntType(const int i=0);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Operateur d'affectation
+    virtual IntType & operator =(int);
+
+    // Conversion en int
+    virtual operator int() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    int _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe LongType, Classe StringType, Classe IntType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection LongType
+@findex        LongType
+
+Cette classe encapsule le type C++ @emph{long} dans un objet herite de
+@emph{GenericType} de maniere a pouvoir le stocker aisement dans un
+objet de classe @emph{Versatile}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class LongType : public GenericType
+@{
+  public:
+    // Constructeur
+    LongType(const long l=0L);
+
+    // Conversion en chaine
+    virtual string affiche() const;
+
+    // Operateur d'affectation
+    virtual LongType & operator =(long);
+
+    // Conversion en long
+    virtual operator long() const;
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    long _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe StringType, Classes utilisateur, Classe LongType, Types de base
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection StringType
+@findex        StringType
+
+Cette classe encapsule le type C++ @emph{string} de la STL dans un objet
+herite de @emph{GenericType} de maniere a pouvoir le stocker aisement
+dans un objet de classe @emph{Versatile}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class StringType : public GenericType
+@{
+  public:
+    // Constructeur
+    StringType(const string & s="");
+
+    // Conversion en chaine
+    virtual string affiche() const;
+    virtual operator string() const;
+
+    // Operateur d'affectation
+    virtual StringType & operator =(string);
+
+    // Clone duplique l'objet et en fabrique un nouveau a l'aide de new
+    // qu'il faudra detruire ensuite manuellement
+    virtual GenericType * clone() const;
+
+  protected:
+    string _data;
+
+  private:
+
+@};
+@end example
+@end itemize
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes utilisateur, Exemple, Classe StringType, Classes generiques
+@comment  node-name,  next,  previous,  up
+@page
+@subsection Classes utilisateur
+@cindex     classes utilisateur
+
+Les classes dites classes utilisateur sont en realite les classes de
+plus haut niveau de la biliotheque de classes Batch. Ces classes
+remplissent les unes avec les autres l'ensemble des fonctionnalites
+proposees par la bibliotheque. L'utilisateur trouvera donc dans cette
+section la description des possibilites de la bibliotheque et le moyen
+de les mettre en oeuvre.
+
+La premiere section montre un exemple complet de soumission et de
+controle d'un job soumis a travers les classes de la biliotheque. Les
+sections suivantes reprennent les elements de l'exemple pour le
+detailler et le completer.
+
+@menu
+* Exemple::                     Exemple simple mais complet d'utilisation.
+* Classe BatchManagerCatalog::  Description de la classe BatchManagerCatalog.
+* Classe FactBatchManager::     Description de la classe FactBatchManager.
+* Classe BatchManager::         Description de la classe BatchManager.
+* Classe Environnement::        Description de la classe Environnement.
+* Classe Job::                  Description de la classe Job.
+* Classe JobId::                Description de la classe JobId.
+* Classe JobInfo::              Description de la classe JobInfo.
+* Classe Parametre::            Description de la classe Parametre.
+* Classe Versatile::            Description de la classe Versatile.
+@end menu
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node Exemple, Classe BatchManagerCatalog, Classes utilisateur, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Exemple
+@cindex        exemple
+
+Cet exemple decrit le processus type de creation et de soumission d'un
+job a travers les classes de la bibliotheque.
+
+Il faut toutefois penser que les appels aux methodes peuvent lever des
+exceptions qu'il faudra intercepter et gerer. @xref{Exceptions}.
+
+@example
+  @dots{}
+
+  // On instancie le catalogue de gestionnaires de batch
+  Batch::BatchManagerCatalog cata;
+
+  // On cree un BatchManager qui se connecte au veritable gestionnaire
+  // de batch 
+  Batch::BatchManager & bm = (* cata("PBS"))("monserver.mondomaine.fr");
+
+  // Pour fabriquer un Job, on doit d'abord creer un objet Parametre et
+  // un objet Environnement qui contiennent respectivement la liste des
+  // parametres du job au sein du gestionnaire de batch et la liste des
+  // variables d'environnement necessaires au fonctionnement du job
+  Batch::Parametre param;
+
+  param[EXECUTABLE]  = "/home/user/mon_application/executable";
+  param[NAME]        = "MonJob";
+  param[ACCOUNT]     = "MonProjet"; // code d'imputation/facturation
+  param[MAXCPUTIME]  = 360L;        // 6min
+  param[MAXWALLTIME] = 480L;        // 8min
+  param[INFILE]      = Batch::Couple("/tmp/infich1",  rempath+"/infich1");
+  param[OUTFILE]     = Batch::Couple("/tmp/outfich1", rempath+"/outfich1");
+  param[OUTFILE]    += Batch::Couple("stderr", path + "/STDERR");
+  param[OUTFILE]    += Batch::Couple("stdout", path + "/STDOUT");
+  param[MAIL]        = "user@@domaine.fr";
+  param[USER]        = "user";
+
+  Batch::Environnement env;
+  env["DEBUG"]       = "3"; // un niveau de debug exige par l'application
+  env["MYAPP_FILE"]  = "/home/user/mon_application/data/mydatafile";
+
+  // Creation du job
+  Batch::Job job(param, env);
+
+  // On soumet le Job au BatchManager qui le relaie jusqu'au veritable
+  // gestionnaire de batch sur le serveur. En retour on obtient un
+  // identifiant unique de notre job (JobId). 
+  const Batch::JobId jobid = bm.submitJob(job);
+
+  // On interroge le BatchManager pour connaitre l'etat du Job
+  const Batch::JobInfo jinfo = jobid.queryJob();
+  cout << jinfo << endl;
+
+  // On detruit l'objet BatchManager
+  delete &bm;
+
+  @dots{}
+@end example
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe BatchManagerCatalog, Classe FactBatchManager, Exemple, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection BatchManagerCatalog
+@findex        BatchManagerCatalog
+
+La classe @emph{BatchManagerCatalog} definit une interface d'acces au
+catalogue de fabriques de BatchManager. @xref{Classe FactBatchManager}.
+
+Pourquoi utiliser une fabrique et ne pas instancier directement un objet
+@emph{BatchManager} en fonction de sa classe ? C'est l'option qui avait ete
+choisie dans la premiere version de la bibliotheque de classes
+Batch. Cette facon de proceder est simple, aussi bien pour le
+developpeur de la classe que pour l'utilisateur, mais elle se revele a
+terme penalisante dans la souplesse d'utilisation des classes. Elle
+permet aussi moins facilement de mettre en place une strategie de
+singleton pour les objets @emph{BatchManager}, ce qui peut se reveler utile non
+pas en termes de performance mais plutot en termes de genericite et
+toujours de souplesse.
+
+En resume, l'utilisation de fabiques permet d'acceder a la genericite,
+qui rappelons-le est l'objet de cette biliotheque, a la souplesse et a
+la performance au prix d'une legere complication pour le developpeur
+mais pas pour l'utilisateur.
+
+Le catalogue de fabriques est une @emph{map}, ou tableau associatif,
+auquel on passe le nom d'une fabrique et qui retourne un pointeur sur
+une instance de cette fabrique.
+
+Le catalogue est renseigne statiquement par les fabriques declarees
+elles-memes statiquement dans la biliotheque. Il est donc precharge avec
+les fabriques correspondant a chacune des API disponibles. Comme le
+catalogue n'est pas declare constant, il est possible de rajouter ou de
+supprimer des fabriques dans le catalogue dynamiquement.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class BatchManagerCatalog
+@{
+public:
+  // Constructeur
+  BatchManagerCatalog();
+  // Destructeur
+  virtual ~BatchManagerCatalog();
+
+  // Accesseurs
+  static FactBatchManager * getFactBatchManager(const char * type);
+  static void addFactBatchManager(const char * type,
+                                  FactBatchManager * pFBM);
+  virtual FactBatchManager * operator() (const char * type) const;
+
+  // Wrapping Python
+  virtual map<string, FactBatchManager *> * dict() const;
+  virtual string __repr__() const;
+
+protected:
+  // Le catalogue est gere en singleton et en multi-thread
+  static map<string, FactBatchManager *> * _p_catalog;
+  static pthread_mutex_t _mutex;
+
+private:
+
+@};
+@end example
+
+@item Exemple
+
+@example
+@dots{}
+
+// On instancie le catalogue de gestionnaires de batch
+Batch::BatchManagerCatalog cata;
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{BatchManagerCatalog()}
+
+Le constructeur par defaut permet d'obtenir une instance de
+@emph{BatchManagerCatalog} qui permet de manipuler un objet statique
+interne. Cet objet interne est le veritable catalogue et se trouve etre
+un singleton.
+
+
+@item
+@b{~BatchManagerCatalog()}
+
+Le destructeur n'a pas d'action particuliere.
+
+@item
+@b{static FactBatchManager * getFactBatchManager(const char * type)}
+
+Cet accesseur retourne un pointeur sur un objet de type
+@emph{FactBatchManager} en fonction du nom (le type) sous lequel il
+s'est enregistre dans le catalogue.
+
+Cette fonction est statique et peut donc etre utilisee pour interroger
+le catalogue depuis des objets statiques.
+
+@item
+@b{static void addFactBatchManager(const char * type, FactBatchManager * pFBM)}
+
+Cet accesseur enregistre dans le catalogue un pointeur sur un objet de type
+@emph{FactBatchManager} sous le nom (le type) passe en argument.
+
+Cette fonction est statique et peut donc etre utilisee pour enregistrer
+des objets statiques dans le catalogue.
+
+@item
+@b{FactBatchManager * operator() (const char * type) const}
+
+Cet accesseur retourne un pointeur sur un objet de type
+@emph{FactBatchManager} en fonction du nom (le type) sous lequel il
+s'est enregistre dans le catalogue.
+
+Cette fonction non statique est utilisable sur une instance de
+@emph{BatchManagerCatalog}. 
+
+@item
+@b{map<string, FactBatchManager *> * dict() const}
+
+Cette methode utilisable depuis Python permet de recuperer un
+dictionnaire decrivant le contenu du catalogue.
+
+@item
+@b{string __repr__() const}
+
+Cette methode utilisable depuis Python retourne une description de
+l'objet @emph{BatchManagerCatalog}.
+
+@end itemize
+
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe FactBatchManager, Classe BatchManager, Classe BatchManagerCatalog, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection FactBatchManager
+@findex        FactBatchManager
+
+La classe @emph{FactBatchManager} est abstraite. Elle definit une interface
+qui doit etre implementee par des classes specialisees en fonction du
+gestionnaire de batch et de son API de communication. @xref{Classes specifiques}.
+
+Les objets repondant a l'interface de @emph{FactBatchManager} sont
+automatiquement inseres dans le catalogue des fabriques de
+@emph{BatchManager} a la construction de l'objet. Il est ainsi possible
+de definir statiquement des objets de ce type qui enrichiront le
+catalogue des la compilation. @xref{Classe
+BatchManagerCatalog}. @xref{Classe BatchManager}.
+
+Les objets de la classe @emph{FactBatchManager} ou de ses derivees sont
+des functors et renvoient au moment de l'appel un pointeur sur un objet
+gestionnaire de batch @emph{BatchManager} associe a un
+serveur. L'allocation de l'objet est faite sur le tas et celui-ci doit
+donc etre desalloue manuellement par l'utilisateur de la bibliotheque au
+moment opportun.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class FactBatchManager
+@{
+public:
+  // Constructeur
+  FactBatchManager(const string & type);
+
+  // Destructeur
+  virtual ~FactBatchManager();
+
+  // Functor
+  virtual BatchManager * operator() (const char * hostname) const = 0;
+
+  // Accesseur au type interne
+  string getType() const;
+
+  // Wrapping Python
+  string __repr__() const;
+
+protected:
+  string type; // Le type interne
+
+private:
+
+@};
+@end example
+
+@item Exemple
+
+@example
+@dots{}
+
+// On instancie le catalogue de gestionnaires de batch
+Batch::BatchManagerCatalog cata;
+
+// On cree une fabrique de BatchManager de type PBS
+Batch::FactBatchManager & fbm = * cata("PBS");
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+
+@item
+@b{FactBatchManager(const string & type)}
+
+Le constructeur de la classe prend un type qui doit identifer de maniere
+unique la fabrique au sein du catalogue de fabrique. Ce type sert de cle au
+catalogue. @xref{Classe BatchManagerCatalog}.
+
+@item
+@b{~FactBatchManager()}
+
+Le destructeur de la classe n'a pas d'action particuliere.
+
+@item
+@b{BatchManager * operator() (const char * hostname) const}
+
+Cette methode est virtuelle pure. Elle doit etre surchargee dans les
+classes derivees et doit retourner un pointeur sur un objet de type
+@emph{BatchManager} correpondant au type de la classe et oeuvrant sur la
+machine passee en argument. Le @emph{hostname} est soit alphabetique
+soit numerique et doit etre soit un nom de machine valide soit une
+adresse IP valide. Aucun controle n'est a priori realise et cet argument
+est passe tel quel a l'API du gestionnaire de batch.
+
+Cet objet agit comme @emph{parent} vis-a-vis de l'objet
+@emph{BatchManager} qu'il retourne.
+
+@item
+@b{string getType() const}
+
+Cette methode renvoie le type interne de l'objet, c'est-a-dire la cle
+sous lequel il est enregistre dans le catalogue.
+
+@item
+@b{string __repr__() const}
+
+Cette methode utilisable depuis Python retourne une description de
+l'objet @emph{FactBatchManager}.
+
+@end itemize
+
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe BatchManager, Classe Environnement, Classe FactBatchManager, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection BatchManager
+@findex        BatchManager
+
+La classe @emph{BatchManager} est abstraite. Elle definit une interface
+qui doit etre implementee par des classes specialisees en fonction du
+gestionnaire de batch et de son API de communication. @xref{Classes
+specifiques}.
+
+Toute action a destination du gestionnaire de batch doit etre precedee
+de l'instanciation d'un objet derivant de la classe @emph{BatchManager}
+puisque c'est a travers cet objet que l'on aura acces a l'interface du
+gestionnaire.
+
+Cette instanciation est realisee par une fabrique de gestionnaire de
+batch, instance elle-meme derivee de la classe abstraite
+FactBatchManager. @xref{Classe FactBatchManager}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class BatchManager
+@{
+  public:
+    // Constructeur et destructeur
+    BatchManager(const FactBatchManager * parent,
+                 const char * host="localhost")
+      throw(InvalidArgumentException);
+    virtual ~BatchManager();
+
+    // Recupere l'identifiant d'un job deja soumis au BatchManager
+    virtual const JobId getJobIdByReference(const string & ref);
+
+    // Methodes pour le controle des jobs : virtuelles pures
+    // soumet un job au gestionnaire
+    virtual const JobId submitJob(const Job & job) = 0;
+
+    // retire un job du gestionnaire
+    virtual void deleteJob(const JobId & jobid) = 0;
+
+    // suspend un job en file d'attente
+    virtual void holdJob(const JobId & jobid) = 0;
+
+    // relache un job suspendu
+    virtual void releaseJob(const JobId & jobid) = 0;
+
+    // modifie un job en file d'attente
+    virtual void alterJob(const JobId & jobid,
+                          const Parametre & param,
+                          const Environnement & env) = 0;
+    virtual void alterJob(const JobId & jobid,
+                          const Parametre & param) = 0;
+    virtual void alterJob(const JobId & jobid,
+                          const Environnement & env) = 0;
+
+    // renvoie l'etat du job
+    virtual JobInfo queryJob(const JobId & jobid) = 0;
+
+    // wrapping Python
+    virtual string __repr__() const;
+
+  protected:
+    string _hostname; // serveur ou tourne le BatchManager
+    const FactBatchManager * _parent; // fabrique qui a produit l'instance
+
+  private:
+
+@};
+@end example
+
+@item Exemple
+
+@example
+@dots{}
+
+// On instancie le catalogue de gestionnaires de batch
+Batch::BatchManagerCatalog cata;
+
+// On cree un BatchManager qui se connecte au veritable gestionnaire
+// de batch 
+Batch::BatchManager & bm = (* cata("PBS"))("monserver.mondomaine.fr");
+
+// Maintenant, on peut utiliser toutes les fonctionnalites du
+// gestionnaire de batch a travers le variable myBM
+
+// On detruit l'objet BatchManager
+delete &bm;
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{BatchManager(const FactBatchManager * parent,$*
+const char * host="localhost") throw(InvalidArgumentException)}
+
+Excepte un pointeur sur la fabrique qui a produit l'objet, @xref{Classe FactBatchManager},
+ le constructeur accepte zero ou un argument de type
+@emph{string} decrivant soit le nom de domaine completement qualifie
+(FQDN, @i{fully qualified domain name}) du serveur de batch, soit son
+adresse IP dans un format decimal "aaa.bbb.ccc.ddd".
+
+Une resolution du nom ou de l'adresse peut etre realisee en fonction des
+capacites de la plate-forme pour s'assurer que le serveur est connu et
+joignable. En cas d'echec, une exception InvalidArgumentException est
+levee. @xref{Classe InvalidArgumentException}. A priori, aucune
+verification n'est faite par defaut.
+
+Ceci fait, une connexion est etablie avec le gestionnaire de batch qui
+est maintenue jusqu'a destruction de l'objet, si le gestionnaire le permet.
+
+@item 
+@b{~BatchManager()}
+
+Le destructeur supprime la connexion precedemment etablie par le
+constructeur lorsque celle-ci a reussi.
+
+@item
+@b{const JobId submitJob(const Job & job)}
+
+Cette methode soumet le job passe en argument au gestionnaire de
+batch. Etant donne que le job ne peut pas etre envoye tel quel puisqu'il
+a un format generique au sein de la bibliotheque de classes Batch, cette
+methode est chargee de le convertir dans un format adapte au
+gestionnaire de batch sous-jacent.
+
+Ce n'est que lorsque cette conversion est realisee que le job est soumis
+au gestionnaire a travers son API. L'identifiant propose par le
+gestionnaire est alors renvoye a l'appelant. Si la soumission echoue
+pour une raison ou une autre, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{void deleteJob(const JobId & jobid)}
+
+Cette methode retire le job dont l'identifiant est passe en argument de
+la file d'attente du gestionnaire, ou bien l'arrete s'il est en cours
+d'execution. Cette methode est inoperante sur des travaux deja termines,
+auquel cas une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{void holdJob(const JobId & jobid)}
+
+Cette methode suspend le job dont l'identifiant est passe en argument au
+sein de la file d'attente du gestionnaire. Cette methode est inoperante
+sur des travaux en cours d'execution ou deja termines, ainsi que sur des
+travaux deja suspendus.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{void releaseJob(const JobId & jobid)}
+
+Cette methode relache un job precedemment suspendu en file
+d'attente dont l'identifiant est passe en argument. Elle est inoperante
+sur des travaux deja relaches, en cours d'execution ou termines.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{void alterJob(const JobId & jobid, const Parametre & param, const Environnement & env)@*
+void alterJob(const JobId & jobid, const Parametre & param)@*
+void alterJob(const JobId & jobid, const Environnement & env)}
+
+Ces methodes permettent de modifier les parametres d'execution et
+d'environnement d'un job dont l'identifiant est passe en
+argument. @xref{Classe Parametre}. @xref{Classe Environnement}. Il
+est important de noter que le job doit etre encore place en file
+d'attente sinon la methode est inoperante.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{JobInfo queryJob(const JobId & jobid)}
+
+Cette methode permet de recuperer les informations concernant le job 
+dont l'identifiant est passe en argument dans un objet de classe
+@emph{JobInfo}. @xref{Classe JobInfo}. On y retrouve les parametres
+d'execution et d'environnement du job tels qu'ils ont ete passes au
+gestionnaire au moment de la soumission, ainsi que des informations
+concernant l'execution du job comme par exemple la machine d'execution,
+le temps consomme, la memoire consommee, etc.
+
+Il n'est pas toujours possible d'interroger un job deja termine.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{const JobId getJobIdByReference(const string & ref)}
+
+Cette methode permet de recuperer au sein de la classe un identifiant de
+job a partir d'une chaine de caracteres obtenue par un biais
+externe. Cet identifiant pourra etre utilise par la suite au sein de la
+biliotheque de classes pour controler le job comme s'il avait ete cree
+et soumis depuis la biliotheque-meme.
+
+@end itemize
+
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Environnement, Classe Job, Classe BatchManager, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Environnement
+@findex        Environnement
+
+La classe @emph{Environnement} permet de definir les variables
+d'environnement necessaires a l'execution d'un job. Ces variables seront
+creees automatiquement dans l'environnement du job lorsque celui-ci
+debutera son execution sur la machine.
+
+Une variable d'environnement est traditionnellement composee d'un nom et
+d'une valeur qui peut etre vide ou absente. L'ensemble des variables
+d'environnement peut ainsi etre represente sous la forme d'une table
+associative dans laquelle le nom de la variable correspond a la clef de la
+table, et la valeur de la variable correspond a la valeur de la table
+pour la clef donnee.
+
+Chaque objet de la classe @emph{Environnement} se comporte comme une
+table associative telle que decrite auparavant.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+typedef map < string, string > Environnement;
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+Environnement env;
+env["MYAPP_ROOTDIR"]     = "/home/user/myapplication";
+env["MYAPP_LICENSEFILE"] = env["MYAPP_ROOTDIR"] + "/license.dat";
+env["CXX"]               = "g++";
+env["CXXFLAGS"]          = "-g -O2";
+
+@dots{}
+@end example
+
+@item Methodes
+
+Compte tenu de la definition actuelle de la classe @emph{Environnement}
+en tant que map STL, elle beneficie de toutes les fonctionnalites
+classiques des maps STL.
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Job, Classe JobId, Classe Environnement, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Job
+@findex        Job
+
+La classe @emph{Job} represente la notion de travail, ou job, dans la
+bibliotheque de classes Batch. Elle se comporte essentiellement comme
+une collection de parametres et de variables necessaires a la
+description des actions qui doivent etre realisees dans des conditions
+precisees.
+
+Elle se repose sur deux autres classes qui distinguent la notion de
+parametre d'execution et celle de variable d'environnement : les classes
+@emph{Parametre} et @emph{Environnement}. @xref{Classe
+Parametre}. @xref{Classe Environnement}.
+
+Son role est de preparer la soumission qui aura lieu et qui concretisera
+l'incarnation du job dans le gestionnaire de batch. Tant que le job n'a
+pas ete soumis, on ne peut pas vraiment considerer son existence et de
+fait les interactions qu'on peut avoir avec l'objet sont tres limitees.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class Job
+@{
+  public:
+    // Constructeurs et destructeur
+    Job();
+    Job(Parametre param);
+    Job(Environnement env);
+    Job(Parametre param, Environnement env);
+    virtual ~Job();
+    
+    // Operateur pour l'affichage sur un stream
+    friend ostream & operator <<(ostream & os, const Job & job);
+
+    // Accesseurs
+    Parametre getParametre() const;
+    void setParametre(const Parametre &);
+    
+    // Accesseurs
+    Environnement getEnvironnement() const;
+    void setEnvironnement(const Environnement &);
+    
+    // Methodes pour l'interfacage avec Python (SWIG)
+    string  __repr__() const;
+
+  protected:
+    Parametre _param;   // table des parametres batch du job
+    Environnement _env; // table des variables d'environnement
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+@dots{} (ici on cree un BatchManager bm)
+Parametre param;
+Environnement env;
+
+@dots{} (ici on cree les parametres du job)
+
+Job job(param, env);
+JobId jobid = bm.sumbitJob(job);
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+
+@item
+@b{Job()$*
+Job(Parametre param)$*
+Job(Environnement env)$*
+Job(Parametre param, Environnement env)}
+
+Le constructeur, en plus de creer l'objet, peut faire des verifications
+sur la coherence des objets passes en argument s'il y en a.
+
+@item
+@b{~Job()}
+
+Le destructeur libere simplement les espaces alloues.
+
+@item
+@b{ostream & operator <<(ostream & os, const Job & job)}
+
+Cette methode permet a l'utilisateur d'afficher sur un stream le contenu
+d'un objet de classe @emph{Job}.
+
+@item
+@b{Parametre getParametre() const}
+
+Un accesseur pour recuperer l'objet Parametre passe en argument du
+constructeur.
+ 
+@item
+@b{void setParametre(const Parametre &)}
+
+Cette methode permet de positionner @i{a posteriori} l'objet
+@emph{Parametre}. Des tests complementaires peuvent etre faits pour
+verifier la coherence de l'objet.
+
+@item
+@b{Environnement getEnvironnement() const}
+
+Un accesseur pour recuperer l'objet Environnement passe en argument du constructeur.
+
+@item
+@b{void setEnvironnement(const Environnement &)}
+
+Cette methode permet de positionner @i{a posteriori} l'objet
+@emph{Environnement}. Des tests complementaires peuvent etre faits pour
+verifier la coherence de l'objet.
+
+@item
+@b{string  __repr__() const}
+
+Cette methode sert dans l'interfacage Python de l'objet et permet d'en
+realiser l'affichage a travers l'interpreteur Python.
+
+@end itemize
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe JobId, Classe JobInfo, Classe Job, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection JobId
+@findex        JobId
+
+La classe @emph{JobId} represente l'incarnation d'un objet de classe
+@emph{Job} une fois soumis au travers du gestionnaire de batch. A chaque
+objet @emph{JobId} correspond une et une seule soumission d'un objet
+@emph{Job}. Ainsi un meme objet @emph{Job} peut etre soumis plusieurs
+fois de suite a un ou plusieurs gestionnaires de batch et produira
+autant d'objets @emph{JobId}.
+
+L'objet @emph{JobId} assure le controle et la gestion du job au travers
+du gestionnaire de batch. Chaque objet @emph{JobId} est associe a un
+gestionnaire particulier aupres duquel il relaie les actions qu'on lui
+soumet.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class JobId
+@{
+    friend class BatchManager;
+
+  public:
+    // Constructeur standard et destructeur
+    JobId();
+    virtual ~JobId();
+
+    // Constructeur avec le pointeur sur le BatchManager associe
+    // et avec une reference
+    JobId(BatchManager *, string ref);
+
+    // Operateur d'affectation entre objets
+    virtual JobId & operator =(const JobId &);
+
+    // Constructeur par recopie
+    JobId(const JobId &);
+
+    // Accesseur pour la reference interne
+    virtual string getReference() const;
+
+    // Methodes pour le controle du job
+    // retire un job du gestionnaire
+    virtual void deleteJob() const;
+
+    // suspend un job en file d'attente
+    virtual void holdJob() const;
+
+    // relache un job suspendu
+    virtual void releaseJob() const;
+
+    // modifie un job en file d'attente
+    virtual void alterJob(const Parametre & param,
+                          const Environnement & env) const;
+    virtual void alterJob(const Parametre & param) const;
+    virtual void alterJob(const Environnement & env) const;
+
+    // modifie un job en file d'attente
+    virtual void setParametre(const Parametre & param);
+    virtual void setEnvironnement(const Environnement & env);
+
+    // renvoie l'etat du job
+    virtual Batch::JobInfo queryJob() const;
+
+    // Methodes pour l'interfacage avec Python (SWIG)
+    string  __str__() const;  // SWIG : affichage en Python
+    string  __repr__() const; // SWIG : affichage en Python
+
+  protected:
+    BatchManager * _p_batchmanager; // pointeur sur le BatchManager
+                                    // qui controle le job
+    string _reference; // reference du job au sein du BatchManager
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{} (ici on cree un BatchManager bm et un Job job)
+
+// On soumet le job et on recupere un identifiant
+JobId   jobid = bm.submitJob(job);
+
+// Ce qui permet d'interroger l'etat du job en cours
+JobInfo jinfo = jobid.queryJob();
+
+@dots{}
+@end example
+
+@item Methodes
+
+@itemize @minus{}
+@item
+@b{JobId()@*
+JobId(BatchManager *, string ref)}
+
+Le constructeur par defaut cree un @emph{JobId} qui devra etre complete
+par la suite. Ceci n'est pas directement realisable par l'utilisateur
+mais sert pour certaines classes amies de la classe @emph{JobId}.
+
+D'un point de vue utilisateur la construction d'un objet @emph{JobId}
+necessite un pointeur sur un gestionnaire de batch existant et une
+chaine de caractere representant une reference au sein de ce
+gestionnaire de batch.
+
+Ces parametres sont en general issus de la
+communication avec l'API du gestionnaire de batch et ne peuvent etre
+aisement deduits. C'est pourquoi il est recommande de passer par une
+classe d'implementation pour fabriquer un objet @emph{JobId}.
+
+
+@item
+@b{~JobId()}
+
+Le destructeur libere l'espace occupe par l'objet.
+
+@item
+@b{JobId & operator =(const JobId &)}
+
+L'affectation d'un objet @emph{JobId} duplique les donnees internes de
+l'objet passe en argument. Les deux objets sont totalement independants
+a l'issue de l'affectation et designent chacun la meme instance du job
+dans le meme gestionnaire de batch. Le controle du job peut etre realise
+avec l'un ou l'autre des objets.
+
+@item
+@b{JobId(const JobId &)}
+
+De meme que l'affectation le constructeur par recopie produit un objet
+@emph{JobId} totalement independant de l'objet passe en argument et qui
+designe le meme job dans le meme gestionnaire de batch. Le controle du
+job peut etre realise avec l'un ou l'autre des objets.
+
+@item
+@b{string getReference() const}
+
+Cet accesseur retourne la reference du job pour le gestionnaire de batch
+qui a produit l'objet.
+
+@item
+@b{void deleteJob() const}
+
+Cette methode relaie aupres au gestionnaire de batch qui a produit
+l'objet la demande d'arret du job.
+
+@item
+@b{void holdJob() const}
+
+Cette methode relaie aupres au gestionnaire de batch qui a produit
+l'objet la demande de suspension du job.
+
+@item
+@b{void releaseJob() const}
+
+Cette methode relaie aupres au gestionnaire de batch qui a produit
+l'objet la demande de liberation du job.
+
+@item
+@b{void alterJob(const Parametre & param, const Environnement & env) const@*
+void alterJob(const Parametre & param) const@*
+void alterJob(const Environnement & env) const}
+
+Ces methodes relaient aupres du gestionnaire de batch qui a produit
+l'objet la demande de modification des parametres et/ou des variables
+d'environnement du job.
+
+@item
+@b{void setParametre(const Parametre & param)}
+
+Cette methode n'est utile que pour l'interfacage avec Python, car Python
+ne sait pas gerer la surcharge de methode, et de fait leve des
+exceptions lors d'appels a de telles methodes.
+
+Elle est equivalente a la methode @samp{void alterJob(const Parametre & param) const}.
+
+
+@item
+@b{void setEnvironnement(const Environnement & env)}
+
+Cette methode n'est utile que pour l'interfacage avec Python, car Python
+ne sait pas gerer la surcharge de methode, et de fait leve des
+exceptions lors d'appels a de telles methodes.
+
+Elle est equivalente a la methode @samp{void alterJob(const Environnement & env) const}.
+
+@item
+@b{Batch::JobInfo queryJob() const}
+
+Cette methode relaie aupres du gestionnaire de batch qui a produit
+l'objet la demande d'interrogation de l'etat du job.
+
+@item
+@b{string  __str__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobId}.
+
+@item
+@b{string  __repr__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobId}.
+
+@end itemize
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe JobInfo, Classe Parametre, Classe JobId, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection JobInfo
+@findex        JobInfo
+
+Un objet de classe @emph{JobInfo} represente l'ensemble des informations
+disponibles sur un travail actif, c'est-a-dire soumis au gestionnaire de
+batch, a un instant donne.
+
+Cet objet reprend des informations issues du job tel qu'il a ete soumis,
+@xref{Classe Job}, mais aussi des informations produites par le
+gestionnaire de batch a partir de la soumission et du transit du job en
+son sein : nom de la queue dans laquelle le job est inscrit, duree
+d'execution, date de soumission, etc.
+
+Ces informations sont disponibles aupres de l'utilisateur de la classe a
+travers les objets @emph{Parametre} et @emph{Environnement} que l'objet
+@emph{JobInfo} peut fournir.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class JobInfo
+@{
+  public:
+    // Constructeur standard et destructeur
+    JobInfo();
+    virtual ~JobInfo();
+
+    // Constructeur par recopie
+    JobInfo(const JobInfo & jinfo);
+
+    // Operateur pour l'affichage sur un stream
+    friend ostream & operator <<(ostream & os, const JobInfo & ji);
+
+    // Accesseurs
+    virtual Parametre getParametre() const;
+    virtual Environnement getEnvironnement() const; 
+
+    // Methodes pour l'interfacage avec Python (SWIG)
+    string  __str__() const;  // SWIG : affichage en Python
+    string  __repr__() const; // SWIG : affichage en Python
+
+  protected:
+    Parametre _param; // parametres du job
+    Environnement _env; // variables d'environnement du job
+
+  private:
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{} (ici on cree un BatchManager bm et un Job job)
+
+// On soumet le job et on recupere un identifiant
+JobId   jobid = bm.submitJob(job);
+
+// Ce qui permet d'interroger l'etat du job en cours
+JobInfo jinfo = jobid.queryJob();
+
+// On recupere l'objet Parametre interne modifie
+// par le gestionnaire de batch
+Parametre param = jinfo.getParametre();
+
+// On recupere l'objet Environnement interne modifie
+// par le gestionnaire de batch
+Environnement env = jinfo.getEnvironnement();
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{JobInfo()}
+
+Ce constructeur cree un objet @emph{JobInfo} vide.
+
+@item
+@b{~JobInfo()}
+
+Le destructeur libere l'espace memoire alloue par l'objet.
+
+@item
+@b{JobInfo(const JobInfo & jinfo)}
+
+Le constructeur par recopie produit un objet identique a celui passe en
+argument. Les deux objets sont totalement independants l'un de l'autre.
+
+@item
+@b{ostream & operator <<(ostream & os, const JobInfo & ji)}
+
+Cet operateur permet de voir le contenu de l'objet sur un flot de sortie.
+
+@item
+@b{Parametre getParametre() const}
+
+Cet accesseur retourne l'objet interne @emph{Parametre} modifie par le
+gestionnaire de batch. En particulier on y retrouve toutes les clefs et
+les valeurs correspondant aux informations produites dynamiquement par
+le gestionnaire (duree d'execution, machine d'execution, etc.).
+Il n'est pas garanti que les valeurs passees au moment de la soumission
+soient inchangees car des modifications ont pu etre apportees a ces
+valeurs pendant le traitement du job par le gestionnaire.
+
+@item
+@b{Environnement getEnvironnement() const}
+
+Cet accesseur retourne l'objet interne @emph{Environnement} modifie par le
+gestionnaire de batch. En particulier on y retrouve toutes les clefs et
+les valeurs correspondant aux informations produites dynamiquement par
+le gestionnaire (chemin d'acces, variables d'environnement specifiques a
+la machine d'execution, etc.).
+Il n'est pas garanti que les valeurs passees au moment de la soumission
+soient inchangees car des modifications ont pu etre apportees a ces
+valeurs pendant le traitement du job par le gestionnaire.
+
+@item
+@b{string  __str__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobInfo}.
+
+@item
+@b{string  __repr__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobInfo}.
+
+@end itemize
+
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Parametre, Classe Versatile, Classe JobInfo, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Parametre
+@findex        Parametre
+
+Les objets de la classe @emph{Parametre} se comportent comme des maps
+STL, dont ils ont les fonctionnalites, decrivant les parametres
+d'execution du job.
+
+Contrairement aux variables d'environnement qui sont decrites par les
+objets de la classe @emph{Environnement}, les parametres d'execution
+servent a preciser les contraintes qui pesent sur le job, comme par
+exemple la duree maximale d'execution autorisee, la quantite maximale de
+memoire utilisable ou la queue de soumission, ou bien a renseigner le
+job avec des informations specifiques a l'utilisateur, comme son
+username, son adresse email, le code d'imputation du job, etc.
+
+En raison du caractere tres specifique et precis des informations qui
+doivent etre fournies au gestionnaire de batch, une nomenclature est
+proposee par la classe @emph{Parametre} qu'il est vivement conseille de
+suivre. De plus tout a ete fait pour rendre cette ecriture naturelle et
+facile, donc il ne devrait pas y avoir de probleme pour l'utiliser.
+
+Ainsi, a titre d'exemple, pour preciser le temps maximal autorise pour
+un job, il faut creer une clef de nom @var{maxcputime} dans un objet de
+classe @emph{Parametre} qui sera ensuite passe au job. Et pour preciser
+le code d'imputation du job, il faut creer une clef de nom @var{account}.
+
+Mais cet exemple simple montre que la valeur associee a la clef
+@var{maxcputime} est semantiquement une duree, et que la valeur associee a
+la clef @var{account} est semantiquement un nom. On a donc un probleme de
+type puisque dans la definition d'une map STL le type de la valeur doit
+etre le meme, et ce meme si les valeurs doivent par la suite avoir des
+types semantiques differents. C'est pourquoi on a definit une classe
+@emph{Versatile} qui encapsule des types differents. @xref{Classe
+Versatile}.
+
+Quoiqu'il en soit toute la mecanique est cachee et seul importe pour
+l'utilisateur de savoir que les valeurs associees aux clefs sont typees
+et que ces types sont definis dans l'enumeration @emph{DiscriminatorType}.
+@xref{Classe Versatile}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class Parametre : public map< string, Versatile >
+@{
+  public:
+    // Constructeur standard
+    Parametre();
+
+    // Constructeur par recopie
+    Parametre(const Parametre & PM);
+
+    // Operateur de recherche dans la map
+    Versatile & operator [] (const string &);
+    const Versatile & operator [] (const string &) const;
+
+    // Operateur d'affectation
+    Parametre & operator =(const Parametre & PM);
+
+    // Declarations statique des clefs de la map
+    static const string ACCOUNT;
+    static const string CHECKPOINT;
+    static const string CKPTINTERVAL;
+    static const string CREATIONTIME;
+    static const string EGROUP;
+    static const string ELIGIBLETIME;
+    static const string EUSER;
+    static const string EXECUTABLE;
+    static const string EXECUTIONHOST;
+    static const string HOLD;
+    static const string ID;
+    static const string INFILE;
+    static const string MAIL;
+    static const string MAXCPUTIME;
+    static const string MAXDISKSIZE;
+    static const string MAXRAMSIZE;
+    static const string MAXWALLTIME;
+    static const string MODIFICATIONTIME;
+    static const string NAME;
+    static const string OUTFILE;
+    static const string PID;
+    static const string QUEUE;
+    static const string QUEUEDTIME;
+    static const string SERVER;
+    static const string STARTDATE;
+    static const string STATE;
+    static const string TEXT;
+    static const string TMPDIR;
+    static const string USEDCPUTIME;
+    static const string USEDDISKSIZE;
+    static const string USEDRAMSIZE;
+    static const string USEDWALLTIME;
+    static const string USER;
+
+  protected:
+    // map interne servant a controler le type 
+    // de la valeur associee a chaque clef
+    map< string, TypeParam > TypeMap;
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+Parametre param;
+
+param[EXECUTABLE]  = "/home/user/mon_application/executable";
+param[NAME]        = "MonJob";
+param[ACCOUNT]     = "MonProjet"; // code d'imputation/facturation
+param[MAXCPUTIME]  = 360L;        // 6min
+param[MAXWALLTIME] = 480L;        // 8min
+param[INFILE]      = Couple("/tmp/infich1",  rempath + "/infich1");
+param[OUTFILE]     = Couple("/tmp/outfich1", rempath + "/outfich1");
+param[OUTFILE]    += Couple("stderr", path + "/STDERR");
+param[OUTFILE]    += Couple("stdout", path + "/STDOUT");
+param[MAIL]        = "user@@domaine.fr";
+param[USER]        = "user";
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+
+@item
+@b{Parametre()}
+
+Le constructeur par defaut initialise l'objet @emph{Parametre} et cree
+la table des types internes. Par contre l'objet ne contient aucune valeur.
+
+@item
+@b{Parametre(const Parametre & PM)}
+
+Le constructeur par recopie cree un objet @emph{Parametre} a l'image de
+celui qui lui est passe en argument. La table des types internes est
+dupliquee ainsi que tous les objets correspondant a chacune des clefs.
+
+@item
+@b{Versatile & operator [] (const string &)}
+
+Cet operateur permet de recuperer la valeur designee par la clef passee
+en argument. Cette valeur est de classe @emph{Versatile} qui encapsule
+tous les types de base utilisables dans la bibliotheque en tant que
+parametre. @xref{Classe Versatile}.
+
+
+@item
+@b{const Versatile & operator [] (const string &) const}
+
+A l'image de l'operateur precedent, cet operateur permet de recuperer la
+valeur designee par la clef passee en argument mais uniquement pour des
+objets constants.
+
+@item
+@b{Parametre & operator =(const Parametre & PM)}
+
+L'operateur d'affectation remplace l'ensemble du contenu de l'objet
+@emph{Parametre} par le contenu de l'objet passe en argument. Les
+valeurs sont dupliquees par rapport a l'objet @var{pm}.
+
+@end itemize
+
+@item Description des clefs
+
+Selon les gestionnaires de batch utilises, certaines clefs sont actives
+ou inactives. Une definition superflue ne pose pas de probleme et se
+trouve ignoree au moment de la soumission. Par contre l'absence d'un
+clef peut empecher la soumission d'aboutir et lever une exception.
+
+@itemize @minus{}
+@item ACCOUNT : type STRING
+
+Le code de facturation sur lequel le job doit s'imputer.
+
+@item CHECKPOINT : type LONG
+
+Une valeur non nulle indique au gestionnaire de batch que le job est
+@dfn{checkpointable}, c'est-a-dire interruptible pour une reprise
+ulterieure.
+
+@item CKPTINTERVAL : type LONG
+
+En liaison avec la clef @var{CHECKPOINT}, la clef @var{CKPTINTERVAL}
+indique l'intervalle en secondes entre deux interruptions du code
+(@dfn{checkpoint}).
+
+@item CREATIONTIME : type LONG
+
+La date a laquelle le job a ete cree (soumis) dans le gestionnaire de batch.
+
+@item EGROUP : type STRING
+
+Le groupe effectif au sens Unix du terme dans lequel le job s'execute.
+
+@item ELIGIBLETIME : type LONG
+
+La date a laquelle le job a pu disposer des ressources necessaires a son
+execution.
+
+@item EUSER : type STRING
+
+L'utilisateur effectif au sens Unix du terme pour lequel le job s'execute.
+
+@item EXECUTABLE : type STRING
+
+Le chemin d'acces absolu a l'executable sur la machine qui soumet le job.
+
+@item EXECUTIONHOST : type STRING
+
+Le nom de la machine qui execute le job.
+
+@item HOLD : type LONG
+
+Une valeur non nulle indique au gestionnaire de batch que le job doit
+etre place dans l'etat suspendu. Une valeur nulle libere le job.
+
+@item ID : type STRING
+
+L'identifiant unique du job pour le gestionnaire de batch.
+
+@item INFILE : type liste de COUPLE
+
+La clef @var{infile} liste les fichiers qui seront envoyes au job avant
+son execution. Chaque fichier peut avoir un nom different sur la machine
+cliente --- qui soumet le job --- et sur le serveur. C'est pourquoi
+chaque fichier a envoyer est represente par un couple dont le nom @var{local}
+est le chemin absolu du fichier sur la machine cliente et le nom
+@var{remote} est le chemin absolu du fichier sur le
+serveur. @xref{Classe Couple}.
+
+Si le nom @var{remote} vaut @samp{stdin}, alors le contenu du fichier
+designe par le nom @var{local} est envoye sur l'entree standard du job
+au moment de son execution.
+
+@item MAIL : type STRING
+
+L'adresse email de l'utilisateur ou lui seront envoyes les eventuels
+messages d'information et d'alerte du gestionnaire de batch.
+
+@item MAXCPUTIME : type LONG
+
+Le temps de calcul (@i{CPU time}) en secondes que ne devra pas depasser le job.
+
+@item MAXDISKSIZE : type LONG
+
+L'espace disque en octets que ne devra pas depasser le job.
+
+@item MAXRAMSIZE : type LONG
+
+La quantite de memoire vive en octets que ne devra pas depasser le job.
+
+@item MAXWALLTIME : type LONG
+
+Le temps reel (@i{elapsed time}) en secondes que ne devra pas depasser le job.
+
+@item MODIFICATIONTIME : type LONG
+
+La date a laquelle le job a ete modifie pour la derniere fois dans le
+gestionnaire de batch. Cette date correspond le plus souvent a la
+derniere operation realisee par le gestionnaire dans la gestion du job :
+routage au sein des files, suspension ou reprise, etc.
+
+@item NAME : type STRING
+
+Le nom du job tel qu'il apparait a l'utilisateur dans son dialogue avec
+le gestionnaire de batch. Ce nom n'a pas besoin d'etre unique et ne
+remplace pas l'identifiant (ID). Il n'est la que pour informer
+l'utilisateur de la nature de son job.
+
+@item OUTFILE : type liste de COUPLE
+
+La clef @var{outfile} liste les fichiers qui sont produits par le job et
+qui seront recuperes sur la machine locale de l'utilisateur apres
+son execution. Chaque fichier peut avoir un nom different sur la machine
+cliente --- qui soumet le job --- et sur le serveur. C'est pourquoi
+chaque fichier a recuperer est represente par un couple dont le nom @var{local}
+est le chemin absolu du fichier sur la machine cliente et le nom
+@var{remote} est le chemin absolu du fichier sur le
+serveur. @xref{Classe Couple}.
+
+Si le nom @var{local} vaut @samp{stdout}, alors le contenu du fichier
+designe par le nom @var{local} contient la sortie standard du job
+au moment de son execution.
+
+Si le nom @var{local} vaut @samp{stderr}, alors le contenu du fichier
+designe par le nom @var{local} contient la sortie d'erreur du job
+au moment de son execution.
+
+@item PID : type LONG
+
+La valeur du PID (@i{process identifier}) du job sur la machine sur
+lqsuelle il s'execute.
+
+@item QUEUE : type STRING
+
+Le nom de la queue, aussi appelee classe ou file suivant les
+terminologies, qui accueille le job.
+
+@item QUEUEDTIME : type LONG
+
+La date depuis laquelle le job a ete place en queue dans le gestionnaire
+de batch.
+
+@item SERVER : type STRING
+
+Le nom complet du serveur qui recoit les soumissions de job.
+
+@item STARTDATE : type LONG
+
+La date a partir de laquelle l'utilisateur desire que le job soit
+execute. L'execution ne demarrera qu'au dela de cette date et a
+condition que toutes les conditions de ressources soient remplies.
+
+@item STATE : type STRING
+
+L'etat actuel du job.
+
+ATTENTION : Ces valeurs ne sont pas encore normalisees.
+
+@item TEXT : type STRING
+
+Un texte d'information que le gestionnaire peut emettre a destination de
+l'utilisateur lorsque l'ensemble des parametres n'est pas suffisant pour
+traduire l'etat reel du job. Par exemple, ce message peut informer
+l'utilisateur de la raison qui maintient un job dans un etat suspendu ou
+qui l'empeche de s'executer.
+
+@item TMPDIR : type STRING
+
+Un chemin d'acces absolu a un repertoire qui sera cree au demarrage du
+job et qui isolera le job des autres travaux en cours d'execution sur la
+meme machine. 
+
+@item USEDCPUTIME : type LONG
+
+Le temps de calcul (@i{CPU time}) en secondes reellement consomme par le job.
+
+@item USEDDISKSIZE : type LONG
+
+L'espace disque en octets reellement consomme par le job.
+
+@item USEDRAMSIZE : type LONG
+
+L'espace disque en octets reellement consommee par le job.
+
+@item USEDWALLTIME : type LONG
+
+Le temps reel (@i{elapsed time}) en secondes reellement consomme par le job.
+
+@item USER : type STRING
+
+Le nom de l'utilisateur (@i{username}) sous lequel le job devra tourner
+sur la machine d'execution. Ce parametre est utile lorsque l'utilisateur
+possede des comptes differents sur les machines sur lequel il soumet et calcule.
+
+@end itemize
+
+
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe Versatile, Exceptions, Classe Parametre, Classes utilisateur
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Versatile
+@findex        Versatile
+
+Cette classe est normalement invisible en tant que telle a l'utilsateur
+de la bibliotheque de classes Batch. Mais il est tout de meme utile de
+la presenter car son action est visible, notamment dans son interaction
+fine avec la classe @emph{Parametre}. @xref{Classe Parametre}.
+
+Comme il a ete precise dans la descrption de la classe @emph{Parametre},
+la classe @emph{Versatile} a ete concue pour encapsuler les valeurs de
+la map @emph{Parametre} qui peuvent etre de types effectifs differents.
+
+Ces types, decrits par l'enumeration @emph{DiscriminatorType}, sont
+actuellement au nombre de trois : @var{long}, @var{string} et
+@var{couple}. Ces types correpondent au types de base du langage C++ ou
+de la biliotheque de classes Batch. @xref{Types de base}.
+
+Le type special @var{undefined} ne sert que pour l'objet
+@emph{Versatile} juste cree mais non encore affecte d'une valeur et donc
+d'un type. La premiere affection d'une valeur a un objet
+@emph{Versatile} non encore affecte lui donne automatiquement le type de
+la valeur.
+
+Les objets de classe @emph{Versatile} peuvent se comporter soit comme
+des variables scalaires, c'est-a-dire ne contenant qu'une valeur unique,
+soit comme des listes, auquel cas elles utilisent l'interface des
+@emph{list} de la STL. Toutefois afin de faciliter l'ecriture pour
+l'utilisateur basique de la classe @emph{Versatile} --- et de la classe
+@emph{Parametre} ---, des operateurs de concatenation @samp{+=} et
+@samp{,} ont ete ajoutes.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+// Les types autorises
+enum DiscriminatorType @{ UNDEFINED, LONG, STRING, COUPLE @};
+
+typedef struct @{
+    DiscriminatorType type; // le type de l'element interne
+    int maxelem;            // le nombre d'elements autorises
+@} TypeParam;
+
+class Versatile : public list< GenericType * >
+@{
+  public:
+    // Constructeur standard et destructeur
+    Versatile();
+    virtual ~Versatile();
+
+    // Constructeur par recopie
+    Versatile(const Versatile & V);
+
+    // Constructeur depuis le type de "base"
+    Versatile(long   l);
+    Versatile(const string & s);
+    Versatile(const Couple & c);
+
+    // Operateur d'affectation et de concatenation 
+    // a partir d'un type de "base"
+    Versatile & operator = (const long     l)
+      throw(TypeMismatchException);
+    Versatile & operator = (const string & ch)   
+      throw(TypeMismatchException);
+    Versatile & operator +=(const string & ch)   
+      throw(TypeMismatchException,ListIsFullException);
+    Versatile & operator , (const string & ch)   
+      throw(TypeMismatchException,ListIsFullException);
+    Versatile & operator = (const Couple & cp)   
+      throw(TypeMismatchException);
+    Versatile & operator +=(const Couple & cp)   
+      throw(TypeMismatchException,ListIsFullException);
+    Versatile & operator , (const Couple & cp)   
+      throw(TypeMismatchException,ListIsFullException);
+
+    // Operateur d'affectation entre objets
+    Versatile & operator = (const Versatile & V)
+      throw(TypeMismatchException);
+
+    // Conversion de type vers un type de "base"
+    operator long() const throw(TypeMismatchException);
+    operator string() const throw(TypeMismatchException);
+    operator Couple() const throw(TypeMismatchException);
+    string str() const throw(TypeMismatchException);
+
+    // Operateur pour l'affichage sur un stream
+    friend ostream & operator << (ostream & os, const Versatile & );
+
+    // Positionnement et recuperation du type de l'element interne
+    void setType(DiscriminatorType) throw(TypeMismatchException);
+    DiscriminatorType getType() const;
+
+    // Positionnement et recuperation du nombre d'elements internes
+    void setMaxSize(int i);
+    int getMaxSize() const;
+
+    // Positionnement et recuperation du nom de l'objet
+    string getName() const;
+    void setName(const string & name);
+
+  protected:
+    // Efface tous les elements internes de l'objet
+    virtual void eraseAll();
+
+    DiscriminatorType _discriminator; // type de l'element interne
+    int _maxsize; // nombre max d'elements internes
+    string _name; // nom de l'objet (sert pour les exceptions)
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+// On cree un objet Versatile non encore affecte (scalaire)
+Versatile Vlong;
+
+// L'affectation d'un long lui donne le type LONG
+Vlong = 1024L * 1024L * 1024L;
+cout << "Versatile long  (must be 1073741824) : " << Vlong   << endl;
+
+// On cree un objet Versatile non encore affecte (scalaire)
+Versatile Vstring;
+
+// L'affectation d'une string (const char * promu en string)
+// lui donne le type STRING
+Vstring = "UneChaine";
+cout << "Versatile string (must be UneChaine) : " << Vstring << endl;
+
+try
+  @{
+    // L'affectation d'un autre type leve une exception.
+    // Il n'y a pas de retypage dynamique.
+    Vlong = "";
+    cout << "ERR : No TypeMismatchException catched for Versatile long"
+         << endl;
+  @}
+catch (TypeMismatchException & ex)
+  @{
+    cout << "OK : TypeMismatchException catched for Versatile long"
+         << endl;
+  @}
+
+// Reaffectation avec le meme type
+Vlong = 1024L * 1024L;
+cout << "Versatile long  (must be 1048576) : " << Vlong   << endl;
+
+// On cree un objet Versatile non encore affecte (scalaire) ...
+Versatile Vcat1;
+
+// ... que l'on transforme en liste (non limitee)
+Vcat1.setMaxSize(0);
+
+// On affecte la premiere valeur ...
+Vcat1  = "A";
+
+// ... puis les suivantes par concatenation
+Vcat1 += "B";
+Vcat1 += "C";
+Vcat1 += "D";
+Vcat1 += "E";
+cout << "Versatile string concatenation (must be A B C D E) : " 
+     << Vcat1 << endl;
+
+// Idem que pour Vcat1, mais avec une limite a 5 elements dans la liste
+Versatile Vcat2;
+Vcat2.setMaxSize(5);
+Vcat2 = "a", "b", "c", "d", "e";
+cout << "Versatile string concatenation (must be a b c d e) : " 
+     << Vcat2 << endl;
+
+// On tronque les 2 derniers elements de la liste (il en reste 3)
+Vcat2.setMaxSize(3);
+cout << "Versatile string concatenation (must be a b c) : "
+     << Vcat2 << endl;
+
+
+Versatile Vcopy2(Vcat2);
+cout << "Versatile copy  (must be a b c) : " << Vcopy2  << endl;
+
+Versatile Vaffect;
+Vaffect = Vcat1;
+cout << "Versatile affect (must be A B C D E) : " << Vaffect  << endl;
+Vaffect = Vcat2;
+cout << "Versatile affect (must be a b c) : " << Vaffect  << endl;
+
+try
+  @{
+    // Retypage dynamique interdit
+    Vaffect = Vlong;
+    cout << "ERR : No TypeMismatchException catched for Versatile" 
+         << endl;
+  @}
+catch (TypeMismatchException & ex)
+  @{
+    cout << "OK : TypeMismatchException catched for Versatile string"
+         << endl;
+  @}
+
+try
+  @{
+    // Concatenation au dela de la limite interdit
+    Vcat2 += "En trop";
+    cout << "ERR : No ListIsFullException catched for Versatile string"
+         << endl;
+  @}
+catch (ListIsFullException & ex)
+  @{
+    cout << "OK : ListIsFullException catched for Versatile string"
+         << endl;
+  @}
+
+// Les objets Versatile se comportent (presque) comme des objets
+// standards du langage
+long L = Vlong;
+cout << "Long value of Versatile long   (must be 1048576) : " 
+     << L << endl;
+
+string S = Vstring;
+cout << "String value of Versatile (must be EncoreUneAutreChaine):"
+     << S << endl;
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{Versatile()}
+
+Le constructeur par defaut fabrique un objet scalaire de type
+@var{undefined} et de nom @samp{undefined}.
+
+@item
+@b{~Versatile()}
+
+Le destructeur efface tout le contenu de l'objet si celui-ci avait ete affecte.
+
+@item
+@b{Versatile(const Versatile & V)}
+
+Le constructeur par recopie duplique l'objet passe en argument ainsi que
+les valeurs qu'il contient. Le nouvel objet est totalement independant
+de son geniteur.
+
+@item
+@b{Versatile(long l)@*
+Versatile(const string & s)@*
+Versatile(const Couple & c)}
+
+Ces constructeurs fabriquent des objets scalaires @emph{Versatile} a partir des
+types de base passes en argument. Chaque objet acquerera definitivement
+le type correspondant au type de base : @var{long} pour @samp{long},
+@var{string} pour @samp{string} et @var{couple} pour @samp{Couple}.
+
+@item
+@b{Versatile & operator = (const long l) throw(TypeMismatchException)@*
+Versatile & operator = (const string & ch) throw(TypeMismatchException)@*
+Versatile & operator = (const Couple & cp) throw(TypeMismatchException)}
+
+Ces operateurs affectent ou reaffectent la valeur passee en argument a
+l'objet. Le type de la valeur doit correspondre au type de l'objet si
+celui-ci a deja ete affecte, sinon une exception @emph{TypeMismatchException} est
+levee. @xref{Classe TypeMismatchException}.
+
+L'ancienne valeur de l'objet est perdue.
+
+@item
+@b{Versatile & operator += (const string & ch)
+  throw(TypeMismatchException, ListIsFullException)@*
+Versatile & operator ,  (const string & ch)
+  throw(TypeMismatchException, ListIsFullException)@*
+Versatile & operator += (const Couple & cp)
+  throw(TypeMismatchException, ListIsFullException)@*
+Versatile & operator ,  (const Couple & cp)
+  throw(TypeMismatchException, ListIsFullException)}
+
+Ces operateurs concatenent la valeur passee en argument a l'objet. Le
+type de la valeur doit correspondre au type interne de l'objet si
+celui-ci a deja ete affecte, sinon une exception @emph{TypeMismatchException} est
+levee. @xref{Classe TypeMismatchException}.
+
+Si la taille maximale de la liste est depasse, une exception @emph{ListIsFullException} est
+levee. @xref{Classe ListIsFullException}.
+
+@item
+@b{Versatile & operator = (const Versatile & V) throw(TypeMismatchException)}
+
+L'operateur d'affectation duplique l'objet passe en argument dans
+l'objet. Toutes les valeurs internes sont dupliquees de maniere a avoir
+une independance totale entre les deux objets a l'issue de
+l'affectation.
+
+Il est a noter qu'il est possible d'affecter a un objet un objet
+possedant un type different, auquel cas l'objet courant change de type
+pour acquerir celui de l'objet passe en argument. C'est le seul cas de
+changement de type autorise pour un objet.
+
+@item
+@b{operator long() const throw(TypeMismatchException)@*
+operator string() const throw(TypeMismatchException)@*
+operator Couple() const throw(TypeMismatchException)@*
+string str() const throw(TypeMismatchException)}
+
+Ces operateur de conversion dans les types de base permettent de
+recuperer la valeur interne de l'objet. Lorsque le type interne est
+incompatible avec la conversion une exception @emph{TypeMismatchException} est
+levee. @xref{Classe TypeMismatchException}.
+
+@item
+@b{ostream & operator << (ostream & os, const Versatile & )}
+
+Cet operateur permet de voir le contenu de l'objet sur un flot de sortie.
+
+@item
+@b{void setType(DiscriminatorType) throw(TypeMismatchException)}
+
+Cette methode change le type interne de l'objet en celui passe en
+argument. Ceci n'est possible que pour un objet non encore affecte. Si
+le nouveau type est different du type actuel une exception @emph{TypeMismatchException} est
+levee. @xref{Classe TypeMismatchException}.
+
+@item
+@b{DiscriminatorType getType() const}
+
+Cet accesseur renvoie le type interne de l'objet.
+
+@item
+@b{void setMaxSize(int i)}
+
+Cette methode permet de changer le nombre d'elements que l'objet est
+capable de stocker. Par defaut ce nombre est 1 a la construction de
+l'objet, signifiant qu'il ne peut contenir qu'une seule valeur a la fois
+(scalaire).
+
+Si ce nombre est superieur a 1 alors il represente une
+limite qui ne pourra etre depassee par l'objet sans lever d'exception 
+@emph{ListIsFullException}. @xref{Classe ListIsFullException}.
+
+Si ce nombre vaut 0 (zero) alors il n'y a aucune limite superieure au
+nombre d'element dans l'objet.
+
+@item
+@b{int getMaxSize() const}
+
+Cet accesseur renvoie la taille maximale admise par l'objet.
+
+@item
+@b{void setName(const string & name)}
+
+Cette methode permet de positionner le nom de l'objet. Par defaut ce nom
+vaut @samp{undefined} a la construction de l'objet.
+
+Il est interessant de positionner le nom a une valeur significative
+comme par exemple le nom de la variable contenant l'objet car lorsqu'une
+exception est levee ce nom apparait en clair et aide au debugging.
+
+@item
+@b{string getName() const}
+
+Cet accesseur renvoie le nom interne de l'objet.
+
+@end itemize
+
+@end itemize
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Exceptions, Classe APIInternalFailureException, Classe Versatile, Classes generiques
+@comment  node-name,  next,  previous,  up
+@page
+@subsection Exceptions
+@cindex     exceptions
+
+La bibliotheque de classes Batch definit un certain nombre d'exceptions
+qui sont levees par les classes lors d'evenements qui traduisent un
+comportement anormal de la bibliotheque.
+
+@menu
+* Classe APIInternalFailureException::  Erreur d'utilisation de l'API.
+* Classe ConnexionFailureException::    Probleme de connexion de l'API.
+* Classe GenericException::             Classe-mere de toutes les exceptions.
+* Classe InvalidArgumentException::     Parametre errone d'une methode.
+* Classe InvalidKeyException::          Clef erronee d'une map.
+* Classe ListIsFullException::          Debordement de taille d'une liste.
+* Classe NotYetImplementedException::   Methodes non encore implementee.
+* Classe RunTimeException::             Erreur d'execution imprevue.
+* Classe TypeMismatchException::        Probleme de conversion de type.
+@end menu
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe APIInternalFailureException, Classe ConnexionFailureException, Exceptions, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection APIInternalFailureException
+@findex        APIInternalFailureException
+
+Cette exception est levee par les classes d'implementation de la
+bibliotheque lorsqu'une erreur est detectee au moment de la
+communication avec l'API du gestionnaire de batch. En general l'erreur
+renvoyee par l'API est incluse dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class APIInternalFailureException : public GenericException
+@{
+  public:
+    // Constructeur
+    APIInternalFailureException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{APIInternalFailureException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{APIInternalFailureException}.
+
+@end itemize
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe ConnexionFailureException, Classe GenericException, Classe APIInternalFailureException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection ConnexionFailureException
+@findex        ConnexionFailureException
+
+Cette exception est levee par les classes d'implementation de la
+bibliotheque lorsqu'une erreur est detectee au moment de la
+connexion au gestionnaire de batch. En general l'erreur
+renvoyee par l'API de connexion est incluse dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class ConnexionFailureException : public GenericException
+@{
+  public:
+    // Constructeur
+    ConnexionFailureException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{ConnexionFailureException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{ConnexionFailureException}.
+
+@end itemize
+
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe GenericException, Classe InvalidArgumentException, Classe ConnexionFailureException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection GenericException
+@findex        GenericException
+
+Cette classe est generique comme son nom l'indique et definit une
+interface commune pour toutes les exceptions de la 
+bibliotheque.
+
+Cette exception definit uniquement un constructeur et deux membres
+publics constants : @emph{type} et @emph{message}. @xref{Classe
+GenericException}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class GenericException
+@{
+  public:
+    const string type;    // la nature de l'exception
+    const string message; // la raison de l'exception
+
+    // Constructeur
+    GenericException(const string tp = "GenericException",
+                     const string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{GenericException(const string tp = "GenericException", const string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le parametre
+@emph{tp} qui contient generalement le nom de la classe.
+
+@end itemize
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe InvalidArgumentException, Classe InvalidKeyException, Classe GenericException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection InvalidArgumentException
+@findex        InvalidArgumentException
+
+Cette exception est levee par les classes de la bibliotheque lorsqu'un
+parametre erronne est passe en argument a une methode. En general
+le nom de l'arguement erronne est inclus dans le message de
+l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class InvalidArgumentException : public GenericException
+@{
+  public:
+    // Constructeur
+    InvalidArgumentException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{InvalidArgumentException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{InvalidArgumentException}.
+
+@end itemize
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe InvalidKeyException, Classe ListIsFullException, Classe InvalidArgumentException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection InvalidKeyException
+@findex        InvalidKeyException
+
+
+Cette exception est levee par les methodes de la classe @emph{Parametre}
+lorsqu'une clef erronnee est utilisee. En general le nom de la clef
+erronnee est inclus dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class InvalidKeyException : public GenericException
+@{
+  public:
+    // Constructeur
+    InvalidKeyException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{InvalidKeyException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{InvalidKeyException}.
+
+@end itemize
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe ListIsFullException, Classe NotYetImplementedException, Classe InvalidKeyException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection ListIsFullException
+@findex        ListIsFullException
+
+Cette exception est levee par les methodes de la classe @emph{Versatile}
+lorsque la taille maximale de la liste interne est depasse. En general
+le nom de l'objet en erreur est inclus dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class ListIsFullException : public GenericException
+@{
+  public:
+    // Constructeur
+    ListIsFullException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{ListIsFullException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{ListIsFullException}.
+
+@end itemize
+
+@end itemize
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe NotYetImplementedException, Classe RunTimeException, Classe ListIsFullException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection NotYetImplementedException
+@findex        NotYetImplementedException
+
+Cette exception est levee par les classes de la bibliotheque lorsqu'une
+methode declaree mais non encore implementee est utilisee. En general
+le nom de l'objet en erreur est inclus dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class NotYetImplementedException : public GenericException
+@{
+  public:
+    // Constructeur
+    NotYetImplementedException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{NotYetImplementedException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{NotYetImplementedException}.
+
+@end itemize
+
+@end itemize
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe RunTimeException, Classe TypeMismatchException, Classe NotYetImplementedException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection RunTimeException
+@findex        RunTimeException
+
+Cette exception est levee par les classes de la bibliotheque lorsqu'une
+erreur inconnue et imprevue apparait. Cette exception est le
+comportement par defaut que doit gerer le gestionnaire d'exception en ce
+qui concerne les classes de la bibliotheque. En general le nom de
+l'objet en erreur est inclus dans le message de l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class RunTimeException : public GenericException
+@{
+  public:
+    // Constructeur
+    RunTimeException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{RunTimeException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{RunTimeException}.
+
+@end itemize
+
+@end itemize
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Classe TypeMismatchException, Classes specifiques, Classe RunTimeException, Exceptions
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection TypeMismatchException
+@findex        TypeMismatchException
+
+Cette exception est levee par les methodes de la classe @emph{Versatile}
+lorsque qu'une erreur de type est rencontree dans un objet. Ce genre
+d'erreur survient lorsqu'on essaie d'affecter une valeur d'un type
+different du type interne de l'objet @emph{Versatile} a ce meme objet,
+ou bien lorsqu'on ajoute une valeur d'un type different a une liste. En
+general le nom de l'objet en erreur est inclus dans le message de
+l'exception.
+
+Cette exception herite de la classe @emph{GenericException} qui definit
+uniquement un constructeur et deux membres publics constants : @emph{type} et
+@emph{message}. @xref{Classe GenericException}.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class TypeMismatchException : public GenericException
+@{
+  public:
+    // Constructeur
+    TypeMismatchException(string msg = "undefined");
+@};
+@end example
+
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{TypeMismatchException(string msg = "undefined")}
+
+Ce contructeur prend la chaine @emph{msg} comme message d'erreur a
+renvoyer au gestionnaire d'exception. Cette valeur est stockee dans le
+membre public constant @emph{message}.
+
+Le membre public constant @emph{type} est initialise avec le nom de la
+classe, soit @emph{TypeMismatchException}.
+
+@end itemize
+
+@end itemize
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes specifiques, Classes PBS, Classe TypeMismatchException,   Classes
+@comment  node-name,           next,        previous,             up
+@page
+@section  Classes specifiques
+@cindex   classes specifiques
+
+Afin de pouvoir se connecter aux gestionnaires de batch reels a travers
+leurs API, les classes generiques ont ete derivees pour offrir une
+implementation correspondant a l'interface qu'elles definissent.
+
+Pour traduire a la fois le fait que les nouvelles classes derivent d'une
+classe generique et qu'elles sont une implementation d'une API
+particuliere, on adopte la convention de nom suivante : la classe se
+nomme comme sa classe generique mais est suffixee par le nom de l'API du
+gestionnaire de batch, les deux termes etant separes par un caractere
+@kbd{_} (souligne).
+
+Actuellement, seul le gestionnaire de batch OpenPBS, @xref{Prerequis}, est
+supporte. Mais ce catalogue devrait s'enrichir par la suite.
+
+Les classes de la bibliotheque sont egalement accessibles a travers un
+interpreteur Python, ce qui a necessite la creation de certaines classes
+d'interface avec l'interpreteur.
+
+@menu
+* Classes PBS::         Classes d'implementation pour OpenPBS
+* Classes Python::      Classes d'interfacage avec Python.
+@end menu
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes PBS, Classe FactBatchManager_PBS, Classes specifiques, Classes specifiques
+@comment  node-name,   next,           previous,            up
+@page
+@subsection Classes PBS
+@cindex     classes PBS
+
+Actuellement seules les classes @emph{BatchManager}, @emph{JobInfo} et
+@emph{Job} ont besoin d'etre derivees pour implementer la communication
+et l'interfacage avec l'API du gestionnaire de batch OpenPBS.
+
+
+@menu
+* Classe FactBatchManager_PBS::  Description de la classe FactBatchManager_PBS.
+* Classe BatchManager_PBS::      Description de la classe BatchManager_PBS.
+* Classe JobInfo_PBS::           Description de la classe JobInfo_PBS.
+* Classe Job_PBS::               Description de la classe Job_PBS.
+@end menu
+
+
+@node Classe FactBatchManager_PBS, Classe BatchManager_PBS, Classes PBS, Classes PBS
+@comment  node-name,  next,  previous,  up
+@subsubsection FactBatchManager_PBS
+@cindex        FactBatchManager_PBS
+
+Cette classe derive de la classe generique @emph{FactBatchManager},
+@xref{Classe FactBatchManager}.
+
+Les objets de la classe @emph{BatchManager_PBS} realisent l'interface de
+la bibliotheque avec l'API du gestionnaire de batch OpenPBS.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class FactBatchManager_PBS : public FactBatchManager
+@{
+public:
+  // Constructeur et destructeur
+  FactBatchManager_PBS();
+  virtual ~FactBatchManager_PBS();
+
+  virtual BatchManager_PBS * operator() (const char * hostname) const;
+
+protected:
+
+private:
+
+@};
+@end example
+
+@item Exemple
+
+@example
+@dots{}
+
+// On instancie le catalogue de gestionnaires de batch
+Batch::BatchManagerCatalog cata;
+
+// On cree une fabrique de BatchManager de type PBS
+Batch::FactBatchManager & fbm = * cata("PBS");
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{FactBatchManager_PBS()}
+
+Ce constructeur instancie un objet de la classe
+@emph{FactBatchManager_PBS} et l'enregistre automatiquement aupres du
+catalogue de fabrique. @xref{Classe BatchManagerCatalog}.
+
+Le type est positionne a la valeur PBS.
+
+@item
+@b{~FactBatchManager_PBS()}
+
+Le destructeur ne fait rien de particulier.
+
+@item
+@b{BatchManager_PBS * operator() (const char * hostname) const}
+
+Cet operateur renvoie un objet nouvellement cree de type
+@emph{BatchManager_PBS} derivant de @emph{BatchManager} et oeuvrant sur
+la machine @emph{hostname}. La destruction de l'objet est a la charge de
+l'appelant.
+
+@end itemize
+
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node Classe BatchManager_PBS, Classe JobInfo_PBS, Classe FactBatchManager_PBS, Classes PBS
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection BatchManager_PBS
+@cindex        BatchManager_PBS
+
+Cette classe derive de la classe generique @emph{BatchManager},
+@xref{Classe BatchManager}.
+
+Les objets de la classe @emph{BatchManager_PBS} realisent l'interface de
+la bibliotheque avec l'API du gestionnaire de batch OpenPBS.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class BatchManager_PBS : public BatchManager
+@{
+  public:
+    // Constructeur et destructeur
+    BatchManager_PBS(FactBatchManager * parent, 
+                     const char * host) throw(InvalidArgumentException);
+    virtual ~BatchManager_PBS();
+
+    // Recupere le nom du serveur par defaut
+    static string getDefaultServer();
+
+    // Recupere le l'identifiant d'un job deja soumis au BatchManager
+    virtual const JobId getJobIdByReference(const string & ref);
+
+    // Methodes pour le controle des jobs : virtuelles pures
+    // soumet un job au gestionnaire
+    virtual const JobId submitJob(const Job & job);
+
+    // retire un job du gestionnaire
+    virtual void deleteJob(const JobId & jobid);
+
+    // suspend un job en file d'attente
+    virtual void holdJob(const JobId & jobid);
+
+    // relache un job suspendu
+    virtual void releaseJob(const JobId & jobid);
+
+    // modifie un job en file d'attente
+    virtual void alterJob(const JobId & jobid,
+                          const Parametre & param,
+                          const Environnement & env);
+    virtual void alterJob(const JobId & jobid,
+                          const Parametre & param);
+    virtual void alterJob(const JobId & jobid,
+                          const Environnement & env);
+
+    // renvoie l'etat du job
+    virtual JobInfo queryJob(const JobId & jobid);
+
+    // modifie un job en file d'attente
+    virtual void setParametre(const JobId & jobid,
+                              const Parametre & param);
+    virtual void setEnvironnement(const JobId & jobid,
+                                  const Environnement & env);
+
+  protected:
+    string _hostname; // serveur ou tourne le BatchManager
+
+  private:
+
+@};
+@end example
+
+@item Exemple
+
+@example
+@dots{}
+
+// On instancie le catalogue de gestionnaires de batch
+Batch::BatchManagerCatalog cata;
+
+// On cree une fabrique de BatchManager de type PBS
+Batch::BatchManager & myBM = (* cata("PBS"))("serveur.domaine.fr")
+
+// Maintenant, on peut utiliser toutes les fonctionnalites du
+// gestionnaire de batch a travers le variable myBM
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{BatchManager_PBS(FactBatchManager * parent,
+const char * host) throw(InvalidArgumentException)}
+
+Excepte un pointeur sur la fabrique qui a produit l'objet, le
+constructeur accepte zero ou un argument de type @emph{string} decrivant
+soit le nom de domaine completement qualifie (FQDN, @i{fully qualified
+domain name}) du serveur de batch, soit son adresse IP dans un format
+decimal "aaa.bbb.ccc.ddd".
+
+Si aucun parametre n'est passe au constructeur, celui-ci prend le
+serveur par defaut tel que renvoye par la methode @emph{getDefaultServer}.
+
+Une resolution du nom ou de l'adresse peut etre realisee en fonction des
+capacites de la plate-forme pour s'assurer que le serveur est connu et
+joignable. En cas d'echec, une exception InvalidArgumentException est
+levee. @xref{Classe InvalidArgumentException}.
+
+Ceci fait, une connexion est etablie avec le gestionnaire de batch qui
+est maintenue jusqu'a destruction de l'objet.
+
+@item 
+@b{~BatchManager()}
+
+Le destructeur supprime la connexion precedemment etablie par le
+constructeur lorsque celle-ci a reussi.
+
+@item
+@b{const JobId submitJob(const Job & job)}
+
+Cette methode soumet le job passe en argument au gestionnaire de
+batch. Etant donne que le job ne peut pas etre envoye tel quel puisqu'il
+a un format generique au sein de la bibliotheque de classes Batch, cette
+methode est chargee de le convertir dans un format adapte au
+gestionnaire de batch sous-jacent.
+
+La methode opere ici une conversion du job de la classe @emph{Job} en @emph{Job_PBS}.
+
+Ce n'est que lorsque cette conversion est realisee que le job est soumis
+au gestionnaire a travers son API. L'identifiant propose par le
+gestionnaire est alors renvoye a l'appelant. Si la soumission echoue
+pour une raison ou une autre, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{void deleteJob(const JobId & jobid)}
+
+Cette methode retire le job dont l'identifiant est passe en argument de
+la file d'attente du gestionnaire, ou bien l'arrete en cours
+d'execution. Cette methode est inoperante sur des travaux deja termines,
+auquel cas une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{void holdJob(const JobId & jobid)}
+
+Cette methode suspend le job dont l'identifiant est passe en argument au
+sein de la file d'attente du gestionnaire. Cette methode est inoperante
+sur des travaux en cours d'execution ou deja termines, ainsi que sur des
+travaux deja suspendus.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{void releaseJob(const JobId & jobid)}
+
+Cette methode relache un job precedemment suspendu en file
+d'attente dont l'identifiant est passe en argument. Elle est inoperante
+sur des travaux deja reclaches, en cours d'execution ou termines.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{void alterJob(const JobId & jobid, const Parametre & param, const Environnement & env)@*
+void alterJob(const JobId & jobid, const Parametre & param)@*
+void alterJob(const JobId & jobid, const Environnement & env)}
+
+Ces methodes permettent de modifier les parametres d'execution et
+d'environnement d'un job dont l'identifiant est passe en
+argument. @xref{Classe Parametre}. @xref{Classe Environnement}. Il
+est important de noter que le job doit etre encore place en file
+d'attente sinon la methode est inoperante.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+@item
+@b{JobInfo queryJob(const JobId & jobid)}
+
+Cette methode permet de recuperer les informations concernant le job 
+dont l'identifiant est passe en argument dans un objet de classe
+@emph{JobInfo}. @xref{Classe JobInfo}. On y retrouve les parametres
+d'execution et d'environnement du job tels qu'ils ont ete passes au
+gestionnaire au moment de la soumission, ainsi que des informations
+concernant l'execution du job comme par exemple la machine d'execution,
+le temps consomme, la memoire consommee, etc.
+
+Il n'est pas toujours possible d'interroger un job deja termine.
+En cas de probleme, une exception APIInternalFailureException est
+levee. @xref{Classe APIInternalFailureException}.
+
+
+@item
+@b{const JobId getJobIdByReference(const string & ref)}
+
+Cette methode permet de recuperer au sein de la classe un identifiant de
+job a partir d'une chaine de caracteres obtenue par un biais
+externe. Cet identifiant pourra etre utilise par la suite au sein de la
+biliotheque de classes pour controler le job comme s'il avait ete cree
+et soumis depuis la biliotheque-meme.
+
+@item
+@b{void setParametre(const JobId & jobid, const Parametre & param)}
+
+Cette methode n'est utile que pour l'interfacage avec Python, car Python
+ne sait pas gerer la surcharge de methode, et de fait leve des
+exceptions lors d'appels a de telles methodes.
+
+Elle est equivalente a la methode @samp{void alterJob(const JobId & jobid, const Parametre & param)}.
+
+@item
+@b{void setEnvironnement(const JobId & jobid, const Environnement & env)}
+
+Cette methode n'est utile que pour l'interfacage avec Python, car Python
+ne sait pas gerer la surcharge de methode, et de fait leve des
+exceptions lors d'appels a de telles methodes.
+
+Elle est equivalente a la methode @samp{void alterJob(const JobId & jobid, const Environnement & env)}.
+
+@end itemize
+
+
+@end itemize
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+
+@node Classe JobInfo_PBS, Classe Job_PBS, Classe BatchManager_PBS, Classes PBS
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection JobInfo_PBS
+@cindex        JobInfo_PBS
+
+Un objet de classe @emph{JobInfo} represente l'ensemble des informations
+disponibles sur un travail actif, c'est-a-dire soumis au gestionnaire de
+batch, a un instant donne.
+
+Cet objet reprend des informations issues du job tel qu'il a ete soumis,
+@xref{Classe Job}, mais aussi des informations produites par le
+gestionnaire de batch a partir de la soumission et du transit du job en
+son sein : nom de la queue dans laquelle le job est inscrit, duree
+d'execution, date de soumission, etc.
+
+Ces informations sont disponibles aupres de l'utilisateur de la classe a
+travers les objets @emph{Parametre} et @emph{Environnement} que l'objet
+@emph{JobInfo} peut fournir.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class JobInfo_PBS : public JobInfo
+@{
+  public:
+    // Constructeur standard et destructeur
+    JobInfo_PBS();
+    JobInfo_PBS(struct batch_status * stat_list,
+                bool tobedeleted = false);
+    virtual ~JobInfo_PBS();
+
+    // Constructeur par recopie
+    JobInfo_PBS(const JobInfo_PBS & jinfo);
+
+    // Methodes pour l'interfacage avec Python (SWIG)
+    string  __str__() const;  // SWIG : affichage en Python
+    string  __repr__() const; // SWIG : affichage en Python
+
+  protected:
+    Parametre _param; // parametres du job
+    Environnement _env; // variables d'environnement du job
+
+  private:
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{} (ici on cree un BatchManager bm et un Job job)
+
+// On soumet le job et on recupere un identifiant
+JobId   jobid = bm.submitJob(job);
+
+// Ce qui permet d'interroger l'etat du job en cours
+// Nota : l'objet retourne est un JobInfo_PBS
+JobInfo jinfo = jobid.queryJob();
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+@item
+@b{JobInfo_PBS()}
+
+Ce constructeur cree un objet @emph{JobInfo_PBS} vide.
+
+@item
+@b{~JobInfo_PBS()}
+
+Le destructeur libere l'espace memoire alloue pour l'objet si la
+desollacation n'a pas eu deja lieu dans le constructeur.
+
+@item
+@b{JobInfo_PBS(const JobInfo_PBS & jinfo)}
+
+Le constructeur par recopie produit un objet identique a celui passe en
+argument. Les deux objets sont totalement independants l'un de l'autre.
+
+@item
+@b{JobInfo_PBS(struct batch_status * stat_list, bool tobedeleted = false)}
+
+Ce constructeur recupere une liste chainee du type interne OpenPBS
+@emph{struct batch_status *}, la parcoure et l'analyse pour en extraire
+les informations utilisables par la bibliotheque de classes et les
+stocker dans deux objets internes @emph{Parametre} et
+@emph{Environnement}.
+
+Si le parametre @emph{tobedeleted} vaut @emph{true} alors la liste
+chainee @emph{stat_list} sera desallouee a la fin du constructeur. Sinon
+elle sera desalloue dans le destructeur au plus tard.
+
+@item
+@b{string  __str__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobInfo}.
+
+@item
+@b{string  __repr__() const}
+
+Cette methode n'est utile que pour l'interfacage avec Python. Elle
+permet d'afficher l'etat de l'objet @emph{JobInfo}.
+
+@end itemize
+
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+
+@node Classe Job_PBS, Classes Python, Classe JobInfo_PBS, Classes PBS
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection Job_PBS
+@cindex        Job_PBS
+
+Un objet de classe @emph{Job} possede une structure generique
+potentiellement utilisable par tout gestionnaire de batch mais pas en
+l'etat. Une conversion dans un format lisible par le gestionnaire doit
+etre realisee.
+
+Ceci se fait en produisant a partir des donnees generiques de la classe
+@emph{Job} des structures de donnees specifiques qui peuvent etre
+directement passees a l'API du gestionnaire.
+
+La classe @emph{Job_PBS} se distingue donc de la classe @emph{Job} par son
+constructeur et par des accesseurs specifiques qui produisent des
+donnees lisibles par OpenPBS.
+
+Etant donnee la specificite de cette classe, elle ne devrait concerner
+que les developpeurs de la bibliotheque de classes Batch.
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class Job_PBS
+@{
+  public:
+    // Constructeurs et destructeur
+    Job_PBS(const Job & job);
+    virtual ~Job_PBS();
+    
+    // Accesseurs
+    struct attropl * getAttributesOP();
+    struct attrl   * getAttributes();
+    char *           getScript();
+    char *           getDestination();
+
+  protected:
+    struct attropl * _p_attropl; // liste d'attributs + operateur
+    struct attrl   * _p_attrl; // liste d'attributs
+    char * _script; // chemin d'acces au script du job
+    char * _destination; // queue dans laquelle le job est soumis
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+Parametre param;
+Environnement env;
+
+@dots{} (ici on cree les parametres du job)
+
+Job job(param, env);
+
+// On fabrique un job specifique a OpenPBS a partir du job generique
+// Ceci ne concerne en general pas l'utilisateur de la bibliotheque
+Job_PBS jobpbs(job);
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+
+@item
+@b{Job_PBS(const Job & job)}
+
+Le constructeur convertit les objets internes @emph{Parametre} et
+@emph{Environnement} de l'objet passe en argument en un ensemble de
+quatre structures C @emph{AttributesOP}, @emph{Attributes},
+@emph{Script} et @emph{Destination} directement utilisable par l'API de
+OpenPBS.
+
+@item
+@b{~Job_PBS()}
+
+Le destructeur libere simplement les espaces alloues pour les structures
+@emph{AttributesOP}, @emph{Attributes}, @emph{Script} et
+@emph{Destination}.
+
+@item
+@b{struct attropl * getAttributesOP()}
+
+Cet accesseur retourne un pointeur sur la structure interne
+@emph{AttributesOP} de l'objet. Cette structure n'est pas protogee
+contre les modifications accidentelles de l'utilisateur. Par consequent
+il est recommande d'eviter d'y apporter toute alteration sous peine de
+dysfonctionnement.
+
+Pour la definition de la structure @emph{AttributesOP}, voir la
+documentation OpenPBS.
+
+@item
+@b{struct attrl * getAttributes()}
+
+Cet accesseur retourne un pointeur sur la structure interne
+@emph{Attributes} de l'objet. Cette structure n'est pas protogee
+contre les modifications accidentelles de l'utilisateur. Par consequent
+il est recommande d'eviter d'y apporter toute alteration sous peine de
+dysfonctionnement.
+
+Pour la definition de la structure @emph{Attributes}, voir la
+documentation OpenPBS.
+
+@item
+@b{char * getScript()}
+
+Cet accesseur retourne un parametre @emph{Script} qui est une chaine de
+caracteres C contenant le chemin absolu (sur la machine d'execution) 
+du script a soumettre au gestionnaire de batch.
+
+Cette chaine n'est pas protegee contre les modifications accidentelles
+de l'utilisateur. Il est donc recommande de ne pas y apporter de modification.
+
+@item
+@b{char * getDestination()}
+
+Cet accesseur retourne un parametre @emph{Destination} qui est une chaine de
+caracteres C contenant le nom de la queue, ou classe ou file selon les terminologies, 
+du gestionnaire de batch dans laquelle le job doit etre soumis.
+
+Cette chaine n'est pas protegee contre les modifications accidentelles
+de l'utilisateur. Il est donc recommande de ne pas y apporter de modification.
+
+
+@end itemize
+@end itemize
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Classes Python, Classe PyVersatile, Classe Job_PBS, Classes specifiques
+@comment  node-name,      next,        previous,    up
+@page
+@subsection Classes Python
+@cindex     classes Python
+
+L'integration de la bibliotheque de classes Batch dans l'interpreteur
+Python a beaucoup progresse depuis la precedente version et se trouve
+etre quasiment iso-fonctionelle avec le C++.
+
+Actuellement, l'interface avec Python s'appuie a la fois sur les
+fonctionnalites de l'utilitaire SWIG, et sur la definition d'une classe
+specifique qui permet de voir en Python la classe @emph{Versatile}.
+
+Certaines classes ont de plus des methodes specifiques pour le wrapping
+Python qui simplifient grandement le developpement des classes
+d'interface au detriment, il est vrai, d'une bonne independance entre
+les langages. Ce choix n'est pas definitif et pourra etre revu si
+l'occasion s'en presente.
+
+Quoi qu'il en soit toutes les classes de haut niveau sont interfacees en
+Python sous le meme nom et proposent les memes methodes (sauf celles
+surchargees en C++ qui sot parfois renommees pour lever
+l'ambiguite). Pour ne pas refaire un expose detaille et fastidieux des
+fonctionnalites Python de la bibliotheque de classes, il est propose de
+retrouver les noms et la syntaxe de ces classe dans la partie
+Utilisation de ce document. @xref{Utilisation}.
+
+@menu
+* Classe PyVersatile::  Description de la classe PyVersatile.
+@end menu
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+
+@node Classe PyVersatile, Utilisation, Classes Python, Classes Python
+@comment  node-name,  next,  previous,  up
+@page
+@subsubsection PyVersatile
+@cindex        PyVersatile
+
+
+La classe @emph{PyVersatile} derive de la classe @emph{Versatile} et
+offre la possibilite de convertir un tel objet en objet Python et
+@i{vice versa}.
+
+
+@itemize @bullet{}
+@item Entete
+
+@example
+class PyVersatile : public Versatile
+@{
+  public:
+    // Constructeur a partir d'un objet Versatile
+    PyVersatile(const Versatile &);
+
+    // Constructeur a partir d'un PyObject
+    PyVersatile(const PyObject *) throw(TypeMismatchException,
+                                        ListIsFullException,
+                                        InvalidArgumentException);
+
+    // Conversion de type vers un PyObject
+    operator PyObject *() const;
+
+    // Operateur d'affectation a partir d'un objet Versatile
+    PyVersatile & operator =(const Versatile &);
+
+  protected:
+
+  private:
+
+@};
+@end example
+
+
+@item Exemple
+@example
+@dots{}
+
+// On cree un objet Versatile contenant 
+// une liste de chaine de caracteres
+Versatile V;
+V = "a", "b", "c";
+
+// On convertit cet objet Versatile en PyVersatile
+PyVersatile PyV(V);
+
+// De la on produit un objet Python 
+// qui est une liste de chaine de caracteres
+PyObject * PyO = PyV;
+
+@dots{}
+@end example
+
+@item Methodes
+@itemize @minus{}
+
+@item
+@b{PyVersatile(const Versatile &)}
+
+Ce constructeur convertit un objet @emph{Versatile} en objet @emph{PyVersatile}.
+
+@item
+@b{PyVersatile(const PyObject *) throw(TypeMismatchException, ListIsFullException, InvalidArgumentException)}
+
+Ce constructeur convertit un objet Python passe en argument en un objet
+@emph{PyVersatile}.
+
+Seuls certains objets Python peuvent etre convertis : les @emph{string}
+et les @emph{long}, ainsi que les listes homogenes de ces types, ce qui
+est coherent avec la nature de l'objet @emph{Versatile}. Si tel n'est
+pas le cas, une exception Python est renvoyee a l'interpreteur.
+
+
+@item
+@b{operator PyObject *() const}
+
+Cet operateur convertit l'objet en objet Python. Selon le cas, l'objet
+retourne est soit un scalaire soit une liste. L'objet retourne est
+alloue dynamiquement et doit donc etre pris en charge par l'interpreteur.
+
+@item
+@b{PyVersatile & operator =(const Versatile &)}
+
+L'affectation d'un objet @emph{Versatile} passe en argument est
+similaire a l'affectation entre objets @emph{Versatile}. Les structures
+de donnees internes initiales de l'objet sont effacees et remplacees par
+une copie des donnees internes de l'objet passe en argument. Les deux
+objets restent independants l'un de l'autre a l'issue de l'affectation.
+
+@end itemize
+@end itemize
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Utilisation, Connexion, Classe PyVersatile,   Top
+@comment  node-name,   next,      previous,         up
+@page
+@chapter  Utilisation
+@cindex   utilisation
+
+Ce chapitre presente les differentes actions qu'il est possible de
+realiser avec les classes de la bilbiotheque.
+
+On presente un cas hypothetique ou un utilisateur voudrait soumettre et
+controler un job depuis un code C++. Les sections suivantes decrivent
+les operations a faire ainsi que leur action sur le travail soumis.
+
+@menu
+* Connexion::           Creation d'un gestionnaire de batch.
+* Creation::            Declaration d'un job (travail).
+* Soumission::          Demande d'execution du job.
+* Interrogation::       Recuperation des informations sur le job.
+* Destruction::         Arret du job en cours.
+* Suspension::          Suspension du job en file d'attente.
+* Reprise::             Liberation du job en file d'attente.
+* Modification::        Modification d'un job en file d'attente.
+@end menu
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Connexion,  Creation, Utilisation, Utilisation
+@comment  node-name,  next,     previous,    up
+@section  Connexion
+@cindex   connexion
+@cindex   deconnexion
+
+La premiere etape avant toute utilisation pratique des classes de la
+bibliotheque consiste a se connecter a un gestionnaire de batch.
+
+Ce concept de connexion est purement interne a la bibliotheque car il
+est tout a fait possible d'imaginer le controle de jobs a travers l'API
+d'un gestionnaire sans jamais etablir ni maintenir une quelconque
+connexion avec celui-ci. D'autres par contre reclament l'etablissement
+d'une connexion.
+
+Quoiqu'il en soit ceci n'est pas genant et l'etablissement et le
+maintien de la connexion avec le gestionnaire de batch se fait par la
+creation d'un objet de classe @emph{BatchManager} ou d'une classe
+derivee.
+
+En pratique, la classe @emph{BatchManager} se comporte comme une
+interface et seules les classes d'implementation derivee doivent etre
+instanciees.
+
+Si l'on prend le cas d'un serveur @samp{serveur.domaine.fr} supportant
+un gestionnaire de batch OpenPBS, on peut s'y connecter de la maniere
+suivante :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+BatchManagerCatalog cata;
+BatchManager_PBS & bm = * (* cata('PBS'))("serveur.domaine.fr");
+@end example
+
+@item Exemple Python:
+
+@example
+cata = BatchManagerCatalog()
+bm   = cata('PBS')('serveur.domaine.fr')
+@end example
+
+@end itemize
+
+Tant que l'objet @emph{bm} sera present --- tant que son destructeur
+n'aura pas ete appele --- la connexion sera maintenue. La deconnexion
+aura lieu a la destruction de l'objet.
+
+@xref{Classe BatchManager}.
+@xref{Classe BatchManager_PBS}.
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Creation,   Soumission, Connexion, Utilisation
+@comment  node-name,  next,       previous,  up
+@section  Creation
+@cindex   creation
+
+La creation du job est l'etape qui precede toute soumission. Elle
+necessite de decrire d'un maniere ou d'un autre ce que l'on va demander
+a la machine d'executer.
+
+Pour cela on passe par deux objets intermediaires qui sont l'objet
+@emph{Parametre} et l'objet @emph{Environnement}.
+
+Le minimum a preciser est en general le chemin absolu d'acces a
+l'executable, quoique ceci depende fortement de la configuration du
+gestionnaire auquel on se connecte. Celui-ci peut reclamer des
+parametres supplementaires.
+
+Pour connaitre l'ensemble des parametres disponibles : @xref{Classe
+Parametre}.
+
+On supposera dans cet exemple que l'application en question sait
+reconnaitre une variable d'environnement @var{myapp_loglevel} qui prend
+une valeur numerique correspondant au niveau d'information affiche en
+sortie.
+
+Cette application imaginaire utilise egalement trois fichiers :
+
+@itemize @bullet{}
+@item
+un fichier d'entree nomme @file{Cas1.data} sur la machine locale qu'il
+faudra renommer @file{fort.9} pour que l'application puisse le lire
+(notre application imaginaire est ecrite en FORTRAN et attend un fichier
+d'entree sur son descripteur 9);
+
+@item
+un fichier de sortie standard que l'on voudra recuperer sous le nom
+@file{Cas1.out};
+
+@item
+un fichier d'erreur standard que l'on voudra recuperer sous le nom
+@file{Cas1.err}.
+
+@end itemize
+
+Le job est ensuite cree simplement a l'aide des deux objets precedents.
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+Parametre param;
+param[EXECUTABLE] = "/home/user/my_app/bin/exec_app.sh";
+param[INFILE]     = Couple("/home/user/my_app/data/Cas1.data","fort.9");
+param[OUTFILE]    = Couple("/home/user/my_app/data/Cas1.out", "stdout"),
+                    Couple("/home/user/my_app/data/Cas1.err", "stderr");
+
+Environnement env;
+env["MYAPP_LOGLEVEL"] = "3";
+
+Job job(param, env);
+@end example
+
+@item Exemple Python:
+
+@example
+param = @{@}
+param["EXECUTABLE"] = "/home/user/my_app/bin/exec_app.sh"
+param["INFILE"]     = [ ("/home/user/my_app/data/Cas1.data","fort.9") ]
+param["OUTFILE"]    = [ ("/home/user/my_app/data/Cas1.out", "stdout"),
+                        ("/home/user/my_app/data/Cas1.err", "stderr") ]
+
+env = @{@}
+env["MYAPP_LOGLEVEL"] = "3"
+
+job = Job()
+job.setParametre(param)
+job.setEnvironnement(env)
+@end example
+
+@end itemize
+
+
+@xref{Classe Parametre}.
+@xref{Classe Environnement}.
+@xref{Classe Job}.
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Soumission, Interrogation, Creation,  Utilisation
+@comment  node-name,  next,          previous,  up
+@section  Soumission
+@cindex   soumission
+@findex   submitJob
+
+Une fois le job cree, il est alors tres simple de le soumettre au
+gestionnaire de batch en passant par l'intermediaire de l'objet
+@emph{BatchManager} cree precedemment.
+
+Cette soumission produira un objet @emph{JobId} qui servira a controler
+le job par la suite.
+
+Cependant des exceptions peuvent etre levees au moment de la soumission
+et il convient de fournir un gestionnaire d'exception pour gerer
+proprement ces incidents.
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  const JobId jobid = bm.submitJob(job);
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+try : 
+  jobid = bm.submitJob(job)
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+@xref{Classe Job}.
+@xref{Classe JobId}.
+@xref{Exceptions}.
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Interrogation, Destruction, Soumission, Utilisation
+@comment  node-name,     next,        previous,   up
+@section  Interrogation
+@cindex   interrogation
+@findex   queryJob
+
+La fourniture d'un objet @emph{JobId} permet d'avoir tout controle sur
+le job en cours. En particulier il est possible de l'interroger :
+ceci generera un objet @emph{JobInfo} qui donnera l'ensemble des
+informations disponibles sur l'etat du job aupres du gestionnaire de
+batch.
+
+Ces informations sont disponibles a travers deux objets internes de
+classes @emph{Parametre} et @emph{Environnement}, les memes que pour la
+classe @emph{Job}, mais modifies et completes avec les donnees les plus
+a jour du gestionnaire de batch.
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  const JobInfo jinfo = jobid.queryJob();
+
+  Parametre newparam   = jinfo.getParametre();
+  Environnement newenv = jinfo.getEnvironnement();
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+try : 
+  jobinfo = jobid.queryJob()
+
+  newparam   = jinfo.getParametre()
+  newenv = jinfo.getEnvironnement()
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+@xref{Classe JobId}.
+@xref{Classe JobInfo}.
+@xref{Exceptions}.
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Destruction, Suspension, Interrogation, Utilisation
+@comment  node-name,   next,       previous,      up
+@section  Destruction
+@cindex   destruction
+@cindex   suppression
+@findex   deleteJob
+
+
+Il est possible de detruire un job que celui-ci soit encore en file
+d'attente ou bien que son execution ait deja commence, auquel cas elle
+serait immediatement interrompue.
+
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  jobid.deleteJob();
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+try : 
+  jobid.deleteJob()
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+@xref{Classe JobId}.
+@xref{Exceptions}.
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Suspension, Reprise, Destruction, Utilisation
+@comment  node-name,  next,    previous,    up
+@section  Suspension
+@cindex   suspension
+@findex   holdJob
+
+La suspension consiste a figer en file d'attente un job qui n'aurait pas
+encore commence son execution. Il n'est pas possible de suspendre un job
+qui s'execute.
+
+Il y a deux manieres de suspendre un job en file d'attente :
+@itemize @bullet{}
+@item en utilisant la methode @samp{holdJob};
+@item en modifiant les parametres du job a l'aide de la methode @samp{alterJob}.
+@end itemize
+
+Exemple 1 :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  jobid.holdJob();
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+try : 
+  jobid.holdJob()
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+Exemple 2 :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  Parametre altparam;
+  altparam[HOLD] = 1;
+  jobid.alterJob(altparam);
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+// Compte tenu de la surcharge d'operateur, cet exemple peut ne pas
+// fonctionner encore
+try : 
+  altparam = @{@}
+  altparam["HOLD"] = 1
+  jobid.alterJob(altparam)
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+
+@xref{Classe JobId}.
+@xref{Exceptions}.
+@xref{Reprise}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Reprise,    Modification, Suspension, Utilisation
+@comment  node-name,  next,         previous,   up
+@section  Reprise
+@cindex   reprise
+@findex   releaseJob
+
+La reprise est l'operation inverse de la suspension en ceci qu'elle
+libere un job precedemment suspendu en file d'attente. Le job continuera
+alors son cheminement normal au sein du gestionnaire de batch.
+
+Il y a deux manieres de suspendre un job en file d'attente :
+@itemize @bullet{}
+@item en utilisant la methode @samp{releaseJob};
+@item en modifiant les parametres du job a l'aide de la methode @samp{alterJob}.
+@end itemize
+
+Exemple 1 :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  jobid.releaseJob();
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+try : 
+  jobid.releaseJob()
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+Exemple 2 :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  Parametre altparam;
+  altparam[HOLD] = 0;
+  jobid.alterJob(altparam);
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+// Compte tenu de la surcharge d'operateur, cet exemple peut ne pas
+// fonctionner encore
+try : 
+  altparam = @{@}
+  altparam["HOLD"] = 0
+  jobid.alterJob(altparam)
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+@xref{Classe JobId}.
+@xref{Exceptions}.
+@xref{Suspension}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Modification, Installation de la bibliotheque, Reprise,   Utilisation
+@comment  node-name,    next,                            previous,  up
+@section  Modification
+@cindex   modification
+@findex   alterJob
+
+Il est possible de modifier tout ou partie des parametres et des
+variables d'un job a condition que celui-ci soit encore en file
+d'attente. Un job dont l'execution a deja debute devient inalterable,
+sauf a l'arreter definitvement.
+
+La modification se fait en declarant un objet @emph{Parametre} et/ou un
+objet @emph{Environnement} contenant l'ensemble des alterations a
+apporter a la description du job. Ces alterations peuvent porter sur des
+parametres ou des variables deja definies ou non.
+
+En reprenant le cas du job imaginaire utilise jusqu'ici, on peut
+souhaiter changer le script qui tient lieu d'executable car le precedent
+etait incomplet, modifier le niveau d'affichage de la log et ajouter une
+variable nommee @var{myapp_debug} qui indique au code de passer en mode
+debug. Ceci pourrait se faire de la maniere suivante :
+
+@itemize @bullet{}
+@item Exemple C++ :
+
+@example
+try @{
+  Parametre altparam;
+  altparam[EXECUTABLE] = "/home/user/my_app/bin/exec_app.sh";
+
+  Environnement altenv;
+  altenv["MYAPP_LOGLEVEL"] = "4";
+  altenv["MYAPP_DEBUG"]    = "1";
+  jobid.alterJob(altparam, altenv);
+
+@} catch (GenericException & ex) @{
+  @dots{}
+@}
+@end example
+
+@item Exemple Python:
+
+@example
+// Compte tenu de la surcharge d'operateur, cet exemple peut ne pas
+// fonctionner encore
+try : 
+  altparam = @{@}
+  altparam["EXECUTABLE"] = "/home/user/my_app/bin/exec_app.sh"
+
+  altenv = @{@}
+  altenv["MYAPP_LOGLEVEL"] = "4";
+  altenv["MYAPP_DEBUG"]    = "1";
+
+  jobid.alterJob(altparam, altenv)
+
+except :
+  @dots{}
+@end example
+
+@end itemize
+
+
+@xref{Classe JobId}.
+@xref{Exceptions}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Installation de la bibliotheque, Prerequis, Modification,  Top
+@comment  node-name,                       next,      previous,      up
+@chapter  Installation
+@cindex   installation
+
+Cette section montre comment installer l'ensemble de la bibliotheque de
+classes Batch sur une machine Unix.
+
+@menu
+* Prerequis::                           
+* Installation rapide::
+* Configuration::
+* Compilation::
+* Compilation de la documentation::
+* Tests::
+* Installation::
+@end menu
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Prerequis,  Installation rapide,  Installation de la bibliotheque, Installation de la bibliotheque
+@comment  node-name,  next,                 previous,                        up
+@section  Prerequis
+@cindex   prerequis
+
+@unnumberedsubsec GCC/G++
+
+A l'heure actuelle, la bibliotheque de classes Batch est developpee en
+C++ et necessite de fait un compilateur pour ce langage. GCC/G++
+version 2.95.3 (@inforef{Top, ,gcc} pour plus de detail) ou une version
+ulterieure est un choix judicieux.
+
+@unnumberedsubsec Gestionnaires de batch
+
+Comme la bibliotheque utilise les fonctionnalites de certains
+gestionnaires de batch, il est indispensable de pouvoir acceder aux
+bibliotheques et aux fichiers d'entete de ces produits, ou du moins des
+produits dont on se servira par la suite, ceci pour pouvoir communiquer
+a travers l'API qu'ils ont developpe.
+
+Le cas le plus simple est d'avoir le produit directement installe sur la
+machine sur laquelle sera compilee la bibliotheque de classes Batch.
+
+@unnumberedsubsubsec OpenPBS
+@cindex OpenPBS
+@cindex PBS
+
+A ce jour, seul le gestionnaire de batch PBS (OpenPBS et PBS Pro) est
+supporte (voir le site officiel @uref{http://www.openpbs.org}). Il doit
+avoir une version au moins egale a 2.3.16. 
+
+@unnumberedsubsubsec LSF
+@cindex LSF
+
+Il est prevu d'avoir un support de LSF dans les mois qui viennent.
+
+@unnumberedsubsubsec LoadLeveler
+@cindex LoadLeveler
+
+Il est prevu d'avoir un support de LoadLeveler mais dans un futur plus
+lointain en fonction de la disponibilite du produit mais surtout d'une
+machine sur lequel il serait installe.
+
+@unnumberedsubsubsec Sun Grid Engine
+
+Ce choix-la est beaucoup plus hypothetique, et risque bien de ne jamais
+etre mene a bien.
+
+@unnumberedsubsubsec Rsh/Ssh
+
+Il est prevu de simuler le fonctionnement d'un gestionnaire de batch a
+l'aide de commandes Unix Rsh et Ssh dans la mesure de leurs capacites
+lorsque qu'il n'est pas possible d'avoir un gestionnaire de batch sur
+certaines machines ou de s'y connecter (par exemple lorsqu'on traverse
+un coupe-feu).
+
+@unnumberedsubsec Python
+@cindex Python
+
+Les classes de haut-niveau de la bibliotheque de classes Batch disposent
+d'une interface en Python qui leur permet d'etre utilisables dans ce
+langage. L'usage de cette fonctionnalite necessite d'avoir a disposition
+une version de Python (voir le site officiel
+@uref{http://www.python.org}) au moins egale a 2.2.
+
+@unnumberedsubsec SWIG
+@cindex SWIG
+
+De plus l'interfacage avec Python est automatise a l'aide de
+l'utilitaire SWIG (voir le site officiel @uref{http://www.swig.org}) qui
+transcrit les definitions des classes C++ en classes Python. Il faut
+pour cela disposer de la version 1.3.17 ou ulterieure.
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Installation rapide, Configuration, Prerequis, Installation de la bibliotheque
+@comment  node-name,           next,          previous,  up
+@section  Installation rapide
+@cindex   installation rapide
+
+Il faut commencer par decompresser le fichier @file{.tar.gz} ou
+@file{.tgz} et descendre dans le repertoire qu'il a cree :
+
+@example
+$ tar -xzvf Batch-@value{VERSION}.tar.gz
+$ cd Batch-@value{VERSION}
+@end example
+
+Pour ceux qui sont vraiment presses, le minimum requis est :
+
+@example
+$ ./configure
+$ make
+$ make install
+@end example
+
+Pour ceux qui ont le temps de lire la suite, les sections suivantes
+decrivent plus en detail ces etapes et les differents tests que l'on
+peut mener.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Configuration, Compilation, Installation rapide, Installation de la bibliotheque
+@comment  node-name,     next,        previous,            up
+@section  Configuration
+@cindex   configuration
+
+La phase de configuration, tres classique dans le domaine des logiciels
+libres, est basee sur les produits autoconf (voir @inforef{Top,
+,autoconf}), automake (voir @inforef{Top, ,automake}) et libtool (voir
+@inforef{Top, ,libtool}).
+
+La configuration est faite a l'aide du programme @file{configure}
+present dans le repertoire racine de la bibliotheque de classes
+Batch. Ce programme analyse l'ensemble des elements du systeme sur
+lequel se deroulera la compilation pour determiner les parametres
+optimaux et la presence de tous les produits necessaires a la
+compilation.
+
+On n'oubliera pas de se referer a la documentation de @file{configure}
+notamment pour determiner l'emplacement definitif de l'installation :
+
+@example
+$ ./configure --help
+@end example
+
+C'est aussi au cours de cette phase de configuration qu'il est
+indispensable de preciser avec quelles options la bibliotheque doit etre
+generee. En particulier il est necessaire d'indiquer avec quel(s)
+gestionnaire(s) de batch doit se faire la compilation de maniere a avoir
+acces a l'API.
+
+Par exemple dans le cas de OpenPBS, il est necessaire de preciser :
+
+@example
+$ ./configure --with-openpbs=/path/to/PBS/root/dir
+@end example
+
+Le chemin @file{/path/to/PBS/root/dir} est optionnel si la variable
+d'environnement @var{openpbs} est definie avec cette meme valeur.
+
+De meme pour Python que l'on indique de la maniere suivante :
+
+@example
+$ ./configure --with-python=/path/to/Python/root/dir
+@end example
+
+ou bien a l'aide de la variable d'environnement @var{pythonhome}.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Compilation, Compilation de la documentation,  Configuration, Installation de la bibliotheque
+@comment  node-name,   next,  previous,      up
+@section  Compilation
+@cindex   compilation
+
+La compilation proprement dite n'appelle pas de remarque particuliere :
+
+@example
+$ make
+@end example
+
+On n'oubliera pas d'utiliser les focntionnalites de chaque @file{make},
+comme par exemple la compilation parallele pour reduire les temps de
+compilation (voir @inforef{Top, ,make}).
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Compilation de la documentation, Tests,  Compilation, Installation de la bibliotheque
+@comment  node-name,   next,  previous,      up
+@section  Compilation de la documentation
+@cindex   compilation de la documentation
+
+Normalement la documentation est automatiquement compilee lors de la
+compilation de la bibliotheque, mais uniquement sous la forme d'un
+fichier @file{.info}. Il est egalement possible d'obtenir un fichier
+@file{.dvi} qui permettra de generer d'autres formats comme le
+PostScript (fichier @file{.ps}) ou le PDF (fichier @file{.pdf}), ou bien
+une documentation sous forme HTML (fichier @file{.html}).
+
+Pour fabriquer le fichier @file{.dvi} il faut executer la commande
+suivante :
+
+@example
+$ make dvi
+@end example
+
+Il est alors possible de produire une documentation sous forme
+PostScript :
+
+@example
+$ cd doc
+$ dvips Batch.dvi -o Batch.ps
+@end example
+
+ou PDF :
+
+@example
+$ cd doc
+$ dvipdf Batch.dvi Batch.pdf
+@end example
+
+Pour la documentation HTML, on l'obtient a l'aide de le commande
+suivante :
+
+@example
+$ cd doc
+$ texi2html -split_node Batch.texi
+@end example
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Tests,       Installation, Compilation de la documentation, Installation de la bibliotheque
+@comment  node-name,   next,         previous,    up
+@section  Tests
+@cindex   tests
+
+@unnumberedsubsec Tests de pre-installation
+
+La bibliotheque de classes Batch dispose d'un ensemble de tests
+unitaires pour verifier le fonctionnement de chaque classe
+individuellement. Ces tests ne sont pas compiles lors de la compilation
+de la bibliotheque; ils ne le sont qu'au moment du test.
+
+Les tests sont executes de la maniere suivante :
+
+@example
+$ make check
+@end example
+
+A la fin des tests, un compte rendu est fait qui avertit l'utilisateur
+des tests reussis et des echecs rencontres. Chaque test peut etre rejoue
+individuellement en se placant dans le repertoire @file{test} et en
+executant les tests manuellement comme par exemple :
+
+@example
+$ cd test
+$ ./t_Versatile.sh
+@end example
+
+@unnumberedsubsec Tests de post-installation
+
+Certains tests ne sont pas executes lorsque la commande @file{make
+check} est lancee car ceux-ci necessitent l'installation prealable de
+certains fichiers qui ne l'ont pas encore ete, l'installation definitive
+n'ayant pas eu lieu encore. C'est pour cela que ces tests ne doivent et
+ne peuvent etre lances qu'une fois l'installation terminee. @xref{Installation}. 
+
+Il faut pour cela executer :
+
+@example
+$ make installcheck
+@end example
+
+De la meme maniere que pour les tests de pre-installation, une compte
+rendu est fait et les tests defaillants peuvent etre rejoues
+manuellement pour determiner le probleme.
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Installation, Divers, Tests,      Installation de la bibliotheque
+@comment  node-name,    next,   previous,  up
+@section  Installation
+@cindex   installation
+
+L'installation est la mise a disposition definitive dans le systeme de
+la bibliotheque de classes Batch. C'est la derniere etape de la
+procedure apres la configuration et la compilation.
+
+On l'execute de la maniere suivante :
+
+@example
+$ make install
+@end example
+
+Tous les fichiers compiles, la bibliotheque et les fichiers d'entete
+sont installes dans le repertoire definitif. Les fichiers de test de
+post-installation sont egalement copies (@xref{Tests}.) ainsi que la
+documentation. 
+
+
+
+
+
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node     Divers,     Index, Installation, Top
+@comment  node-name,  next,  previous,     up
+@chapter  Divers
+@cindex   divers
+
+
+
+
+
+@c ----------------------
+@c ----------------------
+@c ----------------------
+
+@node    Index, Top     ,  Divers,    Top
+@comment node-name, next,  previous,  up
+@unnumbered Index
+
+@heading Index des concepts
+@printindex cp
+
+@heading Index des fonctions et des methodes
+@printindex fn
+
+@bye
+
