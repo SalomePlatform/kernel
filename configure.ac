@@ -23,6 +23,10 @@ XVERSION=0x030200
 AC_SUBST(VERSION)
 AC_SUBST(XVERSION)
 
+# set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
+MODULE_NAME=kernel
+AC_SUBST(MODULE_NAME)
+
 echo
 echo ---------------------------------------------
 echo Initialize source and build root directories

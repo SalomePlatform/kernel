@@ -16,7 +16,7 @@ salomescriptdir    = $(bindir)
 salomeidldir       = $(prefix)/idl/@PACKAGE@
 
 # Directory for installing resource files
-salomeresdir       = $(prefix)/share/@PACKAGE@/resources
+salomeresdir       = $(prefix)/share/@PACKAGE@/resources/@MODULE_NAME@
 
 # Directories for installing admin files
 salomeadmdir       = $(prefix)/salome_adm

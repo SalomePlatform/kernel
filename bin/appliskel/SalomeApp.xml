@@ -26,28 +26,28 @@
     <parameter name="translators" value="%P_msg_%L.qm|%P_icons.qm|%P_images.qm"/>
   </section>
   <section name="resources">
-    <parameter name="SUIT"         value="${SUITRoot}/resources"/>
-    <parameter name="STD"          value="${SUITRoot}/resources"/>
-    <parameter name="Plot2d"       value="${SUITRoot}/resources"/>
-    <parameter name="SPlot2d"      value="${SUITRoot}/resources"/>
-    <parameter name="GLViewer"     value="${SUITRoot}/resources"/>
-    <parameter name="OCCViewer"    value="${SUITRoot}/resources"/>
-    <parameter name="VTKViewer"    value="${SUITRoot}/resources"/>
-    <parameter name="SalomeApp"    value="${SUITRoot}/resources"/>
-    <parameter name="OB"           value="${SUITRoot}/resources"/>
-    <parameter name="CAM"          value="${SUITRoot}/resources"/>
-    <parameter name="GEOM"         value="${GEOM_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="SMESH"        value="${SMESH_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="VISU"         value="${VISU_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="SUPERV"       value="${SUPERV_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="MED"          value="${MED_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="StdMeshers"   value="${SMESH_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="NETGENPlugin" value="${NETGENPLUGIN_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="GHS3DPlugin"  value="${GHS3DPLUGIN_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="COMPONENT"    value="${COMPONENT_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="PYHELLO"      value="${PYHELLO_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="PYCALCULATOR" value="${PYCALCULATOR_ROOT_DIR}/share/salome/resources"/>
-    <parameter name="LIGHT"        value="${LIGHT_ROOT_DIR}/share/salome/resources"/>
+    <parameter name="SUIT"         value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="STD"          value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="Plot2d"       value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="SPlot2d"      value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="GLViewer"     value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="OCCViewer"    value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="VTKViewer"    value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="SalomeApp"    value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="OB"           value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="CAM"          value="${GUI_ROOT_DIR}/share/salome/resources/gui"/>
+    <parameter name="GEOM"         value="${GEOM_ROOT_DIR}/share/salome/resources/geom"/>
+    <parameter name="SMESH"        value="${SMESH_ROOT_DIR}/share/salome/resources/smesh"/>
+    <parameter name="VISU"         value="${VISU_ROOT_DIR}/share/salome/resources/visu"/>
+    <parameter name="SUPERV"       value="${SUPERV_ROOT_DIR}/share/salome/resources/superv"/>
+    <parameter name="MED"          value="${MED_ROOT_DIR}/share/salome/resources/med"/>
+    <parameter name="StdMeshers"   value="${SMESH_ROOT_DIR}/share/salome/resources/smesh"/>
+    <parameter name="NETGENPlugin" value="${NETGENPLUGIN_ROOT_DIR}/share/salome/resources/netgenplugin"/>
+    <parameter name="GHS3DPlugin"  value="${GHS3DPLUGIN_ROOT_DIR}/share/salome/resources/ghs3dplugin"/>
+    <parameter name="COMPONENT"    value="${COMPONENT_ROOT_DIR}/share/salome/resources/component"/>
+    <parameter name="PYHELLO"      value="${PYHELLO_ROOT_DIR}/share/salome/resources/pyhello"/>
+    <parameter name="PYCALCULATOR" value="${PYCALCULATOR_ROOT_DIR}/share/salome/resources/pycalculator"/>
+    <parameter name="LIGHT"        value="${LIGHT_ROOT_DIR}/share/salome/resources/light"/>
 
   </section>
   <section name="GEOM">

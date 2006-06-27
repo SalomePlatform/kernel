@@ -66,7 +66,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
  *  - if ${APPLI} exists in environment,
  *    look for ${HOME}/*{APPLI}/CatalogResources.xml
  *  - else look for default:
- *    ${KERNEL_ROOT_DIR}/share/salome/resources/CatalogResources.xml
+ *    ${KERNEL_ROOT_DIR}/share/salome/resources/kernel/CatalogResources.xml
  *  - parse XML resource file.
  */ 
 //=============================================================================
@@ -87,7 +87,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
   else
     {
       _path_resources = getenv("KERNEL_ROOT_DIR");
-      _path_resources += "/share/salome/resources/CatalogResources.xml";
+      _path_resources += "/share/salome/resources/kernel/CatalogResources.xml";
     }
 
   ParseXmlFile();

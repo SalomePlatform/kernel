@@ -24,7 +24,7 @@ import orbmodule
 
 process_id = {}
 
-# salome_subdir variable is used for composing paths like $KERNEL_ROOT_DIR/share/salome/resources, etc.
+# salome_subdir variable is used for composing paths like $KERNEL_ROOT_DIR/share/salome/resources/kernel, etc.
 # before moving to SUIT-based gui, instead of salome_subdir there was args['appname'] used.
 # but after - 'appname'  = "SalomeApp", so using it in making the subdirectory is an error.
 salome_subdir = "salome"
@@ -172,7 +172,7 @@ def set_env(args, modules_list, modules_root_dir):
         os.environ["SMESH_MeshersList"]="StdMeshers"
         if not os.environ.has_key("SALOME_StdMeshersResources"):
             os.environ["SALOME_StdMeshersResources"] \
-            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources"
+            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources/smesh"
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
@@ -190,7 +190,7 @@ def set_env(args, modules_list, modules_root_dir):
                     = os.environ["SMESH_MeshersList"]+":"+plugin
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
-                        = plugin_root+"/share/"+args["appname"]+"/resources"
+                        = plugin_root+"/share/"+args["appname"]+"/resources/"+plugin.lower()
                     add_path(os.path.join(plugin_root,"lib",python_version,
                                           "site-packages",salome_subdir),
                              "PYTHONPATH")
@@ -210,28 +210,27 @@ def set_env(args, modules_list, modules_root_dir):
     # set resources variables if not yet set
     # Done now by launchConfigureParser.py
     #if os.getenv("GUI_ROOT_DIR"):
-        #if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
-        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
     # set CSF_PluginDefaults variable only if it is not customized
     # by the user
     if not os.getenv("CSF_PluginDefaults"):
         os.environ["CSF_PluginDefaults"] \
         = os.path.join(modules_root_dir["KERNEL"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","kernel")
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
+                   salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
         print "GEOM OCAF Resources"
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","geom")
 	print "GEOM Shape Healing Resources"
         os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","geom")
 
 # -----------------------------------------------------------------------------
 
@@ -357,7 +356,8 @@ class CatalogServer(Server):
                 cata_path.extend(
                     glob.glob(os.path.join(module_root_dir,
                                            "share",salome_subdir,
-                                           "resources",module_cata)))
+                                           "resources",module.lower(),
+                                           module_cata)))
                 pass
             pass
         self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
@@ -470,7 +470,7 @@ class SessionServer(Server):
             cata_path.extend(
                 glob.glob(os.path.join(module_root_dir,"share",
                                        salome_subdir,"resources",
-                                       module_cata)))
+                                       module.lower(),module_cata)))
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
@@ -511,7 +511,7 @@ class ContainerManagerServer(Server):
                 cata_path.extend(
                     glob.glob(os.path.join(module_root_dir,"share",
                                            self.args['appname'],"resources",
-                                           module_cata)))
+                                           module.lower(),module_cata)))
                 pass
             pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
@@ -526,7 +526,7 @@ class NotifyServer(Server):
         self.modules_root_dir=modules_root_dir
         myLogName = os.environ["LOGNAME"]
         self.CMD=['notifd','-c',
-                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/channel.cfg',
+                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/kernel/channel.cfg',
                   '-DFactoryIORFileName=/tmp/'+myLogName+'_rdifact.ior',
                   '-DChannelIORFileName=/tmp/'+myLogName+'_rdichan.ior',
                   '-DReportLogFile=/tmp/'+myLogName+'_notifd.report',

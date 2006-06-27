@@ -180,7 +180,7 @@ Other configuration files
 
 SalomeApp.xml
    This file is similar to the default given
-   in ${GUI_ROOT_DIR}/share/salome/resources
+   in ${GUI_ROOT_DIR}/share/salome/resources/gui
 
 
 CatalogRessources.xml

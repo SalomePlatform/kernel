@@ -56,9 +56,9 @@ resources: resources-cp
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done
 
-resources-cp: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+resources-cp: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/$(MODULE_NAME)/%)
 
-$(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
+$(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/$(MODULE_NAME)/%): $(top_builddir)/share/salome/resources/$(MODULE_NAME)/% : %
 	cp -fr $< $@;
 
 #data:
@@ -104,15 +104,15 @@ distclean: clean
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done
-	-$(RM) $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
+	-$(RM) $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/$(MODULE_NAME)/%)
 	-$(RM) Makefile
 
 install-resources: resources-cp
 # one resources directory for all salome modules
-	$(INSTALL) -d $(datadir)/resources
-	@for f in X $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%); do \
+	$(INSTALL) -d $(datadir)/resources/$(MODULE_NAME)
+	@for f in X $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/$(MODULE_NAME)/%); do \
 	   if test $$f != X; then							 \
-	     ($(INSTALL_DATA) $$f $(datadir)/resources/. || exit 1);			 \
+	     ($(INSTALL_DATA) $$f $(datadir)/resources/$(MODULE_NAME)/. || exit 1);			 \
 	   fi; 										 \
 	done
 
@@ -120,7 +120,7 @@ install-resources: resources-cp
 uninstall-resources:
 	@for f in X $(RESOURCES_FILES); do 	      \
 	   if test $$f != X; then					      \
-	     $(LT_UNINSTALL) $(datadir)/resources/$$f ;			      \
+	     $(LT_UNINSTALL) $(datadir)/resources/$(MODULE_NAME)/$$f ;			      \
 	   fi; 								      \
 	done
 

@@ -78,8 +78,7 @@ echo "export PYHELLO_ROOT_DIR=$APPLI_ROOT" >> env.d/configSalome.sh
 
 # --- GUI config
 
-echo "export config_var=$APPLI_ROOT:$APPLI_ROOT/share/salome/resources" >> env.d/configGUI.sh
-echo "export SUITRoot=$APPLI_ROOT/share/salome" >> env.d/configGUI.sh
+echo "export config_var=$APPLI_ROOT:$APPLI_ROOT/share/salome/resources/gui" >> env.d/configGUI.sh
 
 # --- SAMPLES directory
 

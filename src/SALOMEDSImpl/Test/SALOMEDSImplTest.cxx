@@ -46,7 +46,7 @@ using namespace std;
 void SALOMEDSImplTest::setUp()
 {
   TCollection_AsciiString kernel(getenv("KERNEL_ROOT_DIR"));
-  TCollection_AsciiString subPath("/share/salome/resources");
+  TCollection_AsciiString subPath("/share/salome/resources/kernel");
   TCollection_AsciiString csf_var = (kernel+subPath);
   setenv("CSF_PluginDefaults", csf_var.ToCString(), 0);
   setenv("CSF_SALOMEDS_ResourcesDefaults", csf_var.ToCString(), 0);

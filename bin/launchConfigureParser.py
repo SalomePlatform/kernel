@@ -227,14 +227,10 @@ class xml_parser:
 config_var = appname+'Config'
 # set resources variables if not yet set
 if os.getenv("GUI_ROOT_DIR"):
-    if not os.getenv("SUITRoot"):
-        os.environ["SUITRoot"] = os.getenv("GUI_ROOT_DIR") + "/share/salome"
     if not os.getenv(config_var):
-        os.environ[config_var] = os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+        os.environ[config_var] = os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
     pass
 else :
-    if not os.getenv("SUITRoot"):
-        os.environ["SUITRoot"] = ""
     if not os.getenv(config_var):
         os.environ[config_var] = ""
 
@@ -441,5 +437,5 @@ if 't' in cmd_opts:
 dirs = re.split('[;|:]', os.environ[config_var] )
 for m in args[modules_nam]:
     if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
-        dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources" )
+        dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources/" + m.lower() )
 os.environ[config_var] = ":".join(dirs)
