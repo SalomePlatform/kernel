@@ -437,5 +437,10 @@ if 't' in cmd_opts:
 dirs = re.split('[;|:]', os.environ[config_var] )
 for m in args[modules_nam]:
     if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
-        dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources/" + m.lower() )
+        d1 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources/" + m.lower()
+        d2 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources"
+        if os.path.exists( "%s/%s.xml"%(d1, appname) ):
+            dirs.append( d1 )
+        elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
+            dirs.append( d2 )
 os.environ[config_var] = ":".join(dirs)
