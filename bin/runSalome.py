@@ -353,11 +353,21 @@ class CatalogServer(Server):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
                 #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,
-                                           "share",salome_subdir,
-                                           "resources",module.lower(),
-                                           module_cata)))
+                if os.path.exists(os.path.join(module_root_dir,
+                                               "share",salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)):
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,
+                                               "share",salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)))
+                else:
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,
+                                               "share",salome_subdir,
+                                               "resources",
+                                               module_cata)))
                 pass
             pass
         self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
@@ -467,10 +477,20 @@ class SessionServer(Server):
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             #print "   ", module_cata
-            cata_path.extend(
-                glob.glob(os.path.join(module_root_dir,"share",
-                                       salome_subdir,"resources",
-                                       module.lower(),module_cata)))
+            if os.path.exists(os.path.join(module_root_dir,
+                                           "share",salome_subdir,
+                                           "resources",module.lower(),
+                                           module_cata)):
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,"share",
+                                           salome_subdir,"resources",
+                                           module.lower(),module_cata)))
+            else:
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,"share",
+                                           salome_subdir,"resources",
+                                           module_cata)))
+            pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
@@ -508,10 +528,19 @@ class ContainerManagerServer(Server):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
                 #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           self.args['appname'],"resources",
-                                           module.lower(),module_cata)))
+                if os.path.exists(os.path.join(module_root_dir,
+                                               "share",salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)):
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,"share",
+                                               self.args['appname'],"resources",
+                                               module.lower(),module_cata)))
+                else:
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,"share",
+                                               self.args['appname'],"resources",
+                                               module_cata)))
                 pass
             pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
