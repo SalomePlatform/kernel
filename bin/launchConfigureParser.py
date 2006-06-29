@@ -2,29 +2,29 @@
 #           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
+# License as published by the Free Software Foundation; either
 # version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#
+# This library is distributed in the hope that it will be useful
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
+#
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#
 import os, glob, string, sys, re
 import xml.sax
 
-# names of tags in XML configuration file 
+# names of tags in XML configuration file
 doc_tag = "document"
 sec_tag = "section"
 par_tag = "parameter"
 
-# names of attributes in XML configuration file 
+# names of attributes in XML configuration file
 nam_att = "name"
 val_att = "value"
 
@@ -118,7 +118,7 @@ def userFile():
             last_version = ver
             last_file = file
     return last_file
-        
+
 # -----------------------------------------------------------------------------
 
 ### xml reader for launch configuration file usage
@@ -127,7 +127,7 @@ section_to_skip = ""
 
 class xml_parser:
     def __init__(self, fileName, _opts ):
-        print "Configure parser: processing %s ..." % fileName 
+        print "Configure parser: processing %s ..." % fileName
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -226,16 +226,13 @@ class xml_parser:
 
 config_var = appname+'Config'
 # set resources variables if not yet set
+dirs = []
+if os.getenv(config_var):
+    dirs += re.split('[;|:]', os.getenv(config_var))
 if os.getenv("GUI_ROOT_DIR"):
-    if not os.getenv(config_var):
-        os.environ[config_var] = os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
-    pass
-else :
-    if not os.getenv(config_var):
-        os.environ[config_var] = ""
+    dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
+os.environ[config_var] = ":".join(dirs)
 
-dirs = os.environ[config_var]
-dirs = re.split('[;|:]', dirs )
 dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
 _opts = {} # assiciative array of options to be filled
@@ -270,15 +267,15 @@ args = _opts
 for aKey in listKeys:
     if not args.has_key( aKey ):
         args[aKey]=[]
-        
+
 for aKey in boolKeys:
     if not args.has_key( aKey ):
         args[aKey]=0
-        
+
 if args[file_nam]:
     afile=args[file_nam]
     args[file_nam]=[afile]
-    
+
 args[appname_nam] = appname
 
 ### searching for my port
@@ -324,7 +321,7 @@ def options_parser(line):
     else:
       key = source[i][1]
       pass
-    
+
     result[key] = []
     if key:
       i += 1
@@ -365,7 +362,7 @@ if cmd_opts.has_key("h"):
     --gui or -g                   : launching with GUI
     --terminal -t                 : launching without gui (to deny --gui)
     --logger or -l                : redirect messages in a CORBA collector
-    --file=filename or -f=filename: redirect messages in a log file  
+    --file=filename or -f=filename: redirect messages in a log file
     --xterm or -x                 : execute servers in xterm console (messages appear in xterm windows)
     --modules=module1,module2,... : salome module list (modulen is the name of Salome module to load)
     or -m=module1,module2,...
@@ -383,7 +380,7 @@ if cmd_opts.has_key("h"):
     --interp=n or -i=n            : number of additional xterm to open, with session environment
     -z                            : display splash screen
     -r                            : disable centralized exception handling mechanism
-    
+
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
     KERNEL_ROOT_DIR is mandatory.
@@ -435,6 +432,7 @@ if 't' in cmd_opts:
 
 # now modify SalomeAppConfig environment variable
 dirs = re.split('[;|:]', os.environ[config_var] )
+
 for m in args[modules_nam]:
     if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
         d1 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources/" + m.lower()
