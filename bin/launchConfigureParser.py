@@ -91,7 +91,8 @@ def version_id( fname ):
     ver = major
     ver = ver * 100 + minor
     ver = ver * 100 + release
-    ver = ver * 10000 + dev
+    ver = ver * 10000
+    if dev > 0: ver = ver - 10000 + dev
     return ver
 
 # get user configuration file name
