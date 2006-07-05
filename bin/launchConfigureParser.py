@@ -253,7 +253,7 @@ for dir in dirs:
 
 # SalomeApprc file in user's catalogue
 filename = userFile()
-if filename and not os.path.exists(filename):
+if not filename or not os.path.exists(filename):
     print "Configure parser: Warning : could not find user configuration file"
 else:
     try:
