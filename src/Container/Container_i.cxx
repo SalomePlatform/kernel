@@ -363,7 +363,9 @@ Engines_Container_i::load_component_Library(const char* componentName)
   
       if (ret) // import possible: Python component
 	{
+	  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
 	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
+	  _numInstanceMutex.unlock() ;
 	  MESSAGE("import Python: "<<aCompName<<" OK");
 	  return true;
 	}
@@ -530,7 +532,9 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
   ASSERT(! CORBA::is_nil(component_i));
   string instanceName = component_i->instanceName() ;
   MESSAGE("unload component " << instanceName);
+  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   _listInstances_map.erase(instanceName);
+  _numInstanceMutex.unlock() ;
   component_i->destroy() ;
   _NS->Destroy_Name(instanceName.c_str());
 }
@@ -613,7 +617,9 @@ Engines_Container_i::createFileRef(const char* origFileName)
       Engines::Container_var pCont = Engines::Container::_narrow(obj);
       fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
       theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
       _fileRef_map[origName] = theFileRef;
+      _numInstanceMutex.unlock() ;
     }
   
   theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
@@ -803,8 +809,10 @@ Engines_Container_i::createInstance(string genericRegisterName,
       //SCRUTE(servant->pd_refCount);
       servant->_remove_ref(); // compensate previous id_to_reference 
       //SCRUTE(servant->pd_refCount);
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
+      _numInstanceMutex.unlock() ;
       SCRUTE(aGenRegisterName);
       SCRUTE(_cntInstances_map[aGenRegisterName]);
       //SCRUTE(servant->pd_refCount);
