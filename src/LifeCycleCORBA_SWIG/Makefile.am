@@ -52,7 +52,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 BUILT_SOURCES = swig_wrap.cpp
 
-SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../LifeCycleCORBA
+SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../Utils
 SWIG_SOURCES  = libSALOME_LifeCycleCORBA.i
 
 pkgpython_PYTHON = libSALOME_LifeCycleCORBA.py

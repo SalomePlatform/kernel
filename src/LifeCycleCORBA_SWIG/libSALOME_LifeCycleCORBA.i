@@ -19,7 +19,14 @@
 //
 
 
+// ----------------------------------------------------------------------------
+
 %module libSALOME_LifeCycleCORBA
+
+%include <std_except.i>
+
+
+// ----------------------------------------------------------------------------
 
 %{
 #include "utilities.h"
@@ -27,6 +34,7 @@
 #include "SALOME_FileTransferCORBA.hxx"
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
   using namespace std;
 
@@ -55,6 +63,9 @@ struct omniORBpyAPI {
 %}
 
 
+// ----------------------------------------------------------------------------
+
+
 %init
 %{
   // init section
@@ -72,20 +83,8 @@ struct omniORBpyAPI {
 %}
 
 
-%exception {
-    try {
-      $action
-    }
-    catch (ServiceUnreachable) {
-      PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
-      return NULL;
-    }
-    catch (...) {
-      PyErr_SetString(PyExc_RuntimeError, "unknown exception");
-      return NULL;
-    }
-}
 
+// ----------------------------------------------------------------------------
 
 %typemap(python,out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr
 {
@@ -94,6 +93,20 @@ struct omniORBpyAPI {
   $result = api->cxxObjRefToPyObjRef($1, 1);
   SCRUTE($result);
 }
+
+%typemap(python,in) Engines::fileRef_ptr aFileRef
+{
+  MESSAGE("typemap in on CORBA object ptr");
+  try {
+     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
+     $1 = Engines::fileRef::_narrow(obj);
+     SCRUTE($1);
+  }
+  catch (...) {
+     PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
+  }
+}
+
 
 %typemap(python,out) std::string, 
 		    string
@@ -206,5 +219,39 @@ struct omniORBpyAPI {
   delete $1;
 }
 
-%include "SALOME_LifeCycleCORBA.hxx"
-%include "SALOME_FileTransferCORBA.hxx"
+// ----------------------------------------------------------------------------
+
+%include <Utils_SALOME_Exception.hxx>
+
+%exception {
+    PyThreadState *_save;
+    _save = PyEval_SaveThread();
+    try {
+      $action
+    }
+    catch (ServiceUnreachable) {
+       PyEval_RestoreThread(_save);
+       PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
+       return NULL;
+    }
+    catch (SALOME::SALOME_Exception &e) {
+       MESSAGE("catch SALOME exception");
+       //std::ostringstream os; os<<e;
+       PyEval_RestoreThread(_save);
+       //PyErr_SetString(PyExc_RuntimeError,os.str().c_str());
+       //PyErr_SetString(PyExc_RuntimeError,e.what());
+       SWIG_exception(SWIG_RuntimeError,"SALOME exception");
+       return NULL;
+    }
+    catch (...) {
+       PyEval_RestoreThread(_save);
+       PyErr_SetString(PyExc_RuntimeError, "unknown exception");
+       return NULL;
+    }
+    PyEval_RestoreThread(_save);
+}
+
+
+%include <SALOME_LifeCycleCORBA.hxx>
+%include <SALOME_FileTransferCORBA.hxx>
+
