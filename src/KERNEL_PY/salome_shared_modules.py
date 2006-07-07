@@ -22,8 +22,6 @@
 #  File   : salome_shared_modules.py
 #  Module : SALOME
 
-from SALOME_utilities import *
-
 """
 This module with help of import_hook and *_shared_modules
 filters imports when using the embedded Python interpretor.
@@ -56,13 +54,19 @@ import glob,os,sys
 import import_hook
 # shared_imported, patterns, register_name, register_pattern
 # will be shared by all Python sub interpretors
-from omnipatch import shared_imported
-import_hook.shared_imported=shared_imported
 from import_hook import patterns
 from import_hook import register_name
 from import_hook import register_pattern
 
 register_name("salome_shared_modules")
+register_name("omniORB")
+register_name("omnipatch")
+register_pattern(lambda(x):x.endswith("_idl"))
+register_pattern(lambda(x):x.startswith("omniORB."))
+
+from omnipatch import shared_imported
+shared_imported.update(import_hook.shared_imported)
+import_hook.shared_imported=shared_imported
 
 # Get the SALOMEPATH if set or else use KERNEL_ROOT_DIR that should be set.
 salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
@@ -87,7 +91,7 @@ for rep in path:
 # we add them to shared_imported
 #
 for name,module in sys.modules.items():
-    if import_hook.is_shared(name) and shared_imported.get(name) is None:
+    if module and import_hook.is_shared(name) and not shared_imported.has_key(name):
        #print "Module shared added to shared_imported: ",name
        shared_imported[name]=module
 
