@@ -184,6 +184,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 	      int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
 	      ASSERT(nbWri == toFollow);
 	    }
+	  fclose(fp);
 	  MESSAGE("end of transfer");
 	  fileTransfer->close(fileId);
 	  _theFileRef->addRef(myMachine.c_str(), localFile.c_str());
