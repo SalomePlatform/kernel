@@ -52,6 +52,8 @@ class NamingServer(Server):
 class client:
 
    def __init__(self):
+      #set GIOP message size for bug 10560: impossible to get field values in TUI mode
+      sys.argv.extend(["-ORBgiopMaxMsgSize", "104857600"]) ## = 100 * 1024 * 1024
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
       # Initialise the Naming Service
