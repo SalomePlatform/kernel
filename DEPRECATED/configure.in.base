@@ -22,9 +22,9 @@ AC_CANONICAL_HOST
 PACKAGE=salome
 AC_SUBST(PACKAGE)
 
-VERSION=3.2.0
+VERSION=3.2.1
 AC_SUBST(VERSION)
-XVERSION=0x030200
+XVERSION=0x030201
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
