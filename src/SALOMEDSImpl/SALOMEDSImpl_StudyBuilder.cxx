@@ -402,7 +402,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 
       if (isASCII) {
 	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-	aFilesToRemove->Append(aHDFUrl);
+	aFilesToRemove->Append("hdf_from_ascii.hdf");
 	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
                                                 aFilesToRemove, true);
       }      
