@@ -1527,16 +1527,28 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if(theSavePoint < 0) return NULL;
+  if (theSavePoint < 0) return NULL;
   Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
   Handle(SALOMEDSImpl_SObject) so = FindComponent((char*)theID);
-  if(so.IsNull()) so = builder->NewComponent((char*)theID); 
-  Handle(SALOMEDSImpl_SObject) newSO;
-  if(theSavePoint == 0) //Get an attribute that is placed on the component itself.
-    newSO = so;
-  else
-    newSO = builder->NewObjectToTag(so, theSavePoint);
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(newSO, "AttributeParameter"));
+  if (so.IsNull()) so = builder->NewComponent((char*)theID);
+  Handle(SALOMEDSImpl_AttributeParameter) attParam;
+
+  if (theSavePoint > 0) { // Try to find SObject that contains attribute parameter ...
+    TDF_Label savePointLabel = so->GetLabel().FindChild( theSavePoint, /*create=*/0 );
+    if ( !savePointLabel.IsNull() )
+      so = GetSObject( savePointLabel );
+    else // ... if it does not exist - create a new one
+      so = builder->NewObjectToTag( so, theSavePoint );
+  }
+
+  if (!so.IsNull()) {
+    builder->FindAttribute(so, attParam, "AttributeParameter");
+    if ( attParam.IsNull() ) { // first call of GetCommonParameters on "Interface Applicative" component
+      Handle(TDF_Attribute) att = builder->FindOrCreateAttribute(so, "AttributeParameter");
+      attParam = Handle(SALOMEDSImpl_AttributeParameter)::DownCast( att );
+    }
+  }
+  return attParam;
 }
 
 //============================================================================

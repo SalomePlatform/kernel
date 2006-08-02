@@ -524,7 +524,8 @@ bool SALOMEDSImpl_StudyBuilder::FindAttribute(const Handle(SALOMEDSImpl_SObject)
   }
   TDF_Label Lab = anObject->GetLabel();
   if (Lab.FindAttribute(SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute), anAttribute)) {
-    _doc->Modify();  
+    // commented out because NO MODIFICATION is done to attributes when calling FindAttribute()
+    // _doc->Modify();  
     return Standard_True;
   }
   return Standard_False;
