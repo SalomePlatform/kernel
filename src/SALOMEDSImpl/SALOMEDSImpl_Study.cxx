@@ -577,10 +577,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -588,8 +584,13 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate all subchildren at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeName) aName;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Value());
@@ -610,10 +611,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -621,8 +618,13 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate first-level children at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate first-level children at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) {
@@ -650,10 +652,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -661,16 +659,21 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate all subchildren at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) {
       if (anID->Value() == FILELOCALID) {
 	Handle(SALOMEDSImpl_AttributePersistentRef) aName;
-	if(aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(), aName)) {
+	if (aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(), aName)) {
 	  TCollection_ExtendedString aFileName = aName->Value();
-	  if(aFileName.Length() > 0)
+	  if (aFileName.Length() > 0)
 	    aResultSeq->Append(aFileName.Split(strlen(FILEID)));
 	}
       }
