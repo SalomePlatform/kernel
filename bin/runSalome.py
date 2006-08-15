@@ -55,6 +55,13 @@ def add_path(directory, variable_name):
 
 # -----------------------------------------------------------------------------
 
+def get_lib_dir():
+    if os.path.exists("/usr/lib64/libc.so"):
+        return "lib64"
+    return "lib"
+
+# -----------------------------------------------------------------------------
+
 def get_config():
     """
     Get list of modules, paths.
@@ -130,7 +137,7 @@ def set_env(args, modules_list, modules_root_dir):
         if modules_root_dir.has_key(module):
             module_root_dir = modules_root_dir[module]
             modules_root_dir_list[:0] = [module_root_dir]
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+            add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "LD_LIBRARY_PATH")
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
@@ -140,13 +147,13 @@ def set_env(args, modules_list, modules_root_dir):
                 pass
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
+            add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+            add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
+            add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir,
                                   "shared_modules"),
@@ -191,12 +198,12 @@ def set_env(args, modules_list, modules_root_dir):
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
                         = plugin_root+"/share/"+args["appname"]+"/resources/"+plugin.lower()
-                    add_path(os.path.join(plugin_root,"lib",python_version,
+                    add_path(os.path.join(plugin_root,get_lib_dir(),python_version,
                                           "site-packages",salome_subdir),
                              "PYTHONPATH")
-                    add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                    add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                              "PYTHONPATH")
-                    add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                    add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                              "LD_LIBRARY_PATH")
                     add_path(os.path.join(plugin_root,"bin",salome_subdir),
                              "PYTHONPATH")

@@ -65,6 +65,12 @@ def rmtree(dir):
         pass
     pass
 
+def get_lib_dir():
+    """Get libraries directory according to the Linux platform being used"""
+    if os.path.exists("/usr/lib64/libc.so"):
+        return "lib64"
+    return "lib"
+
 def main():
     usage="""usage: %prog [options]
 Typical use is:
@@ -100,9 +106,9 @@ Typical use is:
 
     #module_dir="/local/chris/SALOME2/RELEASES/Install/KERNEL_V3_1_0b1"
     module_bin_dir=os.path.join(module_dir,'bin','salome')
-    module_lib_dir=os.path.join(module_dir,'lib','salome')
-    module_lib_py_dir=os.path.join(module_dir,'lib',py_version,'site-packages','salome')
-    module_lib_py_shared_dir=os.path.join(module_dir,'lib',py_version,
+    module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
+    module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),py_version,'site-packages','salome')
+    module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),py_version,
                                           'site-packages','salome','shared_modules')
     module_share_dir=os.path.join(module_dir,'share','salome','resources')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
