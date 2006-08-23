@@ -83,6 +83,7 @@ private:
   TDF_Label                _current;
   bool                     _autoFill; 
   TCollection_AsciiString  _errorCode;
+  TCollection_AsciiString  _locker;
   Handle(SALOMEDSImpl_Callback)       _cb;
   Handle(SALOMEDSImpl_StudyBuilder)   _builder;
   Handle(SALOMEDSImpl_UseCaseBuilder) _useCaseBuilder;
@@ -274,6 +275,18 @@ public:
   Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetModuleParameters(const char* theID, 
 									      const char* theModuleName,
 									      int theSavePoint);
+
+  //Locks the study, theLockerID is identificator of the of the one who locked the study for ex. IOR
+  Standard_EXPORT void SetStudyLock(const char* theLockerID);
+
+  //Returns True if the study is locked
+  Standard_EXPORT bool IsStudyLocked();
+
+  //Unlocks the study
+  Standard_EXPORT void UnLockStudy();
+  
+  //Returns an ID of the study locker
+  Standard_EXPORT char* GetLockerID();
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )

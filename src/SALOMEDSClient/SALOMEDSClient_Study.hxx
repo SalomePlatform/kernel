@@ -86,6 +86,10 @@ public:
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint) = 0;
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
 						       const std::string& theModuleName, int theSavePoint) = 0;
+  virtual void SetStudyLock(const std::string& theLockerID) = 0;
+  virtual bool IsStudyLocked() = 0;
+  virtual void UnLockStudy() = 0;
+  virtual std::string GetLockerID() = 0;
 };
 
 

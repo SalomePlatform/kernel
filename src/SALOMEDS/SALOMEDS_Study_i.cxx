@@ -814,6 +814,50 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const cha
 }
 
 //============================================================================
+/*! Function : SetStudyLock
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetStudyLock(const char* theLockerID)
+{
+  SALOMEDS::Locker lock; 
+  _impl->SetStudyLock(theLockerID);
+}
+
+//============================================================================
+/*! Function : IsStudyLocked
+ *  Purpose  : 
+ */
+//============================================================================
+bool SALOMEDS_Study_i::IsStudyLocked()
+{
+  SALOMEDS::Locker lock; 
+  return _impl->IsStudyLocked();
+}
+
+//============================================================================
+/*! Function : UnLockStudy
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::UnLockStudy()
+{
+  SALOMEDS::Locker lock; 
+  _impl->UnLockStudy();
+}
+
+//============================================================================
+/*! Function : GetLockerID
+ *  Purpose  : 
+ */
+//============================================================================
+char* SALOMEDS_Study_i::GetLockerID()
+{
+  SALOMEDS::Locker lock; 
+  return CORBA::string_dup(_impl->GetLockerID());
+}
+
+//============================================================================
 /*! Function : GetDefaultScript
  *  Purpose  : 
  */

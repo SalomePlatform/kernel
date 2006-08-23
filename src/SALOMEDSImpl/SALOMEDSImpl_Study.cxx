@@ -79,6 +79,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by TDF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
+  _locker = "";
 }
 
 
@@ -1585,4 +1586,44 @@ Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetModuleParameters(
   par  = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(so, "AttributeParameter"));
   par->SetString("AP_MODULE_NAME", moduleName);
   return par;
+}
+
+//============================================================================
+/*! Function : SetStudyLock
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStudyLock(const char* theLockerID)
+{
+  _locker = TCollection_AsciiString((char*)theLockerID);
+}
+
+//============================================================================
+/*! Function : IsStudyLocked
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsStudyLocked()
+{
+  return !(_locker=="");
+}
+
+//============================================================================
+/*! Function : UnLockStudy
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::UnLockStudy()
+{
+  _locker = "";
+}
+  
+//============================================================================
+/*! Function : GetLockerID
+ *  Purpose  :
+ */
+//============================================================================
+char* SALOMEDSImpl_Study::GetLockerID()
+{
+  return _locker.ToCString();
 }

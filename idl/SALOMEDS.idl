@@ -402,6 +402,29 @@ during each working session.
 */
     long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 
+
+/*!
+    Marks this Study as being locked. The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locked the study.
+*/
+    void SetStudyLock(in string theLockerIDe);
+
+/*!
+    Returns True if the Study was marked locked. 
+*/
+    boolean IsStudyLocked();
+
+/*!
+    Marks this Study as being unlocked. The lock status can be checked by method IsStudyLocked
+*/
+    void UnLockStudy();
+
+/*!
+    Returns the ID of the Study's locker. 
+*/
+    string GetLockerID();
+
+
   };
 
   //==========================================================================

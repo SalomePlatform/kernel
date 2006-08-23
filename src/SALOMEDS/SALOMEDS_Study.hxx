@@ -90,6 +90,11 @@ public:
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
 						       const std::string& theModuleName, int theSavePoint);
+  virtual void SetStudyLock(const std::string& theLockerID);
+  virtual bool IsStudyLocked();
+  virtual void UnLockStudy();
+  virtual std::string GetLockerID();
+
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 

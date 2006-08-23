@@ -284,6 +284,14 @@ public:
 							       const char* theModuleName, 
 							       CORBA::Long theSavePoint);
 
+  virtual void SetStudyLock(const char* theLockerID);
+
+  virtual bool IsStudyLocked();
+
+  virtual void UnLockStudy();
+
+  virtual char* GetLockerID();
+
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);

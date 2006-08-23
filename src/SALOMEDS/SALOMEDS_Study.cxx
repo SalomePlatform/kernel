@@ -643,6 +643,43 @@ bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName,
   return ret;
 }     
 
+void SALOMEDS_Study::SetStudyLock(const string& theLockerID)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetStudyLock((char*)theLockerID.c_str());
+  }
+  else _corba_impl->SetStudyLock((char*)theLockerID.c_str());
+}
+ 
+bool SALOMEDS_Study::IsStudyLocked()
+{
+  bool isLocked;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    isLocked = _local_impl->IsStudyLocked();
+  }
+  else isLocked = _corba_impl->IsStudyLocked();
+  return isLocked;
+}
+ 
+void SALOMEDS_Study::UnLockStudy()
+{
+  if(_isLocal) _local_impl->UnLockStudy();
+  else _corba_impl->UnLockStudy();
+}
+
+string SALOMEDS_Study::GetLockerID()
+{
+  std::string aLockerID;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aLockerID = _local_impl->GetLockerID();
+  }
+  else aLockerID = _corba_impl->GetLockerID();
+  return aLockerID;
+}
+
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
   return _orb->object_to_string(theObject); 

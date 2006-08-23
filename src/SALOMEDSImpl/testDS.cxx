@@ -50,6 +50,14 @@ int main (int argc, char * argv[])
   cout << "Manager is created " << endl;
   Handle(SALOMEDSImpl_Study) aStudy = aSM->NewStudy("SRN");
   cout << "Study with id = " << aStudy->StudyId() << " is created " << endl; 
+
+  cout << "Check the study lock, locking"   << endl;
+  aStudy->SetStudyLock("SRN");
+  cout << "Is study locked = " << aStudy->IsStudyLocked() << endl;
+  cout << "Get study locker : " << aStudy->GetLockerID() << endl;
+  aStudy->UnLockStudy();
+  cout << "Is study locked = " << aStudy->IsStudyLocked()  << endl;
+
   Handle(SALOMEDSImpl_StudyBuilder) aBuilder = aStudy->NewBuilder();
   cout << "StudyBuilder is created " << endl;
   Handle(SALOMEDSImpl_SComponent) aSC = aBuilder->NewComponent("TEST");
