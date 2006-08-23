@@ -404,10 +404,10 @@ during each working session.
 
 
 /*!
-    Marks this Study as being locked. The lock status can be checked by method IsStudyLocked
-    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locked the study.
+    Marks this Study as being locked by the given locker. The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
 */
-    void SetStudyLock(in string theLockerIDe);
+    void SetStudyLock(in string theLockerID);
 
 /*!
     Returns True if the Study was marked locked. 
@@ -415,14 +415,15 @@ during each working session.
     boolean IsStudyLocked();
 
 /*!
-    Marks this Study as being unlocked. The lock status can be checked by method IsStudyLocked
+    Marks this Study as being unlocked by the given locker. The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
 */
-    void UnLockStudy();
+    void UnLockStudy(in string theLockerID);
 
 /*!
-    Returns the ID of the Study's locker. 
+    Returns the list iof IDs of the Study's lockers. 
 */
-    string GetLockerID();
+    ListOfStrings GetLockerID();
 
 
   };

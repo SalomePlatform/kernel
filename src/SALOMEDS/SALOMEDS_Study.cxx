@@ -663,21 +663,29 @@ bool SALOMEDS_Study::IsStudyLocked()
   return isLocked;
 }
  
-void SALOMEDS_Study::UnLockStudy()
+void SALOMEDS_Study::UnLockStudy(const string& theLockerID)
 {
-  if(_isLocal) _local_impl->UnLockStudy();
-  else _corba_impl->UnLockStudy();
+  if(_isLocal) _local_impl->UnLockStudy((char*)theLockerID.c_str());
+  else _corba_impl->UnLockStudy((char*)theLockerID.c_str());
 }
 
-string SALOMEDS_Study::GetLockerID()
+vector<string> SALOMEDS_Study::GetLockerID()
 {
-  std::string aLockerID;
+  std::vector<std::string> aVector;
+  int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aLockerID = _local_impl->GetLockerID();
+
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetLockerID();
+    aLength = aSeq->Length();
+    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
   }
-  else aLockerID = _corba_impl->GetLockerID();
-  return aLockerID;
+  else {
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
+    aLength = aSeq->length();
+    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
+  }
+  return aVector;
 }
 
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 

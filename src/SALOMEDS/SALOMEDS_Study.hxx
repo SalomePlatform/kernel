@@ -92,8 +92,8 @@ public:
 						       const std::string& theModuleName, int theSavePoint);
   virtual void SetStudyLock(const std::string& theLockerID);
   virtual bool IsStudyLocked();
-  virtual void UnLockStudy();
-  virtual std::string GetLockerID();
+  virtual void UnLockStudy(const std::string& theLockerID);
+  virtual std::vector<std::string> GetLockerID();
 
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     

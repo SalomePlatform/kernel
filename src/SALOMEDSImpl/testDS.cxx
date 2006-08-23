@@ -55,7 +55,7 @@ int main (int argc, char * argv[])
   aStudy->SetStudyLock("SRN");
   cout << "Is study locked = " << aStudy->IsStudyLocked() << endl;
   cout << "Get study locker : " << aStudy->GetLockerID() << endl;
-  aStudy->UnLockStudy();
+  aStudy->UnLockStudy("SRN");
   cout << "Is study locked = " << aStudy->IsStudyLocked()  << endl;
 
   Handle(SALOMEDSImpl_StudyBuilder) aBuilder = aStudy->NewBuilder();

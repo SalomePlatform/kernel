@@ -83,10 +83,10 @@ private:
   TDF_Label                _current;
   bool                     _autoFill; 
   TCollection_AsciiString  _errorCode;
-  TCollection_AsciiString  _locker;
-  Handle(SALOMEDSImpl_Callback)       _cb;
-  Handle(SALOMEDSImpl_StudyBuilder)   _builder;
-  Handle(SALOMEDSImpl_UseCaseBuilder) _useCaseBuilder;
+  Handle(TColStd_HSequenceOfAsciiString) _lockers;
+  Handle(SALOMEDSImpl_Callback)          _cb;
+  Handle(SALOMEDSImpl_StudyBuilder)      _builder;
+  Handle(SALOMEDSImpl_UseCaseBuilder)    _useCaseBuilder;
 
   DataMapOfAsciiStringTransient _mapOfSO;
   DataMapOfAsciiStringTransient _mapOfSCO;
@@ -283,10 +283,10 @@ public:
   Standard_EXPORT bool IsStudyLocked();
 
   //Unlocks the study
-  Standard_EXPORT void UnLockStudy();
+  Standard_EXPORT void UnLockStudy(const char* theLockerID);
   
   //Returns an ID of the study locker
-  Standard_EXPORT char* GetLockerID();
+  Standard_EXPORT Handle(TColStd_HSequenceOfAsciiString) GetLockerID();
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )

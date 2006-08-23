@@ -288,9 +288,9 @@ public:
 
   virtual bool IsStudyLocked();
 
-  virtual void UnLockStudy();
+  virtual void UnLockStudy(const char* theLockerID);
 
-  virtual char* GetLockerID();
+  virtual SALOMEDS::ListOfStrings* GetLockerID();
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 

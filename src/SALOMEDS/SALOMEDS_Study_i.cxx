@@ -840,10 +840,10 @@ bool SALOMEDS_Study_i::IsStudyLocked()
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_Study_i::UnLockStudy()
+void SALOMEDS_Study_i::UnLockStudy(const char* theLockerID)
 {
   SALOMEDS::Locker lock; 
-  _impl->UnLockStudy();
+  _impl->UnLockStudy(theLockerID);
 }
 
 //============================================================================
@@ -851,10 +851,20 @@ void SALOMEDS_Study_i::UnLockStudy()
  *  Purpose  : 
  */
 //============================================================================
-char* SALOMEDS_Study_i::GetLockerID()
+SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->GetLockerID());
+
+  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetLockerID();
+
+  int aLength = aSeq->Length();
+  aResult->length(aLength);
+  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
+    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  }
+  return aResult._retn();
 }
 
 //============================================================================

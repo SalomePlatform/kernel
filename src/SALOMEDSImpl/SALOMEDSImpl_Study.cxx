@@ -79,7 +79,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by TDF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
-  _locker = "";
+  _lockers = new TColStd_HSequenceOfAsciiString();
 }
 
 
@@ -1595,7 +1595,7 @@ Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetModuleParameters(
 //============================================================================
 void SALOMEDSImpl_Study::SetStudyLock(const char* theLockerID)
 {
-  _locker = TCollection_AsciiString((char*)theLockerID);
+  _lockers->Append(TCollection_AsciiString((char*)theLockerID));
 }
 
 //============================================================================
@@ -1605,7 +1605,7 @@ void SALOMEDSImpl_Study::SetStudyLock(const char* theLockerID)
 //============================================================================
 bool SALOMEDSImpl_Study::IsStudyLocked()
 {
-  return !(_locker=="");
+  return (_lockers->Length() > 0);
 }
 
 //============================================================================
@@ -1613,9 +1613,17 @@ bool SALOMEDSImpl_Study::IsStudyLocked()
  *  Purpose  :
  */
 //============================================================================
-void SALOMEDSImpl_Study::UnLockStudy()
+void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 {
-  _locker = "";
+  int length = _lockers->Length(), pos = -1;
+  TCollection_AsciiString id((char*)theLockerID);
+  for(int i = 1; i<=length; i++) {
+    if(id == _lockers->Value(i)) {
+      pos = i;
+      break;
+    }
+  }
+  if(pos > 0) _lockers->Remove(pos);
 }
   
 //============================================================================
@@ -1623,7 +1631,7 @@ void SALOMEDSImpl_Study::UnLockStudy()
  *  Purpose  :
  */
 //============================================================================
-char* SALOMEDSImpl_Study::GetLockerID()
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetLockerID()
 {
-  return _locker.ToCString();
+  return _lockers;
 }
