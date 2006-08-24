@@ -639,6 +639,7 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
 bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
+  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
   bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished);
   return ret;
 }     
