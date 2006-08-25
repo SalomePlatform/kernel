@@ -217,11 +217,17 @@ def FindFileInDataDir(filename):
 orb = None
 
 step = 0
-while step < 100 and orb is None:
+sleeping_time = 0.01
+sleeping_time_max = 1.0
+while 1:
     orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+    if orb is not None: break
     step = step + 1
-    time.sleep(4)
-
+    if step > 100: break
+    time.sleep(sleeping_time)
+    sleeping_time = max(sleeping_time_max, 2*sleeping_time)
+    pass
+    
 if orb is None:
     print "Warning: ORB has not been initialized !!!"
 
@@ -229,10 +235,16 @@ if orb is None:
 lcc = LifeCycleCORBA(orb)
 
 step = 0
-while step < 100 and lcc is None:
+sleeping_time = 0.01
+sleeping_time_max = 1.0
+while 1:
     lcc = LifeCycleCORBA(orb)
+    if lcc is not None: break
     step = step + 1
-    time.sleep(4)
+    if step > 100: break
+    time.sleep(sleeping_time)
+    sleeping_time = max(sleeping_time_max, 2*sleeping_time)
+    pass
     
 if lcc is None:
     print "Warning: LifeCycleCORBA object has not been initialized !!!"
@@ -244,10 +256,16 @@ naming_service = SALOME_NamingServicePy_i(orb)
 obj = None
 
 step = 0
-while step < 100 and obj == None:
+sleeping_time = 0.01
+sleeping_time_max = 1.0
+while 1:
     obj = naming_service.Resolve('myStudyManager')
+    if obj is not None:break
     step = step + 1
-    time.sleep(4)
+    if step > 100: break
+    time.sleep(sleeping_time)
+    sleeping_time = max(sleeping_time_max, 2*sleeping_time)
+    pass
      
 myStudyManager = obj._narrow(SALOMEDS.StudyManager)
 
