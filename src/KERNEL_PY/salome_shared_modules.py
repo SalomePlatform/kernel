@@ -76,8 +76,11 @@ list_modules=[]
 # Import all *_shared_modules in the path and store them in list_modules
 path=salome_path.split(":")
 for rep in path:
+    libdir = "lib"
+    if os.path.exists("/usr/lib64/libc.so"):
+        libdir = "lib64"
     # Import all *_shared_modules in rep
-    for f in glob.glob(os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
+    for f in glob.glob(os.path.join(rep,libdir,"python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
         try:
            name=os.path.splitext(os.path.basename(f))[0]
            register_name(name)
