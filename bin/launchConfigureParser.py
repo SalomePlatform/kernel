@@ -53,6 +53,7 @@ plugins_nam    = "plugins"
 appname_nam    = "appname"
 port_nam       = "port"
 appname        = "SalomeApp"
+script_nam     = "pyscript"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
@@ -362,6 +363,8 @@ if cmd_opts.has_key("h"):
     --help or -h                  : print this help
     --gui or -g                   : launching with GUI
     --terminal -t                 : launching without gui (to deny --gui)
+    or -t=PythonScript[,...]
+                                  : import of PythonScript(s)
     --logger or -l                : redirect messages in a CORBA collector
     --file=filename or -f=filename: redirect messages in a log file
     --xterm or -x                 : execute servers in xterm console (messages appear in xterm windows)
@@ -427,8 +430,10 @@ if not cmd_opts.has_key( "m" ) and os.getenv( "SALOME_MODULES" ):
     pass
 
 # 'terminal' must be processed in the end: to deny any 'gui' options
+args[script_nam] = []
 if 't' in cmd_opts:
     args[gui_nam] = 0
+    args[script_nam] = cmd_opts['t']
     pass
 
 # now modify SalomeAppConfig environment variable

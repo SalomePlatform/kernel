@@ -820,6 +820,19 @@ def useSalome(args, modules_list, modules_root_dir):
         print " --- registered objects tree in Naming Service ---"
         clt.showNS()
 
+        # run python scripts, passed via -t option
+        toimport = args['pyscript']
+        i = 0
+        while i < len( toimport ) :
+            if toimport[ i ] == 'killall':
+                print "killall : option disabled"
+                #killAllPorts()
+            else:
+                print 'importing',toimport[ i ]
+                doimport = 'import ' + toimport[ i ]
+                exec doimport
+                i = i + 1
+
     return clt
 
 # -----------------------------------------------------------------------------
