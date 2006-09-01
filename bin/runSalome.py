@@ -56,7 +56,8 @@ def add_path(directory, variable_name):
 # -----------------------------------------------------------------------------
 
 def get_lib_dir():
-    if os.path.exists("/usr/lib64/libc.so"):
+    import platform, re
+    if re.match(".*64.*", platform.machine()): 
         return "lib64"
     return "lib"
 
