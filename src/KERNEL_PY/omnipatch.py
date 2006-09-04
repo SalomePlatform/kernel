@@ -60,6 +60,11 @@ def openModule(mname, fname=None):
     elif _partialModules.has_key(mname):
         mod = _partialModules[mname]
 
+    # Salome modification start
+    elif shared_imported.get(mname) :
+        mod = shared_imported[mname]
+    # Salome modification end
+
     else:
         mod = newModule(mname)
 
