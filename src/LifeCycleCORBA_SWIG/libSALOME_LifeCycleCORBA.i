@@ -224,31 +224,31 @@ struct omniORBpyAPI {
 %include <Utils_SALOME_Exception.hxx>
 
 %exception {
-    PyThreadState *_save;
-    _save = PyEval_SaveThread();
+    Py_BEGIN_ALLOW_THREADS
     try {
       $action
     }
     catch (ServiceUnreachable) {
-       PyEval_RestoreThread(_save);
+       Py_BLOCK_THREADS
        PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
        return NULL;
     }
+    catch (SALOME_Exception &e) {
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError,e.what());
+       return NULL;
+    }
     catch (SALOME::SALOME_Exception &e) {
-       MESSAGE("catch SALOME exception");
-       //std::ostringstream os; os<<e;
-       PyEval_RestoreThread(_save);
-       //PyErr_SetString(PyExc_RuntimeError,os.str().c_str());
-       //PyErr_SetString(PyExc_RuntimeError,e.what());
-       SWIG_exception(SWIG_RuntimeError,"SALOME exception");
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError,e.details.text);
        return NULL;
     }
     catch (...) {
-       PyEval_RestoreThread(_save);
+       Py_BLOCK_THREADS
        PyErr_SetString(PyExc_RuntimeError, "unknown exception");
        return NULL;
     }
-    PyEval_RestoreThread(_save);
+    Py_END_ALLOW_THREADS
 }
 
 
