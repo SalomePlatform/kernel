@@ -436,6 +436,10 @@ if 't' in cmd_opts:
     args[script_nam] = cmd_opts['t']
     pass
 
+if args[except_nam] == 1:
+    os.environ["DISABLE_FPE"] = "1"
+    pass
+
 # now modify SalomeAppConfig environment variable
 dirs = re.split('[;|:]', os.environ[config_var] )
 

@@ -5,7 +5,7 @@
 #
 #AC_PREREQ(2.59)
 #AC_INIT(src)
-AC_INIT([Salome2 Project], [3.2.1], [gboulant@CS], [salome])
+AC_INIT([Salome2 Project], [3.2.2], [gboulant@CS], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
