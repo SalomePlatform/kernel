@@ -310,6 +310,7 @@ SALOME_ResourcesCatalog_Handler::fatalError
                .arg( exception.message() )
                .arg( exception.lineNumber() )
                .arg( exception.columnNumber() );
+  INFOS("parser error: " << errorProt.latin1());
 
   return QXmlDefaultHandler::fatalError( exception );
 }
