@@ -905,6 +905,11 @@ void ActSigIntHandler()
       perror("SALOME_Container main ") ;
       exit(0) ;
     }
+  if ( sigaction( SIGUSR2 , &SigIntAct, NULL ) )
+    {
+      perror("SALOME_Container main ") ;
+      exit(0) ;
+    }
 
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
@@ -922,6 +927,7 @@ void ActSigIntHandler()
 }
 
 void SetCpuUsed() ;
+void CallCancelThread() ;
 
 #ifndef WNT
 void SigIntHandler(int what ,
@@ -951,6 +957,10 @@ void SigIntHandler(int what ,
       if ( siginfo->si_signo == SIGUSR1 )
 	{
 	  SetCpuUsed() ;
+	}
+      else if ( siginfo->si_signo == SIGUSR2 )
+	{
+	  CallCancelThread() ;
 	}
       else 
 	{

@@ -95,7 +95,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
- _studyId(-1)
+  _studyId(-1),
+  _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
   //SCRUTE(pd_refCount);
@@ -140,7 +141,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
  _Executed(false) ,
  _graphName("") ,
  _nodeName(""),
- _studyId(-1)
+ _studyId(-1),
+ _CanceledThread(false)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
@@ -333,7 +335,7 @@ bool Engines_Component_i::Kill_impl()
 #ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
-      RetVal = Killer( _ThreadId , 0 ) ;
+      RetVal = Killer( _ThreadId , SIGUSR2 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
 
@@ -581,6 +583,7 @@ void Engines_Component_i::beginService(const char *serviceName)
   _ThreadCpuUsed = 0 ;
   _Executed = true ;
   _serviceName = serviceName ;
+  theEngines_Component = this ;
   if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS , NULL ) )
     {
       perror("pthread_setcanceltype ") ;
@@ -632,7 +635,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 
 void Engines_Component_i::endService(const char *serviceName)
 {
-  _ThreadCpuUsed = CpuUsed_impl() ;
+  if ( !_CanceledThread )
+    _ThreadCpuUsed = CpuUsed_impl() ;
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
 	  << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
@@ -713,7 +717,8 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 
 void SetCpuUsed()
 {
-  theEngines_Component->SetCurCpu() ;
+  if ( theEngines_Component )
+    theEngines_Component->SetCurCpu() ;
 }
 
 //=============================================================================
@@ -764,6 +769,23 @@ long Engines_Component_i::CpuUsed()
 
 
   return cpu ;
+}
+
+void CallCancelThread()
+{
+  if ( theEngines_Component )
+    theEngines_Component->CancelThread() ;
+}
+
+//=============================================================================
+/*!
+ *  C++ method:
+ */
+//=============================================================================
+
+void Engines_Component_i::CancelThread()
+{
+  _CanceledThread = true;
 }
 
 //=============================================================================

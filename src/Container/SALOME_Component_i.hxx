@@ -126,6 +126,7 @@ public:
   bool Killer( pthread_t ThreadId , int signum );
   void SetCurCpu() ;
   long CpuUsed() ;
+  void CancelThread() ;
 
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
@@ -157,6 +158,7 @@ private:
   long      _StartUsed ;
   long      _ThreadCpuUsed ;
   bool      _Executed ;
+  bool      _CanceledThread ;
 };
 
 #endif
