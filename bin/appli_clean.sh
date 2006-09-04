@@ -20,4 +20,4 @@
 # 
 
 #clean appli
-rm -rf bin lib share doc envd setAppliPath.sh searchFreePort.sh runAppli runConsole runSession env.d
+rm -rf bin lib share doc  env.d envd setAppliPath.sh searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc

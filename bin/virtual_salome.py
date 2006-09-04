@@ -30,6 +30,8 @@ install module KERNEL in the current directory
 import sys, os, optparse, shutil,glob,fnmatch
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
 
+# -----------------------------------------------------------------------------
+
 def mkdir(path):
     """Create a directory and all the intermediate directories if path does not exist"""
     if not os.path.exists(path):
@@ -40,6 +42,8 @@ def mkdir(path):
             print 'Directory %s already exists' % path
             pass
         pass
+
+# -----------------------------------------------------------------------------
 
 def symlink(src, dest):
     """Create a link if it does not exist"""
@@ -53,6 +57,8 @@ def symlink(src, dest):
         pass
     pass
 
+# -----------------------------------------------------------------------------
+
 def rmtree(dir):
     """Remove (recursive) a directory if it exists"""
     if os.path.exists(dir):
@@ -65,32 +71,18 @@ def rmtree(dir):
         pass
     pass
 
+# -----------------------------------------------------------------------------
+
 def get_lib_dir():
     """Get libraries directory according to the Linux platform being used"""
-    if os.path.exists("/usr/lib64/libc.so"):
-        return "lib64"
+    #ne marche pas sur Calibre 4.0
+    #if os.path.exists("/usr/lib64/libc.so"):
+    #    return "lib64"
     return "lib"
 
-def main():
-    usage="""usage: %prog [options]
-Typical use is:
-  python virtual_salome.py -v --prefix="." --module=/local/chris/SALOME2/RELEASES/Install/KERNEL_V3_1_0b1
-"""
-    parser = optparse.OptionParser(usage=usage)
+# -----------------------------------------------------------------------------
 
-    parser.add_option('-v', '--verbose', action='count', dest='verbose',
-                      default=0, help="Increase verbosity")
-
-    parser.add_option('--prefix', dest="prefix", default='.',
-                      help="The base directory to install to (default .)")
-
-    parser.add_option('--module', dest="module", 
-                      help="The module directory to install in (mandatory)")
-
-    parser.add_option('--clear', dest='clear', action='store_true',
-        help="Clear out the install and start from scratch")
-
-    options, args = parser.parse_args()
+def link_module(options):
     global verbose
 
     if not options.module:
@@ -104,7 +96,6 @@ Typical use is:
 
     home_dir = os.path.expanduser(options.prefix)
 
-    #module_dir="/local/chris/SALOME2/RELEASES/Install/KERNEL_V3_1_0b1"
     module_bin_dir=os.path.join(module_dir,'bin','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),py_version,'site-packages','salome')
@@ -114,6 +105,7 @@ Typical use is:
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
     module_doc_tui_dir=os.path.join(module_dir,'doc','salome','tui')
     module_doc_dir=os.path.join(module_dir,'doc','salome')
+    module_sharedoc_dir=os.path.join(module_dir,'share','doc','salome')
 
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
@@ -128,45 +120,64 @@ Typical use is:
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
     doc_tui_dir=os.path.join(home_dir,'doc','salome','tui')
     doc_dir=os.path.join(home_dir,'doc','salome')
+    sharedoc_dir=os.path.join(home_dir,'share','doc','salome')
 
     verbose = options.verbose
 
     if options.clear:
         rmtree(bin_dir)
         rmtree(lib_dir)
+        rmtree(lib_py_dir)
         rmtree(share_dir)
         rmtree(doc_dir)
+        rmtree(sharedoc_dir)
         pass
     
     #directory bin/salome : create it and link content
-    mkdir(bin_dir)
-    for fn in os.listdir(module_bin_dir):
-        # if os.path.splitext(fn)[1] not in (".pyc",".pyo"): #Compiled python are excluded
-        symlink(os.path.join(module_bin_dir, fn), os.path.join(bin_dir, fn))
+    if os.path.exists(module_bin_dir):
+        mkdir(bin_dir)
+        for fn in os.listdir(module_bin_dir):
+            symlink(os.path.join(module_bin_dir, fn), os.path.join(bin_dir, fn))
+            pass
         pass
+    else:
+        print module_bin_dir, " doesn't exist"
+        pass    
     
     #directory lib/salome : create it and link content
-    mkdir(lib_dir)
-    for fn in os.listdir(module_lib_dir):
-        symlink(os.path.join(module_lib_dir, fn), os.path.join(lib_dir, fn))
-
+    if os.path.exists(module_lib_dir):
+        mkdir(lib_dir)
+        for fn in os.listdir(module_lib_dir):
+            symlink(os.path.join(module_lib_dir, fn), os.path.join(lib_dir, fn))
+            pass
+        pass
+    else:
+        print module_lib_dir, " doesn't exist"
+        pass    
+    
     #directory lib/py_version/site-packages/salome : create it and link content
     mkdir(lib_py_shared_dir)
     for fn in os.listdir(module_lib_py_dir):
-        # if os.path.splitext(fn)[1] not in (".pyc",".pyo"): #Compiled python are excluded
-        if os.path.split(fn)[1] != "shared_modules":
-            symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
-            pass
-        pass
+        if fn == "shared_modules": continue
+        symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
+        pass    
     if os.path.exists(module_lib_py_shared_dir):
         for fn in os.listdir(module_lib_py_shared_dir):
-            # if os.path.splitext(fn)[1] not in (".pyc",".pyo"): #Compiled python are excluded
             symlink(os.path.join(module_lib_py_shared_dir, fn), os.path.join(lib_py_shared_dir, fn))
             pass
         pass
     else:
         print module_lib_py_shared_dir, " doesn't exist"
         pass    
+
+    #directory share/doc/salome (KERNEL doc) : create it and link content
+    if os.path.exists(module_sharedoc_dir):
+        mkdir(sharedoc_dir)
+        for fn in os.listdir(module_sharedoc_dir):
+            symlink(os.path.join(module_sharedoc_dir, fn), os.path.join(sharedoc_dir, fn))
+            pass
+        pass
+    pass
 
 
     #directory share/salome/resources : create it and link content
@@ -199,7 +210,34 @@ Typical use is:
             symlink(os.path.join(module_doc_tui_dir, fn), os.path.join(doc_tui_dir, fn))
             pass
         pass
+
+# -----------------------------------------------------------------------------
+
+def main():
+    usage="""usage: %prog [options]
+Typical use is:
+  python virtual_salome.py -v --prefix="." --module=/local/chris/SALOME2/RELEASES/Install/KERNEL_V3_1_0b1
+"""
+    parser = optparse.OptionParser(usage=usage)
+
+    parser.add_option('-v', '--verbose', action='count', dest='verbose',
+                      default=0, help="Increase verbosity")
+
+    parser.add_option('--prefix', dest="prefix", default='.',
+                      help="The base directory to install to (default .)")
+
+    parser.add_option('--module', dest="module", 
+                      help="The module directory to install in (mandatory)")
+
+    parser.add_option('--clear', dest='clear', action='store_true',
+        help="Clear out the install and start from scratch")
+
+    options, args = parser.parse_args()
+    link_module(options)
+    pass
     
+# -----------------------------------------------------------------------------
+
 if __name__ == '__main__':
     main()
     pass
