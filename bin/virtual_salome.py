@@ -73,12 +73,16 @@ def rmtree(dir):
 
 # -----------------------------------------------------------------------------
 
+__lib__dir__ = None
 def get_lib_dir():
-    """Get libraries directory according to the Linux platform being used"""
-    #ne marche pas sur Calibre 4.0
-    #if os.path.exists("/usr/lib64/libc.so"):
-    #    return "lib64"
-    return "lib"
+    global __lib__dir__
+    if __lib__dir__: return __lib__dir__
+    import platform
+    if platform.architecture()[0] == "64bit":
+        __lib__dir__ = "lib64"
+    else:
+        __lib__dir__ = "lib"
+    return get_lib_dir()
 
 # -----------------------------------------------------------------------------
 
