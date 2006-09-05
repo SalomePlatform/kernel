@@ -55,11 +55,16 @@ def add_path(directory, variable_name):
 
 # -----------------------------------------------------------------------------
 
+__lib__dir__ = None
 def get_lib_dir():
-    import platform, re
-    if re.match(".*64.*", platform.machine()): 
-        return "lib64"
-    return "lib"
+    global __lib__dir__
+    if __lib__dir__: return __lib__dir__
+    import platform
+    if platform.architecture()[0] == "64bit":
+        __lib__dir__ = "lib64"
+    else:
+        __lib__dir__ = "lib"
+    return get_lib_dir()
 
 # -----------------------------------------------------------------------------
 
