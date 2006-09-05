@@ -174,7 +174,7 @@ def install(prefix,config_file):
 
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
     for module in _config["modules"]:
-        command='export '+ module + '_ROOT_DIR=' + _config[module] +'\n'
+        command='export '+ module + '_ROOT_DIR=' + home_dir +'\n'
         f.write(command)
         pass
     if _config.has_key("samples_path"):
