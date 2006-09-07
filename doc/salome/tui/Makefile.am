@@ -54,6 +54,7 @@ usr_docs:
 	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
 	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
 	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
+	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;
 
 dev_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \

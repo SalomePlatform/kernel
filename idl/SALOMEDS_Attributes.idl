@@ -69,13 +69,13 @@ module SALOMEDS
 /*!
     Returns the value of this attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     double Value();
 /*!
    Sets the value of this attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in double value);
 
@@ -91,13 +91,13 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long   Value();
 /*!
    Sets the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in long value);
   };
@@ -123,7 +123,7 @@ module SALOMEDS
 
    \param value    A real number added to the sequence.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void      Add (in double value);
 /*!
@@ -138,7 +138,7 @@ module SALOMEDS
     \param index The index of the given real number.
     \param value The value of another real number.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void      ChangeValue(in long index, in double value);
@@ -147,13 +147,13 @@ module SALOMEDS
     in the sequence of real numbers stored in the Attribute.
     \param index The index of the given real number.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     double    Value(in short index);
 /*!
     Returns the length of the sequence of real numbers stored in the Attribute.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     long      Length();
@@ -179,7 +179,7 @@ module SALOMEDS
    Adds to the end of the sequence an integer number.
    \param value    An integer number added to the sequence.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void      Add (in long value);
@@ -188,7 +188,7 @@ module SALOMEDS
     from the sequence of integer numbers stored in the Attribute.
     \param index The index of the given integer number.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void      Remove(in long index);
@@ -204,13 +204,13 @@ module SALOMEDS
     in the sequence of integer numbers stored in the Attribute.
     \param index The index of the given integer number.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long      Value(in short index);
 /*!
     Returns the length of the sequence of integer numbers stored in the Attribute.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     long      Length();
@@ -229,7 +229,7 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
@@ -237,7 +237,7 @@ module SALOMEDS
 
    \param value This parameter defines the value of this attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -254,14 +254,14 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
    \param value This string parameter defines the value of this attribute - a description of a %SObject.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -277,14 +277,14 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
    \param value This parameter defines the value of this attribute - IOR of a %SObject.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -300,14 +300,14 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
    \param value This parameter defines the value of this attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -322,12 +322,12 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -342,12 +342,12 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -369,7 +369,7 @@ module SALOMEDS
 /*!
    Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.
 
-<BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsDrawable();
@@ -378,7 +378,7 @@ Sets the item to be drawable.
 
 \param value If the value of this boolean parameter is TRUE (default) the item will be drawable.
 
-<BR><VAR>See also <A href=exemple/Example8.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetDrawable(in boolean value);
@@ -397,7 +397,7 @@ Sets the item to be drawable.
    Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.
 
 
-<BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsSelectable();
@@ -406,7 +406,7 @@ Sets the item to be selectable
 
 \param value If the value of this parameter is TRUE (the default) the item will be set as selectable.
 
-<BR><VAR>See also <A href=exemple/Example9.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetSelectable(in boolean value);
@@ -425,7 +425,7 @@ Sets the item to be selectable
 /*!
     Returns TRUE if this item is expandable even when it has no children.
 
-<BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsExpandable();
@@ -433,7 +433,7 @@ Sets the item to be selectable
 
  \param value If the value of this boolean parameter is TRUE, this item will be set as expandable.
 
-<BR><VAR>See also <A href=exemple/Example10.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetExpandable(in boolean value);
@@ -482,7 +482,7 @@ Sets the item to be selectable
 /*!
     Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.
 
-<BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean IsOpened();
@@ -492,7 +492,7 @@ Sets the item to be selectable
    \param value If the value of this boolean parameter is TRUE this item will be set as open,
     and as closed if FALSE.
 
-<BR><VAR>See also <A href=exemple/Example11.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetOpened(in boolean value);
@@ -508,7 +508,7 @@ Sets the item to be selectable
 /*!
    Returns the color of an item.
 
-<BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     Color TextColor();
@@ -517,7 +517,7 @@ Sets the item to be selectable
 
    \param value This parameter defines the color of the item.
 
-<BR><VAR>See also <A href=exemple/Example12.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetTextColor(in Color value);
@@ -536,7 +536,7 @@ Sets the item to be selectable
 
 
 
-<BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     Color TextHighlightColor();
@@ -544,7 +544,7 @@ Sets the item to be selectable
    Sets the highlight color of an item.
    \param value This parameter defines the highlight color of the item.
 
-<BR><VAR>See also <A href=exemple/Example13.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void   SetTextHighlightColor(in Color value);
@@ -564,7 +564,7 @@ Sets the item to be selectable
 /*!
    Returns the name of the icon in the format of a string.
 
-<BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     string  GetPixMap();
@@ -572,7 +572,7 @@ Sets the item to be selectable
    Sets the name of the icon.
    \param value This string parameter defines the name of the icon.
 
-<BR><VAR>See also <A href=exemple/Example14.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void    SetPixMap(in string value);
@@ -585,7 +585,7 @@ Sets the item to be selectable
    tree whith its own structure and identifier. The quantity of such trees with different
    identifiers can be arbitrary.
 
-<BR><VAR>See also <A href=exemple/Example18.html> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example18.html"> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
 
 */
   //==========================================================================
@@ -673,7 +673,7 @@ Sets the item to be selectable
 /*!
    Deletes a tree node.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void              Remove();
@@ -716,7 +716,7 @@ Sets the item to be selectable
 /*!
    Returns the value of this attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     long   Value();
 /*!
@@ -724,7 +724,7 @@ Sets the item to be selectable
 
    \param value This parameter defines the local ID which will be set.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in long value);
   };
@@ -740,13 +740,13 @@ Sets the item to be selectable
 /*!
    Returns the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     string Value();
 /*!
    Sets the value of this attribute
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void   SetValue(in string value);
   };
@@ -765,7 +765,7 @@ Sets the item to be selectable
 /*!
     Adds a %SObject to the list of %SObjects which refer to this %SObject.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void          Add(in SObject anObject);
@@ -776,7 +776,7 @@ Sets the item to be selectable
 /*!
     Deletes a %SObject from the list of %SObjects which refer to this %SObject.
 
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void          Remove(in SObject anObject);
@@ -787,7 +787,7 @@ Sets the item to be selectable
    This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
 
-<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
 
 */
   //==========================================================================
@@ -946,7 +946,7 @@ Sets the item to be selectable
 
    This attribute allows to store a table of reals (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
 
 */
   //==========================================================================
@@ -1096,7 +1096,7 @@ Sets the item to be selectable
 
    This attribute allows to store a table of strings (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href=exemple/Example21.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
 
 */
   //==========================================================================
@@ -1245,7 +1245,7 @@ Sets the item to be selectable
 
    This attribute allows to store study properties: user name, creation date, creation
    mode, modified flag, locked flag.
-<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example20.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
 
 */
   //==========================================================================
