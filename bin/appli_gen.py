@@ -190,6 +190,7 @@ def install(prefix,config_file):
     command = 'export SUITRoot=' + os.path.join(home_dir,'share','salome') +'\n'
     f.write(command)
     f.write('export DISABLE_FPE=1\n')
+    f.write('export MMGT_REENTRANT=1\n')
     f.close()
 
 
