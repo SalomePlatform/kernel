@@ -30,7 +30,7 @@ public:
   template<class Y>
     explicit clt_shared_ptr(Y * p)
       {
-	reset(p);
+	boost::shared_ptr<T>::reset(p);
       }
   
   template<class Y>

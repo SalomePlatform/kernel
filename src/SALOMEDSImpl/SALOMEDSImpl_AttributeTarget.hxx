@@ -52,9 +52,9 @@ public:
 Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeTarget Set(const TDF_Label& label) ;
 Standard_EXPORT SALOMEDSImpl_AttributeTarget();
-Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO);
-Standard_EXPORT Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_AttributeTarget::Get();
-Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& theSO);
+Standard_EXPORT void Add(const Handle(SALOMEDSImpl_SObject)& theSO);
+Standard_EXPORT Handle(TColStd_HSequenceOfTransient) Get();
+Standard_EXPORT void Remove(const Handle(SALOMEDSImpl_SObject)& theSO);
 Standard_EXPORT TCollection_ExtendedString GetRelation() { return myRelation; }
 Standard_EXPORT void SetRelation(const TCollection_ExtendedString& theRelation); 
 Standard_EXPORT TDF_AttributeList& GetVariables() { return myVariables; }

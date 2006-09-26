@@ -76,12 +76,12 @@ public:
   /*!
     Returns all parameter names of the given entry
    */
-  virtual std::vector<std::string> SALOMEDSImpl_IParameters::getAllParameterNames(const std::string& entry);
+  virtual std::vector<std::string> getAllParameterNames(const std::string& entry);
 
   /*!
     Returns all parameter  values of the given entry
    */
-  virtual std::vector<std::string> SALOMEDSImpl_IParameters::getAllParameterValues(const std::string& entry);
+  virtual std::vector<std::string> getAllParameterValues(const std::string& entry);
 
   /*!
     Returns a number of parameters of the given entry
