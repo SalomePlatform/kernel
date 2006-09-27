@@ -1361,7 +1361,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
     if(aDriver == NULL) continue;
 
-    bool isValidScript;
+    bool isValidScript = false;
     long aStreamLength  = 0;
     Handle(SALOMEDSImpl_TMPFile) aStream = aDriver->DumpPython(this, isPublished, isValidScript, aStreamLength);
     if ( !isValidScript )
