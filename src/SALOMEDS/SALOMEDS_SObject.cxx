@@ -62,7 +62,13 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+#if SIZEOF_LONG == 4
+  long addr = 
+#else
+  int addr =
+#endif  
+  theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_SObject*)(addr));
     _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);

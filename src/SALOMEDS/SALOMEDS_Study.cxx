@@ -83,7 +83,13 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+#if SIZEOF_LONG == 4
+  long addr = 
+#else
+  int addr =
+#endif
+    theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_Study*)(addr));
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
