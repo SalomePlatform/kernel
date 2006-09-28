@@ -437,7 +437,7 @@ if 't' in cmd_opts:
     pass
 
 if args[except_nam] == 1:
-    os.environ["DISABLE_FPE"] = "1"
+    os.environ["NOT_INTERCEPT_SIGNALS"] = "1"
     pass
 
 # now modify SalomeAppConfig environment variable
