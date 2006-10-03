@@ -64,13 +64,21 @@ listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam,
 
 # return application version (uses GUI_ROOT_DIR (or KERNEL_ROOT_DIR in batch mode) +/bin/salome/VERSION)
 def version():
-    root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' )     # KERNEL_ROOT_DIR or "" if not found
-    root_dir = os.environ.get( 'GUI_ROOT_DIR', root_dir )  # GUI_ROOT_DIR or KERNEL_ROOT_DIR or "" if both not found
-    filename = root_dir+'/bin/salome/VERSION'
-    str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
-    match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
-    if match :
-        return match.group( 1 )
+    try:
+        filename = None
+        root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' ) # KERNEL_ROOT_DIR or "" if not found
+        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
+            filename = root_dir + "/bin/salome/VERSION"
+        root_dir = os.environ.get( 'GUI_ROOT_DIR', '' )    # GUI_ROOT_DIR "" if not found
+        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
+            filename = root_dir + "/bin/salome/VERSION"
+        if filename:
+            str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
+            match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
+            if match :
+                return match.group( 1 )
+    except:
+        pass
     return ''
 
 # calculate and return configuration file id in order to unically identify it
@@ -231,7 +239,7 @@ config_var = appname+'Config'
 dirs = []
 if os.getenv(config_var):
     dirs += re.split('[;|:]', os.getenv(config_var))
-if os.getenv("GUI_ROOT_DIR"):
+if os.getenv("GUI_ROOT_DIR") and os.path.exists( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
     dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
 os.environ[config_var] = ":".join(dirs)
 
