@@ -50,7 +50,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeTextHighlightColor::GetID ()
 SALOMEDSImpl_AttributeTextHighlightColor::SALOMEDSImpl_AttributeTextHighlightColor()
 :SALOMEDSImpl_GenericAttribute("AttributeTextHighlightColor")
 { 
-  myValue = new TColStd_HArray1OfReal(1, 3, RealFirst());
+  myValue = new TColStd_HArray1OfReal(1, 3, 0.);
 }
 
 //=======================================================================

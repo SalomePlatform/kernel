@@ -49,7 +49,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeTextColor::GetID ()
 SALOMEDSImpl_AttributeTextColor::SALOMEDSImpl_AttributeTextColor()
 :SALOMEDSImpl_GenericAttribute("AttributeTextColor")
 {
-  myValue = new TColStd_HArray1OfReal(1, 3, RealFirst());
+  myValue = new TColStd_HArray1OfReal(1, 3, 0.);
 }
 
 //=======================================================================
