@@ -70,9 +70,13 @@ esac
 
 case $host_os in
     linux*)
-        test x"$linux64" = x"true" && \
-          MACHINE="PCLINUX64${SUFFIXES}" || \
-	MACHINE=PCLINUX
+        if test x"$linux64" = x"true"; then \
+          MACHINE="PCLINUX64${SUFFIXES}";
+	  CFLAGS=" -m64 ${CXXFLAGS}";
+	  CXXFLAGS=" -m64 ${CXXFLAGS}";\
+	else \
+	  MACHINE=PCLINUX; \
+	fi
 	;;
     hpux*)
 	MACHINE=HP9000
