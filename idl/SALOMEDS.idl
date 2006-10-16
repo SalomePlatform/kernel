@@ -400,7 +400,7 @@ during each working session.
    \param thePID is a process ID of the caller
    \param isLocal is set True if the Study is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 
 
 /*!
@@ -842,7 +842,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the StudyManager is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
 
 
   };
@@ -959,7 +959,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the SObject is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -996,7 +996,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the GenericAttribute is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 

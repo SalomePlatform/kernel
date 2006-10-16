@@ -62,11 +62,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   long pid =  (long)getpid();
 #endif  
 
-#if SIZEOF_LONG == 4
-  long addr = 
-#else
-  int addr =
-#endif  
+  CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64-bit platforms use 8-bytes long for pointer storage
   theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
 
   if(_isLocal) {

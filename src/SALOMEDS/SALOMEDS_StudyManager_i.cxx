@@ -456,7 +456,7 @@ PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_pt
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -465,7 +465,7 @@ CORBA::Long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_StudyManager* aManager = _impl.operator->();
-  return ((long)aManager);
+  return ((CORBA::LongLong)aManager);
 }
 
 //===========================================================================

@@ -83,11 +83,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-#if SIZEOF_LONG == 4
-  long addr = 
-#else
-  int addr =
-#endif
+  CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64 bit platform use 8-bytes long for pointer storage
     theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
 
   if(_isLocal) {

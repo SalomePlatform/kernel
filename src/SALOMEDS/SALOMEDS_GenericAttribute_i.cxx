@@ -131,7 +131,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -140,5 +140,5 @@ CORBA::Long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, C
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   TDF_Attribute* local_impl = _impl.operator->();
-  return ((long)local_impl);
+  return ((CORBA::LongLong)local_impl);
 }
