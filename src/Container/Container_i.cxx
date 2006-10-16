@@ -267,7 +267,16 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
+
+  /* For each component contained in this container
+   * tell it to self-destroy
+   */
+  std::map<std::string, Engines::Component_var>::iterator itm;
+  for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
+    itm->second->destroy();
+
   _NS->Destroy_FullDirectory(_containerName.c_str());
+  _NS->Destroy_Name(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
