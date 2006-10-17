@@ -66,6 +66,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeReference.hxx \
 	SALOMEDSImpl_AttributeParameter.hxx \
+	SALOMEDSImpl_AttributeString.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
 	SALOMEDSImpl_UseCaseIterator.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
@@ -147,6 +148,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeComment.cxx \
 	SALOMEDSImpl_AttributeReference.cxx \
 	SALOMEDSImpl_AttributeParameter.cxx \
+	SALOMEDSImpl_AttributeString.cxx \
 	SALOMEDSImpl_ChildNodeIterator.cxx \
 	SALOMEDSImpl_UseCaseBuilder.cxx \
 	SALOMEDSImpl_UseCaseIterator.cxx \
@@ -187,6 +189,8 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeTextHighlightColor.hxx \
 	SALOMEDSImpl_AttributeTreeNode.hxx \
 	SALOMEDSImpl_AttributeUserID.hxx \
+	SALOMEDSImpl_AttributeParameter.hxx \
+	SALOMEDSImpl_AttributeString.hxx \
 	SALOMEDSImpl_Callback.hxx \
 	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
