@@ -503,7 +503,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
   if (aLocked) aStudy->GetProperties()->SetLocked(false);
 
   Handle(SALOMEDSImpl_StudyBuilder) SB= aStudy->NewBuilder();
-  map<char*, SALOMEDSImpl_Driver*> aMapTypeDriver;
+  map<string, SALOMEDSImpl_Driver*> aMapTypeDriver; // IPAL13339
 
   if(aStudy.IsNull()) {
     _errorCode = "Study is null";
