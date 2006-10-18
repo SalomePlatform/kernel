@@ -80,7 +80,7 @@ def get_config():
     # read args from launch configure xml file and command line options
     
     import launchConfigureParser
-    args = launchConfigureParser.args
+    args = launchConfigureParser.get_env()
     
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
@@ -473,10 +473,9 @@ class SessionServer(Server):
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
         if self.args.has_key('modules'):
-            self.SCMD2+=['--modules (']
-            for mod in self.args['modules']:
-                self.SCMD2+=[mod + ':']
-            self.SCMD2+=[')']    
+            self.SCMD2+=['--modules (%s)'%":".join(self.args['modules'])]
+        if self.args.has_key('test') and len(args['test']) > 0:
+            self.SCMD2+=['--test=%s'%(",".join(args['test']))]
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
