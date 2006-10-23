@@ -149,7 +149,12 @@ def import_hook(name, globals=None, locals=None, fromlist=None):
        #when fromlist is not specified and name is a dotted name,
        # module is the root package not the real module
        #so we need to retrieve it
-       m=get_real_module(module,name)
+       # note: some modules like xml.dom do not play the rule
+       # (import xml: no attribute dom, but import xml.dom OK)
+       try:
+           m=get_real_module(module,name)
+       except AttributeError:
+           m=None
 
     if type(m) == type(sys) and is_shared(m.__name__):
        set_shared_imported(m.__name__,m)
