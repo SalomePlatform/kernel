@@ -707,24 +707,8 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
 
 void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
   {
-    string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-    ifstream omniORBfile( omniORBcfg.c_str() ) ;
-    char ORBInitRef[11] ;
-    char egal[3] ;
-    char nameservice[132] ;
-    omniORBfile >> ORBInitRef ;
-    fileStream << "ORBInitRef ";
-    omniORBfile >> egal ;
-    omniORBfile >> nameservice ;
-    omniORBfile.close() ;
-    char * bsn = strchr( nameservice , '\n' ) ;
-
-    if ( bsn )
-      {
-        bsn[ 0 ] = '\0' ;
-      }
-
-    fileStream << nameservice;
+    fileStream << "ORBInitRef NameService=";
+    fileStream << _NS->getIORaddr();
   }
 
 
@@ -870,7 +854,16 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
     }
 
   else if (resInfo.Protocol == ssh)
-    command = "ssh ";
+    {
+      command = "ssh ";
+      string commandRcp = "scp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += machine;
+      commandRcp += ":";
+      commandRcp += _TmpFileName;
+      system(commandRcp.c_str());
+    }
   else
     throw SALOME_Exception("Unknown protocol");
 
