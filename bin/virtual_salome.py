@@ -93,7 +93,7 @@ def link_module(options):
         print "Option module is mandatory"
         return 
    
-    module_dir=options.module
+    module_dir=os.path.abspath(options.module)
     if not os.path.exists(module_dir):
         print "Module %s does not exist" % module_dir
         return
