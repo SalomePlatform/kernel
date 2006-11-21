@@ -856,6 +856,59 @@ def registerEnv(args, modules_list, modules_root_dir):
 
 # -----------------------------------------------------------------------------
 
+def searchFreePort(save_config=0):
+    print "Searching for a free port for naming service:",
+    NSPORT=2810
+    limit=NSPORT
+    limit=limit+10
+    while 1:
+        import os
+        status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
+        if status:
+            print "%s - OK"%(NSPORT)
+            #
+            from os import getpid
+            tmp_file = '/tmp/hostname_%s'%(getpid())
+            from os import system
+            system('hostname > %s'%(tmp_file))
+            f = open(tmp_file)
+            myhost = f.read()
+            myhost = myhost[:-1]
+            f.close()
+            system('rm -f %s'%(tmp_file))
+            #
+            home = os.environ['HOME']
+            #
+            os.environ['OMNIORB_CONFIG'] = '%s/.omniORB_%s_%s.cfg'%(home, myhost, NSPORT)
+            initref = "NameService=corbaname::%s:%s"%(myhost, NSPORT)
+            os.environ['NSPORT'] = "%s"%(NSPORT)
+            f = open(os.environ['OMNIORB_CONFIG'], "w")
+            import CORBA
+            if CORBA.ORB_ID == "omniORB4":
+                f.write("InitRef = %s\n"%(initref))
+            else:
+                f.write("ORBInitRef %s\n"%(initref))
+                pass
+            f.close()
+            #
+            if save_config:
+                from os import system
+                system('ln -sf %s %s/.omniORB_current.cfg'%(os.environ['OMNIORB_CONFIG'], home))
+                pass
+            #
+            break
+        print "%s"%(NSPORT),
+        if NSPORT == limit:
+            msg  = "\n"
+            msg += "Can't find a free port to launch omniNames\n"
+            msg += "Try to kill the running servers and then launch SALOME again.\n"
+            raise msg
+        NSPORT=NSPORT+1
+        pass
+    return
+    
+# -----------------------------------------------------------------------------
+
 def no_main():
     """Salome Launch, when embedded in other application"""
     fileEnv = os.environ["SALOME_LAUNCH_CONFIG"]
@@ -863,6 +916,7 @@ def no_main():
     args, modules_list, modules_root_dir = pickle.load(fenv)
     fenv.close()
     kill_salome(args)
+    searchFreePort(0)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt
 
@@ -870,8 +924,28 @@ def no_main():
 
 def main():
     """Salome launch as a main application"""
+    import sys
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "-nothing":
+            searchFreePort()
+            import os
+            print "port:%s"%(os.environ['NSPORT'])
+            import sys
+            sys.exit(0)
+            pass
+        pass
+    save_config = 0
+    import sys
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--save-config":
+            save_config = 1
+            sys.argv[1:2] = []
+            pass
+        pass
+    #
     args, modules_list, modules_root_dir = get_config()
     kill_salome(args)
+    searchFreePort(save_config)
     set_env(args, modules_list, modules_root_dir)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt,args

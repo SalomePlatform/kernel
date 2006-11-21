@@ -1,48 +1,6 @@
 #!/bin/bash
 
-save_config=$1
-
-searchFreePort() {
-    echo -n "Searching for a free port for naming service: "
-    export NSPORT=2810
-    local limit=$NSPORT
-    let limit=limit+100
-    while [ 1 ]
-    do
-        aRes=`netstat -ltn | grep -E :${NSPORT}`
-        if [ -z "$aRes" ]; then
-            echo ${NSPORT} - Ok
-	    local myhost=`hostname`
-            export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
-	    local initref="NameService=corbaname::"`hostname`":$NSPORT"
-	    export NSPORT
-	    if [[ `python -c "import CORBA; print CORBA.ORB_ID"` == "omniORB4" ]]; then
-                echo "InitRef = $initref" > $OMNIORB_CONFIG
-    	    else
-	        echo "ORBInitRef $initref" > $OMNIORB_CONFIG
-	    fi
-	    if [[ "$save_config" == "--save-config" ]] ; then
-		ln -sf $OMNIORB_CONFIG ${HOME}/.omniORB_current.cfg
-		export OMNIORB_CONFIG=${HOME}/.omniORB_current.cfg
-	    fi
-            break
-        fi
-        echo -n "${NSPORT} "
-        if [[ $NSPORT -eq $limit ]] ; then
-            echo
-            echo "Can't find a free port to launch omniNames"
-            echo "Try to kill the running servers and then launch SALOME again."
-            exit
-        fi
-        let NSPORT=NSPORT+1
-    done
-}
-
-searchFreePort
-
-if [[ "$*" == "-nothing" ]]; then
-    echo "port:$NSPORT"
-elif [ $# -ne 0 ] ; then
+if [ $# -ne 0 ] ; then
     python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
 else
     python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py
