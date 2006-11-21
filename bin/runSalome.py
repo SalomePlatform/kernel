@@ -857,7 +857,7 @@ def registerEnv(args, modules_list, modules_root_dir):
 
 # -----------------------------------------------------------------------------
 
-def searchFreePort(save_config=0):
+def searchFreePort(args, save_config=0):
     print "Searching for a free port for naming service:",
     NSPORT=2810
     limit=NSPORT
@@ -891,6 +891,7 @@ def searchFreePort(save_config=0):
                 f.write("ORBInitRef %s\n"%(initref))
                 pass
             f.close()
+            args['port'] = os.environ['NSPORT']
             #
             if save_config:
                 from os import system
@@ -917,7 +918,7 @@ def no_main():
     args, modules_list, modules_root_dir = pickle.load(fenv)
     fenv.close()
     kill_salome(args)
-    searchFreePort(0)
+    searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt
 
@@ -946,7 +947,7 @@ def main():
     #
     args, modules_list, modules_root_dir = get_config()
     kill_salome(args)
-    searchFreePort(save_config)
+    searchFreePort(args, save_config)
     set_env(args, modules_list, modules_root_dir)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt,args
