@@ -830,13 +830,14 @@ def useSalome(args, modules_list, modules_root_dir):
         i = 0
         while i < len( toimport ) :
             if toimport[ i ] == 'killall':
-                print "killall : option disabled"
-                #killAllPorts()
+                killAllPorts()
+                import sys
+                sys.exit(0)
             else:
                 print 'importing',toimport[ i ]
                 doimport = 'import ' + toimport[ i ]
                 exec doimport
-                i = i + 1
+            i = i + 1
 
     return clt
 
