@@ -458,16 +458,27 @@ def get_env():
 
     # apply command-line options to the arguments
     BATCHMODE_FORCED = False
+    NO_SPLASH_FORCED = False
     args[script_nam] = []
     for opt in cmd_opts:
         if   opt in [ 'g', gui_nam ] :
             if not BATCHMODE_FORCED: args[gui_nam] = 1
+            if cmd_opts[opt] == ['0']:
+                args["session_gui"] = 0
+                NO_SPLASH_FORCED = True
+                pass
         elif opt in [ 't', terminal_nam ] :
             args[gui_nam] = 0
             args[script_nam] = cmd_opts[opt]
             BATCHMODE_FORCED = True
         elif opt in [ 'z', splash_nam ] :
-            args[splash_nam] = 1
+            if not NO_SPLASH_FORCED:
+                args[splash_nam] = 1
+                if cmd_opts[opt] == ['0']:
+                    args[splash_nam] = 0
+                    pass
+                pass
+            pass
         elif opt in [ 'r', except_nam ] :
             args[except_nam] = 1
         elif opt in [ 'l', logger_nam ] :

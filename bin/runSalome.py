@@ -467,7 +467,15 @@ class SessionServer(Server):
         if 'supervContainer' in self.args['containers'] or 'supervContainer' in self.args['standalone']:
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
-            self.SCMD2+=['GUI']
+            try:
+                session_gui = self.args['session_gui']
+            except KeyError:
+                session_gui = 1
+                pass
+            if session_gui:
+                self.SCMD2+=['GUI']
+                pass
+            pass
         if self.args['splash'] and self.args['gui']:
             self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
@@ -929,7 +937,7 @@ def main():
     import sys
     if len(sys.argv) == 2:
         if sys.argv[1] == "-nothing":
-            searchFreePort()
+            searchFreePort({})
             import os
             print "port:%s"%(os.environ['NSPORT'])
             import sys
