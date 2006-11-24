@@ -806,7 +806,9 @@ Engines_Container_i::createInstance(string genericRegisterName,
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
 				 aGenRegisterName.c_str() ) ;
-
+      if (id == NULL)
+	return iobject._retn();
+      
       // --- get reference & servant from id
 
       CORBA::Object_var obj = _poa->id_to_reference(*id);
