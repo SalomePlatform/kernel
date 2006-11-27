@@ -230,8 +230,26 @@ endElement(const QString&,
   if ((qName.compare(QString(test_modules)) == 0))
     _resource.ModulesPath[previous_module_name] = previous_module_path;
 
-  if ((qName.compare(QString(test_machine)) == 0))
-    _resources_list[_resource.DataForSort._hostName] = _resource;
+  if ((qName.compare(QString(test_machine)) == 0)){
+    int nbnodes = _resource.DataForSort._nbOfNodes;
+    if( nbnodes > 1 ){
+      string clusterNode = _resource.DataForSort._hostName ;
+      for(int i=0;i<nbnodes;i++){
+        char inode[64];
+        inode[0] = '\0' ;
+        sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
+        std::string nodeName(inode);
+//        _resource.DataForSort._nbOfNodes = 1;
+        _resource.DataForSort._hostName = nodeName ;
+        _resources_list[nodeName] = _resource;
+        //cout << "SALOME_ResourcesCatalog_Handler::endElement _resources_list["
+        //     << nodeName << "] = _resource " << _resource.DataForSort._hostName.c_str()
+        //     << endl ;
+      }
+    }
+    else
+      _resources_list[_resource.DataForSort._hostName] = _resource;
+  }
 
   return true;
 }

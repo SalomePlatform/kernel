@@ -153,9 +153,23 @@ throw(SALOME_Exception)
 
       else
         {
+// Cas d'un cluster: nombre de noeuds > 1
+          int cpt=0;
+          for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
+	    if( (*iter).second.DataForSort._nbOfNodes > 1 ){
+   	      if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
+                ret.push_back((*iter).first.c_str());
+                //cout << "SALOME_ResourcesManager::GetFittingResources vector["
+                //     << cpt << "] = " << (*iter).first.c_str() << endl ;
+                cpt++;
+              }
+            }
+          }
+          if(cpt==0){
           // --- user specified an unknown hostame so notify him.
-          MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
-          throw SALOME_Exception("unknown host");
+            MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
+            throw SALOME_Exception("unknown host");
+          }
         }
     }
 
