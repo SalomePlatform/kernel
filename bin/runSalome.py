@@ -887,6 +887,10 @@ def searchFreePort(args, save_config=0):
             system('rm -f %s'%(tmp_file))
             #
             home = os.environ['HOME']
+            appli=os.environ.get("APPLI")
+            if appli is not None:
+                home='%s/%s'%(home,appli)
+                pass
             #
             os.environ['OMNIORB_CONFIG'] = '%s/.omniORB_%s_%s.cfg'%(home, myhost, NSPORT)
             initref = "NameService=corbaname::%s:%s"%(myhost, NSPORT)
@@ -903,7 +907,7 @@ def searchFreePort(args, save_config=0):
             #
             if save_config:
                 from os import system
-                system('ln -sf %s %s/.omniORB_current.cfg'%(os.environ['OMNIORB_CONFIG'], home))
+                system('ln -sf %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))
                 pass
             #
             break

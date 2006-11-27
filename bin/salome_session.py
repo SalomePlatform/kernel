@@ -63,7 +63,7 @@ def searchFreePort():
             f = open(omniorb_config, "w")
             f.write("ORBInitRef NameService=corbaname::%s:%s\n"%(hostname, NSPORT))
             f.close()
-            last_running_config = '%s/.omniORB_%s_last.cfg'%(home, hostname)
+            last_running_config = '%s/.omniORB_last.cfg'%(home, hostname)
             os.environ['LAST_RUNNING_CONFIG'] = last_running_config
             if os.access(last_running_config,os.F_OK):
                 os.unlink(last_running_config)

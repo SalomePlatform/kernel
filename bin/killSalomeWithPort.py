@@ -46,7 +46,7 @@ def appliCleanOmniOrbConfig(port):
     """
     remove omniorb config files related to the port in SALOME application:
     - ${HOME}/${APPLI}/.omniORB_${HOSTNAME}_${NSPORT}.cfg
-    - ${HOME}/${APPLI}/.omniORB_${HOSTNAME}_last.cfg
+    - ${HOME}/${APPLI}/.omniORB_last.cfg
     the last is removed only if the link points to the first file.
     """
     from Utils_Identity import getShortHostName
@@ -59,7 +59,7 @@ def appliCleanOmniOrbConfig(port):
         home='%s/%s'%(home,appli)
         hostname=getShortHostName()
         omniorb_config = '%s/.omniORB_%s_%s.cfg'%(home,hostname, str(port))
-        last_running_config = '%s/.omniORB_%s_last.cfg'%(home, hostname)
+        last_running_config = '%s/.omniORB_last.cfg'%(home)
         if os.access(last_running_config,os.F_OK):
             pointedPath = os.readlink(last_running_config)
             if pointedPath[0] != '/':
