@@ -92,11 +92,17 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 
 	  // --- start a trace Collector
 
-	  char* traceKind = getenv("SALOME_trace");
+	  char* traceKind;
+	  bool isNotDefined = false;
+	  if ( getenv("SALOME_trace") )
+	    traceKind = getenv("SALOME_trace");
+	  else
+	    isNotDefined = true; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
+	  
 	  assert(traceKind);
 	  //cerr<<"SALOME_trace="<<traceKind<<endl;
 
-	  if (strcmp(traceKind,"local")==0)
+	  if ( isNotDefined || strcmp(traceKind,"local")==0 )
 	    {
 	      _myThreadTrace = LocalTraceCollector::instance();
 	    }

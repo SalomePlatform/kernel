@@ -785,6 +785,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
   tempOutputFile << "export PYTHONPATH" << endl;
+  tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
   //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
   // ! env vars
