@@ -865,7 +865,7 @@ def registerEnv(args, modules_list, modules_root_dir):
 
 # -----------------------------------------------------------------------------
 
-def searchFreePort(args, save_config=0):
+def searchFreePort(args, save_config=1):
     print "Searching for a free port for naming service:",
     NSPORT=2810
     limit=NSPORT
@@ -895,6 +895,7 @@ def searchFreePort(args, save_config=0):
             os.environ['OMNIORB_CONFIG'] = '%s/.omniORB_%s_%s.cfg'%(home, myhost, NSPORT)
             initref = "NameService=corbaname::%s:%s"%(myhost, NSPORT)
             os.environ['NSPORT'] = "%s"%(NSPORT)
+            os.environ['NSHOST'] = "%s"%(myhost)
             f = open(os.environ['OMNIORB_CONFIG'], "w")
             import CORBA
             if CORBA.ORB_ID == "omniORB4":
@@ -948,11 +949,11 @@ def main():
             sys.exit(0)
             pass
         pass
-    save_config = 0
+    save_config = 1
     import sys
     if len(sys.argv) > 1:
-        if sys.argv[1] == "--save-config":
-            save_config = 1
+        if sys.argv[1] == "--nosave-config":
+            save_config = 0
             sys.argv[1:2] = []
             pass
         pass
