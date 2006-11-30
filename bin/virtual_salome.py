@@ -30,6 +30,8 @@ install module KERNEL in the current directory
 import sys, os, optparse, shutil,glob,fnmatch
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
 
+verbose=0
+
 # -----------------------------------------------------------------------------
 
 def mkdir(path):
@@ -87,7 +89,6 @@ def get_lib_dir():
 # -----------------------------------------------------------------------------
 
 def link_module(options):
-    global verbose
 
     if not options.module:
         print "Option module is mandatory"
