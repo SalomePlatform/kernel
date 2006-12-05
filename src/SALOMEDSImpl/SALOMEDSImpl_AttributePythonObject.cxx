@@ -54,7 +54,7 @@ SALOMEDSImpl_AttributePythonObject::SALOMEDSImpl_AttributePythonObject()
 void SALOMEDSImpl_AttributePythonObject::SetObject(const TCollection_AsciiString& theSequence,
 					           const bool theScript) 
 {
-  CheckLocked();    
+  CheckLocked();
   Backup();
   mySequence = theSequence;
   myIsScript = theScript;
@@ -103,14 +103,11 @@ void SALOMEDSImpl_AttributePythonObject::Paste(const Handle(TDF_Attribute)& into
 
 TCollection_AsciiString SALOMEDSImpl_AttributePythonObject::Save() 
 {
-  char* aString = (char*)GetObject().ToCString();
-  char* aResult = new char[strlen(aString) + 2];
-  aResult[0] = IsScript()?'s':'n';
-  strcpy(aResult+1, aString);
-  TCollection_AsciiString ret(aResult);
+  TCollection_AsciiString aString = GetObject();
+  TCollection_AsciiString aResult = IsScript()?'s':'n';
+  aResult += aString;
   
-  delete aResult;
-  return ret;
+  return aResult;
 }
 	  
 void SALOMEDSImpl_AttributePythonObject::Load(const TCollection_AsciiString& value) 
