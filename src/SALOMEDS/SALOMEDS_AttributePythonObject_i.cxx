@@ -42,8 +42,8 @@ char* SALOMEDS_AttributePythonObject_i::GetObject()
   SALOMEDS::Locker lock;
   TCollection_AsciiString aSeq(Handle(SALOMEDSImpl_AttributePythonObject)::
 			       DownCast(_impl)->GetObject().ToCString());
-  return aSeq.ToCString();
-
+  CORBA::String_var aStr = CORBA::string_dup(aSeq.ToCString());
+  return aStr._retn();
 }
 
 CORBA::Boolean SALOMEDS_AttributePythonObject_i::IsScript() 
