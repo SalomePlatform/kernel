@@ -190,6 +190,9 @@ int main (int argc, char * argv[])
   catch(CORBA::Exception& e) {
     INFOS("Caught CORBA::Exception."<<e)
       }
+  catch(ServiceUnreachable& e) {
+    INFOS("Caught Exception. "<<e)
+      }
   catch(...) {
     INFOS("Caught unknown exception.")
       }
@@ -197,4 +200,3 @@ int main (int argc, char * argv[])
   //  delete myThreadTrace;
   return 0;
 }
-
