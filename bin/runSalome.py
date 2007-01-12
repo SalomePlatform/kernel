@@ -696,7 +696,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
-    if 'cppContainer' in args['standalone']:
+    if ('cppContainer' in args['standalone']) | (args["gui"] == 0):
         myServer=ContainerCPPServer(args)
         myServer.run()
         clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
