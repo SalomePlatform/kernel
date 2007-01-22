@@ -140,6 +140,30 @@ def userFile():
             last_file = file
     return last_file
 
+# --
+
+_verbose = None
+
+def verbose():
+    global _verbose
+    # verbose has already been called
+    if _verbose is not None:
+        return _verbose
+    # first time
+    try:
+        from os import getenv
+        _verbose = int(getenv('SALOME_VERBOSE'))
+    except:
+        _verbose = 0
+        pass
+    #
+    return _verbose
+
+def setVerbose(level):
+    global _verbose
+    _verbose = level
+    return
+
 # -----------------------------------------------------------------------------
 
 ###
@@ -150,7 +174,7 @@ section_to_skip = ""
 
 class xml_parser:
     def __init__(self, fileName, _opts ):
-        print "Configure parser: processing %s ..." % fileName
+        if verbose(): print "Configure parser: processing %s ..." % fileName
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -314,6 +338,11 @@ def get_env():
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
+    try:
+        dirs.remove('') # to remove empty dirs if the variable terminate by ":" or if there are "::" inside
+    except:
+        pass
+    
     _opts = {} # associative array of options to be filled
 
     # parse SalomeApp.xml files in directories specified by SalomeAppConfig env variable

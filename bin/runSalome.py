@@ -21,6 +21,7 @@
 
 import sys, os, string, glob, time, pickle
 import orbmodule
+from launchConfigureParser import verbose
 
 process_id = {}
 
@@ -236,11 +237,11 @@ def set_env(args, modules_list, modules_root_dir):
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
-        print "GEOM OCAF Resources"
+        if verbose(): print "GEOM OCAF Resources"
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
-	print "GEOM Shape Healing Resources"
+        if verbose(): print "GEOM Shape Healing Resources"
         os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
@@ -320,7 +321,7 @@ class Server:
                                  + os.getenv("LD_LIBRARY_PATH")]
             myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
-        print "command = ", command
+        if verbose(): print "command = ", command
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
         self.PID = pid
@@ -604,7 +605,7 @@ def startSalome(args, modules_list, modules_root_dir):
     """Launch all SALOME servers requested by args"""
     init_time = os.times()
 
-    print "startSalome ", args
+    if verbose(): print "startSalome ", args
     
     #
     # Initialisation ORB et Naming Service
@@ -624,7 +625,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
-    print "Notify Server to launch"
+    if verbose(): print "Notify Server to launch"
 
     myServer=NotifyServer(args,modules_root_dir)
     myServer.run()
@@ -740,7 +741,7 @@ def startSalome(args, modules_list, modules_root_dir):
         session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
 
     end_time = os.times()
-    print
+    if verbose(): print
     print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
                                                          - init_time[4])
 
@@ -810,7 +811,7 @@ def useSalome(args, modules_list, modules_root_dir):
     pickle.dump(process_ids,fpid)
     fpid.close()
     
-    print """
+    if verbose(): print """
     Saving of the dictionary of Salome processes in %s
     To kill SALOME processes from a console (kill all sessions from all ports):
       python killSalome.py 
@@ -829,10 +830,12 @@ def useSalome(args, modules_list, modules_root_dir):
     #
     
     if clt != None:
-        print
-        print " --- registered objects tree in Naming Service ---"
-        clt.showNS()
-
+        if verbose():
+            print
+            print " --- registered objects tree in Naming Service ---"
+            clt.showNS()
+            pass
+        
         # run python scripts, passed via -t option
         toimport = args['pyscript']
         i = 0
