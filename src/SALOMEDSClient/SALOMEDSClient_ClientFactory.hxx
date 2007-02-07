@@ -38,7 +38,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOMEDS)
 
-class ClientFactory {
+class SALOMEDSCLIENT_EXPORT ClientFactory {
 
 public:
   /*!

@@ -156,7 +156,12 @@ TCollection_AsciiString SALOMEDSImpl_Tool::GetNameFromPath(const TCollection_Asc
 TCollection_AsciiString SALOMEDSImpl_Tool::GetDirFromPath(const TCollection_AsciiString& thePath) {
   if (thePath.IsEmpty()) return "";
   OSD_Path aPath = OSD_Path(thePath);
-  TCollection_AsciiString aDirString(aPath.Trek());
+	TCollection_AsciiString aDirString;
+	/*Unix platform don't use <disk> assignment in <path> string
+		but we must to add it for WNT case*/
+	TCollection_AsciiString disk = aPath.Disk();
+	if(disk.Length()) aDirString.AssignCat(disk);
+	aDirString.AssignCat(aPath.Trek());
   aDirString.ChangeAll('|','/');
   return aDirString;
 }

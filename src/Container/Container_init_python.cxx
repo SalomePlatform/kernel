@@ -27,7 +27,9 @@
 //  $Header$
 
 #include <time.h>
-#include <sys/time.h>
+#ifndef WNT
+  #include <sys/time.h>
+#endif
 
 #include "utilities.h"
 

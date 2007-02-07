@@ -71,8 +71,10 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
   else {
     SALOMEDS::Study::ListOfSObject_var aSeq = SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Get();
     aLength = aSeq->length();
-    aSO = new SALOMEDS_SObject(aSeq[i].in());
-    for (i = 0; i < aLength; i++) aVector.push_back(_PTR(SObject)(aSO));
+	for (i = 0; i < aLength; i++) {
+	  aSO = new SALOMEDS_SObject(aSeq[i].in());
+	  aVector.push_back(_PTR(SObject)(aSO));
+	}
   }
 
   return aVector;

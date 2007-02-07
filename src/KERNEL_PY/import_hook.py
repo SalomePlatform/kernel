@@ -110,6 +110,17 @@ def set_shared_imported(name,module):
     shared_imported[name]=module
     #print "Module %s shared registered" % name,module
 
+def import_module(partname, fqname, parent):
+    """ Try to import module fqname
+        It's parent is module parent and has name partname
+    """
+    try:
+       m = sys.modules[fqname]
+    except KeyError:
+       pass
+    else:
+       return m
+
 def ensure_fromlist(m, fromlist, recursive=0):
     """ Return the real modules list to be imported
     """
@@ -123,10 +134,16 @@ def ensure_fromlist(m, fromlist, recursive=0):
                     pass
                 else:
                     l.extend(ensure_fromlist(m, all, 1))
-        else:
+        elif hasattr(m,sub):
             submod=getattr(m,sub)
             if type(submod) == type(sys):
                l.append(("%s.%s" % (m.__name__, sub),submod))
+        else:
+            subname="%s.%s" % (m.__name__, sub)
+            submod = import_module(sub, subname, m)
+            if not submod:
+               raise ImportError, "No module named " + subname
+            l.append((subname,submod))
     return l
 
 def import_hook(name, globals=None, locals=None, fromlist=None):
@@ -149,7 +166,12 @@ def import_hook(name, globals=None, locals=None, fromlist=None):
        #when fromlist is not specified and name is a dotted name,
        # module is the root package not the real module
        #so we need to retrieve it
-       m=get_real_module(module,name)
+       # note: some modules like xml.dom do not play the rule
+       # (import xml: no attribute dom, but import xml.dom OK)
+       try:
+           m=get_real_module(module,name)
+       except AttributeError:
+           m=None
 
     if type(m) == type(sys) and is_shared(m.__name__):
        set_shared_imported(m.__name__,m)

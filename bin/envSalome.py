@@ -21,16 +21,18 @@
 
 import os
 import sys
+import setenv
 
 kernel_root=os.getenv("KERNEL_ROOT_DIR")
 sys.path[:0]=[kernel_root+"/bin/salome"]
 
-import runSalome
+#import runSalome
 
 argv=sys.argv[1:]
 sys.argv=[]
 
-args, modules_list, modules_root_dir = runSalome.get_config()
-runSalome.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv.get_config()
+#runSalome.set_env(args, modules_list, modules_root_dir)
+setenv.main();
 
 os.execvp(argv[0],argv)

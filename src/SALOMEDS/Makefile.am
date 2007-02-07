@@ -41,7 +41,8 @@ salomeinclude_HEADERS= \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
 	SALOMEDS_GenericAttribute.hxx \
-	SALOMEDS_IParameters.hxx
+	SALOMEDS_IParameters.hxx \
+	SALOMEDS_Defines.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA = SALOME_DriverPy.py
@@ -140,6 +141,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeStudyProperties_i.cxx \
 	SALOMEDS_AttributePythonObject_i.cxx \
 	SALOMEDS_AttributeParameter_i.cxx \
+	SALOMEDS_AttributeString_i.cxx \
 	SALOMEDS_SObject.cxx \
 	SALOMEDS_SComponent.cxx \
 	SALOMEDS_GenericAttribute.cxx \
@@ -180,6 +182,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeUserID.cxx \
 	SALOMEDS_TMPFile_i.cxx \
 	SALOMEDS_AttributeParameter.cxx \
+	SALOMEDS_AttributeString.cxx \
 	SALOMEDS_IParameters.cxx \
 	\
 	Handle_SALOMEDS_DataMapNodeOfDataMapOfIntegerString.hxx \
@@ -322,6 +325,8 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_UseCaseIterator_i.hxx \
 	SALOMEDS_AttributeParameter.hxx \
 	SALOMEDS_AttributeParameter_i.hxx \
+	SALOMEDS_AttributeString.hxx \
+	SALOMEDS_AttributeString_i.hxx \
 	SALOMEDS_TMPFile_i.hxx
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)

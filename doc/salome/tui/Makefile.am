@@ -25,7 +25,7 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-EXTRA_DIST = $(srcdir)/KERNEL $(srcdir)/pythfilter.py
+EXTRA_DIST = KERNEL pythfilter.py
 
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`

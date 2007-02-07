@@ -41,7 +41,8 @@ salomeinclude_HEADERS =\
 	Utils_SINGLETON.hxx \
 	Utils_DESTRUCTEUR_GENERIQUE.hxx \
 	Utils_ExceptHandlers.hxx \
-	Utils_Mutex.hxx
+	Utils_Mutex.hxx \
+	SALOME_Utils.hxx
 
 # Scripts to be exported
 dist_salomescript_DATA =\

@@ -27,7 +27,6 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 hdf_err 
 HDFobjectType(hdf_idt id, char *name, hdf_object_type *type)
 {
-  hdf_object_type rep;
   hdf_bool follow = 1;
   H5G_stat_t buf;
   hdf_err ret;

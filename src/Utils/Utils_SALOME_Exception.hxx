@@ -29,6 +29,8 @@
 #if !defined( __Utils_SALOME_Exception_hxx__ )
 #define __Utils_SALOME_Exception_hxx__
 
+//#include "SALOME_Utils.hxx"
+
 # include <exception>
 # include <iostream>
 
@@ -38,18 +40,18 @@
 # define LOCALIZED(message) #message
 #endif
 
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
+//swig tool on Linux doesn't pass defines from header SALOME_Utils.hxx
+//therefore (temporary solution) defines are placed below
+
+#ifdef WNT
+# if defined UTILS_EXPORTS
+#  define UTILS_EXPORT __declspec( dllexport )
+# else
+#  define UTILS_EXPORT __declspec( dllimport )
+#  define LOCALIZED(message) #message
+# endif
 #else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
+# define UTILS_EXPORT
 #endif
 
 class UTILS_EXPORT SALOME_Exception : public std::exception

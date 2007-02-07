@@ -27,10 +27,12 @@
 # ifndef SALOME_STRING
 # define SALOME_STRING
 
+#include "SALOME_Utils.hxx"
+
 # include <string>
 # include <sstream>
 
-class SALOME_STRING : public string
+class UTILS_EXPORT SALOME_STRING : public string
 {
 private :
 	ostringstream _s ;

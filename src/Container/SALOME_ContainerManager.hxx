@@ -20,6 +20,8 @@
 #ifndef __SALOME_CONTAINERMANAGER_HXX__
 #define __SALOME_CONTAINERMANAGER_HXX__
 
+#include <SALOME_Container.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
@@ -29,20 +31,6 @@
 #include <string>
 
 class SALOME_NamingService;
-
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#endif
 
 class CONTAINER_EXPORT SALOME_ContainerManager:
   public POA_Engines::ContainerManager,

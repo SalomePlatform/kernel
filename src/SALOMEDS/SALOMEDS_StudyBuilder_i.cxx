@@ -98,7 +98,7 @@ void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr a
   aSCO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSComponent((char*)aComponent->GetID());
 
   CORBA::String_var iorstr = _orb->object_to_string(IOR);
-  _impl->DefineComponentInstance(aSCO, (char*)iorstr);
+  _impl->DefineComponentInstance(aSCO, (char*)iorstr.in());
 }
 
 //============================================================================

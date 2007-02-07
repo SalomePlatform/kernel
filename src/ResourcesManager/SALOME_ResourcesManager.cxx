@@ -153,9 +153,23 @@ throw(SALOME_Exception)
 
       else
         {
+// Cas d'un cluster: nombre de noeuds > 1
+          int cpt=0;
+          for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
+	    if( (*iter).second.DataForSort._nbOfNodes > 1 ){
+   	      if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
+                ret.push_back((*iter).first.c_str());
+                //cout << "SALOME_ResourcesManager::GetFittingResources vector["
+                //     << cpt << "] = " << (*iter).first.c_str() << endl ;
+                cpt++;
+              }
+            }
+          }
+          if(cpt==0){
           // --- user specified an unknown hostame so notify him.
-          MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
-          throw SALOME_Exception("unknown host");
+            MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
+            throw SALOME_Exception("unknown host");
+          }
         }
     }
 
@@ -551,7 +565,11 @@ void SALOME_ResourcesManager::RmTmpFile()
 {
   if (_TmpFileName != "")
     {
+#ifndef WNT
       string command = "rm ";
+#else
+      string command = "del /F ";
+#endif
       command += _TmpFileName;
       char *temp = strdup(command.c_str());
       int lgthTemp = strlen(temp);
@@ -707,24 +725,8 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
 
 void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
   {
-    string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-    ifstream omniORBfile( omniORBcfg.c_str() ) ;
-    char ORBInitRef[11] ;
-    char egal[3] ;
-    char nameservice[132] ;
-    omniORBfile >> ORBInitRef ;
-    fileStream << "ORBInitRef ";
-    omniORBfile >> egal ;
-    omniORBfile >> nameservice ;
-    omniORBfile.close() ;
-    char * bsn = strchr( nameservice , '\n' ) ;
-
-    if ( bsn )
-      {
-        bsn[ 0 ] = '\0' ;
-      }
-
-    fileStream << nameservice;
+    fileStream << "ORBInitRef NameService=";
+    fileStream << _NS->getIORaddr();
   }
 
 
@@ -801,6 +803,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
   tempOutputFile << "export PYTHONPATH" << endl;
+  tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
   //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
   // ! env vars
@@ -870,7 +873,16 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
     }
 
   else if (resInfo.Protocol == ssh)
-    command = "ssh ";
+    {
+      command = "ssh ";
+      string commandRcp = "scp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += machine;
+      commandRcp += ":";
+      commandRcp += _TmpFileName;
+      system(commandRcp.c_str());
+    }
   else
     throw SALOME_Exception("Unknown protocol");
 

@@ -142,8 +142,32 @@ then
 
   if  test "x$qt_ok" = "xno"
   then
-    AC_MSG_RESULT(unable to link with qt library)
-    AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    #AC_MSG_RESULT(unable to link with qt library)
+    #AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    # BEGIN: for CCRT (installation of qt have only a "lib" directory)
+    LIBS="$LIBS_old -L$QTDIR/lib -lqt-mt $OGL_LIBS"
+
+    AC_CACHE_VAL(salome_cv_lib_qt,[
+      AC_TRY_LINK(
+#include <qapplication.h>
+,     int n;
+      char **s;
+      QApplication a(n, s);
+      a.exec();,
+      eval "salome_cv_lib_qt=yes",eval "salome_cv_lib_qt=no")
+    ])
+    qt_ok="$salome_cv_lib_qt"
+
+    if  test "x$qt_ok" = "xno"
+    then
+      AC_MSG_RESULT(unable to link with qt library)
+      AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    else
+      AC_MSG_RESULT(yes)
+         QT_LIBS="-L$QTDIR/lib -lqt-mt"
+      QT_MT_LIBS="-L$QTDIR/lib -lqt-mt"
+    fi
+    # END: for CCRT
   else
     AC_MSG_RESULT(yes)
     if test "x$QTDIR" = "x/usr"

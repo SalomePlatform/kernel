@@ -26,13 +26,15 @@
 #ifndef _SALOME_FILEREF_I_HXX_
 #define _SALOME_FILEREF_I_HXX_
 
+#include <SALOME_Container.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 
 #include <string>
 #include <map>
 
-class fileRef_i:
+class CONTAINER_EXPORT fileRef_i:
   public virtual POA_Engines::fileRef,
   public virtual PortableServer::RefCountServantBase
 {

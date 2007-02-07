@@ -24,8 +24,18 @@
 #ifndef __SALOMEDSIMPL_ATTRIBUTES__H__
 #define __SALOMEDSIMPL_ATTRIBUTES__H__
 
+#ifdef WNT
+# ifdef SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSIMPL_EXPORT
+#endif
+
 #include <iostream>
-class LockProtection
+class SALOMEDSIMPL_EXPORT LockProtection
 {
 public :
   LockProtection(const char *message) {
@@ -64,6 +74,7 @@ public :
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
+#include "SALOMEDSImpl_AttributeString.hxx"
 
 
 #define __AttributeTypeToGUIDForSObject \
@@ -95,7 +106,8 @@ public :
 	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
         if(theType == "AttributeGraphic") return SALOMEDSImpl_AttributeGraphic::GetID(); \
 	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
-	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID();
+	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID(); \
+        if(theType == "AttributeString") return SALOMEDSImpl_AttributeString::GetID();
 
 
 #define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
@@ -132,6 +144,7 @@ __FindOrCreateAttributeLocked(AttributeTableOfReal) \
 __FindOrCreateAttributeLocked(AttributeTableOfString) \
 __FindOrCreateAttributeLocked(AttributePythonObject) \
 __FindOrCreateAttributeLocked(AttributeParameter) \
+__FindOrCreateAttributeLocked(AttributeString) \
 __FindOrCreateAttribute(AttributePersistentRef) \
 __FindOrCreateAttribute(AttributeDrawable) \
 __FindOrCreateAttribute(AttributeSelectable) \

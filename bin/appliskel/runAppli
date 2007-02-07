@@ -10,20 +10,15 @@ APPLI_HOME=`dirname $0`
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
-# --- define port for CORBA naming service
-
-. ${HOME}/${APPLI}/searchFreePort.sh
-searchFreePort
-
 # --- if mpi lam, start lam (seems safe to be done several times)
-#     arret manuel avec lamhalt
+#     (manual stop with lamhalt)
 
 if [ "$LAMBHOST" ]; then
   lamboot
 fi
 
 # --- run SALOME
-#    (default arguments defined in local salome.launch could be completed
+#    (default arguments defined in local SalomeApp.xml could be completed
 #     by arguments to this command)
 
 if [ $# -ne 0 ] ; then

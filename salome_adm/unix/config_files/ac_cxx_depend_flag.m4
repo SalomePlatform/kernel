@@ -35,6 +35,85 @@ ac_cv_depend_flag,
  echo "conftest.o: conftest.c" > conftest.verif
  echo "int  main() { return 0; }" > conftest.c
 
+f77int="F77INT32"
+case  $host_os in
+   irix5.* | irix6.* | osf4.* | osf5.* | linux*  )
+
+        linux64="true"
+        expr "$host_os" : 'linux' >/dev/null && test ! x"$host_cpu" = x"x86_64" && linux64="false"
+	if test ! x"$linux64" = "xfalse" ; then
+	  echo "$as_me:$LINENO: checking for 64bits integers size in F77/F90" >&5
+echo $ECHO_N "checking for 64bits integers size in F77/F90... $ECHO_C" >&6
+	  # Check whether --enable-int64 or --disable-int64 was given.
+if test "${enable_int64+set}" = set; then
+  enableval="$enable_int64"
+
+fi;
+	  case "X-$enable_int64" in
+	    X-no)
+	     echo "$as_me:$LINENO: result: \"disabled\"" >&5
+echo "${ECHO_T}\"disabled\"" >&6
+	     SUFFIXES="_32"
+	     ;;
+	    *)
+	     echo "$as_me:$LINENO: result: \"enabled\"" >&5
+echo "${ECHO_T}\"enabled\"" >&6
+	     SUFFIXES=""
+	     f77int="F77INT64"
+	     ;;
+	  esac
+	fi
+     ;;
+   *)
+     ;;
+esac
+
+case $host_os in
+    linux*)
+        if test x"$linux64" = x"true"; then \
+          MACHINE="PCLINUX64${SUFFIXES}";
+	  CFLAGS=" -m64 ${CXXFLAGS}";
+	  CXXFLAGS=" -m64 ${CXXFLAGS}";\
+	else \
+	  MACHINE=PCLINUX; \
+	fi
+	;;
+    hpux*)
+	MACHINE=HP9000
+	;;
+    aix4.*)
+	MACHINE=RS6000
+	host_os_novers=aix4.x
+	;;
+    irix5.*)
+	MACHINE="IRIX64${SUFFIXES}"
+	host_os_novers=irix5.x
+	;;
+    irix6.*)
+	MACHINE="IRIX64${SUFFIXES}"
+	host_os_novers=irix6.x
+	;;
+    osf4.*)
+	MACHINE="OSF1${SUFFIXES}"
+	host_os_novers=osf4.x
+	;;
+    osf5.*)
+	MACHINE="OSF1${SUFFIXES}"
+	 host_os_novers=osf5.x
+	 ;;
+    solaris2.*)
+	MACHINE=SUN4SOL2
+	 host_os_novers=solaris2.x
+	 ;;
+    uxpv*)
+	MACHINE=VPP5000
+	 ;;
+    *)
+	MACHINE=
+	 host_os_novers=$host_os
+	 ;;
+esac
+
 dnl Evolution portage sur CCRT/osf system
  case $host_os in
    osf*)
@@ -44,14 +123,14 @@ dnl on utilise donc gnu pour generer les dependances.
      DEPCXX=g++
      DEPCXXFLAGS="-Wno-deprecated"
      DIFFFLAGS="-w"
-     MACHINE="OSF1"
+dnl  MACHINE="OSF1"
      ;;
    *)
      DEPCC=${CC-cc}
      DEPCXX=${CXX-c++}
      DEPCXXFLAGS="\${CXXFLAGS}"
      DIFFFLAGS="-b -B"
-     MACHINE="PCLINUX"
+dnl  MACHINE="PCLINUX"
      ;;
  esac
  C_DEPEND_FLAG=

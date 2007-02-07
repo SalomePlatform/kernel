@@ -41,7 +41,8 @@ salomeinclude_HEADERS = \
 	SALOME_FileTransfer_i.hxx \
 	SALOME_FileRef_i.hxx \
 	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
+	Container_init_python.hxx \
+	SALOME_Container.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =\

@@ -29,24 +29,11 @@
 # if ! defined( __ORB_INIT_HXX__ )
 # define __ORB_INIT_HXX__
 
-# include "CORBA.h" 
+#include "SALOME_Utils.hxx"
+
+#include "omniORB4/CORBA.h" 
 
 #include "Utils_CommException.hxx"
-
-
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
-#else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
-#endif
 
 /*!
  * Ce composant prend en charge la connexion et la deconnexion a l'orb

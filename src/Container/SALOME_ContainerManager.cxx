@@ -111,7 +111,23 @@ void SALOME_ContainerManager::ShutdownContainers()
   MESSAGE("ShutdownContainers");
   _NS->Change_Directory("/Containers");
   vector<string> vec = _NS->list_directory_recurs();
+  list<string> lstCont;
   for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++)
+    {
+      SCRUTE((*iter));
+      CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+      Engines::Container_var cont=Engines::Container::_narrow(obj);
+      if(!CORBA::is_nil(cont))
+	{
+	  lstCont.push_back((*iter));
+	}
+    }
+  MESSAGE("Container list: ");
+  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
+    {
+      SCRUTE((*iter));
+    }
+  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
     {
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());

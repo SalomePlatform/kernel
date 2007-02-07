@@ -51,7 +51,7 @@ public:
   virtual void SetInt(const char* theID, CORBA::Long theValue);
   virtual CORBA::Long GetInt(const char* theID);
 
-  virtual void SetReal(const char* theID, const CORBA::Double theValue);
+  virtual void SetReal(const char* theID, CORBA::Double theValue);
   virtual CORBA::Double GetReal(const char* theID);
 
   virtual void SetString(const char* theID, const char* theValue);

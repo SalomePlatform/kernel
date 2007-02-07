@@ -29,6 +29,8 @@
 #ifndef _SALOME_COMPONENT_I_HXX_
 #define _SALOME_COMPONENT_I_HXX_
 
+#include <SALOME_Container.hxx>
+
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
@@ -44,20 +46,6 @@
 
 class RegistryConnexion;
 class Engines_Container_i;
-
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#endif
 
 class CONTAINER_EXPORT Engines_Component_i: 
   public virtual POA_Engines::Component,

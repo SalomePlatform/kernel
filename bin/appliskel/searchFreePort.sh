@@ -41,7 +41,7 @@ searchFreePort() {
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             echo "InitRef = $initref" > $OMNIORB_CONFIG
-            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
             export LAST_RUNNING_CONFIG
 	    rm ${LAST_RUNNING_CONFIG}
             ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}

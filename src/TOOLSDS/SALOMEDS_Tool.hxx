@@ -36,14 +36,25 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #ifdef WNT
-#include <SALOME_WNT.hxx>
+ #if defined TOOLSDS_EXPORTS
+  #if defined WIN32
+   #define TOOLSDS_EXPORT __declspec( dllexport )
+  #else
+   #define TOOLSDS_EXPORT
+  #endif
+ #else
+  #if defined WIN32
+   #define TOOLSDS_EXPORT __declspec( dllimport )
+  #else
+   #define TOOLSDS_EXPORT
+  #endif
+ #endif
 #else
-#define SALOME_WNT_EXPORT
+ #define TOOLSDS_EXPORT
 #endif
 
-class SALOME_WNT_EXPORT SALOMEDS_Tool                                
+class TOOLSDS_EXPORT SALOMEDS_Tool                                
 {
-
 public:
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set

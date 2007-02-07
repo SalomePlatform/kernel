@@ -40,8 +40,9 @@ void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA:
 char* SALOMEDS_AttributePythonObject_i::GetObject() 
 {
   SALOMEDS::Locker lock;
-  char* aSeq = Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(_impl)->GetObject().ToCString();
-  CORBA::String_var aStr = CORBA::string_dup(aSeq);
+  TCollection_AsciiString aSeq(Handle(SALOMEDSImpl_AttributePythonObject)::
+			       DownCast(_impl)->GetObject().ToCString());
+  CORBA::String_var aStr = CORBA::string_dup(aSeq.ToCString());
   return aStr._retn();
 }
 

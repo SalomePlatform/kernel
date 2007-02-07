@@ -50,6 +50,7 @@
 #include "SALOMEDSClient_AttributeTreeNode.hxx"
 #include "SALOMEDSClient_AttributeUserID.hxx"
 #include "SALOMEDSClient_AttributeParameter.hxx"
+#include "SALOMEDSClient_AttributeString.hxx"
 #include "SALOMEDSClient_ChildIterator.hxx"
 #include "SALOMEDSClient_GenericAttribute.hxx"
 #include "SALOMEDSClient_SComponent.hxx"

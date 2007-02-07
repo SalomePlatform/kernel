@@ -20,7 +20,7 @@
 #ifndef __SALOMEDS_DRIVER_I_H__
 #define __SALOMEDS_DRIVER_I_H__
 
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include <TCollection_AsciiString.hxx>
 #include "SALOMEDSImpl_Driver.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"

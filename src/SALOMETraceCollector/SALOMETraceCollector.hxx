@@ -28,25 +28,21 @@
 #define _SALOMETRACECOLLECTOR_HXX_
 
 #include <string>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
 
 //! See LocalTraceCollector instead of SALOMETraceCollector,
 //! for usage without CORBA
 
-#if defined SALOMETRACECOLLECTOR_EXPORTS
-#if defined WIN32
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
-#else
-#define SALOMETRACECOLLECTOR_EXPORT
-#endif
-#else
 #if defined WNT
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllimport )
+# if defined SALOMETRACECOLLECTOR_EXPORTS
+#  define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
+# else
+#  define SALOMETRACECOLLECTOR_EXPORT
+# endif
 #else
-#define SALOMETRACECOLLECTOR_EXPORT
-#endif
+# define SALOMETRACECOLLECTOR_EXPORT
 #endif
 
 class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:

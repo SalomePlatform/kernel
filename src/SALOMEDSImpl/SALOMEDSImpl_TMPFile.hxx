@@ -34,11 +34,11 @@ struct SALOMEDSImpl_TMPFile : public MMgt_TShared
 {
   typedef unsigned char TOctet;
 
-  virtual size_t Size() = 0;
+  Standard_EXPORT virtual size_t Size() = 0;
 
-  virtual TOctet* Data();
+  Standard_EXPORT virtual TOctet* Data();
 
-  virtual TOctet& Get(size_t) = 0;
+  Standard_EXPORT virtual TOctet& Get(size_t) = 0;
 
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_TMPFile );
 };

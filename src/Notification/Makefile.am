@@ -38,7 +38,8 @@ salomeinclude_HEADERS = \
 	NOTIFICATION.hxx          \
 	NOTIFICATION_Supplier.hxx \
 	NOTIFICATION_Consumer.hxx \
-	CosNotifyShorthands.h
+	CosNotifyShorthands.h \
+	SALOME_NOTIFICATION.hxx
 
 #
 # ===============================================================

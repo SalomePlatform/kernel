@@ -27,9 +27,13 @@
 
 %module libNOTIFICATION
 
+#define _declspec(a)
+
 %{
 #include "NOTIFICATION_Swig.hxx"
 %}
 
+%include SALOME_NOTIFICATION.hxx
+%include SALOME_NOTIFICATION_SWIG.hxx
 %include NOTIFICATION.hxx
 %include NOTIFICATION_Swig.hxx

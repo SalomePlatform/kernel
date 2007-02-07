@@ -315,11 +315,8 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   
   fprintf(fp, "\n");
 
-#ifndef WNT
-  for(unsigned j=0; j<nbAttr; j++) {
-#else
-  for(j=0; j<nbAttr; j++) {
-#endif
+  for ( unsigned j=0; j<nbAttr; j++ )
+  {
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);
     delete name;

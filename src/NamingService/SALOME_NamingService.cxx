@@ -368,7 +368,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 
   ASSERT(!CORBA::is_nil(_current_context));
 
-  CORBA::Object_ptr obj =  CORBA::Object::_nil();
+  CORBA::Object_var obj =  CORBA::Object::_nil();
 
   try
     {
@@ -411,7 +411,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
       throw ServiceUnreachable();
     }
 
-  return obj;
+  return obj._retn();
 }
 
 // ============================================================================
@@ -449,7 +449,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
     }
 
 //   SCRUTE(name);
-  CORBA::Object_ptr obj = CORBA::Object::_nil();
+  CORBA::Object_var obj = CORBA::Object::_nil();
 
   bool isOk = false;
   if (basePath.empty())
@@ -475,7 +475,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
 	}
     }
 
-  return obj;
+  return obj._retn();
 }
 
 // ============================================================================
@@ -1034,7 +1034,9 @@ throw(ServiceUnreachable)
 
       if (binding->binding_type == CosNaming::nobject)
         {
-          dirList.push_back(CORBA::string_dup(bindingName[0].id));
+          // remove memory leak
+          // dirList.push_back(CORBA::string_dup(bindingName[0].id));
+          dirList.push_back(string(bindingName[0].id));
         }
     }
 

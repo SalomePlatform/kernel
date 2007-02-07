@@ -24,6 +24,8 @@
 #ifndef __SALOMEDS_STUDYBUILDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
 
+#include "SALOMEDS_Defines.hxx"
+
 // std C++ headers
 #include <iostream>
 
@@ -37,7 +39,7 @@
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
+class SALOMEDS_EXPORT SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
                                public PortableServer::RefCountServantBase 
 {
 private:

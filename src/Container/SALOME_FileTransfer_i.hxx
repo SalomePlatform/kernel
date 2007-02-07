@@ -27,12 +27,14 @@
 #ifndef _SALOME_FILETRANSFER_I_HXX_
 #define _SALOME_FILETRANSFER_I_HXX_
 
+#include <SALOME_Container.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include <map>
 #include <cstdio>
 
-class fileTransfer_i:
+class CONTAINER_EXPORT fileTransfer_i:
   public virtual POA_Engines::fileTransfer,
   public virtual PortableServer::RefCountServantBase
 {

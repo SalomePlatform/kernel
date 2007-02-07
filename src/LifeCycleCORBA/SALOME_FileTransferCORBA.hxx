@@ -34,7 +34,17 @@
 
 #include <string>
 
-class SALOME_FileTransferCORBA
+#ifdef WNT
+# if defined LIFECYCLECORBA_EXPORTS
+#  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+# else
+#  define LIFECYCLECORBA_EXPORT __declspec( dllimport )
+# endif
+#else
+# define LIFECYCLECORBA_EXPORT
+#endif
+
+class LIFECYCLECORBA_EXPORT SALOME_FileTransferCORBA
 {
 public:
   SALOME_FileTransferCORBA();

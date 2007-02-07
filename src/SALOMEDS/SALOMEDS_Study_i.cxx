@@ -275,7 +275,9 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
     aSO = _impl->FindObjectID(aSObj->GetID());
   }
   else {
-    aSO  = _impl->FindObjectIOR(_orb->object_to_string(theObject));
+    CORBA::String_var objStr = _orb->object_to_string(theObject);
+    TCollection_AsciiString anAscii((char *)objStr.in());
+    aSO  = _impl->FindObjectIOR(anAscii);
   }
    
   if(aSO.IsNull()) return CORBA::string_dup(aPath.ToCString());
@@ -883,7 +885,7 @@ char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* 
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -892,5 +894,5 @@ CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long 
 #endif  
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_Study* local_impl = _impl.operator->();
-  return ((long)local_impl);
+  return ((CORBA::LongLong)local_impl);
 }

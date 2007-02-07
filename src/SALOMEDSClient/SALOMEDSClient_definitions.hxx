@@ -20,6 +20,16 @@
 #ifndef  SALOMEDSCLIENT_DEF_HXX
 #define  SALOMEDSCLIENT_DEF_HXX
 
+#ifdef WIN32
+# ifdef SALOMEDSCLIENT_EXPORTS
+#  define SALOMEDSCLIENT_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSCLIENT_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSCLIENT_EXPORT
+#endif
+
 #include <boost/shared_ptr.hpp> 
 
 template<class T> class clt_shared_ptr: public boost::shared_ptr<T>
@@ -30,7 +40,7 @@ public:
   template<class Y>
     explicit clt_shared_ptr(Y * p)
       {
-	reset(p);
+	boost::shared_ptr<T>::reset(p);
       }
   
   template<class Y>

@@ -28,19 +28,7 @@
 #ifndef NOTIFICATION_Supplier_HXX
 #define NOTIFICATION_Supplier_HXX
 
-#if defined NOTIFICATION_EXPORTS
-#if defined WIN32
-#define NOTIFICATION_EXPORT __declspec( dllexport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#else
-#if defined WNT
-#define NOTIFICATION_EXPORT __declspec( dllimport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#endif
+#include <SALOME_NOTIFICATION.hxx>
 
 class NOTIFICATION_EXPORT NOTIFICATION_Supplier: public POA_CosNotifyComm::StructuredPushSupplier {
   public:

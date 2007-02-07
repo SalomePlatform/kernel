@@ -31,7 +31,9 @@
 import os
 import sys
 import string
+
 import omnipatch                     # PAL10310
+    
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
@@ -309,15 +311,19 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 #=============================================================================
 
 #initialise the ORB and find the root POA
+print "Starting ",sys.argv[1]
 orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
 poa = orb.resolve_initial_references("RootPOA")
+print "ORB and POA initialized"
 
 #create an instance of SALOME_ContainerPy_i and a Container reference
 #containerName = "FactoryServerPy"
 MESSAGE( str(sys.argv) )
 containerName = sys.argv[1]
 cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
+print "SALOME_ContainerPy_i instance created ",cpy_i 
 cpy_o = cpy_i._this()
+print "SALOME_ContainerPy_i instance activated ",cpy_o
 
 #activate the POA
 poaManager = poa._get_the_POAManager()

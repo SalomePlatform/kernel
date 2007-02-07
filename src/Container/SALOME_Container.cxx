@@ -35,8 +35,11 @@
 #include <string>
 #include <stdio.h>
 #include <time.h>
-#include <sys/time.h>
-#include <dlfcn.h>
+#ifndef WNT
+# include <sys/time.h>
+# include <dlfcn.h>
+#endif
+
 
 #ifndef WNT
 #include <unistd.h>
@@ -70,7 +73,7 @@ int main(int argc, char* argv[])
   //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  CORBA::ORB_ptr orb = init(0 , 0 ) ;
+  CORBA::ORB_ptr orb = init(argc , argv ) ;
 	  
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;

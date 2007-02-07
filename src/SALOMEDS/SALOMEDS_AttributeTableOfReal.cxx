@@ -296,6 +296,7 @@ std::vector<double> SALOMEDS_AttributeTableOfReal::GetRow(int theRow)
   }
   else {
     SALOMEDS::DoubleSeq_var aRow = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRow(theRow);
+	aLength = aRow->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aRow[i]);
   }
 
@@ -365,6 +366,7 @@ std::vector<double> SALOMEDS_AttributeTableOfReal::GetColumn(int theColumn)
   }
   else {
     SALOMEDS::DoubleSeq_var aColumn = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetColumn(theColumn);
+	aLength = aColumn->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aColumn[i]);
   }
   return aVector;
@@ -430,6 +432,7 @@ std::vector<int> SALOMEDS_AttributeTableOfReal::GetRowSetIndices(int theRow)
   }
   else {
     SALOMEDS::LongSeq_var aSet = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowSetIndices(theRow);
+	aLength = aSet->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
   return aVector;

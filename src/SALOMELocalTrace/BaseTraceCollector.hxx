@@ -27,23 +27,10 @@
 #ifndef _BASETRACECOLLECTOR_HXX_
 #define _BASETRACECOLLECTOR_HXX_
 
+#include "SALOME_LocalTrace.hxx"
+
 #include <pthread.h>
 #include <semaphore.h>
-
-
-#if defined SALOMELOCALTRACE_EXPORTS
-#if defined WIN32
-#define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
-#else
-#define SALOMELOCALTRACE_EXPORT
-#endif
-#else
-#if defined WNT
-#define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
-#else
-#define SALOMELOCALTRACE_EXPORT
-#endif
-#endif
 
 //! See derived Classes in SALOMELocalTrace for usage without CORBA,
 //! see derived Classes in SALOMETraceCollector for usage with CORBA.

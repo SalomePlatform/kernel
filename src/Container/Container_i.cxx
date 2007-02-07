@@ -30,12 +30,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include <sys/time.h>
 #ifndef WNT
+#include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #else
-#include "../../adm/win32/SALOME_WNT.hxx"
 #include <signal.h>
 #include <process.h>
 int SIGUSR1 = 1000;
@@ -43,11 +42,11 @@ int SIGUSR1 = 1000;
 
 #include "utilities.h"
 #include <SALOMEconfig.h>
-#ifndef WNT
+//#ifndef WNT
 #include CORBA_SERVER_HEADER(SALOME_Component)
-#else
-#include <SALOME_Component.hh>
-#endif
+//#else
+//#include <SALOME_Component.hh>
+//#endif
 #include <pthread.h>  // must be before Python.h !
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
@@ -73,7 +72,7 @@ char ** _ArgV ;
 
 extern "C" {void ActSigIntHandler() ; }
 #ifndef WNT
-extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
+  extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 #else
   extern "C" {void SigIntHandler( int ) ; }
 #endif
@@ -179,12 +178,26 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
       if (!_isSupervContainer)
 	{
+#ifdef WNT
+	  //Py_ACQUIRE_NEW_THREAD;
+	  PyEval_AcquireLock();
+	  /* It should not be possible for more than one thread state
+	     to be used for a thread.*/
+	  PyThreadState *myTstate = PyGILState_GetThisThreadState();
+	  // if no thread state defined
+	  if ( !myTstate ) 
+	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+#else
 	  Py_ACQUIRE_NEW_THREAD;
+#endif
+
 #ifdef WNT
 	  // mpv: this is temporary solution: there is a unregular crash if not
-	  Sleep(2000);
+	  //Sleep(2000);
+	  //
+    // first element is the path to Registry.dll, but it's wrong
 	  PyRun_SimpleString("import sys\n");
-	  // first element is the path to Registry.dll, but it's wrong
 	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
 	  PyRun_SimpleString("import SALOME_Container\n");
@@ -267,7 +280,16 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
+
+  /* For each component contained in this container
+   * tell it to self-destroy
+   */
+  std::map<std::string, Engines::Component_var>::iterator itm;
+  for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
+    itm->second->destroy();
+
   _NS->Destroy_FullDirectory(_containerName.c_str());
+  _NS->Destroy_Name(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
@@ -315,25 +337,27 @@ Engines_Container_i::load_component_Library(const char* componentName)
       return true;
     }
   
+#ifndef WNT
   void* handle;
-#if defined( WNT )
-  handle = dlopen( impl_name.c_str() , 0 ) ;
-//#elif defined( __osf1__ )
-//  handle = dlopen( impl_name.c_str() , RTLD_NOW ) ;
-#else
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+#else
+  HINSTANCE handle;
+  handle = LoadLibrary( impl_name.c_str() );
 #endif
+
   if ( handle )
-    {
+  {
       _library_map[impl_name] = handle;
       _numInstanceMutex.unlock();
       return true;
-    }
+  }
   else
-    {
-      INFOS("Can't load shared library : " << impl_name);
+  {
+      INFOS( "Can't load shared library: " << impl_name );
+#ifndef WNT
       INFOS("error dlopen: " << dlerror());
-    }
+#endif
+  }
   _numInstanceMutex.unlock();
 
   // --- try import Python component
@@ -764,16 +788,20 @@ Engines_Container_i::createInstance(string genericRegisterName,
      const char *, 
      const char *) ;
 
-  FACTORY_FUNCTION Component_factory
-    = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+#ifndef WNT
+  FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)dlsym( handle, factory_name.c_str() );
+#else
+  FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
+#endif
 
-  char *error ;
-  if ( (error = dlerror() ) != NULL)
-    {
-      INFOS("Can't resolve symbol: " + factory_name);
-      SCRUTE(error);
+  if ( !Component_factory )
+  {
+      INFOS( "Can't resolve symbol: " + factory_name );
+#ifndef WNT
+      SCRUTE( dlerror() );
+#endif
       return Engines::Component::_nil() ;
-    }
+  }
 
   // --- create instance
 
@@ -797,7 +825,9 @@ Engines_Container_i::createInstance(string genericRegisterName,
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
 				 aGenRegisterName.c_str() ) ;
-
+      if (id == NULL)
+	return iobject._retn();
+      
       // --- get reference & servant from id
 
       CORBA::Object_var obj = _poa->id_to_reference(*id);
@@ -1010,4 +1040,3 @@ void SigIntHandler( int what )
     }
 }
 #endif
-

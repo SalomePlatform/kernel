@@ -72,7 +72,7 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 	    }
 	  else
 	    {
-	      CORBA::Object_ptr obj = NS->Resolve(serverName.c_str());
+	      CORBA::Object_var obj = NS->Resolve(serverName.c_str());
 	      if (! CORBA::is_nil(obj))
 		{
 		  found =1;

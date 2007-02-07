@@ -48,6 +48,7 @@
 #endif
 #include <stdlib.h>
 
+#include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
 using namespace std;
@@ -103,7 +104,8 @@ std::string SALOMEDS_Tool::GetTmpDir()
 
   MESSAGE("#### TMP" << aTmpDir.ToCString());
 
-  OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
+  //OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
+  OSD_Protection aProtection(OSD_RWXD, OSD_RWX, OSD_RX, OSD_RX );
   aDir.Build(aProtection);
 
   return aTmpDir.ToCString();
@@ -129,7 +131,8 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
     if(!anOSDFile.Exists()) continue;
 
     OSD_Protection aProtection = anOSDFile.Protection();
-    aProtection.SetUser(OSD_RW);
+    aProtection.SetUser(OSD_RWD);
+    //aProtection.SetSystem(OSD_RW);
     anOSDFile.SetProtection(aProtection);
 
     anOSDFile.Remove();
@@ -138,9 +141,13 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   if(IsDirDeleted) {
     OSD_Path aPath(aDirName);
     OSD_Directory aDir(aPath);
-    OSD_FileIterator anIterator(aPath, '*');
+    OSD_FileIterator* anIterator = new OSD_FileIterator(aPath, '*');
 
-    if(aDir.Exists() && !anIterator.More()) aDir.Remove();
+    if(aDir.Exists() && !anIterator->More())
+		{
+      delete anIterator;
+			aDir.Remove();
+		}
   }
 
 }
@@ -325,7 +332,11 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       aCurrentPos += 8;    
       
       TCollection_AsciiString aFullPath = aTmpDir + aFileName;
+#ifdef WNT
+      ofstream aFile(aFullPath.ToCString(), ios::binary);
+#else
       ofstream aFile(aFullPath.ToCString());
+#endif
       aFile.write((char *)(aBuffer+aCurrentPos), aFileSize); 
       aFile.close();  
       aCurrentPos += aFileSize;

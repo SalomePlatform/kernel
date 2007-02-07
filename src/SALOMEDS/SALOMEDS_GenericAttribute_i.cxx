@@ -119,8 +119,9 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
   }
 */
   // mpv: now servants Destroyed by common algos of CORBA
-  char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::
-    DownCast(theAttr)->GetClassType().ToCString();
+  TCollection_AsciiString aClassType = Handle(SALOMEDSImpl_GenericAttribute)::
+    DownCast(theAttr)->GetClassType();
+  char* aTypeOfAttribute = aClassType.ToCString();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;
   __CreateGenericCORBAAttribute
@@ -131,7 +132,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -140,5 +141,5 @@ CORBA::Long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, C
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   TDF_Attribute* local_impl = _impl.operator->();
-  return ((long)local_impl);
+  return ((CORBA::LongLong)local_impl);
 }

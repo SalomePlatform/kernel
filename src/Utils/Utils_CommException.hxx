@@ -29,7 +29,9 @@
 # if  !defined ( __Utils_CommException_H__ )
 # define __Utils_CommException_H__ )
 
-# include "Utils_SALOME_Exception.hxx"
+#include "SALOME_Utils.hxx"
+
+#include "Utils_SALOME_Exception.hxx"
 
 class UTILS_EXPORT CommException : public SALOME_Exception
 {

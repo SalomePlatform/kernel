@@ -34,6 +34,7 @@ import string
 from omniORB import CORBA
 import CosNaming
 import Engines
+from Utils_Identity import getShortHostName
 
 
 #initialise the ORB
@@ -48,8 +49,7 @@ if rootContext is None:
     sys.exit(1)
 
 #resolve the name /Containers.dir/FactoryServerPy.object
-myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
-machineName= myMachine[0]
+machineName=getShortHostName()
 containerName = "FactoryServerPy"
 name = [CosNaming.NameComponent("Containers","dir"),
         CosNaming.NameComponent(machineName,"dir"),

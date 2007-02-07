@@ -74,7 +74,7 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(string refMachine,
   _refMachine = refMachine;
   _origFileName = origFileName;
   _containerName = containerName;
-  if (_refMachine.empty() or _origFileName.empty())
+  if (_refMachine.empty() || _origFileName.empty())
     {
       INFOS("bad parameters: machine and file name must be given");
     } 
@@ -108,7 +108,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 
   if (CORBA::is_nil(_theFileRef))
     {
-      if (_refMachine.empty() or _origFileName.empty())
+      if (_refMachine.empty() || _origFileName.empty())
 	{
 	  INFOS("not enough parameters: machine and file name must be given");
 	  return "";

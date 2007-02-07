@@ -266,6 +266,24 @@ module SALOMEDS
     void   SetValue(in string value);
   };
   //==========================================================================
+/*! \brief String attribute
+
+    This attribute stores a string value containing arbitrary information.
+*/
+  //==========================================================================
+  interface AttributeString : GenericAttribute
+  {
+/*!
+    Returns the value of this attribute
+*/
+    string Value();
+/*!
+   Sets the value of this attribute
+   \param value This string parameter defines the value of this attribute.
+*/
+    void   SetValue(in string value);
+  };
+  //==========================================================================
 /*! \brief IOR attribute
 
     This attribute stores a string value identifying a runtime object.In particular

@@ -33,11 +33,6 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-
-#ifdef GetObject
-#undef GetObject
-#endif
-
 class SALOMEDS_AttributePythonObject: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributePythonObject
 {
 public:  

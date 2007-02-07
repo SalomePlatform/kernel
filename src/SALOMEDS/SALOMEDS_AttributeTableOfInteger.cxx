@@ -297,6 +297,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRow(int theRow)
   }
   else {
     SALOMEDS::LongSeq_var aRow = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetRow(theRow);
+	aLength = aRow->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aRow[i]);
   }
 
@@ -366,6 +367,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetColumn(int theColumn)
   }
   else {
     SALOMEDS::LongSeq_var aColumn = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetColumn(theColumn);
+	aLength = aColumn->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aColumn[i]);
   }
   return aVector;
@@ -433,6 +435,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRowSetIndices(int theRow)
   else {
     SALOMEDS::LongSeq_var aSet =
       SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetRowSetIndices(theRow);
+	aLength = aSet->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
   return aVector;

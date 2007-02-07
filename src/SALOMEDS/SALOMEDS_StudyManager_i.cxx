@@ -134,9 +134,9 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
       _name_service->Register(Study, study_name);
 
   // Assign the value of the IOR in the study->root
-  const char*  IORStudy = _orb->object_to_string(Study);
+  CORBA::String_var IORStudy = _orb->object_to_string(Study);
 
-  aStudyImpl->SetTransientReference((char*)IORStudy);
+  aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
   _mapOfPOA[Study->StudyId()] = _poa;
 
@@ -166,7 +166,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
-  aStudyImpl->SetTransientReference((char*)IORStudy);
+  aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
   // Register study in the naming service
   // Path to acces the study
@@ -337,7 +337,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
   }
 
   SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(aStudy_servant->_this());
+  CORBA::Object_var obj = aStudy_servant->_this();
+  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(obj);
 
   return aStudy._retn();
 }
@@ -456,7 +457,7 @@ PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_pt
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -465,7 +466,7 @@ CORBA::Long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_StudyManager* aManager = _impl.operator->();
-  return ((long)aManager);
+  return ((CORBA::LongLong)aManager);
 }
 
 //===========================================================================

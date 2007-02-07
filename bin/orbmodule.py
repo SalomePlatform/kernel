@@ -18,50 +18,31 @@
 # 
 import sys,os,time
 import string
+from nameserver import *
 from omniORB import CORBA
 
 # Import the stubs for the Naming service
 import CosNaming
-
-# -----------------------------------------------------------------------------
-
-class Server:
-   XTERM="/usr/bin/X11/xterm -iconic -e "
-   CMD=""
-
-   def run(self):
-       commande=self.XTERM+self.CMD
-       print commande
-       ier=os.system(commande)
-       if ier:print "Commande failed"
-
-# -----------------------------------------------------------------------------
-
-class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   os.system("mkdir -m 777 -p /tmp/logs")
-   LOGDIR="/tmp/logs/" + USER
-   os.system("mkdir -m 777 -p " + LOGDIR)
-   CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
+#from runNS import *
 
 # -----------------------------------------------------------------------------
 
 class client:
 
-   def __init__(self):
+   def __init__(self,args=None):
       #set GIOP message size for bug 10560: impossible to get field values in TUI mode
       sys.argv.extend(["-ORBgiopMaxMsgSize", "104857600"]) ## = 100 * 1024 * 1024
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
       # Initialise the Naming Service
-      self.initNS()
+      print "Obtain a reference to the root naming context"
+      print args 
+      self.initNS(args)
 
    # --------------------------------------------------------------------------
 
-   def initNS(self):
+   def initNS(self,args):
+      print "Obtain a reference to the root naming context"
       # Obtain a reference to the root naming context
       obj         = self.orb.resolve_initial_references("NameService")
       try:
@@ -72,7 +53,7 @@ class client:
           print "Lancement du Naming Service",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer().run()
+      NamingServer(args).run()
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
@@ -161,7 +142,9 @@ class client:
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
-   def waitNSPID(self, theName, thePID, theTypObj = None):
+
+   if sys.platform != "win32":
+    def waitNSPID(self, theName, thePID, theTypObj = None):
       aCount = 0
       aDelta = 0.5
       anObj = None

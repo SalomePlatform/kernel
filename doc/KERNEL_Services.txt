@@ -36,7 +36,7 @@ SALOME services access from a Python shell
 See SALOME_Application_ for detailed instructions to launch a Python
 interpreter with full acces to the SALOME environment and services.
 
-.. _SALOME_Application: ./SALOME_Application.html
+.. _SALOME_Application: ./SALOME_Application.txt
 
 You can use the embedded Python interpreter in Grahic User Interface, or an
 external interpreter, with::
@@ -160,7 +160,7 @@ SWIG is very similar).
 
 .. _FileTransferCORBA: ./tui/KERNEL/classSALOME__FileTransferCORBA.html
 
-The following example shows how to transfer a file from a remote host to the
+The following example shows how to tranfer a file from a remote host to the
 client computer. Remote hostname is 'cli76cc', we would like to copy
 'tkcvs_8_0_3.tar.gz' from remote to local computer. A full pathname is
 required. A container is created on remote computer if it does not exist,

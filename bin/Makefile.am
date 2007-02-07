@@ -57,7 +57,12 @@ dist_salomescript_SCRIPTS=\
 	launchConfigureParser.py \
 	showNS.py \
 	addToKillList.py \
-	NSparam.py
+	NSparam.py \
+	setenv.py \
+	launchSalome.py \
+	nameserver.py \
+        server.py
+
 
 EXTRA_DIST = appliskel
 

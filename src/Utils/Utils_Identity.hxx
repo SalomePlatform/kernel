@@ -29,6 +29,8 @@
 # if !defined(  __IDENTITE_H__ )
 # define __IDENTITE_H__
 
+#include <SALOME_Utils.hxx>
+
 extern "C"
 {
 # include <stdlib.h>
@@ -41,19 +43,6 @@ extern "C"
 #endif
 }
 
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
-#else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
-#endif
 class UTILS_EXPORT Identity
 {
 

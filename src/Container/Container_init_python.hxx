@@ -29,6 +29,8 @@
 #ifndef _CONTAINER_INIT_PYTHON_HXX_
 #define _CONTAINER_INIT_PYTHON_HXX_
 
+#include <SALOME_Container.hxx>
+
 #include <pthread.h>  // must be before Python.h !
 #include <Python.h>
 
@@ -44,20 +46,6 @@
 //      thread state.
 //    - There is no need of C Lock protection of the sequence.
 
-
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#endif
 
 #define Py_ACQUIRE_NEW_THREAD \
   PyEval_AcquireLock(); \

@@ -40,7 +40,8 @@ salomeinclude_HEADERS = \
 		PathPrefix.hxx \
 		SALOME_ModuleCatalog_Parser.hxx \
 		SALOME_ModuleCatalog_Parser_IO.hxx \
-                SALOME_ModuleCatalog_Handler.hxx 
+                SALOME_ModuleCatalog_Handler.hxx \
+		SALOME_ModuleCatalog.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA = TestModuleCatalog.py

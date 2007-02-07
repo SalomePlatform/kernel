@@ -26,8 +26,9 @@
 //  Module : SALOME
 
 #include "NOTIFICATION.hxx"
+#include "SALOME_NOTIFICATION_SWIG.hxx"
 
-class NOTIFICATION_Supplier_Swig {
+class NOTIFICATION_SWIG_EXPORT NOTIFICATION_Supplier_Swig {
   public:
     NOTIFICATION_Supplier_Swig(const char* instanceName, bool notif);
     ~NOTIFICATION_Supplier_Swig();
@@ -37,7 +38,7 @@ class NOTIFICATION_Supplier_Swig {
     NOTIFICATION_Supplier* _supplier;
 };
 
-class NOTIFICATION_Consumer_Swig {
+class NOTIFICATION_SWIG_EXPORT NOTIFICATION_Consumer_Swig {
   public:
     NOTIFICATION_Consumer_Swig();
     ~NOTIFICATION_Consumer_Swig();

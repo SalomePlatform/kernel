@@ -67,7 +67,7 @@ Handle(SALOMEDSImpl_AttributeExpandable) SALOMEDSImpl_AttributeExpandable::Set (
 SALOMEDSImpl_AttributeExpandable::SALOMEDSImpl_AttributeExpandable()
 :SALOMEDSImpl_GenericAttribute("AttributeExpandable")
 {
-  myValue = 0;
+  myValue = 1;
 }
 
 //=======================================================================

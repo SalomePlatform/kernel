@@ -17,11 +17,10 @@ APPLI_HOME=`dirname $0`
 
 # --- set omniORB configuration to current session if any
 
-myhost=`hostname`
-fileOmniConfig=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+fileOmniConfig=${HOME}/${APPLI}/.omniORB_last.cfg
 
 if [ -f $fileOmniConfig ]; then
-  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
   export OMNIORB_CONFIG
 
   # --- set environment variables for port and hostname of NamingService

@@ -25,16 +25,15 @@
 #include "hdfi.h"
 #include <hdf5.h>
 
-hdf_type
-HDFattrGetSize(hdf_idt id)
+hdf_type HDFattrGetSize( hdf_idt id )
 {
+  hdf_type ret;
   hdf_idt type_id;
-  int ret; 
 
   if ((type_id = H5Aget_type(id)) < 0)
     return HDF_NONE;
 
-  ret = H5Tget_size(type_id);
+  ret = (hdf_type)H5Tget_size(type_id);
 
   H5Tclose(type_id);
 

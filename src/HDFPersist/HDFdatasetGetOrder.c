@@ -32,7 +32,7 @@ HDFdatasetGetOrder(hdf_idt dataset_id)
   hdf_byte_order order;
 
   if ((type_id = H5Dget_type(dataset_id)) < 0)
-    return -1;
+    return H5T_ORDER_ERROR;
 
   order = H5Tget_order(type_id);
 

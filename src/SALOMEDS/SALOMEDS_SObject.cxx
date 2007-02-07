@@ -21,8 +21,6 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-
-
 #include <string>
 #include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfTransient.hxx>
@@ -43,6 +41,7 @@
 #include "Utils_SINGLETON.hxx" 
 
 #ifdef WIN32
+#include <windows.h>
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -62,7 +61,9 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64-bit platforms use 8-bytes long for pointer storage
+  theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_SObject*)(addr));
     _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);

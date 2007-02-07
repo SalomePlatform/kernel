@@ -61,7 +61,7 @@ CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(const char* theID)
  * Purpose  : Associates a double value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, const CORBA::Double theValue)
+void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, CORBA::Double theValue)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();

@@ -31,6 +31,7 @@
 #ifndef WNT
 #include <dlfcn.h>
 #else
+#include <windows.h>
 #endif
 
 //#define _DEVDEBUG_
@@ -92,11 +93,17 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 
 	  // --- start a trace Collector
 
-	  char* traceKind = getenv("SALOME_trace");
+	  char* traceKind;
+	  bool isNotDefined = false;
+	  if ( getenv("SALOME_trace") )
+	    traceKind = getenv("SALOME_trace");
+	  else
+	    isNotDefined = true; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
+	  
 	  assert(traceKind);
 	  //cerr<<"SALOME_trace="<<traceKind<<endl;
 
-	  if (strcmp(traceKind,"local")==0)
+	  if ( isNotDefined || strcmp(traceKind,"local")==0 )
 	    {
 	      _myThreadTrace = LocalTraceCollector::instance();
 	    }
@@ -112,27 +119,33 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	    }
 	  else // --- try a dynamic library
 	    {
-	      void* handle;
 #ifndef WNT
+	      void* handle;
 	      string impl_name = string ("lib") + traceKind 
 		+ string("TraceCollector.so");
 	      handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
+	      HINSTANCE handle;
 	      string impl_name = string ("lib") + traceKind + string(".dll");
-	      handle = dlopen( impl_name.c_str() , 0 ) ;
+	      handle = LoadLibrary( impl_name.c_str() );
 #endif
 	      if ( handle )
 		{
 		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
+#ifndef WNT
 		  FACTORY_FUNCTION TraceCollectorFactory =
 		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
-		  char *error ;
-		  if ( (error = dlerror() ) != NULL)
-		    {
+#else
+		  FACTORY_FUNCTION TraceCollectorFactory =
+		    (FACTORY_FUNCTION)GetProcAddress(handle, "SingletonInstance");
+#endif
+		  if ( !TraceCollectorFactory )
+		  {
 		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
-		      cerr << "dlerror: " << error << endl;
-		      assert(error == NULL); // to give file and line
-		      exit(1);               // in case assert is deactivated
+#ifndef WNT
+		      cerr << "dlerror: " << dlerror() << endl;
+#endif
+		      exit( 1 );
 		    }
 		  _myThreadTrace = (TraceCollectorFactory) ();
 		}

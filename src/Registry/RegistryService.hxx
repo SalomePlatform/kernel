@@ -29,24 +29,12 @@
 # ifndef __RegistryService_h__
 # define __RegistryService_h__
 
+#include <SALOME_Registry.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Registry)
 
 # include <map>
-
-#if defined REGISTRY_EXPORTS
-#if defined WIN32
-#define REGISTRY_EXPORT __declspec( dllexport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#else
-#if defined WNT
-#define REGISTRY_EXPORT __declspec( dllimport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#endif
 
 class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {

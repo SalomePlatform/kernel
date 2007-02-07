@@ -247,7 +247,7 @@ public:
   
   virtual SALOMEDS::Study::ListOfSObject* FindDependances(SALOMEDS::SObject_ptr anObject);
 
-  virtual SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties();
+  virtual SALOMEDS::AttributeStudyProperties_ptr GetProperties();
 
   virtual char* GetLastModificationDate();
 
@@ -298,6 +298,6 @@ public:
 
   virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
 
-  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 #endif

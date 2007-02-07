@@ -29,25 +29,13 @@
 #ifndef SALOME_CATALOG_HANDLER_H
 #define SALOME_CATALOG_HANDLER_H
 
+#include <SALOME_ModuleCatalog.hxx>
+
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
 #include <stack>
 #include <map>
-
-#if defined MODULECATALOG_EXPORTS
-#if defined WIN32
-#define MODULECATALOG_EXPORT __declspec( dllexport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#else
-#if defined WNT
-#define MODULECATALOG_EXPORT __declspec( dllimport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#endif
 
 class MODULECATALOG_EXPORT SALOME_ModuleCatalog_Handler : public QXmlDefaultHandler 
 {

@@ -68,7 +68,7 @@ Handle(SALOMEDSImpl_AttributeSelectable) SALOMEDSImpl_AttributeSelectable::Set (
 SALOMEDSImpl_AttributeSelectable::SALOMEDSImpl_AttributeSelectable()
 :SALOMEDSImpl_GenericAttribute("AttributeSelectable")
 {
-  myValue = 0;
+  myValue = 1;
 }
 
 //=======================================================================

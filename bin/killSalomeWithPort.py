@@ -24,11 +24,13 @@ import os, sys, pickle, signal, commands
 def getPiDict(port,appname='salome',full=True):
     from Utils_Identity import getShortHostName
 
-    host = os.getenv("HOSTNAME")
+    # get hostname by special function in all cases to
+    # have always same result in lower case at win32
+    host = getShortHostName()
+    if not host:
+        host = os.getenv("HOSTNAME")
     if not host:
         host = os.getenv("HOST")
-    if not host:
-        host = getShortHostName()
 
     filedict = []
     filedict.append( os.getenv('USER') )          # user name
@@ -46,7 +48,7 @@ def appliCleanOmniOrbConfig(port):
     """
     remove omniorb config files related to the port in SALOME application:
     - ${HOME}/${APPLI}/.omniORB_${HOSTNAME}_${NSPORT}.cfg
-    - ${HOME}/${APPLI}/.omniORB_${HOSTNAME}_last.cfg
+    - ${HOME}/${APPLI}/.omniORB_last.cfg
     the last is removed only if the link points to the first file.
     """
     from Utils_Identity import getShortHostName
@@ -59,7 +61,7 @@ def appliCleanOmniOrbConfig(port):
         home='%s/%s'%(home,appli)
         hostname=getShortHostName()
         omniorb_config = '%s/.omniORB_%s_%s.cfg'%(home,hostname, str(port))
-        last_running_config = '%s/.omniORB_%s_last.cfg'%(home, hostname)
+        last_running_config = '%s/.omniORB_last.cfg'%(home)
         if os.access(last_running_config,os.F_OK):
             pointedPath = os.readlink(last_running_config)
             if pointedPath[0] != '/':
@@ -86,8 +88,9 @@ def killMyPort(port):
         pass
         
     if found:
-        cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'"` ; echo $pid > /tmp/logs/'+os.getenv('USER')+"/_"+port+'_Pid_omniNames.log'
-        a = os.system(cmd)
+        if not sys.platform == 'win32':        
+            cmd = 'pid=`ps -eo pid,command | egrep "[0-9] omniNames -start '+str(port)+'"` ; echo $pid > /tmp/logs/'+os.getenv('USER')+"/_"+port+'_Pid_omniNames.log'
+            a = os.system(cmd)
         try:
             fpidomniNames=open('/tmp/logs/'+os.getenv('USER')+"/_"+port+'_Pid_omniNames.log')
             prc = fpidomniNames.read()
@@ -97,7 +100,11 @@ def killMyPort(port):
                     if field == "omniNames" :
                         if pidfield != "egrep" :
                             print 'stop process '+pidfield+' : omniNames'
-                            os.system('kill -9 '+pidfield)
+                            if sys.platform == "win32":
+                                import win32pm
+                                win32pm.killpid(int(pidfield),0)
+                            else:
+                                os.system('kill -9 '+pidfield)
                     pidfield = field
         except:
             pass
@@ -110,7 +117,11 @@ def killMyPort(port):
                 for pid, cmd in process_id.items():
                     print "stop process %s : %s"% (pid, cmd[0])
                     try:
-                        os.kill(int(pid),signal.SIGKILL)
+                        if sys.platform == "win32":
+                          import win32pm
+                          win32pm.killpid(int(pid),0)
+                        else:
+                           os.kill(int(pid),signal.SIGKILL)
                     except:
                         print "  ------------------ process %s : %s not found"% (pid, cmd[0])
                         pass

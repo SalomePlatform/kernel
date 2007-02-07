@@ -83,7 +83,9 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64 bit platform use 8-bytes long for pointer storage
+    theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_Study*)(addr));
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
@@ -691,7 +693,8 @@ vector<string> SALOMEDS_Study::GetLockerID()
 
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
-  return _orb->object_to_string(theObject); 
+  CORBA::String_var objStr = _orb->object_to_string(theObject);
+  return string( objStr.in() );
 }
 
 CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR) 

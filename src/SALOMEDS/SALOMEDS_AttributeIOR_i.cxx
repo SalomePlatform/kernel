@@ -41,5 +41,6 @@ void SALOMEDS_AttributeIOR_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  Handle(SALOMEDSImpl_AttributeIOR)::DownCast(_impl)->SetValue(TCollection_ExtendedString(Str));
+  TCollection_ExtendedString anExtStr((char *)Str.in());
+  Handle(SALOMEDSImpl_AttributeIOR)::DownCast(_impl)->SetValue(anExtStr);
 }

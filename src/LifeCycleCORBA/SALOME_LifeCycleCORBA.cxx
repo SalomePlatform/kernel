@@ -32,7 +32,9 @@
 #include <iomanip>
 
 #include <time.h>
-#include <sys/time.h>
+#ifndef WNT
+  #include <sys/time.h>
+#endif
 
 #include "OpUtil.hxx"
 #include "utilities.h"
@@ -279,7 +281,8 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 	Catalog->GetComponent(componentName);
       if (CORBA::is_nil (compoInfo)) 
 	{
-	  INFOS("Catalog Error : Component not found in the catalog");
+	  INFOS("Catalog Error: Component not found in the catalog" );
+          INFOS( componentName );	  
 	  return false;
 	}
       else return true;

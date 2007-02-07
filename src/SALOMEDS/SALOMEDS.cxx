@@ -50,6 +50,8 @@
 #include "SALOMEDS_StudyManager_i.hxx"
 #endif
 
+#include "SALOMEDS_Defines.hxx"
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -91,37 +93,41 @@ void SALOMEDS::unlock()
 
 extern "C"
 {
-
-SALOMEDSClient_StudyManager* StudyManagerFactory()
+SALOMEDS_EXPORT
+  SALOMEDSClient_StudyManager* StudyManagerFactory()
 {
   return new SALOMEDS_StudyManager();
 }
-
-SALOMEDSClient_Study* StudyFactory(SALOMEDS::Study_ptr theStudy)
+SALOMEDS_EXPORT
+  SALOMEDSClient_Study* StudyFactory(SALOMEDS::Study_ptr theStudy)
 {
   if(CORBA::is_nil(theStudy)) return NULL;
   return new SALOMEDS_Study(theStudy);
 }
 
-SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
+SALOMEDS_EXPORT
+  SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
 {
   if(CORBA::is_nil(theSObject)) return NULL;
   return new SALOMEDS_SObject(theSObject);
 }
 
-SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
+SALOMEDS_EXPORT
+  SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
 {
   if(CORBA::is_nil(theSComponent)) return NULL;
   return new SALOMEDS_SComponent(theSComponent);
 }
 
-SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilder)
+SALOMEDS_EXPORT
+  SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilder)
 {
   if(CORBA::is_nil(theBuilder)) return NULL;
   return new SALOMEDS_StudyBuilder(theBuilder);
 }
 
-SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+SALOMEDS_EXPORT
+  SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
 {
   SALOME_NamingService namingService(orb);
   CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
@@ -135,13 +141,14 @@ SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServ
   return new SALOMEDS_StudyManager();
 }
 
-SALOMEDSClient_IParameters* GetIParameters(const _PTR(AttributeParameter)& ap)
+SALOMEDS_EXPORT
+  SALOMEDSClient_IParameters* GetIParameters(const _PTR(AttributeParameter)& ap)
 {
   return new SALOMEDS_IParameters(ap);
 }
 
-
-SALOMEDS::SObject_ptr ConvertSObject(const _PTR(SObject)& theSObject)
+SALOMEDS_EXPORT
+  SALOMEDS::SObject_ptr ConvertSObject(const _PTR(SObject)& theSObject)
 {
   
   SALOMEDS_SObject* so = _CAST(SObject, theSObject);
@@ -149,14 +156,16 @@ SALOMEDS::SObject_ptr ConvertSObject(const _PTR(SObject)& theSObject)
   return so->GetSObject();
 }
 
-SALOMEDS::Study_ptr ConvertStudy(const _PTR(Study)& theStudy)
+SALOMEDS_EXPORT
+  SALOMEDS::Study_ptr ConvertStudy(const _PTR(Study)& theStudy)
 {
   SALOMEDS_Study* study = _CAST(Study, theStudy);
   if(!theStudy || !study) return SALOMEDS::Study::_nil();
   return study->GetStudy();
 }
 
-SALOMEDS::StudyBuilder_ptr ConvertBuilder(const _PTR(StudyBuilder)& theBuilder)
+SALOMEDS_EXPORT
+  SALOMEDS::StudyBuilder_ptr ConvertBuilder(const _PTR(StudyBuilder)& theBuilder)
 {
   SALOMEDS_StudyBuilder* builder = _CAST(StudyBuilder, theBuilder);
   if(!theBuilder || !builder) return SALOMEDS::StudyBuilder::_nil(); 

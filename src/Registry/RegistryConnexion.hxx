@@ -33,23 +33,11 @@
 # if !defined( __RegistryConnexion_HXX__ )
 # define __RegistryConnexion_HXX__
 
+#include <SALOME_Registry.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include <string>
-
-#if defined REGISTRY_EXPORTS
-#if defined WIN32
-#define REGISTRY_EXPORT __declspec( dllexport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#else
-#if defined WNT
-#define REGISTRY_EXPORT __declspec( dllimport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#endif
 
 class REGISTRY_EXPORT RegistryConnexion
 {

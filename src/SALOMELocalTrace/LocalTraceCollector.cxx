@@ -56,9 +56,8 @@ BaseTraceCollector* LocalTraceCollector::instance()
 
 	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
-	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
-				   LocalTraceCollector::run, (void *)bid);
+				   LocalTraceCollector::run, NULL);
 	  sem_wait(&_sem);
 	  _singleton = myInstance; // _singleton known only when init done
 	}
