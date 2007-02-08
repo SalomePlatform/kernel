@@ -619,6 +619,8 @@ SALOME_ResourcesManager::BuildCommand
   command += containerName;
   command += "_";
   command += machine;
+  command += "_";
+  command += getenv( "USER" ) ;
   command += ".log 2>&1 &" ;
 
   SCRUTE( command );
@@ -891,6 +893,8 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
   command += _NS->ContainerName(params);
   command += "_";
   command += machine;
+  command += "_";
+  command += getenv( "USER" ) ;
   command += ".log 2>&1 &";
   SCRUTE(command);
 
