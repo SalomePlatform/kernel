@@ -847,7 +847,7 @@ throw(ServiceUnreachable)
       CosNaming::Name n = ex.rest_of_name;
       
       if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS( "Change_Directory() : " << (char *) n[0].id
+	MESSAGE( "Change_Directory() : " << (char *) n[0].id
 	       << " (" << (char *) n[0].kind << ") not found");
       if (ex.why == CosNaming::NamingContext::not_context)
 	INFOS("Change_Directory() : " << (char *) n[0].id
