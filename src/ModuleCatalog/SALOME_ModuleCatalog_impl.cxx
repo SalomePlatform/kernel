@@ -43,7 +43,8 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 1;
 #endif
 
-static const char* SEPARATOR    = "::";
+static const char* SEPARATOR     = "::";
+static const char* OLD_SEPARATOR = ":";
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalogImpl
@@ -110,9 +111,23 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
     
-    QStringList dirList 
-      = QStringList::split( SEPARATOR, _general_path, 
-			    false ); // skip empty entries
+    QStringList dirList;
+#ifdef WNT
+    dirList = QStringList::split( SEPARATOR, _general_path, 
+	                          false ); // skip empty entries
+#else
+    //check for new format
+    int isNew = QString( _general_path ).contains(SEPARATOR);
+    if ( isNew > 0 ) {
+      //using new format
+      dirList = QStringList::split( SEPARATOR, _general_path, 
+	                            false ); // skip empty entries
+    } else {
+      //support old format
+      dirList = QStringList::split( OLD_SEPARATOR, _general_path, 
+	                            false ); // skip empty entries
+    }   
+#endif
     
     for ( int i = 0; i < dirList.count(); i++ ) {
       //QFileInfo fileInfo( dirList[ i ] );
