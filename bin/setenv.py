@@ -135,10 +135,10 @@ def set_env(args, modules_list, modules_root_dir):
             module_root_dir = modules_root_dir[module]
             modules_root_dir_list[:0] = [module_root_dir]
             if sys.platform == "win32":
-              add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "PATH")
             else:
-              add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+              add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "LD_LIBRARY_PATH")
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
@@ -149,13 +149,13 @@ def set_env(args, modules_list, modules_root_dir):
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PYTHONPATH")
             # add lib before site-packages to load script instead of dll if any (win32 platform)
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+            add_path(os.path.join(module_root_dir,get_lib_dir(),salome_subdir),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
+            add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
+            add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir,
                                   "shared_modules"),
