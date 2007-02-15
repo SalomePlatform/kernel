@@ -343,44 +343,19 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection_AsciiString& anObjectIOR)
 {
   _errorCode = "";
-
-  // firstly searching in the datamap for optimization
+  
+  Handle(SALOMEDSImpl_SObject) aResult = NULL;
+  
+  // searching in the datamap for optimization
   if (myIORLabels.IsBound(anObjectIOR)) {
-    Handle(SALOMEDSImpl_SObject) aResult = GetSObject(myIORLabels.Find(anObjectIOR));
+    aResult = GetSObject(myIORLabels.Find(anObjectIOR));
     // 11 oct 2002: forbidden attributes must be checked here
-    if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
+    if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID()))
       myIORLabels.UnBind(anObjectIOR);
-    } else
-      return aResult;
   }
-  // Iterate to all components defined in the study
-  // After testing the component name, iterate in all objects defined under
-  // components (function _FindObject)
-  bool _find = false;
-  Handle(SALOMEDSImpl_SObject) RefSO = NULL;
-
-  SALOMEDSImpl_SComponentIterator it = NewComponentIterator();
-  Handle(SALOMEDSImpl_SComponent) SC;
-  for (; it.More();it.Next()){
-    if(!_find)
-      {
-	SC = it.Value();
-	TCollection_AsciiString ior = SC->GetIOR();
-	if (ior != "")
-	{
-	  if (ior ==  anObjectIOR)
-	    {
-	      _find = true;
-	      RefSO = SC;
-	    }
-	}
-	if (!_find)
-	  RefSO =  _FindObjectIOR(SC, anObjectIOR, _find);
-      }
-  }
-
-  if(RefSO.IsNull()) _errorCode = "No object was found";
-  return RefSO;
+  
+  if(aResult.IsNull()) _errorCode = "No object was found";
+  return aResult;
 }
 
 //============================================================================
