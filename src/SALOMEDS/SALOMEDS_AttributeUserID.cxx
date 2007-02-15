@@ -25,6 +25,8 @@
 #include "SALOMEDS.hxx"
 
 #include <string>
+#include <stdexcept>
+
 #include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_GUID.hxx>
@@ -55,6 +57,8 @@ std::string SALOMEDS_AttributeUserID::Value()
 
 void SALOMEDS_AttributeUserID::SetValue(const std::string& value)
 {
+  if(!Standard_GUID::CheckGUIDFormat((char*)value.c_str())) throw invalid_argument("Invalid GUID");
+
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;

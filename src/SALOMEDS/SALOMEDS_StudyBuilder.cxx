@@ -41,6 +41,7 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 #include <string>
+#include <stdexcept>
 
 #include <TCollection_AsciiString.hxx> 
 #include <TDF_Attribute.hxx>
@@ -97,6 +98,8 @@ _PTR(SComponent) SALOMEDS_StudyBuilder::NewComponent(const std::string& Componen
 void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& theSCO, 
 						     const std::string& ComponentIOR)
 {
+  if(theSCO) return;
+
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) {
     CheckLocked();
@@ -113,6 +116,7 @@ void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& the
 
 void SALOMEDS_StudyBuilder::RemoveComponent(const _PTR(SComponent)& theSCO)
 {
+  if(!theSCO) return;
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) {
     CheckLocked();
@@ -188,6 +192,8 @@ void SALOMEDS_StudyBuilder::AddDirectory(const std::string& thePath)
 
 void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::string& theIOR)
 {
+  if(!theSCO) return;
+
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
@@ -217,6 +223,8 @@ void SALOMEDS_StudyBuilder::Load(const _PTR(SObject)& theSCO)
 
 void SALOMEDS_StudyBuilder::RemoveObject(const _PTR(SObject)& theSO)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -229,6 +237,8 @@ void SALOMEDS_StudyBuilder::RemoveObject(const _PTR(SObject)& theSO)
 
 void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(const _PTR(SObject)& theSO)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -241,9 +251,10 @@ void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(const _PTR(SObject)& theSO)
 
 _PTR(GenericAttribute) SALOMEDS_StudyBuilder::FindOrCreateAttribute(const _PTR(SObject)& theSO, 
 								    const std::string& aTypeOfAttribute)
-{
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+{  
   SALOMEDSClient_GenericAttribute* anAttr = NULL;
+  if(!theSO) return _PTR(GenericAttribute)(anAttr);
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
@@ -271,6 +282,9 @@ bool SALOMEDS_StudyBuilder::FindAttribute(const _PTR(SObject)& theSO,
 					  const std::string& aTypeOfAttribute)
 {
   bool ret;
+
+  if(!theSO) return false;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -290,6 +304,8 @@ bool SALOMEDS_StudyBuilder::FindAttribute(const _PTR(SObject)& theSO,
 
 void SALOMEDS_StudyBuilder::RemoveAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -302,6 +318,8 @@ void SALOMEDS_StudyBuilder::RemoveAttribute(const _PTR(SObject)& theSO, const st
 
 void SALOMEDS_StudyBuilder::Addreference(const _PTR(SObject)& me, const _PTR(SObject)& thereferencedObject)
 {
+  if(!me || !thereferencedObject) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(me.get());
   SALOMEDS_SObject* aRefSO = dynamic_cast<SALOMEDS_SObject*>(thereferencedObject.get());
   if (_isLocal) {
@@ -315,6 +333,7 @@ void SALOMEDS_StudyBuilder::Addreference(const _PTR(SObject)& me, const _PTR(SOb
 
 void SALOMEDS_StudyBuilder::RemoveReference(const _PTR(SObject)& me)
 {
+  if(!me) return;
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(me.get());
   if (_isLocal) {
     CheckLocked();
@@ -327,6 +346,9 @@ void SALOMEDS_StudyBuilder::RemoveReference(const _PTR(SObject)& me)
 
 void SALOMEDS_StudyBuilder::SetGUID(const _PTR(SObject)& theSO, const std::string& theGUID)
 {
+  if(!theSO) return;
+  if(!Standard_GUID::CheckGUIDFormat((char*)theGUID.c_str())) throw invalid_argument("Invalid GUID");
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -339,6 +361,8 @@ void SALOMEDS_StudyBuilder::SetGUID(const _PTR(SObject)& theSO, const std::strin
  
 bool SALOMEDS_StudyBuilder::IsGUID(const _PTR(SObject)& theSO, const std::string& theGUID)
 {
+  if(!theSO || !Standard_GUID::CheckGUIDFormat((char*)theGUID.c_str())) return false;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   bool ret;
   if (_isLocal) {
@@ -482,6 +506,8 @@ void SALOMEDS_StudyBuilder::CheckLocked()
 
 void SALOMEDS_StudyBuilder::SetName(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -494,6 +520,8 @@ void SALOMEDS_StudyBuilder::SetName(const _PTR(SObject)& theSO, const std::strin
 
 void SALOMEDS_StudyBuilder::SetComment(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();
@@ -506,6 +534,8 @@ void SALOMEDS_StudyBuilder::SetComment(const _PTR(SObject)& theSO, const std::st
 
 void SALOMEDS_StudyBuilder::SetIOR(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  if(!theSO) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   if (_isLocal) {
     CheckLocked();

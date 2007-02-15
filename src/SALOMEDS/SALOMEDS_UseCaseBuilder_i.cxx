@@ -101,7 +101,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr the
 {
   SALOMEDS::Locker lock;
   if(_impl.IsNull() || theFirst->_is_nil() || theNext->_is_nil()) return 0;
-  return _impl->AppendTo(_impl->GetSObject(theFirst->GetID()), _impl->GetSObject(theNext->GetID()));
+  return _impl->InsertBefore(_impl->GetSObject(theFirst->GetID()), _impl->GetSObject(theNext->GetID()));
 }
 
 
@@ -218,7 +218,9 @@ SALOMEDS::UseCaseIterator_ptr SALOMEDS_UseCaseBuilder_i::GetUseCaseIterator(SALO
   SALOMEDS::Locker lock;
   
   if(_impl.IsNull()) return SALOMEDS::UseCaseIterator::_nil();
-  Handle(SALOMEDSImpl_UseCaseIterator) anItr = _impl->GetUseCaseIterator(_impl->GetSObject(theObject->GetID()));
+  Handle(SALOMEDSImpl_UseCaseIterator) anItr;
+  if(!CORBA::is_nil(theObject)) anItr = _impl->GetUseCaseIterator(_impl->GetSObject(theObject->GetID()));
+  else anItr = _impl->GetUseCaseIterator(NULL);
   SALOMEDS_UseCaseIterator_i* aServant = new SALOMEDS_UseCaseIterator_i(anItr, _orb);
   SALOMEDS::UseCaseIterator_var anIterator = SALOMEDS::UseCaseIterator::_narrow(aServant->_this());
   return anIterator._retn(); 

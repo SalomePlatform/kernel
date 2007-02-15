@@ -24,8 +24,6 @@
 #ifndef __SALOMEDS_STUDYBUILDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
 
-#include "SALOMEDS_Defines.hxx"
-
 // std C++ headers
 #include <iostream>
 
@@ -39,7 +37,7 @@
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_EXPORT SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
+class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
                                public PortableServer::RefCountServantBase 
 {
 private:
@@ -132,5 +130,8 @@ public:
   virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
+
+  Handle(SALOMEDSImpl_StudyBuilder) GetImpl() { return _impl; }
+
 };
 #endif

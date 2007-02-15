@@ -200,11 +200,19 @@ _PTR(SObject) SALOMEDS_UseCaseBuilder::AddUseCase(const std::string& theName)
 _PTR(UseCaseIterator) SALOMEDS_UseCaseBuilder::GetUseCaseIterator(const _PTR(SObject)& theObject) 
 {
   SALOMEDS_UseCaseIterator* it = NULL;
-  SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
+  SALOMEDS_SObject* obj = (theObject)?dynamic_cast<SALOMEDS_SObject*>(theObject.get()):NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(obj->GetLocalImpl()));
+    if(obj)
+      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(obj->GetLocalImpl()));
+    else
+      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(NULL));
   }
-  else it = new SALOMEDS_UseCaseIterator(_corba_impl->GetUseCaseIterator(obj->GetCORBAImpl()));
+  else {
+    if(obj)
+      it = new SALOMEDS_UseCaseIterator(_corba_impl->GetUseCaseIterator(obj->GetCORBAImpl()));
+    else
+      it = new SALOMEDS_UseCaseIterator(_corba_impl->GetUseCaseIterator(SALOMEDS::SObject::_nil()));
+  }
   return _PTR(UseCaseIterator)(it);
 }

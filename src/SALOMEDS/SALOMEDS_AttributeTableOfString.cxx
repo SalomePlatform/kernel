@@ -296,6 +296,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetRow(int theRow)
   }
   else {
     SALOMEDS::StringSeq_var aRow = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetRow(theRow);
+    aLength = aRow->length();
     for (i = 0; i < aLength; i++) aVector.push_back((char*)aRow[i].in());
   }
 
@@ -338,7 +339,7 @@ void SALOMEDS_AttributeTableOfString::SetColumn(int theColumn, const std::vector
     Handle(TColStd_HSequenceOfExtendedString) aColumn = new TColStd_HSequenceOfExtendedString;
     for (int i = 0; i < aLength; i++) aColumn->Append((char*)theData[i].c_str());
     try {
-      aTable->SetRowData(theColumn, aColumn);
+      aTable->SetColumnData(theColumn, aColumn);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfString::IncorrectArgumentLength();
@@ -348,7 +349,7 @@ void SALOMEDS_AttributeTableOfString::SetColumn(int theColumn, const std::vector
     SALOMEDS::StringSeq_var aColumn = new SALOMEDS::StringSeq();
     aColumn->length(aLength);
     for (i = 0; i < aLength; i++) aColumn[i] = (char*)theData[i].c_str();
-    SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRow(theColumn, aColumn);
+    SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumn(theColumn, aColumn);
   }
 }
 
@@ -368,6 +369,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetColumn(int theColum
   else {
     SALOMEDS::StringSeq_var aColumn =
       SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetColumn(theColumn);
+    aLength = aColumn->length();  
     for (i = 0; i < aLength; i++) aVector.push_back(aColumn[i].in());
   }
   return aVector;
@@ -435,6 +437,7 @@ std::vector<int> SALOMEDS_AttributeTableOfString::GetRowSetIndices(int theRow)
   else {
     SALOMEDS::LongSeq_var aSet =
       SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetRowSetIndices(theRow);
+    aLength = aSet->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
   return aVector;

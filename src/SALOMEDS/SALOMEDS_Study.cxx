@@ -83,9 +83,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-  CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64 bit platform use 8-bytes long for pointer storage
-    theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
-
+  long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_Study*)(addr));
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
@@ -246,9 +244,15 @@ _PTR(SObject) SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
   SALOMEDSClient_SObject* aSO = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aSO = new SALOMEDS_SObject(_local_impl->CreateObjectID((char*)anObjectID.c_str()));
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->CreateObjectID((char*)anObjectID.c_str());
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    aSO = new SALOMEDS_SObject(aSO_impl);
   }
-  else aSO = new SALOMEDS_SObject(_corba_impl->CreateObjectID((char*)anObjectID.c_str())); 
+  else { 
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->CreateObjectID((char*)anObjectID.c_str());
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return _PTR(SObject)(aSO);
 }
 
@@ -290,6 +294,7 @@ _PTR(SObject) SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
 
 std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
 {
+  if(!theSO) return "";
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   std::string aPath;
   if (_isLocal) {
@@ -693,8 +698,7 @@ vector<string> SALOMEDS_Study::GetLockerID()
 
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
-  CORBA::String_var objStr = _orb->object_to_string(theObject);
-  return string( objStr.in() );
+  return _orb->object_to_string(theObject); 
 }
 
 CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR) 

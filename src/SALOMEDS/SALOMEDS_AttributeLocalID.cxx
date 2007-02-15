@@ -43,7 +43,7 @@ int SALOMEDS_AttributeLocalID::Value()
   int aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = (bool)Handle(SALOMEDSImpl_AttributeLocalID)::DownCast(_local_impl)->Value();
+    aValue = Handle(SALOMEDSImpl_AttributeLocalID)::DownCast(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeLocalID::_narrow(_corba_impl)->Value();
   return aValue;

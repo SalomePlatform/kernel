@@ -56,9 +56,6 @@ IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyManager, MMgt_TShared )
 
 #define USE_CASE_LABEL_ID                       "0:2"
-#define AUTO_SAVE_GUID                          "128268A3-71C9-4036-89B1-F81BD6A4FCF2"
-#define AUTO_SAVE_TAG                           "0:8"
-#define AUTO_SAVE_TIME_OUT_IN_SECONDS           1200
 
 static void SaveAttributes(Handle(SALOMEDSImpl_SObject) SO, HDFgroup *hdf_group_sobject);
 static void ReadAttributes(const Handle(SALOMEDSImpl_Study)&, const Handle(SALOMEDSImpl_SObject)&, HDFdataset* );
@@ -503,7 +500,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
   if (aLocked) aStudy->GetProperties()->SetLocked(false);
 
   Handle(SALOMEDSImpl_StudyBuilder) SB= aStudy->NewBuilder();
-  map<string, SALOMEDSImpl_Driver*> aMapTypeDriver; // IPAL13339
+  map<char*, SALOMEDSImpl_Driver*> aMapTypeDriver;
 
   if(aStudy.IsNull()) {
     _errorCode = "Study is null";
@@ -558,11 +555,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 
       SALOMEDSImpl_SComponentIterator itcomponent = aStudy->NewComponentIterator();
 
-      //SRN: Added 17 Nov, 2003
-      Handle(SALOMEDSImpl_SObject) anAutoSaveSO = aStudy->FindObjectID(AUTO_SAVE_TAG);
-      //SRN: End
       for (; itcomponent.More(); itcomponent.Next())
-	{
+    	{
 	  Handle(SALOMEDSImpl_SComponent) sco = itcomponent.Value();
 
 	  TCollection_AsciiString scoid = sco->GetID();
@@ -570,46 +564,6 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 	  hdf_sco_group->CreateOnDisk();
 
 	  TCollection_AsciiString componentDataType = sco->ComponentDataType();
-
-	  //SRN: Added 17 Nov 2003: If there is a specified attribute, the component peforms a special save
-	  if(!anAutoSaveSO.IsNull() && SB->IsGUID(sco, AUTO_SAVE_GUID)) {
-
-	    Handle(SALOMEDSImpl_AttributeTableOfString) aTable;
-	    if(anAutoSaveSO->GetLabel().FindAttribute(SALOMEDSImpl_AttributeTableOfString::GetID(), aTable)) {
-	      Standard_Integer nbRows = aTable->GetNbRows(), k, aTimeOut = 0;
-              if(nbRows > 0 && aTable->GetNbColumns() > 1) {
-
-		Handle(TColStd_HSequenceOfExtendedString) aRow;
-		for(k=1; k<=nbRows; k++) {
-		  aRow = aTable->GetRowData(k);
-		  if (aRow->Value(1) ==  componentDataType) {
-		    TCollection_AsciiString anEntry = TCollection_AsciiString(aRow->Value(2));
-		    Handle(SALOMEDSImpl_SObject) aCompSpecificSO = aStudy->FindObjectID(anEntry);
-		    if(!aCompSpecificSO.IsNull()) {
-		      Handle(SALOMEDSImpl_AttributeInteger) anInteger;
-		      if(aCompSpecificSO->GetLabel().FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anInteger)) {
-			anInteger->SetValue(-1);
-			while(anInteger->Value() < 0) {
-#ifndef WNT
-				sleep(2);
-#else
-				Sleep(2);
-#endif
-				if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS)
-					break;
-			}
-		      }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
-		    }  // if(!CORBA::is_nil(aCompSpecificSO))
-		  }  // if (strcmp(aRow[0], componentDataType) == 0)
-		}  // for
-
-	      }  // if(nbRows > 0 && aTable->GetNbColumns() > 1)
-
-	    }  // if(anAutoSaveSO->FindAttribute(aTable, "AttributeTableOfString")
-
-	  }  // if(SB->IsGUID(AUTO_SAVE_GUID)
-
-	  //SRN: End
 	  TCollection_AsciiString IOREngine;
 	  if (sco->ComponentIOR(IOREngine))
 	    {

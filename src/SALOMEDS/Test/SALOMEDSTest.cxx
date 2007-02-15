@@ -20,81 +20,50 @@
 
 #include "SALOMEDSTest.hxx"
 
+
+#include "SALOMEDS_StudyManager_i.hxx"
+#include "utilities.h"
+#include "Utils_SINGLETON.hxx"
+#include "Utils_ORB_INIT.hxx"
+#include "SALOME_NamingService.hxx"
+#include "SALOME_LifeCycleCORBA.hxx"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "utilities.h"
-#include "Utils_SALOME_Exception.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
-#include "OpUtil.hxx"
 
 #include "SALOMEDSClient.hxx"
-#include "SALOMEDSClient_ClientFactory.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
+#include "SALOMEDS_StudyManager.hxx"
+#include "SALOMEDS_SObject.hxx"
+
 
 #include <TCollection_AsciiString.hxx>
+#include <Standard_GUID.hxx>
 
 using namespace std;
-
-#define PT_INTEGER 0
-#define PT_REAL    1
-#define PT_BOOLEAN 2
-#define PT_STRING  3
-#define PT_REALARRAY 4
-#define PT_INTARRAY  5
-#define PT_STRARRAY  6
-
-
-#define TRACEFILE "/tmp/traceUnitTest.log"
 
 // ============================================================================
 /*!
  * Set up the environment
  */
 // ============================================================================
-
+ 
 void SALOMEDSTest::setUp()
-{
-  TCollection_AsciiString kernel(getenv("KERNEL_ROOT_DIR"));
-  TCollection_AsciiString subPath("/share/salome/resources/kernel");
-  TCollection_AsciiString csf_var = (kernel+subPath);
-  setenv("CSF_PluginDefaults", csf_var.ToCString(), 0);
-  setenv("CSF_SALOMEDS_ResourcesDefaults", csf_var.ToCString(), 0);
+{  
+  int argc = 1;
+  char* argv[] = {""};
 
-  // --- trace on file
-  char *theFileName = TRACEFILE;
-
-  string s = "file:";
-  s += theFileName;
-  CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
-
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::app);
-  CPPUNIT_ASSERT(traceFile); // file created empty, then closed
-  traceFile.close();
-
-  LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-  CPPUNIT_ASSERT(bp1);
-
-  // --- Get or initialize the orb
-
-  int _argc = 1;
-  char* _argv[] = {""};
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-  _orb = init(_argc , _argv ) ;
+  _orb = init(argc , argv ) ;
+  SALOME_NamingService NS(_orb);
+  CORBA::Object_var obj = NS.Resolve( "/myStudyManager" );
+  _sm = SALOMEDS::StudyManager::_narrow( obj );
 
-  sleep(2);
-
-  // --- Create a SALOME_NamingService instance
-
-  _NS = new SALOME_NamingService;
-
-  sleep(2);
-
-  _NS->init_orb(_orb) ;
+  CPPUNIT_ASSERT( !CORBA::is_nil(_sm) ); 
 }
 
 // ============================================================================
@@ -103,88 +72,73 @@ void SALOMEDSTest::setUp()
  */
 // ============================================================================
 
-void 
-SALOMEDSTest::tearDown()
+void SALOMEDSTest::tearDown()
 {
-  LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-  CPPUNIT_ASSERT(bp1);
-  bp1->deleteInstance(bp1);
-
-  delete _NS;
+  _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
+  vector<string> v = sm->GetOpenStudies();
+  for(int i = 0; i<v.size(); i++) {
+    _PTR(Study) study = sm->GetStudyByName(v[i]);
+    if(study)
+      sm->Close(study);
+  }
 }
+
+#include "SALOMEDSTest_AttributeComment.cxx"
+#include "SALOMEDSTest_AttributeDrawable.cxx"
+#include "SALOMEDSTest_AttributeExpandable.cxx"
+#include "SALOMEDSTest_AttributeExternalFileDef.cxx"
+#include "SALOMEDSTest_AttributeFileType.cxx"
+#include "SALOMEDSTest_AttributeFlags.cxx"
+#include "SALOMEDSTest_AttributeGraphic.cxx"
+#include "SALOMEDSTest_AttributeIOR.cxx"
+#include "SALOMEDSTest_AttributeInteger.cxx"
+#include "SALOMEDSTest_AttributeLocalID.cxx"
+#include "SALOMEDSTest_AttributeName.cxx"
+#include "SALOMEDSTest_AttributeOpened.cxx"
+#include "SALOMEDSTest_AttributeParameter.cxx"
+#include "SALOMEDSTest_AttributePersistentRef.cxx"
+#include "SALOMEDSTest_AttributePixMap.cxx"
+#include "SALOMEDSTest_AttributePythonObject.cxx"
+#include "SALOMEDSTest_AttributeReal.cxx"
+#include "SALOMEDSTest_AttributeSelectable.cxx"
+#include "SALOMEDSTest_AttributeSequenceOfInteger.cxx"
+#include "SALOMEDSTest_AttributeSequenceOfReal.cxx"
+#include "SALOMEDSTest_AttributeStudyProperties.cxx"
+#include "SALOMEDSTest_AttributeTableOfInteger.cxx"
+#include "SALOMEDSTest_AttributeTableOfReal.cxx"
+#include "SALOMEDSTest_AttributeTableOfString.cxx"
+#include "SALOMEDSTest_AttributeTarget.cxx"
+#include "SALOMEDSTest_AttributeTextColor.cxx"
+#include "SALOMEDSTest_AttributeTextHighlightColor.cxx"
+#include "SALOMEDSTest_AttributeTreeNode.cxx"
+#include "SALOMEDSTest_AttributeUserID.cxx"
+#include "SALOMEDSTest_ChildIterator.cxx"
+#include "SALOMEDSTest_SComponent.cxx"
+#include "SALOMEDSTest_SComponentIterator.cxx"
+#include "SALOMEDSTest_SObject.cxx"
+#include "SALOMEDSTest_Study.cxx"
+#include "SALOMEDSTest_StudyBuilder.cxx"
+#include "SALOMEDSTest_StudyManager.cxx"
+#include "SALOMEDSTest_UseCase.cxx"
+
 
 // ============================================================================
 /*!
- * Check AttributeParameter
+ * Set up the environment
  */
 // ============================================================================
-void SALOMEDSTest::testAttributeParameter()
-{
-  CORBA::Object_var obj = _orb->resolve_initial_references( "RootPOA" );
-  PortableServer::POA_var poa = PortableServer::POA::_narrow( obj );
+ 
+void SALOMEDSTest_Embedded::setUp()
+{  
+  int argc = 1;
+  char* argv[] = {""};
 
-  PortableServer::POAManager_var pman = poa->the_POAManager();
-  pman->activate() ;
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  _orb = init(argc , argv ) ;
+  SALOME_NamingService NS(_orb);
+  CORBA::Object_var obj = NS.Resolve( "/myStudyManager_embedded" );
+  _sm = SALOMEDS::StudyManager::_narrow( obj );
 
-  _PTR(StudyManager) sm = ClientFactory::createStudyManager(_orb, poa);
-
-  CPPUNIT_ASSERT(sm);
-
-  _PTR(Study) study = sm->NewStudy("Test");
-
-  CPPUNIT_ASSERT(study);
-
-  _PTR(AttributeParameter) _ap = study->GetCommonParameters("TestComp", 0);
-
-  CPPUNIT_ASSERT(_ap);
-
-  _ap->SetInt("IntValue", 1);
-  CPPUNIT_ASSERT(_ap->IsSet("IntValue", PT_INTEGER));
-  CPPUNIT_ASSERT(_ap->GetInt("IntValue") == 1);
-
-  _ap->SetReal("RealValue", 1.2);
-  CPPUNIT_ASSERT(_ap->IsSet("RealValue", PT_REAL));
-  CPPUNIT_ASSERT(_ap->GetReal("RealValue") == 1.2);
-
-  _ap->SetString("StringValue", "hello");
-  CPPUNIT_ASSERT(_ap->IsSet("StringValue", PT_STRING));
-  CPPUNIT_ASSERT(_ap->GetString("StringValue") == "hello");
-
-  _ap->SetBool("BoolValue", 0);
-  CPPUNIT_ASSERT(_ap->IsSet("BoolValue", PT_BOOLEAN));
-  CPPUNIT_ASSERT(!_ap->GetBool("BoolValue"));
-
-  _ap->SetBool("BoolValue", 0);
-  CPPUNIT_ASSERT(_ap->IsSet("BoolValue", PT_BOOLEAN));
-  CPPUNIT_ASSERT(!_ap->GetBool("BoolValue"));
-
-  vector<int> intArray;
-  intArray.push_back(0);
-  intArray.push_back(1);
-
-  _ap->SetIntArray("IntArray", intArray);
-  CPPUNIT_ASSERT(_ap->IsSet("IntArray", PT_INTARRAY));
-  CPPUNIT_ASSERT(_ap->GetIntArray("IntArray")[0] == 0);
-  CPPUNIT_ASSERT(_ap->GetIntArray("IntArray")[1] == 1); 
-
-  vector<double> realArray;
-  realArray.push_back(0.0);
-  realArray.push_back(1.1);
-  
-  _ap->SetRealArray("RealArray", realArray);
-  CPPUNIT_ASSERT(_ap->IsSet("RealArray", PT_REALARRAY));
-  CPPUNIT_ASSERT(_ap->GetRealArray("RealArray")[0] == 0.0);
-  CPPUNIT_ASSERT(_ap->GetRealArray("RealArray")[1] == 1.1); 
-
-  vector<string> strArray;
-  strArray.push_back("hello");
-  strArray.push_back("world");
-  
-  _ap->SetStrArray("StrArray", strArray);
-  CPPUNIT_ASSERT(_ap->IsSet("StrArray", PT_STRARRAY));
-  CPPUNIT_ASSERT(_ap->GetStrArray("StrArray")[0] == "hello");
-  CPPUNIT_ASSERT(_ap->GetStrArray("StrArray")[1] == "world"); 
+  CPPUNIT_ASSERT( !CORBA::is_nil(_sm) ); 
 }
-
-
-

@@ -25,6 +25,7 @@
 #include "SALOMEDS.hxx"
 
 #include <string>
+#include <stdexcept>
 
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
@@ -248,6 +249,8 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFirst()
 
 void SALOMEDS_AttributeTreeNode::SetTreeID(const std::string& value)
 {
+  if(!Standard_GUID::CheckGUIDFormat((char*)value.c_str())) throw invalid_argument("Invalid GUID");
+
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;

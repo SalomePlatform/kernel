@@ -133,6 +133,9 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const Standard_Integer
 {
   CheckLocked();  
   Backup();
+
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+
   myValue->SetValue(Index, Value);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -151,6 +154,9 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const Standard_Integer Inde
 {
   CheckLocked();  
   Backup();
+
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+
   myValue->Remove(Index);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -162,6 +168,8 @@ Standard_Integer SALOMEDSImpl_AttributeSequenceOfInteger::Length()
 }
 Standard_Integer SALOMEDSImpl_AttributeSequenceOfInteger::Value(const Standard_Integer Index) 
 {
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+
   return myValue->Value(Index);
 }
 

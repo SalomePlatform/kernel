@@ -57,6 +57,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Utils                -I$(srcdir)/$(RPATH)/Utils/Test \
 	-I$(srcdir)/$(RPATH)/ResourcesManager \
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
+	-I$(srcdir)/$(RPATH)/SALOMEDS \
 	-I$(srcdir)/$(RPATH)/SALOMEDSClient \
 	-I$(srcdir)/$(RPATH)/SALOMEDSImpl         -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
 	-I$(top_builddir)/salome_adm/unix \
@@ -107,4 +108,3 @@ TestSALOMEDS_LDADD    = \
 	libSALOMEDSTest.la ../libSalomeDS.la \
 	$(RPATH)/NamingService/Test/libNamingServiceTest.la \
 	$(COMMON_LIBS)
-

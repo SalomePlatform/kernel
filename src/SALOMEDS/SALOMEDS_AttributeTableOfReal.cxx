@@ -296,7 +296,7 @@ std::vector<double> SALOMEDS_AttributeTableOfReal::GetRow(int theRow)
   }
   else {
     SALOMEDS::DoubleSeq_var aRow = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRow(theRow);
-	aLength = aRow->length();
+    aLength = aRow->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aRow[i]);
   }
 
@@ -339,7 +339,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumn(int theColumn, const std::vector<d
     Handle(TColStd_HSequenceOfReal) aColumn = new TColStd_HSequenceOfReal;
     for (int i = 0; i < aLength; i++) aColumn->Append(theData[i]);
     try {
-      aTable->SetRowData(theColumn, aColumn);
+      aTable->SetColumnData(theColumn, aColumn);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
@@ -349,7 +349,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumn(int theColumn, const std::vector<d
     SALOMEDS::DoubleSeq_var aColumn = new SALOMEDS::DoubleSeq();
     aColumn->length(aLength);
     for (i = 0; i < aLength; i++) aColumn[i] = theData[i];
-    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRow(theColumn, aColumn);
+    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumn(theColumn, aColumn);
   }
 }
 
@@ -366,7 +366,7 @@ std::vector<double> SALOMEDS_AttributeTableOfReal::GetColumn(int theColumn)
   }
   else {
     SALOMEDS::DoubleSeq_var aColumn = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetColumn(theColumn);
-	aLength = aColumn->length();
+    aLength = aColumn->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aColumn[i]);
   }
   return aVector;
@@ -432,7 +432,7 @@ std::vector<int> SALOMEDS_AttributeTableOfReal::GetRowSetIndices(int theRow)
   }
   else {
     SALOMEDS::LongSeq_var aSet = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowSetIndices(theRow);
-	aLength = aSet->length();
+    aLength = aSet->length();
     for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
   return aVector;

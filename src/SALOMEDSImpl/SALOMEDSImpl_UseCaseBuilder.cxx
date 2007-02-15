@@ -165,6 +165,8 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const Handle(SALOMEDSImpl_SObject)& t
   if(_root.IsNull() || theFather.IsNull() || theObject.IsNull()) return false;
 
   TDF_Label aFatherLabel = theFather->GetLabel(), aLabel = theObject->GetLabel();
+  if(aFatherLabel == aLabel) return false;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aFather, aNode;
   
   if(aFatherLabel.IsNull()) return false;
@@ -191,6 +193,8 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const Handle(SALOMEDSImpl_SObject
   if(_root.IsNull() || theFirst.IsNull() || theNext.IsNull()) return false;
 
   TDF_Label aFirstLabel = theFirst->GetLabel(), aLabel= theNext->GetLabel();
+  if(aFirstLabel == aLabel) return false;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aFirstNode, aNode;
   
   if(aFirstLabel.IsNull()) return false;
@@ -320,7 +324,7 @@ TCollection_AsciiString SALOMEDSImpl_UseCaseBuilder::GetName()
 {
   TCollection_AsciiString aString;
   if(_root.IsNull()) return aString;
-
+  
   Handle(SALOMEDSImpl_AttributeName) aName;
   if (!_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) return aString;
   aString = TCollection_AsciiString(aName->Value());

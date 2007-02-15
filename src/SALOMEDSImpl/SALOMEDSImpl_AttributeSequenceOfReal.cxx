@@ -132,6 +132,9 @@ void SALOMEDSImpl_AttributeSequenceOfReal::ChangeValue(const Standard_Integer In
 {
   CheckLocked();  
   Backup();
+
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+
   myValue->SetValue(Index, Value);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -150,6 +153,9 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const Standard_Integer Index)
 {
   CheckLocked();  
   Backup();
+
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+
   myValue->Remove(Index);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -162,6 +168,7 @@ Standard_Integer SALOMEDSImpl_AttributeSequenceOfReal::Length()
 
 Standard_Real SALOMEDSImpl_AttributeSequenceOfReal::Value(const Standard_Integer Index) 
 {
+  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
   return myValue->Value(Index);
 }
 

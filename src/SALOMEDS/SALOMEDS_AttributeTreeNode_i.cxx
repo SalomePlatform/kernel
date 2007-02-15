@@ -160,7 +160,7 @@ void SALOMEDS_AttributeTreeNode_i::SetTreeID(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
-  aNode->SetTreeID(Standard_GUID(aNode->ID()));
+  aNode->SetTreeID(Standard_GUID((char*)value));
 }
 
 char* SALOMEDS_AttributeTreeNode_i::GetTreeID() 

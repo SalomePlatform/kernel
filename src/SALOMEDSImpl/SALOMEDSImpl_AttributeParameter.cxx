@@ -119,6 +119,8 @@ void SALOMEDSImpl_AttributeParameter::SetInt(const string& theID, const int& the
 {
   CheckLocked();
 
+  if(theID.size() == 0) return;
+
   Backup();
 
   _ints[theID] = theValue;
@@ -147,6 +149,8 @@ int SALOMEDSImpl_AttributeParameter::GetInt(const string& theID)
 void SALOMEDSImpl_AttributeParameter::SetReal(const string& theID, const double& theValue)
 {
   CheckLocked();
+
+  if(theID.size() == 0) return;
 
   Backup();
 
@@ -177,6 +181,8 @@ void SALOMEDSImpl_AttributeParameter::SetString(const string& theID, const strin
 {
   CheckLocked();
 
+  if(theID.size() == 0) return;
+
   Backup();
 
   _strings[theID] = theValue;
@@ -206,6 +212,8 @@ void SALOMEDSImpl_AttributeParameter::SetBool(const string& theID, const bool& t
 {
   CheckLocked();
 
+  if(theID.size() == 0) return;
+
   Backup();
 
   _bools[theID] = theValue;
@@ -234,6 +242,8 @@ bool SALOMEDSImpl_AttributeParameter::GetBool(const string& theID)
 void SALOMEDSImpl_AttributeParameter::SetRealArray(const string& theID, const vector<double>& theArray)
 {
   CheckLocked();
+
+  if(theID.size() == 0) return;
 
   Backup();
 
@@ -265,6 +275,8 @@ void SALOMEDSImpl_AttributeParameter::SetIntArray(const string& theID, const vec
 {
   CheckLocked();
 
+  if(theID.size() == 0) return;
+
   Backup();
 
   _intarrays[theID] = theArray;
@@ -294,6 +306,8 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIntArray(const string& theID)
 void SALOMEDSImpl_AttributeParameter::SetStrArray(const string& theID, const vector<string>& theArray)
 {
   CheckLocked();
+
+  if(theID.size() == 0) return;
 
   Backup();
 
@@ -583,17 +597,20 @@ void SALOMEDSImpl_AttributeParameter::Restore(const Handle(TDF_Attribute)& with)
   _intarrays.clear();
   _strarrays.clear();
   
-  for(map<string,int>::const_iterator p = A->_ints.begin(); p!= A->_ints.end(); p++) _ints[p->first] = p->second;
-  for(map<string,double>::const_iterator p = A->_reals.begin(); p!= A->_reals.end(); p++) _reals[p->first] = p->second;
-  for(map<string,bool>::const_iterator p = A->_bools.begin(); p!= A->_bools.end(); p++) _bools[p->first] = p->second;
+  for(map<string,int>::const_iterator p = A->_ints.begin(); p!= A->_ints.end(); p++)
+    if(p->first.size()) _ints[p->first] = p->second;
+  for(map<string,double>::const_iterator p = A->_reals.begin(); p!= A->_reals.end(); p++) 
+    if(p->first.size()) _reals[p->first] = p->second;
+  for(map<string,bool>::const_iterator p = A->_bools.begin(); p!= A->_bools.end(); p++) 
+    if(p->first.size()) _bools[p->first] = p->second;
   for(map<string,string>::const_iterator p = A->_strings.begin(); p!= A->_strings.end(); p++) 
-    _strings[p->first] = p->second;
+    if(p->first.size()) _strings[p->first] = p->second;
   for(map< string,vector<double> >::const_iterator p = A->_realarrays.begin(); p!= A->_realarrays.end(); p++) 
-    _realarrays[p->first] = p->second;  
+    if(p->first.size()) _realarrays[p->first] = p->second;  
   for(map< string,vector<int> >::const_iterator p = A->_intarrays.begin(); p!= A->_intarrays.end(); p++) 
-    _intarrays[p->first] = p->second;  
+    if(p->first.size()) _intarrays[p->first] = p->second;  
   for(map< string,vector<string> >::const_iterator p = A->_strarrays.begin(); p!= A->_strarrays.end(); p++) 
-    _strarrays[p->first] = p->second; 
+    if(p->first.size()) _strarrays[p->first] = p->second; 
 }
 
 //=======================================================================

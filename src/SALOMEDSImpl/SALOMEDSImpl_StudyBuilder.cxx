@@ -81,6 +81,9 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TC
 {
   _errorCode = "";
   CheckLocked();
+
+  if(DataType.Length() == 0) return 0;
+
   //Always create component under main label.
   TDF_Label L  = _doc->Main();
 
@@ -482,7 +485,11 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
     } else {
       char* aGUIDString = new char[40];
       char* aType = (char*)aTypeOfAttribute.ToCString();
-      sprintf(aGUIDString, &(aType[21]));
+      sprintf(aGUIDString, &(aType[17]));
+      if(!Standard_GUID::CheckGUIDFormat(aGUIDString)) {
+        delete(aGUIDString);
+        return NULL;      
+      }
       aTreeNodeGUID = Standard_GUID(aGUIDString); // create tree node GUID by name
       delete(aGUIDString);
     }
@@ -495,10 +502,24 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
   }
 
   if (strncmp(aTypeOfAttribute.ToCString(), "AttributeUserID",15) == 0 ) {
+    Standard_GUID aUserGUID;
+    if (strcmp(aTypeOfAttribute.ToCString(), "AttributeUserID") == 0) {
+      aUserGUID = SALOMEDSImpl_AttributeUserID::DefaultID();
+    } else {
+      char* aGUIDString = new char[40];
+      char* aType = (char*)aTypeOfAttribute.ToCString();
+      sprintf(aGUIDString, &(aType[15]));
+      if(!Standard_GUID::CheckGUIDFormat(aGUIDString)) {
+        delete(aGUIDString);
+        return NULL;      
+      }
+      aUserGUID = Standard_GUID(aGUIDString); // create tree node GUID by name
+      delete(aGUIDString);
+    }
     Handle(SALOMEDSImpl_AttributeUserID) anAttr;
     if (!Lab.FindAttribute(SALOMEDSImpl_AttributeUserID::DefaultID(), anAttr)) {
       CheckLocked();
-      anAttr = SALOMEDSImpl_AttributeUserID::Set(Lab, SALOMEDSImpl_AttributeUserID::DefaultID());
+      anAttr = SALOMEDSImpl_AttributeUserID::Set(Lab, aUserGUID);
     }
     return anAttr;
   }

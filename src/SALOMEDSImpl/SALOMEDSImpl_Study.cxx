@@ -590,7 +590,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
     return aResultSeq;
   }
 
-  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  TDF_ChildIterator anIter (aLabel, Standard_True); // iterate all subchildren at all sublevels
   for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeName) aName;
@@ -624,7 +624,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
     return aResultSeq;
   }
 
-  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate first-level children at all sublevels
+  TDF_ChildIterator anIter (aLabel, Standard_True); // iterate first-level children at all sublevels
   for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
@@ -665,7 +665,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
     return aResultSeq;
   }
 
-  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  TDF_ChildIterator anIter (aLabel, Standard_True); // iterate all subchildren at all sublevels
   for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
@@ -1361,7 +1361,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
     if(aDriver == NULL) continue;
 
-    bool isValidScript = false;
+    bool isValidScript;
     long aStreamLength  = 0;
     Handle(SALOMEDSImpl_TMPFile) aStream = aDriver->DumpPython(this, isPublished, isValidScript, aStreamLength);
     if ( !isValidScript )
@@ -1634,4 +1634,22 @@ void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetLockerID()
 {
   return _lockers;
+}
+
+//============================================================================
+/*! Function : EnableUseCaseAutoFilling
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::EnableUseCaseAutoFilling(bool isEnabled)
+{ 
+  _errorCode = ""; _autoFill = isEnabled; 
+  if(isEnabled) {
+    _builder->SetOnAddSObject(_cb);
+    _builder->SetOnRemoveSObject(_cb);
+  }
+  else {
+    _builder->SetOnAddSObject(NULL);
+    _builder->SetOnRemoveSObject(NULL);
+  }
 }

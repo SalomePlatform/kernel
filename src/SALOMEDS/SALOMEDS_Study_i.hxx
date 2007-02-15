@@ -247,7 +247,7 @@ public:
   
   virtual SALOMEDS::Study::ListOfSObject* FindDependances(SALOMEDS::SObject_ptr anObject);
 
-  virtual SALOMEDS::AttributeStudyProperties_ptr GetProperties();
+  virtual SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties();
 
   virtual char* GetLastModificationDate();
 
@@ -260,7 +260,7 @@ public:
 
   virtual void Close();
 
-  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) { _impl->EnableUseCaseAutoFilling(isEnabled); }
+  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled); 
 
   // postponed destroying of CORBA object functionality
   virtual void AddPostponed(const char* theIOR);

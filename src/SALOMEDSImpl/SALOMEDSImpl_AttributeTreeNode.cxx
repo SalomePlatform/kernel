@@ -87,6 +87,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Append (const Handle(SALOMEDSIm
   if (!(TN->ID() == myTreeID) )
     Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::Append : uncompatible GUID");
 
+  if(TN->Label() == Label())
+    Standard_Failure::Raise("Attempt of self linking");
+
   Handle(SALOMEDSImpl_AttributeTreeNode) bid;
   TN->SetNext(bid); // Deconnects from next.
 
@@ -122,6 +125,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Prepend (const Handle(SALOMEDSI
   if (!(TN->ID() == myTreeID) )
     Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::Prepend : uncompatible GUID");
 
+  if(TN->Label() == Label())
+    Standard_Failure::Raise("Attempt of self linking");
+
   Handle(SALOMEDSImpl_AttributeTreeNode) bid;
   TN->SetPrevious(bid);
   if (HasFirst()) {
@@ -151,6 +157,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertBefore (const Handle(SALO
   if (!(TN->ID() == myTreeID) )
     Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::InsertBefore : uncompatible GUID");
 
+  if(TN->Label() == Label())
+    Standard_Failure::Raise("Attempt of self linking");
+
   TN->SetFather(GetFather());
   TN->SetPrevious(GetPrevious());
   TN->SetNext(this);
@@ -174,6 +183,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertBefore (const Handle(SALO
 Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertAfter (const Handle(SALOMEDSImpl_AttributeTreeNode)& TN)
 {
   CheckLocked();
+
+  if(TN->Label() == Label())
+    Standard_Failure::Raise("Attempt of self linking");
 
   if (!(TN->ID() == myTreeID) )
     Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::InsertAfter : uncompatible GUID");
