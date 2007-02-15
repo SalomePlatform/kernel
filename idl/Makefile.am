@@ -90,6 +90,9 @@ if MPI_IS_OK
   IDL_SOURCES += $(MPIIDL_SOURCES)
 endif
 
+# also install all generated headers to use result library from another modules
+salomeinclude_DATA= $(IDL_SOURCES:%SK.cc=%.hh)
+
 BUILT_SOURCES = $(IDL_SOURCES)
 
 lib_LTLIBRARIES = libSalomeIDLKernel.la
