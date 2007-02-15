@@ -494,7 +494,7 @@ AC_OUTPUT([ \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
-	./Makefile \
+	Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
 	./bin/runIDLparser \
