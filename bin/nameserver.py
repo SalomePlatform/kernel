@@ -25,6 +25,7 @@ class NamingServer(Server):
      
 	try:
 	  os.mkdir(os.environ["BaseDir"] + "/logs")
+          os.chmod(os.environ["BaseDir"] + "/logs", 0777)
 	except:
 	  #print "Can't create " + os.environ["BaseDir"] + "/logs"
 	  pass
