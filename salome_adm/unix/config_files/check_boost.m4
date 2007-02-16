@@ -68,6 +68,14 @@ if test "x${BOOSTDIR}" != "x" ; then
                 boost_include_dir_ok=no)
 fi
 
+BOOST_PROGRAM_OPTIONS_LIB=no
+if test "x${boost_include_dir_ok}" = "xyes" ; then
+  AC_CHECK_FILE(${BOOSTDIR}/include/boost/program_options.hpp,
+                BOOST_PROGRAM_OPTIONS_LIB=yes,
+                BOOST_PROGRAM_OPTIONS_LIB=no)
+fi
+AC_MSG_RESULT(for boost program_options tool: $BOOST_PROGRAM_OPTIONS_LIB)
+
 if test "x${boost_include_dir_ok}" = "xyes" ; then
   AC_TRY_COMPILE([#include <boost/shared_ptr.hpp>],
                  [boost::shared_ptr<int>(new int)],
@@ -137,6 +145,7 @@ AC_MSG_RESULT(for boost: $boost_ok)
 AC_SUBST(BOOST_CPPFLAGS)
 AC_SUBST(BOOST_LIBSUFFIX)
 AC_SUBST(BOOST_LIBS)
+AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB)
 
 AC_LANG_RESTORE
 
