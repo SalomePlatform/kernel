@@ -43,11 +43,7 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 #include <TColStd_SequenceOfAsciiString.hxx>
 #include <TColStd_HSequenceOfAsciiString.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
-#ifndef WNT
 #include <NCollection_DataMap.hxx>
-#else
-#include <NCollection_DataMap1.hxx>
-#endif
 
 //SALOMEDSImpl headers
 #include "SALOMEDSImpl_SComponentIterator.hxx"
@@ -64,13 +60,8 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
 
-#ifndef WNT
 typedef NCollection_DataMap <TCollection_AsciiString, Handle_Standard_Transient> DataMapOfAsciiStringTransient;
 typedef NCollection_DataMap <TCollection_AsciiString, TDF_Label> DataMapAsciiStringLabel;
-#else
-typedef NCollection_DataMap1 <TCollection_AsciiString, Handle_Standard_Transient> DataMapOfAsciiStringTransient;
-typedef NCollection_DataMap1 <TCollection_AsciiString, TDF_Label> DataMapAsciiStringLabel;
-#endif
 
 class SALOMEDSImpl_Study : public MMgt_TShared 
 {
