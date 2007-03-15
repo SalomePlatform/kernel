@@ -77,7 +77,10 @@ list_modules=[]
 path=salome_path.split(":")
 import platform
 if platform.architecture()[0] == "64bit":
-    libdir = "lib64"
+    if platform.machine() == "ia64":
+        libdir = "lib"
+    else:
+        libdir = "lib64"
 else:
     libdir = "lib"
 for rep in path:

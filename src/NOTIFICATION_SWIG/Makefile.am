@@ -53,8 +53,9 @@ _libNOTIFICATION_la_CPPFLAGS =\
 
 
 _libNOTIFICATION_la_LDFLAGS  = -module
-_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la \
-	@PYTHON_LIBS@
+_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la
+
+#	@PYTHON_LIBS@
 
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
