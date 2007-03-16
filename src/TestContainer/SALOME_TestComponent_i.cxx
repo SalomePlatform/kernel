@@ -46,7 +46,7 @@ Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
   MESSAGE("activate object");
   _thisObj = this ;
   _id = _poa->activate_object(_thisObj);
-  SCRUTE(pd_refCount);
+  SCRUTE(_pd_refCount);
 }
 
 Engines_TestComponent_i::Engines_TestComponent_i()
@@ -62,7 +62,7 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
 {
   char s[100];
   sprintf(s, "TestComponent_i : L = %ld", (long) L);
-  SCRUTE(pd_refCount);
+  SCRUTE(_pd_refCount);
 
   return CORBA::string_dup(s);
 }
