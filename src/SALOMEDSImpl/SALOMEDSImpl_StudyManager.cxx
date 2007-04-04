@@ -1170,9 +1170,9 @@ static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
 
   Handle(TDF_Attribute) anAttr;
 
-  char* current_string = new char[hdf_dataset->GetSize()];
+  char* current_string = new char[hdf_dataset->GetSize()+1];
   hdf_dataset->ReadFromDisk(current_string);
-
+  
   if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
   } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
@@ -1184,14 +1184,14 @@ static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
   } else {
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, hdf_dataset->GetName());
   }
-
+  
   if (!anAttr.IsNull()) {
 
     Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(anAttr);
     ga->Load(current_string);
     //cout << "Reading: " << aSO->GetID() << " "<< ga->Type() << " value: " << current_string << endl;
   }
-
+  
   delete(current_string);
   hdf_dataset->CloseOnDisk();
 }

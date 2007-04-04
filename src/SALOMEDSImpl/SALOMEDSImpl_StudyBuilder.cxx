@@ -476,14 +476,16 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
 
   //The macro adds all necessary checks for standardly behaiving attributes
   __FindOrCreateAttributeForBuilder
-  
+
+ 
   //Add checks for TreeNode and UserID attributes  
   if (strncmp(aTypeOfAttribute.ToCString(), "AttributeTreeNode",17) == 0 ) {
+    
     Standard_GUID aTreeNodeGUID;
     if (strcmp(aTypeOfAttribute.ToCString(), "AttributeTreeNode") == 0) {
       aTreeNodeGUID = SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID();
     } else {
-      char* aGUIDString = new char[40];
+      char* aGUIDString = new char[41];
       char* aType = (char*)aTypeOfAttribute.ToCString();
       sprintf(aGUIDString, &(aType[17]));
       if(!Standard_GUID::CheckGUIDFormat(aGUIDString)) {
@@ -506,7 +508,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
     if (strcmp(aTypeOfAttribute.ToCString(), "AttributeUserID") == 0) {
       aUserGUID = SALOMEDSImpl_AttributeUserID::DefaultID();
     } else {
-      char* aGUIDString = new char[40];
+      char* aGUIDString = new char[41];
       char* aType = (char*)aTypeOfAttribute.ToCString();
       sprintf(aGUIDString, &(aType[15]));
       if(!Standard_GUID::CheckGUIDFormat(aGUIDString)) {
