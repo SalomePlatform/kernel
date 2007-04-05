@@ -80,12 +80,21 @@ def get_config():
     Check variables <module>_ROOT_DIR and set list of used modules.
     Return args, modules_list, modules_root_dir    
     """
-    
+
     # read args from launch configure xml file and command line options
-    
+
+    #*** Test additional option
+    #*** import optparse
+    #*** help_str = "Test options addition."
+    #*** o_j = optparse.Option("-j", "--join", action="store_true", dest="join", help=help_str)
+
     import launchConfigureParser
     args = launchConfigureParser.get_env()
-    
+
+    #*** Test additional option
+    #*** args = launchConfigureParser.get_env([o_j])
+    #*** if args.has_key("join"): print args["join"]
+
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
 
@@ -189,7 +198,7 @@ def set_env(args, modules_list, modules_root_dir):
         os.environ["SMESH_MeshersList"]="StdMeshers"
         if not os.environ.has_key("SALOME_StdMeshersResources"):
             os.environ["SALOME_StdMeshersResources"] \
-            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources/smesh"
+            = modules_root_dir["SMESH"]+"/share/"+salome_subdir+"/resources/smesh"
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
@@ -207,7 +216,7 @@ def set_env(args, modules_list, modules_root_dir):
                     = os.environ["SMESH_MeshersList"]+":"+plugin
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
-                        = plugin_root+"/share/"+args["appname"]+"/resources/"+plugin.lower()
+                        = plugin_root+"/share/"+salome_subdir+"/resources/"+plugin.lower()
                     add_path(os.path.join(plugin_root,get_lib_dir(),python_version,
                                           "site-packages",salome_subdir),
                              "PYTHONPATH")
@@ -468,26 +477,30 @@ class SessionServer(Server):
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
             self.SCMD2+=['PY']
-        if 'supervContainer' in self.args['containers'] or 'supervContainer' in self.args['standalone']:
+        if 'supervContainer' in self.args['standalone']:
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
-            try:
+            session_gui = True
+            if self.args.has_key('session_gui'):
                 session_gui = self.args['session_gui']
-            except KeyError:
-                session_gui = 1
-                pass
             if session_gui:
                 self.SCMD2+=['GUI']
+                if self.args['splash']:
+                    self.SCMD2+=['SPLASH']
+                    pass
+                if self.args['study_hdf'] is not None:
+                    self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
+                    pass
                 pass
             pass
-        if self.args['splash'] and self.args['gui']:
-            self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
+        if self.args.has_key('user_config'):
+            self.SCMD2+=['--resources=%s'%self.args['user_config']]
         if self.args.has_key('modules'):
             self.SCMD2+=['--modules (%s)'%":".join(self.args['modules'])]
-        if self.args.has_key('test') and len(args['test']) > 0:
-            self.SCMD2+=['--test=%s'%(",".join(args['test']))]
+        if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
+            self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
@@ -552,18 +565,17 @@ class ContainerManagerServer(Server):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
                 #print "   ", module_cata
-                if os.path.exists(os.path.join(module_root_dir,
-                                               "share",salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)):
+                if os.path.exists(os.path.join(module_root_dir,"share",
+                                               salome_subdir,"resources",
+                                               module.lower(),module_cata)):
                     cata_path.extend(
                         glob.glob(os.path.join(module_root_dir,"share",
-                                               self.args['appname'],"resources",
+                                               salome_subdir,"resources",
                                                module.lower(),module_cata)))
                 else:
                     cata_path.extend(
                         glob.glob(os.path.join(module_root_dir,"share",
-                                               self.args['appname'],"resources",
+                                               salome_subdir,"resources",
                                                module_cata)))
                 pass
             pass
@@ -759,8 +771,7 @@ def startSalome(args, modules_list, modules_root_dir):
     
     try:
         if 'interp' in args:
-            if args['interp']:
-                nbaddi = int(args['interp'][0])
+            nbaddi = args['interp']
     except:
         import traceback
         traceback.print_exc()
@@ -839,8 +850,12 @@ def useSalome(args, modules_list, modules_root_dir):
             clt.showNS()
             pass
         
-        # run python scripts, passed via -t option
-        toimport = args['pyscript']
+        # run python scripts, passed via --execute option
+        toimport = []
+        if args.has_key('pyscript'):
+            if args.has_key('gui') and args.has_key('session_gui'):
+                if not args['gui'] or not args['session_gui']:
+                    toimport = args['pyscript']
         i = 0
         while i < len( toimport ) :
             if toimport[ i ] == 'killall':
@@ -848,9 +863,15 @@ def useSalome(args, modules_list, modules_root_dir):
                 import sys
                 sys.exit(0)
             else:
-                print 'importing',toimport[ i ]
-                doimport = 'import ' + toimport[ i ]
-                exec doimport
+                scrname = toimport[ i ]
+                if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
+                    print 'executing',scrname
+                    doexec = 'execfile(%s)'%scrname
+                    exec doexec
+                else:
+                    print 'importing',scrname
+                    doimport = 'import ' + scrname
+                    exec doimport
             i = i + 1
 
     return clt
