@@ -98,7 +98,7 @@ _PTR(SComponent) SALOMEDS_StudyBuilder::NewComponent(const std::string& Componen
 void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& theSCO, 
 						     const std::string& ComponentIOR)
 {
-  if(theSCO) return;
+  if(!theSCO) return;
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) {
