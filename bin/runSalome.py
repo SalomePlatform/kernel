@@ -967,26 +967,11 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
-    if len(sys.argv) == 2:
-        if sys.argv[1] == "-nothing":
-            searchFreePort({})
-            import os
-            print "port:%s"%(os.environ['NSPORT'])
-            import sys
-            sys.exit(0)
-            pass
-        pass
-    save_config = 1
-    import sys
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--nosave-config":
-            save_config = 0
-            sys.argv[1:2] = []
-            pass
-        pass
-    #
     args, modules_list, modules_root_dir = get_config()
     kill_salome(args)
+    save_config = True
+    if args.has_key('save_config'):
+        save_config = args['save_config']
     searchFreePort(args, save_config)
     set_env(args, modules_list, modules_root_dir)
     clt = useSalome(args, modules_list, modules_root_dir)

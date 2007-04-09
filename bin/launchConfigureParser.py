@@ -474,6 +474,20 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="catch_exceptions",
                           help=help_str)
 
+    # Print free port and exit
+    help_str = "Print free port and exit"
+    o_a = optparse.Option("--print-port",
+                          action="store_true",
+                          dest="print_port", default=False,
+                          help=help_str)
+
+    # Do not relink ${HOME}/.omniORB_last.cfg
+    help_str = "Do not save current configuration ${HOME}/.omniORB_last.cfg"
+    o_n = optparse.Option("--nosave-config",
+                          action="store_false",
+                          dest="save_config", default=True,
+                          help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -488,12 +502,14 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_k,     # Kill all
                 o_i,     # Additional python interpreters
                 o_z,     # Splash
-                o_c]     # Catch exceptions
+                o_c,     # Catch exceptions
+                o_a,     # Print free port and exit
+                o_n]     # --nosave-config
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
     #               "portkill", "killall", "interp", "splash",
-    #               "catch_exceptions"]
+    #               "catch_exceptions", "print_port", "save_config"]
 
     opt_list += theAdditionalOptions
 
@@ -552,6 +568,14 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     pars = CreateOptionParser(theAdditionalOptions)
     (cmd_opts, cmd_args) = pars.parse_args(sys.argv[1:])
     ############################
+
+    # Process --print-port option
+    if cmd_opts.print_port:
+        from runSalome import searchFreePort
+        searchFreePort({})
+        print "port:%s"%(os.environ['NSPORT'])
+        sys.exit(0)
+        pass
 
     # set resources variable SalomeAppConfig if it is not set yet 
     dirs = []
@@ -725,6 +749,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Exceptions
     if cmd_opts.catch_exceptions is not None:
         args[except_nam] = not cmd_opts.catch_exceptions
+
+    # Relink config file
+    if cmd_opts.save_config is not None:
+        args['save_config'] = cmd_opts.save_config
 
     ####################################################
     # Add <theAdditionalOptions> values to args
