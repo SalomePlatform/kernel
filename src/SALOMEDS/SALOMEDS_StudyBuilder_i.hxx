@@ -37,8 +37,7 @@
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
-                               public PortableServer::RefCountServantBase 
+class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder
 {
 private:
   CORBA::ORB_ptr                    _orb;

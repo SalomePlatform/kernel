@@ -36,7 +36,7 @@
 
 class CONTAINER_EXPORT fileRef_i:
   public virtual POA_Engines::fileRef,
-  public virtual PortableServer::RefCountServantBase
+  public virtual PortableServer::ServantBase
 {
 public:
   fileRef_i();

@@ -43,7 +43,7 @@
 #include <stdio.h>
 
 class SALOMEDS_SAttribute_i: public POA_IStudy::SAttribute,
-			public PortableServer::RefCountServantBase {
+			public PortableServer::ServantBase {
 private:
   CORBA::ORB_ptr           _orb;
   char*                    _Type;

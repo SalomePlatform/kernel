@@ -33,8 +33,7 @@
 class SALOME_NamingService;
 
 class CONTAINER_EXPORT SALOME_ContainerManager:
-  public POA_Engines::ContainerManager,
-  public PortableServer::RefCountServantBase
+  public POA_Engines::ContainerManager
 {
 
 public:

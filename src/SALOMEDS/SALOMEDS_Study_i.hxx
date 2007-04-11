@@ -43,8 +43,7 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study,
-			public PortableServer::RefCountServantBase 
+class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
   CORBA::ORB_ptr                 _orb;

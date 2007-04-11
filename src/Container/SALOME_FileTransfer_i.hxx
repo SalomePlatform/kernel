@@ -36,7 +36,7 @@
 
 class CONTAINER_EXPORT fileTransfer_i:
   public virtual POA_Engines::fileTransfer,
-  public virtual PortableServer::RefCountServantBase
+  public virtual PortableServer::ServantBase
 {
 public:
   fileTransfer_i();

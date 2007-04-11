@@ -35,7 +35,7 @@
 #include <TDF_Label.hxx>
 
 class SALOMEDS_BasicAttribute_i: public POA_SALOMEDS::BasicAttribute,
-				 public PortableServer::RefCountServantBase {
+				 public PortableServer::ServantBase {
 protected:
   TDF_Label _Lab;
 

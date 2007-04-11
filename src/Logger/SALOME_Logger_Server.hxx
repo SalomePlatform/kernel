@@ -32,8 +32,7 @@
 
 
 class LOGGER_EXPORT Logger :
-  public POA_SALOME_Logger::Logger,
-  public PortableServer::RefCountServantBase 
+  public POA_SALOME_Logger::Logger
 {
 public:
         //constructor w/o parameters

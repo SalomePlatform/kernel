@@ -36,8 +36,8 @@
   Generic servant class for senders that factorizes all the common methods and attributes necessary to senders.
   All servant classes for senders have to inheritate from it.
  */
-class COMMUNICATION_EXPORT SALOME_Sender_i : public virtual POA_SALOME::Sender,
-			public PortableServer::RefCountServantBase {
+class COMMUNICATION_EXPORT SALOME_Sender_i : public virtual POA_SALOME::Sender
+{
 protected:
   /*! Pointer to the generic array to transmit*/
   const void *_tabToSend;

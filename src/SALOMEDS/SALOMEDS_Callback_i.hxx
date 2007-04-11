@@ -16,7 +16,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 class SALOMEDS_Callback_i: public virtual POA_SALOMEDS::Callback,
-			   public virtual PortableServer::RefCountServantBase 
+			   public virtual PortableServer::ServantBase 
 {
 private:
   SALOMEDS::UseCaseBuilder_var _builder;

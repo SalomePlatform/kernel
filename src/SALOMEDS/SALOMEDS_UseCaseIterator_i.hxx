@@ -35,7 +35,7 @@
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 
 class SALOMEDS_UseCaseIterator_i: public virtual POA_SALOMEDS::UseCaseIterator,
-				  public virtual PortableServer::RefCountServantBase, 
+				  public virtual PortableServer::ServantBase, 
 				  public virtual SALOME::GenericObj_i
 {
 private:

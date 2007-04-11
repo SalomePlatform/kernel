@@ -49,7 +49,7 @@ class SALOME_NamingService;
 
 class CONTAINER_EXPORT Engines_Container_i:
   public virtual POA_Engines::Container,
-  public virtual PortableServer::RefCountServantBase
+  public virtual PortableServer::ServantBase
 {
 public:
   Engines_Container_i();

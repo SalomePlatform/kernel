@@ -51,8 +51,8 @@ namespace SALOMEDS{
 
 }    
 
-class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
-			       public PortableServer::RefCountServantBase {
+class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager
+{
 private:
 
   CORBA::ORB_ptr                    _orb;

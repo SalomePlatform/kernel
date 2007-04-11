@@ -41,7 +41,7 @@
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
-				 public virtual PortableServer::RefCountServantBase,
+				 public virtual PortableServer::ServantBase,
 				 public virtual SALOME::GenericObj_i
 {
 private:

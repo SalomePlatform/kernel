@@ -40,8 +40,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
-				public PortableServer::RefCountServantBase 
+class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog
 {
 public:
   //! standard constructor

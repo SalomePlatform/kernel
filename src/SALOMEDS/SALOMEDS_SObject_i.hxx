@@ -36,7 +36,7 @@
 #include "SALOMEDSImpl_SObject.hxx"
 
 class Standard_EXPORT SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
-			  public virtual PortableServer::RefCountServantBase,
+			  public virtual PortableServer::ServantBase,
 			  public virtual SALOME::GenericObj_i
 {
 protected:
