@@ -193,10 +193,7 @@ class xml_parser:
                 return True
             elif strloc in ("0", "no", "n", "off", "false", "cancel"):
                 return False
-            else:
-                return None
-        else:
-            return strloc
+        return str
         pass
 
     def intValue( self, str ):
@@ -695,7 +692,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         if cmd_opts.log_file == 'CORBA':
             args[logger_nam] = True
         else:
-            args[file_nam] = cmd_opts.log_file
+            args[file_nam] = [cmd_opts.log_file]
 
     # Python scripts
     args[script_nam] = []
@@ -783,5 +780,5 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     os.environ[config_var] = ":".join(dirs)
 
     # return arguments
-    #print "Args: ", args
+    print "Args: ", args
     return args
