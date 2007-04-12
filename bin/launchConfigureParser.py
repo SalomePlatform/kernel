@@ -187,28 +187,29 @@ class xml_parser:
     def boolValue( self, str ):
         strloc = str
         if isinstance(strloc, types.UnicodeType):
-            strloc = strloc.encode().strip().lower()
+            strloc = strloc.encode().strip()
         if isinstance(strloc, types.StringType):
-            if strloc in   ("1", "yes", "y", "on", "true", "ok"):
+            strlow = strloc.lower()
+            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
                 return True
-            elif strloc in ("0", "no", "n", "off", "false", "cancel"):
+            elif strlow in ("0", "no", "n", "off", "false", "cancel"):
                 return False
-        return str
+        return strloc
         pass
 
     def intValue( self, str ):
         strloc = str
         if isinstance(strloc, types.UnicodeType):
-            strloc = strloc.encode().strip().lower()
+            strloc = strloc.encode().strip()
         if isinstance(strloc, types.StringType):
-            if strloc in   ("1", "yes", "y", "on", "true", "ok"):
+            strlow = strloc.lower()
+            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
                 return 1
-            elif strloc in ("0", "no", "n", "off", "false", "cancel"):
+            elif strlow in ("0", "no", "n", "off", "false", "cancel"):
                 return 0
             else:
                 return string.atoi(strloc)
-        else:
-            return strloc
+        return strloc
         pass
 
     def startElement(self, name, attrs):
@@ -780,5 +781,5 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     os.environ[config_var] = ":".join(dirs)
 
     # return arguments
-    print "Args: ", args
+    #print "Args: ", args
     return args
