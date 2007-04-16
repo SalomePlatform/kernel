@@ -5,14 +5,14 @@
 #
 #AC_PREREQ(2.59)
 #AC_INIT(src)
-AC_INIT([Salome2 Project], [3.2.2], [gboulant@CS], [salome])
+AC_INIT([Salome2 Project], [3.2.2], [paul.rascle@edf.fr], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
 PACKAGE=salome
@@ -265,7 +265,7 @@ fi
 
 echo
 echo ============================================================
-echo testing optionnal products
+echo testing parallel products
 echo ============================================================
 echo
 
@@ -276,6 +276,48 @@ echo ---------------------------------------------
 echo
 
 CHECK_MPI
+
+echo
+echo ---------------------------------------------
+echo checking if PaCO++ is requested by user
+echo ---------------------------------------------
+echo
+
+CHECK_PACO
+
+echo
+echo ------------------------------------------------------------
+echo checking if parallel kernel extensions are requested by user
+echo ------------------------------------------------------------
+echo
+
+AC_MSG_CHECKING(whether to enable parallel kernel extension)
+AC_ARG_ENABLE(parallel_extension, 
+	      AC_HELP_STRING([--enable-parallel_extension], [parallel kernel extension = [no/yes] (default is no)]),
+	      parallel_extension_ok=$enableval,		       
+	      parallel_extension_ok=no)
+if test "x$parallel_extension_ok" = "xyes"
+then
+  if test "x$PaCO_ok" = "xno"
+  then
+    parallel_extension_ok=no
+  fi
+fi
+
+if test "x$parallel_extension_ok" = "xyes"
+then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
+AM_CONDITIONAL([WITH_PACO_PARALLEL], [test "x$parallel_extension_ok" = "xyes"])
+
+echo
+echo ============================================================
+echo testing optionnal products
+echo ============================================================
+echo
 
 echo
 echo ---------------------------------------------
@@ -409,13 +451,10 @@ else
 fi
 echo
 
-if test x$MPIREQUESTED = xyes; then
-  requested_products="mpi_ok"
-  echo --- products requested by user
-  summary $requested_products
-  check_fatal_error $requested_products
-  echo
-fi
+parallel_products="mpi_ok PaCO_ok parallel_extension_ok"
+echo --- Kernel parallel extensions:
+summary $parallel_products
+echo
 
 optional_products="cppunit_ok openpbs_ok lsf_ok"
 echo --- Optional products:
@@ -518,6 +557,15 @@ AC_OUTPUT([ \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
+	./src/ParallelContainer/Makefile \
+	./src/DSC/Makefile \
+	./src/DSC/DSC_Basic/Makefile \
+	./src/DSC/DSC_User/Makefile \
+	./src/DSC/DSC_User/Basic/Makefile \
+	./src/DSC/DSC_User/Datastream/Makefile \
+	./src/DSC/DSC_User/Datastream/Palm/Makefile \
+	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
+	./src/DSC/ParallelDSC/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \

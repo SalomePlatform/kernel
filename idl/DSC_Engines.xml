@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<GridCCM_Interface_description
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+      xsi:noNamespaceSchemaLocation='$PACOPATH/IDL2Tool/interface.xsd'
+>
+
+<Module>
+ <Name>Engines</Name>
+ <Interface>
+  <Name>DSC</Name>
+  <Method>
+   <Name>connect_provides_port</Name>
+   <Type>distributed</Type>
+ </Method>
+ <Method>
+   <Name>connect_uses_port</Name>
+   <Type>distributed</Type>
+ </Method>
+ </Interface>
+ <Interface>
+   <Name>Parallel_DSC</Name>
+   <Method>
+     <Name>set_paco_proxy</Name>
+     <Type>distributed</Type>
+   </Method>
+   <Method>
+     <Name>init_service</Name>
+     <Type>distributed</Type>
+   </Method>
+ </Interface>
+</Module>
+</GridCCM_Interface_description>

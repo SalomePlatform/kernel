@@ -84,7 +84,16 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     const MapOfParserResourcesType& GetList() const;
 
+    // Parallel extension
+    std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
+							   const Engines::MachineParameters& params, 
+							   const std::string& log = "default");
   protected:
+    
+    // Parallel extension
+    void startMPI();
+    bool _MpiStarted;
+
     SALOME_NamingService *_NS;
 
     std::string BuildTempFileToLaunchRemoteContainer

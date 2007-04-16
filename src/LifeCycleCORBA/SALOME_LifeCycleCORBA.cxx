@@ -476,16 +476,47 @@ _LoadComponent(const Engines::MachineParameters& params,
   return myInstance._retn();
 }
 
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& params,
+                                              const char *componentName,
+                                              int studyId)
+{
+  MESSAGE("Entering LoadParallelComponent");
 
+/*MESSAGE("Parameters : ");
+  MESSAGE("Container name : " << params.container_name);
+  MESSAGE("Number of component nodes : " << params.nb_component_nodes);
+  MESSAGE("Component Name : " << componentName);*/
 
+  MESSAGE("Building a list of machines");
+  Engines::MachineList_var listOfMachines = _ContManager->GetFittingResources(params, componentName);
+  if (listOfMachines->length() == 0)
+  {
+    INFOS("No matching machines founded !");
+    return Engines::Component::_nil();
+  }
 
+  MESSAGE("Starting Parallel Container");
+  Engines::Container_var cont = _ContManager->FindOrStartParallelContainer(params, listOfMachines);
+  if (CORBA::is_nil(cont)) {
+    INFOS("FindOrStartParallelContainer() returns a NULL container !");
+    return Engines::Component::_nil();
+  }
 
+  MESSAGE("Loading component library");
+  bool isLoadable = cont->load_component_Library(componentName);
+  if (!isLoadable) {
+    INFOS(componentName <<" library is not loadable !");
+    return Engines::Component::_nil();
+  }
 
-
-
-
-
-
-
-
+  MESSAGE("Creating component instance");
+  // @PARALLEL@ permits to identify that the component requested
+  // is a parallel component.
+  string name = string(componentName) + string("@PARALLEL@");
+  Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
+  if (CORBA::is_nil(myInstance))
+    INFOS("create_component_instance returns a NULL component !");
+  return myInstance._retn();
+}
 

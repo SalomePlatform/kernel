@@ -83,7 +83,8 @@ INPUT                  = \
 		       @top_srcdir@/src/LifeCycleCORBA \
 		       @top_srcdir@/src/NamingService \
 		       @top_srcdir@/src/Notification \
-		       @top_srcdir@/src/Utils
+		       @top_srcdir@/src/Utils \
+		       @top_srcdir@/src/DSC
 FILE_PATTERNS          = *.idl *.hxx *.cxx python_extension_must_be_here
 RECURSIVE              = YES
 EXCLUDE                = 

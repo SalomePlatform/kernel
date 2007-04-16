@@ -163,6 +163,8 @@ struct omniORBpyAPI {
       param->nb_proc_per_node = 0;
       param->nb_node = 0;
       param->isMPI = false;
+      param->parallelLib = CORBA::string_dup("");
+      param->nb_component_nodes = 0;
       PyObject *key, *value;
       int pos = 0;
       while (PyDict_Next($input, &pos, &key, &value))
@@ -200,6 +202,14 @@ struct omniORBpyAPI {
 	  else if (strcmp(keystr,"isMPI")==0)
 	    {
 	      param->isMPI = PyLong_AsLong(value);
+	    }
+	  else if (strcmp(keystr,"parallelLib")==0)
+	    {
+	      param->parallelLib = CORBA::string_dup(PyString_AsString(value));
+	    }
+	  else if (strcmp(keystr,"nb_component_nodes")==0)
+	    {
+	      param->nb_component_nodes = PyLong_AsLong(value);
 	    }
 	}
       $1 = param;

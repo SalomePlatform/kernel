@@ -1,0 +1,103 @@
+C Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+C CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+C 
+C This library is free software; you can redistribute it and/or 
+C modify it under the terms of the GNU Lesser General Public 
+C License as published by the Free Software Foundation; either 
+C version 2.1 of the License. 
+C 
+C This library is distributed in the hope that it will be useful, 
+C but WITHOUT ANY WARRANTY; without even the implied warranty of 
+C MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+C Lesser General Public License for more details. 
+C 
+C You should have received a copy of the GNU Lesser General Public 
+C License along with this library; if not, write to the Free Software 
+C Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+C 
+C See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+C
+C
+C
+C File   : version.h
+C Author : Eric Fayolle (EDF)
+C Module : KERNEL
+C
+C Outils d'Aide au Couplage de Code de Calcul : $Id$
+
+        INTEGER CP_ENTIER, CP_REEL, CP_DREEL, CP_COMPLEXE,
+     .		CP_LOGIQUE, CP_CHAINE,
+     .          ENTIER,REEL,DREEL,COMPLEXE,LOGIQUE,CHAINE,
+     .          CP_NORMALE, CP_ANORMALE,
+     .		CP_CONT, CP_ARRET,
+     .          CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL,
+     .		CP_IN, CP_OUT,
+     .		IN, OUT,
+     .		CP_ILLIMITE, CP_AUTESP,
+     .		CP_LINEAIRE, CP_ESCALIER, CP_AUCUNE,
+     .		CP_ROUTE, CP_ERREURS,
+     .		CP_ROUTE_NORMAL, CP_ROUTE_DIRECT,
+     .		CP_AUTO, CP_BLOCAGE, CP_MANUEL,
+     .          CP_ATTENTE, CP_IMMEDIATE 
+         INTEGER CPLVAV, CPLVAF, CPLVAS, CPLCAV, CPLFAV,
+     .		VARIABLE_LEN, CODE_LEN, INSTANCE_LEN,
+     .   	CPOK, CPEIU, CPNMVR, CPIOVR, CPTP, CPTPVR,
+     .          CPIT, CPITVR, CPRENA, CPDNTP, CPDNDI,
+     .		CPNMCD, CPNMIN, CPATTENTE, CPBLOC, CPNTNULL,
+     .          CPLGVR, CPSTOP, CPATAL, CPNOCP, CPCTVR,
+     .          CPPASNULL, CPMACHINE, CPGRNU, CPGRIN,
+     .          CPFINFICH, CPERRFICH, CPNORERR, CPRUNERR,
+     .          CPOPT, CPVALOPT, CPECREFF, CPLIEN, CPINARRET,
+     .          CPSTOPSEQ, CPDECL, CPINEXEC, CPPVM, CPERRINST
+
+        PARAMETER (VARIABLE_LEN = 144 , 
+     .    	   CODE_LEN     = 72 , 
+     .             INSTANCE_LEN = 72)
+
+	PARAMETER (CP_NORMALE = 10, CP_ANORMALE = 11)
+
+	PARAMETER (CP_CONT    = 20, CP_ARRET    = 21)
+
+	PARAMETER (CP_ENTIER  = 30, CP_REEL     = 31,
+     .	           CP_DREEL   = 32, CP_COMPLEXE = 33, 
+     .	           CP_LOGIQUE = 34, CP_CHAINE   = 35)
+
+	PARAMETER (ENTIER  = 30, REEL     = 31,
+     .	           DREEL   = 32, COMPLEXE = 33, 
+     .	           LOGIQUE = 34, CHAINE   = 35)
+
+	PARAMETER (CP_TEMPS= 40, CP_ITERATION = 41, 
+     .             CP_SEQUENTIEL = 42)
+
+	PARAMETER (CP_IN = 50, CP_OUT = 51)
+	PARAMETER (IN = 50, OUT = 51)
+
+	PARAMETER (CP_ILLIMITE = -70, CP_AUTESP = -71)
+
+	PARAMETER (CP_LINEAIRE = 100, CP_ESCALIER = 101, CP_AUCUNE = 121)
+
+	PARAMETER (CP_ROUTE = 131, CP_ERREURS = 132)
+
+	PARAMETER (CP_ROUTE_NORMAL = 133, CP_ROUTE_DIRECT = 134)
+
+	PARAMETER (CP_AUTO = 135, CP_BLOCAGE = 136, CP_MANUEL = 137)
+
+	PARAMETER (CP_ATTENTE = 24, CP_IMMEDIATE = 141)
+
+	PARAMETER (CPLVAV = 151, CPLVAF = 152, CPLVAS = 153,
+     .		   CPLCAV = 154, CPLFAV = 155)
+
+	PARAMETER (CPOK      = 0 , CPEIU     = 1 , CPNMVR    = 2, 
+     .             CPIOVR    = 3 , CPTP      = 4 , CPTPVR    = 5,
+     .             CPIT      = 6 , CPITVR    = 7 , CPRENA    = 8,
+     .             CPDNTP    = 9 , CPDNDI    = 10, CPNMCD    = 11,
+     .             CPNMIN    = 12, CPATTENTE = 13, CPBLOC    = 14,
+     .             CPNTNULL  = 15, CPLGVR    = 16, CPSTOP    = 17,
+     .             CPATAL    = 18, CPNOCP    = 19, CPCTVR    = 20,
+     .             CPPASNULL = 21, CPMACHINE = 22, CPGRNU    = 23,
+     .             CPGRIN    = 24, CPFINFICH = 25, CPERRFICH = 26,
+     .             CPNORERR  = 27, CPRUNERR  = 28, CPOPT     = 29,
+     .             CPVALOPT  = 30, CPECREFF  = 31, CPLIEN    = 32,
+     .             CPINARRET = 33, CPSTOPSEQ = 34, CPDECL    = 35,
+     .             CPINEXEC  = 36, CPPVM     = 37, CPERRINST = 38)
+

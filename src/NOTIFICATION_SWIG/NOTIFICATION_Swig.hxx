@@ -25,6 +25,9 @@
 //  Author : Francis KLOSS
 //  Module : SALOME
 
+#ifndef _NOTIFICATION_SWIG_HXX_
+#define _NOTIFICATION_SWIG_HXX_
+
 #include "NOTIFICATION.hxx"
 #include "SALOME_NOTIFICATION_SWIG.hxx"
 
@@ -47,3 +50,5 @@ class NOTIFICATION_SWIG_EXPORT NOTIFICATION_Consumer_Swig {
   private:
     NOTIFICATION_Consumer* _consumer;
 };
+
+#endif

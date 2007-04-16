@@ -52,7 +52,8 @@ SUBDIR_CORBA = \
   KERNEL_PY \
   ModuleGenerator \
   Communication \
-  Communication_SWIG
+  Communication_SWIG \
+  DSC
 
 SUBDIR_CPPUNIT_BASE= \
   Basics/Test \
@@ -79,10 +80,14 @@ SUBDIR_BATCH= \
   Batch \
   Batch_SWIG
 
+SUBDIR_PARALLEL= ParallelContainer
+		 
+
 DIST_SUBDIRS = \
   $(SUBDIR_BASE) \
   $(SUBDIR_CORBA) \
   $(SUBDIR_MPI) \
+  $(SUBDIR_PARALLEL) \
   $(SUBDIR_BATCH) \
   $(SUBDIR_CPPUNIT_BASE) \
   $(SUBDIR_CPPUNIT_CORBA) \
@@ -100,9 +105,9 @@ if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-if MPI_IS_OK
-  SUBDIRS += $(SUBDIR_MPI)
-endif
+#if MPI_IS_OK
+#  SUBDIRS += $(SUBDIR_MPI)
+#endif
 
 if WITH_BATCH
   SUBDIRS += $(SUBDIR_BATCH)
@@ -120,4 +125,6 @@ else
 	$(SUBDIR_CPPUNIT_GENERAL)
 endif
 endif
-
+if WITH_PACO_PARALLEL
+SUBDIRS += $(SUBDIR_PARALLEL)
+endif

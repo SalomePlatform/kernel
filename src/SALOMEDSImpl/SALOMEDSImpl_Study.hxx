@@ -210,7 +210,7 @@ public:
   
   Standard_EXPORT virtual Handle(TColStd_HSequenceOfTransient) FindDependances(const Handle(SALOMEDSImpl_SObject)& anObject);
 
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_AttributeStudyProperties) SALOMEDSImpl_Study::GetProperties();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_AttributeStudyProperties) GetProperties();
 
   Standard_EXPORT virtual TCollection_AsciiString GetLastModificationDate();
 

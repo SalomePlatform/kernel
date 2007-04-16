@@ -246,7 +246,7 @@ public:
   
   virtual SALOMEDS::Study::ListOfSObject* FindDependances(SALOMEDS::SObject_ptr anObject);
 
-  virtual SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties();
+  virtual SALOMEDS::AttributeStudyProperties_ptr GetProperties();
 
   virtual char* GetLastModificationDate();
 

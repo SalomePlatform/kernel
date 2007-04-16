@@ -1,0 +1,14 @@
+#include "CalciumProvidesPort.hxx"
+
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_integer_port_provides)
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_real_port_provides)	
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_double_port_provides)
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_complex_port_provides)
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_logical_port_provides)
+
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_string_port_provides)

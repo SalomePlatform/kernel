@@ -81,8 +81,8 @@ module Engines
                             >0 otherwise (== study id)
       \return a loaded component
     */
-    Component create_component_instance(in string componentName,
-					in long studyId);
+    Engines::Component create_component_instance(in string componentName,
+                                                 in long studyId);
 
     /*!
       Finds a servant instance of a component

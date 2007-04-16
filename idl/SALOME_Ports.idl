@@ -1,0 +1,127 @@
+//  Copyright (C) 2007	OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+//  File   : SALOME_Ports.idl
+//  Author : Andre RIBES, EDF
+//  $Header:
+
+#ifndef _SALOME_PORTS_IDL_
+#define _SALOME_PORTS_IDL_
+
+/*! \file
+  This file contains the IDL declarations of the kind of ports provided by the 
+  SALOME component model.
+ */
+
+module Ports {
+  
+  /*! \brief Interface of a DSC Port.
+    This interface defines a Port.
+    A port is a CORBA interface.
+  */
+  interface Port {};
+
+  /*! \brief Interface of a Control_Port.
+    This interface defines a Control Port. When a component uses a control port, 
+    it says that the service associated to the provides port can be started.
+
+    \note Currently Control_Port can not employed since it is not recognized 
+    by the supervisor. But this type can be used to classified the port.
+  */
+  interface Control_Port : Ports::Port {};
+  
+  /*! \brief Interface a Data_Port.
+    This interface defines a Data Port.
+    A Data Port is a port that transmit data between two components.
+
+    Each Data Port has a Put operation for the emitter and a Get operation 
+    for the receiver.
+
+    \note Data_Port is currently empty but it permits to identified 
+    the behaviour of a port.
+  */
+  interface Data_Port : Ports::Port {};
+
+  /*! \brief Data_And_Control_Port.
+    This interface defines a combination of a Control_Port and a Data_Port.
+
+    \note Like Control_Port, Data_And_Control_Port  can not employed since it is 
+    not recognized by the supervisor. But this type can be used to classified the port.
+  */
+  interface Data_And_Control_Port : Ports::Port {};
+
+  /*!
+    This exception indicates that the property doesn't not exist.
+  */
+  exception NotDefined {};
+
+  /*!
+    This exception indicates that the given value to the property is not
+    of a good type.
+  */
+  exception BadType {};
+
+  /*!
+    This exception indicates that the given value to the property is not
+    authorized.
+  */
+  exception BadValue {};
+
+  /*! \brief Interface of a PortProperties.
+    This interface permits to set and get properties
+    associated to a port. Each uses or provides port have a 
+    PortProperties object. But this object could be empty.
+  */
+  interface PortProperties {
+    
+    /*!
+      This operation permits to set a value of a property.
+
+      \param name property's name.
+      \param value value of the property.
+
+      \exception Ports::BadType
+      \exception Ports::NotDefined
+    */
+    void set_property(in string name, in any value) raises (Ports::BadType,
+							    Ports::BadValue,
+							    Ports::NotDefined);
+
+    /*!
+      This operation permits to get property's value.
+
+      \param name property's name.
+      \return value of the property.
+
+      \exception Ports::NotDefined
+    */
+    any  get_property(in string name) raises (Ports::NotDefined);
+  };
+
+  /*! \brief Interface of a basic datastream short port
+    This interface defines a Data_Port that transmit a CORBA::Short.
+    This interface can be seen as an example of an integration of 
+    a port in the DSC_User programming model.
+  */
+  interface Data_Short_Port : Ports::Data_Port {
+    void put(in short data);
+  };
+};
+
+#endif

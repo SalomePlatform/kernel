@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<GridCCM_Interface_description
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+      xsi:noNamespaceSchemaLocation='$PACOPATH/IDL2Tool/interface.xsd'
+>
+
+<Module>
+ <Name>Engines</Name>
+ <Interface>
+  <Name>Container</Name>
+  <Method>
+   <Name>ping</Name>
+   <Type>distributed</Type>
+  </Method>
+  <Method>
+   <Name>create_component_instance</Name>
+   <Type>distributed</Type>
+  </Method>
+  <Method>
+   <Name>load_component_Library</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+ <Interface>
+  <Name>Component</Name>
+  <Method>
+   <Name>ping</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+</Module>
+</GridCCM_Interface_description>

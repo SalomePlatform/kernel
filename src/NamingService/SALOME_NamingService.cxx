@@ -486,9 +486,9 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
  *  number of processors.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \param hostname      name of the machine on which the component is searched.
- * \param containername name of the container in which the component is
+ * \param containerName name of the container in which the component is
                         instanciated.
- * \param componentname name of the component we are looking for an existing 
+ * \param componentName name of the component we are looking for an existing 
                         instance.
  * \param nbproc        in case of multi processor machine, container name is
  *                      suffixed with _nbproc.
@@ -639,9 +639,8 @@ SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
  *  Build a string representing the absolute pathname of a container in
  *  SALOME_NamingService. This form gives a suffixed containerName in case of
  *  multi processor machine.
- * \param params struct from which we get container name (may be
- *               empty),  number of nodes and number of processor
- *               per node.
+ * \param containerName name of the container in which the component is
+                        instanciated.
  * \param hostname name of the host of the container, without domain names.
  * \return the path under the form /Containers/hostname/containerName
  * \sa ContainerName(const Engines::MachineParameters& params)
@@ -1674,7 +1673,7 @@ void SALOME_NamingService::_Find(const char* name,
  * \param splitPath 
  * \param lengthResult
  * \param contextToFind
- * \param _notFound
+ * \param notFound
  */ 
 // ============================================================================
 

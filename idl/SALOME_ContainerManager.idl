@@ -39,6 +39,10 @@ struct MachineParameters
   long nb_proc_per_node;
   long nb_node;
   boolean isMPI;
+
+  // PaCO specific informations
+  string parallelLib;
+  long nb_component_nodes;
 };
 
 /*!
@@ -60,6 +64,17 @@ struct MachineParameters
   {
     Container FindOrStartContainer( in MachineParameters params,
 				    in MachineList possibleComputers);
+
+    /*!
+      This operation launches a PaCO++ container.
+
+      \param Description of the container resquested.
+      \param List of computers ressources.
+
+      \return Container's CORBA reference.
+    */
+    Container FindOrStartParallelContainer( in MachineParameters params,
+					    in MachineList possibleComputers);
 
     string FindBest(in MachineList possibleComputers);
 

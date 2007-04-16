@@ -39,7 +39,8 @@
 #include <Utils_SALOME_Exception.hxx>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
-
+#include <iostream>
+using namespace std;
 #ifdef WNT
 # if defined LIFECYCLECORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
@@ -85,6 +86,12 @@ public:
   FindOrLoad_Component(const char *containerName,
 		       const char *componentName); // for compatibility
   
+  // Parallel extension
+  Engines::Component_ptr 
+    Load_ParallelComponent(const Engines::MachineParameters& params,
+                           const char *componentName,
+                           int studyId);
+
   bool isKnownComponentClass(const char *componentName);
 
   bool isMpiContainer(const Engines::MachineParameters& params)

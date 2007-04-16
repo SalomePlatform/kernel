@@ -153,6 +153,14 @@ class SalomeDSServer(Server):
 
 # ---
 
+class ConnectionManagerServer(Server):
+    def __init__(self,args):
+        self.args=args
+        self.initArgs()
+        self.CMD=['SALOME_ConnectionManagerServer']
+
+# ---
+
 class RegistryServer(Server):
     def __init__(self,args):
         self.args=args
@@ -460,6 +468,13 @@ def startSalome(args, modules_list, modules_root_dir):
     myCmServer = ContainerManagerServer(args)
     myCmServer.setpath(modules_list,modules_root_dir)
     myCmServer.run()
+
+    #
+    # Launch ConnectionManagerServer
+    #
+
+    myConnectionServer = ConnectionManagerServer(args)
+    myConnectionServer.run()
 
 
     from Utils_Identity import getShortHostName

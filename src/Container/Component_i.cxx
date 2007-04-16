@@ -73,7 +73,7 @@ Engines_Component_i::Engines_Component_i()
  *  Standard Constructor for generic Component, used in derived class
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
- *  \parap poa Portable Object Adapter from Container (normally root_poa)
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
  *  \param contId container CORBA id inside the server
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name
@@ -117,7 +117,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
  * Standard constructor for parallel component
  *  Connection Notification (no connection to Registry !)
  *  \param orb Object Request broker given by Container
- *  \parap poa Portable Object Adapter from Container (normally root_poa)
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
  *  \param contId container CORBA id inside the server
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name

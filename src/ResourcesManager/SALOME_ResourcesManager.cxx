@@ -58,6 +58,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
     _path_resources(xmlFilePath)
 {
   _NS = new SALOME_NamingService(orb);
+  _MpiStarted = false;
 }
 
 //=============================================================================
@@ -75,6 +76,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 {
   _NS = new SALOME_NamingService(orb);
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
+  _MpiStarted = false;
 
   if (_isAppliSalomeDefined)
     {
@@ -902,6 +904,139 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
+//=============================================================================
+/*! Creates a command line that the container manager uses to launch
+ * a parallel container.
+ */ 
+//=============================================================================
+string 
+SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name,
+								    const Engines::MachineParameters& params,
+								    const std::string& log)
+{
+  // This method knows the differences between the proxy and the nodes.
+  // nb_component_nodes is not used in the same way if it is a proxy or 
+  // a node.
 
+  string command;
+  string parallelLib(CORBA::string_dup(params.parallelLib));
+  string hostname(CORBA::string_dup(params.hostname));
+  int par = exe_name.find("Proxy");
+  int nbproc = params.nb_component_nodes;
+  char buffer [33];
+  sprintf(buffer,"%d",nbproc);
+
+  Engines::MachineParameters_var rtn = new Engines::MachineParameters();
+  rtn->container_name = params.container_name;
+  rtn->hostname = params.hostname;
+  rtn->OS = params.OS;
+  rtn->mem_mb = params.mem_mb;
+  rtn->cpu_clock = params.cpu_clock;
+  rtn->nb_proc_per_node = params.nb_proc_per_node;
+  rtn->nb_node = params.nb_node;
+  rtn->isMPI = params.isMPI;
+
+  string real_exe_name  = exe_name + parallelLib;
+
+  if (parallelLib == "Dummy")
+  {
+    //command = "gdb --args ";
+    //command += real_exe_name;
+    command = real_exe_name;
+    command += " " + _NS->ContainerName(rtn);
+    command += " " + parallelLib;
+    command += " " + hostname;
+    command += " -";
+    AddOmninamesParams(command);
+  }
+
+  if (parallelLib == "Mpi")
+  {
+    // Step 1 : check if MPI is started
+    if (_MpiStarted == false)
+    {
+      startMPI();
+    }
+
+    if (par < 0)
+    {
+      // Nodes case
+      command = "mpiexec -np " + string(buffer) + " ";
+      command += real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " -";
+      AddOmninamesParams(command);
+    }
+    else                                          
+    {
+      // Proxy case
+      command = "mpiexec -np 1 ";
+      command += real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + string(buffer);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " -";
+      AddOmninamesParams(command);
+    }
+  }
+
+  // log choice
+  if (log == "default")
+  {
+    command += " > /tmp/";
+    command += _NS->ContainerName(rtn);
+    command += "_";
+    command += GetHostname();
+    command += "_";
+    command += getenv( "USER" ) ;
+    command += ".log 2>&1 &" ;
+  }
+  if (log == "xterm")
+  {
+    command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
+      + command + " \" &";
+  }
+  return command;
+
+/*  if (log == "xterm")
+  {
+    command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH; echo $LD_LIBRARY_PATH; echo $PATH; " + command + "; cat \" &";
+  }
+*/
+/*  command = "cd ; rm " + fichier_commande + "; touch " + \
+	     fichier_commande + "; echo \" export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; " + \
+	     command + " >& /tmp/ribes_" + fichier_commande + " & \" > " + fichier_commande + ";";
+  command += "ssh cn01 sh " + fichier_commande + " &";
+  cerr << "La commande : " << command << endl;
+*/
+}
+
+void SALOME_ResourcesManager::startMPI()
+{
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "-Only Lam on Localhost is currently supported-" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+
+  int status = system("lamboot");
+  if (status == -1)
+  {
+    INFOS("lamboot failed : system command status -1");
+  }
+  else if (status == 217)
+  {
+    INFOS("lamboot failed : system command status 217");
+  }
+  else
+  {
+    _MpiStarted = true;
+  }
+}
 
 
