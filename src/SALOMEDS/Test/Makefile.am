@@ -91,10 +91,49 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSALOMEDSTest.la 
-libSALOMEDSTest_la_SOURCES = SALOMEDSTest.cxx
+dist_libSALOMEDSTest_la_SOURCES = SALOMEDSTest.cxx
 libSALOMEDSTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSALOMEDSTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSALOMEDSTest_la_LIBADD    = $(COMMON_LIBS)
+
+EXTRA_DIST = \
+	SALOMEDSTest_AttributeComment.cxx \
+	SALOMEDSTest_AttributeDrawable.cxx \
+	SALOMEDSTest_AttributeExpandable.cxx \
+	SALOMEDSTest_AttributeExternalFileDef.cxx \
+	SALOMEDSTest_AttributeFileType.cxx \
+	SALOMEDSTest_AttributeFlags.cxx \
+	SALOMEDSTest_AttributeGraphic.cxx \
+	SALOMEDSTest_AttributeInteger.cxx \
+	SALOMEDSTest_AttributeIOR.cxx \
+	SALOMEDSTest_AttributeLocalID.cxx \
+	SALOMEDSTest_AttributeName.cxx \
+	SALOMEDSTest_AttributeOpened.cxx \
+	SALOMEDSTest_AttributeParameter.cxx \
+	SALOMEDSTest_AttributePersistentRef.cxx \
+	SALOMEDSTest_AttributePixMap.cxx \
+	SALOMEDSTest_AttributePythonObject.cxx \
+	SALOMEDSTest_AttributeReal.cxx \
+	SALOMEDSTest_AttributeSelectable.cxx \
+	SALOMEDSTest_AttributeSequenceOfInteger.cxx \
+	SALOMEDSTest_AttributeSequenceOfReal.cxx \
+	SALOMEDSTest_AttributeStudyProperties.cxx \
+	SALOMEDSTest_AttributeTableOfInteger.cxx \
+	SALOMEDSTest_AttributeTableOfReal.cxx \
+	SALOMEDSTest_AttributeTableOfString.cxx \
+	SALOMEDSTest_AttributeTarget.cxx \
+	SALOMEDSTest_AttributeTextColor.cxx \
+	SALOMEDSTest_AttributeTextHighlightColor.cxx\
+	SALOMEDSTest_AttributeTreeNode.cxx \
+	SALOMEDSTest_AttributeUserID.cxx \
+	SALOMEDSTest_ChildIterator.cxx \
+	SALOMEDSTest_SComponent.cxx \
+	SALOMEDSTest_SComponentIterator.cxx \
+	SALOMEDSTest_SObject.cxx \
+	SALOMEDSTest_StudyBuilder.cxx \
+	SALOMEDSTest_Study.cxx \
+	SALOMEDSTest_StudyManager.cxx \
+	SALOMEDSTest_UseCase.cxx
 
 #
 # ===============================================================
@@ -102,7 +141,7 @@ libSALOMEDSTest_la_LIBADD    = $(COMMON_LIBS)
 # ===============================================================
 #
 bin_PROGRAMS = TestSALOMEDS
-TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
+dist_TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
 TestSALOMEDS_CPPFLAGS = $(COMMON_CPPFLAGS)
 TestSALOMEDS_LDADD    = \
 	libSALOMEDSTest.la ../libSalomeDS.la \
