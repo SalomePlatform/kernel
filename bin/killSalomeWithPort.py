@@ -20,6 +20,7 @@
 # 
 
 import os, sys, pickle, signal, commands
+from launchConfigureParser import verbose
 
 def getPiDict(port,appname='salome',full=True):
     from Utils_Identity import getShortHostName
@@ -99,11 +100,12 @@ def killMyPort(port):
                 for field in prc.split(" ") :
                     if field == "omniNames" :
                         if pidfield != "egrep" :
-                            print 'stop process '+pidfield+' : omniNames'
                             if sys.platform == "win32":
                                 import win32pm
+				print 'stop process '+pidfield+' : omniNames'
                                 win32pm.killpid(int(pidfield),0)
                             else:
+				if verbose(): print 'stop process '+pidfield+' : omniNames'
                                 os.system('kill -9 '+pidfield)
                     pidfield = field
         except:
@@ -115,7 +117,7 @@ def killMyPort(port):
             for process_id in process_ids:
 
                 for pid, cmd in process_id.items():
-                    print "stop process %s : %s"% (pid, cmd[0])
+                    if verbose(): print "stop process %s : %s"% (pid, cmd[0])
                     try:
                         if sys.platform == "win32":
                           import win32pm
@@ -123,7 +125,7 @@ def killMyPort(port):
                         else:
                            os.kill(int(pid),signal.SIGKILL)
                     except:
-                        print "  ------------------ process %s : %s not found"% (pid, cmd[0])
+                        if verbose(): print "  ------------------ process %s : %s not found"% (pid, cmd[0])
                         pass
                 pass
         except:

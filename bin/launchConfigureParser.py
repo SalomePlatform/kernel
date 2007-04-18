@@ -19,6 +19,8 @@
 
 import os, glob, string, sys, re
 import xml.sax
+import optparse
+import types
 
 # names of tags in XML configuration file
 doc_tag = "document"
@@ -42,13 +44,11 @@ killall_nam    = "killall"
 modules_nam    = "modules"
 embedded_nam   = "embedded"
 standalone_nam = "standalone"
-containers_nam = "containers"
 key_nam        = "key"
 terminal_nam   = "terminal"
 interp_nam     = "interp"
 except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
-case_nam       = "test"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -57,15 +57,16 @@ plugins_nam    = "plugins"
 # values passed as arguments, NOT read from XML config file, but set from within this script
 appname_nam    = "appname"
 port_nam       = "port"
-appname        = "SalomeApp"
+salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, interp_nam, except_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam )
+intKeys = ( interp_nam, )
 
 # values of list type
-listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
+listKeys = ( embedded_nam, key_nam, modules_nam, standalone_nam, plugins_nam )
 
 ###
 # Get the application version
@@ -117,7 +118,7 @@ def version_id( fname ):
 ###
 # Get user configuration file name
 ###
-def userFile():
+def userFile(appname):
     v = version()
     if not v:
         return ""        # not unknown version
@@ -147,6 +148,30 @@ def userFile():
             last_file = file
     return last_file
 
+# --
+
+_verbose = None
+
+def verbose():
+    global _verbose
+    # verbose has already been called
+    if _verbose is not None:
+        return _verbose
+    # first time
+    try:
+        from os import getenv
+        _verbose = int(getenv('SALOME_VERBOSE'))
+    except:
+        _verbose = 0
+        pass
+    #
+    return _verbose
+
+def setVerbose(level):
+    global _verbose
+    _verbose = level
+    return
+
 # -----------------------------------------------------------------------------
 
 ###
@@ -157,7 +182,7 @@ section_to_skip = ""
 
 class xml_parser:
     def __init__(self, fileName, _opts ):
-        print "Configure parser: processing %s ..." % fileName
+        if verbose(): print "Configure parser: processing %s ..." % fileName
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -167,12 +192,31 @@ class xml_parser:
         pass
 
     def boolValue( self, str ):
-        if str in ("yes", "y", "1"):
-            return 1
-        elif str in ("no", "n", "0"):
-            return 0
-        else:
-            return str
+        strloc = str
+        if isinstance(strloc, types.UnicodeType):
+            strloc = strloc.encode().strip()
+        if isinstance(strloc, types.StringType):
+            strlow = strloc.lower()
+            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
+                return True
+            elif strlow in ("0", "no", "n", "off", "false", "cancel"):
+                return False
+        return strloc
+        pass
+
+    def intValue( self, str ):
+        strloc = str
+        if isinstance(strloc, types.UnicodeType):
+            strloc = strloc.encode().strip()
+        if isinstance(strloc, types.StringType):
+            strlow = strloc.lower()
+            if strlow in   ("1", "yes", "y", "on", "true", "ok"):
+                return 1
+            elif strlow in ("0", "no", "n", "off", "false", "cancel"):
+                return 0
+            else:
+                return string.atoi(strloc)
+        return strloc
         pass
 
     def startElement(self, name, attrs):
@@ -207,6 +251,8 @@ class xml_parser:
                 key = self.section + "_" + nam
             if nam in boolKeys:
                 self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
+            elif nam in intKeys:
+                self.opts[key] = self.intValue( val )  # assign integer value
             elif nam in listKeys:
                 self.opts[key] = val.split( ',' )       # assign list value: []
             else:
@@ -240,43 +286,243 @@ class xml_parser:
 
 # -----------------------------------------------------------------------------
 
-###
-# Command line options parser
-###
-def options_parser(line):
-  source = line
-  list = []
-  for delimiter in [" ", ",", "="]:
-    for o in source:
-      list += string.split(o, delimiter)
-      pass
-    source = list
-    list = []
-    pass
+booleans = { '1': True , 'yes': True , 'y': True , 'on' : True , 'true' : True , 'ok'     : True,
+             '0': False, 'no' : False, 'n': False, 'off': False, 'false': False, 'cancel' : False }
 
-  result = {}
-  i = 0
-  while i < len(source):
-    if source[i][0] != '-':
-      key = None
-    elif source[i][1] == '-':
-      key = source[i][2:]
+boolean_choices = booleans.keys()
+
+def store_boolean (option, opt, value, parser, *args):
+    if isinstance(value, types.StringType):
+        try:
+            value_conv = booleans[value.strip().lower()]
+            for attribute in args:
+                setattr(parser.values, attribute, value_conv)
+        except KeyError:
+            raise optparse.OptionValueError(
+                "option %s: invalid boolean value: %s (choose from %s)"
+                % (opt, value, boolean_choices))
     else:
-      key = source[i][1:]
-      pass
+        for attribute in args:
+            setattr(parser.values, attribute, value)
 
-    if key is None and not result:
-        raise Exception()
-    result[key] = []
-    if key:
-      i += 1
-      pass
-    while i < len(source) and source[i][0] != '-':
-      result[key].append(source[i])
-      i += 1
-      pass
-    pass
-  return result
+def CreateOptionParser (theAdditionalOptions=[]):
+    # GUI/Terminal. Default: GUI
+    help_str = "Launch without GUI (in the terminal mode)."
+    o_t = optparse.Option("-t",
+                          "--terminal",
+                          action="store_false",
+                          dest="gui",
+                          help=help_str)
+
+    help_str = "Launch in GUI mode [default]."
+    o_g = optparse.Option("-g",
+                          "--gui",
+                          action="store_true",
+                          dest="gui",
+                          help=help_str)
+
+    # Show Desktop (inly in GUI mode). Default: True
+    help_str  = "1 to activate GUI desktop [default], "
+    help_str += "0 to not activate GUI desktop (Session_Server starts, but GUI is not shown). "
+    help_str += "Ignored in the terminal mode."
+    o_d = optparse.Option("-d",
+                          "--show-desktop",
+                          metavar="<1/0>",
+                          #type="choice", choices=boolean_choices,
+                          type="string",
+                          action="callback", callback=store_boolean, callback_args=('desktop',),
+                          dest="desktop",
+                          help=help_str)
+    help_str  = "Do not activate GUI desktop (Session_Server starts, but GUI is not shown). "
+    help_str += "The same as --show-desktop=0."
+    o_o = optparse.Option("-o",
+                          "--hide-desktop",
+                          action="store_false",
+                          dest="desktop",
+                          help=help_str)
+
+    # Use logger or log-file. Default: nothing.
+    help_str = "Redirect messages to the CORBA collector."
+    #o4 = optparse.Option("-l", "--logger", action="store_true", dest="logger", help=help_str)
+    o_l = optparse.Option("-l",
+                          "--logger",
+                          action="store_const", const="CORBA",
+                          dest="log_file",
+                          help=help_str)
+    help_str = "Redirect messages to the <log-file>"
+    o_f = optparse.Option("-f",
+                          "--log-file",
+                          metavar="<log-file>",
+                          type="string",
+                          action="store",
+                          dest="log_file",
+                          help=help_str)
+
+    # Execute python scripts. Default: None.
+    help_str  = "Python script(s) to be imported. Python scripts are imported "
+    help_str += "in the order of their appearance. In GUI mode python scripts "
+    help_str += "are imported in the embedded python interpreter of current study, "
+    help_str += "otherwise in an external python interpreter"
+    o_u = optparse.Option("-u",
+                          "--execute",
+                          metavar="<script1,script2,...>",
+                          type="string",
+                          action="append",
+                          dest="py_scripts",
+                          help=help_str)
+
+    # Configuration XML file. Default: $(HOME)/.SalomeApprc.$(version).
+    help_str  = "Parse application settings from the <file> "
+    help_str += "instead of default $(HOME)/.SalomeApprc.$(version)"
+    o_r = optparse.Option("-r",
+                          "--resources",
+                          metavar="<file>",
+                          type="string",
+                          action="store",
+                          dest="resources",
+                          help=help_str)
+
+    # Use own xterm for each server. Default: False.
+    help_str = "Launch each SALOME server in own xterm console"
+    o_x = optparse.Option("-x",
+                          "--xterm",
+                          action="store_true",
+                          dest="xterm",
+                          help=help_str)
+
+    # Modules. Default: Like in configuration files.
+    help_str  = "SALOME modules list (where <module1>, <module2> are the names "
+    help_str += "of SALOME modules which should be available in the SALOME session)"
+    o_m = optparse.Option("-m",
+                          "--modules",
+                          metavar="<module1,module2,...>",
+                          type="string",
+                          action="append",
+                          dest="modules",
+                          help=help_str)
+
+    # Embedded servers. Default: Like in configuration files.
+    help_str  = "CORBA servers to be launched in the Session embedded mode. "
+    help_str += "Valid values for <serverN>: registry, study, moduleCatalog, "
+    help_str += "cppContainer [by default the value from the configuration files is used]"
+    o_e = optparse.Option("-e",
+                          "--embedded",
+                          metavar="<server1,server2,...>",
+                          type="string",
+                          action="append",
+                          dest="embedded",
+                          help=help_str)
+
+    # Standalone servers. Default: Like in configuration files.
+    help_str  = "CORBA servers to be launched in the standalone mode (as separate processes). "
+    help_str += "Valid values for <serverN>: registry, study, moduleCatalog, "
+    help_str += "cppContainer, pyContainer, [by default the value from the configuration files is used]"
+    o_s = optparse.Option("-s",
+                          "--standalone",
+                          metavar="<server1,server2,...>",
+                          type="string",
+                          action="append",
+                          dest="standalone",
+                          help=help_str)
+
+    # Kill with port. Default: False.
+    help_str = "Kill SALOME with the current port"
+    o_p = optparse.Option("-p",
+                          "--portkill",
+                          action="store_true",
+                          dest="portkill",
+                          help=help_str)
+
+    # Kill all. Default: False.
+    help_str = "Kill all running SALOME sessions"
+    o_k = optparse.Option("-k",
+                          "--killall",
+                          action="store_true",
+                          dest="killall",
+                          help=help_str)
+
+    # Additional python interpreters. Default: 0.
+    help_str  = "The number of additional external python interpreters to run. "
+    help_str += "Each additional python interpreter is run in separate "
+    help_str += "xterm session with properly set SALOME environment"
+    o_i = optparse.Option("-i",
+                          "--interp",
+                          metavar="<N>",
+                          type="int",
+                          action="store",
+                          dest="interp",
+                          help=help_str)
+
+    # Splash. Default: True.
+    help_str  = "1 to display splash screen [default], "
+    help_str += "0 to disable splash screen. "
+    help_str += "This option is ignored in the terminal mode. "
+    help_str += "It is also ignored if --show-desktop=0 option is used."
+    o_z = optparse.Option("-z",
+                          "--splash",
+                          metavar="<1/0>",
+                          #type="choice", choices=boolean_choices,
+                          type="string",
+                          action="callback", callback=store_boolean, callback_args=('splash',),
+                          dest="splash",
+                          help=help_str)
+
+    # Catch exceptions. Default: True.
+    help_str  = "1 (yes,true,on,ok) to enable centralized exception handling [default], "
+    help_str += "0 (no,false,off,cancel) to disable centralized exception handling."
+    o_c = optparse.Option("-c",
+                          "--catch-exceptions",
+                          metavar="<1/0>",
+                          #type="choice", choices=boolean_choices,
+                          type="string",
+                          action="callback", callback=store_boolean, callback_args=('catch_exceptions',),
+                          dest="catch_exceptions",
+                          help=help_str)
+
+    # Print free port and exit
+    help_str = "Print free port and exit"
+    o_a = optparse.Option("--print-port",
+                          action="store_true",
+                          dest="print_port", default=False,
+                          help=help_str)
+
+    # Do not relink ${HOME}/.omniORB_last.cfg
+    help_str = "Do not save current configuration ${HOME}/.omniORB_last.cfg"
+    o_n = optparse.Option("--nosave-config",
+                          action="store_false",
+                          dest="save_config", default=True,
+                          help=help_str)
+
+    # All options
+    opt_list = [o_t,o_g, # GUI/Terminal
+                o_d,o_o, # Desktop
+                o_l,o_f, # Use logger or log-file
+                o_u,     # Execute python scripts
+                o_r,     # Configuration XML file
+                o_x,     # xterm
+                o_m,     # Modules
+                o_e,     # Embedded servers
+                o_s,     # Standalone servers
+                o_p,     # Kill with port
+                o_k,     # Kill all
+                o_i,     # Additional python interpreters
+                o_z,     # Splash
+                o_c,     # Catch exceptions
+                o_a,     # Print free port and exit
+                o_n]     # --nosave-config
+
+    #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
+    #               "xterm", "modules", "embedded", "standalone",
+    #               "portkill", "killall", "interp", "splash",
+    #               "catch_exceptions", "print_port", "save_config"]
+
+    opt_list += theAdditionalOptions
+
+    a_usage = "%prog [options] [STUDY_FILE]"
+    version_str = "Salome %s" % version()
+    pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
+
+    return pars
 
 # -----------------------------------------------------------------------------
 
@@ -286,7 +532,9 @@ def options_parser(line):
 
 # this attribute is obsolete
 args = {}
-def get_env():
+#def get_env():
+#args = []
+def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -295,7 +543,7 @@ def get_env():
     #   ${GUI_ROOT_DIR}/share/salome/resources/gui is inspected
     # - ${GUI_ROOT_DIR}/share/salome/resources/gui directory is always inspected
     #   so it is not necessary to put it in the "<appname>Config" variable
-    # - The directories which are inspected are checked for files "<appname>.xml"
+    # - The directories which are inspected are checked for files "<appname?salomeappname>.xml"
     #  (SalomeApp.xml) which define SALOME configuration
     # - These directories are analyzed beginning from the last one in the list,
     #   so the first directory listed in "<appname>Config" environment variable 
@@ -315,8 +563,32 @@ def get_env():
     if os.sys.platform == 'win32':
         separator = ";"
 
+    # check KERNEL_ROOT_DIR
+    try:
+        kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
+    except:
+        print """
+        For each SALOME module, the environment variable <moduleN>_ROOT_DIR must be set.
+        KERNEL_ROOT_DIR is mandatory.
+        """
+        sys.exit(1)
+        pass
 
-    # set resources variable SaloemAppConfig if it is not set yet 
+    ############################
+    # parse command line options
+    pars = CreateOptionParser(theAdditionalOptions)
+    (cmd_opts, cmd_args) = pars.parse_args(sys.argv[1:])
+    ############################
+
+    # Process --print-port option
+    if cmd_opts.print_port:
+        from runSalome import searchFreePort
+        searchFreePort({})
+        print "port:%s"%(os.environ['NSPORT'])
+        sys.exit(0)
+        pass
+
+    # set resources variable SalomeAppConfig if it is not set yet 
     dirs = []
     if os.getenv(config_var):
         if sys.platform == 'win32':
@@ -330,11 +602,17 @@ def get_env():
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
+    try:
+        dirs.remove('') # to remove empty dirs if the variable terminate by ":" or if there are "::" inside
+    except:
+        pass
+    
     _opts = {} # associative array of options to be filled
 
     # parse SalomeApp.xml files in directories specified by SalomeAppConfig env variable
     for dir in dirs:
-        filename = dir+'/'+appname+'.xml'
+        #filename = dir+'/'+appname+'.xml'
+        filename = dir+'/'+salomeappname+'.xml'
         if not os.path.exists(filename):
             print "Configure parser: Warning : could not find configuration file %s" % filename
         else:
@@ -345,19 +623,27 @@ def get_env():
                 print "Configure parser: Error : can not read configuration file %s" % filename
             pass
 
-    # parse .SalomeApprc.<version> file in user's home directory if it exists
-    # if user file for the current version is not found the nearest to it is used
-    filename = userFile()
-    if not filename or not os.path.exists(filename):
+    # parse user configuration file
+    # It can be set via --resources=<file> command line option
+    # or is given by default from ${HOME}/.<appname>rc.<version>
+    # If user file for the current version is not found the nearest to it is used
+    user_config = cmd_opts.resources
+    if not user_config:
+        user_config = userFile(appname)
+    if not user_config or not os.path.exists(user_config):
         print "Configure parser: Warning : could not find user configuration file"
     else:
         try:
-            p = xml_parser(filename, _opts)
+            p = xml_parser(user_config, _opts)
             _opts = p.opts
         except:
             print 'Configure parser: Error : can not read user configuration file'
+            user_config = ""
 
     args = _opts
+
+    args['user_config'] = user_config
+    #print "User Configuration file: ", args['user_config']
 
     # set default values for options which are NOT set in config files
     for aKey in listKeys:
@@ -391,143 +677,104 @@ def get_env():
 
     args[port_nam] = my_port
 
-    # read command-line options
-    # each option given in command line overrides the option from xml config file
-    cmd_opts = {}
-    try:
-        cmd_opts = options_parser(sys.argv[1:])
-        kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
-    except:
-        cmd_opts["h"] = 1
-        pass
-
-    # check if all command line options are correct
-    short_opts = ("h","g","l","f","x","m","e","s","c","p","k","t","i","r","z")
-    long_opts = (help_nam,gui_nam,logger_nam,file_nam,xterm_nam,modules_nam,
-                 embedded_nam,standalone_nam,containers_nam,portkill_nam,
-                 killall_nam,terminal_nam,interp_nam,except_nam,splash_nam,
-                 case_nam)
-    opterror=0
-    for opt in cmd_opts:
-        if opt not in short_opts and opt not in long_opts:
-            print "Configure parser: Error : command line error : -%s" % opt
-            opterror=1
-
-    if opterror == 1:
-        cmd_opts["h"] = 1
-
-    if cmd_opts.has_key("h") or cmd_opts.has_key(help_nam):
-        print """
-        USAGE: runSalome.py [options]
-
-        Command line options:
-
-        --gui             (-g)                 Launch in GUI mode [default].
-        --terminal        (-t)                 Launching without GUI (in the terminal mode).
-        --terminal=<python_script>[,...]       Launching without GUI (in the terminal mode) and 
-               (-t=<python_script>[,...])      additionally import python script(s).
-        --logger          (-l)                 Redirect messages to the CORBA collector.
-        --file=<file>     (-f=<file>)          Redirect messages to the log file.
-        --xterm           (-x)                 Launch each SALOME server in own xterm console.
-        --modules=<module1>,<module2>,...      SALOME module list (where <module1>, <module2> 
-              (-m=<module1>,<module2>,...)     are the names of SALOME modules which should be
-                                               available in the SALOME session).
-        --embedded=<server1>,<server2>,...     CORBA servers to be launched in the Session
-               (-e=<server1>,<server2>,...)    embedded mode.
-                                               Valid values for <serverN>: registry, study,
-                                               moduleCatalog, cppContainer
-                                               [default: all mentioned].
-        --standalone=<server1>,<server2>,...   CORBA servers to be launched in the standalone
-                 (-s=<server1>,<server2>,...)  mode (as separate processes).
-                                               Valid values for <serverN>: registry, study,
-                                               moduleCatalog, cppContainer, pyContainer,
-                                               supervContainer
-                                               [default: pyContainer,supervContainer].
-        --containers=<container1>,...          [obsolete] SALOME containers to be launched.
-                 (-c=<container1>,...)         Valid values: cpp, python, superv
-                                               [default: use --embedded and --standalone
-                                               parameters].
-        --portkill        (-p)                 Kill SALOME with the current port.
-        --killall         (-k)                 Kill all running SALOME sessions.
-        --interp=<N>      (-i=<N>)             The number of additional xterm sessions to open.
-                                               In each xterm session SALOME environment is set
-                                               properly.
-        --splash          (-z)                 Display splash screen.
-        --noexcepthandler (-r)                 Disable centralized exception handling
-                                               mechanism.
-        --test=<hdf_file_andor_python_scripts> HDF file to be opened on GUI starting and/or
-                                               Python script(s) to be imported in the GUI
-                                               study. The files can appear in arbitrary order.
-                                               If the HDF file is given it is opened, otherwise
-                                               the new empty study is created.
-                                               Python scripts are imported in the order of
-                                               their appearance.
-                                               This option is avaiable only in GUI mode,
-                                               for batch mode use --terminal(-t) option.
-        --help            (-h)                 Print this help info
-
-        For each SALOME module, the environment variable <moduleN>_ROOT_DIR must be set.
-        KERNEL_ROOT_DIR is mandatory.
-        """
-        sys.exit(1)
-        pass
-
+    ####################################################
     # apply command-line options to the arguments
-    BATCHMODE_FORCED = False
-    NO_SPLASH_FORCED = False
-    args[script_nam] = []
-    for opt in cmd_opts:
-        if   opt in [ 'g', gui_nam ] :
-            if not BATCHMODE_FORCED: args[gui_nam] = 1
-            if cmd_opts[opt] == ['0']:
-                args["session_gui"] = 0
-                NO_SPLASH_FORCED = True
-                pass
-        elif opt in [ 't', terminal_nam ] :
-            args[gui_nam] = 0
-            args[script_nam] = cmd_opts[opt]
-            BATCHMODE_FORCED = True
-        elif opt in [ 'z', splash_nam ] :
-            if not NO_SPLASH_FORCED:
-                args[splash_nam] = 1
-                if cmd_opts[opt] == ['0']:
-                    args[splash_nam] = 0
-                    pass
-                pass
-            pass
-        elif opt in [ 'r', except_nam ] :
-            args[except_nam] = 1
-        elif opt in [ 'l', logger_nam ] :
-            args[logger_nam] = 1
-        elif opt in [ 'f', file_nam ] :
-            args[file_nam] = cmd_opts[opt]
-        elif opt in [ 'x', xterm_nam ] :
-            args[xterm_nam] = 1
-        elif opt in [ 'i', interp_nam ] :
-            args[interp_nam] = cmd_opts[opt]
-        elif opt in [ 'm', modules_nam ] :
-            args[modules_nam] = cmd_opts[opt]
-        elif opt in [ 'e', embedded_nam ] :
-            args[embedded_nam] = cmd_opts[opt]
-        elif opt in [ 's', standalone_nam ] :
-            args[standalone_nam] = cmd_opts[opt]
-        elif opt in [ 'c', containers_nam ] :
-            args[containers_nam] = cmd_opts[opt]
-        elif opt in [ 'p', portkill_nam ] :
-            args[portkill_nam] = 1
-        elif opt in [ 'k', killall_nam ] :
-            args[killall_nam] = 1
-        elif opt in [ case_nam ] :
-           args[case_nam] = cmd_opts[opt]
-        pass
+    # each option given in command line overrides the option from xml config file
+    #
+    # Options: gui, desktop, log_file, py_scripts, resources,
+    #          xterm, modules, embedded, standalone,
+    #          portkill, killall, interp, splash,
+    #          catch_exceptions
 
-    # if --modules (-m) command line option is not given
-    # try SALOME_MODULES environment variable
-    if not cmd_opts.has_key( "m" ) and \
-       not cmd_opts.has_key( modules_nam ) and \
-           os.getenv( "SALOME_MODULES" ):
-        args[modules_nam] = re.split( "[:;,]", os.getenv( "SALOME_MODULES" ) )
-        pass
+    # GUI/Terminal, Desktop, Splash, STUDY_HDF
+    args["session_gui"] = False
+    args["study_hdf"] = None
+    if cmd_opts.gui is not None:
+        args[gui_nam] = cmd_opts.gui
+    if args[gui_nam]:
+        args["session_gui"] = True
+        if cmd_opts.desktop is not None:
+            args["session_gui"] = cmd_opts.desktop
+            args[splash_nam]    = cmd_opts.desktop
+        if args["session_gui"]:
+            if cmd_opts.splash is not None:
+                args[splash_nam] = cmd_opts.splash
+        if len(cmd_args) > 0:
+            args["study_hdf"] = cmd_args[0]
+    else:
+        args["session_gui"] = False
+        args[splash_nam] = False
+
+    # Logger/Log file
+    if cmd_opts.log_file is not None:
+        if cmd_opts.log_file == 'CORBA':
+            args[logger_nam] = True
+        else:
+            args[file_nam] = [cmd_opts.log_file]
+
+    # Python scripts
+    args[script_nam] = []
+    if cmd_opts.py_scripts is not None:
+        listlist = cmd_opts.py_scripts
+        for listi in listlist:
+            args[script_nam] += re.split( "[:;,]", listi)
+
+    # xterm
+    if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm
+
+    # Modules
+    if cmd_opts.modules is not None:
+        args[modules_nam] = []
+        listlist = cmd_opts.modules
+        for listi in listlist:
+            args[modules_nam] += re.split( "[:;,]", listi)
+    else:
+        # if --modules (-m) command line option is not given
+        # try SALOME_MODULES environment variable
+        if os.getenv( "SALOME_MODULES" ):
+            args[modules_nam] = re.split( "[:;,]", os.getenv( "SALOME_MODULES" ) )
+            pass
+
+    # Embedded
+    if cmd_opts.embedded is not None:
+        args[embedded_nam] = []
+        listlist = cmd_opts.embedded
+        for listi in listlist:
+            args[embedded_nam] += re.split( "[:;,]", listi)
+
+    # Standalone
+    if cmd_opts.standalone is not None:
+        args[standalone_nam] = []
+        listlist = cmd_opts.standalone
+        standalone = []
+        for listi in listlist:
+            standalone += re.split( "[:;,]", listi)
+        for serv in standalone:
+            if args[embedded_nam].count(serv) <= 0:
+                args[standalone_nam].append(serv)
+
+    # Kill
+    if cmd_opts.portkill is not None: args[portkill_nam] = cmd_opts.portkill
+    if cmd_opts.killall  is not None: args[killall_nam]  = cmd_opts.killall
+
+    # Interpreter
+    if cmd_opts.interp is not None:
+        args[interp_nam] = cmd_opts.interp
+
+    # Exceptions
+    if cmd_opts.catch_exceptions is not None:
+        args[except_nam] = not cmd_opts.catch_exceptions
+
+    # Relink config file
+    if cmd_opts.save_config is not None:
+        args['save_config'] = cmd_opts.save_config
+
+    ####################################################
+    # Add <theAdditionalOptions> values to args
+    for add_opt in theAdditionalOptions:
+        cmd = "args[\"%s\"] = cmd_opts.%s"%(add_opt.dest,add_opt.dest)
+        exec(cmd)
+    ####################################################
 
     # disable signals handling
     if args[except_nam] == 1:
@@ -544,11 +791,14 @@ def get_env():
         if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
             d1 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources/" + m.lower()
             d2 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources"
-            if os.path.exists( "%s/%s.xml"%(d1, appname) ):
+            #if os.path.exists( "%s/%s.xml"%(d1, appname) ):
+            if os.path.exists( "%s/%s.xml"%(d1, salomeappname) ):
                 dirs.append( d1 )
-            elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
+            #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
+            elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
                 dirs.append( d2 )
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)
+    #print "Args: ", args
     return args

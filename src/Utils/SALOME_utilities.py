@@ -10,32 +10,34 @@
 import SALOME_Trace
 GLogger = SALOME_Trace.SALOME_Trace()
 
+from launchConfigureParser import verbose
+
 def MYTRACE ():
-    if __debug__:
+    if verbose():
         str = "- Trace "
         GLogger.putMessage(str + "  : ")
         
 
 def REPERE():
-    if __debug__:
+    if verbose():
         GLogger.putMessage("   --------------  \n")
 
 
 def BEGIN_OF(msg):
-    if __debug__:
+    if verbose():
         REPERE(); MYTRACE();
         GLogger.putMessage("Begin of : "+ str(msg) + "\n")
         REPERE();
 
 
 def END_OF(msg):
-    if __debug__:
+    if verbose():
         REPERE(); MYTRACE();
         GLogger.putMessage("Normale end of : "+ str(msg) + "\n")
         REPERE();
 
 def MESSAGE(msg):
-    if __debug__:
+    if verbose():
         MYTRACE()
         GLogger.putMessage(str(msg) + "\n")
 

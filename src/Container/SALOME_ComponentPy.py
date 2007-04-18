@@ -72,6 +72,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._myConnexionToRegistry = 0
         self._graphName = ''
         self._nodeName = ''
+        self._serviceName = ''
         self._ThreadId = 0
         self._StartUsed = 0
         self._ThreadCpuUsed = 0

@@ -27,6 +27,7 @@
 import salome_kernel
 import SALOMEDS
 import salome_iapp
+from launchConfigureParser import verbose
 
 #--------------------------------------------------------------------------
 
@@ -244,21 +245,21 @@ salome_study_ID = -1
 def getActiveStudy(theStudyId=0):
     global salome_study_ID
     
-    print "getActiveStudy"
+    if verbose(): print "getActiveStudy"
     if salome_study_ID == -1:
         if salome_iapp.hasDesktop():
-            print "---in gui"
+            if verbose(): print "---in gui"
             salome_study_ID = salome_iapp.sg.getActiveStudyId()
         else:
-            print "---outside gui"
+            if verbose(): print "---outside gui"
             if theStudyId:
                 aStudy=myStudyManager.GetStudyByID(theStudyId)
                 if aStudy:
-                    print "connection to existing study ", theStudyId
+                    if verbose(): print "connection to existing study ", theStudyId
                     salome_study_ID = theStudyId
             if salome_study_ID == -1:
                 salome_study_ID = createNewStudy()
-            print"--- Study Id ", salome_study_ID
+            if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
     
     #--------------------------------------------------------------------------
@@ -307,14 +308,14 @@ def salome_study_init(theStudyId=0):
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
         
         # get Study Manager reference
-        print "looking for studyManager ..."
+        if verbose(): print "looking for studyManager ..."
         obj = naming_service.Resolve('myStudyManager')
         myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-        print "studyManager found"
+        if verbose(): print "studyManager found"
 
         # get active study Id, ref and name
         myStudyId = getActiveStudy(theStudyId)
-        print "myStudyId",myStudyId
+        if verbose(): print "myStudyId",myStudyId
         myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()
 

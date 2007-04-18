@@ -23,6 +23,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 ----------------------------------------------------------------------------*/
 
 #include "hdfi.h"
+#include <stdlib.h>
 
 /*
  * - Name : _MEDdatasetWrite
@@ -55,7 +56,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
     if(ndim < 0) return -1;
     
     hdf_size *dim = (hdf_size *) malloc(sizeof(hdf_size)*ndim);
-    if ((ret == HDFdatasetGetDim(id, dim)) < 0)  return -1;
+    if ((ret = HDFdatasetGetDim(id, dim)) < 0)  return -1;
 	
     for(i=0; i<ndim; i++) size+=dim[i];    
     free(dim);

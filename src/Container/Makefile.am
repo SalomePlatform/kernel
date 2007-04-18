@@ -86,9 +86,10 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
-	@PYTHON_LIBS@ \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@
+
+#	@PYTHON_LIBS@
 
 #
 # ===============================================================
@@ -112,6 +113,7 @@ libSalomeContainer_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libSalomeContainer_la_LIBADD =\
+	$(PYTHON_LIBS) \
 	$(COMMON_LIBS)
 
 if WITH_PACO_PARALLEL

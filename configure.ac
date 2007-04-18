@@ -5,7 +5,7 @@
 #
 #AC_PREREQ(2.59)
 #AC_INIT(src)
-AC_INIT([Salome2 Project], [3.2.2], [paul.rascle@edf.fr], [salome])
+AC_INIT([Salome2 Project], [4.0.0], [paul.rascle@edf.fr], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -18,8 +18,8 @@ AM_INIT_AUTOMAKE([tar-pax])
 PACKAGE=salome
 AC_SUBST(PACKAGE)
 
-VERSION=3.2.2
-XVERSION=0x030202
+VERSION=4.0.0
+XVERSION=0x040000
 AC_SUBST(VERSION)
 AC_SUBST(XVERSION)
 

@@ -33,12 +33,15 @@ using namespace std;
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 
+#include <SALOMEDSImpl_ChildNodeIterator.hxx>
+
 #include <TDF_ChildIterator.hxx>
 #include <TDF_Label.hxx>
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
-#include <SALOMEDSImpl_ChildNodeIterator.hxx>
 #include <TDF_ListIteratorOfAttributeList.hxx>
+
+#include <OSD_Path.hxx>
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
@@ -297,6 +300,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(false);
 
     TCollection_ExtendedString Res(Att->Value());
+    TCollection_AsciiString aHDFPath(Res);
 
     Handle(SALOMEDSImpl_AttributeComment) type;
     TCollection_ExtendedString DataType;
@@ -317,8 +321,6 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     }
 
     DefineComponentInstance (anSCO, aDriver->GetIOR());
-
-    TCollection_AsciiString aHDFPath(Res);
 
     TCollection_AsciiString aHDFUrl;
     bool isASCII = false;
@@ -367,18 +369,20 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
 
       // set path without file name from URL 
-      int aFileNameSize = Res.Length();
-      char* aDir = new char[aFileNameSize];
-      memcpy(aDir, TCollection_AsciiString(Res).ToCString(), aFileNameSize);
-      for(int aCounter = aFileNameSize-1; aCounter>=0; aCounter--)
-	if (aDir[aCounter] == '/') {
-	  aDir[aCounter+1] = 0;
-	  break;
-	}
+      //int aFileNameSize = Res.Length();
+      //char* aDir = new char[aFileNameSize];
+      //memcpy(aDir, TCollection_AsciiString(Res).ToCString(), aFileNameSize);
+      //for(int aCounter = aFileNameSize-1; aCounter>=0; aCounter--)
+      //if (aDir[aCounter] == '/') {
+      //  aDir[aCounter+1] = 0;
+      //  break;
+      //}
+      // Above code was working wrong for paths without '/' inside.
+      TCollection_AsciiString aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
 
       bool aResult = (ASCIIfileState[0]=='A')?
-	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M'):
-	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M');
+	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.ToCString(), aMultifileState[0]=='M'):
+	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.ToCString(), aMultifileState[0]=='M');
 
       if(aStreamFile != NULL) delete []aStreamFile; 
 
@@ -389,7 +393,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	throw HDFexception("Unable to load component");
       }
 
-      if(aDir != NULL) delete []aDir;
+      //if(aDir != NULL) delete []aDir;
 
       multifile_hdf_dataset->CloseOnDisk();
       multifile_hdf_dataset = 0;

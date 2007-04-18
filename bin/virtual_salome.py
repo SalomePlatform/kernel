@@ -81,7 +81,10 @@ def get_lib_dir():
     if __lib__dir__: return __lib__dir__
     import platform
     if platform.architecture()[0] == "64bit":
-        __lib__dir__ = "lib64"
+        if platform.machine() == "ia64":
+            __lib__dir__ = "lib"
+        else:
+            __lib__dir__ = "lib64"
     else:
         __lib__dir__ = "lib"
     return get_lib_dir()

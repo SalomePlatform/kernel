@@ -1,4 +1,4 @@
-//  Copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -93,17 +93,9 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 
 	  // --- start a trace Collector
 
-	  char* traceKind;
-	  bool isNotDefined = false;
-	  if ( getenv("SALOME_trace") )
-	    traceKind = getenv("SALOME_trace");
-	  else
-	    isNotDefined = true; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
-	  
-	  assert(traceKind);
-	  //cerr<<"SALOME_trace="<<traceKind<<endl;
+	  char* traceKind = getenv("SALOME_trace");
 
-	  if ( isNotDefined || strcmp(traceKind,"local")==0 )
+	  if ( !traceKind || strcmp(traceKind,"local")==0 ) // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
 	    {
 	      _myThreadTrace = LocalTraceCollector::instance();
 	    }

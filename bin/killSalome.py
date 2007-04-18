@@ -33,5 +33,21 @@ def killAllPorts():
             killMyPort(mo.groups()[0])
         pass
 
+    cmd = "pid=`ps -fea | grep '"+os.getenv('USER')+"' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'` ; echo $pid > /tmp/logs/"+os.getenv('USER')+"/_"+"Pid_ghs3d.log"
+    a = os.system(cmd)
+    try:
+        fpidomniNames=open('/tmp/logs/'+os.getenv('USER')+"/_"+"Pid_ghs3d.log")
+        prc = fpidomniNames.read()
+        fpidomniNames.close()
+        if prc != None :
+            for field in prc.split(" ") :
+                field = field.strip()
+                if field != None and len(field) != 0:
+                    os.system('kill -9 '+field)
+    except:
+        pass
+    pass
+
 if __name__ == "__main__":
     killAllPorts()
+    

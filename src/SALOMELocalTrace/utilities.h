@@ -92,12 +92,13 @@
 #error INFOS_COMPILATION already defined
 #endif
 
-#define INFOS_COMPILATION { MESS_BEGIN("COMPILED with ") << COMPILER \
-				       << ", " << __DATE__ \
-				       << " at " << __TIME__ << MESS_END }
 #ifdef _DEBUG_
 
 // --- the following MACROS are useful at debug time
+
+#define INFOS_COMPILATION { MESS_BEGIN("COMPILED with ") << COMPILER \
+				       << ", " << __DATE__ \
+				       << " at " << __TIME__ << MESS_END }
 
 #define MESSAGE(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define SCRUTE(var)  {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}
@@ -114,6 +115,7 @@
 
 #else /* ifdef _DEBUG_*/
 
+#define INFOS_COMPILATION
 #define MESSAGE(msg) {}
 #define SCRUTE(var) {}
 #define REPERE

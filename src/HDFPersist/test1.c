@@ -25,6 +25,9 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 #include"hdfi.h"
 #include<stdlib.h>
 
+#define MESSAGE(msg) printf(msg);
+//__FILE__,":[",__LINE__,"]: ",
+
 int main() {
   hdf_idt fid,gid,did,atid;
   hdf_err ret;

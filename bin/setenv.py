@@ -1,6 +1,27 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
+
 import sys, os, string, glob, time, pickle
+import orbmodule
+from launchConfigureParser import verbose
 
 # this file is extraction of set_env from runSalome.py
 # for reusage in automated tests
@@ -26,18 +47,12 @@ def add_path(directory, variable_name):
         newpath=[]
         for _dir in os.environ[variable_name].split(splitsym):
             if os.path.exists(_dir):
-		try:
-                  if not os.path.samefile(_dir, directory):
-                    newpath.append(_dir)
-		except:
-                  if _dir != directory:
-                    newpath.append(_dir)
-		  
+                if not os.path.samefile(_dir, directory):
+                  newpath.append(_dir)
             else:
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)
-
-            pass            
+            pass
         import string
         newpath[:0] = [ directory ]
         newpath = string.join(newpath, splitsym)
@@ -46,13 +61,17 @@ def add_path(directory, variable_name):
             sys.path[:0] = [directory]
 
 # -----------------------------------------------------------------------------
+
 __lib__dir__ = None
 def get_lib_dir():
     global __lib__dir__
     if __lib__dir__: return __lib__dir__
     import platform
     if platform.architecture()[0] == "64bit":
-        __lib__dir__ = "lib64"
+        if platform.machine() == "ia64":
+            __lib__dir__ = "lib"
+        else:
+            __lib__dir__ = "lib64"
     else:
         __lib__dir__ = "lib"
     return get_lib_dir()
@@ -69,10 +88,19 @@ def get_config():
     """
     
     # read args from launch configure xml file and command line options
-    
+
+    #*** Test additional option
+    #*** import optparse
+    #*** help_str = "Test options addition."
+    #*** o_j = optparse.Option("-j", "--join", action="store_true", dest="join", help=help_str)
+
     import launchConfigureParser
     args = launchConfigureParser.get_env()
-    
+
+    #*** Test additional option
+    #*** args = launchConfigureParser.get_env([o_j])
+    #*** if args.has_key("join"): print args["join"]
+
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
 
@@ -183,7 +211,7 @@ def set_env(args, modules_list, modules_root_dir):
         os.environ["SMESH_MeshersList"]="StdMeshers"
         if not os.environ.has_key("SALOME_StdMeshersResources"):
             os.environ["SALOME_StdMeshersResources"] \
-            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources/smesh"
+            = modules_root_dir["SMESH"]+"/share/"+salome_subdir+"/resources/smesh"
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
@@ -201,7 +229,7 @@ def set_env(args, modules_list, modules_root_dir):
                     = os.environ["SMESH_MeshersList"]+":"+plugin
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
-                        = plugin_root+"/share/"+args["appname"]+"/resources/"+plugin.lower()
+                        = plugin_root+"/share/"+salome_subdir+"/resources/"+plugin.lower()
                     add_path(os.path.join(plugin_root,get_lib_dir(),python_version,
                                           "site-packages",salome_subdir),
                              "PYTHONPATH")
@@ -227,8 +255,7 @@ def set_env(args, modules_list, modules_root_dir):
     # set resources variables if not yet set
     # Done now by launchConfigureParser.py
     #if os.getenv("GUI_ROOT_DIR"):
-        #if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
-        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
     # set CSF_PluginDefaults variable only if it is not customized
     # by the user
@@ -241,11 +268,11 @@ def set_env(args, modules_list, modules_root_dir):
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
-        print "GEOM OCAF Resources"
+        if verbose(): print "GEOM OCAF Resources"
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
-	print "GEOM Shape Healing Resources"
+        if verbose(): print "GEOM Shape Healing Resources"
         os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")

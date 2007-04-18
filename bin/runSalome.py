@@ -23,6 +23,7 @@ import sys, os, string, glob, time, pickle
 import orbmodule
 import setenv
 from server import *
+from launchConfigureParser import verbose
 #process_id = {} move to server.py
 
 # -----------------------------------------------------------------------------
@@ -240,26 +241,30 @@ class SessionServer(Server):
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
             self.SCMD2+=['PY']
-        if 'supervContainer' in self.args['containers'] or 'supervContainer' in self.args['standalone']:
+        if 'supervContainer' in self.args['standalone']:
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
-            try:
+            session_gui = True
+            if self.args.has_key('session_gui'):
                 session_gui = self.args['session_gui']
-            except KeyError:
-                session_gui = 1
-                pass
             if session_gui:
                 self.SCMD2+=['GUI']
+                if self.args['splash']:
+                    self.SCMD2+=['SPLASH']
+                    pass
+                if self.args['study_hdf'] is not None:
+                    self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
+                    pass
                 pass
             pass
-        if self.args['splash'] and self.args['gui']:
-            self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
+        if self.args.has_key('user_config'):
+            self.SCMD2+=['--resources=%s'%self.args['user_config']]
         if self.args.has_key('modules'):
             self.SCMD2+=['--modules (%s)'%":".join(self.args['modules'])]
-        if self.args.has_key('test') and len(args['test']) > 0:
-            self.SCMD2+=['--test=%s'%(",".join(args['test']))]
+        if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
+            self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
@@ -332,12 +337,12 @@ class ContainerManagerServer(Server):
                                                module_cata)):
                     cata_path.extend(
                         glob.glob(os.path.join(module_root_dir,"share",
-                                               self.args['appname'],"resources",
+                                               setenv.salome_subdir,"resources",
                                                module.lower(),module_cata)))
                 else:
                     cata_path.extend(
                         glob.glob(os.path.join(module_root_dir,"share",
-                                               self.args['appname'],"resources",
+                                               setenv.salome_subdir,"resources",
                                                module_cata)))
                 pass
             pass
@@ -382,7 +387,7 @@ def startSalome(args, modules_list, modules_root_dir):
     """Launch all SALOME servers requested by args"""
     init_time = os.times()
 
-    print "startSalome ", args
+    if verbose(): print "startSalome ", args
     
     #
     # Initialisation ORB et Naming Service
@@ -402,6 +407,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
+    if verbose(): print "Notify Server to launch"
 
     if sys.platform != "win32":
       print "Notify Server to launch"
@@ -492,7 +498,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
-    if 'cppContainer' in args['standalone']:
+    if ('cppContainer' in args['standalone']) | (args["gui"] == 0):
         myServer=ContainerCPPServer(args)
         myServer.run()
         if sys.platform == "win32":
@@ -547,7 +553,7 @@ def startSalome(args, modules_list, modules_root_dir):
         else:
           session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
     end_time = os.times()
-    print
+    if verbose(): print
     print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
                                                          - init_time[4])
 
@@ -562,8 +568,7 @@ def startSalome(args, modules_list, modules_root_dir):
     
     try:
         if 'interp' in args:
-            if args['interp']:
-                nbaddi = int(args['interp'][0])
+            nbaddi = args['interp']
     except:
         import traceback
         traceback.print_exc()
@@ -618,7 +623,7 @@ def useSalome(args, modules_list, modules_root_dir):
     pickle.dump(process_ids,fpid)
     fpid.close()
     
-    print """
+    if verbose(): print """
     Saving of the dictionary of Salome processes in %s
     To kill SALOME processes from a console (kill all sessions from all ports):
       python killSalome.py 
@@ -637,12 +642,18 @@ def useSalome(args, modules_list, modules_root_dir):
     #
     
     if clt != None:
-        print
-        print " --- registered objects tree in Naming Service ---"
-        clt.showNS()
-
-        # run python scripts, passed via -t option
-        toimport = args['pyscript']
+        if verbose():
+            print
+            print " --- registered objects tree in Naming Service ---"
+            clt.showNS()
+            pass
+        
+        # run python scripts, passed via --execute option
+        toimport = []
+        if args.has_key('pyscript'):
+            if args.has_key('gui') and args.has_key('session_gui'):
+                if not args['gui'] or not args['session_gui']:
+                    toimport = args['pyscript']
         i = 0
         while i < len( toimport ) :
             if toimport[ i ] == 'killall':
@@ -650,9 +661,15 @@ def useSalome(args, modules_list, modules_root_dir):
                 import sys
                 sys.exit(0)
             else:
-                print 'importing',toimport[ i ]
-                doimport = 'import ' + toimport[ i ]
-                exec doimport
+                scrname = toimport[ i ]
+                if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
+                    print 'executing',scrname
+                    doexec = 'execfile(\"%s\")'%scrname
+                    exec doexec
+                else:
+                    print 'importing',scrname
+                    doimport = 'import ' + scrname
+                    exec doimport
             i = i + 1
 
     return clt
@@ -758,26 +775,11 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
-    if len(sys.argv) == 2:
-        if sys.argv[1] == "-nothing":
-            searchFreePort({})
-            import os
-            print "port:%s"%(os.environ['NSPORT'])
-            import sys
-            sys.exit(0)
-            pass
-        pass
-    save_config = 1
-    import sys
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--nosave-config":
-            save_config = 0
-            sys.argv[1:2] = []
-            pass
-        pass
-    #
     args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)
+    save_config = True
+    if args.has_key('save_config'):
+        save_config = args['save_config']
     searchFreePort(args, save_config)
     setenv.main()
     clt = useSalome(args, modules_list, modules_root_dir)

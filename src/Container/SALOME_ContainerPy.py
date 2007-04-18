@@ -42,6 +42,7 @@ from SALOME_ComponentPy import *
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
+from launchConfigureParser import verbose
 
 #=============================================================================
 
@@ -63,7 +64,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         Container_path = "/Containers/" + myMachine + "/" + containerName
         #self._containerName = containerName
         self._containerName = Container_path
-        print "container name ",self._containerName
+        if verbose(): print "container name ",self._containerName
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
@@ -172,9 +173,9 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         MESSAGE( "SALOME_Container_i::import_component" )
         ret=0
         try:
-            print "try import ",componentName
+            if verbose(): print "try import ",componentName
             __import__(componentName)
-            print "import ",componentName," successful"
+            if verbose(): print "import ",componentName," successful"
             ret=1
         except:
             import traceback

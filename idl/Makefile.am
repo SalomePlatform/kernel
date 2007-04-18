@@ -29,6 +29,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # To avoid problems with parallel compilation.
 MAKEFLAGS = -j1
 
+AM_CXXFLAGS = -fPIC
+
 BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \

@@ -72,8 +72,8 @@ case $host_os in
     linux*)
         if test x"$linux64" = x"true"; then \
           MACHINE="PCLINUX64${SUFFIXES}";
-	  CFLAGS=" -m64 ${CXXFLAGS}";
-	  CXXFLAGS=" -m64 ${CXXFLAGS}";\
+	  CFLAGS=" -m64 -D_OCC64 ${CXXFLAGS}";
+	  CXXFLAGS=" -m64 -D_OCC64 ${CXXFLAGS}";\
 	else \
 	  MACHINE=PCLINUX; \
 	fi

@@ -35,7 +35,7 @@ SALOME_Matrix_i::~SALOME_Matrix_i()
 
 SALOME::SenderDouble_ptr SALOME_Matrix_i::getData()
 {
-  return SenderFactory::buildSender(_type,_tabToSend,_nbOfRow*_nbOfColumn,_ownTabToSend);
+  return SenderFactory::buildSender(_type,_tabToSend,_nbOfRow*_nbOfColumn,false);
 }
 
 CORBA::Long SALOME_Matrix_i::getSizeOfColumn()

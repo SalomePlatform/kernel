@@ -104,3 +104,16 @@ EXTRA_DIST = \
   test7.cxx \
   test8.cxx \
   test9.cxx
+
+#bin_PROGRAMS=HDFtest1 HDFtest2 HDFtest3
+#HDFtest1_SOURCES = test1.c
+#HDFtest2_SOURCES = test2.c
+#HDFtest3_SOURCES = test3.cxx
+
+#AM_CFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
+#                                  -I$(srcdir)/../SALOMELocalTrace \
+#                                  -I$(srcdir)/../Basics
+#AM_CXXFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
+#                                  -I$(srcdir)/../SALOMELocalTrace \
+#                                  -I$(srcdir)/../Basics
+#AM_LDFLAGS= @HDF5_LIBS@

@@ -80,7 +80,10 @@ if sys.platform == "win32":
 path=salome_path.split(splitter)
 import platform
 if platform.architecture()[0] == "64bit":
-    libdir = "lib64"
+    if platform.machine() == "ia64":
+        libdir = "lib"
+    else:
+        libdir = "lib64"
 else:
     libdir = "lib"
 for rep in path:
