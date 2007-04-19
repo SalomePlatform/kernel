@@ -187,7 +187,7 @@ fi
 if test "x$omniORB_ok" = "xyes" 
 then
 
-  OMNIORB_IDLCXXFLAGS="-nf -I${OMNIORB_ROOT}/idl"
+  OMNIORB_IDLCXXFLAGS="-Wba -nf -I${OMNIORB_ROOT}/idl"
   OMNIORB_IDLPYFLAGS_1='-bpythonbe -p ${top_srcdir}/salome_adm/unix'
   OMNIORB_IDLPYFLAGS_2=" -I${OMNIORB_ROOT}/idl"
   OMNIORB_IDLPYFLAGS=${OMNIORB_IDLPYFLAGS_1}${OMNIORB_IDLPYFLAGS_2}
