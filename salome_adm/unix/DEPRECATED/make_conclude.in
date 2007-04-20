@@ -14,14 +14,14 @@
 @CORBA@
 
 # transform idl reference in appropriate obj file
-LIB_CLIENT_SRC = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX))
+LIB_CLIENT_SRC = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX)) $(LIB_CLIENT_IDL:%.idl=%DynSK.cc)
 LIB_SERVER_SRC = $(LIB_SERVER_IDL:%.idl=%$(IDL_SRV_CXX))
 LIB_MOC_SRC = $(LIB_MOC:%.h=%_moc.cxx)
 LIB_SRC+=$(LIB_MOC_SRC)
 LIB_SWIG_SRC = $(SWIG_DEF:%.i=%_wrap.cxx)
 LIB_DEP= $(LIB_SRC) $(LIB_CLIENT_SRC) $(LIB_SERVER_SRC) $(LIB_SWIG_SRC)
  
-LIB_CLIENT_OBJ = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_OBJ))
+LIB_CLIENT_OBJ = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_OBJ)) $(LIB_CLIENT_IDL:%.idl=%DynSK.o)
 LIB_SERVER_OBJ = $(LIB_SERVER_IDL:%.idl=%$(IDL_SRV_OBJ))
 
  
@@ -75,13 +75,13 @@ $(LIB): $(LIB_OBJ)
 	@$(LT) --mode=link $(CXX) -shared -rpath $(libdir) -o $@ $(CXXFLAGS) $(LIB_OBJ) $(LDFLAGS) $(LIBS)
 
 # transform idl reference in appropriate obj file
-BIN_CLIENT_SRC = $(BIN_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX))
+BIN_CLIENT_SRC = $(BIN_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX)) $(BIN_CLIENT_IDL:%.idl=%DynSK.cc)
 BIN_SERVER_SRC = $(BIN_SERVER_IDL:%.idl=%$(IDL_SRV_CXX))
 BIN_MOC_SRC = $(BIN_MOC:%.h=%_moc.cxx)
 BIN_SRC+=$(BIN_MOC_SRC)
 BIN_DEP=$(BIN:%=%.cxx) $(BIN_SRC) $(BIN_CLIENT_SRC) $(BIN_SERVER_SRC)
 
-BIN_CLIENT_OBJ = $(BIN_CLIENT_IDL:%.idl=%$(IDL_CLN_OBJ))
+BIN_CLIENT_OBJ = $(BIN_CLIENT_IDL:%.idl=%$(IDL_CLN_OBJ)) $(BIN_CLIENT_IDL:%.idl=%DynSK.o)
 BIN_SERVER_OBJ = $(BIN_SERVER_IDL:%.idl=%$(IDL_SRV_OBJ)) 
 # transform c file in appropriate libtool obj file (.c)
 BIN_OBJ_C =  $(patsubst %.c,  %.o, $(filter %.c, $(BIN_SRC)))
