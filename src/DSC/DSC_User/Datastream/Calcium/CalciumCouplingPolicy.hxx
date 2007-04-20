@@ -32,7 +32,7 @@
 #include "DisplayPair.hxx"
 #include "CouplingPolicy.hxx"
 #include "AdjacentFunctor.hxx"
-#include "lambda.hpp"
+#include <boost/lambda/lambda.hpp>
 #include "CalciumTypes.hxx"
 #include "DSC_Exception.hxx"
 typedef DSC_Exception DATASTREAM_EXCEPTION;

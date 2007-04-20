@@ -26,7 +26,7 @@
 // Date        : $LastChangedDate: 2007-01-08 19:01:14 +0100 (lun, 08 jan 2007) $
 // Id          : $Id$
 
-#include "lambda.hpp"
+#include <boost/lambda/lambda.hpp>
 #include <vector>
 #include <algorithm>
 #include <iostream>

@@ -53,7 +53,7 @@ salomeinclude_HEADERS = GenericPort.hxx \
 #
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
-COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User
+COMMON_CPPFLAGS= @BOOST_CPPFLAGS@ -I$(top_srcdir)/src/DSC/DSC_User
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = $(top_builddir)/src/DSC/DSC_User/Datastream/Palm/libSalomePalm.la \

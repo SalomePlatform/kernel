@@ -58,7 +58,8 @@ COMMON_CPPFLAGS= -I$(srcdir)/Basic \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
-		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
+
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = 
