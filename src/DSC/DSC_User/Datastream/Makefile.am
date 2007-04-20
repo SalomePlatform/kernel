@@ -44,7 +44,6 @@ salomeinclude_HEADERS = GenericPort.hxx \
 			AdjacentFunctor.hxx \
 			IteratorTraits.hxx \
 			ConstTraits.hxx \
-			lambda.hpp \
 			DatastreamException.hxx
 
 #
