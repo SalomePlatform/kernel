@@ -29,7 +29,7 @@
 
 
 %{
-#define __declspec(a)
+//#define __declspec(a)
 #include "NOTIFICATION_Swig.hxx"
 %}
 
