@@ -26,13 +26,15 @@
 #ifndef _PORTPROPERTIES_I_HXX_
 #define _PORTPROPERTIES_I_HXX_
 
+#include <DSC_Basic.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Ports)
 
 /*! \class PortProperties_i
  *  \brief This class implements the interface Ports::PortProperties.
  */
-class PortProperties_i:
+class DSC_BASIC_EXPORT PortProperties_i:
   public virtual POA_Ports::PortProperties
 {
   public:

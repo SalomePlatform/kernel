@@ -35,7 +35,8 @@ salomeinclude_HEADERS = ConnectionManager_i.hxx \
 			DSC_Callbacks.hxx \
 			DSC_i.hxx \
 			DSC_interface.hxx \
-			PortProperties_i.hxx
+			PortProperties_i.hxx \
+			DSC_Basic.hxx
 #
 # ===============================================================
 # Local definitions

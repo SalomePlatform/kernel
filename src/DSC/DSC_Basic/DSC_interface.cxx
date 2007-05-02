@@ -23,6 +23,7 @@
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
 
+#include <string>
 #include "DSC_interface.hxx"
 
 Engines_DSC_interface::Engines_DSC_interface() {}

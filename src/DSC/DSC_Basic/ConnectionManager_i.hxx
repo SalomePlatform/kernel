@@ -26,6 +26,8 @@
 #ifndef _CONNECTION_MANAGER_I_HXX_
 #define _CONNECTION_MANAGER_I_HXX_
 
+#include <DSC_Basic.hxx>
+
 #include <iostream>
 #include <map>
 #include <pthread.h>
@@ -36,7 +38,7 @@
 /*! \class ConnectionManager_i
  *  \brief This class implements the interface Engines::ConnectionManager.
  */
-class ConnectionManager_i :
+class DSC_BASIC_EXPORT ConnectionManager_i :
   public virtual POA_Engines::ConnectionManager
 {
   public :

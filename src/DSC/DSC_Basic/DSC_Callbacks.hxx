@@ -26,6 +26,8 @@
 #ifndef _DSC_CALLBACKS_HXX_
 #define _DSC_CALLBACKS_HXX_
 
+#include <DSC_Basic.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(DSC_Engines)
 
@@ -34,7 +36,7 @@
  *  uses to prevent the component user code that the state of the component has changed.
  *  Currently only port's connection modifications are signaled.
  */
-class DSC_Callbacks
+class DSC_BASIC_EXPORT DSC_Callbacks
 {
   public:
     DSC_Callbacks() {}

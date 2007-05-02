@@ -26,6 +26,8 @@
 #ifndef _DSC_I_HXX_
 #define _DSC_I_HXX_
 
+#include <DSC_Basic.hxx>
+
 #include <iostream>
 #include <map>
 #include <string.h>
@@ -39,7 +41,7 @@
  *
  *  The implementation of methods are performed by the class Engines_DSC_interface.
  */
-class Engines_DSC_i: 
+class DSC_BASIC_EXPORT Engines_DSC_i: 
   public Engines_Component_i, // keyword virtual is not use to be able to
 			      // call the right Engines_Component_i constructor.
 			      // If virtual is used, a derived class of Engines_DSC_i
