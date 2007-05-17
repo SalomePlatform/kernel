@@ -63,7 +63,7 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
      *
      * \see Engines::ConnectionManager::disconnect
      */
-    void disconnect(const Engines::ConnectionManager::connectionId id,
+    void disconnect(Engines::ConnectionManager::connectionId id,
 		    Engines::DSC::Message message)
       throw (Engines::ConnectionManager::BadId);
 

@@ -47,8 +47,11 @@ def add_path(directory, variable_name):
         newpath=[]
         for _dir in os.environ[variable_name].split(splitsym):
             if os.path.exists(_dir):
-                if not os.path.samefile(_dir, directory):
-                  newpath.append(_dir)
+                if sys.platform != "win32":
+                    if not os.path.samefile(_dir, directory):
+                        newpath.append(_dir)
+                else:
+                    newpath.append(_dir)
             else:
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)

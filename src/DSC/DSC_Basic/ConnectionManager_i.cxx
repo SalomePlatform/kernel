@@ -73,7 +73,7 @@ throw (Engines::DSC::PortNotDefined,
 }
 
 void
-ConnectionManager_i::disconnect(const Engines::ConnectionManager::connectionId id,
+ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 				Engines::DSC::Message message)
 throw (Engines::ConnectionManager::BadId)
 {
