@@ -39,13 +39,13 @@ CalciumTypes::DependencyType CalciumCouplingPolicy::getDependencyType () const  
  
 void   CalciumCouplingPolicy::setStorageLevel   (size_t         storageLevel)   {
   if ( storageLevel < 1 && (storageLevel != CalciumTypes::UNLIMITED_STORAGE_LEVEL)  )
-    throw DATASTREAM_EXCEPTION(LOC("Un niveau < 1 n'est pas autorisé"));
+    throw CalciumException(CalciumTypes::CPRENA,LOC("Un niveau < 1 n'est pas autorisé"));
   _storageLevel = storageLevel;
 }
 size_t CalciumCouplingPolicy::getStorageLevel   () const                        {return _storageLevel;}
 void   CalciumCouplingPolicy::setDateCalSchem   (CalciumTypes::DateCalSchem   dateCalSchem)   {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
-    throw DATASTREAM_EXCEPTION(LOC("Il est impossible de positionner un schéma temporel sur un port qui n'est pas en dépendance temporelle"));
+    throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner un schéma temporel sur un port qui n'est pas en dépendance temporelle"));
   _dateCalSchem = dateCalSchem;
 }
 
@@ -53,33 +53,33 @@ CalciumTypes::DateCalSchem CalciumCouplingPolicy::getDateCalSchem () const   { r
 
 void CalciumCouplingPolicy::setAlpha(double alpha) {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
-    throw DATASTREAM_EXCEPTION(LOC("Il est impossible de positionner alpha sur un port qui n'est pas en dépendance temporelle"));
+    throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner alpha sur un port qui n'est pas en dépendance temporelle"));
   
   if ( 0 <= alpha <= 1 ) _alpha = alpha; 
   else 
-    throw DATASTREAM_EXCEPTION(LOC("Le paramètre alpha doit être compris entre [0,1]"));
+    throw CalciumException(CalciumTypes::CPRENA,LOC("Le paramètre alpha doit être compris entre [0,1]"));
 }
 
 double CalciumCouplingPolicy::getAlpha() const   { return _alpha; }
 
 void CalciumCouplingPolicy::setDeltaT(double deltaT ) {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
-    throw DATASTREAM_EXCEPTION(LOC("Le paramètre deltaT sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
+    throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre deltaT sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
   if ( 0 <= deltaT <= 1 ) _deltaT = deltaT; 
   else 
-    throw(DATASTREAM_EXCEPTION(LOC("Le paramètre deltaT doit être compris entre [0,1]")));
+    throw(CalciumException(CalciumTypes::CPRENA,LOC("Le paramètre deltaT doit être compris entre [0,1]")));
 }
 double CalciumCouplingPolicy::getDeltaT() const  {return _deltaT;}
 
 void CalciumCouplingPolicy::setInterpolationSchem (CalciumTypes::InterpolationSchem interpolationSchem) {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
-    throw DATASTREAM_EXCEPTION(LOC("Le paramètre InterpolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
+    throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre InterpolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
   _interpolationSchem=interpolationSchem;
 }
 
 void CalciumCouplingPolicy::setExtrapolationSchem (CalciumTypes::ExtrapolationSchem extrapolationSchem) {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
-    throw DATASTREAM_EXCEPTION(LOC("Le paramètre ExtrapolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
+    throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre ExtrapolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
 _extrapolationSchem=extrapolationSchem;
 }
 
@@ -98,7 +98,7 @@ CalciumCouplingPolicy::getEffectiveTime(CalciumCouplingPolicy::TimeType ti,
 }
 
 void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
-  // TODO Réveiller les ports en attente ! OU timeout ?
+
   if (provideLastGivenValue) {
     std::cout << "-------- CalciumCouplingPolicy::disconnect CP_CONT  ------------------" << std::endl;
     _disconnectDirective = CalciumTypes::CONTINUE;
@@ -106,10 +106,7 @@ void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
     std::cout << "-------- CalciumCouplingPolicy::disconnect CP_ARRET  ------------------" << std::endl;
     _disconnectDirective = CalciumTypes::STOP;
   }
-  //Wakeup get data if any
-  //wakeupWaiting();
 
-//   if (waitingForAnyDataId || waitingForConvenientDataId);
-//        cond_instance.signal();
-       
+  //Wakeup get data if any
+  wakeupWaiting();  
 }

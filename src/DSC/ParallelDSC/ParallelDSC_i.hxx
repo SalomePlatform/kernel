@@ -49,7 +49,7 @@ public:
   virtual ~Engines_ParallelDSC_i();
 
   
-  virtual CORBA::Boolean init_service(const char* service_name) {return true;};
+  //virtual CORBA::Boolean init_service(const char* service_name) {return true;}
 
   /*!
    * \see Engines::DSC::add_provides_port
@@ -177,7 +177,8 @@ public:
    * \return true if the proxy is correctly added.
    */
   virtual CORBA::Boolean add_parallel_provides_proxy_port(const CORBA::Object_ptr ref, 
-							  const char * provides_port_name);
+							  const char * provides_port_name,
+							  Ports::PortProperties_ptr port_prop);
 
   /*! 
    * This method by the nodes that do not add the proxy to wait is reference.

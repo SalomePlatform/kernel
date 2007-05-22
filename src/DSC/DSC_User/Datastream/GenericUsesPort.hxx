@@ -42,7 +42,8 @@
 
 //ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);
 
-template <typename DataManipulator, typename CorbaPortType, char * repositoryName, typename UsesPort=uses_port> 
+template <typename DataManipulator, typename CorbaPortType, char * repositoryName, 
+	  typename UsesPort=uses_port > 
 class GenericUsesPort : public UsesPort
 {
 public :

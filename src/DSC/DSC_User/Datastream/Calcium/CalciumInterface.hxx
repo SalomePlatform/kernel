@@ -33,7 +33,7 @@
 #include <vector>
 #include <iostream>
 #include "Superv_Component_i.hxx"
-#include "DatastreamException.hxx"
+#include "CalciumException.hxx"
 #include "CalciumTypes.hxx"
 #include "CalciumGenericUsesPort.hxx"
 #include "Copy2UserSpace.hxx"
@@ -69,32 +69,45 @@ public :
     std::vector<std::string>::const_iterator it;
     component.get_uses_port_names(usesPortNames);    
     
-    //récupérer le type de réel su port est un peu difficile
+    //récupérer le type de réel du port est un peu difficile
     //car l'interface nous donne aucune indication
-    uses_port *myUsesPort;
-    
+
+    //     uses_port *myUsesPort;
+    calcium_uses_port* myCalciumUsesPort;
+      
     for (it=usesPortNames.begin(); it != usesPortNames.end(); ++it) {
       try {
-	component.Superv_Component_i::get_port(myUsesPort,(*it).c_str());
-	calcium_uses_port* myCalciumUsesPort=
-	  dynamic_cast<calcium_uses_port*>(myUsesPort);
+
+	myCalciumUsesPort= 
+	  component.Superv_Component_i::get_port< calcium_uses_port >((*it).c_str());
+
+// 	component.Superv_Component_i::get_port(myUsesPort,(*it).c_str());
+// 	calcium_uses_port* myCalciumUsesPort=
+// 	  dynamic_cast<calcium_uses_port*>(myUsesPort);
+
 	std::cerr << "-------- CalciumInterface(ecp_fin) MARK 1 -|"<< *it <<"|----"<< 
-	  typeid(myUsesPort).name() <<"-------------" <<
+	  //	  typeid(myUsesPort).name() <<"-------------" <<
 	  typeid(myCalciumUsesPort).name() <<"-------------" << std::endl;
-	if ( !myCalciumUsesPort )
-	  throw Superv_Component_i::BadCast(LOC(OSS()<<"Impossible de convertir le port "
-						<< *it << " en port de type calcium_uses_port." ));
+	
+// 	if ( !myCalciumUsesPort )
+// 	  throw Superv_Component_i::BadCast(LOC(OSS()<<"Impossible de convertir le port "
+// 						<< *it << " en port de type calcium_uses_port." ));
+
 	myCalciumUsesPort->disconnect(provideLastGivenValue);
-      } catch ( const Superv_Component_i::PortNotDefined & ex) {
-	std::cerr << ex.what() << std::endl;
-	throw (DatastreamException(CalciumTypes::CPNMVR,ex));
-      } catch ( const Superv_Component_i::PortNotConnected & ex) {
-	std::cerr << ex.what() << std::endl;;
-	throw (DatastreamException(CalciumTypes::CPLIEN,ex)); 
-       } catch ( const Superv_Component_i::BadCast & ex) {
+
+      } catch ( const Superv_Component_i::BadCast & ex) {
  	std::cerr << ex.what() << std::endl;
- 	throw (DatastreamException(CalciumTypes::CPTPVR,ex));
-      } // Laisse passer les autres exceptions.
+ 	throw (CalciumException(CalciumTypes::CPTPVR,ex));
+      } catch ( const DSC_Exception & ex) {
+	std::cerr << ex.what() << std::endl;
+	// Exception venant de SupervComponent :
+	//   PortNotDefined(CPNMVR), PortNotConnected(CPLIEN)  
+	// ou du port uses : Dsc_Exception
+	// On continue à traiter la deconnexion des autres ports uses
+      } catch (...) {
+ 	throw (CalciumException(CalciumTypes::CPATAL,"Exception innatendue"));
+	// En fonction du mode de gestion des erreurs throw;
+      }
     }
   }
 
@@ -161,7 +174,7 @@ public :
     std::cerr << "-------- CalciumInterface(ecp_lecture) MARK 1 ------------------" << std::endl;
 
     if (nomVar.empty())
-      throw DatastreamException(CalciumTypes::CPNMVR,
+      throw CalciumException(CalciumTypes::CPNMVR,
 				LOC("Le nom de la variable est <nul>"));
     PortType * port;
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 2 ------------------" << std::endl;
@@ -171,36 +184,29 @@ public :
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 3 ------------------" << std::endl;
     } catch ( const Superv_Component_i::PortNotDefined & ex) {
       std::cerr << ex.what() << std::endl;
-      throw (DatastreamException(CalciumTypes::CPNMVR,ex));
+      throw (CalciumException(CalciumTypes::CPNMVR,ex));
     } catch ( const Superv_Component_i::PortNotConnected & ex) {
       std::cerr << ex.what() << std::endl;;
-      throw (DatastreamException(CalciumTypes::CPLIEN,ex)); 
+      throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
       // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
     } catch ( const Superv_Component_i::BadCast & ex) {
       std::cerr << ex.what() << std::endl;
-      throw (DatastreamException(CalciumTypes::CPTPVR,ex));
+      throw (CalciumException(CalciumTypes::CPTPVR,ex));
     }
   
     // mode == mode du port 
-    CalciumTypes::DependencyType portDependencyType;
-    try {
-      portDependencyType = port->getDependencyType();
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 4 ------------------" << std::endl;
-    } catch ( const DSC_Exception & ex ) {
-      std::cerr << ex.what() << std::endl;;
-      throw (DatastreamException(CalciumTypes::CPIT,ex));
-    }
+    CalciumTypes::DependencyType portDependencyType = port->getDependencyType();
 
     if ( portDependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
-      throw DatastreamException(CalciumTypes::CPIT,
-				LOC(OSS()<<"Le mode de dépendance de la variable " 
-				    << nomVar << " est indéfini."));
+      throw CalciumException(CalciumTypes::CPIT,
+			     LOC(OSS()<<"Le mode de dépendance de la variable " 
+				 << nomVar << " est indéfini."));
 
     if ( ( portDependencyType != dependencyType ) && 
 	 ( dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
-      throw DatastreamException(CalciumTypes::CPITVR,
-				LOC(OSS()<<"Le mode de dépendance de la variable " 
-				    << nomVar << " ne correspond pas au mode demandé."));
+      throw CalciumException(CalciumTypes::CPITVR,
+			     LOC(OSS()<<"Le mode de dépendance de la variable " 
+				 << nomVar << " ne correspond pas au mode demandé."));
 
   
     if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
@@ -291,8 +297,8 @@ public :
     typedef typename DataManipulator::Type                CorbaDataType; // Attention != T1
     typedef typename DataManipulator::InnerType           InnerType;
 
-      std::cerr << "-------- CalciumInterface(ecriture) MARK 1 ------------------" << std::endl;
-    if ( nomVar.empty() ) throw DatastreamException(CalciumTypes::CPNMVR,
+    std::cerr << "-------- CalciumInterface(ecriture) MARK 1 ------------------" << std::endl;
+    if ( nomVar.empty() ) throw CalciumException(CalciumTypes::CPNMVR,
 						    LOC("Le nom de la variable est <nul>"));
     PortType * port;
     std::cout << "-------- CalciumInterface(ecriture) MARK 2 ------------------" << std::endl;
@@ -302,14 +308,14 @@ public :
       std::cout << "-------- CalciumInterface(ecriture) MARK 3 ------------------" << std::endl;
     } catch ( const Superv_Component_i::PortNotDefined & ex) {
       std::cerr << ex.what() << std::endl;
-      throw (DatastreamException(CalciumTypes::CPNMVR,ex));
+      throw (CalciumException(CalciumTypes::CPNMVR,ex));
     } catch ( const Superv_Component_i::PortNotConnected & ex) {
       std::cerr << ex.what() << std::endl;;
-      throw (DatastreamException(CalciumTypes::CPLIEN,ex)); 
+      throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
       // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
     } catch ( const Superv_Component_i::BadCast & ex) {
       std::cerr << ex.what() << std::endl;
-      throw (DatastreamException(CalciumTypes::CPTPVR,ex));
+      throw (CalciumException(CalciumTypes::CPTPVR,ex));
     }
  
     // mode == mode du port 
@@ -322,16 +328,16 @@ public :
 //       std::cout << "-------- CalciumInterface(ecriture) MARK 4 ------------------" << std::endl;
 //     } catch ( const DSC_Exception & ex ) {
 //       std::cerr << ex.what() << std::endl;;
-//       throw (DatastreamException(CalciumTypes::CPIT,ex));
+//       throw (CalciumException(CalciumTypes::CPIT,ex));
 //     }
 
     if ( dependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
-      throw DatastreamException(CalciumTypes::CPIT,
+      throw CalciumException(CalciumTypes::CPIT,
 				LOC(OSS()<<"Le mode de dépendance demandé pour la variable " 
 				    << nomVar << " est indéfini."));
 
     if ( dependencyType == CalciumTypes::SEQUENCE_DEPENDENCY )
-      throw DatastreamException(CalciumTypes::CPIT,
+      throw CalciumException(CalciumTypes::CPIT,
 				LOC(OSS()<<"Le mode de dépendance SEQUENCE_DEPENDENCY pour la variable " 
 				    << nomVar << " est impossible en écriture."));
 
@@ -341,13 +347,13 @@ public :
     // modifier l'interface IDL pour y ajouter un mode de dépendance !
     // ---->
 //     if ( portDependencyType != dependencyType ) 
-//       throw DatastreamException(CalciumTypes::CPITVR,
+//       throw CalciumException(CalciumTypes::CPITVR,
 // 				LOC(OSS()<<"Le mode de dépendance de la variable " 
 // 				    << nomVar << " ne correspond pas au mode demandé."));
 
   
     if ( bufferLength < 1 )
-      throw DatastreamException(CalciumTypes::CPNTNULL,
+      throw CalciumException(CalciumTypes::CPNTNULL,
 				LOC(OSS()<<"Le buffer a envoyer est de taille nulle "));
 
 
@@ -429,7 +435,7 @@ ecp_fin_ (void * component, int code) {
   try {									
     CalciumInterface::ecp_fin( *_component,				
 			       provideLastGivenValue); 
-  } catch ( const DatastreamException & ex) { //tester l'arrêt par exception
+  } catch ( const CalciumException & ex) { //tester l'arrêt par exception
     std::cerr << ex.what() << std::endl;				
     return ex.getInfo();						
   }									
@@ -448,9 +454,9 @@ ecp_fin_ (void * component, int code) {
     double         _tf=*tf;						\
     size_t         _nRead=0;						\
     size_t         _bufferLength=bufferLength;				\
-    CalciumTypes::DependencyType _dependencyType=     \
-          static_cast<CalciumTypes::DependencyType>(dependencyType);							\
-                                                                                  \
+    CalciumTypes::DependencyType _dependencyType=			\
+      static_cast<CalciumTypes::DependencyType>(dependencyType);	\
+    									\
     if ( IsSameType< _name , cplx >::value ) _bufferLength*=2;		\
     std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" << std::endl; \
     try {								\
@@ -459,8 +465,10 @@ ecp_fin_ (void * component, int code) {
 						     _ti, _tf, *i,	\
 						     nomvar,		\
 						     _bufferLength, _nRead, *data); \
-    } catch ( const DatastreamException & ex) {				\
+    } catch ( const CalciumException & ex) {				\
+      std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1b ------------------" << std::endl; \
       std::cerr << ex.what() << std::endl;				\
+      std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1ter ------------------" << std::endl; \
       return ex.getInfo();						\
     }									\
     if ( IsSameType< _name , cplx >::value ) { *nRead=_nRead/2;		\
@@ -497,7 +505,7 @@ ecp_fin_ (void * component, int code) {
       CalciumInterface::ecp_ecriture< _type, _name >( *_component,	\
 						      static_cast<CalciumTypes::DependencyType>(dependencyType), \
 						      _t,i,nomvar,_bufferLength,*data); \
-    } catch ( const DatastreamException & ex) {				\
+    } catch ( const CalciumException & ex) {				\
       std::cerr << ex.what() << std::endl;				\
       return ex.getInfo();						\
     }									\

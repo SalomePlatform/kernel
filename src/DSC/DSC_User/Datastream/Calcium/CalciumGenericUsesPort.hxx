@@ -58,7 +58,7 @@ CalciumGenericUsesPort< DataManipulator,CorbaPortType, repositoryName >::disconn
       port->disconnect(provideLastGivenValue);
     } catch(const CORBA::SystemException& ex){
       throw DSC_Exception(LOC(OSS() << "Impossible d'invoquer la méthode disconnect sur le port provide n°"
-			      << i << "( i>=  0)"));
+			      << i << " ( i>=  0)"));
     }
   }
   

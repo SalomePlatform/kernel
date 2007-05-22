@@ -152,8 +152,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
-        corbaObj_ptr = self._poa.id_to_reference(self._contId)
-        return corbaObj_ptr._narrow(Engines.Container)
+        #corbaObj_ptr = self._poa.id_to_reference(self._contId)
+        #return corbaObj_ptr._narrow(Engines.Container)
+        return self._contId._narrow(Engines.Container)
                 
     #-------------------------------------------------------------------------
 

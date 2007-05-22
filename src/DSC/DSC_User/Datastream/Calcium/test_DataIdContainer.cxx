@@ -29,7 +29,7 @@
 #include "CalciumCouplingPolicy.hxx"
 
 #include "CalciumProvidesPort.hxx"
-#include "DatastreamException.hxx"
+#include "CalciumException.hxx"
 
 using namespace CalciumTypes;
 
@@ -55,7 +55,7 @@ public:
 	  std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt;
 	  std::cout << " == " << dataId << " : " << (ret = (*dataIdIt == dataId)) << std::endl;
 	}
-    } catch(const DATASTREAM_EXCEPTION & ex) {
+    } catch(const CalciumException & ex) {
       ret=1;
       std::cout << ex.what() << std::endl;
     }

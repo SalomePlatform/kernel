@@ -47,6 +47,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calcium_logical_port_uses.hxx \
 			calcium_complex_port_uses.hxx \
 			CalciumCouplingPolicy.hxx \
+			CalciumException.hxx \
 			CalciumTypes.hxx \
 			CalciumInterface.hxx \
 			Copy2UserSpace.hxx \
@@ -97,8 +98,8 @@ libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
+AM_CFLAGS         = -fexceptions
 lib_LTLIBRARIES = libCalciumC.la
-
 libCalciumC_la_SOURCES = Calcium.c 
 
 #
@@ -107,6 +108,10 @@ libCalciumC_la_SOURCES = Calcium.c
 # ===============================================================
 #
 noinst_PROGRAMS              = test_DataIdContainer
+## testInterpolation
+
+testInterpolation_SOURCES = testInterpolation.cxx
+testInterpolation_CXXFLAGS = -I/usr/include
 
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx 
 

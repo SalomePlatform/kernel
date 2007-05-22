@@ -148,6 +148,4 @@ SALOME_ContainerManagerServer_CPPFLAGS=\
 SALOME_ContainerManagerServer_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la 
-
-
+	../Basics/libSALOMEBasics.la

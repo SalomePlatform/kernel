@@ -20,16 +20,66 @@
 #include "SALOME_LoadRateManager.hxx"
 #include "utilities.h"
 #include <iostream>
+#include <map>
 
 using namespace std;
 
-string SALOME_LoadRateManager::FindBest(const Engines::MachineList& hosts)
+string SALOME_LoadRateManager::FindFirst(const Engines::MachineList& hosts)
 {
-  // for the moment then "maui" will be used for dynamic selection ...
-  MESSAGE("SALOME_LoadRateManager::FindBest " << hosts.length());
+  MESSAGE("SALOME_LoadRateManager::FindFirst " << hosts.length());
 
   if (hosts.length() == 0)
     return string("");
 
   return string(hosts[0]);
+}
+
+string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,SALOME_NamingService *ns)
+{
+  MESSAGE("SALOME_LoadRateManager::FindNext " << hosts.length());
+  map<string, int> machines;
+
+  if (hosts.length() == 0)
+    return string("");
+
+  for(int i=0;i<hosts.length();i++)
+    machines[string(hosts[i])] = 0;
+
+  ns->Change_Directory("/Containers");
+  vector<string> vec = ns->list_directory_recurs();
+  list<string> lstCont;
+  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
+    CORBA::Object_var obj=ns->Resolve((*iter).c_str());
+    Engines::Container_var cont=Engines::Container::_narrow(obj);
+    if(!CORBA::is_nil(cont)){
+      lstCont.push_back((*iter));
+    }
+  }
+  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
+    CORBA::Object_var obj=ns->Resolve((*iter).c_str());
+    Engines::Container_var cont=Engines::Container::_narrow(obj);
+    if(!CORBA::is_nil(cont)){
+      string mach = cont->getHostName();
+      machines[mach]++;
+    }
+  }
+
+  int imin = 0;
+  int min = machines[string(hosts[0])];
+  for(int i=1;i<hosts.length();i++){
+    if( machines[string(hosts[i])] < min ){
+      imin = i;
+      min = machines[string(hosts[i])];
+    }
+  }
+
+  return string(hosts[imin]);
+}
+
+string SALOME_LoadRateManager::FindBest(const Engines::MachineList& hosts) throw (SALOME_Exception)
+{
+  // for the moment then "maui" will be used for dynamic selection ...
+  MESSAGE("SALOME_LoadRateManager::FindBest " << hosts.length());
+  throw(SALOME_Exception(LOCALIZED("not yet implemented")));
+  return string("");
 }

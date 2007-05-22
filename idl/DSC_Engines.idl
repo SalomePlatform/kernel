@@ -383,7 +383,8 @@ module Engines {
       \see Engines_ParallelDSC_i::add_parallel_provides_proxy_port
      */
     void set_paco_proxy(in Object ref, 
-			in string provides_port_name);
+			in string provides_port_name,
+			in Ports::PortProperties port_prop);
 
     /*! 
       The SUPERV module call this method before starting the service. Thus the service 

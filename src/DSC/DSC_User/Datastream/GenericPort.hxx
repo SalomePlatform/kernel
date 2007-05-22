@@ -121,12 +121,14 @@ template < typename DataManipulator, typename COUPLING_POLICY> void
 GenericPort<DataManipulator, COUPLING_POLICY>::wakeupWaiting()
 {
   std::cout << "-------- wakeupWaiting ------------------" << std::endl;
-  if (waitingForAnyDataId || waitingForConvenientDataId)
-  {
+  storedDatas_mutex.lock();
+  if (waitingForAnyDataId || waitingForConvenientDataId) {
     std::cout << "-------- wakeupWaiting:signal --------" << std::endl;
     std::cout << std::flush;
     cond_instance.signal();
-  }
+   }
+  storedDatas_mutex.unlock();
+
 }
 
 /* Methode put_generique
@@ -241,7 +243,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // Par construction, les valeurs de waitingForAnyDataId, waitingForConvenientDataId et de 
       // expectedDataId ne peuvent pas être modifiées pendant le traitement de la boucle
       // sur les dataIds (à cause du lock utilisé dans la méthode put et les méthodes get )
-      // rem : Utilisation de l'évaluation gauche droite su logical C or
+      // rem : Utilisation de l'évaluation gauche droite du logical C or
       if ( waitingForAnyDataId || 
 	   ( waitingForConvenientDataId && 
 	     isDataIdConveniant(storedDatas, expectedDataId, dummy1, dummy2, dummy3) ) 
@@ -286,7 +288,6 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
   catch ( const SALOME_Exception & ex ) {
     // On évite de laisser un  mutex
     storedDatas_mutex.unlock();
-    
     std::cerr << ex;
     THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::INTERNAL_ERROR);
   }
@@ -427,6 +428,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
     }
 
   } catch (...) {
+    waitingForConvenientDataId = true;
     storedDatas_mutex.unlock();
     throw;
   }
@@ -476,6 +478,14 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
     wDataIt1 = storedDatas.end();
 
     //Recherche le prochain dataId à renvoyer
+    // - lastDataIdset == true indique que lastDataId
+    // contient le dernier DataId renvoyé
+    // - lastDataIdset == false indique que l'on renverra
+    //   le premier dataId trouvé
+    // - upper_bound(lastDataId) situe le prochain DataId
+    // à renvoyer
+    // Rem : les données renvoyées ne sont effacées par eraseDataIds
+    //       si necessaire
     if (lastDataIdSet) 
       wDataIt1 = storedDatas.upper_bound(lastDataId);
     else if ( !storedDatas.empty() ) {
@@ -483,13 +493,16 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
       wDataIt1      = storedDatas.begin();
     }
 
+    typename COUPLING_POLICY::template DisconnectProcessor<DataManipulator> processDisconnect(*this);
+
     while ( storedDatas.empty() || wDataIt1 == storedDatas.end() ) {
 
       // Délègue au mode de couplage la gestion d'une demande de donnée non disponible 
       // si le port est deconnecté
-      typename COUPLING_POLICY::template DisconnectProcessor<DataManipulator> processDisconnect(*this);
-      if ( processDisconnect.apply(storedDatas, lastDataId, wDataIt1) ) break;
-
+      if ( processDisconnect.apply(storedDatas, lastDataId, wDataIt1) )  {
+	waitingForAnyDataId = false; break;
+      }
+  
       std::cout << "-------- Next : MARK 2 ------------------" << std::endl;
       //Positionné à faux dans la méthode put
       waitingForAnyDataId   = true;
@@ -498,11 +511,11 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
       std::cout << "-------- Next : waiting datas ------------------" << std::endl;
       fflush(stdout);fflush(stderr);
       cond_instance.wait();
-    
+
       if (lastDataIdSet) {
 	std::cout << "-------- Next : MARK 4 ------------------" << std::endl;
 	wDataIt1 = storedDatas.upper_bound(lastDataId);
-      } else {
+      } else  {
 	std::cout << "-------- Next : MARK 5 ------------------" << std::endl;
 	lastDataIdSet = true;
 	wDataIt1      = storedDatas.begin();
@@ -523,6 +536,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
 
     std::cout << "-------- Next : MARK 8 ------------------" << std::endl;   
   } catch (...) {
+    std::cout << "-------- Next : MARK 8bis ------------------" << std::endl;
+    waitingForAnyDataId = false;
     storedDatas_mutex.unlock();
     throw;
   }

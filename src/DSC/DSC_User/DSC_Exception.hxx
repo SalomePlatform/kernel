@@ -141,6 +141,8 @@ struct DSC_Exception : public SALOME_Exception {
   // sinon pb avec nos attributs de type pointeur.
   virtual ~DSC_Exception(void) throw() {};
 
+  virtual const std::string & getExceptionName() const {return _exceptionName;};
+
 private:
 
   std::string setFileFuncName(const char * fileName, const char * funcName) {

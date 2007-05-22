@@ -95,11 +95,11 @@ public:
   // le cas d'une demande de dataId inexistant mais encadré par deux autres
   template <typename DataManipulator>
   struct BoundedDataIdProcessor{
-    BoundedDataIdProcessor(CouplingPolicy couplingPolicy) {};
+    BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
     template < typename Iterator, typename DataId > 
     void inline apply(typename iterator_t<Iterator>::value_type & data,
-			      const DataId & dataId,
-			      const Iterator  & it1) {
+		      const DataId & dataId,
+		      const Iterator  & it1) const {
       typedef typename iterator_t<Iterator>::value_type value_type;
       std::cout << "-------- Generic BoundedDataIdProcessor.apply() called " << std::endl;
 
@@ -135,7 +135,7 @@ public:
   template < typename DataManipulator > 
   struct DisconnectProcessor {
 
-    DisconnectProcessor(CouplingPolicy couplingPolicy) {};
+    DisconnectProcessor(const CouplingPolicy & couplingPolicy) {};
 
     template < typename Container, typename DataId >
     bool apply(Container & storedDatas,
@@ -149,6 +149,10 @@ public:
       return true;
     }
   };
+
+  // Permet de réveiller les méthodes d'un GenericPort en attente
+  // depuis une CouplingPolicy
+  virtual void wakeupWaiting(){};
 
   virtual ~CouplingPolicy() {}
 

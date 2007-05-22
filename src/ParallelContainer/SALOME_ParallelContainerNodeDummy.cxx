@@ -50,7 +50,7 @@
 
 using namespace std;
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
 #include <signal.h>
 
 void handler(int t) {
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 {
 	INFOS("Launching a parallel container node");
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
 	signal(SIGSEGV, handler);
 #endif
 

@@ -52,6 +52,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
                         const char *moduleName)
     throw(SALOME_Exception);
 
+    std::string FindFirst(const Engines::MachineList& listOfMachines);
+    std::string FindNext(const Engines::MachineList& listOfMachines);
     std::string FindBest(const Engines::MachineList& listOfMachines);
 
     std::string BuildCommandToLaunchRemoteContainer

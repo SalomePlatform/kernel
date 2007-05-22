@@ -19,45 +19,50 @@
 //
 //
 //
-//  File   : DatastreamException.hxx
+//  File   : CalciumException.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-02-06 17:20:28 +0100 (mar, 06 fév 2007) $
 // Id          : $Id$
 
-#ifndef DATASTREAM_EXCEPTION_HXX
-#define DATASTREAM_EXCEPTION_HXX
+#ifndef CALCIUM_EXCEPTION_HXX
+#define CALCIUM_EXCEPTION_HXX
 
 #include "DSC_Exception.hxx"
 #include "CalciumTypes.hxx"
+#include <string>
 
-struct DatastreamException  : public DSC_Exception {
+struct CalciumException  : public DSC_Exception {
 
-  DatastreamException( const CalciumTypes::InfoType info,
-		       const string &     text, 
-		       const char        *fileName, 
-		       const unsigned int lineNumber,
-		       const char        *funcName):
-  DSC_Exception(text,fileName,lineNumber,funcName),_info(info)
+  CalciumException( const CalciumTypes::InfoType info,
+		    const std::string &     text, 
+		    const char        *fileName, 
+		    const unsigned int lineNumber,
+		    const char        *funcName):
+    DSC_Exception(text,fileName,lineNumber,funcName),
+    _info(info),_exceptionName("CalciumException")
   {};
 
 
-  DatastreamException( const CalciumTypes::InfoType info,
-		       const string & text ):
-    DSC_Exception(text),_info(info)
+  CalciumException( const CalciumTypes::InfoType info,
+		       const std::string & text ):
+    DSC_Exception(text),_info(info),_exceptionName("CalciumException")
   {};
 
-  DatastreamException(CalciumTypes::InfoType info, const DSC_Exception & ex ):
-    DSC_Exception(ex),_info(info) {};
+  CalciumException(CalciumTypes::InfoType info, const DSC_Exception & ex ):
+    DSC_Exception(ex),_info(info),_exceptionName("CalciumException") 
+  {};
  
-  virtual ~DatastreamException() throw() {};
+  virtual ~CalciumException() throw() {};
   CalciumTypes::InfoType getInfo() const { return _info;}
   void setInfo(CalciumTypes::InfoType info) {_info=info;}
+  virtual const std::string & getExceptionName() const {return _exceptionName;};
 
-private:
+protected:
   CalciumTypes::InfoType _info;
+  std::string   _exceptionName;
 };
 
 
-#endif /* DATASTREAM_EXCEPTION_HXX */
+#endif /* CALCIUM_EXCEPTION_HXX */

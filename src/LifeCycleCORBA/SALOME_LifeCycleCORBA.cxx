@@ -425,7 +425,7 @@ _FindComponent(const Engines::MachineParameters& params,
   if(lghtOfmachinesOK != 0)
     {
       machinesOK->length(lghtOfmachinesOK);
-      CORBA::String_var bestMachine = _ContManager->FindBest(machinesOK);
+      CORBA::String_var bestMachine = _ContManager->FindFirst(machinesOK);
       CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,
 						    containerName,
 						    componentName,

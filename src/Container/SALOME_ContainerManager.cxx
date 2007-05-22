@@ -166,10 +166,52 @@ FindOrStartContainer(const Engines::MachineParameters& params,
   if(!CORBA::is_nil(ret))
     return ret;
   MESSAGE("Container doesn't exist try to launch it ...");
-  MESSAGE("SALOME_ContainerManager::FindOrStartContainer " <<
+
+  return StartContainer(params,possibleComputers,Engines::P_FIRST);
+
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Start a suitable Container in a list of machines
+ *  \param params            Machine Parameters required for the container
+ *  \param possibleComputers list of machines usable for start
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::
+StartContainer(const Engines::MachineParameters& params,
+	       const Engines::MachineList& possibleComputers,
+	       Engines::ResPolicy policy)
+{
+  long id;
+  string containerNameInNS;
+  char idc[3*sizeof(long)];
+  Engines::Container_ptr ret = Engines::Container::_nil();
+
+  MESSAGE("SALOME_ContainerManager::StartContainer " <<
 	  possibleComputers.length());
-  //vector<string> vector;
-  string theMachine=_ResManager->FindBest(possibleComputers);
+
+  string theMachine;
+  try{
+    switch(policy){
+    case Engines::P_FIRST:
+      theMachine=_ResManager->FindFirst(possibleComputers);
+      break;
+    case Engines::P_CYCL:
+      theMachine=_ResManager->FindNext(possibleComputers);
+      break;
+    case Engines::P_BEST:
+      theMachine=_ResManager->FindBest(possibleComputers);
+      break;
+    }
+  }
+  catch( const SALOME_Exception &ex ){
+    MESSAGE(ex.what());
+    return Engines::Container::_nil();
+  }
+
   MESSAGE("try to launch it on " << theMachine);
 
   // Get Id for container: a parallel container registers in Naming Service
@@ -182,66 +224,76 @@ FindOrStartContainer(const Engines::MachineParameters& params,
   id = GetIdForContainer();
 
   string command;
-  if(theMachine=="")
-    {
-      MESSAGE("SALOME_ContainerManager::FindOrStartContainer : " <<
-	      "no possible computer");
-      return Engines::Container::_nil();
-    }
+  if(theMachine==""){
+    MESSAGE("SALOME_ContainerManager::StartContainer : " <<
+	    "no possible computer");
+    return Engines::Container::_nil();
+  }
   else if(theMachine==GetHostname())
-    {
-      command=_ResManager->BuildCommandToLaunchLocalContainer(params,id);
-    }
+    command=_ResManager->BuildCommandToLaunchLocalContainer(params,id);
   else
-    command =
-      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
+    command = _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
 
   _ResManager->RmTmpFile();
   int status=system(command.c_str());
-  if (status == -1)
-    {
-      MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
-	      "(system command status -1)");
-      return Engines::Container::_nil();
-    }
-  else if (status == 217)
-    {
-      MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
-	      "(system command status 217)");
-      return Engines::Container::_nil();
-    }
-  else
-    {
-      int count=TIME_OUT_TO_LAUNCH_CONT;
-      while ( CORBA::is_nil(ret) && count )
-	{
+  if (status == -1){
+    MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
+	    "(system command status -1)");
+    return Engines::Container::_nil();
+  }
+  else if (status == 217){
+    MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
+	    "(system command status 217)");
+    return Engines::Container::_nil();
+  }
+  else{
+    int count=TIME_OUT_TO_LAUNCH_CONT;
+    MESSAGE("count = "<<count);
+    while ( CORBA::is_nil(ret) && count ){
 #ifndef WNT
-	  sleep( 1 ) ;
+      sleep( 1 ) ;
 #else
-	  Sleep(1000);
+      Sleep(1000);
 #endif
-	  count-- ;
-	  if ( count != 10 )
-	    MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);
-	  if(params.isMPI)
-	    {
-	      containerNameInNS = "/ContainerManager/id";
-	      sprintf(idc,"%ld",id);
-	      containerNameInNS += idc;
-	    }
-	  else
-	    containerNameInNS =
-	      _NS->BuildContainerNameForNS(params,theMachine.c_str());
-	  SCRUTE(containerNameInNS);
-	  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-	  ret=Engines::Container::_narrow(obj);
-	}
-      if ( CORBA::is_nil(ret) )
-	{
-	  MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed");
-	}
-      return ret;
+      count-- ;
+      if ( count != 10 )
+	MESSAGE( count << ". Waiting for container on " << theMachine);
+
+      if(params.isMPI){
+	containerNameInNS = "/ContainerManager/id";
+	sprintf(idc,"%ld",id);
+	containerNameInNS += idc;
+      }
+      else
+	containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
+
+      SCRUTE(containerNameInNS);
+      CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+      ret=Engines::Container::_narrow(obj);
     }
+    
+    if ( CORBA::is_nil(ret) )
+      MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed");
+
+    return ret;
+  }
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Start a suitable Container in a list of machines
+ *  \param params            Machine Parameters required for the container
+ *  \param possibleComputers list of machines usable for start
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::
+StartContainer(const Engines::MachineParameters& params,
+	       Engines::ResPolicy policy)
+{
+  Engines::MachineList_var possibleComputers = GetFittingResources(params,"");
+  return StartContainer(params,possibleComputers,policy);
 }
 
 #ifdef WITH_PACO_PARALLEL
@@ -424,9 +476,9 @@ GetFittingResources(const Engines::MachineParameters& params,
 
 char*
 SALOME_ContainerManager::
-FindBest(const Engines::MachineList& possibleComputers)
+FindFirst(const Engines::MachineList& possibleComputers)
 {
-  string theMachine=_ResManager->FindBest(possibleComputers);
+  string theMachine=_ResManager->FindFirst(possibleComputers);
   return CORBA::string_dup(theMachine.c_str());
 }
 

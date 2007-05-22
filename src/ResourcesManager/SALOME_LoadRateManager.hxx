@@ -23,7 +23,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include <string>
-
+#include "SALOME_NamingService.hxx"
 
 #if defined RESOURCESMANAGER_EXPORTS
 #if defined WIN32
@@ -43,7 +43,9 @@ class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
   {
 
   public:
-    std::string FindBest(const Engines::MachineList& hosts);
+    std::string FindFirst(const Engines::MachineList& hosts);
+    std::string FindNext(const Engines::MachineList& hosts,SALOME_NamingService *ns);
+    std::string FindBest(const Engines::MachineList& hosts) throw (SALOME_Exception);
   };
 
 #endif
