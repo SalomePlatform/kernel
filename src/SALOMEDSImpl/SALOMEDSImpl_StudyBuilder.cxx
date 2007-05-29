@@ -332,8 +332,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     //Open the Study HDF file 
     HDFfile *hdf_file = new HDFfile(aHDFUrl.ToCString()); 
 
-    char aMultifileState[2];
-    char ASCIIfileState[2];
+    char aMultifileState[2] = "S"; // default: single
+    char ASCIIfileState[2] = "B"; // default: binary
     try {
       TCollection_AsciiString scoid = anSCO->GetID();
       hdf_file->OpenOnDisk(HDF_RDONLY);
@@ -357,13 +357,23 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       } else
         aStreamFile = NULL;
 
-      HDFdataset *multifile_hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group);
-      multifile_hdf_dataset->OpenOnDisk();
-      multifile_hdf_dataset->ReadFromDisk(aMultifileState);
+      if (hdf_sco_group->ExistInternalObject("MULTIFILE_STATE")) {
+        HDFdataset *multifile_hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group);
+        multifile_hdf_dataset->OpenOnDisk();
+        multifile_hdf_dataset->ReadFromDisk(aMultifileState);
 
-      HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
-      ascii_hdf_dataset->OpenOnDisk();
-      ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
+        multifile_hdf_dataset->CloseOnDisk();
+        multifile_hdf_dataset = 0;
+      }
+
+      if (hdf_sco_group->ExistInternalObject("ASCII_STATE")) {
+        HDFdataset *ascii_hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group);
+        ascii_hdf_dataset->OpenOnDisk();
+        ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
+
+        ascii_hdf_dataset->CloseOnDisk();
+        ascii_hdf_dataset = 0;
+      }
 
       // set path without file name from URL 
       //int aFileNameSize = Res.Length();
@@ -392,11 +402,6 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 
       //if(aDir != NULL) delete []aDir;
 
-      multifile_hdf_dataset->CloseOnDisk();
-      multifile_hdf_dataset = 0;
-      ascii_hdf_dataset->CloseOnDisk();
-      ascii_hdf_dataset = 0;
-
       hdf_sco_group->CloseOnDisk();
       hdf_sco_group = 0;
       hdf_group->CloseOnDisk();
@@ -417,7 +422,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       if (isASCII) {
 	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
 	aFilesToRemove->Append(aHDFUrl);
-	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
+	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
+                                                aFilesToRemove, true);
       }
 
       if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
