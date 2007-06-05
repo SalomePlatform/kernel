@@ -120,7 +120,7 @@ def get_config():
 
     to_remove_list=[]
     for module in modules_list :
-        module_variable=module.upper()+"_ROOT_DIR"
+        module_variable=module+"_ROOT_DIR"
         if not os.environ.has_key(module_variable):
             print "*******************************************************"
             print "*"
