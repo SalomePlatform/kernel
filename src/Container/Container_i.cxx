@@ -118,8 +118,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   _argv = argv ;
 
   string hostname = GetHostname();
-  MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
-	  << _argc << " Thread " << pthread_self() ) ;
+#ifndef WNT
+  MESSAGE(hostname << " " << getpid() << 
+	 " Engines_Container_i starting argc " <<
+   _argc << " Thread " << pthread_self() ) ;
+#else
+  MESSAGE(hostname << " " << _getpid() << 
+	 " Engines_Container_i starting argc " << _argc<< " Thread " << pthread_self().p ) ;
+#endif
 
   int i = 0 ;
   while ( _argv[ i ] )
@@ -1010,7 +1016,11 @@ void SigIntHandler(int what ,
 #else // Case WNT
 void SigIntHandler( int what )
 {
+#ifndef WNT
   MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
+#else
+  MESSAGE( "SigIntHandler what     " << what << endl );
+#endif
   if ( _Sleeping )
     {
       _Sleeping = false ;

@@ -37,6 +37,8 @@ extern "C"
 
 #ifndef WNT
 #include <unistd.h>
+#else
+#include <process.h>
 #endif
 using namespace std;
 
@@ -257,5 +259,9 @@ void RegistryService::SessionName( const char *sessionName )
 }
 void RegistryService::ping()
 {
+#ifndef WNT
   MESSAGE(" RegistryService::ping() pid "<< getpid());
+#else
+  MESSAGE(" RegistryService::ping() pid "<< _getpid());
+#endif
 }

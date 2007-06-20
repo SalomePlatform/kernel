@@ -45,6 +45,7 @@
 #else
 #include <sys/timeb.h>
 int SIGUSR11 = 1000;
+#include <process.h>
 #endif
 
 
@@ -209,8 +210,13 @@ CORBA::Long Engines_Component_i::getStudyId()
 
 void Engines_Component_i::ping()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::ping() pid "<< getpid() << " threadid "
           << pthread_self());
+#else
+  MESSAGE("Engines_Component_i::ping() pid "<< _getpid()<< " threadid "
+          << pthread_self().p );
+#endif
 }
 
 //=============================================================================
@@ -358,11 +364,19 @@ bool Engines_Component_i::Kill_impl()
 
 bool Engines_Component_i::Stop_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   
 
   bool RetVal = false ;
@@ -390,11 +404,19 @@ bool Engines_Component_i::Stop_impl()
 
 bool Engines_Component_i::Suspend_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
 
   bool RetVal = false ;
 #ifndef WNT
@@ -429,11 +451,19 @@ bool Engines_Component_i::Suspend_impl()
 
 bool Engines_Component_i::Resume_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   bool RetVal = false ;
 #ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
@@ -569,8 +599,13 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
+#ifndef WNT
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
+#else
+  MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
+	  << endl << "Component instance : " << _instanceName << endl << endl);
+#endif
 #ifndef WNT
   _ThreadId = pthread_self() ;
 #else
@@ -637,9 +672,16 @@ void Engines_Component_i::endService(const char *serviceName)
 {
   if ( !_CanceledThread )
     _ThreadCpuUsed = CpuUsed_impl() ;
+
+#ifndef WNT
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
 	  << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#else
+  MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
+	  << endl << " Component instance : " << _instanceName << " StartUsed "
+    << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#endif
   _ThreadId = 0 ;
 }
 
@@ -688,8 +730,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else
 	    {
+#ifndef WNT
 	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_canceled") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_canceled") ;
+#endif
 	    }
 	}
       else
@@ -701,8 +748,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else 
 	    {
-	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
+#ifndef WNT
+        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_killed(" << signum << ")") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_killed(" << signum << ")") ;
+#endif
 	    }
 	}
     }

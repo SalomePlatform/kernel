@@ -92,7 +92,7 @@
 #error INFOS_COMPILATION already defined
 #endif
 
-#ifdef _DEBUG_
+#if defined(_DEBUG_) || defined(_DEBUG)
 
 // --- the following MACROS are useful at debug time
 
