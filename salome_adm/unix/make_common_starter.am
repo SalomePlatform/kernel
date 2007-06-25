@@ -22,6 +22,7 @@ salomeresdir       = $(prefix)/share/@PACKAGE@/resources/@MODULE_NAME@
 salomeadmdir       = $(prefix)/salome_adm
 salomeadmuxdir     = $(salomeadmdir)/unix
 salomem4dir        = $(salomeadmdir)/unix/config_files
+salome4deprdir    = $(salomeadmdir)/unix/config_files/DEPRECATED
 
 # Shared modules installation directory
 sharedpkgpythondir =$(pkgpythondir)/shared_modules
