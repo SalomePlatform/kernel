@@ -185,15 +185,19 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       if (!_isSupervContainer)
 	{
 #ifdef WNT
-	  //Py_ACQUIRE_NEW_THREAD;
-	  PyEval_AcquireLock();
-	  /* It should not be possible for more than one thread state
-	     to be used for a thread.*/
-	  PyThreadState *myTstate = PyGILState_GetThisThreadState();
-	  // if no thread state defined
-	  if ( !myTstate ) 
-	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+//	  //Py_ACQUIRE_NEW_THREAD;
+//	  	  PyEval_AcquireLock();
+//	  	  /* It should not be possible for more than one thread state
+//	  	     to be used for a thread.*/
+//	  	  PyThreadState *myTstate = PyGILState_GetThisThreadState();
+//	  	  // if no thread state defined
+//	  	  if ( !myTstate ) 
+//	  	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+//	  	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+
+    PyEval_AcquireLock();
+    PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+    PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
 #else
 	  Py_ACQUIRE_NEW_THREAD;
 #endif
