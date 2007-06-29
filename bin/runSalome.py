@@ -702,24 +702,46 @@ def searchFreePort(args, save_config=1):
     limit=limit+10
     while 1:
         import os
-        status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
-        if status:
+	import re
+	from os import getpid
+        from os import system
+
+	if sys.platform == "win32":
+	    tmp_file = os.getenv('TEMP');
+        else:
+            tmp_file = '/tmp/'
+	tmp_file += 'hostname_%s'%(getpid())
+
+#       status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
+
+	system( "netstat -a -n > %s" % tmp_file );
+
+	f = open( tmp_file, 'r' );
+	lines = f.readlines();
+	f.close();
+
+	pattern = "tcp.*:([0-9]+).*:.*listen";
+	regObj = re.compile( pattern, re.IGNORECASE );
+
+        status = 1;
+	for item in lines:
+	    m = regObj.search( item )
+	    if m and m.group(1) == NSPORT : 
+	        status = 0;
+                break;
+
+        if status == 1:
             print "%s - OK"%(NSPORT)
             #
-            from os import getpid
-	    if sys.platform == "win32":
-	        tmp_file = os.getenv('TEMP');
-            else:
-                tmp_file = '/tmp/'
-	    tmp_file += 'hostname_%s'%(getpid())
-            #tmp_file = '/tmp/hostname_%s'%(getpid())
-            from os import system
             system('hostname > %s'%(tmp_file))
             f = open(tmp_file)
             myhost = f.read()
             myhost = myhost[:-1]
             f.close()
-            system('rm -f %s'%(tmp_file))
+
+#           system('rm -f %s'%(tmp_file))
+	    os.remove( tmp_file );
+
             #
             home = os.environ['HOME']
             appli=os.environ.get("APPLI")
@@ -742,8 +764,12 @@ def searchFreePort(args, save_config=1):
             args['port'] = os.environ['NSPORT']
             #
             if save_config:
+	        import shutil	
                 from os import system
-                system('ln -sf %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))
+
+#               system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))
+	        shutil.copyfile( os.environ['OMNIORB_CONFIG'], "%s/.omniORB_last.cfg"%( home ) );
+	
                 pass
             #
             break
