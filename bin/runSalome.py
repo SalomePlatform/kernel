@@ -764,12 +764,12 @@ def searchFreePort(args, save_config=1):
             args['port'] = os.environ['NSPORT']
             #
             if save_config:
-	        import shutil	
                 from os import system
-
-#               system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))
-	        shutil.copyfile( os.environ['OMNIORB_CONFIG'], "%s/.omniORB_last.cfg"%( home ) );
-	
+                if sys.platform == "win32":
+                    import shutil	
+                    shutil.copyfile( os.environ['OMNIORB_CONFIG'], "%s/.omniORB_last.cfg"%( home ) )
+                else:            
+                    system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))	
                 pass
             #
             break
