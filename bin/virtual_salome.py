@@ -115,10 +115,6 @@ def link_module(options):
     module_doc_dir=os.path.join(module_dir,'doc','salome')
     module_sharedoc_dir=os.path.join(module_dir,'share','doc','salome')
 
-    if not os.path.exists(module_lib_py_dir):
-        print "Python directory %s does not exist" % module_lib_py_dir
-        return
-
     bin_dir=os.path.join(home_dir,'bin','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
     lib_py_dir=os.path.join(home_dir,'lib',py_version,'site-packages','salome')
@@ -164,19 +160,22 @@ def link_module(options):
         pass    
     
     #directory lib/py_version/site-packages/salome : create it and link content
-    mkdir(lib_py_shared_dir)
-    for fn in os.listdir(module_lib_py_dir):
-        if fn == "shared_modules": continue
-        symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
-        pass    
-    if os.path.exists(module_lib_py_shared_dir):
-        for fn in os.listdir(module_lib_py_shared_dir):
-            symlink(os.path.join(module_lib_py_shared_dir, fn), os.path.join(lib_py_shared_dir, fn))
-            pass
-        pass
+    if not os.path.exists(module_lib_py_dir):
+        print "Python directory %s does not exist" % module_lib_py_dir
     else:
-        print module_lib_py_shared_dir, " doesn't exist"
-        pass    
+        mkdir(lib_py_shared_dir)
+        for fn in os.listdir(module_lib_py_dir):
+            if fn == "shared_modules": continue
+            symlink(os.path.join(module_lib_py_dir, fn), os.path.join(lib_py_dir, fn))
+            pass    
+        if os.path.exists(module_lib_py_shared_dir):
+            for fn in os.listdir(module_lib_py_shared_dir):
+                symlink(os.path.join(module_lib_py_shared_dir, fn), os.path.join(lib_py_shared_dir, fn))
+                pass
+            pass
+        else:
+            print module_lib_py_shared_dir, " doesn't exist"
+            pass    
 
     #directory share/doc/salome (KERNEL doc) : create it and link content
     if os.path.exists(module_sharedoc_dir):
@@ -185,13 +184,17 @@ def link_module(options):
             symlink(os.path.join(module_sharedoc_dir, fn), os.path.join(sharedoc_dir, fn))
             pass
         pass
-    pass
-
 
     #directory share/salome/resources : create it and link content
-    mkdir(share_dir)
-    for fn in os.listdir(module_share_dir):
-        symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
+    if os.path.exists(module_share_dir):
+        mkdir(share_dir)
+        for fn in os.listdir(module_share_dir):
+            symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
+            pass
+        pass
+    else:
+        print "resources directory %s does not exist" % module_share_dir
+        pass
 
     #html files in doc/salome directory
     if os.path.exists(module_doc_dir):
