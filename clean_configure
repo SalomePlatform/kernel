@@ -11,6 +11,7 @@ libdir=salome_adm/unix/config_files
 cd $libdir
 # Files created by libtoolize
 rm -f config.guess config.sub ltmain.sh
+rm -f mdate-sh texinfo.tex
 # Files created by automake
 rm -rf install-sh missing compile depcomp py-compile
 cd $here
@@ -21,3 +22,6 @@ find resources -name Makefile.in | xargs rm -f
 find salome_adm -name Makefile.in | xargs rm -f
 find src -name Makefile.in | xargs rm -f
 rm -f Makefile.in
+# Other files
+cd doc/salome
+rm -f Batch.info stamp-vti version.texi
