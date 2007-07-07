@@ -53,6 +53,11 @@ if test "x${BOOSTDIR}" != "x" ; then
   BOOST_LIBS="-L${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}"
 fi
 
+if test "x${BOOSTDIR}" = "x/usr" ; then
+  BOOST_CPPFLAGS=""
+  BOOST_LIBS=""
+fi
+
 boost_ok=no
 boost_headers_ok=no
 boost_binaries_ok=no
