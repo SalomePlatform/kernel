@@ -223,6 +223,10 @@ public:
   */
   virtual CORBA::Boolean IsModified();
 
+  //! method to set a Modified flag of a Study to True
+  virtual void  Modified();
+
+
   //! method to get URL of the study (idem GetPersistentReference) 
   /*!
     \return char* arguments, the study URL 

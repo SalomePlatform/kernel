@@ -523,6 +523,18 @@ CORBA::Boolean  SALOMEDS_Study_i::IsModified()
 }
 
 //============================================================================
+/*! Function : Modified
+ *  Purpose  : Set a Modified flag of a Study to True
+ */
+//============================================================================
+void  SALOMEDS_Study_i::Modified()
+{
+  SALOMEDS::Locker lock; 
+  _impl->Modify();
+}
+
+
+//============================================================================
 /*! Function : URL
  *  Purpose  : get URL of the study (persistent reference of the study)
  */

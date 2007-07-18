@@ -505,6 +505,16 @@ bool SALOMEDS_Study::IsModified()
   else isModified = _corba_impl->IsModified();
   return isModified;
 }
+
+void SALOMEDS_Study::Modified()
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->Modify();
+  }
+  else _corba_impl->IsModified();
+}
+
  
 std::string SALOMEDS_Study::URL()
 {

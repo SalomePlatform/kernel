@@ -309,6 +309,12 @@ during each working session.
   Returns True if the %study has been modified and not saved.
 */
     boolean IsModified();
+
+/*!
+  Marks the %study as being modified and not saved.
+*/
+    void Modified();
+
 /*!
    Determines the file where the %study has been saved
 */

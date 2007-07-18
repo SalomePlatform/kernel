@@ -69,6 +69,7 @@ public:
   virtual bool IsSaved() = 0;
   virtual void  IsSaved(bool save) = 0;
   virtual bool IsModified() = 0;
+  virtual void Modified() = 0;
   virtual std::string URL() = 0;
   virtual void  URL(const std::string& url) = 0;
   virtual int StudyId() = 0;
