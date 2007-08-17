@@ -343,18 +343,20 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection_AsciiString& anObjectIOR)
 {
   _errorCode = "";
-  
+
   Handle(SALOMEDSImpl_SObject) aResult = NULL;
-  
+
   // searching in the datamap for optimization
   if (myIORLabels.IsBound(anObjectIOR)) {
     aResult = GetSObject(myIORLabels.Find(anObjectIOR));
     // 11 oct 2002: forbidden attributes must be checked here
-    if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID()))
+    if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
       myIORLabels.UnBind(anObjectIOR);
+      aResult = NULL;
+    }
   }
-  
-  if(aResult.IsNull()) _errorCode = "No object was found";
+
+  if (aResult.IsNull()) _errorCode = "No object was found";
   return aResult;
 }
 
