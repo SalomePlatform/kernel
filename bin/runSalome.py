@@ -785,6 +785,10 @@ def startSalome(args, modules_list, modules_root_dir):
             print "i=",i
             anInterp=InterpServer(args)
             anInterp.run()
+
+    # set PYTHONINSPECT variable
+    if args['pinter']:
+        os.environ["PYTHONINSPECT"]="1"
     
     return clt
 
