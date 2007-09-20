@@ -22,7 +22,7 @@ fi
 #     by arguments to this command)
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
 
 else
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 

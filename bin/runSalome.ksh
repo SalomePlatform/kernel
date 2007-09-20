@@ -39,7 +39,7 @@ searchFreePort
 if [[ "$*" = "-nothing" ]]; then
     echo "port:$NSPORT"
 elif [ $# -ne 0 ] ; then
-    python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
+    python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
 else
     python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py
 fi

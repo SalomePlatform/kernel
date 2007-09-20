@@ -49,6 +49,7 @@ terminal_nam   = "terminal"
 interp_nam     = "interp"
 except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
+pinter_nam     = "pinter"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -62,7 +63,7 @@ script_nam     = "pyscript"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam )
 intKeys = ( interp_nam, )
 
 # values of list type
@@ -493,6 +494,13 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="save_config", default=True,
                           help=help_str)
 
+    # Launch with interactive python console. Default: False.
+    help_str = "Launch with interactive python console."
+    o_pi = optparse.Option("--pinter",
+                          action="store_true",
+                          dest="pinter",
+                          help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -509,7 +517,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_z,     # Splash
                 o_c,     # Catch exceptions
                 o_a,     # Print free port and exit
-                o_n]     # --nosave-config
+                o_n,     # --nosave-config
+                o_pi]     # Interactive python console
+                
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
@@ -684,7 +694,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Options: gui, desktop, log_file, py_scripts, resources,
     #          xterm, modules, embedded, standalone,
     #          portkill, killall, interp, splash,
-    #          catch_exceptions
+    #          catch_exceptions, pinter
 
     # GUI/Terminal, Desktop, Splash, STUDY_HDF
     args["session_gui"] = False
@@ -768,6 +778,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Relink config file
     if cmd_opts.save_config is not None:
         args['save_config'] = cmd_opts.save_config
+
+    # Interactive python console
+    if cmd_opts.pinter is not None:
+        args[pinter_nam] = cmd_opts.pinter
 
     ####################################################
     # Add <theAdditionalOptions> values to args
