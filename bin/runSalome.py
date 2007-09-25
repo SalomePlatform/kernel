@@ -730,9 +730,15 @@ def searchFreePort(args, save_config=1):
         status = 1;
 	for item in lines:
 	    m = regObj.search( item )
-	    if m and m.group(1) == NSPORT : 
-	        status = 0;
-                break;
+	    if m:
+	        try:
+		    p = int( m.group(1) )
+		    if p == NSPORT: 
+	        	status = 0;
+            		break;
+		except:
+		    pass
+	    pass
 
         if status == 1:
             print "%s - OK"%(NSPORT)
