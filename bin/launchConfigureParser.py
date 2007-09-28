@@ -61,6 +61,10 @@ port_nam       = "port"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 
+# possible choices for the "embedded" and "standalone" parameters
+embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
+standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "pyContainer", "supervContainer"]
+
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
 boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam )
@@ -173,6 +177,23 @@ def setVerbose(level):
     _verbose = level
     return
 
+# --
+
+def process_containers_params( standalone, embedded ):
+    # 1. filter inappropriate containers names
+    if standalone is not None:
+        standalone = filter( lambda x: x in standalone_choices, standalone )
+    if embedded is not None:
+        embedded   = filter( lambda x: x in embedded_choices,   embedded )
+
+    # 2. remove containers appearing in 'standalone' parameter from the 'embedded'
+    # parameter --> i.e. 'standalone' parameter has higher priority
+    if standalone is not None and embedded is not None:
+        embedded = filter( lambda x: x not in standalone, embedded )
+
+    # 3. return corrected parameters values
+    return standalone, embedded
+    
 # -----------------------------------------------------------------------------
 
 ###
@@ -190,6 +211,12 @@ class xml_parser:
         parser = xml.sax.make_parser()
         parser.setContentHandler(self)
         parser.parse(fileName)
+        standalone, embedded = process_containers_params( self.opts.get( standalone_nam ),
+                                                          self.opts.get( embedded_nam ) )
+        if standalone is not None:
+            self.opts[ standalone_nam ] = standalone
+        if embedded is not None:
+            self.opts[ embedded_nam ] = embedded
         pass
 
     def boolValue( self, str ):
@@ -253,11 +280,11 @@ class xml_parser:
             if nam in boolKeys:
                 self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
             elif nam in intKeys:
-                self.opts[key] = self.intValue( val )  # assign integer value
+                self.opts[key] = self.intValue( val )   # assign integer value
             elif nam in listKeys:
-                self.opts[key] = val.split( ',' )       # assign list value: []
+                self.opts[key] = filter( lambda a: a.strip(), re.split( "[:;,]", val ) ) # assign list value: []
             else:
-                self.opts[key] = val;
+                self.opts[key] = val
             pass
         pass
 
@@ -291,6 +318,54 @@ booleans = { '1': True , 'yes': True , 'y': True , 'on' : True , 'true' : True ,
              '0': False, 'no' : False, 'n': False, 'off': False, 'false': False, 'cancel' : False }
 
 boolean_choices = booleans.keys()
+
+def check_embedded(option, opt, value, parser):
+    from optparse import OptionValueError
+    assert value is not None
+    if parser.values.embedded:
+        embedded = filter( lambda a: a.strip(), re.split( "[:;,]", parser.values.embedded ) )
+    else:
+        embedded = []
+    if parser.values.standalone:
+        standalone = filter( lambda a: a.strip(), re.split( "[:;,]", parser.values.standalone ) )
+    else:
+        standalone = []
+    vals = filter( lambda a: a.strip(), re.split( "[:;,]", value ) )
+    for v in vals:
+        if v not in embedded_choices:
+            raise OptionValueError( "option %s: invalid choice: %r (choose from %s)" % ( opt, v, ", ".join( map( repr, embedded_choices ) ) ) )
+        if v not in embedded:
+            embedded.append( v )
+            if v in standalone:
+                del standalone[ standalone.index( v ) ]
+                pass
+    parser.values.embedded = ",".join( embedded )
+    parser.values.standalone = ",".join( standalone )
+    pass
+
+def check_standalone(option, opt, value, parser):
+    from optparse import OptionValueError
+    assert value is not None
+    if parser.values.embedded:
+        embedded = filter( lambda a: a.strip(), re.split( "[:;,]", parser.values.embedded ) )
+    else:
+        embedded = []
+    if parser.values.standalone:
+        standalone = filter( lambda a: a.strip(), re.split( "[:;,]", parser.values.standalone ) )
+    else:
+        standalone = []
+    vals = filter( lambda a: a.strip(), re.split( "[:;,]", value ) )
+    for v in vals:
+        if v not in standalone_choices:
+            raise OptionValueError( "option %s: invalid choice: %r (choose from %s)" % ( opt, v, ", ".join( map( repr, standalone_choices ) ) ) )
+        if v not in standalone:
+            standalone.append( v )
+            if v in embedded:
+                del embedded[ embedded.index( v ) ]
+                pass
+    parser.values.embedded = ",".join( embedded )
+    parser.values.standalone = ",".join( standalone )
+    pass
 
 def store_boolean (option, opt, value, parser, *args):
     if isinstance(value, types.StringType):
@@ -404,26 +479,28 @@ def CreateOptionParser (theAdditionalOptions=[]):
 
     # Embedded servers. Default: Like in configuration files.
     help_str  = "CORBA servers to be launched in the Session embedded mode. "
-    help_str += "Valid values for <serverN>: registry, study, moduleCatalog, "
-    help_str += "cppContainer [by default the value from the configuration files is used]"
+    help_str += "Valid values for <serverN>: %s " % ", ".join( embedded_choices )
+    help_str += "[by default the value from the configuration files is used]"
     o_e = optparse.Option("-e",
                           "--embedded",
                           metavar="<server1,server2,...>",
                           type="string",
-                          action="append",
+                          action="callback",
                           dest="embedded",
+                          callback=check_embedded,
                           help=help_str)
 
     # Standalone servers. Default: Like in configuration files.
     help_str  = "CORBA servers to be launched in the standalone mode (as separate processes). "
-    help_str += "Valid values for <serverN>: registry, study, moduleCatalog, "
-    help_str += "cppContainer, pyContainer, [by default the value from the configuration files is used]"
+    help_str += "Valid values for <serverN>: %s " % ", ".join( standalone_choices )
+    help_str += "[by default the value from the configuration files is used]"
     o_s = optparse.Option("-s",
                           "--standalone",
                           metavar="<server1,server2,...>",
                           type="string",
-                          action="append",
+                          action="callback",
                           dest="standalone",
+                          callback=check_standalone,
                           help=help_str)
 
     # Kill with port. Default: False.
@@ -747,21 +824,19 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
 
     # Embedded
     if cmd_opts.embedded is not None:
-        args[embedded_nam] = []
-        listlist = cmd_opts.embedded
-        for listi in listlist:
-            args[embedded_nam] += re.split( "[:;,]", listi)
+        args[embedded_nam] = filter( lambda a: a.strip(), re.split( "[:;,]", cmd_opts.embedded ) )
 
     # Standalone
     if cmd_opts.standalone is not None:
-        args[standalone_nam] = []
-        listlist = cmd_opts.standalone
-        standalone = []
-        for listi in listlist:
-            standalone += re.split( "[:;,]", listi)
-        for serv in standalone:
-            if args[embedded_nam].count(serv) <= 0:
-                args[standalone_nam].append(serv)
+        args[standalone_nam] = filter( lambda a: a.strip(), re.split( "[:;,]", cmd_opts.standalone ) )
+
+    # Normalize the '--standalone' and '--embedded' parameters
+    standalone, embedded = process_containers_params( args.get( standalone_nam ),
+                                                      args.get( embedded_nam ) )
+    if standalone is not None:
+        args[ standalone_nam ] = standalone
+    if embedded is not None:
+        args[ embedded_nam ] = embedded
 
     # Kill
     if cmd_opts.portkill is not None: args[portkill_nam] = cmd_opts.portkill

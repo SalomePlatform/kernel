@@ -29,14 +29,15 @@ sys.path[:0]=[kernel_root+"/bin/salome"]
 #import runSalome
 
 argv = sys.argv[1:]
+sys.argv = argv[1:]
 
 #sys.argv = [sys.argv[0]]
 #if len(argv) > 3:
 #    sys.argv += argv[3:]
-if len(argv) > 2:
-    sys.argv = argv[2:]
-
-args, modules_list, modules_root_dir = setenv.get_config()
+#if len(argv) > 2:
+#    sys.argv = argv[2:]
+    
+#args, modules_list, modules_root_dir = setenv.get_config()
 #runSalome.set_env(args, modules_list, modules_root_dir)
 setenv.main();
 

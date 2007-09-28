@@ -145,8 +145,8 @@ def get_config():
         modules_list.remove("GUI")
         pass
 
-    if "SUPERV" in modules_list and not 'superv' in args['standalone']:
-        args['standalone'].append("superv")
+    if "SUPERV" in modules_list and not 'supervContainer' in args['standalone']:
+        args['standalone'].append("supervContainer")
         pass
    
     return args, modules_list, modules_root_dir
