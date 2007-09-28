@@ -102,10 +102,10 @@ def killMyPort(port):
                         if pidfield != "egrep" :
                             if sys.platform == "win32":
                                 import win32pm
-				print 'stop process '+pidfield+' : omniNames'
+                                print 'stop process '+pidfield+' : omniNames'
                                 win32pm.killpid(int(pidfield),0)
                             else:
-				if verbose(): print 'stop process '+pidfield+' : omniNames'
+                                if verbose(): print 'stop process '+pidfield+' : omniNames'
                                 os.system('kill -9 '+pidfield)
                     pidfield = field
         except:
@@ -138,7 +138,7 @@ def killMyPort(port):
         while pid != "" and len(a.split(" ")) < 2:
             a = commands.getoutput("pid=`ps -eo pid,command | egrep \"[0-9] omniNames -start "+str(port)+"\" | sed -e \"s%[^0-9]*\([0-9]*\) .*%\\1%g\"`; kill -9 $pid")
             pid = commands.getoutput("ps -eo pid,command | egrep \"[0-9] omniNames -start "+str(port)+"\" | sed -e \"s%[^0-9]*\([0-9]*\) .*%\\1%g\"")
-	    print pid
+            print pid
             
         pass
 

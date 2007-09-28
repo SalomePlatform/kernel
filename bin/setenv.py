@@ -37,9 +37,9 @@ salome_subdir = "salome"
 def add_path(directory, variable_name):
     """Function helper to add environment variables"""
     if sys.platform == "win32":
-	  splitsym = ";"
+      splitsym = ";"
     else:
-	  splitsym = ":"
+      splitsym = ":"
     if not os.environ.has_key(variable_name):
         os.environ[variable_name] = ""
         pass
@@ -240,9 +240,9 @@ def set_env(args, modules_list, modules_root_dir):
                              "PYTHONPATH")
 
 
-	            if sys.platform == "win32":
-        	      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
-                               "PATH")
+                    if sys.platform == "win32":
+                      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
+                          "PATH")
                     else:
                       add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                                "LD_LIBRARY_PATH")

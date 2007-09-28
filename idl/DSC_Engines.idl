@@ -370,7 +370,7 @@ module Engines {
     This interface defines the operations needed to add a paco++ port 
     into a parallel DSC component.
   */
-  interface Parallel_DSC : Engines::DSC {
+  interface Parallel_DSC : Engines::Superv_Component, Engines::Parallel_Component {
 
     /*!
       This operation gives the proxy node of a paco++ port to all the nodes.
@@ -385,17 +385,8 @@ module Engines {
     void set_paco_proxy(in Object ref, 
 			in string provides_port_name,
 			in Ports::PortProperties port_prop);
-
-    /*! 
-      The SUPERV module call this method before starting the service. Thus the service 
-      can add is dynamics ports before is started.
-
-      \param service_name service's name.
-      \return true if the service is correctly initialised.
-     */
-    boolean init_service(in string service_name);
 			
-  };   
+  };  
 };
 
 #endif

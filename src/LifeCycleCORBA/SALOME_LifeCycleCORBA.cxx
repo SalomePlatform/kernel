@@ -277,7 +277,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
 	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
       ASSERT(! CORBA::is_nil(Catalog));
-      SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
+      SALOME_ModuleCatalog::Acomponent_var compoInfo = 
 	Catalog->GetComponent(componentName);
       if (CORBA::is_nil (compoInfo)) 
 	{
@@ -340,6 +340,9 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.nb_proc_per_node = 0;
   params.nb_node = 0;
   params.isMPI = false;
+
+  params.parallelLib = "";
+  params.nb_component_nodes = 0;
 }
 
 //=============================================================================

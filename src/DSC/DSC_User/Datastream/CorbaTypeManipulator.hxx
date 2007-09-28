@@ -214,9 +214,13 @@ public:
     // ATTENTION TESTER p184 si le pointeur est null
     // ATTENTION TESTER Si le flag release si la sequence contient des chaines
     // ou des object refs
+#ifdef _DEBUG_
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1 ------------------" << std::endl;
+#endif
     InnerType * p_data = const_cast<seq_T &>(data).get_buffer(true); 
+#ifdef _DEBUG_
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 2 ------"<<  p_data <<"------------" << std::endl;
+#endif
 
     // Crée une nouvelle sequence propriétaire des données du buffer (pas de recopie)
     // Les données seront automatiquement désallouées par appel interne à la méthode freebuf

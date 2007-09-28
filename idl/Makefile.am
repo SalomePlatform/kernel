@@ -119,22 +119,33 @@ IDL_SOURCES += $(DYNIDL_SOURCES)
 salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
 
 if WITH_PACO_PARALLEL
-PAR = SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc \
+PAR = SALOME_ExceptionPaCO.h SALOME_ExceptionPaCO.cc \
+      SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc \
       SALOME_PortsPaCO.h SALOME_PortsPaCO.cc \
       DSC_EnginesPaCO.h DSC_EnginesPaCO.cc 
 
 PAR_LIB = libSalomeParallelIDLKernel.la
 
-IDL_PACO      = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl
+IDL_PACO      = SALOME_ExceptionPaCO.idl SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl
 
 GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cc \
 	   SALOME_ComponentPaCO_Engines_Container_client.cc \
 	   SALOME_ComponentPaCO_Engines_Component_server.cc \
 	   SALOME_ComponentPaCO_Engines_Component_client.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Component_server.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Component_client.cc \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_server.cc \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_client.cc \
+	   SALOME_ComponentPaCO_Engines_Salome_file_server.cc \
+	   SALOME_ComponentPaCO_Engines_Salome_file_client.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.cc \
 	   SALOME_PortsPaCO_Ports_Port_server.cc \
 	   SALOME_PortsPaCO_Ports_Port_client.cc \
 	   DSC_EnginesPaCO_Engines_DSC_server.cc \
 	   DSC_EnginesPaCO_Engines_DSC_client.cc \
+	   DSC_EnginesPaCO_Engines_Superv_Component_server.cc \
+	   DSC_EnginesPaCO_Engines_Superv_Component_client.cc \
 	   DSC_EnginesPaCO_Engines_Parallel_DSC_server.cc \
 	   DSC_EnginesPaCO_Engines_Parallel_DSC_client.cc
 
@@ -142,7 +153,17 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
 		SALOME_ComponentPaCO_Engines_Container_client.h \
                 SALOME_ComponentPaCO_Engines_Component_server.h \
 		SALOME_ComponentPaCO_Engines_Component_client.h \
+                SALOME_ComponentPaCO_Engines_Parallel_Component_server.h \
+		SALOME_ComponentPaCO_Engines_Parallel_Component_client.h \
+		SALOME_ComponentPaCO_Engines_fileTransfer_server.h \
+		SALOME_ComponentPaCO_Engines_fileTransfer_client.h \
+		SALOME_ComponentPaCO_Engines_Salome_file_server.h \
+		SALOME_ComponentPaCO_Engines_Salome_file_client.h \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.h \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.h \
+		SALOME_ExceptionPaCO.h \
 		SALOME_ComponentPaCO.h \
+		SALOME_Exception.h \
 		SALOME_Component.h \
 		SALOME_PortsPaCO_Ports_Port_server.h \
 		SALOME_PortsPaCO_Ports_Port_client.h \
@@ -150,12 +171,14 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
 		SALOME_Ports.h \
 		DSC_EnginesPaCO_Engines_DSC_server.h \
 		DSC_EnginesPaCO_Engines_DSC_client.h \
+                DSC_EnginesPaCO_Engines_Superv_Component_server.h \
+		DSC_EnginesPaCO_Engines_Superv_Component_client.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_server.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_client.h \
 		DSC_EnginesPaCO.h \
 		DSC_Engines.h
 
-XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+XML           = SALOME_Exception.xml SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 endif
 
 idldir = $(prefix)/idl/salome
@@ -164,6 +187,7 @@ nodist_salomeinclude_HEADERS = ${INCLUDES_PACO}
 
 BUILT_SOURCES = $(IDL_SOURCES) $(PAR)
 
+SALOME_ExceptionPaCO.h SALOME_ExceptionPaCO.cc : SALOME_Exception.idl SALOME_Exception.xml
 SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc : SALOME_Component.idl SALOME_Component.xml
 SALOME_PortsPaCO.h SALOME_PortsPaCO.cc : SALOME_Ports.idl SALOME_Ports.xml
 DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml

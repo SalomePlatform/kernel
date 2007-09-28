@@ -993,7 +993,9 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     if (par < 0)
     {
       // Nodes case
+
       command = "mpiexec -np " + string(buffer) + " ";
+//      command += "gdb --args ";
       command += real_exe_name;
       command += " " + _NS->ContainerName(rtn);
       command += " " + parallelLib;
@@ -1029,9 +1031,8 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::s
   if (log == "xterm")
   {
     command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
-      + command + " \" &";
-    //command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
-    //  + command + "; cat \" &";
+	      + command + " \" &";
+//	      + command + "; echo $LD_LIBRARY_PATH; cat \" &";
   }
   return command;
 

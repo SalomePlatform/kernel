@@ -49,8 +49,6 @@ public:
   virtual ~Engines_ParallelDSC_i();
 
   
-  //virtual CORBA::Boolean init_service(const char* service_name) {return true;}
-
   /*!
    * \see Engines::DSC::add_provides_port
    */

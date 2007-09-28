@@ -23,7 +23,6 @@
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
 
-SUBDIRS = Basic Datastream
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
@@ -93,3 +92,4 @@ test_DSC_Exception_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la
 
+SUBDIRS = Basic Datastream

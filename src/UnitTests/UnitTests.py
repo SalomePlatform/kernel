@@ -19,13 +19,14 @@
 
 import sys, os,signal,string,commands
 import runSalome
+import setenv
 import orbmodule
 import TestKiller
 
 # get SALOME environment :
 
-args, modules_list, modules_root_dir = runSalome.get_config()
-runSalome.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv.get_config()
+setenv.set_env(args, modules_list, modules_root_dir)
 
 # set environment for trace in logger
 # (with file, servers may be killed before the write to the file...)

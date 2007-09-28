@@ -68,6 +68,7 @@ check_htmlgen.m4 \
 check_lam.m4 \
 check_lsf.m4 \
 check_mpi.m4 \
+check_openmpi.m4 \
 check_mpich.m4 \
 check_omniorb.m4 \
 check_opengl.m4 \

@@ -43,6 +43,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "NOTIFICATION.hxx"
+#include "Salome_file_i.hxx"
 
 class RegistryConnexion;
 class Engines_Container_i;
@@ -95,7 +96,19 @@ public:
 				      CORBA::Boolean isPublished,
 				      CORBA::Boolean& isValidScript);
 
+ // CORBA operations for Salome_file
+ virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
+							const char* Salome_file_name);
+ virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
+							      const char* Salome_file_name);
 
+ virtual void checkInputFilesToService(const char* service_name);
+ virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
+							const char* Salome_file_name);
+
+ virtual void checkOutputFilesToService(const char* service_name);
+ virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
+							 const char* Salome_file_name);
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
@@ -116,6 +129,11 @@ public:
   long CpuUsed() ;
   void CancelThread() ;
 
+  virtual void configureSalome_file(std::string service_name,
+				    std::string file_port_name,
+				    Salome_file_i * file);
+
+
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;
@@ -132,6 +150,16 @@ protected:
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
   std::map<std::string,CORBA::Any>_fieldsDict;
+
+  // Map Salome_file_name to Salome_file*
+  typedef std::map<std::string, Salome_file_i*> _t_Salome_file_map;
+  // Map Service_name to  _Salome_file_map
+  typedef std::map<std::string, Engines_Component_i::_t_Salome_file_map*> _t_Service_file_map;
+  
+  _t_Service_file_map _Input_Service_file_map;
+  _t_Service_file_map _Output_Service_file_map;
+  _t_Service_file_map::iterator _Service_file_map_it;
+  _t_Salome_file_map::iterator _Salome_file_map_it;
 
   std::string _serviceName ;
   std::string _graphName ;

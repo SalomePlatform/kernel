@@ -40,7 +40,7 @@ herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
    return 1;
 }
 
-HDFgroup::HDFgroup(char *name, HDFcontainerObject *father)
+HDFgroup::HDFgroup(const char *name, HDFcontainerObject *father)
   : HDFcontainerObject(name)
 {
   _father = father;

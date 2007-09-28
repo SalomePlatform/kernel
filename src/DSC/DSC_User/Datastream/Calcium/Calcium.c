@@ -27,6 +27,7 @@
 #include "calcium.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // Interface C de SalomeCalcium 
 
@@ -150,7 +151,6 @@ InfoType cp_fin (void * component, int code) {
     fflush(stderr);           \
     fprintf(stderr,"Beginning of CPExx: %s %d %f\n",nomvar,i,t); \
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
-    printf("cp_name : Valeur de nomvar %s\n",nomvar);	\
 									\
     InfoType info =  ecp_ecriture_##_typeName (component, mode, &t, i,	\
 					       nomvar, nbelem,		\
@@ -170,3 +170,4 @@ CALCIUM_ECR_INTERFACE_C_(ere,float,float,float,);
 CALCIUM_ECR_INTERFACE_C_(edb,double,double,double,);
 CALCIUM_ECR_INTERFACE_C_(elo,float,bool,bool,);
 CALCIUM_ECR_INTERFACE_C_(ecp,float,float,cplx,);
+

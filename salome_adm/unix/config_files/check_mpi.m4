@@ -96,6 +96,17 @@ dnl
 
   fi
 
+  if test "$WITHLAM" = no; then
+dnl
+dnl ---------------------------------------------
+dnl testing OPENMPI
+dnl ---------------------------------------------
+dnl
+
+    CHECK_OPENMPI
+
+  fi
+
 fi
 
 if test x$WITHMPI2 = xyes; then

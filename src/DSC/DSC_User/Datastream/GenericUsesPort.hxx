@@ -123,11 +123,13 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     CorbaPortTypePtr port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     copyOfData = DataManipulator::clone(data);
+#ifdef _DEBUG_
     std::cout << "-------- GenericUsesPort::put : Copie de data("
       //<< DataManipulator::getPointer(data)
 	      <<") vers copyOfData ("
 	      <<DataManipulator::getPointer(copyOfData)
 	      <<")------------------" << std::endl;
+#endif
     //} PB1
     try {
       port->put(*copyOfData,time,tag); // catcher les exceptions
@@ -154,7 +156,9 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
 {
   if (_my_ports) delete _my_ports;
 
+#ifdef _DEBUG_
   std::cerr << "GenericUsesPort::uses_port_changed" << endl;
+#endif
   _my_ports = new Engines::DSC::uses_port(*new_uses_port);
 }
 

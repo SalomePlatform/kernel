@@ -58,8 +58,8 @@ GENERATE_BUGLIST       = NO
 GENERATE_DEPRECATEDLIST= NO
 ENABLED_SECTIONS       = 
 MAX_INITIALIZER_LINES  = 25
-SHOW_USED_FILES        = NO
-SHOW_DIRECTORIES       = NO
+SHOW_USED_FILES        = YES
+SHOW_DIRECTORIES       = YES
 FILE_VERSION_FILTER    = 
 
 #---------------------------------------------------------------------------
@@ -96,15 +96,15 @@ EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = sources/
 INPUT_FILTER           = 
 FILTER_PATTERNS        = 
-FILTER_SOURCE_FILES    = YES
+FILTER_SOURCE_FILES    = NO
 
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
-SOURCE_BROWSER         = NO
-INLINE_SOURCES         = NO
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
 STRIP_CODE_COMMENTS    = YES
-REFERENCED_BY_RELATION = NO
+REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
 USE_HTAGS              = NO
 VERBATIM_HEADERS       = YES
@@ -124,7 +124,7 @@ HTML_OUTPUT            = KERNEL
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = sources/myheader.html
 HTML_FOOTER            = sources/footer.html
-HTML_STYLESHEET        = sources/doxygen.css
+HTML_STYLESHEET        = 
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
 CHM_FILE               = 
@@ -134,7 +134,7 @@ BINARY_TOC             = YES
 TOC_EXPAND             = YES
 DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 TREEVIEW_WIDTH         = 250
 
 #---------------------------------------------------------------------------

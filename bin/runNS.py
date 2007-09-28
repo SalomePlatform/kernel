@@ -6,11 +6,11 @@ import os, commands, sys, re, string, socket
 from Utils_Identity import getShortHostName
 
 if sys.platform == "win32":
-	# temporarily using home directory for Namning Service logs
-	# to be replaced with TEMP later...
-	os.environ["BaseDir"]=os.environ["HOME"]
+  # temporarily using home directory for Namning Service logs
+  # to be replaced with TEMP later...
+  os.environ["BaseDir"]=os.environ["HOME"]
 else:
-	os.environ["BaseDir"]="/tmp"
+  os.environ["BaseDir"]="/tmp"
 
 os.environ["Username"]=os.environ["USER"]
 
@@ -21,50 +21,50 @@ os.environ["Username"]=os.environ["USER"]
 # clear log files
 
 def startOmni():
-	try:
-	  os.mkdir(os.environ["BaseDir"] + "/logs")
-          os.chmod(os.environ["BaseDir"] + "/logs", 0777)
-	except:
-	  #print "Can't create " + os.environ["BaseDir"] + "/logs"
-	  pass
-	
-	upath = os.environ["BaseDir"] + "/logs/" + os.environ["Username"]
+  try:
+    os.mkdir(os.environ["BaseDir"] + "/logs")
+    os.chmod(os.environ["BaseDir"] + "/logs", 0777)
+  except:
+    #print "Can't create " + os.environ["BaseDir"] + "/logs"
+    pass
+  
+  upath = os.environ["BaseDir"] + "/logs/" + os.environ["Username"]
 
-	try:
-	  os.mkdir(upath)
-	except:
-	  #print "Can't create " + upath
-	  pass
+  try:
+    os.mkdir(upath)
+  except:
+    #print "Can't create " + upath
+    pass
 
-	#os.system("touch " + upath + "/dummy")
-	for fname in os.listdir(upath):
-	  try:
-	    os.remove(upath + "/" + fname)
-	  except:
-	    pass
-	#os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
+  #os.system("touch " + upath + "/dummy")
+  for fname in os.listdir(upath):
+    try:
+      os.remove(upath + "/" + fname)
+    except:
+      pass
+  #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
-	print "Name Service... "
-	#hname=os.environ["HOST"] #commands.getoutput("hostname")
-	if sys.platform == "win32":
+  print "Name Service... "
+  #hname=os.environ["HOST"] #commands.getoutput("hostname")
+  if sys.platform == "win32":
           hname=getShortHostName()
-	else:
-	  hname=socket.gethostname()
+  else:
+    hname=socket.gethostname()
 
-	print "hname=",hname
-	
-	f=open(os.environ["OMNIORB_CONFIG"])
-	ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-	print "ss = ", ss
-	f.close()
-	aPort=re.findall("\d+", ss[0])[0]
-	
-	#aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
-	#print "sed command = ", aSedCommand
-	#aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
-        global process_id
-	print "port=", aPort
-	if sys.platform == "win32":          
+  print "hname=",hname
+  
+  f=open(os.environ["OMNIORB_CONFIG"])
+  ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
+  print "ss = ", ss
+  f.close()
+  aPort=re.findall("\d+", ss[0])[0]
+  
+  #aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
+  #print "sed command = ", aSedCommand
+  #aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
+  global process_id
+  print "port=", aPort
+  if sys.platform == "win32":          
           #import win32pm
           #command = ['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
           #os.system("start omniNames -start " + aPort + " -logdir " + "\"" + upath + "\"" )
@@ -72,11 +72,11 @@ def startOmni():
           #print command
           pid = win32pm.spawnpid( string.join(command, " "), -nc )
           process_id[pid]=command
-	else:
-	  os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
+  else:
+    os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
-	print "ok"
-	print "to list contexts and objects bound int the context with the specified name : showNS "
+  print "ok"
+  print "to list contexts and objects bound into the context with the specified name : showNS "
 
 # In LifeCycleCORBA, FactoryServer is started with rsh on the requested
 #    computer if this Container does not exist. Default is localhost.

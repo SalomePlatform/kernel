@@ -26,6 +26,8 @@
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
 
+#include "SALOME_Exception.idl"
+
 /*! \brief
 This is a package of interfaces used for connecting new components to %SALOME
 application. It also contains a set of interfaces used for management of %MED
@@ -53,6 +55,7 @@ module Engines
   interface Component ;
   interface fileRef ;
   interface fileTransfer ;
+  interface Salome_file;
 
   /*! \brief Interface of the %Container.
   This interface defines the process of loading and registration
@@ -160,6 +163,16 @@ module Engines
     fileRef createFileRef(in string origFileName);
 
     /*!
+      returns a Salome_file object if origFileName exists and is readable
+      else returns null object. 
+
+      \param origFileName name of the file to be managed (can contain the path).
+
+      \return Salome_file CORBA reference.
+    */
+    Salome_file createSalome_file(in string origFileName);
+
+    /*!
       returns a fileTransfer object used to copy files from the container
       machine to the clients machines. Only one fileTransfer instance is
       created in a container.
@@ -167,8 +180,6 @@ module Engines
     fileTransfer getFileTransfer();
 
   };
-
-
 
   /*! \brief Interface of the %component.
   This interface is used for interaction between the %container and the
@@ -275,9 +286,103 @@ module Engines
     */    
     TMPFile DumpPython(in Object theStudy,
 		       in boolean isPublished, 
-		       out boolean isValidScript); 
+		       out boolean isValidScript);
 
+    
+    /*!
+      Returns a CORBA Ref of a input Salome_file managed by a service.
+
+      \param service_name service's name.
+      \param file_name name of the requested file.
+
+      \return CORBA Ref of the requested file.
+
+      \exception contains informations of what if the component cannot 
+      sends the file's reference.
+    */
+    Engines::Salome_file getInputFileToService(in string service_name, 
+					       in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
+
+    /*!
+      This method is used before the activation of the service. It calls
+      recvFiles() on all the input Salome_file files of the service. 
+      
+      Before each recvFiles(), it uses the callback method named configureSalome_file.
+      This method allows the user to configure the files managed by the Salome_file.
+
+      By default, there is no files managed when a Salome_file is created, 
+      but the supervisor set some files managed by the Salome_file from the information contained
+      into the schema file.
+
+      \param service_name service's name.
+
+      \exception contains informations about files that are not in a good state.
+    */
+    void checkInputFilesToService(in string service_name)				raises(SALOME::SALOME_Exception);
+
+    /*!
+      This method adds a input Salome_file to a service of the component.
+
+      \param service_name service's name.
+      \param Salome_file_name name of the Salome_file
+
+      \return a reference of the Salome_file
+
+      \exception raises an exception if there is already
+      a Salome_file with this name for the service.
+    */
+    Engines::Salome_file setInputFileToService(in string service_name,
+					       in string Salome_file_name)	raises(SALOME::SALOME_Exception);
+
+    /*!
+      Returns a CORBA Ref of a output Salome_file managed by a service.
+
+      \param service_name service's name.
+      \param file_name name of the requested file.
+
+      \return CORBA Ref of the requested file.
+
+      \exception contains informations of what if the component cannot 
+      sends the file's reference.
+    */
+    Engines::Salome_file getOutputFileToService(in string service_name, 
+						in string Salome_file_name) raises(SALOME::SALOME_Exception);
+
+    /*!
+      This method is used at the end of the service. It calls
+      recvFiles() on all the output Salome_file files of the service. 
+      
+      Before each recvFiles(), it uses the callback method named configureSalome_file.
+      This method allows the user to configure the files managed by the Salome_file.
+
+      By default, there is no files managed when a Salome_file is created, 
+      but the supervisor set some files managed by the Salome_file from the information contained
+      into the schema file.
+
+      \param service_name service's name.
+
+      \exception contains informations about files that are not in a good state.
+    */
+    void checkOutputFilesToService(in string service_name)			 raises(SALOME::SALOME_Exception);
+
+    /*!
+      This method adds an output Salome_file to a service of the component.
+
+      \param service_name service's name.
+      \param Salome_file_name name of the Salome_file
+
+      \return a reference of the Salome_file
+
+      \exception raises an exception if there is already
+      a Salome_file with this name for the service.
+    */
+    Engines::Salome_file setOutputFileToService(in string service_name,
+						in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
   } ;
+
+  interface Parallel_Component : Engines::Component {
+    void send_parallel_proxy_object(in Object proxy_ref);
+  };
 
   /*!
     A block of binary data used for file transfer. The maximum size of the
@@ -314,7 +419,187 @@ module Engines
     fileBlock getBlock(in long fileId);
   };
 
-  /*! \brief Interface of fileTransfer.
+  /*!
+    This is a file managed by a Salome_file. It contains file's name, path and status.
+    The status is : "present" or "notpresent".
+  */
+  struct file {
+    string file_name;
+    string path;
+    string type;
+    string source_file_name;
+    string status;
+    long   node;
+    Engines::Container container;
+  };
+
+  /*!
+    A sequence of Engines::file.
+  */
+  typedef sequence<Engines::file> files;
+
+
+  /*!
+    It is the state of a Salome_file. It contains the Salome_file's name, the name
+    of the hdf5 file where it can be saved, the number of files managed and the information
+    if all the files are received.
+  */
+  struct SfState {
+    string  name;
+    string  hdf5_file_name;
+    long    number_of_files;
+    boolean files_ok;
+  };
+
+  /*! \brief Interface of a Salome_file managed
+    This file is independent of a Salome module. It can managed one or more
+    real files. It's useful for parallel files. Currently Salome_file cannot manage
+    two files that have the same name but not the same path.
+  */
+  interface Salome_file : Engines::fileTransfer
+  {
+    /*!
+      Load a Salome_file from a hdf5 file.
+
+      \param hdf5_file name (with path) of the hdf5_file.
+
+      \exception contains informations of errors if the loading doesn't succeed.
+     */
+    void load(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
+
+    /*!
+      Save a Salome_file into a hdf5_file.
+
+      \param  hdf5_file name (with path) of the hdf5_file.
+
+      \exception contains informations of errors if the save doesn't succeed.
+
+    */
+    void save(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
+
+    /*!
+      Save a Salome_file into a hdf5_file. All files that are managed
+      are saved into the hdf5_file
+
+      \param  hdf5_file name (with path) of the hdf5_file.
+
+      \exception contains informations of errors if the save doesn't succeed.
+
+    */
+    void save_all(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
+
+/**************/
+
+    /*!
+      Add a Local file to the Salome_file.
+
+      \param file_name name of the file with the path.
+
+      \exception raised if the file is already added into the Salome_file.
+    */
+    void setLocalFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Add a Distributed file to the Salome_file.
+
+      \param comp_file_name name of the file with the path.
+
+      \exception raised if the file is already added into the Salome_file.
+    */
+    void setDistributedFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Connect a Salome_file with another Salome_file.
+      It works only if the Salome_file managed only one file
+
+      \param source_Salome_file Salome_file that managed the distributed version of the file.
+
+      \exception raised if there is more or less than one file.
+    */
+    void connect(in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Connect the managed file file_name to a Salome_file.
+
+      \param file_name name of the file without the path.
+      \param source_Salome_file Salome_file that managed the distributed version of the file.
+
+      \exception raised if the file doesn't exist.
+    */
+    void connectDistributedFile(in string file_name,
+				in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+    
+    /*!
+      Connect the file_name with a Distributed file_name.
+
+      \param file_name name of the file without the path.
+      \param source_file_name It's the name of the file managed by the distributed source Salome_file.
+
+      \exception raised if the file doesn't exist.
+    */
+    void setDistributedSourceFile(in string file_name,
+				  in string source_file_name) raises (SALOME::SALOME_Exception);
+
+/**************/
+
+    /*!
+      Get all the distributed files managed by the Salome_file and
+      check all the local files.
+
+      \exception raised if some of the files are not ok.
+    */
+    void recvFiles()					    raises (SALOME::SALOME_Exception) ;
+
+/**************/
+
+    /*!
+      Remove a file of the Salome_file.
+
+      \param file_name name of the file.
+
+      \exception raised if the file doesn't exist.
+    */
+    void removeFile(in string file_name)		    raises (SALOME::SALOME_Exception);
+
+    /*!
+      Remove all the files of the Salome_file.
+    */
+    void removeFiles();
+
+/**************/
+
+    /*!
+      Get the list of the files managed by the Salome_file.
+      The list can be empty.
+    */
+    Engines::files getFilesInfos();
+
+    /*!
+      Get a file managed by the Salome_file.
+
+      \param file_name the name of the file.
+
+      \return CORBA file reference.
+
+      \exception raised if the file doesn't exist.
+    */
+    Engines::file  getFileInfos(in string file_name)	    raises (SALOME::SALOME_Exception);
+
+    /*!
+      Return the state of the Salome_file.
+    */
+    Engines::SfState getSalome_fileState();
+
+
+    /*!
+      Set the container where files are.
+
+      \param container container CORBA's reference.
+    */
+    void setContainer(in Engines::Container container);
+  };
+
+  /*! \brief Interface of fileRef.
      The fileTransfer and fileRef interfaces provide a file transfer service
      between different computers.
 
@@ -344,6 +629,49 @@ module Engines
     string getRef(in string machine);
   };
 
-} ;
+  /*! \brief Interface of a Parallel_Salome_file
+    This interface is used by parallel components and containers.
+    It adds methods to enable to choose on which node of the parallel component the file has to 
+    be received.
+  */
+  interface Parallel_Salome_file : Engines::Salome_file {
+
+    /*!
+      Set a number of node for the file. Default is the node 0.
+
+      \param file_name name of the file.
+      \param node_nbr node number where the file is.
+
+      \exception raised if the file doesn't exist.
+    */
+    void setFileNode(in string file_name, in long node_nbr) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Get the number of the node that actually managed the file.
+
+      \param file_name name of managed file.
+
+      \return node number of the file
+
+      \exception raised if the file doesn't exist.
+     */
+    long getFileNode(in string file_name) raises (SALOME::SALOME_Exception);
+
+    /*!
+      This method update the state of file for the Parallel_Salome_file. 
+
+      \param new_file the new state of file.
+     */
+    Engines::Container updateFile(in Engines::file new_file);
+
+    /*!
+      This method is used by the parallel implementation of recvFiles.
+
+      \exception raised if the file cannot be ok.
+     */
+    void recvFiles_node() raises (SALOME::SALOME_Exception);
+
+  };
+};
 
 #endif

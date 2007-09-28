@@ -32,15 +32,15 @@ extern "C"
 #include "HDFtypes.h"
 }
 #include "HDFobject.hxx"
-#include <Standard_Macro.hxx>
+#include "HDFexport.hxx"
 
-class Standard_EXPORT HDFinternalObject : public HDFobject
+class HDF_EXPORT HDFinternalObject : public HDFobject
 {
 private :
   HDFinternalObject *_previousbrother;
   HDFinternalObject *_nextbrother;
 public :
-  HDFinternalObject(char *name);
+  HDFinternalObject(const char *name);
 
   HDFinternalObject *GetPreviousBrother();
   HDFinternalObject *GetNextBrother();

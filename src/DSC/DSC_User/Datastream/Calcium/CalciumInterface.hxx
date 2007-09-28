@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 
+//#define _DEBUG_
 
 // Déplacer cette information dans CorbaTypeManipulator
 // Gérer en même temps la recopie profonde.
@@ -85,9 +86,11 @@ public :
 // 	calcium_uses_port* myCalciumUsesPort=
 // 	  dynamic_cast<calcium_uses_port*>(myUsesPort);
 
+#ifdef _DEBUG_
 	std::cerr << "-------- CalciumInterface(ecp_fin) MARK 1 -|"<< *it <<"|----"<< 
 	  //	  typeid(myUsesPort).name() <<"-------------" <<
 	  typeid(myCalciumUsesPort).name() <<"-------------" << std::endl;
+#endif
 	
 // 	if ( !myCalciumUsesPort )
 // 	  throw Superv_Component_i::BadCast(LOC(OSS()<<"Impossible de convertir le port "
@@ -96,10 +99,14 @@ public :
 	myCalciumUsesPort->disconnect(provideLastGivenValue);
 
       } catch ( const Superv_Component_i::BadCast & ex) {
+#ifdef _DEBUG_
  	std::cerr << ex.what() << std::endl;
+#endif
  	throw (CalciumException(CalciumTypes::CPTPVR,ex));
       } catch ( const DSC_Exception & ex) {
+#ifdef _DEBUG_
 	std::cerr << ex.what() << std::endl;
+#endif
 	// Exception venant de SupervComponent :
 	//   PortNotDefined(CPNMVR), PortNotConnected(CPLIEN)  
 	// ou du port uses : Dsc_Exception
@@ -171,26 +178,38 @@ public :
     CorbaDataType     corbaData;
     long         ilong;
 
+#ifdef _DEBUG_
     std::cerr << "-------- CalciumInterface(ecp_lecture) MARK 1 ------------------" << std::endl;
+#endif
 
     if (nomVar.empty())
       throw CalciumException(CalciumTypes::CPNMVR,
 				LOC("Le nom de la variable est <nul>"));
     PortType * port;
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 2 ------------------" << std::endl;
+#endif
 
     try {
       port  = component.Superv_Component_i::get_port< PortType > (nomVar.c_str());
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 3 ------------------" << std::endl;
+#endif
     } catch ( const Superv_Component_i::PortNotDefined & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;
+#endif
       throw (CalciumException(CalciumTypes::CPNMVR,ex));
     } catch ( const Superv_Component_i::PortNotConnected & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;;
+#endif
       throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
       // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
     } catch ( const Superv_Component_i::BadCast & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;
+#endif
       throw (CalciumException(CalciumTypes::CPTPVR,ex));
     }
   
@@ -211,20 +230,30 @@ public :
   
     if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
       corbaData = port->get(ti,tf, 0);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
+#endif
     } 
     else if ( dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
       corbaData = port->get(0, i);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
+#endif
     } else {
       // Lecture en séquence
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
+#endif
       corbaData = port->next(ti,i);
     }
  
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 8 ------------------" << std::endl;
+#endif
     size_t corbaDataSize = DataManipulator::size(corbaData);
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecp_lecture) corbaDataSize : " << corbaDataSize << std::endl;
+#endif
    
     // Vérifie si l'utilisateur demande du 0 copie
     if ( data == NULL ) {
@@ -234,10 +263,14 @@ public :
       nRead = corbaDataSize;
       // Si les types T et InnerType sont différents, il faudra effectuer tout de même une recopie
       if (!IsSameType<T1,InnerType>::value) data = new T1[nRead];
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 9 ------------------" << std::endl;
+#endif
       // On essaye de faire du 0 copy si les types T et InnerType sont les mêmes
       Copy2UserSpace< IsSameType<T1,InnerType>::value >::apply(data,corbaData,nRead);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 10 ------------------" << std::endl;
+#endif
       // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
       // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
       //  old : Dans les deux cas la structure CORBA n'est plus utile 
@@ -247,18 +280,24 @@ public :
       // DataManipulator::delete_data(corbaData);
    } else {
       nRead = std::min < size_t > (corbaDataSize,bufferLength);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 11 ------------------" << std::endl;
+#endif
       Copy2UserSpace<false>::apply(data,corbaData,nRead);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 12 ------------------" << std::endl;
+#endif
       // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
       // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
       //      DataManipulator::delete_data(corbaData);
    }
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecp_lecture), Valeur de data : " << std::endl;
     std::copy(data,data+nRead,std::ostream_iterator<T1>(std::cout," "));
     std::cout << "Ptr :" << data << std::endl;
 
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 13 ------------------" << std::endl;
+#endif
  
   
     return;
@@ -297,24 +336,36 @@ public :
     typedef typename DataManipulator::Type                CorbaDataType; // Attention != T1
     typedef typename DataManipulator::InnerType           InnerType;
 
+#ifdef _DEBUG_
     std::cerr << "-------- CalciumInterface(ecriture) MARK 1 ------------------" << std::endl;
+#endif
     if ( nomVar.empty() ) throw CalciumException(CalciumTypes::CPNMVR,
 						    LOC("Le nom de la variable est <nul>"));
     PortType * port;
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture) MARK 2 ------------------" << std::endl;
+#endif
 
     try {
       port  = component.Superv_Component_i::get_port< PortType > (nomVar.c_str());
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecriture) MARK 3 ------------------" << std::endl;
+#endif
     } catch ( const Superv_Component_i::PortNotDefined & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;
+#endif
       throw (CalciumException(CalciumTypes::CPNMVR,ex));
     } catch ( const Superv_Component_i::PortNotConnected & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;;
+#endif
       throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
       // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
     } catch ( const Superv_Component_i::BadCast & ex) {
+#ifdef _DEBUG_
       std::cerr << ex.what() << std::endl;
+#endif
       throw (CalciumException(CalciumTypes::CPTPVR,ex));
     }
  
@@ -357,7 +408,9 @@ public :
 				LOC(OSS()<<"Le buffer a envoyer est de taille nulle "));
 
 
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture) MARK 7 ------------------" << std::endl;
+#endif
     CorbaDataType corbaData;
 
     
@@ -388,23 +441,31 @@ public :
       port->put(*corbaData,t, -1); 
       //Le -1 peut être traité par le cst DataIdContainer et transformé en 0 
       //Etre obligé de mettre une étoile ds (*corbadata) va poser des pb pour les types <> seq
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecriture) MARK 5 ------------------" << std::endl;
+#endif
     } 
     else if ( dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
       port->put(*corbaData,-1, i);
+#ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecriture) MARK 6 ------------------" << std::endl;
+#endif
     } 
 
     
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture), Valeur de corbaData : " << std::endl;
     for (int i = 0; i < corbaData->length(); ++i)
       cout << "-------- CalciumInterface(ecriture), corbaData[" << i << "] = " << (*corbaData)[i] << endl;
+#endif
     
     //    if ( !IsSameType<T1,InnerType>::value ) delete corbaData;
     // Supprime l'objet CORBA avec eventuellement les données qu'il contient (case de la recopie)
     delete corbaData;
 
+#ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture) MARK 7 ------------------" << std::endl;
+#endif
    
     return;
   }
@@ -436,11 +497,19 @@ ecp_fin_ (void * component, int code) {
     CalciumInterface::ecp_fin( *_component,				
 			       provideLastGivenValue); 
   } catch ( const CalciumException & ex) { //tester l'arrêt par exception
+#ifdef _DEBUG_
     std::cerr << ex.what() << std::endl;				
+#endif
     return ex.getInfo();						
   }									
   return CalciumTypes::CPOK;
 };
+
+#ifdef _DEBUG_
+#define DEBTRACE(msg) {std::cerr<<std::flush<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<std::endl<<std::flush;}
+#else
+#define DEBTRACE(msg)
+#endif
 
 
 #define CALCIUM_C2CPP_INTERFACE_(_name,_type,_qual)			\
@@ -458,7 +527,7 @@ ecp_fin_ (void * component, int code) {
       static_cast<CalciumTypes::DependencyType>(dependencyType);	\
     									\
     if ( IsSameType< _name , cplx >::value ) _bufferLength*=2;		\
-    std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" << std::endl; \
+    DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) \
     try {								\
       CalciumInterface::ecp_lecture< _type, _name >( *_component,	\
 						     _dependencyType, \
@@ -466,22 +535,24 @@ ecp_fin_ (void * component, int code) {
 						     nomvar,		\
 						     _bufferLength, _nRead, *data); \
     } catch ( const CalciumException & ex) {				\
-      std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1b ------------------" << std::endl; \
-      std::cerr << ex.what() << std::endl;				\
-      std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1ter ------------------" << std::endl; \
+      DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1b ------------------" ) \
+      DEBTRACE( ex.what() )				\
+      DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1ter ------------------" ) \
       return ex.getInfo();						\
     }									\
     if ( IsSameType< _name , cplx >::value ) { *nRead=_nRead/2;		\
-      std::cout << "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" << std::endl; \
-      std::cout << "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead << std::endl; \
-      std::cout << "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead << std::endl; \
+      DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" ) \
+      DEBTRACE( "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead ) \
+      DEBTRACE( "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead ) \
     } else *nRead = _nRead;						\
     if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
         *ti=(CalTimeType< _type _qual >::TimeType)(_ti);			\
-    std::cout << "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data << std::endl; \
+    DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) \
+    /* \
     for (int i=0; i<_nRead;++i)						\
       printf("-------- CalciumInterface(lecture Inter Part), Valeur de data (typage entier) data[%d] : %d \n",i,(*data)[i]); \
-    std::cout << "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data << std::endl; \
+      */ \
+    DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) \
     return CalciumTypes::CPOK;						\
   };									\
   extern "C" void ecp_lecture_##_name##_free ( _type _qual * data) {	\
@@ -497,11 +568,11 @@ ecp_fin_ (void * component, int code) {
     double         _t=*t;						\
     size_t         _bufferLength=bufferLength;				\
     if ( IsSameType< _name , cplx >::value ) _bufferLength=_bufferLength*2; \
-    std::cout << "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" << std::endl; \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" ) \
     try {								\
-      printf("-------- CalciumInterface(ecriture Inter Part), cp_name : Nom de la var. de type %s : %s\n",#_type,nomvar); \
+      /*printf("-------- CalciumInterface(ecriture Inter Part), cp_name : Nom de la var. de type %s : %s\n",#_type,nomvar);*/ \
       std::string essai(nomvar);					\
-      std::cout << "----------->-" << nomvar << std::endl;		\
+      DEBTRACE( "----------->-" << nomvar )		\
       CalciumInterface::ecp_ecriture< _type, _name >( *_component,	\
 						      static_cast<CalciumTypes::DependencyType>(dependencyType), \
 						      _t,i,nomvar,_bufferLength,*data); \
@@ -509,11 +580,13 @@ ecp_fin_ (void * component, int code) {
       std::cerr << ex.what() << std::endl;				\
       return ex.getInfo();						\
     }									\
-    std::cout << "-------- CalciumInterface(ecriture Inter Part), Valeur de data : " << std::endl; \
-    std::cout << "-------- CalciumInterface(ecriture Inter Part), Ptr(1) :" << data << std::endl; \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data : " ) \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Ptr(1) :" << data ) \
+    /* \
     for (int i=0; i<_bufferLength;++i)					\
       printf("-------- CalciumInterface(ecriture Inter Part), Valeur de data (typage entier) data[%d] : %d \n",i,data[i]); \
-    std::cout << "-------- CalciumInterface(ecriture Inter Part), Ptr(2) :" << data << std::endl; \
+      */ \
+    DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Ptr(2) :" << data ) \
     return CalciumTypes::CPOK;						\
   };									\
 

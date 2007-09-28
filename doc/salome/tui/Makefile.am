@@ -49,9 +49,9 @@ usr_docs:
 	$(DOXYGEN) ./doxyuser1; \
 	cd ..;
 	$(INSTALL) -d $(docdir)/tui/KERNEL;
-	cp -fr KERNEL $(docdir)/tui
 	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir)/tui/KERNEL;
 	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
+	cp -fr KERNEL $(docdir)/tui
 	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
 	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
 	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;

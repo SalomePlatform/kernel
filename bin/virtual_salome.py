@@ -114,6 +114,8 @@ def link_module(options):
     module_doc_tui_dir=os.path.join(module_dir,'doc','salome','tui')
     module_doc_dir=os.path.join(module_dir,'doc','salome')
     module_sharedoc_dir=os.path.join(module_dir,'share','doc','salome')
+    module_sharedoc_gui_dir=os.path.join(module_dir,'share','doc','salome','gui')
+    module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
@@ -125,6 +127,8 @@ def link_module(options):
     doc_tui_dir=os.path.join(home_dir,'doc','salome','tui')
     doc_dir=os.path.join(home_dir,'doc','salome')
     sharedoc_dir=os.path.join(home_dir,'share','doc','salome')
+    sharedoc_gui_dir=os.path.join(home_dir,'share','doc','salome','gui')
+    sharedoc_tui_dir=os.path.join(home_dir,'share','doc','salome','tui')
 
     verbose = options.verbose
 
@@ -181,7 +185,25 @@ def link_module(options):
     if os.path.exists(module_sharedoc_dir):
         mkdir(sharedoc_dir)
         for fn in os.listdir(module_sharedoc_dir):
+            if fn == 'gui':continue
+            if fn == 'tui':continue
             symlink(os.path.join(module_sharedoc_dir, fn), os.path.join(sharedoc_dir, fn))
+            pass
+        pass
+
+    #directory share/doc/salome/gui : create it and link content
+    if os.path.exists(module_sharedoc_gui_dir):
+        mkdir(sharedoc_gui_dir)
+        for fn in os.listdir(module_sharedoc_gui_dir):
+            symlink(os.path.join(module_sharedoc_gui_dir, fn), os.path.join(sharedoc_gui_dir, fn))
+            pass
+        pass
+    
+    #directory share/doc/salome/tui : create it and link content
+    if os.path.exists(module_sharedoc_tui_dir):
+        mkdir(sharedoc_tui_dir)
+        for fn in os.listdir(module_sharedoc_tui_dir):
+            symlink(os.path.join(module_sharedoc_tui_dir, fn), os.path.join(sharedoc_tui_dir, fn))
             pass
         pass
 

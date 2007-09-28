@@ -63,13 +63,63 @@ void handler(int t) {
 }
 #endif
 
+typedef void (*sighandler_t)(int);
+sighandler_t setsig(int sig, sighandler_t handler)
+{
+  struct sigaction context, ocontext;
+  context.sa_handler = handler;
+  sigemptyset(&context.sa_mask);
+  context.sa_flags = 0;
+  if (sigaction(sig, &context, &ocontext) == -1)
+    return SIG_ERR;
+  return ocontext.sa_handler;
+}
+
+void AttachDebugger()
+{
+  if(getenv ("DEBUGGER"))
+    {
+      std::stringstream exec;
+      exec << "$DEBUGGER SALOME_ParallelContainerNodeDummy " << getpid() << "&";
+      std::cerr << exec.str() << std::endl;
+      system(exec.str().c_str());
+      while(1);
+    }
+}
+
+void Handler(int theSigId)
+{
+  std::cerr << "SIGSEGV: "  << std::endl;
+  AttachDebugger();
+  //to exit or not to exit
+  exit(1);
+}
+
+void terminateHandler(void)
+{
+  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  AttachDebugger();
+}
+
+void unexpectedHandler(void)
+{
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  AttachDebugger();
+}
+
 int main(int argc, char* argv[])
 {
 	INFOS("Launching a parallel container node");
 
 #ifdef _DEBUG_
-	signal(SIGSEGV, handler);
+//	signal(SIGSEGV, handler);
 #endif
+  if(getenv ("DEBUGGER"))
+    {
+      setsig(SIGSEGV,&Handler);
+      set_terminate(&terminateHandler);
+      set_unexpected(&unexpectedHandler);
+    }
 
 	// Initialise the ORB.
 	ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();

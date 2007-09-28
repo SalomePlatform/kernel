@@ -43,7 +43,9 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       bool notif) : 
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
+#ifdef _DEBUG_
   std::cout << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
+#endif
   _my_basic_factory = new basic_port_factory();
   _my_palm_factory = new palm_port_factory();
   _my_calcium_factory = new calcium_port_factory();
@@ -105,7 +107,9 @@ throw (BadFabType)
   
   search_result = the_type.find("CALCIUM_");
   if (search_result == 0) {
+#ifdef _DEBUG_
     std::cout << "---- Superv_Component_i::create_uses_data_port : MARK 1 ----  " << the_type.substr(search_result+8, the_type.length()) << "----" << std::endl;
+#endif
     rtn_proxy = _my_calcium_factory->create_data_proxy(the_type.substr(search_result+8, the_type.length()));
   }
   
@@ -132,9 +136,13 @@ Superv_Component_i::add_port(const char * port_fab_type,
     add_port(port, port_name);
   }
   else if (s_port_type == "uses") {
+#ifdef _DEBUG_
     std::cout << "---- Superv_Component_i::add_port : MARK 1 ---- "  << std::endl;
+#endif
     uses_port * port = create_uses_data_port(port_fab_type);
+#ifdef _DEBUG_
     std::cout << "---- Superv_Component_i::add_port : MARK 2 ---- "  << std::endl;
+#endif
     add_port(port, port_name);
   }
   else

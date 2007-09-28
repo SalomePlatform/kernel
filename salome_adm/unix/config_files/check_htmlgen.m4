@@ -41,7 +41,7 @@ then
 	  DOXYGEN_WITH_PYTHON=yes
 	  DOXYGEN_WITH_STL=yes
 	  ;;
-	[1-9].[5-9]*)
+	[[1-9]].[[5-9]]*)
 	  DOXYGEN_WITH_PYTHON=yes
 	  DOXYGEN_WITH_STL=yes
 	  ;;

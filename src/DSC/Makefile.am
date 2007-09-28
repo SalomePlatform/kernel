@@ -27,4 +27,4 @@ if WITH_PACO_PARALLEL
 SUBDIR_PAR = ParallelDSC
 endif
 
-SUBDIRS = DSC_Basic DSC_User $(SUBDIR_PAR)
+SUBDIRS = DSC_Basic DSC_User $(SUBDIR_PAR) DSC_Python

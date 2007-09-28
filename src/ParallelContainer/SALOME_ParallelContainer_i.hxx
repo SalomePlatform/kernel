@@ -129,6 +129,8 @@ public:
 
   Engines::fileRef_ptr createFileRef(const char* origFileName);
   Engines::fileTransfer_ptr getFileTransfer();
+
+  virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
 protected:
 
   static std::map<std::string, int> _cntInstances_map;
@@ -147,6 +149,7 @@ protected:
   int _numInstance ;
   std::map<std::string,Engines::Component_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
+  std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
   Engines::fileTransfer_var _fileTransfer;
 
   int    _argc ;

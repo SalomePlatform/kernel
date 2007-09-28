@@ -47,9 +47,26 @@
  <Interface>
   <Name>Component</Name>
   <Method>
-   <Name>ping</Name>
+   <Name>setInputFileToService</Name>
    <Type>distributed</Type>
   </Method>
+  <Method>
+   <Name>setOutputFileToService</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+ <Interface>
+  <Name>Parallel_Component</Name>
+  <Method>
+   <Name>send_parallel_proxy_object</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+ <Interface>
+  <Name>Salome_file</Name>
+ </Interface>
+ <Interface>
+  <Name>Parallel_Salome_file</Name>
  </Interface>
 </Module>
 </GridCCM_Interface_description>

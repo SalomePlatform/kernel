@@ -42,7 +42,8 @@ salomeinclude_HEADERS = \
 	SALOME_FileRef_i.hxx \
 	SALOME_ContainerManager.hxx \
 	Container_init_python.hxx \
-	SALOME_Container.hxx
+	SALOME_Container.hxx \
+	Salome_file_i.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =\
@@ -63,7 +64,6 @@ dist_salomescript_SCRIPTS=\
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
@@ -72,6 +72,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../HDFPersist \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ 
@@ -85,6 +86,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@MPI_LIBS@ \
 	@CORBA_LIBS@
@@ -103,7 +105,8 @@ libSalomeContainer_la_SOURCES=\
 	SALOME_FileTransfer_i.cxx \
 	SALOME_FileRef_i.cxx \
 	Container_init_python.cxx \
-	SALOME_ContainerManager.cxx
+	SALOME_ContainerManager.cxx \
+	Salome_file_i.cxx
 
 libSalomeContainer_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -127,6 +130,8 @@ endif
 # ===============================================================
 #
 bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
+noinst_PROGRAMS = TestSalome_file
+
 SALOME_Container_SOURCES =\
 	SALOME_Container.cxx \
 	SALOME_Container_SignalsHandler.cxx
@@ -139,6 +144,9 @@ SALOME_Container_LDADD =\
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la
 
+SALOME_Container_LDFLAGS  =\
+-Xlinker -export-dynamic
+
 SALOME_ContainerManagerServer_SOURCES =\
 	SALOME_ContainerManagerServer.cxx 
 
@@ -146,6 +154,17 @@ SALOME_ContainerManagerServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
 
 SALOME_ContainerManagerServer_LDADD =\
+	libSalomeContainer.la \
+	$(COMMON_LIBS) \
+	../Basics/libSALOMEBasics.la
+
+TestSalome_file_SOURCES =\
+	TestSalome_file.cxx
+
+TestSalome_file_CPPFLAGS =\
+	$(COMMON_CPPFLAGS)
+
+TestSalome_file_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la

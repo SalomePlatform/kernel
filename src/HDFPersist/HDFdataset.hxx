@@ -33,9 +33,9 @@ extern "C"
 }
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
-#include <Standard_Macro.hxx>
+#include "HDFexport.hxx"
 
-class Standard_EXPORT HDFdataset : public HDFinternalObject
+class HDF_EXPORT HDFdataset : public HDFinternalObject
 {
 private :
   HDFcontainerObject *_father;
@@ -48,10 +48,10 @@ private :
   char* _attribute;
 
 public:
-  HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
+  HDFdataset(const char *name, HDFcontainerObject *father,hdf_type type, 
 	     hdf_size dim[],int dimsize, hdf_byte_order order = H5T_ORDER_NONE);
 
-  HDFdataset(char *name,HDFcontainerObject *father);
+  HDFdataset(const char *name,HDFcontainerObject *father);
   virtual ~HDFdataset();
 
   void CreateOnDisk();

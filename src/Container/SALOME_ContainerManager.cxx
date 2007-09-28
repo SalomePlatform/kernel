@@ -185,6 +185,11 @@ StartContainer(const Engines::MachineParameters& params,
 	       const Engines::MachineList& possibleComputers,
 	       Engines::ResPolicy policy)
 {
+#ifdef WITH_PACO_PARALLEL
+  std::string parallelLib(params.parallelLib);
+  if (parallelLib != "")
+    return FindOrStartParallelContainer(params, possibleComputers);
+#endif
   long id;
   string containerNameInNS;
   char idc[3*sizeof(long)];
@@ -326,7 +331,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     INFOS("[FindOrStartParallelContainer] Starting a parallel container");
     
     // Step 2.1 : Choose a computer
-    string theMachine = _ResManager->FindBest(possibleComputers);
+    string theMachine = _ResManager->FindFirst(possibleComputers);
     if(theMachine == "") {
       INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
       INFOS("[FindOrStartParallelContainer] No possible computer found");

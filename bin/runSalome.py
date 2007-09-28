@@ -88,10 +88,10 @@ class InterpServer(Server):
         global process_id
         command = self.CMD
         print "INTERPSERVER::command = ", command
-	if sys.platform == "win32":
+        if sys.platform == "win32":
           import win32pm
           pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
-	else:
+        else:
           pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
         self.PID = pid
@@ -102,9 +102,9 @@ class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-	#if sys.platform == "win32":
-  #        self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ModuleCatalog_Server' + ".exe",'-common']
-	#else:
+        #if sys.platform == "win32":
+        #        self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ModuleCatalog_Server' + ".exe",'-common']
+        #else:
         self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
@@ -182,9 +182,9 @@ class ContainerPYServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-	if sys.platform == "win32":
+        if sys.platform == "win32":
           self.CMD=[os.environ["PYTHONBIN"], '\"'+os.environ["KERNEL_ROOT_DIR"] + '/bin/salome/SALOME_ContainerPy.py'+'\"','FactoryServerPy']
-	else:
+        else:
           self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
 
 # ---
@@ -193,9 +193,9 @@ class ContainerSUPERVServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-#	if sys.platform == "win32":
+   #  if sys.platform == "win32":
 #          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'SuperVisionContainer']
-#	else:
+# else:
         self.CMD=['SALOME_Container','SuperVisionContainer']
 
 # ---
@@ -215,11 +215,10 @@ class SessionServer(Server):
     def __init__(self,args):
         self.args = args.copy()
         # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
-        self.args['xterm']=0
+        #self.args['xterm']=0
         #
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
-	
         self.SCMD2=[]
         if 'registry' in self.args['embedded']:
             self.SCMD1+=['--with','Registry',
@@ -706,39 +705,39 @@ def searchFreePort(args, save_config=1):
     limit=limit+10
     while 1:
         import os
-	import re
-	from os import getpid
+        import re
+        from os import getpid
         from os import system
 
-	if sys.platform == "win32":
-	    tmp_file = os.getenv('TEMP');
+        if sys.platform == "win32":
+            tmp_file = os.getenv('TEMP');
         else:
             tmp_file = '/tmp/'
-	tmp_file += 'hostname_%s'%(getpid())
+        tmp_file += 'hostname_%s'%(getpid())
 
 #       status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
 
-	system( "netstat -a -n > %s" % tmp_file );
+        system( "netstat -a -n > %s" % tmp_file );
 
-	f = open( tmp_file, 'r' );
-	lines = f.readlines();
-	f.close();
+        f = open( tmp_file, 'r' );
+        lines = f.readlines();
+        f.close();
 
-	pattern = "tcp.*:([0-9]+).*:.*listen";
-	regObj = re.compile( pattern, re.IGNORECASE );
+        pattern = "tcp.*:([0-9]+).*:.*listen";
+        regObj = re.compile( pattern, re.IGNORECASE );
 
         status = 1;
-	for item in lines:
-	    m = regObj.search( item )
-	    if m:
-	        try:
-		    p = int( m.group(1) )
-		    if p == NSPORT: 
-	        	status = 0;
-            		break;
-		except:
-		    pass
-	    pass
+        for item in lines:
+            m = regObj.search( item )
+            if m:
+                try:
+                    p = int( m.group(1) )
+                    if p == NSPORT: 
+                        status = 0;
+                        break;
+                except:
+                    pass
+            pass
 
         if status == 1:
             print "%s - OK"%(NSPORT)
@@ -749,8 +748,7 @@ def searchFreePort(args, save_config=1):
             myhost = myhost[:-1]
             f.close()
 
-#           system('rm -f %s'%(tmp_file))
-	    os.remove( tmp_file );
+            os.remove( tmp_file );
 
             #
             home = os.environ['HOME']
@@ -776,10 +774,10 @@ def searchFreePort(args, save_config=1):
             if save_config:
                 from os import system
                 if sys.platform == "win32":
-                    import shutil	
+                    import shutil       
                     shutil.copyfile( os.environ['OMNIORB_CONFIG'], "%s/.omniORB_last.cfg"%( home ) )
                 else:            
-                    system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))	
+                    system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))     
                 pass
             #
             break

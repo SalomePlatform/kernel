@@ -54,6 +54,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			Copy2CorbaSpace.hxx \
 			CalciumPortTraits.hxx \
 			calcium.h \
+			Calcium.hxx \
 			calciumP.h \
 			version.h \
 			calcium.hf
@@ -66,10 +67,14 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
@@ -92,6 +97,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       CorbaTypes2CalciumTypes.cxx \
 			       CalciumTypes2CorbaTypes.cxx \
 			       CalciumProvidesPort.cxx \
+			       Calcium.cxx \
 			       calcium_destructors_port_uses.cxx
 
 libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)
@@ -100,7 +106,8 @@ libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 AM_CFLAGS         = -fexceptions
 lib_LTLIBRARIES = libCalciumC.la
-libCalciumC_la_SOURCES = Calcium.c 
+libCalciumC_la_SOURCES = Calcium.c Calcium.cxx calciumf.c
+libCalciumC_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 #
 # ===============================================================
@@ -109,9 +116,8 @@ libCalciumC_la_SOURCES = Calcium.c
 #
 noinst_PROGRAMS              = test_DataIdContainer
 ## testInterpolation
-
-testInterpolation_SOURCES = testInterpolation.cxx
-testInterpolation_CXXFLAGS = -I/usr/include
+## testInterpolation_SOURCES = testInterpolation.cxx
+## testInterpolation_CXXFLAGS = -I/usr/include
 
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx 
 

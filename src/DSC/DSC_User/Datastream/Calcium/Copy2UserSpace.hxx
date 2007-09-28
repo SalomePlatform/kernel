@@ -82,15 +82,19 @@ struct Copy2UserSpace<false>{
     // Recopie des données dans le buffer allouée la méthode appelante
     // dans le cas d'une demande utilisateur 0 copie mais sur 
     // des types utilisateurs et CORBA incompatibles.
+#ifdef _DEBUG_
     std::cerr << "-------- Copy2UserSpace<false> MARK 1 --(dataPtr : " <<dataPtr<<")----------------" << std::endl;
+#endif
     
     std::copy(dataPtr,dataPtr+nRead,data);
  
+#ifdef _DEBUG_
     std::cerr << "-------- Copy2UserSpace<false> MARK 2 --(nRead: "<<nRead<<")-------------" << std::endl;
  
     std::cerr << "-------- Copy2UserSpace<false> MARK 3  --(data : " <<data<<") :";
     std::copy(data,data+nRead,std::ostream_iterator<T1>(std::cout," "));
     std::cout << std::endl;
+#endif
 
  }
 };

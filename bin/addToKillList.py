@@ -64,8 +64,8 @@ def addToKillList(command_pid, command):
         if verbose(): print process_id
         for pid, cmd in process_id.items():
             #print "see process %s : %s"% (pid, cmd[0])
-	    if pid == command_pid:
-		already_in=1
+            if pid == command_pid:
+                already_in=1
                 pass
             pass
         pass
@@ -73,14 +73,14 @@ def addToKillList(command_pid, command):
     command=(command.split(" "))[0]
     if already_in == 0:
         try:
-	    process_ids.append({command_pid: [command]})
-    	    fpid=open(filedict,'w')
+            process_ids.append({command_pid: [command]})
+            fpid=open(filedict,'w')
             pickle.dump(process_ids, fpid)
-	    fpid.close()
+            fpid.close()
         except:
-	    print "addToKillList: can not add command %s to the kill list"% filedict
-    	    pass
-	pass
+            print "addToKillList: can not add command %s to the kill list"% filedict
+            pass
+        pass
     pass
 
 def killList():

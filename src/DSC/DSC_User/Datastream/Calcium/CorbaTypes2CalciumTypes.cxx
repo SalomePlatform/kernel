@@ -48,12 +48,14 @@ table[Ports::Calcium_Ports::ITERATION_DEPENDENCY ] = CalciumTypes::ITERATION_DEP
 table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY ] = CalciumTypes::UNDEFINED_DEPENDENCY ;
 
 
+#ifdef _DEBUG_
 std::cout << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::TIME_DEPENDENCY<<"] : "<< 
   table[Ports::Calcium_Ports::TIME_DEPENDENCY] << std::endl;
 std::cout << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::ITERATION_DEPENDENCY<<"] : "<< 
   table[Ports::Calcium_Ports::ITERATION_DEPENDENCY] << std::endl;
 std::cout << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::UNDEFINED_DEPENDENCY<<"] : "<< 
   table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY] << std::endl;
+#endif
 }
 
 
@@ -63,7 +65,9 @@ CalciumTypes::DependencyType DEPENDENCY_TYPE::operator[]( const Ports::Calcium_P
     CalciumTypes::DependencyType> &table = (map<Ports::Calcium_Ports::DependencyType,
 					    CalciumTypes::DependencyType>&)*this ;
 
+#ifdef _DEBUG_
 std::cout << "DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c] << std::endl;
+#endif
 
   assert( table.find( (Ports::Calcium_Ports::DependencyType)c ) != table.end() ) ;
   return table[ (Ports::Calcium_Ports::DependencyType)c ] ;

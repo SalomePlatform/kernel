@@ -29,6 +29,7 @@
 #include <iostream>
 #include "SALOME_Ports.hh"
 #include "provides_port.hxx"
+#include <pthread.h>
 
 /*! \class data_short_port_provides
  *  \brief This class a port that sends a CORBA short with
@@ -65,6 +66,13 @@ class data_short_port_provides :
 
   private :
     CORBA::Short _val;
+    pthread_mutex_t * short_mutex;
+    pthread_cond_t * short_condition;
+    bool short_termine;
+    pthread_mutex_t * short_mutex_cp;
+    pthread_cond_t * short_condition_cp;
+    bool short_termine_cp;
+
 };
 
 #endif

@@ -753,7 +753,6 @@ extern int	cp_getopt(
 
 
 
-
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #endif
