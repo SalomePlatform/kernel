@@ -244,20 +244,20 @@ AC_SUBST_FILE(CORBA)
 
 echo
 echo ---------------------------------------------
-echo Testing QT
-echo ---------------------------------------------
-echo
-# Qt must be kept because kernel makes use of qxml and some other
-# non-graphical stuff.
-CHECK_QT
-
-echo
-echo ---------------------------------------------
 echo BOOST Library
 echo ---------------------------------------------
 echo
 
 CHECK_BOOST
+
+echo
+echo ---------------------------------------------
+echo Testing libxml2
+echo ---------------------------------------------
+echo
+
+CHECK_LIBXML
+
 
 fi 
 # --- end test corba
@@ -434,7 +434,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok qt_ok boost_ok"
+corba_mandatory_products="omniORB_ok boost_ok"
 if test x$corba_gen = xtrue; then
   echo --- CORBA mandatory products - default configuration:
   summary $corba_mandatory_products

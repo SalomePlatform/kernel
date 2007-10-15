@@ -82,7 +82,6 @@ libSalomeLifeCycleCORBA_la_SOURCES  = \
 libSalomeLifeCycleCORBA_la_CPPFLAGS = \
 	$(COMMON_CPPFLAGS) \
 	@PYTHON_INCLUDES@ \
-	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../Notification
 

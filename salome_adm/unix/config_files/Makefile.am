@@ -73,7 +73,6 @@ check_mpich.m4 \
 check_omniorb.m4 \
 check_opengl.m4 \
 check_openpbs.m4 \
-check_qt.m4 \
 check_sockets.m4 \
 check_swig.m4 \
 check_withihm.m4 \

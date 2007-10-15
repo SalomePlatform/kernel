@@ -65,7 +65,6 @@ COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@HDF5_INCLUDES@ \
-	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \

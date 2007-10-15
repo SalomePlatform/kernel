@@ -118,7 +118,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
 
     //! will contain the path to the ressources catalog
-    QString _path_resources;
+    std::string _path_resources;
 
     //! attribute that contains current tmp files generated
     std::string _TmpFileName;

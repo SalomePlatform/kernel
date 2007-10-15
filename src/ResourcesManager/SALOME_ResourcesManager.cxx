@@ -22,8 +22,6 @@
 #include "Utils_ExceptHandlers.hxx"
 #include "OpUtil.hxx"
 
-#include <qdom.h>
-
 #include <stdlib.h>
 #ifndef WNT
 #include <unistd.h>
@@ -282,23 +280,37 @@ void SALOME_ResourcesManager::DeleteResourceInCatalog(const char *hostname)
 
 void SALOME_ResourcesManager::WriteInXmlFile()
 {
-  QDomDocument doc("ResourcesCatalog");
+  const char* aFilePath = _path_resources.c_str();
+  
+  FILE* aFile = fopen(aFilePath, "w");
+
+  if (aFile == NULL)
+    {
+      INFOS("Error opening file !");
+      return;
+    }
+  
+  xmlDocPtr aDoc = xmlNewDoc(BAD_CAST "1.0");
+  xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
+
   SALOME_ResourcesCatalog_Handler* handler =
     new SALOME_ResourcesCatalog_Handler(_resourcesList);
-  handler->PrepareDocToXmlFile(doc);
+  handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
-  QFile file( _path_resources );
+  int isOk = xmlSaveFile(aFilePath, aDoc);
+  
+  if (!isOk)
+    INFOS("Error while XML file saving.");
+  
+  // Free the document
+  xmlFreeDoc(aDoc);
 
-  if ( !file.open( IO_WriteOnly ) )
-    INFOS("WRITING ERROR !");
-
-  QTextStream ts( &file );
-
-  ts << doc.toString();
-
-  file.close();
-
+  // Free the global variables that may have been allocated by the parser
+  xmlCleanupParser();
+  
+  fclose(aFile);
+  
   MESSAGE("WRITING DONE!");
 }
 
@@ -312,16 +324,31 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::ParseXmlFile()
 {
   SALOME_ResourcesCatalog_Handler* handler =
     new SALOME_ResourcesCatalog_Handler(_resourcesList);
-  QFile xmlFile(_path_resources);
 
-  QXmlInputSource source(xmlFile);
+  const char* aFilePath = _path_resources.c_str();
+  FILE* aFile = fopen(aFilePath, "r");
+  
+  if (aFile != NULL)
+    {
+      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+      
+      if (aDoc != NULL)
+	handler->ProcessXmlDocument(aDoc);
+      else
+	INFOS("ResourcesManager: could not parse file "<<aFilePath);
+      
+      // Free the document
+      xmlFreeDoc(aDoc);
 
-  QXmlSimpleReader reader;
-  reader.setContentHandler( handler );
-  reader.setErrorHandler( handler );
-  reader.parse( source );
-  xmlFile.close();
+      // Free the global variables that may have been allocated by the parser
+      xmlCleanupParser();
+      fclose(aFile);
+    }
+  else
+    INFOS("ResourcesManager: file "<<aFilePath<<" is not readable.");
+  
   delete handler;
+
   return _resourcesList;
 }
 

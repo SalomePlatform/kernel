@@ -31,8 +31,6 @@
 #include <fstream>
 #include <map>
 
-#include <qstringlist.h>
-#include <qfileinfo.h>
 using namespace std;
 
 #include "utilities.h"
@@ -45,6 +43,26 @@ static int MYDEBUG = 1;
 
 static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
+
+
+list<string>& splitStringToList(string theString, string theSeparator)
+{
+  list<string> aList;
+
+  int sepLen = theSeparator.length();
+  
+  int startPos = 0, sepPos = theString.find(theSeparator, startPos);
+
+  for ( ; (startPos < theString.size()) && (sepPos != string::npos); sepPos = theString.find(theSeparator, startPos))
+    {
+      string anItem = theString.substr(startPos, sepPos - startPos);
+      if (anItem.length() > 0)
+	aList.push_back(anItem);
+      startPos = sepPos + sepLen;
+    }
+
+  return aList;
+}
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalogImpl
@@ -111,31 +129,35 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
     
-    QStringList dirList;
+    list<string> dirList;
+
 #ifdef WNT
-    dirList = QStringList::split( SEPARATOR, _general_path, 
-	                          false ); // skip empty entries
+    dirList = splitStringToList(_general_path, SEPARATOR);
 #else
     //check for new format
-    int isNew = QString( _general_path ).contains(SEPARATOR);
-    if ( isNew > 0 ) {
+    bool isNew = (std::string( _general_path ).find(SEPARATOR) != string::npos);
+    if ( isNew ) {
       //using new format
-      dirList = QStringList::split( SEPARATOR, _general_path, 
-	                            false ); // skip empty entries
+      dirList = splitStringToList(_general_path, SEPARATOR);
     } else {
       //support old format
-      dirList = QStringList::split( OLD_SEPARATOR, _general_path, 
-	                            false ); // skip empty entries
+      dirList =splitStringToList(_general_path, OLD_SEPARATOR);
     }   
 #endif
     
-    for ( int i = 0; i < dirList.count(); i++ ) {
-      //QFileInfo fileInfo( dirList[ i ] );
-      QFileInfo fileInfo( dirList[ i ].replace( '\"', "" ) ); //remove inverted commas from filename
-      if ( fileInfo.isFile() && fileInfo.exists() ) {
-	_parse_xml_file(fileInfo.filePath(), 
+    for(list<string>::iterator iter=dirList.begin();iter!=dirList.end();iter++){
+      string aPath = (*iter);
+      //remove inverted commas from filename
+      while(aPath.find('\"') != string::npos)
+	aPath.erase(aPath.find('\"'), 1);
+
+      FILE* aFile = fopen(aPath.c_str(), "r");
+      if (aFile != NULL) {
+	_parse_xml_file(aPath.c_str(), 
 			_general_module_list, 
 			_general_path_list);
+	
+	fclose(aFile);
       }
     }
     
@@ -575,16 +597,26 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   if(MYDEBUG) SCRUTE(file);
 
   SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
-  QFile xmlFile(file);
 
-  QXmlInputSource source(xmlFile);
+  FILE* aFile = fopen(file, "r");
 
-  QXmlSimpleReader reader;
-  reader.setContentHandler( handler );
-  reader.setErrorHandler( handler );
-  reader.parse( source );
-  xmlFile.close();
+  if (aFile != NULL)
+    {
+      xmlDocPtr aDoc = xmlReadFile(file, NULL, 0);
+      if (aDoc != NULL)
+	handler->ProcessXmlDocument(aDoc);
+      else
+	INFOS("ModuleCatalog: could not parse file "<<file);
 
+      xmlFreeDoc(aDoc);
+      xmlCleanupParser();
+      fclose(aFile);
+    }
+  else
+    INFOS("ModuleCatalog: file "<<file<<" is not readable.");
+  
+  delete handler;
+  
   unsigned int i, j;
 
   for ( i = 0; i < _moduleList.size(); i++) {

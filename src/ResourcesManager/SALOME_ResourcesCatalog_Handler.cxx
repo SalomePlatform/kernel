@@ -29,10 +29,15 @@
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <iostream>
 #include <map>
-#include <qdom.h>
 #include "utilities.h"
 
 using namespace std;
+
+#ifdef _DEBUG_
+static int MYDEBUG = 1;
+#else
+static int MYDEBUG = 0;
+#endif
 
 //=============================================================================
 /*!
@@ -86,331 +91,219 @@ SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 
 const MapOfParserResourcesType&
 SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
-  {
-    return _resources_list;
-  }
-
-//=============================================================================
-/*!
- *  Overload handler function startDocument.
- *  Called before an xml file is parsed.
- *  Clears the list of resources.
- *  \return true (if no error detected...)
- */ 
-//=============================================================================
-
-bool SALOME_ResourcesCatalog_Handler::startDocument()
 {
-  //  MESSAGE("Begin parse document");
-
-  // --- Empty private elements
-
-  _resources_list.clear();
-  return true;
+  return _resources_list;
 }
 
 //=============================================================================
 /*!
- *  Overload handler function startElement.
- *    \param QString argument by reference (not used here ?)
- *    \param QString argument by reference (not used here ?)
- *    \param name                          (not used here ?)
- *    \param atts
- *    \return true if no error was detected
+ *  Processes XML document and fills the list of resources
  */ 
 //=============================================================================
 
-bool
-SALOME_ResourcesCatalog_Handler::
-startElement( const QString&,
-              const QString&,
-              const QString& name,
-              const QXmlAttributes& attrs )
+void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  for (int i = 0;i < attrs.count();i++)
+  if (MYDEBUG) MESSAGE("Begin parse document");
+
+  // Empty private elements
+  _resources_list.clear();
+
+  // Get the document root node
+  xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
+
+  aCurNode = aCurNode->xmlChildrenNode;
+  
+  // Processing the document nodes
+  while(aCurNode != NULL)
     {
-      QString qName(attrs.localName(i));
-      std::string content(attrs.value(i).latin1());
+      if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_machine) )
+	{
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_hostname))
+	    _resource.DataForSort._hostName = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_hostname);
+	  else
+	    break;
 
-      if ((qName.compare(QString(test_hostname)) == 0))
-        _resource.DataForSort._hostName = content;
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_alias))
+	    _resource.Alias = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_alias);
+	  else
+	    _resource.Alias = "";
 
-      if ((qName.compare(QString(test_alias)) == 0))
-        _resource.Alias = content;
-
-      if ((qName.compare(QString(test_protocol)) == 0))
-        {
-          switch (content[0])
+	  switch ( ((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_protocol))[0] )
+	    {
+	    case 'r':
+	      _resource.Protocol = rsh;
+	      break;
+	    case 's':
+	      _resource.Protocol = ssh;
+	      break;
+	    default:
+	      // If it'not in all theses cases, the protocol is affected to rsh
+	      _resource.Protocol = rsh;
+	      break;
+	    }
+	  
+	  switch ( ((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_mode))[0] )
             {
-
-            case 'r':
-              _resource.Protocol = rsh;
-              break;
-
-            case 's':
-              _resource.Protocol = ssh;
-              break;
-
-            default:
-              // If it'not in all theses cases, the protocol is affected to rsh
-              _resource.Protocol = rsh;
-              break;
-            }
-        }
-
-      if ((qName.compare(QString(test_mode)) == 0))
-        {
-          switch (content[0])
-            {
-
             case 'i':
               _resource.Mode = interactive;
               break;
-
-            case 'b':
+	    case 'b':
               _resource.Mode = batch;
               break;
-
             default:
               // If it'not in all theses cases, the mode is affected to interactive
               _resource.Mode = interactive;
               break;
             }
-        }
 
-      if ((qName.compare(QString(test_user_name)) == 0))
-        _resource.UserName = content;
-
-      if ((qName.compare(QString(test_appli_path)) == 0))
-        _resource.AppliPath = content;
-
-      if ((qName.compare(QString(test_module_name)) == 0))
-        previous_module_name = content;
-
-      if ((qName.compare(QString(test_module_path)) == 0))
-        previous_module_path = content;
-
-      if ((qName.compare(QString(test_pre_req_file_path)) == 0))
-        _resource.PreReqFilePath = content;
-
-      if ((qName.compare(QString(test_os)) == 0))
-        _resource.OS = content;
-
-      if ((qName.compare(QString(test_mem_in_mb)) == 0))
-        _resource.DataForSort._memInMB = atoi(content.c_str());
-
-      if ((qName.compare(QString(test_cpu_freq_mhz)) == 0))
-        _resource.DataForSort._CPUFreqMHz = atoi(content.c_str());
-
-      if ((qName.compare(QString(test_nb_of_nodes)) == 0))
-        _resource.DataForSort._nbOfNodes = atoi(content.c_str());
-
-      if ((qName.compare(QString(test_nb_of_proc_per_node)) == 0))
-        _resource.DataForSort._nbOfProcPerNode = atoi(content.c_str());
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_user_name))
+	    _resource.UserName = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_user_name);
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_appli_path))
+	    _resource.AppliPath = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_appli_path);
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_pre_req_file_path))
+	    _resource.PreReqFilePath = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_pre_req_file_path);
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_os))
+	    _resource.OS = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_os);
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_mem_in_mb))
+	    _resource.DataForSort._memInMB = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_mem_in_mb));
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_cpu_freq_mhz))
+	    _resource.DataForSort._CPUFreqMHz = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_cpu_freq_mhz));
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_nb_of_nodes))
+	    _resource.DataForSort._nbOfNodes = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_nodes));
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_nb_of_proc_per_node))
+	    _resource.DataForSort._nbOfProcPerNode = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_proc_per_node));
+	  
+	  // Process modules
+	  xmlNodePtr aCurSubNode = aCurNode->xmlChildrenNode;
+	  while(aCurSubNode != NULL)
+	    {
+	      if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
+		{
+		  if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name) && 
+		      xmlHasProp(aCurSubNode, (const xmlChar*)test_module_path)) 
+		    {
+		      std::string aModuleName = (const char*)xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+		      std::string aModulePath = (const char*)xmlGetProp(aCurSubNode, (const xmlChar*)test_module_path);
+		      _resource.ModulesPath[aModuleName] = aModulePath;
+		    }
+		}
+	      aCurSubNode = aCurSubNode->next;
+	    }
+	  
+	  int aNbNodes = _resource.DataForSort._nbOfNodes;
+	  if( aNbNodes > 1 ){
+	    string clusterNode = _resource.DataForSort._hostName ;
+	    for( int i=0; i < aNbNodes; i++ ){
+	      char inode[64];
+	      inode[0] = '\0' ;
+	      sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
+	      std::string nodeName(inode);
+	      _resource.DataForSort._hostName = nodeName ;
+	      _resources_list[nodeName] = _resource;
+	    }
+	  }
+	  else
+	    _resources_list[_resource.DataForSort._hostName] = _resource;
+	}
+      
+      aCurNode = aCurNode->next;
     }
 
-  return true;
-}
-
-//=============================================================================
-/*!
- *  Overload handler function endElement.
- *     \param QString argument by reference  (not used here ?)
- *     \param QString argument by reference  (not used here ?)
- *     \param qName 
- *     \return true (if no error detected ...)
- */ 
-//=============================================================================
-
-bool SALOME_ResourcesCatalog_Handler::
-endElement(const QString&,
-           const QString&,
-           const QString& qName)
-{
-  if ((qName.compare(QString(test_modules)) == 0))
-    _resource.ModulesPath[previous_module_name] = previous_module_path;
-
-  if ((qName.compare(QString(test_machine)) == 0)){
-    int nbnodes = _resource.DataForSort._nbOfNodes;
-    if( nbnodes > 1 ){
-      string clusterNode = _resource.DataForSort._hostName ;
-      for(int i=0;i<nbnodes;i++){
-        char inode[64];
-        inode[0] = '\0' ;
-        sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
-        std::string nodeName(inode);
-//        _resource.DataForSort._nbOfNodes = 1;
-        _resource.DataForSort._hostName = nodeName ;
-        _resources_list[nodeName] = _resource;
-        //cout << "SALOME_ResourcesCatalog_Handler::endElement _resources_list["
-        //     << nodeName << "] = _resource " << _resource.DataForSort._hostName.c_str()
-        //     << endl ;
-      }
+  // For debug only
+  if (MYDEBUG)
+    {
+      for (map<string, ParserResourcesType>::const_iterator iter =
+	     _resources_list.begin();
+	   iter != _resources_list.end();
+	   iter++)
+	{
+	  SCRUTE((*iter).second.Alias);
+	  SCRUTE((*iter).second.UserName);
+	  SCRUTE((*iter).second.AppliPath);
+	  SCRUTE((*iter).second.PreReqFilePath);
+	  SCRUTE((*iter).second.OS);
+	  SCRUTE((*iter).second.Protocol);
+	  SCRUTE((*iter).second.Mode);
+	}
+      
+      MESSAGE("This is the end of document");
     }
-    else
-      _resources_list[_resource.DataForSort._hostName] = _resource;
-  }
-
-  return true;
 }
 
-//=============================================================================
-/*!
- *  Overload handler function characters.
- *  fills the private attribute string 'content'.
- *     \param chars  
- *     \return true (if no error detected ...)
- */ 
-//=============================================================================
-
-bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
-{
-  content = (const char *)chars ;
-  return true;
-}
-
-//=============================================================================
-/*!
- *  Overload handler function endDocument.
- *  Called after the document has been parsed.
- *     \return true (if no error detected ...)
- */ 
-//=============================================================================
-
-bool SALOME_ResourcesCatalog_Handler::endDocument()
-{
-//   for (map<string, ParserResourcesType>::const_iterator iter =
-//          _resources_list.begin();
-//        iter != _resources_list.end();
-//        iter++)
-//     {
-//       SCRUTE((*iter).second.Alias);
-//       SCRUTE((*iter).second.UserName);
-//       SCRUTE((*iter).second.AppliPath);
-//       SCRUTE((*iter).second.PreReqFilePath);
-//       SCRUTE((*iter).second.OS);
-//       SCRUTE((*iter).second.Protocol);
-//       SCRUTE((*iter).second.Mode);
-//    }
-  
-//  MESSAGE("This is the end of document");
-  return true;
-}
-
-//=============================================================================
-/*!
- *  Overload handler function errorProtocol.
- *  \return the error message.
- */ 
-//=============================================================================
-
-QString SALOME_ResourcesCatalog_Handler::errorProtocol()
-{
-  INFOS(" ------------- error protocol !");
-  return errorProt;
-}
-
-//=============================================================================
-/*!
- *  Overload handler function fatalError.
- *  Fills the private string errorProt with details on error.
- *     \param exception from parser
- *     \return boolean (meaning ?)
- */
-//=============================================================================
-
-bool
-SALOME_ResourcesCatalog_Handler::fatalError
-(const QXmlParseException& exception)
-{
-  INFOS(" ------------- fatal error !");
-  errorProt += QString( "fatal parsing error: %1 in line %2, column %3\n" )
-               .arg( exception.message() )
-               .arg( exception.lineNumber() )
-               .arg( exception.columnNumber() );
-  INFOS("parser error: " << errorProt.latin1());
-
-  return QXmlDefaultHandler::fatalError( exception );
-}
 
 //=============================================================================
 /*!
  *  Fill the document tree in xml file, used to write in an xml file.
- *  \param doc document to fill.
+ *  \param theDoc document to fill.
  */ 
 //=============================================================================
 
-void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
+void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 {
-  QDomElement root = doc.createElement("resources");
-  doc.appendChild(root);
+  // Node pointers
+  xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;
+  char string_buf[80];
 
+  root_node = xmlNewNode(NULL, BAD_CAST "resources");
+  xmlDocSetRootElement(theDoc, root_node);
+    
   for (map<string, ParserResourcesType>::iterator iter =
          _resources_list.begin();
        iter != _resources_list.end();
        iter++)
     {
-      QDomElement eltRoot = doc.createElement(test_machine);
-      root.appendChild( eltRoot );
-      eltRoot.setAttribute((char *)test_hostname, (*iter).first.c_str());
-      eltRoot.setAttribute((char *)test_alias, (*iter).second.Alias.c_str());
-
+      node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
+      xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).first.c_str());
+      xmlNewProp(node, BAD_CAST test_alias, BAD_CAST (*iter).second.Alias.c_str());
+      
       switch ((*iter).second.Protocol)
         {
-
         case rsh:
-          eltRoot.setAttribute((char *)test_protocol, "rsh");
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
           break;
-
         case ssh:
-          eltRoot.setAttribute((char *)test_protocol, "ssh");
-          break;
-
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
+	  break;
         default:
-          eltRoot.setAttribute((char *)test_protocol, "rsh");
-        }
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
+	}
 
       switch ((*iter).second.Mode)
         {
-
-        case interactive:
-          eltRoot.setAttribute((char *)test_mode, "interactive");
+	case interactive:
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
           break;
-
         case batch:
-          eltRoot.setAttribute((char *)test_mode, "batch");
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "batch");
           break;
-
         default:
-          eltRoot.setAttribute((char *)test_mode, "interactive");
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
         }
 
-      eltRoot.setAttribute((char *)test_user_name,
-                           (*iter).second.UserName.c_str());
+      xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
 
       for (map<string, string>::const_iterator iter2 =
              (*iter).second.ModulesPath.begin();
            iter2 != (*iter).second.ModulesPath.end();
            iter2++)
         {
-          QDomElement rootForModulesPaths = doc.createElement(test_modules);
-          rootForModulesPaths.setAttribute(test_module_name,
-                                           (*iter2).first.c_str());
-          rootForModulesPaths.setAttribute(test_module_path,
-                                           (*iter2).second.c_str());
-          eltRoot.appendChild(rootForModulesPaths);
+	  node1 = xmlNewChild(node, NULL, BAD_CAST test_modules, NULL);
+	  xmlNewProp(node1, BAD_CAST test_module_name, BAD_CAST (*iter2).first.c_str());
+	  xmlNewProp(node1, BAD_CAST test_module_path, BAD_CAST (*iter2).second.c_str());
         }
 
-      eltRoot.setAttribute(test_pre_req_file_path,
-                           (*iter).second.PreReqFilePath.c_str());
-      eltRoot.setAttribute(test_os, (*iter).second.OS.c_str());
-      eltRoot.setAttribute(test_mem_in_mb,
-                           (*iter).second.DataForSort._memInMB);
-      eltRoot.setAttribute(test_cpu_freq_mhz,
-                           (*iter).second.DataForSort._CPUFreqMHz);
-      eltRoot.setAttribute(test_nb_of_nodes,
-                           (*iter).second.DataForSort._nbOfNodes);
-      eltRoot.setAttribute(test_nb_of_proc_per_node,
-                           (*iter).second.DataForSort._nbOfProcPerNode);
+      xmlNewProp(node, BAD_CAST test_pre_req_file_path, BAD_CAST (*iter).second.PreReqFilePath.c_str());
+      xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());
+      xmlNewProp(node, BAD_CAST test_mem_in_mb, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._memInMB));
+      xmlNewProp(node, BAD_CAST test_cpu_freq_mhz, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._CPUFreqMHz));
+      xmlNewProp(node, BAD_CAST test_nb_of_nodes, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfNodes));
+      xmlNewProp(node, BAD_CAST test_nb_of_proc_per_node, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfProcPerNode));
     }
 }

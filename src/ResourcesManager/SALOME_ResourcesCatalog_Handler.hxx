@@ -31,17 +31,14 @@
 
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
-#include <qxml.h>
 #include <string>
 #include <vector>
 
-class QDomElement;
+#include <libxml/parser.h>
 
-class QDomDocument;
-
-class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
-  {
-
+class SALOME_ResourcesCatalog_Handler
+{
+  
   public :
     SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources);
 
@@ -49,27 +46,11 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
 
     virtual ~SALOME_ResourcesCatalog_Handler();
 
-    virtual bool startDocument();
-
-    virtual bool startElement(const QString& , const QString& ,
-                              const QString& name, 
-			      const QXmlAttributes& attrs);
-
-    virtual bool endElement(const QString&, const QString&,
-                            const QString& qName);
-
-    virtual bool characters(const QString& chars);
-
-    virtual bool endDocument();
-
-   virtual QString errorProtocol();
-    virtual bool fatalError(const QXmlParseException& exception);
-
-    void PrepareDocToXmlFile(QDomDocument& doc);
+    void ProcessXmlDocument(xmlDocPtr theDoc);
+  
+    void PrepareDocToXmlFile(xmlDocPtr theDoc);
 
   private :
-    QString errorProt;
-    std::string content;
     std::string previous_module_name;
     std::string previous_module_path;
 

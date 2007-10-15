@@ -69,8 +69,7 @@ else
    AC_LANG_CPLUSPLUS
    CPPFLAGS_old=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS -I$CPPUNIT_INCLUDES"
-   CPPFLAGS="$CPPFLAGS $QT_INCLUDES"
-
+   
    AC_CHECK_HEADER(cppunit/extensions/HelperMacros.h,cppunit_ok=yes,cppunit_ok=no) 
 
    CPPFLAGS=$CPPFLAGS_old

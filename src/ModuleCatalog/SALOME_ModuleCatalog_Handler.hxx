@@ -32,12 +32,14 @@
 #include <SALOME_ModuleCatalog.hxx>
 
 #include "SALOME_ModuleCatalog_Parser.hxx"
-#include <qxml.h>
+
 #include <string>
 #include <stack>
 #include <map>
 
-class MODULECATALOG_EXPORT SALOME_ModuleCatalog_Handler : public QXmlDefaultHandler 
+#include <libxml/parser.h>
+
+class MODULECATALOG_EXPORT SALOME_ModuleCatalog_Handler
 {
 public:
   //! standard constructor
@@ -46,140 +48,84 @@ public:
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_Handler();
 
-
-  //! method to overload handler function startDocument
-  /*! Is called before a xml file is parsed
-   \return true if no error was detected
-  */ 
-  virtual bool startDocument();
-
-
-  //! method to overload handler function startElement
-  /*! 
-   \param QString argument by value
-   \param QString argument by value
-   \param QString argument by value
-   \param QXmlAttributes argument by value
-   \return true if no error was detected
-  */
-  virtual bool startElement(const QString&, const QString &,
-			    const QString& qName, const QXmlAttributes& atts); 
-
-  //! method to overload handler function endElement
-  /*!
-   \param QString argument by value
-   \param QString argument by value
-   \param QString argument by value
-   \return true if no error was detected
-   \sa _Find
-  */   
-  virtual bool endElement(const QString&, const QString &,
-			  const QString& qName);
-  
-
-  //! method to overload handler function characters
-  /*!
-   \param QString argument by value
-   \return true if no error was detected
-  */
-  virtual bool characters(const QString& chars);
-  
-  //! method to overload handler function endDocument
-  /*! Is called at the end of the parsing
-   \return true if no error was detected
-  */
-  virtual bool endDocument();
-
-  //! method to overload handler function errorProtocol
- /*!
-   \return the error message
-  */
-  virtual QString errorProtocol();
-
-  //! method to overload handler function fatalError
-  /*!
-    \param QXmlParseExecption argument by value
-    \return true if no error was detected
-  */
-  virtual bool fatalError(const QXmlParseException& exception);
+  void ProcessXmlDocument(xmlDocPtr theDoc);
  
 private:
-  QString errorProt ;
 
-  std::string content;
+  const char *test_path_prefix_name ;
+  const char *test_computer_name ;
+  const char *test_computer_list ;
+  const char *test_path_prefix ;
+  const char *test_path_prefix_list;
 
-  QString test_path_prefix_name ;
-  QString test_computer_name ;
-  QString test_path_prefix ;
-
-  QString test_component_name;
-  QString test_component_username;
-  QString test_component_type ;
-  QString test_component_multistudy ;
-  QString test_component_icon ;
-  QString test_component_impltype;
-  QString test_component_version;
-  QString test_component_comment;
-
-  QString test_interface_name;
-
-  QString test_service_name;
-  QString test_defaultservice;
-  QString test_typeofnode;
-
-  QString test_inParameter_type;
-  QString test_inParameter_name;
-  QString test_inParameter;
-  QString test_inParameter_list;
-
-  QString test_outParameter_type;
-  QString test_outParameter_name;
-  QString test_outParameter;
-  QString test_outParameter_list;
-
-  QString test_inDataStreamParameter_type;
-  QString test_inDataStreamParameter_name;
-  QString test_inDataStreamParameter_dependency;
-  QString test_inDataStreamParameter;
-  QString test_inDataStreamParameter_list;
-
-  QString test_outDataStreamParameter_type;
-  QString test_outDataStreamParameter_name;
-  QString test_outDataStreamParameter_dependency;
-  QString test_outDataStreamParameter;
-  QString test_outDataStreamParameter_list;
-
-  QString test_service;
-  QString test_service_list;
-  QString test_interface_list;
-  QString test_constraint;
+  const char *test_component_name;
+  const char *test_component_username;
+  const char *test_component_type ;
+  const char *test_component_multistudy ;
+  const char *test_component_icon ;
+  const char *test_component_impltype;
+  const char *test_component_version;
+  const char *test_component_comment;
   
-  QString test_component;
-
+  const char *test_interface_name;
+  
+  const char *test_service_name;
+  const char *test_defaultservice;
+  const char *test_typeofnode;
+  
+  const char *test_inParameter_type;
+  const char *test_inParameter_name;
+  const char *test_inParameter;
+  const char *test_inParameter_list;
+  
+  const char *test_outParameter_type;
+  const char *test_outParameter_name;
+  const char *test_outParameter;
+  const char *test_outParameter_list;
+  
+  const char *test_inDataStreamParameter_type;
+  const char *test_inDataStreamParameter_name;
+  const char *test_inDataStreamParameter_dependency;
+  const char *test_inDataStreamParameter;
+  const char *test_inDataStreamParameter_list;
+  
+  const char *test_outDataStreamParameter_type;
+  const char *test_outDataStreamParameter_name;
+  const char *test_outDataStreamParameter_dependency;
+  const char *test_outDataStreamParameter;
+  const char *test_outDataStreamParameter_list;
+  
+  const char *test_service;
+  const char *test_service_list;
+  const char *test_interface_list;
+  const char *test_constraint;
+  
+  const char *test_component_list;
+  const char *test_component;
+  
   ParserPathPrefix _pathPrefix;
-
+  
   ParserComponent _aModule;
-
-
+  
+  
   ParserInterfaces _interfaceList;
   ParserInterface  _aInterface;
-
+  
   ParserServices   _serviceList;
   ParserService    _aService;
 
   ParserParameters _inParamList;
   ParserParameter  _inParam;
-
+  
   ParserParameters _outParamList;
   ParserParameter  _outParam;
-
+  
   ParserDataStreamParameters _inDataStreamParamList;
   ParserDataStreamParameter  _inDataStreamParam;
-
+  
   ParserDataStreamParameters _outDataStreamParamList;
   ParserDataStreamParameter  _outDataStreamParam;
 
-  std::stack<QString> _xml_pile;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H
