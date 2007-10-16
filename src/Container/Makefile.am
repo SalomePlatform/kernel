@@ -75,7 +75,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../HDFPersist \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ 
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @LIBXML_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\

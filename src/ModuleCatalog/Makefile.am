@@ -62,6 +62,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
+	@LIBXML_INCLUDES@ \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
@@ -70,7 +71,8 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBXML_LIBS@
 
 libSalomeCatalog_la_SOURCES =\
 	SALOME_ModuleCatalog_Handler.cxx  \

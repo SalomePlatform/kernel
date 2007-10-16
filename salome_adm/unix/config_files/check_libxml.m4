@@ -1,37 +1,52 @@
 AC_DEFUN([CHECK_LIBXML],[
 
-AC_CHECKING(for libxml)
+AC_CHECKING(for libxml library)
 
-# Custom location of libxml2 package can be specified
-# through LIBXML_DIR variable
+AC_SUBST(LIBXML_INCLUDES)
+AC_SUBST(LIBXML_LIBS)
+
+LIBXML_INCLUDES=""
+LIBXML_LIBS=""
+
+libxml_ok=no
+
+LOCAL_INCLUDES=""
+LOCAL_LIBS=""
+
 if test "x$LIBXML_DIR" != "x"
 then
-  CPPFLAGS="$CPPFLAGS -I$LIBXML_DIR/include/libxml2"
-  TMPLIBS="-L$LIBXML_DIR/lib -lxml2 $LIBS"
+  LOCAL_INCLUDES="-I$LIBXML_DIR/include/libxml2"
+  LOCAL_LIBS="-L$LIBXML_DIR/lib -lxml2"
 else
-  CPPFLAGS="$CPPFLAGS -I/usr/include/libxml2"
-  TMPLIBS="-lxml2 $LIBS"
+  LOCAL_INCLUDES="-I/usr/include/libxml2"
+  LOCAL_LIBS="-lxml2"
 fi
 
+dnl libxml2 headers
+
+CPPFLAGS_old="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
 AC_CHECK_HEADER(libxml/parser.h,libxml_ok="yes",libxml_ok="no")
+CPPFLAGS="$CPPFLAGS_old"
 
 if  test "x$libxml_ok" = "xyes"
 then
+
+dnl libxml2 library
+
   LIBS_old=$LIBS
-  LIBS=$TMPLIBS
+  LIBS="$LIBS $LOCAL_LIBS"
   AC_CHECK_LIB(xml2,xmlInitParser,libxml_ok="yes",libxml_ok="no",)
   LIBS=$LIBS_old
 fi
 
 if test "x$libxml_ok" = "xyes"
 then
-  LIBS=$TMPLIBS
+  LIBXML_INCLUDES="$LOCAL_INCLUDES"
+  LIBXML_LIBS="$LOCAL_LIBS"
 fi
 
 AC_MSG_RESULT(for libxml: $libxml_ok)
-
-LIBXML_LIBS=$LIBS
-AC_SUBST(LIBXML_LIBS)
 
 ])dnl
 dnl
