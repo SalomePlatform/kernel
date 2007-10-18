@@ -59,8 +59,9 @@ struct IsSameType<T1,T1> {
 
 
 
-class CalciumInterface {
-public :
+//class CalciumInterface {
+namespace CalciumInterface {
+//public :
 
 
   static void
@@ -121,23 +122,21 @@ public :
 
   // Uniquement appelé par l'utilisateur s'il a passé un pointeur de données NULL
   // à l'appel de ecp_lecture (demande de 0 copie)
-  template <typename T1 > static void
+  template <typename T1, typename T2> static void
   ecp_free ( T1 * dataPtr )
-  { 
-    ecp_free<T1,T1> ( dataPtr );
-  }
-  
-  template <typename T1,typename T2 > static void
-  ecp_free ( T1 * dataPtr )
-  { 
-
-    typedef typename ProvidesPortTraits<T2>::PortType      PortType;
+  {
+    typedef typename ProvidesPortTraits<T2>::PortType     PortType;
     typedef typename PortType::DataManipulator            DataManipulator;
     typedef typename DataManipulator::Type                DataType; // Attention != T
     typedef typename DataManipulator::InnerType           InnerType;
 
     DeleteTraits<IsSameType<T1,InnerType>::value >::apply(dataPtr);
+  }
 
+  template <typename T1> static void
+  ecp_free ( T1 * dataPtr )
+  {
+    ecp_free<T1,T1> ( dataPtr );
   }
 
   template <typename T1 > static void
