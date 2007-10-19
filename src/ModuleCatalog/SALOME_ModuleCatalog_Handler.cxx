@@ -140,9 +140,8 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
   // Get the document root node
   xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
-
   aCurNode = aCurNode->xmlChildrenNode;
-
+  
   // Processing the document nodes
   while(aCurNode != NULL)
     {
@@ -162,16 +161,26 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	      while(aCurSubSubNode != NULL)
 		{
 		  // Tag test_path_prefix_name
-		  if ( !xmlStrcmp(aCurSubSubNode->name, (const xmlChar*)test_path_prefix_name) )
-		    _pathPrefix.path = (const char*)aCurSubSubNode->content;
+		  if ( !xmlStrcmp(aCurSubSubNode->name, (const xmlChar*)test_path_prefix_name) ) {
+		    xmlChar* aPath = xmlNodeGetContent(aCurSubSubNode);
+		    if (aPath != NULL) {
+		      _pathPrefix.path = (const char*)aPath;
+		      xmlFree(aPath);
+		    }
+		  }
 
 		  // Tag test_computer_list
 		  if ( !xmlStrcmp(aCurSubSubNode->name, (const xmlChar*)test_computer_list) ) {
 		    xmlNodePtr aComputerNode = aCurSubSubNode->xmlChildrenNode;
 		    while (aComputerNode != NULL) {
 		      // Tag test_computer_name
-		      if ( !xmlStrcmp(aComputerNode->name, (const xmlChar*) test_computer_name) )
-			_pathPrefix.listOfComputer.push_back((const char*)aComputerNode->content);
+		      if ( !xmlStrcmp(aComputerNode->name, (const xmlChar*) test_computer_name) ) {
+			xmlChar* aCompName = xmlNodeGetContent(aComputerNode);
+			if (aCompName != NULL) {
+			  _pathPrefix.listOfComputer.push_back((const char*)aCompName);
+			  xmlFree(aCompName);
+			}
+		      }
 		      
 		      aComputerNode = aComputerNode->next;
 		    }
@@ -210,12 +219,19 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	      xmlNodePtr aComponentSubNode = aComponentNode->xmlChildrenNode;
 	      while(aComponentSubNode != NULL) {
 		
-		std::string aContent = (const char*)aComponentSubNode->content;
+		xmlChar* aNodeContent = xmlNodeGetContent(aComponentSubNode);
+		
+		if (aNodeContent == NULL) {
+		  aComponentSubNode = aComponentSubNode->next;
+		  continue;
+		}
+		
+		std::string aContent = (const char*)aNodeContent;
 
 		// Tag test_component_name
 		if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_name) )
 		  _aModule.name = aContent;
-
+		  
 		// Tag test_component_username
 		if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_username) )
 		  _aModule.username = aContent;
@@ -286,6 +302,8 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_constraint) )
 		  _aModule.constraint = aContent;
 		
+		xmlFree(aNodeContent);
+
 		// Process tag test_interface_list:
 		if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_interface_list) ) {
 
@@ -293,8 +311,13 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		  xmlNodePtr aSubNode = aComponentSubNode->xmlChildrenNode;
 		  while(aSubNode != NULL) {
 		    // Tag test_interface_name
-		    if ( !xmlStrcmp(aSubNode->name, (const xmlChar*)test_interface_name) )
-		      _aInterface.name = (const char*)aSubNode->content;
+		    if ( !xmlStrcmp(aSubNode->name, (const xmlChar*)test_interface_name) ) {
+		      xmlChar* anInterfaceName = xmlNodeGetContent(aSubNode);
+		      if (anInterfaceName != NULL) {
+			_aInterface.name = (const char*)anInterfaceName;
+			xmlFree(anInterfaceName);
+		      }
+		    }
 		    
 		    // Tag test_service_list
 		    if ( !xmlStrcmp(aSubNode->name, (const xmlChar*)test_service_list) ) {
@@ -305,17 +328,25 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 			if ( !xmlStrcmp(aCompServiceNode->name, (const xmlChar*)test_interface_name) ) {
 			  xmlNodePtr aCompServiceSubNode = aCompServiceNode->xmlChildrenNode;
 			  while(aCompServiceSubNode != NULL) {
-			    // Tag test_service_name
-			    if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_service_name) )
-			      _aService.name = (const char*)aCompServiceSubNode->content;
 
-			    // Tag test_defaultservice
-			    if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
-			      _aService.byDefault = (const char*)aCompServiceSubNode->content;
+			    xmlChar* aCompServiceData = xmlNodeGetContent(aCompServiceSubNode);
+			    
+			    if ( aCompServiceData != NULL) {
+			     			      
+			      // Tag test_service_name
+			      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_service_name) )
+				_aService.name = (const char*)aCompServiceData;
+			      
+			      // Tag test_defaultservice
+			      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
+				_aService.byDefault = (const char*)aCompServiceData;
+			      
+			      // Tag test_typeofnode
+			      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
+				_aService.typeOfNode = (const char*)aCompServiceData;
 
-			    // Tag test_typeofnode
-			    if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
-			      _aService.typeOfNode = (const char*)aCompServiceSubNode->content;
+			      xmlFree(aCompServiceData);
+			    }
 
 			    // Tag test_inParameter_list
 			    if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_inParameter_list) ) {
@@ -330,14 +361,21 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 				
 				xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
 				while(aParamItemNode != NULL) {
+				  
+				  xmlChar* aParamData = xmlNodeGetContent(aParamItemNode);
 
-				  // Tag test_inParameter_name
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_name) )
-				    _inParam.name = (const char*)aParamItemNode->content;
+				  if (aParamData != NULL) {
 
-				  // Tag test_inParameter_type
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_type) )
-				    _inParam.type = (const char*)aParamItemNode->content;
+				    // Tag test_inParameter_name
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_name) )
+				      _inParam.name = (const char*)aParamData;
+				    
+				    // Tag test_inParameter_type
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_type) )
+				      _inParam.type = (const char*)aParamData;
+				    
+				    xmlFree(aParamData);
+				  }
 				  
 				  aParamItemNode = aParamItemNode->next;
 				}
@@ -368,14 +406,21 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 				
 				xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
 				while(aParamItemNode != NULL) {
+				  
+				  xmlChar* anOutParamData = xmlNodeGetContent(aParamItemNode);
 
-				  // Tag test_outParameter_name
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_name) )
-				    _outParam.name = (const char*)aParamItemNode->content;
+				  if (anOutParamData != NULL) {
 
-				  // Tag test_outParameter_type
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_type) )
-				    _outParam.type = (const char*)aParamItemNode->content;
+				    // Tag test_outParameter_name
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_name) )
+				      _outParam.name = (const char*)anOutParamData;
+				    
+				    // Tag test_outParameter_type
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_type) )
+				      _outParam.type = (const char*)anOutParamData;
+				    
+				    xmlFree(anOutParamData);
+				  }
 				  
 				  aParamItemNode = aParamItemNode->next;
 				}
@@ -407,17 +452,24 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 				xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
 				while(aParamItemNode != NULL) {
 
-				  // Tag test_inDataStreamParameter_name
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_name) )
-				    _inDataStreamParam.name = (const char*)aParamItemNode->content;
-
-				  // Tag test_inDataStreamParameter_type
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_type) )
-				    _inDataStreamParam.type = (const char*)aParamItemNode->content;
-
-				  // Tag test_inDataStreamParameter_dependency
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_dependency) )
-				    _inDataStreamParam.dependency = (const char*)aParamItemNode->content;
+				  xmlChar* inDataStreamParamData = xmlNodeGetContent(aParamItemNode);
+				  
+				  if (inDataStreamParamData != NULL) {
+				    
+				    // Tag test_inDataStreamParameter_name
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_name) )
+				      _inDataStreamParam.name = (const char*)inDataStreamParamData;
+				    
+				    // Tag test_inDataStreamParameter_type
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_type) )
+				      _inDataStreamParam.type = (const char*)inDataStreamParamData;
+				    
+				    // Tag test_inDataStreamParameter_dependency
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_dependency) )
+				      _inDataStreamParam.dependency = (const char*)inDataStreamParamData;
+				    
+				    xmlFree(inDataStreamParamData);
+				  }
 				  
 				  aParamItemNode = aParamItemNode->next;
 				}
@@ -450,18 +502,25 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 				xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
 				while(aParamItemNode != NULL) {
 
-				  // Tag test_outDataStreamParameter_name
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_name) )
-				    _outDataStreamParam.name = (const char*)aParamItemNode->content;
-
-				  // Tag test_outDataStreamParameter_type
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_type) )
-				    _outDataStreamParam.type = (const char*)aParamItemNode->content;
-
-				  // Tag test_outDataStreamParameter_dependency
-				  if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_dependency) )
-				    _outDataStreamParam.dependency = (const char*)aParamItemNode->content;
+				  xmlChar* outDataStreamParamData = xmlNodeGetContent(aParamItemNode);
 				  
+				  if (outDataStreamParamData != NULL) {
+
+				    // Tag test_outDataStreamParameter_name
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_name) )
+				      _outDataStreamParam.name = (const char*)outDataStreamParamData;
+				    
+				    // Tag test_outDataStreamParameter_type
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_type) )
+				      _outDataStreamParam.type = (const char*)outDataStreamParamData;
+				    
+				    // Tag test_outDataStreamParameter_dependency
+				    if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_dependency) )
+				      _outDataStreamParam.dependency = (const char*)outDataStreamParamData;
+				    
+				    xmlFree(outDataStreamParamData);
+				  }
+
 				  aParamItemNode = aParamItemNode->next;
 				}
 				

@@ -45,15 +45,14 @@ static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
 
-list<string>& splitStringToList(string theString, string theSeparator)
+list<string> splitStringToList(const string& theString, const string& theSeparator)
 {
   list<string> aList;
 
   int sepLen = theSeparator.length();
-  
   int startPos = 0, sepPos = theString.find(theSeparator, startPos);
 
-  for ( ; (startPos < theString.size()) && (sepPos != string::npos); sepPos = theString.find(theSeparator, startPos))
+  for ( ; (startPos < theString.length()) && (sepPos != string::npos); sepPos = theString.find(theSeparator, startPos))
     {
       string anItem = theString.substr(startPos, sepPos - startPos);
       if (anItem.length() > 0)
@@ -151,14 +150,9 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       while(aPath.find('\"') != string::npos)
 	aPath.erase(aPath.find('\"'), 1);
 
-      FILE* aFile = fopen(aPath.c_str(), "r");
-      if (aFile != NULL) {
-	_parse_xml_file(aPath.c_str(), 
-			_general_module_list, 
-			_general_path_list);
-	
-	fclose(aFile);
-      }
+      _parse_xml_file(aPath.c_str(), 
+		      _general_module_list, 
+		      _general_path_list);
     }
     
     // Verification of _general_path_list content
@@ -603,7 +597,8 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   if (aFile != NULL)
     {
       xmlDocPtr aDoc = xmlReadFile(file, NULL, 0);
-      if (aDoc != NULL)
+      
+      if (aDoc != NULL) 
 	handler->ProcessXmlDocument(aDoc);
       else
 	INFOS("ModuleCatalog: could not parse file "<<file);
@@ -927,5 +922,3 @@ SALOME_ModuleCatalogImpl::_parseArguments(int argc, char **argv,
     }
   return _return_value;
 }
-
-
