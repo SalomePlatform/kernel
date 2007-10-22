@@ -500,7 +500,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
 
   std::string s(name);
   ParserComponent *C_parser = NULL;
-  ParserPathPrefixes *pp = NULL;
+  //ParserPathPrefixes *pp = NULL;
 
   SALOME_ModuleCatalog::Acomponent_ptr compo
     = SALOME_ModuleCatalog::Acomponent::_nil();
