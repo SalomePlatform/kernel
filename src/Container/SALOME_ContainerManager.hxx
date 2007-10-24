@@ -37,7 +37,7 @@ class CONTAINER_EXPORT SALOME_ContainerManager:
 {
 
 public:
-  SALOME_ContainerManager(CORBA::ORB_ptr orb);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns);
   ~SALOME_ContainerManager();
 
   Engines::Container_ptr
@@ -51,13 +51,13 @@ public:
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
-		 Engines::ResPolicy policy);
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
 
-  Engines::MachineList *
-  GetFittingResources(const Engines::MachineParameters& params,
-		      const char *componentName);
-
-  char* FindFirst(const Engines::MachineList& possibleComputers);
+  Engines::Container_ptr
+  GiveContainer(const Engines::MachineParameters& params,
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
 
   void Shutdown();
   void ShutdownContainers();
@@ -83,11 +83,17 @@ protected:
 			  const Engines::MachineParameters& params,
 			  const std::string& name);
 
+  void fillBatchLaunchedContainers();
+
   long GetIdForContainer(void);
   long _id;
+  CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+  static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
+  static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
 };
 
 #endif

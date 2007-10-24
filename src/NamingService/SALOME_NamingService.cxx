@@ -132,10 +132,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   // --- _current_context is replaced to the _root_context
   //     if the Path begins whith '/'
 
-  if (Path[0] == '/')
-    {
-      _current_context = _root_context;
-    }
+  if (Path[0] == '/'){
+    _current_context = _root_context;
+  }
 
   // --- the resolution of the directory path has to be done
   //      to place the current_context to the correct node
@@ -149,179 +148,158 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 
   CORBA::Boolean not_exist = false;
 
-  if (dimension_resultat > 0)
-    {
-      // A directory is treated (not only an object name)
-      // test if the directory where ObjRef should be recorded already exists
-      // If not, create the new context
-
-      try
-        {
-          CORBA::Object_var obj = _current_context->resolve(context_name);
-          _current_context = CosNaming::NamingContext::_narrow(obj);
-        }
-
-      catch (CosNaming::NamingContext::NotFound &)
-        {
-          // --- failed to resolve, therefore assume cold start
-          not_exist = true;
-        }
-
-      catch (CosNaming::NamingContext::InvalidName &)
-        {
-          INFOS("Register() : CosNaming::NamingContext::InvalidName");
-        }
-
-      catch (CosNaming::NamingContext::CannotProceed &)
-        {
-          INFOS("Register() : CosNaming::NamingContext::CannotProceed");
-        }
-
-      catch (CORBA::SystemException&)
-        {
-          INFOS("Register() : CORBA::SystemException: "
-                << "unable to contact the naming service");
-          throw ServiceUnreachable();
-        }
-
-      if (not_exist)
-        {
-          try
-            {
-              context_name.length(1);
-              for (int i = 0 ; i < dimension_resultat ;i++)
-                {
-                  context_name[0].id =
-                    CORBA::string_dup(splitPath[i].c_str());
-                  context_name[0].kind = CORBA::string_dup("dir");
-                  // SCRUTE(_context_name[0].id);
-                  // --- check if the path is created
-                  try
-                    {
-                      // --- if the context is already created, nothing to do
-                      CORBA::Object_var obj =
-                        _current_context->resolve(context_name);
-                      _current_context =
-                        CosNaming::NamingContext::_narrow(obj);
-                    }
-
-                  catch (CosNaming::NamingContext::NotFound &)
-                    {
-                      // --- the context must be created
-                      CosNaming::NamingContext_var temp_context =
-                        _current_context->bind_new_context(context_name);
-                      _current_context = temp_context;
-                    }
-                }
-            }
-
-          catch (CosNaming::NamingContext::AlreadyBound&)
-            {
-              INFOS("Register() : CosNaming::NamingContext::AlreadyBound");
-            }
-
-          catch (CosNaming::NamingContext::NotFound& ex)
-            {
-              CosNaming::Name n = ex.rest_of_name;
-
-              if (ex.why == CosNaming::NamingContext::missing_node)
-                INFOS("Register() : " << (char *) n[0].id
-                      << " (" << (char *) n[0].kind << ") not found");
-
-              if (ex.why == CosNaming::NamingContext::not_context)
-                INFOS("Register() : " << (char *) n[0].id
-                      << " (" << (char *) n[0].kind
-                      << ") is not a context");
-
-              if (ex.why == CosNaming::NamingContext::not_object)
-                INFOS("Register() : " << (char *) n[0].id
-                      << " (" << (char *) n[0].kind
-                      << ") is not an object");
-            }
-
-          catch (CosNaming::NamingContext::CannotProceed&)
-            {
-              INFOS("Register(): CosNaming::NamingContext::CannotProceed");
-            }
-
-          catch (CosNaming::NamingContext::InvalidName&)
-            {
-              INFOS("Register(): CosNaming::NamingContext::InvalidName");
-            }
-
-          catch (CORBA::SystemException&)
-            {
-              INFOS("Register():CORBA::SystemException: "
-                    << "unable to contact the naming service");
-              throw ServiceUnreachable();
-            }
-        }
+  if (dimension_resultat > 0){
+    // A directory is treated (not only an object name)
+    // test if the directory where ObjRef should be recorded already exists
+    // If not, create the new context
+    
+    try{
+      CORBA::Object_var obj = _current_context->resolve(context_name);
+      _current_context = CosNaming::NamingContext::_narrow(obj);
     }
+
+    catch (CosNaming::NamingContext::NotFound &){
+      // --- failed to resolve, therefore assume cold start
+      not_exist = true;
+    }
+
+    catch (CosNaming::NamingContext::InvalidName &){
+      INFOS("Register() : CosNaming::NamingContext::InvalidName");
+    }
+
+    catch (CosNaming::NamingContext::CannotProceed &){
+      INFOS("Register() : CosNaming::NamingContext::CannotProceed");
+    }
+
+    catch (CORBA::SystemException&){
+      INFOS("Register() : CORBA::SystemException: "
+	    << "unable to contact the naming service");
+      throw ServiceUnreachable();
+    }
+
+    if (not_exist){
+      try{
+	context_name.length(1);
+	for (int i = 0 ; i < dimension_resultat ;i++){
+	  context_name[0].id = CORBA::string_dup(splitPath[i].c_str());
+	  context_name[0].kind = CORBA::string_dup("dir");
+	  // SCRUTE(_context_name[0].id);
+	  // --- check if the path is created
+	  try{
+	    // --- if the context is already created, nothing to do
+	    CORBA::Object_var obj = _current_context->resolve(context_name);
+	    _current_context = CosNaming::NamingContext::_narrow(obj);
+	  }
+
+	  catch (CosNaming::NamingContext::NotFound &){
+	    try{
+	      // --- the context must be created
+	      CosNaming::NamingContext_var temp_context =
+		_current_context->bind_new_context(context_name);
+	      _current_context = temp_context;
+	    }
+	    catch (CosNaming::NamingContext::AlreadyBound&){
+	      CORBA::Object_var obj = _current_context->resolve(context_name);
+	      _current_context = CosNaming::NamingContext::_narrow(obj);
+	    }
+	  }
+	}
+      }
+
+      catch (CosNaming::NamingContext::AlreadyBound&){
+	INFOS("Register() : CosNaming::NamingContext::AlreadyBound");
+      }
+
+      catch (CosNaming::NamingContext::NotFound& ex){
+	CosNaming::Name n = ex.rest_of_name;
+
+	if (ex.why == CosNaming::NamingContext::missing_node)
+	  INFOS("Register() : " << (char *) n[0].id
+		<< " (" << (char *) n[0].kind << ") not found");
+
+	if (ex.why == CosNaming::NamingContext::not_context)
+	  INFOS("Register() : " << (char *) n[0].id
+		<< " (" << (char *) n[0].kind
+		<< ") is not a context");
+
+	if (ex.why == CosNaming::NamingContext::not_object)
+	  INFOS("Register() : " << (char *) n[0].id
+		<< " (" << (char *) n[0].kind
+		<< ") is not an object");
+      }
+
+      catch (CosNaming::NamingContext::CannotProceed&){
+	INFOS("Register(): CosNaming::NamingContext::CannotProceed");
+      }
+
+      catch (CosNaming::NamingContext::InvalidName&){
+	INFOS("Register(): CosNaming::NamingContext::InvalidName");
+      }
+
+      catch (CORBA::SystemException&){
+	INFOS("Register():CORBA::SystemException: "
+	      << "unable to contact the naming service");
+	throw ServiceUnreachable();
+      }
+    }
+  }
 
   // --- The current directory is now the directory where the object should
   //     be recorded
 
   int sizePath = splitPath.size();
-  if (sizePath > dimension_resultat)
-    {
-      ASSERT(sizePath == dimension_resultat+1);
-      context_name.length(1);
+  if (sizePath > dimension_resultat){
+    ASSERT(sizePath == dimension_resultat+1);
+    context_name.length(1);
 
-      try
-	{
-	  // --- the last element is an object and not a directory
+    try{
+      // --- the last element is an object and not a directory
 
-	  context_name[0].id =
-	    CORBA::string_dup(splitPath[dimension_resultat].c_str());
-	  context_name[0].kind = CORBA::string_dup("object");
-	  //SCRUTE(context_name[0].id);
+      context_name[0].id = CORBA::string_dup(splitPath[dimension_resultat].c_str());
+      context_name[0].kind = CORBA::string_dup("object");
+      //SCRUTE(context_name[0].id);
 
-	  _current_context->bind(context_name, ObjRef);
-	}
-
-      catch (CosNaming::NamingContext::NotFound& ex)
-	{
-	  CosNaming::Name n = ex.rest_of_name;
-
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS("Register() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind << ") not found");
-
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS("Register() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind
-		  << ") is not a context");
-
-	  if (ex.why == CosNaming::NamingContext::not_object)
-	    INFOS("Register() : " << (char *) n[0].id
-		  << " (" << (char *) n[0].kind
-		  << ") is not an object");
-	}
-
-      catch (CosNaming::NamingContext::CannotProceed&)
-	{
-	  INFOS("Register(): CosNaming::NamingContext::CannotProceed");
-	}
-
-      catch (CosNaming::NamingContext::InvalidName&)
-	{
-	  INFOS("Register(): CosNaming::NamingContext::InvalidName");
-	}
-
-      catch (CosNaming::NamingContext::AlreadyBound&)
-	{
-	  INFOS("Register(): CosNaming::NamingContext::AlreadyBound, "
-		<< "object will be rebind");
-	  _current_context->rebind(context_name, ObjRef);
-	}
-
-      catch (CORBA::SystemException&)
-	{
-	  INFOS("!!!Register(): CORBA::SystemException: "
-		<< "unable to contact the naming service");
-	  throw ServiceUnreachable();
-	}
+      _current_context->bind(context_name, ObjRef);
     }
+
+    catch (CosNaming::NamingContext::NotFound& ex){
+      CosNaming::Name n = ex.rest_of_name;
+
+      if (ex.why == CosNaming::NamingContext::missing_node)
+	INFOS("Register() : " << (char *) n[0].id
+	      << " (" << (char *) n[0].kind << ") not found");
+
+      if (ex.why == CosNaming::NamingContext::not_context)
+	INFOS("Register() : " << (char *) n[0].id
+	      << " (" << (char *) n[0].kind
+	      << ") is not a context");
+
+      if (ex.why == CosNaming::NamingContext::not_object)
+	INFOS("Register() : " << (char *) n[0].id
+	      << " (" << (char *) n[0].kind
+	      << ") is not an object");
+    }
+
+    catch (CosNaming::NamingContext::CannotProceed&){
+      INFOS("Register(): CosNaming::NamingContext::CannotProceed");
+    }
+
+    catch (CosNaming::NamingContext::InvalidName&){
+      INFOS("Register(): CosNaming::NamingContext::InvalidName");
+    }
+
+    catch (CosNaming::NamingContext::AlreadyBound&){
+      INFOS("Register(): CosNaming::NamingContext::AlreadyBound, "
+	    << "object will be rebind");
+      _current_context->rebind(context_name, ObjRef);
+    }
+
+    catch (CORBA::SystemException&){
+      INFOS("!!!Register(): CORBA::SystemException: "
+	    << "unable to contact the naming service");
+      throw ServiceUnreachable();
+    }
+  }
 }
 
 // ============================================================================

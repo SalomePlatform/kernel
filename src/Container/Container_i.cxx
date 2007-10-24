@@ -300,7 +300,8 @@ void Engines_Container_i::Shutdown()
       MESSAGE("Effective Shutdown of container Begins...");
       LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
       bp1->deleteInstance(bp1);
-      _orb->shutdown(0);
+      if(!CORBA::is_nil(_orb))
+	_orb->shutdown(0);
     }
 }
 

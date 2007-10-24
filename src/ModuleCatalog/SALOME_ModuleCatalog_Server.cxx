@@ -162,8 +162,8 @@ int main(int argc,char **argv)
 #endif
       orb->run();
  
-      mgr->deactivate(true,true);
-      poa->destroy(1,1);
+//       mgr->deactivate(true,true);
+//       poa->destroy(1,1);
 
     }
   catch(CORBA::SystemException&) {
@@ -173,6 +173,7 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
+  END_OF( argv[0] );
   //  delete myThreadTrace;
   return 0;
 }

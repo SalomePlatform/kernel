@@ -26,6 +26,7 @@
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
+#include "Batch_Date.hxx"
 
 #ifdef WITH_PACO_PARALLEL
 #include "PaCO++.h"
@@ -34,6 +35,10 @@
 #define TIME_OUT_TO_LAUNCH_CONT 21
 
 using namespace std;
+
+vector<Engines::Container_ptr> SALOME_ContainerManager::_batchLaunchedContainers;
+
+vector<Engines::Container_ptr>::iterator SALOME_ContainerManager::_batchLaunchedContainersIter;
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
@@ -47,27 +52,25 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns)
 {
   MESSAGE("constructor");
-  _NS = new SALOME_NamingService(orb);
-  _ResManager = new SALOME_ResourcesManager(orb);
+  _NS = ns;
+  _ResManager = rm;
   _id=0;
-  PortableServer::POA_var root_poa = PortableServer::POA::_the_root_poa();
-  PortableServer::POAManager_var pman = root_poa->the_POAManager();
-  PortableServer::POA_var my_poa;
 
+  PortableServer::POAManager_var pman = poa->the_POAManager();
+  _orb = CORBA::ORB::_duplicate(orb) ;
   CORBA::PolicyList policies;
   policies.length(1);
   PortableServer::ThreadPolicy_var threadPol = 
-    root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
+    poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
   policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
 
-  my_poa = 
-    root_poa->create_POA("SThreadPOA",pman,policies);
+  _poa = poa->create_POA("SThreadPOA",pman,policies);
   threadPol->destroy();
-  PortableServer::ObjectId_var id = my_poa->activate_object(this);
-  CORBA::Object_var obj = my_poa->id_to_reference(id);
+  PortableServer::ObjectId_var id = _poa->activate_object(this);
+  CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::ContainerManager_var refContMan =
     Engines::ContainerManager::_narrow(obj);
 
@@ -84,8 +87,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
   MESSAGE("destructor");
-  delete _NS;
-  delete _ResManager;
 }
 
 //=============================================================================
@@ -98,10 +99,10 @@ void SALOME_ContainerManager::Shutdown()
 {
   MESSAGE("Shutdown");
   ShutdownContainers();
-  PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
-  _default_POA()->deactivate_object(oid);
+  _NS->Destroy_Name(_ContainerManagerNameInNS);
+  PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
+  _poa->deactivate_object(oid);
   _remove_ref();
-  
 }
 
 //=============================================================================
@@ -113,36 +114,34 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownContainers()
 {
   MESSAGE("ShutdownContainers");
-  _NS->Change_Directory("/Containers");
-  vector<string> vec = _NS->list_directory_recurs();
-  list<string> lstCont;
-  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++)
-    {
+  bool isOK;
+  isOK = _NS->Change_Directory("/Containers");
+  if( isOK ){
+    vector<string> vec = _NS->list_directory_recurs();
+    list<string> lstCont;
+    for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-	{
-	  lstCont.push_back((*iter));
-	}
+      if(!CORBA::is_nil(cont)){
+	lstCont.push_back((*iter));
+      }
     }
-  MESSAGE("Container list: ");
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
-    {
+    MESSAGE("Container list: ");
+    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
     }
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
-    {
+    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-	{
-	  MESSAGE("ShutdownContainers: " << (*iter));
-	  cont->Shutdown();
-	}
+      if(!CORBA::is_nil(cont)){
+	MESSAGE("ShutdownContainers: " << (*iter));
+	cont->Shutdown();
+      }
       else MESSAGE("ShutdownContainers: no container ref for " << (*iter));
     }
+  }
 }
 
 //=============================================================================
@@ -158,10 +157,6 @@ SALOME_ContainerManager::
 FindOrStartContainer(const Engines::MachineParameters& params,
 		     const Engines::MachineList& possibleComputers)
 {
-  long id;
-  string containerNameInNS;
-  char idc[3*sizeof(long)];
-
   Engines::Container_ptr ret = FindContainer(params,possibleComputers);
   if(!CORBA::is_nil(ret))
     return ret;
@@ -295,9 +290,10 @@ StartContainer(const Engines::MachineParameters& params,
 Engines::Container_ptr
 SALOME_ContainerManager::
 StartContainer(const Engines::MachineParameters& params,
-	       Engines::ResPolicy policy)
+	       Engines::ResPolicy policy,
+	       const Engines::CompoList& componentList)
 {
-  Engines::MachineList_var possibleComputers = GetFittingResources(params,"");
+  Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params,componentList);
   return StartContainer(params,possibleComputers,policy);
 }
 
@@ -440,51 +436,28 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params,
 #endif
 
 //=============================================================================
-/*! 
- * 
+/*! CORBA Method:
+ *  Give a suitable Container in a list of machines
+ *  \param params            Machine Parameters required for the container
+ *  \param possibleComputers list of machines usable for start
  */
 //=============================================================================
 
-Engines::MachineList *
+Engines::Container_ptr
 SALOME_ContainerManager::
-GetFittingResources(const Engines::MachineParameters& params,
-		    const char *componentName)
+GiveContainer(const Engines::MachineParameters& params,
+	       Engines::ResPolicy policy,
+	       const Engines::CompoList& componentList)
 {
-  MESSAGE("SALOME_ContainerManager::GetFittingResources");
-  Engines::MachineList *ret=new Engines::MachineList;
-  vector<string> vec;
-  try
-    {
-      vec = _ResManager->GetFittingResources(params,componentName);
-    }
-  catch(const SALOME_Exception &ex)
-    {
-      INFOS("Caught exception.");
-      THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-      //return ret;
-    }
-
-  //  MESSAGE("Machine list length "<<vec.size());
-  ret->length(vec.size());
-  for(unsigned int i=0;i<vec.size();i++)
-    {
-      (*ret)[i]=(vec[i]).c_str();
-    }
-  return ret;
-}
-
-//=============================================================================
-/*! 
- * 
- */
-//=============================================================================
-
-char*
-SALOME_ContainerManager::
-FindFirst(const Engines::MachineList& possibleComputers)
-{
-  string theMachine=_ResManager->FindFirst(possibleComputers);
-  return CORBA::string_dup(theMachine.c_str());
+  char *valenv=getenv("SALOME_BATCH");
+  if(valenv)
+    if (strcmp(valenv,"1")==0)
+      {
+        if(_batchLaunchedContainers.empty())
+          fillBatchLaunchedContainers();
+        return *(_batchLaunchedContainersIter++);
+      }
+  return StartContainer(params,policy,componentList);
 }
 
 //=============================================================================
@@ -637,3 +610,17 @@ long SALOME_ContainerManager::GetIdForContainer(void)
   return _id;
 }
 
+void SALOME_ContainerManager::fillBatchLaunchedContainers()
+{
+  _batchLaunchedContainers.clear();
+  _NS->Change_Directory("/Containers");
+  vector<string> vec = _NS->list_directory_recurs();
+  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
+    CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+    Engines::Container_ptr cont=Engines::Container::_narrow(obj);
+    if(!CORBA::is_nil(cont)){
+      _batchLaunchedContainers.push_back(cont);
+    }
+  }
+  _batchLaunchedContainersIter=_batchLaunchedContainers.begin();
+}

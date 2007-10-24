@@ -27,28 +27,38 @@ module Engines
 {
 
 /*!
-    Type to describe properties of wanted resource.
+    Type to transmit list of machines.
+*/
+  typedef sequence<string> MachineList;
+  typedef sequence<string> CompoList;
+  typedef sequence<string> FilesList;
+  typedef sequence<string> ModulesList;
+
+/*!
+    Type to describe properties of resource.
 */
 struct MachineParameters
 {
   string container_name;
   string hostname;
+  string alias;
+  string protocol;
+  string username;
+  string applipath;
+  ModulesList modList;
   string OS;
   long mem_mb;
   long cpu_clock;
   long nb_proc_per_node;
   long nb_node;
   boolean isMPI;
+  string mpiImpl;
+  string batch;
 
   // PaCO specific informations
   string parallelLib;
   long nb_component_nodes;
 };
-
-/*!
-    Type to transmit list of machines.
-*/
-  typedef sequence<string> MachineList;
 
 /*!
     exception thrown if a computer is not found in the catalog
@@ -58,6 +68,25 @@ struct MachineParameters
   enum policy {P_FIRST,P_CYCL,P_BEST};
   typedef policy ResPolicy;
 
+/*! \brief Interface of the %salomelauncher
+    This interface is used for interaction with the unique instance
+    of SalomeLauncher
+*/
+  interface SalomeLauncher
+  {
+    long submitSalomeJob( in string fileToExecute,
+			  in FilesList filesToExport,
+			  in FilesList filesToImport,
+			  in long NumberOfProcessors,
+			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    string querySalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void deleteSalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void getResultSalomeJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+
+    void Shutdown();
+
+  } ;
+  
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance
     of ContainerManager
@@ -79,17 +108,30 @@ struct MachineParameters
 					    in MachineList possibleComputers);
 
     Container StartContainer( in MachineParameters params,
-			      in ResPolicy policy);
+			      in ResPolicy policy,
+			      in CompoList componentList );
 
+    Container GiveContainer( in MachineParameters params,
+		             in ResPolicy policy,
+		             in CompoList componentList );
+
+    void ShutdownContainers();
+  } ;
+  
+/*! \brief Interface of the %resourcesManager
+    This interface is used for interaction with the unique instance
+    of ResourcesManager
+*/
+  interface ResourcesManager
+  {
     string FindFirst(in MachineList possibleComputers);
 
     MachineList GetFittingResources( in MachineParameters params,
-				     in string componentName )
+				     in CompoList componentList )
       raises (SALOME::SALOME_Exception);
 
-    void Shutdown();
+    MachineParameters GetMachineParameters( in string hostname );
 
-    void ShutdownContainers();
   } ;
 };
   

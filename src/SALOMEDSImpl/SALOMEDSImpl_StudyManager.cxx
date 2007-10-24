@@ -590,7 +590,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 					      length,
 					      theMultiFile);
 		  HDFdataset *hdf_dataset;
-		  hdf_size aHDFSize[1];
+		  hdf_size aHDFSize[1]; 
 		  if(length > 0) {  //The component saved some auxiliary files, then put them into HDF file
 
 		    aHDFSize[0] = length;

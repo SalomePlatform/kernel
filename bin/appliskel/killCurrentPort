@@ -21,7 +21,7 @@ currentPort=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
 echo $currentPort
 
 # --- kill current salome session
-
+${KERNEL_ROOT_DIR}/bin/salome/shutdownSalome.py
 ${KERNEL_ROOT_DIR}/bin/salome/killSalomeWithPort.py $currentPort
 
 # --- delete config files

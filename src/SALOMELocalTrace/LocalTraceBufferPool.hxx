@@ -28,7 +28,7 @@
 
 #define TRACE_BUFFER_SIZE 256  // number of entries in circular buffer
                                // must be power of 2
-#define MAX_TRACE_LENGTH 256   // messages are truncated at this size
+#define MAX_TRACE_LENGTH 1024   // messages are truncated at this size
 
 #include <pthread.h>
 #include <semaphore.h>

@@ -65,10 +65,10 @@ clt.waitNS("/Kernel/ModulCatalog")
 
 # launch container manager server
 
-myCmServer = runSalome.ContainerManagerServer(args)
+myCmServer = runSalome.LauncherServer(args)
 myCmServer.setpath(modules_list,modules_root_dir)
 myCmServer.run()
-clt.waitNS("/ContainerManager")
+clt.waitNS("/SalomeLauncher")
 
 # execute Unit Test
 
@@ -78,8 +78,8 @@ ret = os.spawnvp(os.P_WAIT, command[0], command)
 # kill containers created by the Container Manager
 
 import Engines
-containerManager = clt.waitNS("/ContainerManager",Engines.ContainerManager)
-containerManager.Shutdown()
+launcher = clt.waitNS("/SalomeLauncher",Engines.SalomeLauncher)
+launcher.Shutdown()
 
 # kill Test process 
 

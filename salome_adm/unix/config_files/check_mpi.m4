@@ -24,6 +24,10 @@ AC_DEFUN([CHECK_MPI],[
 
 AC_REQUIRE([AC_PROG_CC])dnl
 
+AC_ARG_WITH(mpi_lib,
+   [AC_HELP_STRING([--with-mpi_lib=DIR],[directory path of MPICH lib installation])],
+   MPILIBREQUESTED="$withval")
+
 AC_ARG_WITH(mpi,
    [AC_HELP_STRING([--with-mpi=DIR],[root directory path of MPICH installation])],
    MPIREQUESTED="yes",MPIREQUESTED="no")
@@ -51,6 +55,10 @@ if test x"$MPIREQUESTED" = xyes; then
     fi
   fi
 
+  if test x"$MPILIBREQUESTED" != x; then
+    MPI_LIBS="-L$MPILIBREQUESTED"
+  fi
+
   CPPFLAGS_old="$CPPFLAGS"
   CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
   AC_CHECK_HEADER(mpi.h,WITHMPI="yes",WITHMPI="no")
@@ -69,7 +77,7 @@ if test x"$MPIREQUESTED" = xyes; then
 
   if test "$WITHMPI" = "yes";then
     mpi_ok=yes
-    MPI_LIBS="$MPI_LIBS -lmpi"
+    MPI_LIBS="$MPI_LIBS -lmpi -lmpio -lmpiCC"
   else
     mpi_ok=no
   fi

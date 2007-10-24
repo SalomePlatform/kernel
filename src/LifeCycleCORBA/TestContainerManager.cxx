@@ -59,8 +59,15 @@ int main (int argc, char * argv[])
   CORBA::Object_var obj = _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
   ASSERT( !CORBA::is_nil(obj));
   Engines::ContainerManager_var _ContManager=Engines::ContainerManager::_narrow(obj);
+  obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
+  ASSERT( !CORBA::is_nil(obj));
+  Engines::ResourcesManager_var _ResManager=Engines::ResourcesManager::_narrow(obj);
 
   Engines::MachineParameters p;
+  Engines::CompoList clist;
+  clist.length(2);
+  clist[0] = "MED";
+  clist[1] = "GEOM";
 
   p.hostname = "";
   p.OS = "LINUX";
@@ -74,26 +81,27 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_CYCL);
+    cont = _ContManager->GiveContainer(p,Engines::P_CYCL,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_FIRST);
+    cont = _ContManager->GiveContainer(p,Engines::P_FIRST,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  cont = _ContManager->StartContainer(p,Engines::P_BEST);
+  cont = _ContManager->GiveContainer(p,Engines::P_BEST,clist);
   if(CORBA::is_nil(cont)) bestImplemented = false;
   else bestImplemented = true;
 
   SALOME_LifeCycleCORBA LCC(_NS);
-  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  p.container_name = CORBA::string_dup("FactoryServer");
+  compo = LCC.FindOrLoad_Component(p,"SMESH");
   if(CORBA::is_nil(compo)) error = true;
-  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  compo = LCC.FindOrLoad_Component(p,"SMESH");
   if(CORBA::is_nil(compo)) error = true;
 
   _NS->Change_Directory("/Containers");
@@ -125,15 +133,21 @@ int main (int argc, char * argv[])
   int cmax=0;
   int fmin=10;
   int fmax=0;
+  int nbpmax;
   for(map<string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
-      if(cycle[(*iter).first]<cmin) cmin=cycle[(*iter).first];
-      if(cycle[(*iter).first]>cmax) cmax=cycle[(*iter).first];
-      if(first[(*iter).first]<fmin) fmin=first[(*iter).first];
-      if(first[(*iter).first]>fmax) fmax=first[(*iter).first];
+      Engines::MachineParameters *p = _ResManager->GetMachineParameters((*iter).first.c_str());
+      int nbproc = p->nb_node * p->nb_proc_per_node;
+      if(cycle[(*iter).first]/nbproc<cmin) cmin=cycle[(*iter).first]/nbproc;
+      if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;
+      if(first[(*iter).first]/nbproc<fmin) fmin=first[(*iter).first]/nbproc;
+      if(first[(*iter).first]/nbproc>fmax){
+	fmax=first[(*iter).first]/nbproc;
+	nbpmax = nbproc;
+      }
     }
   }
-  if( ((cmax-cmin) <= 1) && (fmax == 10) && !error ){
+  if( ((cmax-cmin) <= 1) && (fmax == 10/nbpmax) && !error ){
     string msg;
     if(bestImplemented)
       msg = "TEST OK";

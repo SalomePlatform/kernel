@@ -714,6 +714,8 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     void ping();
 
+    void Shutdown();
+
 /*! \brief Creation of a new study
 
      Creates a new study with a definite name.

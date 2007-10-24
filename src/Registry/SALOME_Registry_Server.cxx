@@ -168,6 +168,7 @@ int main( int argc , char **argv )
       naming.init_orb( orb ) ;
       RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance() ;
       ptrRegistry->SessionName( ptrSessionName ) ;
+      ptrRegistry->SetOrb(orb);
       varComponents = ptrRegistry->_this() ;
       // The RegistryService must not already exist.
 	    

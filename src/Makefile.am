@@ -43,6 +43,7 @@ SUBDIR_CORBA = \
   NOTIFICATION_SWIG \
   Container \
   TestContainer \
+  Launcher \
   LifeCycleCORBA \
   LifeCycleCORBA_SWIG \
   SALOMEDSClient \
@@ -101,6 +102,10 @@ DIST_SUBDIRS = \
 
 SUBDIRS = $(SUBDIR_BASE)
 
+if WITH_BATCH
+  SUBDIRS += $(SUBDIR_BATCH)
+endif
+
 if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
@@ -108,10 +113,6 @@ endif
 #if MPI_IS_OK
 #  SUBDIRS += $(SUBDIR_MPI)
 #endif
-
-if WITH_BATCH
-  SUBDIRS += $(SUBDIR_BATCH)
-endif
 
 if CPPUNIT_IS_OK
 if CORBA_GEN

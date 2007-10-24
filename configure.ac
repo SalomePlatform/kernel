@@ -570,6 +570,7 @@ AC_OUTPUT([ \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
+	./src/Launcher/Makefile \
 	./src/LifeCycleCORBA/Makefile \
 	./src/LifeCycleCORBA/Test/Makefile \
 	./src/LifeCycleCORBA_SWIG/Makefile \

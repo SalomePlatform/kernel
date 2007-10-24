@@ -300,11 +300,11 @@ class SessionServer(Server):
       
 # ---
 
-class ContainerManagerServer(Server):
+class LauncherServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ContainerManagerServer']
+        self.SCMD1=['SALOME_LauncherServer']
         self.SCMD2=[]
         if args["gui"] :
             if 'registry' in self.args['embedded']:
@@ -467,10 +467,10 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/myStudyManager",myServer.PID)
 
     #
-    # Lancement ContainerManagerServer
+    # Lancement LauncherServer
     #
     
-    myCmServer = ContainerManagerServer(args)
+    myCmServer = LauncherServer(args)
     myCmServer.setpath(modules_list,modules_root_dir)
     myCmServer.run()
 
@@ -497,7 +497,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
-    if ('cppContainer' in args['standalone']) | (args["gui"] == 0):
+    if ('cppContainer' in args['standalone']) | (args["gui"] == 0) : 
         myServer=ContainerCPPServer(args)
         myServer.run()
         if sys.platform == "win32":
@@ -660,6 +660,7 @@ def useSalome(args, modules_list, modules_root_dir):
         i = 0
         while i < len( toimport ) :
             if toimport[ i ] == 'killall':
+                clt.showNS()
                 killAllPorts()
                 import sys
                 sys.exit(0)
@@ -809,6 +810,8 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
+    print "runSalome running on ",os.getenv('HOSTNAME')
+    print os.environ.itervalues
     args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)
     save_config = True

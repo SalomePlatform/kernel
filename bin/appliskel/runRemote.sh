@@ -63,4 +63,6 @@ echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
 shift 2
 
-${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"
+# suppress --rcfile option because of problem on Mandriva2006 - B Secher mai 2007
+#${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh -c "$*"

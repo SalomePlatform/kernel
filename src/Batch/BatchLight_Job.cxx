@@ -17,36 +17,29 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __SALOME_LOADRATEMANAGER_HXX__
-#define __SALOME_LOADRATEMANAGER_HXX__
+/*
+ * Job.cxx : 
+ *
+ * Auteur : Bernard SECHER - CEA/DEN
+ * Date   : Juillet 2007
+ * Projet : SALOME
+ *
+ */
 
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include <string>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "SALOME_NamingService.hxx"
+#include "BatchLight_Job.hxx"
+using namespace std;
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#endif
+namespace BatchLight {
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
+  // Constructeur
+  Job::Job(const char *fileToExecute, const Engines::FilesList& filesToExport, const Engines::FilesList& filesToImport, const int nbproc) : _fileToExecute(fileToExecute), _filesToExport(filesToExport), _filesToImport(filesToImport), _nbproc(nbproc)
   {
+    // Nothing to do
+  }
 
-  public:
-    std::string FindFirst(const Engines::MachineList& hosts);
-    std::string FindNext(const Engines::MachineList& hosts,MapOfParserResourcesType& resList,SALOME_NamingService *ns);
-    std::string FindBest(const Engines::MachineList& hosts) throw (SALOME_Exception);
-  };
+  Job::~Job()
+  {
+    MESSAGE("Job destructor");
+  }
 
-#endif
+}

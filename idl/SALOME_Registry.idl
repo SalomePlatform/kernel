@@ -55,6 +55,7 @@ module Registry
 		AllInfos history () ;
 		oneway void end() ;
 		oneway void hello( in unsigned long id ) ;
+	        void Shutdown();
 	} ;
 } ;
 

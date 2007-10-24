@@ -50,6 +50,7 @@ interp_nam     = "interp"
 except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
 pinter_nam     = "pinter"
+batch_nam      = "batch"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -390,6 +391,13 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="gui",
                           help=help_str)
 
+    help_str = "Launch in Batch Mode. (Without GUI on batch machine)"
+    o_b = optparse.Option("-b",
+                          "--batch",
+                          action="store_true",
+                          dest="batch",
+                          help=help_str)
+
     help_str = "Launch in GUI mode [default]."
     o_g = optparse.Option("-g",
                           "--gui",
@@ -581,6 +589,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
+                o_b,     # Batch
                 o_l,o_f, # Use logger or log-file
                 o_u,     # Execute python scripts
                 o_r,     # Configuration XML file
@@ -775,9 +784,14 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
 
     # GUI/Terminal, Desktop, Splash, STUDY_HDF
     args["session_gui"] = False
+    args[batch_nam] = False
     args["study_hdf"] = None
+    print 'launchConfigureParser cmd_opts',cmd_opts
     if cmd_opts.gui is not None:
         args[gui_nam] = cmd_opts.gui
+    if cmd_opts.batch is not None:
+        args[batch_nam] = True
+    print 'launchConfigureParser args[',batch_nam,']',args[batch_nam]
     if args[gui_nam]:
         args["session_gui"] = True
         if cmd_opts.desktop is not None:

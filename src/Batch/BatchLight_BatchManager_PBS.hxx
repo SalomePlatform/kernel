@@ -17,36 +17,43 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __SALOME_LOADRATEMANAGER_HXX__
-#define __SALOME_LOADRATEMANAGER_HXX__
+/*
+ * BatchManager.hxx : 
+ *
+ * Auteur : Bernard SECHER - CEA/DEN
+ * Date   : Juillet 2007
+ * Projet : SALOME
+ *
+ */
 
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#ifndef _BL_BATCHMANAGER_PBS_H_
+#define _BL_BATCHMANAGER_PBS_H_
+
 #include <string>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "SALOME_NamingService.hxx"
+#include "Utils_SALOME_Exception.hxx"
+#include "BatchLight_BatchManager.hxx"
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#endif
+namespace BatchLight {
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
+  class Job;
+
+  class BatchManager_PBS : public BatchManager
   {
-
   public:
-    std::string FindFirst(const Engines::MachineList& hosts);
-    std::string FindNext(const Engines::MachineList& hosts,MapOfParserResourcesType& resList,SALOME_NamingService *ns);
-    std::string FindBest(const Engines::MachineList& hosts) throw (SALOME_Exception);
+    // Constructeur et destructeur
+    BatchManager_PBS(const batchParams& p) throw(SALOME_Exception); // connexion a la machine host
+    virtual ~BatchManager_PBS();
+
+    // Methodes pour le controle des jobs : virtuelles pures
+    void deleteJob(const int & jobid); // retire un job du gestionnaire
+    std::string queryJob(const int & jobid); // renvoie l'etat du job
+
+  private:
+    void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception);
+    void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception);
+    int submit() throw(SALOME_Exception);
   };
+
+}
 
 #endif

@@ -59,7 +59,12 @@ LIB_INCLUDES = \
 	Batch_PyVersatile.hxx \
 	Batch_RunTimeException.hxx \
 	Batch_StringType.hxx \
-	Batch_TypeMismatchException.hxx
+	Batch_TypeMismatchException.hxx \
+	BatchLight_BatchManager.hxx \
+	BatchLight_BatchManager_PBS.hxx \
+	BatchLight_BatchManager_SLURM.hxx \
+	BatchLight_Job.hxx \
+	MpiImpl.hxx
 
 
 LIB_SRC = \
@@ -91,7 +96,12 @@ LIB_SRC = \
 	Batch_PyVersatile.cxx \
 	Batch_RunTimeException.cxx \
 	Batch_StringType.cxx \
-	Batch_TypeMismatchException.cxx
+	Batch_TypeMismatchException.cxx \
+	BatchLight_BatchManager.cxx \
+	BatchLight_BatchManager_SLURM.cxx \
+	BatchLight_BatchManager_PBS.cxx \
+	BatchLight_Job.cxx \
+	MpiImpl.cxx
 
 
 LIB_CPPFLAGS = \
@@ -203,8 +213,10 @@ libSalomeBatch_la_CPPFLAGS = \
 	@PYTHON_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
-	$(LIB_CPPFLAGS)
+	-I$(top_builddir)/idl \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ $(LIB_CPPFLAGS)
 
 libSalomeBatch_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeBatch_la_LIBADD   = \

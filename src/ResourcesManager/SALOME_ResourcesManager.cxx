@@ -18,8 +18,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOME_ResourcesManager.hxx" 
-//#include "SALOME_Container_i.hxx"
 #include "Utils_ExceptHandlers.hxx"
+#include "Utils_CorbaException.hxx"
 #include "OpUtil.hxx"
 
 #include <stdlib.h>
@@ -44,6 +44,8 @@
 
 using namespace std;
 
+const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesManager";
+
 //=============================================================================
 /*!
  * just for test
@@ -51,12 +53,24 @@ using namespace std;
 //=============================================================================
 
 SALOME_ResourcesManager::
-SALOME_ResourcesManager(CORBA::ORB_ptr orb,
+SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
+			PortableServer::POA_var poa, 
+			SALOME_NamingService *ns,
                         const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
-  _NS = new SALOME_NamingService(orb);
+  MESSAGE("constructor");
+  _NS = ns;
+  _orb = CORBA::ORB::_duplicate(orb) ;
+  _poa = PortableServer::POA::_duplicate(poa) ;
+  PortableServer::ObjectId_var id = _poa->activate_object(this);
+  CORBA::Object_var obj = _poa->id_to_reference(id);
+  Engines::SalomeLauncher_var refContMan =
+    Engines::SalomeLauncher::_narrow(obj);
+
+  _NS->Register(refContMan,_ResourcesManagerNameInNS);
   _MpiStarted = false;
+  MESSAGE("constructor end");
 }
 
 //=============================================================================
@@ -70,9 +84,19 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
  */ 
 //=============================================================================
 
-SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
+						 PortableServer::POA_var poa, 
+						 SALOME_NamingService *ns)
 {
-  _NS = new SALOME_NamingService(orb);
+  MESSAGE("constructor");
+  _NS = ns;
+  _orb = CORBA::ORB::_duplicate(orb) ;
+  _poa = PortableServer::POA::_duplicate(poa) ;
+  PortableServer::ObjectId_var id = _poa->activate_object(this);
+  CORBA::Object_var obj = _poa->id_to_reference(id);
+  Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
+  _NS->Register(refContMan,_ResourcesManagerNameInNS);
+
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   _MpiStarted = false;
 
@@ -91,6 +115,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
     }
 
   ParseXmlFile();
+  MESSAGE("constructor end");
 }
 
 //=============================================================================
@@ -101,7 +126,23 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
-  delete _NS;
+  MESSAGE("destructor");
+}
+
+
+//=============================================================================
+/*! CORBA method:
+ *  shutdown all the containers, then the ContainerManager servant
+ */
+//=============================================================================
+
+void SALOME_ResourcesManager::Shutdown()
+{
+  MESSAGE("Shutdown");
+  _NS->Destroy_Name(_ResourcesManagerNameInNS);
+  PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
+  _poa->deactivate_object(oid);
+  _remove_ref();
 }
 
 //=============================================================================
@@ -118,101 +159,113 @@ SALOME_ResourcesManager::~SALOME_ResourcesManager()
  */ 
 //=============================================================================
 
-vector<string>
-SALOME_ResourcesManager::
-GetFittingResources(const Engines::MachineParameters& params,
-                    const char *moduleName)
-throw(SALOME_Exception)
+Engines::MachineList *
+SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
+					     const Engines::CompoList& componentList)
+//throw(SALOME_Exception)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
-  vector <std::string> ret;
+  vector <std::string> vec;
+  Engines::MachineList *ret=new Engines::MachineList;
 
+  try{
+    // --- To be sure that we search in a correct list.
+    ParseXmlFile();
 
-  // --- To be sure that we search in a correct list.
-  ParseXmlFile();
+    const char *hostname = (const char *)params.hostname;
+    MESSAGE("GetFittingResources " << hostname << " " << GetHostname().c_str());
 
-  const char *hostname = (const char *)params.hostname;
-  MESSAGE("GetFittingResources " << hostname << " " << GetHostname().c_str());
-
-  if (hostname[0] != '\0')
-    {
+    if (hostname[0] != '\0')
+      {
 //       MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
 
-      if ( strcmp(hostname, "localhost") == 0 ||
-           strcmp(hostname, GetHostname().c_str()) == 0 )
-        {
-//           MESSAGE("ResourcesManager::GetFittingResources : localhost" );
-          ret.push_back(GetHostname().c_str());
-// 	  MESSAGE("ResourcesManager::GetFittingResources : " << ret.size());
-        }
+	if ( strcmp(hostname, "localhost") == 0 ||
+	     strcmp(hostname, GetHostname().c_str()) == 0 )
+	  {
+	    //           MESSAGE("ResourcesManager::GetFittingResources : localhost" );
+	    vec.push_back(GetHostname().c_str());
+	    // 	  MESSAGE("ResourcesManager::GetFittingResources : " << vec.size());
+	  }
+	
+	else if (_resourcesList.find(hostname) != _resourcesList.end())
+	  {
+	    // --- params.hostname is in the list of resources so return it.
+	    vec.push_back(hostname);
+	  }
+	
+	else
+	  {
+	    // Cas d'un cluster: nombre de noeuds > 1
+	    int cpt=0;
+	    for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
+	      if( (*iter).second.DataForSort._nbOfNodes > 1 ){
+		if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
+		  vec.push_back((*iter).first.c_str());
+		  //cout << "SALOME_ResourcesManager::GetFittingResources vector["
+		  //     << cpt << "] = " << (*iter).first.c_str() << endl ;
+		  cpt++;
+		}
+	      }
+	    }
+	    if(cpt==0){
+	      // --- user specified an unknown hostame so notify him.
+	      MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
+	      throw SALOME_Exception("unknown host");
+	    }
+	  }
+      }
+    
+    else
+      // --- Search for available resources sorted by priority
+      {
+	SelectOnlyResourcesWithOS(vec, params.OS);
+	
+	KeepOnlyResourcesWithModule(vec, componentList);
+	
+	if (vec.size() == 0)
+	  SelectOnlyResourcesWithOS(vec, params.OS);
+	
+	// --- set wanted parameters
+	ResourceDataToSort::_nbOfNodesWanted = params.nb_node;
+	
+	ResourceDataToSort::_nbOfProcPerNodeWanted = params.nb_proc_per_node;
+	
+	ResourceDataToSort::_CPUFreqMHzWanted = params.cpu_clock;
+	
+	ResourceDataToSort::_memInMBWanted = params.mem_mb;
+	
+	// --- end of set
+	
+	list<ResourceDataToSort> li;
+	
+	for (vector<string>::iterator iter = vec.begin();
+           iter != vec.end();
+	     iter++)
+	  li.push_back(_resourcesList[(*iter)].DataForSort);
+	
+	li.sort();
+	
+	unsigned int i = 0;
+	
+	for (list<ResourceDataToSort>::iterator iter2 = li.begin();
+	     iter2 != li.end();
+	     iter2++)
+	  vec[i++] = (*iter2)._hostName;
+      }
+    
+    //  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
+    ret->length(vec.size());
+    for(unsigned int i=0;i<vec.size();i++)
+      (*ret)[i]=(vec[i]).c_str();
 
-      else if (_resourcesList.find(hostname) != _resourcesList.end())
-        {
-          // --- params.hostname is in the list of resources so return it.
-          ret.push_back(hostname);
-        }
-
-      else
-        {
-// Cas d'un cluster: nombre de noeuds > 1
-          int cpt=0;
-          for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
-	    if( (*iter).second.DataForSort._nbOfNodes > 1 ){
-   	      if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
-                ret.push_back((*iter).first.c_str());
-                //cout << "SALOME_ResourcesManager::GetFittingResources vector["
-                //     << cpt << "] = " << (*iter).first.c_str() << endl ;
-                cpt++;
-              }
-            }
-          }
-          if(cpt==0){
-          // --- user specified an unknown hostame so notify him.
-            MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
-            throw SALOME_Exception("unknown host");
-          }
-        }
-    }
-
-  else
-    // --- Search for available resources sorted by priority
+  }
+  catch(const SALOME_Exception &ex)
     {
-      SelectOnlyResourcesWithOS(ret, params.OS);
+      INFOS("Caught exception.");
+      THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+      //return ret;
+    }  
 
-      KeepOnlyResourcesWithModule(ret, moduleName);
-
-      if (ret.size() == 0)
-        SelectOnlyResourcesWithOS(ret, params.OS);
-
-      // --- set wanted parameters
-      ResourceDataToSort::_nbOfNodesWanted = params.nb_node;
-
-      ResourceDataToSort::_nbOfProcPerNodeWanted = params.nb_proc_per_node;
-
-      ResourceDataToSort::_CPUFreqMHzWanted = params.cpu_clock;
-
-      ResourceDataToSort::_memInMBWanted = params.mem_mb;
-
-      // --- end of set
-
-      list<ResourceDataToSort> li;
-
-      for (vector<string>::iterator iter = ret.begin();
-           iter != ret.end();
-           iter++)
-        li.push_back(_resourcesList[(*iter)].DataForSort);
-
-      li.sort();
-
-      unsigned int i = 0;
-
-      for (list<ResourceDataToSort>::iterator iter2 = li.begin();
-           iter2 != li.end();
-           iter2++)
-        ret[i++] = (*iter2)._hostName;
-    }
-
-  //  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
   return ret;
 }
 
@@ -226,16 +279,16 @@ throw(SALOME_Exception)
 int
 SALOME_ResourcesManager::
 AddResourceInCatalog(const Engines::MachineParameters& paramsOfNewResources,
-                     const map<string, string>& modulesOnNewResources,
-                     const char *environPathOfPrerequired,
+                     const vector<string>& modulesOnNewResources,
                      const char *alias,
                      const char *userName,
                      AccessModeType mode,
                      AccessProtocolType prot)
 throw(SALOME_Exception)
 {
-  map<string, string>::const_iterator iter =
-    modulesOnNewResources.find("KERNEL");
+  vector<string>::const_iterator iter = find(modulesOnNewResources.begin(),
+					     modulesOnNewResources.end(),
+					     "KERNEL");
 
   if (iter != modulesOnNewResources.end())
     {
@@ -245,8 +298,7 @@ throw(SALOME_Exception)
       newElt.Protocol = prot;
       newElt.Mode = mode;
       newElt.UserName = userName;
-      newElt.ModulesPath = modulesOnNewResources;
-      newElt.PreReqFilePath = environPathOfPrerequired;
+      newElt.ModulesList = modulesOnNewResources;
       newElt.OS = paramsOfNewResources.OS;
       newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
       newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
@@ -370,10 +422,10 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::GetList() const
  */ 
 //=============================================================================
 
-string
+char *
 SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindFirst(listOfMachines);
+  return CORBA::string_dup(_dynamicResourcesSelecter.FindFirst(listOfMachines).c_str());
 }
 
 //=============================================================================
@@ -385,7 +437,7 @@ SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 string
 SALOME_ResourcesManager::FindNext(const Engines::MachineList& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindNext(listOfMachines,_NS);
+  return _dynamicResourcesSelecter.FindNext(listOfMachines,_resourcesList,_NS);
 }
 //=============================================================================
 /*!
@@ -398,8 +450,6 @@ SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachines)
 {
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
-
-
 
 //=============================================================================
 /*!
@@ -539,7 +589,6 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
   return command;
 }
 
-
 //=============================================================================
 /*!
  *  builds the command to be launched.
@@ -661,7 +710,7 @@ SALOME_ResourcesManager::BuildCommand
 
   command += machine;
   command += " ";
-  string path = (*(resInfo.ModulesPath.find("KERNEL"))).second;
+  string path = getenv("KERNEL_ROOT_DIR");
   command += path;
   command += "/bin/salome/";
 
@@ -722,17 +771,29 @@ throw(SALOME_Exception)
 void
 SALOME_ResourcesManager::KeepOnlyResourcesWithModule
 ( vector<string>& hosts,
-  const char *moduleName) const
+  const Engines::CompoList& componentList) const
 throw(SALOME_Exception)
 {
   for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const map<string, string>& mapOfModulesOfCurrentHost =
-        (((*it).second).ModulesPath);
+      const vector<string>& mapOfModulesOfCurrentHost = (((*it).second).ModulesList);
 
-      if (mapOfModulesOfCurrentHost.find(moduleName) ==
-          mapOfModulesOfCurrentHost.end())
+      bool erasedHost = false;
+      if( mapOfModulesOfCurrentHost.size() > 0 ){
+	for(int i=0;i<componentList.length();i++){
+          const char* compoi = componentList[i];
+	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
+					      mapOfModulesOfCurrentHost.end(),
+					      compoi);
+// 					      componentList[i]);
+	  if (itt == mapOfModulesOfCurrentHost.end()){
+	    erasedHost = true;
+	    break;
+	  }
+	}
+      }
+      if(erasedHost)
         hosts.erase(iter);
       else
         iter++;
@@ -828,8 +889,10 @@ string SALOME_ResourcesManager::BuildTemporaryFileName() const
 string
 SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 (const string& machine,
- const Engines::MachineParameters& params)
+ const Engines::MachineParameters& params) throw(SALOME_Exception)
 {
+  int status;
+
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
@@ -838,27 +901,6 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
   // --- set env vars
 
-  tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
-
-  for (map<string, string>::const_iterator iter = resInfo.ModulesPath.begin();
-       iter != resInfo.ModulesPath.end();
-       iter++)
-    {
-      string curModulePath((*iter).second);
-      tempOutputFile << (*iter).first << "_ROOT_DIR=" << curModulePath << endl;
-      tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
-      tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath
-		     << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:"
-		     << curModulePath << "/lib/salome:" << curModulePath
-		     << "/lib/python${PYTHON_VERSION}/site-packages/salome:";
-      tempOutputFile << curModulePath
-      << "/lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules:${PYTHONPATH}"
-      << endl;
-    }
-
-  tempOutputFile << "export LD_LIBRARY_PATH" << endl;
-  tempOutputFile << "export PYTHONPATH" << endl;
   tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
   //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
@@ -886,8 +928,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 #endif
     }
 
-  tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second
-		 << "/bin/salome/";
+  tempOutputFile << getenv("KERNEL_ROOT_DIR") << "/bin/salome/";
 
   if (params.isMPI)
     {
@@ -925,7 +966,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
       commandRcp += machine;
       commandRcp += ":";
       commandRcp += _TmpFileName;
-      system(commandRcp.c_str());
+      status = system(commandRcp.c_str());
     }
 
   else if (resInfo.Protocol == ssh)
@@ -937,10 +978,13 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
       commandRcp += machine;
       commandRcp += ":";
       commandRcp += _TmpFileName;
-      system(commandRcp.c_str());
+      status = system(commandRcp.c_str());
     }
   else
     throw SALOME_Exception("Unknown protocol");
+
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
 
   command += machine;
   _CommandForRemAccess = command;
@@ -1101,4 +1145,42 @@ void SALOME_ResourcesManager::startMPI()
   }
 }
 
-
+Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
+{
+  ParserResourcesType resource = _resourcesList[string(hostname)];
+  Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
+  p_ptr->container_name = CORBA::string_dup("");
+  p_ptr->hostname = CORBA::string_dup("hostname");
+  p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
+  if( resource.Protocol == rsh )
+    p_ptr->protocol = "rsh";
+  else if( resource.Protocol == ssh )
+    p_ptr->protocol = "ssh";
+  p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
+  p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
+  p_ptr->modList.length(resource.ModulesList.size());
+  for(int i=0;i<resource.ModulesList.size();i++)
+    p_ptr->modList[i] = CORBA::string_dup(resource.ModulesList[i].c_str());
+  p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
+  p_ptr->mem_mb = resource.DataForSort._memInMB;
+  p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
+  p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
+  p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+  if( resource.mpi == indif )
+    p_ptr->mpiImpl = "indif";
+  else if( resource.mpi == lam )
+    p_ptr->mpiImpl = "lam";
+  else if( resource.mpi == mpich1 )
+    p_ptr->mpiImpl = "mpich1";
+  else if( resource.mpi == mpich2 )
+    p_ptr->mpiImpl = "mpich2";
+  else if( resource.mpi == openmpi )
+    p_ptr->mpiImpl = "openmpi";
+  if( resource.Batch == pbs )
+    p_ptr->batch = "pbs";
+  else if( resource.Batch == lsf )
+    p_ptr->batch = "lsf";
+  else if( resource.Batch == slurm )
+    p_ptr->batch = "slurm";
+  return p_ptr;
+}

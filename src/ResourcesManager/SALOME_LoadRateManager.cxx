@@ -34,7 +34,7 @@ string SALOME_LoadRateManager::FindFirst(const Engines::MachineList& hosts)
   return string(hosts[0]);
 }
 
-string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,SALOME_NamingService *ns)
+string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,MapOfParserResourcesType& resList,SALOME_NamingService *ns)
 {
   MESSAGE("SALOME_LoadRateManager::FindNext " << hosts.length());
   map<string, int> machines;
@@ -47,15 +47,7 @@ string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,SALOME
 
   ns->Change_Directory("/Containers");
   vector<string> vec = ns->list_directory_recurs();
-  list<string> lstCont;
   for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
-    CORBA::Object_var obj=ns->Resolve((*iter).c_str());
-    Engines::Container_var cont=Engines::Container::_narrow(obj);
-    if(!CORBA::is_nil(cont)){
-      lstCont.push_back((*iter));
-    }
-  }
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
     CORBA::Object_var obj=ns->Resolve((*iter).c_str());
     Engines::Container_var cont=Engines::Container::_narrow(obj);
     if(!CORBA::is_nil(cont)){
@@ -65,11 +57,15 @@ string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,SALOME
   }
 
   int imin = 0;
-  int min = machines[string(hosts[0])];
+  ParserResourcesType resource = resList[string(hosts[0])];
+  int nbproc = resource.DataForSort._nbOfProcPerNode * resource.DataForSort._nbOfNodes;
+  int min = machines[string(hosts[0])]/nbproc;
   for(int i=1;i<hosts.length();i++){
-    if( machines[string(hosts[i])] < min ){
+    resource = resList[string(hosts[i])];
+    nbproc = resource.DataForSort._nbOfProcPerNode * resource.DataForSort._nbOfNodes;
+    if( machines[string(hosts[i])]/nbproc < min ){
       imin = i;
-      min = machines[string(hosts[i])];
+      min = machines[string(hosts[i])]/nbproc;
     }
   }
 

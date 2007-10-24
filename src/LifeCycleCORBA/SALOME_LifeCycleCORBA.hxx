@@ -102,6 +102,7 @@ public:
   void preSet(Engines::MachineParameters& params);
 
   Engines::ContainerManager_ptr getContainerManager();
+  Engines::ResourcesManager_ptr getResourcesManager();
 
 protected:
 
@@ -124,6 +125,7 @@ protected:
   
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;
+  Engines::ResourcesManager_var _ResManager;
   
 } ;
 
