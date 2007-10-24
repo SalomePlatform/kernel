@@ -30,8 +30,9 @@
 #include "base_port.hxx"
 #include "uses_port.hxx"
 #include "provides_port.hxx"
+#include "port_factory.hxx"
 
-// Les différentes fabriques de ports
+// default ports factories on the Kernel
 #include "basic_port_factory.hxx"
 #include "palm_port_factory.hxx"
 #include "calcium_port_factory.hxx"
@@ -104,7 +105,7 @@ public:
   {return NULL;}
 
   /*!
-   * This methode permits to create a provides port provided by the platform.
+   * This method permits to create a provides port provided by the platform.
    * (See documentation of DSC for knoing these ports).
    *   
    *
@@ -113,12 +114,12 @@ public:
    *
    * \note It's user repsonsability to destroy the provides port.
    */
-  virtual provides_port * create_provides_data_port(const char* port_fab_type)
+  virtual provides_port * create_provides_data_port(const std::string& port_fab_type)
     throw (BadFabType);
 
 
   /*!
-   * This methode permits to create a uses port provided by the platform.
+   * This method permits to create a uses port provided by the platform.
    * (See documentation of DSC for knoing these ports).
    *   
    *
@@ -127,7 +128,7 @@ public:
    *
    * \note It's user repsonsability to destroy the uses port.
    */
-  virtual uses_port * create_uses_data_port(const char* port_fab_type)
+  virtual uses_port * create_uses_data_port(const std::string& port_fab_type)
     throw (BadFabType); 
 
   /*!
@@ -234,12 +235,29 @@ public:
 				 const Engines::DSC::Message message);
 
 
-private:    
+  /*!
+   * Add a factory the component. If the factory_name is already
+   * used, the new library is not added.
+   *
+   * \param factory_name name of the factory (used by Superv_Component_i::create_provides_data_port
+   * and Superv_Component_i::create_uses_data_port)
+   * \param factory_ptr factory pointer (destroyed by the component)
+   */
+  virtual void register_factory(const std::string & factory_name,
+				port_factory * factory_ptr);
 
-  // Fabrics
-  basic_port_factory * _my_basic_factory;
-  palm_port_factory * _my_palm_factory;
-  calcium_port_factory *   _my_calcium_factory;
+  /*!
+   * Get a factory from the component. 
+   *
+   * \param factory_name name of the factory.
+   * \return factory pointer, NULL if the factory doesn't exist.
+   */
+  virtual port_factory * get_factory(const std::string & factory_name);
+
+private:   
+  // Factory map
+  typedef std::map<std::string, port_factory*> factory_map_t;
+  factory_map_t _factory_map;
 
   /*-------------------------------------------------*/
   // A Superv_Component port.

@@ -23,10 +23,56 @@
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
+"""
+Module salome gives access to Salome ressources.
+
+variables:
+
+  salome.orb             : CORBA
+  salome.naming_service  : instance of naming Service class
+      methods:
+          Resolve(name)  : find a CORBA object (ior) by its pathname
+          Register(name) : register a CORBA object under a pathname
+  salome.lcc             : instance of lifeCycleCORBA class
+      methods:
+          FindOrLoadComponent(server,name) :
+                           obtain an Engine (CORBA object)
+                           or launch the Engine if not found,
+                           with a Server name and an Engine name
+  salome.sg
+      methods:
+         updateObjBrowser(bool):
+         getActiveStudyId():
+         getActiveStudyName():
+
+         SelectedCount():      returns number of selected objects
+         getSelected(i):       returns entry of selected object number i
+         getAllSelected():     returns list of entry of selected objects
+         AddIObject(Entry):    select an existing Interactive object
+         RemoveIObject(Entry): remove object from selection
+         ClearIObjects():      clear selection
+
+         Display(*Entry):
+         DisplayOnly(Entry):
+         Erase(Entry):
+         DisplayAll():
+         EraseAll():
+
+         IDToObject(Entry):    returns CORBA reference from entry
+
+  salome.myStudyName     : active Study Name
+  salome.myStudyId       : active Study Id
+  salome.myStudy         : the active Study itself (CORBA ior)
+                           methods : defined in SALOMEDS.idl
+
+"""
 
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
+
+orb, lcc, naming_service, cm,sg=None,None,None,None,None
+myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
 
 salome_initial=1
 def salome_init(theStudyId=0,embedded=0):
@@ -77,3 +123,6 @@ def salome_init(theStudyId=0,embedded=0):
         ============================================
         """
         raise
+
+#to expose all objects to pydoc
+__all__=dir()

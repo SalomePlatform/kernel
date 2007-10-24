@@ -55,7 +55,6 @@ public :
   virtual ~GenericUsesPort();
 
   virtual const char * get_repository_id();
-  virtual bool  set_port(Ports::Port_ptr port);
   template <typename TimeType,typename TagType>
   void  put(CorbaInDataType data,  TimeType time, TagType tag); 
 
@@ -81,24 +80,6 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::get
   return repositoryName;
 }
 
-
-template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
-bool
-GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::set_port(Ports::Port_ptr port) {
-  if (_my_ports) {
-    size_t n = _my_ports->length()+1;
-    _my_ports->length(n);
-    (*_my_ports)[n]=CorbaPortType::_narrow(port);
-    return true;
-  }  else {
-    // Vérifier si port is_nil
-    _my_ports = new Engines::DSC::uses_port();
-    _my_ports->length(1);
-    (*_my_ports)[0]=CorbaPortType::_narrow(port);
-    return true;
-  }
-  return false;
-}
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
 template <typename TimeType,typename TagType>

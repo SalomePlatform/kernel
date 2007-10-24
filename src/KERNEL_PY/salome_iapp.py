@@ -62,7 +62,7 @@ def hasDesktop():
 
 salome_iapp_initial = 1
 
-class SalomeOutsideGUI:
+class SalomeOutsideGUI(object):
     """
     Provides a replacement for class SalomeGUI outside GUI process.
     Do almost nothing

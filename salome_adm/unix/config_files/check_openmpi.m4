@@ -22,7 +22,7 @@ dnl
 
 AC_DEFUN([CHECK_OPENMPI],[
 AC_ARG_WITH(openmpi,
-	    AC_HELP_STRING([--with-openmpi],[root directory path of openmpi installation]),
+	    AC_HELP_STRING([--with-openmpi=DIR],[root directory path of openmpi installation]),
 	    WITHOPENMPI="yes",WITHOPENMPI="no")
 
 MPI_INCLUDES=""

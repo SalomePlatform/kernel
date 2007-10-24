@@ -30,6 +30,7 @@
 #ifndef _CALCIUM_PORT_FACTORY_HXX_
 #define _CALCIUM_PORT_FACTORY_HXX_
 
+#include "port_factory.hxx"
 #include "uses_port.hxx"
 #include "provides_port.hxx"
 #include <string>
@@ -45,7 +46,8 @@
 
 using namespace std;
 
-class calcium_port_factory
+class calcium_port_factory :
+  public port_factory
 {
   public:
     calcium_port_factory();

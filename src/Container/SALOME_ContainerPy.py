@@ -32,8 +32,6 @@ import os
 import sys
 import string
 
-import omnipatch                     # PAL10310
-    
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA

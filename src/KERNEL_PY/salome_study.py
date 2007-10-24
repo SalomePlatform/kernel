@@ -61,6 +61,9 @@ def DumpComponent(Study, SO, offset):
     #--------------------------------------------------------------------------
 
 def DumpStudy(Study):
+    """
+    Dump a study, given the ior
+    """
     itcomp = Study.NewComponentIterator()
     while itcomp.More():
         SC = itcomp.Value()

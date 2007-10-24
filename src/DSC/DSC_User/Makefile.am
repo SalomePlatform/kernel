@@ -36,7 +36,8 @@ salomeinclude_HEADERS = base_port.hxx \
 			uses_port.hxx \
 			provides_port.hxx \
 			Superv_Component_i.hxx \
-			DSC_Exception.hxx
+			DSC_Exception.hxx \
+			port_factory.hxx
 
 #
 # ===============================================================

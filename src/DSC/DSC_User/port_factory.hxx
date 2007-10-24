@@ -19,36 +19,42 @@
 //
 //
 //
-//  File   : palm_port_factory.hxx
-//  Author : Eric Fayolle (EDF)
+//  File   : port_factory.hxx
+//  Author : André RIBES (EDF)
 //  Module : KERNEL
-// Modified by : $LastChangedBy$
-// Date        : $LastChangedDate: 2007-01-08 19:01:14 +0100 (lun, 08 jan 2007) $
-// Id          : $Id$
 
+#ifndef _PORT_FACTORY_HXX
+#define _PORT_FACTORY_HXX
 
-#ifndef _PALM_PORT_FACTORY_HXX_
-#define _PALM_PORT_FACTORY_HXX_
-
-#include "port_factory.hxx"
+#include "base_port.hxx"
 #include "uses_port.hxx"
 #include "provides_port.hxx"
+
 #include <string>
 
-#include "palm_data_short_port_provides.hxx"
-#include "palm_data_seq_short_port_provides.hxx"
+/*! \class port_factory
+ *  \brief This class is an abstract for all the DSC ports factories that have to be 
+ *  registered into the component.
+ */
+class port_factory {
+ public:
+   virtual ~port_factory() {}
 
-using namespace std;
+    /*!
+     * This method creates a provides port.
+     *
+     * \param type port's type.
+     * \return a pointer of the provides port.
+     */
+   virtual provides_port * create_data_servant(std::string type) = 0;
 
-class palm_port_factory :
-  public port_factory
-{
-  public:
-    palm_port_factory();
-    virtual ~palm_port_factory();
-
-    virtual provides_port * create_data_servant(string type); 
-    virtual uses_port * create_data_proxy(string type); 
+    /*!
+     * This method creates a uses port.
+     *
+     * \param type port's type.
+     * \return a pointer of the uses port.
+     */
+   virtual uses_port * create_data_proxy(std::string type) = 0;
 };
 
 #endif

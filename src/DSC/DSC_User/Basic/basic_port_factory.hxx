@@ -26,6 +26,7 @@
 #ifndef _BASIC_PORT_FACTORY_HXX_
 #define _BASIC_PORT_FACTORY_HXX_
 
+#include "port_factory.hxx"
 #include "data_short_port_provides.hxx"
 #include "data_short_port_uses.hxx"
 
@@ -38,7 +39,8 @@ using namespace std;
  *  to be used by Superv_Component_i.
  *  It builds basic ports.
  */
-class basic_port_factory
+class basic_port_factory :
+  public port_factory
 {
   public:
     basic_port_factory();

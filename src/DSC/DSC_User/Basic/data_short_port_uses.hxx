@@ -49,11 +49,6 @@ class data_short_port_uses :
     virtual const char * get_repository_id();
 
     /*!
-     * \warning deprecated
-     */
-    virtual bool set_port(Ports::Port_ptr port);
-
-    /*!
      * This method is used by the component to send
      * a short value to all the provides ports connected.
      *
@@ -72,7 +67,6 @@ class data_short_port_uses :
 				   const Engines::DSC::Message message);
 
   private :
-    Ports::Data_Short_Port_ptr _my_port;
     Engines::DSC::uses_port * _my_ports;
 };
 

@@ -46,40 +46,64 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 #ifdef _DEBUG_
   std::cout << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
-  _my_basic_factory = new basic_port_factory();
-  _my_palm_factory = new palm_port_factory();
-  _my_calcium_factory = new calcium_port_factory();
+  register_factory("BASIC", new basic_port_factory());
+  register_factory("PALM", new palm_port_factory());
+  register_factory("CALCIUM", new calcium_port_factory());
 }
 
   
-Superv_Component_i::~Superv_Component_i() {
-  delete _my_basic_factory;
+Superv_Component_i::~Superv_Component_i() 
+{
+  factory_map_t::iterator begin = _factory_map.begin();
+  factory_map_t::iterator end = _factory_map.end();
+  for(;begin!=end;begin++) 
+  {
+    delete begin->second;
+  }
+}
+
+void 
+Superv_Component_i::register_factory(const std::string & factory_name,
+				     port_factory * factory_ptr) 
+{
+  factory_map_t::iterator it = _factory_map.find(factory_name);
+
+  if (it == _factory_map.end() )
+  {
+    _factory_map[factory_name] = factory_ptr;
+  }
+}
+
+port_factory *
+Superv_Component_i::get_factory(const std::string & factory_name) 
+{
+  port_factory * rtn_factory = NULL;
+  factory_map_t::iterator it = _factory_map.find(factory_name);
+
+  if (it != _factory_map.end() )
+  {
+    rtn_factory = _factory_map[factory_name];
+  }
+
+  return rtn_factory;
 }
 
 provides_port *
-Superv_Component_i::create_provides_data_port(const char* port_fab_type)
+Superv_Component_i::create_provides_data_port(const std::string& port_fab_type)
   throw (BadFabType)
 { 
-  assert(port_fab_type);
-
   provides_port * rtn_port = NULL;
-  string the_type(port_fab_type);
+  std::string factory_name;
+  std::string type_name;
   int search_result;
 
-  search_result = the_type.find("BASIC_");
-  if (search_result == 0) {
-    rtn_port = _my_basic_factory->create_data_servant(the_type.substr(search_result+6, 
-								      the_type.length()));
-  }
-  search_result = the_type.find("PALM_");
-  if (search_result == 0) {
-    rtn_port = _my_palm_factory->create_data_servant(the_type.substr(search_result+5, 
-								     the_type.length()));
-  }
+  search_result = port_fab_type.find("_");
+  factory_name = port_fab_type.substr(0,search_result);
+  type_name = port_fab_type.substr(search_result+1, port_fab_type.length());
 
-  search_result = the_type.find("CALCIUM_");
-  if (search_result == 0) {
-    rtn_port = _my_calcium_factory->create_data_servant(the_type.substr(search_result+8, the_type.length()));
+  port_factory * factory = get_factory(factory_name);
+  if (factory) {
+    rtn_port = factory->create_data_servant(type_name);
   }
 
   if (rtn_port == NULL)
@@ -90,27 +114,21 @@ Superv_Component_i::create_provides_data_port(const char* port_fab_type)
 }
 
 uses_port *
-Superv_Component_i::create_uses_data_port(const char* port_fab_type) 
+Superv_Component_i::create_uses_data_port(const std::string& port_fab_type) 
 throw (BadFabType)
 {
-  assert(port_fab_type);
-
   uses_port * rtn_proxy = NULL;
-  string the_type(port_fab_type);
+  std::string factory_name;
+  std::string type_name;
   int search_result;
 
-  search_result = the_type.find("BASIC_");
-  if (search_result == 0) {
-    rtn_proxy = _my_basic_factory->create_data_proxy(the_type.substr(search_result+6, 
-								     the_type.length()));
-  }
-  
-  search_result = the_type.find("CALCIUM_");
-  if (search_result == 0) {
-#ifdef _DEBUG_
-    std::cout << "---- Superv_Component_i::create_uses_data_port : MARK 1 ----  " << the_type.substr(search_result+8, the_type.length()) << "----" << std::endl;
-#endif
-    rtn_proxy = _my_calcium_factory->create_data_proxy(the_type.substr(search_result+8, the_type.length()));
+  search_result = port_fab_type.find("_");
+  factory_name = port_fab_type.substr(0,search_result);
+  type_name = port_fab_type.substr(search_result+1, port_fab_type.length());
+
+  port_factory * factory = get_factory(factory_name);
+  if (factory) {
+    rtn_proxy = factory->create_data_proxy(type_name);
   }
   
   if (rtn_proxy == NULL)

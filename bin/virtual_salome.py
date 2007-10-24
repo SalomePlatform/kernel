@@ -87,7 +87,7 @@ def get_lib_dir():
             __lib__dir__ = "lib64"
     else:
         __lib__dir__ = "lib"
-    return get_lib_dir()
+    return __lib__dir__
 
 # -----------------------------------------------------------------------------
 

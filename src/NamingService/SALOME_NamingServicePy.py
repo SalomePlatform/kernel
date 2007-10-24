@@ -37,7 +37,7 @@ from string import *
 from SALOME_utilities import *
 #=============================================================================
 
-class SALOME_NamingServicePy_i:
+class SALOME_NamingServicePy_i(object):
     _orb = None
     _root_context=None
     _current_context=None
@@ -71,8 +71,15 @@ class SALOME_NamingServicePy_i:
         if steps == 0 and self._root_context is None: 
           MESSAGE ( "Name Service Reference is invalid" )
           sys.exit(1)
+
     #-------------------------------------------------------------------------
+
     def Register(self,ObjRef, Path):
+        """ ns.Register(object,pathname )  
+        
+        register a CORBA object under a pathname
+        """
+
         MESSAGE ( "SALOME_NamingServicePy_i::Register" )
         _not_exist = 0
         path_list = list(Path)
@@ -135,9 +142,13 @@ class SALOME_NamingServicePy_i:
         except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
             MESSAGE ( "Register : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
 
-            
     #-------------------------------------------------------------------------
+
     def Resolve(self, Path):
+        """ ns.Resolve(pathname) -> object
+
+        find a CORBA object (ior) by its pathname
+        """
         #MESSAGE ( "SALOME_NamingServicePy_i::Resolve" )
         path_list = list(Path)
         if path_list[0]=='/':
@@ -167,8 +178,8 @@ class SALOME_NamingServicePy_i:
         return self._obj
 
 
-
     #-------------------------------------------------------------------------
+
     def Create_Directory(self,ObjRef, Path):
         MESSAGE ( "SALOME_NamingServicePy_i::Create_Directory" )
         _not_exist = 0

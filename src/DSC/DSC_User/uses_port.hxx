@@ -54,14 +54,6 @@ class uses_port : public base_port
     virtual const char * get_repository_id() = 0;
 
     /*!
-     * DEPRECATED --- WILL BE REMOVED
-     * It was used when uses port where not multiple.
-     * It's an abstract method.
-     *
-     */
-    virtual bool set_port(Ports::Port_ptr port) = 0;
-
-    /*!
      * This method is the uses port's callback to be aware of
      * connections states.
      * It's an abstract method. The uses port uses this method

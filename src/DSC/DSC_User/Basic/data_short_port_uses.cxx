@@ -28,7 +28,6 @@
 using namespace std;
 
 data_short_port_uses::data_short_port_uses() {
-  _my_port = Ports::Data_Short_Port::_nil();
   _my_ports = NULL;
 }
 
@@ -37,11 +36,6 @@ data_short_port_uses::~data_short_port_uses() {}
 const char *
 data_short_port_uses::get_repository_id() {
   return "IDL:Ports/Data_Short_Port:1.0";
-}
-
-bool
-data_short_port_uses::set_port(Ports::Port_ptr port) {
-  _my_port = Ports::Data_Short_Port::_narrow(port);
 }
 
 void
