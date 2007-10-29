@@ -765,8 +765,12 @@ def searchFreePort(args, save_config=1):
             f = open(os.environ['OMNIORB_CONFIG'], "w")
             import CORBA
             if CORBA.ORB_ID == "omniORB4":
+                initref += "\ngiopMaxMsgSize = 2097152000  # 2 GBytes";
+                initref += "\ntraceLevel = 0 # critical errors only";
                 f.write("InitRef = %s\n"%(initref))
             else:
+                initref += "\nORBgiopMaxMsgSize = 2097152000  # 2 GBytes";
+                initref += "\nORBtraceLevel = 0 # critical errors only";
                 f.write("ORBInitRef %s\n"%(initref))
                 pass
             f.close()
