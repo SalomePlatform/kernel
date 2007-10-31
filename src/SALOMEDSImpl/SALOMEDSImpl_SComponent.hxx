@@ -27,34 +27,31 @@
 //SALOMEDSImpl headers
 #include "SALOMEDSImpl_SObject.hxx"
 
-//Handle definition
-#include <Standard_DefineHandle.hxx>
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )
-
 // std C++ headers
 #include <iostream>
+#include <string>
 
 // Cascade headers
-#include <TDF_Label.hxx>
-#include <SALOMEDSImpl_SObject.hxx>
-#include <TCollection_AsciiString.hxx> 
-#include <TDF_Tool.hxx>
+#include "DF_Label.hxx"
+#include "SALOMEDSImpl_SObject.hxx"
 #include <stdio.h>
 
-class SALOMEDSImpl_SComponent : public SALOMEDSImpl_SObject
+class SALOMEDSImpl_SComponent : public virtual SALOMEDSImpl_SObject
 {
 public:
   
-  SALOMEDSImpl_SComponent(const TDF_Label& lab);
+  Standard_EXPORT SALOMEDSImpl_SComponent();
+  Standard_EXPORT SALOMEDSImpl_SComponent(const SALOMEDSImpl_SComponent& theSCO);
+  Standard_EXPORT SALOMEDSImpl_SComponent(const DF_Label& lab);
   
-  ~SALOMEDSImpl_SComponent();
+  Standard_EXPORT ~SALOMEDSImpl_SComponent();
  
-  virtual TCollection_AsciiString ComponentDataType();
-  virtual bool ComponentIOR(TCollection_AsciiString& theID);
-  static bool IsA(const TDF_Label& theLabel);
+  Standard_EXPORT virtual std::string ComponentDataType();
+  Standard_EXPORT virtual bool ComponentIOR(std::string& theID);
 
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_SComponent )    
+  Standard_EXPORT static bool IsA(const DF_Label& theLabel);
+
+  Standard_EXPORT SALOMEDSImpl_SComponent* GetPersistentCopy() const;
 
 };
 #endif

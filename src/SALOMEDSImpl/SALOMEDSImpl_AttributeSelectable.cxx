@@ -22,21 +22,17 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeSelectable.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeSelectable, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeSelectable, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeSelectable::GetID () 
+const std::string& SALOMEDSImpl_AttributeSelectable::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeSelectableID ("12837188-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeSelectableID ("12837188-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeSelectableID;
 }
 
@@ -47,11 +43,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeSelectable::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeSelectable) SALOMEDSImpl_AttributeSelectable::Set (const TDF_Label& L,
-										const Standard_Integer value) 
+SALOMEDSImpl_AttributeSelectable* SALOMEDSImpl_AttributeSelectable::Set (const DF_Label& L,
+								         const int value) 
 {
-  Handle(SALOMEDSImpl_AttributeSelectable) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeSelectable::GetID(),A)) {
+  SALOMEDSImpl_AttributeSelectable* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeSelectable*)L.FindAttribute(SALOMEDSImpl_AttributeSelectable::GetID()))) {
     A = new  SALOMEDSImpl_AttributeSelectable(); 
     L.AddAttribute(A);
   }
@@ -75,7 +71,7 @@ SALOMEDSImpl_AttributeSelectable::SALOMEDSImpl_AttributeSelectable()
 //function : SetSelectable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeSelectable::SetSelectable(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeSelectable::SetSelectable(const int theValue)
 {
   Backup();
 
@@ -87,7 +83,7 @@ void SALOMEDSImpl_AttributeSelectable::SetSelectable(const Standard_Integer theV
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeSelectable::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeSelectable::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -95,7 +91,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeSelectable::ID () const { return GetI
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeSelectable::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeSelectable::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeSelectable(); 
 }
@@ -105,9 +101,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeSelectable::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeSelectable::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeSelectable::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (with)->IsSelectable ();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeSelectable*>(with)->IsSelectable ();
 }
 
 //=======================================================================
@@ -115,9 +111,8 @@ void SALOMEDSImpl_AttributeSelectable::Restore(const Handle(TDF_Attribute)& with
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeSelectable::Paste (const Handle(TDF_Attribute)& into,
-                                              const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeSelectable::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (into)->SetSelectable (myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeSelectable*>(into)->SetSelectable (myValue);
 }
 

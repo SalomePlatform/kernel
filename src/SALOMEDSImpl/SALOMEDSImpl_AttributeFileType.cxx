@@ -25,17 +25,14 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeFileType, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeFileType, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeFileType::GetID () 
+const std::string& SALOMEDSImpl_AttributeFileType::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeFileTypeID ("0181B525-3F15-4ab2-9DE3-5E2F54B5F340");
+  static std::string SALOMEDSImpl_AttributeFileTypeID ("0181B525-3F15-4ab2-9DE3-5E2F54B5F340");
   return SALOMEDSImpl_AttributeFileTypeID;
 }
 
@@ -46,12 +43,12 @@ const Standard_GUID& SALOMEDSImpl_AttributeFileType::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeFileType) SALOMEDSImpl_AttributeFileType::Set (const TDF_Label& L,
-									    const TCollection_ExtendedString& S) 
+SALOMEDSImpl_AttributeFileType* SALOMEDSImpl_AttributeFileType::Set (const DF_Label& L,
+								     const std::string& S) 
 {
 
-  Handle(SALOMEDSImpl_AttributeFileType) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeFileType::GetID(),A)) {
+  SALOMEDSImpl_AttributeFileType* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeFileType*)L.FindAttribute(SALOMEDSImpl_AttributeFileType::GetID()))) {
     A = new  SALOMEDSImpl_AttributeFileType(); 
     L.AddAttribute(A);
   }
@@ -74,7 +71,7 @@ SALOMEDSImpl_AttributeFileType::SALOMEDSImpl_AttributeFileType()
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeFileType::SetValue (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeFileType::SetValue (const std::string& S)
 {
   CheckLocked();
 
@@ -92,7 +89,7 @@ void SALOMEDSImpl_AttributeFileType::SetValue (const TCollection_ExtendedString&
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeFileType::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeFileType::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -100,7 +97,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeFileType::ID () const { return GetID(
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeFileType::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeFileType::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeFileType(); 
 }
@@ -110,9 +107,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeFileType::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeFileType::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeFileType::Restore(DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeFileType)::DownCast (with)->Value ();
+  myString = dynamic_cast<SALOMEDSImpl_AttributeFileType*>(with)->Value ();
 }
 
 //=======================================================================
@@ -120,9 +117,8 @@ void SALOMEDSImpl_AttributeFileType::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeFileType::Paste (const Handle(TDF_Attribute)& into,
-					    const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeFileType::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeFileType)::DownCast (into)->SetValue (myString);
+  dynamic_cast<SALOMEDSImpl_AttributeFileType*>(into)->SetValue (myString);
 }
 

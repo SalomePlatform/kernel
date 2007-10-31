@@ -24,48 +24,33 @@
 #ifndef _SALOMEDSImpl_AttributeTarget_HeaderFile
 #define _SALOMEDSImpl_AttributeTarget_HeaderFile
 
-#include <Standard_DefineHandle.hxx>
-#include <TDF_Attribute.hxx>
-#include <TDF_LabelList.hxx>
-#include <TDF_Label.hxx>       
-#include <TDF_AttributeList.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"
+#include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
-
-class Standard_GUID;
-class Handle(TDF_Attribute);
-class Handle(TDF_RelocationTable);
-
-
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeTarget, SALOMEDSImpl_GenericAttribute )
-
 
 class SALOMEDSImpl_AttributeTarget :  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-TCollection_ExtendedString myRelation;
-TDF_AttributeList myVariables;
+std::string myRelation;
+std::vector<DF_Attribute*>  myVariables;
 
 public:
-Standard_EXPORT static const Standard_GUID& GetID() ;
-Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeTarget Set(const TDF_Label& label) ;
+Standard_EXPORT static const std::string& GetID() ;
+Standard_EXPORT static SALOMEDSImpl_AttributeTarget* Set(const DF_Label& label) ;
 Standard_EXPORT SALOMEDSImpl_AttributeTarget();
-Standard_EXPORT void Add(const Handle(SALOMEDSImpl_SObject)& theSO);
-Standard_EXPORT Handle(TColStd_HSequenceOfTransient) Get();
-Standard_EXPORT void Remove(const Handle(SALOMEDSImpl_SObject)& theSO);
-Standard_EXPORT TCollection_ExtendedString GetRelation() { return myRelation; }
-Standard_EXPORT void SetRelation(const TCollection_ExtendedString& theRelation); 
-Standard_EXPORT TDF_AttributeList& GetVariables() { return myVariables; }
-Standard_EXPORT  const Standard_GUID& ID() const;
-Standard_EXPORT  void Restore(const Handle(TDF_Attribute)& with) ;
-Standard_EXPORT  Handle_TDF_Attribute NewEmpty() const;
-Standard_EXPORT  void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_RelocationTable)& RT) const;
+Standard_EXPORT void Add(const SALOMEDSImpl_SObject& theSO);
+Standard_EXPORT std::vector<SALOMEDSImpl_SObject> Get();
+Standard_EXPORT void Remove(const SALOMEDSImpl_SObject& theSO);
+Standard_EXPORT std::string GetRelation() { return myRelation; }
+Standard_EXPORT void SetRelation(const std::string& theRelation); 
+Standard_EXPORT std::vector<DF_Attribute*>& GetVariables() { return myVariables; }
+Standard_EXPORT  const std::string& ID() const;
+Standard_EXPORT  void Restore(DF_Attribute* with) ;
+Standard_EXPORT  DF_Attribute* NewEmpty() const;
+Standard_EXPORT  void Paste(DF_Attribute* into);
 Standard_EXPORT ~SALOMEDSImpl_AttributeTarget() {}
-
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_AttributeTarget )
 
 };
 

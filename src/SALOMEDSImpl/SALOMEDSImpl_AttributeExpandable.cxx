@@ -27,16 +27,13 @@
 using namespace std;
 #endif
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeExpandable, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeExpandable, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeExpandable::GetID () 
+const std::string& SALOMEDSImpl_AttributeExpandable::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeExpandableID ("12837185-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeExpandableID ("12837185-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeExpandableID;
 }
 
@@ -46,11 +43,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeExpandable::GetID ()
 //function : Set
 //purpose  : 
 //=======================================================================
-Handle(SALOMEDSImpl_AttributeExpandable) SALOMEDSImpl_AttributeExpandable::Set (const TDF_Label& L,
-										const Standard_Integer value) 
+SALOMEDSImpl_AttributeExpandable* SALOMEDSImpl_AttributeExpandable::Set (const DF_Label& L,
+									const int value) 
 {
-  Handle(SALOMEDSImpl_AttributeExpandable) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeExpandable::GetID(),A)) {
+  SALOMEDSImpl_AttributeExpandable* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeExpandable*)L.FindAttribute(SALOMEDSImpl_AttributeExpandable::GetID()))) {
     A = new  SALOMEDSImpl_AttributeExpandable(); 
     L.AddAttribute(A);
   }
@@ -74,7 +71,7 @@ SALOMEDSImpl_AttributeExpandable::SALOMEDSImpl_AttributeExpandable()
 //function : SetExpandable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeExpandable::SetExpandable(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeExpandable::SetExpandable(const int theValue)
 {
   CheckLocked();
 
@@ -88,7 +85,7 @@ void SALOMEDSImpl_AttributeExpandable::SetExpandable(const Standard_Integer theV
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeExpandable::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeExpandable::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -96,7 +93,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeExpandable::ID () const { return GetI
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeExpandable::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeExpandable::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeExpandable(); 
 }
@@ -106,9 +103,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeExpandable::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeExpandable::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeExpandable::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (with)->IsExpandable ();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(with)->IsExpandable ();
 }
 
 //=======================================================================
@@ -116,9 +113,8 @@ void SALOMEDSImpl_AttributeExpandable::Restore(const Handle(TDF_Attribute)& with
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeExpandable::Paste (const Handle(TDF_Attribute)& into,
-                                    const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeExpandable::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (into)->SetExpandable (myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(into)->SetExpandable (myValue);
 }
 

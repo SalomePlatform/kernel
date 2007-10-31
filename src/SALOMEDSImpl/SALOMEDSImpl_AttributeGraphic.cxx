@@ -22,9 +22,9 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
-#include <TDF_Attribute.hxx>
-#include <Standard_GUID.hxx>
-#include <TColStd_DataMapIteratorOfDataMapOfIntegerInteger.hxx>
+#include "DF_Attribute.hxx"
+
+using namespace std;
 
 /*
   Class       : SALOMEDSImpl_AttributeGraphic
@@ -32,16 +32,13 @@
                 graphic representation of objects in dirrent views
 */
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeGraphic, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeGraphic, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeGraphic::GetID()
+const std::string& SALOMEDSImpl_AttributeGraphic::GetID()
 {
-  static Standard_GUID SALOMEDSImpl_AttributeGraphicID( "F17AE8F0-E354-4d6f-8E42-38385C36E67E" );
+  static std::string SALOMEDSImpl_AttributeGraphicID( "F17AE8F0-E354-4d6f-8E42-38385C36E67E" );
   return SALOMEDSImpl_AttributeGraphicID;
 }
 
@@ -66,17 +63,14 @@ SALOMEDSImpl_AttributeGraphic::~SALOMEDSImpl_AttributeGraphic()
 //function : SetVisibility
 //purpose  : Set visibility of object in given view
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::SetVisibility(const Standard_Integer theViewId,
-						  const Standard_Boolean theValue )
+void SALOMEDSImpl_AttributeGraphic::SetVisibility(const int theViewId,
+						  const bool theValue )
 {
-  if ( myVisibility.IsBound( theViewId ) && myVisibility( theViewId ) == theValue )
+  if ( myVisibility.find( theViewId ) != myVisibility.end() && myVisibility[theViewId] == theValue )
     return;
 
   Backup();
-  if ( myVisibility.IsBound( theViewId ) )
-    myVisibility.ChangeFind( theViewId ) = theValue ? 1 : 0;
-  else
-    myVisibility.Bind( theViewId, theValue ? 1 : 0 );
+  myVisibility[ theViewId ] = theValue ? 1 : 0;
 }
 
 
@@ -84,9 +78,15 @@ void SALOMEDSImpl_AttributeGraphic::SetVisibility(const Standard_Integer theView
 //function : Get
 //purpose  : Get visibility of object in given view
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeGraphic::GetVisibility(const Standard_Integer theViewId ) const
+bool SALOMEDSImpl_AttributeGraphic::GetVisibility(const int theViewId )
 {
-  return myVisibility.IsBound( theViewId ) ? myVisibility( theViewId ) : false;
+  bool isVisible = false;
+  if(myVisibility.find( theViewId )!=myVisibility.end()) 
+    isVisible = (bool)myVisibility[theViewId]; 
+  else 
+    isVisible = false;
+  
+  return isVisible;  
 }
 
 
@@ -94,7 +94,7 @@ Standard_Boolean SALOMEDSImpl_AttributeGraphic::GetVisibility(const Standard_Int
 //function : ID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeGraphic::ID () const
+const std::string& SALOMEDSImpl_AttributeGraphic::ID () const
 {
   return GetID();
 }
@@ -104,7 +104,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeGraphic::ID () const
 //function : NewEmpty
 //purpose  : Create new empty attribute
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeGraphic::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeGraphic::NewEmpty () const
 {
   return new SALOMEDSImpl_AttributeGraphic ();
 }
@@ -113,7 +113,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeGraphic::NewEmpty () const
 //function : SetVisibility
 //purpose  : Set visibility of object in all views
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::SetVisibility( const TColStd_DataMapOfIntegerInteger& theMap )
+void SALOMEDSImpl_AttributeGraphic::SetVisibility( const map<int, int>& theMap )
 {
   myVisibility = theMap;
 }
@@ -122,7 +122,7 @@ void SALOMEDSImpl_AttributeGraphic::SetVisibility( const TColStd_DataMapOfIntege
 //function : SetVisibility
 //purpose  : Get visibility of object in all views
 //=======================================================================
-const TColStd_DataMapOfIntegerInteger& SALOMEDSImpl_AttributeGraphic::GetVisibility()
+const map<int, int>& SALOMEDSImpl_AttributeGraphic::GetVisibility()
 {
   return myVisibility;
 }
@@ -131,12 +131,12 @@ const TColStd_DataMapOfIntegerInteger& SALOMEDSImpl_AttributeGraphic::GetVisibil
 //function : Restore
 //purpose  : Restore value of attribute with value of theWith one
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::Restore( const Handle(TDF_Attribute)& theWith )
+void SALOMEDSImpl_AttributeGraphic::Restore( DF_Attribute* theWith )
 {
-  Handle(SALOMEDSImpl_AttributeGraphic) anAttr =
-    Handle(SALOMEDSImpl_AttributeGraphic)::DownCast( theWith );
+  SALOMEDSImpl_AttributeGraphic* anAttr =
+    dynamic_cast<SALOMEDSImpl_AttributeGraphic*>( theWith );
 
-  if ( !anAttr.IsNull() )
+  if ( anAttr )
     SetVisibility( anAttr->GetVisibility() );
 }
 
@@ -144,37 +144,12 @@ void SALOMEDSImpl_AttributeGraphic::Restore( const Handle(TDF_Attribute)& theWit
 //function : Paste
 //purpose  : Paste value of current attribute to the value of entry one
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::Paste( const Handle(TDF_Attribute)& theInto,
-                                       const Handle(TDF_RelocationTable)& ) const
+void SALOMEDSImpl_AttributeGraphic::Paste( DF_Attribute* theInto)
 {
-  Handle(SALOMEDSImpl_AttributeGraphic) anAttr =
-    Handle(SALOMEDSImpl_AttributeGraphic)::DownCast( theInto );
+  SALOMEDSImpl_AttributeGraphic* anAttr =
+    dynamic_cast<SALOMEDSImpl_AttributeGraphic*>( theInto );
 
-  if ( !anAttr.IsNull() )
+  if ( anAttr )
     anAttr->SetVisibility( myVisibility );
-}
-
-//=======================================================================
-//function : Dump
-//purpose  : Dump
-//=======================================================================
-Standard_OStream& SALOMEDSImpl_AttributeGraphic::Dump( Standard_OStream& anOS ) const
-{
-  anOS << "Visibility of object:" << endl;
-  TColStd_DataMapIteratorOfDataMapOfIntegerInteger anIter( myVisibility );
-  for ( ; anIter.More(); anIter.Next() )
-  {
-    char str[ 100 ];
-    
-    if ( GetVisibility( anIter.Key() ) )
-      sprintf( str, "Viewer ID = 0x%X State = VISIBLE\n", anIter.Key() );
-    else
-      sprintf( str, "Viewer ID = 0x%X State = INVISIBLE\n", anIter.Key() );
-      
-    anOS << str;
-  }
-  
-  anOS << "Integer";
-  return anOS;
 }
 

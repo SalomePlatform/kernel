@@ -21,26 +21,19 @@
 #ifndef __SALOMEDSIMPL_TMPFILE_H__
 #define __SALOMEDSIMPL_TMPFILE_H__
 
-//Handle definition
-#include <MMgt_TShared.hxx>
-#include <Handle_MMgt_TShared.hxx>
-#include <Standard_DefineHandle.hxx>
+#include "DF_definitions.hxx"
 
 
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_TMPFile, MMgt_TShared );
-
-
-struct SALOMEDSImpl_TMPFile : public MMgt_TShared
+struct SALOMEDSImpl_TMPFile
 {
   typedef unsigned char TOctet;
+  //typedef unsigned int  size_t;
 
   Standard_EXPORT virtual size_t Size() = 0;
 
   Standard_EXPORT virtual TOctet* Data();
 
   Standard_EXPORT virtual TOctet& Get(size_t) = 0;
-
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_TMPFile );
 };
 
 

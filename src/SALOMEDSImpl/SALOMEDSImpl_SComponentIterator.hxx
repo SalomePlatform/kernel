@@ -29,17 +29,17 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 
 // Cascade headers
-#include <TDocStd_Document.hxx>
-#include <TDF_ChildIterator.hxx>
-#include <TDF_Label.hxx>
+#include "DF_ChildIterator.hxx"
+#include "DF_Label.hxx"
+#include "DF_Document.hxx"
 #include <stdio.h>
 
 class Standard_EXPORT SALOMEDSImpl_SComponentIterator
 {
 private:
 
-  TDF_ChildIterator        _it;
-  TDF_Label                _lab;
+  DF_ChildIterator        _it;
+  DF_Label                _lab;
 
 public:
   
@@ -51,13 +51,15 @@ public:
 
   SALOMEDSImpl_SComponentIterator() {};
   
-  SALOMEDSImpl_SComponentIterator(const Handle(TDocStd_Document)& theDocument);
+  SALOMEDSImpl_SComponentIterator(DF_Document* theDocument);
  
   ~SALOMEDSImpl_SComponentIterator() {};
   
   virtual void Init();
   virtual bool More();
   virtual void Next();
-  virtual Handle(SALOMEDSImpl_SComponent) Value();  
+  virtual SALOMEDSImpl_SComponent Value();  
+
+  SALOMEDSImpl_SComponentIterator* GetPersistentCopy() const;
 };
 #endif

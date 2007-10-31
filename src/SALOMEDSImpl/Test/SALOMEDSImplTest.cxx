@@ -33,8 +33,6 @@
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-#include <TCollection_AsciiString.hxx>
-
 using namespace std;
 
 // ============================================================================
@@ -45,11 +43,6 @@ using namespace std;
 
 void SALOMEDSImplTest::setUp()
 {
-  TCollection_AsciiString kernel(getenv("KERNEL_ROOT_DIR"));
-  TCollection_AsciiString subPath("/share/salome/resources/kernel");
-  TCollection_AsciiString csf_var = (kernel+subPath);
-  setenv("CSF_PluginDefaults", csf_var.ToCString(), 0);
-  setenv("CSF_SALOMEDS_ResourcesDefaults", csf_var.ToCString(), 0);
 }
 
 // ============================================================================
@@ -70,11 +63,11 @@ SALOMEDSImplTest::tearDown()
 // ============================================================================
 void SALOMEDSImplTest::testAttributeParameter()
 {
-  Handle(SALOMEDSImpl_StudyManager) sm = new SALOMEDSImpl_StudyManager();
-  Handle(SALOMEDSImpl_Study) study = sm->NewStudy("Test");
-  Handle(SALOMEDSImpl_AttributeParameter) _ap = study->GetCommonParameters("TestComp", 0);
+  SALOMEDSImpl_StudyManager* sm = new SALOMEDSImpl_StudyManager();
+  SALOMEDSImpl_Study* study = sm->NewStudy("Test");
+  SALOMEDSImpl_AttributeParameter* _ap = study->GetCommonParameters("TestComp", 0);
 
-  CPPUNIT_ASSERT(!_ap.IsNull());
+  CPPUNIT_ASSERT(_ap);
 
   _ap->SetInt("IntValue", 1);
   CPPUNIT_ASSERT(_ap->IsSet("IntValue", PT_INTEGER));

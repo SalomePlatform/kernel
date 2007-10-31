@@ -23,14 +23,12 @@
 #include <stdio.h>
 #include <iostream> 
 #include <vector>
+#include <string>
 
-#include <TColStd_HSequenceOfTransient.hxx>
-#include <TCollection_AsciiString.hxx>
-#include <TDocStd_Document.hxx>
-#include <TDF_Attribute.hxx>
-#include <TDF_Label.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_Tool.hxx>
+#include "DF_Document.hxx"
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"
+#include "DF_ChildIterator.hxx"
 
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_StudyManager.hxx"
@@ -39,77 +37,110 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
+#include "SALOMEDSImpl_UseCaseBuilder.hxx"
+#include "SALOMEDSImpl_UseCaseIterator.hxx"
 
 //#include "SALOMEDSImpl_.hxx"
+
+using namespace std;
 
 int main (int argc, char * argv[])
 {
   cout << "Test started " << endl;
 
-  Handle(SALOMEDSImpl_StudyManager) aSM = new SALOMEDSImpl_StudyManager();
+  SALOMEDSImpl_StudyManager* aSM = new SALOMEDSImpl_StudyManager();
   cout << "Manager is created " << endl;
-  Handle(SALOMEDSImpl_Study) aStudy = aSM->NewStudy("SRN");
+  SALOMEDSImpl_Study* aStudy = aSM->NewStudy("SRN");
   cout << "Study with id = " << aStudy->StudyId() << " is created " << endl; 
 
   cout << "Check the study lock, locking"   << endl;
   aStudy->SetStudyLock("SRN");
   cout << "Is study locked = " << aStudy->IsStudyLocked() << endl;
-  cout << "Get study locker : " << aStudy->GetLockerID() << endl;
+  vector<string> ids = aStudy->GetLockerID();
+  for(int i = 0; i<ids.size(); i++)
+    cout << "Get study locker : " << ids[i] << endl;
   aStudy->UnLockStudy("SRN");
   cout << "Is study locked = " << aStudy->IsStudyLocked()  << endl;
 
-  Handle(SALOMEDSImpl_StudyBuilder) aBuilder = aStudy->NewBuilder();
+  SALOMEDSImpl_StudyBuilder* aBuilder = aStudy->NewBuilder();
   cout << "StudyBuilder is created " << endl;
-  Handle(SALOMEDSImpl_SComponent) aSC = aBuilder->NewComponent("TEST");
-  cout << "New component with type " << aSC->ComponentDataType() << " is created " << endl;
-  Handle(SALOMEDSImpl_SObject) aSO = aBuilder->NewObject(aSC);
-  cout << "New SObject with  ID = " << aSO->GetID() << " is created"  << endl;
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry(aSO->GetLabel(), anEntry);
-  cout << "An entry of newly created SO is "  << anEntry << endl;
-  Handle(SALOMEDSImpl_AttributeIOR) aIORA = SALOMEDSImpl_AttributeIOR::Set(aSO->GetLabel(), "ior1234");
-  cout << "New AttributeIOR is created, it contains " << aIORA->Value() << endl;
-  Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aIORA);
-  cout << "Attribute has type: " << ga->Type() << " and value: " << ga->Save() << endl; 
+  SALOMEDSImpl_SComponent aSC = aBuilder->NewComponent("TEST");
+  cout << "New component with type " << aSC.ComponentDataType() << " is created " << endl;
+  SALOMEDSImpl_SObject aSO = aBuilder->NewObject(aSC);
+  cout << "New SObject with  ID = " << aSO.GetID() << " is created"  << endl;
+  cout << "An entry of newly created SO is "  <<  aSO.GetLabel().Entry() << endl;
+  SALOMEDSImpl_AttributeIOR* aIORA = SALOMEDSImpl_AttributeIOR::Set(aSO.GetLabel(), "ior1234");
+  cout << "New AttributeIOR is created, it contains " << dynamic_cast<SALOMEDSImpl_AttributeIOR*>(aIORA)->Value() << endl;
+  cout << "Attribute has type: " << aIORA->Type() << " and value: " << aIORA->Save() << endl; 
   cout << "Just another way to create an attribute: official one :) " << endl;
-  Handle(TDF_Attribute) aTDFAttr =  aBuilder->FindOrCreateAttribute(aSO, "AttributeName");  
-  Handle(SALOMEDSImpl_AttributeName) aRN = Handle(SALOMEDSImpl_AttributeName)::DownCast(aTDFAttr);
+  cout << "Is SO null : " << aSO.IsNull()<< endl;
+  DF_Attribute* aTDFAttr =  aBuilder->FindOrCreateAttribute(aSO, "AttributeName");  
+  SALOMEDSImpl_AttributeName* aRN = dynamic_cast<SALOMEDSImpl_AttributeName*>(aTDFAttr);
   aRN->SetValue("name_attribute");
   cout << " The type = " << aRN->Type() << endl;
-  ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aRN);
-  cout << "Attribute has type: " << ga->Type() << " and value: " << ga->Save() << endl;   
+  cout << "Attribute has type: " << aRN->Type() << " and value: " << aRN->Save() << endl;   
   cout << "Check GetObjectPath: " << aStudy->GetObjectPath(aSO) << endl;
   
-  Handle(SALOMEDSImpl_SObject) aSubSO = aBuilder->NewObject(aSO);
+  SALOMEDSImpl_SObject aSubSO = aBuilder->NewObject(aSO);
   aTDFAttr =  aBuilder->FindOrCreateAttribute(aSubSO, "AttributeIOR");  
-  Handle(SALOMEDSImpl_AttributeIOR) aIOR2 = Handle(SALOMEDSImpl_AttributeIOR)::DownCast(aTDFAttr);
+  SALOMEDSImpl_AttributeIOR* aIOR2 = dynamic_cast<SALOMEDSImpl_AttributeIOR*>(aTDFAttr);
   aIOR2->SetValue("some ior");
   aBuilder->Addreference(aSubSO, aSO);
-  Handle(SALOMEDSImpl_SObject) aRefObject;
-  aSubSO->ReferencedObject(aRefObject);
-  cout << "Check reference : ReferencedObject is " << aRefObject->GetID() << endl;
+  SALOMEDSImpl_SObject aRefObject;
+  aSubSO.ReferencedObject(aRefObject);
+  cout << "Check reference : ReferencedObject is " << aRefObject.GetID() << endl;
   cout << "Check : Remove object: " << endl;
   aBuilder->RemoveObject(aSubSO);
   cout << "Remove: done" << endl;
 
+  cout << "Try invalid attribute creation" << endl;
+  aTDFAttr = aBuilder->FindOrCreateAttribute(aSubSO, "invalid type");
+  cout << "Address of created attribute : " << aTDFAttr << endl;
+
+  cout << "Check AttributeUserID"   << endl;
+  
+  aTDFAttr = aBuilder->FindOrCreateAttribute(aSubSO, "AttributeUserID");
+  if(aTDFAttr) {
+    cout << "Attribute UserID was created succesfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << endl;
+  }
+  else cout << "Can't create AttributeUserID"   << endl;
+  
+  string id = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
+  dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->SetValue(id);
+  cout << "SetValue id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value()  << endl;
+
+  string id2 = "0e1c36e6-379b-4d90-ab3b-18a14310e648";
+  aTDFAttr = aBuilder->FindOrCreateAttribute(aSubSO, "AttributeUserID"+id2);
+  if(aTDFAttr) {
+    cout << "Attribute UserID was created succesfully : id = " << dynamic_cast<SALOMEDSImpl_AttributeUserID*>(aTDFAttr)->Value() << endl;
+  }
+  else cout << "Can't create AttributeUserID"   << endl;
+
   cout << "Check AttributeTreeNode " << endl;
   aTDFAttr =  aBuilder->FindOrCreateAttribute(aSO, "AttributeTreeNode");  
-  cout << Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aTDFAttr)->Type() << endl;
+  cout << dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aTDFAttr)->Type() << endl;
   cout << "Check AttributeTreeNode : done " << endl;
 
   aTDFAttr =  aBuilder->FindOrCreateAttribute(aSO, "AttributeParameter");  
-  cout << Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aTDFAttr)->Type() << endl;
+  cout << dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aTDFAttr)->Type() << endl;
 
   cout << "Check the attributes on SObject" << endl;
-  Handle(TColStd_HSequenceOfTransient) aSeq = aSO->GetAllAttributes();
-  for(int i = 1; i <= aSeq->Length(); i++) 
-    cout << "Found: " << Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i))->Type() << endl;
+  vector<DF_Attribute*> aSeq = aSO.GetAllAttributes();
+  for(int i = 0; i < aSeq.size(); i++) 
+    cout << "Found: " << dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i])->Type() << endl;
 
 
+  cout << "Check UseCase"   << endl;
+  SALOMEDSImpl_UseCaseBuilder* ucb = aStudy->GetUseCaseBuilder();
+  ucb->AddUseCase("use_case1");
+  ucb->AddUseCase("use_case2");
+  SALOMEDSImpl_UseCaseIterator ucitr = ucb->GetUseCaseIterator(SALOMEDSImpl_SObject());
+  ucitr.Init(false);
+  cout << "More? : " << ucitr.More() << endl;
 
   cout << "Check AttributeParameter "   << endl;
 
-  Handle(SALOMEDSImpl_AttributeParameter) AP = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(aTDFAttr);
+  SALOMEDSImpl_AttributeParameter* AP = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(aTDFAttr);
 
   cout << "AttributeParameter with type : " << AP->Type() << endl;
   
@@ -125,7 +156,7 @@ int main (int argc, char * argv[])
   cout << "IsSet for string: " << AP->IsSet("1", PT_STRING) << " value : " << AP->GetString("1") << endl; 
   /*
   for(int i = 2; i < 5; i++) {
-    TCollection_AsciiString s((double)(1.0/i));
+    string s((double)(1.0/i));
     cout << "Setting for " << i << " value : " << s  << endl;
     AP->SetString(i, s); 
   }
@@ -162,7 +193,7 @@ int main (int argc, char * argv[])
   vs.push_back("world!");
   AP->SetStrArray("3", vs);        
 
-  TCollection_AsciiString as = AP->Save();
+  string as = AP->Save();
   cout << "AS = " << as << endl;
   AP->Load(as);
   
@@ -192,6 +223,23 @@ int main (int argc, char * argv[])
   cout << "Check RemoveID is done" << endl;
   
   cout << "Check AttributeParameter : done"   << endl;
+
+  
+  SALOMEDSImpl_SComponent tst = aBuilder->NewComponent("TEST2");
+  aSO = aBuilder->NewObject(tst);
+  SALOMEDSImpl_SObject ss = aBuilder->NewObjectToTag(aSO, 3);
+  aBuilder->NewObjectToTag(ss, 1);
+  aBuilder->NewObjectToTag(ss, 3);
+  SALOMEDSImpl_SObject ss2 = aBuilder->NewObjectToTag(aSO, 2);
+  aBuilder->NewObjectToTag(ss, 2);
+
+  SALOMEDSImpl_ChildIterator ci=aStudy->NewChildIterator(tst);
+  for(ci.InitEx(true); ci.More(); ci.Next())
+    cout << "######## " << ci.Value().GetID() << endl;
+
+  DF_ChildIterator dci(tst.GetLabel(), true);
+  for(; dci.More(); dci.Next()) 
+    cout << "###### DF:  " << dci.Value().Entry() << endl;
 
   cout << "Test finished " << endl;    
   return 0;

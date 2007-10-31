@@ -23,21 +23,17 @@
 
 
 #include "SALOMEDSImpl_AttributeOpened.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeOpened, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeOpened, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeOpened::GetID () 
+const std::string& SALOMEDSImpl_AttributeOpened::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeOpenedID ("12837186-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeOpenedID ("12837186-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeOpenedID;
 }
 
@@ -48,11 +44,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeOpened::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeOpened) SALOMEDSImpl_AttributeOpened::Set (const TDF_Label& L,
-									const Standard_Integer value) 
+SALOMEDSImpl_AttributeOpened* SALOMEDSImpl_AttributeOpened::Set (const DF_Label& L,
+								 const int value) 
 {
-  Handle(SALOMEDSImpl_AttributeOpened) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeOpened::GetID(),A)) {
+  SALOMEDSImpl_AttributeOpened* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeOpened*)L.FindAttribute(SALOMEDSImpl_AttributeOpened::GetID()))) {
     A = new  SALOMEDSImpl_AttributeOpened(); 
     L.AddAttribute(A);
   }
@@ -76,7 +72,7 @@ SALOMEDSImpl_AttributeOpened::SALOMEDSImpl_AttributeOpened()
 //function : SetOpened
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeOpened::SetOpened(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeOpened::SetOpened(const int theValue)
 {
   Backup();
 
@@ -88,7 +84,7 @@ void SALOMEDSImpl_AttributeOpened::SetOpened(const Standard_Integer theValue)
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeOpened::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeOpened::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -96,7 +92,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeOpened::ID () const { return GetID();
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeOpened::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeOpened::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeOpened(); 
 }
@@ -106,9 +102,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeOpened::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeOpened::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeOpened::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeOpened)::DownCast (with)->IsOpened ();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeOpened*>(with)->IsOpened ();
 }
 
 //=======================================================================
@@ -116,9 +112,8 @@ void SALOMEDSImpl_AttributeOpened::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeOpened::Paste (const Handle(TDF_Attribute)& into,
-					  const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeOpened::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeOpened)::DownCast (into)->SetOpened (myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeOpened*>(into)->SetOpened (myValue);
 }
 

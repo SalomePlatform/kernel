@@ -31,18 +31,38 @@
 
 using namespace std;
 
-#include <TDF_AttributeIterator.hxx>
 #include <map>
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_SObject, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_SObject, MMgt_TShared )
+//============================================================================
+/*! Function : empty constructor
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SObject::SALOMEDSImpl_SObject()
+{
+}
+
+//============================================================================
+/*! Function : copy constructor
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const SALOMEDSImpl_SObject& theSObject)
+{
+  _lab   = theSObject._lab;
+  _value = theSObject._value;
+  _type  = theSObject._type;
+  _name  = theSObject._name;
+ 
+}
+
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const TDF_Label& theLabel)
+SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const DF_Label& theLabel)
   :_lab(theLabel)
 {
   _value = "";
@@ -56,18 +76,17 @@ SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const TDF_Label& theLabel)
  */
 //============================================================================    
 SALOMEDSImpl_SObject::~SALOMEDSImpl_SObject() 
-{}
+{
+}
 
 //============================================================================
 /*! Function : GetID
  *  Purpose  : 
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_SObject::GetID()
+string SALOMEDSImpl_SObject::GetID() const
 {
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry (_lab,anEntry);
-  return anEntry;
+  return _lab.Entry();
 }
   
 //============================================================================
@@ -75,14 +94,15 @@ TCollection_AsciiString SALOMEDSImpl_SObject::GetID()
  *  Purpose  : 
  */
 //============================================================================
-Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SObject::GetFatherComponent()
+SALOMEDSImpl_SComponent SALOMEDSImpl_SObject::GetFatherComponent() const
 {
-  TDF_Label LF = _lab;
+  SALOMEDSImpl_SComponent sco;    
+  DF_Label LF = _lab;
   while (!SALOMEDSImpl_SComponent::IsA(LF) && !LF.IsRoot()) {
     LF = LF.Father();
   }
   
-  if(LF.IsRoot()) return NULL;
+  if(LF.IsRoot()) return sco;
   
   return GetStudy()->GetSComponent(LF);
 }
@@ -92,7 +112,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SObject::GetFatherComponent()
  *  Purpose  : 
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_SObject::GetFather()
+SALOMEDSImpl_SObject SALOMEDSImpl_SObject::GetFather() const
 {
   return GetStudy()->GetSObject(_lab.Father());    
 }
@@ -103,7 +123,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_SObject::GetFather()
  *  Purpose  : 
  */
 //============================================================================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_SObject::GetStudy()
+SALOMEDSImpl_Study* SALOMEDSImpl_SObject::GetStudy() const
 {
   return SALOMEDSImpl_Study::GetStudy(_lab);
 }
@@ -113,13 +133,13 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_SObject::GetStudy()
  *  Purpose  : Find attribute of given type on this SObject
  */
 //============================================================================
-bool SALOMEDSImpl_SObject::FindAttribute(Handle(TDF_Attribute)& theAttribute, 
-					 const TCollection_AsciiString& theTypeOfAttribute)
+bool SALOMEDSImpl_SObject::FindAttribute(DF_Attribute*& theAttribute, 
+					 const string& theTypeOfAttribute) const
 {
-  if(_lab.IsNull()) return Standard_False;
-  Standard_GUID aGUID = GetGUID(theTypeOfAttribute);
-  if (_lab.FindAttribute(aGUID, theAttribute)) return Standard_True;
-  return Standard_False;
+  if(_lab.IsNull()) return false;
+  std::string aGUID = GetGUID(theTypeOfAttribute);
+  if ((theAttribute = _lab.FindAttribute(aGUID))) return true;
+  return false;
 }
 
 
@@ -129,19 +149,16 @@ bool SALOMEDSImpl_SObject::FindAttribute(Handle(TDF_Attribute)& theAttribute,
  *  Purpose  : Returns list of all attributes for this sobject
  */
 //============================================================================
-Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_SObject::GetAllAttributes()
+vector<DF_Attribute*> SALOMEDSImpl_SObject::GetAllAttributes() const
 {
-  Standard_Integer NumAttr = _lab.NbAttributes();
-  Handle(TColStd_HSequenceOfTransient) SeqOfAttr = new TColStd_HSequenceOfTransient();
-  Handle(SALOMEDSImpl_GenericAttribute) anAttr;
-  if (NumAttr != 0) {
-    for(TDF_AttributeIterator iter(_lab);iter.More();iter.Next()) {
-      anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(iter.Value());
-      if(!anAttr.IsNull() && anAttr->Type() != "AttributeReference")
-	SeqOfAttr->Append(anAttr);
-    }
+  vector<DF_Attribute*> va1, va = _lab.GetAttributes();
+  for(int i = 0, len = va.size(); i<len; i++) {
+    SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(va[i]); 
+    if(ga && ga->Type() != string("AttributeReference"))
+	va1.push_back(va[i]);
   }
-  return SeqOfAttr;
+
+  return va1;
 }
 
 
@@ -150,10 +167,10 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_SObject::GetAllAttributes()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SObject::ReferencedObject(Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_SObject::ReferencedObject(SALOMEDSImpl_SObject& theObject) const
 {
-  Handle(SALOMEDSImpl_AttributeReference) Ref;
-  if (!_lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(),Ref))
+  SALOMEDSImpl_AttributeReference* Ref;
+  if (!(Ref=(SALOMEDSImpl_AttributeReference*)_lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID())))
     return false;
   
   theObject =  GetStudy()->GetSObject(Ref->Get());
@@ -165,9 +182,9 @@ bool SALOMEDSImpl_SObject::ReferencedObject(Handle(SALOMEDSImpl_SObject)& theObj
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SObject::FindSubObject(int theTag, Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_SObject::FindSubObject(int theTag, SALOMEDSImpl_SObject& theObject)
 {
-  TDF_Label L = _lab.FindChild(theTag, false);
+  DF_Label L = _lab.FindChild(theTag, false);
   if (L.IsNull()) return false;
   
   theObject = GetStudy()->GetSObject(L);
@@ -181,12 +198,12 @@ bool SALOMEDSImpl_SObject::FindSubObject(int theTag, Handle(SALOMEDSImpl_SObject
  *  Purpose  : 
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_SObject::GetName() 
+string SALOMEDSImpl_SObject::GetName() const
 {
-  TCollection_AsciiString aStr = "";
-  Handle(SALOMEDSImpl_AttributeName) aName;
-  if (_lab.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) {
-    aStr = aName->Value();
+  string aStr = "";
+  SALOMEDSImpl_AttributeName* aName;
+  if ((aName=(SALOMEDSImpl_AttributeName*)_lab.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
+    aStr =aName->Value();
   }
   return aStr;
 }
@@ -196,11 +213,11 @@ TCollection_AsciiString SALOMEDSImpl_SObject::GetName()
  *  Purpose  : 
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_SObject::GetComment() 
+string SALOMEDSImpl_SObject::GetComment() const
 {
-  TCollection_AsciiString aStr = "";
-  Handle(SALOMEDSImpl_AttributeComment) aComment;
-  if (_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aComment)) {
+  string aStr = "";
+  SALOMEDSImpl_AttributeComment* aComment;
+  if ((aComment=(SALOMEDSImpl_AttributeComment*)_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
     aStr = aComment->Value();
   }
   return aStr;
@@ -211,30 +228,64 @@ TCollection_AsciiString SALOMEDSImpl_SObject::GetComment()
  *  Purpose  : 
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_SObject::GetIOR() 
+string SALOMEDSImpl_SObject::GetIOR() const 
 {
-  TCollection_AsciiString aStr = "";
-  Handle(SALOMEDSImpl_AttributeIOR) anIOR;
-  if (_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anIOR)) {
-    aStr = anIOR->Value();
+  string aStr = "";
+  SALOMEDSImpl_AttributeIOR* anIOR;
+  if ((anIOR=(SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    aStr = dynamic_cast<SALOMEDSImpl_AttributeIOR*>(anIOR)->Value();
   }
   return aStr;
 }
 
 
-Standard_GUID SALOMEDSImpl_SObject::GetGUID(const TCollection_AsciiString& theType) 
+std::string SALOMEDSImpl_SObject::GetGUID(const string& theType) 
 {
   __AttributeTypeToGUIDForSObject
 
-  if (strncmp(theType.ToCString(), "AttributeTreeNodeGUID",21) == 0) {
-    const char* aCType = theType.ToCString();
-    char* aGUIDString = new char[40]; 
-    sprintf(aGUIDString, &(aCType[21]));
-    Standard_GUID aGUID = Standard_GUID(aGUIDString); // create tree node GUID by name
-    delete(aGUIDString);
-    return aGUID;
+  if (strncmp(theType.c_str(), "AttributeTreeNodeGUID",21) == 0) {
+    return theType.substr(21, theType.size()); 
   }
-  return Standard_GUID();
+  return "";
 }
 
+//============================================================================
+/*! Function :  SALOMEDSImpl_SComponent
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SObject::operator SALOMEDSImpl_SComponent() const
+{
+  SALOMEDSImpl_SComponent sco;
+  sco._lab = _lab;
+  sco._name = _name;
+  sco._type = _type;
+  sco._value = _value;
+  return sco;
+}
+
+//============================================================================
+/*! Function :  GetPersistentCopy
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SObject* SALOMEDSImpl_SObject::GetPersistentCopy() const
+{
+  SALOMEDSImpl_SObject* so = new SALOMEDSImpl_SObject;
+  so->_lab = _lab;
+  so->_name = _name;
+  so->_type = _type;
+  so->_value = _value; 
+  return so;
+}
+
+//============================================================================
+/*! Function :  IsComponent
+ *  Purpose  : 
+ */
+//============================================================================
+bool SALOMEDSImpl_SObject::IsComponent() const
+{
+    return SALOMEDSImpl_SComponent::IsA(_lab);
+}
 

@@ -22,36 +22,32 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributePythonObject.hxx"
-#include <Standard_GUID.hxx>
-#include <string>
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributePythonObject, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributePythonObject, SALOMEDSImpl_GenericAttribute )
-
-const Standard_GUID& SALOMEDSImpl_AttributePythonObject::GetID() 
+const std::string& SALOMEDSImpl_AttributePythonObject::GetID() 
 {
-  static Standard_GUID SALOMEDSImpl_AttributePythonObjectID ("128371A3-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributePythonObjectID ("128371A3-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributePythonObjectID;
 }
 
-Handle(SALOMEDSImpl_AttributePythonObject) SALOMEDSImpl_AttributePythonObject::Set(const TDF_Label& label) 
+SALOMEDSImpl_AttributePythonObject* SALOMEDSImpl_AttributePythonObject::Set(const DF_Label& label) 
 {
-  Handle(SALOMEDSImpl_AttributePythonObject) anAttr;
-  if (!label.FindAttribute(SALOMEDSImpl_AttributePythonObject::GetID(),anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributePythonObject();
-    label.AddAttribute(anAttr);
+  SALOMEDSImpl_AttributePythonObject* A = NULL;
+  if (!(A = (SALOMEDSImpl_AttributePythonObject*)label.FindAttribute(SALOMEDSImpl_AttributePythonObject::GetID()))) {
+    A = new SALOMEDSImpl_AttributePythonObject();
+    label.AddAttribute(A);
   }
-  return anAttr;
+  return A;
 }
 
 SALOMEDSImpl_AttributePythonObject::SALOMEDSImpl_AttributePythonObject()
 :SALOMEDSImpl_GenericAttribute("AttributePythonObject")
 {
+    myIsScript = false;
 }
 
-void SALOMEDSImpl_AttributePythonObject::SetObject(const TCollection_AsciiString& theSequence,
+void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
 					           const bool theScript) 
 {
   CheckLocked();
@@ -62,7 +58,7 @@ void SALOMEDSImpl_AttributePythonObject::SetObject(const TCollection_AsciiString
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-TCollection_AsciiString SALOMEDSImpl_AttributePythonObject::GetObject() const
+string SALOMEDSImpl_AttributePythonObject::GetObject() const
 {
   return mySequence;
 }
@@ -74,44 +70,43 @@ bool SALOMEDSImpl_AttributePythonObject::IsScript() const
 
 int SALOMEDSImpl_AttributePythonObject::GetLength() const
 {
-  return mySequence.Length();
+  return mySequence.size();
 }
 
-const Standard_GUID& SALOMEDSImpl_AttributePythonObject::ID() const
+const std::string& SALOMEDSImpl_AttributePythonObject::ID() const
 {
   return GetID();
 }
 
-void SALOMEDSImpl_AttributePythonObject::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributePythonObject::Restore(DF_Attribute* with) 
 {
-  Handle(SALOMEDSImpl_AttributePythonObject) anObj = Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(with);
+  SALOMEDSImpl_AttributePythonObject* anObj = dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(with);
   SetObject(anObj->GetObject(),anObj->IsScript());
 }
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributePythonObject::NewEmpty() const
+DF_Attribute* SALOMEDSImpl_AttributePythonObject::NewEmpty() const
 {
   return new SALOMEDSImpl_AttributePythonObject();
 }
 
-void SALOMEDSImpl_AttributePythonObject::Paste(const Handle(TDF_Attribute)& into,
-					       const Handle(TDF_RelocationTable)&) const
+void SALOMEDSImpl_AttributePythonObject::Paste(DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributePythonObject) anObj = Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(into);
+  SALOMEDSImpl_AttributePythonObject* anObj = dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(into);
   anObj->SetObject(GetObject(),IsScript());
 }
 
 
-TCollection_AsciiString SALOMEDSImpl_AttributePythonObject::Save() 
+string SALOMEDSImpl_AttributePythonObject::Save() 
 {
-  TCollection_AsciiString aString = GetObject();
-  TCollection_AsciiString aResult = IsScript()?'s':'n';
+  string aString = GetObject();
+  string aResult = IsScript()?"s":"n";
   aResult += aString;
   
   return aResult;
 }
 	  
-void SALOMEDSImpl_AttributePythonObject::Load(const TCollection_AsciiString& value) 
+void SALOMEDSImpl_AttributePythonObject::Load(const string& value) 
 {
-  char* aString = value.ToCString();
+  char* aString = (char*)value.c_str();
   SetObject(aString + 1, aString[0]=='s');
 }   

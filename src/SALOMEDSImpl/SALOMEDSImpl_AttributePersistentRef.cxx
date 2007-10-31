@@ -23,21 +23,17 @@
 
 
 #include "SALOMEDSImpl_AttributePersistentRef.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributePersistentRef, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributePersistentRef, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributePersistentRef::GetID () 
+const std::string& SALOMEDSImpl_AttributePersistentRef::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributePersistentRefID ("92888E06-7074-11d5-A690-0800369C8A03");
+  static std::string SALOMEDSImpl_AttributePersistentRefID ("92888E06-7074-11d5-A690-0800369C8A03");
   return SALOMEDSImpl_AttributePersistentRefID;
 }
 
@@ -48,11 +44,11 @@ const Standard_GUID& SALOMEDSImpl_AttributePersistentRef::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributePersistentRef) SALOMEDSImpl_AttributePersistentRef::Set (const TDF_Label& L,
-										      const TCollection_ExtendedString& S)
+SALOMEDSImpl_AttributePersistentRef* SALOMEDSImpl_AttributePersistentRef::Set (const DF_Label& L,
+									       const std::string& S)
 {
-  Handle(SALOMEDSImpl_AttributePersistentRef) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(),A)) {
+  SALOMEDSImpl_AttributePersistentRef* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributePersistentRef*)L.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
     A = new  SALOMEDSImpl_AttributePersistentRef(); 
     L.AddAttribute(A);
   }
@@ -76,14 +72,14 @@ SALOMEDSImpl_AttributePersistentRef::SALOMEDSImpl_AttributePersistentRef()
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributePersistentRef::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributePersistentRef::ID () const { return GetID(); }
 
 
 //=======================================================================
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributePersistentRef::SetValue (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributePersistentRef::SetValue (const std::string& S)
 {
   CheckLocked();
 
@@ -101,7 +97,7 @@ void SALOMEDSImpl_AttributePersistentRef::SetValue (const TCollection_ExtendedSt
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributePersistentRef::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributePersistentRef::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributePersistentRef(); 
 }
@@ -111,9 +107,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributePersistentRef::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributePersistentRef::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributePersistentRef::Restore(DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (with)->Value ();
+  myString = dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(with)->Value ();
 }
 
 //=======================================================================
@@ -121,9 +117,8 @@ void SALOMEDSImpl_AttributePersistentRef::Restore(const Handle(TDF_Attribute)& w
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributePersistentRef::Paste (const Handle(TDF_Attribute)& into,
-						 const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributePersistentRef::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (into)->SetValue(myString);
+  dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(into)->SetValue(myString);
 }
 

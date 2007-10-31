@@ -28,28 +28,25 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_GenericAttribute, TDF_Attribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_GenericAttribute, TDF_Attribute )
-
-char* SALOMEDSImpl_GenericAttribute::Impl_GetType(const Handle(TDF_Attribute)& theAttr)
+char* SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
 {
-  Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr);  
-  return ga->Type().ToCString();
+  SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);  
+  return (char*)ga->Type().c_str();
 }
 
-char* SALOMEDSImpl_GenericAttribute::Impl_GetClassType(const Handle(TDF_Attribute)& theAttr)
+char* SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
 {
-  Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr);
-  return ga->GetClassType().ToCString();
+  SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
+  return (char*)ga->GetClassType().c_str();
 } 
 
-void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(const Handle(TDF_Attribute)& theAttr)
+void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(DF_Attribute* theAttr)
 {
-  Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr);
+  SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
   ga->CheckLocked();
 }
 
-TCollection_AsciiString SALOMEDSImpl_GenericAttribute::Type() 
+string SALOMEDSImpl_GenericAttribute::Type() 
 { 
     return _type; 
 }
@@ -57,30 +54,31 @@ TCollection_AsciiString SALOMEDSImpl_GenericAttribute::Type()
 
 void SALOMEDSImpl_GenericAttribute::CheckLocked()
 {
-  TDF_Label aLabel = Label();
+  DF_Label aLabel = Label();
   if(aLabel.IsNull()) return;
 
-  Handle(SALOMEDSImpl_Study) aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
-  if(aStudy.IsNull() || aStudy->NewBuilder()->HasOpenCommand()) return;
+  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  if(!aStudy) return;
   if(aStudy->IsLocked()) {
     aStudy->_errorCode = "LockProtection";
     throw LockProtection("LockProtection");
   }                                         
 }
 
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_GenericAttribute::GetSObject()
+SALOMEDSImpl_SObject SALOMEDSImpl_GenericAttribute::GetSObject()
 {
-  TDF_Label aLabel = Label();
-  if(aLabel.IsNull()) return NULL;
+  SALOMEDSImpl_SObject so; 
+  DF_Label aLabel = Label();
+  if(aLabel.IsNull()) return so;
   return SALOMEDSImpl_Study::SObject(aLabel);
 }
 
 void SALOMEDSImpl_GenericAttribute::SetModifyFlag()
 {
-   TDF_Label aLabel = Label();
+   DF_Label aLabel = Label();
    if(aLabel.IsNull()) return; 
 
-  Handle(SALOMEDSImpl_Study) aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
-  if(!aStudy.IsNull()) aStudy->Modify();
+  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  if(aStudy) aStudy->Modify();
 }
 

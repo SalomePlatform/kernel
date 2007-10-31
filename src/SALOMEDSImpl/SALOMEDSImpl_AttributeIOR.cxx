@@ -22,26 +22,20 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeIOR.hxx"
-#include <TCollection_AsciiString.hxx>
 #include "SALOMEDSImpl_Study.hxx"
-#include <Standard_GUID.hxx>
 
 #ifndef WNT
 using namespace std;
 #endif
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeIOR, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeIOR, SALOMEDSImpl_GenericAttribute )
-
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeIOR::GetID () 
+const std::string& SALOMEDSImpl_AttributeIOR::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeIORID ("92888E01-7074-11d5-A690-0800369C8A03");
+  static std::string SALOMEDSImpl_AttributeIORID ("92888E01-7074-11d5-A690-0800369C8A03");
   return SALOMEDSImpl_AttributeIORID;
 }
 
@@ -52,11 +46,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeIOR::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeIOR) SALOMEDSImpl_AttributeIOR::Set (const TDF_Label& L,
-							          const TCollection_ExtendedString& S) 
+SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
+							   const std::string& S) 
 {
-  Handle(SALOMEDSImpl_AttributeIOR) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(),A)) {
+  SALOMEDSImpl_AttributeIOR* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeIOR*)L.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
     A = new  SALOMEDSImpl_AttributeIOR(); 
     L.AddAttribute(A);
   }
@@ -70,27 +64,23 @@ Handle(SALOMEDSImpl_AttributeIOR) SALOMEDSImpl_AttributeIOR::Set (const TDF_Labe
 //function : SetValue
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeIOR::SetValue(const TCollection_ExtendedString& theValue)
+void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 {
   CheckLocked();
 
-  Handle(SALOMEDSImpl_Study) aStudy = SALOMEDSImpl_Study::GetStudy(Label());
-  aStudy->AddCreatedPostponed(theValue);
-  aStudy->AddPostponed(theValue);
+  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(Label());
 
   Backup();
   myString = theValue;
 
   SALOMEDSImpl_Study::IORUpdated(this);
-
-  //SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================
 //function : Value
 //purpose  : 
 //=======================================================================
-TCollection_ExtendedString SALOMEDSImpl_AttributeIOR::Value() const
+std::string SALOMEDSImpl_AttributeIOR::Value() const
 {
   return myString;
 }
@@ -109,7 +99,7 @@ SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeIOR::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeIOR::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -117,7 +107,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeIOR::ID () const { return GetID(); }
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeIOR::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeIOR::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeIOR(); 
 }
@@ -127,9 +117,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeIOR::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeIOR::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeIOR::Restore( DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeIOR)::DownCast (with)->Value();
+  myString = dynamic_cast<SALOMEDSImpl_AttributeIOR*>(with)->Value();
   return;
 }
 
@@ -138,9 +128,8 @@ void SALOMEDSImpl_AttributeIOR::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeIOR::Paste (const Handle(TDF_Attribute)& into,
-				       const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeIOR::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeIOR)::DownCast (into)->SetValue(myString);
+  dynamic_cast<SALOMEDSImpl_AttributeIOR*>(into)->SetValue(myString);
 }
 

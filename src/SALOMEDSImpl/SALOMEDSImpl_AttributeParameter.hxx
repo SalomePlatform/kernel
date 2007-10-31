@@ -24,23 +24,13 @@
 #ifndef _SALOMEDSImpl_AttributeParameter_HeaderFile
 #define _SALOMEDSImpl_AttributeParameter_HeaderFile
 
-#include <Standard_DefineHandle.hxx>
-#include <TDF_Attribute.hxx>
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TDF_Label.hxx> 
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 #include <vector>
 #include <string>
 #include <map>
-
-class Standard_GUID;
-class Handle(TDF_Attribute);
-class Handle(TDF_RelocationTable);
-
-
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeParameter, SALOMEDSImpl_GenericAttribute )
 
 enum Parameter_Types {PT_INTEGER, PT_REAL, PT_BOOLEAN, PT_STRING, PT_REALARRAY, PT_INTARRAY, PT_STRARRAY};
 
@@ -54,19 +44,19 @@ class SALOMEDSImpl_AttributeParameter : public SALOMEDSImpl_GenericAttribute
 
 private:
   
-  std::map<std::string, int>                     _ints;
-  std::map<std::string, double>                  _reals;
-  std::map<std::string, std::string>             _strings;
-  std::map<std::string, bool>                    _bools;
-  std::map< std::string, vector<double> >        _realarrays;
-  std::map< std::string, vector<int> >           _intarrays;
-  std::map< std::string, vector<std::string> >   _strarrays;
+  std::map<std::string, int>                          _ints;
+  std::map<std::string, double>                       _reals;
+  std::map<std::string, std::string>                  _strings;
+  std::map<std::string, bool>                         _bools;
+  std::map< std::string, std::vector<double> >        _realarrays;
+  std::map< std::string, std::vector<int> >           _intarrays;
+  std::map< std::string, std::vector<std::string> >   _strarrays;
 
 public:
-  Standard_EXPORT static const Standard_GUID& GetID() ;
+  Standard_EXPORT static const std::string& GetID() ;
 
   Standard_EXPORT  SALOMEDSImpl_AttributeParameter():SALOMEDSImpl_GenericAttribute("AttributeParameter") {}
-  Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeParameter) Set (const TDF_Label& L);
+  Standard_EXPORT  static SALOMEDSImpl_AttributeParameter* Set (const DF_Label& L);
 
 
   Standard_EXPORT void SetInt(const std::string& theID, const int& theValue);
@@ -94,7 +84,7 @@ public:
   
   Standard_EXPORT bool RemoveID(const std::string& theID, const Parameter_Types theType);
 
-  Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetFather();
+  Standard_EXPORT SALOMEDSImpl_AttributeParameter* GetFather();
   Standard_EXPORT bool HasFather();
   Standard_EXPORT bool IsRoot();
 
@@ -102,18 +92,16 @@ public:
 
   Standard_EXPORT void Clear();
 
-  Standard_EXPORT  virtual TCollection_AsciiString Save();
-  Standard_EXPORT  virtual void Load(const TCollection_AsciiString& theValue); 
+  Standard_EXPORT  virtual std::string Save();
+  Standard_EXPORT  virtual void Load(const std::string& theValue); 
 
-  Standard_EXPORT  const Standard_GUID& ID() const;
-  Standard_EXPORT  void Restore(const Handle(TDF_Attribute)& with) ;
-  Standard_EXPORT  Handle_TDF_Attribute NewEmpty() const;
-  Standard_EXPORT  void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_RelocationTable)& RT) const;
+  Standard_EXPORT  const std::string& ID() const;
+  Standard_EXPORT  void Restore(DF_Attribute* with) ;
+  Standard_EXPORT  DF_Attribute* NewEmpty() const;
+  Standard_EXPORT  void Paste(DF_Attribute* into);
   
   Standard_EXPORT ~SALOMEDSImpl_AttributeParameter() {}
 
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_AttributeParameter )
 };
 
 #endif

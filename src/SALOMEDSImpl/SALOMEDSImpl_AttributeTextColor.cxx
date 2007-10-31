@@ -23,21 +23,17 @@
 
 
 #include "SALOMEDSImpl_AttributeTextColor.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTextColor, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTextColor, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeTextColor::GetID () 
+const std::string& SALOMEDSImpl_AttributeTextColor::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeTextColorID ("12837189-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeTextColorID ("12837189-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeTextColorID;
 }
 
@@ -49,22 +45,25 @@ const Standard_GUID& SALOMEDSImpl_AttributeTextColor::GetID ()
 SALOMEDSImpl_AttributeTextColor::SALOMEDSImpl_AttributeTextColor()
 :SALOMEDSImpl_GenericAttribute("AttributeTextColor")
 {
-  myValue = new TColStd_HArray1OfReal(1, 3, 0.);
+   myValue.clear();    
+   myValue.push_back(0.);
+   myValue.push_back(0.);
+   myValue.push_back(0.);
 }
 
 //=======================================================================
 //function : SetTextColor
 //purpose  :
 //=======================================================================   
-void SALOMEDSImpl_AttributeTextColor::SetTextColor(const Standard_Real R, const Standard_Real G, const Standard_Real B)
+void SALOMEDSImpl_AttributeTextColor::SetTextColor(const double& R, const double& G, const double& B)
 {
    CheckLocked();
-   if(myValue.IsNull()) return;  
+
    Backup(); 
 
-   myValue->SetValue(1, R);
-   myValue->SetValue(2, G);
-   myValue->SetValue(3, B);
+   myValue[0] = R;
+   myValue[1] = G;
+   myValue[2] = B;
    
    SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -73,7 +72,7 @@ void SALOMEDSImpl_AttributeTextColor::SetTextColor(const Standard_Real R, const 
 //function : TextColor
 //purpose  :
 //=======================================================================
-Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextColor::TextColor()
+vector<double> SALOMEDSImpl_AttributeTextColor::TextColor()
 {
   return myValue; 
 }
@@ -82,12 +81,12 @@ Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextColor::TextColor()
 //function : ChangeArray
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTextColor::ChangeArray(const Handle(TColStd_HArray1OfReal)& newArray)
+void SALOMEDSImpl_AttributeTextColor::ChangeArray(const vector<double>& newArray)
 {
   Backup();
 
-  for(int i = 1; i <= 3; i++)
-    myValue->SetValue(i, newArray->Value(i));
+  for(int i = 0; i < 3; i++)
+    myValue[i] = newArray[i];
     
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved     
 }    
@@ -97,7 +96,7 @@ void SALOMEDSImpl_AttributeTextColor::ChangeArray(const Handle(TColStd_HArray1Of
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeTextColor::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeTextColor::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -105,7 +104,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeTextColor::ID () const { return GetID
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeTextColor::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeTextColor::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeTextColor(); 
 }
@@ -115,10 +114,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeTextColor::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeTextColor::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeTextColor::Restore(DF_Attribute* with) 
 {
-  Handle(TColStd_HArray1OfReal) s = Handle(SALOMEDSImpl_AttributeTextColor)::DownCast (with)->TextColor ();
-  ChangeArray(s);
+  ChangeArray( dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(with)->TextColor ());
   return;
 }
 
@@ -127,30 +125,29 @@ void SALOMEDSImpl_AttributeTextColor::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeTextColor::Paste (const Handle(TDF_Attribute)& into,
-                                             const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeTextColor::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeTextColor)::DownCast (into)->ChangeArray (myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(into)->ChangeArray (myValue);
 }
 
 
 
-TCollection_AsciiString SALOMEDSImpl_AttributeTextColor::Save() 
+string SALOMEDSImpl_AttributeTextColor::Save() 
 {
   char *Val = new char[75];
-  sprintf(Val, "%f %f %f", (float)myValue->Value(1), 
-                           (float)myValue->Value(2), 
-			   (float)myValue->Value(3));
-  TCollection_AsciiString ret(Val);
+  sprintf(Val, "%f %f %f", (float)myValue[0], 
+                           (float)myValue[1], 
+			   (float)myValue[2]);
+  string ret(Val);
   delete Val;
   return ret;
 }
 
-void SALOMEDSImpl_AttributeTextColor::Load(const TCollection_AsciiString& value) 
+void SALOMEDSImpl_AttributeTextColor::Load(const string& value) 
 {
   float r, g, b;
-  sscanf(value.ToCString(), "%f %f %f", &r, &g, &b);
-  myValue->SetValue(1, r);
-  myValue->SetValue(2, g);
-  myValue->SetValue(3, b);
+  sscanf(value.c_str(), "%f %f %f", &r, &g, &b);
+  myValue[0] = r;
+  myValue[1] = g;
+  myValue[2] = b;
 }

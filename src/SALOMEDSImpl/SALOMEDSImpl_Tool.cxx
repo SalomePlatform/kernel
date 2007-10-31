@@ -29,111 +29,134 @@
 #include <stdio.h>
 #include <iostream> 
 #include <fstream>
-#include <OSD_Path.hxx>
-#include <OSD_File.hxx>
-#include <OSD_Directory.hxx>
-#include <OSD_Process.hxx>
-#include <OSD_Directory.hxx>
-#include <OSD_Protection.hxx>
-#include <OSD_SingleProtection.hxx>
-#include <OSD_FileIterator.hxx>
+
 
 #ifndef WNT
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <pwd.h> 
 #else
 #include <time.h>
+#include <lmcons.h>
 #endif
+
 #include <stdlib.h>
 
 using namespace std;
+
+
+
+bool Exists(const string thePath) 
+{
+#ifdef WNT 
+  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+      return false;
+    }
+  }
+#else 
+  int status = access ( thePath.c_str() , F_OK ); 
+  if (status != 0) return false;
+#endif
+  return true;
+}
+
+
 
 
 //============================================================================
 // function : GetTempDir
 // purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
 //============================================================================ 
-TCollection_AsciiString SALOMEDSImpl_Tool::GetTmpDir()
+string SALOMEDSImpl_Tool::GetTmpDir()
 {
   //Find a temporary directory to store a file
 
-  TCollection_AsciiString aTmpDir;
+  string aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
-    aTmpDir = TCollection_AsciiString(Tmp_dir);
+    aTmpDir = string(Tmp_dir);
 #ifdef WIN32
-    if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
+    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
-    if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
+    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
 #endif      
   }
   else {
 #ifdef WIN32
-    aTmpDir = TCollection_AsciiString("C:\\");
+    aTmpDir = string("C:\\");
 #else
-    aTmpDir = TCollection_AsciiString("/tmp/");
+    aTmpDir = string("/tmp/");
 #endif
   }
 
   srand((unsigned int)time(NULL));
   int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
-  TCollection_AsciiString aSubDir(aRND);
-  if(aSubDir.Length() <= 1) aSubDir = TCollection_AsciiString("123409876");
+  char buffer[127];
+  sprintf(buffer, "%d", aRND);
+  string aSubDir(buffer);
+  if(aSubDir.size() <= 1) aSubDir = string("123409876");
 
   aTmpDir += aSubDir; //Get RND sub directory
 
-#ifdef WIN32
-  if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
-#else
-  if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
-#endif
-
-  OSD_Path aPath(aTmpDir);
-  OSD_Directory aDir(aPath);
-
-  for(aRND = 0; aDir.Exists(); aRND++) {
-    aTmpDir.Insert((aTmpDir.Length() - 1), TCollection_AsciiString(aRND));  //Build a unique directory name
-    aPath = OSD_Path(aTmpDir);
-    aDir = OSD_Directory(aPath);
+  string aDir = aTmpDir;
+  
+  if(Exists(aDir)) {
+    for(aRND = 0; Exists(aDir); aRND++) {
+      sprintf(buffer, "%d", aRND);
+      aDir = aTmpDir+buffer;  //Build a unique directory name
+    }
   }
 
-  OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
-  aDir.Build(aProtection);
+#ifdef WIN32
+  if(aDir[aTmpDir.size()-1] != '\\') aDir+='\\';
+#else
+  if(aDir[aTmpDir.size()-1] != '/') aDir+='/';
+#endif
 
-  return aTmpDir;
+
+#ifdef WNT
+  CreateDirectory(aDir.c_str(), NULL);
+#else
+  mkdir(aDir.c_str(), 0x1ff); 
+#endif
+
+  return aDir;
 }
 
 //============================================================================
 // function : RemoveTemporaryFiles
 // purpose  : Removes files listed in theFileList
 //============================================================================
-void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const TCollection_AsciiString& theDirectory, 
-					     const Handle(TColStd_HSequenceOfAsciiString)& theFiles,
+void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const string& theDirectory, 
+					     const vector<string>& theFiles,
 					     const bool IsDirDeleted)
 {
-  TCollection_AsciiString aDirName = theDirectory;
+  string aDirName = theDirectory;
 
-  int i, aLength = theFiles->Length();
+  int i, aLength = theFiles.size();
   for(i=1; i<=aLength; i++) {
-    TCollection_AsciiString aFile(aDirName);
-    aFile += theFiles->Value(i);
-    OSD_Path anOSDPath(aFile);
-    OSD_File anOSDFile(anOSDPath);
-    if(!anOSDFile.Exists()) continue;
+    string aFile(aDirName);
+    aFile += theFiles[i-1];
+    if(!Exists(aFile)) continue;
 
-    OSD_Protection aProtection = anOSDFile.Protection();
-    aProtection.SetUser(OSD_RW);
-    anOSDFile.SetProtection(aProtection);
-
-    anOSDFile.Remove();
+#ifdef WNT
+    DeleteFile(aFile.c_str());
+#else 
+    unlink(aFile.c_str());
+#endif
   }
 
   if(IsDirDeleted) {
-    OSD_Path aPath(aDirName);
-    OSD_Directory aDir(aPath);
-    OSD_FileIterator anIterator(aPath, '*');
-
-    if(aDir.Exists() && !anIterator.More()) aDir.Remove();
+    if(Exists(aDirName)) {
+#ifdef WNT
+      RemoveDirectory(aDireName.c_str());
+#else
+      rmdir(aDirName.c_str());
+#endif
+    }
   }
 
 }
@@ -142,34 +165,125 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const TCollection_AsciiString& theD
 // function : GetNameFromPath
 // purpose  : Returns the name by the path
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_Tool::GetNameFromPath(const TCollection_AsciiString& thePath) {
-  if (thePath.IsEmpty()) return "";
-  OSD_Path aPath = OSD_Path(thePath);
-  TCollection_AsciiString aNameString(aPath.Name());
-  return aNameString;
+string SALOMEDSImpl_Tool::GetNameFromPath(const string& thePath) {
+  if (thePath.empty()) return "";
+  int pos = thePath.rfind('/');
+  if(pos > 0) return thePath.substr(pos+1, thePath.size());
+  pos = thePath.rfind('\\'); 
+  if(pos > 0) return thePath.substr(pos+1, thePath.size()); 
+  pos = thePath.rfind('|');
+  if(pos > 0) return thePath.substr(pos+1, thePath.size()); 
+  return thePath;
 }
 
 //============================================================================
 // function : GetDirFromPath
 // purpose  : Returns the dir by the path
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_Tool::GetDirFromPath(const TCollection_AsciiString& thePath) {
-  if (thePath.IsEmpty()) return "";
-  OSD_Path aPath = OSD_Path(thePath);
-	TCollection_AsciiString aDirString;
-	/*Unix platform don't use <disk> assignment in <path> string
-		but we must to add it for WNT case*/
-	TCollection_AsciiString disk = aPath.Disk();
-	if(disk.Length()) aDirString.AssignCat(disk);
-	aDirString.AssignCat(aPath.Trek());
-  aDirString.ChangeAll('|','/');
-  return aDirString;
+string SALOMEDSImpl_Tool::GetDirFromPath(const string& thePath) {
+  if (thePath.empty()) return "";
+
+  int pos = thePath.rfind('/');
+  string path;
+  if(pos > 0) {
+    path = thePath.substr(0, pos+1);
+  }
+  if(path.empty()) {
+    pos = thePath.rfind('\\');
+    if(pos > 0) path = thePath.substr(0, pos+1); 
+  }
+  if(path.empty()) {
+    pos = thePath.rfind('|');
+    if(pos > 0) path = thePath.substr(0, pos+1); 
+  }
+  if(path.empty()) {
+    path = thePath+"/";
+  }
+  
+#ifdef WNT  //Check if the only disk letter is given as path
+  if(path.size() == 2 && path[1] == ":") path +='\\';
+#endif
+
+  for(int i = 0, len = path.size(); i<len; i++) 
+    if(path[i] == '|') path[i] = '/';
+  return path;
+}
+
+//============================================================================
+// function : 
+// purpose  : The functions returns a list of substring of initial string 
+//            divided by given separator
+//============================================================================
+vector<string> SALOMEDSImpl_Tool::splitString(const string& theValue, char separator)
+{
+  vector<string> vs;
+  if(theValue[0] == separator && theValue.size() == 1) return vs;
+  int pos = theValue.find(separator);
+  if(pos < 0) {
+    vs.push_back(theValue);
+    return vs;
+  }
+ 
+  string s = theValue;
+  if(s[0] == separator) s = s.substr(1, s.size());
+  while((pos = s.find(separator)) >= 0) {
+    vs.push_back(s.substr(0, pos));
+    s = s.substr(pos+1, s.size());
+  }
+	       
+  if(!s.empty() && s[0] != separator) vs.push_back(s);
+  return vs;
 }
 
 
+void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
+{
+#ifdef WNT
+  SYSTEMTIME    st;
 
+  GetLocalTime ( &st );
 
+  month = st.wMonth;
+  day = st.wDay;
+  year = st.wYear;
+  hours = st.wHour;
+  minutes = st.wMinute;
+  seconds = st.wSecond;
+#else
+  struct tm transfert;
+  struct timeval tval;
+  struct timezone tzone;
+  int status;
 
+ status = gettimeofday( &tval, &tzone );
+ memcpy(&transfert, localtime((time_t *)&tval.tv_sec), sizeof(tm));
+
+ month    = transfert.tm_mon + 1;
+ day      = transfert.tm_mday;
+ year     = transfert.tm_year + 1900;
+ hours    = transfert.tm_hour;
+ minutes  = transfert.tm_min ;
+ seconds  = transfert.tm_sec ;
+#endif
+}
+
+string SALOMEDSImpl_Tool::GetUserName()
+{
+#ifdef WNT
+  char*  pBuff = new char[UNLEN + 1];
+  DWORD  dwSize = UNLEN + 1;
+  string retVal;
+  GetUserName ( pBuff, &dwSize );
+  string theTmpUserName(pBuff,(int)dwSize -1 );
+  retVal = theTmpUserName;
+  delete [] pBuff;
+  return retVal;
+#else
+ struct passwd *infos;
+ infos = getpwuid(getuid()); 
+ return string(infos->pw_name);
+#endif
+}
 
 
 

@@ -23,28 +23,12 @@
 
 
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
-#include <Standard_DomainError.hxx>
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_DataSet.hxx>
-#include <TDF_RelocationTable.hxx>
-#include <TCollection_AsciiString.hxx> 
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTreeNode, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTreeNode, SALOMEDSImpl_GenericAttribute )
-
-static char* Entry(const TDF_Label& theLabel) 
+const std::string&  SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID()
 {
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry(theLabel, anEntry);
-  return anEntry.ToCString();
-}  
-
-const Standard_GUID&  SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID()
-{
-  static Standard_GUID TreeNodeID ("0E1C36E6-379B-4d90-AC37-17A14310E648");
+  static std::string TreeNodeID ("0E1C36E6-379B-4d90-AC37-17A14310E648");
   return TreeNodeID;
 }    
 
@@ -54,11 +38,11 @@ SALOMEDSImpl_AttributeTreeNode::SALOMEDSImpl_AttributeTreeNode()
 {}
 
 
-Handle(SALOMEDSImpl_AttributeTreeNode) SALOMEDSImpl_AttributeTreeNode::Set (const TDF_Label& L, const Standard_GUID& ID) 
+SALOMEDSImpl_AttributeTreeNode* SALOMEDSImpl_AttributeTreeNode::Set (const DF_Label& L, const std::string& ID) 
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) TN;
+  SALOMEDSImpl_AttributeTreeNode* TN = NULL;
 
-  if (!L.FindAttribute(ID,TN)) {
+  if (!(TN=(SALOMEDSImpl_AttributeTreeNode*)L.FindAttribute(ID))) {
     TN = new SALOMEDSImpl_AttributeTreeNode ();
     TN->SetTreeID(ID);
     L.AddAttribute(TN);
@@ -71,7 +55,7 @@ Handle(SALOMEDSImpl_AttributeTreeNode) SALOMEDSImpl_AttributeTreeNode::Set (cons
 //TreeNode : ID
 //purpose  : Returns GUID of the TreeNode
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeTreeNode::ID() const
+const std::string& SALOMEDSImpl_AttributeTreeNode::ID() const
 {
   return myTreeID;
 }  
@@ -80,27 +64,24 @@ const Standard_GUID& SALOMEDSImpl_AttributeTreeNode::ID() const
 //function : Append
 //purpose  : Add <TN> as last child of me
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Append (const Handle(SALOMEDSImpl_AttributeTreeNode)& TN)
+bool SALOMEDSImpl_AttributeTreeNode::Append (SALOMEDSImpl_AttributeTreeNode* TN)
 {
   CheckLocked();
 
-  if (!(TN->ID() == myTreeID) )
-    Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::Append : uncompatible GUID");
+  if (!(TN->ID() == myTreeID)) throw DFexception("SALOMEDSImpl_AttributeTreeNode::Append : uncompatible GUID");
 
-  if(TN->Label() == Label())
-    Standard_Failure::Raise("Attempt of self linking");
+  if(TN->Label() == Label()) throw DFexception("Attempt of self linking");
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) bid;
-  TN->SetNext(bid); // Deconnects from next.
+  TN->SetNext(NULL); // Deconnects from next.
 
   // Find the last
   if (!HasFirst()) {
     SetFirst(TN);
-    TN->SetPrevious(bid); // Deconnects from previous.
+    TN->SetPrevious(NULL); // Deconnects from previous.
   }
   else {
-    Handle(SALOMEDSImpl_AttributeTreeNode) Last = GetFirst();
-    while (Last->HasNext()) {
+    SALOMEDSImpl_AttributeTreeNode* Last = GetFirst();
+    while (Last && Last->HasNext()) {
       Last = Last->GetNext();
     }
     Last->SetNext(TN);
@@ -111,38 +92,35 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Append (const Handle(SALOMEDSIm
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
   
-  return !TN.IsNull();
+  return (TN);
 }
 
 //=======================================================================
 //function : Prepend
 //purpose  : Add <TN> as first child of me
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Prepend (const Handle(SALOMEDSImpl_AttributeTreeNode)& TN)
+bool SALOMEDSImpl_AttributeTreeNode::Prepend (SALOMEDSImpl_AttributeTreeNode* TN)
 {
   CheckLocked();
 
-  if (!(TN->ID() == myTreeID) )
-    Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::Prepend : uncompatible GUID");
+  if (!(TN->ID() == myTreeID) ) throw DFexception("SALOMEDSImpl_AttributeTreeNode::Prepend : uncompatible GUID");
 
-  if(TN->Label() == Label())
-    Standard_Failure::Raise("Attempt of self linking");
+  if(TN->Label() == Label()) throw DFexception("Attempt of self linking");
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) bid;
-  TN->SetPrevious(bid);
+  TN->SetPrevious(NULL);
   if (HasFirst()) {
     TN->SetNext(GetFirst());
     GetFirst()->SetPrevious(TN);
   }
   else {
-    TN->SetNext(bid);
+    TN->SetNext(NULL);
   }
   TN->SetFather(this);
   SetFirst(TN);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
   
-  return !TN.IsNull();
+  return (TN);
 }                     
 
 
@@ -150,15 +128,13 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Prepend (const Handle(SALOMEDSI
 //function : InsertBefore
 //purpose  : Inserts the TreeNode  <TN> before me
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertBefore (const Handle(SALOMEDSImpl_AttributeTreeNode)& TN)
+bool SALOMEDSImpl_AttributeTreeNode::InsertBefore (SALOMEDSImpl_AttributeTreeNode* TN)
 {
   CheckLocked();
 
-  if (!(TN->ID() == myTreeID) )
-    Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::InsertBefore : uncompatible GUID");
+  if (!(TN->ID() == myTreeID) ) throw DFexception("SALOMEDSImpl_AttributeTreeNode::InsertBefore : uncompatible GUID");
 
-  if(TN->Label() == Label())
-    Standard_Failure::Raise("Attempt of self linking");
+  if(TN->Label() == Label()) throw DFexception("Attempt of self linking");
 
   TN->SetFather(GetFather());
   TN->SetPrevious(GetPrevious());
@@ -173,22 +149,20 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertBefore (const Handle(SALO
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
   
-  return !TN.IsNull();
+  return (TN);
 }
 
 //=======================================================================
 //function : InsertAfter
 //purpose  : Inserts the TreeNode  <TN> after me
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertAfter (const Handle(SALOMEDSImpl_AttributeTreeNode)& TN)
+bool SALOMEDSImpl_AttributeTreeNode::InsertAfter (SALOMEDSImpl_AttributeTreeNode* TN)
 {
   CheckLocked();
 
-  if(TN->Label() == Label())
-    Standard_Failure::Raise("Attempt of self linking");
+  if(TN->Label() == Label()) throw DFexception("Attempt of self linking");
 
-  if (!(TN->ID() == myTreeID) )
-    Standard_DomainError::Raise("SALOMEDSImpl_AttributeTreeNode::InsertAfter : uncompatible GUID");
+  if (!(TN->ID() == myTreeID) ) throw DFexception("SALOMEDSImpl_AttributeTreeNode::InsertAfter : uncompatible GUID");
 
   TN->SetFather(GetFather());
   TN->SetPrevious(this);
@@ -200,20 +174,19 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertAfter (const Handle(SALOM
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
   
-  return !TN.IsNull();
+  return (TN);
 }         
 
 //=======================================================================
 //function : Remove
 //purpose  : Removees the function from the function tree
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Remove ()
+bool SALOMEDSImpl_AttributeTreeNode::Remove ()
 {
   CheckLocked();
 
-  if (IsRoot()) return Standard_True;
+  if (IsRoot()) return true;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) bid;
   if (!HasPrevious())
     GetFather()->SetFirst(GetNext());
   else
@@ -221,39 +194,39 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Remove ()
 
   if (HasNext()) {
     if (HasPrevious()) GetNext()->SetPrevious(GetPrevious());
-    else GetNext()->SetPrevious(bid);
+    else GetNext()->SetPrevious(NULL);
   }
   else {
-    if (HasPrevious()) GetPrevious()->SetNext(bid);
+    if (HasPrevious()) GetPrevious()->SetNext(NULL);
   }
 
   if (GetFather()->HasFirst()) {
-    if (Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(this) == GetFather()->GetFirst()) {
+    if (this == GetFather()->GetFirst()) {
       if (HasNext()) {
         GetFather()->SetFirst(GetNext());
       }
-      else GetFather()->SetFirst(bid);
+      else GetFather()->SetFirst(NULL);
     }
   }
 
-  SetFather(bid);
-  SetNext(bid);
-  SetPrevious(bid);
+  SetFather(NULL);
+  SetNext(NULL);
+  SetPrevious(NULL);
 
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 
-  return Standard_True;
+  return true;
 }         
 
 //=======================================================================
 //function : Depth
 //purpose  :
 //=======================================================================
-Standard_Integer SALOMEDSImpl_AttributeTreeNode::Depth () const
+int SALOMEDSImpl_AttributeTreeNode::Depth () const
 {
-  Standard_Integer depth = 0;
-  Handle(SALOMEDSImpl_AttributeTreeNode) current = this;
-  while (current->HasFather()) {
+  int depth = 0;
+  SALOMEDSImpl_AttributeTreeNode* current = (SALOMEDSImpl_AttributeTreeNode*)this;
+  while (current) {
     depth++;
     current = current->GetFather();
   }
@@ -265,7 +238,7 @@ Standard_Integer SALOMEDSImpl_AttributeTreeNode::Depth () const
 //purpose  : Finds or creates a TreeNode  attribute with explicit ID
 //         : a driver for it
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::SetTreeID (const Standard_GUID& explicitID)
+void SALOMEDSImpl_AttributeTreeNode::SetTreeID (const std::string& explicitID)
 {
   myTreeID = explicitID;
   
@@ -277,7 +250,7 @@ void SALOMEDSImpl_AttributeTreeNode::SetTreeID (const Standard_GUID& explicitID)
 //function : IsAscendant
 //purpose  :
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsAscendant (const Handle(SALOMEDSImpl_AttributeTreeNode)& ofTN) const
+bool SALOMEDSImpl_AttributeTreeNode::IsAscendant (const SALOMEDSImpl_AttributeTreeNode* ofTN) const
 {
   return ofTN->IsDescendant(this);
 }                
@@ -287,14 +260,14 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsAscendant (const Handle(SALOM
 //purpose  :
 //=======================================================================
 
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsDescendant (const Handle(SALOMEDSImpl_AttributeTreeNode)& ofTN) const
+bool SALOMEDSImpl_AttributeTreeNode::IsDescendant (const SALOMEDSImpl_AttributeTreeNode* ofTN) const
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) current = this;
-  while (current->HasFather()) {
-    if (current->GetFather() == ofTN) return Standard_True;
+  SALOMEDSImpl_AttributeTreeNode* current = (SALOMEDSImpl_AttributeTreeNode*)this;
+  while (current) {
+    if (current->GetFather() == ofTN) return true;
     current = current->GetFather();
   }
-  return Standard_False;
+  return false;
 }
 
 //=======================================================================
@@ -302,7 +275,7 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsDescendant (const Handle(SALO
 //purpose  :
 //=======================================================================
 
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsFather (const Handle(SALOMEDSImpl_AttributeTreeNode)& ofTN) const
+bool SALOMEDSImpl_AttributeTreeNode::IsFather (const SALOMEDSImpl_AttributeTreeNode* ofTN) const
 {
   return (ofTN->GetFather() == this);
 }
@@ -313,7 +286,7 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsFather (const Handle(SALOMEDS
 //purpose  :
 //=======================================================================
 
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsChild (const Handle(SALOMEDSImpl_AttributeTreeNode)& ofTN) const
+bool SALOMEDSImpl_AttributeTreeNode::IsChild (const SALOMEDSImpl_AttributeTreeNode* ofTN) const
 {
   return (myFather == ofTN);
 }
@@ -323,23 +296,21 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsChild (const Handle(SALOMEDSI
 //purpose  : Returns Standard_True if the TreeNode is not attached to a
 //           TreeNode tree or hasn't an Father.
 //=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::IsRoot() const
+bool SALOMEDSImpl_AttributeTreeNode::IsRoot() const
 {
-  if (myFather.IsNull() &&
-      myPrevious.IsNull() &&
-      myNext.IsNull())
-    return Standard_True;
-  return Standard_False;
+  if (!myFather && !myPrevious && !myNext)
+    return true;
+  return false;
 }
 
 //=======================================================================
 //TreeNode : Root
 //purpose  : Returns the TreeNode which has no Father
 //=======================================================================
-Handle(SALOMEDSImpl_AttributeTreeNode) SALOMEDSImpl_AttributeTreeNode::Root() const
+SALOMEDSImpl_AttributeTreeNode* SALOMEDSImpl_AttributeTreeNode::Root() const
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) O = this;
-  while (O->HasFather())
+  SALOMEDSImpl_AttributeTreeNode* O = (SALOMEDSImpl_AttributeTreeNode*)this;
+  while (O && O->HasFather())
     O = O->GetFather();
   return O;
 }       
@@ -348,11 +319,11 @@ Handle(SALOMEDSImpl_AttributeTreeNode) SALOMEDSImpl_AttributeTreeNode::Root() co
 //TreeNode : SetFather
 //purpose  : Sets the TreeNode F as Father of me
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::SetFather(const Handle(SALOMEDSImpl_AttributeTreeNode)& F)
+void SALOMEDSImpl_AttributeTreeNode::SetFather(const SALOMEDSImpl_AttributeTreeNode* F)
 {
   CheckLocked();
   Backup();
-  myFather = F;
+  myFather = (SALOMEDSImpl_AttributeTreeNode*)F;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -361,11 +332,11 @@ void SALOMEDSImpl_AttributeTreeNode::SetFather(const Handle(SALOMEDSImpl_Attribu
 //TreeNode : SetNext
 //purpose  : Sets the TreeNode F next to me
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::SetNext(const Handle(SALOMEDSImpl_AttributeTreeNode)& F)
+void SALOMEDSImpl_AttributeTreeNode::SetNext(const SALOMEDSImpl_AttributeTreeNode* F)
 {
   CheckLocked();
   Backup();
-  myNext = F;
+  myNext = (SALOMEDSImpl_AttributeTreeNode*)F;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -375,11 +346,11 @@ void SALOMEDSImpl_AttributeTreeNode::SetNext(const Handle(SALOMEDSImpl_Attribute
 //TreeNode : SetPrevious
 //purpose  : Sets the TreeNode F previous to me
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::SetPrevious(const Handle(SALOMEDSImpl_AttributeTreeNode)& F)
+void SALOMEDSImpl_AttributeTreeNode::SetPrevious(const SALOMEDSImpl_AttributeTreeNode* F)
 {
   CheckLocked();
   Backup();
-  myPrevious = F;
+  myPrevious = (SALOMEDSImpl_AttributeTreeNode*)F;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -388,11 +359,11 @@ void SALOMEDSImpl_AttributeTreeNode::SetPrevious(const Handle(SALOMEDSImpl_Attri
 //TreeNode : SetFirst
 //purpose  : Sets the TreeNode F as first in the TreeNode tree
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::SetFirst(const Handle(SALOMEDSImpl_AttributeTreeNode)& F)
+void SALOMEDSImpl_AttributeTreeNode::SetFirst(const SALOMEDSImpl_AttributeTreeNode* F)
 {
   CheckLocked();
   Backup();
-  myFirst = F;
+  myFirst = (SALOMEDSImpl_AttributeTreeNode*)F;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }         
@@ -400,73 +371,37 @@ void SALOMEDSImpl_AttributeTreeNode::SetFirst(const Handle(SALOMEDSImpl_Attribut
 //=======================================================================
 //TreeNode : AfterAddition
 //purpose  : Connects the TreeNode to the tree.
-//           Backuped attribute must stay disconnected
 //=======================================================================
 void SALOMEDSImpl_AttributeTreeNode::AfterAddition() 
 {
-  if (!IsBackuped()) {
-    if (!myPrevious.IsNull()) {
-      myPrevious->SetNext(this);
-    }
-    else if (!myFather.IsNull()) {
-      myFather->SetFirst(this);
-    }
-    if (!myNext.IsNull())
-      myNext->SetPrevious(this);
+  if (myPrevious) {
+    myPrevious->SetNext(this);
+  }
+  else if (myFather) {
+    myFather->SetFirst(this);
+  }
+  if (myNext) {
+    myNext->SetPrevious(this);
   }
 }
 
 //=======================================================================
 //TreeNode : BeforeForget
 //purpose  : Disconnect the TreeNode from the tree.
-//           Backuped attribute is normaly not concerned by such an operation
 //=======================================================================
 void SALOMEDSImpl_AttributeTreeNode::BeforeForget() 
 {
-  if (!IsBackuped()) {
     Remove();
     while (HasFirst()) GetFirst()->Remove();
-  }
-}
-
-//=======================================================================
-//TreeNode : AfterResume
-//purpose  : Connects the TreeNode to the tree
-//=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::AfterResume() 
-{
-  AfterAddition();
-}
-
-//=======================================================================
-//TreeNode : BeforeUndo
-//purpose  : Disconnect the TreeNode from the tree.
-//=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::BeforeUndo(const Handle(TDF_AttributeDelta)& anAttDelta,
-							    const Standard_Boolean forceIt)
-{
-  if (anAttDelta->IsKind(STANDARD_TYPE(TDF_DeltaOnAddition))) BeforeForget(); // Disconnect.
-  return Standard_True;
-}           
-
-//=======================================================================
-//TreeNode : AfterUndo
-//purpose  : Connect the TreeNode from the tree.
-//=======================================================================
-Standard_Boolean SALOMEDSImpl_AttributeTreeNode::AfterUndo(const Handle(TDF_AttributeDelta)& anAttDelta,
-							   const Standard_Boolean forceIt)
-{
-  if (anAttDelta->IsKind(STANDARD_TYPE(TDF_DeltaOnRemoval))) AfterAddition(); // Reconnect.
-  return Standard_True;
 }
 
 //=======================================================================
 //TreeNode : Restore
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::Restore(const Handle(TDF_Attribute)& other) 
+void SALOMEDSImpl_AttributeTreeNode::Restore(DF_Attribute* other) 
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) F =  Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(other);
+  SALOMEDSImpl_AttributeTreeNode* F =  dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(other);
   myFather     = F->myFather;
   myPrevious   = F->myPrevious;
   myNext       = F->myNext;
@@ -479,28 +414,13 @@ void SALOMEDSImpl_AttributeTreeNode::Restore(const Handle(TDF_Attribute)& other)
 //purpose  : Method for Copy mechanism
 //=======================================================================
 
-void SALOMEDSImpl_AttributeTreeNode::Paste(const Handle(TDF_Attribute)& into,
-					   const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeTreeNode::Paste(DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) intof = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(into);
-  Handle(SALOMEDSImpl_AttributeTreeNode) func;
-  if (!RT->HasRelocation(myFather, func) && RT->AfterRelocate()) {
-    func.Nullify();
-  }
-  intof->SetFather(func);
-  if (!RT->HasRelocation(myNext, func) && RT->AfterRelocate()) {
-    func.Nullify();
-  }
-  intof->SetNext(func);
-  if (!RT->HasRelocation(myPrevious, func) && RT->AfterRelocate()) {
-    func.Nullify();
-  }
-  intof->SetPrevious(func);
-  if (!RT->HasRelocation(myFirst, func) && RT->AfterRelocate()) {
-    func.Nullify();
-  }
-
-  intof->SetFirst(func);
+  SALOMEDSImpl_AttributeTreeNode* intof = dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(into);
+  intof->SetFather(myFather);
+  intof->SetNext(myNext);
+  intof->SetPrevious(myPrevious);
+  intof->SetFirst(myFirst);
   intof->SetTreeID(myTreeID);
 }
 
@@ -509,69 +429,52 @@ void SALOMEDSImpl_AttributeTreeNode::Paste(const Handle(TDF_Attribute)& into,
 //purpose  : Returns new empty TreeNode attribute
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeTreeNode::NewEmpty() const
+DF_Attribute* SALOMEDSImpl_AttributeTreeNode::NewEmpty() const
 {
-  Handle(SALOMEDSImpl_AttributeTreeNode) T = new SALOMEDSImpl_AttributeTreeNode();
+  SALOMEDSImpl_AttributeTreeNode* T = new SALOMEDSImpl_AttributeTreeNode();
   T->SetTreeID(myTreeID);
   return T;
 }
 
-//=======================================================================
-//TreeNode : References
-//purpose  : Collects the references
-//=======================================================================
-void SALOMEDSImpl_AttributeTreeNode::References(const Handle(TDF_DataSet)& aDataSet) const
-{
-  Handle(SALOMEDSImpl_AttributeTreeNode) fct = myFirst;
-  while (!fct.IsNull()) {
-    aDataSet->AddAttribute(fct);
-    fct = fct->myNext;
-  }
-}          
-
-TCollection_AsciiString SALOMEDSImpl_AttributeTreeNode::Type()
+string SALOMEDSImpl_AttributeTreeNode::Type()
 {
    char* aNodeName = new char[60];
-   char aGUID[40];
-   ID().ToCString(aGUID);
-   sprintf(aNodeName, "AttributeTreeNodeGUID%s",aGUID);
-   TCollection_AsciiString ret(aNodeName); 
+   sprintf(aNodeName, "AttributeTreeNodeGUID%s", ID().c_str());
+   string ret(aNodeName); 
    delete aNodeName;
    
    return ret;                               
 }
 
-TCollection_AsciiString SALOMEDSImpl_AttributeTreeNode::Save() 
+string SALOMEDSImpl_AttributeTreeNode::Save() 
 {
-  TCollection_AsciiString aFather, aPrevious, aNext, aFirst;
+  string aFather, aPrevious, aNext, aFirst;
 
-  if (HasFather()) aFather = Entry(GetFather()->Label()); else aFather = "!";
-  if (HasPrevious()) aPrevious = Entry(GetPrevious()->Label()); else aPrevious = "!";
-  if (HasNext()) aNext = Entry(GetNext()->Label()); else aNext = "!";
-  if (HasFirst()) aFirst = Entry(GetFirst()->Label()); else aFirst = "!";
+  if (HasFather()) aFather = GetFather()->Label().Entry(); else aFather = "!";
+  if (HasPrevious()) aPrevious = GetPrevious()->Label().Entry(); else aPrevious = "!";
+  if (HasNext()) aNext = GetNext()->Label().Entry(); else aNext = "!";
+  if (HasFirst()) aFirst = GetFirst()->Label().Entry(); else aFirst = "!";
 
   int aLength = 4;
-  aLength += aFather.Length() + aPrevious.Length() + aNext.Length() + aFirst.Length();
+  aLength += aFather.size() + aPrevious.size() + aNext.size() + aFirst.size();
   char* aResult = new char[aLength];
-  sprintf(aResult, "%s %s %s %s", aFather.ToCString(), aPrevious.ToCString(), aNext.ToCString(), aFirst.ToCString());
-  TCollection_AsciiString ret(aResult);
+  sprintf(aResult, "%s %s %s %s", aFather.c_str(), aPrevious.c_str(), aNext.c_str(), aFirst.c_str());
+  string ret(aResult);
   delete aResult;
   return ret;
 }
 
-void SALOMEDSImpl_AttributeTreeNode::Load(const TCollection_AsciiString& value) 
+void SALOMEDSImpl_AttributeTreeNode::Load(const string& value) 
 {
-  Handle(TDF_Data) DF = Label().Data();
-  
-  char* aCopy = (char*)value.ToCString();
+  char* aCopy = (char*)value.c_str();
   char* adr = strtok(aCopy, " ");
   
-  TDF_Label aLabel;
-  Handle(SALOMEDSImpl_AttributeTreeNode) aDepNode;
+  DF_Label aLabel;
+  SALOMEDSImpl_AttributeTreeNode* aDepNode = NULL;
 
   if (adr && adr[0] != '!') {
-    TDF_Tool::Label(DF, adr, aLabel, 1);
-    if (!aLabel.FindAttribute(ID(), aDepNode)) 
+    aLabel = DF_Label::Label(Label(), adr, true);
+    if (!(aDepNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(ID()))) 
       aDepNode =  SALOMEDSImpl_AttributeTreeNode::Set(aLabel, ID());
 
     SetFather(aDepNode);
@@ -579,24 +482,24 @@ void SALOMEDSImpl_AttributeTreeNode::Load(const TCollection_AsciiString& value)
 
   adr = strtok(NULL, " ");
   if (adr && adr[0] != '!') {
-    TDF_Tool::Label(DF, adr, aLabel, 1);
-    if (!aLabel.FindAttribute(ID(), aDepNode)) 
+    aLabel = DF_Label::Label(Label(), adr, true);
+    if (!(aDepNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(ID()))) 
       aDepNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, ID());
     SetPrevious(aDepNode);
   }
 
   adr = strtok(NULL, " ");
   if (adr && adr[0] != '!') {
-    TDF_Tool::Label(DF, adr, aLabel, 1);
-    if (!aLabel.FindAttribute(ID(), aDepNode)) 
+    aLabel = DF_Label::Label(Label(), adr, true);
+    if (!(aDepNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(ID()))) 
       aDepNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, ID());
     SetNext(aDepNode);
   }
 
   adr = strtok(NULL, " ");
   if (adr && adr[0] != '!') {
-    TDF_Tool::Label(DF, adr, aLabel, 1);
-    if (!aLabel.FindAttribute(ID(), aDepNode)) 
+    aLabel = DF_Label::Label(Label(), adr, true);
+    if (!(aDepNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(ID()))) 
       aDepNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, ID());
     SetFirst(aDepNode);
   }

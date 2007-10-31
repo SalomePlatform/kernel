@@ -22,22 +22,17 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeSequenceOfInteger.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeSequenceOfInteger, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeSequenceOfInteger, SALOMEDSImpl_GenericAttribute )
-
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeSequenceOfInteger::GetID () 
+const std::string& SALOMEDSImpl_AttributeSequenceOfInteger::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeSequenceOfIntegerID ("12837182-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeSequenceOfIntegerID ("12837182-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeSequenceOfIntegerID;
 }
 
@@ -48,10 +43,10 @@ const Standard_GUID& SALOMEDSImpl_AttributeSequenceOfInteger::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeSequenceOfInteger) SALOMEDSImpl_AttributeSequenceOfInteger::Set (const TDF_Label& L) 
+SALOMEDSImpl_AttributeSequenceOfInteger* SALOMEDSImpl_AttributeSequenceOfInteger::Set (const DF_Label& L) 
 {
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeSequenceOfInteger::GetID(),A)) {
+  SALOMEDSImpl_AttributeSequenceOfInteger* A = NULL;
+  if (!(A = (SALOMEDSImpl_AttributeSequenceOfInteger*)L.FindAttribute(SALOMEDSImpl_AttributeSequenceOfInteger::GetID()))) {
     A = new  SALOMEDSImpl_AttributeSequenceOfInteger(); 
     L.AddAttribute(A);
   }
@@ -65,16 +60,14 @@ Handle(SALOMEDSImpl_AttributeSequenceOfInteger) SALOMEDSImpl_AttributeSequenceOf
 //=======================================================================
 SALOMEDSImpl_AttributeSequenceOfInteger::SALOMEDSImpl_AttributeSequenceOfInteger()
 :SALOMEDSImpl_GenericAttribute("AttributeSequenceOfInteger")
-{ 
-  myValue = new TColStd_HSequenceOfInteger();
-}
+{}
 
 //=======================================================================
 //function : ID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeSequenceOfInteger::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeSequenceOfInteger::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -82,7 +75,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeSequenceOfInteger::ID () const { retu
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeSequenceOfInteger::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeSequenceOfInteger::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeSequenceOfInteger(); 
 }
@@ -92,18 +85,12 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeSequenceOfInteger::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeSequenceOfInteger::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Restore(DF_Attribute* with) 
 {
-  Standard_Integer i;
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger) anSeq = Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(with);
-  if(!anSeq->myValue.IsNull()) {
-    myValue = new TColStd_HSequenceOfInteger();
-    Standard_Integer Len = anSeq->Length();
-    for(i = 1; i<=Len; i++) Add(anSeq->Value(i)); 
-  }
-  else
-    myValue.Nullify();
-  return;
+  SALOMEDSImpl_AttributeSequenceOfInteger* anSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(with);
+  myValue.clear();
+  for(int i = 0, len = anSeq->Length(); i<len; i++)
+    myValue.push_back(anSeq->myValue[i]);    
 }
 
 //=======================================================================
@@ -111,96 +98,97 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Restore(const Handle(TDF_Attribute
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeSequenceOfInteger::Paste (const Handle(TDF_Attribute)& into,
-                                    const Handle(TDF_RelocationTable)& ) const
+void SALOMEDSImpl_AttributeSequenceOfInteger::Paste (DF_Attribute* into)
 {
-  if(!myValue.IsNull()) {
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast (into)->Assign(myValue);
-  }
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(into)->Assign(myValue);
 }
 
-void SALOMEDSImpl_AttributeSequenceOfInteger::Assign(const Handle(TColStd_HSequenceOfInteger)& other) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Assign(const vector<int>& other) 
 {
   CheckLocked();
   Backup();
-  if (myValue.IsNull()) myValue = new TColStd_HSequenceOfInteger;
-  myValue->ChangeSequence() = other->Sequence();
 
-  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
-}
-
-void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const Standard_Integer Index,const Standard_Integer Value) 
-{
-  CheckLocked();  
-  Backup();
-
-  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
-
-  myValue->SetValue(Index, Value);
+  myValue = other;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-void SALOMEDSImpl_AttributeSequenceOfInteger::Add(const Standard_Integer Value) 
-{
-  CheckLocked();  
-  Backup();
-  myValue->Append(Value);
-  
-  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
-}
-
-void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const Standard_Integer Index) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const int Index,const int Value) 
 {
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
+  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
 
-  myValue->Remove(Index);
+  myValue[Index-1] = Value;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Standard_Integer SALOMEDSImpl_AttributeSequenceOfInteger::Length() 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Add(const int Value) 
 {
-  return myValue->Length();
-}
-Standard_Integer SALOMEDSImpl_AttributeSequenceOfInteger::Value(const Standard_Integer Index) 
-{
-  if(Index <= 0 || Index > myValue->Length()) Standard_Failure::Raise("Out of range");
-
-  return myValue->Value(Index);
+  CheckLocked();  
+  Backup();
+  myValue.push_back(Value);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-
-
-TCollection_AsciiString SALOMEDSImpl_AttributeSequenceOfInteger::Save() 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const int Index) 
 {
-  Standard_Integer aLength = Length();
+  CheckLocked();  
+  Backup();
+
+  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+
+  typedef vector<int>::iterator VI;
+  int i = 1;    
+  for(VI p = myValue.begin(); p!=myValue.end(); p++, i++) {
+    if(i == Index) {
+      myValue.erase(p);
+      break;
+    }     
+  }
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+}
+
+int SALOMEDSImpl_AttributeSequenceOfInteger::Length() 
+{
+  return myValue.size();
+}
+int SALOMEDSImpl_AttributeSequenceOfInteger::Value(const int Index) 
+{
+  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+
+  return myValue[Index-1];
+}
+
+
+
+string SALOMEDSImpl_AttributeSequenceOfInteger::Save() 
+{
+  int aLength = Length();
   char* aResult = new char[aLength * 25];
   aResult[0] = 0;
-  Standard_Integer aPosition = 0;
+  int aPosition = 0;
   for (int i = 1; i <= aLength; i++) {
     sprintf(aResult + aPosition , "%d ", Value(i));
     aPosition += strlen(aResult + aPosition);
   }
-  TCollection_AsciiString ret(aResult);
+  string ret(aResult);
   delete aResult;
   
   return ret;
 }
 			
-void SALOMEDSImpl_AttributeSequenceOfInteger::Load(const TCollection_AsciiString& value) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Load(const string& value) 
 {
-  Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
-			  
-  char* aCopy = value.ToCString();
+  char* aCopy = (char*)value.c_str();
   char* adr = strtok(aCopy, " ");
   while (adr) {
     int l =  atol(adr);
-    CasCadeSeq->Append(l);
+    Add(l);
     adr = strtok(NULL, " ");
   }
-  Assign(CasCadeSeq);
 }

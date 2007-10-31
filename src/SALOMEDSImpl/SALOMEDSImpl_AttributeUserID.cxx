@@ -26,13 +26,10 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeUserID, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeUserID, SALOMEDSImpl_GenericAttribute )
-
-Handle(SALOMEDSImpl_AttributeUserID) SALOMEDSImpl_AttributeUserID::Set (const TDF_Label& L, const Standard_GUID& ID) 
+SALOMEDSImpl_AttributeUserID* SALOMEDSImpl_AttributeUserID::Set (const DF_Label& L, const std::string& ID) 
 {
-  Handle(SALOMEDSImpl_AttributeUserID) A;
-  if (!L.FindAttribute(ID, A)) {
+  SALOMEDSImpl_AttributeUserID* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeUserID*)L.FindAttribute(ID))) {
     A = new  SALOMEDSImpl_AttributeUserID(); 
     A->SetValue(ID);
     L.AddAttribute(A);
@@ -44,7 +41,7 @@ Handle(SALOMEDSImpl_AttributeUserID) SALOMEDSImpl_AttributeUserID::Set (const TD
 //function : ID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeUserID::ID() const
+const std::string& SALOMEDSImpl_AttributeUserID::ID() const
 { return myID; }
 
 
@@ -52,7 +49,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeUserID::ID() const
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeUserID::SetValue( const Standard_GUID&  guid)
+void SALOMEDSImpl_AttributeUserID::SetValue( const std::string&  guid)
 {
   CheckLocked();
   if(myID == guid) return;
@@ -67,9 +64,9 @@ void SALOMEDSImpl_AttributeUserID::SetValue( const Standard_GUID&  guid)
 //function : NewEmpty
 //purpose  :
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeUserID::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeUserID::NewEmpty () const
 {
-  Handle(SALOMEDSImpl_AttributeUserID) A = new SALOMEDSImpl_AttributeUserID();
+  SALOMEDSImpl_AttributeUserID* A = new SALOMEDSImpl_AttributeUserID();
   A->SetValue(myID);
   return A;
 }
@@ -78,9 +75,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeUserID::NewEmpty () const
 //function : Restore
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeUserID::Restore(const Handle(TDF_Attribute)& with)
+void SALOMEDSImpl_AttributeUserID::Restore(DF_Attribute* with)
 {
-  Handle(SALOMEDSImpl_AttributeUserID) A = Handle(SALOMEDSImpl_AttributeUserID)::DownCast(with);
+  SALOMEDSImpl_AttributeUserID* A = dynamic_cast<SALOMEDSImpl_AttributeUserID*>(with);
   SetValue( A->ID() );
 }
 
@@ -88,22 +85,19 @@ void SALOMEDSImpl_AttributeUserID::Restore(const Handle(TDF_Attribute)& with)
 //function : Paste
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeUserID::Paste (const Handle(TDF_Attribute)& into,
-					  const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeUserID::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeUserID) A = Handle(SALOMEDSImpl_AttributeUserID)::DownCast(into);
+  SALOMEDSImpl_AttributeUserID* A = dynamic_cast<SALOMEDSImpl_AttributeUserID*>(into);
   A->SetValue( myID );
 }    
 
-TCollection_AsciiString SALOMEDSImpl_AttributeUserID::Type() 
+string SALOMEDSImpl_AttributeUserID::Type() 
 {
 
   char* aUAttrName = new char[60];
-  char aGUID[40];
-  ID().ToCString(aGUID);
-  sprintf(aUAttrName, "AttributeUserID_%s",aGUID);
+  sprintf(aUAttrName, "AttributeUserID_%s",ID().c_str());
 
-  TCollection_AsciiString ret(aUAttrName);
+  string ret(aUAttrName);
   delete aUAttrName;
 
   return ret;

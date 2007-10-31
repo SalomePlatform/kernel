@@ -22,56 +22,51 @@
 //  Module : SALOME
 
 #include <SALOMEDSImpl_AttributeStudyProperties.hxx>
-#include <Standard_GUID.hxx>
-#include <TCollection_ExtendedString.hxx>
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeStudyProperties, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeStudyProperties, SALOMEDSImpl_GenericAttribute )
 
-const Standard_GUID& SALOMEDSImpl_AttributeStudyProperties::GetID()
+const std::string& SALOMEDSImpl_AttributeStudyProperties::GetID()
 {
-  static Standard_GUID SALOMEDSImpl_AttributeStudyPropertiesID ("128371A2-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeStudyPropertiesID ("128371A2-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeStudyPropertiesID;
 }
 
-Handle(SALOMEDSImpl_AttributeStudyProperties) SALOMEDSImpl_AttributeStudyProperties::Set(const TDF_Label& label)
+SALOMEDSImpl_AttributeStudyProperties* SALOMEDSImpl_AttributeStudyProperties::Set(const DF_Label& label)
 {
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!label.FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(),anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties();
-    label.AddAttribute(anAttr);
+  SALOMEDSImpl_AttributeStudyProperties* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeStudyProperties*)label.FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID()))) {
+    A = new SALOMEDSImpl_AttributeStudyProperties();
+    label.AddAttribute(A);
   }
-  return anAttr;
+  return A;
 }
 
 SALOMEDSImpl_AttributeStudyProperties::SALOMEDSImpl_AttributeStudyProperties()
 :SALOMEDSImpl_GenericAttribute("AttributeStudyProperties")
 {
-  myLocked = Standard_False;
-  myLockChanged = Standard_False;
+  myLocked = false;
+  myLockChanged = false;
   Init();
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::Init()
 {
-  myUserName = new TColStd_HSequenceOfExtendedString();
-  myMinute = new TColStd_HSequenceOfInteger();
-  myHour = new TColStd_HSequenceOfInteger();
-  myDay = new TColStd_HSequenceOfInteger();
-  myMonth = new TColStd_HSequenceOfInteger();
-  myYear = new TColStd_HSequenceOfInteger();
-//  myModified = 0;
+  myUserName.clear();
+  myMinute.clear();
+  myHour.clear();
+  myDay.clear();
+  myMonth.clear();
+  myYear.clear();
   myMode = 0; // none
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetModification(const TCollection_ExtendedString& theUserName,
-                                                            const Standard_Integer            theMinute,
-                                                            const Standard_Integer            theHour,
-                                                            const Standard_Integer            theDay,
-                                                            const Standard_Integer            theMonth,
-                                                            const Standard_Integer            theYear)
+void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& theUserName,
+                                                            const int            theMinute,
+                                                            const int            theHour,
+                                                            const int            theDay,
+                                                            const int            theMonth,
+                                                            const int            theYear)
 {
   if (theMinute<0 || theMinute>60 || theHour<0 || theHour>24 ||
       theDay<0 || theDay>31 || theMonth<0 || theMonth>12)
@@ -80,21 +75,21 @@ void SALOMEDSImpl_AttributeStudyProperties::SetModification(const TCollection_Ex
   CheckLocked();
   Backup();
 
-  myUserName->Append(theUserName);
-  myMinute->Append(theMinute);
-  myHour->Append(theHour);
-  myDay->Append(theDay);
-  myMonth->Append(theMonth);
-  myYear->Append(theYear);
+  myUserName.push_back(theUserName);
+  myMinute.push_back(theMinute);
+  myHour.push_back(theHour);
+  myDay.push_back(theDay);
+  myMonth.push_back(theMonth);
+  myYear.push_back(theYear);
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::GetModifications
-                  (Handle(TColStd_HSequenceOfExtendedString)& theUserNames,
-                   Handle(TColStd_HSequenceOfInteger)&        theMinutes,
-                   Handle(TColStd_HSequenceOfInteger)&        theHours,
-                   Handle(TColStd_HSequenceOfInteger)&        theDays,
-                   Handle(TColStd_HSequenceOfInteger)&        theMonths,
-                   Handle(TColStd_HSequenceOfInteger)&        theYears) const
+                  (vector<string>& theUserNames,
+                   vector<int>&    theMinutes,
+                   vector<int>&    theHours,
+                   vector<int>&    theDays,
+                   vector<int>&    theMonths,
+                   vector<int>&    theYears) const
 {
   theUserNames = myUserName;
   theMinutes = myMinute;
@@ -104,131 +99,130 @@ void SALOMEDSImpl_AttributeStudyProperties::GetModifications
   theYears = myYear;
 }
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeStudyProperties::GetCreatorName() const
+std::string SALOMEDSImpl_AttributeStudyProperties::GetCreatorName() const
 {
-  if (myUserName->Length() == 0)
-    return TCollection_ExtendedString("");
-  return myUserName->Value(1);
+  if (myUserName.size() == 0)
+    return std::string("");
+  return myUserName[0];
 }
 
-Standard_Boolean SALOMEDSImpl_AttributeStudyProperties::GetCreationDate
-                              (Standard_Integer&           theMinute,
-                               Standard_Integer&           theHour,
-                               Standard_Integer&           theDay,
-                               Standard_Integer&           theMonth,
-                               Standard_Integer&           theYear) const
+bool SALOMEDSImpl_AttributeStudyProperties::GetCreationDate
+                              (int&           theMinute,
+                               int&           theHour,
+                               int&           theDay,
+                               int&           theMonth,
+                               int&           theYear) const
 {
-  if (myMinute->Length() != 0) {
-    theMinute = myMinute->Value(1);
-    theHour = myHour->Value(1);
-    theDay = myDay->Value(1);
-    theMonth = myMonth->Value(1);
-    theYear = myYear->Value(1);
-    return Standard_True;
+  if (myMinute.size() != 0) {
+    theMinute = myMinute[0];
+    theHour = myHour[0];
+    theDay = myDay[0];
+    theMonth = myMonth[0];
+    theYear = myYear[0];
+    return true;
   }
-  return Standard_False;
+  return false;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::ChangeCreatorName(const TCollection_ExtendedString& theName)
+void SALOMEDSImpl_AttributeStudyProperties::ChangeCreatorName(const std::string& theName)
 {
-  if (myUserName->Length() > 0) {
+  if (myUserName.size() > 0) {
     CheckLocked();
     Backup();
-    myUserName->SetValue(1, theName);
+    myUserName[0] = theName;
   }
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetCreationMode(const Standard_Integer theMode)
+void SALOMEDSImpl_AttributeStudyProperties::SetCreationMode(const int theMode)
 {
   CheckLocked();
   Backup();
   myMode = theMode;
 }
 
-Standard_Integer SALOMEDSImpl_AttributeStudyProperties::GetCreationMode() const
+int SALOMEDSImpl_AttributeStudyProperties::GetCreationMode() const
 {
   return myMode;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetModified(const Standard_Integer theModified)
+void SALOMEDSImpl_AttributeStudyProperties::SetModified(const int theModified)
 {
   myModified = theModified;
 }
 
-Standard_Boolean SALOMEDSImpl_AttributeStudyProperties::IsModified() const
+bool SALOMEDSImpl_AttributeStudyProperties::IsModified() const
 {
   return (myModified != 0);
 }
 
-Standard_Integer SALOMEDSImpl_AttributeStudyProperties::GetModified() const
+int SALOMEDSImpl_AttributeStudyProperties::GetModified() const
 {
   return myModified;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::SetLocked(const Standard_Boolean theLocked)
+void SALOMEDSImpl_AttributeStudyProperties::SetLocked(const bool theLocked)
 {
 //  Backup();
   if (myLocked != theLocked) {
-    myLockChanged = Standard_True;
+    myLockChanged = true;
     myLocked = theLocked;
   }
 }
 
-Standard_Boolean SALOMEDSImpl_AttributeStudyProperties::IsLocked() const
+bool SALOMEDSImpl_AttributeStudyProperties::IsLocked() const
 {
   return myLocked;
 }
 
-Standard_Boolean SALOMEDSImpl_AttributeStudyProperties::IsLockChanged(const Standard_Boolean theErase) {
-  if (!myLockChanged) return Standard_False;
-  if (theErase) myLockChanged = Standard_False;
-  return Standard_True;
+bool SALOMEDSImpl_AttributeStudyProperties::IsLockChanged(const bool theErase) {
+  if (!myLockChanged) return false;
+  if (theErase) myLockChanged = false;
+  return true;
 }
 
-const Standard_GUID& SALOMEDSImpl_AttributeStudyProperties::ID() const
+const std::string& SALOMEDSImpl_AttributeStudyProperties::ID() const
 {
   return GetID();
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Restore(const Handle(TDF_Attribute)& with)
+void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
 {
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(with);
+  SALOMEDSImpl_AttributeStudyProperties* aProp =
+    dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(with);
+
   Init();
-  Standard_Integer i;
-  Handle(TColStd_HSequenceOfExtendedString) aNames;
-  Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
+  vector<string> aNames;
+  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-  for (i = aNames->Length(); i > 0; i--) {
-    myUserName->Prepend(aNames->Value(i));
-    myMinute->Prepend(aMinutes->Value(i));
-    myHour->Prepend(aHours->Value(i));
-    myDay->Prepend(aDays->Value(i));
-    myMonth->Prepend(aMonths->Value(i));
-    myYear->Prepend(aYears->Value(i));
+  for (int i = 0, len = aNames.size(); i < len; i++) {
+    myUserName.push_back(aNames[i]);
+    myMinute.push_back(aMinutes[i]);
+    myHour.push_back(aHours[i]);
+    myDay.push_back(aDays[i]);
+    myMonth.push_back(aMonths[i]);
+    myYear.push_back(aYears[i]);
   }
   myMode = aProp->GetCreationMode();
 //  myModified = aProp->GetModified();
 //  myLocked = aProp->IsLocked();
 }
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeStudyProperties::NewEmpty() const
+DF_Attribute* SALOMEDSImpl_AttributeStudyProperties::NewEmpty() const
 {
   return new SALOMEDSImpl_AttributeStudyProperties();
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Paste(const Handle(TDF_Attribute)& into,
-                                                  const Handle(TDF_RelocationTable)&) const
+void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(into);
+  SALOMEDSImpl_AttributeStudyProperties* aProp =
+    dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(into);
   aProp->Init();
 
-  Standard_Integer i;
-  for(i = 1; i <= myUserName->Length(); i++) {
-    aProp->SetModification(myUserName->Value(i),
-                           myMinute->Value(i), myHour->Value(i),
-                           myDay->Value(i), myMonth->Value(i), myYear->Value(i));
+  int i;
+  for(i = 0; i < myUserName.size(); i++) {
+    aProp->SetModification(myUserName[i],
+                           myMinute[i], myHour[i],
+                           myDay[i], myMonth[i], myYear[i]);
   }
 
   aProp->SetCreationMode(myMode);
@@ -237,53 +231,53 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(const Handle(TDF_Attribute)& i
 }
 
 
-TCollection_AsciiString SALOMEDSImpl_AttributeStudyProperties::Save()
+string SALOMEDSImpl_AttributeStudyProperties::Save()
 {
-  Handle(TColStd_HSequenceOfExtendedString) aNames;
-  Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
+  vector<string> aNames;
+  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLength, anIndex;
-  for (aLength = 0, anIndex = aNames->Length(); anIndex > 0; anIndex--)
-    aLength += aNames->Value(anIndex).Length() + 1;
+  for (aLength = 0, anIndex = aNames.size()-1; anIndex >= 0; anIndex--)
+    aLength += aNames[anIndex].size() + 1;
 
-  char* aProperty = new char[3 + aLength + 12 * aNames->Length()];
+  char* aProperty = new char[3 + aLength + 12 * aNames.size()];
 
   char crMode = (char)GetCreationMode();
 
   sprintf(aProperty,"%c%c", crMode, IsLocked()?'l':'u');
 
-  aLength = aNames->Length();
+  aLength = aNames.size();
   int a = 2;
-  for (anIndex = 1; anIndex  <= aLength; anIndex++) {
+  for (anIndex = 0; anIndex  < aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
-	    (int)(aMinutes->Value(anIndex)),
-	    (int)(aHours->Value(anIndex)),
-	    (int)(aDays->Value(anIndex)),
-	    (int)(aMonths->Value(anIndex)),
-	    (int)(aYears->Value(anIndex)),
-	    (char*)(TCollection_AsciiString(aNames->Value(anIndex)).ToCString()));
+	    (int)(aMinutes[anIndex]),
+	    (int)(aHours[anIndex]),
+	    (int)(aDays[anIndex]),
+	    (int)(aMonths[anIndex]),
+	    (int)(aYears[anIndex]),
+	    (char*)(aNames[anIndex].c_str()));
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
   aProperty[a] = 0;
-  TCollection_AsciiString prop(aProperty);
+  string prop(aProperty);
   delete aProperty;
 
   return prop;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Load(const TCollection_AsciiString& value)
+void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
 {
-  char* aCopy = value.ToCString();
+  char* aCopy = (char*)value.c_str();
 
   int crMode = (int)aCopy[0];
   SetCreationMode(crMode);
 
   int anIndex;
-  for (anIndex = 2; anIndex + 2 < value.Length() ;) {
+  for (anIndex = 2; anIndex + 2 < value.size() ;) {
     char str[10];
-    Standard_Integer aMinute, aHour, aDay, aMonth, aYear;
+    int aMinute, aHour, aDay, aMonth, aYear;
     str[0] = aCopy[anIndex++];
     str[1] = aCopy[anIndex++];
     str[2] = 0;
@@ -314,7 +308,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const TCollection_AsciiString& 
     anIndex += aNameSize + 1;
   }
   if (aCopy[1] == 'l') {
-    SetLocked(Standard_True);
+    SetLocked(true);
   }
   SetModified(0);
 }

@@ -32,7 +32,7 @@
 class Standard_EXPORT SALOMEDSImpl_IParameters
 {
 public:
-  SALOMEDSImpl_IParameters(const Handle(SALOMEDSImpl_AttributeParameter)& ap); 
+  SALOMEDSImpl_IParameters(SALOMEDSImpl_AttributeParameter* ap); 
 
   virtual ~SALOMEDSImpl_IParameters();
 
@@ -117,23 +117,23 @@ public:
   /*!
     Returns whether there is the dumping visual parameters
    */
-  static bool isDumpPython(const Handle(SALOMEDSImpl_Study)& study, const string& theID = "");  
+  static bool isDumpPython(SALOMEDSImpl_Study* study, const std::string& theID = "");  
 
   /*!
     Returns an ID of the last save point
   */
-  static int getLastSavePoint(const Handle(SALOMEDSImpl_Study)& study, const std::string& theID = "");
+  static int getLastSavePoint(SALOMEDSImpl_Study* study, const std::string& theID = "");
 
   /*!
     Returns a Python script for the study, which sets up visual parameters
   */
-  static std::string getStudyScript(const Handle(SALOMEDSImpl_Study)& study, int savePoint, const std::string& theID = "");
+  static std::string getStudyScript(SALOMEDSImpl_Study* study, int savePoint, const std::string& theID = "");
 
   /*!
     Returns a default Python script that set ups visual parameters for the given module
     shift is a string that contain spaces to make valid Python script indentaion
   */
-  static std::string getDefaultScript(const Handle(SALOMEDSImpl_Study)& study, 
+  static std::string getDefaultScript(SALOMEDSImpl_Study* study, 
 				      const std::string& moduleName, 
 				      const std::string& shift,
 				      const std::string& theID = "");
@@ -144,8 +144,8 @@ public:
   static std::string getDefaultVisualComponent();
 
 private:
-  Handle(SALOMEDSImpl_AttributeParameter) _ap;
-  Handle(SALOMEDSImpl_Study) _study;
+  SALOMEDSImpl_AttributeParameter* _ap;
+  SALOMEDSImpl_Study* _study;
   std::map<std::string, std::string> _compNames;
 };
 

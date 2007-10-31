@@ -28,19 +28,9 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 
-#include <TDF_Label.hxx>
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_AttributeList.hxx>
-#include <TDF_ListIteratorOfAttributeList.hxx>
-#include <TCollection_AsciiString.hxx>
-#include <TDF_ChildIterator.hxx>
+#include "DF_ChildIterator.hxx"
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_UseCaseBuilder, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseBuilder, MMgt_TShared )
-
 
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
@@ -51,24 +41,23 @@ IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseBuilder, MMgt_TShared )
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_UseCaseBuilder::SALOMEDSImpl_UseCaseBuilder(const Handle(TDocStd_Document)& theDocument)
+SALOMEDSImpl_UseCaseBuilder::SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument)
 :_doc(theDocument)
 {
-  if(_doc.IsNull()) return;
+  if(!_doc) return;
   
-  TDF_Label aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG); //Iterate all use cases
-  if(!aLabel.FindAttribute(Standard_GUID(USE_CASE_GUID), _root)) {
-    _root = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, Standard_GUID(USE_CASE_GUID));
+  DF_Label aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG); //Iterate all use cases
+  if(!(_root = (SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(std::string(USE_CASE_GUID)))) {
+    _root = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, std::string(USE_CASE_GUID));
   }
  
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
   }  
 
-  Handle(SALOMEDSImpl_AttributeName) aNameAttr;
-  if(!aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttr)) { 
-    aNameAttr = SALOMEDSImpl_AttributeName::Set(aLabel, "Use cases"); 
+  if(!aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID())) { 
+    SALOMEDSImpl_AttributeName::Set(aLabel, "Use cases"); 
   }  
 }
 
@@ -87,24 +76,25 @@ SALOMEDSImpl_UseCaseBuilder::~SALOMEDSImpl_UseCaseBuilder()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::Append(const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::Append(const SALOMEDSImpl_SObject& theObject)
 {
-  if(_root.IsNull() || theObject.IsNull()) return false;
+  if(!_root || !theObject) return false;
 
-  TDF_Label aLabel = theObject->GetLabel();
+  DF_Label aLabel = theObject.GetLabel();
   if(aLabel.IsNull()) return false;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aNode, aCurrentNode;
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  SALOMEDSImpl_AttributeTreeNode* aCurrentNode = NULL;
   aNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, _root->ID());
   aNode->Remove();
 
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  SALOMEDSImpl_AttributeReference* aRef;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
   }  
 
-  TDF_Label aCurrent = aRef->Get();
-  if(aCurrent.IsNull() || !aCurrent.FindAttribute(_root->ID(), aCurrentNode)) 
+  DF_Label aCurrent = aRef->Get();
+  if(aCurrent.IsNull() || !(aCurrentNode=(SALOMEDSImpl_AttributeTreeNode*)aCurrent.FindAttribute(_root->ID()))) 
     aCurrentNode = _root;
 
   aCurrentNode->Append(aNode);
@@ -117,37 +107,37 @@ bool SALOMEDSImpl_UseCaseBuilder::Append(const Handle(SALOMEDSImpl_SObject)& the
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::Remove(const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
 {
-  if(_root.IsNull() || theObject.IsNull()) return false;
+  if(!_root || !theObject) return false;
 
-  TDF_Label aLabel = theObject->GetLabel();   
+  DF_Label aLabel = theObject.GetLabel();   
   if(aLabel.IsNull()) return false;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aNode;
-  if(!aLabel.FindAttribute(_root->ID(), aNode)) return false;
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
 
   aNode->Remove();
 
-  TDF_AttributeList aList;
-  aList.Append(aNode);
+  vector<DF_Attribute*> aList;
+  aList.push_back(aNode);
 
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
   }  
-  TDF_Label aCurrent = aRef->Get();
 
-  SALOMEDSImpl_ChildNodeIterator aChildItr(aNode, Standard_True);
+  DF_Label aCurrent = aRef->Get();
+
+  SALOMEDSImpl_ChildNodeIterator aChildItr(aNode, true);
   for(; aChildItr.More(); aChildItr.Next()) 
-    aList.Append(aChildItr.Value());
+    aList.push_back(aChildItr.Value());
 
-  TDF_ListIteratorOfAttributeList anIterator(aList);
-  for(; anIterator.More(); anIterator.Next()) {
-    if(anIterator.Value()->Label() ==  aCurrent) { //The current node is removed
+  for(int i = 0, len = aList.size(); i<len; i++) {
+    if(aList[i]->Label() ==  aCurrent) { //The current node is removed
       aRef->Set(_root->Label()); //Reset the current node to the root
     }
-    anIterator.Value()->Label().ForgetAttribute(_root->ID());
+    aList[i]->Label().ForgetAttribute(_root->ID());
   }
 
   return true;
@@ -159,21 +149,21 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const Handle(SALOMEDSImpl_SObject)& the
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const Handle(SALOMEDSImpl_SObject)& theFather, 
-					   const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather, 
+					   const SALOMEDSImpl_SObject& theObject)
 {
-  if(_root.IsNull() || theFather.IsNull() || theObject.IsNull()) return false;
+  if(!_root || !theFather || !theObject) return false;
 
-  TDF_Label aFatherLabel = theFather->GetLabel(), aLabel = theObject->GetLabel();
+  DF_Label aFatherLabel = theFather.GetLabel(), aLabel = theObject.GetLabel();
   if(aFatherLabel == aLabel) return false;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aFather, aNode;
+  SALOMEDSImpl_AttributeTreeNode *aFather = false, *aNode = false;
   
   if(aFatherLabel.IsNull()) return false;
-  if(!aFatherLabel.FindAttribute(_root->ID(), aFather)) return false;
+  if(!(aFather=(SALOMEDSImpl_AttributeTreeNode*)aFatherLabel.FindAttribute(_root->ID()))) return false;
 
   if(aLabel.IsNull()) return false;
-  if(!aLabel.FindAttribute(_root->ID(), aNode)) {
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) {
     aNode = SALOMEDSImpl_AttributeTreeNode::Set(aLabel, _root->ID());
   }
 
@@ -187,18 +177,18 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const Handle(SALOMEDSImpl_SObject)& t
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const Handle(SALOMEDSImpl_SObject)& theFirst, 
-					       const Handle(SALOMEDSImpl_SObject)& theNext)
+bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFirst, 
+					       const SALOMEDSImpl_SObject& theNext)
 {
-  if(_root.IsNull() || theFirst.IsNull() || theNext.IsNull()) return false;
+  if(!_root || !theFirst || !theNext) return false;
 
-  TDF_Label aFirstLabel = theFirst->GetLabel(), aLabel= theNext->GetLabel();
+  DF_Label aFirstLabel = theFirst.GetLabel(), aLabel= theNext.GetLabel();
   if(aFirstLabel == aLabel) return false;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aFirstNode, aNode;
+  SALOMEDSImpl_AttributeTreeNode *aFirstNode = NULL, *aNode = NULL;
   
   if(aFirstLabel.IsNull()) return false;
-  if(aFirstLabel.FindAttribute(_root->ID(), aFirstNode)) {
+  if((aFirstNode=(SALOMEDSImpl_AttributeTreeNode*)aFirstLabel.FindAttribute(_root->ID()))) {
     aFirstNode->Remove();
     aFirstLabel.ForgetAttribute(aFirstNode->ID());
   }
@@ -206,7 +196,7 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const Handle(SALOMEDSImpl_SObject
   aFirstNode = SALOMEDSImpl_AttributeTreeNode::Set(aFirstLabel, _root->ID());
   
   if(aLabel.IsNull()) return false;
-  if(!aLabel.FindAttribute(_root->ID(), aNode)) return false;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;    
 
   aFirstNode->Remove();
 
@@ -219,18 +209,17 @@ bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const Handle(SALOMEDSImpl_SObject
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::SetCurrentObject(const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::SetCurrentObject(const SALOMEDSImpl_SObject& theObject)
 {
-  if(_root.IsNull() || theObject.IsNull()) return false;
+  if(!_root || !theObject) return false;
 
-  TDF_Label aLabel = theObject->GetLabel();
-  Handle(SALOMEDSImpl_AttributeTreeNode) aNode;
+  DF_Label aLabel = theObject.GetLabel();
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
   if(aLabel.IsNull()) return false;
-  if(!aLabel.FindAttribute(_root->ID(), aNode)) return false;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false;
 
-
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), aNode->Label());  
   }
   
@@ -246,10 +235,10 @@ bool SALOMEDSImpl_UseCaseBuilder::SetCurrentObject(const Handle(SALOMEDSImpl_SOb
 //============================================================================
 bool SALOMEDSImpl_UseCaseBuilder::SetRootCurrent()
 {
-  if(_root.IsNull()) return false;
+  if(!_root) return false;
    
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) 
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) 
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
 
   aRef->Set(_root->Label());
@@ -261,20 +250,20 @@ bool SALOMEDSImpl_UseCaseBuilder::SetRootCurrent()
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObject)
 {
-  if(_root.IsNull()) return false;
+  if(!_root) return false;
 
-  TDF_Label aLabel;
-  if (theObject.IsNull()) aLabel = _root->Label();
+  DF_Label aLabel;
+  if (!theObject) aLabel = _root->Label();
   else 
-    aLabel = theObject->GetLabel(); 
+    aLabel = theObject.GetLabel(); 
   if(aLabel.IsNull()) return false;
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aNode;
-  if(!aLabel.FindAttribute(_root->ID(), aNode)) return false;
-
-  return !(aNode->GetFirst().IsNull());
+  SALOMEDSImpl_AttributeTreeNode* aNode = NULL;
+  if(!(aNode=(SALOMEDSImpl_AttributeTreeNode*)aLabel.FindAttribute(_root->ID()))) return false; 
+  
+  return (aNode->GetFirst());
 }
 
 //============================================================================
@@ -282,15 +271,15 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const Handle(SALOMEDSImpl_SObject)
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::SetName(const TCollection_AsciiString& theName) {
-  if(_root.IsNull()) return false;
+bool SALOMEDSImpl_UseCaseBuilder::SetName(const string& theName) {
+  if(!_root) return false;
 
-  Handle(SALOMEDSImpl_AttributeName) aNameAttrib;
+  SALOMEDSImpl_AttributeName* aNameAttrib = NULL;
 
-  if (!_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttrib))
+  if (!(aNameAttrib=(SALOMEDSImpl_AttributeName*)_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
     aNameAttrib = SALOMEDSImpl_AttributeName::Set(_root->Label(), theName);
-  else    
-    aNameAttrib->SetValue(theName);
+     
+  aNameAttrib->SetValue(theName);
     
   return true;
 }
@@ -301,16 +290,18 @@ bool SALOMEDSImpl_UseCaseBuilder::SetName(const TCollection_AsciiString& theName
  *  Purpose  :
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
 {
-  if(_root.IsNull()) return NULL;
+  SALOMEDSImpl_SObject so;
+  if(!_root) return so;
 
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(_root->Label(), _root->Label());  
   }  
-  TDF_Label aCurrent = aRef->Get();  
-  if(aCurrent.IsNull()) return NULL;
+  
+  DF_Label aCurrent = aRef->Get();  
+  if(aCurrent.IsNull()) return so;
 
   return SALOMEDSImpl_Study::SObject(aCurrent);
 }
@@ -320,15 +311,14 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
  *  Purpose  :
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_UseCaseBuilder::GetName() 
+string SALOMEDSImpl_UseCaseBuilder::GetName() 
 {
-  TCollection_AsciiString aString;
-  if(_root.IsNull()) return aString;
+  string aString;
+  if(!_root) return aString;
   
-  Handle(SALOMEDSImpl_AttributeName) aName;
-  if (!_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) return aString;
-  aString = TCollection_AsciiString(aName->Value());
-  return aString;
+  SALOMEDSImpl_AttributeName* aName = NULL;
+  if (!(aName=(SALOMEDSImpl_AttributeName*)_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) return aString;
+  return aName->Value();
 }
 
 //============================================================================ 
@@ -336,10 +326,10 @@ TCollection_AsciiString SALOMEDSImpl_UseCaseBuilder::GetName()
  *  Purpose  :  
  */ 
 //============================================================================ 
-bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const Handle(SALOMEDSImpl_SObject)& theObject)
+bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const SALOMEDSImpl_SObject& theObject)
 {
-  if(theObject.IsNull()) return false;
-  TDF_Label aFather, aLabel = theObject->GetLabel(); 
+  if(!theObject) return false;
+  DF_Label aFather, aLabel = theObject.GetLabel(); 
   aFather = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG);
   if(aLabel.Father() == aFather) return true;
   return false;
@@ -350,33 +340,33 @@ bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const Handle(SALOMEDSImpl_SObject)& 
  *  Purpose  :  
  */ 
 //============================================================================ 
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::AddUseCase(const TCollection_AsciiString& theName)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::AddUseCase(const string& theName)
 {
-  Standard_GUID aBasicGUID(USE_CASE_GUID);
+  string aBasicGUID(USE_CASE_GUID);
 
   //Create a use cases structure if it not exists 
 
-  Handle(SALOMEDSImpl_AttributeTreeNode) aFatherNode, aNode;
-  Handle(SALOMEDSImpl_AttributeInteger) anInteger;
-  Handle(SALOMEDSImpl_AttributeReference) aRef;
+  SALOMEDSImpl_AttributeTreeNode *aFatherNode = NULL, *aNode = NULL;
+  SALOMEDSImpl_AttributeInteger* anInteger = NULL;
+  SALOMEDSImpl_AttributeReference* aRef = NULL;
 
-  TDF_Label aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG);
+  DF_Label aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG);
 
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aRef)) {
+  if(!(aRef=(SALOMEDSImpl_AttributeReference*)_root->FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     aRef = SALOMEDSImpl_AttributeReference::Set(aLabel, aLabel);
   }
  
-  if(!aRef->Get().FindAttribute(aBasicGUID, aFatherNode)) {
+  if(!(aFatherNode=(SALOMEDSImpl_AttributeTreeNode*)aRef->Get().FindAttribute(aBasicGUID))) {
     aFatherNode = SALOMEDSImpl_AttributeTreeNode::Set(aRef->Get(), aBasicGUID);
   }
 
-  if(!_root->FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anInteger)) {
+  if(!(anInteger=(SALOMEDSImpl_AttributeInteger*)_root->FindAttribute(SALOMEDSImpl_AttributeInteger::GetID()))) {
     anInteger = SALOMEDSImpl_AttributeInteger::Set(aLabel, 0);
-  }
+  }    
 
   //Create a new use case
   anInteger->SetValue(anInteger->Value()+1);
-  TDF_Label aChild = aLabel.FindChild(anInteger->Value());
+  DF_Label aChild = aLabel.FindChild(anInteger->Value());
   aNode = SALOMEDSImpl_AttributeTreeNode::Set(aChild, aBasicGUID);
   aNode->Remove();
   aFatherNode->Append(aNode);
@@ -390,25 +380,24 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::AddUseCase(const TColl
  *  Purpose  : Creates a new UseCase iterator, if anObject is null all use cases are iterated 
  */
 //============================================================================
-Handle(SALOMEDSImpl_UseCaseIterator) 
-SALOMEDSImpl_UseCaseBuilder::GetUseCaseIterator(const Handle(SALOMEDSImpl_SObject)& theObject) 
+SALOMEDSImpl_UseCaseIterator
+SALOMEDSImpl_UseCaseBuilder::GetUseCaseIterator(const SALOMEDSImpl_SObject& theObject) 
 {
-  TDF_Label aLabel;
+  DF_Label aLabel;
 
-  if(!theObject.IsNull()) {
-    aLabel = theObject->GetLabel(); //Iterate only sub tree in the use case
+  if(theObject) {
+    aLabel = theObject.GetLabel(); //Iterate only sub tree in the use case
   }
   else {
     aLabel = _doc->Main().Root().FindChild(USE_CASE_LABEL_TAG); //Iterate all use cases
   }
 
-  return new SALOMEDSImpl_UseCaseIterator(aLabel, USE_CASE_GUID, false); 
+  return SALOMEDSImpl_UseCaseIterator(aLabel, USE_CASE_GUID, false); 
 }
 
 
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetSObject(const TCollection_AsciiString& theEntry)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetSObject(const string& theEntry)
 {
-   TDF_Label aLabel;    
-   TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-   return SALOMEDSImpl_Study::SObject(aLabel);    
+  DF_Label L = DF_Label::Label(_root->Label(), theEntry);
+  return SALOMEDSImpl_Study::SObject(L);    
 }

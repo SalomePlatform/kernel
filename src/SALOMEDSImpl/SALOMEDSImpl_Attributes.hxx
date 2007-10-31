@@ -100,7 +100,7 @@ public :
         if(theType == "AttributeTableOfString") return SALOMEDSImpl_AttributeTableOfString::GetID(); \
 	if(theType == "AttributeStudyProperties") return SALOMEDSImpl_AttributeStudyProperties::GetID(); \
 	if(theType == "AttributePythonObject") return SALOMEDSImpl_AttributePythonObject::GetID(); \
-	if(theType == "AttributeUserID") return Standard_GUID("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
+	if(theType == "AttributeUserID") return std::string("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
 	if(theType == "AttributeExternalFileDef") return SALOMEDSImpl_AttributeExternalFileDef::GetID(); \
 	if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
 	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
@@ -110,9 +110,9 @@ public :
         if(theType == "AttributeString") return SALOMEDSImpl_AttributeString::GetID();
 
 
-#define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
-    Handle(SALOMEDSImpl_##ClassName) anAttr; \
-    if (!Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID(), anAttr)) { \
+#define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.c_str(), #ClassName) == 0) { \
+    SALOMEDSImpl_##ClassName* anAttr; \
+    if (!(anAttr=(SALOMEDSImpl_##ClassName*)Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID()))) { \
       CheckLocked(); \
       anAttr = new SALOMEDSImpl_##ClassName; \
       Lab.AddAttribute(anAttr); \
@@ -120,9 +120,9 @@ public :
     return anAttr; \
   }   
 
-#define __FindOrCreateAttribute(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
-    Handle(SALOMEDSImpl_##ClassName) anAttr; \
-    if (!Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID(), anAttr)) { \
+#define __FindOrCreateAttribute(ClassName) if (strcmp(aTypeOfAttribute.c_str(), #ClassName) == 0) { \
+    SALOMEDSImpl_##ClassName* anAttr; \
+    if (!(anAttr=(SALOMEDSImpl_##ClassName*)Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID()))) { \
       anAttr = new SALOMEDSImpl_##ClassName; \
       Lab.AddAttribute(anAttr); \
     } \

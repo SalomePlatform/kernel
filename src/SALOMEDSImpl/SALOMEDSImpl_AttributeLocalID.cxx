@@ -23,21 +23,17 @@
 
 
 #include "SALOMEDSImpl_AttributeLocalID.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeLocalID, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeLocalID, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeLocalID::GetID () 
+const std::string& SALOMEDSImpl_AttributeLocalID::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeLocalID ("12837196-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeLocalID ("12837196-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeLocalID;
 }
 
@@ -48,11 +44,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeLocalID::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeLocalID) SALOMEDSImpl_AttributeLocalID::Set (const TDF_Label& L,
-									  const Standard_Integer value) 
+SALOMEDSImpl_AttributeLocalID* SALOMEDSImpl_AttributeLocalID::Set (const DF_Label& L,
+							           const int value) 
 {
-  Handle(SALOMEDSImpl_AttributeLocalID) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(),A)) {
+  SALOMEDSImpl_AttributeLocalID* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeLocalID*)L.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
     A = new  SALOMEDSImpl_AttributeLocalID(); 
     L.AddAttribute(A);
   }
@@ -76,7 +72,7 @@ SALOMEDSImpl_AttributeLocalID::SALOMEDSImpl_AttributeLocalID()
 //function : Set
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeLocalID::SetValue(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeLocalID::SetValue(const int theValue)
 {
   CheckLocked();
 
@@ -93,7 +89,7 @@ void SALOMEDSImpl_AttributeLocalID::SetValue(const Standard_Integer theValue)
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeLocalID::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeLocalID::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -101,7 +97,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeLocalID::ID () const { return GetID()
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeLocalID::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeLocalID::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeLocalID(); 
 }
@@ -111,9 +107,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeLocalID::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeLocalID::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeLocalID::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeLocalID)::DownCast (with)->Value();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeLocalID*>(with)->Value();
 }
 
 //=======================================================================
@@ -121,9 +117,27 @@ void SALOMEDSImpl_AttributeLocalID::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeLocalID::Paste (const Handle(TDF_Attribute)& into,
-					   const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeLocalID::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeLocalID)::DownCast (into)->SetValue(myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeLocalID*>(into)->SetValue(myValue);
 }
 
+//=======================================================================
+//function : Save
+//purpose  :
+//=======================================================================
+string SALOMEDSImpl_AttributeLocalID::Save() 
+{ 
+  char buffer[128]; 
+  sprintf(buffer, "%d", myValue);
+  return string(buffer); 
+}
+
+//=======================================================================
+//function : Load
+//purpose  :
+//=======================================================================
+void SALOMEDSImpl_AttributeLocalID::Load(const string& theValue)
+{
+  myValue = atoi(theValue.c_str());  
+}

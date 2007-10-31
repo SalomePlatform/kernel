@@ -21,43 +21,39 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_ChildIterator, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_ChildIterator, MMgt_TShared )
-
-SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const Handle(SALOMEDSImpl_SObject)& theSO)
+SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const SALOMEDSImpl_SObject& theSO)
 {
   _so  = theSO;
-  _it = TDF_ChildIterator(_so->GetLabel());
+  _it = DF_ChildIterator(_so.GetLabel());
 }
 
-SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const TDF_Label& theLabel)
+SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const DF_Label& theLabel)
 {
   _so  = SALOMEDSImpl_Study::SObject(theLabel);
-  _it = TDF_ChildIterator(theLabel);
+  _it = DF_ChildIterator(theLabel);
 }
 
 void SALOMEDSImpl_ChildIterator::Init()
 {
-  _it.Initialize(_so->GetLabel(), Standard_False);
+  if(_so) _it.Init(_so.GetLabel(), false);
 }
 
-void SALOMEDSImpl_ChildIterator::Init(const TDF_Label& theLabel)
+void SALOMEDSImpl_ChildIterator::Init(const DF_Label& theLabel)
 {
-  _it.Initialize(theLabel, Standard_False);
+  _it.Init(theLabel, false);
 }
 
 void SALOMEDSImpl_ChildIterator::InitEx(bool theAllLevels)
 {
-  _it.Initialize(_so->GetLabel(), theAllLevels);
+  if(_so) _it.Init(_so.GetLabel(), theAllLevels);
 }
 
-void SALOMEDSImpl_ChildIterator::InitEx(const TDF_Label& theLabel, bool theAllLevels)
+void SALOMEDSImpl_ChildIterator::InitEx(const DF_Label& theLabel, bool theAllLevels)
 {
-  _it.Initialize(theLabel, theAllLevels);
+  _it.Init(theLabel, theAllLevels);
 }
 
 bool SALOMEDSImpl_ChildIterator::More()
@@ -70,12 +66,22 @@ void SALOMEDSImpl_ChildIterator::Next()
   _it.Next();
 }
 
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_ChildIterator::Value()
+SALOMEDSImpl_SObject SALOMEDSImpl_ChildIterator::Value()
 {
+  if(!_so) return SALOMEDSImpl_SObject();
   return SALOMEDSImpl_Study::SObject(_it.Value());
 }
 
-TDF_Label SALOMEDSImpl_ChildIterator::Label()
+DF_Label SALOMEDSImpl_ChildIterator::Label()
 {
   return _it.Value();
 }
+
+SALOMEDSImpl_ChildIterator* SALOMEDSImpl_ChildIterator::GetPersistentCopy() const
+{
+  SALOMEDSImpl_ChildIterator* itr = new SALOMEDSImpl_ChildIterator();
+  itr->_it = _it;
+  itr->_so = _so;
+  return itr;
+}
+

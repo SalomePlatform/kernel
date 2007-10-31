@@ -27,16 +27,13 @@
 using namespace std;
 #endif
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeDrawable, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeDrawable, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeDrawable::GetID () 
+const std::string& SALOMEDSImpl_AttributeDrawable::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeDrawableID ("12837184-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeDrawableID ("12837184-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeDrawableID;
 }
 
@@ -46,11 +43,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeDrawable::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeDrawable) SALOMEDSImpl_AttributeDrawable::Set (const TDF_Label& L,
-									    const Standard_Integer value) 
+SALOMEDSImpl_AttributeDrawable* SALOMEDSImpl_AttributeDrawable::Set (const DF_Label& L,
+								     const int value) 
 {
-  Handle(SALOMEDSImpl_AttributeDrawable) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeDrawable::GetID(),A)) {
+  SALOMEDSImpl_AttributeDrawable* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeDrawable*)L.FindAttribute(SALOMEDSImpl_AttributeDrawable::GetID()))) {
     A = new  SALOMEDSImpl_AttributeDrawable(); 
     L.AddAttribute(A);
   }
@@ -74,7 +71,7 @@ SALOMEDSImpl_AttributeDrawable::SALOMEDSImpl_AttributeDrawable()
 //function : SetDrawable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeDrawable::SetDrawable(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeDrawable::SetDrawable(const int theValue)
 {
   CheckLocked();
 
@@ -89,7 +86,7 @@ void SALOMEDSImpl_AttributeDrawable::SetDrawable(const Standard_Integer theValue
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeDrawable::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeDrawable::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -97,7 +94,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeDrawable::ID () const { return GetID(
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeDrawable::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeDrawable::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeDrawable(); 
 }
@@ -107,9 +104,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeDrawable::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeDrawable::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeDrawable::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (with)->IsDrawable ();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeDrawable*>(with)->IsDrawable ();
 }
 
 //=======================================================================
@@ -117,9 +114,8 @@ void SALOMEDSImpl_AttributeDrawable::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeDrawable::Paste (const Handle(TDF_Attribute)& into,
-                                    const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeDrawable::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (into)->SetDrawable (myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeDrawable*>(into)->SetDrawable (myValue);
 }
 

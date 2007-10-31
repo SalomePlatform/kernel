@@ -25,16 +25,13 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeExternalFileDef, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeExternalFileDef, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeExternalFileDef::GetID () 
+const std::string& SALOMEDSImpl_AttributeExternalFileDef::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeExternalFileDefID ("7123AD4C-ACDB-4e3a-8FDC-70EA164D2CBE");
+  static std::string SALOMEDSImpl_AttributeExternalFileDefID ("7123AD4C-ACDB-4e3a-8FDC-70EA164D2CBE");
   return SALOMEDSImpl_AttributeExternalFileDefID;
 }
 
@@ -42,12 +39,12 @@ const Standard_GUID& SALOMEDSImpl_AttributeExternalFileDef::GetID ()
 //function : Set
 //purpose  : 
 //=======================================================================
-Handle(SALOMEDSImpl_AttributeExternalFileDef) 
-SALOMEDSImpl_AttributeExternalFileDef::Set (const TDF_Label& L, const TCollection_ExtendedString& S) 
+SALOMEDSImpl_AttributeExternalFileDef*
+SALOMEDSImpl_AttributeExternalFileDef::Set (const DF_Label& L, const std::string& S) 
 {
 
-  Handle(SALOMEDSImpl_AttributeExternalFileDef) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeExternalFileDef::GetID(),A)) {
+  SALOMEDSImpl_AttributeExternalFileDef* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeExternalFileDef*)L.FindAttribute(SALOMEDSImpl_AttributeExternalFileDef::GetID()))) {
     A = new  SALOMEDSImpl_AttributeExternalFileDef(); 
     L.AddAttribute(A);
   }
@@ -70,7 +67,7 @@ SALOMEDSImpl_AttributeExternalFileDef::SALOMEDSImpl_AttributeExternalFileDef()
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeExternalFileDef::SetValue (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeExternalFileDef::SetValue (const std::string& S)
 {
   CheckLocked();
 
@@ -89,14 +86,14 @@ void SALOMEDSImpl_AttributeExternalFileDef::SetValue (const TCollection_Extended
 //function : ID
 //purpose  : 
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeExternalFileDef::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeExternalFileDef::ID () const { return GetID(); }
 
 
 //=======================================================================
 //function : NewEmpty
 //purpose  : 
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeExternalFileDef::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeExternalFileDef::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeExternalFileDef(); 
 }
@@ -105,19 +102,18 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeExternalFileDef::NewEmpty () const
 //function : Restore
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeExternalFileDef::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeExternalFileDef::Restore(DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast (with)->Value ();
+  myString = dynamic_cast<SALOMEDSImpl_AttributeExternalFileDef*>(with)->Value ();
 }
 
 //=======================================================================
 //function : Paste
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeExternalFileDef::Paste (const Handle(TDF_Attribute)& into,
-						   const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeExternalFileDef::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeExternalFileDef) anAttr = Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast(into); 
+  SALOMEDSImpl_AttributeExternalFileDef* anAttr = dynamic_cast<SALOMEDSImpl_AttributeExternalFileDef*>(into); 
   anAttr->SetValue(myString);
 }
 

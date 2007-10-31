@@ -23,27 +23,13 @@
 
 #include "SALOMEDSImpl_StudyManager.hxx"
 
-#include <CDF_Session.hxx>
-#include <CDF_DirectoryIterator.hxx>
-#include <TDF_Label.hxx>
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_RelocationTable.hxx>
-#include <TDF_ChildIterator.hxx>
-#include <TDF_AttributeIterator.hxx>
-#include <TColStd_HSequenceOfReal.hxx>
-#include <TColStd_HSequenceOfInteger.hxx>
-#include <TColStd_HArray1OfCharacter.hxx>
-#include <TColStd_HSequenceOfAsciiString.hxx>
-#include <TColStd_HSequenceOfExtendedString.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <OSD_Process.hxx>
-#include <Quantity_Date.hxx>
+#include "DF_ChildIterator.hxx"
 #include "HDFexplorer.hxx"
 
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
+#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include <map>
 
 #include "HDFOI.hxx"
@@ -52,15 +38,12 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyManager, MMgt_TShared )
-
 #define USE_CASE_LABEL_ID                       "0:2"
 
-static void SaveAttributes(Handle(SALOMEDSImpl_SObject) SO, HDFgroup *hdf_group_sobject);
-static void ReadAttributes(const Handle(SALOMEDSImpl_Study)&, const Handle(SALOMEDSImpl_SObject)&, HDFdataset* );
-static void BuildTree (const Handle(SALOMEDSImpl_Study)&, HDFgroup*);
-static void Translate_IOR_to_persistentID (const Handle(SALOMEDSImpl_SObject)&,
+static void SaveAttributes(const SALOMEDSImpl_SObject& SO, HDFgroup *hdf_group_sobject);
+static void ReadAttributes(SALOMEDSImpl_Study*, const SALOMEDSImpl_SObject&, HDFdataset* );
+static void BuildTree (SALOMEDSImpl_Study*, HDFgroup*);
+static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
 					   SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
 
 //============================================================================
@@ -71,9 +54,9 @@ static void Translate_IOR_to_persistentID (const Handle(SALOMEDSImpl_SObject)&,
 SALOMEDSImpl_StudyManager::SALOMEDSImpl_StudyManager()
 {
   _errorCode = "";
-  _OCAFApp = new SALOMEDSImpl_OCAFApplication();
+  _appli = new DF_Application();
   _IDcounter = 0;
-  _OCAFApp->NewDocument("SALOME_STUDY", _clipboard);
+  _clipboard = _appli->NewDocument("SALOME_STUDY");
 }
 
 //============================================================================
@@ -83,8 +66,8 @@ SALOMEDSImpl_StudyManager::SALOMEDSImpl_StudyManager()
 //============================================================================
 SALOMEDSImpl_StudyManager::~SALOMEDSImpl_StudyManager()
 {
-  // Destroy OCAF application
-  _OCAFApp.Nullify();
+  // Destroy application
+  delete _appli;    
 }
 
 
@@ -93,24 +76,24 @@ SALOMEDSImpl_StudyManager::~SALOMEDSImpl_StudyManager()
  *  Purpose  : Create a New Study of name study_name
  */
 //==================================================T==========================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::NewStudy(const TCollection_AsciiString& study_name)
+SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::NewStudy(const string& study_name)
 {
   _errorCode = "";
 
-  Handle(TDocStd_Document) Doc;
-  _OCAFApp->NewDocument("SALOME_STUDY",Doc);
+  DF_Document* Doc = _appli->NewDocument("SALOME_STUDY");
 
-  Handle(SALOMEDSImpl_Study) Study = new SALOMEDSImpl_Study(Doc, study_name);
+  SALOMEDSImpl_Study* Study = new SALOMEDSImpl_Study(Doc, study_name);
 
   _IDcounter++;
   Study->StudyId( _IDcounter );
 
   // set Study properties
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp = Study->GetProperties();
-  OSD_Process aProcess;
-  Quantity_Date aDate = aProcess.SystemDate();
-  aProp->SetModification(aProcess.UserName().ToCString(),
-                         aDate.Minute(), aDate.Hour(), aDate.Day(), aDate.Month(), aDate.Year());
+  SALOMEDSImpl_AttributeStudyProperties* aProp = Study->GetProperties();
+  
+  int month=0,day=0,year=0,hh=0,mn=0,ss=0;
+  SALOMEDSImpl_Tool::GetSystemDate(year, month, day, hh, mn, ss);
+  aProp->SetModification(SALOMEDSImpl_Tool::GetUserName(),
+                         mn, hh, day, month, year);
   aProp->SetCreationMode(1);  //"from scratch"
 
   return Study;
@@ -121,7 +104,7 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::NewStudy(const TCollection
  *  Purpose  : Open a Study from it's persistent reference
  */
 //============================================================================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_AsciiString& aUrl)
+SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
 {
   _errorCode = "";
 
@@ -130,11 +113,11 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
   HDFgroup *hdf_group_study_structure =0;
 
   char* aC_HDFUrl;
-  TCollection_AsciiString aHDFUrl;
+  string aHDFUrl;
   bool isASCII = false;
-  if (HDFascii::isASCII(aUrl.ToCString())) {
+  if (HDFascii::isASCII(aUrl.c_str())) {
     isASCII = true;
-    char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl.ToCString());
+    char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl.c_str());
     aC_HDFUrl = new char[strlen(aResultPath) + 19];
     sprintf(aC_HDFUrl, "%shdf_from_ascii.hdf", aResultPath);
     delete(aResultPath);
@@ -144,7 +127,8 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
     aHDFUrl = aUrl;
   }
 
-  hdf_file = new HDFfile((char*)aHDFUrl.ToCString());
+  
+  hdf_file = new HDFfile((char*)aHDFUrl.c_str());
   try {
     hdf_file->OpenOnDisk(HDF_RDONLY);// mpv: was RDWR, but opened file can be write-protected too
   }
@@ -154,21 +138,20 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
 //      char eStr[strlen(aUrl.ToCString())+17];
 //#else
 	  char *eStr;
-	  eStr = new char[strlen(aUrl.ToCString())+17];
+	  eStr = new char[strlen(aUrl.c_str())+17];
 //#endif
-      sprintf(eStr,"Can't open file %s",aUrl.ToCString());
+      sprintf(eStr,"Can't open file %s",aUrl.c_str());
 //#ifdef WNT
 	  delete [] eStr;
 //#endif
-      _errorCode = TCollection_AsciiString(eStr);
+      _errorCode = string(eStr);
       return NULL;
     }
 
   // Temporary aStudyUrl in place of study name
-  Handle(TDocStd_Document) Doc;
-  _OCAFApp->NewDocument("SALOME_STUDY",Doc);
+  DF_Document* Doc = _appli->NewDocument("SALOME_STUDY");
 
-  Handle(SALOMEDSImpl_Study) Study = new SALOMEDSImpl_Study(Doc, aUrl);
+  SALOMEDSImpl_Study* Study = new SALOMEDSImpl_Study(Doc, aUrl);
 
   _IDcounter++;
   Study->StudyId( _IDcounter );
@@ -183,10 +166,9 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
     return Study;
   }
 
-  //Create  the Structure of the OCAF Document
+  //Create  the Structure of the Document
   hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
 
-  Handle(TDF_Data) DF = Doc->GetData();
   try {
     BuildTree (Study, hdf_group_study_structure);
   }
@@ -195,18 +177,18 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
 //#ifndef WNT
 //      char eStr[strlen(aUrl.ToCString())+17];
 //#else
-	  char *eStr = new char [strlen(aUrl.ToCString())+17];
+	  char *eStr = new char [strlen(aUrl.c_str())+17];
 //#endif
-      sprintf(eStr,"Can't open file %s", aUrl.ToCString());
-      _errorCode = TCollection_AsciiString(eStr);
+      sprintf(eStr,"Can't open file %s", aUrl.c_str());
+      _errorCode = string(eStr);
       return NULL;
     }
 
   hdf_file->CloseOnDisk();
 
   if (isASCII) {
-    Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-    aFilesToRemove->Append("hdf_from_ascii.hdf");
+    vector<string> aFilesToRemove;
+    aFilesToRemove.push_back("hdf_from_ascii.hdf");
     SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
   }
 
@@ -225,11 +207,11 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
  */
 
 //============================================================================
-void  SALOMEDSImpl_StudyManager::Close(const Handle(SALOMEDSImpl_Study)& aStudy)
+void  SALOMEDSImpl_StudyManager::Close(SALOMEDSImpl_Study* aStudy)
 {
   _errorCode = "";
 
-  if(aStudy.IsNull()) {
+  if(!aStudy) {
     _errorCode = "Study is null";
     return;
   }
@@ -242,14 +224,14 @@ void  SALOMEDSImpl_StudyManager::Close(const Handle(SALOMEDSImpl_Study)& aStudy)
  *  Purpose  : Save a Study to it's persistent reference
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Save(const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::Save(SALOMEDSImpl_Study* aStudy,
 				     SALOMEDSImpl_DriverFactory* aFactory,
 				     bool theMultiFile)
 {
   _errorCode = "";
 
-  TCollection_AsciiString url = aStudy->URL();
-  if (url.IsEmpty()) {
+  string url = aStudy->URL();
+  if (url.empty()) {
     _errorCode = "No path specified to save the study. Nothing done";
     return false;
   }
@@ -260,14 +242,14 @@ bool SALOMEDSImpl_StudyManager::Save(const Handle(SALOMEDSImpl_Study)& aStudy,
   return false;
 }
 
-bool SALOMEDSImpl_StudyManager::SaveASCII(const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::SaveASCII(SALOMEDSImpl_Study* aStudy,
 					  SALOMEDSImpl_DriverFactory* aFactory,
 					  bool theMultiFile)
 {
   _errorCode = "";
 
-  TCollection_AsciiString url = aStudy->URL();
-  if (url.IsEmpty()) {
+  string url = aStudy->URL();
+  if (url.empty()) {
     _errorCode = "No path specified to save the study. Nothing done";
     return false;
   }
@@ -283,8 +265,8 @@ bool SALOMEDSImpl_StudyManager::SaveASCII(const Handle(SALOMEDSImpl_Study)& aStu
  *  Purpose  : Save a study to the persistent reference aUrl
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::SaveAs(const TCollection_AsciiString& aUrl,
-				       const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::SaveAs(const string& aUrl,
+				       SALOMEDSImpl_Study* aStudy,
 				       SALOMEDSImpl_DriverFactory* aFactory,
 				       bool theMultiFile)
 {
@@ -292,8 +274,8 @@ bool SALOMEDSImpl_StudyManager::SaveAs(const TCollection_AsciiString& aUrl,
   return Impl_SaveAs(aUrl,aStudy, aFactory, theMultiFile, false);
 }
 
-bool SALOMEDSImpl_StudyManager::SaveAsASCII(const TCollection_AsciiString& aUrl,
-					    const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::SaveAsASCII(const string& aUrl,
+					    SALOMEDSImpl_Study* aStudy,
 					    SALOMEDSImpl_DriverFactory* aFactory,
 					    bool theMultiFile)
 {
@@ -306,27 +288,26 @@ bool SALOMEDSImpl_StudyManager::SaveAsASCII(const TCollection_AsciiString& aUrl,
  *  Purpose  : Get name list of open studies in the session
  */
 //============================================================================
-Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_StudyManager::GetOpenStudies()
+vector<SALOMEDSImpl_Study*> SALOMEDSImpl_StudyManager::GetOpenStudies()
 {
   _errorCode = "";
-  Handle(TColStd_HSequenceOfTransient) aList = new TColStd_HSequenceOfTransient;
+  vector<SALOMEDSImpl_Study*> aList;
 
-  int nbDocs = _OCAFApp->NbDocuments();
+  int nbDocs = _appli->NbDocuments();
 
   if(nbDocs == 0) {
     _errorCode = "No active study in this session";
     return aList;
   }
   else {
-    Handle(SALOMEDSImpl_Study) aStudy;
-    Handle(CDF_Session) S = CDF_Session::CurrentSession();
-    CDF_DirectoryIterator it (S->Directory());
-    for (;it.MoreDocument();it.NextDocument()) {
-      Handle(TDocStd_Document) D = Handle(TDocStd_Document)::DownCast(it.Document());
+    SALOMEDSImpl_Study* aStudy;
+    vector<int> ids = _appli->GetDocumentIDs();
+    for (int i = 0, len = ids.size(); i<len; i++) {
+      DF_Document* D = _appli->GetDocument(ids[i]);
       if(D == _clipboard) continue;
       aStudy = SALOMEDSImpl_Study::GetStudy(D->Main());
-      if(aStudy.IsNull()) continue;
-      aList->Append(aStudy);
+      if(!aStudy) continue;
+      aList.push_back(aStudy);
     }
   }
 
@@ -338,30 +319,24 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_StudyManager::GetOpenStudies()
  *  Purpose  : Get a study from its name
  */
 //============================================================================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByName
-                                   (const TCollection_AsciiString& aStudyName)
+SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::GetStudyByName
+                                   (const string& aStudyName)
 {
   _errorCode = "";
-  int nbDocs = _OCAFApp->NbDocuments();
+  int nbDocs = _appli->NbDocuments();
 
   if (nbDocs == 0) {
     _errorCode = "No active study in this session";
     return NULL;
   }
   else {
-    Handle(SALOMEDSImpl_Study) aStudy;
-    Handle(CDF_Session) S = CDF_Session::CurrentSession();
-    CDF_DirectoryIterator it (S->Directory());
-    for (; it.MoreDocument(); it.NextDocument()) {
-      Handle(TDocStd_Document) D = Handle(TDocStd_Document)::DownCast(it.Document());
-      if (D == _clipboard) continue;
-      aStudy = SALOMEDSImpl_Study::GetStudy(D->Main());
-      if (aStudy.IsNull()) continue;
-      if (aStudy->Name() == aStudyName) return aStudy;
+    vector<SALOMEDSImpl_Study*> studies = GetOpenStudies();
+    for (int i = 0, len = studies.size(); i<len; i++) {
+      if (studies[i]->Name() == aStudyName) return studies[i];
     }
   }
 
-  _errorCode = TCollection_AsciiString("Found no study with the name ") + aStudyName;
+  _errorCode = string("Found no study with the name ") + aStudyName;
   return NULL;
 }
 
@@ -370,25 +345,19 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByName
  *  Purpose  : Get a study from its ID
  */
 //============================================================================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByID(int aStudyID)
+SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::GetStudyByID(int aStudyID)
 {
   _errorCode = "";
-  int nbDocs = _OCAFApp->NbDocuments();
+  int nbDocs = _appli->NbDocuments();
 
   if (nbDocs == 0) {
     _errorCode = "No active study in this session";
     return NULL;
   }
   else {
-    Handle(SALOMEDSImpl_Study) aStudy;
-    Handle(CDF_Session) S = CDF_Session::CurrentSession();
-    CDF_DirectoryIterator it (S->Directory());
-    for (; it.MoreDocument(); it.NextDocument()) {
-      Handle(TDocStd_Document) D = Handle(TDocStd_Document)::DownCast(it.Document());
-      if (D == _clipboard) continue;
-      aStudy = SALOMEDSImpl_Study::GetStudy(D->Main());
-      if (aStudy.IsNull()) continue;
-      if (aStudy->StudyId() == aStudyID) return aStudy;
+    vector<SALOMEDSImpl_Study*> studies = GetOpenStudies();
+    for (int i = 0, len = studies.size(); i<len; i++) {
+      if (studies[i]->StudyId() == aStudyID) return studies[i];
     }
   }
 
@@ -401,7 +370,7 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByID(int aStudyID)
  *  Purpose  : save the study properties in HDF file
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
                                                     HDFgroup *hdf_group)
 {
   _errorCode = "";
@@ -411,43 +380,42 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(const Handle(SALOMEDSImpl_St
   hdf_int32 name_len;
 
   // add modifications list (user and date of save)
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp = aStudy->GetProperties();
-  Handle(SALOMEDSImpl_StudyBuilder) SB= aStudy->NewBuilder();
+  SALOMEDSImpl_AttributeStudyProperties* aProp = aStudy->GetProperties();
   int aLocked = aProp->IsLocked();
-  if (aLocked) aProp->SetLocked(Standard_False);
+  if (aLocked) aProp->SetLocked(false);
 
-  OSD_Process aProcess;
-  Quantity_Date aDate = aProcess.SystemDate();
-  aProp->SetModification(aProcess.UserName().ToCString(),
-                         aDate.Minute(), aDate.Hour(), aDate.Day(), aDate.Month(), aDate.Year());
+  int month=0,day=0,year=0,hh=0,mn=0,ss=0;
+  SALOMEDSImpl_Tool::GetSystemDate(year, month, day, hh, mn, ss);
+  aProp->SetModification(SALOMEDSImpl_Tool::GetUserName(),
+                         mn, hh, day, month, year);
 
-  if (aLocked) aProp->SetLocked(Standard_True);
+  if (aLocked) aProp->SetLocked(true);
 
-  Handle(TColStd_HSequenceOfExtendedString) aNames;
-  Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
+  vector<string> aNames;
+  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
 
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLength = 0, anIndex, i;
-  for(i=1; i<=aNames->Length(); i++)
-    aLength += aNames->Value(i).Length() + 1;
+  for(i=1; i<=aNames.size(); i++)
+    aLength += aNames[i-1].size() + 1;
 
   //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, "zero" byte
-  char* aProperty = new char[3 + aLength + 12 * aNames->Length()];
+  char* aProperty = new char[3 + aLength + 12 * aNames.size()];
 
 
   sprintf(aProperty,"%c%c", (char)aProp->GetCreationMode(),  (aProp->IsLocked())?'l':'u');
 
-  aLength = aNames->Length();
+  aLength = aNames.size();
   int a = 2;
-  for(anIndex = 1; anIndex  <= aLength; anIndex++) {
+  for(anIndex = 0; anIndex<aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
-	    (int)(aMinutes->Value(anIndex)),
-	    (int)(aHours->Value(anIndex)),
-	    (int)(aDays->Value(anIndex)),
-	    (int)(aMonths->Value(anIndex)),
-	    (int)(aYears->Value(anIndex)),
-	    TCollection_AsciiString(aNames->Value(anIndex)).ToCString());
+	    (int)(aMinutes[anIndex]),
+	    (int)(aHours[anIndex]),
+	    (int)(aDays[anIndex]),
+	    (int)(aMonths[anIndex]),
+	    (int)(aYears[anIndex]),
+	    aNames[anIndex].c_str());
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
@@ -471,8 +439,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(const Handle(SALOMEDSImpl_St
  *  Purpose  : save the study in HDF file
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
-					    const Handle(SALOMEDSImpl_Study)& aStudy,
+bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
+					    SALOMEDSImpl_Study* aStudy,
 					    SALOMEDSImpl_DriverFactory* aFactory,
 					    bool theMultiFile,
 					    bool theASCII)
@@ -480,7 +448,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
   // HDF File will be composed of differents part :
   // * For each ComponentDataType, all data created by the component
   //   Informations in data group hdf_group_datacomponent
-  // * Study Structure -> Exactly what is contained in OCAF document
+  // * Study Structure -> Exactly what is contained in Document
   //   Informations in data group hdf_group_study_structure
 
   _errorCode = "";
@@ -496,16 +464,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
   hdf_int32 name_len = 0;
   char *component_name = 0;
 
-  int aLocked = aStudy->GetProperties()->IsLocked();
-  if (aLocked) aStudy->GetProperties()->SetLocked(false);
-
-  Handle(SALOMEDSImpl_StudyBuilder) SB= aStudy->NewBuilder();
-  map<string, SALOMEDSImpl_Driver*> aMapTypeDriver;
-
-  if(aStudy.IsNull()) {
+  if(!aStudy) {
     _errorCode = "Study is null";
     return false;
   }
+
+  int aLocked = aStudy->GetProperties()->IsLocked();
+  if (aLocked) aStudy->GetProperties()->SetLocked(false);
+
+  SALOMEDSImpl_StudyBuilder* SB= aStudy->NewBuilder();
+  map<string, SALOMEDSImpl_Driver*> aMapTypeDriver;
 
   try
     {
@@ -513,17 +481,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
       SALOMEDSImpl_SComponentIterator itcomponent1 = aStudy->NewComponentIterator();
       for (; itcomponent1.More(); itcomponent1.Next())
 	{
-	  Handle(SALOMEDSImpl_SComponent) sco = itcomponent1.Value();
-
+	  SALOMEDSImpl_SComponent sco = itcomponent1.Value();
 	  // if there is an associated Engine call its method for saving
-	  TCollection_AsciiString IOREngine;
+	  string IOREngine;
 	  try {
-	    if (!sco->ComponentIOR(IOREngine)) {
-	      TCollection_AsciiString aCompType = sco->GetComment();
-	      if (!aCompType.IsEmpty()) {
+	    if (!sco.ComponentIOR(IOREngine)) {
+	      string aCompType = sco.GetComment();
+	      if (!aCompType.empty()) {
 
 		SALOMEDSImpl_Driver* aDriver = aFactory->GetDriverByType(aCompType);
-		aMapTypeDriver[aCompType.ToCString()] = aDriver;
+		aMapTypeDriver[aCompType] = aDriver;
 
 		if (aDriver != NULL) {
 		  if(!SB->LoadWith(sco, aDriver)) {
@@ -539,12 +506,12 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 	  }
 	}
 
-      TCollection_AsciiString anOldName = aStudy->Name();
+      string anOldName = aStudy->Name();
       aStudy->URL(aUrl);
 
       // To change for Save
       // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
-      hdf_file = new HDFfile(aUrl.ToCString());
+      hdf_file = new HDFfile((char*)aUrl.c_str());
       hdf_file->CreateOnDisk();
 
       //-----------------------------------------------------------------------
@@ -557,20 +524,20 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 
       for (; itcomponent.More(); itcomponent.Next())
     	{
-	  Handle(SALOMEDSImpl_SComponent) sco = itcomponent.Value();
+	  SALOMEDSImpl_SComponent sco = itcomponent.Value();
 
-	  TCollection_AsciiString scoid = sco->GetID();
-	  hdf_sco_group = new HDFgroup(scoid.ToCString(), hdf_group_datacomponent);
+	  string scoid = sco.GetID();
+	  hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group_datacomponent);
 	  hdf_sco_group->CreateOnDisk();
 
-	  TCollection_AsciiString componentDataType = sco->ComponentDataType();
-	  TCollection_AsciiString IOREngine;
-	  if (sco->ComponentIOR(IOREngine))
+	  string componentDataType = sco.ComponentDataType();
+	  string IOREngine;
+	  if (sco.ComponentIOR(IOREngine))
 	    {
 	      SALOMEDSImpl_Driver* Engine = NULL;
-	      if(aMapTypeDriver.find(componentDataType.ToCString()) != aMapTypeDriver.end()) {
+	      if(aMapTypeDriver.find(componentDataType) != aMapTypeDriver.end()) {
 		// we have found the associated engine to write the data
-		Engine = aMapTypeDriver[componentDataType.ToCString()];
+		Engine = aMapTypeDriver[componentDataType];
 	      }
 	      else {
 		Engine = aFactory->GetDriverByIOR(IOREngine);
@@ -578,8 +545,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 
 	      if (Engine != NULL)
 		{
-		  Handle(SALOMEDSImpl_TMPFile) aStream;
-		  long length;
+		  SALOMEDSImpl_TMPFile* aStream = NULL;
+		  long length = 0;
 
                   if (theASCII) aStream = Engine->SaveASCII(sco,
 							    SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
@@ -600,6 +567,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 		    hdf_dataset->WriteOnDisk(aStream->Data());  //Save the stream in the HDF file
 		    hdf_dataset->CloseOnDisk();
 		  }
+
+		  if(aStream) delete aStream;
 
 		  // store multifile state
 		  aHDFSize[0] = 2;
@@ -634,13 +603,13 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
       SALOMEDSImpl_SComponentIterator itcomp = aStudy->NewComponentIterator();
       for (; itcomp.More(); itcomp.Next())
 	{
-	  Handle(SALOMEDSImpl_SComponent) SC = itcomp.Value();
-	  TCollection_AsciiString scid = SC->GetID();
-	  hdf_sco_group2 = new HDFgroup(scid.ToCString(), hdf_group_study_structure);
+	  SALOMEDSImpl_SComponent SC = itcomp.Value();
+	  string scid = SC.GetID();
+	  hdf_sco_group2 = new HDFgroup((char*)scid.c_str(), hdf_group_study_structure);
 	  hdf_sco_group2->CreateOnDisk();
           SaveAttributes(SC, hdf_sco_group2);
 	  // ComponentDataType treatment
-	  component_name = SC->ComponentDataType().ToCString();
+	  component_name = (char*)SC.ComponentDataType().c_str();
 	  name_len = (hdf_int32)strlen(component_name);
 	  size[0] = name_len +1 ;
 	  hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
@@ -652,12 +621,11 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 	  hdf_sco_group2->CloseOnDisk();
  	  hdf_sco_group2=0; // will be deleted by hdf_group_study_structure destructor
 	}
-
       //-----------------------------------------------------------------------
       //4 - Write the Study UseCases Structure
       //-----------------------------------------------------------------------
-      Handle(SALOMEDSImpl_SObject) aSO = aStudy->FindObjectID(USE_CASE_LABEL_ID);
-      if (!aSO.IsNull()) {
+      SALOMEDSImpl_SObject aSO = aStudy->FindObjectID(USE_CASE_LABEL_ID);
+      if (aSO) {
 	HDFgroup *hdf_soo_group = new HDFgroup(USE_CASE_LABEL_ID,hdf_group_study_structure);
 	hdf_soo_group->CreateOnDisk();
 	SaveAttributes(aSO, hdf_soo_group);
@@ -670,17 +638,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
       //-----------------------------------------------------------------------
       //5 - Write the Study Properties
       //-----------------------------------------------------------------------
-      name_len = (hdf_int32) aStudy->Name().Length();
+      name_len = (hdf_int32) aStudy->Name().size();
       size[0] = name_len +1 ;
       hdf_dataset = new HDFdataset("STUDY_NAME",hdf_group_study_structure,HDF_STRING,size,1);
       hdf_dataset->CreateOnDisk();
-      char* studid = aStudy->Name().ToCString();
+      char* studid = (char*)aStudy->Name().c_str();
       hdf_dataset->WriteOnDisk(studid);
       hdf_dataset->CloseOnDisk();
       hdf_dataset=0; // will be deleted by hdf_group_study_structure destructor
 
       Impl_SaveProperties(aStudy, hdf_group_study_structure);
-
       hdf_group_study_structure->CloseOnDisk();
       hdf_file->CloseOnDisk();
 
@@ -704,7 +671,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
       return false;
     }
   if (theASCII) { // save file in ASCII format
-    HDFascii::ConvertFromHDFToASCII(aUrl.ToCString(), true);
+    HDFascii::ConvertFromHDFToASCII(aUrl.c_str(), true);
   }
 
   return true;
@@ -715,7 +682,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const Handle(SALOMEDSImpl_SObject)& SC,
+bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const SALOMEDSImpl_SObject& SC,
 						HDFgroup *hdf_group_datatype)
 {
   _errorCode = "";
@@ -725,29 +692,32 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const Handle(SALOMEDSImpl_SObjec
 
   HDFgroup *hdf_group_sobject = 0;
 
-  TDF_ChildIterator itchild(SC->GetLabel());
+  DF_ChildIterator itchild(SC.GetLabel());
   for (; itchild.More(); itchild.Next())
     {
 
       // mpv: don't save empty labels
-      TDF_AttributeIterator AI1(itchild.Value());
-      if (!AI1.More()) {  //No attributes on the label
-	TDF_ChildIterator subchild(SC->GetLabel());
+      vector<DF_Attribute*> attr = itchild.Value().GetAttributes();
+      if (attr.size() == 0) {  //No attributes on the label
+	DF_ChildIterator subchild(itchild.Value());
 	if (!subchild.More()) {
 	  continue;
 	}
-	subchild.Initialize(SC->GetLabel(), true);
+	subchild.Init(itchild.Value(), true);
 	bool anEmpty = true;
 	for (; subchild.More() && anEmpty; subchild.Next()) {
-	  TDF_AttributeIterator AI2(subchild.Value());
-	  if (AI2.More()) anEmpty = false;  //There are attributes on the child label
+	  vector<DF_Attribute*> attr2 = subchild.Value().GetAttributes();
+	  if (attr2.size()) {
+	    anEmpty = false;  //There are attributes on the child label
+	    break;
+	  }
 	}
 	if (anEmpty) continue;
       }
 
-      Handle(SALOMEDSImpl_SObject) SO = SALOMEDSImpl_Study::SObject(itchild.Value());
+      SALOMEDSImpl_SObject SO = SALOMEDSImpl_Study::SObject(itchild.Value());
 
-      char* scoid = (char*) SO->GetID().ToCString();
+      char* scoid = (char*) SO.GetID().c_str();
       hdf_group_sobject = new HDFgroup(scoid, hdf_group_datatype);
       hdf_group_sobject->CreateOnDisk();
       SaveAttributes(SO, hdf_group_sobject);
@@ -764,14 +734,13 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const Handle(SALOMEDSImpl_SObjec
  *  Purpose  :
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_StudyManager::Impl_SubstituteSlash(const TCollection_AsciiString& aUrl)
+string SALOMEDSImpl_StudyManager::Impl_SubstituteSlash(const string& aUrl)
 {
   _errorCode = "";
 
-  TCollection_ExtendedString theUrl(aUrl);
-  Standard_ExtCharacter val1 = ToExtCharacter('/');
-  Standard_ExtCharacter val2 = ToExtCharacter(':');
-  theUrl.ChangeAll(val1,val2);
+  std::string theUrl(aUrl);
+  for(int i = 0; i<theUrl.size(); i++)
+    if(theUrl[i] == '/') theUrl[i] = ':';
   return theUrl;
 }
 
@@ -780,7 +749,7 @@ TCollection_AsciiString SALOMEDSImpl_StudyManager::Impl_SubstituteSlash(const TC
  *  Purpose  :
  */
 //============================================================================
-Handle(TDocStd_Document) SALOMEDSImpl_StudyManager::GetDocumentOfStudy(const Handle(SALOMEDSImpl_Study)& theStudy)
+DF_Document* SALOMEDSImpl_StudyManager::GetDocumentOfStudy(SALOMEDSImpl_Study* theStudy)
 {
   _errorCode = "";
   return theStudy->_doc;
@@ -791,15 +760,15 @@ Handle(TDocStd_Document) SALOMEDSImpl_StudyManager::GetDocumentOfStudy(const Han
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject,
+bool SALOMEDSImpl_StudyManager::CanCopy(const SALOMEDSImpl_SObject& theObject,
 					SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_SComponent) aComponent = theObject->GetFatherComponent();
-  if (aComponent.IsNull()) return false;
-  if (aComponent->GetLabel() == theObject->GetLabel()) return false;
-  TCollection_AsciiString IOREngine;
-  if (!aComponent->ComponentIOR(IOREngine)) return false;
+  SALOMEDSImpl_SComponent aComponent = theObject.GetFatherComponent();
+  if (!aComponent) return false;
+  if (aComponent.GetLabel() == theObject.GetLabel()) return false;
+  string IOREngine;
+  if (!aComponent.ComponentIOR(IOREngine)) return false;
   if (theEngine == NULL) return false;
   return theEngine->CanCopy(theObject);
 }
@@ -809,63 +778,64 @@ bool SALOMEDSImpl_StudyManager::CanCopy(const Handle(SALOMEDSImpl_SObject)& theO
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::CopyLabel(const Handle(SALOMEDSImpl_Study)& theSourceStudy,
+bool SALOMEDSImpl_StudyManager::CopyLabel(SALOMEDSImpl_Study* theSourceStudy,
 					  SALOMEDSImpl_Driver* theEngine,
-					  const Standard_Integer theSourceStartDepth,
-					  const TDF_Label& theSource,
-					  const TDF_Label& theDestinationMain)
+					  const int theSourceStartDepth,
+					  const DF_Label& theSource,
+					  const DF_Label& theDestinationMain)
 {
   _errorCode = "";
 
   int a;
-  TDF_Label aTargetLabel = theDestinationMain;
-  TDF_Label aAuxTargetLabel = theDestinationMain.Father().FindChild(2);
+  DF_Label aTargetLabel = theDestinationMain;
+  DF_Label aAuxTargetLabel = theDestinationMain.Father().FindChild(2);
   for(a = theSource.Depth() - theSourceStartDepth; a > 0 ; a--) {
-    TDF_Label aSourceLabel = theSource;
+    DF_Label aSourceLabel = theSource;
     for(int aNbFather = 1; aNbFather < a; aNbFather++) aSourceLabel = aSourceLabel.Father();
     aTargetLabel = aTargetLabel.FindChild(aSourceLabel.Tag());
     aAuxTargetLabel = aAuxTargetLabel.FindChild(aSourceLabel.Tag());
   }
   // iterate attributes
-  TDF_AttributeIterator anAttrIterator(theSource);
-  Handle(TDF_RelocationTable) aRT = new TDF_RelocationTable();
-  for(; anAttrIterator.More(); anAttrIterator.Next()) {
-    Handle(TDF_Attribute) anAttr = anAttrIterator.Value();
-    if (!Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(anAttr).IsNull()) continue; // never copy tree node attribute
-    if (!Handle(SALOMEDSImpl_AttributeTarget)::DownCast(anAttr).IsNull()) continue; // and target attribute
+  vector<DF_Attribute*> attrList = theSource.GetAttributes();
+  for(int i = 0, len = attrList.size(); i<len; i++) {
+    DF_Attribute* anAttr = attrList[i];
+    string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(anAttr);
+    if (type.substr(0, 17) == string("AttributeTreeNode")) continue; // never copy tree node attribute
+    if (type == string("AttributeTarget")) continue; // and target attribute
 
-    if (!Handle(SALOMEDSImpl_AttributeReference)::DownCast(anAttr).IsNull()) { // reference copied as Comment in aux tree
-      TDF_Label aReferenced = Handle(SALOMEDSImpl_AttributeReference)::DownCast(anAttr)->Get();
-      TCollection_AsciiString anEntry;
-      TDF_Tool::Entry(aReferenced, anEntry);
+    if (type == string("AttributeReference")) { // reference copied as Comment in aux tree
+      DF_Label aReferenced = dynamic_cast<SALOMEDSImpl_AttributeReference*>(anAttr)->Get();
+      string anEntry = aReferenced.Entry();
       // store the value of name attribute of referenced label
-      Handle(SALOMEDSImpl_AttributeName) aNameAttribute;
-      if (aReferenced.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttribute)) {
+      SALOMEDSImpl_AttributeName* aNameAttribute;
+      if ((aNameAttribute=(SALOMEDSImpl_AttributeName*)aReferenced.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
 	anEntry += " ";
 	anEntry += aNameAttribute->Value();
       }
-      SALOMEDSImpl_AttributeComment::Set(aAuxTargetLabel, TCollection_ExtendedString(anEntry));
+      SALOMEDSImpl_AttributeComment::Set(aAuxTargetLabel, anEntry);
       continue;
     }
 
-    if (!Handle(SALOMEDSImpl_AttributeIOR)::DownCast(anAttr).IsNull()) { // IOR => ID and TMPFile of Engine
-      TCollection_AsciiString anEntry;
-      TDF_Tool::Entry(theSource, anEntry);
-      Handle(SALOMEDSImpl_SObject) aSO = theSourceStudy->FindObjectID(anEntry.ToCString());
+    if (type == string("AttributeIOR")) { // IOR => ID and TMPFile of Engine
+      string anEntry = theSource.Entry();
+      SALOMEDSImpl_SObject aSO = theSourceStudy->FindObjectID(anEntry);
       int anObjID;
       long aLen;
-      Handle(SALOMEDSImpl_TMPFile) aStream = theEngine->CopyFrom(aSO, anObjID, aLen);
-      TCollection_ExtendedString aResStr("");
+      SALOMEDSImpl_TMPFile* aStream = theEngine->CopyFrom(aSO, anObjID, aLen);
+      string aResStr("");
       for(a = 0; a < aLen; a++) {
-	aResStr += TCollection_ExtendedString(ToExtCharacter(Standard_Character(aStream->Get(a))));
+	aResStr += (char)(aStream->Get(a));
       }
+
+      if(aStream) delete aStream;
+
       SALOMEDSImpl_AttributeInteger::Set(aAuxTargetLabel, anObjID);
       SALOMEDSImpl_AttributeName::Set(aAuxTargetLabel, aResStr);
       continue;
     }
-    Handle(TDF_Attribute) aNewAttribute = anAttr->NewEmpty();
+    DF_Attribute* aNewAttribute = anAttr->NewEmpty();
     aTargetLabel.AddAttribute(aNewAttribute);
-    anAttr->Paste(aNewAttribute, aRT);
+    anAttr->Paste(aNewAttribute);
   }
 
   return true;
@@ -876,48 +846,46 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(const Handle(SALOMEDSImpl_Study)& theS
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Copy(const Handle(SALOMEDSImpl_SObject)& theObject,
+bool SALOMEDSImpl_StudyManager::Copy(const SALOMEDSImpl_SObject& theObject,
 				     SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
   // adoptation for alliances datamodel copy: without IOR attributes !!!
   bool aStructureOnly; // copy only SObjects and attributes without component help
-  aStructureOnly = !theObject->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID());
+  aStructureOnly = !theObject.GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID());
 
   // get component-engine
-  Handle(SALOMEDSImpl_Study) aStudy = theObject->GetStudy();
+  SALOMEDSImpl_Study* aStudy = theObject.GetStudy();
 
   // CAF document of current study usage
-  Handle(TDocStd_Document) aDocument = GetDocumentOfStudy(aStudy);
-  if (aDocument.IsNull()) {
-    _errorCode = "OCAF document is null";
+  DF_Document* aDocument = GetDocumentOfStudy(aStudy);
+  if (!aDocument) {
+    _errorCode = "Document is null";
     return false;
   }
 
   //Clear the clipboard
-  _clipboard->Main().Root().ForgetAllAttributes(Standard_True);
-  _OCAFApp->Close(_clipboard);
-  Handle(TDocStd_Document) aDoc;
-  _OCAFApp->NewDocument("SALOME_STUDY", aDoc);
-  _clipboard = aDoc;
+  _clipboard->Main().Root().ForgetAllAttributes(true);
+  _appli->Close(_clipboard);
+  _clipboard = _appli->NewDocument("SALOME_STUDY");
 
   // set component data type to the name attribute of root label
   if (!aStructureOnly) {
     SALOMEDSImpl_AttributeComment::Set(_clipboard->Main().Root(),
-				       TCollection_ExtendedString(theEngine->ComponentDataType()));
+				       theEngine->ComponentDataType());
   }
   // set to the Root label integer attribute: study id
   SALOMEDSImpl_AttributeInteger::Set(_clipboard->Main().Root(), aStudy->StudyId());
   // iterate all theObject's label children
-  TDF_Label aStartLabel = theObject->GetLabel();
-  Standard_Integer aSourceStartDepth = aStartLabel.Depth();
+  DF_Label aStartLabel = theObject.GetLabel();
+  int aSourceStartDepth = aStartLabel.Depth();
 
   // copy main source label
   CopyLabel(aStudy, theEngine, aSourceStartDepth, aStartLabel, _clipboard->Main());
 
   // copy all subchildren of the main source label (all levels)
-  TDF_ChildIterator anIterator(aStartLabel, Standard_True);
+  DF_ChildIterator anIterator(aStartLabel, true);
   for(; anIterator.More(); anIterator.Next()) {
     CopyLabel(aStudy, theEngine, aSourceStartDepth, anIterator.Value(), _clipboard->Main());
   }
@@ -929,34 +897,34 @@ bool SALOMEDSImpl_StudyManager::Copy(const Handle(SALOMEDSImpl_SObject)& theObje
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::CanPaste(const Handle(SALOMEDSImpl_SObject)& theObject,
+bool SALOMEDSImpl_StudyManager::CanPaste(const SALOMEDSImpl_SObject& theObject,
 					 SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
-  if (_clipboard.IsNull()) {
+  if (!_clipboard) {
     _errorCode = "Clipboard is null";
     return false;
   }
 
-  Handle(SALOMEDSImpl_AttributeComment) aCompName;
-  if (!_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aCompName)) {
+  SALOMEDSImpl_AttributeComment* aCompName = NULL;
+  if (!(aCompName=(SALOMEDSImpl_AttributeComment*)_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
     _errorCode = "Clipboard has no component type";
     return false;
   }
-  Handle(SALOMEDSImpl_AttributeInteger) anObjID;
-  if (!_clipboard->Main().Father().FindChild(2).FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anObjID)) {
+  SALOMEDSImpl_AttributeInteger* anObjID;
+  if (!(anObjID=(SALOMEDSImpl_AttributeInteger*)_clipboard->Main().Father().FindChild(2).FindAttribute(SALOMEDSImpl_AttributeInteger::GetID()))) {
     _errorCode = "Clipboard has no object id";
     return false;
   }
-  Handle(SALOMEDSImpl_SComponent) aComponent = theObject->GetFatherComponent();
-  if (aComponent.IsNull()) {
+  SALOMEDSImpl_SComponent aComponent = theObject.GetFatherComponent();
+  if (!aComponent) {
     _errorCode = "Object doesn't belong to component";
     return false;
   }
 
-  TCollection_AsciiString IOREngine;
-  if (!aComponent->ComponentIOR(IOREngine)) {
+  string IOREngine;
+  if (!aComponent.ComponentIOR(IOREngine)) {
     _errorCode = "component has no IOR";
     return false;
   }
@@ -968,23 +936,23 @@ bool SALOMEDSImpl_StudyManager::CanPaste(const Handle(SALOMEDSImpl_SObject)& the
  *  Purpose  :
  */
 //============================================================================
-TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)& theDestinationStudy,
-						SALOMEDSImpl_Driver* theEngine,
-						const TDF_Label& theSource,
-						const TDF_Label& theDestinationStart,
-						const int theCopiedStudyID,
-						const bool isFirstElement)
+DF_Label SALOMEDSImpl_StudyManager::PasteLabel(SALOMEDSImpl_Study* theDestinationStudy,
+					       SALOMEDSImpl_Driver* theEngine,
+					       const DF_Label& theSource,
+					       const DF_Label& theDestinationStart,
+					       const int theCopiedStudyID,
+					       const bool isFirstElement)
 {
   _errorCode = "";
 
   // get corresponding source, target and auxiliary labels
-  TDF_Label aTargetLabel = theDestinationStart;
+  DF_Label aTargetLabel = theDestinationStart;
 
-  TDF_Label aAuxSourceLabel = theSource.Root().FindChild(2);
+  DF_Label aAuxSourceLabel = theSource.Root().FindChild(2);
   int a;
   if (!isFirstElement) {
     for(a = theSource.Depth() - 1; a > 0 ; a--) {
-      TDF_Label aSourceLabel = theSource;
+      DF_Label aSourceLabel = theSource;
       for(int aNbFather = 1; aNbFather < a; aNbFather++) aSourceLabel = aSourceLabel.Father();
       aTargetLabel = aTargetLabel.FindChild(aSourceLabel.Tag());
       aAuxSourceLabel = aAuxSourceLabel.FindChild(aSourceLabel.Tag());
@@ -992,36 +960,32 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
   }
 
   // check auxiliary label for TMPFile => IOR
-  Handle(SALOMEDSImpl_AttributeName) aNameAttribute;
-  if (aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttribute)) {
-    Handle(SALOMEDSImpl_AttributeInteger) anObjID;
-
-    aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anObjID);
-    Handle(SALOMEDSImpl_AttributeComment) aComponentName;
-    theSource.Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aComponentName);
-    TCollection_AsciiString aCompName = aComponentName->Value();
+  SALOMEDSImpl_AttributeName* aNameAttribute = NULL;
+  if ((aNameAttribute=(SALOMEDSImpl_AttributeName*)aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
+    SALOMEDSImpl_AttributeInteger* anObjID = (SALOMEDSImpl_AttributeInteger*)aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID());
+    SALOMEDSImpl_AttributeComment* aComponentName = (SALOMEDSImpl_AttributeComment*)theSource.Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID());
+    string aCompName = aComponentName->Value();
 
     if (theEngine->CanPaste(aCompName, anObjID->Value())) {
-      TCollection_ExtendedString aTMPStr = aNameAttribute->Value();
-      int aLen = aTMPStr.Length();
+      std::string aTMPStr = aNameAttribute->Value();
+      int aLen = aTMPStr.size();
       unsigned char* aStream = NULL;
       if(aLen > 0) {
 	aStream = new unsigned char[aLen+10];
 	for(a = 0; a < aLen; a++) {
-	  aStream[a] = ToCharacter(aTMPStr.Value(a+1));
+	  aStream[a] = aTMPStr[a];
 	}
       }
 
-      TCollection_AsciiString anEntry;
-      TDF_Tool::Entry(aTargetLabel, anEntry);
-      Handle(SALOMEDSImpl_SObject) aPastedSO = theDestinationStudy->FindObjectID(anEntry);
+      string anEntry = aTargetLabel.Entry();
+      SALOMEDSImpl_SObject aPastedSO = theDestinationStudy->FindObjectID(anEntry);
 
       if (isFirstElement) {
-	TCollection_AsciiString aDestEntry = theEngine->PasteInto(aStream,
-								  aLen,
-								  anObjID->Value(),
-								  aPastedSO->GetFatherComponent());
-	TDF_Tool::Label(theDestinationStart.Data(), aDestEntry, aTargetLabel);
+	string aDestEntry = theEngine->PasteInto(aStream,
+						 aLen,
+						 anObjID->Value(),
+						 aPastedSO.GetFatherComponent());
+	aTargetLabel = DF_Label::Label(theDestinationStart, aDestEntry);
       } else
 	theEngine->PasteInto(aStream, aLen, anObjID->Value(), aPastedSO);
 
@@ -1030,38 +994,35 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
   }
 
   // iterate attributes
-  TDF_AttributeIterator anAttrIterator(theSource);
-  Handle(TDF_RelocationTable) aRT = new TDF_RelocationTable();
-  for(; anAttrIterator.More(); anAttrIterator.Next()) {
-    Handle(TDF_Attribute) anAttr = anAttrIterator.Value();
-    if (aTargetLabel.FindAttribute(anAttr->ID(), anAttr)) {
+  vector<DF_Attribute*> attrList = theSource.GetAttributes();
+  for(int i = 0, len = attrList.size(); i<len; i++) {
+    DF_Attribute* anAttr = attrList[i];
+    if (aTargetLabel.FindAttribute(anAttr->ID())) {
       aTargetLabel.ForgetAttribute(anAttr->ID());
-      anAttr = anAttrIterator.Value();
     }
-    Handle(TDF_Attribute) aNewAttribute = anAttr->NewEmpty();
+    DF_Attribute* aNewAttribute = anAttr->NewEmpty();
     aTargetLabel.AddAttribute(aNewAttribute);
-    anAttr->Paste(aNewAttribute, aRT);
+    anAttr->Paste(aNewAttribute);
   }
 
   // check auxiliary label for Comment => reference or name attribute of the referenced object
-  Handle(SALOMEDSImpl_AttributeComment) aCommentAttribute;
-  if (aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aCommentAttribute)) {
-    char * anEntry = new char[aCommentAttribute->Value().Length() + 1];
-    strcpy(anEntry, TCollection_AsciiString(aCommentAttribute->Value()).ToCString());
+  SALOMEDSImpl_AttributeComment* aCommentAttribute = NULL;
+  if ((aCommentAttribute=(SALOMEDSImpl_AttributeComment*)aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
+    char * anEntry = new char[aCommentAttribute->Value().size() + 1];
+    strcpy(anEntry, string(aCommentAttribute->Value()).c_str());
     char* aNameStart = strchr(anEntry, ' ');
     if (aNameStart) {
       *aNameStart = '\0';
       aNameStart++;
     }
     if (theCopiedStudyID == theDestinationStudy->StudyId()) { // if copy to the same study, reanimate reference
-      TDF_Label aRefLabel;
-      TDF_Tool::Label(aTargetLabel.Data(), anEntry, aRefLabel);
+      DF_Label aRefLabel = DF_Label::Label(aTargetLabel, anEntry);
       SALOMEDSImpl_AttributeReference::Set(aTargetLabel, aRefLabel);
       // target attributes structure support
       SALOMEDSImpl_AttributeTarget::Set(aRefLabel)->Add(SALOMEDSImpl_Study::SObject(aTargetLabel));
     } else {
       if (aNameStart) SALOMEDSImpl_AttributeName::Set(aTargetLabel, aNameStart);
-      else SALOMEDSImpl_AttributeName::Set(aTargetLabel, TCollection_ExtendedString("Reference to:")+anEntry);
+      else SALOMEDSImpl_AttributeName::Set(aTargetLabel, std::string("Reference to:")+anEntry);
     }
     delete [] anEntry;
   }
@@ -1074,12 +1035,13 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
  *  Purpose  :
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOMEDSImpl_SObject)& theObject,
-							      SALOMEDSImpl_Driver* theEngine)
+SALOMEDSImpl_SObject SALOMEDSImpl_StudyManager::Paste(const SALOMEDSImpl_SObject& theObject,
+					       SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
-  Handle(SALOMEDSImpl_Study) aStudy = theObject->GetStudy();
+  SALOMEDSImpl_SObject so;
+  SALOMEDSImpl_Study* aStudy = theObject.GetStudy();
 
   // if study is locked, then paste can't be done
   if (aStudy->GetProperties()->IsLocked()) {
@@ -1088,40 +1050,38 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOM
   }
 
   // if there is no component name, then paste only SObjects and attributes: without component help
-  Handle(SALOMEDSImpl_AttributeComment) aComponentName;
-  bool aStructureOnly = !_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aComponentName);
+  SALOMEDSImpl_AttributeComment* aComponentName = NULL;
+  bool aStructureOnly = !(aComponentName=(SALOMEDSImpl_AttributeComment*)_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID()));
 
   // get copied study ID
-  Handle(SALOMEDSImpl_AttributeInteger) aStudyIDAttribute;
-  if (!_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), aStudyIDAttribute)) {
+  SALOMEDSImpl_AttributeInteger* aStudyIDAttribute = NULL;
+  if (!(aStudyIDAttribute=(SALOMEDSImpl_AttributeInteger*)_clipboard->Main().Root().FindAttribute(SALOMEDSImpl_AttributeInteger::GetID()))) {
     _errorCode = "No study ID was found";
-    return NULL;
+    return so;
   }
   int aCStudyID = aStudyIDAttribute->Value();
 
   // CAF document of current study usage
-  Handle(TDocStd_Document) aDocument = GetDocumentOfStudy(aStudy);
-  if (aDocument.IsNull()) {
-    _errorCode = "OCAF document is null";
-    return NULL;
+  DF_Document* aDocument = GetDocumentOfStudy(aStudy);
+  if (!aDocument) {
+    _errorCode = "Document is null";
+    return so;
   }
 
-  Handle(SALOMEDSImpl_SComponent) aComponent = theObject->GetFatherComponent();
+  SALOMEDSImpl_SComponent aComponent = theObject.GetFatherComponent();
 
   // fill root inserted SObject
-  TDF_Label aStartLabel;
+  DF_Label aStartLabel;
   if (aStructureOnly) {
-    TDF_Label anObjectLabel;
-    TDF_Tool::Label(aDocument->GetData(), theObject->GetID(), anObjectLabel);
+    DF_Label anObjectLabel = DF_Label::Label(aDocument->Main(), theObject.GetID());
     aStartLabel = PasteLabel(aStudy, theEngine, _clipboard->Main(), anObjectLabel, aCStudyID, false);
   } else {
-    TDF_Label aComponentLabel;
-    TDF_Tool::Label(aDocument->GetData(), aComponent->GetID(), aComponentLabel);
+    DF_Label aComponentLabel = DF_Label::Label(aDocument->Main(), aComponent.GetID());
     aStartLabel = PasteLabel(aStudy, theEngine, _clipboard->Main(), aComponentLabel, aCStudyID, true);
   }
 
   // paste all sublebels
-  TDF_ChildIterator anIterator(_clipboard->Main(), Standard_True);
+  DF_ChildIterator anIterator(_clipboard->Main(), true);
   for(; anIterator.More(); anIterator.Next()) {
     PasteLabel(aStudy, theEngine, anIterator.Value(), aStartLabel, aCStudyID, false);
   }
@@ -1138,22 +1098,22 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOM
  *  Purpose  : Save attributes for object
  */
 //============================================================================
-static void SaveAttributes(Handle(SALOMEDSImpl_SObject) aSO, HDFgroup *hdf_group_sobject)
+static void SaveAttributes(const SALOMEDSImpl_SObject& aSO, HDFgroup *hdf_group_sobject)
 {
   hdf_size size[1];
-  TDF_AttributeIterator Itr(aSO->GetLabel());
-  Handle(TDF_Attribute) anAttr;
-  for(; Itr.More(); Itr.Next()) {
-    anAttr = Itr.Value();
+  vector<DF_Attribute*> attrList = aSO.GetLabel().GetAttributes();
+  DF_Attribute* anAttr = NULL;
+  for(int i = 0, len = attrList.size(); i<len; i++) {
+    anAttr = attrList[i];
     //The following attributes are not supposed to be written to the file
-    if(anAttr->DynamicType() == STANDARD_TYPE(SALOMEDSImpl_AttributeIOR)) continue; //IOR attribute is not saved
-    Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(anAttr);
-    TCollection_AsciiString aSaveStr = ga->Save();
-    //cout << "Saving: " << aSO->GetID() << " "<< ga->Type() << " value: " << aSaveStr << endl;
-    size[0] = (hdf_int32) strlen(aSaveStr.ToCString()) + 1;
-    HDFdataset *hdf_dataset = new HDFdataset((char*)ga->Type().ToCString(), hdf_group_sobject,HDF_STRING,size,1);
+    string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(anAttr);
+    if(type == string("AttributeIOR")) continue; //IOR attribute is not saved
+    string aSaveStr =anAttr->Save();
+    //cout << "Saving: " << aSO.GetID() << " type: "<< type<<"|" << endl;
+    size[0] = (hdf_int32) strlen(aSaveStr.c_str()) + 1;
+    HDFdataset *hdf_dataset = new HDFdataset((char*)type.c_str(), hdf_group_sobject, HDF_STRING,size, 1);
     hdf_dataset->CreateOnDisk();
-    hdf_dataset->WriteOnDisk((char*)aSaveStr.ToCString());
+    hdf_dataset->WriteOnDisk((char*)aSaveStr.c_str());
     hdf_dataset->CloseOnDisk();
     hdf_dataset=0; //will be deleted by hdf_sco_group destructor
   }
@@ -1162,17 +1122,16 @@ static void SaveAttributes(Handle(SALOMEDSImpl_SObject) aSO, HDFgroup *hdf_group
 //===========================================================================
 //Function : ReadAttributes
 //===========================================================================
-static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
-			   const Handle(SALOMEDSImpl_SObject)& aSO,
+static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
+			   const SALOMEDSImpl_SObject& aSO,
 			   HDFdataset* hdf_dataset)
 {
   hdf_dataset->OpenOnDisk();
 
-  Handle(TDF_Attribute) anAttr;
-
+  DF_Attribute* anAttr = NULL;
   char* current_string = new char[hdf_dataset->GetSize()+1];
   hdf_dataset->ReadFromDisk(current_string);
-  
+  //cout << "Reading attr type = " << hdf_dataset->GetName() << "  SO = " << aSO.GetID() << endl;
   if (!strcmp(hdf_dataset->GetName(),"COMPONENTDATATYPE")) {
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, "AttributeComment");
   } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
@@ -1185,11 +1144,8 @@ static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
     anAttr = theStudy->NewBuilder()->FindOrCreateAttribute(aSO, hdf_dataset->GetName());
   }
   
-  if (!anAttr.IsNull()) {
-
-    Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(anAttr);
-    ga->Load(current_string);
-    //cout << "Reading: " << aSO->GetID() << " "<< ga->Type() << " value: " << current_string << endl;
+  if (anAttr) {
+    anAttr->Load(current_string);
   }
   
   delete(current_string);
@@ -1199,10 +1155,10 @@ static void ReadAttributes(const Handle(SALOMEDSImpl_Study)& theStudy,
 //============================================================================
 //Function : BuildlTree
 //============================================================================
-static void BuildTree (const Handle(SALOMEDSImpl_Study)& theStudy, HDFgroup* hdf_current_group)
+static void BuildTree (SALOMEDSImpl_Study* theStudy, HDFgroup* hdf_current_group)
 {
   hdf_current_group->OpenOnDisk();
-  Handle(SALOMEDSImpl_SObject) aSO;
+  SALOMEDSImpl_SObject aSO;
   char* Entry = hdf_current_group->GetName();
   if (strcmp(Entry,"STUDY_STRUCTURE") == 0) {
     aSO = theStudy->CreateObjectID("0:1");
@@ -1212,8 +1168,8 @@ static void BuildTree (const Handle(SALOMEDSImpl_Study)& theStudy, HDFgroup* hdf
   }
 
   char name[HDF_NAME_MAX_LEN+1];
-  Standard_Integer nbsons = hdf_current_group->nInternalObjects();
-  for (Standard_Integer i=0; i<nbsons; i++) {
+  int nbsons = hdf_current_group->nInternalObjects();
+  for (int i=0; i<nbsons; i++) {
     hdf_current_group->InternalObjectIndentify(i,name);
     if (strncmp(name, "INTERNAL_COMPLEX",16) == 0) continue;
     hdf_object_type type = hdf_current_group->InternalObjectType(name);
@@ -1237,23 +1193,24 @@ static void BuildTree (const Handle(SALOMEDSImpl_Study)& theStudy, HDFgroup* hdf
 //============================================================================
 //Function : Translate_IOR_to_persistentID
 //============================================================================
-static void Translate_IOR_to_persistentID (const Handle(SALOMEDSImpl_SObject)& so,
+static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject& so,
 					   SALOMEDSImpl_Driver*                engine,
 					   bool                                isMultiFile,
 					   bool                                isASCII)
 {
-  TDF_ChildIterator itchild(so->GetLabel());
-  TCollection_AsciiString ior_string,  persistent_string, curid;
+  DF_ChildIterator itchild(so.GetLabel());
+  string ior_string,  persistent_string, curid;
 
   for (; itchild.More(); itchild.Next()) {
-    Handle(SALOMEDSImpl_SObject) current = SALOMEDSImpl_Study::SObject(itchild.Value());
-    Handle(SALOMEDSImpl_AttributeIOR) IOR;
-    if (current->GetLabel().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), IOR)) {
+    SALOMEDSImpl_SObject current = SALOMEDSImpl_Study::SObject(itchild.Value());
+    SALOMEDSImpl_AttributeIOR* IOR = NULL;
+    if ((IOR=(SALOMEDSImpl_AttributeIOR*)current.GetLabel().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
       ior_string = IOR->Value();
 
       persistent_string = engine->IORToLocalPersistentID (current, ior_string, isMultiFile, isASCII);
-      SALOMEDSImpl_AttributePersistentRef::Set(current->GetLabel(), persistent_string);
+      SALOMEDSImpl_AttributePersistentRef::Set(current.GetLabel(), persistent_string);
     }
     Translate_IOR_to_persistentID (current, engine, isMultiFile, isASCII);
   }
 }
+
