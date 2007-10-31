@@ -186,14 +186,6 @@ echo
 
 CHECK_HDF5
 
-echo
-echo ---------------------------------------------
-echo Testing OpenCascade
-echo ---------------------------------------------
-echo
-
-CHECK_CAS
-
 # ----------------------------------------------------------------------------
 # --- test corba
 
@@ -424,9 +416,9 @@ function check_fatal_error {
 # --------------------------------------
 
 if test x$corba_gen = xtrue; then
-  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok"
 else
-  basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok hdf5_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -553,7 +545,6 @@ AC_OUTPUT([ \
 	./src/Basics/Test/Makefile \
 	./src/Batch/Makefile \
 	./src/Batch_SWIG/Makefile \
-	./src/CASCatch/Makefile \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
