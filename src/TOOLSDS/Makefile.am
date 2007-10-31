@@ -40,15 +40,13 @@ COMMON_CPPFLAGS=\
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@HDF5_INCLUDES@ \
 	@BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../Utils/libOpUtil.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la\
-	@CAS_KERNEL@
+	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
 # ===============================================================
