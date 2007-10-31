@@ -85,7 +85,6 @@ am__aclocal_m4_deps = $(top_srcdir)/salome_adm/unix/config_files/ac_cxx_depend_f
 	$(top_srcdir)/salome_adm/unix/config_files/ac_linker_options.m4 \
 	$(top_srcdir)/salome_adm/unix/config_files/acx_pthread.m4 \
 	$(top_srcdir)/salome_adm/unix/config_files/check_boost.m4 \
-	$(top_srcdir)/salome_adm/unix/config_files/check_cas.m4 \
 	$(top_srcdir)/salome_adm/unix/config_files/check_corba.m4 \
 	$(top_srcdir)/salome_adm/unix/config_files/check_cppunit.m4 \
 	$(top_srcdir)/salome_adm/unix/config_files/check_hdf5.m4 \
@@ -172,19 +171,6 @@ BOOST_CPPFLAGS = @BOOST_CPPFLAGS@
 BOOST_LIBS = @BOOST_LIBS@
 BOOST_LIBSUFFIX = @BOOST_LIBSUFFIX@
 BOOST_PROGRAM_OPTIONS_LIB = @BOOST_PROGRAM_OPTIONS_LIB@
-CAS_CPPFLAGS = @CAS_CPPFLAGS@
-CAS_CXXFLAGS = @CAS_CXXFLAGS@
-CAS_DATAEXCHANGE = @CAS_DATAEXCHANGE@
-CAS_KERNEL = @CAS_KERNEL@
-CAS_LDFLAGS = @CAS_LDFLAGS@
-CAS_LDPATH = @CAS_LDPATH@
-CAS_MATH = @CAS_MATH@
-CAS_MODELER = @CAS_MODELER@
-CAS_OCAF = @CAS_OCAF@
-CAS_OCAFVIS = @CAS_OCAFVIS@
-CAS_STDPLUGIN = @CAS_STDPLUGIN@
-CAS_TKTopAlgo = @CAS_TKTopAlgo@
-CAS_VIEWER = @CAS_VIEWER@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -451,7 +437,6 @@ salomeinclude_HEADERS = \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS = \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
@@ -464,7 +449,6 @@ LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = \
 	../HDFPersist/libSalomeHDFPersist.la \
-	@CAS_OCAF@ \
 	@HDF5_LIBS@ \
 	$(LDXMUFLAGS)
 

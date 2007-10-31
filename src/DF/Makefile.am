@@ -45,7 +45,6 @@ salomeinclude_HEADERS= \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
@@ -57,7 +56,6 @@ LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../HDFPersist/libSalomeHDFPersist.la \
-	@CAS_OCAF@ \
 	@HDF5_LIBS@ \
 	$(LDXMUFLAGS)
 
