@@ -558,6 +558,7 @@ AC_OUTPUT([ \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
 	./src/ParallelContainer/Makefile \
+	./src/DF/Makefile \
 	./src/DSC/Makefile \
 	./src/DSC/DSC_Basic/Makefile \
 	./src/DSC/DSC_User/Makefile \
