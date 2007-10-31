@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeGraphic.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeGraphic::SALOMEDS_AttributeGraphic(const Handle(SALOMEDSImpl_AttributeGraphic)& theAttr)
+SALOMEDS_AttributeGraphic::SALOMEDS_AttributeGraphic(SALOMEDSImpl_AttributeGraphic* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,7 +41,7 @@ bool SALOMEDS_AttributeGraphic::GetVisibility(int theViewId)
   bool aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = (bool)Handle(SALOMEDSImpl_AttributeGraphic)::DownCast(_local_impl)->GetVisibility(theViewId);
+    aValue = (bool)dynamic_cast<SALOMEDSImpl_AttributeGraphic*>(_local_impl)->GetVisibility(theViewId);
   }
   else aValue = SALOMEDS::AttributeGraphic::_narrow(_corba_impl)->GetVisibility(theViewId);
   return aValue;
@@ -54,7 +51,7 @@ void SALOMEDS_AttributeGraphic::SetVisibility(int theViewId, bool theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeGraphic)::DownCast(_local_impl)->SetVisibility(theViewId, theValue);
+    dynamic_cast<SALOMEDSImpl_AttributeGraphic*>(_local_impl)->SetVisibility(theViewId, theValue);
   }
   else SALOMEDS::AttributeGraphic::_narrow(_corba_impl)->SetVisibility(theViewId, theValue);
 }

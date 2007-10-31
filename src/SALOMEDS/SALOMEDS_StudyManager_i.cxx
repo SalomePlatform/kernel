@@ -34,13 +34,10 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-#include <TColStd_HArray1OfCharacter.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TCollection_AsciiString.hxx>
-
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -60,7 +57,7 @@ using namespace std;
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
 
-static SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
+static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
 static std::map<int, PortableServer::POA_ptr> _mapOfPOA;
 
@@ -91,6 +88,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
   // Destroy directory to register open studies
   _name_service->Destroy_Directory("/Study");
   delete _factory;
+  delete _impl;
 }
 
 //============================================================================
@@ -115,8 +113,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 {
   SALOMEDS::Locker lock;
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->NewStudy(TCollection_AsciiString((char*)study_name));
-  if(aStudyImpl.IsNull()) {
+  SALOMEDSImpl_Study* aStudyImpl = _impl->NewStudy(study_name);
+  if(!aStudyImpl) {
     MESSAGE("NewStudy : Error : " << _impl->GetErrorCode());
     return SALOMEDS::Study::_nil();
   }
@@ -156,7 +154,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->Open(TCollection_AsciiString((char*)aUrl));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(string(aUrl));
 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
@@ -171,7 +169,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
-  else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().ToCString()));
+  else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
 
   return Study;
 }
@@ -216,7 +214,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Save(SALOMEDS::Study_ptr aStudy, CORBA::
     return false;
   }
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   return _impl->Save(aStudyImpl, _factory, theMultiFile);
 }
 
@@ -229,7 +227,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveASCII(SALOMEDS::Study_ptr aStudy, CO
     return false;
   }
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   return _impl->SaveASCII(aStudyImpl, _factory, theMultiFile);
 }
 
@@ -247,8 +245,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study
     return false;
   }
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAs(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  return _impl->SaveAs(string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
@@ -260,8 +258,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::
     return false;
   }
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAsASCII(TCollection_AsciiString((char*)aUrl), aStudyImpl, _factory, theMultiFile);
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  return _impl->SaveAsASCII(string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================
@@ -273,8 +271,8 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
 {
   SALOMEDS::Locker lock;
 
-  Handle(TColStd_HSequenceOfTransient) anOpened = _impl->GetOpenStudies();
-  int aLength = anOpened->Length();
+  vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
+  int aLength = anOpened.size();
 
   SALOMEDS::ListOfOpenStudies_var _list_open_studies = new SALOMEDS::ListOfOpenStudies;
   _list_open_studies->length(aLength);
@@ -285,11 +283,10 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
     }
   else
     {
-      for (unsigned int ind=1; ind <= aLength; ind++)
+      for (unsigned int ind=0; ind < aLength; ind++)
 	{
-	  Handle(SALOMEDSImpl_Study) aStudy = Handle(SALOMEDSImpl_Study)::DownCast(anOpened->Value(ind));
-	  _list_open_studies[ind-1] = CORBA::string_dup(aStudy->Name().ToCString());
-	  SCRUTE(_list_open_studies[ind-1]) ;
+	  _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
+	  SCRUTE(_list_open_studies[ind]) ;
 	}
     }
   return _list_open_studies._retn();
@@ -304,12 +301,11 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyNa
 {
   SALOMEDS::Locker lock;
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl =
-    _impl->GetStudyByName(TCollection_AsciiString((char*)aStudyName));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(string(aStudyName));
 
-  if (aStudyImpl.IsNull())
+  if (!aStudyImpl)
   {
-    MESSAGE(_impl->GetErrorCode().ToCString());
+    MESSAGE(_impl->GetErrorCode().c_str());
     return SALOMEDS::Study::_nil();
   }
 
@@ -328,11 +324,11 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
 {
   SALOMEDS::Locker lock;
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudyID);
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudyID);
 
-  if (aStudyImpl.IsNull())
+  if (!aStudyImpl)
   {
-    MESSAGE(_impl->GetErrorCode().ToCString());
+    MESSAGE(_impl->GetErrorCode().c_str());
     return SALOMEDS::Study::_nil();
   }
 
@@ -354,8 +350,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
   SALOMEDS::Locker lock;
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->CanCopy(anObject, aDriver);
@@ -373,8 +369,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
   SALOMEDS::Locker lock;
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->Copy(anObject, aDriver);
@@ -392,8 +388,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject
   SALOMEDS::Locker lock;
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
 
   SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
   bool ret = _impl->CanPaste(anObject, aDriver);
@@ -414,9 +410,9 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
   Unexpect aCatch(LockProtection);
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
 
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
-  Handle(SALOMEDSImpl_SObject) aNewSO;
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
+  SALOMEDSImpl_SObject anObject = aStudyImpl->GetSObject(theObject->GetID());
+  SALOMEDSImpl_SObject aNewSO;
 
   try {
     SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
@@ -432,15 +428,15 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
 }
 
 
-SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
+SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
 {
   SALOMEDS_Driver_i* driver = NULL;
 
-  Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();
+  SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
   if(!aSCO.IsNull()) {
-    TCollection_AsciiString IOREngine = aSCO->GetIOR();
-    if(!IOREngine.IsEmpty()) {
-      CORBA::Object_var obj = orb->string_to_object(IOREngine.ToCString());
+    string IOREngine = aSCO.GetIOR();
+    if(!IOREngine.empty()) {
+      CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
@@ -465,27 +461,12 @@ CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, C
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  SALOMEDSImpl_StudyManager* aManager = _impl.operator->();
-  return ((CORBA::LongLong)aManager);
+  return ((CORBA::LongLong)(void*)_impl);
 }
 
 //===========================================================================
 namespace SALOMEDS
 {
-/*
-  CORBA::Object_var
-  GetObject(const TDF_Label& theLabel, CORBA::ORB_ptr theORB)
-  {
-    try {
-      Handle(SALOMEDS_IORAttribute) anAttr;
-      if(theLabel.FindAttribute(SALOMEDS_IORAttribute::GetID(),anAttr))
-        return theORB->string_to_object(TCollection_AsciiString(anAttr->Get()).ToCString());
-    }catch(...){
-    }
-    return CORBA::Object::_nil();
-  }
-*/
-
   PortableServer::ServantBase_var
   GetServant(CORBA::Object_ptr theObject, PortableServer::POA_ptr thePOA)
   {

@@ -80,23 +80,15 @@ void SALOMEDSTest::testStudyBuilder()
   _PTR(AttributeName) an3 = studyBuilder->FindOrCreateAttribute(so3, "AttributeName");
   CPPUNIT_ASSERT(an3);
 
-  cout << endl << "########## 1" << endl; 
-
   //Try to create attribute with invalid type
   CPPUNIT_ASSERT(!studyBuilder->FindOrCreateAttribute(so3, "invalid type"));
-
-  cout << endl << "########## 2" << endl; 
 
   //Check method FindAttribute
   _PTR(GenericAttribute) ga;
   CPPUNIT_ASSERT(studyBuilder->FindAttribute(so3, ga, "AttributeName"));
 
-  cout << endl << "########## 3" << endl; 
-
   //Try to find attribute with invalid type
   CPPUNIT_ASSERT(!studyBuilder->FindAttribute(so3, ga, "invalid type"));
-
-  cout << endl << "########## 4" << endl; 
 
   //Check method RemoveObject
   studyBuilder->RemoveObject(so3);
@@ -138,46 +130,14 @@ void SALOMEDSTest::testStudyBuilder()
   //Check method SetGUID and IsGUID
   string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
   studyBuilder->SetGUID(so1, value);
+
   CPPUNIT_ASSERT(studyBuilder->IsGUID(so1, value));
 
-  //Try to set invalid GUID
-  isRaised = false;
-  try {
-    studyBuilder->SetGUID(so1, "invalid GUID");
-  }
-  catch(...) {
-    isRaised = true;
-  }
-  CPPUNIT_ASSERT(isRaised);
-
+/* Not implemented
   //Check method UndoLimit (set/get)
   studyBuilder->UndoLimit(10);
   CPPUNIT_ASSERT(studyBuilder->UndoLimit() == 10);
-
-  //Check transactions methods: NewCommand, CommitCommand, AbortCommand, 
-  //HasOpenedCommand, Undo, Redo, GetAvailableUndos, GetAvailableRedos
-  _PTR(SObject) so4 = studyBuilder->NewObject(sco3);
-  CPPUNIT_ASSERT(so4);
-  studyBuilder->NewCommand();
-  CPPUNIT_ASSERT(studyBuilder->HasOpenCommand());
-  _PTR(AttributeName) an4 = studyBuilder->FindOrCreateAttribute(so4, "AttributeName");
-  CPPUNIT_ASSERT(an4);
-  an4->SetValue("command1");
-  studyBuilder->CommitCommand();
-  CPPUNIT_ASSERT(!studyBuilder->HasOpenCommand());
-  studyBuilder->NewCommand();
-  an4->SetValue("command2");
-  studyBuilder->AbortCommand();
-  CPPUNIT_ASSERT(an4->Value() == "command1");
-  studyBuilder->NewCommand();
-  an4->SetValue("command2");
-  studyBuilder->CommitCommand();
-  studyBuilder->Undo();
-  CPPUNIT_ASSERT(an4->Value() == "command1");
-  CPPUNIT_ASSERT(studyBuilder->GetAvailableRedos());
-  studyBuilder->Redo();
-  CPPUNIT_ASSERT(an4->Value() == "command2");
-  CPPUNIT_ASSERT(studyBuilder->GetAvailableUndos());
+*/
 
   //Check method SetName
   studyBuilder->SetName(so1, "new name");
@@ -207,17 +167,19 @@ void SALOMEDSTest::testStudyBuilder()
 
   //Check method LoadWith
   _PTR(Study) study2 = sm->NewStudy("Study2");
-
+  
   SALOME_NamingService NS(_orb);
-  CORBA::Object_var obj = SALOME_LifeCycleCORBA(&NS).FindOrLoad_Component("SuperVisionContainer", "SUPERV");
+  CORBA::Object_var obj = SALOME_LifeCycleCORBA(&NS).FindOrLoad_Component("FactoryServer", "SMESH");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 
-  MESSAGE("Created a new GEOM component");
+  MESSAGE("Created a new SMESH component");
 
   SALOMEDS::Driver_var drv = SALOMEDS::Driver::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(drv));
+ 
   _PTR(StudyBuilder) sb2 = study2->NewBuilder();
-  _PTR(SComponent) sco = sb2->NewComponent("SUPERV");
+  _PTR(SComponent) sco = sb2->NewComponent("SMESH");
+  
   ior = _orb->object_to_string(drv);
   sb2->DefineComponentInstance(sco, ior);
 
@@ -226,21 +188,23 @@ void SALOMEDSTest::testStudyBuilder()
 
   _PTR(Study) study3 = sm->Open("srn_SALOMEDS_UnitTests.hdf");
   _PTR(StudyBuilder) sb3 = study3->NewBuilder();
-  _PTR(SComponent) aComp = study3->FindComponent("SUPERV");
+  _PTR(SComponent) aComp = study3->FindComponent("SMESH");
   CPPUNIT_ASSERT(aComp);
 
-  CORBA::Object_var obj2 = SALOME_LifeCycleCORBA(&NS).FindOrLoad_Component("SuperVisionContainer", "SUPERV");
+  CORBA::Object_var obj2 = SALOME_LifeCycleCORBA(&NS).FindOrLoad_Component("FactoryServer", "SMESH");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
   SALOMEDS::Driver_var drv2 = SALOMEDS::Driver::_narrow(obj2);
   ior = _orb->object_to_string(drv2);
 
   isRaised = false;
   try {
+    //getchar();
     sb3->LoadWith(aComp, ior);
   }
   catch(...) {
     isRaised = true;
   }
+
 
   CPPUNIT_ASSERT(!isRaised);
 
@@ -260,6 +224,7 @@ void SALOMEDSTest::testStudyBuilder()
   } catch(...) {
     isRaised = true;
   }
+
 
   CPPUNIT_ASSERT(!isRaised);
   _PTR(SObject) so5 = study3->FindObjectByPath("/Component/Dir1");
@@ -281,5 +246,5 @@ void SALOMEDSTest::testStudyBuilder()
   }
   CPPUNIT_ASSERT(isRaised);
 
-  sm->Close(study3);
+  sm->Close(study3);  
 }

@@ -29,7 +29,6 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "Utils_ExceptHandlers.hxx"
-#include <TCollection_AsciiString.hxx>
 #include <map>
 
 #ifdef WIN32
@@ -45,7 +44,7 @@ using namespace std;
 
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
-SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(const Handle(TDF_Attribute)& theImpl, CORBA::ORB_ptr theOrb)
+SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb)
 {
   _orb = CORBA::ORB::_duplicate(theOrb);
   _impl = theImpl;
@@ -56,7 +55,7 @@ void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribut
   SALOMEDS::Locker lock;
   Unexpect aCatch(GALockProtection);
 
-  if (!_impl.IsNull() && _impl->IsValid() && !CORBA::is_nil(_orb)) {
+  if (_impl  && !CORBA::is_nil(_orb)) {
     try {
       SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(_impl);
     }
@@ -69,8 +68,8 @@ void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribut
 SALOMEDS::SObject_ptr SALOMEDS_GenericAttribute_i::GetSObject() 
 {
   SALOMEDS::Locker lock;
-  if (_impl.IsNull() || _impl->Label().IsNull()) return SALOMEDS::SObject::_nil();
-  Handle(SALOMEDSImpl_SObject) so_impl = SALOMEDSImpl_Study::SObject(_impl->Label());
+  if (!_impl || _impl->Label().IsNull()) return SALOMEDS::SObject::_nil();
+  SALOMEDSImpl_SObject so_impl = SALOMEDSImpl_Study::SObject(_impl->Label());
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (so_impl, _orb);
   return so._retn();
 }
@@ -79,7 +78,7 @@ SALOMEDS::SObject_ptr SALOMEDS_GenericAttribute_i::GetSObject()
 char* SALOMEDS_GenericAttribute_i::Type() 
 {
   SALOMEDS::Locker lock;
-  if (!_impl.IsNull()) {
+  if (_impl) {
     return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl));
   }    
 
@@ -89,7 +88,7 @@ char* SALOMEDS_GenericAttribute_i::Type()
 char* SALOMEDS_GenericAttribute_i::GetClassType()
 {
   SALOMEDS::Locker lock;
-  if (!_impl.IsNull()) {
+  if (_impl) {
     return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl));
   }
 
@@ -98,30 +97,13 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
 
 
 SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
-                                        (const Handle(TDF_Attribute)& theAttr,
-                                         CORBA::ORB_ptr theOrb)
+                                                         (DF_Attribute* theAttr,
+                                                          CORBA::ORB_ptr theOrb)
 {
   SALOMEDS::Locker lock;
 
-/*
-  static std::map<TDF_Attribute*, SALOMEDS_GenericAttribute_i*> _mapOfAttrib;
-  SALOMEDS::GenericAttribute_var anAttribute;
-  SALOMEDS_GenericAttribute_i* attr_servant = NULL;
-
-  if(_mapOfAttrib.find(theAttr.operator->()) != _mapOfAttrib.end()) {
-    attr_servant = _mapOfAttrib[theAttr.operator->()];
-    anAttribute = SALOMEDS::GenericAttribute::_narrow(attr_servant->_this());
-  }
-  else {
-    char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr)->GetClassType().ToCString();
-    __CreateGenericCORBAAttribute
-    _mapOfAttrib[theAttr.operator->()] = attr_servant;
-  }
-*/
-  // mpv: now servants Destroyed by common algos of CORBA
-  TCollection_AsciiString aClassType = Handle(SALOMEDSImpl_GenericAttribute)::
-    DownCast(theAttr)->GetClassType();
-  char* aTypeOfAttribute = aClassType.ToCString();
+  string aClassType = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr)->GetClassType();
+  char* aTypeOfAttribute = (char*)aClassType.c_str();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;
   __CreateGenericCORBAAttribute
@@ -140,6 +122,5 @@ CORBA::LongLong SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostnam
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  TDF_Attribute* local_impl = _impl.operator->();
-  return ((CORBA::LongLong)local_impl);
+  return ((CORBA::LongLong)_impl);
 }

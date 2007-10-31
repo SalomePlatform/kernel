@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeString: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeString
 {
 public:  
-  SALOMEDS_AttributeString(const Handle(SALOMEDSImpl_AttributeString)& theAttr);
+  SALOMEDS_AttributeString(SALOMEDSImpl_AttributeString* theAttr);
   SALOMEDS_AttributeString(SALOMEDS::AttributeString_ptr theAttr);
   ~SALOMEDS_AttributeString();
 

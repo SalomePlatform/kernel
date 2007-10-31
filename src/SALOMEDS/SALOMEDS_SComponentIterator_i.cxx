@@ -36,9 +36,9 @@ using namespace std;
 
 SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_SComponentIterator& theImpl, 
 							     CORBA::ORB_ptr orb) 
-:_impl(theImpl)
 {
   _orb = CORBA::ORB::_duplicate(orb);
+  _impl = theImpl.GetPersistentCopy();
 }
 
 //============================================================================
@@ -48,6 +48,7 @@ SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_
 //============================================================================
 SALOMEDS_SComponentIterator_i::~SALOMEDS_SComponentIterator_i()
 {
+   if(_impl) delete _impl;
 }
 
 //============================================================================
@@ -58,7 +59,7 @@ SALOMEDS_SComponentIterator_i::~SALOMEDS_SComponentIterator_i()
 void SALOMEDS_SComponentIterator_i::Init()
 { 
   SALOMEDS::Locker lock; 
-  _impl.Init();
+  _impl->Init();
 }
 
 //============================================================================
@@ -69,7 +70,7 @@ void SALOMEDS_SComponentIterator_i::Init()
 CORBA::Boolean SALOMEDS_SComponentIterator_i::More()
 {
   SALOMEDS::Locker lock; 
-  return _impl.More();
+  return _impl->More();
 }
 
  //============================================================================
@@ -79,7 +80,7 @@ CORBA::Boolean SALOMEDS_SComponentIterator_i::More()
 void SALOMEDS_SComponentIterator_i::Next()
 { 
   SALOMEDS::Locker lock; 
-  _impl.Next();
+  _impl->Next();
 }
 
 
@@ -91,7 +92,7 @@ void SALOMEDS_SComponentIterator_i::Next()
 SALOMEDS::SComponent_ptr SALOMEDS_SComponentIterator_i::Value()
 {
   SALOMEDS::Locker lock; 
-  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (_impl.Value(), _orb);
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (_impl->Value(), _orb);
   return sco._retn();
 }
 

@@ -29,25 +29,25 @@
 
 using namespace std; 
 
-SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(const Handle(SALOMEDSImpl_ChildIterator)& theIterator)
+SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(const SALOMEDSImpl_ChildIterator& theIterator)
 {
   SALOMEDS::Locker lock;
 
   _isLocal = true;
-  _local_impl = theIterator;
+  _local_impl = theIterator.GetPersistentCopy();
   _corba_impl = SALOMEDS::ChildIterator::_nil();
 }
 
 SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIterator)
 {
   _isLocal = false;
-  _local_impl = NULL;
   _corba_impl = SALOMEDS::ChildIterator::_duplicate(theIterator);
 }
 
 SALOMEDS_ChildIterator::~SALOMEDS_ChildIterator()
 {
   if(!_isLocal) _corba_impl->Destroy(); 
+  else if(_local_impl) delete _local_impl;
 }
 
 void SALOMEDS_ChildIterator::Init()
@@ -70,7 +70,7 @@ void SALOMEDS_ChildIterator::InitEx(bool theAllLevels)
 
 bool SALOMEDS_ChildIterator::More()
 {
-  bool ret;
+  bool ret = false;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     ret = _local_impl->More();

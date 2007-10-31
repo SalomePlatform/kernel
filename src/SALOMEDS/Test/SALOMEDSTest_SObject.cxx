@@ -99,6 +99,7 @@ void SALOMEDSTest::testSObject()
 
   //Check method GetAllAttributes
   vector< _PTR(GenericAttribute) > v = so->GetAllAttributes();
+   
   CPPUNIT_ASSERT(v.size() == 5); //+AttributeTarget +AttributeTreeNode
 
   //Check method GetName

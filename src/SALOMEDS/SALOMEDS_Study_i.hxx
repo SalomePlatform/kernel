@@ -47,13 +47,13 @@ class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
   CORBA::ORB_ptr                 _orb;
-  Handle(SALOMEDSImpl_Study)     _impl;  
+  SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
 
 public:
 
   //! standard constructor
-  SALOMEDS_Study_i(const Handle(SALOMEDSImpl_Study), CORBA::ORB_ptr);
+  SALOMEDS_Study_i(SALOMEDSImpl_Study*, CORBA::ORB_ptr);
   
   //! standard destructor
   virtual ~SALOMEDS_Study_i(); 
@@ -223,9 +223,8 @@ public:
   */
   virtual CORBA::Boolean IsModified();
 
-  //! method to set a Modified flag of a Study to True
-  virtual void  Modified();
-
+ //! method to set Modified flag of a Study to True
+  virtual void Modified();
 
   //! method to get URL of the study (idem GetPersistentReference) 
   /*!
@@ -242,9 +241,9 @@ public:
   virtual CORBA::Short StudyId();
   virtual void  StudyId(CORBA::Short id);
 
-  static SALOMEDS::Study_ptr GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb);
+  static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
 
-  static void IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR) theAttribute);
+  static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 
   virtual void UpdateIORLabelMap(const char* anIOR, const char* aLabel);
   
@@ -299,7 +298,7 @@ public:
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);
 
-  virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
+  virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };

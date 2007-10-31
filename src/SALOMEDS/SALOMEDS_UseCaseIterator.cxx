@@ -30,40 +30,40 @@
 
 using namespace std; 
 
-SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(const Handle(SALOMEDSImpl_UseCaseIterator)& theIterator)
+SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(const SALOMEDSImpl_UseCaseIterator& theIterator)
 {
   _isLocal = true;
-  _local_impl = theIterator;
+  _local_impl = theIterator.GetPersistentCopy();
   _corba_impl = SALOMEDS::UseCaseIterator::_nil();
 }
 
 SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(SALOMEDS::UseCaseIterator_ptr theIterator)
 {
   _isLocal = false;
-  _local_impl = NULL;
   _corba_impl = SALOMEDS::UseCaseIterator::_duplicate(theIterator);
 }
 
 SALOMEDS_UseCaseIterator::~SALOMEDS_UseCaseIterator()
 {
   if(!_isLocal) _corba_impl->Destroy();    
+  else if(_local_impl) delete _local_impl;
 }
 
 void SALOMEDS_UseCaseIterator::Init(bool theAllLevels)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->Init(theAllLevels);
+    if(_local_impl) _local_impl->Init(theAllLevels);
   }
   else _corba_impl->Init(theAllLevels);
 }
 
 bool SALOMEDS_UseCaseIterator::More()
 {
-  bool ret;
+  bool ret = false;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->More();
+    if(_local_impl) ret = _local_impl->More();
   }
   else ret = _corba_impl->More();
   return ret;
@@ -73,17 +73,17 @@ void SALOMEDS_UseCaseIterator::Next()
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->Next();
+    if(_local_impl) _local_impl->Next();
   }
   else _corba_impl->Next();
 }
 
 _PTR(SObject) SALOMEDS_UseCaseIterator::Value()
 {
-  SALOMEDS_SObject* aSO;
+  SALOMEDS_SObject* aSO = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aSO = new SALOMEDS_SObject(_local_impl->Value());
+    if(_local_impl) aSO = new SALOMEDS_SObject(_local_impl->Value());
   }
   else aSO = new SALOMEDS_SObject(_corba_impl->Value());
   return _PTR(SObject)(aSO);

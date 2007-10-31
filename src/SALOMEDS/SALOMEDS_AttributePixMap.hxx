@@ -36,7 +36,7 @@
 class SALOMEDS_AttributePixMap: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributePixMap
 {
 public:  
-  SALOMEDS_AttributePixMap(const Handle(SALOMEDSImpl_AttributePixMap)& theAttr);
+  SALOMEDS_AttributePixMap(SALOMEDSImpl_AttributePixMap* theAttr);
   SALOMEDS_AttributePixMap(SALOMEDS::AttributePixMap_ptr theAttr);
   ~SALOMEDS_AttributePixMap();
 

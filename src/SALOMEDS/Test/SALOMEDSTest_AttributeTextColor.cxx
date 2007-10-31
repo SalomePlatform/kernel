@@ -67,7 +67,7 @@ void SALOMEDSTest::testAttributeTextColor()
 
   CPPUNIT_ASSERT(color.B == color2.B);
 
-  sm->Close(study);
+  sm->Close(study);  
 }
 
 

@@ -33,8 +33,6 @@
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 #include <SALOME_GenericObj_i.hh>
 
-// Cascade headers
-#include <Standard_GUID.hxx>
 #include <stdio.h>
 
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
@@ -46,13 +44,13 @@ class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
 {
 private:
 
-  CORBA::ORB_ptr                      _orb;
-  Handle(SALOMEDSImpl_UseCaseBuilder) _impl;
+  CORBA::ORB_ptr               _orb;
+  SALOMEDSImpl_UseCaseBuilder* _impl;
 
 public:
 
   //! standard constructor  
-  SALOMEDS_UseCaseBuilder_i(const Handle(SALOMEDSImpl_UseCaseBuilder)& theDocument,
+  SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theDocument,
 			    CORBA::ORB_ptr);
   
   //! standard destructor

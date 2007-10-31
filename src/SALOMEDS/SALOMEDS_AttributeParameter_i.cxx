@@ -24,7 +24,6 @@
 
 #include "SALOMEDS_AttributeParameter_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TCollection_AsciiString.hxx>
 
 #include <vector>
 
@@ -40,7 +39,7 @@ void SALOMEDS_AttributeParameter_i::SetInt(const char* theID, CORBA::Long theVal
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetInt(theID, theValue);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetInt(theID, theValue);
 }
 
 //=======================================================================
@@ -52,7 +51,7 @@ void SALOMEDS_AttributeParameter_i::SetInt(const char* theID, CORBA::Long theVal
 CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(const char* theID)
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetInt(theID);
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetInt(theID);
 }
 
 //=======================================================================
@@ -65,7 +64,7 @@ void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, CORBA::Double the
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetReal(theID, theValue);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetReal(theID, theValue);
 }
 
 //=======================================================================
@@ -77,7 +76,7 @@ void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, CORBA::Double the
 CORBA::Double SALOMEDS_AttributeParameter_i::GetReal(const char* theID)
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetReal(theID);
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetReal(theID);
 }
 
 //=======================================================================
@@ -90,7 +89,7 @@ void SALOMEDS_AttributeParameter_i::SetString(const char* theID, const char* the
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeParameter) impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl);
+  SALOMEDSImpl_AttributeParameter* impl = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl);
   impl->SetString(theID, theValue);
 }
 
@@ -103,7 +102,7 @@ void SALOMEDS_AttributeParameter_i::SetString(const char* theID, const char* the
 char* SALOMEDS_AttributeParameter_i::GetString(const char* theID)
 {
   SALOMEDS::Locker lock; 
-  Handle(SALOMEDSImpl_AttributeParameter) impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl);
+  SALOMEDSImpl_AttributeParameter* impl = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl);
   CORBA::String_var c_s = CORBA::string_dup(impl->GetString(theID).c_str());
   return c_s._retn();
 }
@@ -118,7 +117,7 @@ void SALOMEDS_AttributeParameter_i::SetBool(const char* theID, CORBA::Boolean th
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetBool(theID, theValue);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetBool(theID, theValue);
 }
 
 //=======================================================================
@@ -130,7 +129,7 @@ void SALOMEDS_AttributeParameter_i::SetBool(const char* theID, CORBA::Boolean th
 CORBA::Boolean SALOMEDS_AttributeParameter_i::GetBool(const char* theID)
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetBool(theID);
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetBool(theID);
 }
   
 //=======================================================================
@@ -149,7 +148,7 @@ void SALOMEDS_AttributeParameter_i::SetRealArray(const char* theID, const SALOME
     v.resize(length);
     for(int i = 0; i<length; i++) v[i] = theArray[i];
   }
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetRealArray(theID, v);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetRealArray(theID, v);
 }
 
 //=======================================================================
@@ -162,7 +161,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(const char* the
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::DoubleSeq_var aSeq = new SALOMEDS::DoubleSeq;
-  vector<double> v = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetRealArray(theID);
+  vector<double> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetRealArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -187,7 +186,7 @@ void SALOMEDS_AttributeParameter_i::SetIntArray(const char* theID, const SALOMED
     v.resize(length);
     for(int i = 0; i<length; i++) v[i] = theArray[i];
   }
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetIntArray(theID, v);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetIntArray(theID, v);
 }
 
 //=======================================================================
@@ -200,7 +199,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(const char* theID)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq;
-  vector<int> v = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetIntArray(theID);
+  vector<int> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIntArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -225,7 +224,7 @@ void SALOMEDS_AttributeParameter_i::SetStrArray(const char* theID, const SALOMED
     v.resize(length);
     for(int i = 0; i<length; i++) v[i] = string(theArray[i].in());
   }
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->SetStrArray(theID, v);
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetStrArray(theID, v);
 }
 
 //=======================================================================
@@ -238,7 +237,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theI
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq;
-  vector<string> v = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetStrArray(theID);
+  vector<string> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetStrArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -258,7 +257,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theI
 CORBA::Boolean SALOMEDS_AttributeParameter_i::IsSet(const char* theID, CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->IsSet(theID, (Parameter_Types)theType);
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->IsSet(theID, (Parameter_Types)theType);
 }
 
 //=======================================================================
@@ -271,7 +270,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::RemoveID(const char* theID, CORBA:
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->RemoveID(theID, (Parameter_Types)theType);
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->RemoveID(theID, (Parameter_Types)theType);
 }
 
 //=======================================================================
@@ -283,7 +282,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::RemoveID(const char* theID, CORBA:
 SALOMEDS::AttributeParameter_ptr SALOMEDS_AttributeParameter_i::GetFather()
 {
   SALOMEDS::Locker lock; 
-  Handle(SALOMEDSImpl_AttributeParameter) impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl);
+  SALOMEDSImpl_AttributeParameter* impl = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl);
   SALOMEDS_AttributeParameter_i* attr = new SALOMEDS_AttributeParameter_i(impl, _orb);
   return attr->AttributeParameter::_this();
 }
@@ -297,7 +296,7 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_AttributeParameter_i::GetFather()
 CORBA::Boolean SALOMEDS_AttributeParameter_i::HasFather()
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->HasFather();
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->HasFather();
 }
 
 //=======================================================================
@@ -309,7 +308,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::HasFather()
 CORBA::Boolean SALOMEDS_AttributeParameter_i::IsRoot()
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->IsRoot();
+  return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->IsRoot();
 }
 
 //=======================================================================
@@ -321,7 +320,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::IsRoot()
 void SALOMEDS_AttributeParameter_i::Clear()
 {
   SALOMEDS::Locker lock; 
-  Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->Clear();
+  dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->Clear();
 }
 
 
@@ -335,7 +334,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetIDs(CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
-  vector<string> A = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetIDs((Parameter_Types)theType);
+  vector<string> A = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIDs((Parameter_Types)theType);
 
   if(A.size()) {
     int length = A.size();

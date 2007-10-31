@@ -42,7 +42,7 @@ class SALOMEDS_AttributeParameter_i: public virtual POA_SALOMEDS::AttributeParam
 {
 public:
   
-  SALOMEDS_AttributeParameter_i(const Handle(SALOMEDSImpl_AttributeParameter)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeParameter_i(SALOMEDSImpl_AttributeParameter* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeParameter_i() {};

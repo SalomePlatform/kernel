@@ -43,9 +43,9 @@ class Standard_EXPORT SALOMEDS_SComponent_i: public POA_SALOMEDS::SComponent,
 
 public:
 
-  static SALOMEDS::SComponent_ptr New(const Handle(SALOMEDSImpl_SComponent)&, CORBA::ORB_ptr); 
+  static SALOMEDS::SComponent_ptr New(const SALOMEDSImpl_SComponent&, CORBA::ORB_ptr); 
   
-  SALOMEDS_SComponent_i(const Handle(SALOMEDSImpl_SComponent)&, CORBA::ORB_ptr);
+  SALOMEDS_SComponent_i(const SALOMEDSImpl_SComponent&, CORBA::ORB_ptr);
   
   virtual ~SALOMEDS_SComponent_i();
 

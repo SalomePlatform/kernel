@@ -90,7 +90,7 @@
 #include "SALOMEDS_AttributeString_i.hxx"
 
 #define __CreateCORBAAttribute(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
-    Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theAttr); \
+    SALOMEDSImpl_##CORBA_Name* A = dynamic_cast<SALOMEDSImpl_##CORBA_Name*>(theAttr); \
     SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(A, theOrb); \
     attr_servant = Attr; \
     anAttribute = Attr->CORBA_Name::_this(); \

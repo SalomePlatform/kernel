@@ -40,14 +40,8 @@
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
 
-#include <TColStd_SequenceOfExtendedString.hxx>
-#include <TColStd_HSequenceOfAsciiString.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-#include <TDF_Label.hxx>
-#include <TDF_Attribute.hxx>
+#include "DF_Label.hxx"
+#include "DF_Attribute.hxx"
 
 #ifdef WIN32
 #include <process.h>
@@ -65,7 +59,7 @@ using namespace std;
  *  Purpose  : SALOMEDS_Study_i constructor
  */
 //============================================================================
-SALOMEDS_Study_i::SALOMEDS_Study_i(const Handle(SALOMEDSImpl_Study) theImpl,
+SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 				   CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
@@ -91,7 +85,7 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 char* SALOMEDS_Study_i::GetPersistentReference()
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->GetPersistentReference().ToCString());
+  return CORBA::string_dup(_impl->GetPersistentReference().c_str());
 }
 //============================================================================
 /*! Function : GetTransientReference
@@ -101,7 +95,7 @@ char* SALOMEDS_Study_i::GetPersistentReference()
 char* SALOMEDS_Study_i::GetTransientReference()
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->GetTransientReference().ToCString()); 
+  return CORBA::string_dup(_impl->GetTransientReference().c_str()); 
 }
 
 //============================================================================
@@ -124,7 +118,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponent (const char* aComponent
 {
   SALOMEDS::Locker lock; 
   
-  Handle(SALOMEDSImpl_SComponent) aCompImpl = _impl->FindComponent(TCollection_AsciiString((char*)aComponentName));
+  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponent(string(aComponentName));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
@@ -140,7 +134,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
 {
   SALOMEDS::Locker lock; 
   
-  Handle(SALOMEDSImpl_SComponent) aCompImpl = _impl->FindComponentID(TCollection_AsciiString((char*)aComponentID));
+  SALOMEDSImpl_SComponent aCompImpl = _impl->FindComponentID(string((char*)aComponentID));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
@@ -156,11 +150,11 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* anObjectName)
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObject(TCollection_AsciiString((char*)anObjectName));
+  SALOMEDSImpl_SObject aSO = _impl->FindObject(string((char*)anObjectName));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
-  if(aSO->DynamicType() == STANDARD_TYPE(SALOMEDSImpl_SComponent)) {
-    Handle(SALOMEDSImpl_SComponent) aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(aSO);
+  if(aSO.IsComponent()) {
+    SALOMEDSImpl_SComponent aSCO = aSO;
     SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aSCO, _orb);
     return sco._retn();
   }
@@ -179,7 +173,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectID(TCollection_AsciiString((char*)anObjectID));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectID(string((char*)anObjectID));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
@@ -196,7 +190,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
 
   if(!anObjectID || strlen(anObjectID) == 0) return SALOMEDS::SObject::_nil();
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->CreateObjectID((char*)anObjectID);
+  SALOMEDSImpl_SObject aSO = _impl->CreateObjectID((char*)anObjectID);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
@@ -214,15 +208,14 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
 {
   SALOMEDS::Locker lock; 
 
-  Handle(TColStd_HSequenceOfTransient) aSeq = _impl->FindObjectByName(TCollection_AsciiString((char*)anObjectName),
-								      TCollection_AsciiString((char*)aComponentName));
-  int aLength = aSeq->Length();
+  vector<SALOMEDSImpl_SObject> aSeq = _impl->FindObjectByName(string((char*)anObjectName),
+							       string((char*)aComponentName));
+  int aLength = aSeq.size();
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject ;
   listSO->length(aLength);
-  for(int i = 1; i<=aLength; i++) {
-    Handle(SALOMEDSImpl_SObject) aSO = Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i));
-    SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
-    listSO[i-1] = so ;
+  for(int i = 0; i<aLength; i++) {
+    SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSeq[i], _orb);
+    listSO[i] = so ;
   }
   return listSO._retn() ;
 }
@@ -236,7 +229,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectIOR(TCollection_AsciiString((char*)anObjectIOR));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectIOR(string((char*)anObjectIOR));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
@@ -252,7 +245,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectByPath(TCollection_AsciiString((char*)thePath));
+  SALOMEDSImpl_SObject aSO = _impl->FindObjectByPath(string((char*)thePath));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
@@ -268,9 +261,9 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 {
   SALOMEDS::Locker lock; 
 
-  TCollection_AsciiString aPath("");
-  if(CORBA::is_nil(theObject)) return CORBA::string_dup(aPath.ToCString());
-  Handle(SALOMEDSImpl_SObject) aSO;
+  string aPath("");
+  if(CORBA::is_nil(theObject)) return CORBA::string_dup(aPath.c_str());
+  SALOMEDSImpl_SObject aSO;
   SALOMEDS::SObject_var aSObj = SALOMEDS::SObject::_narrow(theObject);
 
   if(!CORBA::is_nil(aSObj)) {
@@ -280,10 +273,10 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
     aSO  = _impl->FindObjectIOR(_orb->object_to_string(theObject));
   }
    
-  if(aSO.IsNull()) return CORBA::string_dup(aPath.ToCString());
+  if(aSO.IsNull()) return CORBA::string_dup(aPath.c_str());
   
   aPath = _impl->GetObjectPath(aSO);
-  return  CORBA::string_dup(aPath.ToCString());
+  return  CORBA::string_dup(aPath.c_str());
 }
 
 
@@ -296,7 +289,7 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 {
   SALOMEDS::Locker lock; 
 
-  _impl->SetContext(TCollection_AsciiString((char*)thePath));
+  _impl->SetContext(string((char*)thePath));
   if(_impl->IsError() && _impl->GetErrorCode() == "InvalidContext") 
     throw SALOMEDS::Study::StudyInvalidContext();  
 }
@@ -309,9 +302,9 @@ void SALOMEDS_Study_i::SetContext(const char* thePath)
 char* SALOMEDS_Study_i::GetContext() 
 {
   SALOMEDS::Locker lock; 
-
+  
   if(!_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();   
-  return CORBA::string_dup(_impl->GetContext().ToCString());
+  return CORBA::string_dup(_impl->GetContext().c_str());
 }
 
 //============================================================================
@@ -328,15 +321,14 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq =
-    _impl->GetObjectNames(TCollection_AsciiString((char*)theContext));
+  vector<string> aSeq = _impl->GetObjectNames(string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  int aLength = aSeq->Length();
+  int aLength = aSeq.size();
   aResult->length(aLength);
-  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  for (int anIndex = 0; anIndex < aLength; anIndex++) {
+    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
 
   return aResult._retn();
@@ -356,15 +348,14 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theCont
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq =
-    _impl->GetDirectoryNames(TCollection_AsciiString((char*)theContext));
+  vector<string> aSeq = _impl->GetDirectoryNames(string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  int aLength = aSeq->Length();
+  int aLength = aSeq.size();
   aResult->length(aLength);
-  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  for (int anIndex = 0; anIndex < aLength; anIndex++) {
+    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
 
   return aResult._retn();
@@ -384,15 +375,14 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext)
   if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq =
-    _impl->GetFileNames(TCollection_AsciiString((char*)theContext));
+  vector<string> aSeq = _impl->GetFileNames(string((char*)theContext));
   if (_impl->GetErrorCode() == "InvalidContext")
     throw SALOMEDS::Study::StudyInvalidContext();
 
-  int aLength = aSeq->Length();
+  int aLength = aSeq.size();
   aResult->length(aLength);
-  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  for (int anIndex = 0; anIndex < aLength; anIndex++) {
+    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
 
   return aResult._retn();
@@ -410,13 +400,12 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq =
-    _impl->GetComponentNames(TCollection_AsciiString((char*)theContext));
+  vector<string> aSeq = _impl->GetComponentNames(string((char*)theContext));
 
-  int aLength = aSeq->Length();
+  int aLength = aSeq.size();
   aResult->length(aLength);
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  for(int anIndex = 0; anIndex < aLength; anIndex++) {
+    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
 
   return aResult._retn();
@@ -431,8 +420,8 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->GetSObject(theSO->GetID());
-  Handle(SALOMEDSImpl_ChildIterator) anItr = new SALOMEDSImpl_ChildIterator(aSO);
+  SALOMEDSImpl_SObject aSO = _impl->GetSObject(theSO->GetID());
+  SALOMEDSImpl_ChildIterator anItr(aSO);
 
   //Create iterator
   SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(anItr, _orb);
@@ -475,7 +464,7 @@ SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 char* SALOMEDS_Study_i::Name()
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->Name().ToCString());
+  return CORBA::string_dup(_impl->Name().c_str());
 }
 
 //============================================================================
@@ -486,7 +475,7 @@ char* SALOMEDS_Study_i::Name()
 void SALOMEDS_Study_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;  
-  _impl->Name(TCollection_AsciiString((char*)name));
+  _impl->Name(string((char*)name));
 }
 
 //============================================================================
@@ -524,13 +513,13 @@ CORBA::Boolean  SALOMEDS_Study_i::IsModified()
 
 //============================================================================
 /*! Function : Modified
- *  Purpose  : Set a Modified flag of a Study to True
+ *  Purpose  : Sets a Modified flag of a Study to True
  */
 //============================================================================
 void  SALOMEDS_Study_i::Modified()
 {
   SALOMEDS::Locker lock; 
-  _impl->Modify();
+  return _impl->Modify();
 }
 
 
@@ -542,7 +531,7 @@ void  SALOMEDS_Study_i::Modified()
 char* SALOMEDS_Study_i::URL()
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->URL().ToCString());
+  return CORBA::string_dup(_impl->URL().c_str());
 }
 
 //============================================================================
@@ -553,7 +542,7 @@ char* SALOMEDS_Study_i::URL()
 void SALOMEDS_Study_i::URL(const char* url)
 {
   SALOMEDS::Locker lock; 
-  _impl->URL(TCollection_AsciiString((char*)url));
+  _impl->URL(string((char*)url));
 }
 
 
@@ -572,16 +561,16 @@ void SALOMEDS_Study_i::StudyId(CORBA::Short id)
 void SALOMEDS_Study_i::UpdateIORLabelMap(const char* anIOR,const char* anEntry) 
 {
   SALOMEDS::Locker lock; 
-  _impl->UpdateIORLabelMap(TCollection_AsciiString((char*)anIOR), TCollection_AsciiString((char*)anEntry));
+  _impl->UpdateIORLabelMap(string((char*)anIOR), string((char*)anEntry));
 }
 
-SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::ORB_ptr orb) 
+SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb) 
 {
   SALOMEDS::Locker lock; 
 
-  Handle(SALOMEDSImpl_AttributeIOR) Att;
-  if (theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(),Att)){
-    char* IOR = CORBA::string_dup(TCollection_AsciiString(Att->Value()).ToCString());
+  SALOMEDSImpl_AttributeIOR* Att = NULL;
+  if ((Att=(SALOMEDSImpl_AttributeIOR*)theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))){
+    char* IOR = CORBA::string_dup(Att->Value().c_str());
     CORBA::Object_var obj = orb->string_to_object(IOR);
     SALOMEDS::Study_ptr aStudy = SALOMEDS::Study::_narrow(obj) ;
     ASSERT(!CORBA::is_nil(aStudy));
@@ -592,7 +581,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::
   return SALOMEDS::Study::_nil();
 }
 
-void SALOMEDS_Study_i::IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR) theAttribute) 
+void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 
 {
   SALOMEDS::Locker lock; 
   SALOMEDSImpl_Study::IORUpdated(theAttribute);
@@ -616,7 +605,7 @@ SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties()
 {
   SALOMEDS::Locker lock; 
   
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr = _impl->GetProperties();
+  SALOMEDSImpl_AttributeStudyProperties* anAttr = _impl->GetProperties();
   SALOMEDS_AttributeStudyProperties_i* SP = new SALOMEDS_AttributeStudyProperties_i(anAttr, _orb);
   return SP->AttributeStudyProperties::_this();
 }
@@ -624,20 +613,20 @@ SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties()
 char* SALOMEDS_Study_i::GetLastModificationDate() 
 {
   SALOMEDS::Locker lock; 
-  return CORBA::string_dup(_impl->GetLastModificationDate().ToCString());
+  return CORBA::string_dup(_impl->GetLastModificationDate().c_str());
 }
 
 SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate() 
 {
   SALOMEDS::Locker lock; 
   
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetModificationsDate();
-  int aLength = aSeq->Length();
+  vector<string> aSeq = _impl->GetModificationsDate();
+  int aLength = aSeq.size();
   SALOMEDS::ListOfDates_var aDates = new SALOMEDS::ListOfDates;
   aDates->length(aLength);
 
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aDates[anIndex-1] = CORBA::string_dup(aSeq->Value(anIndex).ToCString());
+  for(int anIndex = 0; anIndex < aLength; anIndex++) {
+    aDates[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
   return aDates._retn();
 }
@@ -665,14 +654,12 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
 void SALOMEDS_Study_i::Close()
 {
   SALOMEDS::Locker lock; 
-  
+
   RemovePostponed(-1);
 
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
-
   for (; itcomponent->More(); itcomponent->Next()) {
     SALOMEDS::SComponent_var sco = itcomponent->Value();
-	  
     MESSAGE ( "Look for an engine for data type :"<< sco->ComponentDataType());
     // if there is an associated Engine call its method for closing
     CORBA::String_var IOREngine;
@@ -691,6 +678,7 @@ void SALOMEDS_Study_i::Close()
       }
     }
   }
+
   _impl->Close();
 }
 
@@ -702,23 +690,13 @@ void SALOMEDS_Study_i::Close()
 void SALOMEDS_Study_i::AddPostponed(const char* theIOR) 
 {
   SALOMEDS::Locker lock; 
- 
-  CORBA::Object_var obj = _orb->string_to_object(theIOR);
-  if (!CORBA::is_nil(obj)) {
-    SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
-    if (!CORBA::is_nil(aGeneric)) _impl->AddPostponed((char*)theIOR);     
-  }
+  //Not implemented
 }
 
 void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) 
 {
   SALOMEDS::Locker lock; 
-
-  CORBA::Object_var obj = _orb->string_to_object(theIOR);
-  if (!CORBA::is_nil(obj)) {
-    SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj) ;
-    if (!CORBA::is_nil(aGeneric)) _impl->AddCreatedPostponed((char*)theIOR);
-  }
+  //Not implemented
 }
 
 //============================================================================
@@ -727,37 +705,25 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR)
  */
 //============================================================================
 #ifndef WNT
-void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long theUndoLimit) 
+void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long /*theUndoLimit*/) 
 #else
-void SALOMEDS_Study_i::RemovePostponed(CORBA::Long theUndoLimit) 
+void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/) 
 #endif
 {  
   SALOMEDS::Locker lock; 
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->RemovePostponed(theUndoLimit);
-  int aLegth = aSeq->Length();
-  for(int i = 1; i <= aLegth; i++) {
-    TCollection_AsciiString anIOR = aSeq->Value(i);
-    //mkr : fix for bug IPAL9408 : check the length of anIOR
-    //                             before take value from it
-    if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'c') {
-      CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
+  vector<string> anIORs = _impl->GetIORs();
+  int i, aSize = (int)anIORs.size();
+
+  for(i = 0; i < aSize; i++) {
+    try {
+      CORBA::Object_var obj = _orb->string_to_object(anIORs[i].c_str());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
       if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
-    }
-    else if ( !anIOR.IsEmpty() && anIOR.Value(1) == 'd') {
-      CORBA::Object_var obj = _orb->string_to_object(anIOR.Split(1).ToCString());
-      SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
-      if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
-    }
-    else {
-      try {
-	CORBA::Object_var obj = _orb->string_to_object(anIOR.ToCString());
-	SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
-	if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
-      } catch (...) {}
-    }
+    } catch (...) {}
   }
+
+  //Not implemented
 }
 
 //============================================================================
@@ -772,8 +738,7 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
 #endif
 {
   SALOMEDS::Locker lock; 
-
-  _impl->UndoPostponed(theWay);
+  //Not implemented
 }
 
 
@@ -788,7 +753,7 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath,
 {
   SALOMEDS::Locker lock; 
 
-  TCollection_AsciiString aPath((char*)thePath), aBaseName((char*)theBaseName);
+  string aPath((char*)thePath), aBaseName((char*)theBaseName);
   SALOMEDS_DriverFactory_i* factory = new SALOMEDS_DriverFactory_i(_orb);
   CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory);
   delete factory;
@@ -804,7 +769,7 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetCommonParameters(const cha
 {
   SALOMEDS::Locker lock; 
   
-  Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetCommonParameters(theID, theSavePoint);
+  SALOMEDSImpl_AttributeParameter* anAttr = _impl->GetCommonParameters(theID, theSavePoint);
   SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
   return SP->AttributeParameter::_this();
 }
@@ -820,7 +785,7 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const cha
 {
   SALOMEDS::Locker lock; 
   
-  Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetModuleParameters(theID, theModuleName, theSavePoint);
+  SALOMEDSImpl_AttributeParameter* anAttr = _impl->GetModuleParameters(theID, theModuleName, theSavePoint);
   SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
   return SP->AttributeParameter::_this();
 }
@@ -869,12 +834,12 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
 
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetLockerID();
+  vector<string> aSeq = _impl->GetLockerID();
 
-  int aLength = aSeq->Length();
+  int aLength = aSeq.size();
   aResult->length(aLength);
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
-    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  for(int anIndex = 0; anIndex < aLength; anIndex++) {
+    aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
   }
   return aResult._retn();
 }
@@ -900,8 +865,8 @@ char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* 
 void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) 
 { 
   _impl->EnableUseCaseAutoFilling(isEnabled); 
-  Handle(SALOMEDSImpl_StudyBuilder) builder = _builder->GetImpl();
-  if(!builder.IsNull()) {
+  SALOMEDSImpl_StudyBuilder* builder = _builder->GetImpl();
+  if(builder) {
     if(isEnabled) {
       builder->SetOnAddSObject(_impl->GetCallback());
       builder->SetOnRemoveSObject(_impl->GetCallback());
@@ -924,6 +889,5 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
   long pid = (long)getpid();
 #endif  
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  SALOMEDSImpl_Study* local_impl = _impl.operator->();
-  return ((CORBA::LongLong)local_impl);
+  return ((CORBA::LongLong)_impl);
 }

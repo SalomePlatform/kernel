@@ -24,8 +24,6 @@
 #include "SALOMEDSImplTest.hxx"
 #include "SALOMEDSTest.hxx"
 
-#include <TCollection_AsciiString.hxx>
-
 // --- Registers the fixture into the 'registry'
 
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest );
@@ -108,8 +106,6 @@ int main(int argc, char* argv[])
   string kernel_root = getenv("KERNEL_ROOT_DIR");
   CPPUNIT_ASSERT(!kernel_root.empty());
   kernel_root+="/share/salome/resources/kernel";
-  setenv("CSF_PluginDefaults", kernel_root.c_str(), 1);
-  setenv("CSF_SALOMEDS_ResourcesDefaults", kernel_root.c_str(), 1);
 
   CORBA::Object_var poaObj = orb->resolve_initial_references("RootPOA");
   if(!CORBA::is_nil(poaObj)) {

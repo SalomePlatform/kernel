@@ -19,8 +19,6 @@
 #include "SALOMEDS_IParameters.hxx"
 #include <utilities.h>
 
-#include <TCollection_AsciiString.hxx>
-
 using namespace std;
 
 #define PT_INTEGER   0
@@ -199,22 +197,22 @@ vector<string> SALOMEDS_IParameters::getProperties()
 
 vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char separator, bool fromEnd)
 {
-  TCollection_AsciiString val((char*)value.c_str());
+  string val(value);
   vector<string> v;
   int pos;
-  if(fromEnd) pos = val.SearchFromEnd(separator);
-  else pos = val.Search(separator);
+  if(fromEnd) pos = val.rfind(separator);
+  else pos = val.find(separator);
 
   if(pos < 0) {
     v.push_back(value);
     return v;
   }
 
-  TCollection_AsciiString part1, part2;
-  part1 = val.SubString(1, pos-1);
-  part2 = val.SubString(pos+1, val.Length());
-  v.push_back(part1.ToCString());
-  v.push_back(part2.ToCString());
+  string part1, part2;
+  part1 = val.substr(0, pos);
+  part2 = val.substr(pos+1, val.size());
+  v.push_back(part1);
+  v.push_back(part2);
   return v;
 }
 

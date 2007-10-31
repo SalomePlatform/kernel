@@ -34,10 +34,6 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-// OCC Headers
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
 #include <map>
 
 #ifdef WIN32
@@ -51,7 +47,7 @@
 
 using namespace std;
 
-SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)& theImpl, CORBA::ORB_ptr theORB)
+SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
   SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this());
@@ -65,9 +61,17 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_SObject_i::SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)& impl, CORBA::ORB_ptr orb)
-  : _impl(impl)
+SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb)
 {
+  if(!impl.IsNull()) {
+     if(impl.IsComponent()) {
+         SALOMEDSImpl_SComponent sco = impl;
+	 _impl = sco.GetPersistentCopy();       
+     }
+     else {
+         _impl = impl.GetPersistentCopy();
+     }
+  }
   _orb = CORBA::ORB::_duplicate(orb);
    //SALOME::GenericObj_i::myPOA = SALOMEDS_StudyManager_i::GetPOA(GetStudy());
 }
@@ -79,7 +83,9 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)& impl,
  */
 //============================================================================
 SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
-{}
+{
+   if(_impl) delete _impl;    
+}
 
 
 //============================================================================
@@ -90,7 +96,7 @@ SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
 char* SALOMEDS_SObject_i::GetID()
 {
   SALOMEDS::Locker lock;
-  return CORBA::string_dup(_impl->GetID().ToCString());
+  return CORBA::string_dup(_impl->GetID().c_str());
 }
 
 //============================================================================
@@ -125,14 +131,14 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_Study) aStudy = _impl->GetStudy();
-  if(aStudy.IsNull()) {
+  SALOMEDSImpl_Study* aStudy = _impl->GetStudy();
+  if(!aStudy) {
     MESSAGE("Problem GetStudy");
     return SALOMEDS::Study::_nil();
   }
 
-  TCollection_AsciiString IOR = aStudy->GetTransientReference();
-  CORBA::Object_var obj = _orb->string_to_object(IOR.ToCString());
+  string IOR = aStudy->GetTransientReference();
+  CORBA::Object_var obj = _orb->string_to_object(IOR.c_str());
   SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
   ASSERT(!CORBA::is_nil(Study));
   return SALOMEDS::Study::_duplicate(Study);
@@ -147,13 +153,13 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
 						  const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
-  Handle(TDF_Attribute) anAttr;
+  DF_Attribute* anAttr = NULL;
   if(_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute)) {
     anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
-    return Standard_True;
+    return true;
   }
 
-  return Standard_False;
+  return false;
 }
 
 //============================================================================
@@ -165,19 +171,19 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
 SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 {
   SALOMEDS::Locker lock;
-  Handle(TColStd_HSequenceOfTransient) aSeq = _impl->GetAllAttributes();
+  vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
   SALOMEDS::ListOfAttributes_var SeqOfAttr = new SALOMEDS::ListOfAttributes;
-  Standard_Integer length = aSeq->Length();
+  int length = aSeq.size();
 
   SeqOfAttr->length(length);
 
   if (length != 0) {
-    for(int i = 1; i<= length; i++) {
-      Handle(SALOMEDSImpl_GenericAttribute) anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i));
+    for(int i = 0; i < length; i++) {
+      SALOMEDSImpl_GenericAttribute* anAttr = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]);
       SALOMEDS::GenericAttribute_var anAttribute;
       anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
       if (!CORBA::is_nil(anAttribute)) {
-	SeqOfAttr[i - 1] = anAttribute;
+	SeqOfAttr[i] = anAttribute;
       }
     }
   }
@@ -193,7 +199,7 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aRefObj;
+  SALOMEDSImpl_SObject aRefObj;
   if(!_impl->ReferencedObject(aRefObj)) return false;
 
   obj = SALOMEDS_SObject_i::New (aRefObj, _orb);
@@ -208,7 +214,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
 CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj)
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aSubObj;
+  SALOMEDSImpl_SObject aSubObj;
   if(!_impl->FindSubObject(atag, aSubObj)) return false;
 
   obj = SALOMEDS_SObject_i::New (aSubObj, _orb);
@@ -224,7 +230,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SOb
 char* SALOMEDS_SObject_i::Name()
 {
   SALOMEDS::Locker lock;
-  return CORBA::string_dup(_impl->Name().ToCString());
+  return CORBA::string_dup(_impl->Name().c_str());
 }
 
 //============================================================================
@@ -235,7 +241,7 @@ char* SALOMEDS_SObject_i::Name()
 void  SALOMEDS_SObject_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;
-  TCollection_AsciiString aName((char*)name);
+  string aName((char*)name);
   _impl->Name(aName);
 }
 
@@ -271,8 +277,8 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
   SALOMEDS::Locker lock;
   CORBA::Object_ptr obj = CORBA::Object::_nil();
   try {
-    TCollection_AsciiString IOR = _impl->GetIOR();
-    char* c_ior = CORBA::string_dup(IOR.ToCString());
+    string IOR = _impl->GetIOR();
+    char* c_ior = CORBA::string_dup(IOR.c_str());
     obj = _orb->string_to_object(c_ior);
     CORBA::string_free(c_ior);
   } catch(...) {}
@@ -287,7 +293,7 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
 char* SALOMEDS_SObject_i::GetName()
 {
   SALOMEDS::Locker lock;
-  CORBA::String_var aStr = CORBA::string_dup(_impl->GetName().ToCString());
+  CORBA::String_var aStr = CORBA::string_dup(_impl->GetName().c_str());
   return aStr._retn();
 }
 
@@ -299,7 +305,7 @@ char* SALOMEDS_SObject_i::GetName()
 char* SALOMEDS_SObject_i::GetComment()
 {
   SALOMEDS::Locker lock;
-  CORBA::String_var aStr = CORBA::string_dup(_impl->GetComment().ToCString());
+  CORBA::String_var aStr = CORBA::string_dup(_impl->GetComment().c_str());
   return aStr._retn();
 }
 
@@ -311,7 +317,7 @@ char* SALOMEDS_SObject_i::GetComment()
 char* SALOMEDS_SObject_i::GetIOR()
 {
   SALOMEDS::Locker lock;
-  CORBA::String_var aStr = CORBA::string_dup(_impl->GetIOR().ToCString());
+  CORBA::String_var aStr = CORBA::string_dup(_impl->GetIOR().c_str());
   return aStr._retn();
 }
 
@@ -326,6 +332,5 @@ CORBA::LongLong SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA:
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  SALOMEDSImpl_SObject* local_impl = _impl.operator->();
-  return ((CORBA::LongLong)local_impl);
+  return ((CORBA::LongLong)(void*)_impl);
 }

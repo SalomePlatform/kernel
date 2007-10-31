@@ -31,7 +31,7 @@ class SALOMEDSTest : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE( SALOMEDSTest );
 
   //Attributes' tests
-
+  
   CPPUNIT_TEST( testAttributeComment );
   CPPUNIT_TEST( testAttributeDrawable );
   CPPUNIT_TEST( testAttributeExpandable );
@@ -44,7 +44,7 @@ class SALOMEDSTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testAttributeLocalID );
   CPPUNIT_TEST( testAttributeName );
   CPPUNIT_TEST( testAttributeOpened );
-  CPPUNIT_TEST( testAttributeParameter );
+  CPPUNIT_TEST( testAttributeParameter );  
   CPPUNIT_TEST( testAttributePersistentRef );
   CPPUNIT_TEST( testAttributePixMap );
   CPPUNIT_TEST( testAttributePythonObject );
@@ -53,8 +53,8 @@ class SALOMEDSTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testAttributeSequenceOfInteger );
   CPPUNIT_TEST( testAttributeSequenceOfReal );
   CPPUNIT_TEST( testAttributeStudyProperties );
-  CPPUNIT_TEST( testAttributeTableOfInteger );
-  CPPUNIT_TEST( testAttributeTableOfReal );
+  CPPUNIT_TEST( testAttributeTableOfInteger );  
+  CPPUNIT_TEST( testAttributeTableOfReal );  
   CPPUNIT_TEST( testAttributeTableOfString );
   CPPUNIT_TEST( testAttributeTarget );
   CPPUNIT_TEST( testAttributeTextColor );
@@ -65,7 +65,7 @@ class SALOMEDSTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testSComponent );
   CPPUNIT_TEST( testSComponentIterator );
   CPPUNIT_TEST( testSObject );
-  CPPUNIT_TEST( testStudy );
+  CPPUNIT_TEST( testStudy );  
   CPPUNIT_TEST( testStudyBuilder );
   CPPUNIT_TEST( testStudyManager );
   CPPUNIT_TEST( testUseCase );
@@ -133,7 +133,7 @@ class SALOMEDSTest_Embedded : public SALOMEDSTest
   CPPUNIT_TEST_SUITE( SALOMEDSTest_Embedded );
 
   //Attributes' tests
-
+  
   CPPUNIT_TEST( testAttributeComment );
   CPPUNIT_TEST( testAttributeDrawable );
   CPPUNIT_TEST( testAttributeExpandable );
@@ -149,13 +149,13 @@ class SALOMEDSTest_Embedded : public SALOMEDSTest
   CPPUNIT_TEST( testAttributeParameter );
   CPPUNIT_TEST( testAttributePersistentRef );
   CPPUNIT_TEST( testAttributePixMap );
-  CPPUNIT_TEST( testAttributePythonObject );
+  CPPUNIT_TEST( testAttributePythonObject );  
   CPPUNIT_TEST( testAttributeReal );
   CPPUNIT_TEST( testAttributeSelectable );
   CPPUNIT_TEST( testAttributeSequenceOfInteger );
   CPPUNIT_TEST( testAttributeSequenceOfReal );
   CPPUNIT_TEST( testAttributeStudyProperties );
-  CPPUNIT_TEST( testAttributeTableOfInteger );
+  CPPUNIT_TEST( testAttributeTableOfInteger );  
   CPPUNIT_TEST( testAttributeTableOfReal );
   CPPUNIT_TEST( testAttributeTableOfString );
   CPPUNIT_TEST( testAttributeTarget );
@@ -164,15 +164,15 @@ class SALOMEDSTest_Embedded : public SALOMEDSTest
   CPPUNIT_TEST( testAttributeTreeNode );
   CPPUNIT_TEST( testAttributeUserID );
   CPPUNIT_TEST( testChildIterator );
-  CPPUNIT_TEST( testSComponent );
+  CPPUNIT_TEST( testSComponent );  
   CPPUNIT_TEST( testSComponentIterator );
   CPPUNIT_TEST( testSObject );
   CPPUNIT_TEST( testStudy );
-  CPPUNIT_TEST( testStudyBuilder );
+  CPPUNIT_TEST( testStudyBuilder ); 
+  CPPUNIT_TEST( testChildIterator );
   CPPUNIT_TEST( testStudyManager );
   CPPUNIT_TEST( testUseCase );
-
-
+  
   CPPUNIT_TEST_SUITE_END();
 
 public:

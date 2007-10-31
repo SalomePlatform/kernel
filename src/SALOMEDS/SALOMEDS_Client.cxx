@@ -40,7 +40,7 @@ using namespace std;
  *  Purpose  : 
  */
 //============================================================================
-static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Standard_Integer offset) {
+static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, int offset) {
   SALOMEDS::SObject_var RefSO;
   SALOMEDS::ChildIterator_var it = Study->NewChildIterator(SO);
   for (; it->More();it->Next()){
@@ -50,12 +50,12 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Sta
     {
       SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
       CORBA::String_var Val = Name->Value();
-      for (Standard_Integer i = 1; i <= offset ; i++) 
+      for (int i = 1; i <= offset ; i++) 
 	MESSAGE("--");
       MESSAGE(">"<<CSO->GetID()<<Val);
     }
     if (CSO->ReferencedObject(RefSO)) {
-      for (Standard_Integer i = 1; i <= offset ; i++) 
+      for (int i = 1; i <= offset ; i++) 
 	MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
@@ -71,9 +71,9 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Sta
 static void DumpStudy (SALOMEDS::Study_ptr Study) {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
-  Standard_CString name;
+  char* name;
   SALOMEDS::SComponentIterator_var itcomp = Study->NewComponentIterator();
-  Standard_Integer offset = 1;
+  int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
     name = SC->ComponentDataType();
@@ -90,7 +90,7 @@ static void DumpStudy (SALOMEDS::Study_ptr Study) {
 static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
 {
   try {
-  Standard_CString name;
+  char* name;
   MESSAGE("Create New Study Study1");
   SALOMEDS::Study_var myStudy = myStudyMgr->NewStudy("Study1");
  

@@ -59,10 +59,10 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
 	-I$(srcdir)/$(RPATH)/SALOMEDS \
 	-I$(srcdir)/$(RPATH)/SALOMEDSClient \
-	-I$(srcdir)/$(RPATH)/SALOMEDSImpl         -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
+	-I$(srcdir)/$(RPATH)/DF \
+	-I$(srcdir)/$(RPATH)/SALOMEDSImpl  -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
@@ -80,6 +80,7 @@ COMMON_LIBS =\
 	$(RPATH)/SALOMELocalTrace/libSALOMELocalTrace.la \
 	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	$(RPATH)/SALOMEDSImpl/Test/libSALOMEDSImplTest.la \
+	$(RPATH)/DF/libDF.la \
 	$(RPATH)/SALOMEDSImpl/libSalomeDSImpl.la \
 	$(RPATH)/SALOMEDSClient/libSalomeDSClient.la \
 	$(RPATH)/SALOMEDS/libSalomeDS.la \

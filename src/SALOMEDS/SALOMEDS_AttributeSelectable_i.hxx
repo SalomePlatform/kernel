@@ -35,7 +35,7 @@ class SALOMEDS_AttributeSelectable_i: public virtual POA_SALOMEDS::AttributeSele
                                       public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeSelectable_i(const Handle(SALOMEDSImpl_AttributeSelectable)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeSelectable_i(SALOMEDSImpl_AttributeSelectable* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeSelectable_i() {};

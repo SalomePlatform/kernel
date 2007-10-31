@@ -38,7 +38,7 @@
 class SALOMEDS_AttributeSequenceOfInteger: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeSequenceOfInteger
 {
 public:  
-  SALOMEDS_AttributeSequenceOfInteger(const Handle(SALOMEDSImpl_AttributeSequenceOfInteger)& theAttr);
+  SALOMEDS_AttributeSequenceOfInteger(SALOMEDSImpl_AttributeSequenceOfInteger* theAttr);
   SALOMEDS_AttributeSequenceOfInteger(SALOMEDS::AttributeSequenceOfInteger_ptr theAttr);
   ~SALOMEDS_AttributeSequenceOfInteger();
 

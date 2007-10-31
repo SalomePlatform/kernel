@@ -91,7 +91,7 @@
 #include "SALOMEDS_AttributeString.hxx"
 
 #define __CreateClientAttributeLocal(CORBA_Name) if (strcmp(aTypeOfAttribute.c_str(), #CORBA_Name) == 0) { \
-    Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theGA); \
+    SALOMEDSImpl_##CORBA_Name* A = dynamic_cast<SALOMEDSImpl_##CORBA_Name*>(theGA); \
     aGA = new SALOMEDS_##CORBA_Name(A); \
   }
 

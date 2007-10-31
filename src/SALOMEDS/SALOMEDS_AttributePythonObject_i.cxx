@@ -24,8 +24,6 @@
 
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TCollection_ExtendedString.hxx>
-#include <TColStd_HArray1OfCharacter.hxx>
 
 using namespace std;
 
@@ -34,22 +32,21 @@ void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA:
   SALOMEDS::Locker lock;
   CheckLocked();
   char *aSeq = CORBA::string_dup(theSequence);
-  Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(_impl)->SetObject(aSeq, IsScript);
+  dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->SetObject(aSeq, IsScript);
 }
 
 char* SALOMEDS_AttributePythonObject_i::GetObject() 
 {
   SALOMEDS::Locker lock;
-  TCollection_AsciiString aSeq(Handle(SALOMEDSImpl_AttributePythonObject)::
-			       DownCast(_impl)->GetObject().ToCString());
-  CORBA::String_var aStr = CORBA::string_dup(aSeq.ToCString());
+  string aSeq(dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->GetObject());
+  CORBA::String_var aStr = CORBA::string_dup(aSeq.c_str());
   return aStr._retn();
 }
 
 CORBA::Boolean SALOMEDS_AttributePythonObject_i::IsScript() 
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(_impl)->IsScript();
+  return dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->IsScript();
 }
 
 

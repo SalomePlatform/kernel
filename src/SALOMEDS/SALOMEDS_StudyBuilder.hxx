@@ -37,13 +37,13 @@ class SALOMEDS_EXPORT SALOMEDS_StudyBuilder: public SALOMEDSClient_StudyBuilder
 {
 private:
   bool _isLocal;
-  Handle(SALOMEDSImpl_StudyBuilder) _local_impl;
+  SALOMEDSImpl_StudyBuilder*        _local_impl;
   SALOMEDS::StudyBuilder_var        _corba_impl;
   CORBA::ORB_var                    _orb;
 
 public:
 
-  SALOMEDS_StudyBuilder(const Handle(SALOMEDSImpl_StudyBuilder)& theBuilder);
+  SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuilder);
   SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
   ~SALOMEDS_StudyBuilder();
 

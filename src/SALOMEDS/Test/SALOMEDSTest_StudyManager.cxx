@@ -79,7 +79,6 @@ void SALOMEDSTest::testStudyManager()
   
   CPPUNIT_ASSERT(sm->Copy(so1));
 
-
   CPPUNIT_ASSERT(!sm->CanPaste(so1)); //The father component has no IOR
 
   _PTR(SObject) so1_2 = sb1->NewObject(sco1);
@@ -90,7 +89,6 @@ void SALOMEDSTest::testStudyManager()
   CPPUNIT_ASSERT(na2 && na2->Value() == "Some name");
 
 
- 
   //Check method SaveAs
   sm->SaveAs("srn_UnitTest_Save.hdf", study1, false);
   string url = study1->URL();
@@ -112,25 +110,31 @@ void SALOMEDSTest::testStudyManager()
   string soID = so3->GetID();
   _PTR(AttributeName) na3 = sb3->FindOrCreateAttribute(so3, "AttributeName");
   CPPUNIT_ASSERT(na3);
+ 
   na3->SetValue("Saved study");
+
   //   Save and close the study
   sm->Save(study1_opened, false);
+
   sm->Close(study1_opened);
 
   //  Open saved study and find the created SObject with AttributeName, then compare the stored string
   _PTR(Study) study2_opened = sm->Open("srn_UnitTest_Save.hdf");
+
   system("rm -f srn_UnitTest_Save.hdf");
+
   CPPUNIT_ASSERT(study2_opened);
+
   _PTR(SObject) so4 = study2_opened->CreateObjectID(soID);
   _PTR(StudyBuilder) sb4 = study2_opened->NewBuilder();
   _PTR(AttributeName) na4 = sb4->FindOrCreateAttribute(so4, "AttributeName");
   CPPUNIT_ASSERT(na4 && na4->Value() == "Saved study"); //Compare the value of restored attribute with string that has to be saved.
-
  
   //Check method SaveAsASCII
   sm->SaveAsASCII("srn_UnitTest_SaveASCII.hdf", study2_opened, false);
   url = study2_opened->URL();
   sm->Close(study2_opened);
+
   _PTR(Study) study3_opened = sm->Open("srn_UnitTest_SaveASCII.hdf");  //Contains Test component
   system("rm -f srn_UnitTest_SaveASCII.hdf");
   CPPUNIT_ASSERT(study3_opened);

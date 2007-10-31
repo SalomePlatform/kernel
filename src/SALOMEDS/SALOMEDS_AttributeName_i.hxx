@@ -37,7 +37,7 @@ class SALOMEDS_AttributeName_i: public virtual POA_SALOMEDS::AttributeName,
 {
 public:
   
-  SALOMEDS_AttributeName_i(const Handle(SALOMEDSImpl_AttributeName)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeName_i(SALOMEDSImpl_AttributeName* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeName_i() {};

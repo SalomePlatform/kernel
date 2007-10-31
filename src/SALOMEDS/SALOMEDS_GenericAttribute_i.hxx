@@ -28,7 +28,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include <SALOME_GenericObj_i.hh>
-#include <TDF_Attribute.hxx>
+#include "DF_Attribute.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
@@ -38,11 +38,11 @@ class Standard_EXPORT SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::
 {
 
 protected:
-  Handle(TDF_Attribute) _impl;
-  CORBA::ORB_ptr        _orb;
+  DF_Attribute*    _impl;
+  CORBA::ORB_ptr   _orb;
 
 public:
-  SALOMEDS_GenericAttribute_i(const Handle(TDF_Attribute)& theImpl, CORBA::ORB_ptr theOrb);
+  SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb);
   virtual ~SALOMEDS_GenericAttribute_i() {};
 
   void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
@@ -53,9 +53,9 @@ public:
 
   SALOMEDS::SObject_ptr GetSObject();
   
-  virtual Handle(TDF_Attribute) GetImpl() { return _impl; }
+  virtual DF_Attribute* GetImpl() { return _impl; }
 
-  static SALOMEDS::GenericAttribute_ptr CreateAttribute(const Handle(TDF_Attribute)& theAttr, CORBA::ORB_ptr theOrb);  
+  static SALOMEDS::GenericAttribute_ptr CreateAttribute(DF_Attribute* theAttr, CORBA::ORB_ptr theOrb);  
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };

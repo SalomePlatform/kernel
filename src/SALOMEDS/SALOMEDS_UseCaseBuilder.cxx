@@ -32,12 +32,11 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 
-#include <TCollection_AsciiString.hxx> 
 #include <string>
 
 using namespace std; 
 
-SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(const Handle(SALOMEDSImpl_UseCaseBuilder)& theBuilder)
+SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDSImpl_UseCaseBuilder* theBuilder)
 {
   _isLocal = true;
   _local_impl = theBuilder;
@@ -62,7 +61,7 @@ bool SALOMEDS_UseCaseBuilder::Append(const _PTR(SObject)& theObject)
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->Append(obj->GetLocalImpl());
+    ret = _local_impl->Append(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->Append(obj->GetCORBAImpl());
   return ret;
@@ -74,7 +73,7 @@ bool SALOMEDS_UseCaseBuilder::Remove(const _PTR(SObject)& theObject)
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->Remove(obj->GetLocalImpl());
+    ret = _local_impl->Remove(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->Remove(obj->GetCORBAImpl());
   return ret;
@@ -87,7 +86,7 @@ bool SALOMEDS_UseCaseBuilder::AppendTo(const _PTR(SObject)& theFather, _PTR(SObj
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->AppendTo(father->GetLocalImpl(), obj->GetLocalImpl());
+    ret = _local_impl->AppendTo(*(father->GetLocalImpl()), *(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->AppendTo(father->GetCORBAImpl(), obj->GetCORBAImpl());
   return ret;
@@ -100,7 +99,7 @@ bool SALOMEDS_UseCaseBuilder::InsertBefore(const _PTR(SObject)& theFirst, _PTR(S
   SALOMEDS_SObject* next = dynamic_cast<SALOMEDS_SObject*>(theNext.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->InsertBefore(first->GetLocalImpl(), next->GetLocalImpl());
+    ret = _local_impl->InsertBefore(*(first->GetLocalImpl()), *(next->GetLocalImpl()));
   }
   else ret = _corba_impl->InsertBefore(first->GetCORBAImpl(), next->GetCORBAImpl());
   return ret;
@@ -112,7 +111,7 @@ bool SALOMEDS_UseCaseBuilder::SetCurrentObject(const _PTR(SObject)& theObject)
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->SetCurrentObject(obj->GetLocalImpl());
+    ret = _local_impl->SetCurrentObject(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->SetCurrentObject(obj->GetCORBAImpl());
   return ret;
@@ -135,7 +134,7 @@ bool SALOMEDS_UseCaseBuilder::HasChildren(const _PTR(SObject)& theObject)
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->HasChildren(obj->GetLocalImpl());
+    ret = _local_impl->HasChildren(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->HasChildren(obj->GetCORBAImpl());
   return ret;
@@ -147,7 +146,7 @@ bool SALOMEDS_UseCaseBuilder::IsUseCase(const _PTR(SObject)& theObject)
   SALOMEDS_SObject* obj = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->IsUseCase(obj->GetLocalImpl());
+    ret = _local_impl->IsUseCase(*(obj->GetLocalImpl()));
   }
   else ret = _corba_impl->IsUseCase(obj->GetCORBAImpl());
   return ret;
@@ -158,7 +157,7 @@ bool SALOMEDS_UseCaseBuilder::SetName(const std::string& theName)
   bool ret;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = _local_impl->SetName((char*)theName.c_str());
+    ret = _local_impl->SetName(theName);
   }
   else ret = _corba_impl->SetName((char*)theName.c_str());
   return ret;
@@ -180,7 +179,7 @@ std::string SALOMEDS_UseCaseBuilder::GetName()
   std::string aName;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aName = _local_impl->GetName().ToCString();
+    aName = _local_impl->GetName();
   }
   else aName = _corba_impl->GetName();
   return aName;
@@ -191,7 +190,7 @@ _PTR(SObject) SALOMEDS_UseCaseBuilder::AddUseCase(const std::string& theName)
   SALOMEDS_SObject* obj = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    obj = new SALOMEDS_SObject(_local_impl->AddUseCase((char*)theName.c_str()));
+    obj = new SALOMEDS_SObject(_local_impl->AddUseCase(theName));
   }
   else obj = new SALOMEDS_SObject(_corba_impl->AddUseCase((char*)theName.c_str()));
   return _PTR(SObject)(obj);
@@ -204,9 +203,9 @@ _PTR(UseCaseIterator) SALOMEDS_UseCaseBuilder::GetUseCaseIterator(const _PTR(SOb
   if (_isLocal) {
     SALOMEDS::Locker lock;
     if(obj)
-      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(obj->GetLocalImpl()));
-    else
-      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(NULL));
+      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(*(obj->GetLocalImpl())));
+    else 
+      it = new SALOMEDS_UseCaseIterator(_local_impl->GetUseCaseIterator(SALOMEDSImpl_SObject()));
   }
   else {
     if(obj)

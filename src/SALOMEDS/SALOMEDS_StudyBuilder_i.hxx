@@ -34,17 +34,14 @@
 
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
-// Cascade header
-#include <TDocStd_Document.hxx>
-
 class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder
 {
 private:
   CORBA::ORB_ptr                    _orb;
-  Handle(SALOMEDSImpl_StudyBuilder) _impl;  // OCAF Document
+  SALOMEDSImpl_StudyBuilder*        _impl;  
 public:
     
-  SALOMEDS_StudyBuilder_i(const Handle(SALOMEDSImpl_StudyBuilder), CORBA::ORB_ptr);
+  SALOMEDS_StudyBuilder_i(SALOMEDSImpl_StudyBuilder*, CORBA::ORB_ptr);
 
   ~SALOMEDS_StudyBuilder_i();
 
@@ -130,7 +127,7 @@ public:
   virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
 
-  Handle(SALOMEDSImpl_StudyBuilder) GetImpl() { return _impl; }
+  SALOMEDSImpl_StudyBuilder* GetImpl() { return _impl; }
 
 };
 #endif

@@ -105,7 +105,6 @@ void SALOMEDSTest::testAttributeTableOfReal()
 
   CPPUNIT_ASSERT(rt.size() == 2 && rt[0] == "new_title" && rt[1] == "title2");
 
-
   vector<string> colTitles;
   colTitles.push_back("title1");
   colTitles.push_back("title2");

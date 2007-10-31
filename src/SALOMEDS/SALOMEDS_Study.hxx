@@ -39,13 +39,13 @@ class Standard_EXPORT SALOMEDS_Study: public SALOMEDSClient_Study
 
 private:
   bool                       _isLocal;
-  Handle(SALOMEDSImpl_Study) _local_impl;
+  SALOMEDSImpl_Study*        _local_impl;
   SALOMEDS::Study_var        _corba_impl;
   CORBA::ORB_var             _orb;
 
 public:
 
-  SALOMEDS_Study(const Handle(SALOMEDSImpl_Study)& theStudy);
+  SALOMEDS_Study(SALOMEDSImpl_Study* theStudy);
   SALOMEDS_Study(SALOMEDS::Study_ptr theStudy);
   ~SALOMEDS_Study();
 

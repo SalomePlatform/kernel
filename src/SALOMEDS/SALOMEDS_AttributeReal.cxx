@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeReal.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeReal::SALOMEDS_AttributeReal(const Handle(SALOMEDSImpl_AttributeReal)& theAttr)
+SALOMEDS_AttributeReal::SALOMEDS_AttributeReal(SALOMEDSImpl_AttributeReal* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -43,7 +40,7 @@ double SALOMEDS_AttributeReal::Value()
   double aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->Value();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeReal*>(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeReal::_narrow(_corba_impl)->Value();
   return aValue;
@@ -54,7 +51,7 @@ void SALOMEDS_AttributeReal::SetValue(double value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->SetValue(value);
+    dynamic_cast<SALOMEDSImpl_AttributeReal*>(_local_impl)->SetValue(value);
   }
   else SALOMEDS::AttributeReal::_narrow(_corba_impl)->SetValue(value);
 }

@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeReal: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeReal
 {
 public:  
-  SALOMEDS_AttributeReal(const Handle(SALOMEDSImpl_AttributeReal)& theAttr);
+  SALOMEDS_AttributeReal(SALOMEDSImpl_AttributeReal* theAttr);
   SALOMEDS_AttributeReal(SALOMEDS::AttributeReal_ptr theAttr);
   ~SALOMEDS_AttributeReal();
 

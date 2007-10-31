@@ -53,16 +53,16 @@ void SALOMEDSTest::testAttributeExpandable()
   //Check method IsExpandable
   bool isExpandable = _attr->IsExpandable();
 
-  CPPUNIT_ASSERT(!isExpandable);
+  CPPUNIT_ASSERT(isExpandable);
 
   //Check method SetExpandable
-  _attr->SetExpandable(true);
-
-  CPPUNIT_ASSERT(_attr->IsExpandable());
-
   _attr->SetExpandable(false);
 
   CPPUNIT_ASSERT(!_attr->IsExpandable());
+
+  _attr->SetExpandable(true);
+
+  CPPUNIT_ASSERT(_attr->IsExpandable());
 
   sm->Close(study);
 }

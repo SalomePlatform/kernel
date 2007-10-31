@@ -25,14 +25,7 @@
 
 #include "SALOMEDS_TMPFile_i.hxx"
 
-#include <Handle_Standard_Type.hxx>
-#include <Standard_Transient.hxx>
-
 #include <stdexcept>
-
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDS_TMPFile_i, SALOMEDSImpl_TMPFile )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDS_TMPFile_i, SALOMEDSImpl_TMPFile )
 
 SALOMEDS_TMPFile_i
 ::SALOMEDS_TMPFile_i(SALOMEDS::TMPFile* theStream):
@@ -64,9 +57,6 @@ SALOMEDS_TMPFile_i
 
 
 //-----------------------------------------------------------------------------
-IMPLEMENT_STANDARD_HANDLE( Engines_TMPFile_i, SALOMEDSImpl_TMPFile )
-IMPLEMENT_STANDARD_RTTIEXT( Engines_TMPFile_i, SALOMEDSImpl_TMPFile )
-
 Engines_TMPFile_i
 ::Engines_TMPFile_i(Engines::TMPFile* theStream):
   myStream(theStream)

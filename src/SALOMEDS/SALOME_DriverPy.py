@@ -38,7 +38,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         return self._ComponentDataType
 
     def Save(self, theComponent, theURL, isMultiFile):
-        return ""
+        return NULL
 
     def SaveASCII(self, theComponent, theURL, isMultiFile):
         return self.Save(theComponent, theURL, isMultiFile)
@@ -56,7 +56,7 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
         return 1
 
     def PublishInStudy(self, theStudy, theSObject, theObject, theName):
-        return None
+        return NULL
 
     def CanCopy(self, theObject):
         return 0

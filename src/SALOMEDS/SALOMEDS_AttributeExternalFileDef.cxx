@@ -23,12 +23,9 @@
 
 #include "SALOMEDS_AttributeExternalFileDef.hxx"
 #include "SALOMEDS.hxx"
-
 #include <string>
-#include <TCollection_AsciiString.hxx> 
-#include <TCollection_ExtendedString.hxx>
 
-SALOMEDS_AttributeExternalFileDef::SALOMEDS_AttributeExternalFileDef(const Handle(SALOMEDSImpl_AttributeExternalFileDef)& theAttr)
+SALOMEDS_AttributeExternalFileDef::SALOMEDS_AttributeExternalFileDef(SALOMEDSImpl_AttributeExternalFileDef* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,8 +41,7 @@ std::string SALOMEDS_AttributeExternalFileDef::Value()
   std::string aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeExternalFileDef)::
-                                     DownCast(_local_impl)->Value()).ToCString();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeExternalFileDef*>(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeExternalFileDef::_narrow(_corba_impl)->Value();
   return aValue;
@@ -56,7 +52,7 @@ void SALOMEDS_AttributeExternalFileDef::SetValue(const std::string& value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
-    Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeExternalFileDef*>(_local_impl)->SetValue(value);
   }
   else SALOMEDS::AttributeExternalFileDef::_narrow(_corba_impl)->SetValue(value.c_str());
 }

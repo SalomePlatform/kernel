@@ -93,7 +93,7 @@ void SALOMEDSTest::testAttributeTreeNode()
   CPPUNIT_ASSERT(isRaised);
 
   _attr->Append(_attr2);
-
+  
   //Check method HasNext
   CPPUNIT_ASSERT(_attr1->HasNext());
 
@@ -107,7 +107,7 @@ void SALOMEDSTest::testAttributeTreeNode()
   CPPUNIT_ASSERT(_attr2->GetPrevious()->Label() == _attr1->Label());
 
   //Check method Depth
-  CPPUNIT_ASSERT(_attr->Depth() == 0 && _attr1->Depth() == 1);
+  CPPUNIT_ASSERT(_attr->Depth() == 1 && _attr1->Depth() == 2);
 
   //Check method IsRoot
   CPPUNIT_ASSERT(_attr->IsRoot());
@@ -125,6 +125,7 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   //Check method Prepend
   _attr->Prepend(_attr2);
+
   CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr2->Label());
 
   //Check possibility to Prepend to itself
@@ -184,19 +185,9 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   //Try to create the attribute with given TreeID
   string value = "0e1c36e6-1111-4d90-ab3b-18a14310e648";
-  _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNode"+value);
+  _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNodeGUID"+value);
   CPPUNIT_ASSERT(_attr_guid && _attr_guid->GetTreeID() == value);
-
-  //Try to set invalid GUID
-  isRaised = false;
-  try {
-    _attr->SetTreeID("invalid guid");
-  }
-  catch(...) {
-    isRaised = true;
-  }
-  CPPUNIT_ASSERT(isRaised);
-
+  
   sm->Close(study);
 }
 #undef SALOMEDS_ALL_TESTS

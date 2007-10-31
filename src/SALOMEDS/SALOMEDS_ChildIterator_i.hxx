@@ -42,11 +42,11 @@ class SALOMEDS_ChildIterator_i: public virtual POA_SALOMEDS::ChildIterator,
 {
 private:
   CORBA::ORB_ptr                     _orb;
-  Handle(SALOMEDSImpl_ChildIterator) _it;
+  SALOMEDSImpl_ChildIterator*        _it;
 public:
 
   //! standard constructor  
-  SALOMEDS_ChildIterator_i(const Handle(SALOMEDSImpl_ChildIterator)&, CORBA::ORB_ptr);
+  SALOMEDS_ChildIterator_i(const SALOMEDSImpl_ChildIterator&, CORBA::ORB_ptr);
   
   //! standard destructor
   ~SALOMEDS_ChildIterator_i();

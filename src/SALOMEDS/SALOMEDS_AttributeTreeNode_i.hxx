@@ -35,7 +35,7 @@ class SALOMEDS_AttributeTreeNode_i: public virtual POA_SALOMEDS::AttributeTreeNo
                                     public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeTreeNode_i(const Handle(SALOMEDSImpl_AttributeTreeNode)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeTreeNode_i(SALOMEDSImpl_AttributeTreeNode* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
  
   ~SALOMEDS_AttributeTreeNode_i() {};

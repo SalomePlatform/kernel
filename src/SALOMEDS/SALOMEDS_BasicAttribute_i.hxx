@@ -32,12 +32,12 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-#include <TDF_Label.hxx>
+#include <DF_Label.hxx>
 
 class SALOMEDS_BasicAttribute_i: public POA_SALOMEDS::BasicAttribute,
 				 public PortableServer::ServantBase {
 protected:
-  TDF_Label _Lab;
+  DF_Label _Lab;
 
 public:
   SALOMEDS_BasicAttribute_i() {};
@@ -47,7 +47,7 @@ public:
   virtual char *  Save() =0;
   virtual void    Load () =0;
   CORBA::Boolean    GetPtr(SALOMEDS::SObject so);  
-  void SetLabel(const TDF_Label Lab);
+  void SetLabel(const DF_Label& Lab);
   virtual char* GetType() = 0;
 
 };

@@ -43,8 +43,8 @@ class SALOMEDS_SComponentIterator_i:public virtual POA_SALOMEDS::SComponentItera
 
 private:
 
-  CORBA::ORB_ptr                  _orb;
-  SALOMEDSImpl_SComponentIterator _impl;
+  CORBA::ORB_ptr                   _orb;
+  SALOMEDSImpl_SComponentIterator* _impl;
 
 public:
   

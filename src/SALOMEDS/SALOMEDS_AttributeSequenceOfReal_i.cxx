@@ -24,7 +24,7 @@
 
 #include "SALOMEDS_AttributeSequenceOfReal_i.hxx"
 #include "SALOMEDS.hxx" 
-#include <TColStd_HSequenceOfReal.hxx>
+#include <vector>
 
 using namespace std;
 
@@ -32,21 +32,22 @@ void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(TColStd_HSequenceOfReal) CasCadeSeq = new TColStd_HSequenceOfReal;
+  vector<double> CasCadeSeq;
   for (int i = 0; i < other.length(); i++) {
-    CasCadeSeq->Append(other[i]);
+    CasCadeSeq.push_back(other[i]);
   }
-  Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->Assign(CasCadeSeq);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Assign(CasCadeSeq);
 }
  
 SALOMEDS::DoubleSeq* SALOMEDS_AttributeSequenceOfReal_i::CorbaSequence()
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::DoubleSeq_var CorbaSeq = new SALOMEDS::DoubleSeq;
-  Handle(SALOMEDSImpl_AttributeSequenceOfReal) CasCadeSeq = Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl);
-  CorbaSeq->length(CasCadeSeq->Length());
-  for (int i = 0; i < CasCadeSeq->Length(); i++) {
-    CorbaSeq[i] = CasCadeSeq->Value(i+1);;
+  const vector<double>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Array();
+  int len = CasCadeSeq.size();
+  CorbaSeq->length(len);
+  for (int i = 0; i < len; i++) {
+    CorbaSeq[i] = CasCadeSeq[i];
   }
   return CorbaSeq._retn();
 }
@@ -55,32 +56,32 @@ void SALOMEDS_AttributeSequenceOfReal_i::Add(CORBA::Double value)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->Add(value);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Add(value);
 }
 
 void SALOMEDS_AttributeSequenceOfReal_i::Remove(CORBA::Long index) 
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->Remove(index);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Remove(index);
 }
  
 void SALOMEDS_AttributeSequenceOfReal_i::ChangeValue(CORBA::Long index, CORBA::Double value)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->ChangeValue(index, value);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->ChangeValue(index, value);
 }
  
 CORBA::Double SALOMEDS_AttributeSequenceOfReal_i::Value(CORBA::Short index) 
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->Value(index);
+  return dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Value(index);
 }
 
 CORBA::Long SALOMEDS_AttributeSequenceOfReal_i::Length() 
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeSequenceOfReal)::DownCast(_impl)->Length();
+  return dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Length();
 }
 

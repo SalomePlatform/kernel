@@ -24,7 +24,7 @@
 
 #include "SALOMEDS_AttributeTextHighlightColor_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TColStd_HArray1OfReal.hxx>
+#include <vector>
 
 using namespace std;
 
@@ -32,16 +32,16 @@ SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor()
 {
   SALOMEDS::Locker lock;
   SALOMEDS::Color TextHighlightColor;
-  Handle(TColStd_HArray1OfReal) anArray=Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast(_impl)->TextHighlightColor();
-  if (anArray.IsNull() || anArray->Length()!=3) { 
+  vector<double> anArray = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_impl)->TextHighlightColor();
+  if (anArray.size()!=3) { 
     TextHighlightColor.R = 0;
     TextHighlightColor.G = 0;
     TextHighlightColor.B = 0;
   }
   else {
-    TextHighlightColor.R = anArray->Value(1);
-    TextHighlightColor.G = anArray->Value(2);
-    TextHighlightColor.B = anArray->Value(3);
+    TextHighlightColor.R = anArray[0];
+    TextHighlightColor.G = anArray[1];
+    TextHighlightColor.B = anArray[2];
   }
   return TextHighlightColor;
 }
@@ -50,9 +50,9 @@ void SALOMEDS_AttributeTextHighlightColor_i::SetTextHighlightColor(const SALOMED
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(TColStd_HArray1OfReal) anArray = new TColStd_HArray1OfReal(1,3);
-  anArray->SetValue(1,  value.R);
-  anArray->SetValue(2, value.G);
-  anArray->SetValue(3, value.B);
-  Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast(_impl)->ChangeArray(anArray);
+  vector<double> anArray;
+  anArray.push_back(value.R);
+  anArray.push_back(value.G);
+  anArray.push_back(value.B);
+  dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_impl)->ChangeArray(anArray);
 }

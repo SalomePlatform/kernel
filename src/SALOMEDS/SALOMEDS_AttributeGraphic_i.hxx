@@ -45,7 +45,7 @@ class SALOMEDS_AttributeGraphic_i: public virtual POA_SALOMEDS::AttributeGraphic
 {
 public:
   
-  SALOMEDS_AttributeGraphic_i( const Handle(SALOMEDSImpl_AttributeGraphic)& theAttr, CORBA::ORB_ptr orb )
+  SALOMEDS_AttributeGraphic_i( SALOMEDSImpl_AttributeGraphic* theAttr, CORBA::ORB_ptr orb )
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   virtual             ~SALOMEDS_AttributeGraphic_i() {};

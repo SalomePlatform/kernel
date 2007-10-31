@@ -24,7 +24,6 @@
 
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TCollection_ExtendedString.hxx>
 
 using namespace std;
 
@@ -32,7 +31,7 @@ char* SALOMEDS_AttributePersistentRef_i::Value()
 {
   SALOMEDS::Locker lock;
   CORBA::String_var c_s = 
-    CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_impl)->Value()).ToCString());
+    CORBA::string_dup(dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(_impl)->Value().c_str());
   return c_s._retn();
 }
 
@@ -41,5 +40,5 @@ void SALOMEDS_AttributePersistentRef_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_impl)->SetValue(TCollection_ExtendedString(Str));
+  dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(_impl)->SetValue(string(Str));
 }

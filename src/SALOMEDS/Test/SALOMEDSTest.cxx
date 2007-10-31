@@ -40,9 +40,6 @@
 #include "SALOMEDS_SObject.hxx"
 
 
-#include <TCollection_AsciiString.hxx>
-#include <Standard_GUID.hxx>
-
 using namespace std;
 
 // ============================================================================

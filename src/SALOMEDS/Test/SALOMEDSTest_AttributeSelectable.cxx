@@ -53,16 +53,16 @@ void SALOMEDSTest::testAttributeSelectable()
   //Check method IsSelectable
   bool isSelectable = _attr->IsSelectable();
 
-  CPPUNIT_ASSERT(!isSelectable);
+  CPPUNIT_ASSERT(isSelectable);
 
   //Check method SetSelectable
-  _attr->SetSelectable(true);
-
-  CPPUNIT_ASSERT(_attr->IsSelectable());
-
   _attr->SetSelectable(false);
 
   CPPUNIT_ASSERT(!_attr->IsSelectable());
+
+  _attr->SetSelectable(true);
+
+  CPPUNIT_ASSERT(_attr->IsSelectable());
 
   sm->Close(study);
 }

@@ -49,10 +49,6 @@
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 
-#include <TCollection_AsciiString.hxx> 
-#include <TColStd_HSequenceOfAsciiString.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
-
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
@@ -67,7 +63,7 @@
 
 using namespace std; 
 
-SALOMEDS_Study::SALOMEDS_Study(const Handle(SALOMEDSImpl_Study)& theStudy)
+SALOMEDS_Study::SALOMEDS_Study(SALOMEDSImpl_Study* theStudy)
 {
   _isLocal = true;
   _local_impl = theStudy;
@@ -105,7 +101,7 @@ std::string SALOMEDS_Study::GetPersistentReference()
   std::string aRef;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aRef = _local_impl->GetPersistentReference().ToCString();
+    aRef = _local_impl->GetPersistentReference();
   }
   else aRef = _corba_impl->GetPersistentReference();
   return aRef;
@@ -116,7 +112,7 @@ std::string SALOMEDS_Study::GetTransientReference()
   std::string aRef;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aRef = _local_impl->GetTransientReference().ToCString();
+    aRef = _local_impl->GetTransientReference();
   }
   else aRef = _corba_impl->GetTransientReference();
   return aRef;
@@ -139,9 +135,8 @@ _PTR(SComponent) SALOMEDS_Study::FindComponent (const std::string& aComponentNam
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl =
-      _local_impl->FindComponent((char*)aComponentName.c_str());
-    if (aSCO_impl.IsNull()) return _PTR(SComponent)(aSCO);
+    SALOMEDSImpl_SComponent aSCO_impl = _local_impl->FindComponent(aComponentName);
+    if (!aSCO_impl) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
@@ -158,9 +153,8 @@ _PTR(SComponent) SALOMEDS_Study::FindComponentID(const std::string& aComponentID
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl =
-      _local_impl->FindComponentID((char*)aComponentID.c_str());
-    if (aSCO_impl.IsNull()) return _PTR(SComponent)(aSCO);
+    SALOMEDSImpl_SComponent aSCO_impl = _local_impl->FindComponentID(aComponentID);
+    if (!aSCO_impl) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
@@ -178,10 +172,12 @@ _PTR(SObject) SALOMEDS_Study::FindObject(const std::string& anObjectName)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject((char*)anObjectName.c_str());
-    if (aSO_impl.IsNull()) return _PTR(SObject)(aSO);
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl = Handle(SALOMEDSImpl_SComponent)::DownCast(aSO_impl);
-    if (!aSCO_impl.IsNull()) return _PTR(SObject)(new SALOMEDS_SComponent(aSCO_impl));
+    SALOMEDSImpl_SObject aSO_impl = _local_impl->FindObject(anObjectName);
+    if (!aSO_impl) return _PTR(SObject)(aSO);
+    if(aSO_impl.IsComponent()) {
+	SALOMEDSImpl_SComponent aSCO_impl = aSO_impl;
+        return _PTR(SObject)(new SALOMEDS_SComponent(aSCO_impl));
+    }	
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
@@ -204,12 +200,10 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindObjectByName(const std::string& a
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(TColStd_HSequenceOfTransient) aSeq =
-      _local_impl->FindObjectByName((char*)anObjectName.c_str(), (char*)aComponentName.c_str());
-    aLength = aSeq->Length();
-    for (i = 1; i<= aLength; i++) 
-      aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject
-                                      (Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
+    vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindObjectByName(anObjectName, aComponentName);
+    aLength = aSeq.size();
+    for (i = 0; i< aLength; i++) 
+      aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
   }
   else {
     SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindObjectByName((char*)anObjectName.c_str(), 
@@ -227,8 +221,8 @@ _PTR(SObject) SALOMEDS_Study::FindObjectID(const std::string& anObjectID)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID((char*)anObjectID.c_str());
-    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    SALOMEDSImpl_SObject aSO_impl = _local_impl->FindObjectID(anObjectID);
+    if(!aSO_impl) return _PTR(SObject)(aSO);
     return _PTR(SObject)(new SALOMEDS_SObject(aSO_impl));
   }
   else { 
@@ -244,8 +238,8 @@ _PTR(SObject) SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
   SALOMEDSClient_SObject* aSO = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->CreateObjectID((char*)anObjectID.c_str());
-    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    SALOMEDSImpl_SObject aSO_impl = _local_impl->CreateObjectID(anObjectID);
+    if(!aSO_impl) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
@@ -262,8 +256,8 @@ _PTR(SObject) SALOMEDS_Study::FindObjectIOR(const std::string& anObjectIOR)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectIOR((char*)anObjectIOR.c_str());
-    if (aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    SALOMEDSImpl_SObject aSO_impl = _local_impl->FindObjectIOR(anObjectIOR);
+    if (!aSO_impl) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
@@ -280,8 +274,8 @@ _PTR(SObject) SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectByPath((char*)thePath.c_str());
-    if (aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    SALOMEDSImpl_SObject aSO_impl = _local_impl->FindObjectByPath(thePath);
+    if (!aSO_impl) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else {
@@ -299,7 +293,7 @@ std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
   std::string aPath;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aPath = _local_impl->GetObjectPath(aSO->GetLocalImpl()).ToCString();
+    aPath = _local_impl->GetObjectPath(*(aSO->GetLocalImpl()));
   }
   else aPath = _corba_impl->GetObjectPath(aSO->GetCORBAImpl());
   return aPath;
@@ -309,7 +303,7 @@ void SALOMEDS_Study::SetContext(const std::string& thePath)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->SetContext((char*)thePath.c_str());
+    _local_impl->SetContext(thePath);
   }
   else _corba_impl->SetContext((char*)thePath.c_str());
 }
@@ -319,7 +313,7 @@ std::string SALOMEDS_Study::GetContext()
   std::string aPath;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aPath = _local_impl->GetContext().ToCString();
+    aPath = _local_impl->GetContext();
   }
   else aPath = _corba_impl->GetContext();
   return aPath;
@@ -331,10 +325,7 @@ std::vector<std::string> SALOMEDS_Study::GetObjectNames(const std::string& theCo
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetObjectNames((char*)theContext.c_str());
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetObjectNames(theContext);
   }
   else {
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
@@ -350,11 +341,7 @@ std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const std::string& th
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq =
-      _local_impl->GetDirectoryNames((char*)theContext.c_str());
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetDirectoryNames(theContext);
   }
   else {
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
@@ -370,10 +357,7 @@ std::vector<std::string> SALOMEDS_Study::GetFileNames(const std::string& theCont
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetFileNames((char*)theContext.c_str());
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetFileNames(theContext);
   }
   else {
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
@@ -390,10 +374,7 @@ std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& th
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetComponentNames((char*)theContext.c_str());
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetComponentNames(theContext);
   }
   else {
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
@@ -409,8 +390,7 @@ _PTR(ChildIterator) SALOMEDS_Study::NewChildIterator(const _PTR(SObject)& theSO)
   SALOMEDSClient_ChildIterator* aCI = NULL; 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(SALOMEDSImpl_ChildIterator) aCIimpl = _local_impl->NewChildIterator(aSO->GetLocalImpl());
+    SALOMEDSImpl_ChildIterator aCIimpl = _local_impl->NewChildIterator(*(aSO->GetLocalImpl()));
     aCI = new SALOMEDS_ChildIterator(aCIimpl);
   }
   else {
@@ -444,7 +424,7 @@ _PTR(StudyBuilder) SALOMEDS_Study::NewBuilder()
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_StudyBuilder) aSBimpl = _local_impl->NewBuilder();
+    SALOMEDSImpl_StudyBuilder* aSBimpl = _local_impl->NewBuilder();
     aSB = new SALOMEDS_StudyBuilder(aSBimpl);
   }
   else {
@@ -460,7 +440,7 @@ std::string SALOMEDS_Study::Name()
   std::string aName;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aName = _local_impl->Name().ToCString();
+    aName = _local_impl->Name();
   }
   else aName = _corba_impl->Name();
   return aName;
@@ -470,7 +450,7 @@ void SALOMEDS_Study::Name(const std::string& theName)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->Name((char*)theName.c_str());
+    _local_impl->Name(theName);
   }
   else _corba_impl->Name((char*)theName.c_str());
 }
@@ -512,7 +492,7 @@ void SALOMEDS_Study::Modified()
     SALOMEDS::Locker lock;
     _local_impl->Modify();
   }
-  else _corba_impl->IsModified();
+  else _corba_impl->Modified();
 }
 
  
@@ -521,7 +501,7 @@ std::string SALOMEDS_Study::URL()
   std::string aURL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aURL = _local_impl->URL().ToCString();
+    aURL = _local_impl->URL();
   }
   else aURL = _corba_impl->URL();
   return aURL;
@@ -531,7 +511,7 @@ void SALOMEDS_Study::URL(const std::string& url)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->URL((char*)url.c_str());
+    _local_impl->URL(url);
   }
   else _corba_impl->URL((char*)url.c_str());
 }
@@ -564,12 +544,11 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& 
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindDependances(aSO->GetLocalImpl());
-    if (!aSeq.IsNull()) {
-      aLength = aSeq->Length();
-      for (i = 1; i <= aLength; i++) 
-        aVector.push_back(_PTR(SObject)(
-          new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
+    vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindDependances(*(aSO->GetLocalImpl()));
+    if (aSeq.size()) {
+      aLength = aSeq.size();
+      for (i = 0; i < aLength; i++) 
+        aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
     }
   }
   else {
@@ -596,7 +575,7 @@ std::string SALOMEDS_Study::GetLastModificationDate()
   std::string aDate;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aDate = _local_impl->GetLastModificationDate().ToCString();
+    aDate = _local_impl->GetLastModificationDate();
   }
   else aDate = _corba_impl->GetLastModificationDate();
   return aDate;
@@ -608,10 +587,7 @@ std::vector<std::string> SALOMEDS_Study::GetModificationsDate()
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetModificationsDate();
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetModificationsDate();
   }
   else {
     SALOMEDS::ListOfDates_var aSeq = _corba_impl->GetModificationsDate();
@@ -627,7 +603,7 @@ _PTR(UseCaseBuilder) SALOMEDS_Study::GetUseCaseBuilder()
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_UseCaseBuilder) aUBimpl = _local_impl->GetUseCaseBuilder();
+    SALOMEDSImpl_UseCaseBuilder* aUBimpl = _local_impl->GetUseCaseBuilder();
     aUB = new SALOMEDS_UseCaseBuilder(aUBimpl);
   }
   else {
@@ -665,7 +641,7 @@ void SALOMEDS_Study::SetStudyLock(const string& theLockerID)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    _local_impl->SetStudyLock((char*)theLockerID.c_str());
+    _local_impl->SetStudyLock(theLockerID.c_str());
   }
   else _corba_impl->SetStudyLock((char*)theLockerID.c_str());
 }
@@ -683,7 +659,7 @@ bool SALOMEDS_Study::IsStudyLocked()
  
 void SALOMEDS_Study::UnLockStudy(const string& theLockerID)
 {
-  if(_isLocal) _local_impl->UnLockStudy((char*)theLockerID.c_str());
+  if(_isLocal) _local_impl->UnLockStudy(theLockerID.c_str());
   else _corba_impl->UnLockStudy((char*)theLockerID.c_str());
 }
 
@@ -693,10 +669,7 @@ vector<string> SALOMEDS_Study::GetLockerID()
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetLockerID();
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+    aVector = _local_impl->GetLockerID();
   }
   else {
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
@@ -729,7 +702,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
     SALOMEDS::Locker lock;
 
     if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::Study::_duplicate(_corba_impl);
-    std::string anIOR = _local_impl->GetTransientReference().ToCString();
+    std::string anIOR = _local_impl->GetTransientReference();
     SALOMEDS::Study_var aStudy;
     if (!_local_impl->IsError() && anIOR != "") {
       aStudy = SALOMEDS::Study::_narrow(_orb->string_to_object(anIOR.c_str()));

@@ -62,6 +62,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Utils \
+	-I$(srcdir)/../DF \
 	-I$(srcdir)/../SALOMEDSImpl \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../GenericObj \
@@ -82,6 +83,7 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
+	../DF/libDF.la \
 	../SALOMEDSImpl/libSalomeDSImpl.la \
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
@@ -184,30 +186,6 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeParameter.cxx \
 	SALOMEDS_AttributeString.cxx \
 	SALOMEDS_IParameters.cxx \
-	\
-	Handle_SALOMEDS_DataMapNodeOfDataMapOfIntegerString.hxx \
-	Handle_SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx \
-	Handle_SALOMEDS_DrawableAttribute.hxx \
-	Handle_SALOMEDS_ExpandableAttribute.hxx \
-	Handle_SALOMEDS_ExternalFileDef.hxx \
-	Handle_SALOMEDS_FileType.hxx \
-	Handle_SALOMEDS_IORAttribute.hxx \
-	Handle_SALOMEDS_LocalIDAttribute.hxx \
-	Handle_SALOMEDS_OCAFApplication.hxx \
-	Handle_SALOMEDS_OpenedAttribute.hxx \
-	Handle_SALOMEDS_PersRefAttribute.hxx \
-	Handle_SALOMEDS_PixMapAttribute.hxx \
-	Handle_SALOMEDS_PythonObjectAttribute.hxx \
-	Handle_SALOMEDS_SelectableAttribute.hxx \
-	Handle_SALOMEDS_SequenceOfIntegerAttribute.hxx \
-	Handle_SALOMEDS_SequenceOfRealAttribute.hxx \
-	Handle_SALOMEDS_StudyPropertiesAttribute.hxx \
-	Handle_SALOMEDS_TableOfIntegerAttribute.hxx \
-	Handle_SALOMEDS_TableOfRealAttribute.hxx \
-	Handle_SALOMEDS_TableOfStringAttribute.hxx \
-	Handle_SALOMEDS_TargetAttribute.hxx \
-	Handle_SALOMEDS_TextColorAttribute.hxx \
-	Handle_SALOMEDS_TextHighlightColorAttribute.hxx \
 	SALOMEDS_AttLong_i.hxx \
 	SALOMEDS_AttReal_i.hxx \
 	SALOMEDS_AttributeComment.hxx \
@@ -273,37 +251,15 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_ChildIterator.hxx \
 	SALOMEDS_ChildIterator_i.hxx \
 	SALOMEDS_ClientAttributes.hxx \
-	SALOMEDS_DataMapIteratorOfDataMapOfIntegerString.hxx \
-	SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx \
-	SALOMEDS_DataMapNodeOfDataMapOfIntegerString.hxx \
-	SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx \
-	SALOMEDS_DataMapOfIntegerString.hxx \
-	SALOMEDS_DataMapStringLabel.hxx \
-	SALOMEDS_DrawableAttribute.hxx \
 	SALOMEDS_Driver_i.hxx \
-	SALOMEDS_ExpandableAttribute.hxx \
-	SALOMEDS_ExternalFileDef.hxx \
 	SALOMEDS_FileType.hxx \
-	SALOMEDS_FlagsAttribute.hxx \
 	SALOMEDS_GenericAttribute.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
-	SALOMEDS_GraphicAttribute.hxx \
 	SALOMEDS.hxx \
-	SALOMEDS_IORAttribute.hxx \
-	SALOMEDS_LocalIDAttribute.hxx \
-	SALOMEDS_OCAFApplication.hxx \
-	SALOMEDS_OpenedAttribute.hxx \
-	SALOMEDS_PersRefAttribute.hxx \
-	SALOMEDS_PixMapAttribute.hxx \
-	SALOMEDS_PythonObjectAttribute.hxx \
-	SALOMEDS_SAttribute_i.hxx \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponentIterator.hxx \
 	SALOMEDS_SComponentIterator_i.hxx \
-	SALOMEDS_SelectableAttribute.hxx \
-	SALOMEDS_SequenceOfIntegerAttribute.hxx \
-	SALOMEDS_SequenceOfRealAttribute.hxx \
 	SALOMEDS_SObject.hxx \
 	SALOMEDS_SObject_i.hxx \
 	SALOMEDS_StudyBuilder.hxx \
@@ -312,13 +268,6 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_Study_i.hxx \
 	SALOMEDS_StudyManager.hxx \
 	SALOMEDS_StudyManager_i.hxx \
-	SALOMEDS_StudyPropertiesAttribute.hxx \
-	SALOMEDS_TableOfIntegerAttribute.hxx \
-	SALOMEDS_TableOfRealAttribute.hxx \
-	SALOMEDS_TableOfStringAttribute.hxx \
-	SALOMEDS_TargetAttribute.hxx \
-	SALOMEDS_TextColorAttribute.hxx \
-	SALOMEDS_TextHighlightColorAttribute.hxx \
 	SALOMEDS_UseCaseBuilder.hxx \
 	SALOMEDS_UseCaseBuilder_i.hxx \
 	SALOMEDS_UseCaseIterator.hxx \
@@ -345,7 +294,6 @@ SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Server_LDADD    = \
 	libSalomeDS.la $(COMMON_LIBS) \
 	../ResourcesManager/libSalomeResourcesManager.la \
-	@CAS_OCAF@ \
 	@CORBA_LIBS@
 
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
@@ -353,6 +301,5 @@ SALOMEDS_Client_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Client_LDADD    = \
 	libSalomeDS.la $(COMMON_LIBS) \
 	../ResourcesManager/libSalomeResourcesManager.la \
-	-lTKLCAF -lTKMath \
 	@CORBA_LIBS@
 

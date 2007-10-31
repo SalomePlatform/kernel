@@ -36,7 +36,7 @@ class SALOMEDS_AttributePixMap_i: public virtual POA_SALOMEDS::AttributePixMap,
 {
 public:
   
-  SALOMEDS_AttributePixMap_i(const Handle(SALOMEDSImpl_AttributePixMap)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributePixMap_i(SALOMEDSImpl_AttributePixMap* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
 
   ~SALOMEDS_AttributePixMap_i() {};

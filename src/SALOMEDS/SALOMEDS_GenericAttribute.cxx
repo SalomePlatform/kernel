@@ -24,7 +24,6 @@
 
 
 #include <string>
-#include <TCollection_AsciiString.hxx> 
 
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -43,7 +42,7 @@
 
 using namespace std; 
 
-SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
+SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDSImpl_GenericAttribute* theGA)
 {
   _isLocal = true;
   _local_impl = theGA;
@@ -97,7 +96,7 @@ std::string SALOMEDS_GenericAttribute::Type()
   std::string aType;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aType = _local_impl->Type().ToCString();
+    aType = _local_impl->Type();
   }
   else {
     aType = _corba_impl->Type();
@@ -110,7 +109,7 @@ std::string SALOMEDS_GenericAttribute::GetClassType()
   std::string aType;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aType = _local_impl->GetClassType().ToCString();
+    aType = _local_impl->GetClassType();
   }
   else {
     aType = _corba_impl->GetClassType();
@@ -133,21 +132,24 @@ _PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
 }
 
 
-SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute
-                           (const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
+SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDSImpl_GenericAttribute* theGA)
 {
   SALOMEDS::Locker lock;
 
   SALOMEDS_GenericAttribute* aGA = NULL;
-  std::string aTypeOfAttribute = theGA->GetClassType().ToCString();
-  __CreateGenericClientAttributeLocal
+  if(theGA) {
+     std::string aTypeOfAttribute = theGA->GetClassType();
+      __CreateGenericClientAttributeLocal
+  }
   return aGA;
 }
 
 SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA)
 {
   SALOMEDS_GenericAttribute* aGA = NULL;
-  std::string aTypeOfAttribute = theGA->GetClassType();
-  __CreateGenericClientAttributeCORBA
+  if(!CORBA::is_nil(theGA)) {
+      std::string aTypeOfAttribute = theGA->GetClassType();
+      __CreateGenericClientAttributeCORBA
+  }
   return aGA;
 }

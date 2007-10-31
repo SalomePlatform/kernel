@@ -24,11 +24,7 @@
 #include "SALOMEDS_AttributeExpandable.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeExpandable::SALOMEDS_AttributeExpandable
-                  (const Handle(SALOMEDSImpl_AttributeExpandable)& theAttr)
+SALOMEDS_AttributeExpandable::SALOMEDS_AttributeExpandable(SALOMEDSImpl_AttributeExpandable* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,7 +40,7 @@ bool SALOMEDS_AttributeExpandable::IsExpandable()
   bool aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = (bool)Handle(SALOMEDSImpl_AttributeExpandable)::DownCast(_local_impl)->IsExpandable();
+    aValue = (bool)dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(_local_impl)->IsExpandable();
   }
   else aValue = SALOMEDS::AttributeExpandable::_narrow(_corba_impl)->IsExpandable();
   return aValue;
@@ -55,7 +51,7 @@ void SALOMEDS_AttributeExpandable::SetExpandable(bool value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeExpandable)::DownCast(_local_impl)->SetExpandable((int)value);
+    dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(_local_impl)->SetExpandable((int)value);
   }
   else SALOMEDS::AttributeExpandable::_narrow(_corba_impl)->SetExpandable(value);
 }

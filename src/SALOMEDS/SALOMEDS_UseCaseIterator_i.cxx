@@ -36,11 +36,11 @@ using namespace std;
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const Handle(SALOMEDSImpl_UseCaseIterator)& theImpl, 
+SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const SALOMEDSImpl_UseCaseIterator& theImpl, 
 						       CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
-  _impl = theImpl;
+  _impl = theImpl.GetPersistentCopy();
 }
 
 //============================================================================
@@ -50,6 +50,7 @@ SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const Handle(SALOMEDSImpl
 //============================================================================
 SALOMEDS_UseCaseIterator_i::~SALOMEDS_UseCaseIterator_i()
 {
+    if(_impl) delete _impl;
 }
 
 //============================================================================
@@ -60,7 +61,7 @@ SALOMEDS_UseCaseIterator_i::~SALOMEDS_UseCaseIterator_i()
 void SALOMEDS_UseCaseIterator_i::Init(CORBA::Boolean allLevels)
 { 
   SALOMEDS::Locker lock;
-  _impl->Init(allLevels);
+  if(_impl) _impl->Init(allLevels);
 }
 
 //============================================================================
@@ -71,6 +72,7 @@ void SALOMEDS_UseCaseIterator_i::Init(CORBA::Boolean allLevels)
 CORBA::Boolean SALOMEDS_UseCaseIterator_i::More()
 {
   SALOMEDS::Locker lock;
+  if(!_impl) return false;
   return _impl->More();
 }
 
@@ -82,7 +84,7 @@ CORBA::Boolean SALOMEDS_UseCaseIterator_i::More()
 void SALOMEDS_UseCaseIterator_i::Next()
 {
   SALOMEDS::Locker lock;
-  _impl->Next();
+  if(_impl) _impl->Next();
 }
 
 
@@ -94,7 +96,8 @@ void SALOMEDS_UseCaseIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_UseCaseIterator_i::Value()
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->Value();
+  if(!_impl) return SALOMEDS::SObject::_nil();
+  SALOMEDSImpl_SObject aSO = _impl->Value();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }

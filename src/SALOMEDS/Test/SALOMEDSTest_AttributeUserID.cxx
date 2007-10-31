@@ -62,18 +62,7 @@ void SALOMEDSTest::testAttributeUserID()
   value = "0e1c36e6-379b-4d90-ab3b-18a14310e648";
   _PTR(AttributeUserID) _attr2 = studyBuilder->FindOrCreateAttribute(so, "AttributeUserID"+value);
   CPPUNIT_ASSERT(_attr2 && _attr2->Value() == value);
-
-  //Try to set invalid GUID
-  bool isRaised = false;
-  try {
-    _attr->SetValue("invalid guid");
-  }
-  catch(...) {
-    isRaised = true;
-  }
-  CPPUNIT_ASSERT(isRaised);
-
-
+  
   sm->Close(study);
 }
 

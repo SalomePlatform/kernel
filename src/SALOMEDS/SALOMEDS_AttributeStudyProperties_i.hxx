@@ -35,7 +35,7 @@ class SALOMEDS_AttributeStudyProperties_i: public virtual POA_SALOMEDS::Attribut
                                            public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeStudyProperties_i(const Handle(SALOMEDSImpl_AttributeStudyProperties)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeStudyProperties_i(SALOMEDSImpl_AttributeStudyProperties* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeStudyProperties_i() {};

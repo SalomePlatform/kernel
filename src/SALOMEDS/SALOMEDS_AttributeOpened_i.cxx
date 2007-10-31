@@ -30,14 +30,14 @@ using namespace std;
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() 
 {
   SALOMEDS::Locker lock; 
-  return (Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->IsOpened() == 1);
+  return (dynamic_cast<SALOMEDSImpl_AttributeOpened*>(_impl)->IsOpened() == 1);
 }
                                                            
 void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) 
 {
   SALOMEDS::Locker lock; 
   
-  Standard_Integer val = 0;
+  int val = 0;
   if (value != 0) val = 1;
-  Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->SetOpened(val);
+  dynamic_cast<SALOMEDSImpl_AttributeOpened*>(_impl)->SetOpened(val);
 }

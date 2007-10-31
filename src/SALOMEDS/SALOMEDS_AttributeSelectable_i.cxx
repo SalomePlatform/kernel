@@ -30,14 +30,14 @@ using namespace std;
 CORBA::Boolean SALOMEDS_AttributeSelectable_i::IsSelectable() 
 {
   SALOMEDS::Locker lock;
-  return (Handle(SALOMEDSImpl_AttributeSelectable)::DownCast(_impl)->IsSelectable() == 1);
+  return (dynamic_cast<SALOMEDSImpl_AttributeSelectable*>(_impl)->IsSelectable() == 1);
 }
                                                            
 void SALOMEDS_AttributeSelectable_i::SetSelectable(CORBA::Boolean value) 
 {
   SALOMEDS::Locker lock;
-  Standard_Integer val = 0;
+  int val = 0;
   if (value != 0) val = 1;
-  Handle(SALOMEDSImpl_AttributeSelectable)::DownCast(_impl)->SetSelectable(val);
+  dynamic_cast<SALOMEDSImpl_AttributeSelectable*>(_impl)->SetSelectable(val);
 }
 

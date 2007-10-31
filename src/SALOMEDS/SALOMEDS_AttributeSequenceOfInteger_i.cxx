@@ -24,7 +24,8 @@
 
 #include "SALOMEDS_AttributeSequenceOfInteger_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TColStd_HSequenceOfInteger.hxx>
+#include <vector>
+
 
 using namespace std;
 
@@ -33,22 +34,20 @@ void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& othe
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(TColStd_HSequenceOfInteger) CasCadeSeq = new TColStd_HSequenceOfInteger;
-  for (int i = 0; i < other.length(); i++) {
-    CasCadeSeq->Append(other[i]);
-  }
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->Assign(CasCadeSeq);
+  vector<int> aSeq;
+  for(int i = 0, len = other.length(); i<len; i++) aSeq.push_back(other[i]);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Assign(aSeq);
 }
  
 SALOMEDS::LongSeq* SALOMEDS_AttributeSequenceOfInteger_i::CorbaSequence()
 {
   SALOMEDS::Locker lock;
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger) CasCadeSeq;
-  CasCadeSeq = Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl);
-  CorbaSeq->length(CasCadeSeq->Length());
-  for (int i = 0; i < CasCadeSeq->Length(); i++) {
-    CorbaSeq[i] = CasCadeSeq->Value(i+1);;
+  const vector<int>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Array();
+  int len = CasCadeSeq.size();
+  CorbaSeq->length(len);
+  for (int i = 0; i < len; i++) {
+    CorbaSeq[i] = CasCadeSeq[i];
   }
   return CorbaSeq._retn();
 }
@@ -57,32 +56,32 @@ void SALOMEDS_AttributeSequenceOfInteger_i::Add(CORBA::Long value)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->Add(value);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Add(value);
 }
 
 void SALOMEDS_AttributeSequenceOfInteger_i::Remove(CORBA::Long index) 
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->Remove(index);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Remove(index);
 }
  
 void SALOMEDS_AttributeSequenceOfInteger_i::ChangeValue(CORBA::Long index, CORBA::Long value)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->ChangeValue(index, value);
+  dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->ChangeValue(index, value);
 }
  
 CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Value(CORBA::Short index) 
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->Value(index);
+  return dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Value(index);
 }
 
 CORBA::Long SALOMEDS_AttributeSequenceOfInteger_i::Length() 
 {  
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_impl)->Length();
+  return dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Length();
 }
 

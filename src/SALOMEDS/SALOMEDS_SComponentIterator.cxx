@@ -28,7 +28,7 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 
 SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(const SALOMEDSImpl_SComponentIterator& theIterator)
-:_local_impl(theIterator)
+:_local_impl(theIterator.GetPersistentCopy())
 {
   _isLocal = true;
   _corba_impl = SALOMEDS::SComponentIterator::_nil();
@@ -43,13 +43,14 @@ SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(SALOMEDS::SComponentIte
 SALOMEDS_SComponentIterator::~SALOMEDS_SComponentIterator()
 {
   if(!_isLocal) _corba_impl->Destroy(); 
+  else if(_local_impl) delete _local_impl;
 }
 
 void SALOMEDS_SComponentIterator::Init()
 {
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    _local_impl.Init();
+    _local_impl->Init();
   }
   else _corba_impl->Init();
 }
@@ -59,7 +60,7 @@ bool SALOMEDS_SComponentIterator::More()
   bool ret;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    ret = _local_impl.More();
+    ret = _local_impl->More();
   }
   else ret = _corba_impl->More();
   return ret;
@@ -69,7 +70,7 @@ void SALOMEDS_SComponentIterator::Next()
 {
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    _local_impl.Next();
+    _local_impl->Next();
   }
   else _corba_impl->Next();
 }
@@ -79,7 +80,7 @@ _PTR(SComponent) SALOMEDS_SComponentIterator::Value()
   SALOMEDSClient_SComponent* aSCO = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    aSCO = new SALOMEDS_SComponent(_local_impl.Value());
+    aSCO = new SALOMEDS_SComponent(_local_impl->Value());
   }
   else aSCO = new SALOMEDS_SComponent(_corba_impl->Value());
   return _PTR(SComponent)(aSCO);

@@ -24,7 +24,6 @@
 
 #include "SALOMEDS_AttributeIOR_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TCollection_ExtendedString.hxx>
 
 using namespace std;
 
@@ -32,7 +31,7 @@ char* SALOMEDS_AttributeIOR_i::Value()
 {
  SALOMEDS::Locker lock;
   CORBA::String_var c_s = 
-    CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeIOR)::DownCast(_impl)->Value()).ToCString());
+    CORBA::string_dup(dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->Value().c_str());
   return c_s._retn();
 }
 
@@ -41,6 +40,6 @@ void SALOMEDS_AttributeIOR_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  TCollection_ExtendedString anExtStr((char *)Str.in());
-  Handle(SALOMEDSImpl_AttributeIOR)::DownCast(_impl)->SetValue(anExtStr);
+  string anExtStr((char *)Str.in());
+  dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->SetValue(anExtStr);
 }

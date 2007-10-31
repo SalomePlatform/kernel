@@ -24,10 +24,11 @@
 #include "SALOMEDS_AttributeTextColor.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TColStd_HArray1OfReal.hxx>
+#include <vector>
 
-SALOMEDS_AttributeTextColor::SALOMEDS_AttributeTextColor
-                  (const Handle(SALOMEDSImpl_AttributeTextColor)& theAttr)
+using namespace std;
+
+SALOMEDS_AttributeTextColor::SALOMEDS_AttributeTextColor(SALOMEDSImpl_AttributeTextColor* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,11 +45,10 @@ STextColor SALOMEDS_AttributeTextColor::TextColor()
   STextColor aColor;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HArray1OfReal) aSeq =
-      Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->TextColor();
-    aColor.R = aSeq->Value(1);
-    aColor.G = aSeq->Value(2);
-    aColor.B = aSeq->Value(3);	
+    vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_local_impl)->TextColor();
+    aColor.R = aSeq[0];
+    aColor.G = aSeq[1];
+    aColor.B = aSeq[2];	
   }
   else {
     SALOMEDS::Color anImplColor = SALOMEDS::AttributeTextColor::_narrow(_corba_impl)->TextColor();
@@ -64,11 +64,11 @@ void SALOMEDS_AttributeTextColor::SetTextColor(STextColor value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(TColStd_HArray1OfReal) aSeq = new TColStd_HArray1OfReal(1, 3);
-    aSeq->SetValue(1, value.R);
-    aSeq->SetValue(2, value.G);
-    aSeq->SetValue(3, value.B);
-    Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->ChangeArray(aSeq);
+    vector<double> aSeq;
+    aSeq.push_back( value.R );
+    aSeq.push_back( value.G );
+    aSeq.push_back( value.B );
+    dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_local_impl)->ChangeArray(aSeq);
   }
   else {
     SALOMEDS::Color aColor;

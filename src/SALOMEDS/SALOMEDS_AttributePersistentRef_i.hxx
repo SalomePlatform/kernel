@@ -34,7 +34,7 @@ class SALOMEDS_AttributePersistentRef_i: public virtual POA_SALOMEDS::AttributeP
 					 public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributePersistentRef_i(const Handle(SALOMEDSImpl_AttributePersistentRef)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributePersistentRef_i(SALOMEDSImpl_AttributePersistentRef* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributePersistentRef_i() {};

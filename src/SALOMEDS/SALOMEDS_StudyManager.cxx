@@ -42,15 +42,11 @@
 #include <unistd.h>
 #endif
 
-#include <string>
-#include <TCollection_AsciiString.hxx> 
-#include <TColStd_HSequenceOfTransient.hxx>
-
 #include "OpUtil.hxx"
 
 using namespace std;
 
-SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
+SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
 SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager)
 {
@@ -172,10 +168,10 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->GetOpenStudies();
-    aLength = aSeq->Length();
-    for(i = 1; i <= aLength; i++) 
-      aVector.push_back(Handle(SALOMEDSImpl_Study)::DownCast(aSeq->Value(i))->Name().ToCString());
+    vector<SALOMEDSImpl_Study*> aSeq = _local_impl->GetOpenStudies();
+    aLength = aSeq.size();
+    for(i = 0; i < aLength; i++) 
+      aVector.push_back(aSeq[i]->Name());
   }
   else {
     SALOMEDS::ListOfOpenStudies_var aSeq = _corba_impl->GetOpenStudies();
@@ -192,8 +188,8 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyNam
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByName((char*)theStudyName.c_str());
-    if(aStudy_impl.IsNull()) return _PTR(Study)(aStudy);
+    SALOMEDSImpl_Study* aStudy_impl = _local_impl->GetStudyByName(theStudyName);
+    if(!aStudy_impl) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else  {
@@ -210,8 +206,8 @@ _PTR(Study) SALOMEDS_StudyManager::GetStudyByID(int theStudyID)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByID(theStudyID);
-    if(aStudy_impl.IsNull()) return _PTR(Study)(aStudy);
+    SALOMEDSImpl_Study* aStudy_impl = _local_impl->GetStudyByID(theStudyID);
+    if(!aStudy_impl) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else { 
@@ -230,7 +226,7 @@ bool SALOMEDS_StudyManager::CanCopy(const _PTR(SObject)& theSO)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->CanCopy(aSO_impl, aDriver);
     delete aDriver;
@@ -249,7 +245,7 @@ bool SALOMEDS_StudyManager::Copy(const _PTR(SObject)& theSO)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->Copy(aSO_impl, aDriver);
     delete aDriver;
@@ -268,7 +264,7 @@ bool SALOMEDS_StudyManager::CanPaste(const _PTR(SObject)& theSO)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
     ret = _local_impl->CanPaste(aSO_impl, aDriver);
     delete aDriver;
@@ -288,9 +284,9 @@ _PTR(SObject) SALOMEDS_StudyManager::Paste(const _PTR(SObject)& theSO)
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    SALOMEDSImpl_SObject aSO_impl = *(aSO->GetLocalImpl());
     SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
-    Handle(SALOMEDSImpl_SObject) aNewSO = _local_impl->Paste(aSO_impl, aDriver);
+    SALOMEDSImpl_SObject aNewSO = _local_impl->Paste(aSO_impl, aDriver);
     delete aDriver;
     if(aNewSO.IsNull()) return _PTR(SObject)(aResult);
     aResult = new SALOMEDS_SObject(aNewSO);
@@ -312,15 +308,15 @@ void SALOMEDS_StudyManager::init_orb()
   _orb = init(0 , 0 );
 }
 
-SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
+SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb)
 {
   SALOMEDS_Driver_i* driver = NULL;
   
-  Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();
+  SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
   if(!aSCO.IsNull()) {
-    TCollection_AsciiString IOREngine = aSCO->GetIOR();
-    if(!IOREngine.IsEmpty()) {
-      CORBA::Object_var obj = orb->string_to_object(IOREngine.ToCString());
+    string IOREngine = aSCO.GetIOR();
+    if(!IOREngine.empty()) {
+      CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }

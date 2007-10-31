@@ -40,12 +40,12 @@ class SALOMEDS_UseCaseIterator_i: public virtual POA_SALOMEDS::UseCaseIterator,
 {
 private:
   CORBA::ORB_ptr                        _orb;
-  Handle(SALOMEDSImpl_UseCaseIterator) _impl;
+  SALOMEDSImpl_UseCaseIterator*         _impl;
 
 public:
 
   //! standard constructor  
-  SALOMEDS_UseCaseIterator_i(const Handle(SALOMEDSImpl_UseCaseIterator)& theImpl, 
+  SALOMEDS_UseCaseIterator_i(const SALOMEDSImpl_UseCaseIterator& theImpl, 
 			     CORBA::ORB_ptr);
   
   //! standard destructor

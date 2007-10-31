@@ -28,8 +28,8 @@
 
 #include "SALOMEDS_AttLong_i.hxx"
 #include "utilities.h"
-#include <TDF_Tool.hxx>
 #include <stdio.h>
+#include <SALOMEDSImpl_AttributeInteger.hxx>
 using namespace std;
 
 //============================================================================
@@ -40,7 +40,7 @@ using namespace std;
 void SALOMEDS_AttLong_i::Set(CORBA::Long i)
 {
   CheckLocked();
-  TDataStd_Integer::Set (_Lab,i);
+  SALOMEDSImpl_AttributeInteger::Set (_Lab,i);
 }
 
 //============================================================================
@@ -50,9 +50,9 @@ void SALOMEDS_AttLong_i::Set(CORBA::Long i)
 //============================================================================
 CORBA::Long SALOMEDS_AttLong_i::Get()
 {
-  Handle(TDataStd_Integer) Att;
+  SALOMEDSImpl_AttributeInteger* Att = NULL;
   CORBA::Long x;
-  if (_Lab.FindAttribute(TDataStd_Integer::GetID(),Att))
+  if ((Att=(SALOMEDSImpl_AttributeInteger*)_Lab.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID())))
     x = Att->Get ();
   return x;
 }
@@ -88,8 +88,7 @@ void SALOMEDS_AttLong_i::Load()
 //============================================================================
 CORBA::Boolean SALOMEDS_AttLong_i::GetPtr(SALOMEDS::SObject_ptr anObject)
 {
-  Handle(TDataStd_Integer) Att;
-  return _Lab.FindAttribute(TDataStd_Integer::GetID(),Att);
+  return (_Lab.IsAttribute(SALOMEDSImpl_AttributeInteger::GetID()));
 }
 
 //============================================================================

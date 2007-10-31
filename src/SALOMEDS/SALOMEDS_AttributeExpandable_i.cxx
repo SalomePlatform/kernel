@@ -30,12 +30,12 @@ using namespace std;
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable()
 {
   SALOMEDS::Locker lock;
-  return (Handle(SALOMEDSImpl_AttributeExpandable)::DownCast(_impl)->IsExpandable() == 1);
+  return (dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(_impl)->IsExpandable() == 1);
 }
 
 void SALOMEDS_AttributeExpandable_i::SetExpandable(CORBA::Boolean value)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeExpandable)::DownCast(_impl)->SetExpandable(value);
+  dynamic_cast<SALOMEDSImpl_AttributeExpandable*>(_impl)->SetExpandable(value);
 }

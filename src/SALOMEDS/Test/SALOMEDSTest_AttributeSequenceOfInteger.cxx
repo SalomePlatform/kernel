@@ -81,6 +81,7 @@ void SALOMEDSTest::testAttributeSequenceOfInteger()
   vector<int> v = _attr->CorbaSequence();
   CPPUNIT_ASSERT(v.size() == 3);
 
+
   for(int i = 0; i<v.size(); i++) 
     CPPUNIT_ASSERT((i+1) == v[i]);
 

@@ -71,7 +71,7 @@ void SALOMEDSTest::testChildIterator()
 
   //Check that there are two SObject under so
   CPPUNIT_ASSERT(count == 2);
-
+  
   sm->Close(study);
 }
 

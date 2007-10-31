@@ -46,7 +46,7 @@ using namespace std;
 CORBA::Long SALOMEDS_AttributeFlags_i::GetFlags()
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_impl)->Get();
+  return dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_impl)->Get();
 }
 
 //=======================================================================
@@ -56,7 +56,7 @@ CORBA::Long SALOMEDS_AttributeFlags_i::GetFlags()
 void SALOMEDS_AttributeFlags_i::SetFlags( CORBA::Long theFlags )
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_impl)->Set( theFlags );
+  dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_impl)->Set( theFlags );
 }
 
 //=======================================================================
@@ -66,7 +66,7 @@ void SALOMEDS_AttributeFlags_i::SetFlags( CORBA::Long theFlags )
 CORBA::Boolean SALOMEDS_AttributeFlags_i::Get( CORBA::Long theFlag )
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_impl)->Get() & theFlag ? true : false;
+  return dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_impl)->Get() & theFlag ? true : false;
 }
 
 //=======================================================================
@@ -76,7 +76,7 @@ CORBA::Boolean SALOMEDS_AttributeFlags_i::Get( CORBA::Long theFlag )
 void SALOMEDS_AttributeFlags_i::Set( CORBA::Long theFlag, CORBA::Boolean theValue )
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_AttributeFlags) anAttr = Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_impl);
+  SALOMEDSImpl_AttributeFlags* anAttr = dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_impl);
   if ( theValue )
     anAttr->Set( anAttr->Get() | theFlag );
   else

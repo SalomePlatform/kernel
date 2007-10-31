@@ -38,7 +38,7 @@
 class SALOMEDS_AttributeTarget: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeTarget
 {
 public:  
-  SALOMEDS_AttributeTarget(const Handle(SALOMEDSImpl_AttributeTarget)& theAttr);
+  SALOMEDS_AttributeTarget(SALOMEDSImpl_AttributeTarget* theAttr);
   SALOMEDS_AttributeTarget(SALOMEDS::AttributeTarget_ptr theAttr);
   ~SALOMEDS_AttributeTarget();
 

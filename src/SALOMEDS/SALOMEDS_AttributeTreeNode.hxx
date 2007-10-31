@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeTreeNode: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeTreeNode
 {
 public:  
-  SALOMEDS_AttributeTreeNode(const Handle(SALOMEDSImpl_AttributeTreeNode)& theAttr);
+  SALOMEDS_AttributeTreeNode(SALOMEDSImpl_AttributeTreeNode* theAttr);
   SALOMEDS_AttributeTreeNode(SALOMEDS::AttributeTreeNode_ptr theAttr);
   ~SALOMEDS_AttributeTreeNode();
 

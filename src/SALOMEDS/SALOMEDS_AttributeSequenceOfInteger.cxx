@@ -24,12 +24,8 @@
 #include "SALOMEDS_AttributeSequenceOfInteger.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TColStd_HSequenceOfInteger.hxx>
-
 SALOMEDS_AttributeSequenceOfInteger::SALOMEDS_AttributeSequenceOfInteger
-                  (const Handle(SALOMEDSImpl_AttributeSequenceOfInteger)& theAttr)
+                  (SALOMEDSImpl_AttributeSequenceOfInteger* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -47,9 +43,7 @@ void SALOMEDS_AttributeSequenceOfInteger::Assign(const std::vector<int>& other)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfInteger) aSeq = new TColStd_HSequenceOfInteger;
-    for (i = 0; i < aLength; i++) aSeq->Append(other[i]);
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)->Assign(aSeq);
+    dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->Assign(other);
   }
   else {
     SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq();
@@ -65,8 +59,8 @@ std::vector<int> SALOMEDS_AttributeSequenceOfInteger::CorbaSequence()
   int i, aLength;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger) aSeqAttr;
-    aSeqAttr = Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl);
+    SALOMEDSImpl_AttributeSequenceOfInteger* aSeqAttr;
+    aSeqAttr = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl);
     aLength = aSeqAttr->Length();
     for (i = 1; i <=aLength; i++) aVector.push_back(aSeqAttr->Value(i));
   }
@@ -84,7 +78,7 @@ void SALOMEDS_AttributeSequenceOfInteger::Add(int value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)->Add(value);
+    dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->Add(value);
   }
   else SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->Add(value);
 }
@@ -94,7 +88,7 @@ void SALOMEDS_AttributeSequenceOfInteger::Remove(int index)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)->Remove(index);
+    dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->Remove(index);
   }
   else SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->Remove(index);
 }
@@ -104,7 +98,7 @@ void SALOMEDS_AttributeSequenceOfInteger::ChangeValue(int index, int value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)->ChangeValue(index, value);
+    dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->ChangeValue(index, value);
   }
   else SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->ChangeValue(index, value);
 }
@@ -114,7 +108,7 @@ int SALOMEDS_AttributeSequenceOfInteger::Value(int index)
   int aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)->Value(index);
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)->Value(index);
   }
   else aValue = SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)->Value(index);
   return aValue;
@@ -125,7 +119,7 @@ int SALOMEDS_AttributeSequenceOfInteger::Length()
   int aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = Handle(SALOMEDSImpl_AttributeSequenceOfInteger)::DownCast(_local_impl)-> Length();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_local_impl)-> Length();
   }
   else aValue = SALOMEDS::AttributeSequenceOfInteger::_narrow(_corba_impl)-> Length();
   return aValue;

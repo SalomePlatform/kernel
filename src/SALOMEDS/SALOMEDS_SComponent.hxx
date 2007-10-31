@@ -36,7 +36,7 @@ class Standard_EXPORT SALOMEDS_SComponent: public SALOMEDS_SObject, public SALOM
 {
 public:
 
-  SALOMEDS_SComponent(const Handle(SALOMEDSImpl_SComponent)& theSComponent);
+  SALOMEDS_SComponent(const SALOMEDSImpl_SComponent& theSComponent);
   SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent);
   ~SALOMEDS_SComponent();
 

@@ -36,7 +36,7 @@ using namespace std;
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(const Handle(SALOMEDSImpl_UseCaseBuilder)& theImpl,
+SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theImpl,
 						     CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
@@ -61,7 +61,7 @@ SALOMEDS_UseCaseBuilder_i::~SALOMEDS_UseCaseBuilder_i()
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Append(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull() || theObject->_is_nil()) return 0;
+  if(!_impl || theObject->_is_nil()) return 0;
   return _impl->Append(_impl->GetSObject(theObject->GetID()));
 }
 
@@ -73,7 +73,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Append(SALOMEDS::SObject_ptr theObject
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Remove(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull() || theObject->_is_nil()) return 0;
+  if(!_impl || theObject->_is_nil()) return 0;
   return _impl->Remove(_impl->GetSObject(theObject->GetID()));
 }
 
@@ -87,7 +87,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFath
 						   SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull() || theFather->_is_nil() || theObject->_is_nil()) return 0;
+  if(!_impl || theFather->_is_nil() || theObject->_is_nil()) return 0;
   return _impl->AppendTo(_impl->GetSObject(theFather->GetID()), _impl->GetSObject(theObject->GetID()));
 }
 
@@ -100,7 +100,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr the
 						       SALOMEDS::SObject_ptr theNext)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull() || theFirst->_is_nil() || theNext->_is_nil()) return 0;
+  if(!_impl || theFirst->_is_nil() || theNext->_is_nil()) return 0;
   return _impl->InsertBefore(_impl->GetSObject(theFirst->GetID()), _impl->GetSObject(theNext->GetID()));
 }
 
@@ -113,7 +113,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr the
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetCurrentObject(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull() || theObject->_is_nil()) return 0;
+  if(!_impl || theObject->_is_nil()) return 0;
   return _impl->SetCurrentObject(_impl->GetSObject(theObject->GetID()));
 }
 
@@ -125,7 +125,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetCurrentObject(SALOMEDS::SObject_ptr
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetRootCurrent()
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull()) return 0;
+  if(!_impl) return 0;
   return _impl->SetRootCurrent();
 }
 
@@ -137,7 +137,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetRootCurrent()
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull()) return 0;
+  if(!_impl) return 0;
   return _impl->HasChildren(_impl->GetSObject(theObject->GetID()));
 }
 
@@ -149,7 +149,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::HasChildren(SALOMEDS::SObject_ptr theO
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::SetName(const char* theName) 
 {
   SALOMEDS::Locker lock;
-  if(_impl.IsNull()) return 0;
+  if(!_impl) return 0;
   return _impl->SetName((char*)theName);
 }
 
@@ -163,8 +163,8 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetCurrentObject()
 {
   SALOMEDS::Locker lock; 
   
-  if(_impl.IsNull()) return NULL;
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->GetCurrentObject();
+  if(!_impl) return NULL;
+  SALOMEDSImpl_SObject aSO = _impl->GetCurrentObject();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
@@ -177,7 +177,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetCurrentObject()
 char* SALOMEDS_UseCaseBuilder_i::GetName() 
 {
   SALOMEDS::Locker lock;
-  return CORBA::string_dup(_impl->GetName().ToCString());
+  return CORBA::string_dup(_impl->GetName().c_str());
 }
 
 //============================================================================ 
@@ -189,7 +189,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::IsUseCase(SALOMEDS::SObject_ptr theObj
 {
   SALOMEDS::Locker lock;
   
-  if(_impl.IsNull() || theObject->_is_nil()) return false;
+  if(!_impl || theObject->_is_nil()) return false;
   return _impl->IsUseCase(_impl->GetSObject(theObject->GetID()));
 }
 
@@ -202,8 +202,8 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::AddUseCase(const char* theName)
 {
   SALOMEDS::Locker lock;
   
-  if(_impl.IsNull()) return SALOMEDS::SObject::_nil();
-  Handle(SALOMEDSImpl_SObject) aSO = _impl->AddUseCase((char*)theName);
+  if(!_impl) return SALOMEDS::SObject::_nil();
+  SALOMEDSImpl_SObject aSO = _impl->AddUseCase((char*)theName);
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
@@ -217,10 +217,10 @@ SALOMEDS::UseCaseIterator_ptr SALOMEDS_UseCaseBuilder_i::GetUseCaseIterator(SALO
 {
   SALOMEDS::Locker lock;
   
-  if(_impl.IsNull()) return SALOMEDS::UseCaseIterator::_nil();
-  Handle(SALOMEDSImpl_UseCaseIterator) anItr;
+  if(!_impl) return SALOMEDS::UseCaseIterator::_nil();
+  SALOMEDSImpl_UseCaseIterator anItr;
   if(!CORBA::is_nil(theObject)) anItr = _impl->GetUseCaseIterator(_impl->GetSObject(theObject->GetID()));
-  else anItr = _impl->GetUseCaseIterator(NULL);
+  else anItr = _impl->GetUseCaseIterator(SALOMEDSImpl_SObject());
   SALOMEDS_UseCaseIterator_i* aServant = new SALOMEDS_UseCaseIterator_i(anItr, _orb);
   SALOMEDS::UseCaseIterator_var anIterator = SALOMEDS::UseCaseIterator::_narrow(aServant->_this());
   return anIterator._retn(); 

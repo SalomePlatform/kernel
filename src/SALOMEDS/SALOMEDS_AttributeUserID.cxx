@@ -27,11 +27,7 @@
 #include <string>
 #include <stdexcept>
 
-#include <TCollection_AsciiString.hxx> 
-#include <TCollection_ExtendedString.hxx>
-#include <Standard_GUID.hxx>
-
-SALOMEDS_AttributeUserID::SALOMEDS_AttributeUserID(const Handle(SALOMEDSImpl_AttributeUserID)& theAttr)
+SALOMEDS_AttributeUserID::SALOMEDS_AttributeUserID(SALOMEDSImpl_AttributeUserID* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -48,8 +44,7 @@ std::string SALOMEDS_AttributeUserID::Value()
   if (_isLocal) {
     SALOMEDS::Locker lock;
     char guid[40];
-    Handle(SALOMEDSImpl_AttributeUserID)::DownCast(_local_impl)->Value().ToCString(guid);
-    aValue = std::string(guid);
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeUserID*>(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeUserID::_narrow(_corba_impl)->Value();
   return aValue;
@@ -57,13 +52,10 @@ std::string SALOMEDS_AttributeUserID::Value()
 
 void SALOMEDS_AttributeUserID::SetValue(const std::string& value)
 {
-  if(!Standard_GUID::CheckGUIDFormat((char*)value.c_str())) throw invalid_argument("Invalid GUID");
-
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeUserID)::
-      DownCast(_local_impl)->SetValue(Standard_GUID((char*)value.c_str()));
+    dynamic_cast<SALOMEDSImpl_AttributeUserID*>(_local_impl)->SetValue(value);
   }
   else SALOMEDS::AttributeUserID::_narrow(_corba_impl)->SetValue(value.c_str());
 }

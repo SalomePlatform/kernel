@@ -24,7 +24,6 @@
 
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TCollection_ExtendedString.hxx>
 
 using namespace std;
 
@@ -32,7 +31,7 @@ char* SALOMEDS_AttributeName_i::Value()
 {
   SALOMEDS::Locker lock; 
   CORBA::String_var c_s = 
-    CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeName)::DownCast(_impl)->Value()).ToCString());
+    CORBA::string_dup(dynamic_cast<SALOMEDSImpl_AttributeName*>(_impl)->Value().c_str());
   return c_s._retn();
 }
 
@@ -40,5 +39,5 @@ void SALOMEDS_AttributeName_i::SetValue(const char* value)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeName)::DownCast(_impl)->SetValue(TCollection_ExtendedString((char*)value));
+  dynamic_cast<SALOMEDSImpl_AttributeName*>(_impl)->SetValue(string(value));
 }

@@ -35,12 +35,12 @@ class SALOMEDS_ChildIterator: public SALOMEDSClient_ChildIterator
 {
 private:
   bool                               _isLocal;
-  Handle(SALOMEDSImpl_ChildIterator) _local_impl;
+  SALOMEDSImpl_ChildIterator*        _local_impl;
   SALOMEDS::ChildIterator_var        _corba_impl;
 
 public:
 
-  SALOMEDS_ChildIterator(const Handle(SALOMEDSImpl_ChildIterator)& theIterator);
+  SALOMEDS_ChildIterator(const SALOMEDSImpl_ChildIterator& theIterator);
   SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIterator);
   ~SALOMEDS_ChildIterator();
 

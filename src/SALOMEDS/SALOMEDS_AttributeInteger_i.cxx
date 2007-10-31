@@ -30,14 +30,14 @@ using namespace std;
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() 
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->Value();
+  return dynamic_cast<SALOMEDSImpl_AttributeInteger*>(_impl)->Value();
 }
 
 void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) 
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->SetValue(value);
+  dynamic_cast<SALOMEDSImpl_AttributeInteger*>(_impl)->SetValue(value);
 }
 
 

@@ -42,8 +42,8 @@ void SALOMEDS_AttributeGraphic_i::SetVisibility( CORBA::Long    theViewId,
                                                  CORBA::Boolean theValue )
 {
   SALOMEDS::Locker lock;    
-  if ( !_impl.IsNull() )
-    Handle(SALOMEDSImpl_AttributeGraphic)::DownCast(_impl)->SetVisibility( theViewId, theValue );
+  if ( _impl )
+    dynamic_cast<SALOMEDSImpl_AttributeGraphic*>(_impl)->SetVisibility( theViewId, theValue );
 }
 
 //=======================================================================
@@ -53,7 +53,7 @@ void SALOMEDS_AttributeGraphic_i::SetVisibility( CORBA::Long    theViewId,
 CORBA::Boolean SALOMEDS_AttributeGraphic_i::GetVisibility( CORBA::Long theViewId )
 {
   SALOMEDS::Locker lock;
-  return !_impl.IsNull() ? Handle(SALOMEDSImpl_AttributeGraphic)::DownCast(_impl)->GetVisibility( theViewId ) : false;
+  return ( _impl ) ? dynamic_cast<SALOMEDSImpl_AttributeGraphic*>(_impl)->GetVisibility( theViewId ) : false;
 }
 
 

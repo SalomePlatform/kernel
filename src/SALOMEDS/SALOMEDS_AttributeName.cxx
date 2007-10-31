@@ -25,10 +25,8 @@
 #include "SALOMEDS.hxx"
 
 #include <string>
-#include <TCollection_AsciiString.hxx> 
-#include <TCollection_ExtendedString.hxx>
 
-SALOMEDS_AttributeName::SALOMEDS_AttributeName(const Handle(SALOMEDSImpl_AttributeName)& theAttr)
+SALOMEDS_AttributeName::SALOMEDS_AttributeName(SALOMEDSImpl_AttributeName* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,8 +42,7 @@ std::string SALOMEDS_AttributeName::Value()
   std::string aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeName)::
-                                     DownCast(_local_impl)->Value()).ToCString();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeName*>(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeName::_narrow(_corba_impl)->Value();
   return aValue;
@@ -56,7 +53,7 @@ void SALOMEDS_AttributeName::SetValue(const std::string& value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
-    Handle(SALOMEDSImpl_AttributeName)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeName*>(_local_impl)->SetValue(value);
   }
   else SALOMEDS::AttributeName::_narrow(_corba_impl)->SetValue(value.c_str());
 }

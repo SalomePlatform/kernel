@@ -24,14 +24,10 @@
 #include "SALOMEDS_AttributeTableOfInteger.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-#include <TColStd_HSequenceOfInteger.hxx>
-#include <TColStd_HSequenceOfExtendedString.hxx>
-
+using namespace std;
 
 SALOMEDS_AttributeTableOfInteger::SALOMEDS_AttributeTableOfInteger
-                  (const Handle(SALOMEDSImpl_AttributeTableOfInteger)& theAttr)
+                  (SALOMEDSImpl_AttributeTableOfInteger* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -49,7 +45,7 @@ void SALOMEDS_AttributeTableOfInteger::SetTitle(const std::string& theTitle)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->SetTitle((char*)theTitle.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetTitle(theTitle);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetTitle(theTitle.c_str());
 }
@@ -59,8 +55,7 @@ std::string SALOMEDS_AttributeTableOfInteger::GetTitle()
   std::string aStr;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aStr = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-                                   DownCast(_local_impl)->GetTitle()).ToCString();
+    aStr = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetTitle();
   }
   else aStr = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetTitle();
   return aStr;
@@ -71,8 +66,7 @@ void SALOMEDS_AttributeTableOfInteger::SetRowTitle(int theIndex, const std::stri
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-      DownCast(_local_impl)->SetRowTitle(theIndex, (char*)theTitle.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetRowTitle(theIndex, theTitle);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetRowTitle(theIndex, theTitle.c_str());
 }
@@ -83,9 +77,9 @@ void SALOMEDS_AttributeTableOfInteger::SetRowTitles(const std::vector<std::strin
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-    for (i = 0; i < aLength; i++) aSeq->Append((char*)theTitles[i].c_str());
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->SetRowTitles(aSeq);
+    vector<string> aSeq;
+    for (i = 0; i < aLength; i++) aSeq.push_back(theTitles[i]);
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetRowTitles(aSeq);
   }
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
@@ -102,10 +96,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfInteger::GetRowTitles()
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq;
-    aSeq = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetRowTitles();
-    aLength = aSeq->Length();
-    for(i = 1; i<= aLength; i++) aVector.push_back(TCollection_AsciiString((aSeq->Value(i))).ToCString());
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetRowTitles();
   }
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetRowTitles();
@@ -120,8 +111,7 @@ void SALOMEDS_AttributeTableOfInteger::SetColumnTitle(int theIndex, const std::s
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-      DownCast(_local_impl)->SetColumnTitle(theIndex, (char*)theTitle.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetColumnTitle(theIndex, theTitle);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetColumnTitle(theIndex, theTitle.c_str());
 }
@@ -132,9 +122,9 @@ void SALOMEDS_AttributeTableOfInteger::SetColumnTitles(const std::vector<std::st
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-    for (i = 0; i < aLength; i++) aSeq->Append((char*)theTitles[i].c_str());
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->SetColumnTitles(aSeq);
+    vector<string> aSeq;
+    for (i = 0; i < aLength; i++) aSeq.push_back(theTitles[i]);
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetColumnTitles(aSeq);
   }
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
@@ -150,10 +140,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfInteger::GetColumnTitles()
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq;
-    aSeq = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetColumnTitles();
-    aLength = aSeq->Length();
-    for (i = 1; i<= aLength; i++) aVector.push_back(TCollection_AsciiString(aSeq->Value(i)).ToCString());
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetColumnTitles();
   }
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetColumnTitles();
@@ -168,8 +155,7 @@ void SALOMEDS_AttributeTableOfInteger::SetRowUnit(int theIndex, const std::strin
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-      DownCast(_local_impl)->SetRowUnit(theIndex, (char*)theUnit.c_str());
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetRowUnit(theIndex, theUnit);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetRowUnit(theIndex, theUnit.c_str());
 }
@@ -180,9 +166,7 @@ void SALOMEDS_AttributeTableOfInteger::SetRowUnits(const std::vector<std::string
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-    for (i = 0; i < aLength; i++) aSeq->Append((char*)theUnits[i].c_str());
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->SetRowUnits(aSeq);
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetRowUnits(theUnits);
   }
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
@@ -198,10 +182,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfInteger::GetRowUnits()
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfExtendedString) aSeq;
-    aSeq = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetRowUnits();
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(TCollection_AsciiString(aSeq->Value(i)).ToCString());
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetRowUnits();
   }
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetRowUnits();
@@ -216,7 +197,7 @@ int SALOMEDS_AttributeTableOfInteger::GetNbRows()
   int aNb;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aNb = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetNbRows();
+    aNb = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetNbRows();
   }
   else aNb = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetNbRows();
   return aNb;
@@ -227,7 +208,7 @@ int SALOMEDS_AttributeTableOfInteger::GetNbColumns()
   int aNb;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aNb = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetNbColumns();
+    aNb = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetNbColumns();
   }
   else aNb = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetNbColumns();
   return aNb;
@@ -240,12 +221,9 @@ void SALOMEDS_AttributeTableOfInteger::AddRow(const std::vector<int>& theData)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable;
-    aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl);
-    Handle(TColStd_HSequenceOfInteger) aRow = new TColStd_HSequenceOfInteger;
-    for (int i = 0; i < aLength; i++) aRow->Append(theData[i]);
+    SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl);
     try {
-      aTable->SetRowData(aTable->GetNbRows() + 1, aRow);
+      aTable->SetRowData(aTable->GetNbRows() + 1, theData);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -265,12 +243,9 @@ void SALOMEDS_AttributeTableOfInteger::SetRow(int theRow, const std::vector<int>
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable;
-    aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl);
-    Handle(TColStd_HSequenceOfInteger) aRow = new TColStd_HSequenceOfInteger;
-    for (int i = 0; i < aLength; i++) aRow->Append(theData[i]);
+    SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl);
     try {
-      aTable->SetRowData(theRow, aRow);
+      aTable->SetRowData(theRow, theData);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -290,10 +265,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRow(int theRow)
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfInteger) aRow; 
-    aRow = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetRowData(theRow);
-    aLength = aRow->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aRow->Value(i));
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetRowData(theRow);
   }
   else {
     SALOMEDS::LongSeq_var aRow = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetRow(theRow);
@@ -310,12 +282,9 @@ void SALOMEDS_AttributeTableOfInteger::AddColumn(const std::vector<int>& theData
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable;
-    aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl);
-    Handle(TColStd_HSequenceOfInteger) aColumn = new TColStd_HSequenceOfInteger;
-    for (int i = 0; i < aLength; i++) aColumn->Append(theData[i]);
+    SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl);
     try {
-      aTable->SetColumnData(aTable->GetNbColumns() + 1, aColumn);
+      aTable->SetColumnData(aTable->GetNbColumns() + 1, theData);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -335,12 +304,9 @@ void SALOMEDS_AttributeTableOfInteger::SetColumn(int theColumn, const std::vecto
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable;
-    aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl);
-    Handle(TColStd_HSequenceOfInteger) aColumn = new TColStd_HSequenceOfInteger;
-    for (int i = 0; i < aLength; i++) aColumn->Append(theData[i]);
+    SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl);
     try {
-      aTable->SetColumnData(theColumn, aColumn);
+      aTable->SetColumnData(theColumn, theData);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectArgumentLength();
@@ -360,10 +326,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetColumn(int theColumn)
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfInteger) aColumn; 
-    aColumn = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetColumnData(theColumn);
-    aLength = aColumn->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aColumn->Value(i));
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetColumnData(theColumn);
   }
   else {
     SALOMEDS::LongSeq_var aColumn = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->GetColumn(theColumn);
@@ -379,8 +342,7 @@ void SALOMEDS_AttributeTableOfInteger::PutValue(int theValue, int theRow, int th
     CheckLocked();
     SALOMEDS::Locker lock;
     try {
-      Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-        DownCast(_local_impl)->PutValue(theValue, theRow, theColumn);
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->PutValue(theValue, theRow, theColumn);
     }
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
@@ -396,7 +358,7 @@ bool SALOMEDS_AttributeTableOfInteger::HasValue(int theRow, int theColumn)
   bool ret;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->HasValue(theRow, theColumn);
+    ret = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->HasValue(theRow, theColumn);
   }
   else ret = SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->HasValue(theRow, theColumn);
   return ret;
@@ -408,8 +370,7 @@ int SALOMEDS_AttributeTableOfInteger::GetValue(int theRow, int theColumn)
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {
-      aValue = Handle(SALOMEDSImpl_AttributeTableOfInteger)::
-        DownCast(_local_impl)->GetValue(theRow, theColumn);
+      aValue = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetValue(theRow, theColumn);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfInteger::IncorrectIndex();
@@ -427,10 +388,7 @@ std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRowSetIndices(int theRow)
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfInteger) aSet; 
-    aSet = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->GetSetRowIndices(theRow);
-    aLength = aSet->Length();
-    for (i = 1; i <= aLength; i++) aVector.push_back(aSet->Value(i));
+    aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->GetSetRowIndices(theRow);
   }
   else {
     SALOMEDS::LongSeq_var aSet =
@@ -445,7 +403,7 @@ void SALOMEDS_AttributeTableOfInteger::SetNbColumns(int theNbColumns)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(_local_impl)->SetNbColumns(theNbColumns);
+    dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetNbColumns(theNbColumns);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetNbColumns(theNbColumns);
 }

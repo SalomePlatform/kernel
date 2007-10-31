@@ -38,7 +38,7 @@
 class SALOMEDS_AttributeTableOfInteger: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeTableOfInteger
 {
 public:  
-  SALOMEDS_AttributeTableOfInteger(const Handle(SALOMEDSImpl_AttributeTableOfInteger)& theAttr);
+  SALOMEDS_AttributeTableOfInteger(SALOMEDSImpl_AttributeTableOfInteger* theAttr);
   SALOMEDS_AttributeTableOfInteger(SALOMEDS::AttributeTableOfInteger_ptr theAttr);
   ~SALOMEDS_AttributeTableOfInteger();
 

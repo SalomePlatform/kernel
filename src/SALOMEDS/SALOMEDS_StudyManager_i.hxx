@@ -36,15 +36,10 @@
 
 #include <stdlib.h>
 
-//Standard not implemented
-#include <Standard_NotImplemented.hxx>
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDSImpl_StudyManager.hxx"
 
 namespace SALOMEDS{
-
-  // To convert IOR from SALOMEDS_IORAttribute to CORBA::Object
-  /* CORBA::Object_var GetObject(const TDF_Label&, CORBA::ORB_ptr); */
 
   // To convert CORBA::Object to  PortableServer::ServantBase
   PortableServer::ServantBase_var GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
@@ -57,7 +52,7 @@ private:
 
   CORBA::ORB_ptr                    _orb;
   PortableServer::POA_var           _poa;
-  Handle(SALOMEDSImpl_StudyManager) _impl;  
+  SALOMEDSImpl_StudyManager*        _impl;  
   SALOME_NamingService*             _name_service;
   SALOMEDS_DriverFactory_i*         _factory; 
 

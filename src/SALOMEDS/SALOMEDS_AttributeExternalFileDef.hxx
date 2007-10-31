@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeExternalFileDef: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeExternalFileDef
 {
 public:  
-  SALOMEDS_AttributeExternalFileDef(const Handle(SALOMEDSImpl_AttributeExternalFileDef)& theAttr);
+  SALOMEDS_AttributeExternalFileDef(SALOMEDSImpl_AttributeExternalFileDef* theAttr);
   SALOMEDS_AttributeExternalFileDef(SALOMEDS::AttributeExternalFileDef_ptr theAttr);
   ~SALOMEDS_AttributeExternalFileDef();
 

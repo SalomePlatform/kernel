@@ -42,6 +42,7 @@ void SALOMEDSTest::testStudy()
 
   //Check method NewComponentIterator
   _PTR(SComponentIterator) componentIterator = study->NewComponentIterator();
+
   CPPUNIT_ASSERT(componentIterator);
 
   //Check method GetTransientReference
@@ -342,7 +343,6 @@ void SALOMEDSTest::testStudy()
     isException = true;
   }
   CPPUNIT_ASSERT(!isException);
-
 }
 
 

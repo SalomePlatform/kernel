@@ -24,10 +24,6 @@
 
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS.hxx"
-#include <TColStd_HSequenceOfExtendedString.hxx>
-#include <TColStd_HSequenceOfInteger.hxx>
-#include <TCollection_ExtendedString.hxx>
-
 using namespace std;
 
 #define CREATION_MODE_NOTDEFINED 0
@@ -38,15 +34,14 @@ void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->ChangeCreatorName((char*)theName);
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->ChangeCreatorName((char*)theName);
 }
 
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName()
 {
   SALOMEDS::Locker lock;
-  TCollection_ExtendedString S =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->GetCreatorName();
-  CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
+  string S = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreatorName();
+  CORBA::String_var c_s = CORBA::string_dup(S.c_str());
   return c_s._retn();
 }
 
@@ -58,11 +53,10 @@ void SALOMEDS_AttributeStudyProperties_i::SetCreationDate(CORBA::Long theMinute,
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl);
+  SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   int aTmp;
   if (aProp->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-  TCollection_ExtendedString S;
+  string S;
   aProp->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
 }
 
@@ -73,29 +67,27 @@ CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::GetCreationDate(CORBA::Long&
 								    CORBA::Long& theYear)
 {
   SALOMEDS::Locker lock;
-  Standard_Integer aMinute;
-  Standard_Integer aHour;
-  Standard_Integer aDay;
-  Standard_Integer aMonth;
-  Standard_Integer aYear;
-  if (Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast
-      (_impl)->GetCreationDate(aMinute, aHour, aDay, aMonth, aYear)) {
+  int aMinute;
+  int aHour;
+  int aDay;
+  int aMonth;
+  int aYear;
+  if (dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreationDate(aMinute, aHour, aDay, aMonth, aYear)) {
     theMinute = aMinute;
     theHour = aHour;
     theDay = aDay;
     theMonth = aMonth;
     theYear = aYear;
-    return Standard_True;
+    return true;
   }
-  return Standard_False;
+  return false;
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetCreationMode(const char* theMode)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl);
+  SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   if (strcmp(theMode,"from scratch")==0) aProp->SetCreationMode(CREATION_MODE_SCRATCH);
   else if (strcmp(theMode,"copy from")==0) aProp->SetCreationMode(CREATION_MODE_COPY);
   else aProp->SetCreationMode(CREATION_MODE_NOTDEFINED);
@@ -105,7 +97,7 @@ char* SALOMEDS_AttributeStudyProperties_i::GetCreationMode()
 {
   SALOMEDS::Locker lock;
   CORBA::String_var c_s;
-  switch (Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->GetCreationMode()) {
+  switch (dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreationMode()) {
   case CREATION_MODE_SCRATCH: c_s = "from scratch"; break;
   case CREATION_MODE_COPY: c_s = "copy from"; break;
   default: c_s = "";
@@ -116,31 +108,31 @@ char* SALOMEDS_AttributeStudyProperties_i::GetCreationMode()
 void SALOMEDS_AttributeStudyProperties_i::SetModified(CORBA::Long theModified)
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->SetModified(theModified);
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetModified(theModified);
 }
 
 CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::IsModified()
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->IsModified();
+  return dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->IsModified();
 }
 
 CORBA::Long SALOMEDS_AttributeStudyProperties_i::GetModified()
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->GetModified();
+  return dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetModified();
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetLocked(CORBA::Boolean theLocked)
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->SetLocked(theLocked);
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetLocked(theLocked);
 }
 
 CORBA::Boolean SALOMEDS_AttributeStudyProperties_i::IsLocked()
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl)->IsLocked();
+  return dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->IsLocked();
 }
 
 void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
@@ -152,8 +144,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetModification(const char* theName,
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl);
+  SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   aProp->SetModification((char*)theName, (int)theMinute, (int)theHour,
                          (int)theDay, (int)theMonth, (int)theYear);
 }
@@ -167,12 +158,11 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
 							       CORBA::Boolean theWithCreator)
 {
   SALOMEDS::Locker lock;
-  Handle(TColStd_HSequenceOfExtendedString) aNames;
-  Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
-  Handle(SALOMEDSImpl_AttributeStudyProperties) aProp =
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_impl);
+  vector<string> aNames;
+  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-  int aLength = aNames->Length();
+  int aLength = aNames.size();
   int aRetLength = aLength - ((theWithCreator) ? 0 : 1);
   theNames = new SALOMEDS::StringSeq;
   theMinutes = new SALOMEDS::LongSeq;
@@ -188,11 +178,11 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
   theYears->length(aRetLength);
   int a = 0, ind = ((theWithCreator) ? 1 : 2);
   for (; ind <= aLength; a++, ind++) {
-    (*theNames)[a] = CORBA::string_dup(TCollection_AsciiString(aNames->Value(ind)).ToCString());
-    (*theMinutes)[a] = aMinutes->Value(ind);
-    (*theHours)[a] = aHours->Value(ind);
-    (*theDays)[a] = aDays->Value(ind);
-    (*theMonths)[a] = aMonths->Value(ind);
-    (*theYears)[a] = aYears->Value(ind);
+    (*theNames)[a] = CORBA::string_dup(aNames[ind-1].c_str());
+    (*theMinutes)[a] = aMinutes[ind-1];
+    (*theHours)[a] = aHours[ind-1];
+    (*theDays)[a] = aDays[ind-1];
+    (*theMonths)[a] = aMonths[ind-1];
+    (*theYears)[a] = aYears[ind-1];
   }
 }

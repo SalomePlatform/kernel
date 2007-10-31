@@ -24,13 +24,12 @@
 #include "SALOMEDS_AttributeTarget.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TColStd_HSequenceOfTransient.hxx>
-
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDS_SObject.hxx"
 
+using namespace std;
 
-SALOMEDS_AttributeTarget::SALOMEDS_AttributeTarget(const Handle(SALOMEDSImpl_AttributeTarget)& theAttr)
+SALOMEDS_AttributeTarget::SALOMEDS_AttributeTarget(SALOMEDSImpl_AttributeTarget* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -47,7 +46,7 @@ void SALOMEDS_AttributeTarget::Add(const _PTR(SObject)& theObject)
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Add(aSO->GetLocalImpl());
+    dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Add(*(aSO->GetLocalImpl()));
   }
   else SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Add(aSO->GetCORBAImpl());
 }
@@ -60,11 +59,10 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(TColStd_HSequenceOfTransient) aSeq =
-      Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Get();
-    aLength = aSeq->Length();
-    for (i = 1; i <= aLength; i++) {
-      aSO = new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)));
+    vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
+    aLength = aSeq.size();
+    for (i = 0; i < aLength; i++) {
+      aSO = new SALOMEDS_SObject(aSeq[i]);
       aVector.push_back(_PTR(SObject)(aSO));
     }
   }
@@ -86,7 +84,7 @@ void SALOMEDS_AttributeTarget::Remove(const _PTR(SObject)& theObject)
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Remove(aSO->GetLocalImpl());
+    dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Remove(*(aSO->GetLocalImpl()));
   }
   else SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Remove(aSO->GetCORBAImpl());
 }

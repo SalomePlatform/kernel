@@ -40,7 +40,7 @@ public:
 
 private:
   bool                                    _isLocal;
-  SALOMEDSImpl_SComponentIterator         _local_impl;
+  SALOMEDSImpl_SComponentIterator*        _local_impl;
   SALOMEDS::SComponentIterator_var        _corba_impl;
 
 public:

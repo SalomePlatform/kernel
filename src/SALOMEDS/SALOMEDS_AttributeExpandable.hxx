@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeExpandable: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeExpandable
 {
 public:  
-  SALOMEDS_AttributeExpandable(const Handle(SALOMEDSImpl_AttributeExpandable)& theAttr);
+  SALOMEDS_AttributeExpandable(SALOMEDSImpl_AttributeExpandable* theAttr);
   SALOMEDS_AttributeExpandable(SALOMEDS::AttributeExpandable_ptr theAttr);
   ~SALOMEDS_AttributeExpandable();
 
