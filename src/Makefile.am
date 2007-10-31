@@ -31,6 +31,7 @@ SUBDIR_BASE = \
   HDFPersist
 
 SUBDIR_CORBA = \
+  DF \
   Logger \
   SALOMETraceCollector \
   Utils \
