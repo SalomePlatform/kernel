@@ -27,7 +27,6 @@
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
-  CASCatch \
   HDFPersist
 
 SUBDIR_CORBA = \
