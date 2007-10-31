@@ -54,7 +54,6 @@ dist_salomescript_SCRIPTS=
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@LIBXML_INCLUDES@ \
 	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \

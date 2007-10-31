@@ -55,7 +55,6 @@ dist_salomescript_DATA = SALOME_DriverPy.py
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@BOOST_CPPFLAGS@ \
 	-I$(srcdir)/../HDFPersist \
 	@HDF5_INCLUDES@ \
@@ -88,7 +87,6 @@ COMMON_LIBS =\
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
-	@CAS_KERNEL@ \
 	@HDF5_LIBS@ \
 	$(LDXMUFLAGS)
 
