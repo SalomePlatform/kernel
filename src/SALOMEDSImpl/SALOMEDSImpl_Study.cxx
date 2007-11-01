@@ -1072,7 +1072,16 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const string& theEntry)
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const DF_Label& theLabel)
 {
-  return GetSObject(theLabel.Entry());
+  SALOMEDSImpl_SObject aSO;
+  string anEntry = theLabel.Entry();
+  if(_mapOfSO.find(anEntry) != _mapOfSO.end())
+    aSO = _mapOfSO[anEntry];
+  else {
+    aSO = SALOMEDSImpl_SObject(theLabel);
+    _mapOfSO[anEntry] = aSO;
+  }
+
+  return aSO;
 }
 
 //============================================================================
