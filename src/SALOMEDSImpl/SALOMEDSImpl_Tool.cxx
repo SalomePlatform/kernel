@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h> 
+#include <unistd.h>
 #else
 #include <time.h>
 #include <lmcons.h>
