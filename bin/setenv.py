@@ -264,18 +264,16 @@ def set_env(args, modules_list, modules_root_dir):
     #if os.getenv("GUI_ROOT_DIR"):
         #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
-    # set CSF_PluginDefaults variable only if it is not customized
-    # by the user
-    if not os.getenv("CSF_PluginDefaults"):
-        os.environ["CSF_PluginDefaults"] \
-        = os.path.join(modules_root_dir["KERNEL"],"share",
-                       salome_subdir,"resources","kernel")
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
         if verbose(): print "GEOM OCAF Resources" 
+        
+	# set CSF_PluginDefaults variable only if it is not customized
+        # by the user
+
         if not os.getenv("CSF_PluginDefaults"):
     	    os.environ["CSF_PluginDefaults"] \
     	    = os.path.join(modules_root_dir["GEOM"],"share",
