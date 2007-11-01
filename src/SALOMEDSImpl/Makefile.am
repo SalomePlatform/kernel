@@ -89,7 +89,8 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
-	@HDF5_INCLUDES@
+	@HDF5_INCLUDES@ \
+	@BOOST_CPPFLAGS@
 
 # This flag is used to resolve the dependencies of OCC libraries.
 LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
