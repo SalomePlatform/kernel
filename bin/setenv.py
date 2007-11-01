@@ -275,7 +275,11 @@ def set_env(args, modules_list, modules_root_dir):
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
-        if verbose(): print "GEOM OCAF Resources"
+        if verbose(): print "GEOM OCAF Resources" 
+        if not os.getenv("CSF_PluginDefaults"):
+    	    os.environ["CSF_PluginDefaults"] \
+    	    = os.path.join(modules_root_dir["GEOM"],"share",
+                    	   salome_subdir,"resources","geom")
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
