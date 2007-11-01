@@ -50,15 +50,16 @@ list<string> splitStringToList(const string& theString, const string& theSeparat
   list<string> aList;
 
   int sepLen = theSeparator.length();
-  int startPos = 0, sepPos = theString.find(theSeparator, startPos);
+  int subLen = 0, strLen = theString.length();
 
-  for ( ; (startPos < theString.length()) && (sepPos != string::npos); sepPos = theString.find(theSeparator, startPos))
-    {
-      string anItem = theString.substr(startPos, sepPos - startPos);
-      if (anItem.length() > 0)
-	aList.push_back(anItem);
-      startPos = sepPos + sepLen;
-    }
+  for (int startPos = 0; startPos < theString.length(); startPos += subLen + sepLen)
+  {
+    int sepPos = theString.find(theSeparator, startPos);
+    subLen = sepPos - startPos;
+    if (subLen < 1) subLen = strLen - startPos;
+    string anItem = theString.substr(startPos, subLen);
+    aList.push_back(anItem);
+  }
 
   return aList;
 }
@@ -122,12 +123,16 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     if(MYDEBUG) MESSAGE( "Error while argument parsing" );
 
   // Test existency of files
-  if (_general_path == NULL){
+  if (_general_path == NULL)
+  {
     if(MYDEBUG) MESSAGE( "Error the general catalog should be indicated" );
-  }else{
+  }
+  else
+  {
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
-    
+
+    cout << "$$$ _general_path = " << _general_path << endl;
     list<string> dirList;
 
 #ifdef WNT
@@ -140,31 +145,38 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       dirList = splitStringToList(_general_path, SEPARATOR);
     } else {
       //support old format
-      dirList =splitStringToList(_general_path, OLD_SEPARATOR);
-    }   
+      dirList = splitStringToList(_general_path, OLD_SEPARATOR);
+    }
 #endif
-    
-    for(list<string>::iterator iter=dirList.begin();iter!=dirList.end();iter++){
+
+    for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
+    {
       string aPath = (*iter);
+      cout << "$$$ aPath = " << aPath.c_str() << endl;
       //remove inverted commas from filename
-      while(aPath.find('\"') != string::npos)
+      while (aPath.find('\"') != string::npos)
 	aPath.erase(aPath.find('\"'), 1);
 
       _parse_xml_file(aPath.c_str(), 
 		      _general_module_list, 
 		      _general_path_list);
     }
-    
+
+    for (unsigned int ind = 0; ind < _general_module_list.size(); ind++) {
+      cout << "$$$  = _general_module_list[" << ind << "] = "
+           << _general_module_list[ind].name.c_str() << endl;
+    }
+
     // Verification of _general_path_list content
-    if(!_verify_path_prefix(_general_path_list)){
+    if (!_verify_path_prefix(_general_path_list)) {
       if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
 			   "differents paths are associated to the same computer," 
 			   "the first one will be choosen");
-    }else{
+    } else {
       if(MYDEBUG) MESSAGE("General path list OK");
     }
-    
-    if(_personal_path != NULL){
+
+    if (_personal_path != NULL) {
       // Initialize the _personal_module_list and 
       // _personal_path_list members with the personal catalog files
       _parse_xml_file(_personal_path,
