@@ -250,7 +250,6 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_ChildIterator_i.hxx \
 	SALOMEDS_ClientAttributes.hxx \
 	SALOMEDS_Driver_i.hxx \
-	SALOMEDS_FileType.hxx \
 	SALOMEDS_GenericAttribute.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
 	SALOMEDS.hxx \
