@@ -1043,7 +1043,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const string& theEntry
 //============================================================================
 SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const DF_Label& theLabel)
 {
-  return GetSComponent(theLabel.Entry());
+  return SALOMEDSImpl_SComponent(theLabel);
 }
 
 //============================================================================
