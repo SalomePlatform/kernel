@@ -296,18 +296,15 @@ DF_Label DF_Label::FindChild(int theTag, bool isCreate)
   DF_LabelNode *aLabel = NULL, *aPrevious = NULL, *aNext = NULL;
   if(!_node->_firstChild && !isCreate) return DF_Label();
 
-  if(_node->_firstChild && _node->_firstChild->_tag == theTag) 
-    return DF_Label(_node->_firstChild);    
-
+  if(_node->_firstChild && _node->_firstChild->_tag == theTag)
+    return DF_Label(_node->_firstChild);
+ 
   if(_node->_lastChild) {
-    if( _node->_lastChild->_tag == theTag) {
-	return DF_Label(_node->_lastChild);
-    }
-    else if( _node->_lastChild->_tag < theTag) { //Incremental addition of children
-	aPrevious = _node->_lastChild;     
-    }	
+    if(_node->_lastChild->_tag == theTag) return DF_Label(_node->_lastChild);
+    if(_node->_lastChild->_tag < theTag) aPrevious = _node->_lastChild;
   }
-  else {
+  
+  if(!aPrevious) { 
     aLabel = _node->_firstChild;
     while(aLabel) {
       if(aLabel->_tag == theTag) return DF_Label(aLabel);
@@ -339,9 +336,7 @@ DF_Label DF_Label::FindChild(int theTag, bool isCreate)
   }
     
   if(!_node->_firstChild || (aNext && aNext == _node->_firstChild) ) _node->_firstChild = aChild;
-  if(!aNext) {
-    _node->_lastChild = aChild;
-  }
+  if(!_node->_lastChild || !aNext) _node->_lastChild = aChild;
   
   return aChild;
 }
