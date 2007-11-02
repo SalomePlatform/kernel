@@ -132,7 +132,6 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
 
-    cout << "$$$ _general_path = " << _general_path << endl;
     list<string> dirList;
 
 #ifdef WNT
@@ -152,7 +151,6 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
     {
       string aPath = (*iter);
-      cout << "$$$ aPath = " << aPath.c_str() << endl;
       //remove inverted commas from filename
       while (aPath.find('\"') != string::npos)
 	aPath.erase(aPath.find('\"'), 1);
@@ -160,11 +158,6 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       _parse_xml_file(aPath.c_str(), 
 		      _general_module_list, 
 		      _general_path_list);
-    }
-
-    for (unsigned int ind = 0; ind < _general_module_list.size(); ind++) {
-      cout << "$$$  = _general_module_list[" << ind << "] = "
-           << _general_module_list[ind].name.c_str() << endl;
     }
 
     // Verification of _general_path_list content
