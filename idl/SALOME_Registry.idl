@@ -48,6 +48,7 @@ module Registry
 	interface Components
 	{
 		void ping();
+	        long getPID();
 		unsigned long add ( in Infos lesInfos ) ;
 		void remove ( in unsigned long id ) ;
 		unsigned long size() ;

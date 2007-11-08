@@ -104,6 +104,8 @@ public:
     GetComponentInfo(const char *name);
 
   void ping(){};
+  CORBA::Long getPID();
+  void ShutdownWithExit();
 
   void shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); };
 

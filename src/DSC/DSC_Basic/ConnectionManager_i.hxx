@@ -67,6 +67,16 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
 		    Engines::DSC::Message message)
       throw (Engines::ConnectionManager::BadId);
 
+    /*!
+       Shutdown the ConnectionManager process.
+     */
+    void ShutdownWithExit();
+
+    /*!
+       Returns the PID of the connection manager
+     */
+    CORBA::Long getPID();
+
   private :
 
     struct connection_infos {

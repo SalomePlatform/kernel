@@ -716,6 +716,16 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
     void Shutdown();
 
+/*!
+    Returns the PID of the server
+*/
+    long getPID();
+
+/*!
+    Shutdown the StudyManager process.
+*/    
+    oneway void ShutdownWithExit();
+
 /*! \brief Creation of a new study
 
      Creates a new study with a definite name.

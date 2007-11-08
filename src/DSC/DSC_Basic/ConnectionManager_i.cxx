@@ -93,3 +93,15 @@ throw (Engines::ConnectionManager::BadId)
   delete infos;
   ids.erase(id);
 }
+
+void
+ConnectionManager_i::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
+}
+
+CORBA::Long
+ConnectionManager_i::getPID()
+{
+  return (CORBA::Long)getpid();
+}

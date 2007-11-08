@@ -342,6 +342,15 @@ module Engines {
     void disconnect(in connectionId id,
 		    in Engines::DSC::Message message) raises(Engines::ConnectionManager::BadId);
 
+    /*!
+      Shutdown the ConnectionManager process.
+    */
+    oneway void ShutdownWithExit();
+
+    /*!
+      Returns the PID of the connection manager
+    */
+    long getPID();
   };
 
 /*--------------------------------------------------------------------------------------------*/

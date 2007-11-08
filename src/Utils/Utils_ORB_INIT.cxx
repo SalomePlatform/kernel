@@ -41,7 +41,12 @@ ORB_INIT::~ORB_INIT()
   if ( ! CORBA::is_nil( _orb ) )
   {
     //std::cerr << "appel _orb->destroy()" << std::endl;
-    _orb->destroy() ;
+    try {
+      _orb->destroy() ;
+    }
+    catch(...) {
+      MESSAGE("Caught CORBA::Exception.");
+    }
     //std::cerr << "retour _orb->destroy()" << std::endl;
   }
 }

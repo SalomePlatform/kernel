@@ -27,6 +27,10 @@
 // std C++ headers
 #include <iostream>
 
+#ifndef WNT
+#include <unistd.h>
+#endif
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -136,6 +140,8 @@ public:
   virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
   
   void ping(){};
+  CORBA::Long getPID();
+  void ShutdownWithExit();
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 

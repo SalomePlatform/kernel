@@ -72,6 +72,7 @@ public :
 	virtual ~RegistryService(void);
 
         void ping();
+        CORBA::Long getPID();
 	virtual CORBA::ULong add (const Registry::Infos & infos);
 	virtual CORBA::ULong size ( void );
 #ifndef WNT

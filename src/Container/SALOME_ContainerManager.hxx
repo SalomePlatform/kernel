@@ -60,7 +60,10 @@ public:
 		const Engines::CompoList& componentList);
 
   void Shutdown();
+  void ShutdownWithExit();
   void ShutdownContainers();
+
+  CORBA::Long getPID();
 
   static const char *_ContainerManagerNameInNS;
 

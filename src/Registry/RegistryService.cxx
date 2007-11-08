@@ -265,3 +265,8 @@ void RegistryService::ping()
   MESSAGE(" RegistryService::ping() pid "<< _getpid());
 #endif
 }
+
+CORBA::Long RegistryService::getPID()
+{
+  return (CORBA::Long)getpid();
+}

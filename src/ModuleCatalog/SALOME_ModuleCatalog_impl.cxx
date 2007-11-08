@@ -551,6 +551,16 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
   return NULL;
 }
 
+CORBA::Long SALOME_ModuleCatalogImpl::getPID()
+{ 
+  return (CORBA::Long)getpid();
+}
+
+void SALOME_ModuleCatalogImpl::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
+}
+
 ParserComponent *
 SALOME_ModuleCatalogImpl::findComponent(const string & name)
 {

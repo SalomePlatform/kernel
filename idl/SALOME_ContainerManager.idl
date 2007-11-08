@@ -115,7 +115,12 @@ struct MachineParameters
 		             in ResPolicy policy,
 		             in CompoList componentList );
 
+    oneway void ShutdownWithExit();
+
     void ShutdownContainers();
+
+    long getPID();
+
   } ;
   
 /*! \brief Interface of the %resourcesManager

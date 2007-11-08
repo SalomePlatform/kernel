@@ -102,6 +102,10 @@ module SALOME
 */ 
     void ping();
 /*!
+    Returns the PID of the server
+*/
+    long getPID();
+/*!
     Get Active study ID
 */
     long GetActiveStudyId();

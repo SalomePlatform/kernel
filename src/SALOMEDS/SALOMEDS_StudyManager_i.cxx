@@ -450,6 +450,20 @@ PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_pt
   return PortableServer::POA::_nil();
 }
 
+CORBA::Long SALOMEDS_StudyManager_i::getPID()
+{ 
+#ifdef WIN32
+  return (CORBA::Long)_getpid();
+#else
+  return (CORBA::Long)getpid();
+#endif
+}
+
+void SALOMEDS_StudyManager_i::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
