@@ -215,7 +215,8 @@ def install(prefix,config_file):
         f.write(module)
         f.write(',')
         pass
-    f.write(_config["guimodules"][-1])
+    if len(_config["guimodules"]) > 0:
+      f.write(_config["guimodules"][-1])
     f.write('"/>')
     command="""
     <parameter name="pyModules"  value=""/>

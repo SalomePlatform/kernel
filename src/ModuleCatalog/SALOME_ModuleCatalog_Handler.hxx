@@ -43,7 +43,7 @@ class MODULECATALOG_EXPORT SALOME_ModuleCatalog_Handler
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalog_Handler();
+  SALOME_ModuleCatalog_Handler(ParserPathPrefixes& pathList,ParserComponents& moduleList,ParserTypes& typeMap,TypeList& typeList);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_Handler();
@@ -107,6 +107,8 @@ private:
   
   ParserComponent _aModule;
   
+  ParserPathPrefixes&  _pathList;
+  ParserComponents&    _moduleList;
   
   ParserInterfaces _interfaceList;
   ParserInterface  _aInterface;
@@ -126,6 +128,12 @@ private:
   ParserDataStreamParameters _outDataStreamParamList;
   ParserDataStreamParameter  _outDataStreamParam;
 
+  ParserTypes& _typeMap;
+  TypeList& _typeList;
+
+  ParserSequences _sequenceMap;
+  ParserObjrefs _objrefMap;
+  ParserStructs _structMap;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H

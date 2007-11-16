@@ -23,10 +23,6 @@
 //  Author : Yves FRICAUD
 //  $Header$
 
-/*! \mainpage
-    \image html Application-About1.jpg
-*/
-
 /*!
   \file SALOMEDS.idl This file contains a set of interfaces used for creation, managment
   and modification of the %Study

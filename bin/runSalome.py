@@ -606,7 +606,7 @@ def useSalome(args, modules_list, modules_root_dir):
         traceback.print_exc()
         print
         print
-        print "--- erreur au lancement Salome ---"
+        print "--- Error during Salome launch ---"
         
     #print process_id
 
@@ -815,7 +815,6 @@ def main():
     """Salome launch as a main application"""
     import sys
     print "runSalome running on ",os.getenv('HOSTNAME')
-    print os.environ.itervalues
     args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)
     save_config = True

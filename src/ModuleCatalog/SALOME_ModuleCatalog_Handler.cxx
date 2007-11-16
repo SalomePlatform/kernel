@@ -45,7 +45,12 @@ static int MYDEBUG = 0;
 // Function : SALOME_ModuleCatalog_Handler
 // Purpose  : Constructor
 //----------------------------------------------------------------------
-SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
+SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& pathList,
+                                                           ParserComponents& moduleList,
+                                                           ParserTypes& typeMap,
+                                                           TypeList& typeList):_typeMap(typeMap),_typeList(typeList),
+                                                                               _pathList(pathList),_moduleList(moduleList)
+
 {
   if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_Handler");
 
@@ -145,7 +150,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   // Processing the document nodes
   while(aCurNode != NULL)
   {
-    // Process path prefix list (tag test_path_prefix_list)
+    // Part 1: Process path prefix list (tag test_path_prefix_list)
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_path_prefix_list) )
     {
       xmlNodePtr aCurSubNode = aCurNode->xmlChildrenNode;
@@ -196,7 +201,199 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       }
     }
 
-    //@ Process list of components (tag test_component_list)
+    //Part 2: Process list of types
+    if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)"type-list") )
+      {
+        xmlNodePtr aTypeNode = aCurNode->xmlChildrenNode;
+        while (aTypeNode != NULL)
+          {
+            //  match "type"
+            if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"type" )) 
+              {
+                // Here is a basic type description
+                ParserType aType;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *kind=xmlGetProp(aTypeNode,(const xmlChar*)"kind");
+                if(kind)
+                  {
+                    aType.kind = (const char*)kind;
+                    xmlFree(kind);
+                  }
+                if(aType.kind == "double" ||
+                   aType.kind == "int"    ||
+                   aType.kind == "bool"    ||
+                   aType.kind == "string")
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered basic type: " << aType.name << " " << aType.kind << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+                else
+                  std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." << std::endl;
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"sequence" )) 
+              {
+                // Here is a sequence type description
+                ParserSequence aType;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *content=xmlGetProp(aTypeNode,(const xmlChar*)"content");
+                if(content)
+                  {
+                    aType.content = (const char*)content;
+                    xmlFree(content);
+                  }
+                if ( _typeMap.find(aType.content) != _typeMap.end() )
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered sequence type: " << aType.name << " " << aType.content << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+                else
+                  {
+                    std::cerr << "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." << std::endl;
+                  }
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"objref" )) 
+              {
+                // Here is an objref type description
+                ParserObjref aType;
+                int error=0;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *id=xmlGetProp(aTypeNode,(const xmlChar*)"id");
+                if(id)
+                  {
+                    aType.id = (const char*)id;
+                    xmlFree(id);
+                  }
+
+                xmlNodePtr aTypeSubNode = aTypeNode->xmlChildrenNode;
+                while (aTypeSubNode != NULL)
+                  {
+                    if ( !xmlStrcmp(aTypeSubNode->name, (const xmlChar*)"base" )) 
+                      {
+                        //a base type
+                        xmlChar* content = xmlNodeGetContent(aTypeSubNode);
+                        if(content)
+                          {
+                            std::string base=(const char*)content;
+                            xmlFree(content);
+                            if ( _typeMap.find(base) != _typeMap.end() && _typeMap[base].kind == "objref")
+                              {
+                                aType.bases.push_back(base);
+                              }
+                            else
+                              {
+                                std::cerr << "Warning: this objref type (" << aType.name << ") has unknown base type (" << base << "), it will be ignored." << std::endl;
+                                error=1;
+                                break;
+                              }
+                          }
+                      }
+                    aTypeSubNode = aTypeSubNode->next;
+                  }
+                if(!error)
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered objref type: " << aType.name << " " << aType.id << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"struct" )) 
+              {
+                // Here is a struct type description
+                ParserStruct aType;
+                int error=0;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *id=xmlGetProp(aTypeNode,(const xmlChar*)"id");
+                if(id)
+                  {
+                    aType.id = (const char*)id;
+                    xmlFree(id);
+                  }
+
+                xmlNodePtr aTypeSubNode = aTypeNode->xmlChildrenNode;
+                while (aTypeSubNode != NULL)
+                  {
+                    if ( !xmlStrcmp(aTypeSubNode->name, (const xmlChar*)"member" )) 
+                      {
+                        std::pair<std::string,std::string> member;
+                        xmlChar * m_name=xmlGetProp(aTypeSubNode,(const xmlChar*)"name");
+                        if(m_name)
+                          {
+                            member.first=(const char*)m_name;
+                            xmlFree(m_name);
+                          }
+                        xmlChar * m_type=xmlGetProp(aTypeSubNode,(const xmlChar*)"type");
+                        if(m_type)
+                          {
+                            member.second=(const char*)m_type;
+                            xmlFree(m_type);
+                          }
+                        if ( _typeMap.find(member.second) != _typeMap.end() )
+                          {
+                            aType.members.push_back(member);
+                          }
+                        else
+                          {
+                            std::cerr << "Warning: this struct type (" << aType.name << ") has unknown member type (" << member.first << "," << member.second << "), it will be ignored." << std::endl;
+                            error=1;
+                            break;
+                          }
+                      }
+                    aTypeSubNode = aTypeSubNode->next;
+                  }
+                if(!error)
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered struct type: " << aType.name << " " << aType.id << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+              } // end of struct
+            aTypeNode = aTypeNode->next;
+          }
+      }
+
+    //Part 3: Process list of components (tag test_component_list)
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_component_list) )
     {
       xmlNodePtr aComponentNode = aCurNode->xmlChildrenNode;
@@ -325,7 +522,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 xmlNodePtr aCompServiceNode = aSubNode->xmlChildrenNode;
                 while(aCompServiceNode != NULL) {
                   // Tag test_service
-                  if ( !xmlStrcmp(aCompServiceNode->name, (const xmlChar*)test_interface_name) ) {
+                  if ( !xmlStrcmp(aCompServiceNode->name, (const xmlChar*)"component-service") ) {
                     xmlNodePtr aCompServiceSubNode = aCompServiceNode->xmlChildrenNode;
                     while(aCompServiceSubNode != NULL)
                     {

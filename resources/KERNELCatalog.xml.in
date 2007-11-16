@@ -8,6 +8,30 @@
 <path-prefix-list>
 </path-prefix-list>
 
+<!-- Commonly used types  -->
+<type-list>
+  <type name="double" kind="double"/>
+  <type name="float" kind="double"/>
+  <type name="int" kind="int"/>
+  <type name="short" kind="int"/>
+  <type name="long" kind="int"/>
+  <type name="string" kind="string"/>
+  <type name="char" kind="string"/>
+  <type name="bool" kind="bool"/>
+  <type name="boolean" kind="bool"/>
+  <sequence name="dblevec" content="double"/>
+  <sequence name="intvec" content="int"/>
+  <sequence name="stringvec" content="string"/>
+  <sequence name="boolvec" content="bool"/>
+  <objref name="CALCIUM_integer" id="IDL:Ports/Calcium_Ports/Calcium_Integer_Port:1.0"/>
+  <objref name="CALCIUM_real" id="IDL:Ports/Calcium_Ports/Calcium_Real_Port:1.0"/>
+  <objref name="CALCIUM_double" id="IDL:Ports/Calcium_Ports/Calcium_Double_Port:1.0"/>
+  <objref name="CALCIUM_string" id="IDL:Ports/Calcium_Ports/Calcium_String_Port:1.0"/>
+  <objref name="CALCIUM_boolean" id="IDL:Ports/Calcium_Ports/Calcium_Logical_Port:1.0"/>
+  <objref name="Study" id="IDL:SALOMEDS/Study:1.0"/>
+  <objref name="SObject" id="IDL:SALOMEDS/SObject:1.0"/>
+</type-list>
+
 <!-- Component list -->
 <component-list>
 	<component>

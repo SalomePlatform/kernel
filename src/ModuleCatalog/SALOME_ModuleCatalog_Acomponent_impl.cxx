@@ -50,7 +50,7 @@ static int MYDEBUG = 0;
 //            and the pathes prefixes for all computers
 //----------------------------------------------------------------------  
 SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl
-(SALOME_ModuleCatalog::Component &C) : _Component(C)
+(SALOME_ModuleCatalog::ComponentDef &C) : _Component(C)
 {
   if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_AcomponentImpl");
 

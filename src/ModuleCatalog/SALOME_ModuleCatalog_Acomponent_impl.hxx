@@ -40,7 +40,7 @@ class MODULECATALOG_EXPORT SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOM
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalog_AcomponentImpl(SALOME_ModuleCatalog::Component &C);
+  SALOME_ModuleCatalog_AcomponentImpl(SALOME_ModuleCatalog::ComponentDef &C);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_AcomponentImpl();
@@ -143,7 +143,7 @@ public:
 
 private :
 
-  SALOME_ModuleCatalog::Component _Component;
+  SALOME_ModuleCatalog::ComponentDef _Component;
 
  //! method to duplicate an interface
   /*!

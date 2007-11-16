@@ -50,16 +50,22 @@ list<string> splitStringToList(const string& theString, const string& theSeparat
   list<string> aList;
 
   int sepLen = theSeparator.length();
-  int subLen = 0, strLen = theString.length();
+  int startPos = 0, sepPos = theString.find(theSeparator, startPos);
 
-  for (int startPos = 0; startPos < theString.length(); startPos += subLen + sepLen)
-  {
-    int sepPos = theString.find(theSeparator, startPos);
-    subLen = sepPos - startPos;
-    if (subLen < 1) subLen = strLen - startPos;
-    string anItem = theString.substr(startPos, subLen);
-    aList.push_back(anItem);
-  }
+  while (1)
+    {
+      string anItem ;
+      if(sepPos != string::npos)
+        anItem = theString.substr(startPos, sepPos - startPos);
+      else
+        anItem = theString.substr(startPos);
+      if (anItem.length() > 0)
+	aList.push_back(anItem);
+      if(sepPos == string::npos)
+        break;
+      startPos = sepPos + sepLen;
+      sepPos = theString.find(theSeparator, startPos);
+    }
 
   return aList;
 }
@@ -157,7 +163,9 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 
       _parse_xml_file(aPath.c_str(), 
 		      _general_module_list, 
-		      _general_path_list);
+		      _general_path_list,
+                      _typeMap,
+                      _typeList);
     }
 
     // Verification of _general_path_list content
@@ -174,7 +182,9 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       // _personal_path_list members with the personal catalog files
       _parse_xml_file(_personal_path,
 		      _personal_module_list, 
-		      _personal_path_list);
+		      _personal_path_list,
+                      _typeMap,
+                      _typeList);
       
       // Verification of _general_path_list content
       if(!_verify_path_prefix(_personal_path_list)){
@@ -199,6 +209,76 @@ SALOME_ModuleCatalogImpl::~SALOME_ModuleCatalogImpl()
   if(MYDEBUG) MESSAGE("Catalog Destruction");
 }
 
+
+//! Get the list of all types of the catalog
+/*!
+ *   \return  the list of types
+ */
+SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
+{
+  SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
+  type_list->length(_typeList.size());
+
+  for (int ind = 0 ; ind < _typeList.size() ; ind++)
+    {
+      std::cerr << "name: " << _typeList[ind].name << std::endl;
+      //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
+      type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
+      type_list[ind].kind=SALOME_ModuleCatalog::NONE;
+      if(_typeList[ind].kind=="double")
+        type_list[ind].kind=SALOME_ModuleCatalog::Dble;
+      else if(_typeList[ind].kind=="int")
+        type_list[ind].kind=SALOME_ModuleCatalog::Int;
+      else if(_typeList[ind].kind=="bool")
+        type_list[ind].kind=SALOME_ModuleCatalog::Bool;
+      else if(_typeList[ind].kind=="string")
+        type_list[ind].kind=SALOME_ModuleCatalog::Str;
+      else if(_typeList[ind].kind=="objref")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Objref;
+          type_list[ind].id=CORBA::string_dup(_typeList[ind].id.c_str());
+          //bases
+          type_list[ind].bases.length(_typeList[ind].bases.size());
+          std::vector<std::string>::const_iterator miter;
+          miter=_typeList[ind].bases.begin();
+          int n_memb=0;
+          while(miter != _typeList[ind].bases.end())
+            {
+              type_list[ind].bases[n_memb]=CORBA::string_dup(miter->c_str());
+              miter++;
+              n_memb++;
+            }
+        }
+      else if(_typeList[ind].kind=="sequence")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Seq;
+          type_list[ind].content=CORBA::string_dup(_typeList[ind].content.c_str());
+        }
+      else if(_typeList[ind].kind=="array")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Array;
+          type_list[ind].content=CORBA::string_dup(_typeList[ind].content.c_str());
+        }
+      else if(_typeList[ind].kind=="struct")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Struc;
+          //members
+          type_list[ind].members.length(_typeList[ind].members.size());
+
+          std::vector< std::pair<std::string,std::string> >::const_iterator miter;
+          miter=_typeList[ind].members.begin();
+          int n_memb=0;
+          while(miter != _typeList[ind].members.end())
+            {
+              type_list[ind].members[n_memb].name=CORBA::string_dup(miter->first.c_str());
+              type_list[ind].members[n_memb].type=CORBA::string_dup(miter->second.c_str());
+              n_memb++;
+              miter++;
+            }
+        }
+    }
+  return type_list._retn();
+}
 
 //----------------------------------------------------------------------
 // Function : GetComputerList
@@ -439,7 +519,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
       if  (_personal_module_list[ind].type == _temp_component_type)
 	{
 	  _list_typed_component->length(_j + 1); 
-	  _list_typed_component[_j] = (_moduleList[ind].name).c_str();
+           _list_typed_component[_j] = _personal_module_list[ind].name.c_str();
 	  //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
 	  _j++;
 	}
@@ -514,7 +594,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     
     //    DebugParserComponent(*C_parser);
 
-    SALOME_ModuleCatalog::Component C_corba;
+    SALOME_ModuleCatalog::ComponentDef C_corba;
     duplicate(C_corba, *C_parser);
 
     
@@ -533,7 +613,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   return compo;
 }
 
-SALOME_ModuleCatalog::Component *
+SALOME_ModuleCatalog::ComponentDef *
 SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
 {
   std::string s(name);
@@ -542,8 +622,8 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
   
   if (C_parser) {
     
-    SALOME_ModuleCatalog::Component * C_corba 
-      = new SALOME_ModuleCatalog::Component; 
+    SALOME_ModuleCatalog::ComponentDef * C_corba 
+      = new SALOME_ModuleCatalog::ComponentDef; 
     duplicate(*C_corba, *C_parser);
     return C_corba;
   }
@@ -600,12 +680,18 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 void 
 SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file, 
 					  ParserComponents& modulelist, 
-					  ParserPathPrefixes& pathList)
+					  ParserPathPrefixes& pathList,
+                                          ParserTypes& typeMap,
+                                          TypeList& typeList)
 {
   if(MYDEBUG) BEGIN_OF("_parse_xml_file");
   if(MYDEBUG) SCRUTE(file);
 
-  SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
+  //Local path and module list for the file to parse
+  ParserPathPrefixes  _pathList;
+  ParserComponents    _moduleList;
+ 
+  SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler(_pathList,_moduleList,typeMap,typeList);
 
   FILE* aFile = fopen(file, "r");
 
@@ -650,7 +736,7 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
 void 
 SALOME_ModuleCatalogImpl::ImportXmlCatalogFile(const char* file)
 {
-  _parse_xml_file(file, _personal_module_list, _personal_path_list);
+  _parse_xml_file(file, _personal_module_list, _personal_path_list,_typeMap,_typeList);
 }
 
 
@@ -665,7 +751,7 @@ SALOME_ModuleCatalogImpl::ImportXmlCatalogFile(const char* file)
 // Purpose  : create a component from the catalog parsing
 //----------------------------------------------------------------------
 void SALOME_ModuleCatalogImpl::duplicate
-(SALOME_ModuleCatalog::Component & C_corba, 
+(SALOME_ModuleCatalog::ComponentDef & C_corba, 
  const ParserComponent & C_parser)
 {
   C_corba.name = CORBA::string_dup(C_parser.name.c_str());

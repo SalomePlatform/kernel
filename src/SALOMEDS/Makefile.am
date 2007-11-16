@@ -288,15 +288,8 @@ bin_PROGRAMS = SALOMEDS_Server SALOMEDS_Client
 
 SALOMEDS_Server_SOURCES  = SALOMEDS_Server.cxx
 SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
-SALOMEDS_Server_LDADD    = \
-	libSalomeDS.la $(COMMON_LIBS) \
-	../ResourcesManager/libSalomeResourcesManager.la \
-	@CORBA_LIBS@
+SALOMEDS_Server_LDADD    = libSalomeDS.la 
 
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
 SALOMEDS_Client_CPPFLAGS = $(COMMON_CPPFLAGS)
-SALOMEDS_Client_LDADD    = \
-	libSalomeDS.la $(COMMON_LIBS) \
-	../ResourcesManager/libSalomeResourcesManager.la \
-	@CORBA_LIBS@
-
+SALOMEDS_Client_LDADD    = libSalomeDS.la 

@@ -160,8 +160,6 @@ int main(int argc,char **argv)
 
 void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
 {
-  const char *_name = C->componentname();
-
   MESSAGE("Name : " <<  C->componentname());
   MESSAGE("Type : " << C->component_type() << " multistudy : " << C->multistudy());
   MESSAGE("Constraint : " << C->constraint());

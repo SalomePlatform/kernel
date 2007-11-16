@@ -503,11 +503,8 @@ _LoadComponent(const Engines::MachineParameters& params,
 	      int studyId,
 	      const Engines::MachineList& listOfMachines)
 {
-  const char *containerName = params.container_name;
-  int nbproc = NbProc(params);
-
-  MESSAGE("_LoadComponent, required " << containerName <<
-	  " " << componentName << " " << nbproc);
+  MESSAGE("_LoadComponent, required " << params.container_name <<
+	  " " << componentName << " " << NbProc(params));
 
   Engines::Container_var cont =
     _ContManager->FindOrStartContainer(params,

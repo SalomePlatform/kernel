@@ -28,3 +28,5 @@ SUBDIR_PAR = ParallelDSC
 endif
 
 SUBDIRS = DSC_Basic DSC_User $(SUBDIR_PAR) DSC_Python
+
+EXTRA_DIST= DSC.dox

@@ -31,6 +31,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 // Type Definitions
 struct ParserPathPrefix
@@ -102,16 +103,35 @@ struct ParserComponent
 
 typedef std::vector<ParserComponent> ParserComponents ;
 
-#ifdef WRITE_CATA_COMPONENT
-// contains all the paths and the computers defined in the catalog 
-       ParserPathPrefixes  _pathList;
-  
-// contains all the modules defined in the catalog
-       ParserComponents    _moduleList; 
-#else
-extern ParserPathPrefixes _pathList;
-extern ParserComponents   _moduleList; 
-#endif
+struct ParserType
+{
+  std::string         name;
+  std::string         kind;
+  std::string         id;
+  std::string         content;
+  std::vector<std::string> bases;
+  std::vector< std::pair<std::string,std::string> > members;
+};
+typedef std::map<std::string,ParserType> ParserTypes ;
+typedef std::map<std::string,ParserType&> RefTypes ;
+typedef std::vector<ParserType> TypeList ;
 
+struct ParserSequence:public ParserType
+{
+  ParserSequence(){kind="sequence";}
+};
+typedef std::map<std::string,ParserSequence> ParserSequences ;
+
+struct ParserObjref:public ParserType
+{
+  ParserObjref(){kind="objref";}
+};
+typedef std::map<std::string,ParserObjref> ParserObjrefs ;
+
+struct ParserStruct:public ParserType
+{
+  ParserStruct(){kind="struct";}
+};
+typedef std::map<std::string,ParserStruct> ParserStructs ;
 
 #endif // SALOME_CATALOG_PARSER_H

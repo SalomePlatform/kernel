@@ -144,7 +144,4 @@ EXTRA_DIST = \
 bin_PROGRAMS = TestSALOMEDS
 dist_TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
 TestSALOMEDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-TestSALOMEDS_LDADD    = \
-	libSALOMEDSTest.la ../libSalomeDS.la \
-	$(RPATH)/NamingService/Test/libNamingServiceTest.la \
-	$(COMMON_LIBS)
+TestSALOMEDS_LDADD    = libSALOMEDSTest.la

@@ -77,6 +77,7 @@ WARN_LOGFILE           = log.txt
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = \
+		       @top_srcdir@/doc/salome \
 		       @top_srcdir@/bin \
 		       @top_srcdir@/idl \
 		       @top_srcdir@/src/Container \
@@ -85,7 +86,7 @@ INPUT                  = \
 		       @top_srcdir@/src/Notification \
 		       @top_srcdir@/src/Utils \
 		       @top_srcdir@/src/DSC
-FILE_PATTERNS          = *.idl *.hxx *.cxx python_extension_must_be_here
+FILE_PATTERNS          = *.dox *.idl *.hxx *.cxx python_extension_must_be_here
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO

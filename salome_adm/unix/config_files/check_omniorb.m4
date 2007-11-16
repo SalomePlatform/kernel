@@ -61,31 +61,31 @@ then
   OMNIORB_CXXFLAGS="-DOMNIORB_VERSION=$OMNIORB_VERSION"
   case $build_cpu in
     sparc*)
-      AC_DEFINE(__sparc__)
+      # AC_DEFINE(__sparc__)
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__sparc__"
       ;;
    *86*)
-      AC_DEFINE(__x86__)
+      # AC_DEFINE(__x86__)
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__x86__"
       ;;
   esac
   case $build_os in
     osf*)
-      AC_DEFINE(__osf1__)
+      # AC_DEFINE(__osf1__)
       __OSVERSION__=5
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [5], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__osf1__"
       ;;
     solaris*)
-      AC_DEFINE(__sunos__)
+      # AC_DEFINE(__sunos__)
       __OSVERSION__=5
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [5], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__sunos__"
       ;;
    linux*)
-      AC_DEFINE(__linux__)
+      # AC_DEFINE(__linux__)
       __OSVERSION__=2
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [2], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__linux__"
       ;;
   esac
@@ -214,15 +214,15 @@ then
   AC_SUBST(OMNIORB_IDL_TIE_H)
   AC_SUBST(OMNIORB_IDL_TIE_CXX)
   
-  AC_DEFINE(OMNIORB)
+  AC_DEFINE([OMNIORB], [], [Description])
 
   CORBA_HAVE_POA=1
-  AC_DEFINE(CORBA_HAVE_POA)
+  AC_DEFINE([CORBA_HAVE_POA], [], [Description])
 
   CORBA_ORB_INIT_HAVE_3_ARGS=1
-  AC_DEFINE(CORBA_ORB_INIT_HAVE_3_ARGS)
+  AC_DEFINE([CORBA_ORB_INIT_HAVE_3_ARGS], [], [Description])
   CORBA_ORB_INIT_THIRD_ARG='"omniORB"'
-  AC_DEFINE(CORBA_ORB_INIT_THIRD_ARG, "omniORB")
+  AC_DEFINE([CORBA_ORB_INIT_THIRD_ARG], [], [omniORB])
 
 fi
 

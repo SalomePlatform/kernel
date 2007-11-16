@@ -786,12 +786,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     args["session_gui"] = False
     args[batch_nam] = False
     args["study_hdf"] = None
-    print 'launchConfigureParser cmd_opts',cmd_opts
     if cmd_opts.gui is not None:
         args[gui_nam] = cmd_opts.gui
     if cmd_opts.batch is not None:
         args[batch_nam] = True
-    print 'launchConfigureParser args[',batch_nam,']',args[batch_nam]
     if args[gui_nam]:
         args["session_gui"] = True
         if cmd_opts.desktop is not None:

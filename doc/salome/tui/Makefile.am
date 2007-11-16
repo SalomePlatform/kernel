@@ -48,13 +48,20 @@ usr_docs:
 	fi; \
 	$(DOXYGEN) ./doxyuser1; \
 	cd ..;
-	$(INSTALL) -d $(docdir)/tui/KERNEL;
-	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir)/tui/KERNEL;
-	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
-	cp -fr KERNEL $(docdir)/tui
-	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
-	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
-	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;
+#	$(INSTALL) -d $(docdir)/tui/KERNEL;
+	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir);
+	cp -fr $(srcdir)/KERNEL/sources/ $(docdir);
+	cp -fr KERNEL/[a-l]*.* $(docdir)
+	cp -fr KERNEL/[m-z]*.* $(docdir)
+	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir);
+	cp -f $(srcdir)/pythfilter.py $(docdir);
+	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir);
+#	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir)/tui/KERNEL;
+#	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
+#	cp -fr KERNEL $(docdir)/tui
+#	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
+#	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
+#	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;
 
 dev_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \

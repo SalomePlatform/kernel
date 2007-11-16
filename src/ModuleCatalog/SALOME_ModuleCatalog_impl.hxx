@@ -55,6 +55,12 @@ public:
   */
   virtual SALOME_ModuleCatalog::ListOfComputers* GetComputerList();
 
+  //! method to get the list of all types of the catalog
+  /*!
+   * \return the types list
+   */
+  virtual SALOME_ModuleCatalog::ListOfTypeDefinition* GetTypes();
+
   //! method to get the PathPrefix of a computer
  /*! If the wanted computer doesn't exist, the Notfound exception is thrown
    \param machinename const char* arguments 
@@ -100,7 +106,7 @@ public:
     \param componentname const char* arguments 
     \return the wanted component description
   */
-  virtual SALOME_ModuleCatalog::Component *
+  virtual SALOME_ModuleCatalog::ComponentDef *
     GetComponentInfo(const char *name);
 
   void ping(){};
@@ -115,10 +121,13 @@ private:
     \param file const char* arguments
     \param modulelist ParserComponents arguments
     \param pathlist ParserPathPrefixes arguments
+    \param typeMap ParserTypes arguments
   */
   virtual void _parse_xml_file(const char* file, 
 			  ParserComponents & modulelist, 
-			  ParserPathPrefixes & pathlist);
+			  ParserPathPrefixes & pathlist,
+        ParserTypes& typeMap,
+        TypeList& typeList);
 
   //! method to find component in the parser list
   /*!
@@ -132,7 +141,7 @@ private:
     \param C_corba  Component argument
     \param C_parser const ParserComponent argument
   */
-  void duplicate(SALOME_ModuleCatalog::Component & C_corba,
+  void duplicate(SALOME_ModuleCatalog::ComponentDef & C_corba,
 		 const ParserComponent & C_parser);
     
   //! method to create a CORBA interface description from parser
@@ -201,6 +210,8 @@ private:
   // These variables will contain the informations on the general common catalog
   ParserComponents    _general_module_list ;
   ParserPathPrefixes  _general_path_list ;
+  ParserTypes _typeMap;
+  TypeList _typeList;
 
   // These variables will contain the informations on the personal catalog
   ParserComponents    _personal_module_list ;

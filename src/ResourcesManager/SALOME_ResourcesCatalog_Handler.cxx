@@ -251,7 +251,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  SCRUTE((*iter).second.Alias);
 	  SCRUTE((*iter).second.UserName);
 	  SCRUTE((*iter).second.AppliPath);
-	  SCRUTE((*iter).second.PreReqFilePath);
 	  SCRUTE((*iter).second.OS);
 	  SCRUTE((*iter).second.Protocol);
 	  SCRUTE((*iter).second.Mode);
