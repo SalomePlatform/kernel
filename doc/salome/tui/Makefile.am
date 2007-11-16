@@ -51,7 +51,8 @@ usr_docs:
 #	$(INSTALL) -d $(docdir)/tui/KERNEL;
 	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir);
 	cp -fr $(srcdir)/KERNEL/sources/ $(docdir);
-	cp -fr KERNEL/[a-l]*.* $(docdir)
+	cp -fr KERNEL/[a-f]*.* $(docdir)
+	cp -fr KERNEL/[g-l]*.* $(docdir)
 	cp -fr KERNEL/[m-z]*.* $(docdir)
 	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir);
 	cp -f $(srcdir)/pythfilter.py $(docdir);
