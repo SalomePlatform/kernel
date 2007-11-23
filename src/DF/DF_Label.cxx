@@ -145,6 +145,7 @@ bool DF_Label::AddAttribute(DF_Attribute* theAttribute) const
   if(_node->_attributes.find(theAttribute->ID()) != _node->_attributes.end()) return false;
   theAttribute->_node = _node;
   _node->_attributes[theAttribute->ID()] = theAttribute;
+  theAttribute->AfterAddition();    
 
   return true;
 }
@@ -156,6 +157,7 @@ bool DF_Label::ForgetAttribute(const std::string& theID) const
 
   if(_node->_attributes.find(theID) == _node->_attributes.end()) return false;
   DF_Attribute* attr = _node->_attributes[theID];
+  attr->BeforeForget();
   _node->_attributes.erase(theID);
   delete attr;
 
@@ -170,8 +172,10 @@ bool DF_Label::ForgetAllAttributes(bool clearChildren) const
   vector<DF_Attribute*> va = GetAttributes();
   _node->_attributes.clear();
 
-  for(int i = 0, len = va.size(); i<len; i++) 
+  for(int i = 0, len = va.size(); i<len; i++) {
+    va[i]->BeforeForget();
     delete va[i];
+  }
 
   if(clearChildren) {
     DF_ChildIterator CI(*this, true);
