@@ -56,8 +56,8 @@ if test "X$enable_production" = "Xyes"; then
   AC_CXX_OPTION(-Wuninitialized,CXXFLAGS)
   CXXFLAGS="$CXXFLAGS -O "
 else
-  CFLAGS="$CFLAGS -O -g"
-  CXXFLAGS="$CXXFLAGS -O -g"
+  CFLAGS="$CFLAGS -g"
+  CXXFLAGS="$CXXFLAGS -g"
 fi
 ])
 
