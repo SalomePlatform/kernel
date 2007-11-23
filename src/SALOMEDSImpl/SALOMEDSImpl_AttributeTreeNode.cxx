@@ -438,7 +438,7 @@ DF_Attribute* SALOMEDSImpl_AttributeTreeNode::NewEmpty() const
 
 string SALOMEDSImpl_AttributeTreeNode::Type()
 {
-   char* aNodeName = new char[60];
+   char* aNodeName = new char[127];
    sprintf(aNodeName, "AttributeTreeNodeGUID%s", ID().c_str());
    string ret(aNodeName); 
    delete aNodeName;

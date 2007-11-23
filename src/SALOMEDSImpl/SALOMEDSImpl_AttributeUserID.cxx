@@ -94,7 +94,7 @@ void SALOMEDSImpl_AttributeUserID::Paste (DF_Attribute* into)
 string SALOMEDSImpl_AttributeUserID::Type() 
 {
 
-  char* aUAttrName = new char[60];
+  char* aUAttrName = new char[127];
   sprintf(aUAttrName, "AttributeUserID_%s",ID().c_str());
 
   string ret(aUAttrName);
