@@ -95,6 +95,7 @@ BASEIDL_SOURCES =\
   Palm_PortsSK.cc
 
 DYNIDL_SOURCES=\
+  SALOME_ExceptionDynSK.cc \
   Calcium_PortsDynSK.cc
 
 MPIIDL_SOURCES = \

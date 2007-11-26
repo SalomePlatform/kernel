@@ -358,9 +358,6 @@ void SALOME_ResourcesManager::WriteInXmlFile()
   // Free the document
   xmlFreeDoc(aDoc);
 
-  // Free the global variables that may have been allocated by the parser
-  xmlCleanupParser();
-  
   fclose(aFile);
   
   MESSAGE("WRITING DONE!");
@@ -392,8 +389,6 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::ParseXmlFile()
       // Free the document
       xmlFreeDoc(aDoc);
 
-      // Free the global variables that may have been allocated by the parser
-      xmlCleanupParser();
       fclose(aFile);
     }
   else
@@ -831,6 +826,8 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
     char *iorstr = _NS->getIORaddr();
     command += "ORBInitRef NameService=";
     command += iorstr;
+    //It's in fact a CORBA::String allocated with new [] !!!
+    delete [] iorstr;
   }
 
 

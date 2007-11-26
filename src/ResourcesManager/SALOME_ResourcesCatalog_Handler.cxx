@@ -120,16 +120,25 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	{
           _resource.Clear();
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_hostname))
-	    _resource.DataForSort._hostName = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_hostname);
+            {
+	      xmlChar* hostname = xmlGetProp(aCurNode, (const xmlChar*)test_hostname);
+	      _resource.DataForSort._hostName = (const char*)hostname;
+              xmlFree(hostname);
+            }
 	  else
 	    break;
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_alias))
-	    _resource.Alias = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_alias);
+            {
+	      xmlChar* alias = xmlGetProp(aCurNode, (const xmlChar*)test_alias);
+	      _resource.Alias = (const char*)alias;
+              xmlFree(alias);
+            }
 	  else
 	    _resource.Alias = "";
 
-	  switch ( ((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_protocol))[0] )
+	  xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
+	  switch ( protocol[0])
 	    {
 	    case 'r':
 	      _resource.Protocol = rsh;
@@ -142,8 +151,10 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	      _resource.Protocol = rsh;
 	      break;
 	    }
+          xmlFree(protocol);
 	  
-	  switch ( ((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_mode))[0] )
+	  xmlChar* mode=xmlGetProp(aCurNode, (const xmlChar*)test_mode);
+	  switch ( mode[0] )
             {
             case 'i':
               _resource.Mode = interactive;
@@ -156,10 +167,13 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               _resource.Mode = interactive;
               break;
             }
+          xmlFree(mode);
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_batch))
             {
-              std::string aBatch = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_batch);
+              xmlChar* batch = xmlGetProp(aCurNode, (const xmlChar*)test_batch);
+              std::string aBatch = (const char*)batch;
+              xmlFree(batch);
               if (aBatch == "pbs")
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
@@ -172,7 +186,9 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_mpi))
             {
-              std::string anMpi = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_mpi);
+              xmlChar* mpi = xmlGetProp(aCurNode, (const xmlChar*)test_mpi);
+              std::string anMpi = (const char*)mpi;
+              xmlFree(mpi);
               if (anMpi == "lam")
                 _resource.mpi = lam;
               else if (anMpi == "mpich1")
@@ -186,25 +202,53 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
             }
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_user_name))
-	    _resource.UserName = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_user_name);
+            {
+	      xmlChar* user_name= xmlGetProp(aCurNode, (const xmlChar*)test_user_name);
+	      _resource.UserName = (const char*)user_name;
+              xmlFree(user_name);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_appli_path))
-	    _resource.AppliPath = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_appli_path);
+            {
+	      xmlChar* appli_path = xmlGetProp(aCurNode, (const xmlChar*)test_appli_path);
+	      _resource.AppliPath = (const char*)appli_path;
+              xmlFree(appli_path);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_os))
-	    _resource.OS = (const char*)xmlGetProp(aCurNode, (const xmlChar*)test_os);
+            {
+	      xmlChar* os = xmlGetProp(aCurNode, (const xmlChar*)test_os);
+	      _resource.OS = (const char*)os;
+              xmlFree(os);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_mem_in_mb))
-	    _resource.DataForSort._memInMB = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_mem_in_mb));
+            {
+	      xmlChar* mem_in_mb = xmlGetProp(aCurNode, (const xmlChar*)test_mem_in_mb);
+	      _resource.DataForSort._memInMB = atoi((const char*)mem_in_mb);
+              xmlFree(mem_in_mb);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_cpu_freq_mhz))
-	    _resource.DataForSort._CPUFreqMHz = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_cpu_freq_mhz));
+            {
+	      xmlChar* cpu_freq_mhz = xmlGetProp(aCurNode, (const xmlChar*)test_cpu_freq_mhz);
+	      _resource.DataForSort._CPUFreqMHz = atoi((const char*)cpu_freq_mhz);
+              xmlFree(cpu_freq_mhz);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_nb_of_nodes))
-	    _resource.DataForSort._nbOfNodes = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_nodes));
+            {
+	      xmlChar* nb_of_nodes = xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_nodes);
+	      _resource.DataForSort._nbOfNodes = atoi((const char*)nb_of_nodes);
+              xmlFree(nb_of_nodes);
+            }
 	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_nb_of_proc_per_node))
-	    _resource.DataForSort._nbOfProcPerNode = atoi((const char*)xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_proc_per_node));
+            {
+	      xmlChar* nb_of_proc_per_node = xmlGetProp(aCurNode, (const xmlChar*)test_nb_of_proc_per_node);
+	      _resource.DataForSort._nbOfProcPerNode = atoi((const char*)nb_of_proc_per_node);
+              xmlFree(nb_of_proc_per_node);
+            }
 	  
 	  // Process modules
 	  xmlNodePtr aCurSubNode = aCurNode->xmlChildrenNode;
@@ -214,8 +258,10 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		{
 		  if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
 		    {
-		      std::string aModuleName = (const char*)xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+		      xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+		      std::string aModuleName = (const char*)module_name;
                       _resource.ModulesList.push_back(aModuleName);
+                      xmlFree(module_name);
 		    }
 		}
 	      aCurSubNode = aCurSubNode->next;

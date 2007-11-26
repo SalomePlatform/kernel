@@ -22,6 +22,8 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <libxml/parser.h>
+
 using namespace std;
 
 void AttachDebugger()
@@ -57,11 +59,17 @@ int main(int argc, char* argv[])
       set_terminate(&terminateHandler);
       set_unexpected(&unexpectedHandler);
     }
+  /* Init libxml 
+   * To avoid memory leak, need to call xmlInitParser in the main thread
+   * and not call xmlCleanupParser later (cause implicit reinitialization in thread)
+   */
+  xmlInitParser();
+
   PortableServer::POA_var root_poa;
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;
 
-  CORBA::ORB_ptr orb = CORBA::ORB_init( argc , argv ) ;
+  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
@@ -78,7 +86,9 @@ int main(int argc, char* argv[])
   try{
     SALOME_Launcher *lServ=new SALOME_Launcher(orb,root_poa);
     pman->activate();
+    lServ->_remove_ref();
     orb->run();
+    orb->destroy();
   }catch(CORBA::SystemException&){
     MESSAGE("Caught CORBA::SystemException.");
   }catch(PortableServer::POA::WrongPolicy&){

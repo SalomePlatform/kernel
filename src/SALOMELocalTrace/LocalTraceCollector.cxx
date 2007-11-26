@@ -148,6 +148,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
 	  else DEVTRACE("LocalTraceCollector destruction OK");
+          delete _threadId;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

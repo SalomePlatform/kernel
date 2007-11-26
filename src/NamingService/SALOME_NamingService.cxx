@@ -1097,9 +1097,11 @@ throw(ServiceUnreachable)
 
   vector<string> dirList ;
 
-  string currentDir = Current_Directory();
+  char* currentDir = Current_Directory();
 
   _list_directory_recurs(dirList, "", currentDir);
+
+  free(currentDir);
 
   return dirList;
 }
@@ -1686,7 +1688,8 @@ _current_directory(vector<string>& splitPath,
             {
               // --- directory, search in it
 
-	      splitPath.push_back(CORBA::string_dup(bindingName[0].id));
+              const char* bindingNameid=bindingName[0].id;
+	      splitPath.push_back(bindingNameid);
               lengthResult++;
 
               CORBA::Object_var obj = _current_context->resolve(bindingName);

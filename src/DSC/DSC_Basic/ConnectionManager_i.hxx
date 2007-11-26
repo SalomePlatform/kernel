@@ -52,10 +52,7 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
     Engines::ConnectionManager::connectionId connect(Engines::DSC_ptr uses_component, 
 						     const char* uses_port_name, 
 						     Engines::DSC_ptr provides_component, 
-						     const char* provides_port_name)
-      throw (Engines::DSC::PortNotDefined,
-	     Engines::DSC::BadPortType,
-	     Engines::DSC::NilPort);
+						     const char* provides_port_name);
 
     /*!
      * CORBA method : releases a connection performed with 
@@ -64,8 +61,7 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
      * \see Engines::ConnectionManager::disconnect
      */
     void disconnect(Engines::ConnectionManager::connectionId id,
-		    Engines::DSC::Message message)
-      throw (Engines::ConnectionManager::BadId);
+		    Engines::DSC::Message message);
 
     /*!
        Shutdown the ConnectionManager process.
@@ -80,11 +76,11 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
   private :
 
     struct connection_infos {
-      Engines::DSC_ptr uses_component; 
+      Engines::DSC_var uses_component; 
       std::string uses_port_name;
-      Engines::DSC_ptr provides_component;
+      Engines::DSC_var provides_component;
       std::string provides_port_name;
-      Ports::Port_ptr provides_port;
+      Ports::Port_var provides_port;
     };
 
     typedef std::map<Engines::ConnectionManager::connectionId, 
@@ -97,6 +93,8 @@ class DSC_BASIC_EXPORT ConnectionManager_i :
 
     int current_id;
     pthread_mutex_t mutex;
+  protected:
+    CORBA::ORB_var _orb;
 };
 
 #endif

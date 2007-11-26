@@ -51,6 +51,8 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
   _NS = new SALOME_NamingService(orb);
   _ResManager = new SALOME_ResourcesManager(orb,poa,_NS);
   _ContManager = new SALOME_ContainerManager(orb,poa,_ResManager,_NS);
+  _ResManager->_remove_ref();
+  _ContManager->_remove_ref();
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
@@ -72,8 +74,6 @@ SALOME_Launcher::~SALOME_Launcher()
 {
   MESSAGE("destructor");
   delete _NS;
-  delete _ResManager;
-  delete _ContManager;
   std::map < string, BatchLight::BatchManager * >::const_iterator it;
   for(it=_batchmap.begin();it!=_batchmap.end();it++)
     delete it->second;

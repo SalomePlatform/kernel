@@ -128,7 +128,14 @@
     virtual CORBA::Any* get_property(const char* name)			\
       throw (Ports::NotDefined);					\
 									\
-  };									\
+    virtual void provides_port_changed(int connection_nbr, \
+                       const Engines::DSC::Message message) { \
+      if ( !connection_nbr && (message == Engines::DSC::RemovingConnection) ) \
+        { \
+           disconnect(false); \
+        } \
+    } \
+  };	\
   
 
 

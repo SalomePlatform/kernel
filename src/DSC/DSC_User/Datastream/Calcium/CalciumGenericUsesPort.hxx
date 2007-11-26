@@ -53,12 +53,11 @@ CalciumGenericUsesPort< DataManipulator,CorbaPortType, repositoryName >::disconn
   for(int i = 0; i < this->_my_ports->length(); i++) {
     CorbaPortTypePtr port = CorbaPortType::_narrow((*this->_my_ports)[i]);
     try {
-      std::cerr << "-------- CalciumGenericUsesPort<>::disconnect"<< std::endl;
+      std::cerr << "-------- CalciumGenericUsesPort<>::disconnect: "<< i << std::endl;
 
       port->disconnect(provideLastGivenValue);
     } catch(const CORBA::SystemException& ex){
-      throw DSC_Exception(LOC(OSS() << "Impossible d'invoquer la méthode disconnect sur le port provide n°"
-			      << i << " ( i>=  0)"));
+      std::cerr << "Can't call disconnect on provides port " << i << std::endl;
     }
   }
   

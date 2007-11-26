@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
 
     pman->activate();
     orb->run();
+    orb->destroy();
   }catch(CORBA::SystemException&){
     MESSAGE("Caught CORBA::SystemException.");
   }catch(PortableServer::POA::WrongPolicy&){

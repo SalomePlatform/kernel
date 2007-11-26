@@ -47,12 +47,30 @@ string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,MapOfP
 
   ns->Change_Directory("/Containers");
   vector<string> vec = ns->list_directory_recurs();
+  Engines::Container_var cont;
   for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
-    CORBA::Object_var obj=ns->Resolve((*iter).c_str());
-    Engines::Container_var cont=Engines::Container::_narrow(obj);
+    try
+      {
+        CORBA::Object_var obj=ns->Resolve((*iter).c_str());
+        cont=Engines::Container::_narrow(obj);
+      }
+    catch(CORBA::SystemException& ex)
+      {
+        MESSAGE("SALOME_LoadRateManager::FindNext CORBA::SystemException ignore it");
+        continue;
+      }
     if(!CORBA::is_nil(cont)){
-      string mach = cont->getHostName();
-      machines[mach]++;
+      try
+        {
+          CORBA::String_var hostname = cont->getHostName();
+          std::string mach=(const char*)hostname;
+          machines[mach]++;
+        }
+      catch(CORBA::SystemException& ex)
+        {
+          MESSAGE("SALOME_LoadRateManager::FindNext CORBA::SystemException ignore it");
+          continue;
+        }
     }
   }
 

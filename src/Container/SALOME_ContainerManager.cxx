@@ -113,11 +113,12 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownWithExit()
 {
   MESSAGE("ShutdownWithExit");
-  PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
-  _default_POA()->deactivate_object(oid);
-  _remove_ref();
-  
-  exit( EXIT_SUCCESS );
+  if(!CORBA::is_nil(_orb))
+    {
+      _orb->shutdown(0);
+    }
+
+  //exit( EXIT_SUCCESS );
 }
 
 //=============================================================================
@@ -260,6 +261,28 @@ StartContainer(const Engines::MachineParameters& params,
     command = _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
 
   _ResManager->RmTmpFile();
+
+  //check if an entry exists in Naming service
+  if(params.isMPI)
+    {
+      containerNameInNS = "/ContainerManager/id";
+      sprintf(idc,"%ld",id);
+      containerNameInNS += idc;
+    }
+  else
+    containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
+
+  SCRUTE(containerNameInNS);
+  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+  if ( !CORBA::is_nil(obj) )
+    {
+      // unregister the registered container if it exists
+      _NS->Destroy_Name(containerNameInNS.c_str());
+      // unregister component instances ???
+      //Engines::Container_var cont=Engines::Container::_narrow(obj);
+    }
+
+  // launch container with a system call
   int status=system(command.c_str());
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
@@ -284,15 +307,6 @@ StartContainer(const Engines::MachineParameters& params,
       if ( count != 10 )
 	MESSAGE( count << ". Waiting for container on " << theMachine);
 
-      if(params.isMPI){
-	containerNameInNS = "/ContainerManager/id";
-	sprintf(idc,"%ld",id);
-	containerNameInNS += idc;
-      }
-      else
-	containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
-
-      SCRUTE(containerNameInNS);
       CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
       ret=Engines::Container::_narrow(obj);
     }

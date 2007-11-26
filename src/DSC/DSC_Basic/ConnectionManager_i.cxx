@@ -27,9 +27,13 @@
 #include "SALOME_NamingService.hxx"
 
 ConnectionManager_i::ConnectionManager_i(CORBA::ORB_ptr orb) {
+  _orb = CORBA::ORB::_duplicate(orb) ;
   SALOME_NamingService * ns = new SALOME_NamingService(orb);
   const char * ConnectionManagerNameInNS = "/ConnectionManager";
-  ns->Register(_this(), ConnectionManagerNameInNS);
+  CORBA::Object_var obref = _this();
+  _remove_ref();
+  ns->Register(obref, ConnectionManagerNameInNS);
+  delete ns;
 
   current_id = 0;
   pthread_mutex_init(&mutex, NULL);
@@ -42,12 +46,9 @@ ConnectionManager_i::connect(Engines::DSC_ptr uses_component,
 			     const char* uses_port_name, 
 			     Engines::DSC_ptr provides_component, 
 			     const char* provides_port_name) 
-throw (Engines::DSC::PortNotDefined,
-       Engines::DSC::BadPortType,
-       Engines::DSC::NilPort) 
 {
 
-  Ports::Port_ptr p_port = provides_component->get_provides_port(provides_port_name, false);
+  Ports::Port_var p_port = provides_component->get_provides_port(provides_port_name, false);
   uses_component->connect_uses_port(uses_port_name, p_port);
   provides_component->connect_provides_port(provides_port_name);
 
@@ -75,8 +76,8 @@ throw (Engines::DSC::PortNotDefined,
 void
 ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 				Engines::DSC::Message message)
-throw (Engines::ConnectionManager::BadId)
 {
+  int err=0;
   // Connection id exist ?
   ids_it = ids.find(id);
   if (ids_it == ids.end())
@@ -85,19 +86,41 @@ throw (Engines::ConnectionManager::BadId)
   // TODO
   // We need to catch exceptions if one of these disconnect operation fails.
   connection_infos * infos = ids[id];
-  infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
+  try
+    {
+      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
 						      message);
-  infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
-					      Ports::Port::_duplicate(infos->provides_port),
+    }
+  catch(CORBA::SystemException& ex)
+    {
+      std::cerr << "Problem in disconnect(CORBA::SystemException) provides port: " << infos->provides_port_name << std::endl;
+      err=1;
+    }
+  try
+    {
+      infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
+					      infos->provides_port,
 					      message);
+    }
+  catch(CORBA::SystemException& ex)
+    {
+      std::cerr << "Problem in disconnect(CORBA::SystemException) uses port: " << infos->uses_port_name << std::endl;
+      err=1;
+    }
   delete infos;
   ids.erase(id);
+
+  if(err)
+    throw Engines::DSC::BadPortReference();
 }
 
 void
 ConnectionManager_i::ShutdownWithExit()
 {
-  exit( EXIT_SUCCESS );
+  if(!CORBA::is_nil(_orb))
+    _orb->shutdown(0);
+
+  //exit( EXIT_SUCCESS );
 }
 
 CORBA::Long

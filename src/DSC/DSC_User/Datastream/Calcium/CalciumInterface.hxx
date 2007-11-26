@@ -408,7 +408,7 @@ namespace CalciumInterface {
 
 
 #ifdef _DEBUG_
-    std::cout << "-------- CalciumInterface(ecriture) MARK 7 ------------------" << std::endl;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 4 ------------------" << std::endl;
 #endif
     CorbaDataType corbaData;
 
@@ -437,7 +437,14 @@ namespace CalciumInterface {
  
     //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecté
     if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
-      port->put(*corbaData,t, -1); 
+      try
+      {
+        port->put(*corbaData,t, -1); 
+      }
+      catch ( const DSC_Exception & ex) 
+      {
+        throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
+      }
       //Le -1 peut être traité par le cst DataIdContainer et transformé en 0 
       //Etre obligé de mettre une étoile ds (*corbadata) va poser des pb pour les types <> seq
 #ifdef _DEBUG_
@@ -445,7 +452,14 @@ namespace CalciumInterface {
 #endif
     } 
     else if ( dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
-      port->put(*corbaData,-1, i);
+      try
+      {
+        port->put(*corbaData,-1, i);
+      }
+      catch ( const DSC_Exception & ex) 
+      {
+        throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
+      }
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecriture) MARK 6 ------------------" << std::endl;
 #endif

@@ -340,7 +340,10 @@ module Engines {
       \exception Engines::ConnectionManager::BadId
     */  
     void disconnect(in connectionId id,
-		    in Engines::DSC::Message message) raises(Engines::ConnectionManager::BadId);
+		    in Engines::DSC::Message message) raises(Engines::ConnectionManager::BadId,
+                                                 Engines::DSC::PortNotDefined,
+                                                 Engines::DSC::PortNotConnected,
+							                                   Engines::DSC::BadPortReference);
 
     /*!
       Shutdown the ConnectionManager process.
