@@ -43,8 +43,8 @@ static std::string getTitle(std::string theString)
 {
   std::string aString(theString);
   int aPos = aString.find(SEPARATOR);
-  if(aPos < 1) return aString;
-  if(aPos == 1) return std::string();
+  if(aPos < 0) return aString;
+  if(aPos == 0) return std::string();
   return aString.substr(0, aPos);
 }
 
