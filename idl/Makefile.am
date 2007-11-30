@@ -94,9 +94,13 @@ BASEIDL_SOURCES =\
   Calcium_PortsSK.cc \
   Palm_PortsSK.cc
 
-DYNIDL_SOURCES=\
-  SALOME_ExceptionDynSK.cc \
-  Calcium_PortsDynSK.cc
+DYNIDL_SOURCES = \
+  SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
+  SALOME_CommDynSK.cc   SALOME_RegistryDynSK.cc   SALOME_ModuleCatalogDynSK.cc \
+  SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
+  DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc \
+  Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
+  LoggerDynSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \
