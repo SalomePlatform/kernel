@@ -49,6 +49,7 @@ int main (int argc, char * argv[])
   Engines::Component_ptr compo;
   bool error = false;
   bool bestImplemented;
+  int status;
 
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
@@ -147,17 +148,19 @@ int main (int argc, char * argv[])
       }
     }
   }
-  if( ((cmax-cmin) <= 1) && (fmax == 10/nbpmax) && !error ){
-    string msg;
+  string msg;
+  if( ((cmax-cmin) <= 2) && (fmax == 10/nbpmax) && !error ){
     if(bestImplemented)
       msg = "TEST OK";
     else
       msg = "TEST OK but FindBest not implemented!";
-    MESSAGE(msg);
-    return 0;
+    status=0;
   }
   else{
-    MESSAGE("TEST KO");
-    return 1;
+    msg ="TEST KO";
+    status=1;
   }
+  cout << msg << endl;
+
+  return status;
 }
