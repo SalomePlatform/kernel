@@ -250,7 +250,6 @@ echo
 
 CHECK_LIBXML
 
-
 fi 
 # --- end test corba
 # ----------------------------------------------------------------------------
@@ -426,7 +425,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok boost_ok"
+corba_mandatory_products="omniORB_ok boost_ok libxml_ok"
 if test x$corba_gen = xtrue; then
   echo --- CORBA mandatory products - default configuration:
   summary $corba_mandatory_products
