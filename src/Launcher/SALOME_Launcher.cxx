@@ -93,9 +93,19 @@ void SALOME_Launcher::Shutdown()
   _ResManager->Shutdown();
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  _remove_ref();
+  //_remove_ref();
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Returns the PID of the process
+ */
+//=============================================================================
+CORBA::Long SALOME_Launcher::getPID()
+{
+  return (CORBA::Long)getpid();
 }
 
 //=============================================================================

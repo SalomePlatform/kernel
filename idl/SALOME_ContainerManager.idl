@@ -85,6 +85,8 @@ struct MachineParameters
 
     void Shutdown();
 
+    long getPID();
+
   } ;
   
 /*! \brief Interface of the %containerManager
@@ -115,11 +117,7 @@ struct MachineParameters
 		             in ResPolicy policy,
 		             in CompoList componentList );
 
-    oneway void ShutdownWithExit();
-
     void ShutdownContainers();
-
-    long getPID();
 
   } ;
   

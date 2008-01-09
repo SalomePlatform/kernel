@@ -64,6 +64,8 @@ public:
 
   void Shutdown();
 
+  CORBA::Long getPID();
+
   static const char *_LauncherNameInNS;
 
 protected:

@@ -102,23 +102,7 @@ void SALOME_ContainerManager::Shutdown()
   _NS->Destroy_Name(_ContainerManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  _remove_ref();
-}
-
-//=============================================================================
-/*! CORBA method:
- *  shutdown the ContainerManager servant and kill the ContainerManager process
- */
-//=============================================================================
-void SALOME_ContainerManager::ShutdownWithExit()
-{
-  MESSAGE("ShutdownWithExit");
-  if(!CORBA::is_nil(_orb))
-    {
-      _orb->shutdown(0);
-    }
-
-  //exit( EXIT_SUCCESS );
+  //_remove_ref();
 }
 
 //=============================================================================
@@ -158,16 +142,6 @@ void SALOME_ContainerManager::ShutdownContainers()
       else MESSAGE("ShutdownContainers: no container ref for " << (*iter));
     }
   }
-}
-
-//=============================================================================
-/*! CORBA Method:
- *  Returns the PID of the container manager
- */
-//=============================================================================
-CORBA::Long SALOME_ContainerManager::getPID()
-{
-  return (CORBA::Long)getpid();
 }
 
 //=============================================================================

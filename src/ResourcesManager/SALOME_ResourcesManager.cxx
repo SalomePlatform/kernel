@@ -77,7 +77,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
 /*!
  *  Standard constructor, parse resource file.
  *  - if ${APPLI} exists in environment,
- *    look for ${HOME}/*{APPLI}/CatalogResources.xml
+ *    look for ${HOME}/${APPLI}/CatalogResources.xml
  *  - else look for default:
  *    ${KERNEL_ROOT_DIR}/share/salome/resources/kernel/CatalogResources.xml
  *  - parse XML resource file.
@@ -142,7 +142,7 @@ void SALOME_ResourcesManager::Shutdown()
   _NS->Destroy_Name(_ResourcesManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  _remove_ref();
+  //_remove_ref();
 }
 
 //=============================================================================
