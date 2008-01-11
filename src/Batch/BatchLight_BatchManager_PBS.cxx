@@ -184,7 +184,7 @@ namespace BatchLight {
     tempOutputFile << "if test " ;
     tempOutputFile << _mpiImpl->rank() ;
     tempOutputFile << " = 0; then" << endl ;
-    tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
+    tempOutputFile << "  ./runAppli --terminal --modules=" ;
     for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
       if ( i != _params.modulesList.size()-1 )
