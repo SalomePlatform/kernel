@@ -158,9 +158,8 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
-    os.putenv('SALOME_BATCH','0')
-    if args["batch"] :
-        os.putenv('SALOME_BATCH','1')
+    if os.getenv('SALOME_BATCH') == None:
+      os.putenv('SALOME_BATCH','0')
     print 'SALOME_BATCH :',os.getenv('SALOME_BATCH')
     if args["gui"] :
         modules_list = modules_list[:] + ["GUI"] 
