@@ -62,6 +62,7 @@ dist_salomescript_SCRIPTS=\
 	launchSalome.py \
 	nameserver.py \
         server.py \
+	waitNS.sh \
 	waitNS.py \
 	waitContainers.py \
 	shutdownSalome.py
