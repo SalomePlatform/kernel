@@ -53,6 +53,8 @@ static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* dr
 SALOMEDSImpl_StudyBuilder::SALOMEDSImpl_StudyBuilder(const SALOMEDSImpl_Study* theOwner)
 {
    _errorCode = "";
+  _callbackOnAdd=NULL;
+  _callbackOnRemove = NULL;
    _study = (SALOMEDSImpl_Study*)theOwner;
    _doc = _study->GetDocument();
 }
@@ -82,13 +84,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& Da
   //Always create component under main label.
   DF_Label L  = _doc->Main();
 
-  int imax = 0;
-  for (DF_ChildIterator it(L); it.More(); it.Next()) {
-    if (it.Value().Tag() > imax)
-      imax = it.Value().Tag();
-  }
-  imax++;
-  DF_Label NL = L.FindChild(imax);
+  DF_Label NL = L.NewChild();
 
   SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
@@ -141,20 +137,14 @@ bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const SALOMEDSImpl_SComponent& a
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SObject& theFatherObject)
 {
-   _errorCode = "";
+  _errorCode = "";
   CheckLocked();
 
   //Find label of father
   DF_Label Lab = theFatherObject.GetLabel();
   
   //Create a new label
-  int imax = 0;
-  for (DF_ChildIterator it(Lab); it.More(); it.Next()) {
-    if (it.Value().Tag() > imax)
-      imax = it.Value().Tag();
-  }
-  imax++;
-  DF_Label NewLab = Lab.FindChild(imax);
+  DF_Label NewLab = Lab.NewChild();
   
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);

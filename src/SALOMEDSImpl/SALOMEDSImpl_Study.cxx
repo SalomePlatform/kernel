@@ -57,7 +57,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
   _Saved = false ;
   _URL = "";
   _StudyId = -1;
-  _autoFill = true;
+  _autoFill = false;
   _errorCode = "";
   _useCaseBuilder = new SALOMEDSImpl_UseCaseBuilder(_doc);
   _builder = new SALOMEDSImpl_StudyBuilder(this);
