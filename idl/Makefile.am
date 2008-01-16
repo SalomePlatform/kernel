@@ -26,9 +26,6 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-# To avoid problems with parallel compilation.
-MAKEFLAGS = -j1
-
 AM_CXXFLAGS = -fPIC
 
 BASEIDL_FILES = \
@@ -119,6 +116,8 @@ if MPI_IS_OK
 endif
 
 IDL_SOURCES += $(DYNIDL_SOURCES)
+
+$(DYNIDL_SOURCES) : $(IDL_SOURCES)
 
 # also install all generated headers to use result library from another modules
 salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
