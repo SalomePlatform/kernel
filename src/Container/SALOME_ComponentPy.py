@@ -83,7 +83,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         myMachine=getShortHostName()
         Component_path = self._containerName + "/" + self._instanceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
-        naming_service.Register(self._this(), Component_path)
+        id_o = poa.activate_object(self)
+        compo_o = poa.id_to_reference(id_o)
+        naming_service.Register(compo_o, Component_path)
 
         # Add componentinstance to registry
         obj = naming_service.Resolve('/Registry')
@@ -145,8 +147,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        self._poa.deactivate_object(self)
-        CORBA.release(self._poa)
+        id = self._poa.servant_to_id(self)
+        self._poa.deactivate_object(id)
         
     #-------------------------------------------------------------------------
 

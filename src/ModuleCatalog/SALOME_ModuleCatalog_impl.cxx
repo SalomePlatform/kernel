@@ -96,20 +96,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
   ComponentTypeConvert[OTHER]
     = SALOME_ModuleCatalog::OTHER;
 
-  // Conversion rules for datastream parameters type and dependency
-  DataStreamTypeConvert["UNKNOWN"] 
-    = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-  DataStreamTypeConvert["INTEGER"] 
-    = SALOME_ModuleCatalog::DATASTREAM_INTEGER;
-  DataStreamTypeConvert["FLOAT"]   
-    = SALOME_ModuleCatalog::DATASTREAM_FLOAT;
-  DataStreamTypeConvert["DOUBLE"]  
-    = SALOME_ModuleCatalog::DATASTREAM_DOUBLE;
-  DataStreamTypeConvert["STRING"]  
-    = SALOME_ModuleCatalog::DATASTREAM_STRING;
-  DataStreamTypeConvert["BOOLEAN"] 
-    = SALOME_ModuleCatalog::DATASTREAM_BOOLEAN;
-
+  // Conversion rules for datastream parameters dependency
   DataStreamDepConvert["UNDEFINED"] 
     = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
   DataStreamDepConvert["T"]
@@ -759,7 +746,13 @@ void SALOME_ModuleCatalogImpl::duplicate
   C_corba.multistudy = C_parser.multistudy;
   C_corba.icon = CORBA::string_dup(C_parser.icon.c_str());
   C_corba.type = ComponentTypeConvert[C_parser.type];
-  C_corba.implementationType = C_parser.implementationType;
+  if(C_parser.implementationType == "EXE")
+    C_corba.implementationType=SALOME_ModuleCatalog::EXE;
+  else if(C_parser.implementationType == "PY")
+    C_corba.implementationType=SALOME_ModuleCatalog::PY;
+  else
+    C_corba.implementationType=SALOME_ModuleCatalog::SO;
+  C_corba.implname = CORBA::string_dup(C_parser.implementationName.c_str());
 
   unsigned int _length = C_parser.interfaces.size();
   C_corba.interfaces.length(_length);
@@ -881,31 +874,11 @@ void SALOME_ModuleCatalogImpl::duplicate
  const ParserDataStreamParameter & P_parser)
 {
   std::map < std::string, 
-    SALOME_ModuleCatalog::DataStreamType >::const_iterator it_type;
-
-  std::map < std::string, 
     SALOME_ModuleCatalog::DataStreamDependency >::const_iterator it_dep;
 
   // duplicate parameter name
   P_corba.Parametername = CORBA::string_dup(P_parser.name.c_str());
   
-  // doesn't work ??? 
-  //   it_type = DataStreamTypeConvert.find(P_parser.type);
-  //   P_corba.Parametertype
-  //     = (it_type == DataStreamTypeConvert.end()) 
-  //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-
-  if(MYDEBUG) SCRUTE(P_parser.type);
-  P_corba.Parametertype = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-  for (it_type = DataStreamTypeConvert.begin(); 
-       it_type != DataStreamTypeConvert.end(); 
-       it_type++)
-    if (P_parser.type.compare(it_type->first) == 0) {
-      P_corba.Parametertype = it_type->second;
-      break;
-    }
-  if(MYDEBUG) SCRUTE(P_corba.Parametertype);
-
   // duplicate parameter type
 
   // doesn't work ??? 
@@ -913,6 +886,10 @@ void SALOME_ModuleCatalogImpl::duplicate
   //   P_corba.Parametertype
   //     = (it_type == DataStreamTypeConvert.end()) 
   //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
+
+  P_corba.Parametertype = CORBA::string_dup(P_parser.type.c_str());
+
+  // duplicate parameter dependency
   
   if(MYDEBUG) SCRUTE(P_parser.dependency);
   P_corba.Parameterdependency = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;

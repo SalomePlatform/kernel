@@ -184,6 +184,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 	      SCRUTE(toFollow);
 	      CORBA::Octet *buf = aBlock->get_buffer();
 	      int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+              delete aBlock;
 	      ASSERT(nbWri == toFollow);
 	    }
 	  fclose(fp);

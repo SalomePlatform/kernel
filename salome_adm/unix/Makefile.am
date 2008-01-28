@@ -54,5 +54,4 @@ SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...), for now. Some files have to be installed.
 dist_salomeadmux_DATA=\
-	pythonbe.py \
 	$(DEPRECATED_FILES)

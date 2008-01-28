@@ -137,37 +137,47 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  else
 	    _resource.Alias = "";
 
-	  xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
-	  switch ( protocol[0])
-	    {
-	    case 'r':
-	      _resource.Protocol = rsh;
-	      break;
-	    case 's':
-	      _resource.Protocol = ssh;
-	      break;
-	    default:
-	      // If it'not in all theses cases, the protocol is affected to rsh
-	      _resource.Protocol = rsh;
-	      break;
-	    }
-          xmlFree(protocol);
-	  
-	  xmlChar* mode=xmlGetProp(aCurNode, (const xmlChar*)test_mode);
-	  switch ( mode[0] )
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_protocol))
             {
-            case 'i':
-              _resource.Mode = interactive;
-              break;
-	    case 'b':
-              _resource.Mode = batch;
-              break;
-            default:
-              // If it'not in all theses cases, the mode is affected to interactive
-              _resource.Mode = interactive;
-              break;
+	      xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
+	      switch ( protocol[0])
+	        {
+	        case 'r':
+	          _resource.Protocol = rsh;
+	          break;
+	        case 's':
+	          _resource.Protocol = ssh;
+	          break;
+	        default:
+	          // If it'not in all theses cases, the protocol is affected to rsh
+	          _resource.Protocol = rsh;
+	          break;
+	        }
+              xmlFree(protocol);
             }
-          xmlFree(mode);
+          else
+            _resource.Protocol = rsh;
+	  
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_mode))
+            {
+	      xmlChar* mode=xmlGetProp(aCurNode, (const xmlChar*)test_mode);
+	      switch ( mode[0] )
+                {
+                case 'i':
+                  _resource.Mode = interactive;
+                  break;
+	        case 'b':
+                  _resource.Mode = batch;
+                  break;
+                default:
+                  // If it'not in all theses cases, the mode is affected to interactive
+                  _resource.Mode = interactive;
+                  break;
+                }
+              xmlFree(mode);
+            }
+          else
+            _resource.Mode = interactive;
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_batch))
             {

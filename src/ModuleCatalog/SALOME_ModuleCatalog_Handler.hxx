@@ -64,6 +64,7 @@ private:
   const char *test_component_multistudy ;
   const char *test_component_icon ;
   const char *test_component_impltype;
+  const char *test_component_implname;
   const char *test_component_version;
   const char *test_component_comment;
   

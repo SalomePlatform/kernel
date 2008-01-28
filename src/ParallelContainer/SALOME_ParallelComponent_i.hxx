@@ -64,8 +64,8 @@ class CONTAINER_EXPORT Engines_Parallel_Component_i:
   public virtual PortableServer::RefCountServantBase
 {
 public:
-  Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior);
-  Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior,
+  Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank);
+  Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
 		               PortableServer::POA_ptr poa,
 			       PortableServer::ObjectId * contId, 
 			       const char *instanceName, 

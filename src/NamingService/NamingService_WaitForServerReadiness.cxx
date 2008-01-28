@@ -66,8 +66,9 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 	{
 	  if (serverName.length() == 0)
 	    {
-	      string dummyadr = NS->getIORaddr(); // to wait for naming service
+	      char* dummyadr = NS->getIORaddr(); // to wait for naming service
 	      found = 1;
+              delete [] dummyadr;
 	      break; // naming service found
 	    }
 	  else

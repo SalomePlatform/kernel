@@ -188,6 +188,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
 	  else DEVTRACE("SALOMETraceCollector destruction OK");
+          delete _threadId;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

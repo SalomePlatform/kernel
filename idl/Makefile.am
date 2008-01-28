@@ -26,6 +26,10 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+if WITH_PACO_PARALLEL
+MAKEFLAGS = -j1
+endif
+
 AM_CXXFLAGS = -fPIC
 
 BASEIDL_FILES = \
@@ -91,7 +95,7 @@ BASEIDL_SOURCES =\
   Calcium_PortsSK.cc \
   Palm_PortsSK.cc
 
-DYNIDL_SOURCES = \
+DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
   SALOME_CommDynSK.cc   SALOME_RegistryDynSK.cc   SALOME_ModuleCatalogDynSK.cc \
   SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
@@ -115,9 +119,7 @@ if MPI_IS_OK
   STATIDL_SOURCES += $(MPIIDL_SOURCES)
 endif
 
-IDL_SOURCES += $(DYNIDL_SOURCES)
-
-$(DYNIDL_SOURCES) : $(IDL_SOURCES)
+$(DYNIDL_SRCS) : $(IDL_SOURCES)
 
 # also install all generated headers to use result library from another modules
 salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
@@ -198,7 +200,7 @@ DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml
 
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
-nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES)
+nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES) $(DYNIDL_SRCS)
 libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix \
 				-I$(top_builddir)/idl \
 				@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -223,8 +225,11 @@ IDLPYFLAGS  = @IDLPYFLAGS@
 SUFFIXES = .idl .hh SK.cc
 .idlSK.cc:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
-.idl.hh:
-	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
+SK.cc.hh:
+
+#Dummy rule to replace the following one (for parallel make)
+#.idl.hh:
+#	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 %PaCO.h %PaCO.cc : %.idl %.xml
 	@PACO_IDL@ -I $(srcdir):@PACOPATH@/idl $^ omniORB4 0

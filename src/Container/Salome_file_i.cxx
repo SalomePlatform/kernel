@@ -842,6 +842,7 @@ Salome_file_i::getDistributedFile(std::string file_name)
       CORBA::Octet *buf = aBlock->get_buffer();
       int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
       ASSERT(nbWri == toFollow);
+      delete aBlock;
     }
     fclose(fp);
     MESSAGE("end of transfer of " << comp_file_name);

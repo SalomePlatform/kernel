@@ -47,6 +47,8 @@ clt.waitLogger("Logger")
 # execute Unit Test
 
 command = ['TestNamingService']
+valgrind = ['valgrind','--leak-check=full']
+#command=valgrind+command #to check memory leaks
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # kill Test process

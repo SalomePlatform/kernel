@@ -100,7 +100,7 @@ class CONTAINER_EXPORT Salome_file_i:
     _t_fileDistributedSource _fileDistributedSource;
     Engines::SfState _state;
     Engines::Container_ptr _container;
-    Engines::Salome_file_ptr _default_source_Salome_file;
+    Engines::Salome_file_var _default_source_Salome_file;
 };
 
 #endif

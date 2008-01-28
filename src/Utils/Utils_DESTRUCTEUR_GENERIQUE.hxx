@@ -34,6 +34,7 @@
 #include <list>
 #include <cassert>
 #include <omniORB4/CORBA.h>
+#include <iostream>
 //# include "utilities.h"
 
 /*!\class DESTRUCTEUR_GENERIQUE_
@@ -111,11 +112,13 @@ public :
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting ServantBase's _PtrObjet" << endl;
+        std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
+  /*
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());
 	aServant->_remove_ref();
+  */
       }else{
 	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting _PtrObjet" << endl;
 	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);

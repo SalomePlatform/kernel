@@ -34,6 +34,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # header files  
 salomeinclude_HEADERS = SALOME_ParallelComponent_i.hxx \
 			SALOME_ParallelContainer_i.hxx \
+			SALOME_ParallelContainerProxy_i.hxx \
 			Parallel_Salome_file_i.hxx
 
 #
@@ -75,6 +76,7 @@ lib_LTLIBRARIES = libSalomeParallelContainer.la
 
 libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 					 SALOME_ParallelContainer_i.cxx \
+					 SALOME_ParallelContainerProxy_i.cxx \
 					 $(top_srcdir)/src/Container/Salome_file_i.cxx \
 					 Parallel_Salome_file_i.cxx
 

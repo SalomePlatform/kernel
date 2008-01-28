@@ -68,6 +68,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
   test_component_multistudy = "component-multistudy";
   test_component_icon       = "component-icone" ;
   test_component_impltype   = "component-impltype";
+  test_component_implname   = "component-implname";
   test_component_version    = "component-version";
   test_component_comment    = "component-comment";
 
@@ -481,7 +482,11 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
           // Tag test_component_impltype
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_impltype) )
-            _aModule.implementationType = atoi(aContent.c_str());
+            _aModule.implementationType = aContent;
+
+          // Tag test_component_implname
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_implname) )
+            _aModule.implementationName = aContent;
 
           // Tag test_component_icon
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_icon) )

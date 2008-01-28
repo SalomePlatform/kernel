@@ -182,6 +182,7 @@ FileTraceCollector:: ~FileTraceCollector()
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
 	  else DEVTRACE("FileTraceCollector destruction OK");
+          delete _threadId;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

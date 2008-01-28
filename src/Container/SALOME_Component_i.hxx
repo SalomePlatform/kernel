@@ -142,8 +142,8 @@ protected:
   std::string _instanceName ;
   std::string _interfaceName ;
 
-  CORBA::ORB_ptr _orb;
-  PortableServer::POA_ptr _poa;
+  CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id;
   PortableServer::ObjectId * _contId;
   Engines_Component_i * _thisObj ;

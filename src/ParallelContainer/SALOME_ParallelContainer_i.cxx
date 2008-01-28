@@ -50,6 +50,7 @@
 int SIGUSR1 = 1000;
 #endif
 
+#include <paco_omni.h>
 #include "utilities.h"
 using namespace std;
 
@@ -77,8 +78,11 @@ omni_mutex Engines_Parallel_Container_i::_numInstanceMutex ;
  */
 //=============================================================================
 
-Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, char * ior) : 
-  InterfaceParallel_impl(orb,ior), Engines::Container_serv(orb,ior),
+Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, 
+							    char * ior, 
+							    int rank) : 
+  InterfaceParallel_impl(orb,ior,rank), 
+  Engines::Container_serv(orb,ior,rank),
   _numInstance(0)
 {
 }
@@ -89,14 +93,17 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, 
  */
 //=============================================================================
 
-Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, char * ior,
+Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, 
+							    char * ior, 
+							    int rank,
 							    PortableServer::POA_ptr poa,
 							    char *containerName ,
 							    int argc , char* argv[],
 							    bool activAndRegist,
 							    bool isServantAloneInProcess
 							   ) :
-  InterfaceParallel_impl(orb,ior), Engines::Container_serv(orb,ior),
+  InterfaceParallel_impl(orb,ior,rank), 
+  Engines::Container_serv(orb,ior,rank),
   _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
@@ -257,7 +264,7 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
   }
 
   // To be sure that all the nodes of the component as loaded the library
-  global_paco_context_ptr->my_com->paco_barrier();
+  _my_com->paco_barrier();
 
   return ret;
 }
@@ -652,6 +659,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
 
     typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
       (CORBA::ORB_ptr,
+       paco_fabrique_thread *,
        PortableServer::POA_ptr,
        PortableServer::ObjectId *, 
        const char *,
@@ -680,7 +688,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
 
       // --- Instanciate required CORBA object
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-      id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(), getTotalNode()) ;
+      id = (Component_factory) ( _orb, new paco_omni_fabrique(), _poa, _id, instanceName.c_str(), getTotalNode()) ;
 
       // --- get reference & servant from id
       CORBA::Object_var obj = _poa->id_to_reference(*id);
@@ -704,11 +712,11 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
     // in the nameing service.
     _numInstanceMutex.lock() ; // lock on the instance number
     _numInstance++ ;
-//    int numInstance = _numInstance ;
+    //    int numInstance = _numInstance ;
     _numInstanceMutex.unlock() ;
   }
   cerr << "Node " << getMyRank() << " entering in paco_barrier()" << endl;
-  global_paco_context_ptr->my_com->paco_barrier();
+  _my_com->paco_barrier();
   cerr << "Node " << getMyRank() << " quitting paco_barrier()" << endl;
 
   //////////////////////////////////////////////////////////////////////////
@@ -732,7 +740,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
   string factory_name = aGenRegisterName + string("Engine_factory");
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
-    (CORBA::ORB_ptr, char * ior,
+    (CORBA::ORB_ptr, char *, int,
      PortableServer::POA_ptr, 
      PortableServer::ObjectId *, 
      const char *, 
@@ -758,7 +766,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
     // --- Instanciate required CORBA object
 
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-    id = (Component_factory) ( _orb, proxy_ior, _poa, _id, instanceName.c_str(),
+    id = (Component_factory) ( _orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(),
 			       aGenRegisterName.c_str() ) ;
 
     // --- get reference & servant from id
@@ -777,11 +785,17 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
   //////////////////////////////////////////////////////////////////////////
   // 3: Deployment Step
 
-  iobject2->deploy(getMyRank());
-  global_paco_context_ptr->my_com->paco_barrier();
+  iobject2->deploy();
+  _my_com->paco_barrier();
   cerr << "--------- createParallelInstance : End Deploy step ----------" << endl;  
+  if (getMyRank() == 0) {
+    PaCO::InterfaceManager_var proxy = PaCO::InterfaceManager::_narrow(iobject);
+    proxy->start();
+    _my_com->paco_barrier();
+  }
+  else
+    _my_com->paco_barrier();
 
-  //  return obj_proxy._retn();
   return iobject._retn();
 }
 
@@ -954,22 +968,22 @@ Engines_Parallel_Container_i::createFileRef(const char* origFileName)
   Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
 
   if (origName[0] != '/')
-    {
-      INFOS("path of file to copy must be an absolute path begining with '/'");
-      return Engines::fileRef::_nil();
-    }
+  {
+    INFOS("path of file to copy must be an absolute path begining with '/'");
+    return Engines::fileRef::_nil();
+  }
 
   if (CORBA::is_nil(_fileRef_map[origName]))
-    {
-      CORBA::Object_var obj=_poa->id_to_reference(*_id);
-      Engines::Container_var pCont = Engines::Container::_narrow(obj);
-      fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
-      theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
-      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-      _fileRef_map[origName] = theFileRef;
-      _numInstanceMutex.unlock() ;
-    }
-  
+  {
+    CORBA::Object_var obj=_poa->id_to_reference(*_id);
+    Engines::Container_var pCont = Engines::Container::_narrow(obj);
+    fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
+    theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+    _fileRef_map[origName] = theFileRef;
+    _numInstanceMutex.unlock() ;
+  }
+
   theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
   ASSERT(! CORBA::is_nil(theFileRef));
   return theFileRef._retn();
@@ -996,25 +1010,25 @@ Engines_Parallel_Container_i::createSalome_file(const char* origFileName)
 {
   string origName(origFileName);
   if (CORBA::is_nil(_Salome_file_map[origName]))
+  {
+    Salome_file_i* aSalome_file = new Salome_file_i();
+    try 
     {
-      Salome_file_i* aSalome_file = new Salome_file_i();
-      try 
-      {
-	aSalome_file->setLocalFile(origFileName);
-	aSalome_file->recvFiles();
-      }
-      catch (const SALOME::SALOME_Exception& e)
-      {
-	return Engines::Salome_file::_nil();
-      }
-
-      Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
-      theSalome_file = Engines::Salome_file::_narrow(aSalome_file->_this());
-      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-      _Salome_file_map[origName] = theSalome_file;
-      _numInstanceMutex.unlock() ;
+      aSalome_file->setLocalFile(origFileName);
+      aSalome_file->recvFiles();
     }
-  
+    catch (const SALOME::SALOME_Exception& e)
+    {
+      return Engines::Salome_file::_nil();
+    }
+
+    Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
+    theSalome_file = Engines::Salome_file::_narrow(aSalome_file->_this());
+    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+    _Salome_file_map[origName] = theSalome_file;
+    _numInstanceMutex.unlock() ;
+  }
+
   Engines::Salome_file_ptr theSalome_file =  
     Engines::Salome_file::_duplicate(_Salome_file_map[origName]);
   ASSERT(!CORBA::is_nil(theSalome_file));

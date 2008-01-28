@@ -15,7 +15,7 @@ class Server:
         self.PID=None
         self.CMD=[]
         self.ARGS=[]
-        if self.args['xterm']:
+        if self.args.get('xterm'):
             self.ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
 
     def __init__(self,args):
@@ -26,7 +26,7 @@ class Server:
     def run(self):
         global process_id
         myargs=self.ARGS
-        if self.args['xterm']:
+        if self.args.get('xterm'):
             # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
             env_ld_library_path=['env', 'LD_LIBRARY_PATH='
                                  + os.getenv("LD_LIBRARY_PATH")]

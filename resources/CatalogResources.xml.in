@@ -1,43 +1,4 @@
 <!DOCTYPE ResourcesCatalog>
 <resources>
-
-<machine hostname="is111918" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/env_products.sh" >
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/KERNEL_3.2.6" moduleName="KERNEL" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/MED_3.2.6" moduleName="MED" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/GEOM_3.2.6" moduleName="GEOM" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SMESH_3.2.6" moduleName="SMESH" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SUPERV_3.2.6" moduleName="SUPERV" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/VISU_3.2.6" moduleName="VISU" />
-</machine>
-
-<machine hostname="is102430" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/env_products.sh" >
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/KERNEL_3.2.6" moduleName="KERNEL" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/MED_3.2.6" moduleName="MED" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/GEOM_3.2.6" moduleName="GEOM" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SMESH_3.2.6" moduleName="SMESH" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SUPERV_3.2.6" moduleName="SUPERV" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/VISU_3.2.6" moduleName="VISU" />
-</machine>
-
-<machine hostname="is125604" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="r" mode="i" nbOfNodes="1" nbOfProcPerNode="1" preReqFilePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/env_products.sh" >
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/KERNEL_3.2.6" moduleName="KERNEL" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/MED_3.2.6" moduleName="MED" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/GEOM_3.2.6" moduleName="GEOM" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SMESH_3.2.6" moduleName="SMESH" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/SUPERV_3.2.6" moduleName="SUPERV" />
-<modules modulePath="/data/tmplgls/rahuel/YACS/Salome_3.2.6pre4/VISU_3.2.6" moduleName="VISU" />
-</machine>
-
-<machine hostname="tantal" alias="tantale.ccc.cea.fr" OS="LINUX" CPUFreqMHz="2992" memInMB="1024" protocol="s" mode="b" nbOfNodes="236" nbOfProcPerNode="4" appliPath="/workdir/rahuel/YACS/Salome_3.2.6pre4/env_products.sh" >
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/KERNEL_install" moduleName="KERNEL" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/MED_3.2.6" moduleName="MED" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/GEOM_3.2.6" moduleName="GEOM" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/SMESH_3.2.6" moduleName="SMESH" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/NETGENPLUGIN_3.2.6" moduleName="NETGENPLUGIN" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/NETGENPLUGIN_3.2.6" moduleName="NETGENPLUGIN" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/YACS_install" moduleName="YACS" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/SRHEOLEFCPP_install" moduleName="SRHEOLEFCPP" />
-<modules modulePath="/workdir/rahuel/YACS/Salome_3.2.6pre4/SRHEOLEF_install" moduleName="SRHEOLEF" />
-</machine>
-
+  <machine hostname="localhost" />
 </resources>

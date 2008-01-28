@@ -57,21 +57,21 @@ using namespace std;
 #include <signal.h>
 
 void test(int sigval) {
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "SIGSEGV in :" << getpid() << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	while (1) {}
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "SIGSEGV in :" << getpid() << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  while (1) {}
 }
 
 void handler(int t) {
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "SIGSEGV in :" << getpid() << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-	while (1) {}
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "SIGSEGV in :" << getpid() << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  while (1) {}
 }
 #endif
 
@@ -90,13 +90,13 @@ sighandler_t setsig(int sig, sighandler_t handler)
 void AttachDebugger()
 {
   if(getenv ("DEBUGGER"))
-    {
-      std::stringstream exec;
-      exec << "$DEBUGGER SALOME_ParallelContainerNodeMpi " << getpid() << "&";
-      std::cerr << exec.str() << std::endl;
-      system(exec.str().c_str());
-      while(1);
-    }
+  {
+    std::stringstream exec;
+    exec << "$DEBUGGER SALOME_ParallelContainerNodeMpi " << getpid() << "&";
+    std::cerr << exec.str() << std::endl;
+    system(exec.str().c_str());
+    while(1);
+  }
 }
 
 void Handler(int theSigId)
@@ -121,40 +121,31 @@ void unexpectedHandler(void)
 
 int main(int argc, char* argv[])
 {
-	INFOS("Launching a parallel Mpi container node");
+  INFOS("Launching a parallel Mpi container node");
 
-#ifdef _DEBUG_
-//	struct sigaction action;
-//	action.sa_handler = &test;
-//	sigaction(SIGSEGV, &action, NULL);
-#endif
-	
-	// MPI Init
-	int provided;
-	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
+  // MPI Init
+  int provided;
+  int myid;
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
+  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
   if(getenv ("DEBUGGER"))
-    {
-  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
-      setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
-    }
-#ifdef _DEBUG_
-	cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
-	cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
-	cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;
-	cerr << "Level MPI_THREAD_MULTIPLE : " << MPI_THREAD_MULTIPLE << endl;
-	cerr << "Level provided : " << provided << endl;
-#endif
-	// Initialise the ORB.
-	ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
-	ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
-	CORBA::ORB_var orb = init(0, 0);
-	//CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  {
+    std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+    setsig(SIGSEGV,&Handler);
+    set_terminate(&terminateHandler);
+    set_unexpected(&unexpectedHandler);
+  }
+  cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
+  cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
+  cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;
+  cerr << "Level MPI_THREAD_MULTIPLE : " << MPI_THREAD_MULTIPLE << endl;
+  cerr << "Level provided : " << provided << endl;
+  // Initialise the ORB.
+  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 
-	// Code pour choisir le reseau infiniband .....
-/*	string hostname_temp = GetHostname();
+  // Code pour choisir le reseau infiniband .....
+  /*	string hostname_temp = GetHostname();
 	hostent * t = gethostbyname(hostname_temp.c_str());
 	cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << t->h_addr << " " << hostname_temp << endl;
 	cerr << t->h_addr << endl;
@@ -165,96 +156,99 @@ int main(int argc, char* argv[])
 	string com = "giop:tcp:" + ip + ":";
 	const char* options[][2] = { { "endPoint", com.c_str() }, { 0, 0 } };
 	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB4", options);
-*/
-	char * containerName = "";
-	if(argc > 1) {
-		containerName = argv[1];
-	}
+	*/
+  std::string containerName("");
+  containerName = argv[1];
 
-	char * hostname = "";
-	if(argc > 3) {
-		hostname = argv[3];
-	}
+  std::string hostname("");
+  if(argc > 3) {
+    hostname = argv[3];
+  }
 
-	try {  
-		CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
-		PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
-		PortableServer::POAManager_var pman = root_poa->the_POAManager();
+  try {  
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+    PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
+    PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
 #ifndef WNT
-		// add this container to the kill list
-		char aCommand[100];
-		sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerNodeMpi", getpid());
-		system(aCommand);
+    // add this container to the kill list
+    char aCommand[100];
+    sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerNodeMpi", getpid());
+    system(aCommand);
 #endif
 
-		SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-		// On récupère le proxy 
-		string proxyNameInNS = ns->BuildContainerNameForNS(containerName, hostname);
-		obj = ns->Resolve(proxyNameInNS.c_str());
-		char * proxy_ior = orb->object_to_string(obj);
+    SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
+    // On récupère le proxy 
+    string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
+						       hostname.c_str());
+    obj = ns->Resolve(proxyNameInNS.c_str());
+    char * proxy_ior = orb->object_to_string(obj);
 
-		// Node creation
-		string name(containerName);
-		string node_name = name + "Node";
-		Engines_Parallel_Container_i * servant = new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), proxy_ior,
-																																							root_poa,
-																																							(char*) node_name.c_str(),
-																																							argc, argv);
-		// PaCO++ init
-		paco_fabrique_manager * pfm = paco_getFabriqueManager();
-		pfm->register_com("mpi", new paco_mpi_fabrique());
-		pfm->register_thread("omni", new paco_omni_fabrique());
+    // Node creation
+    string node_name = containerName + "Node";
+    Engines_Parallel_Container_i * servant = 
+      new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
+				       proxy_ior,
+				       myid,
+				       root_poa,
+				       (char*) node_name.c_str(),
+				       argc, argv);
+    // PaCO++ init
+    paco_fabrique_manager * pfm = paco_getFabriqueManager();
+    pfm->register_com("mpi", new paco_mpi_fabrique());
+    pfm->register_thread("omni", new paco_omni_fabrique());
+    MPI_Comm group = MPI_COMM_WORLD;
+    servant->setLibCom("mpi", &group);
+    servant->setLibThread("omni");
 
-		// Global context
-		PaCO_operation * global_ptr = servant->getContext("global_paco_context");
-		MPI_Comm group = MPI_COMM_WORLD;
-		global_ptr->setLibCom("mpi", &group);
-		global_ptr->setLibThread("omni");
+    // Activation
+    PortableServer::ObjectId * _id = root_poa->activate_object(servant);
+    servant->set_id(_id);
+    obj = root_poa->id_to_reference(*_id);
 
-		// Activation
-		PortableServer::ObjectId * _id = root_poa->activate_object(servant);
-		servant->set_id(_id);
-		obj = root_poa->id_to_reference(*_id);
+    // In the NamingService
+    string hostname = GetHostname();
 
-		// In the NamingService
-		string hostname = GetHostname();
+    int myid;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+    char buffer [5];
+    snprintf(buffer, 5, "%d", myid);
+    node_name = node_name + buffer;
+    string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
+							hostname.c_str());
+    cerr << "---------" << _containerName << "----------" << endl;
+    ns->Register(obj, _containerName.c_str());
+    pman->activate();
+    orb->run();
+  }
+  catch (PaCO::PACO_Exception& e)
+  {
+    INFOS("Caught PaCO::PACO_Exception");
+    std::cerr << e << std::endl;
+  }
+  catch(CORBA::SystemException&)
+  {
+    INFOS("Caught CORBA::SystemException.");
+  }
+  catch(PortableServer::POA::ServantAlreadyActive&)
+  {
+    INFOS("Caught CORBA::ServantAlreadyActiveException");
+  }
+  catch(CORBA::Exception&)
+  {
+    INFOS("Caught CORBA::Exception.");
+  }
+  catch(std::exception& exc)
+  {
+    INFOS("Caught std::exception - "<<exc.what()); 
+  }
+  catch(...)
+  {
+    INFOS("Caught unknown exception.");
+  }
 
-		int myid;
-		MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-		char buffer [5];
-		snprintf(buffer, 5, "%d", myid);
-		node_name = node_name + buffer;
-		string _containerName = ns->BuildContainerNameForNS((char*) node_name.c_str(),
-																												hostname.c_str());
-		cerr << "---------" << _containerName << "----------" << endl;
-		ns->Register(obj, _containerName.c_str());
-		pman->activate();
-		orb->run();
-	}
-	catch(CORBA::SystemException&)
-	{
-		INFOS("Caught CORBA::SystemException.");
-	}
-	catch(PortableServer::POA::ServantAlreadyActive&)
-	{
-		INFOS("Caught CORBA::ServantAlreadyActiveException");
-	}
-	catch(CORBA::Exception&)
-	{
-		INFOS("Caught CORBA::Exception.");
-	}
-	catch(std::exception& exc)
-	{
-		INFOS("Caught std::exception - "<<exc.what()); 
-	}
-	catch(...)
-	{
-		INFOS("Caught unknown exception.");
-	}
+  MPI_Finalize();
 
-	MPI_Finalize();
-
-	return 0 ;
+  return 0 ;
 }
 

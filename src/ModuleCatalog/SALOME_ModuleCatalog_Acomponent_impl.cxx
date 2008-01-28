@@ -413,11 +413,20 @@ CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::multistudy()
 
 //----------------------------------------------------------------------
 // Function : implementation type
-// Purpose  : define if a component is implemented in C++ or Python
+// Purpose  : return the implementation type :  C++ (dyn lib), Python (module) or executable
 //----------------------------------------------------------------------
-CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::implementation_type()
+SALOME_ModuleCatalog::ImplType SALOME_ModuleCatalog_AcomponentImpl::implementation_type()
 {
   return _Component.implementationType ;
+}
+
+//----------------------------------------------------------------------
+// Function : implementation name
+// Purpose  : return the implementation name to exec if the default one is not convenient
+//----------------------------------------------------------------------
+char* SALOME_ModuleCatalog_AcomponentImpl::implementation_name()
+{
+  return _Component.implname ;
 }
 
 //----------------------------------------------------------------------

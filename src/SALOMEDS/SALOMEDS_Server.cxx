@@ -161,6 +161,7 @@ int main(int argc, char** argv)
       // ready to accept requests.
       PortableServer::ObjectId_var myStudyManager_iid = poa->activate_object(myStudyManager_i);
       myStudyManager_i->register_name("/myStudyManager");
+      myStudyManager_i->_remove_ref();
        
       // Obtain a POAManager, and tell the POA to start accepting
       // requests on its objects.

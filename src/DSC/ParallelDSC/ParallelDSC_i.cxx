@@ -25,19 +25,21 @@
 
 #include "ParallelDSC_i.hxx"
 
-Engines_ParallelDSC_i::Engines_ParallelDSC_i(CORBA::ORB_ptr orb, char * ior,
+Engines_ParallelDSC_i::Engines_ParallelDSC_i(CORBA::ORB_ptr orb, 
+					     char * ior,
+					     int rank,
 					     PortableServer::POA_ptr poa,
 					     PortableServer::ObjectId * contId,
 					     const char *instanceName,
 					     const char *interfaceName,
 					     bool notif) :
-  Engines_Parallel_Component_i(orb, ior, poa, contId, instanceName, interfaceName, notif),
-  Engines::Parallel_DSC_serv(orb, ior),
-  Engines::DSC_serv(orb, ior),
-  Engines::Superv_Component_serv(orb, ior),
-  Engines::Component_serv(orb, ior),
-  Engines::Parallel_Component_serv(orb, ior),
-  InterfaceParallel_impl(orb,ior)
+  Engines_Parallel_Component_i(orb, ior, rank, poa, contId, instanceName, interfaceName, notif),
+  Engines::Parallel_DSC_serv(orb, ior, rank),
+  Engines::DSC_serv(orb, ior, rank),
+  Engines::Superv_Component_serv(orb, ior, rank),
+  Engines::Component_serv(orb, ior, rank),
+  Engines::Parallel_Component_serv(orb, ior, rank),
+  InterfaceParallel_impl(orb, ior, rank)
 {
 }
 
@@ -56,10 +58,8 @@ Engines_ParallelDSC_i::set_paco_proxy(const CORBA::Object_ptr ref,
   Engines_DSC_interface::add_provides_port(Ports::Port::_narrow(ref), 
 					   provides_port_name,
 					   port_prop);
-  PaCO_operation * global_ptr = getContext("global_paco_context");
-  cerr << " my_comm : " << global_ptr->my_com << endl;
   // Waiting that all the nodes have the proxy
-  global_ptr->my_com->paco_barrier(); 
+  _my_com->paco_barrier(); 
   cerr << "set_paco_proxy node fin" << endl;
 }
 
@@ -80,8 +80,8 @@ Engines_ParallelDSC_i::add_parallel_provides_proxy_port(const CORBA::Object_ptr 
 {
   assert(provides_port_name);
   CORBA::Boolean rtn_bool = false;
-  CORBA::Object_ptr _comp_proxy = _orb->string_to_object(_ior.c_str());
-  Engines::Parallel_DSC_var real_comp_proxy = Engines::Parallel_DSC::_narrow(_comp_proxy);
+  Engines::Parallel_DSC_var real_comp_proxy = 
+    Engines::Parallel_DSC::_narrow(InterfaceParallel_impl::_proxy);
   real_comp_proxy->set_paco_proxy(ref, provides_port_name, port_prop);
   rtn_bool = true;
   return rtn_bool;
@@ -114,7 +114,7 @@ Engines_ParallelDSC_i::add_parallel_provides_node_port(Ports::Port_PaCO_ptr ref,
 {
   CORBA::Boolean rtn_bool = false;
   PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(ref);
-  node->deploy(getMyRank());
+  node->deploy();
   rtn_bool = true;
   return rtn_bool;
 }

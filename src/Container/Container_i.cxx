@@ -103,7 +103,7 @@ Engines_Container_i::Engines_Container_i () :
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-                                          PortableServer::POA_var poa,
+                                          PortableServer::POA_ptr poa,
                                           char *containerName ,
                                           int argc , char* argv[],
                                           bool activAndRegist,
@@ -161,10 +161,11 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     {
       _id = _poa->activate_object(this);
       _NS = new SALOME_NamingService();
-      _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
+      _NS->init_orb( _orb ) ;
       CORBA::Object_var obj=_poa->id_to_reference(*_id);
       Engines::Container_var pCont 
         = Engines::Container::_narrow(obj);
+      _remove_ref();
 
       _containerName = _NS->BuildContainerNameForNS(containerName,
                                                     hostname.c_str());
@@ -209,7 +210,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
         }
 
       fileTransfer_i* aFileTransfer = new fileTransfer_i();
-      _fileTransfer = Engines::fileTransfer::_narrow(aFileTransfer->_this());
+      CORBA::Object_var obref=aFileTransfer->_this();
+      _fileTransfer = Engines::fileTransfer::_narrow(obref);
+      aFileTransfer->_remove_ref();
     }
 }
 
@@ -223,6 +226,8 @@ Engines_Container_i::~Engines_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
   delete _id;
+  if(_NS)
+    delete _NS;
 }
 
 //=============================================================================
@@ -298,8 +303,6 @@ void Engines_Container_i::Shutdown()
   if(_isServantAloneInProcess)
     {
       MESSAGE("Effective Shutdown of container Begins...");
-      LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-      bp1->deleteInstance(bp1);
       if(!CORBA::is_nil(_orb))
 	_orb->shutdown(0);
     }
@@ -455,6 +458,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
                                              instanceName.c_str(),
                                              studyId);
       string iors = PyString_AsString(result);
+      Py_DECREF(result);
       SCRUTE(iors);
       Py_RELEASE_NEW_THREAD;
   
@@ -462,6 +466,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       {
         CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
         iobject = Engines::Component::_narrow( obj ) ;
+        _listInstances_map[instanceName] = iobject;
       }
       return iobject._retn();
     }
@@ -904,6 +909,8 @@ Engines_Container_i::createInstance(string genericRegisterName,
 
 void Engines_Container_i::decInstanceCnt(string genericRegisterName)
 {
+  if(_cntInstances_map.count(genericRegisterName)==0)
+    return;
   string aGenRegisterName =genericRegisterName;
   MESSAGE("Engines_Container_i::decInstanceCnt " << aGenRegisterName);
   ASSERT(_cntInstances_map[aGenRegisterName] > 0); 

@@ -96,7 +96,8 @@ struct ParserComponent
   std::string         constraint;
   ParserInterfaces    interfaces;
   ParserPathPrefixes  prefixes;
-  bool                implementationType;
+  std::string         implementationType;
+  std::string         implementationName;
   std::string         version;
   std::string         comment;
 };

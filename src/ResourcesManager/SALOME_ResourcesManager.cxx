@@ -1040,9 +1040,9 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     //command = "gdb --args ";
     //command = "valgrind --tool=memcheck --log-file=val_log ";
     //command += real_exe_name;
-    
+
     command = real_exe_name;
-    
+
     command += " " + _NS->ContainerName(rtn);
     command += " " + parallelLib;
     command += " " + hostname;
@@ -1050,7 +1050,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     AddOmninamesParams(command);
   }
 
-  if (parallelLib == "Mpi")
+  else if (parallelLib == "Mpi")
   {
     // Step 1 : check if MPI is started
     if (_MpiStarted == false)
@@ -1083,6 +1083,11 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalParallelContainer(const std::s
       command += " -";
       AddOmninamesParams(command);
     }
+  }
+  else
+  {
+    std::string message("Unknown parallelLib" + parallelLib);
+    throw SALOME_Exception(message.c_str());
   }
 
   // log choice

@@ -217,9 +217,6 @@ private:
   ParserComponents    _personal_module_list ;
   ParserPathPrefixes  _personal_path_list ; 
 
-  std::map <std::string, SALOME_ModuleCatalog::DataStreamType> 
-  DataStreamTypeConvert;
-
   std::map <std::string, SALOME_ModuleCatalog::DataStreamDependency> 
   DataStreamDepConvert;
 

@@ -64,19 +64,10 @@ This struct contains fields defining the parameter of the service.
     DATASTREAM_ITERATIVE
   } ;
 
-  enum DataStreamType {
-    DATASTREAM_UNKNOWN,
-    DATASTREAM_INTEGER,
-    DATASTREAM_FLOAT,
-    DATASTREAM_DOUBLE,
-    DATASTREAM_STRING,
-    DATASTREAM_BOOLEAN
-  } ;
-
   struct ServicesDataStreamParameter
   {
-    DataStreamType Parametertype; /*!<Type of the parameter.*/
-    string Parametername;         /*!<Name of the parameter.*/
+    string Parametertype;                     /*!<Type of the parameter.*/
+    string Parametername;                     /*!<Name of the parameter.*/
     DataStreamDependency Parameterdependency; /*!<Temporal or iterative dependency.*/
   } ;
 
@@ -175,6 +166,15 @@ List of path prefixes
   typedef sequence<PathPrefix> PathPrefixes;
 
 /*!
+Implementation type
+*/
+  enum ImplType {
+    SO,                       /* component implemented as a dynamic library loadable with dlopen */
+    PY,                       /* component implemented as a python module loadable with import */
+    EXE                       /* component implemented as an executable */
+  } ;
+
+/*!
 Description of a component
 */
   struct ComponentDef
@@ -183,7 +183,8 @@ Description of a component
     string             name;
     string             username;
     boolean            multistudy;
-    boolean            implementationType;
+    ImplType           implementationType;
+    string             implname;
     string             icon;
     string             constraint;
     ListOfDefInterface interfaces;
@@ -324,9 +325,14 @@ Gets the icone of the component (for IAPP)
     readonly attribute string component_icone;
 
 /*! 
-Gets the implementation type of the component : C++ or Python (for IAPP)
+Gets the implementation type of the component : C++ (dyn lib), Python (module) or executable 
 */
-    readonly attribute boolean implementation_type;
+    readonly attribute ImplType implementation_type;
+/*! 
+Gets the implementation name of the component : name of the dyn lib or the python module or the executable
+if the default naming scheme is not convenient.
+*/
+    readonly attribute string implementation_name;
   } ;
 
 /*! \brief %Module catalog interface

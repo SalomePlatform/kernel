@@ -32,12 +32,8 @@ import os
 import sys
 import string
 from omniORB import CORBA, PortableServer
-# import SALOMEDS before other SALOME modules
-# (if not, incomplete import done by SALOME module: no load of SALOMEDS_attributes)
 import SALOMEDS 
 import Engines, Engines__POA
-reload(Engines)
-reload(Engines__POA)
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 
@@ -67,6 +63,9 @@ class SALOME_Container_i:
         self._container = self._orb.string_to_object(containerIORStr)
 
     #-------------------------------------------------------------------------
+
+    def __del__(self ):
+      self._orb.destroy()
 
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )

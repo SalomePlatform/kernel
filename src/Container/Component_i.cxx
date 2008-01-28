@@ -241,7 +241,6 @@ void Engines_Component_i::destroy()
   delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
   _poa->deactivate_object(*_id) ;
-  CORBA::release(_poa) ;
   delete(_id) ;
   //SCRUTE(pd_refCount);
   _thisObj->_remove_ref();
@@ -259,7 +258,7 @@ void Engines_Component_i::destroy()
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
   //  MESSAGE("Engines_Component_i::GetContainerRef");
-  CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
+  CORBA::Object_var o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }
 
@@ -851,7 +850,7 @@ void Engines_Component_i::CancelThread()
 void Engines_Component_i::sendMessage(const char *event_type,
 				      const char *message)
 {
-    _notifSupplier->Send(graphName(), nodeName(), event_type, message);
+    _notifSupplier->Send(_graphName.c_str(), _nodeName.c_str(), event_type, message);
 }
 
 //=============================================================================

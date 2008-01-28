@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_ptr orb = init(argc , argv ) ;
-	  
+
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
@@ -168,9 +168,9 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WNT
-      ostrstream aCommand ;
+      stringstream aCommand ;
       aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
-      system(aCommand.str());
+      system(aCommand.str().c_str());
 #endif
       
       Engines_Container_i * myContainer 
@@ -186,7 +186,10 @@ int main(int argc, char* argv[])
 #endif
 
       HandleServerSideSignals(orb);
-      
+
+      PyGILState_STATE gstate = PyGILState_Ensure();
+      //Delete python container that destroy orb from python (pyCont._orb.destroy())
+      Py_Finalize();
     }
   catch(CORBA::SystemException&)
     {

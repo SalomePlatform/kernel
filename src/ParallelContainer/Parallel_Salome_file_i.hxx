@@ -39,7 +39,9 @@ class CONTAINER_EXPORT Parallel_Salome_file_i:
   public virtual Engines::Parallel_Salome_file_serv
 {
   public:
-    Parallel_Salome_file_i(CORBA::ORB_ptr orb, const char * ior);
+    Parallel_Salome_file_i(CORBA::ORB_ptr orb, 
+			   const char * ior,
+			   int rank);
     virtual ~Parallel_Salome_file_i();
 
     virtual void setFileNode(const char* file_name, CORBA::Long node);

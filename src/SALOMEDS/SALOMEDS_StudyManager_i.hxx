@@ -54,7 +54,7 @@ class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager
 {
 private:
 
-  CORBA::ORB_ptr                    _orb;
+  CORBA::ORB_var                    _orb;
   PortableServer::POA_var           _poa;
   SALOMEDSImpl_StudyManager*        _impl;  
   SALOME_NamingService*             _name_service;

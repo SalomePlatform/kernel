@@ -89,6 +89,7 @@ NSTEST::echo_ptr NSTEST_aFactory_i::createInstance()
   NSTEST_echo_i * anEcho = new NSTEST_echo_i(_num);
   _num++;
   NSTEST::echo_var anEchoRef = anEcho->_this();
+  anEcho->_remove_ref();
   return anEchoRef._retn();
 }
 
@@ -149,6 +150,7 @@ NamingServiceTest::setUp()
   _myFactoryId = _root_poa->activate_object(_myFactory);
   _factoryRef = _myFactory->_this();
   _pman->activate();
+  _myFactory->_remove_ref();
   
 }
 
@@ -182,6 +184,7 @@ NamingServiceTest::testConstructorDefault()
 
   char *root = NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
+  delete [] root;
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 
   CosNaming::NamingContext_var rootContext =
@@ -202,6 +205,7 @@ NamingServiceTest::testConstructorOrb()
   char *root = NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  delete [] root;
 
   CosNaming::NamingContext_var rootContext =
     CosNaming::NamingContext::_narrow(obj);
@@ -1027,7 +1031,9 @@ NamingServiceTest::testCurrentDirectory()
   CPPUNIT_ASSERT(ret);
 
   _NS.Change_Directory(path.c_str());
-  string curdir = _NS.Current_Directory();
+  char* acurdir = _NS.Current_Directory();
+  string curdir = acurdir;
+  free(acurdir);
   CPPUNIT_ASSERT(curdir == path);
 }
 
@@ -1204,6 +1210,7 @@ NamingServiceTest::testGetIorAddr()
 {
   char *root = _NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
+  delete [] root;
   CPPUNIT_ASSERT(!CORBA::is_nil(obj)); 
 }
 

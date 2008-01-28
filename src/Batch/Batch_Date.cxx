@@ -60,7 +60,7 @@ namespace Batch {
       _sec   = p_tm->tm_sec;
 
     } else {
-      char c;
+//      char c;
 //       istringstream ist(s);
 //       ist >> _day   >> c
 // 	  >> _month >> c

@@ -35,7 +35,7 @@ class client:
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
       # Initialise the Naming Service
-      self.initNS(args)
+      self.initNS(args or {})
 
    # --------------------------------------------------------------------------
 

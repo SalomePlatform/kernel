@@ -135,7 +135,7 @@ module Engines
     /*!
       Shutdown the Container process.
     */
-    oneway void Shutdown();
+    void Shutdown();
 
     /*!
       Returns the hostname of the container

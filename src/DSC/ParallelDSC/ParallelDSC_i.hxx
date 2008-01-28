@@ -39,7 +39,9 @@ class Engines_ParallelDSC_i:
   public virtual Engines_DSC_interface 
 {
 public:
-  Engines_ParallelDSC_i(CORBA::ORB_ptr orb, char * ior,
+  Engines_ParallelDSC_i(CORBA::ORB_ptr orb, 
+			char * ior,
+			int rank,
 			PortableServer::POA_ptr poa,
 			PortableServer::ObjectId * contId,
 			const char *instanceName,

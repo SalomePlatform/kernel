@@ -26,11 +26,13 @@
 #include "Parallel_Salome_file_i.hxx"
 #include "utilities.h"
 
-Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb, const char * ior) :
-  InterfaceParallel_impl(orb,ior), 
-  Engines::Salome_file_serv(orb,ior),
-  Engines::fileTransfer_serv(orb,ior),
-  Engines::Parallel_Salome_file_serv(orb,ior)
+Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb, 
+					       const char * ior,
+					       int rank) :
+  InterfaceParallel_impl(orb,ior,rank), 
+  Engines::Salome_file_serv(orb,ior,rank),
+  Engines::fileTransfer_serv(orb,ior,rank),
+  Engines::Parallel_Salome_file_serv(orb,ior,rank)
 {
   CORBA::Object_ptr obj = _orb->string_to_object(ior);
   proxy = Engines::Parallel_Salome_file::_narrow(obj);
@@ -168,8 +170,8 @@ Parallel_Salome_file_i::recvFiles_node() {
 	  // 2 cases :
 	  // Source file is a Salome_file
 	  // Source file is a Parallel_Salome_file
-	  PaCO::ParallelKernel_var interface_manager = 
-	    PaCO::ParallelKernel::_narrow(_fileDistributedSource[file_infos.file_name.in()]);
+	  PaCO::InterfaceManager_var interface_manager = 
+	    PaCO::InterfaceManager::_narrow(_fileDistributedSource[file_infos.file_name.in()]);
 	  if (CORBA::is_nil(interface_manager))
 	    result = getDistributedFile(file_infos.file_name.in());
 	  else
@@ -245,6 +247,7 @@ Parallel_Salome_file_i::getParallelDistributedFile(std::string file_name) {
       toFollow = aBlock->length();
       CORBA::Octet *buf = aBlock->get_buffer();
       int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+      delete aBlock;
       ASSERT(nbWri == toFollow);
     }
     fclose(fp);

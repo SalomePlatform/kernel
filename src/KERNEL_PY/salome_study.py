@@ -31,49 +31,50 @@ from launchConfigureParser import verbose
 
 #--------------------------------------------------------------------------
 
-def DumpComponent(Study, SO, offset):
-    it = Study.NewChildIterator(SO)
-    Builder = Study.NewBuilder()
-    while it.More():
-        CSO = it.Value()
-        it.Next()
-        anAttr = Builder.FindOrCreateAttribute(CSO, "AttributeName")
-        AtName = anAttr._narrow(SALOMEDS.AttributeName)
-        t_name = AtName.Value()
-        if t_name[0] == 1:
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "--"
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(CSO.GetID()) + " " + str(t_name[1]) )
-        t_RefSO = CSO.ReferencedObject()
-        if t_RefSO[0] == 1:
-            RefSO = t_RefSO[1]
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "  "
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(RefSO.GetID()) )
-        DumpComponent(Study, CSO, offset+2)
+def DumpComponent(Study, SO, Builder,offset):
+  it = Study.NewChildIterator(SO)
+  while it.More():
+    CSO = it.Value()
+    a=offset*"--" + ">" + CSO.GetID()
+    find,AtName = Builder.FindAttribute(CSO, "AttributeName")
+    if find:
+      a=a+":"+AtName.Value()
+    find,AtIOR = Builder.FindAttribute(CSO, "AttributeIOR")
+    if find:
+      a=a+":"+AtIOR.Value()
+    find,RefSO = CSO.ReferencedObject()
+    if find:
+      a=a+":"+RefSO.GetID()
+    print a
+    DumpComponent(Study, CSO, Builder,offset+2)
+    it.Next()
 
-    #--------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 def DumpStudy(Study):
     """
     Dump a study, given the ior
     """
     itcomp = Study.NewComponentIterator()
+    Builder = Study.NewBuilder()
     while itcomp.More():
-        SC = itcomp.Value()
-        itcomp.Next()
-        name = SC.ComponentDataType()
-        MESSAGE( "-> ComponentDataType is " + name )
-        DumpComponent(Study, SC, 1)
-        
+      SC = itcomp.Value()
+      name = SC.ComponentDataType()
+      print "-> ComponentDataType is " + name
+      DumpComponent(Study, SC,Builder, 1)
+      itcomp.Next()
 
-    #--------------------------------------------------------------------------
+def DumpStudies():
+  """
+    Dump all studies in a StudyManager
+  """
+  for name in myStudyManager.GetOpenStudies():
+    s=myStudyManager.GetStudyByName(name)
+    print "study:",name, s._get_StudyId()
+    DumpStudy(s)
+
+
+#--------------------------------------------------------------------------
 
 def IDToObject(id):
     myObj = None

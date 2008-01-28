@@ -136,6 +136,8 @@ SALOMEDS_EXPORT
     SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.
     PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
+    //give ownership to the poa : the object will be deleted by the poa
+    aStudyManager_i->_remove_ref();
     aStudyManager_i->register_name("/myStudyManager");
   }
   return new SALOMEDS_StudyManager();

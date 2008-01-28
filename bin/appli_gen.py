@@ -228,6 +228,16 @@ def install(prefix,config_file):
     f.write(command)    
     f.close()
 
+    #Add default CatalogResources.xml file
+    f =open(os.path.join(home_dir,'CatalogResources.xml'),'w')
+    command="""<!DOCTYPE ResourcesCatalog>
+<resources>
+   <machine hostname="localhost" />
+</resources>
+"""
+    f.write(command)    
+    f.close()
+
 def main():
     parser = optparse.OptionParser(usage=usage)
 

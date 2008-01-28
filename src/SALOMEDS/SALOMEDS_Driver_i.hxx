@@ -117,7 +117,7 @@ public:
 class SALOMEDS_DriverFactory_i : public virtual SALOMEDSImpl_DriverFactory 
 {
 protected:  
-  CORBA::ORB_ptr        _orb;
+  CORBA::ORB_var        _orb;
   SALOME_NamingService* _name_service;
 
 public:

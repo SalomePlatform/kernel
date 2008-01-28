@@ -44,6 +44,7 @@ int SIGUSR11 = 1000;
 #endif
 
 #include <paco_dummy.h>
+#include <paco_omni.h>
 
 using namespace std;
 
@@ -59,8 +60,10 @@ bool Engines_Parallel_Component_i::_isMultiInstance = false;
  */
 //=============================================================================
 
-Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior) : 
-  InterfaceParallel_impl(orb,ior), Engines::Component_serv(orb,ior), Engines::Parallel_Component_serv(orb,ior)
+Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank) : 
+  InterfaceParallel_impl(orb,ior,rank), 
+  Engines::Component_serv(orb,ior,rank), 
+  Engines::Parallel_Component_serv(orb,ior,rank)
 {
   //ASSERT(0);
   INFOS("Default Constructor...");
@@ -79,15 +82,15 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
  */
 //=============================================================================
 
-Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior,
+Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
 					 PortableServer::POA_ptr poa, 
 					 PortableServer::ObjectId * contId, 
 					 const char *instanceName,
 					 const char *interfaceName,
                                          bool notif) :
-  InterfaceParallel_impl(orb,ior), 
-  Engines::Component_serv(orb,ior),
-  Engines::Parallel_Component_serv(orb,ior),
+  InterfaceParallel_impl(orb,ior,rank), 
+  Engines::Component_serv(orb,ior,rank),
+  Engines::Parallel_Component_serv(orb,ior,rank),
   _instanceName(instanceName),
   _interfaceName(interfaceName),
   _myConnexionToRegistry(0),
@@ -818,34 +821,21 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     // Firstly, we have to create the proxy object
     // of the Salome_file and transmit his
     // reference to the other nodes.
+    Engines::Parallel_Salome_file_proxy_impl * proxy = NULL;
     if (getMyRank() == 0) {
-      Engines::Parallel_Salome_file_proxy_impl * proxy = 
-	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
-      PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
-      // We initialize the object with the context of the Parallel component
-      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
-      //compo_global_ptr->init_context(proxy_global_ptr);
-      proxy_global_ptr->init_context(compo_global_ptr);
-      
-      paco_fabrique_manager* pfm = paco_getFabriqueManager();
-      pfm->register_com("dummy", new paco_dummy_fabrique());
-      proxy_global_ptr->setComFab(NULL);
-      proxy_global_ptr->setLibCom("dummy",NULL);
-      
-      proxy_global_ptr->setTypeClient(true);
-      PaCO::PacoTopology_t client_topo;
-      client_topo.total = 1;
-      proxy_global_ptr->setClientTopo(client_topo);
+      proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
+							   new paco_omni_fabrique());
+      proxy->copyGlobalContext(this); 
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
-      proxy->setTopo(serveur_topo);
+      proxy->setTopology(serveur_topo);
 
       // We register the CORBA objet into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
       // We send the reference to all the nodes...
-      CORBA::Object_ptr comp_proxy = _orb->string_to_object(_ior.c_str());
-      Engines::Parallel_Component_var component_proxy = Engines::Parallel_Component::_narrow(comp_proxy);
+      Engines::Parallel_Component_var component_proxy = 
+	Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
       // Adding proxy into the map
@@ -863,32 +853,35 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
 	Parallel_Salome_file_i * servant = 
-	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), proxy_ior.c_str());
-	PaCO_operation * servant_global_ptr = servant->getContext("global_paco_context");
-	
-	// We initialize the object with the context of the Parallel component
-	PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-//	compo_global_ptr->init_context(servant_global_ptr);
-	servant_global_ptr->init_context(compo_global_ptr);
+	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+				     proxy_ior.c_str(),
+				     i);
+	servant->copyGlobalContext(this); 
 	
 	// We register the CORBA objet into the POA
 	servant->POA_PaCO::InterfaceParallel::_this();
 
 	// Register the servant
-	servant->deploy(getMyRank());
+	servant->deploy();
 
 	// Adding servant to the map
 	(*_map)[Salome_file_name] = servant;
       }
 
-      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-      compo_global_ptr->my_com->paco_barrier();
+      _my_com->paco_barrier();
+      // start parallel object
+      if (getMyRank() == 0) {
+	proxy->start();
+	_my_com->paco_barrier();
+      }
+      else
+	_my_com->paco_barrier();
     }
-
     // Parallel_Salome_file is created and deployed
     delete _proxy;
     _proxy = NULL;
   }
+
   pthread_mutex_unlock(deploy_mutex);
   proxy_ior = (*_IOR_proxy_map)[Salome_file_name];
   CORBA::Object_ptr proxy_ref = _orb->string_to_object(proxy_ior.c_str());
@@ -918,6 +911,7 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
 
   // Try to find the Salome_file ...
   _Salome_file_map_it = _map->find(Salome_file_name);
+  Engines::Parallel_Salome_file_proxy_impl * proxy;
   if (_Salome_file_map_it ==  _map->end()) {
 
     // We create a new PaCO++ object.
@@ -928,33 +922,19 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // of the Salome_file and transmit his
     // reference to the other nodes.
     if (getMyRank() == 0) {
-      Engines::Parallel_Salome_file_proxy_impl * proxy = 
-	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
-      PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
-      // We initialize the object with the context of the Parallel component
-      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
-      //compo_global_ptr->init_context(proxy_global_ptr);
-      proxy_global_ptr->init_context(compo_global_ptr);
-
-      paco_fabrique_manager* pfm = paco_getFabriqueManager();
-      pfm->register_com("dummy", new paco_dummy_fabrique());
-      proxy_global_ptr->setComFab(NULL);
-      proxy_global_ptr->setLibCom("dummy",NULL);
-
-      proxy_global_ptr->setTypeClient(true);
-      PaCO::PacoTopology_t client_topo;
-      client_topo.total = 1;
-      proxy_global_ptr->setClientTopo(client_topo);
+	proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
+							     new paco_omni_fabrique());
+      proxy->copyGlobalContext(this); 
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
-      proxy->setTopo(serveur_topo);
+      proxy->setTopology(serveur_topo);
 
       // We register the CORBA objet into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
       // We send the reference to all the nodes...
-      CORBA::Object_ptr comp_proxy = _orb->string_to_object(_ior.c_str());
-      Engines::Parallel_Component_var component_proxy = Engines::Parallel_Component::_narrow(comp_proxy);
+      Engines::Parallel_Component_var component_proxy = 
+	Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
       // Adding proxy into the map
@@ -972,26 +952,29 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
 	Parallel_Salome_file_i * servant = 
-	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), proxy_ior.c_str());
-	PaCO_operation * servant_global_ptr = servant->getContext("global_paco_context");
-	
-	// We initialize the object with the context of the Parallel component
-	PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-//	compo_global_ptr->init_context(servant_global_ptr);
-	servant_global_ptr->init_context(compo_global_ptr);
+	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+				     proxy_ior.c_str(),
+				     i);
+	servant->copyGlobalContext(this); 
 	
 	// We register the CORBA objet into the POA
 	servant->POA_PaCO::InterfaceParallel::_this();
 
 	// Register the servant
-	servant->deploy(getMyRank());
+	servant->deploy();
 
 	// Adding servant to the map
 	(*_map)[Salome_file_name] = servant;
       }
 
-      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-      compo_global_ptr->my_com->paco_barrier();
+      _my_com->paco_barrier();
+      // start parallel object
+      if (getMyRank() == 0) {
+	proxy->start();
+	_my_com->paco_barrier();
+      }
+      else
+	_my_com->paco_barrier();
     }
 
     // Parallel_Salome_file is created and deployed

@@ -87,6 +87,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
 {
   // Destroy directory to register open studies
   _name_service->Destroy_Directory("/Study");
+  delete _name_service;
   delete _factory;
   delete _impl;
 }

@@ -135,11 +135,17 @@ public:
   */
   virtual char* component_icone();
 
-  //! method to define if a component is implemented in C++ or Python
+  //! method to define if a component is implemented in a dyn lib a python module or an executable
   /*!
-    \return true if it's a C++ component 
+    \return an enum SO or PY or EXE
   */
-  virtual CORBA::Boolean implementation_type();
+  virtual SALOME_ModuleCatalog::ImplType implementation_type();
+
+  //! method to obtain the implementation name of the component if the default one is not convenient
+  /*!
+    \return the implementation name to exec
+  */
+  virtual char* implementation_name();
 
 private :
 
