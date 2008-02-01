@@ -71,7 +71,6 @@ check_mpi.m4 \
 check_openmpi.m4 \
 check_mpich.m4 \
 check_omniorb.m4 \
-check_opengl.m4 \
 check_openpbs.m4 \
 check_sockets.m4 \
 check_swig.m4 \
