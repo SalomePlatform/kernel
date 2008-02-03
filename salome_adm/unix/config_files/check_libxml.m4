@@ -16,7 +16,12 @@ LOCAL_LIBS=""
 if test "x$LIBXML_DIR" != "x"
 then
   LOCAL_INCLUDES="-I$LIBXML_DIR/include/libxml2"
-  LOCAL_LIBS="-L$LIBXML_DIR/lib -lxml2"
+  if test "x$LIBXML_DIR" = "x/usr"
+  then
+    LOCAL_LIBS="-lxml2"
+  else
+    LOCALLIBS="-L$LIBXML_DIR/lib -lxml2"
+  fi
 else
   LOCAL_INCLUDES="-I/usr/include/libxml2"
   LOCAL_LIBS="-lxml2"
