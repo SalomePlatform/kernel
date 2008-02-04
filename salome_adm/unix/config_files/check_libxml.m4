@@ -20,7 +20,7 @@ then
   then
     LOCAL_LIBS="-lxml2"
   else
-    LOCALLIBS="-L$LIBXML_DIR/lib -lxml2"
+    LOCAL_LIBS="-L$LIBXML_DIR/lib -lxml2"
   fi
 else
   LOCAL_INCLUDES="-I/usr/include/libxml2"
