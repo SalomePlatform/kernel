@@ -40,7 +40,8 @@ case  $host_os in
    irix5.* | irix6.* | osf4.* | osf5.* | linux*  )
 
         linux64="true"
-        expr "$host_os" : 'linux' >/dev/null && test ! x"$host_cpu" = x"x86_64" && linux64="false"
+# porting on intel processor 64 bits
+        expr "$host_os" : 'linux' >/dev/null && ( test ! x"$host_cpu" = x"x86_64" && test ! x"$host_cpu" = x"ia64" ) && linux64="false"
 	if test ! x"$linux64" = "xfalse" ; then
 	  echo "$as_me:$LINENO: checking for 64bits integers size in F77/F90" >&5
 echo $ECHO_N "checking for 64bits integers size in F77/F90... $ECHO_C" >&6
@@ -70,10 +71,11 @@ esac
 
 case $host_os in
     linux*)
+# porting on intel processor 64 bits: if 64 bits processor, by default compilation in 64 bits
         if test x"$linux64" = x"true"; then \
           MACHINE="PCLINUX64${SUFFIXES}";
-	  CFLAGS=" -m64 -D_OCC64 ${CXXFLAGS}";
-	  CXXFLAGS=" -m64 -D_OCC64 ${CXXFLAGS}";\
+	  CFLAGS=" -D_OCC64 ${CXXFLAGS}";
+	  CXXFLAGS=" -D_OCC64 ${CXXFLAGS}";\
 	else \
 	  MACHINE=PCLINUX; \
 	fi
