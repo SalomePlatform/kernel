@@ -4,7 +4,7 @@ APPLI_HOME=`dirname $0`
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
-. ${APPLI_HOME}/setAppliPath.sh
+export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 

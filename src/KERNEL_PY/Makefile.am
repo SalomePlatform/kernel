@@ -25,8 +25,8 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-# Scripts to be installed (pkgpython is an automake keyword for python targets)
-pkgpython_PYTHON = \
+# Scripts to be installed (salomepython is an automake keyword for python targets)
+salomepython_PYTHON = \
 	Help.py \
 	PyInterp.py \
 	salome.py \

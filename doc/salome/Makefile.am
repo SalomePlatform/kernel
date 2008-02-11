@@ -30,7 +30,7 @@ SUBDIRSGUI= tui
 SUBDIRSTUI= tui
 
 index_html:
-	$(INSTALL) -d $(docdir); 
+	$(INSTALL) -d $(DESTDIR)$(docdir); 
 
 usr_docs: index_html
 	list='$(SUBDIRSGUI)'; for subdir in $$list; do \
@@ -48,7 +48,9 @@ dev_docs: index_html
 info_TEXINFOS = Batch.texi
 
 install-data-local:  html usr_docs
-	cp -rp $(top_builddir)/doc/salome/Batch.html $(docdir)
+	cp -rp $(top_builddir)/doc/salome/Batch.html $(DESTDIR)$(docdir)
+uninstall-local:
+	rm -rf $(DESTDIR)$(docdir)/Batch.html
 
 EXTRA_DIST= main.dox install.dox \
 	    kernel_resources.dox kernel_services.dox \

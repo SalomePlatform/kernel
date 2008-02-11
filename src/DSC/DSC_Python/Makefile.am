@@ -57,9 +57,9 @@ COMMON_LIBS = @CORBA_LIBS@
 #
 
 AM_CFLAGS         = -fexceptions
-pkgpython_PYTHON = calcium.py dsccalcium.py
-pkgpyexec_LTLIBRARIES = _calcium.la
-MY_SWIG_FLAGS= $(SWIG_FLAGS) -noexcept
+salomepython_PYTHON = calcium.py dsccalcium.py
+salomepyexec_LTLIBRARIES = _calcium.la
+MY_SWIG_FLAGS= $(SWIG_FLAGS) -noexcept -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium
 SWIG_SRC=calcium.i
 _calcium_la_SOURCES = calcium_wrap.cpp
 _calcium_la_LDFLAGS = -module
@@ -71,6 +71,8 @@ _calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
 										 ../../Container/libSalomeContainer.la 
 
 _calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
+
+EXTRA_DIST=calcium_wrap.cpp calcium.i
 
 calcium_wrap.cpp calcium.py:calcium.i
 	$(SWIG) $(MY_SWIG_FLAGS) -o calcium_wrap.cpp $<

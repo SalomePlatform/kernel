@@ -58,6 +58,8 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calciumP.h \
 			version.h \
 			calcium.hf
+
+EXTRA_DIST=fortoc.h
 #
 # ===============================================================
 # Local definitions

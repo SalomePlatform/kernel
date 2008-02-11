@@ -5,7 +5,7 @@
 
 %module(docstring=DOCSTRING) calcium
 
-%feature("autodoc", "0");
+%feature("autodoc", "1");
 
 %{
 //C++ Includes 
@@ -30,12 +30,18 @@ struct omniORBpyAPI {
   // Raises BAD_PARAM if the Python object is not an object reference.
   // If <hold_lock> is true, caller holds the Python interpreter lock.
 
-
-  omniORBpyAPI();
-  // Constructor for the singleton. Sets up the function pointers.
+  PyObject* (*handleCxxSystemException)(const CORBA::SystemException& ex);
+  // Sets the Python exception state to reflect the given C++ system
+  // exception. Always returns NULL. The caller must hold the Python
+  // interpreter lock.
 };
 
   omniORBpyAPI* api;
+
+#define OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS \
+catch (const CORBA::SystemException& ex) { \
+  return api->handleCxxSystemException(ex); \
+}
 
 %}
 
@@ -59,13 +65,13 @@ struct omniORBpyAPI {
   Py_DECREF(pyapi);
 %}
 
+%include <exception.i>
 %include "carrays.i" 
 
 %array_class(int, intArray);
 %array_class(float, floatArray);
 %array_class(double, doubleArray);
 
-#ifdef WITH_NUMPY
 /*
  * Most of this code is borrowed from numpy distribution
  * The following code originally appeared in enthought/kiva/agg/src/numeric.i,
@@ -76,7 +82,11 @@ struct omniORBpyAPI {
 
 %{
 
+#ifdef WITH_NUMPY
+/* With Numpy */
 #include <numpy/arrayobject.h>
+
+typedef PyArrayObject ArrayObject;
 
 /* Macros to extract array attributes.
  */
@@ -320,18 +330,32 @@ int require_size(PyArrayObject* ary, int* size, int n) {
   return success;
 }
 
+#else
+/* Without Numpy */
+typedef PyObject ArrayObject;
+
+#endif
 %}
 
-/* input typemap */
+/* input typemap 
+   This typemap can be used for input array objects only.
+   It accepts swig carray objects or numpy contiguous or non contiguous objects.
+   In case of non-contiguous numpy object, it is converted (new object) into a contiguous numpy object
+   This new object is deleted after the call.
+*/
 %define TYPEMAP_IN3(type,typecode)
 %typemap(in) type* IN_ARRAY3
-             (PyArrayObject* array=NULL, int is_new_object) {
+             (ArrayObject* array=NULL, int is_new_object) {
   int size[1] = {-1};
   if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
   {
+%#ifdef WITH_NUMPY
     array = obj_to_array_contiguous_allow_conversion($input, typecode, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (type*) array->data;
+%#else
+    SWIG_exception(SWIG_TypeError, "type* expected");
+%#endif
   }
 }
 %typemap(freearg) type* IN_ARRAY3 {
@@ -345,19 +369,26 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 
 #undef TYPEMAP_IN3
 
-%apply int*    IN_ARRAY3 {int    *val};
-%apply float*  IN_ARRAY3 {float  *val};
-%apply double* IN_ARRAY3 {double *val};
+%apply int*    IN_ARRAY3 {int    *eval};
+%apply float*  IN_ARRAY3 {float  *eval};
+%apply double* IN_ARRAY3 {double *eval};
 
-/* inplace typemaps */
+/* inplace typemaps 
+   This typemap can be used for input/output array objects.
+   It accepts swig carray objects or numpy contiguous objects.
+*/
 
 %define TYPEMAP_INPLACE3(type,typecode)
-%typemap(in) type* INPLACE_ARRAY3 (PyArrayObject* temp=NULL) {
+%typemap(in) type* INPLACE_ARRAY3 (ArrayObject* temp=NULL) {
   if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
   {
+%#ifdef WITH_NUMPY
     temp = obj_to_array_no_conversion($input,typecode);
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (type*) temp->data;
+%#else
+    SWIG_exception(SWIG_TypeError, "type* expected");
+%#endif
   }
 }
 %enddef
@@ -372,7 +403,6 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 %apply float*  INPLACE_ARRAY3 {float  *lval};
 %apply double* INPLACE_ARRAY3 {double *lval};
 
-#endif
 
 %typemap(in) CORBA::Boolean
 {
@@ -435,16 +465,29 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 %exception {
    try {
       $action
-   } catch(Engines::DSC::PortNotDefined& _e) {
+   }
+   catch(Engines::DSC::PortNotDefined& _e) {
       PyErr_SetString(PyExc_ValueError,"Port not defined");
       return NULL;
-   } catch(Engines::DSC::PortNotConnected& _e) {
+   }
+   catch(Engines::DSC::PortNotConnected& _e) {
       PyErr_SetString(PyExc_ValueError,"Port not connected");
       return NULL;
-   } catch(Engines::DSC::BadPortType& _e) {
+   }
+   catch(Engines::DSC::BadPortType& _e) {
       PyErr_SetString(PyExc_ValueError,"Bad port type");
       return NULL;
-   } catch(...) {
+   }
+   catch (SALOME_Exception &e) {
+      PyErr_SetString(PyExc_RuntimeError,e.what());
+      return NULL;
+   }
+   catch (SALOME::SALOME_Exception &e) {
+      PyErr_SetString(PyExc_RuntimeError,e.details.text);
+      return NULL;
+   }
+   OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS
+   catch(...) {
       PyErr_SetString(PyExc_ValueError,"Unknown exception");
       return NULL;
    }
@@ -541,25 +584,22 @@ class PySupervCompo:public Superv_Component_i
 
 extern "C" void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend);
 
-#define   CP_TEMPS    40
-#define   CP_ITERATION    41
-#define   CP_SEQUENTIEL   42
-#define   CP_CONT    20
-#define   CP_ARRET   21
+%ignore CPMESSAGE;
+%include "calciumP.h"
 
-int  cp_cd(void *component,char *name);
+int  cp_cd(Superv_Component_i *component,char *name);
 
-int cp_een(void *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
-int cp_edb(void *component,int dep,double t,int n,char *nom,int nval,double *eval);
-int cp_ere(void *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
-int cp_ecp(void *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
-int cp_elo(void *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
+int cp_een(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
+int cp_edb(Superv_Component_i *component,int dep,double t,int n,char *nom,int nval,double *eval);
+int cp_ere(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
+int cp_ecp(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
+int cp_elo(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 
-int cp_len(void *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
-int cp_ldb(void *component,int dep,double *ti,double *tf,int *niter,char *nom,int nmax,int *nval,double *lval);
-int cp_lre(void *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
-int cp_lcp(void *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
-int cp_llo(void *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
+int cp_len(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
+int cp_ldb(Superv_Component_i *component,int dep,double *ti,double *tf,int *niter,char *nom,int nmax,int *nval,double *lval);
+int cp_lre(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
+int cp_lcp(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
+int cp_llo(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
 
-int cp_fin(void *component,int cp_end);
+int cp_fin(Superv_Component_i *component,int cp_end);
 

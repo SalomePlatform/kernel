@@ -71,7 +71,7 @@ libOpUtil_la_CPPFLAGS = \
 
 libOpUtil_la_LIBADD   = \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la\
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@CORBA_LIBS@
 
 

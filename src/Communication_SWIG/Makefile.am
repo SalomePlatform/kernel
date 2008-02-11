@@ -56,8 +56,8 @@ SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Communication
 SWIG_SOURCES  = libSALOME_Comm.i
 
 
-pkgpython_PYTHON = libSALOME_Comm.py
-pkgpyexec_LTLIBRARIES = _libSALOME_Comm.la
+salomepython_PYTHON = libSALOME_Comm.py
+salomepyexec_LTLIBRARIES = _libSALOME_Comm.la
 _libSALOME_Comm_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libSALOME_Comm_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
@@ -97,4 +97,4 @@ CLEANFILES = swig_wrap.cpp
 # (see LifeCycleCORBA_SWIG for an example)
 
 # It's not needed to specify libSALOME_Comm.py. It is
-# automaticaly installed through the swig target pkgpython_PYTHON.
+# automaticaly installed through the swig target salomepython_PYTHON.

@@ -4,8 +4,7 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-#AC_INIT(src)
-AC_INIT([Salome2 Project], [4.1.1], [paul.rascle@edf.fr], [salome])
+AC_INIT([Salome2 Project], [4.1.1], [paul.rascle@edf.fr], [SalomeKer])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -15,12 +14,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-PACKAGE=salome
-AC_SUBST(PACKAGE)
-
-VERSION=4.1.1
 XVERSION=0x040101
-AC_SUBST(VERSION)
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
@@ -425,7 +419,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok boost_ok libxml_ok"
+corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok libxml_ok"
 if test x$corba_gen = xtrue; then
   echo --- CORBA mandatory products - default configuration:
   summary $corba_mandatory_products
@@ -447,7 +441,7 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok openpbs_ok lsf_ok"
+optional_products="cppunit_ok openpbs_ok lsf_ok numpy_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]

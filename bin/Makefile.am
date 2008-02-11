@@ -72,20 +72,23 @@ EXTRA_DIST = appliskel
 dist-hook:
 	rm -rf `find $(distdir)/appliskel -name CVS`
 
-DISTCLEANFILES = $(top_builddir)/bin/@PACKAGE@/Makefile.am
+DISTCLEANFILES = $(top_builddir)/bin/salome/Makefile.am
 
 clean-local:
-	rm -rf $(top_builddir)/bin/@PACKAGE@/appliskel
-	cd $(top_builddir)/bin/@PACKAGE@; \
+	rm -rf $(top_builddir)/bin/salome/appliskel
+	cd $(top_builddir)/bin/salome; \
 	rm -f $(dist_salomescript_DATA) $(dist_salomescript_SCRIPTS)
 
 # This is an ugly target to avoid exploring the appliskel subdirectory.
 install-exec-local:
-	$(INSTALL) -d $(salomescriptdir)
-	$(RM) -rf $(salomescriptdir)/appliskel 1> /dev/null 2>&1
-	cp -r $(srcdir)/appliskel $(salomescriptdir)
-	find $(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
+	$(INSTALL) -d $(DESTDIR)$(salomescriptdir)
+	$(RM) -rf $(DESTDIR)$(salomescriptdir)/appliskel 1> /dev/null 2>&1
+	cp -r $(srcdir)/appliskel $(DESTDIR)$(salomescriptdir)
+	find $(DESTDIR)$(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
 
 uninstall-local:
-	find $(salomescriptdir)/appliskel -exec chmod +w {} \;
-	rm -rf $(salomescriptdir)/appliskel
+	if test -d $(DESTDIR)$(salomescriptdir)/appliskel; then \
+	  find $(DESTDIR)$(salomescriptdir)/appliskel -exec chmod +w {} ';' ; \
+    rm -rf $(DESTDIR)$(salomescriptdir)/appliskel; \
+  fi;
+

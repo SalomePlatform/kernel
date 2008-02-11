@@ -336,8 +336,8 @@ Engines_Container_i::load_component_Library(const char* componentName)
   
   _numInstanceMutex.lock(); // lock to be alone 
   // (see decInstanceCnt, finalize_removal))
-  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
-  if (_library_map[impl_name])
+  if (_toRemove_map.count(impl_name) != 0) _toRemove_map.erase(impl_name);
+  if (_library_map.count(impl_name) != 0)
     {
       MESSAGE("Library " << impl_name << " already loaded");
       _numInstanceMutex.unlock();
@@ -358,13 +358,6 @@ Engines_Container_i::load_component_Library(const char* componentName)
       _numInstanceMutex.unlock();
       return true;
   }
-  else
-  {
-      INFOS( "Can't load shared library: " << impl_name );
-#ifndef WNT
-      INFOS("error dlopen: " << dlerror());
-#endif
-  }
   _numInstanceMutex.unlock();
 
   // --- try import Python component
@@ -375,7 +368,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
       INFOS("Supervision Container does not support Python Component Engines");
       return false;
     }
-  if (_library_map[aCompName])
+  if (_library_map.count(aCompName) != 0)
     {
       return true; // Python Component, already imported
     }
@@ -389,6 +382,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
                                              "import_component",
                                              "s",componentName);
       int ret= PyInt_AsLong(result);
+      Py_XDECREF(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   
@@ -401,6 +395,9 @@ Engines_Container_i::load_component_Library(const char* componentName)
           return true;
         }
     }
+  INFOS( "Impossible to load component: " << componentName );
+  INFOS( "Can't load shared library: " << impl_name );
+  INFOS( "Can't import Python module: " << componentName );
   return false;
 }
 
@@ -429,7 +426,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   Engines::Component_var iobject = Engines::Component::_nil() ;
 
   string aCompName = genericRegisterName;
-  if (_library_map[aCompName]) // Python component
+  if (_library_map.count(aCompName) != 0) // Python component
     {
       if (_isSupervContainer)
         {
@@ -478,14 +475,14 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 #else
   string impl_name = genericRegisterName +string("Engine.dll");
 #endif
-  void* handle = _library_map[impl_name];
-  if ( !handle )
+  if (_library_map.count(impl_name) == 0) 
     {
-      INFOS("shared library " << impl_name <<"must be loaded before instance");
+      INFOS("shared library " << impl_name <<" must be loaded before creating instance");
       return Engines::Component::_nil() ;
     }
   else
     {
+      void* handle = _library_map[impl_name];
       iobject = createInstance(genericRegisterName,
                                handle,
                                studyId);
@@ -735,16 +732,16 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
 {
   string aGenRegisterName = genericRegisterName;
   string impl_name = componentLibraryName;
-  void* handle = _library_map[impl_name];
-  if ( !handle )
+  if (_library_map.count(impl_name) == 0) 
     {
-      INFOS("shared library " << impl_name <<"must be loaded before instance");
+      INFOS("shared library " << impl_name <<" must be loaded before creating instance");
       return Engines::Component::_nil() ;
     }
   else
     {
       // --- find a registered instance in naming service, or create
 
+      void* handle = _library_map[impl_name];
       string component_registerBase =
         _containerName + "/" + aGenRegisterName;
       Engines::Component_var iobject = Engines::Component::_nil() ;

@@ -25,13 +25,13 @@ INSTALL_ROOT=${SALOME_ROOT}/Install
 APPLI_ROOT=`pwd`
 
 # --- clean appli
-rm -rf bin lib share doc envd setAppliPath.sh searchFreePort.sh runAppli runConsole runSession env.d
+rm -rf bin lib share doc envd getAppliPath.py searchFreePort.sh runAppli runConsole runSession env.d
 
 # --- install appli
 
 mkdir -p env.d
 ln -fs bin/salome/appliskel/envd .
-ln -fs bin/salome/appliskel/setAppliPath.sh .
+ln -fs bin/salome/appliskel/getAppliPath.py .
 ln -fs bin/salome/appliskel/searchFreePort.sh .
 ln -fs bin/salome/appliskel/runRemote.sh .
 ln -fs bin/salome/appliskel/runAppli .

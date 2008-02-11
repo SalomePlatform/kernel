@@ -111,9 +111,10 @@ public :
   virtual void operator()(void){
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
-      if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-        std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
+      if(dynamic_cast<TServant*>(_PtrObjet)){
+       // std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
   /*
+      if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());

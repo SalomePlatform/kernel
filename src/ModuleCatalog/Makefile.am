@@ -103,7 +103,6 @@ SALOME_ModuleCatalog_Server_CPPFLAGS =\
 
 SALOME_ModuleCatalog_Server_LDADD   =\
 	libSalomeCatalog.la \
-	$(COMMON_LIBS) \
 	@CORBA_LIBS@
 
 # SALOME_ModuleCatalog_Client
@@ -113,5 +112,4 @@ SALOME_ModuleCatalog_Client_CPPFLAGS =\
 
 SALOME_ModuleCatalog_Client_LDADD   =\
 	libSalomeCatalog.la \
-	$(COMMON_LIBS) \
 	@CORBA_LIBS@

@@ -84,12 +84,11 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../Batch/libSalomeBatch.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la\
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@MPI_LIBS@ \
-	@CORBA_LIBS@
-	@LIBXML_LIBS@
-
-#	@PYTHON_LIBS@
+	@CORBA_LIBS@ \
+	@LIBXML_LIBS@ \
+	@PYTHON_LIBS@
 
 #
 # ===============================================================
@@ -113,7 +112,6 @@ libSalomeLauncher_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libSalomeLauncher_la_LIBADD =\
-	$(PYTHON_LIBS) \
 	$(COMMON_LIBS)
 
 
@@ -132,8 +130,9 @@ SALOME_LauncherServer_CPPFLAGS=\
 
 SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la \
-	../Batch/libSalomeBatch.la
+	$(MPI_LIBS) \
+	$(CORBA_LIBS) \
+	$(LIBXML_LIBS) \
+	$(PYTHON_LIBS)
 
 

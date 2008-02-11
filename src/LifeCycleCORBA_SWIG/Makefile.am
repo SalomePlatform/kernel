@@ -55,8 +55,8 @@ BUILT_SOURCES = swig_wrap.cpp
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../Utils
 SWIG_SOURCES  = libSALOME_LifeCycleCORBA.i
 
-pkgpython_PYTHON = libSALOME_LifeCycleCORBA.py
-pkgpyexec_LTLIBRARIES = _libSALOME_LifeCycleCORBA.la
+salomepython_PYTHON = libSALOME_LifeCycleCORBA.py
+salomepyexec_LTLIBRARIES = _libSALOME_LifeCycleCORBA.la
 _libSALOME_LifeCycleCORBA_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libSALOME_LifeCycleCORBA_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
@@ -93,4 +93,4 @@ dist_salomescript_DATA =\
 	TestLifeCycleCORBA.py
 
 # It's not needed to specify libSALOME_LifeCycleCORBA.py. It is
-# automaticaly installed through the swig target pkgpython_PYTHON.
+# automaticaly installed through the swig target salomepython_PYTHON.

@@ -51,15 +51,10 @@ COMMON_CPPFLAGS=\
 	@HDF5_INCLUDES@ \
 	@BOOST_CPPFLAGS@
 
-# This flag is used to resolve the dependencies of OCC libraries.
-LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
-
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../HDFPersist/libSalomeHDFPersist.la \
-	@HDF5_LIBS@ \
-	$(LDXMUFLAGS)
-
+	@HDF5_LIBS@
 
 #
 # ===============================================================
@@ -95,5 +90,6 @@ libDF_la_LIBADD    = $(COMMON_LIBS)
 bin_PROGRAMS = testDF
 testDF_SOURCES  = testDF.cxx
 testDF_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDF_LDADD    = libDF.la $(COMMON_LIBS)
+testDF_LDADD    = ./libDF.la \
+                  $(HDF5_LIBS)
 

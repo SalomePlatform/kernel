@@ -57,7 +57,7 @@ SALOME internal run scripts
 envd
    Sets SALOME application environment, envd is sourced by other scripts.
 
-setAppliPath.sh
+getAppliPath.py
    Used by other scripts to define the Application Path.
 
 searchFreePort.sh

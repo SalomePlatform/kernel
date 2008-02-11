@@ -235,14 +235,14 @@ SK.cc.hh:
 	@PACO_IDL@ -I $(srcdir):@PACOPATH@/idl $^ omniORB4 0
 
 install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
-	$(INSTALL) -d  $(pkgpythondir)
+	$(INSTALL) -d  $(DESTDIR)$(salomepythondir)
 	ls $^ | while read file; do \
-	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(pkgpythondir) $$file ; \
+	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
 	done
 
 # uninstall-local removes too much, but it works in distcheck
 uninstall-local:
-	rm -rf $(pkgpythondir)/*
+	rm -rf $(DESTDIR)$(salomepythondir)/*
 
 mostlyclean-local:
 	-rm -f *.hh *.cc .depidl

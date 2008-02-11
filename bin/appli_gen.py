@@ -145,7 +145,7 @@ def install(prefix,config_file):
     appliskel_dir=os.path.join(home_dir,'bin','salome','appliskel')
 
     for fn in ('envd',
-               'setAppliPath.sh',
+               'getAppliPath.py',
                'searchFreePort.sh',
                'runRemote.sh',
                'runAppli',
@@ -154,7 +154,7 @@ def install(prefix,config_file):
                'runTests',
                '.bashrc',
                ):
-        virtual_salome.symlink(os.path.join(appliskel_dir, fn),os.path.join(home_dir, fn))
+        virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
         pass
 
     if filename != os.path.join(home_dir,"config_appli.xml"):
@@ -174,7 +174,7 @@ def install(prefix,config_file):
 
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
     for module in _config["modules"]:
-        command='export '+ module + '_ROOT_DIR=' + home_dir +'\n'
+        command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
         f.write(command)
         pass
     if _config.has_key("samples_path"):
@@ -185,9 +185,9 @@ def install(prefix,config_file):
 
 
     f =open(os.path.join(home_dir,'env.d','configGUI.sh'),'w')
-    command = 'export SalomeAppConfig=' + home_dir +'\n'
+    command = 'export SalomeAppConfig=${HOME}/${APPLI}\n'
     f.write(command)
-    command = 'export SUITRoot=' + os.path.join(home_dir,'share','salome') +'\n'
+    command = 'export SUITRoot=${HOME}/${APPLI}/share/salome\n'
     f.write(command)
     f.write('export DISABLE_FPE=1\n')
     f.write('export MMGT_REENTRANT=1\n')

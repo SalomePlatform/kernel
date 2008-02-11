@@ -91,9 +91,8 @@ COMMON_LIBS =\
 	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@MPI_LIBS@ \
-	@CORBA_LIBS@
-
-#	@PYTHON_LIBS@
+	@CORBA_LIBS@ \
+	$(PYTHON_LIBS)
 
 #
 # ===============================================================
@@ -118,7 +117,6 @@ libSalomeContainer_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libSalomeContainer_la_LIBADD =\
-	$(PYTHON_LIBS) \
 	$(COMMON_LIBS)
 
 if WITH_PACO_PARALLEL
@@ -141,11 +139,12 @@ SALOME_Container_SOURCES =\
 SALOME_Container_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-SALOME_Container_LDADD =\
+SALOME_Container_LDADD = \
 	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la \
-	../Batch/libSalomeBatch.la
+	$(HDF5_LIBS) \
+	$(MPI_LIBS) \
+	$(CORBA_LIBS) \
+	$(PYTHON_LIBS)
 
 SALOME_Container_LDFLAGS  =\
 -Xlinker -export-dynamic
@@ -158,5 +157,7 @@ TestSalome_file_CPPFLAGS =\
 
 TestSalome_file_LDADD =\
 	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	$(HDF5_LIBS) \
+	$(MPI_LIBS) \
+	$(CORBA_LIBS) \
+	$(PYTHON_LIBS)

@@ -141,10 +141,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._numInstance = self._numInstance +1
         instanceName = nameToRegister + "_inst_" + `self._numInstance`
 
-	component=__import__(componentName)
-	factory=getattr(component,componentName)
-	comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
-	               instanceName, nameToRegister)
+        component=__import__(componentName)
+        factory=getattr(component,componentName)
+        comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
+                       instanceName, nameToRegister)
 
         MESSAGE( "SALOME_ContainerPy_i::instance : component created")
         comp_o = comp_i._this()
@@ -172,7 +172,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret=0
         try:
             if verbose(): print "try import ",componentName
-            __import__(componentName)
+            module=__import__(componentName)
             if verbose(): print "import ",componentName," successful"
             ret=1
         except:

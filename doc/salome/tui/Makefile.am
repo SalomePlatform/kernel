@@ -25,12 +25,16 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-EXTRA_DIST = KERNEL pythfilter.py
+EXTRA_DIST = pythfilter.py
 
 dist-hook:
+	cp -rf $(srcdir)/KERNEL $(distdir)
+	if test -d "KERNEL"; then  \
+	find "KERNEL" -name "*.*" -exec cp -rf {} $(distdir)/KERNEL ';' ; \
+	fi
 	rm -rf `find $(distdir) -name CVS`
 
-usr_docs:
+KERNEL/main.html:../main.dox
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
 	cd ./INPUT; \
         pwd; ls;\
@@ -48,21 +52,34 @@ usr_docs:
 	fi; \
 	$(DOXYGEN) ./doxyuser1; \
 	cd ..;
-#	$(INSTALL) -d $(docdir)/tui/KERNEL;
-	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir);
-	cp -fr $(srcdir)/KERNEL/sources/ $(docdir);
-	cp -fr KERNEL/[a-f]*.* $(docdir)
-	cp -fr KERNEL/[g-l]*.* $(docdir)
-	cp -fr KERNEL/[m-z]*.* $(docdir)
-	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir);
-	cp -f $(srcdir)/pythfilter.py $(docdir);
-	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir);
-#	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(docdir)/tui/KERNEL;
-#	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
-#	cp -fr KERNEL $(docdir)/tui
-#	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
-#	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
-#	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;
+
+usr_docs:KERNEL/main.html
+	if test -d "KERNEL"; then b=; else b="$(srcdir)/"; fi; \
+	cp -fr $(srcdir)/KERNEL/sources/static/*.* $(DESTDIR)$(docdir); \
+	cp -fr $(srcdir)/KERNEL/sources/ $(DESTDIR)$(docdir); \
+	find $$b"KERNEL" -name "*.*" -exec cp -rf {} $(DESTDIR)$(docdir) ';' ; \
+	cp -fr $(srcdir)/KERNEL/HTML/ $(DESTDIR)$(docdir); \
+	cp -f $(srcdir)/pythfilter.py $(DESTDIR)$(docdir); \
+	cp -fr $(srcdir)/KERNEL/exemple/ $(DESTDIR)$(docdir);
+
+uninstall-local:
+	chmod +w $(DESTDIR)$(docdir)/sources
+	chmod +w $(DESTDIR)$(docdir)/sources/static
+	chmod +w $(DESTDIR)$(docdir)/HTML
+	chmod +w $(DESTDIR)$(docdir)/exemple
+	rm -rf $(DESTDIR)$(docdir)/pythfilter.py
+	find $(DESTDIR)$(docdir) -name "*.html" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.jpg" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.map" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.md5" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.png" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.gif" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.css" -type f -exec rm -rf {} \;
+	find $(DESTDIR)$(docdir) -name "*.js*" -type f -exec rm -rf {} \;
+	rm -rf $(DESTDIR)$(docdir)/sources
+	rm -rf $(DESTDIR)$(docdir)/HTML
+	rm -rf $(DESTDIR)$(docdir)/exemple
+	rm -rf $(DESTDIR)$(docdir)/*.in
 
 dev_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \

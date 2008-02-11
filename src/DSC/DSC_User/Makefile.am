@@ -91,6 +91,7 @@ test_DSC_Exception_SOURCES = test_DSC_Exception.cxx
 
 test_DSC_Exception_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la
+test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la \
+                           $(CORBA_LIBS)
 
 SUBDIRS = Basic Datastream

@@ -224,7 +224,7 @@ namespace CalciumInterface {
 	 ( dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
       throw CalciumException(CalciumTypes::CPITVR,
 			     LOC(OSS()<<"Le mode de dépendance de la variable " 
-				 << nomVar << " ne correspond pas au mode demandé."));
+				 << nomVar << ": " << portDependencyType << " ne correspond pas au mode demandé: " << dependencyType));
 
   
     if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {

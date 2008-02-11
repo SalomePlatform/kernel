@@ -71,9 +71,6 @@ COMMON_CPPFLAGS=\
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
-# This flag is used to resolve the dependencies of OCC libraries.
-LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
-
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../TOOLSDS/libTOOLSDS.la \
@@ -87,8 +84,7 @@ COMMON_LIBS =\
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
-	@HDF5_LIBS@ \
-	$(LDXMUFLAGS)
+	@HDF5_LIBS@ 
 
 
 #LDFLAGS+=  -lSalomeGenericObj -lSalomeLifeCycleCORBA
@@ -288,8 +284,10 @@ bin_PROGRAMS = SALOMEDS_Server SALOMEDS_Client
 
 SALOMEDS_Server_SOURCES  = SALOMEDS_Server.cxx
 SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
-SALOMEDS_Server_LDADD    = libSalomeDS.la 
+SALOMEDS_Server_LDADD    = libSalomeDS.la \
+	$(HDF5_LIBS) $(CORBA_LIBS)
 
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
 SALOMEDS_Client_CPPFLAGS = $(COMMON_CPPFLAGS)
-SALOMEDS_Client_LDADD    = libSalomeDS.la 
+SALOMEDS_Client_LDADD    = libSalomeDS.la \
+	$(HDF5_LIBS) $(CORBA_LIBS)

@@ -24,6 +24,7 @@ AC_DEFUN([CHECK_SWIG],[
 AC_REQUIRE([CHECK_PYTHON])dnl
 
 swig_ok=yes
+numpy_ok=no
 
 AC_ARG_WITH(swig,
     [AC_HELP_STRING([--with-swig=EXEC],[swig executable])],
@@ -59,7 +60,7 @@ fi
 
 numpydir=`$PYTHON -c "import numpy;print numpy.get_include()" 2>/dev/null`
 if test -d "$numpydir"; then
-   SWIG_FLAGS="$SWIG_FLAGS -DWITH_NUMPY"
+   numpy_ok=yes
    PYTHON_INCLUDES="$PYTHON_INCLUDES -I$numpydir"
    AC_DEFINE([WITH_NUMPY], [], [Python has numpy extension])
 fi
