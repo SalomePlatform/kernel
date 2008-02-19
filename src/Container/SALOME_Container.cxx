@@ -187,9 +187,16 @@ int main(int argc, char* argv[])
 
       HandleServerSideSignals(orb);
 
-      PyGILState_STATE gstate = PyGILState_Ensure();
-      //Delete python container that destroy orb from python (pyCont._orb.destroy())
-      Py_Finalize();
+      if (!isSupervContainer)
+      {
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        //Delete python container that destroy orb from python (pyCont._orb.destroy())
+        Py_Finalize();
+      }
+      else
+      {
+        orb->destroy();
+      }
     }
   catch(CORBA::SystemException&)
     {
