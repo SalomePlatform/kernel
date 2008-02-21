@@ -69,22 +69,17 @@ namespace BatchLight {
   protected:
     batchParams _params;
     MpiImpl *_mpiImpl;
-
     std::map <int,const BatchLight::Job *> _jobmap;
-    std::string _dirForTmpFiles; // repertoire temporaire sur le serveur
-    std::string _TmpFileName;
-    std::string _fileNameToExecute;
 
-    virtual int submit() throw(SALOME_Exception) = 0;
-    void setDirForTmpFiles();
-    void exportInputFiles( const char *fileToExecute, const Engines::FilesList filesToExportList ) throw(SALOME_Exception);
-    virtual void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception) = 0;
-    virtual void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception) = 0;
+    virtual int submit(BatchLight::Job* job) throw(SALOME_Exception) = 0;
+    void setDirForTmpFiles(BatchLight::Job* job);
+    void exportInputFiles(BatchLight::Job* job) throw(SALOME_Exception);
+    virtual void buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
+    virtual void buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
 
     std::string BuildTemporaryFileName() const;
-    void RmTmpFile();
+    void RmTmpFile(std::string & TemporaryFileName);
     MpiImpl *FactoryMpiImpl(std::string mpiImpl) throw(SALOME_Exception);
-
   private:
 
   };

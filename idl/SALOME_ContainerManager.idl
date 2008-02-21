@@ -54,6 +54,7 @@ struct MachineParameters
   boolean isMPI;
   string mpiImpl;
   string batch;
+  string workingdir;
 
   // PaCO specific informations
   string parallelLib;
@@ -68,6 +69,21 @@ struct MachineParameters
   enum policy {P_FIRST,P_CYCL,P_BEST};
   typedef policy ResPolicy;
 
+/*!
+  Structure used for Salome Batch Job parameters
+*/
+struct BatchParameters
+{
+  string batch_directory; // Where batch command will be launched
+			  // and log files will be created
+  string expected_during_time; // Time for the batch
+			       // has to be like this : hh:mm
+  string mem; // Minimum of memory needed
+	      // has to be like : 32gb or 512mb
+
+  long nb_proc; // Number of processors requested
+};
+
 /*! \brief Interface of the %salomelauncher
     This interface is used for interaction with the unique instance
     of SalomeLauncher
@@ -77,7 +93,7 @@ struct MachineParameters
     long submitSalomeJob( in string fileToExecute,
 			  in FilesList filesToExport,
 			  in FilesList filesToImport,
-			  in long NumberOfProcessors,
+			  in BatchParameters batch_params,
 			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
     string querySalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
     void deleteSalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);

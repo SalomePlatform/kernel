@@ -55,7 +55,7 @@ public:
   CORBA::Long submitSalomeJob(const char * fileToExecute ,
 			      const Engines::FilesList& filesToExport ,
 			      const Engines::FilesList& filesToImport ,
-			      const CORBA::Long NumberOfProcessors ,
+			      const Engines::BatchParameters& batch_params,
 			      const Engines::MachineParameters& params);
 
   char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);

@@ -61,6 +61,16 @@ void F_FUNC(cplen,CPLEN)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_
   free_str1(cnom);
 }
 
+void F_FUNC(cpllo,CPLLO)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
+            int *max,int *n, int *tab,int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPLLO: %s %f %f\n",cnom,*ti,*tf);
+  *err=cp_llo((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  fprintf(stderr,"End of CPLLO: %s \n",cnom);
+  free_str1(cnom);
+}
+
 void F_FUNC(cpldb,CPLDB)(long *compo,int *dep,double *ti,double *tf,int *iter,STR_PSTR(nom),
             int *max,int *n, double *tab,int *err STR_PLEN(nom))
 {
@@ -78,6 +88,75 @@ void F_FUNC(cplre,CPLRE)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_
   fprintf(stderr,"CPLRE: %s %f %f \n",cnom, *ti,*tf);
   *err=cp_lre((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
   fprintf(stderr,"End of CPLRE: %s %f %f \n",cnom,*ti,*tf);
+  free_str1(cnom);
+}
+
+void F_FUNC(cplcp,CPLCP)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
+            int *max,int *n, float *tab,int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPLCP: %s %f %f \n",cnom, *ti,*tf);
+  *err=cp_lcp((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
+  fprintf(stderr,"End of CPLCP: %s %f %f \n",cnom,*ti,*tf);
+  free_str1(cnom);
+}
+
+void F_FUNC(cplch,CPLCH)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_PSTR(nom),
+            int *max,int *n, char *tab,int *err STR_PLEN(nom) STR_PLEN(tab) )
+{
+  char **tabChaine=NULL;
+  int    index=0;
+  char*  cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPLCH: %s %f %f \n",cnom, *ti,*tf);
+
+  tabChaine = (char **) malloc(sizeof(char *) * (*max));
+  for (index = 0; index < *max; index++)
+    tabChaine[index] = (char *) malloc(sizeof(char) * (STR_LEN(tab)+1));
+
+  *err=cp_lch((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tabChaine,STR_LEN(tab));
+
+  for (index = 0; index < *n; index++)
+    strcpy(&tab[index * STR_LEN(tab)], tabChaine[index]);
+
+  fprintf(stderr,"End of CPLCH: %s %f %f \n",cnom,*ti,*tf);
+  if (tabChaine != (char **) NULL)  {
+    for (index = 0; index < *n; index++)
+      free(tabChaine[index]);
+    free(tabChaine);
+  }
+  free_str1(cnom);
+}
+
+void F_FUNC(cpech,CPECH)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, char *tab,int *err 
+			 STR_PLEN(nom) STR_PLEN(tab))
+{
+  char ** tabChaine=NULL;
+  int     index=0,index2=0;
+  char*   cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPECH: %s %f \n",cnom, *ti);
+
+  tabChaine = (char **) malloc(sizeof(char *) * *n);
+  for (index = 0; index < *n; index++) {
+    
+    tabChaine[index] = (char *) malloc(sizeof(char) * (STR_LEN(tab) + 1));
+    strncpy(tabChaine[index],&tab[STR_LEN(tab) * index],STR_LEN(tab));
+    tabChaine[index][STR_LEN(tab)]='\0';
+    for (index2 = STR_LEN(tab) - 1; index2 >= 0; index2--) {
+      if ( tabChaine[index][index2] == ' '  ||
+	   tabChaine[index][index2] == '\0'   )
+	tabChaine[index][index2]='\0';
+    }
+  }
+
+  *err=cp_ech((void *)*compo,*dep,*ti,*iter,cnom,*n,tabChaine,STR_LEN(tab) );
+
+  fprintf(stderr,"End of CPECH: %s %f \n",cnom, *ti);
+  if (tabChaine != (char **) NULL) {
+    for (index = 0; index < *n; index++)
+      free(tabChaine[index]);
+
+    free(tabChaine);
+  }
   free_str1(cnom);
 }
 
@@ -99,12 +178,30 @@ void F_FUNC(cpere,CPERE)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),
   free_str1(cnom);
 }
 
+void F_FUNC(cpecp,CPECP)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, float *tab,int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPECP: %s %f \n",cnom, *ti);
+  *err=cp_ecp((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
+  fprintf(stderr,"End of CPECP: %s %f \n",cnom, *ti);
+  free_str1(cnom);
+}
+
 void F_FUNC(cpeen,CPEEN)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, int *tab,int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
   fprintf(stderr,"CPEEN: %s %f %d\n",cnom, *ti,*iter);
   *err=cp_een((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
   fprintf(stderr,"End of CPEEN: %s %f \n",cnom,*ti);
+  free_str1(cnom);
+}
+
+void F_FUNC(cpelo,CPELO)(long *compo,int *dep,float *ti,int *iter,STR_PSTR(nom),int *n, int *tab,int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  fprintf(stderr,"CPELO: %s %f %d\n",cnom, *ti,*iter);
+  *err=cp_elo((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
+  fprintf(stderr,"End of CPELO: %s %f \n",cnom,*ti);
   free_str1(cnom);
 }
 

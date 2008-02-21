@@ -243,6 +243,35 @@ char* Engines_Container_i::name()
 
 //=============================================================================
 /*! 
+ *  CORBA attribute: Container working directory 
+ */
+//=============================================================================
+
+char* Engines_Container_i::workingdir()
+{
+  char wd[256];
+  getcwd (wd,256);
+  return CORBA::string_dup(wd) ;
+}
+
+//=============================================================================
+/*! 
+ *  CORBA attribute: Container log file name
+ */
+//=============================================================================
+
+char* Engines_Container_i::logfilename()
+{
+  return CORBA::string_dup(_logfilename.c_str()) ;
+}
+
+void Engines_Container_i::logfilename(const char* name)
+{
+  _logfilename=name;
+}
+
+//=============================================================================
+/*! 
  *  CORBA method: Get the hostName of the Container (without domain extensions)
  */
 //=============================================================================

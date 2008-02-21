@@ -103,10 +103,12 @@ GenericPort<DataManipulator, COUPLING_POLICY >::GenericPort() :
 template < typename DataManipulator, typename COUPLING_POLICY>
 GenericPort<DataManipulator, COUPLING_POLICY>::~GenericPort() {
   typename DataTable::iterator it;
-  //   for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
-  //     std::cout << "~GenericPort() : destruction de la donnnée associée au DataId :"<<  (*it).first << std::endl;
-  //     DataManipulator::delete_data( (*it).second );
-  //   }
+  for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
+#ifdef _DEBUG_
+    std::cerr << "~GenericPort() : destruction de la donnnée associée au DataId :"<<  (*it).first << std::endl;
+#endif
+    DataManipulator::delete_data( (*it).second );
+  }
 }
 
 template < typename DataManipulator, typename COUPLING_POLICY> void 
@@ -150,7 +152,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
   try {
 #ifdef _DEBUG_
     // Affichage des donnees pour DEBUGging
-    cerr << "parametres emis: " << time << ", " << tag << endl;
+    std::cerr << "parametres emis: " << time << ", " << tag << std::endl;
     DataManipulator::dump(dataParam);
 #endif
   
@@ -428,21 +430,22 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 	// Cependant  comme les données sont censées être produites
 	// par ordre croissant de DataId, de nouvelles données ne devrait pas améliorer
 	// l'interpolation.
-	// Les données calciulées sont donc  stockées dans storedDatas. 
-	// La propriété des données N'EST PAS transférée à l'utilisateur en mode CALCIUM.
 #ifdef _DEBUG_
 	std::cout << "-------- Get : MARK 8 ------------------" << std::endl;
 #endif
 
-	typename COUPLING_POLICY::template BoundedDataIdProcessor<DataManipulator> processBoundedDataId(*this);
+	typedef typename COUPLING_POLICY::template BoundedDataIdProcessor<DataManipulator> BDI;
+	BDI processBoundedDataId(*this);
+	//	typename COUPLING_POLICY::template BoundedDataIdProcessor<DataManipulator> processBoundedDataId(*this);
 	//si static BDIP::apply(dataToTransmit,expectedDataId,wDataIt1);
 	//ancienne version template processBoundedDataId<DataManipulator>(dataToTransmit,expectedDataId,wDataIt1);
 	//BDIP processBoundedDataId;
 	processBoundedDataId.apply(dataToTransmit,expectedDataId,wDataIt1);
   
 	// Il ne peut pas y avoir déjà une clé expectedDataId dans storedDatas (utilisation de la notation [] )
+	// La nouvelle donnée produite est stockée, ce n'était pas le cas dans CALCIUM
 	// Cette opération n'a peut être pas un caractère générique.
-	// A déplacer en paramètre de la méthode précédente ?
+	// A déplacer en paramètre de la méthode précédente ? ou déléguer ce choix au mode de couplage ?
 	storedDatas[expectedDataId]=dataToTransmit;
 
 #ifdef _DEBUG_

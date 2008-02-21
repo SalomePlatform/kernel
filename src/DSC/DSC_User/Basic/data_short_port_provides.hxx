@@ -26,6 +26,8 @@
 #ifndef _DATA_SHORT_PORT_PROVIDES_HXX_
 #define _DATA_SHORT_PORT_PROVIDES_HXX_
 
+#include <SALOMEconfig.h>
+
 #include <iostream>
 #include "SALOME_Ports.hh"
 #include "provides_port.hxx"

@@ -278,6 +278,10 @@ StartContainer(const Engines::MachineParameters& params,
       //Engines::Container_var cont=Engines::Container::_narrow(obj);
     }
 
+  //redirect stdout and stderr in a file
+  string logFilename="/tmp/"+_NS->ContainerName(params)+"_"+GetHostname()+"_"+getenv( "USER" )+".log" ;
+  command += " > " + logFilename + " 2>&1 &";
+
   // launch container with a system call
   int status=system(command.c_str());
   if (status == -1){
@@ -308,7 +312,16 @@ StartContainer(const Engines::MachineParameters& params,
     }
     
     if ( CORBA::is_nil(ret) )
-      MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed");
+      {
+        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed");
+      }
+    else
+      {
+        logFilename=":"+logFilename;
+        logFilename="@"+GetHostname()+logFilename;
+        logFilename=getenv( "USER" )+logFilename;
+        ret->logfilename(logFilename.c_str());
+      }
 
     return ret;
   }

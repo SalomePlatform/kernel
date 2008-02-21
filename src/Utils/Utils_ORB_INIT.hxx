@@ -29,6 +29,8 @@
 # if ! defined( __ORB_INIT_HXX__ )
 # define __ORB_INIT_HXX__
 
+#include <SALOMEconfig.h>
+
 #include "SALOME_Utils.hxx"
 
 #include "omniORB4/CORBA.h" 

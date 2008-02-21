@@ -586,6 +586,15 @@ def CreateOptionParser (theAdditionalOptions=[]):
                           dest="pinter",
                           help=help_str)
 
+    # Print Naming service port into a user file. Default: False.
+    help_str = "Print Naming Service Port into a user file."
+    o_nspl = optparse.Option("--ns-port-log",
+                             metavar="<ns_port_log_file>",
+                             type="string",
+                             action="store",
+                             dest="ns_port_log_file",
+                             help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -604,13 +613,14 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_c,     # Catch exceptions
                 o_a,     # Print free port and exit
                 o_n,     # --nosave-config
-                o_pi]     # Interactive python console
+                o_pi,    # Interactive python console
+                o_nspl]
                 
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
     #               "portkill", "killall", "interp", "splash",
-    #               "catch_exceptions", "print_port", "save_config"]
+    #               "catch_exceptions", "print_port", "save_config", "ns_port_log_file"]
 
     opt_list += theAdditionalOptions
 
@@ -810,6 +820,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
             args[logger_nam] = True
         else:
             args[file_nam] = [cmd_opts.log_file]
+
+    # Naming Service port log file
+    if cmd_opts.ns_port_log_file is not None:
+      args["ns_port_log_file"] = cmd_opts.ns_port_log_file
 
     # Python scripts
     args[script_nam] = []

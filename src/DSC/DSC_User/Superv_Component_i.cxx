@@ -44,7 +44,7 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
 #ifdef _DEBUG_
-  std::cout << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
+  std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
   register_factory("BASIC", new basic_port_factory());
   register_factory("PALM", new palm_port_factory());
@@ -60,6 +60,11 @@ Superv_Component_i::~Superv_Component_i()
   {
     delete begin->second;
   }
+
+  my_superv_ports_it = my_superv_ports.begin();
+  for(;my_superv_ports_it != my_superv_ports.end();my_superv_ports_it++) 
+    delete my_superv_ports_it->second;
+
 }
 
 void 
@@ -155,11 +160,11 @@ Superv_Component_i::add_port(const char * port_fab_type,
   }
   else if (s_port_type == "uses") {
 #ifdef _DEBUG_
-    std::cout << "---- Superv_Component_i::add_port : MARK 1 ---- "  << std::endl;
+    std::cerr << "---- Superv_Component_i::add_port : MARK 1 ---- "  << std::endl;
 #endif
     uses_port * port = create_uses_data_port(port_fab_type);
 #ifdef _DEBUG_
-    std::cout << "---- Superv_Component_i::add_port : MARK 2 ---- "  << std::endl;
+    std::cerr << "---- Superv_Component_i::add_port : MARK 2 ---- "  << std::endl;
 #endif
     add_port(port, port_name);
   }
@@ -179,9 +184,11 @@ Superv_Component_i::add_port(provides_port * port,
 
   try {
 
-    Engines_DSC_interface::add_provides_port(port->get_port_ref(), 
+    Ports::PortProperties_var portproperties=port->get_port_properties();
+    Ports::Port_var portref=port->get_port_ref();
+    Engines_DSC_interface::add_provides_port(portref, 
 					     provides_port_name,
-					     port->get_port_properties());
+					     portproperties);
 
     superv_port_t * new_superv_port = new superv_port_t();
     new_superv_port->p_ref = port;
@@ -209,9 +216,10 @@ Superv_Component_i::add_port(uses_port * port,
   assert(uses_port_name);
 
   try {
+    Ports::PortProperties_var portproperties=port->get_port_properties();
     Engines_DSC_interface::add_uses_port(port->get_repository_id(), 
 					 uses_port_name,
-					 port->get_port_properties());
+					 portproperties);
     superv_port_t * new_superv_port = new superv_port_t();
     new_superv_port->u_ref = port;
     my_superv_ports[uses_port_name] = new_superv_port;
@@ -236,7 +244,7 @@ Superv_Component_i::get_port(provides_port *& port,
   assert(provides_port_name);
 
   try {
-    Engines_DSC_interface::get_provides_port(provides_port_name, false);
+    Ports::Port_var portref=Engines_DSC_interface::get_provides_port(provides_port_name, false);
     port = my_superv_ports[provides_port_name]->p_ref;
   } catch (const Engines::DSC::PortNotDefined&) {
     throw PortNotDefined( LOC(OSS()<< "Le port provides  "
@@ -255,7 +263,8 @@ Superv_Component_i::get_port(uses_port *& port,
   assert(uses_port_name);
 
   try {
-    Engines_DSC_i::get_uses_port(uses_port_name);
+    Engines::DSC::uses_port * portseq=Engines_DSC_i::get_uses_port(uses_port_name);
+    delete portseq;
     port = my_superv_ports[uses_port_name]->u_ref;
   } catch (const Engines::DSC::PortNotDefined&) {    
     throw PortNotDefined( LOC(OSS()<< "Le port uses  "
@@ -286,8 +295,10 @@ Superv_Component_i::uses_port_changed(const char* uses_port_name,
 {
   my_superv_ports_it = my_superv_ports.find(uses_port_name);
   if (my_superv_ports_it !=  my_superv_ports.end())
-    my_superv_ports[uses_port_name]->u_ref->uses_port_changed(new_uses_port,
+    my_superv_ports[uses_port_name]->u_ref->uses_port_changed(new Engines::DSC::uses_port(*new_uses_port),
 							      message);
+  //delete the copy made by the caller
+  delete new_uses_port;
 }
 
 

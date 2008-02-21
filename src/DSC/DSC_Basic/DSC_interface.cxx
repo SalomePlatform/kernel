@@ -28,7 +28,13 @@
 
 Engines_DSC_interface::Engines_DSC_interface() {}
 
-Engines_DSC_interface::~Engines_DSC_interface() {}
+Engines_DSC_interface::~Engines_DSC_interface() 
+{
+  my_ports_it = my_ports.begin();
+  for(;my_ports_it != my_ports.end();my_ports_it++)
+    delete my_ports_it->second;
+
+}
 
 void
 Engines_DSC_interface::add_provides_port(Ports::Port_ptr ref, 

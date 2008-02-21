@@ -49,9 +49,14 @@ namespace BatchLight {
     std::string queryJob(const int & jobid); // renvoie l'etat du job
 
   private:
-    void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception);
-    void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception);
-    int submit() throw(SALOME_Exception);
+    void buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception);
+    void buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception);
+    int submit(BatchLight::Job* job) throw(SALOME_Exception);
+
+    // Permet d'avoir la chaîne complête pour demander
+    // le statut du job
+    typedef std::map<int, std::string> _pbs_job_name_t;
+    _pbs_job_name_t _pbs_job_name;
   };
 
 }

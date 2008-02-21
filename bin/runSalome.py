@@ -393,6 +393,18 @@ def startSalome(args, modules_list, modules_root_dir):
     #
    
     clt=orbmodule.client(args)
+    # Save Naming service port name into
+    # the file args["ns_port_log_file"]
+    if args.has_key('ns_port_log_file'):
+      home = os.environ['HOME']
+      appli= os.environ.get("APPLI")
+      if appli is not None:
+        home='%s/%s'%(home,appli)
+        pass
+      file_name= '%s/%s'%(home, args["ns_port_log_file"])
+      f = open(file_name, "w")
+      f.write(os.environ['NSPORT'])
+      f.close()
 
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
@@ -784,7 +796,6 @@ def searchFreePort(args, save_config=1):
                 else:            
                     system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))     
                 pass
-            #
             break
         print "%s"%(NSPORT),
         if NSPORT == limit:

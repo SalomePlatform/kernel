@@ -24,6 +24,8 @@
 //  Module : KERNEL
 //  $Header$
 
+#include <SALOMEconfig.h>
+
 #include <iostream>
 #include <sstream>
 #include <fstream>

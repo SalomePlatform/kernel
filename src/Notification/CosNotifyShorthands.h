@@ -27,6 +27,8 @@
 #ifndef _COS_NOTIFY_H_
 #define _COS_NOTIFY_H_
 
+#include <SALOMEconfig.h>
+
 #ifndef COS_USES_BOA
 #include <COS/TimeBase.hh>
 #include <COS/CosNotification.hh>

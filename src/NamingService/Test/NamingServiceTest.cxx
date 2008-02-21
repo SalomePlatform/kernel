@@ -182,9 +182,8 @@ NamingServiceTest::testConstructorDefault()
   //CPPUNIT_ASSERT_THROW(NS.getIORaddr(),CORBA::Exception);
   NS.init_orb(_orb);
 
-  char *root = NS.getIORaddr();
+  CORBA::String_var root = NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
-  delete [] root;
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
 
   CosNaming::NamingContext_var rootContext =
@@ -202,10 +201,9 @@ void
 NamingServiceTest::testConstructorOrb()
 {
   SALOME_NamingService  NS(_orb);
-  char *root = NS.getIORaddr();
+  CORBA::String_var root = NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-  delete [] root;
 
   CosNaming::NamingContext_var rootContext =
     CosNaming::NamingContext::_narrow(obj);
@@ -1208,9 +1206,8 @@ NamingServiceTest::testDestroyFullDirectory()
 void
 NamingServiceTest::testGetIorAddr()
 {
-  char *root = _NS.getIORaddr();
+  CORBA::String_var root = _NS.getIORaddr();
   CORBA::Object_var obj = _orb->string_to_object(root);
-  delete [] root;
   CPPUNIT_ASSERT(!CORBA::is_nil(obj)); 
 }
 

@@ -29,6 +29,8 @@
 #ifndef _CALCIUM_INTEGER_PORT_USES_HXX_
 #define _CALCIUM_INTEGER_PORT_USES_HXX_
 
+#include <SALOMEconfig.h>
+
 #include "Calcium_Ports.hh"
 #include "CalciumGenericUsesPort.hxx"
 

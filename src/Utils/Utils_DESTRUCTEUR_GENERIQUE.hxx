@@ -29,6 +29,8 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
+#include <SALOMEconfig.h>
+
 #include "SALOME_Utils.hxx"
 
 #include <list>

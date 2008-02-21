@@ -37,7 +37,9 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
 							  instanceName, 
 							  interfaceName) 
 {
-  std::cout << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
+#ifdef _DEBUG_
+  std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
+#endif
 }
 
 Engines_DSC_i::~Engines_DSC_i() {}

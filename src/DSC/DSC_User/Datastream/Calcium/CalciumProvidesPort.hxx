@@ -6,6 +6,8 @@
 #ifndef _CALCIUM_PORT_PROVIDES_HXX_
 #define _CALCIUM_PORT_PROVIDES_HXX_
 
+#include <SALOMEconfig.h>
+
 #include "Calcium_Ports.hh"
 #include "CalciumGenericProvidesPort.hxx"
 #include "CalciumCouplingPolicy.hxx"

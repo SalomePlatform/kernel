@@ -49,6 +49,7 @@ _libNOTIFICATION_la_CPPFLAGS =\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(top_builddir)/salome_adm/unix \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 

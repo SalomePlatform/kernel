@@ -37,7 +37,8 @@
 #     $0 : ${APPLI}/runRemote.sh: from arg name, rebuild and export $APPLI variable
 #     $1 : computer name for CORBA name service (where SALOME was launched)
 #     $2 : port for CORBA name service
-#     $3 and following : local command to execute, with args
+#     $3 : working directory
+#     $4 and following : local command to execute, with args
 #
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
@@ -60,9 +61,34 @@ export NSPORT
 initref="NameService=corbaname::"$1":$2"
 echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
+#go to the requested working directory if any
+if test "x$3" != x; then
+  if test "x$3" = "x\$TEMPDIR"; then
+    #create a temp working dir and change to it
+    WDIR=`mktemp -d` && {
+      cd $WDIR
+    }
+  else
+    if test -d $3; then
+      #the dir exists, go to it
+      cd $3
+    else
+      if test -a $3; then
+        # It's a file do nothing
+        echo $3 "is an existing file. Can't use it as a working directory"
+      else
+        #It does not exists, create it
+        mkdir -p $3 && {
+          cd $3
+        }
+      fi
+    fi
+  fi
+fi
+
 # --- execute the command in the SALOME environment
 
-shift 2
+shift 3
 
 # suppress --rcfile option because of problem on Mandriva2006 - B Secher mai 2007
 #${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"

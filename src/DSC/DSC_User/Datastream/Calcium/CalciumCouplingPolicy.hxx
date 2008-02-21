@@ -34,6 +34,8 @@
 #include "CouplingPolicy.hxx"
 #include "AdjacentFunctor.hxx"
 #include <boost/lambda/lambda.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_arithmetic.hpp>
 #include "CalciumTypes.hxx"
 #include "CalciumException.hxx"
 
@@ -44,7 +46,8 @@ public:
 
   template <typename T_TIME, typename T_TAG >        class InternalDataIdContainer;
   template <typename T_TIME, typename T_TAG > friend class InternalDataIdContainer;
-  template <typename DataManipulator >        friend class BoundedDataIdProcessor;
+  template <typename DataManipulator, 
+    class EnableIf >                  friend class BoundedDataIdProcessor;
   template <typename DataManipulator >        friend class EraseDataIdProcessor;
   template <typename DataManipulator >        friend class DisconnectProcessor;
 
@@ -103,8 +106,9 @@ public:
   inline TimeType getTime(const DataId &dataId) const { return dataId.first;}
   inline TagType  getTag (const DataId &dataId) const { return dataId.second;}
 
-  // TODO : Vérifier l'application pour tous les types de données
-  template <typename DataManipulator>  struct BoundedDataIdProcessor;
+  template <typename DataManipulator, 
+ 	    class EnableIf = void >    struct BoundedDataIdProcessor;
+  //template <typename DataManipulator>  struct BoundedDataIdProcessor;
   template <typename DataManipulator>  struct EraseDataIdProcessor;
   template <typename DataManipulator>  struct DisconnectProcessor;
 
@@ -157,10 +161,24 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
 };
 
 
-// TODO : Vérifier l'application pour tous les types de données
-// DESACTIVER POUR ?BOOL? et CHAR *
-template <typename DataManipulator>
+template <typename DataManipulator, class EnableIf >
 struct CalciumCouplingPolicy::BoundedDataIdProcessor{
+  BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
+  template < typename Iterator, typename DataId > 
+  void inline apply(typename iterator_t<Iterator>::value_type & data,
+		    const DataId & dataId,
+		    const Iterator  & it1) const {
+    typedef typename iterator_t<Iterator>::value_type value_type;
+    std::cout << "-------- Calcium Generic BoundedDataIdProcessor.apply() called " << std::endl;
+
+  }
+};
+
+
+template <typename DataManipulator >
+struct CalciumCouplingPolicy::BoundedDataIdProcessor<
+  DataManipulator, 
+  typename boost::enable_if< boost::is_float< typename DataManipulator::InnerType> >::type > {
     
   const CalciumCouplingPolicy & _couplingPolicy;
     
@@ -232,8 +250,8 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor{
 
       boost::lambda::placeholder1_type _1;
       boost::lambda::placeholder2_type _2;
-      // REM : Pour des buffers de type int
-      // le compilo indiquera warning: converting to `long int' from `Double'
+      // OLD: REM : Pour des buffers de type int
+      // OLD: le compilo indiquera warning: converting to `long int' from `Double'
       std::transform(InIt1,InIt1+dataSize,InIt2,OutIt,
        		     ( _1 - _2 ) * coeff + _2 );
 //       for(size_t i =0;  i < dataSize3; ++i) {

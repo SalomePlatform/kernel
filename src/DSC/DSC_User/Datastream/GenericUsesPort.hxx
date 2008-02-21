@@ -72,7 +72,10 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::Gen
 }
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
-GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::~GenericUsesPort() {}
+GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::~GenericUsesPort() 
+{
+  delete _my_ports;
+}
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
 const char *
@@ -85,37 +88,34 @@ template <typename DataManipulator,typename CorbaPortType, char * repositoryName
 template <typename TimeType,typename TagType>
 void
 GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put( CorbaInDataType data, 
-								       TimeType time, 
-								       TagType tag) {
-  typedef typename CorbaPortType::_ptr_type CorbaPortTypePtr;
+										  TimeType time, 
+										  TagType tag) {
+  typedef typename CorbaPortType::_var_type CorbaPortTypeVar;
   if (!_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
 
-  // PB1 : Cf remarque dans CalciumInterface, si on n'effectue pas de copie
-  //       du buffer ! 
-  // PB2 : Si les ports provides auquels on envoie data sont collocalisés
-  // ils vont partagés le même buffer (à cause de notre optim ds get_data)
-  // il faut alors effectuer une copie ici.
-  // Pour l'instant on résoud PB2 en créant une copie de la donnée en cas
-  // de connexions multiples. Il faudra tester la collocalisation.
-  DataType copyOfData; // = data; PB1
+  // OLD : PB1 : Cf remarque dans CalciumInterface, si on n'effectue pas de copie
+  // OLD :       du buffer ! 
+  // OLD : PB2 : Si les ports provides auquels on envoie data sont collocalisés
+  // OLD : ils vont partagés le même buffer (à cause de notre optim ds get_data)
+  // OLD : il faut alors effectuer une copie ici.
+  // OLD : Pour l'instant on résoud PB2 en créant une copie de la donnée en cas
+  // OLD : de connexions multiples. Il faudra tester la collocalisation.
+  // OLD :  DataType copyOfData; // = data; PB1
   for(int i = 0; i < _my_ports->length(); i++) {
 
-    CorbaPortTypePtr port = CorbaPortType::_narrow((*_my_ports)[i]);
+    CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
-    copyOfData = DataManipulator::clone(data);
+    //OLD :   copyOfData = DataManipulator::clone(data);
 #ifdef _DEBUG_
-    std::cout << "-------- GenericUsesPort::put : Copie de data("
-      //<< DataManipulator::getPointer(data)
-	      <<") vers copyOfData ("
-	      <<DataManipulator::getPointer(copyOfData)
-	      <<")------------------" << std::endl;
+    std::cout << "-------- GenericUsesPort::put -------- " << std::endl;
 #endif
     //} PB1
     try {
-      port->put(*copyOfData,time,tag); // catcher les exceptions
-    }   catch(const CORBA::SystemException& ex){
-      DataManipulator::delete_data(copyOfData);
+      port->put(data,time,tag);
+      // OLD : port->put(*copyOfData,time,tag);
+    } catch(const CORBA::SystemException& ex) {
+      //OLD : DataManipulator::delete_data(copyOfData);
       throw DSC_Exception(LOC(OSS() << "Impossible d'invoquer la méthode put sur le port n°"
 			      << i << "( i>=  0)"));
 
@@ -124,8 +124,8 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     // La séquence est détruite avec le buffer si on n'est pas collocalisé
     // La séquence est détruite sans son buffer sinon (cf comportement de get_data
     // appelée dans put (port provides)
-    DataManipulator::delete_data(copyOfData);
-    }
+    //OLD : DataManipulator::delete_data(copyOfData);
+  }
 }
 
 
@@ -138,9 +138,9 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
   if (_my_ports) delete _my_ports;
 
 #ifdef _DEBUG_
-  std::cerr << "GenericUsesPort::uses_port_changed" << endl;
+  std::cerr << "GenericUsesPort::uses_port_changed" << std::endl;
 #endif
-  _my_ports = new Engines::DSC::uses_port(*new_uses_port);
+  _my_ports = new_uses_port;
 }
 
 #endif

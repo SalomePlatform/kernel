@@ -29,6 +29,8 @@
 #ifndef _PALM_COUPLING_POLICIES_HXX_
 #define _PALM_COUPLING_POLICIES_HXX_
 
+#include <SALOMEconfig.h>
+
 #include <CORBA.h>
 #include <vector>
 #include "DataIdFilter.hxx"

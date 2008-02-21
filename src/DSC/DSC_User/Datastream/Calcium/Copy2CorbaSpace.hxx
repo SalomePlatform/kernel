@@ -76,7 +76,7 @@ Copy2CorbaSpace<false>  {
     std::cerr << "-------- Copy2CorbaSpace<false> MARK 1 --(dataPtr : " <<
       dataPtr<<")----------------" << std::endl;
 #endif
-    
+    // Attention : Pour les chaines ou tout autre object complexe il faut utiliser une recopie profonde !   
     std::copy(&data,&data+nRead,dataPtr);
  
 #ifdef _DEBUG_

@@ -13,6 +13,7 @@
 #include <Calcium.hxx>
 #include <calcium.h>
 #include <Superv_Component_i.hxx>
+#include <Salome_file_i.hxx>
 #include <omniORB4/CORBA.h>
 
 //--- from omniORBpy.h (not present on Debian Sarge packages)
@@ -38,10 +39,6 @@ struct omniORBpyAPI {
 
   omniORBpyAPI* api;
 
-#define OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS \
-catch (const CORBA::SystemException& ex) { \
-  return api->handleCxxSystemException(ex); \
-}
 
 %}
 
@@ -66,11 +63,8 @@ catch (const CORBA::SystemException& ex) { \
 %}
 
 %include <exception.i>
-%include "carrays.i" 
 
-%array_class(int, intArray);
-%array_class(float, floatArray);
-%array_class(double, doubleArray);
+
 
 /*
  * Most of this code is borrowed from numpy distribution
@@ -114,13 +108,52 @@ char* pytype_string(PyObject* py_obj) {
   return "unkown type";
 }
 
+/*
+For documentation only : numpy typecodes
+
+enum NPY_TYPECHAR { NPY_BOOLLTR = '?',
+                        NPY_BYTELTR = 'b',
+                        NPY_UBYTELTR = 'B',
+                        NPY_SHORTLTR = 'h',
+                        NPY_USHORTLTR = 'H',
+                        NPY_INTLTR = 'i',
+                        NPY_UINTLTR = 'I',
+                        NPY_LONGLTR = 'l',
+                        NPY_ULONGLTR = 'L',
+                        NPY_LONGLONGLTR = 'q',
+                        NPY_ULONGLONGLTR = 'Q',
+                        NPY_FLOATLTR = 'f',
+                        NPY_DOUBLELTR = 'd',
+                        NPY_LONGDOUBLELTR = 'g',
+                        NPY_CFLOATLTR = 'F',
+                        NPY_CDOUBLELTR = 'D',
+                        NPY_CLONGDOUBLELTR = 'G',
+                        NPY_OBJECTLTR = 'O',
+                        NPY_STRINGLTR = 'S',
+                        NPY_STRINGLTR2 = 'a',
+                        NPY_UNICODELTR = 'U',
+                        NPY_VOIDLTR = 'V',
+                        NPY_CHARLTR = 'c',
+
+                        NPY_INTPLTR = 'p',
+                        NPY_UINTPLTR = 'P',
+
+                        NPY_GENBOOLLTR ='b',
+                        NPY_SIGNEDLTR = 'i',
+                        NPY_UNSIGNEDLTR = 'u',
+                        NPY_FLOATINGLTR = 'f',
+                        NPY_COMPLEXLTR = 'c'
+};
+*/
+
 /* Given a Numeric typecode, return a string describing the type.
  */
 char* typecode_string(int typecode) {
-  char* type_names[20] = {"char","unsigned byte","byte","short",
-        "unsigned short","int","unsigned int","long",
-        "float","double","complex float","complex double",
-        "object","ntype","unkown"};
+  char* type_names[] = {"bool","byte","unsigned byte","short",
+        "unsigned short","int","unsigned int","long","unsigned long",
+        "longlong","unsigned longlong",
+        "float","double","long double","complex float","complex double","complex long double",
+        "object","string","unicode","void","ntypes","notype","char","unkown"};
   return type_names[typecode];
 }
 
@@ -337,6 +370,45 @@ typedef PyObject ArrayObject;
 #endif
 %}
 
+%include "carrays.i" 
+
+%array_class(int, intArray);
+%array_class(float, floatArray);
+%array_class(double, doubleArray);
+
+/* special struct to handle string arrays */
+%inline %{
+struct stringArray
+{
+  stringArray(int nelements,int size=0) {
+    nelem=nelements;
+    data= new char*[nelements];
+    for(int i=0;i<nelements;i++)
+    {
+      data[i]=(char *)malloc((size+1)*sizeof(char));
+      data[i][size+1]='\0';
+    }
+  }
+  ~stringArray() 
+  {
+    std::cerr << "~stringArray() " << nelem << std::endl;
+    for(int i=0;i<nelem;i++)
+      free(data[i]);
+    delete [] data;
+  }
+  char* __getitem__(int index) {
+    return data[index];
+  }
+  void __setitem__(int index, char* value) {
+    free(data[index]);
+    data[index] = strdup(value);
+  }
+  char** data;
+  int nelem;
+};
+%}
+/* End of special struct to handle string arrays */
+
 /* input typemap 
    This typemap can be used for input array objects only.
    It accepts swig carray objects or numpy contiguous or non contiguous objects.
@@ -373,6 +445,55 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 %apply float*  IN_ARRAY3 {float  *eval};
 %apply double* IN_ARRAY3 {double *eval};
 
+/*  Specific typemap for complex */
+%typemap(in) float*  ecpval
+             (ArrayObject* array=NULL, int is_new_object) {
+  int size[1] = {-1};
+  if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
+  {
+%#ifdef WITH_NUMPY
+    array = obj_to_array_contiguous_allow_conversion($input, PyArray_CFLOAT, &is_new_object);
+    if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
+    $1 = (float*) array->data;
+%#else
+    SWIG_exception(SWIG_TypeError, "complex array expected");
+%#endif
+  }
+}
+%typemap(freearg) float* ecpval {
+  if (is_new_object$argnum && array$argnum) Py_DECREF(array$argnum);
+}
+/* End of  Specific typemap for complex */
+
+/* array of strings on input */
+%typemap(in) char** eval
+         (ArrayObject* array=NULL, int is_new_object) {
+  int size[1] = {-1};
+  stringArray* sarray;
+  if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *),0)) == -1)
+  {
+%#ifdef WITH_NUMPY
+    array = obj_to_array_contiguous_allow_conversion($input, PyArray_STRING, &is_new_object);
+    if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
+    $1 = (char**) malloc(array_size(array,0)*sizeof(char*));
+    for(int i=0;i<array_size(array,0);i++)
+      $1[i]=(char*) array->data + i* array->strides[0];
+%#else
+    SWIG_exception(SWIG_TypeError, "string array expected");
+%#endif
+  }
+  else
+  {
+    $1=sarray->data;
+  }
+}
+
+%typemap(freearg) char** eval {
+  if (array$argnum) free($1);
+  if (is_new_object$argnum && array$argnum) Py_DECREF(array$argnum);
+}
+/* End of array of strings on input */
+
 /* inplace typemaps 
    This typemap can be used for input/output array objects.
    It accepts swig carray objects or numpy contiguous objects.
@@ -403,59 +524,99 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 %apply float*  INPLACE_ARRAY3 {float  *lval};
 %apply double* INPLACE_ARRAY3 {double *lval};
 
+/*  typemap for complex inout */
+%typemap(in) float* lcpval
+             (ArrayObject* temp=NULL) {
+  if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
+  {
+%#ifdef WITH_NUMPY
+    temp = obj_to_array_no_conversion($input,PyArray_CFLOAT);
+    if (!temp  || !require_contiguous(temp)) SWIG_fail;
+    $1 = (float*) temp->data;
+%#else
+    SWIG_exception(SWIG_TypeError, "complex array expected");
+%#endif
+  }
+}
+/*  End of typemap for complex inout */
+
+/* typemap for array of strings on input/output */
+%typemap(in) char** lval
+            (ArrayObject* temp=NULL) {
+  stringArray* sarray;
+  if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *) ,0)) == -1)
+  {
+%#ifdef WITH_NUMPY
+    temp = obj_to_array_no_conversion($input,PyArray_STRING);
+    if (!temp  || !require_contiguous(temp)) SWIG_fail;
+    $1 = (char**) malloc(array_size(temp,0)*sizeof(char*));
+    for(int i=0;i<array_size(temp,0);i++)
+      $1[i]=(char*) temp->data+i*temp->strides[0];
+%#else
+    SWIG_exception(SWIG_TypeError, "string array expected");
+%#endif
+  }
+  else
+  {
+    $1=sarray->data;
+  }
+}
+%typemap(freearg) char** lval {
+  if (temp$argnum) free($1);
+}
+/* End of typemap for array of strings on input/output */
 
 %typemap(in) CORBA::Boolean
 {
   $1=(CORBA::Boolean)PyInt_AsLong($input);
 }
 
-%typemap(in) CORBA::ORB_ptr 
+%define CORBAPTR(type)
+%typemap(in) type##_ptr
 {
-  try {
-     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
-     $1 = CORBA::ORB::_narrow(obj);
+  Py_BEGIN_ALLOW_THREADS
+  try
+  {
+     CORBA::Object_var obj = api->pyObjRefToCxxObjRef($input,0);
+     $1 = type##::_narrow(obj);
   }
-  catch (...) {
+  catch(...)
+  {
+     Py_BLOCK_THREADS
      PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
   }
+  Py_END_ALLOW_THREADS
 }
-
-%typemap(in) PortableServer::POA_ptr
-{
-  try {
-     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
-     $1 = PortableServer::POA::_narrow(obj);
-  }
-  catch (...) {
-     PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
-  }
+%typemap(freearg) type##_ptr {
+  CORBA::release($1);
 }
+%enddef
 
-%typemap(in) Engines::Container_ptr
-{
-  try {
-     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
-     $1 = Engines::Container::_narrow(obj);
-  }
-  catch (...) {
-     PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
-  }
-}
+CORBAPTR(CORBA::ORB)
+CORBAPTR(Ports::PortProperties)
+CORBAPTR(Ports::Port)
+CORBAPTR(Engines::Container)
+CORBAPTR(PortableServer::POA)
 
-%typemap(in) Ports::Port_ptr
-{
-  try {
-     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
-     $1 = Ports::Port::_narrow(obj);
-  }
-  catch (...) {
-     PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
-  }
-}
-
-%typemap(out) Ports::Port_ptr , Ports::PortProperties_ptr
+%typemap(out) Ports::Port_ptr 
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
+  //All output Ports::Port_ptr variables are duplicated by security. Need to release them for python . Explanation ??
+  CORBA::release($1);
+}
+
+%typemap(out) Ports::PortProperties_ptr, Engines::Salome_file_ptr
+{
+  $result = api->cxxObjRefToPyObjRef($1, 1);
+}
+
+%typemap(out) Engines::DSC::uses_port *
+{
+   $result = PyList_New($1->length());
+   for (CORBA::ULong i=0; i < $1->length() ; i++)
+     PyList_SetItem($result,i,api->cxxObjRefToPyObjRef((*$1)[i], 1));
+   //delete the copy (created by new) of uses port sequence
+   delete $1;
 }
 
 /*
@@ -463,34 +624,45 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
  */
 // a general exception handler
 %exception {
+   Py_BEGIN_ALLOW_THREADS
    try {
       $action
    }
    catch(Engines::DSC::PortNotDefined& _e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_ValueError,"Port not defined");
       return NULL;
    }
    catch(Engines::DSC::PortNotConnected& _e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_ValueError,"Port not connected");
       return NULL;
    }
    catch(Engines::DSC::BadPortType& _e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_ValueError,"Bad port type");
       return NULL;
    }
    catch (SALOME_Exception &e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_RuntimeError,e.what());
       return NULL;
    }
    catch (SALOME::SALOME_Exception &e) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_RuntimeError,e.details.text);
       return NULL;
    }
-   OMNIPY_CATCH_AND_HANDLE_SYSTEM_EXCEPTIONS
+   catch (const CORBA::SystemException& e) {
+      Py_BLOCK_THREADS 
+      return api->handleCxxSystemException(e);
+   }
    catch(...) {
+      Py_BLOCK_THREADS
       PyErr_SetString(PyExc_ValueError,"Unknown exception");
       return NULL;
    }
+   Py_END_ALLOW_THREADS
 }
 
 /*
@@ -565,6 +737,23 @@ class PySupervCompo:public Superv_Component_i
 
     virtual Ports::PortProperties_ptr get_port_properties(const char* port_name);
 
+// Interface for Salome_file
+    Engines::Salome_file_ptr getInputFileToService(const char* service_name, const char* Salome_file_name);
+    void checkInputFilesToService(const char* service_name);
+    Engines::Salome_file_ptr setInputFileToService(const char* service_name, const char* Salome_file_name);
+    Engines::Salome_file_ptr getOutputFileToService(const char* service_name, const char* Salome_file_name);
+    void checkOutputFilesToService(const char* service_name);
+    Engines::Salome_file_ptr setOutputFileToService(const char* service_name, const char* Salome_file_name);
+// End of Interface for Salome_file
+
+// DSC interface for python components
+  virtual void add_provides_port(Ports::Port_ptr ref, const char* provides_port_name, Ports::PortProperties_ptr port_prop);
+  virtual void add_uses_port(const char* repository_id, const char* uses_port_name, Ports::PortProperties_ptr port_prop);
+  virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name);
+// End of DSC interface for python components
+
+
+
     %extend
       {
        //To get the address of the component
@@ -592,14 +781,17 @@ int  cp_cd(Superv_Component_i *component,char *name);
 int cp_een(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
 int cp_edb(Superv_Component_i *component,int dep,double t,int n,char *nom,int nval,double *eval);
 int cp_ere(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
-int cp_ecp(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *eval);
+int cp_ecp(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,float  *ecpval);
 int cp_elo(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,int    *eval);
+int cp_ech(Superv_Component_i *component,int dep,float  t,int n,char *nom,int nval,char** eval,int strSize);
+
 
 int cp_len(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
 int cp_ldb(Superv_Component_i *component,int dep,double *ti,double *tf,int *niter,char *nom,int nmax,int *nval,double *lval);
 int cp_lre(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
-int cp_lcp(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lval);
+int cp_lcp(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,float  *lcpval);
 int cp_llo(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,int    *lval);
+int cp_lch(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,char** lval,int strSize);
 
 int cp_fin(Superv_Component_i *component,int cp_end);
 

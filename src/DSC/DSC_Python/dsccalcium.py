@@ -51,3 +51,21 @@ class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
   def get_port_properties(self,name):
     return self.proxy.get_port_properties(name)
 
+  def setInputFileToService(self,service_name,Salome_file_name):
+    return self.proxy.setInputFileToService(service_name,Salome_file_name)
+
+  def checkInputFilesToService(self,service_name):
+    return self.proxy.checkInputFilesToService(service_name)
+
+  def getInputFileToService(self,service_name,Salome_file_name):
+    return self.proxy.getInputFileToService(service_name,Salome_file_name)
+
+  def setOutputFileToService(self,service_name,Salome_file_name):
+    return self.proxy.setOutputFileToService(service_name,Salome_file_name)
+
+  def getOutputFileToService(self,service_name,Salome_file_name):
+    return self.proxy.getOutputFileToService(service_name,Salome_file_name)
+
+  def checkOutputFilesToService(self,service_name):
+    return self.proxy.checkOutputFilesToService(service_name)
+

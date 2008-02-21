@@ -83,6 +83,10 @@ public:
 
   virtual void ping();
   char* name();
+  char* workingdir();
+  char* logfilename();
+  void logfilename(const char* name);
+
   virtual void Shutdown();
   char* getHostName();
   CORBA::Long getPID();
@@ -125,6 +129,7 @@ protected:
   SALOME_NamingService *_NS ;
   std::string _library_path;
   std::string _containerName;
+  std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;

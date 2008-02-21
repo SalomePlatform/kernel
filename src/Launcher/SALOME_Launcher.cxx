@@ -120,7 +120,7 @@ CORBA::Long SALOME_Launcher::getPID()
 CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
 					      const Engines::FilesList& filesToExport ,
 					      const Engines::FilesList& filesToImport ,
-					      const CORBA::Long NumberOfProcessors ,
+					      const Engines::BatchParameters& batch_params,
 					      const Engines::MachineParameters& params)
 {
   MESSAGE("BEGIN OF SALOME_Launcher::submitSalomeJob");
@@ -128,22 +128,33 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
   try{
     // find a cluster matching the structure params
     Engines::CompoList aCompoList ;
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
+    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    if (aMachineList->length() == 0)
+      throw SALOME_Exception("No resources have been found with your parameters");
+
     const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
     string clustername(p->alias);
-    
+    INFOS("Choose cluster" <<  clustername);
+
     // search batch manager for that cluster in map or instanciate one
     std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-    SCRUTE(clustername);
     if(it == _batchmap.end())
-      _batchmap[clustername] = FactoryBatchManager( p );
+    {
+      _batchmap[clustername] = FactoryBatchManager(p);
+      // TODO: Add a test for the cluster !
+    }
     
-    // submit job on cluster
-    BatchLight::Job* job = new BatchLight::Job( fileToExecute, filesToExport, filesToImport, NumberOfProcessors );
+    // create and submit job on cluster
+    BatchLight::Job* job = new BatchLight::Job(fileToExecute, filesToExport, filesToImport, batch_params);
+    bool res = job->check();
+    if (!res) {
+      delete job;
+      throw SALOME_Exception("Job parameters are bad (see informations above)");
+    }
     jobId = _batchmap[clustername]->submitJob(job);
   }
   catch(const SALOME_Exception &ex){
-    MESSAGE(ex.what());
+    INFOS(ex.what());
     THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
   }
   return jobId;

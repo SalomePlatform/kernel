@@ -93,7 +93,7 @@ public:
   // Elle profite à tous les modes de couplages n'implémentant pas
   // de comportement particulier dans la méthode get pour 
   // le cas d'une demande de dataId inexistant mais encadré par deux autres
-  template <typename DataManipulator>
+  template <typename DataManipulator, class EnableIf = void >
   struct BoundedDataIdProcessor{
     BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
     template < typename Iterator, typename DataId > 

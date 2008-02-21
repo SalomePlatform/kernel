@@ -43,6 +43,18 @@ extern "C"
       {
         dynamic_cast<calcium_integer_port_provides *>(port)->setDependencyType(depend);
       }
+    else if(std::string(type)=="CALCIUM_string")
+      {
+        dynamic_cast<calcium_string_port_provides *>(port)->setDependencyType(depend);
+      }
+    else if(std::string(type)=="CALCIUM_logical")
+      {
+        dynamic_cast<calcium_logical_port_provides *>(port)->setDependencyType(depend);
+      }
+    else if(std::string(type)=="CALCIUM_complex")
+      {
+        dynamic_cast<calcium_complex_port_provides *>(port)->setDependencyType(depend);
+      }
     else
       {
         std::cerr << "unknown type:" << std::endl;

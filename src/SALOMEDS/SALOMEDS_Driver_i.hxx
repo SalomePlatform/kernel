@@ -20,12 +20,13 @@
 #ifndef __SALOMEDS_DRIVER_I_H__
 #define __SALOMEDS_DRIVER_I_H__
 
+#include <SALOMEconfig.h>
+
 #include <omniORB4/CORBA.h>
 #include "SALOMEDSImpl_Driver.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
-#include <SALOMEconfig.h>   
 #include CORBA_SERVER_HEADER(SALOMEDS) 
 #include CORBA_SERVER_HEADER(SALOME_Component)
 

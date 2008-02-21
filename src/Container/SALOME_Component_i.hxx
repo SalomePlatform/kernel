@@ -29,6 +29,8 @@
 #ifndef _SALOME_COMPONENT_I_HXX_
 #define _SALOME_COMPONENT_I_HXX_
 
+#include <SALOMEconfig.h>
+
 #include <SALOME_Container.hxx>
 
 #include <iostream>
@@ -40,7 +42,6 @@
 #include <sys/types.h>
 #include <string>
 #include <map>
-#include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "NOTIFICATION.hxx"
 #include "Salome_file_i.hxx"

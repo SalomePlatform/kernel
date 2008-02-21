@@ -31,10 +31,10 @@
 
 #include "Superv_Component_i.hxx"
 
-
-struct UnknownPortType {};
+// PROVIDES PORT TRAITS
+struct UnknownProvidesPortType {};
 template <class T> struct ProvidesPortTraits {
-  typedef  UnknownPortType PortType;
+  typedef  UnknownProvidesPortType PortType;
 };
 template <> struct ProvidesPortTraits<int> {
   typedef  calcium_integer_port_provides PortType;
@@ -48,25 +48,33 @@ template <> struct ProvidesPortTraits<float> {
 template <> struct ProvidesPortTraits<double> {
   typedef  calcium_double_port_provides PortType;
 };
-template <> struct ProvidesPortTraits<char *> {
-  typedef  calcium_string_port_provides PortType;
-};
 template <> struct ProvidesPortTraits<bool> {
   typedef  calcium_logical_port_provides PortType;
 };
-
 // Définition du type cplx pour disciminer ce type de port
 // de celui du float 
 struct cplx {};
 template <> struct ProvidesPortTraits<cplx> {
    typedef calcium_complex_port_provides PortType;
 };
+// Défénition du type str pour obtenir le type de port
+// correspondant
+struct str {};
+template <> struct ProvidesPortTraits<str> {
+   typedef calcium_string_port_provides PortType;
+};
+ template <> struct ProvidesPortTraits<char *> {
+   typedef  calcium_string_port_provides PortType;
+ };
 
 template < typename T > struct StarTrait        { typedef  T NonStarType; };
 template < typename T > struct StarTrait< T * > { typedef  T NonStarType; };
 
+
+// USES PORT TRAITS
+struct UnknownUsesPortType {};
 template <class T> struct UsesPortTraits {
-  typedef  UnknownPortType PortType;
+  typedef  UnknownUsesPortType PortType;
 };
 template <> struct UsesPortTraits<int> {
   typedef  calcium_integer_port_uses PortType;
@@ -80,7 +88,7 @@ template <> struct UsesPortTraits<float> {
 template <> struct UsesPortTraits<double> {
   typedef  calcium_double_port_uses PortType;
 };
-template <> struct UsesPortTraits<char *> {
+template <> struct UsesPortTraits<str> {
   typedef  calcium_string_port_uses PortType;
 };
 template <> struct UsesPortTraits<bool> {

@@ -143,23 +143,25 @@ namespace BatchLight {
     return jstatus;
   }
 
-  void BatchManager_SLURM::buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception)
+  void BatchManager_SLURM::buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception)
   {
     BEGIN_OF("BatchManager_SLURM::buildSalomeCouplingScript");
     int status;
+    const char *fileToExecute = job->getFileToExecute();
+    const std::string dirForTmpFiles = job->getDirForTmpFiles();
 
     string::size_type p1 = string(fileToExecute).find_last_of("/");
     string::size_type p2 = string(fileToExecute).find_last_of(".");
-    _fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
+    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
 
-    _TmpFileName = BuildTemporaryFileName();
+    std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
-    tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "cd " ;
     tempOutputFile << _params.applipath << endl ;
     tempOutputFile << "export PYTHONPATH=~/" ;
-    tempOutputFile << _dirForTmpFiles ;
+    tempOutputFile << dirForTmpFiles ;
     tempOutputFile << ":$PYTHONPATH" << endl ;
     tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
     tempOutputFile << "  ./runAppli --terminal --modules=" ;
@@ -175,7 +177,7 @@ namespace BatchLight {
     tempOutputFile << "  done" << endl ;
     tempOutputFile << "  ./runSession waitNS.sh" << endl ;
     tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
-    tempOutputFile << "  ./runSession python ~/" << _dirForTmpFiles << "/" << _fileNameToExecute << ".py" << endl;
+    tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
     tempOutputFile << "  ./runSession killCurrentPort" << endl;
     tempOutputFile << "else" << endl ;
     tempOutputFile << "  ./runSession waitNS.sh" << endl ;
@@ -183,8 +185,8 @@ namespace BatchLight {
     tempOutputFile << "fi" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
-    chmod(_TmpFileName.c_str(), 0x1ED);
-    SCRUTE(_TmpFileName.c_str()) ;
+    chmod(TmpFileName.c_str(), 0x1ED);
+    SCRUTE(TmpFileName.c_str()) ;
 
     string command;
     if( _params.protocol == "rsh" )
@@ -194,7 +196,7 @@ namespace BatchLight {
     else
       throw SALOME_Exception("Unknown protocol");
     
-    command += _TmpFileName;
+    command += TmpFileName;
     command += " ";
     if (_params.username != ""){
       command += _params.username;
@@ -202,35 +204,41 @@ namespace BatchLight {
     }
     command += _params.hostname;
     command += ":";
-    command += _dirForTmpFiles ;
+    command += dirForTmpFiles ;
     command += "/runSalome_" ;
-    command += _fileNameToExecute ;
+    command += fileNameToExecute ;
     command += "_Batch.sh" ;
     SCRUTE(command.c_str());
     status = system(command.c_str());
     if(status)
       throw SALOME_Exception("Error of connection on remote host");    
-    RmTmpFile();
+    RmTmpFile(TmpFileName);
     
     END_OF("BatchManager_SLURM::buildSalomeCouplingScript");
   }
 
-  void BatchManager_SLURM::buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception)
+  void BatchManager_SLURM::buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception)
   {
     BEGIN_OF("BatchManager_SLURM::buildSalomeBatchScript");
     int status;
-    _TmpFileName = BuildTemporaryFileName();
+    const int nbproc = job->getNbProc();
+    const std::string dirForTmpFiles = job->getDirForTmpFiles();
+    std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
-    tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
+    const char *fileToExecute = job->getFileToExecute();
+    string::size_type p1 = string(fileToExecute).find_last_of("/");
+    string::size_type p2 = string(fileToExecute).find_last_of(".");
+    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
-    tempOutputFile << "#BSUB -o " << _dirForTmpFiles << "/runSalome.log%J" << endl ;
-    tempOutputFile << "srun ~/" << _dirForTmpFiles << "/runSalome_" << _fileNameToExecute << "_Batch.sh" << endl ;
+    tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/runSalome.log%J" << endl ;
+    tempOutputFile << "srun ~/" << dirForTmpFiles << "/runSalome_" << fileNameToExecute << "_Batch.sh" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
-    chmod(_TmpFileName.c_str(), 0x1ED);
-    SCRUTE(_TmpFileName.c_str()) ;
+    chmod(TmpFileName.c_str(), 0x1ED);
+    SCRUTE(TmpFileName.c_str()) ;
 
     string command;
     if( _params.protocol == "rsh" )
@@ -239,7 +247,7 @@ namespace BatchLight {
       command = "scp ";
     else
       throw SALOME_Exception("Unknown protocol");
-    command += _TmpFileName;
+    command += TmpFileName;
     command += " ";
     if (_params.username != ""){
       command += _params.username;
@@ -247,23 +255,28 @@ namespace BatchLight {
     }
     command += _params.hostname;
     command += ":";
-    command += _dirForTmpFiles ;
+    command += dirForTmpFiles ;
     command += "/" ;
-    command += _fileNameToExecute ;
+    command += fileNameToExecute ;
     command += "_Batch.sh" ;
     SCRUTE(command.c_str());
     status = system(command.c_str());
     if(status)
       throw SALOME_Exception("Error of connection on remote host");    
 
-    RmTmpFile();
+    RmTmpFile(TmpFileName);
     END_OF("BatchManager_SLURM::buildSalomeBatchScript");
     
   }
 
-  int BatchManager_SLURM::submit() throw(SALOME_Exception)
+  int BatchManager_SLURM::submit(BatchLight::Job* job) throw(SALOME_Exception)
   {
     BEGIN_OF("BatchManager_SLURM::submit");
+    const std::string dirForTmpFiles = job->getDirForTmpFiles();
+    const char *fileToExecute = job->getFileToExecute();
+    string::size_type p1 = string(fileToExecute).find_last_of("/");
+    string::size_type p2 = string(fileToExecute).find_last_of(".");
+    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
 
     // define name of log file
     string logFile="/tmp/logs/";
@@ -295,9 +308,9 @@ namespace BatchLight {
 
     command += _params.hostname;
     command += " \"bsub < " ;
-    command += _dirForTmpFiles ;
+    command += dirForTmpFiles ;
     command += "/" ;
-    command += _fileNameToExecute ;
+    command += fileNameToExecute ;
     command += "_Batch.sh\" > ";
     command += logFile;
     SCRUTE(command.c_str());
@@ -312,9 +325,9 @@ namespace BatchLight {
     fclose(fp);
     
     string sline(line);
-    int p1 = sline.find("<");
-    int p2 = sline.find(">");
-    string strjob = sline.substr(p1+1,p2-p1-1);
+    int p10 = sline.find("<");
+    int p20 = sline.find(">");
+    string strjob = sline.substr(p10+1,p20-p10-1);
 
     int id;
     istringstream iss(strjob);

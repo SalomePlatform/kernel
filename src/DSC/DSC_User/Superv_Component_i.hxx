@@ -32,7 +32,7 @@
 #include "provides_port.hxx"
 #include "port_factory.hxx"
 
-// default ports factories on the Kernel
+// default ports factories in the Kernel
 #include "basic_port_factory.hxx"
 #include "palm_port_factory.hxx"
 #include "calcium_port_factory.hxx"
@@ -263,6 +263,11 @@ private:
   // A Superv_Component port.
   struct superv_port_t {
     superv_port_t():u_ref(NULL),p_ref(NULL){};
+    ~superv_port_t()
+    {
+      if(u_ref)delete u_ref;
+      if(p_ref)delete p_ref;
+    };
     // For uses ports.
     uses_port * u_ref;
     // For provides ports.
@@ -346,11 +351,12 @@ Superv_Component_i::get_port( const char * port_name)
   try {
     if ( superv_port->p_ref != NULL ) {
       port = superv_port->p_ref;
-      Engines_DSC_interface::get_provides_port(port_name, false); 
+      Ports::Port_var portref=Engines_DSC_interface::get_provides_port(port_name, false); 
     } 
     else if ( superv_port->u_ref != NULL ) {
       port = superv_port->u_ref;
-      Engines_DSC_i::get_uses_port(port_name);
+      Engines::DSC::uses_port * portseq=Engines_DSC_i::get_uses_port(port_name);
+      delete portseq;
     } else {
       throw UnexpectedState( LOC(OSS()<< "Internal Error superv_port struct is inconsistent "));
     

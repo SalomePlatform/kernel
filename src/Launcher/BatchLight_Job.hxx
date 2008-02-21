@@ -39,20 +39,30 @@ namespace BatchLight {
   {
   public:
     // Constructeurs et destructeur
-    Job(const char *fileToExecute, const Engines::FilesList& filesToExport, const Engines::FilesList& filesToImport, const int nbproc);
+    Job(const char *fileToExecute, 
+	const Engines::FilesList& filesToExport, 
+	const Engines::FilesList& filesToImport, 
+	const Engines::BatchParameters& batch_params);
     virtual ~Job();
 
     const char *getFileToExecute() const { return _fileToExecute; }
     const Engines::FilesList getFilesToExportList() const { return _filesToExport; }
     const Engines::FilesList getFilesToImportList() const { return _filesToImport; }
-    const int getNbProc() const { return _nbproc; }
-    
+    void addFileToImportList(std::string file_name);
+    const CORBA::Long getNbProc() const { return _batch_params.nb_proc; }
+    const std::string getExpectedDuringTime();
+    const std::string getMemory();
+
+    const std::string getDirForTmpFiles() const { return _dirForTmpFiles;}
+    void setDirForTmpFiles(std::string dirForTmpFiles) {_dirForTmpFiles = dirForTmpFiles;
+							SCRUTE(_dirForTmpFiles);}
+    bool check();							
   protected:
     const char* _fileToExecute;
     const Engines::FilesList _filesToExport;
-    const Engines::FilesList _filesToImport;
-    const int _nbproc;
-
+    Engines::FilesList _filesToImport;
+    Engines::BatchParameters _batch_params;
+    std::string _dirForTmpFiles; // Tmp directory on the server
   private:
 
   };

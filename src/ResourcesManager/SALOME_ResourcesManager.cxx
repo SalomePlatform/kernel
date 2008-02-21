@@ -473,7 +473,7 @@ bool isPythonContainer(const char* ContainerName)
  *  see BuildTempFileToLaunchRemoteContainer()
  *
  *  Else rely on distant configuration. Command is under the form (example):
- *  ssh user@machine distantPath/runRemote.sh hostNS portNS \
+ *  ssh user@machine distantPath/runRemote.sh hostNS portNS workingdir \
  *                   SALOME_Container containerName &"
 
  *  - where user is ommited if not specified in CatalogResources,
@@ -483,6 +483,7 @@ bool isPythonContainer(const char* ContainerName)
  *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
  *  - where portNS is the port used by CORBA naming server (set by scripts to
  *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
+ *  - where workingdir is the requested working directory for the container
  */ 
 //=============================================================================
 
@@ -514,7 +515,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
             nbproc = params.nb_node * params.nb_proc_per_node;
         }
 
-      // "ssh user@machine distantPath/runRemote.sh hostNS portNS \
+      // "ssh user@machine distantPath/runRemote.sh hostNS portNS workingdir \
       //  SALOME_Container containerName &"
 
       if (resInfo.Protocol == rsh)
@@ -550,6 +551,13 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
       ASSERT(getenv("NSPORT"));
       command += getenv("NSPORT"); // port of CORBA name server
 
+      command += " '";
+      std::string wdir=params.workingdir.in();
+      if(wdir == "$TEMPDIR")
+        wdir="\\$TEMPDIR";
+      command += wdir; // requested working directory
+      command += "'"; 
+
       if(params.isMPI)
 	{
 	  command += " mpirun -np ";
@@ -570,13 +578,6 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
       command += idc;
       command += " -";
       AddOmninamesParams(command);
-      command += " > /tmp/";
-      command += _NS->ContainerName(params);
-      command += "_";
-      command += GetHostname();
-      command += "_";
-      command += getenv( "USER" ) ;
-      command += ".log 2>&1 &" ;
 
       MESSAGE("command =" << command);
     }
@@ -629,10 +630,32 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
 
   else
     {
+      command="";
+      std::string wdir=params.workingdir.in();
+      std::cerr << wdir << std::endl;
+      if(wdir != "")
+        {
+          // a working directory is requested
+          if(wdir == "$TEMPDIR")
+            {
+              // a new temporary directory is requested
+              char dir[]="/tmp/salomeXXXXXX";
+              char* mdir=mkdtemp(dir);
+              if(mdir==NULL)
+                std::cerr << "Problem in mkdtemp " << dir << " " << mdir << std::endl;
+              else
+                command="cd "+std::string(dir)+";";
+            }
+          else
+            {
+              // a permanent directory is requested use it or create it
+              command="mkdir -p " + wdir + " && cd " + wdir + ";";
+            }
+        }
       if (isPythonContainer(params.container_name))
-        command = "SALOME_ContainerPy.py ";
+        command += "SALOME_ContainerPy.py ";
       else
-        command = "SALOME_Container ";
+        command += "SALOME_Container ";
     }
 
   command += _NS->ContainerName(params);
@@ -641,13 +664,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
   command += idc;
   command += " -";
   AddOmninamesParams(command);
-  command += " > /tmp/";
-  command += _NS->ContainerName(params);
-  command += "_";
-  command += GetHostname();
-  command += "_";
-  command += getenv( "USER" ) ;
-  command += ".log 2>&1 &" ;
+
   MESSAGE("Command is ... " << command);
   return command;
 }
@@ -717,13 +734,6 @@ SALOME_ResourcesManager::BuildCommand
   command += containerName;
   command += " -";
   AddOmninamesParams(command);
-  command += " > /tmp/";
-  command += containerName;
-  command += "_";
-  command += machine;
-  command += "_";
-  command += getenv( "USER" ) ;
-  command += ".log 2>&1 &" ;
 
   SCRUTE( command );
   return command;
@@ -823,11 +833,9 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
     //}
     //command += nameservice ;
 
-    char *iorstr = _NS->getIORaddr();
+    CORBA::String_var iorstr = _NS->getIORaddr();
     command += "ORBInitRef NameService=";
     command += iorstr;
-    //It's in fact a CORBA::String allocated with new [] !!!
-    delete [] iorstr;
   }
 
 
@@ -839,8 +847,9 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
 
 void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
   {
+    CORBA::String_var iorstr = _NS->getIORaddr();
     fileStream << "ORBInitRef NameService=";
-    fileStream << _NS->getIORaddr();
+    fileStream << iorstr;
   }
 
 
@@ -987,14 +996,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
   _CommandForRemAccess = command;
   command += " ";
   command += _TmpFileName;
-  command += " > ";
-  command += "/tmp/";
-  command += _NS->ContainerName(params);
-  command += "_";
-  command += machine;
-  command += "_";
-  command += getenv( "USER" ) ;
-  command += ".log 2>&1 &";
+
   SCRUTE(command);
 
   return command;

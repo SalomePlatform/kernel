@@ -11,6 +11,8 @@
 #if !defined SALOME_Logger_Server_include
 #define SALOME_Logger_Server_include
 
+#include <SALOMEconfig.h>
+
 #ifndef WNT
 #include <fstream.h>
 #else

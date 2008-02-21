@@ -133,6 +133,16 @@ module Engines
     readonly attribute string name ;
 
     /*!
+      working directory of the %container
+    */
+    readonly attribute string workingdir ;
+
+    /*!
+      name of the %container log file (this has been set by the launcher)
+    */
+    attribute string logfilename ;
+
+    /*!
       Shutdown the Container process.
     */
     void Shutdown();

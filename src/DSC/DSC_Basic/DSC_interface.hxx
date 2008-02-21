@@ -164,9 +164,9 @@ protected:
     std::string repository_id;
 
     // Specifique aux provides port;
-    Ports::Port_ptr provides_port_ref;
+    Ports::Port_var provides_port_ref;
 
-    Ports::PortProperties_ptr port_prop;
+    Ports::PortProperties_var port_prop;
   };
 
   typedef std::map<std::string, port_t *> ports;

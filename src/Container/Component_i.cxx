@@ -164,6 +164,8 @@ Engines_Component_i::~Engines_Component_i()
 {
   MESSAGE("Component destructor");
   Engines_Container_i::decInstanceCnt(_interfaceName);
+  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
+  if(_notifSupplier)delete _notifSupplier;
 }
 
 //=============================================================================
