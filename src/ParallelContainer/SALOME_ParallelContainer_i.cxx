@@ -1035,3 +1035,34 @@ Engines_Parallel_Container_i::createSalome_file(const char* origFileName)
   return theSalome_file;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA attribute: Container working directory 
+ */
+//=============================================================================
+
+char* 
+Engines_Parallel_Container_i::workingdir()
+{
+  char wd[256];
+  getcwd (wd,256);
+  return CORBA::string_dup(wd) ;
+}
+
+//=============================================================================
+/*! 
+ *  CORBA attribute: Container log file name
+ */
+//=============================================================================
+
+char* 
+Engines_Parallel_Container_i::logfilename()
+{
+  return CORBA::string_dup(_logfilename.c_str()) ;
+}
+
+void 
+Engines_Parallel_Container_i::logfilename(const char* name)
+{
+  _logfilename=name;
+}
