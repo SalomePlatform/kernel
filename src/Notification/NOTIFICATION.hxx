@@ -28,6 +28,8 @@
 #ifndef NOTIFICATION_HXX
 #define NOTIFICATION_HXX
 
+#include <SALOME_NOTIFICATION.hxx>
+
 #define NOTIF_WARNING "Warning"
 #define NOTIF_STEP    "Step"
 #define NOTIF_TRACE   "Trace"
@@ -42,21 +44,6 @@
 
 #include "NOTIFICATION_Supplier.hxx"
 #include "NOTIFICATION_Consumer.hxx"
-
-
-#if defined NOTIFICATION_EXPORTS
-#if defined WIN32
-#define NOTIFICATION_EXPORT __declspec( dllexport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#else
-#if defined WNT
-#define NOTIFICATION_EXPORT __declspec( dllimport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#endif
 
 NOTIFICATION_EXPORT char* NOTIFICATION_date();
 NOTIFICATION_EXPORT CosNA_EventChannel_ptr NOTIFICATION_channel();

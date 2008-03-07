@@ -43,7 +43,7 @@ herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
   return 1;
 }
 
-HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
+HDFdataset::HDFdataset(const char *name, HDFcontainerObject *father,hdf_type type, 
 		       hdf_size dim[], int dimsize, hdf_byte_order order)
   : HDFinternalObject(name)
 {
@@ -66,7 +66,7 @@ HDFdataset::HDFdataset(char *name, HDFcontainerObject *father,hdf_type type,
 }
 
 
-HDFdataset::HDFdataset(char *name,HDFcontainerObject *father)
+HDFdataset::HDFdataset(const char *name,HDFcontainerObject *father)
   : HDFinternalObject(name)
 {
   _father = father;

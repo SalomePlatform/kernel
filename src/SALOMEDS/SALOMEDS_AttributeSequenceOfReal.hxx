@@ -38,7 +38,7 @@
 class SALOMEDS_AttributeSequenceOfReal: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeSequenceOfReal
 {
 public:  
-  SALOMEDS_AttributeSequenceOfReal(const Handle(SALOMEDSImpl_AttributeSequenceOfReal)& theAttr);
+  SALOMEDS_AttributeSequenceOfReal(SALOMEDSImpl_AttributeSequenceOfReal* theAttr);
   SALOMEDS_AttributeSequenceOfReal(SALOMEDS::AttributeSequenceOfReal_ptr theAttr);
   ~SALOMEDS_AttributeSequenceOfReal();
 

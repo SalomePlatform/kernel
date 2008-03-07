@@ -28,15 +28,34 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_SComponent, SALOMEDSImpl_SObject )
+//============================================================================
+/*! Function : Empty constructor
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent()
+{
+}
+
+//============================================================================
+/*! Function : Copy constructor
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const SALOMEDSImpl_SComponent& theSCO)
+{
+  _lab   = theSCO._lab;
+  _value = theSCO._value;
+  _type  = theSCO._type;
+  _name  = theSCO._name;
+}
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const TDF_Label& theLabel)
+SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const DF_Label& theLabel)
   :SALOMEDSImpl_SObject(theLabel)
 {
 }
@@ -47,7 +66,8 @@ SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const TDF_Label& theLabel)
  */
 //============================================================================
 SALOMEDSImpl_SComponent::~SALOMEDSImpl_SComponent()
-{}
+{
+}
   
   
 //============================================================================
@@ -55,11 +75,11 @@ SALOMEDSImpl_SComponent::~SALOMEDSImpl_SComponent()
  *  Purpose  : 
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_SComponent::ComponentDataType()
+string SALOMEDSImpl_SComponent::ComponentDataType()
 {
-  TCollection_AsciiString res = "";
-  Handle(SALOMEDSImpl_AttributeComment) type;
-  if ( _lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(),type) ) {
+  string res = "";
+  SALOMEDSImpl_AttributeComment* type;
+  if ( (type = (SALOMEDSImpl_AttributeComment*)_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID())) ) {
     res = type->Value();
   }
 
@@ -72,26 +92,41 @@ TCollection_AsciiString SALOMEDSImpl_SComponent::ComponentDataType()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SComponent::ComponentIOR(TCollection_AsciiString& IOR)
+bool SALOMEDSImpl_SComponent::ComponentIOR(string& IOR)
 {
-  Handle(SALOMEDSImpl_AttributeIOR) ior;
-  if (!_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(),ior) )
+  SALOMEDSImpl_AttributeIOR* ior;
+  if (!(ior = (SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())) )
       return false;
   IOR = ior->Value();
   return true;
 }
-  
+
 
 //============================================================================
 /*! Function : IsA
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SComponent::IsA(const TDF_Label& theLabel)
+bool SALOMEDSImpl_SComponent::IsA(const DF_Label& theLabel)
 {
   // scomponent must contain comment and belong to the 2th depth label
   if ( theLabel.IsAttribute(SALOMEDSImpl_AttributeComment::GetID()) && theLabel.Depth() == 2) {
     return true;
   }
   return false;
+}
+
+//============================================================================
+/*! Function :  GetPersistentCopy
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDSImpl_SComponent* SALOMEDSImpl_SComponent::GetPersistentCopy() const
+{
+  SALOMEDSImpl_SComponent* sco = new SALOMEDSImpl_SComponent;
+  sco->_lab = _lab;
+  sco->_name = _name;
+  sco->_type = _type;
+  sco->_value = _value; 
+  return sco;
 }

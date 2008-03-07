@@ -30,7 +30,6 @@
 
 
 //-----------------------------------------------------------------------------
-DEFINE_STANDARD_HANDLE( SALOMEDS_TMPFile_i, SALOMEDSImpl_TMPFile );
 
 class SALOMEDS_TMPFile_i : public SALOMEDSImpl_TMPFile
 {
@@ -41,15 +40,12 @@ public:
 
   virtual TOctet& Get(size_t);
 
-  DEFINE_STANDARD_RTTI( SALOMEDS_TMPFile_i );
-
 protected:
   SALOMEDS::TMPFile_var myStream;
 };
 
 
 //-----------------------------------------------------------------------------
-DEFINE_STANDARD_HANDLE( Engines_TMPFile_i, SALOMEDSImpl_TMPFile );
 
 class Engines_TMPFile_i : public SALOMEDSImpl_TMPFile
 {
@@ -59,8 +55,6 @@ public:
   virtual size_t Size();
 
   virtual TOctet& Get(size_t);
-
-  DEFINE_STANDARD_RTTI( Engines_TMPFile_i );
 
 protected:
   Engines::TMPFile_var myStream;

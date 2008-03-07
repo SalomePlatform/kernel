@@ -29,9 +29,10 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_StudyManager_i.hxx"
-#include "utilities.h"
 #include "SALOMEDS_AttributeName_i.hxx"
+#include "utilities.h"
 #include "HDFOI.hxx"
+
 using namespace std;
 
 //============================================================================
@@ -39,7 +40,7 @@ using namespace std;
  *  Purpose  : 
  */
 //============================================================================
-static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Standard_Integer offset) {
+static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, int offset) {
   SALOMEDS::SObject_var RefSO;
   SALOMEDS::ChildIterator_var it = Study->NewChildIterator(SO);
   for (; it->More();it->Next()){
@@ -49,12 +50,12 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Sta
     {
       SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
       CORBA::String_var Val = Name->Value();
-      for (Standard_Integer i = 1; i <= offset ; i++) 
+      for (int i = 1; i <= offset ; i++) 
 	MESSAGE("--");
       MESSAGE(">"<<CSO->GetID()<<Val);
     }
     if (CSO->ReferencedObject(RefSO)) {
-      for (Standard_Integer i = 1; i <= offset ; i++) 
+      for (int i = 1; i <= offset ; i++) 
 	MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
@@ -70,9 +71,9 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO,Sta
 static void DumpStudy (SALOMEDS::Study_ptr Study) {
   MESSAGE("Explore Study and Write name of each object if it exists");
   
-  Standard_CString name;
+  char* name;
   SALOMEDS::SComponentIterator_var itcomp = Study->NewComponentIterator();
-  Standard_Integer offset = 1;
+  int offset = 1;
   for (; itcomp->More(); itcomp->Next()) {
     SALOMEDS::SComponent_var SC = itcomp->Value();
     name = SC->ComponentDataType();
@@ -89,7 +90,7 @@ static void DumpStudy (SALOMEDS::Study_ptr Study) {
 static void Test(SALOMEDS::StudyManager_ptr myStudyMgr )
 {
   try {
-  Standard_CString name;
+  char* name;
   MESSAGE("Create New Study Study1");
   SALOMEDS::Study_var myStudy = myStudyMgr->NewStudy("Study1");
  
@@ -281,11 +282,9 @@ int main(int argc, char** argv)
   try {
     // Initialise the ORB.
 #if OMNIORB_VERSION >= 4
-    const char* options[][2] = { { "giopMaxMsgSize", "104857600" }, { 0, 0 } };
-    CORBA::ORB_var orb = CORBA::ORB_init( argc , argv , "omniORB4", options) ;
+    CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
 #else
-    CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
-    omniORB::MaxMessageSize(100 * 1024 * 1024);
+    CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB3" );
 #endif
     
     // Obtain a reference to the root POA.

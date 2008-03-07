@@ -112,26 +112,46 @@ void ResourceDataToSort::Print() const
     SCRUTE(_memInMB);
   }
 
-void ParserResourcesType::Print()
+void ParserResourcesType::Print() const
 {
-  MESSAGE("##############*****");
-  MESSAGE("HostName : " << DataForSort._hostName);
-  MESSAGE("Alias : " << Alias);
-  MESSAGE("Protocol : " << Protocol);
-  MESSAGE("Mode : " << Mode);
-  MESSAGE("UserName : " << UserName);
-  MESSAGE("Modules : ");
-  int i = 1;
+  ostringstream oss;
+  oss << endl <<
+    "HostName : " << DataForSort._hostName << endl << 
+    "Alias : " << Alias << endl <<
+    "NbOfNodes : " << DataForSort._nbOfNodes << endl <<
+    "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << endl <<
+    "CPUFreqMHz : " << DataForSort._CPUFreqMHz << endl <<
+    "MemInMB : " << DataForSort._memInMB << endl <<
+    "Protocol : " << Protocol << endl <<
+    "Mode : " << Mode << endl <<
+    "Batch : " << Batch << endl <<
+    "mpi : " << mpi << endl <<
+    "UserName : " << UserName << endl <<
+    "AppliPath : " << AppliPath << endl <<
+    "OS : " << OS << endl <<
+    "Modules : " << endl;
 
-  for (std::map<std::string, std::string>::iterator iter = ModulesPath.begin();
-       iter != ModulesPath.end();
-       iter++)
-    {
-      MESSAGE("Module " << i++ << " called : " << (*iter).first
-              << " with path : " << (*iter).second);
-    }
+  for(int i=0;i<ModulesList.size();i++)
+    oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
 
-  MESSAGE("PreReqFilePath : " << PreReqFilePath);
-  MESSAGE("OS : " << OS);
-  DataForSort.Print();
+  MESSAGE(oss.str());
+
+}
+
+void ParserResourcesType::Clear()
+{
+  DataForSort._hostName = "";
+  DataForSort._nbOfNodes = 1;
+  DataForSort._nbOfProcPerNode = 1;
+  DataForSort._CPUFreqMHz = 0;
+  DataForSort._memInMB = 0;
+  Alias = "";
+  Protocol = rsh;
+  Mode = interactive;
+  Batch = none;
+  mpi = indif;
+  UserName = "";
+  AppliPath = "";
+  ModulesList.clear();
+  OS = "";
 }

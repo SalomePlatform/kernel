@@ -27,24 +27,22 @@
 using namespace std;
 #endif
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeInteger,  SALOMEDSImpl_GenericAttribute)
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeInteger, SALOMEDSImpl_GenericAttribute )
-
+#include <stdlib.h>
 
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeInteger::GetID ()
+const std::string& SALOMEDSImpl_AttributeInteger::GetID ()
 {
-  static Standard_GUID IntegerID ("8CC3E213-C9B4-47e4-8496-DD5E62E22018");
+  static std::string IntegerID ("8CC3E213-C9B4-47e4-8496-DD5E62E22018");
   return IntegerID;
 }   
 
-Handle(SALOMEDSImpl_AttributeInteger) SALOMEDSImpl_AttributeInteger::Set (const TDF_Label& L, Standard_Integer Val) 
+SALOMEDSImpl_AttributeInteger* SALOMEDSImpl_AttributeInteger::Set (const DF_Label& L, int Val) 
 {
-  Handle(SALOMEDSImpl_AttributeInteger) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), A)) {
+  SALOMEDSImpl_AttributeInteger* A = NULL;
+  if (!(A = (SALOMEDSImpl_AttributeInteger*)L.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID()))) {
     A = new  SALOMEDSImpl_AttributeInteger(); 
     L.AddAttribute(A);
   }
@@ -54,10 +52,19 @@ Handle(SALOMEDSImpl_AttributeInteger) SALOMEDSImpl_AttributeInteger::Set (const 
 }
 
 //=======================================================================
+//function : Value
+//purpose  :
+//=======================================================================
+int SALOMEDSImpl_AttributeInteger::Value() const
+{
+    return myValue;
+}
+
+//=======================================================================
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeInteger::SetValue(const Standard_Integer v)
+void SALOMEDSImpl_AttributeInteger::SetValue(const int v)
 {
   if(myValue == v) return;
 
@@ -71,14 +78,14 @@ void SALOMEDSImpl_AttributeInteger::SetValue(const Standard_Integer v)
 //function : ID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeInteger::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeInteger::ID () const { return GetID(); }
 
 
 //=======================================================================
 //function : NewEmpty
 //purpose  :
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeInteger::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeInteger::NewEmpty () const
 {
   return new SALOMEDSImpl_AttributeInteger();
 }
@@ -87,17 +94,36 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeInteger::NewEmpty () const
 //function : Restore
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeInteger::Restore(const Handle(TDF_Attribute)& With)
+void SALOMEDSImpl_AttributeInteger::Restore(DF_Attribute* With)
 {
-  myValue = Handle(SALOMEDSImpl_AttributeInteger)::DownCast (With)->Value();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeInteger*>(With)->Value();
 }
 
 //=======================================================================
 //function : Paste
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeInteger::Paste (const Handle(TDF_Attribute)& Into,
-					   const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeInteger::Paste (DF_Attribute* Into)
 {
-  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(Into)->SetValue(myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeInteger*>(Into)->SetValue(myValue);
 }             
+
+//=======================================================================
+//function : Save
+//purpose  :
+//=======================================================================
+string SALOMEDSImpl_AttributeInteger::Save() 
+{ 
+  char buffer[128]; 
+  sprintf(buffer, "%d", myValue);
+  return string(buffer); 
+}
+
+//=======================================================================
+//function : Load
+//purpose  :
+//=======================================================================
+void SALOMEDSImpl_AttributeInteger::Load(const string& theValue)
+{
+  myValue = atoi(theValue.c_str());  
+}

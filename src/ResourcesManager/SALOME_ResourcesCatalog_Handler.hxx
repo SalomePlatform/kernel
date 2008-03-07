@@ -31,17 +31,14 @@
 
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
-#include <qxml.h>
 #include <string>
 #include <vector>
 
-class QDomElement;
+#include <libxml/parser.h>
 
-class QDomDocument;
-
-class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
-  {
-
+class SALOME_ResourcesCatalog_Handler
+{
+  
   public :
     SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources);
 
@@ -49,29 +46,12 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
 
     virtual ~SALOME_ResourcesCatalog_Handler();
 
-    virtual bool startDocument();
-
-    virtual bool startElement(const QString& , const QString& ,
-                              const QString& name, 
-			      const QXmlAttributes& attrs);
-
-    virtual bool endElement(const QString&, const QString&,
-                            const QString& qName);
-
-    virtual bool characters(const QString& chars);
-
-    virtual bool endDocument();
-
-   virtual QString errorProtocol();
-    virtual bool fatalError(const QXmlParseException& exception);
-
-    void PrepareDocToXmlFile(QDomDocument& doc);
+    void ProcessXmlDocument(xmlDocPtr theDoc);
+  
+    void PrepareDocToXmlFile(xmlDocPtr theDoc);
 
   private :
-    QString errorProt;
-    std::string content;
     std::string previous_module_name;
-    std::string previous_module_path;
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
@@ -83,12 +63,12 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
     const char *test_alias;
     const char *test_protocol;
     const char *test_mode;
+    const char *test_batch;
+    const char *test_mpi;
     const char *test_user_name;
     const char *test_appli_path;
     const char *test_modules;
     const char *test_module_name;
-    const char *test_module_path;
-    const char *test_pre_req_file_path;
     const char *test_os;
     const char *test_mem_in_mb;
     const char *test_cpu_freq_mhz;

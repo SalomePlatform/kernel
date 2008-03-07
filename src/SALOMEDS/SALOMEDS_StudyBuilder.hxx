@@ -24,6 +24,8 @@
 #ifndef __SALOMEDS_STUDYBUILDER_H__
 #define __SALOMEDS_STUDYBUILDER_H__
 
+#include "SALOMEDS_Defines.hxx"
+
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
@@ -31,18 +33,17 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-
-class SALOMEDS_StudyBuilder: public SALOMEDSClient_StudyBuilder
+class SALOMEDS_EXPORT SALOMEDS_StudyBuilder: public SALOMEDSClient_StudyBuilder
 {
 private:
   bool _isLocal;
-  Handle(SALOMEDSImpl_StudyBuilder) _local_impl;
+  SALOMEDSImpl_StudyBuilder*        _local_impl;
   SALOMEDS::StudyBuilder_var        _corba_impl;
   CORBA::ORB_var                    _orb;
 
 public:
 
-  SALOMEDS_StudyBuilder(const Handle(SALOMEDSImpl_StudyBuilder)& theBuilder);
+  SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuilder);
   SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
   ~SALOMEDS_StudyBuilder();
 

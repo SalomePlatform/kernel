@@ -23,10 +23,6 @@
 //  Author : Yves FRICAUD
 //  $Header$
 
-/*! \mainpage
-    \image html Application-About.png
-*/
-
 /*!
   \file SALOMEDS.idl This file contains a set of interfaces used for creation, managment
   and modification of the %Study
@@ -173,7 +169,7 @@ during each working session.
    \param aComponentName    It's a string value in the Comment Attribute of the Component,
     which is looked for, defining the data type of this Component.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     SComponent FindComponent  (in string aComponentName);
 /*!
@@ -186,7 +182,7 @@ during each working session.
     \param anObjectName String parameter defining the name of the object
     \return The obtained %SObject
 
-<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example19.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     SObject       FindObject      (in string anObjectName);
@@ -234,14 +230,14 @@ during each working session.
     Sets the context of the %Study.
     \param thePath String parameter defining the context of the study.
 
-<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example23.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void SetContext(in string thePath);
 /*!
     Gets the context of the %Study.
     
-<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example23.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     string GetContext();
@@ -283,7 +279,7 @@ during each working session.
 
    \return A new %StudyBuilder.
 
-<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example20.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     StudyBuilder NewBuilder() ;
@@ -297,7 +293,7 @@ during each working session.
 
    Returns the attriubte, which contains the properties of this study.
 
-<BR><VAR>See also <A href=exemple/Example20.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example20.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     AttributeStudyProperties GetProperties();
@@ -309,6 +305,12 @@ during each working session.
   Returns True if the %study has been modified and not saved.
 */
     boolean IsModified();
+
+/*!
+  Marks the %study as being modified and not saved.
+*/
+    void Modified();
+
 /*!
    Determines the file where the %study has been saved
 */
@@ -400,7 +402,31 @@ during each working session.
    \param thePID is a process ID of the caller
    \param isLocal is set True if the Study is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+
+
+/*!
+    Marks this Study as being locked by the given locker. The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that locks the study.
+*/
+    void SetStudyLock(in string theLockerID);
+
+/*!
+    Returns True if the Study was marked locked. 
+*/
+    boolean IsStudyLocked();
+
+/*!
+    Marks this Study as being unlocked by the given locker. The lock status can be checked by method IsStudyLocked
+    \param theLockerID identifies a locker of the study can be for ex. IOR of the engine that unlocks the study.
+*/
+    void UnLockStudy(in string theLockerID);
+
+/*!
+    Returns the list iof IDs of the Study's lockers. 
+*/
+    ListOfStrings GetLockerID();
+
 
   };
 
@@ -429,7 +455,7 @@ during each working session.
    Creates a new %SComponent
    \param ComponentDataType    Data type of the %SComponent which will be created.
 
-<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example17.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     SComponent NewComponent(in string ComponentDataType) raises(LockProtection);
@@ -452,7 +478,7 @@ during each working session.
    \param theFatherObject The father %SObject under which this one should be created.
    \return New %SObject
 
-<BR><VAR>See also <A href=exemple/Example18.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example18.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
 
@@ -485,7 +511,7 @@ during each working session.
 /*!
    Loads a %SComponent.
 
-<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example19.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void  LoadWith (in SComponent sco, in Driver Engine) raises (SALOME::SALOME_Exception);
@@ -502,7 +528,7 @@ during each working session.
     \param anObject        The %SObject corresponding to the attribute which is looked for.
     \param aTypeOfAttribute     Type of the attribute.
 
-  <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+  <BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
 
     GenericAttribute FindOrCreateAttribute(in  SObject        anObject,
@@ -526,7 +552,7 @@ during each working session.
     \param anObject        The %SObject corresponding to the attribute.
     \param aTypeOfAttribute     Type of the attribute.
 
-<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example17.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void RemoveAttribute(in  SObject        anObject,
 			 in  string         aTypeOfAttribute) raises(LockProtection);
@@ -550,7 +576,7 @@ during each working session.
    Adds a directory in the %Study.
    \param theName String parameter defining the name of the directory.
 
-<BR><VAR>See also <A href=exemple/Example23.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example23.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void AddDirectory(in string theName) raises(LockProtection);
@@ -577,7 +603,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
    Creates a new command which can contain several different actions.
    
-<BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void NewCommand(); // command management
@@ -587,7 +613,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
    \exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
 
-<BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example16.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void CommitCommand() raises(LockProtection); // command management
@@ -599,7 +625,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
     Cancels all actions declared within the command.
     
-<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example17.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     void AbortCommand(); // command management
 /*! \brief Undolimit
@@ -613,7 +639,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
     \exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
 
-<BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example16.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void Undo() raises (LockProtection);
@@ -623,21 +649,21 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
 \exception LockProtection This exception is raised, when trying to perform this command a study, which is protected for modifications.
 
- <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+ <BR><VAR>See also <A href="exemple/Example16.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     void Redo() raises (LockProtection);
 /*!
     Returns True if at this moment there are any actions which can be canceled.
     
-   <BR><VAR>See also <A href=exemple/Example16.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+   <BR><VAR>See also <A href="exemple/Example16.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean GetAvailableUndos();
 /*!
     Returns True if at this moment there are any actions which can be redone.
 
-   <BR><VAR>See also <A href=exemple/Example3.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+   <BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean GetAvailableRedos();
@@ -684,13 +710,25 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     void ping();
 
+    void Shutdown();
+
+/*!
+    Returns the PID of the server
+*/
+    long getPID();
+
+/*!
+    Shutdown the StudyManager process.
+*/    
+    oneway void ShutdownWithExit();
+
 /*! \brief Creation of a new study
 
      Creates a new study with a definite name.
 
      \param study_name String parameter defining the name of the study
 
-<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example17.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     Study NewStudy(in string study_name);
@@ -701,7 +739,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
      \param aStudyUrl The path to the study
     \warning This method doesn't activate the corba objects. Only a component can do it.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     Study Open (in URL aStudyUrl) raises (SALOME::SALOME_Exception);
 
@@ -716,7 +754,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 
     \param theMultiFile If this parameter is True the study will be saved in several files.
 
-<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example19.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     boolean  Save(in  Study aStudy, in boolean theMultiFile);
@@ -733,7 +771,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param aStudy The study which will be saved
     \param theMultiFile If this parameter is True the study will be saved in several files.
 
- <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+ <BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     boolean  SaveAs(in URL   aUrl, // if the file already exists
 		in Study aStudy,
@@ -818,7 +856,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the StudyManager is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
 
 
   };
@@ -880,7 +918,7 @@ Gets the list of open studies
    \param aTypeOfAttribute String value defining the type of the required attribute of the given %SObject.
    \return True if it finds an attribute of a definite type of the given %SObject as well as the discovered attribute.
 
-<BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 */
     boolean FindAttribute(out GenericAttribute anAttribute,
 				  in  string         aTypeOfAttribute);
@@ -894,7 +932,7 @@ Gets the list of open studies
 
     \return The list of all attributes of the given %SObject.
 
-<BR><VAR>See also <A href=exemple/Example17.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example17.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     ListOfAttributes     GetAllAttributes();
@@ -935,7 +973,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the SObject is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -972,7 +1010,7 @@ Gets the list of open studies
    \param thePID is a process ID of the caller
    \param isLocal is set True if the GenericAttribute is launched locally with the caller
 */
-    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -1026,7 +1064,7 @@ Moves the iterator to the next %SComponent in the list.
 /*!
     Returns the %SComponent corresponding to the current %SComponent found by the iterator.
 
- <BR><VAR>See also <A href=exemple/Example1.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+ <BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
 */
     SComponent Value();
@@ -1189,7 +1227,7 @@ can be called by any component and which provide the following functionality:
        \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
        \return A byte stream TMPFile that contains all saved data
 
-<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example19.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
      */
 
@@ -1204,7 +1242,7 @@ can be called by any component and which provide the following functionality:
        \param isMultiFile  If the value of this boolean parameter is True, the data will be saved in several files.
        \return A byte stream TMPFile that will contain all saved data
 
-<BR><VAR>See also <A href=exemple/Example19.html> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<BR><VAR>See also <A href="exemple/Example19.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
 
      */
     TMPFile SaveASCII(in SComponent theComponent, in string theURL, in boolean isMultiFile);

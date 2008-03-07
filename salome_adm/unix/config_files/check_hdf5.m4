@@ -42,6 +42,7 @@ hdf5_ok=no
 
 LOCAL_INCLUDES=""
 LOCAL_LIBS=""
+LOCAL_RLIBS=""
 
 if test -z $HDF5HOME
 then
@@ -53,6 +54,7 @@ else
       LOCAL_LIBS=""
    else
       LOCAL_LIBS="-L$HDF5HOME/lib"
+      LOCAL_RLIBS="-R$HDF5HOME/lib"
    fi
 fi
 
@@ -79,8 +81,8 @@ fi
 if  test "x$hdf5_ok" = "xyes"
 then
   HDF5_INCLUDES="$LOCAL_INCLUDES"
-  HDF5_LIBS="$LOCAL_LIBS -lhdf5"
-  HDF5_MT_LIBS="$LOCAL_LIBS -lhdf5"
+  HDF5_LIBS="$LOCAL_LIBS -lhdf5 $LOCAL_RLIBS"
+  HDF5_MT_LIBS="$LOCAL_LIBS -lhdf5 $LOCAL_RLIBS"
 fi
 
 AC_MSG_RESULT(for hdf5: $hdf5_ok)

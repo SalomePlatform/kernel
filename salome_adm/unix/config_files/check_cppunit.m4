@@ -24,10 +24,17 @@ if test -z "$CPPUNITHOME"; then
   exits_ok=no	
   if test "x$exits_ok" = "xno"; then
      for d in /usr/local /usr ; do
-        AC_CHECK_FILE(${d}/lib/libcppunit.so,exits_ok=yes,exits_ok=no)
+        AC_CHECK_FILE(${d}/lib64/libcppunit.so,exits_ok=yes,exits_ok=no)
+        if test "x$exits_ok" = "xyes"; then
+           CPPUNITHOME=$d
+           AC_MSG_RESULT(libcppunit.so detected in $d/lib64)
+	   break
+        fi
+	AC_CHECK_FILE(${d}/lib/libcppunit.so,exits_ok=yes,exits_ok=no)
         if test "x$exits_ok" = "xyes"; then
            CPPUNITHOME=$d
            AC_MSG_RESULT(libcppunit.so detected in $d/lib)
+	   break
         fi
      done
   fi
@@ -62,8 +69,7 @@ else
    AC_LANG_CPLUSPLUS
    CPPFLAGS_old=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS -I$CPPUNIT_INCLUDES"
-   CPPFLAGS="$CPPFLAGS $QT_INCLUDES"
-
+   
    AC_CHECK_HEADER(cppunit/extensions/HelperMacros.h,cppunit_ok=yes,cppunit_ok=no) 
 
    CPPFLAGS=$CPPFLAGS_old

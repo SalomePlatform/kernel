@@ -64,7 +64,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 
 	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
-	  int bid;
+	  int bid = 0;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   FileTraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
@@ -182,6 +182,7 @@ FileTraceCollector:: ~FileTraceCollector()
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
 	  else DEVTRACE("FileTraceCollector destruction OK");
+          delete _threadId;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

@@ -11,6 +11,8 @@
 #if !defined SALOME_Logger_Server_include
 #define SALOME_Logger_Server_include
 
+#include <SALOMEconfig.h>
+
 #ifndef WNT
 #include <fstream.h>
 #else
@@ -20,9 +22,19 @@
 #include <omnithread.h>
 #include "Logger.hh"
 
-class Logger :
-  public POA_SALOME_Logger::Logger,
-  public PortableServer::RefCountServantBase 
+#ifdef WNT
+# if defined LOGGER_EXPORTS
+#  define LOGGER_EXPORT __declspec( dllexport )
+# else
+#  define LOGGER_EXPORT __declspec( dllimport )
+# endif
+#else
+# define LOGGER_EXPORT
+#endif
+
+
+class LOGGER_EXPORT Logger :
+  public POA_SALOME_Logger::Logger
 {
 public:
         //constructor w/o parameters

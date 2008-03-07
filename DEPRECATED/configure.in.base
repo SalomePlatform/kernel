@@ -22,10 +22,14 @@ AC_CANONICAL_HOST
 PACKAGE=salome
 AC_SUBST(PACKAGE)
 
-VERSION=3.2.0
+VERSION=3.2.1
 AC_SUBST(VERSION)
-XVERSION=0x030200
+XVERSION=0x030201
 AC_SUBST(XVERSION)
+
+# set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
+MODULE_NAME=kernel
+AC_SUBST(MODULE_NAME)
 
 dnl
 dnl Initialize source and build root directories
@@ -412,8 +416,7 @@ else
 fi
 
 # make other build directories
-for rep in salome_adm adm_local doc bin/salome include/salome lib${LIB_LOCATION_SUFFIX}/salome share/salome/resources idl
-do
+for rep in salome_adm adm_local doc bin/salome include/salome lib${LIB_LOCATION_SUFFIX}/salome share/salome/resources/${MODULE_NAME} idl
 #   if test ! -d $rep ; then
 #      eval mkdir $rep
 #   fi

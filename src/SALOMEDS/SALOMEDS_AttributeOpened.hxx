@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeOpened: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeOpened
 {
 public:  
-  SALOMEDS_AttributeOpened(const Handle(SALOMEDSImpl_AttributeOpened)& theAttr);
+  SALOMEDS_AttributeOpened(SALOMEDSImpl_AttributeOpened* theAttr);
   SALOMEDS_AttributeOpened(SALOMEDS::AttributeOpened_ptr theAttr);
   ~SALOMEDS_AttributeOpened();
 

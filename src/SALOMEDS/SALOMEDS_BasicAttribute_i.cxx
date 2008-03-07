@@ -34,7 +34,7 @@ using namespace std;
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_BasicAttribute_i::SetLabel(const TDF_Label Lab)
+void SALOMEDS_BasicAttribute_i::SetLabel(const DF_Label& Lab)
 {
   _Lab = Lab;
 }

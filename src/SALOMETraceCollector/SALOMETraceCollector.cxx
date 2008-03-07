@@ -24,11 +24,13 @@
 //  Module : KERNEL
 //  $Header$
 
+#include <SALOMEconfig.h>
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 using namespace std;
 
@@ -67,7 +69,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 
 	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
-	  int bid;
+	  int bid = 0;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   SALOMETraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
@@ -188,6 +190,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
 	  else DEVTRACE("SALOMETraceCollector destruction OK");
+          delete _threadId;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}
@@ -217,6 +220,7 @@ SALOMETraceCollector::SALOMETraceCollector()
 
 extern "C"
 {
+ SALOMETRACECOLLECTOR_EXPORT
   BaseTraceCollector *SingletonInstance(void)
   {
     BaseTraceCollector *instance = SALOMETraceCollector::instance();

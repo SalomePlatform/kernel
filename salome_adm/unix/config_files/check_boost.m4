@@ -53,6 +53,11 @@ if test "x${BOOSTDIR}" != "x" ; then
   BOOST_LIBS="-L${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}"
 fi
 
+if test "x${BOOSTDIR}" = "x/usr" ; then
+  BOOST_CPPFLAGS=""
+  BOOST_LIBS=""
+fi
+
 boost_ok=no
 boost_headers_ok=no
 boost_binaries_ok=no
@@ -67,6 +72,14 @@ if test "x${BOOSTDIR}" != "x" ; then
                 boost_include_dir_ok=yes,
                 boost_include_dir_ok=no)
 fi
+
+BOOST_PROGRAM_OPTIONS_LIB=no
+if test "x${boost_include_dir_ok}" = "xyes" ; then
+  AC_CHECK_FILE(${BOOSTDIR}/include/boost/program_options.hpp,
+                BOOST_PROGRAM_OPTIONS_LIB=yes,
+                BOOST_PROGRAM_OPTIONS_LIB=no)
+fi
+AC_MSG_RESULT(for boost program_options tool: $BOOST_PROGRAM_OPTIONS_LIB)
 
 if test "x${boost_include_dir_ok}" = "xyes" ; then
   AC_TRY_COMPILE([#include <boost/shared_ptr.hpp>],
@@ -137,6 +150,7 @@ AC_MSG_RESULT(for boost: $boost_ok)
 AC_SUBST(BOOST_CPPFLAGS)
 AC_SUBST(BOOST_LIBSUFFIX)
 AC_SUBST(BOOST_LIBS)
+AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB)
 
 AC_LANG_RESTORE
 

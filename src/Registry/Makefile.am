@@ -31,7 +31,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # header files  
 salomeinclude_HEADERS =\
 	RegistryConnexion.hxx \
-	RegistryService.hxx
+	RegistryService.hxx \
+	SALOME_Registry.hxx
 
 # Libraries targets
 lib_LTLIBRARIES = libRegistry.la

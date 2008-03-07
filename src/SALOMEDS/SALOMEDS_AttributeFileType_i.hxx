@@ -35,7 +35,7 @@ class SALOMEDS_AttributeFileType_i: public virtual POA_SALOMEDS::AttributeFileTy
 				   public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeFileType_i(const Handle(SALOMEDSImpl_AttributeFileType)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeFileType_i(SALOMEDSImpl_AttributeFileType* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
   ~SALOMEDS_AttributeFileType_i() {};
 

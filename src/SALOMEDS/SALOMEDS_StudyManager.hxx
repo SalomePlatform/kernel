@@ -39,7 +39,7 @@ class Standard_EXPORT SALOMEDS_StudyManager: public SALOMEDSClient_StudyManager
 {
 private:
   bool                              _isLocal;
-  Handle(SALOMEDSImpl_StudyManager) _local_impl;
+  SALOMEDSImpl_StudyManager*        _local_impl;
   SALOMEDS::StudyManager_var        _corba_impl;  
   CORBA::ORB_var                    _orb;
 

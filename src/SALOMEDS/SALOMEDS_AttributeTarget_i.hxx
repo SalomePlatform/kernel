@@ -35,7 +35,7 @@ class SALOMEDS_AttributeTarget_i: public virtual POA_SALOMEDS::AttributeTarget,
 {
 public:
   
-  SALOMEDS_AttributeTarget_i(const Handle(SALOMEDSImpl_AttributeTarget)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeTarget_i(SALOMEDSImpl_AttributeTarget* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeTarget_i() {};

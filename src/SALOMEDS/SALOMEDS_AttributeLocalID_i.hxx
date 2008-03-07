@@ -37,7 +37,7 @@ class SALOMEDS_AttributeLocalID_i: public virtual POA_SALOMEDS::AttributeLocalID
 {
 public:
   
-  SALOMEDS_AttributeLocalID_i(const Handle(SALOMEDSImpl_AttributeLocalID)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeLocalID_i(SALOMEDSImpl_AttributeLocalID* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeLocalID_i() {};

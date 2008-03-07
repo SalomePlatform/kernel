@@ -109,7 +109,6 @@ current version depends on the following list
 (versions given here are from Debian Sarge, except OpenCascade, VTK and MED,
 which are not Debian packages):
 
-===================     ===================================================
 CAS-5.2.4		OpenCascade (try binaries,a source patch is needed)
 VTK-4.2.6		VTK 3D-viewer
 PyQt-3.13		Python-Qt Wrapper
@@ -122,24 +121,19 @@ omniORB-4.0.5		ORB used in SALOME
 qt-x11-free-3.3.3	Qt library
 qwt-4.2			Graph components for Qt
 sip4-4.1.1		langage binding software 
-===================     ===================================================
 
 And, in order to build the documentation:
 
-===================     ===================================================
 doxygen-1.4.2
 graphviz-2.2.1
-===================     ===================================================
 
 
 Additionnal software may be installed for optional features: 
 
-===================     ===================================================
 netgen4.3 + patch
 tix8.1.4
 openpbs-2.3.16
 lsf-???
-===================     ===================================================
 
 
 

@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeComment: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeComment
 {
 public:  
-  SALOMEDS_AttributeComment(const Handle(SALOMEDSImpl_AttributeComment)& theAttr);
+  SALOMEDS_AttributeComment(SALOMEDSImpl_AttributeComment* theAttr);
   SALOMEDS_AttributeComment(SALOMEDS::AttributeComment_ptr theAttr);
   ~SALOMEDS_AttributeComment();
 

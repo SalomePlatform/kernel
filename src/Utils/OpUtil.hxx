@@ -27,19 +27,7 @@
 #ifndef _OPUTIL_HXX
 #define _OPUTIL_HXX
 
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
-#else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
-#endif
+#include <SALOME_Utils.hxx>
 
 #include <string>
 

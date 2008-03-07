@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeGraphic: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeGraphic
 {
 public:  
-  SALOMEDS_AttributeGraphic(const Handle(SALOMEDSImpl_AttributeGraphic)& theAttr);
+  SALOMEDS_AttributeGraphic(SALOMEDSImpl_AttributeGraphic* theAttr);
   SALOMEDS_AttributeGraphic(SALOMEDS::AttributeGraphic_ptr theAttr);
   ~SALOMEDS_AttributeGraphic();
 

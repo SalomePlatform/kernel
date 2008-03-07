@@ -36,12 +36,12 @@ class SALOMEDS_UseCaseBuilder: public SALOMEDSClient_UseCaseBuilder
 
 private: 
   bool _isLocal;
-  Handle(SALOMEDSImpl_UseCaseBuilder) _local_impl;
-  SALOMEDS::UseCaseBuilder_var        _corba_impl;
+  SALOMEDSImpl_UseCaseBuilder*    _local_impl;
+  SALOMEDS::UseCaseBuilder_var    _corba_impl;
 
 public:
   
-  SALOMEDS_UseCaseBuilder(const Handle(SALOMEDSImpl_UseCaseBuilder)& theBuilder);
+  SALOMEDS_UseCaseBuilder(SALOMEDSImpl_UseCaseBuilder* theBuilder);
   SALOMEDS_UseCaseBuilder(SALOMEDS::UseCaseBuilder_ptr theBuilder);
   ~SALOMEDS_UseCaseBuilder();
 

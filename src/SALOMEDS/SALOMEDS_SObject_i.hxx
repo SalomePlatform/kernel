@@ -35,23 +35,19 @@
 // Cascade headers
 #include "SALOMEDSImpl_SObject.hxx"
 
-#ifdef GetObject
-#undef GetObject
-#endif
-
 class Standard_EXPORT SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
-			  public virtual PortableServer::RefCountServantBase,
+			  public virtual PortableServer::ServantBase,
 			  public virtual SALOME::GenericObj_i
 {
 protected:
-  CORBA::ORB_ptr                _orb;
-  Handle(SALOMEDSImpl_SObject)  _impl;
+  CORBA::ORB_ptr               _orb;
+  SALOMEDSImpl_SObject*        _impl;
 
 public:
 
-  static SALOMEDS::SObject_ptr New(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr); 
+  static SALOMEDS::SObject_ptr New(const SALOMEDSImpl_SObject&, CORBA::ORB_ptr); 
   
-  SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr);
+  SALOMEDS_SObject_i(const SALOMEDSImpl_SObject&, CORBA::ORB_ptr);
   
   virtual ~SALOMEDS_SObject_i();
   
@@ -76,7 +72,7 @@ public:
   virtual CORBA::Short Tag();
   virtual CORBA::Short Depth();
 
-  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 
 #endif

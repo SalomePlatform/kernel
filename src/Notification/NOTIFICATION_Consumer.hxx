@@ -28,19 +28,7 @@
 #ifndef NOTIFICATION_Consumer_HXX
 #define NOTIFICATION_Consumer_HXX
 
-#if defined NOTIFICATION_EXPORTS
-#if defined WIN32
-#define NOTIFICATION_EXPORT __declspec( dllexport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#else
-#if defined WNT
-#define NOTIFICATION_EXPORT __declspec( dllimport )
-#else
-#define NOTIFICATION_EXPORT
-#endif
-#endif
+#include <SALOME_NOTIFICATION.hxx>
 
 class NOTIFICATION_EXPORT NOTIFICATION_Consumer: public POA_CosNotifyComm::StructuredPullConsumer {
   public:

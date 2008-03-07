@@ -24,12 +24,12 @@
 #ifndef SALOMEDS_AttributeStudyProperties_HeaderFile
 #define SALOMEDS_AttributeStudyProperties_HeaderFile
 
-#include <vector>
-#include <string>
-
 #include "SALOMEDSClient_AttributeStudyProperties.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
+
+#include <vector>
+#include <string>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -44,7 +44,7 @@ class Standard_EXPORT SALOMEDS_AttributeStudyProperties: public SALOMEDS_Generic
 {
 public:
   
-  SALOMEDS_AttributeStudyProperties(const Handle(SALOMEDSImpl_AttributeStudyProperties)& theAttr);
+  SALOMEDS_AttributeStudyProperties(SALOMEDSImpl_AttributeStudyProperties* theAttr);
   SALOMEDS_AttributeStudyProperties(SALOMEDS::AttributeStudyProperties_ptr theAttr);
   ~SALOMEDS_AttributeStudyProperties();
 

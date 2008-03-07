@@ -57,12 +57,13 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Utils                -I$(srcdir)/$(RPATH)/Utils/Test \
 	-I$(srcdir)/$(RPATH)/ResourcesManager \
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
+	-I$(srcdir)/$(RPATH)/SALOMEDS \
 	-I$(srcdir)/$(RPATH)/SALOMEDSClient \
-	-I$(srcdir)/$(RPATH)/SALOMEDSImpl         -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
+	-I$(srcdir)/$(RPATH)/DF \
+	-I$(srcdir)/$(RPATH)/SALOMEDSImpl  -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -79,6 +80,7 @@ COMMON_LIBS =\
 	$(RPATH)/SALOMELocalTrace/libSALOMELocalTrace.la \
 	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	$(RPATH)/SALOMEDSImpl/Test/libSALOMEDSImplTest.la \
+	$(RPATH)/DF/libDF.la \
 	$(RPATH)/SALOMEDSImpl/libSalomeDSImpl.la \
 	$(RPATH)/SALOMEDSClient/libSalomeDSClient.la \
 	$(RPATH)/SALOMEDS/libSalomeDS.la \
@@ -90,10 +92,49 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSALOMEDSTest.la 
-libSALOMEDSTest_la_SOURCES = SALOMEDSTest.cxx
+dist_libSALOMEDSTest_la_SOURCES = SALOMEDSTest.cxx
 libSALOMEDSTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSALOMEDSTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSALOMEDSTest_la_LIBADD    = $(COMMON_LIBS)
+
+EXTRA_DIST = \
+	SALOMEDSTest_AttributeComment.cxx \
+	SALOMEDSTest_AttributeDrawable.cxx \
+	SALOMEDSTest_AttributeExpandable.cxx \
+	SALOMEDSTest_AttributeExternalFileDef.cxx \
+	SALOMEDSTest_AttributeFileType.cxx \
+	SALOMEDSTest_AttributeFlags.cxx \
+	SALOMEDSTest_AttributeGraphic.cxx \
+	SALOMEDSTest_AttributeInteger.cxx \
+	SALOMEDSTest_AttributeIOR.cxx \
+	SALOMEDSTest_AttributeLocalID.cxx \
+	SALOMEDSTest_AttributeName.cxx \
+	SALOMEDSTest_AttributeOpened.cxx \
+	SALOMEDSTest_AttributeParameter.cxx \
+	SALOMEDSTest_AttributePersistentRef.cxx \
+	SALOMEDSTest_AttributePixMap.cxx \
+	SALOMEDSTest_AttributePythonObject.cxx \
+	SALOMEDSTest_AttributeReal.cxx \
+	SALOMEDSTest_AttributeSelectable.cxx \
+	SALOMEDSTest_AttributeSequenceOfInteger.cxx \
+	SALOMEDSTest_AttributeSequenceOfReal.cxx \
+	SALOMEDSTest_AttributeStudyProperties.cxx \
+	SALOMEDSTest_AttributeTableOfInteger.cxx \
+	SALOMEDSTest_AttributeTableOfReal.cxx \
+	SALOMEDSTest_AttributeTableOfString.cxx \
+	SALOMEDSTest_AttributeTarget.cxx \
+	SALOMEDSTest_AttributeTextColor.cxx \
+	SALOMEDSTest_AttributeTextHighlightColor.cxx\
+	SALOMEDSTest_AttributeTreeNode.cxx \
+	SALOMEDSTest_AttributeUserID.cxx \
+	SALOMEDSTest_ChildIterator.cxx \
+	SALOMEDSTest_SComponent.cxx \
+	SALOMEDSTest_SComponentIterator.cxx \
+	SALOMEDSTest_SObject.cxx \
+	SALOMEDSTest_StudyBuilder.cxx \
+	SALOMEDSTest_Study.cxx \
+	SALOMEDSTest_StudyManager.cxx \
+	SALOMEDSTest_UseCase.cxx
 
 #
 # ===============================================================
@@ -101,10 +142,7 @@ libSALOMEDSTest_la_LIBADD    = $(COMMON_LIBS)
 # ===============================================================
 #
 bin_PROGRAMS = TestSALOMEDS
-TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
+dist_TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
 TestSALOMEDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-TestSALOMEDS_LDADD    = \
-	libSALOMEDSTest.la ../libSalomeDS.la \
-	$(RPATH)/NamingService/Test/libNamingServiceTest.la \
-	$(COMMON_LIBS)
-
+TestSALOMEDS_LDADD    = libSALOMEDSTest.la \
+                        $(CORBA_LIBS)

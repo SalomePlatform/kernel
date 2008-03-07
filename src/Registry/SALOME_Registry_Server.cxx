@@ -168,6 +168,7 @@ int main( int argc , char **argv )
       naming.init_orb( orb ) ;
       RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance() ;
       ptrRegistry->SessionName( ptrSessionName ) ;
+      ptrRegistry->SetOrb(orb);
       varComponents = ptrRegistry->_this() ;
       // The RegistryService must not already exist.
 	    
@@ -186,15 +187,15 @@ int main( int argc , char **argv )
 	}
       string absoluteName = string("/") + registryName;
       naming.Register( varComponents , absoluteName.c_str() ) ;
-      MESSAGE("On attend les requetes des clients") ;
+      MESSAGE("Wait client requests") ;
       try
 	{
 	  // Activation du POA
-	  MESSAGE("Activation du POA") ;
+	  MESSAGE("POA activation") ;
 	  manager->activate() ;
 		
 	  // Lancement de l'ORB
-	  MESSAGE("Lancement de l'ORB") ;
+	  MESSAGE("ORB launching") ;
 #ifdef CHECKTIME
 	  Utils_Timer timer;
 	  timer.Start();
@@ -206,7 +207,7 @@ int main( int argc , char **argv )
 	}
       catch( const CORBA::Exception &ex )
 	{
-	  MESSAGE("Erreur systeme") ;
+	  MESSAGE("System error") ;
 	  return EXIT_FAILURE ;
 	}
 	    

@@ -22,8 +22,6 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_StudyHandle.hxx"
-#include <TDF_Attribute.hxx>
-#include <Standard_GUID.hxx>
 
 /*
   Class       : SALOMEDSImpl_StudyHandle
@@ -31,16 +29,14 @@
                 graphic representation of objects in dirrent views
 */
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyHandle, TDF_Attribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyHandle, TDF_Attribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_StudyHandle::GetID()
+const std::string& SALOMEDSImpl_StudyHandle::GetID()
 {
-  static Standard_GUID SALOMEDSImpl_StudyHandleID( "050C9555-4BA8-49bf-8F1C-086F0469A40B" );
+  static std::string SALOMEDSImpl_StudyHandleID( "050C9555-4BA8-49bf-8F1C-086F0469A40B" );
   return SALOMEDSImpl_StudyHandleID;
 }
 
@@ -50,23 +46,23 @@ const Standard_GUID& SALOMEDSImpl_StudyHandle::GetID()
 //=======================================================================
 SALOMEDSImpl_StudyHandle::SALOMEDSImpl_StudyHandle()
 {
-  myHandle.Nullify();
+  myHandle = NULL;
 }
 
 //=======================================================================
 //function : Set
 //purpose  : 
 //=======================================================================
-Handle(SALOMEDSImpl_StudyHandle) SALOMEDSImpl_StudyHandle::Set(const TDF_Label& theLabel, 
-							       const Handle(SALOMEDSImpl_Study)& theStudy)
+SALOMEDSImpl_StudyHandle* SALOMEDSImpl_StudyHandle::Set(const DF_Label& theLabel, 
+						        SALOMEDSImpl_Study* theStudy)
 {
-  Handle(SALOMEDSImpl_StudyHandle) A;
-  if (!theLabel.FindAttribute(GetID(), A)) {
-    A = new  SALOMEDSImpl_StudyHandle(); 
+  SALOMEDSImpl_StudyHandle* A = NULL;
+  if (!(A=(SALOMEDSImpl_StudyHandle*)theLabel.FindAttribute(GetID()))) {
+    A = new SALOMEDSImpl_StudyHandle; 
     theLabel.AddAttribute(A);
   }
 
-  A->SetHandle(theStudy);
+  A->Set(theStudy);
   return A;  
 }
 
@@ -75,7 +71,7 @@ Handle(SALOMEDSImpl_StudyHandle) SALOMEDSImpl_StudyHandle::Set(const TDF_Label& 
 //function : ID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_StudyHandle::ID () const
+const std::string& SALOMEDSImpl_StudyHandle::ID () const
 {
   return GetID();
 }
@@ -85,7 +81,7 @@ const Standard_GUID& SALOMEDSImpl_StudyHandle::ID () const
 //function : NewEmpty
 //purpose  : Create new empty attribute
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_StudyHandle::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_StudyHandle::NewEmpty () const
 {
   return new SALOMEDSImpl_StudyHandle ();
 }
@@ -95,20 +91,19 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyHandle::NewEmpty () const
 //function : Restore
 //purpose  : Restore value of attribute with value of theWith one
 //=======================================================================
-void SALOMEDSImpl_StudyHandle::Restore( const Handle(TDF_Attribute)& theWith )
+void SALOMEDSImpl_StudyHandle::Restore( DF_Attribute* theWith )
 {
-  Handle(SALOMEDSImpl_StudyHandle) anAttr = Handle(SALOMEDSImpl_StudyHandle)::DownCast( theWith );
-  if ( !anAttr.IsNull() ) SetHandle( anAttr->GetHandle() );
+  SALOMEDSImpl_StudyHandle* anAttr = dynamic_cast<SALOMEDSImpl_StudyHandle*>( theWith );
+  if ( anAttr ) Set ( anAttr->Get() );
 }
 
 //=======================================================================
 //function : Paste
 //purpose  : Paste value of current attribute to the value of entry one
 //=======================================================================
-void SALOMEDSImpl_StudyHandle::Paste( const Handle(TDF_Attribute)& theInto,
-                                       const Handle(TDF_RelocationTable)& ) const
+void SALOMEDSImpl_StudyHandle::Paste( DF_Attribute* theInto)
 {
-  Handle(SALOMEDSImpl_StudyHandle) anAttr =  Handle(SALOMEDSImpl_StudyHandle)::DownCast( theInto );
-  if ( !anAttr.IsNull() ) anAttr->SetHandle( myHandle );
+  SALOMEDSImpl_StudyHandle* anAttr =  dynamic_cast<SALOMEDSImpl_StudyHandle*>( theInto );
+  if ( anAttr ) anAttr->Set ( myHandle );
 }
 

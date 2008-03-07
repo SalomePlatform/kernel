@@ -27,20 +27,28 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
+//============================================================================
+/*! Function : empty constructor
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator()
+{
+  _node = NULL;    
+}
+
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const TDF_Label& theLabel, 
-						           const Standard_GUID& theGUID,
+SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
+						           const string& theGUID,
 						           const bool allLevels)
 :_guid(theGUID), _levels(allLevels)
 {
-  if(theLabel.FindAttribute(_guid, _node)) {
+  if((_node = (SALOMEDSImpl_AttributeTreeNode*)theLabel.FindAttribute(_guid))) {
     _it.Initialize (_node, _levels);
   }
 }
@@ -74,7 +82,7 @@ bool SALOMEDSImpl_UseCaseIterator::More()
   return _it.More();
 }
 
- //============================================================================
+//============================================================================
 /*! Function : Next
  * 
  */
@@ -91,9 +99,24 @@ void SALOMEDSImpl_UseCaseIterator::Next()
  */
 //============================================================================
 
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseIterator::Value()
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseIterator::Value()
 {
-  TDF_Label L = _it.Value()->Label();
+  DF_Label L = _it.Value()->Label();
   return SALOMEDSImpl_Study::SObject(L);
 }
 
+//============================================================================
+/*! Function : GetPersistentCopy
+ * 
+ */
+//============================================================================
+SALOMEDSImpl_UseCaseIterator* SALOMEDSImpl_UseCaseIterator::GetPersistentCopy() const
+{
+  SALOMEDSImpl_UseCaseIterator* itr = new SALOMEDSImpl_UseCaseIterator();
+  itr->_it = _it;
+  itr->_node = _node;
+  itr->_guid = _guid;
+  itr->_levels = _levels;
+  
+  return itr;
+}

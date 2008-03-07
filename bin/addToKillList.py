@@ -20,6 +20,7 @@
 # 
 
 import os, sys, pickle, string, signal
+from launchConfigureParser import verbose
 
 ########## adds to the kill list of SALOME one more process ##########
 
@@ -43,7 +44,7 @@ def findFileDict():
         except:
             pass
         pass
-    print "myport = ", my_port
+    if verbose(): print "myport = ", my_port
     return my_port
     
 def addToKillList(command_pid, command):
@@ -60,11 +61,11 @@ def addToKillList(command_pid, command):
         
     already_in=0
     for process_id in process_ids:
-        print process_id
+        if verbose(): print process_id
         for pid, cmd in process_id.items():
             #print "see process %s : %s"% (pid, cmd[0])
-	    if pid == command_pid:
-		already_in=1
+            if pid == command_pid:
+                already_in=1
                 pass
             pass
         pass
@@ -72,14 +73,14 @@ def addToKillList(command_pid, command):
     command=(command.split(" "))[0]
     if already_in == 0:
         try:
-	    process_ids.append({command_pid: [command]})
-    	    fpid=open(filedict,'w')
+            process_ids.append({command_pid: [command]})
+            fpid=open(filedict,'w')
             pickle.dump(process_ids, fpid)
-	    fpid.close()
+            fpid.close()
         except:
-	    print "addToKillList: can not add command %s to the kill list"% filedict
-    	    pass
-	pass
+            print "addToKillList: can not add command %s to the kill list"% filedict
+            pass
+        pass
     pass
 
 def killList():
@@ -111,5 +112,5 @@ def killList():
 
 
 if __name__ == "__main__":
-    print sys.argv
+    if verbose(): print sys.argv
     addToKillList(sys.argv[1], sys.argv[2])

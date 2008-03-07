@@ -45,6 +45,7 @@
 #else
 #include <sys/timeb.h>
 int SIGUSR11 = 1000;
+#include <process.h>
 #endif
 
 
@@ -62,10 +63,10 @@ bool Engines_Component_i::_isMultiInstance = false;
  */
 //=============================================================================
 
-Engines_Component_i::Engines_Component_i()
+Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupplier(0)
 {
   //ASSERT(0);
-  INFOS("Default Constructor...");
+  MESSAGE("Default Constructor, not for normal use...");
 }
 
 //=============================================================================
@@ -73,7 +74,7 @@ Engines_Component_i::Engines_Component_i()
  *  Standard Constructor for generic Component, used in derived class
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
- *  \parap poa Portable Object Adapter from Container (normally root_poa)
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
  *  \param contId container CORBA id inside the server
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name
@@ -90,12 +91,14 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _instanceName(instanceName),
   _interfaceName(interfaceName),
   _myConnexionToRegistry(0),
+  _notifSupplier(0),
   _ThreadId(0) ,
   _ThreadCpuUsed(0) ,
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
- _studyId(-1)
+  _studyId(-1),
+  _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
   //SCRUTE(pd_refCount);
@@ -116,7 +119,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
  * Standard constructor for parallel component
  *  Connection Notification (no connection to Registry !)
  *  \param orb Object Request broker given by Container
- *  \parap poa Portable Object Adapter from Container (normally root_poa)
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
  *  \param contId container CORBA id inside the server
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name
@@ -135,12 +138,14 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
  _instanceName(instanceName),
  _interfaceName(interfaceName),
  _myConnexionToRegistry(0),
+  _notifSupplier(0),
  _ThreadId(0) ,
  _ThreadCpuUsed(0) ,
  _Executed(false) ,
  _graphName("") ,
  _nodeName(""),
- _studyId(-1)
+ _studyId(-1),
+ _CanceledThread(false)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
@@ -161,6 +166,8 @@ Engines_Component_i::~Engines_Component_i()
 {
   MESSAGE("Component destructor");
   Engines_Container_i::decInstanceCnt(_interfaceName);
+  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
+  if(_notifSupplier)delete _notifSupplier;
 }
 
 //=============================================================================
@@ -207,8 +214,13 @@ CORBA::Long Engines_Component_i::getStudyId()
 
 void Engines_Component_i::ping()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::ping() pid "<< getpid() << " threadid "
           << pthread_self());
+#else
+  MESSAGE("Engines_Component_i::ping() pid "<< _getpid()<< " threadid "
+          << pthread_self().p );
+#endif
 }
 
 //=============================================================================
@@ -233,7 +245,6 @@ void Engines_Component_i::destroy()
   delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
   _poa->deactivate_object(*_id) ;
-  CORBA::release(_poa) ;
   delete(_id) ;
   //SCRUTE(pd_refCount);
   _thisObj->_remove_ref();
@@ -251,7 +262,7 @@ void Engines_Component_i::destroy()
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
   //  MESSAGE("Engines_Component_i::GetContainerRef");
-  CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
+  CORBA::Object_var o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }
 
@@ -333,7 +344,7 @@ bool Engines_Component_i::Kill_impl()
 #ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
-      RetVal = Killer( _ThreadId , 0 ) ;
+      RetVal = Killer( _ThreadId , SIGUSR2 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
 
@@ -356,11 +367,19 @@ bool Engines_Component_i::Kill_impl()
 
 bool Engines_Component_i::Stop_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   
 
   bool RetVal = false ;
@@ -388,11 +407,19 @@ bool Engines_Component_i::Stop_impl()
 
 bool Engines_Component_i::Suspend_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
 
   bool RetVal = false ;
 #ifndef WNT
@@ -427,11 +454,19 @@ bool Engines_Component_i::Suspend_impl()
 
 bool Engines_Component_i::Resume_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   bool RetVal = false ;
 #ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
@@ -567,8 +602,13 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
+#ifndef WNT
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
+#else
+  MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
+	  << endl << "Component instance : " << _instanceName << endl << endl);
+#endif
 #ifndef WNT
   _ThreadId = pthread_self() ;
 #else
@@ -581,6 +621,7 @@ void Engines_Component_i::beginService(const char *serviceName)
   _ThreadCpuUsed = 0 ;
   _Executed = true ;
   _serviceName = serviceName ;
+  theEngines_Component = this ;
   if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS , NULL ) )
     {
       perror("pthread_setcanceltype ") ;
@@ -608,7 +649,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  (*it).second >>= value;
 	  // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
 #if defined __GNUC__
-	  int ret = setenv(cle.c_str(), value, overwrite);
+//	  int ret = setenv(cle.c_str(), value, overwrite);
+	  setenv(cle.c_str(), value, overwrite);
 #else
 	  //CCRT porting : setenv not defined in stdlib.h
 	  std::string s(cle);
@@ -616,7 +658,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  s+=value;
 	  // char* cast because 1st arg of linux putenv function
 	  // is not a const char* !
-	  int ret=putenv((char *)s.c_str());
+//	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 #endif
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
@@ -632,10 +675,18 @@ void Engines_Component_i::beginService(const char *serviceName)
 
 void Engines_Component_i::endService(const char *serviceName)
 {
-  _ThreadCpuUsed = CpuUsed_impl() ;
+  if ( !_CanceledThread )
+    _ThreadCpuUsed = CpuUsed_impl() ;
+
+#ifndef WNT
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
 	  << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#else
+  MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
+	  << endl << " Component instance : " << _instanceName << " StartUsed "
+    << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#endif
   _ThreadId = 0 ;
 }
 
@@ -684,8 +735,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else
 	    {
+#ifndef WNT
 	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_canceled") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_canceled") ;
+#endif
 	    }
 	}
       else
@@ -697,8 +753,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else 
 	    {
-	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
+#ifndef WNT
+        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_killed(" << signum << ")") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_killed(" << signum << ")") ;
+#endif
 	    }
 	}
     }
@@ -713,7 +774,8 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 
 void SetCpuUsed()
 {
-  theEngines_Component->SetCurCpu() ;
+  if ( theEngines_Component )
+    theEngines_Component->SetCurCpu() ;
 }
 
 //=============================================================================
@@ -766,6 +828,23 @@ long Engines_Component_i::CpuUsed()
   return cpu ;
 }
 
+void CallCancelThread()
+{
+  if ( theEngines_Component )
+    theEngines_Component->CancelThread() ;
+}
+
+//=============================================================================
+/*!
+ *  C++ method:
+ */
+//=============================================================================
+
+void Engines_Component_i::CancelThread()
+{
+  _CanceledThread = true;
+}
+
 //=============================================================================
 /*! 
  *  C++ method: Send message to event channel
@@ -775,7 +854,7 @@ long Engines_Component_i::CpuUsed()
 void Engines_Component_i::sendMessage(const char *event_type,
 				      const char *message)
 {
-    _notifSupplier->Send(graphName(), nodeName(), event_type, message);
+    _notifSupplier->Send(_graphName.c_str(), _nodeName.c_str(), event_type, message);
 }
 
 //=============================================================================
@@ -802,7 +881,7 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
 						  CORBA::Boolean isPublished, 
 						  CORBA::Boolean& isValidScript)
 {
-  char* aScript = "def RebuildData(theStudy): pass";
+  const char* aScript = "def RebuildData(theStudy): pass";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
@@ -811,3 +890,163 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
   isValidScript = true;
   return aStreamFile._retn(); 
 }
+
+Engines::Salome_file_ptr 
+Engines_Component_i::getInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::setInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Input_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
+    (*_map)[Salome_file_name] = Sfile;
+  }
+
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+  return Sfile->_this();
+}
+
+void 
+Engines_Component_i::checkInputFilesToService(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
+      file->recvFiles();
+    }
+  }
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::getOutputFileToService(const char* service_name, 
+					    const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::setOutputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Output_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
+    (*_map)[Salome_file_name] = Sfile;
+  }
+
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+  return Sfile->_this();
+}
+
+void 
+Engines_Component_i::checkOutputFilesToService(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
+      file->recvFiles();
+    }
+  }
+
+}
+
+//=============================================================================
+/*! 
+ *  C++ method: used to configure the Salome_file into the runtime.
+ *  \param service_name name of the service that use this Salome_file
+ *  \param file_port_name name of the Salome_file
+ *  \param file Salome_file C++ object
+ */
+//=============================================================================
+void
+Engines_Component_i::configureSalome_file(std::string service_name,
+					  std::string file_port_name,
+					  Salome_file_i * file) 
+{
+  // By default this method does nothing
+}
+

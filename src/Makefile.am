@@ -27,10 +27,10 @@
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
-  CASCatch \
   HDFPersist
 
 SUBDIR_CORBA = \
+  DF \
   Logger \
   SALOMETraceCollector \
   Utils \
@@ -43,6 +43,7 @@ SUBDIR_CORBA = \
   NOTIFICATION_SWIG \
   Container \
   TestContainer \
+  Launcher \
   LifeCycleCORBA \
   LifeCycleCORBA_SWIG \
   SALOMEDSClient \
@@ -52,7 +53,8 @@ SUBDIR_CORBA = \
   KERNEL_PY \
   ModuleGenerator \
   Communication \
-  Communication_SWIG
+  Communication_SWIG \
+  DSC
 
 SUBDIR_CPPUNIT_BASE= \
   Basics/Test \
@@ -79,10 +81,14 @@ SUBDIR_BATCH= \
   Batch \
   Batch_SWIG
 
+SUBDIR_PARALLEL= ParallelContainer
+		 
+
 DIST_SUBDIRS = \
   $(SUBDIR_BASE) \
   $(SUBDIR_CORBA) \
   $(SUBDIR_MPI) \
+  $(SUBDIR_PARALLEL) \
   $(SUBDIR_BATCH) \
   $(SUBDIR_CPPUNIT_BASE) \
   $(SUBDIR_CPPUNIT_CORBA) \
@@ -96,17 +102,17 @@ DIST_SUBDIRS = \
 
 SUBDIRS = $(SUBDIR_BASE)
 
+if WITH_BATCH
+  SUBDIRS += $(SUBDIR_BATCH)
+endif
+
 if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-if MPI_IS_OK
-  SUBDIRS += $(SUBDIR_MPI)
-endif
-
-if WITH_BATCH
-  SUBDIRS += $(SUBDIR_BATCH)
-endif
+#if MPI_IS_OK
+#  SUBDIRS += $(SUBDIR_MPI)
+#endif
 
 if CPPUNIT_IS_OK
 if CORBA_GEN
@@ -120,4 +126,6 @@ else
 	$(SUBDIR_CPPUNIT_GENERAL)
 endif
 endif
-
+if WITH_PACO_PARALLEL
+SUBDIRS += $(SUBDIR_PARALLEL)
+endif

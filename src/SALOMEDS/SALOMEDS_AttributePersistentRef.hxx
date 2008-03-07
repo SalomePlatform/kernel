@@ -36,7 +36,7 @@
 class SALOMEDS_AttributePersistentRef: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributePersistentRef
 {
 public:  
-  SALOMEDS_AttributePersistentRef(const Handle(SALOMEDSImpl_AttributePersistentRef)& theAttr);
+  SALOMEDS_AttributePersistentRef(SALOMEDSImpl_AttributePersistentRef* theAttr);
   SALOMEDS_AttributePersistentRef(SALOMEDS::AttributePersistentRef_ptr theAttr);
   ~SALOMEDS_AttributePersistentRef();
 

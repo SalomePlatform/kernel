@@ -28,9 +28,9 @@
 #ifndef __SALOMEDSIMPL_TOOL_H__
 #define __SALOMEDSIMPL_TOOL_H__
 
-#include <TCollection_AsciiString.hxx>
-#include <TDF_Label.hxx>
-#include <TColStd_HSequenceOfAsciiString.hxx>
+#include <string>
+#include <vector>
+#include "DF_Label.hxx"
 
 class SALOMEDSImpl_Tool                                
 {
@@ -39,22 +39,31 @@ public:
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
-  static TCollection_AsciiString GetTmpDir();
+  static std::string GetTmpDir();
 
  
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
-  static void RemoveTemporaryFiles(const TCollection_AsciiString& theDirectory,
-				   const Handle(TColStd_HSequenceOfAsciiString)& theFiles,
+  static void RemoveTemporaryFiles(const std::string& theDirectory,
+				   const std::vector<std::string>& theFiles,
 				   const bool IsDirDeleted);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"
-  static TCollection_AsciiString GetNameFromPath(const TCollection_AsciiString& thePath);
+  static std::string GetNameFromPath(const std::string& thePath);
 
   // Returns the directory by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "/tmp/aaa"
-  static TCollection_AsciiString GetDirFromPath(const TCollection_AsciiString& thePath);
+  static std::string GetDirFromPath(const std::string& thePath);
+
+  //The functions returns a list of substring of initial string divided by given separator
+  static std::vector<std::string> splitString(const std::string& theValue, char separator);
+
+  //Returns a system date  
+  static void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds);
+
+  //Returns a name of the user
+  static std::string GetUserName();
 
 };
 #endif

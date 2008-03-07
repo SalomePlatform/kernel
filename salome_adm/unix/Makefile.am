@@ -33,6 +33,7 @@ DEPRECATED_FILES=\
 
 # rules for install and build (see make_common_starter.am)
 salomeadmux_DATA = SALOMEconfig.h.in
+salomeinclude_DATA = SALOMEconfig.h
 BUILT_SOURCES=SALOMEconfig.h SALOMEconfig.h.in
 
 mostlyclean-local:
@@ -53,5 +54,4 @@ SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...), for now. Some files have to be installed.
 dist_salomeadmux_DATA=\
-	pythonbe.py \
 	$(DEPRECATED_FILES)

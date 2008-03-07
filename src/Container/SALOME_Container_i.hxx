@@ -29,6 +29,8 @@
 #ifndef _SALOME_CONTAINER_I_HXX_
 #define _SALOME_CONTAINER_I_HXX_
 
+#include <SALOME_Container.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 
@@ -45,29 +47,14 @@
 
 class SALOME_NamingService;
 
-
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#endif
-
 class CONTAINER_EXPORT Engines_Container_i:
   public virtual POA_Engines::Container,
-  public virtual PortableServer::RefCountServantBase
+  public virtual PortableServer::ServantBase
 {
 public:
   Engines_Container_i();
   Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_var poa,
+		      PortableServer::POA_ptr poa,
 		      char * containerName ,
                       int argc, char* argv[],
 		      bool activAndRegist = true,
@@ -96,6 +83,10 @@ public:
 
   virtual void ping();
   char* name();
+  char* workingdir();
+  char* logfilename();
+  void logfilename(const char* name);
+
   virtual void Shutdown();
   char* getHostName();
   CORBA::Long getPID();
@@ -105,7 +96,7 @@ public:
   Engines::fileRef_ptr createFileRef(const char* origFileName);
   Engines::fileTransfer_ptr getFileTransfer();
 
-
+  virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   // --- local C++ methods
 
   Engines::Component_ptr
@@ -138,12 +129,14 @@ protected:
   SALOME_NamingService *_NS ;
   std::string _library_path;
   std::string _containerName;
+  std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
   std::map<std::string,Engines::Component_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
+  std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
   Engines::fileTransfer_var _fileTransfer;
 
   int    _argc ;

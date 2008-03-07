@@ -54,7 +54,7 @@ namespace Batch {
     Parametre();
 
     // Constructeur par recopie
-    Parametre::Parametre(const Parametre & PM);
+    Parametre(const Parametre & PM);
 
     // Operateur de recherche dans la map
     Versatile & operator [] (const string &);

@@ -29,24 +29,12 @@
 # ifndef __RegistryService_h__
 # define __RegistryService_h__
 
+#include <SALOME_Registry.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Registry)
 
 # include <map>
-
-#if defined REGISTRY_EXPORTS
-#if defined WIN32
-#define REGISTRY_EXPORT __declspec( dllexport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#else
-#if defined WNT
-#define REGISTRY_EXPORT __declspec( dllimport )
-#else
-#define REGISTRY_EXPORT
-#endif
-#endif
 
 class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {
@@ -84,6 +72,7 @@ public :
 	virtual ~RegistryService(void);
 
         void ping();
+        CORBA::Long getPID();
 	virtual CORBA::ULong add (const Registry::Infos & infos);
 	virtual CORBA::ULong size ( void );
 #ifndef WNT
@@ -100,9 +89,13 @@ public :
 
 	void SessionName( const char *sessionName ) ;
 
+        void SetOrb( CORBA::ORB_ptr orb ) { _orb = orb; return; }
+
+        void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
 
 protected :
 
+        CORBA::ORB_var _orb;
 	const char		*_SessionName ;
 	int			 _Compteur ;
 	std::map<int,client_infos *>	 _reg ;

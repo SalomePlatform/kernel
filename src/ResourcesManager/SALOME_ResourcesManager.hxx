@@ -31,8 +31,6 @@
 #include <fstream>
 #include <vector>
 
-
-
 #if defined RESOURCESMANAGER_EXPORTS
 #if defined WIN32
 #define RESOURCESMANAGER_EXPORT __declspec( dllexport )
@@ -53,21 +51,25 @@
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
 
-class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
+class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
+  public POA_Engines::ResourcesManager,
+  public PortableServer::RefCountServantBase
   {
 
   public:
 
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb, const char *xmlFilePath);
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns, const char *xmlFilePath);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns);
 
     ~SALOME_ResourcesManager();
 
-    std::vector<std::string>
+    Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
-                        const char *moduleName)
-    throw(SALOME_Exception);
+                        const Engines::CompoList& componentList);
+//     throw(SALOME_Exception);
 
+    char* FindFirst(const Engines::MachineList& listOfMachines);
+    std::string FindNext(const Engines::MachineList& listOfMachines);
     std::string FindBest(const Engines::MachineList& listOfMachines);
 
     std::string BuildCommandToLaunchRemoteContainer
@@ -84,8 +86,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     int AddResourceInCatalog
     (const Engines::MachineParameters& paramsOfNewResources,
-     const std::map<std::string, std::string>& modulesOnNewResources,
-     const char *environPathOfPrerequired,
+     const std::vector<std::string>& modulesOnNewResources,
      const char *alias,
      const char *userName,
      AccessModeType mode,
@@ -100,19 +101,36 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     const MapOfParserResourcesType& GetList() const;
 
+    // Parallel extension
+    std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
+							   const Engines::MachineParameters& params, 
+							   const std::string& log = "default");
+    Engines::MachineParameters* GetMachineParameters(const char *hostname);
+
+    void Shutdown();
+
+    static const char *_ResourcesManagerNameInNS;
+
   protected:
+    
+    // Parallel extension
+    void startMPI();
+    bool _MpiStarted;
+
     SALOME_NamingService *_NS;
+    CORBA::ORB_var _orb;
+    PortableServer::POA_var _poa;
 
     std::string BuildTempFileToLaunchRemoteContainer
     (const std::string& machine,
-     const Engines::MachineParameters& params);
+     const Engines::MachineParameters& params) throw(SALOME_Exception);
 
     void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
 				   const char *OS) const
       throw(SALOME_Exception);
 
     void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
-				     const char *moduleName) const
+				     const Engines::CompoList& componentList) const
       throw(SALOME_Exception);
 
     void AddOmninamesParams(std::string& command) const;
@@ -121,9 +139,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::string BuildTemporaryFileName() const;
 
-
     //! will contain the path to the ressources catalog
-    QString _path_resources;
+    std::string _path_resources;
 
     //! attribute that contains current tmp files generated
     std::string _TmpFileName;

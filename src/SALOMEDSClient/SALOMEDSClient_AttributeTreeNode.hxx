@@ -27,7 +27,7 @@
 #include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
-class SALOMEDSClient_AttributeTreeNode
+class SALOMEDSClient_AttributeTreeNode: public virtual SALOMEDSClient_GenericAttribute
 {
 public:
   

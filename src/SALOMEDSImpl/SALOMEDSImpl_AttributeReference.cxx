@@ -22,31 +22,24 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeReference.hxx"
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <TDF_RelocationTable.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeReference, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeReference, SALOMEDSImpl_GenericAttribute )
-
 
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeReference::GetID ()
+const std::string& SALOMEDSImpl_AttributeReference::GetID ()
 {
-  static Standard_GUID refID ("D913E0B3-0A9F-4ea6-9480-18A9B72D9D86");
+  static std::string refID ("D913E0B3-0A9F-4ea6-9480-18A9B72D9D86");
   return refID;
 } 
 
-Handle(SALOMEDSImpl_AttributeReference) SALOMEDSImpl_AttributeReference::Set(const TDF_Label& theLabel, 
-									     const TDF_Label& theRefLabel)
+SALOMEDSImpl_AttributeReference* SALOMEDSImpl_AttributeReference::Set(const DF_Label& theLabel, 
+								      const DF_Label& theRefLabel)
 {
-  Handle(SALOMEDSImpl_AttributeReference) A;
-  if (!theLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), A)) {
+  SALOMEDSImpl_AttributeReference* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeReference*)theLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
     A = new  SALOMEDSImpl_AttributeReference(); 
     theLabel.AddAttribute(A);
   }
@@ -59,7 +52,7 @@ Handle(SALOMEDSImpl_AttributeReference) SALOMEDSImpl_AttributeReference::Set(con
 //function : Set
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeReference::Set(const TDF_Label& Origin)
+void SALOMEDSImpl_AttributeReference::Set(const DF_Label& Origin)
 {
   CheckLocked();
 
@@ -75,28 +68,24 @@ void SALOMEDSImpl_AttributeReference::Set(const TDF_Label& Origin)
 //function : ID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeReference::ID () const { return GetID(); } 
+const std::string& SALOMEDSImpl_AttributeReference::ID () const { return GetID(); } 
 
 
-TCollection_AsciiString SALOMEDSImpl_AttributeReference::Save() 
+string SALOMEDSImpl_AttributeReference::Save() 
 {
-  TCollection_AsciiString anEntry;
-  TDF_Tool::Entry(myLabel, anEntry);
-  return anEntry;
+  return myLabel.Entry();
 }
 
-void SALOMEDSImpl_AttributeReference::Load(const TCollection_AsciiString& value) 
+void SALOMEDSImpl_AttributeReference::Load(const string& value) 
 {
-  TDF_Label aLabel;
-  TDF_Tool::Label(Label().Data(), value, aLabel);
-  myLabel = aLabel;
+  myLabel = DF_Label::Label(Label(), value, true);
 }
 
 //=======================================================================
 //function : NewEmpty
 //purpose  : 
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeReference::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeReference::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeReference(); 
 }
@@ -106,9 +95,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeReference::NewEmpty () const
 //purpose  :
 //=======================================================================
 
-void SALOMEDSImpl_AttributeReference::Restore(const Handle(TDF_Attribute)& With)
+void SALOMEDSImpl_AttributeReference::Restore(DF_Attribute* With)
 {
-  myLabel = Handle(SALOMEDSImpl_AttributeReference)::DownCast (With)->Get ();
+  myLabel = dynamic_cast<SALOMEDSImpl_AttributeReference*>(With)->Get ();
 }
 
 //=======================================================================
@@ -116,12 +105,7 @@ void SALOMEDSImpl_AttributeReference::Restore(const Handle(TDF_Attribute)& With)
 //purpose  :
 //=======================================================================
 
-void SALOMEDSImpl_AttributeReference::Paste (const Handle(TDF_Attribute)& Into,
-					     const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeReference::Paste (DF_Attribute* Into)
 {
-  TDF_Label tLab;
-  if (!myLabel.IsNull()) {
-    if (!RT->HasRelocation(myLabel,tLab)) tLab = myLabel;
-  }
-  Handle(SALOMEDSImpl_AttributeReference)::DownCast(Into)->Set(tLab);
+  dynamic_cast<SALOMEDSImpl_AttributeReference*>(Into)->Set(myLabel);
 } 

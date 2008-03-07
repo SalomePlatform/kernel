@@ -36,7 +36,7 @@ class SALOMEDS_AttributeTableOfReal_i: public virtual POA_SALOMEDS::AttributeTab
     
 public:
   
-  SALOMEDS_AttributeTableOfReal_i(const Handle(SALOMEDSImpl_AttributeTableOfReal)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeTableOfReal_i(SALOMEDSImpl_AttributeTableOfReal* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeTableOfReal_i() {};

@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeOpened.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeOpened::SALOMEDS_AttributeOpened(const Handle(SALOMEDSImpl_AttributeOpened)& theAttr)
+SALOMEDS_AttributeOpened::SALOMEDS_AttributeOpened(SALOMEDSImpl_AttributeOpened* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -43,7 +40,7 @@ bool SALOMEDS_AttributeOpened::IsOpened()
   bool aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    aValue = (bool)Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_local_impl)->IsOpened();
+    aValue = (bool)dynamic_cast<SALOMEDSImpl_AttributeOpened*>(_local_impl)->IsOpened();
   }
   else aValue = SALOMEDS::AttributeOpened::_narrow(_corba_impl)->IsOpened();
   return aValue;
@@ -53,7 +50,7 @@ void SALOMEDS_AttributeOpened::SetOpened(bool value)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_local_impl)->SetOpened((int)value);
+    dynamic_cast<SALOMEDSImpl_AttributeOpened*>(_local_impl)->SetOpened((int)value);
   }
   else SALOMEDS::AttributeOpened::_narrow(_corba_impl)->SetOpened(value);
 }

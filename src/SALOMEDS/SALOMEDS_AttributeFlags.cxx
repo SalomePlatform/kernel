@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeFlags.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeFlags::SALOMEDS_AttributeFlags(const Handle(SALOMEDSImpl_AttributeFlags)& theAttr)
+SALOMEDS_AttributeFlags::SALOMEDS_AttributeFlags(SALOMEDSImpl_AttributeFlags* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -43,7 +40,7 @@ int SALOMEDS_AttributeFlags::GetFlags()
   int aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_local_impl)->Get();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_local_impl)->Get();
   }
   else aValue = SALOMEDS::AttributeFlags::_narrow(_corba_impl)->GetFlags();
   return aValue;
@@ -53,7 +50,7 @@ void SALOMEDS_AttributeFlags::SetFlags(int theFlags)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_local_impl)->Set(theFlags);
+    dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_local_impl)->Set(theFlags);
   }
   else SALOMEDS::AttributeFlags::_narrow(_corba_impl)->SetFlags(theFlags);
 }
@@ -67,7 +64,7 @@ void SALOMEDS_AttributeFlags::Set(int theFlag, bool theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeFlags) anAttr = Handle(SALOMEDSImpl_AttributeFlags)::DownCast(_local_impl);
+    SALOMEDSImpl_AttributeFlags* anAttr = dynamic_cast<SALOMEDSImpl_AttributeFlags*>(_local_impl);
     if (theValue)
       anAttr->Set(anAttr->Get() | theFlag);
     else

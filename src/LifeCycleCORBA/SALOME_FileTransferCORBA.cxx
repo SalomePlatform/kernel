@@ -74,7 +74,7 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(string refMachine,
   _refMachine = refMachine;
   _origFileName = origFileName;
   _containerName = containerName;
-  if (_refMachine.empty() or _origFileName.empty())
+  if (_refMachine.empty() || _origFileName.empty())
     {
       INFOS("bad parameters: machine and file name must be given");
     } 
@@ -108,7 +108,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 
   if (CORBA::is_nil(_theFileRef))
     {
-      if (_refMachine.empty() or _origFileName.empty())
+      if (_refMachine.empty() || _origFileName.empty())
 	{
 	  INFOS("not enough parameters: machine and file name must be given");
 	  return "";
@@ -116,14 +116,16 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 
       SALOME_LifeCycleCORBA LCC;
       Engines::ContainerManager_var contManager = LCC.getContainerManager();
+      Engines::ResourcesManager_var resManager = LCC.getResourcesManager();
 
       Engines::MachineParameters params;
       LCC.preSet(params);
       params.container_name = _containerName.c_str();
       params.hostname = _refMachine.c_str();
 
+      Engines::CompoList clist;
       Engines::MachineList_var listOfMachines =
-	contManager->GetFittingResources(params, "");
+	resManager->GetFittingResources(params, clist);
 
       container = contManager->FindOrStartContainer(params,
 						    listOfMachines);
@@ -182,8 +184,10 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 	      SCRUTE(toFollow);
 	      CORBA::Octet *buf = aBlock->get_buffer();
 	      int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+              delete aBlock;
 	      ASSERT(nbWri == toFollow);
 	    }
+	  fclose(fp);
 	  MESSAGE("end of transfer");
 	  fileTransfer->close(fileId);
 	  _theFileRef->addRef(myMachine.c_str(), localFile.c_str());

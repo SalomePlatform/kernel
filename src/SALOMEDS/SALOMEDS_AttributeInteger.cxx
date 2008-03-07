@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeInteger.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeInteger::SALOMEDS_AttributeInteger(const Handle(SALOMEDSImpl_AttributeInteger)& theAttr)
+SALOMEDS_AttributeInteger::SALOMEDS_AttributeInteger(SALOMEDSImpl_AttributeInteger* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -40,12 +37,14 @@ SALOMEDS_AttributeInteger::~SALOMEDS_AttributeInteger()
 
 int SALOMEDS_AttributeInteger::Value()
 {
-  int aValue;
+  int aValue = 0;
   if (_isLocal) {
     SALOMEDS::Locker lock; 
-    aValue = Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_local_impl)->Value();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributeInteger*>(_local_impl)->Value();
   }
-  else aValue = SALOMEDS::AttributeInteger::_narrow(_corba_impl)->Value();
+  else {
+    aValue = SALOMEDS::AttributeInteger::_narrow(_corba_impl)->Value();
+  }
   return aValue;
 }
 
@@ -54,7 +53,7 @@ void SALOMEDS_AttributeInteger::SetValue(int value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock; 
-    Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_local_impl)->SetValue(value);
+    dynamic_cast<SALOMEDSImpl_AttributeInteger*>(_local_impl)->SetValue(value);
   }
   else SALOMEDS::AttributeInteger::_narrow(_corba_impl)->SetValue(value);
 }

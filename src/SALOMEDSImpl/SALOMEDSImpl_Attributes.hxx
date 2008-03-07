@@ -24,8 +24,18 @@
 #ifndef __SALOMEDSIMPL_ATTRIBUTES__H__
 #define __SALOMEDSIMPL_ATTRIBUTES__H__
 
+#ifdef WNT
+# ifdef SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSIMPL_EXPORT
+#endif
+
 #include <iostream>
-class LockProtection
+class SALOMEDSIMPL_EXPORT LockProtection
 {
 public :
   LockProtection(const char *message) {
@@ -64,6 +74,7 @@ public :
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
+#include "SALOMEDSImpl_AttributeString.hxx"
 
 
 #define __AttributeTypeToGUIDForSObject \
@@ -89,18 +100,19 @@ public :
         if(theType == "AttributeTableOfString") return SALOMEDSImpl_AttributeTableOfString::GetID(); \
 	if(theType == "AttributeStudyProperties") return SALOMEDSImpl_AttributeStudyProperties::GetID(); \
 	if(theType == "AttributePythonObject") return SALOMEDSImpl_AttributePythonObject::GetID(); \
-	if(theType == "AttributeUserID") return Standard_GUID("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
+	if(theType == "AttributeUserID") return std::string("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
 	if(theType == "AttributeExternalFileDef") return SALOMEDSImpl_AttributeExternalFileDef::GetID(); \
 	if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
 	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
         if(theType == "AttributeGraphic") return SALOMEDSImpl_AttributeGraphic::GetID(); \
 	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
-	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID();
+	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID(); \
+        if(theType == "AttributeString") return SALOMEDSImpl_AttributeString::GetID();
 
 
-#define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
-    Handle(SALOMEDSImpl_##ClassName) anAttr; \
-    if (!Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID(), anAttr)) { \
+#define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.c_str(), #ClassName) == 0) { \
+    SALOMEDSImpl_##ClassName* anAttr; \
+    if (!(anAttr=(SALOMEDSImpl_##ClassName*)Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID()))) { \
       CheckLocked(); \
       anAttr = new SALOMEDSImpl_##ClassName; \
       Lab.AddAttribute(anAttr); \
@@ -108,9 +120,9 @@ public :
     return anAttr; \
   }   
 
-#define __FindOrCreateAttribute(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
-    Handle(SALOMEDSImpl_##ClassName) anAttr; \
-    if (!Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID(), anAttr)) { \
+#define __FindOrCreateAttribute(ClassName) if (strcmp(aTypeOfAttribute.c_str(), #ClassName) == 0) { \
+    SALOMEDSImpl_##ClassName* anAttr; \
+    if (!(anAttr=(SALOMEDSImpl_##ClassName*)Lab.FindAttribute(SALOMEDSImpl_##ClassName::GetID()))) { \
       anAttr = new SALOMEDSImpl_##ClassName; \
       Lab.AddAttribute(anAttr); \
     } \
@@ -132,6 +144,7 @@ __FindOrCreateAttributeLocked(AttributeTableOfReal) \
 __FindOrCreateAttributeLocked(AttributeTableOfString) \
 __FindOrCreateAttributeLocked(AttributePythonObject) \
 __FindOrCreateAttributeLocked(AttributeParameter) \
+__FindOrCreateAttributeLocked(AttributeString) \
 __FindOrCreateAttribute(AttributePersistentRef) \
 __FindOrCreateAttribute(AttributeDrawable) \
 __FindOrCreateAttribute(AttributeSelectable) \

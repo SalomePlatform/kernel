@@ -107,6 +107,7 @@ else
   occ_ok=yes
   OCC_VERSION_MAJOR=0
   OCC_VERSION_MINOR=0
+  OCC_VERSION_MAINTENANCE=0
   ff=$CASROOT/inc/Standard_Version.hxx
   if test -f $ff ; then
     grep "define OCC_VERSION_MAJOR" $ff > /dev/null
@@ -116,6 +117,10 @@ else
     grep "define OCC_VERSION_MINOR" $ff > /dev/null
     if test $? = 0 ; then
       OCC_VERSION_MINOR=`grep "define OCC_VERSION_MINOR" $ff | awk '{i=3 ; print $i}'`
+    fi
+    grep "define OCC_VERSION_MAINTENANCE" $ff > /dev/null
+    if test $? = 0 ; then
+      OCC_VERSION_MAINTENANCE=`grep "define OCC_VERSION_MAINTENANCE" $ff | awk '{i=3 ; print $i}'`
     fi
   fi
 fi
@@ -135,10 +140,21 @@ dnl cascade headers
   CPPFLAGS_old="$CPPFLAGS"
 case $host_os in
    linux*)
-      CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DLIN -DLINTEL -DCSFDB -DNO_CXX_EXCEPTION -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H -I$CASROOT/inc"
+      CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DOCC_VERSION_MINOR=$OCC_VERSION_MINOR -DOCC_VERSION_MAINTENANCE=$OCC_VERSION_MAINTENANCE -DLIN -DLINTEL -DCSFDB -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H"
+
+      OCC_VERSION_STRING="$OCC_VERSION_MAJOR.$OCC_VERSION_MINOR.$OCC_VERSION_MAINTENANCE"
+      case $OCC_VERSION_STRING in
+        [[0-5]].* | 6.0.* | 6.1.0) # catch versions < 6.1.1
+          CAS_CPPFLAGS="$CAS_CPPFLAGS -DNO_CXX_EXCEPTION"
+          ;;
+        *)
+          CAS_CPPFLAGS="$CAS_CPPFLAGS -DOCC_CONVERT_SIGNALS"
+          ;;
+      esac
+      CAS_CPPFLAGS="$CAS_CPPFLAGS -I$CASROOT/inc"
       ;;
    osf*)
-      CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DLIN -DLINTEL -DCSFDB -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H -I$CASROOT/inc"
+      CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DOCC_VERSION_MINOR=$OCC_VERSION_MINOR -DOCC_VERSION_MAINTENANCE=$OCC_VERSION_MAINTENANCE -DLIN -DLINTEL -DCSFDB -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H -I$CASROOT/inc"
       ;;
 esac
   CPPFLAGS="$CPPFLAGS $CAS_CPPFLAGS"
@@ -171,11 +187,10 @@ if test "x$occ_ok" = xyes ; then
   
   AC_CACHE_VAL(salome_cv_lib_occ,[
     AC_TRY_LINK(
-#include <Standard_Type.hxx>
+#include <TCollection_AsciiString.hxx>
 ,   size_t size;
-    const Standard_CString aName="toto";
-    Standard_Type myST(aName) ; 
-    myST.Find(aName);,
+    TCollection_AsciiString aStr ("toto");
+    aStr.Capitalize();, 
     eval "salome_cv_lib_occ=yes",eval "salome_cv_lib_occ=no")
   ])
   occ_ok="$salome_cv_lib_occ"

@@ -15,51 +15,31 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#
 import sys,os,time
 import string
+from nameserver import *
 from omniORB import CORBA
 
 # Import the stubs for the Naming service
 import CosNaming
-
-# -----------------------------------------------------------------------------
-
-class Server:
-   XTERM="/usr/bin/X11/xterm -iconic -e "
-   CMD=""
-
-   def run(self):
-       commande=self.XTERM+self.CMD
-       print commande
-       ier=os.system(commande)
-       if ier:print "Commande failed"
-
-# -----------------------------------------------------------------------------
-
-class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   os.system("mkdir -m 777 -p /tmp/logs")
-   LOGDIR="/tmp/logs/" + USER
-   os.system("mkdir -m 777 -p " + LOGDIR)
-   CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
+#from runNS import *
 
 # -----------------------------------------------------------------------------
 
 class client:
 
-   def __init__(self):
+   def __init__(self,args=None):
+      #set GIOP message size for bug 10560: impossible to get field values in TUI mode
+      sys.argv.extend(["-ORBgiopMaxMsgSize", "104857600"]) ## = 100 * 1024 * 1024
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
       # Initialise the Naming Service
-      self.initNS()
+      self.initNS(args or {})
 
    # --------------------------------------------------------------------------
 
-   def initNS(self):
+   def initNS(self,args):
       # Obtain a reference to the root naming context
       obj         = self.orb.resolve_initial_references("NameService")
       try:
@@ -67,10 +47,10 @@ class client:
           return
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
-          print "Lancement du Naming Service",
+          print "Launch Naming Service++",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer().run()
+      NamingServer(args).run()
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
@@ -159,16 +139,18 @@ class client:
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
-   def waitNSPID(self, theName, thePID, theTypObj = None):
+
+   if sys.platform != "win32":
+    def waitNSPID(self, theName, thePID, theTypObj = None):
       aCount = 0
       aDelta = 0.5
       anObj = None
       print "Searching %s in Naming Service " % theName,
       while(1):
          try:
-            aPid, aStatus = os.waitpid(thePID,os.WNOHANG)
-         except Exception, exc:
-            raise "Impossible de trouver %s" % theName
+           os.kill(thePID,0)
+         except:
+           raise "Process %d for %s not found" % (thePID,theName)
          aCount += 1
          anObj = self.Resolve(theName)
          if anObj: 

@@ -29,6 +29,24 @@
 #ifndef _BASICGENERICDESTRUCTOR_HXX_
 #define _BASICGENERICDESTRUCTOR_HXX_
 
+#ifdef WNT
+ #if defined BASICS_EXPORTS
+  #if defined WIN32
+   #define BASICS_EXPORT __declspec( dllexport )
+  #else
+   #define BASICS_EXPORT
+  #endif
+ #else
+  #if defined WIN32
+   #define BASICS_EXPORT __declspec( dllimport )
+  #else
+   #define BASICS_EXPORT
+  #endif
+ #endif
+#else
+ #define BASICS_EXPORT
+#endif
+
 #include <list>
 #include <algorithm>
 #include <cassert>
@@ -36,20 +54,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <pthread.h>
-
-#if defined BASICS_EXPORTS
-#if defined WIN32
-#define BASICS_EXPORT __declspec( dllexport )
-#else
-#define BASICS_EXPORT
-#endif
-#else
-#if defined WNT
-#define BASICS_EXPORT __declspec( dllimport )
-#else
-#define BASICS_EXPORT
-#endif
-#endif
 
 //#define _DEVDEBUG_
 
@@ -79,7 +83,7 @@
  */ 
 // ============================================================================
 
-class PROTECTED_DELETE
+class BASICS_EXPORT PROTECTED_DELETE
 {
 public:
   static void deleteInstance(PROTECTED_DELETE *anObject);
@@ -111,14 +115,14 @@ private:
  */ 
 // ============================================================================
 
-class GENERIC_DESTRUCTOR
+class BASICS_EXPORT GENERIC_DESTRUCTOR
 {
 public :
-  BASICS_EXPORT static std::list<GENERIC_DESTRUCTOR*> *Destructors;
+  static std::list<GENERIC_DESTRUCTOR*> *Destructors;
 
   virtual ~GENERIC_DESTRUCTOR() {};
-  BASICS_EXPORT static const int Add(GENERIC_DESTRUCTOR &anObject);
-  BASICS_EXPORT virtual void operator()(void) = 0;
+  static const int Add(GENERIC_DESTRUCTOR &anObject);
+  virtual void operator()(void) = 0;
 };
 
 // ============================================================================
@@ -142,7 +146,6 @@ public :
 
 template <class TYPE> class DESTRUCTOR_OF : public GENERIC_DESTRUCTOR
 {
-
 public:
   /*!
     Programs the destruction at the end of the process, of the object anObject.

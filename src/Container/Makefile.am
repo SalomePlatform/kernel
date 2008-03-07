@@ -41,7 +41,9 @@ salomeinclude_HEADERS = \
 	SALOME_FileTransfer_i.hxx \
 	SALOME_FileRef_i.hxx \
 	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
+	Container_init_python.hxx \
+	SALOME_Container.hxx \
+	Salome_file_i.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =\
@@ -62,8 +64,8 @@ dist_salomescript_SCRIPTS=\
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
-	@QT_MT_INCLUDES@ \
+	@HDF5_INCLUDES@ \
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -71,9 +73,10 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../HDFPersist \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @LIBXML_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -84,10 +87,12 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../HDFPersist/libSalomeHDFPersist.la \
+	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
-	@PYTHON_LIBS@ \
 	@MPI_LIBS@ \
-	@CORBA_LIBS@
+	@CORBA_LIBS@ \
+	$(PYTHON_LIBS)
 
 #
 # ===============================================================
@@ -100,8 +105,9 @@ libSalomeContainer_la_SOURCES=\
 	Container_i.cxx \
 	SALOME_FileTransfer_i.cxx \
 	SALOME_FileRef_i.cxx \
+	Container_init_python.cxx \
 	SALOME_ContainerManager.cxx \
-	Container_init_python.cxx 
+	Salome_file_i.cxx
 
 libSalomeContainer_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -113,13 +119,19 @@ libSalomeContainer_la_LDFLAGS  =\
 libSalomeContainer_la_LIBADD =\
 	$(COMMON_LIBS)
 
+if WITH_PACO_PARALLEL
+libSalomeContainer_la_CPPFLAGS += -DWITH_PACO_PARALLEL @PACO_INCLUDES@
+libSalomeContainer_la_LIBADD += @PACO_LIBS@
+endif
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
+bin_PROGRAMS = SALOME_Container
+noinst_PROGRAMS = TestSalome_file
+
 SALOME_Container_SOURCES =\
 	SALOME_Container.cxx \
 	SALOME_Container_SignalsHandler.cxx
@@ -127,20 +139,25 @@ SALOME_Container_SOURCES =\
 SALOME_Container_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-
-SALOME_Container_LDADD =\
+SALOME_Container_LDADD = \
 	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	$(HDF5_LIBS) \
+	$(MPI_LIBS) \
+	$(CORBA_LIBS) \
+	$(PYTHON_LIBS)
 
+SALOME_Container_LDFLAGS  =\
+-Xlinker -export-dynamic
 
-SALOME_ContainerManagerServer_SOURCES =\
-	SALOME_ContainerManagerServer.cxx
+TestSalome_file_SOURCES =\
+	TestSalome_file.cxx
 
-SALOME_ContainerManagerServer_CPPFLAGS=\
+TestSalome_file_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-SALOME_ContainerManagerServer_LDADD =\
+TestSalome_file_LDADD =\
 	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	$(HDF5_LIBS) \
+	$(MPI_LIBS) \
+	$(CORBA_LIBS) \
+	$(PYTHON_LIBS)

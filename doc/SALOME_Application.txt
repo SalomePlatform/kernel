@@ -74,19 +74,29 @@ configure his own application. These files are described after, the list is:
 - CatalogResources.xml
 - SalomeApp.xml
 
-Second way - one single virtual install directory
-'''''''''''''''''''''''''''''''''''''''''''''''''
+Second and easiest way - one single virtual install directory
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-The user must create an application directory in which he copies
-appli_install.sh, appli_clean.sh and virtual_salome.py,
-from ${KERNEL_ROOT_DIR}/bin/salome.
+The user must create a SALOME application configuration file by modifying a
+copy of ${KERNEL_ROOT_DIR}/bin/salome/config_appli.xml.
+The file describes the list of SALOME modules used in the application, with
+their respective installation path. The configuration file also defines the
+path of an existing script which sets the SALOME prerequisites,
+and optionnaly, the path of samples directory (SAMPLES_SRC).
+The following command::
 
-appli_install.sh needs to be edited, to define a list of modules with their
-install paths.
-Then, the script appli_install.sh creates a virtual installation of SALOME
-in the application directory (bin, lib, doc, share...), with,
-for each file (executable, script, data,library, resources...),
-symbolic links to the actual file.
+    python <KERNEL_ROOT_DIR>/bin/salome/appli_gen.py --prefix=<install directory> --config=<configuration file>
+
+creates a virtual installation of SALOME in the application directory ${APPLI}
+(bin, lib, doc, share...), with, for each file (executable, script, data,
+library, resources...), symbolic links to the actual file.
+
+Providing an existing an existing script for SALOME prerequisites (the same one
+used for modules compilation, or given with the modules installation), the
+installation works without further modification for a single computer (unless
+some modules needs a special environment not defined in the above script).
+For a distributed application (several computers), one must copy and adapt
+CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/salome/appliskel (see below).
 
 General rules
 -------------
@@ -108,15 +118,12 @@ script is used by run scripts.
 
 env.d scripts
 ~~~~~~~~~~~~~
+With the first way of installation, each user **must define** his own
+configuration for these scripts, following the above rules.
+With the virtual installation (second way, above), env.d
+scripts are built automatically.
 
-Each user **must define** his own configuration for these scripts, following
-the above rules. With the virtual installation (second way, above), env.d
-scripts are built by appli_install.sh (given it's parameters). Otherwise, the
-scripts must be manually defined.
-
-
- **The following is only an example proposed by createAppli.sh,
- not working as it is**.
+ **The following is only an example proposed by createAppli.sh, (first way of installation) not working as it is**.
 
 atFirst.sh
     Sets the computer configuration not directly related to SALOME,
@@ -180,11 +187,11 @@ Other configuration files
 
 SalomeApp.xml
    This file is similar to the default given
-   in ${GUI_ROOT_DIR}/share/salome/resources
+   in ${GUI_ROOT_DIR}/share/salome/resources/gui
 
 
 CatalogRessources.xml
-   This files describes all the computer the application can use. The given
+   This files describes all the computers the application can use. The given
    example is minimal and suppose ${APPLI} is the same relative path
    to ${HOME}, on all the computers. A different directory can be set on a
    particular computer with a line::

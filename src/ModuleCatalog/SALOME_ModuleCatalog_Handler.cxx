@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -45,7 +45,12 @@ static int MYDEBUG = 0;
 // Function : SALOME_ModuleCatalog_Handler
 // Purpose  : Constructor
 //----------------------------------------------------------------------
-SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
+SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& pathList,
+                                                           ParserComponents& moduleList,
+                                                           ParserTypes& typeMap,
+                                                           TypeList& typeList):_typeMap(typeMap),_typeList(typeList),
+                                                                               _pathList(pathList),_moduleList(moduleList)
+
 {
   if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_Handler");
 
@@ -53,7 +58,9 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   // Used in the function endElement
   test_path_prefix_name     = "path-prefix-name";
   test_computer_name        = "computer-name" ;
+  test_computer_list        = "computer-list" ;
   test_path_prefix          = "path-prefix" ;
+  test_path_prefix_list     = "path-prefix-list" ;
 
   test_component_name       = "component-name";
   test_component_username   = "component-username";
@@ -61,6 +68,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_component_multistudy = "component-multistudy";
   test_component_icon       = "component-icone" ;
   test_component_impltype   = "component-impltype";
+  test_component_implname   = "component-implname";
   test_component_version    = "component-version";
   test_component_comment    = "component-comment";
 
@@ -99,6 +107,7 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 
   test_constraint = "constraint";
 
+  test_component_list = "component-list";
   test_component="component";
 
   if(MYDEBUG) END_OF("SALOME_ModuleCatalog_Handler");
@@ -114,11 +123,14 @@ SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
   if(MYDEBUG) END_OF("~SALOME_ModuleCatalog_Handler()")
 }
 
-//----------------------------------------------------------------------
-// Function : startDocument
-// Purpose  : overload handler function
-//----------------------------------------------------------------------
-bool SALOME_ModuleCatalog_Handler::startDocument()
+
+//=============================================================================
+/*!
+ *  Processes XML document and fills the list of modules
+ */ 
+//=============================================================================
+
+void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
   if(MYDEBUG) MESSAGE("Begin parse document");
   // Empty the private elements
@@ -131,465 +143,648 @@ bool SALOME_ModuleCatalog_Handler::startDocument()
   _outDataStreamParamList.resize(0);
   _inParamList.resize(0);
   _outParamList.resize(0);
-  return true;
-}
 
-//----------------------------------------------------------------------
-// Function : startElement
-// Purpose  : overload handler function
-//----------------------------------------------------------------------
-bool SALOME_ModuleCatalog_Handler::startElement(const QString&, 
-						const QString &,
-						const QString& qName, 
-						const QXmlAttributes& atts)
-{
-  _xml_pile.push(qName);
-
-  return true;
-} 
-
-//----------------------------------------------------------------------
-// Function : endElement
-// Purpose  : overload handler function
-//----------------------------------------------------------------------
-bool SALOME_ModuleCatalog_Handler::endElement(const QString&, 
-					      const QString &,
-					      const QString& qName)
-{
-  QString parent, grandparent;
-  _xml_pile.pop();
-  if (!_xml_pile.empty()) {
-    parent = _xml_pile.top();
-    _xml_pile.pop();
-    if (!_xml_pile.empty()) grandparent = _xml_pile.top();
-    _xml_pile.push(parent);
-  }
-
-  // Path prefix
-
-  // tag test_path_prefix_name
-  if((qName.compare(test_path_prefix_name)==0)) {
-    _pathPrefix.path = content;
-    return true;
-  }
-
-  // tag test_computer_name
-  if((qName.compare(test_computer_name)==0)) {
-    _pathPrefix.listOfComputer.push_back(content);
-    return true;
-  }
-   
-  // tag test_path_prefix
-  if((qName.compare(test_path_prefix)==0)) {
-    _pathList.push_back(_pathPrefix);
-    _pathPrefix.listOfComputer.resize(0);
-    return true;
-  }
-
-  // Component identification
-
-  // tag test_component_name
-  if((qName.compare(test_component_name)==0)) {
-    _aModule.name = content ;
-    return true;
-  }
-
-  // tag test_component_username
-  if((qName.compare(test_component_username)==0)) {
-    _aModule.username = content ;
-    return true;
-  }
-
-  // tag test_component_type
-   if((qName.compare(test_component_type)==0)) 
-     {
-       if ((content.compare("MESH") == 0) ||
-	   (content.compare("Mesh") == 0) ||
-	   (content.compare("mesh") == 0))
-	 _aModule.type = MESH ;
-       else if((content.compare("MED") == 0) ||
-	       (content.compare("Med") == 0) ||
-	       (content.compare("med") == 0))
-	 _aModule.type = Med ;
-       else if((content.compare("GEOM") == 0) ||
-	       (content.compare("Geom") == 0) ||
-	       (content.compare("geom") == 0))
-	 _aModule.type = GEOM ;
-       else if((content.compare("SOLVER") == 0) ||
-	       (content.compare("Solver") == 0) ||
-	       (content.compare("solver") == 0))
-	 _aModule.type = SOLVER ;
-       else if((content.compare("SUPERV") == 0) ||
-	       (content.compare("Superv") == 0) ||
-	       (content.compare("Supervision") == 0) ||
-	       (content.compare("superv") == 0))
-	 _aModule.type = SUPERV ;
-       else if((content.compare("DATA") == 0) ||
-	       (content.compare("Data") == 0) ||
-	       (content.compare("data") == 0))
-	 _aModule.type = DATA ; 
-       else if((content.compare("VISU") == 0) ||
-	       (content.compare("Visu") == 0) ||
-	       (content.compare("visu") == 0))
-	 _aModule.type = VISU ; 
-       else if((content.compare("OTHER") == 0) ||
-	       (content.compare("Other") == 0) ||
-	       (content.compare("other") == 0))                
-	 _aModule.type = OTHER ;
-       else
-	 // If it'not in all theses cases, the type is affected to OTHER
-	 _aModule.type = OTHER ;
-       return true;
-     }
-
-   // tag test_component_multistudy
-   if((qName.compare(test_component_multistudy)==0)) {
-    _aModule.multistudy = atoi(content.c_str()) ;
-    return true;
-   }
-
-   // tag test_component_impltype
-  if((qName.compare(QString(test_component_impltype))==0)) 
-    _aModule.implementationType = atoi(content.c_str()) ;
-
-  // tag test_component_icon
-   if((qName.compare(test_component_icon)==0)) {
-     _aModule.icon = content ;
-     return true;
-   }
-
-  // tag test_component_version
-   if((qName.compare(test_component_version)==0)) {
-     _aModule.version = content ;
-     return true;
-   }
-
-  // tag test_component_comment
-   if((qName.compare(test_component_comment)==0)) {
-     _aModule.comment = content ;
-     return true;
-   }
-
-   // interface identification
-
-   // tag test_interface_name
-   if ((qName.compare(test_interface_name)==0)) {
-       _aInterface.name = content ;
-       return true;
-   }
-
-   // Service identification
-
-   // tag test_service_name
-   if ((qName.compare(test_service_name)==0)) {
-     _aService.name = content ;
-     return true;
-   }
-
-   //tag test_defaultservice
-   if ((qName.compare(test_defaultservice)==0)) {
-     _aService.byDefault = atoi(content.c_str()) ;
-     return true;
-   }
-
-   //tag test_typeofnode
-   if((qName.compare(QString(test_typeofnode))==0))
-     _aService.typeOfNode = atoi(content.c_str()) ;
-
-   // Parameter in
-
-   // tag test_inDataStreamParameter_type
-   if ((qName.compare(test_inDataStreamParameter_type)==0)) {
-     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.type = content ;
-     else 
-        _inParam.type = content ;
-     return true;
-   }
-	 
-   // tag test_inParameter_type
-   if ((qName.compare(test_inParameter_type)==0)) {
-     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.type = content ;
-     else 
-        _inParam.type = content ;
-     return true;
-   }
-	 
-   //tag test_inDataStreamParameter_name
-   if ((qName.compare(test_inDataStreamParameter_name)==0)) {
-     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.name = content ;
-     else 
-        _inParam.name = content ;
-     return true;
-   }
-
-   //tag test_inParameter_name
-   if ((qName.compare(test_inParameter_name)==0)) {
-     if(MYDEBUG) SCRUTE(parent);
-     if(MYDEBUG) SCRUTE(grandparent);
-     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.name = content ;
-     else 
-       _inParam.name = content ;
-     return true;
-   }
-
-   //tag test_inDataStreamParameter_dependency
-   if ((qName.compare(test_inDataStreamParameter_dependency)==0)) {
-       _inDataStreamParam.dependency = content ;
-     return true;
-   }
-
-   //tag test_inParameter
-  if ((qName.compare(test_inParameter)==0))
+  // Get the document root node
+  xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
+  aCurNode = aCurNode->xmlChildrenNode;
+  
+  // Processing the document nodes
+  while(aCurNode != NULL)
+  {
+    // Part 1: Process path prefix list (tag test_path_prefix_list)
+    if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_path_prefix_list) )
     {
-      if (parent.compare(test_inParameter_list)==0) {
-	
-	if(MYDEBUG) MESSAGE("add inParameter : " << _inParam.name);
-	_inParamList.push_back(_inParam) ; 
-	
-	// Empty temporary structures
-	_inParam.type = "";
-	_inParam.name = "";
+      xmlNodePtr aCurSubNode = aCurNode->xmlChildrenNode;
+      while(aCurSubNode != NULL)
+      {
+        // Forming a PathPrefix structure (tag test_path_prefix)
+        if ( xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_path_prefix) ) {
+          aCurSubNode = aCurSubNode->next;
+          continue;
+        }
+
+        xmlNodePtr aCurSubSubNode = aCurSubNode->xmlChildrenNode;
+        while(aCurSubSubNode != NULL)
+        {
+          // Tag test_path_prefix_name
+          if ( !xmlStrcmp(aCurSubSubNode->name, (const xmlChar*)test_path_prefix_name) ) {
+            xmlChar* aPath = xmlNodeGetContent(aCurSubSubNode);
+            if (aPath != NULL) {
+              _pathPrefix.path = (const char*)aPath;
+              xmlFree(aPath);
+            }
+          }
+
+          // Tag test_computer_list
+          if ( !xmlStrcmp(aCurSubSubNode->name, (const xmlChar*)test_computer_list) ) {
+            xmlNodePtr aComputerNode = aCurSubSubNode->xmlChildrenNode;
+            while (aComputerNode != NULL) {
+              // Tag test_computer_name
+              if ( !xmlStrcmp(aComputerNode->name, (const xmlChar*) test_computer_name) ) {
+                xmlChar* aCompName = xmlNodeGetContent(aComputerNode);
+                if (aCompName != NULL) {
+                  _pathPrefix.listOfComputer.push_back((const char*)aCompName);
+                  xmlFree(aCompName);
+                }
+              }
+
+              aComputerNode = aComputerNode->next;
+            }
+          }
+
+          aCurSubSubNode = aCurSubSubNode->next;
+        }
+
+        _pathList.push_back(_pathPrefix);
+        _pathPrefix.listOfComputer.resize(0);
+
+        aCurSubNode = aCurSubNode->next;
       }
-      else if ((qName.compare(test_inDataStreamParameter)==0)) {
-	
-	if(MYDEBUG) MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.name);
-	_inDataStreamParamList.push_back(_inDataStreamParam) ; 
-	
-	// Empty temporary structures
-	_inDataStreamParam.type = "";
-	_inDataStreamParam.name = "";
-	_inDataStreamParam.dependency = "";
-      }
-      return true;
-    }
-  
-   //tag test_inParameter_list
-   if((qName.compare(test_inParameter_list)==0))
-     {
-       if(MYDEBUG) SCRUTE(_inParamList.size());
-       _aService.inParameters = _inParamList;
-       _inParamList.resize(0);
-       return true;
-     }
-  
-   //tag test_inDataStreamParameter_list
-   if((qName.compare(test_inDataStreamParameter_list)==0))
-     {
-       if(MYDEBUG) SCRUTE(_inDataStreamParamList.size());
-       _aService.inDataStreamParameters = _inDataStreamParamList;
-       _inDataStreamParamList.resize(0);
-     }
-   //tag test_outDataStreamParameter_list
-   if((qName.compare(test_outDataStreamParameter_list)==0))
-     {
-       if(MYDEBUG) SCRUTE(_outDataStreamParamList.size());
-       _aService.outDataStreamParameters = _outDataStreamParamList;
-       _outDataStreamParamList.resize(0);
-       return true;
-     }
-
-
-
-   // Parameter out
-   if(MYDEBUG) SCRUTE(qName);
-
-   // tag test_outParameter_type
-   if ((qName.compare(test_outParameter_type)==0)) {
-     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.type = content ;
-     else 
-        _outParam.type = content ;
-     return true;
-   }
-	 
-   // tag test_outDataStreamParameter_type
-   if ((qName.compare(test_outDataStreamParameter_type)==0)) {
-     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.type = content ;
-     else 
-        _outParam.type = content ;
-     return true;
-   }
-	 
-   //tag test_outParameter_name
-   if ((qName.compare(test_outParameter_name)==0)) {
-     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.name = content ;
-     else 
-        _outParam.name = content ;
-     return true;
-   }
-	 
-   //tag test_outDataStreamParameter_name
-   if ((qName.compare(test_outDataStreamParameter_name)==0)) {
-     if(MYDEBUG) SCRUTE(grandparent);
-     if(MYDEBUG) SCRUTE(test_outDataStreamParameter_list);
-     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.name = content ;
-     else 
-        _outParam.name = content ;
-     return true;
-   }
-	 
-   //tag test_outParameter_dependency
-   if ((qName.compare(test_outDataStreamParameter_dependency)==0)) {
-     _outDataStreamParam.dependency = content ;
-     return true;
-   }
-
-   //tag test_outParameter
-  if ((qName.compare(test_outParameter)==0))
-    {
-      if (parent.compare(test_outParameter_list)==0) {
-	
-	if(MYDEBUG) MESSAGE("add outParameter : " << _outParam.name);
-	_outParamList.push_back(_outParam) ; 
-	
-	// Empty temporary structures
-	_outParam.type = "";
-	_outParam.name = "";
-      }
-      else if ((qName.compare(test_outDataStreamParameter)==0)) {
-	
-	if(MYDEBUG) MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.name);
-	_outDataStreamParamList.push_back(_outDataStreamParam) ; 
-	
-	// Empty temporary structures
-	_outDataStreamParam.type = "";
-	_outDataStreamParam.name = "";
-	_outDataStreamParam.dependency = "";
-      }
-      return true;
-    }
-  
-   //tag test_outParameter_list
-   if((qName.compare(test_outParameter_list)==0))
-     {
-       if(MYDEBUG) SCRUTE(_outParamList.size());
-       _aService.outParameters = _outParamList;
-       _outParamList.resize(0);
-       return true;
-     }
-  
-   // tag   test_service
-   if((qName.compare(test_service)==0))
-     {
-       _serviceList.push_back(_aService);
-
-       // Empty temporary structures
-       _aService.name = "";
-       _aService.typeOfNode = 1;
-       _aService.inParameters.resize(0);
-       _aService.outParameters.resize(0);
-       _aService.inDataStreamParameters.resize(0);
-       _aService.outDataStreamParameters.resize(0);
-     }
-
-   // tag   test_service_list
-   if((qName.compare(test_service_list)==0))
-     {
-       _aInterface.services = _serviceList ;
-
-       // Empty temporary structures
-       _serviceList.resize(0); 
-       _interfaceList.push_back(_aInterface);  
-       _aInterface.name ="";    
-       _aInterface.services.resize(0);
-
-     }
-
-   //tag test_interface_list
-   if((qName.compare(test_interface_list)==0))
-     {
-       _aModule.interfaces = _interfaceList ;
-       _interfaceList.resize(0);
-     }
-
-   //tag test_constraint
-   if((qName.compare(test_constraint)==0))
-     _aModule.constraint = content ;
-
-   // tag test_component
-   if((qName.compare(test_component)==0))
-     {
-       _moduleList.push_back(_aModule) ;
-       
-       // Empty temporary structures
-       _aModule.name = "";
-       _aModule.constraint = "";
-       _aModule.icon="";       
-       _aModule.interfaces.resize(0);
-     }
-    
-  return true;
-}
-  
-//----------------------------------------------------------------------
-// Function : characters
-// Purpose  : overload handler function
-//----------------------------------------------------------------------
-bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
-{
-  content = (const char*)chars ;
-  return true;
-}
-
-//----------------------------------------------------------------------
-// Function : endDocument
-// Purpose  : overload handler function
-//            Print all informations find in the catalog 
-//            (only in DEBUG mode!!)
-//----------------------------------------------------------------------  
-#include <fstream>
-bool SALOME_ModuleCatalog_Handler::endDocument()
-{
-//  ofstream f("/tmp/logs/xxx.log", std::ofstream::app);
-//  f << "---------------------------------------------------------" << std::endl;
-  if(MYDEBUG) BEGIN_OF("endDocument");
-  //_pathlist
-  for (unsigned int ind = 0; ind < _pathList.size(); ind++)
-    {
-      if(MYDEBUG) MESSAGE("Path :"<<_pathList[ind].path);
-      for (unsigned int i = 0; i < _pathList[ind].listOfComputer.size(); i++)
-	if(MYDEBUG) MESSAGE("Computer name :" << _pathList[ind].listOfComputer[i]);
     }
 
-   // _moduleList
-//  if(MYDEBUG) SCRUTE(_moduleList.size());
-//  for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
-//    {
-//      f << _moduleList[ind] << std::endl;
-//    }
+    //Part 2: Process list of types
+    if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)"type-list") )
+      {
+        xmlNodePtr aTypeNode = aCurNode->xmlChildrenNode;
+        while (aTypeNode != NULL)
+          {
+            //  match "type"
+            if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"type" )) 
+              {
+                // Here is a basic type description
+                ParserType aType;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *kind=xmlGetProp(aTypeNode,(const xmlChar*)"kind");
+                if(kind)
+                  {
+                    aType.kind = (const char*)kind;
+                    xmlFree(kind);
+                  }
+                if(aType.kind == "double" ||
+                   aType.kind == "int"    ||
+                   aType.kind == "bool"    ||
+                   aType.kind == "string")
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered basic type: " << aType.name << " " << aType.kind << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+                else
+                  std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." << std::endl;
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"sequence" )) 
+              {
+                // Here is a sequence type description
+                ParserSequence aType;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *content=xmlGetProp(aTypeNode,(const xmlChar*)"content");
+                if(content)
+                  {
+                    aType.content = (const char*)content;
+                    xmlFree(content);
+                  }
+                if ( _typeMap.find(aType.content) != _typeMap.end() )
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered sequence type: " << aType.name << " " << aType.content << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+                else
+                  {
+                    std::cerr << "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." << std::endl;
+                  }
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"objref" )) 
+              {
+                // Here is an objref type description
+                ParserObjref aType;
+                int error=0;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *id=xmlGetProp(aTypeNode,(const xmlChar*)"id");
+                if(id)
+                  {
+                    aType.id = (const char*)id;
+                    xmlFree(id);
+                  }
 
-  if(MYDEBUG) MESSAGE("Document parsed");
-  if(MYDEBUG) END_OF("endDocument");
-  return true;
-}
- 
-//----------------------------------------------------------------------
-// Function : errorProtocol
-// Purpose  : overload handler function
-//----------------------------------------------------------------------  
-QString SALOME_ModuleCatalog_Handler::errorProtocol()
-{
-  return errorProt ;
-}
+                xmlNodePtr aTypeSubNode = aTypeNode->xmlChildrenNode;
+                while (aTypeSubNode != NULL)
+                  {
+                    if ( !xmlStrcmp(aTypeSubNode->name, (const xmlChar*)"base" )) 
+                      {
+                        //a base type
+                        xmlChar* content = xmlNodeGetContent(aTypeSubNode);
+                        if(content)
+                          {
+                            std::string base=(const char*)content;
+                            xmlFree(content);
+                            if ( _typeMap.find(base) != _typeMap.end() && _typeMap[base].kind == "objref")
+                              {
+                                aType.bases.push_back(base);
+                              }
+                            else
+                              {
+                                std::cerr << "Warning: this objref type (" << aType.name << ") has unknown base type (" << base << "), it will be ignored." << std::endl;
+                                error=1;
+                                break;
+                              }
+                          }
+                      }
+                    aTypeSubNode = aTypeSubNode->next;
+                  }
+                if(!error)
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered objref type: " << aType.name << " " << aType.id << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+              }
+            else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"struct" )) 
+              {
+                // Here is a struct type description
+                ParserStruct aType;
+                int error=0;
+                xmlChar * name=xmlGetProp(aTypeNode,(const xmlChar*)"name");
+                if(name)
+                  {
+                    aType.name = (const char*)name;
+                    xmlFree(name);
+                  }
+                xmlChar *id=xmlGetProp(aTypeNode,(const xmlChar*)"id");
+                if(id)
+                  {
+                    aType.id = (const char*)id;
+                    xmlFree(id);
+                  }
 
+                xmlNodePtr aTypeSubNode = aTypeNode->xmlChildrenNode;
+                while (aTypeSubNode != NULL)
+                  {
+                    if ( !xmlStrcmp(aTypeSubNode->name, (const xmlChar*)"member" )) 
+                      {
+                        std::pair<std::string,std::string> member;
+                        xmlChar * m_name=xmlGetProp(aTypeSubNode,(const xmlChar*)"name");
+                        if(m_name)
+                          {
+                            member.first=(const char*)m_name;
+                            xmlFree(m_name);
+                          }
+                        xmlChar * m_type=xmlGetProp(aTypeSubNode,(const xmlChar*)"type");
+                        if(m_type)
+                          {
+                            member.second=(const char*)m_type;
+                            xmlFree(m_type);
+                          }
+                        if ( _typeMap.find(member.second) != _typeMap.end() )
+                          {
+                            aType.members.push_back(member);
+                          }
+                        else
+                          {
+                            std::cerr << "Warning: this struct type (" << aType.name << ") has unknown member type (" << member.first << "," << member.second << "), it will be ignored." << std::endl;
+                            error=1;
+                            break;
+                          }
+                      }
+                    aTypeSubNode = aTypeSubNode->next;
+                  }
+                if(!error)
+                  {
+                    if ( _typeMap.find(aType.name) == _typeMap.end() )
+                      {
+                        std::cerr << "Registered struct type: " << aType.name << " " << aType.id << std::endl;
+                        _typeMap[aType.name]=aType;
+                        _typeList.push_back(aType);
+                      }
+                    else
+                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                  }
+              } // end of struct
+            aTypeNode = aTypeNode->next;
+          }
+      }
 
-//----------------------------------------------------------------------
-// Function : fatalError
-// Purpose  : overload handler function
-//----------------------------------------------------------------------  
-bool SALOME_ModuleCatalog_Handler::fatalError(const QXmlParseException& exception)
-{
-    errorProt += QString( "fatal parsing error: %1 in line %2, column %3\n" )
-    .arg( exception.message() )
-    .arg( exception.lineNumber() )
-    .arg( exception.columnNumber() );
+    //Part 3: Process list of components (tag test_component_list)
+    if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_component_list) )
+    {
+      xmlNodePtr aComponentNode = aCurNode->xmlChildrenNode;
+      while (aComponentNode != NULL)
+      {
+        // Do not process tags differ from test_component here
+        if ( xmlStrcmp(aComponentNode->name, (const xmlChar*)test_component) ) {
+          aComponentNode = aComponentNode->next;
+          continue;
+        }
 
-  return QXmlDefaultHandler::fatalError( exception );
+        // Component identification
+
+        // Empty temporary structures
+        _aModule.name = "";
+        _aModule.constraint = "";
+        _aModule.icon="";       
+        _aModule.interfaces.resize(0);
+
+        xmlNodePtr aComponentSubNode = aComponentNode->xmlChildrenNode;
+        while(aComponentSubNode != NULL)
+        {
+          xmlChar* aNodeContent = xmlNodeGetContent(aComponentSubNode);
+
+          if (aNodeContent == NULL) {
+            aComponentSubNode = aComponentSubNode->next;
+            continue;
+          }
+
+          std::string aContent = (const char*)aNodeContent;
+
+          // Tag test_component_name
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_name) )
+            _aModule.name = aContent;
+
+          // Tag test_component_username
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_username) )
+            _aModule.username = aContent;
+
+          // Tag test_component_type
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_type) ) {
+            std::string aType = aContent;
+
+            if ((aType.compare("MESH") == 0) ||
+                (aType.compare("Mesh") == 0) ||
+                (aType.compare("mesh") == 0))
+              _aModule.type = MESH ;
+            else if((aType.compare("MED") == 0) ||
+                    (aType.compare("Med") == 0) ||
+                    (aType.compare("med") == 0))
+              _aModule.type = Med ;
+            else if((aType.compare("GEOM") == 0) ||
+                    (aType.compare("Geom") == 0) ||
+                    (aType.compare("geom") == 0))
+              _aModule.type = GEOM ;
+            else if((aType.compare("SOLVER") == 0) ||
+                    (aType.compare("Solver") == 0) ||
+                    (aType.compare("solver") == 0))
+              _aModule.type = SOLVER ;
+            else if((aType.compare("SUPERV") == 0) ||
+                    (aType.compare("Superv") == 0) ||
+                    (aType.compare("Supervision") == 0) ||
+                    (aType.compare("superv") == 0))
+              _aModule.type = SUPERV ;
+            else if((aType.compare("DATA") == 0) ||
+                    (aType.compare("Data") == 0) ||
+                    (aType.compare("data") == 0))
+              _aModule.type = DATA ; 
+            else if((aType.compare("VISU") == 0) ||
+                    (aType.compare("Visu") == 0) ||
+                    (aType.compare("visu") == 0))
+              _aModule.type = VISU ; 
+            else if((aType.compare("OTHER") == 0) ||
+                    (aType.compare("Other") == 0) ||
+                    (aType.compare("other") == 0))                
+              _aModule.type = OTHER ;
+            else
+              // If it'not in all theses cases, the type is affected to OTHER
+              _aModule.type = OTHER ;
+          }
+
+          // Tag test_component_multistudy
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_multistudy) )
+            _aModule.multistudy = atoi( aContent.c_str() );
+
+          // Tag test_component_impltype
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_impltype) )
+            _aModule.implementationType = aContent;
+
+          // Tag test_component_implname
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_implname) )
+            _aModule.implementationName = aContent;
+
+          // Tag test_component_icon
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_icon) )
+            _aModule.icon = aContent;
+
+          // Tag test_component_version
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_version) )
+            _aModule.version = aContent;
+
+          // Tag test_component_comment
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_comment) )
+            _aModule.comment = aContent;
+
+          // Tag test_constraint
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_constraint) )
+            _aModule.constraint = aContent;
+
+          xmlFree(aNodeContent);
+
+          // Process tag test_interface_list:
+          if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_interface_list) ) {
+
+            // Form an interface list for the component
+            xmlNodePtr aSubNode = aComponentSubNode->xmlChildrenNode;
+            while(aSubNode != NULL) {
+              // Tag test_interface_name
+              if ( !xmlStrcmp(aSubNode->name, (const xmlChar*)test_interface_name) ) {
+                xmlChar* anInterfaceName = xmlNodeGetContent(aSubNode);
+                if (anInterfaceName != NULL) {
+                  _aInterface.name = (const char*)anInterfaceName;
+                  xmlFree(anInterfaceName);
+                }
+              }
+
+              // Tag test_service_list
+              if ( !xmlStrcmp(aSubNode->name, (const xmlChar*)test_service_list) ) {
+                // Form a service list for the interface
+                xmlNodePtr aCompServiceNode = aSubNode->xmlChildrenNode;
+                while(aCompServiceNode != NULL) {
+                  // Tag test_service
+                  if ( !xmlStrcmp(aCompServiceNode->name, (const xmlChar*)"component-service") ) {
+                    xmlNodePtr aCompServiceSubNode = aCompServiceNode->xmlChildrenNode;
+                    while(aCompServiceSubNode != NULL)
+                    {
+                      xmlChar* aCompServiceData = xmlNodeGetContent(aCompServiceSubNode);
+
+                      if ( aCompServiceData != NULL)
+                      {
+                        // Tag test_service_name
+                        if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_service_name) )
+                          _aService.name = (const char*)aCompServiceData;
+
+                        // Tag test_defaultservice
+                        if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
+                          _aService.byDefault = (const char*)aCompServiceData;
+
+                        // Tag test_typeofnode
+                        if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
+                          _aService.typeOfNode = (const char*)aCompServiceData;
+
+                        xmlFree(aCompServiceData);
+                      }
+
+                      // Tag test_inParameter_list
+                      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_inParameter_list) ) {
+                        xmlNodePtr aParamNode = aCompServiceSubNode->xmlChildrenNode;
+                        while (aParamNode != NULL)
+                        {
+                          // Tag test_inParameter
+                          if (xmlStrcmp(aParamNode->name, (const xmlChar*)test_inParameter)) {
+                            aParamNode = aParamNode->next;
+                            continue;
+                          }
+
+                          xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
+                          while (aParamItemNode != NULL)
+                          {
+                            xmlChar* aParamData = xmlNodeGetContent(aParamItemNode);
+
+                            if (aParamData != NULL)
+                            {
+                              // Tag test_inParameter_name
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_name) )
+                                _inParam.name = (const char*)aParamData;
+
+                              // Tag test_inParameter_type
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inParameter_type) )
+                                _inParam.type = (const char*)aParamData;
+
+                              xmlFree(aParamData);
+                            }
+
+                            aParamItemNode = aParamItemNode->next;
+                          }
+
+                          _inParamList.push_back(_inParam) ; 
+
+                          // Empty temporary structures
+                          _inParam.type = "";
+                          _inParam.name = "";
+
+                          aParamNode = aParamNode->next;
+                        }
+
+                        _aService.inParameters = _inParamList;
+                        _inParamList.resize(0);
+                      }
+
+                      // Tag test_outParameter_list
+                      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_outParameter_list) ) {
+                        xmlNodePtr aParamNode = aCompServiceSubNode->xmlChildrenNode;
+                        while (aParamNode != NULL)
+                        {
+                          // Tag test_outParameter
+                          if (xmlStrcmp(aParamNode->name, (const xmlChar*)test_outParameter)) {
+                            aParamNode = aParamNode->next;
+                            continue;
+                          }
+
+                          xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
+                          while (aParamItemNode != NULL)
+                          {
+                            xmlChar* anOutParamData = xmlNodeGetContent(aParamItemNode);
+
+                            if (anOutParamData != NULL)
+                            {
+                              // Tag test_outParameter_name
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_name) )
+                                _outParam.name = (const char*)anOutParamData;
+
+                              // Tag test_outParameter_type
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outParameter_type) )
+                                _outParam.type = (const char*)anOutParamData;
+
+                              xmlFree(anOutParamData);
+                            }
+
+                            aParamItemNode = aParamItemNode->next;
+                          }
+
+                          _outParamList.push_back(_outParam) ; 
+
+                          // Empty temporary structures
+                          _outParam.type = "";
+                          _outParam.name = "";
+
+                          aParamNode = aParamNode->next;
+                        }
+
+                        _aService.outParameters = _outParamList;
+                        _outParamList.resize(0);
+                      }
+
+                      //@ Tag test_inDataStreamParameter_list
+                      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_inDataStreamParameter_list) )
+                      {
+                        xmlNodePtr aParamNode = aCompServiceSubNode->xmlChildrenNode;
+                        while (aParamNode != NULL)
+                        {
+                          // Tag test_inDataStreamParameter
+                          if (xmlStrcmp(aParamNode->name, (const xmlChar*)test_inDataStreamParameter)) {
+                            aParamNode = aParamNode->next;
+                            continue;
+                          }
+
+                          xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
+                          while (aParamItemNode != NULL)
+                          {
+                            xmlChar* inDataStreamParamData = xmlNodeGetContent(aParamItemNode);
+
+                            if (inDataStreamParamData != NULL)
+                            {
+                              // Tag test_inDataStreamParameter_name
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_name) )
+                                _inDataStreamParam.name = (const char*)inDataStreamParamData;
+
+                              // Tag test_inDataStreamParameter_type
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_type) )
+                                _inDataStreamParam.type = (const char*)inDataStreamParamData;
+
+                              // Tag test_inDataStreamParameter_dependency
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_inDataStreamParameter_dependency) )
+                                _inDataStreamParam.dependency = (const char*)inDataStreamParamData;
+
+                              xmlFree(inDataStreamParamData);
+                            }
+
+                            aParamItemNode = aParamItemNode->next;
+                          }
+
+                          _inDataStreamParamList.push_back(_inDataStreamParam) ; 
+
+                          // Empty temporary structures
+                          _inDataStreamParam.type = "";
+                          _inDataStreamParam.name = "";
+                          _inDataStreamParam.dependency = "";
+
+                          aParamNode = aParamNode->next;
+                        }
+
+                        _aService.inDataStreamParameters = _inDataStreamParamList;
+                        _inDataStreamParamList.resize(0);
+                      }
+
+                      // Tag test_outDataStreamParameter_list
+                      if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_outDataStreamParameter_list) )
+                      {
+                        xmlNodePtr aParamNode = aCompServiceSubNode->xmlChildrenNode;
+                        while (aParamNode != NULL)
+                        {
+                          // Tag test_outDataStreamParameter
+                          if (xmlStrcmp(aParamNode->name, (const xmlChar*)test_outDataStreamParameter)) {
+                            aParamNode = aParamNode->next;
+                            continue;
+                          }
+
+                          xmlNodePtr aParamItemNode = aParamNode->xmlChildrenNode;
+                          while (aParamItemNode != NULL)
+                          {
+                            xmlChar* outDataStreamParamData = xmlNodeGetContent(aParamItemNode);
+
+                            if (outDataStreamParamData != NULL)
+                            {
+                              // Tag test_outDataStreamParameter_name
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_name) )
+                                _outDataStreamParam.name = (const char*)outDataStreamParamData;
+                              
+                              // Tag test_outDataStreamParameter_type
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_type) )
+                                _outDataStreamParam.type = (const char*)outDataStreamParamData;
+                              
+                              // Tag test_outDataStreamParameter_dependency
+                              if ( !xmlStrcmp(aParamItemNode->name, (const xmlChar*)test_outDataStreamParameter_dependency) )
+                                _outDataStreamParam.dependency = (const char*)outDataStreamParamData;
+                              
+                              xmlFree(outDataStreamParamData);
+                            }
+
+                            aParamItemNode = aParamItemNode->next;
+                          }
+                          
+                          _outDataStreamParamList.push_back(_outDataStreamParam) ; 
+                          
+                          // Empty temporary structures
+                          _outDataStreamParam.type = "";
+                          _outDataStreamParam.name = "";
+                          _outDataStreamParam.dependency = "";
+
+                          aParamNode = aParamNode->next;
+                        }
+                        
+                        _aService.outDataStreamParameters = _outDataStreamParamList;
+                        _outDataStreamParamList.resize(0);
+                      }
+                      
+                      aCompServiceSubNode = aCompServiceSubNode->next;
+                    }
+
+                    // Put formed service into the list
+                    _serviceList.push_back(_aService);
+
+                    // Empty temporary structures
+                    _aService.name = "";
+                    _aService.typeOfNode = 1;
+                    _aService.inParameters.resize(0);
+                    _aService.outParameters.resize(0);
+                    _aService.inDataStreamParameters.resize(0);
+                    _aService.outDataStreamParameters.resize(0);
+                  }
+                  
+                  aCompServiceNode = aCompServiceNode->next;
+                }
+                
+                _aInterface.services = _serviceList ;
+                
+                // Empty temporary structures
+                _serviceList.resize(0);
+                _interfaceList.push_back(_aInterface);  
+                _aInterface.name ="";    
+                _aInterface.services.resize(0);
+              }
+              
+              aSubNode = aSubNode->next;
+            }
+            
+            _aModule.interfaces = _interfaceList ;
+            _interfaceList.resize(0);
+          }
+
+          aComponentSubNode = aComponentSubNode->next;
+        }
+
+        _moduleList.push_back(_aModule);
+
+        aComponentNode = aComponentNode->next;
+      }
+    }
+
+    aCurNode = aCurNode->next;
+  }
 }

@@ -30,9 +30,11 @@
 #define _SALOME_TESTCOMPONENT_I_HXX_
 
 #include <iostream>
+
+#include "SALOME_Component_i.hxx"
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_TestComponent)
-#include "SALOME_Component_i.hxx"
 
 class Engines_TestComponent_i: 
   public POA_Engines::TestComponent,

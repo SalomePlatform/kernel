@@ -39,7 +39,7 @@
 class SALOMEDS_AttributeTextHighlightColor: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeTextHighlightColor
 {
 public:  
-  SALOMEDS_AttributeTextHighlightColor(const Handle(SALOMEDSImpl_AttributeTextHighlightColor)& theAttr);
+  SALOMEDS_AttributeTextHighlightColor(SALOMEDSImpl_AttributeTextHighlightColor* theAttr);
   SALOMEDS_AttributeTextHighlightColor(SALOMEDS::AttributeTextHighlightColor_ptr theAttr);
   ~SALOMEDS_AttributeTextHighlightColor();
 

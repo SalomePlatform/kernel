@@ -69,6 +69,7 @@ public:
   virtual bool IsSaved() = 0;
   virtual void  IsSaved(bool save) = 0;
   virtual bool IsModified() = 0;
+  virtual void Modified() = 0;
   virtual std::string URL() = 0;
   virtual void  URL(const std::string& url) = 0;
   virtual int StudyId() = 0;
@@ -86,6 +87,10 @@ public:
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint) = 0;
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
 						       const std::string& theModuleName, int theSavePoint) = 0;
+  virtual void SetStudyLock(const std::string& theLockerID) = 0;
+  virtual bool IsStudyLocked() = 0;
+  virtual void UnLockStudy(const std::string& theLockerID) = 0;
+  virtual std::vector<std::string> GetLockerID() = 0;
 };
 
 

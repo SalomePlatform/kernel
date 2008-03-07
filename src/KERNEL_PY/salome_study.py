@@ -27,49 +27,54 @@
 import salome_kernel
 import SALOMEDS
 import salome_iapp
+from launchConfigureParser import verbose
 
 #--------------------------------------------------------------------------
 
-def DumpComponent(Study, SO, offset):
-    it = Study.NewChildIterator(SO)
-    Builder = Study.NewBuilder()
-    while it.More():
-        CSO = it.Value()
-        it.Next()
-        anAttr = Builder.FindOrCreateAttribute(CSO, "AttributeName")
-        AtName = anAttr._narrow(SALOMEDS.AttributeName)
-        t_name = AtName.Value()
-        if t_name[0] == 1:
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "--"
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(CSO.GetID()) + " " + str(t_name[1]) )
-        t_RefSO = CSO.ReferencedObject()
-        if t_RefSO[0] == 1:
-            RefSO = t_RefSO[1]
-            ofs = 1
-            a = ""
-            while ofs <= offset:
-                a = a + "  "
-                ofs = ofs +1
-            MESSAGE( a + ">" + str(RefSO.GetID()) )
-        DumpComponent(Study, CSO, offset+2)
+def DumpComponent(Study, SO, Builder,offset):
+  it = Study.NewChildIterator(SO)
+  while it.More():
+    CSO = it.Value()
+    a=offset*"--" + ">" + CSO.GetID()
+    find,AtName = Builder.FindAttribute(CSO, "AttributeName")
+    if find:
+      a=a+":"+AtName.Value()
+    find,AtIOR = Builder.FindAttribute(CSO, "AttributeIOR")
+    if find:
+      a=a+":"+AtIOR.Value()
+    find,RefSO = CSO.ReferencedObject()
+    if find:
+      a=a+":"+RefSO.GetID()
+    print a
+    DumpComponent(Study, CSO, Builder,offset+2)
+    it.Next()
 
-    #--------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 def DumpStudy(Study):
+    """
+    Dump a study, given the ior
+    """
     itcomp = Study.NewComponentIterator()
+    Builder = Study.NewBuilder()
     while itcomp.More():
-        SC = itcomp.Value()
-        itcomp.Next()
-        name = SC.ComponentDataType()
-        MESSAGE( "-> ComponentDataType is " + name )
-        DumpComponent(Study, SC, 1)
-        
+      SC = itcomp.Value()
+      name = SC.ComponentDataType()
+      print "-> ComponentDataType is " + name
+      DumpComponent(Study, SC,Builder, 1)
+      itcomp.Next()
 
-    #--------------------------------------------------------------------------
+def DumpStudies():
+  """
+    Dump all studies in a StudyManager
+  """
+  for name in myStudyManager.GetOpenStudies():
+    s=myStudyManager.GetStudyByName(name)
+    print "study:",name, s._get_StudyId()
+    DumpStudy(s)
+
+
+#--------------------------------------------------------------------------
 
 def IDToObject(id):
     myObj = None
@@ -244,21 +249,21 @@ salome_study_ID = -1
 def getActiveStudy(theStudyId=0):
     global salome_study_ID
     
-    print "getActiveStudy"
+    if verbose(): print "getActiveStudy"
     if salome_study_ID == -1:
         if salome_iapp.hasDesktop():
-            print "---in gui"
+            if verbose(): print "---in gui"
             salome_study_ID = salome_iapp.sg.getActiveStudyId()
         else:
-            print "---outside gui"
+            if verbose(): print "---outside gui"
             if theStudyId:
                 aStudy=myStudyManager.GetStudyByID(theStudyId)
                 if aStudy:
-                    print "connection to existing study ", theStudyId
+                    if verbose(): print "connection to existing study ", theStudyId
                     salome_study_ID = theStudyId
             if salome_study_ID == -1:
                 salome_study_ID = createNewStudy()
-            print"--- Study Id ", salome_study_ID
+            if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
     
     #--------------------------------------------------------------------------
@@ -307,14 +312,14 @@ def salome_study_init(theStudyId=0):
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
         
         # get Study Manager reference
-        print "looking for studyManager ..."
+        if verbose(): print "looking for studyManager ..."
         obj = naming_service.Resolve('myStudyManager')
         myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-        print "studyManager found"
+        if verbose(): print "studyManager found"
 
         # get active study Id, ref and name
         myStudyId = getActiveStudy(theStudyId)
-        print "myStudyId",myStudyId
+        if verbose(): print "myStudyId",myStudyId
         myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()
 

@@ -24,44 +24,31 @@
 #ifndef _SALOMEDSImpl_AttributeSelectable_HeaderFile
 #define _SALOMEDSImpl_AttributeSelectable_HeaderFile
 
-#include <Standard_DefineHandle.hxx>
-#include <TDF_Attribute.hxx>
-#include <TDF_Label.hxx>       
-#include <TCollection_AsciiString.hxx>
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"       
+#include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
-
-class Standard_GUID;
-class Handle(TDF_Attribute);
-class Handle(TDF_RelocationTable);
-
-
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeSelectable, SALOMEDSImpl_GenericAttribute )
-
-
 
 class SALOMEDSImpl_AttributeSelectable : public SALOMEDSImpl_GenericAttribute 
 {
 private:
-Standard_Integer myValue;
+int myValue;
 
 public:
 
-Standard_EXPORT virtual TCollection_AsciiString Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
-Standard_EXPORT virtual void Load(const TCollection_AsciiString& theValue) { (theValue == "0")?myValue=0:myValue=1; }  
+Standard_EXPORT virtual std::string Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
+Standard_EXPORT virtual void Load(const std::string& theValue) { (theValue == "0")?myValue=0:myValue=1; }  
 
-Standard_EXPORT static const Standard_GUID& GetID() ;
-Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeSelectable Set(const TDF_Label& label,const Standard_Integer value) ;
+Standard_EXPORT static const std::string& GetID() ;
+Standard_EXPORT static SALOMEDSImpl_AttributeSelectable* Set(const DF_Label& label,const int value) ;
 Standard_EXPORT SALOMEDSImpl_AttributeSelectable();
-Standard_EXPORT void SetSelectable(const Standard_Integer value);
-Standard_EXPORT Standard_Integer IsSelectable() const { return myValue; } 
-Standard_EXPORT  const Standard_GUID& ID() const;
-Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
-Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;
-Standard_EXPORT   void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_RelocationTable)& RT) const;
+Standard_EXPORT void SetSelectable(const int value);
+Standard_EXPORT int IsSelectable() const { return myValue; } 
+Standard_EXPORT  const std::string& ID() const;
+Standard_EXPORT   void Restore(DF_Attribute* with) ;
+Standard_EXPORT   DF_Attribute* NewEmpty() const;
+Standard_EXPORT   void Paste(DF_Attribute* into);
 Standard_EXPORT ~SALOMEDSImpl_AttributeSelectable() {}
-
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_AttributeDrawable )
 
 };
 

@@ -20,10 +20,11 @@
 #ifndef _MULTICOMMEXCEPTION_HXX_
 #define _MULTICOMMEXCEPTION_HXX_
 
+#include <SALOME_Communication.hxx>
+
 #include <string>
 
-
-class MultiCommException {
+class COMMUNICATION_EXPORT MultiCommException {
 private:
   std::string _message;
 public:

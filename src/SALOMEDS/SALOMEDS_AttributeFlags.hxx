@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeFlags: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeFlags
 {
 public:  
-  SALOMEDS_AttributeFlags(const Handle(SALOMEDSImpl_AttributeFlags)& theAttr);
+  SALOMEDS_AttributeFlags(SALOMEDSImpl_AttributeFlags* theAttr);
   SALOMEDS_AttributeFlags(SALOMEDS::AttributeFlags_ptr theAttr);
   ~SALOMEDS_AttributeFlags();
 

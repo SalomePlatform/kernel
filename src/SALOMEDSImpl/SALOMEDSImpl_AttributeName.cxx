@@ -26,24 +26,21 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeName, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeName, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeName::GetID ()
+const std::string& SALOMEDSImpl_AttributeName::GetID ()
 {
-  static Standard_GUID NameID ("8650000D-63A0-4651-B621-CC95C9308598");
+  static std::string NameID ("8650000D-63A0-4651-B621-CC95C9308598");
   return NameID;
 }   
 
-Handle(SALOMEDSImpl_AttributeName) SALOMEDSImpl_AttributeName::Set (const TDF_Label& L, 
-								    const TCollection_ExtendedString& Val) 
+SALOMEDSImpl_AttributeName* SALOMEDSImpl_AttributeName::Set (const DF_Label& L, 
+							     const std::string& Val) 
 {
-  Handle(SALOMEDSImpl_AttributeName) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), A)) {
+  SALOMEDSImpl_AttributeName* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeName*)L.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
     A = new  SALOMEDSImpl_AttributeName(); 
     L.AddAttribute(A);
   }
@@ -56,7 +53,7 @@ Handle(SALOMEDSImpl_AttributeName) SALOMEDSImpl_AttributeName::Set (const TDF_La
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeName::SetValue (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeName::SetValue (const std::string& S)
 {
   CheckLocked();
 
@@ -74,13 +71,13 @@ void SALOMEDSImpl_AttributeName::SetValue (const TCollection_ExtendedString& S)
 //function : ID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeName::ID () const { return GetID(); } 
+const std::string& SALOMEDSImpl_AttributeName::ID () const { return GetID(); } 
 
 //=======================================================================
 //function : NewEmpty
 //purpose  : 
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeName::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeName::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeName(); 
 }
@@ -89,9 +86,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeName::NewEmpty () const
 //function : Restore
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeName::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeName::Restore(DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeName)::DownCast (with)->Value ();
+  myString = dynamic_cast<SALOMEDSImpl_AttributeName*>(with)->Value ();
 }
 
 //=======================================================================
@@ -99,8 +96,7 @@ void SALOMEDSImpl_AttributeName::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributeName::Paste (const Handle(TDF_Attribute)& into,
-					   const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeName::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeName)::DownCast (into)->SetValue(myString);
+  dynamic_cast<SALOMEDSImpl_AttributeName*>(into)->SetValue(myString);
 }

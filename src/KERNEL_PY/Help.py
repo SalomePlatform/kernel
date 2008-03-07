@@ -37,7 +37,7 @@ MODULE : salome
 module salome gives access to Salome ressources:
 variables:
 
-  salome:orb             : CORBA
+  salome.orb             : CORBA
   salome.naming_service  : instance of naming Service class
       methods:
           Resolve(name)  : find a CORBA object (ior) by its pathname
@@ -130,12 +130,12 @@ A new python example avoids references to LifeCycleCORBA
         
     
 
-help = SalomeDoc('''
+Help = SalomeDoc('''
 Availables modules:
   salome      : gives access to Salome ressources
   geompy      : encapsulation of GEOM Engine methods
   supervision : gives access to SuperVision Engine
-To obtain specific help on a module "truc", type: help.truc()
+To obtain specific help on a module "truc", type: Help.truc()
 To run an example, type: import example3
 ''')
   

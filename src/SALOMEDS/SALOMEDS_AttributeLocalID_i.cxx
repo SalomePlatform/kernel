@@ -30,13 +30,13 @@ using namespace std;
 CORBA::Long SALOMEDS_AttributeLocalID_i::Value() 
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeLocalID)::DownCast(_impl)->Value();
+  return dynamic_cast<SALOMEDSImpl_AttributeLocalID*>(_impl)->Value();
 }
                                                            
 void SALOMEDS_AttributeLocalID_i::SetValue(CORBA::Long value) 
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeLocalID)::DownCast(_impl)->SetValue(value);
+  dynamic_cast<SALOMEDSImpl_AttributeLocalID*>(_impl)->SetValue(value);
 }
 

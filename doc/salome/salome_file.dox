@@ -1,0 +1,123 @@
+/*!
+
+\page salome_file_page Salome_file
+
+This page introduces the Salome_file feature. Salome_file is based on the 
+SALOME_FileTransfer. It extends it to enable a higher model for managing files into
+%SALOME applications.
+
+\section S1_Salome_file Principles
+
+Salome_file is a CORBA %object. It's role is to managed many system files. When a Salome_file
+is created, no files are managed. Then, files are added using Salome_file interface. %A file is represented
+by a <b>name</b> and a <b>path</b>.
+
+There is two different cases when a file is added :
+
+- <b>Local file</b> : the file added exists or it will be created by the user with the path and the name used in
+its registration.
+- <b>Distributed file</b> : the file added exists into a distributed localization.
+
+To be able to get a distributed file, the Salome_file has to be connected with an another Salome_file that
+managed this file. This distributed Salome_file could be located into a distributed resource.
+
+\section S2_Salome_file Simple example
+
+This section shows a simple example of the use of Salome_file. The objective is to create
+two Salome_file; one is managing a local file, the other is managing a distributed file.
+Then, these Salome_files are connected to enable the copy of the real file gbetween the two Salome_files.
+
+Firstly, two Salome_files are created :
+
+\code
+#include "Salome_file_i.hxx"
+
+int main (int argc, char * argv[])
+{
+  Salome_file_i file_source;
+  Salome_file_i file_dest;
+
+\endcode
+
+Secondly, the real files are registered into the Salome_files.
+
+\code
+ file_source.setLocalFile("/bin/cat");
+ file_dest.setDistributedFile("/tmp/cat_copy");
+\endcode
+
+Thirdly, we connect the destination file with the source file :
+
+\code
+  file_dest.connect(file_source);
+\endcode
+
+Finally, the file is sended using Salome_file interface.
+
+\code
+  file_dest.recvFiles();
+  // Status check
+  state = file_dest.getSalome_fileState();
+  print_state(state); // You have to implement this function.
+};
+\endcode
+
+\section S3_Salome_file Advanced example
+
+This advanced example illustrates a part of the Salome_file API dedicated
+for situations where multiple files are managed.
+
+This is the situation :
+
+\code
+
+#include "Salome_file_i.hxx"
+
+int main (int argc, char * argv[])
+{
+  Salome_file_i file_source_a;
+  Salome_file_i file_source_b;
+  Salome_file_i file_dest;
+
+  file_source_a.setLocalFile("/bin/cat");
+  file_source_a.setLocalFile("/bin/ls");
+
+  file_source_b.setLocalFile("/bin/echo");
+  file_source_b.setLocalFile("/bin/cp");
+
+  file_dest.setDistributedFile("/tmp/cat_copy");
+  file_dest.setDistributedFile("/tmp/echo_copy");
+\endcode
+
+There is two problems in this case. 
+
+The first problem is in the <b>file_dest</b> Salome_file, there is two files. If
+the method connect is used, the Salome_file cannot know if the reference is for <b>cat_copy</b> or
+<b>echo_copy</b>. Indeed <b>echo_copy</b> could be provided by another Salome_file that for <b>cat_copy</b>.
+
+The second problem comes from the two files of <b>file_source_a</b> Salome_file. Indeed when connect is used, 
+there is no information about the choice of the source file into the source Salome_file. For
+<b>cat_copy</b>, did the used want <b>cat</b> or <b>echo</b> ?
+
+To avoid these cases, Salome_file API provides advanced methods :
+
+\code
+  file_dest.connectDistributedFile("cat_copy", file_source_a);
+  file_dest.setDistributedSourceFile("cat_copy", "cat");
+
+  file_dest.connectDistributedFile("cat_echo", file_source_b);
+  file_dest.setDistributedSourceFile("cat_echo", "echo");
+
+  file_dest.recvFiles();
+  // Status check
+  state = file_dest.getSalome_fileState();
+  print_state(state); // You have to implement this function.
+};
+\endcode
+
+\section S3_Salome_file Using Salome_file into %SALOME services
+
+Currently you can't use Salome_file into YACS schema. In the next version of %SALOME,
+files ports will be available to connect output files to input files.
+
+*/

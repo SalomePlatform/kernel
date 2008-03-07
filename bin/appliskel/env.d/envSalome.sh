@@ -29,9 +29,8 @@ REPINST=/home/prascle/SALOME2/Install
 export KERNEL_ROOT_DIR=${REPINST}/KERNEL_V301
 
 export GUI_ROOT_DIR=${REPINST}/GUI_V301
-#export SalomeAppConfig=${GUI_ROOT_DIR}/share/salome/resources
+#export SalomeAppConfig=${GUI_ROOT_DIR}/share/salome/resources/gui
 export SalomeAppConfig=${HOME}/${APPLI}
-export SUITRoot=${GUI_ROOT_DIR}/share/salome
 
 export GEOM_ROOT_DIR=${REPINST}/GEOM_V301
 export MED_ROOT_DIR=${REPINST}/MED_V301

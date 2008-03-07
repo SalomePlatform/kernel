@@ -30,6 +30,8 @@
 #ifndef MODULECATALOG_IMPL_H
 #define MODULECATALOG_IMPL_H
 
+#include <SALOME_ModuleCatalog.hxx>
+
 #include <string>
 #include <map>
 
@@ -38,23 +40,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-
-#if defined MODULECATALOG_EXPORTS
-#if defined WIN32
-#define MODULECATALOG_EXPORT __declspec( dllexport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#else
-#if defined WNT
-#define MODULECATALOG_EXPORT __declspec( dllimport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#endif
-
-class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
-				public PortableServer::RefCountServantBase 
+class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog
 {
 public:
   //! standard constructor
@@ -68,6 +54,12 @@ public:
     \return a component list 
   */
   virtual SALOME_ModuleCatalog::ListOfComputers* GetComputerList();
+
+  //! method to get the list of all types of the catalog
+  /*!
+   * \return the types list
+   */
+  virtual SALOME_ModuleCatalog::ListOfTypeDefinition* GetTypes();
 
   //! method to get the PathPrefix of a computer
  /*! If the wanted computer doesn't exist, the Notfound exception is thrown
@@ -114,12 +106,14 @@ public:
     \param componentname const char* arguments 
     \return the wanted component description
   */
-  virtual SALOME_ModuleCatalog::Component *
+  virtual SALOME_ModuleCatalog::ComponentDef *
     GetComponentInfo(const char *name);
 
   void ping(){};
+  CORBA::Long getPID();
+  void ShutdownWithExit();
 
-  void shutdown() { if (_orb) _orb->shutdown(1); };
+  void shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); };
 
 private:
   //! method to parse one module catalog
@@ -127,10 +121,13 @@ private:
     \param file const char* arguments
     \param modulelist ParserComponents arguments
     \param pathlist ParserPathPrefixes arguments
+    \param typeMap ParserTypes arguments
   */
   virtual void _parse_xml_file(const char* file, 
 			  ParserComponents & modulelist, 
-			  ParserPathPrefixes & pathlist);
+			  ParserPathPrefixes & pathlist,
+        ParserTypes& typeMap,
+        TypeList& typeList);
 
   //! method to find component in the parser list
   /*!
@@ -144,7 +141,7 @@ private:
     \param C_corba  Component argument
     \param C_parser const ParserComponent argument
   */
-  void duplicate(SALOME_ModuleCatalog::Component & C_corba,
+  void duplicate(SALOME_ModuleCatalog::ComponentDef & C_corba,
 		 const ParserComponent & C_parser);
     
   //! method to create a CORBA interface description from parser
@@ -213,13 +210,12 @@ private:
   // These variables will contain the informations on the general common catalog
   ParserComponents    _general_module_list ;
   ParserPathPrefixes  _general_path_list ;
+  ParserTypes _typeMap;
+  TypeList _typeList;
 
   // These variables will contain the informations on the personal catalog
   ParserComponents    _personal_module_list ;
   ParserPathPrefixes  _personal_path_list ; 
-
-  std::map <std::string, SALOME_ModuleCatalog::DataStreamType> 
-  DataStreamTypeConvert;
 
   std::map <std::string, SALOME_ModuleCatalog::DataStreamDependency> 
   DataStreamDepConvert;

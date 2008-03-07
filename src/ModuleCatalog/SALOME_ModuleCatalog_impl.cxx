@@ -31,8 +31,6 @@
 #include <fstream>
 #include <map>
 
-#include <qstringlist.h>
-#include <qfileinfo.h>
 using namespace std;
 
 #include "utilities.h"
@@ -43,7 +41,34 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 1;
 #endif
 
-static const char* SEPARATOR    = ":";
+static const char* SEPARATOR     = "::";
+static const char* OLD_SEPARATOR = ":";
+
+
+list<string> splitStringToList(const string& theString, const string& theSeparator)
+{
+  list<string> aList;
+
+  int sepLen = theSeparator.length();
+  int startPos = 0, sepPos = theString.find(theSeparator, startPos);
+
+  while (1)
+    {
+      string anItem ;
+      if(sepPos != string::npos)
+        anItem = theString.substr(startPos, sepPos - startPos);
+      else
+        anItem = theString.substr(startPos);
+      if (anItem.length() > 0)
+	aList.push_back(anItem);
+      if(sepPos == string::npos)
+        break;
+      startPos = sepPos + sepLen;
+      sepPos = theString.find(theSeparator, startPos);
+    }
+
+  return aList;
+}
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalogImpl
@@ -71,20 +96,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
   ComponentTypeConvert[OTHER]
     = SALOME_ModuleCatalog::OTHER;
 
-  // Conversion rules for datastream parameters type and dependency
-  DataStreamTypeConvert["UNKNOWN"] 
-    = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-  DataStreamTypeConvert["INTEGER"] 
-    = SALOME_ModuleCatalog::DATASTREAM_INTEGER;
-  DataStreamTypeConvert["FLOAT"]   
-    = SALOME_ModuleCatalog::DATASTREAM_FLOAT;
-  DataStreamTypeConvert["DOUBLE"]  
-    = SALOME_ModuleCatalog::DATASTREAM_DOUBLE;
-  DataStreamTypeConvert["STRING"]  
-    = SALOME_ModuleCatalog::DATASTREAM_STRING;
-  DataStreamTypeConvert["BOOLEAN"] 
-    = SALOME_ModuleCatalog::DATASTREAM_BOOLEAN;
-
+  // Conversion rules for datastream parameters dependency
   DataStreamDepConvert["UNDEFINED"] 
     = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
   DataStreamDepConvert["T"]
@@ -104,40 +116,62 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     if(MYDEBUG) MESSAGE( "Error while argument parsing" );
 
   // Test existency of files
-  if (_general_path == NULL){
+  if (_general_path == NULL)
+  {
     if(MYDEBUG) MESSAGE( "Error the general catalog should be indicated" );
-  }else{
+  }
+  else
+  {
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
-    
-    QStringList dirList 
-      = QStringList::split( SEPARATOR, _general_path, 
-			    false ); // skip empty entries
-    
-    for ( int i = 0; i < dirList.count(); i++ ) {
-      QFileInfo fileInfo( dirList[ i ] );
-      if ( fileInfo.isFile() && fileInfo.exists() ) {
-	_parse_xml_file(fileInfo.filePath(), 
-			_general_module_list, 
-			_general_path_list);
-      }
+
+    list<string> dirList;
+
+#ifdef WNT
+    dirList = splitStringToList(_general_path, SEPARATOR);
+#else
+    //check for new format
+    bool isNew = (std::string( _general_path ).find(SEPARATOR) != string::npos);
+    if ( isNew ) {
+      //using new format
+      dirList = splitStringToList(_general_path, SEPARATOR);
+    } else {
+      //support old format
+      dirList = splitStringToList(_general_path, OLD_SEPARATOR);
     }
-    
+#endif
+
+    for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
+    {
+      string aPath = (*iter);
+      //remove inverted commas from filename
+      while (aPath.find('\"') != string::npos)
+	aPath.erase(aPath.find('\"'), 1);
+
+      _parse_xml_file(aPath.c_str(), 
+		      _general_module_list, 
+		      _general_path_list,
+                      _typeMap,
+                      _typeList);
+    }
+
     // Verification of _general_path_list content
-    if(!_verify_path_prefix(_general_path_list)){
+    if (!_verify_path_prefix(_general_path_list)) {
       if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
 			   "differents paths are associated to the same computer," 
 			   "the first one will be choosen");
-    }else{
+    } else {
       if(MYDEBUG) MESSAGE("General path list OK");
     }
-    
-    if(_personal_path != NULL){
+
+    if (_personal_path != NULL) {
       // Initialize the _personal_module_list and 
       // _personal_path_list members with the personal catalog files
       _parse_xml_file(_personal_path,
 		      _personal_module_list, 
-		      _personal_path_list);
+		      _personal_path_list,
+                      _typeMap,
+                      _typeList);
       
       // Verification of _general_path_list content
       if(!_verify_path_prefix(_personal_path_list)){
@@ -162,6 +196,76 @@ SALOME_ModuleCatalogImpl::~SALOME_ModuleCatalogImpl()
   if(MYDEBUG) MESSAGE("Catalog Destruction");
 }
 
+
+//! Get the list of all types of the catalog
+/*!
+ *   \return  the list of types
+ */
+SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
+{
+  SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
+  type_list->length(_typeList.size());
+
+  for (int ind = 0 ; ind < _typeList.size() ; ind++)
+    {
+      std::cerr << "name: " << _typeList[ind].name << std::endl;
+      //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
+      type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
+      type_list[ind].kind=SALOME_ModuleCatalog::NONE;
+      if(_typeList[ind].kind=="double")
+        type_list[ind].kind=SALOME_ModuleCatalog::Dble;
+      else if(_typeList[ind].kind=="int")
+        type_list[ind].kind=SALOME_ModuleCatalog::Int;
+      else if(_typeList[ind].kind=="bool")
+        type_list[ind].kind=SALOME_ModuleCatalog::Bool;
+      else if(_typeList[ind].kind=="string")
+        type_list[ind].kind=SALOME_ModuleCatalog::Str;
+      else if(_typeList[ind].kind=="objref")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Objref;
+          type_list[ind].id=CORBA::string_dup(_typeList[ind].id.c_str());
+          //bases
+          type_list[ind].bases.length(_typeList[ind].bases.size());
+          std::vector<std::string>::const_iterator miter;
+          miter=_typeList[ind].bases.begin();
+          int n_memb=0;
+          while(miter != _typeList[ind].bases.end())
+            {
+              type_list[ind].bases[n_memb]=CORBA::string_dup(miter->c_str());
+              miter++;
+              n_memb++;
+            }
+        }
+      else if(_typeList[ind].kind=="sequence")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Seq;
+          type_list[ind].content=CORBA::string_dup(_typeList[ind].content.c_str());
+        }
+      else if(_typeList[ind].kind=="array")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Array;
+          type_list[ind].content=CORBA::string_dup(_typeList[ind].content.c_str());
+        }
+      else if(_typeList[ind].kind=="struct")
+        {
+          type_list[ind].kind=SALOME_ModuleCatalog::Struc;
+          //members
+          type_list[ind].members.length(_typeList[ind].members.size());
+
+          std::vector< std::pair<std::string,std::string> >::const_iterator miter;
+          miter=_typeList[ind].members.begin();
+          int n_memb=0;
+          while(miter != _typeList[ind].members.end())
+            {
+              type_list[ind].members[n_memb].name=CORBA::string_dup(miter->first.c_str());
+              type_list[ind].members[n_memb].type=CORBA::string_dup(miter->second.c_str());
+              n_memb++;
+              miter++;
+            }
+        }
+    }
+  return type_list._retn();
+}
 
 //----------------------------------------------------------------------
 // Function : GetComputerList
@@ -402,7 +506,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
       if  (_personal_module_list[ind].type == _temp_component_type)
 	{
 	  _list_typed_component->length(_j + 1); 
-	  _list_typed_component[_j] = (_moduleList[ind].name).c_str();
+           _list_typed_component[_j] = _personal_module_list[ind].name.c_str();
 	  //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
 	  _j++;
 	}
@@ -468,7 +572,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
 
   std::string s(name);
   ParserComponent *C_parser = NULL;
-  ParserPathPrefixes *pp = NULL;
+  //ParserPathPrefixes *pp = NULL;
 
   SALOME_ModuleCatalog::Acomponent_ptr compo
     = SALOME_ModuleCatalog::Acomponent::_nil();
@@ -477,7 +581,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     
     //    DebugParserComponent(*C_parser);
 
-    SALOME_ModuleCatalog::Component C_corba;
+    SALOME_ModuleCatalog::ComponentDef C_corba;
     duplicate(C_corba, *C_parser);
 
     
@@ -496,7 +600,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   return compo;
 }
 
-SALOME_ModuleCatalog::Component *
+SALOME_ModuleCatalog::ComponentDef *
 SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
 {
   std::string s(name);
@@ -505,13 +609,23 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
   
   if (C_parser) {
     
-    SALOME_ModuleCatalog::Component * C_corba 
-      = new SALOME_ModuleCatalog::Component; 
+    SALOME_ModuleCatalog::ComponentDef * C_corba 
+      = new SALOME_ModuleCatalog::ComponentDef; 
     duplicate(*C_corba, *C_parser);
     return C_corba;
   }
 
   return NULL;
+}
+
+CORBA::Long SALOME_ModuleCatalogImpl::getPID()
+{ 
+  return (CORBA::Long)getpid();
+}
+
+void SALOME_ModuleCatalogImpl::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
 }
 
 ParserComponent *
@@ -553,22 +667,39 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 void 
 SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file, 
 					  ParserComponents& modulelist, 
-					  ParserPathPrefixes& pathList)
+					  ParserPathPrefixes& pathList,
+                                          ParserTypes& typeMap,
+                                          TypeList& typeList)
 {
   if(MYDEBUG) BEGIN_OF("_parse_xml_file");
   if(MYDEBUG) SCRUTE(file);
 
-  SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
-  QFile xmlFile(file);
+  //Local path and module list for the file to parse
+  ParserPathPrefixes  _pathList;
+  ParserComponents    _moduleList;
+ 
+  SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler(_pathList,_moduleList,typeMap,typeList);
 
-  QXmlInputSource source(xmlFile);
+  FILE* aFile = fopen(file, "r");
 
-  QXmlSimpleReader reader;
-  reader.setContentHandler( handler );
-  reader.setErrorHandler( handler );
-  reader.parse( source );
-  xmlFile.close();
+  if (aFile != NULL)
+    {
+      xmlDocPtr aDoc = xmlReadFile(file, NULL, 0);
+      
+      if (aDoc != NULL) 
+	handler->ProcessXmlDocument(aDoc);
+      else
+	INFOS("ModuleCatalog: could not parse file "<<file);
 
+      xmlFreeDoc(aDoc);
+      xmlCleanupParser();
+      fclose(aFile);
+    }
+  else
+    INFOS("ModuleCatalog: file "<<file<<" is not readable.");
+  
+  delete handler;
+  
   unsigned int i, j;
 
   for ( i = 0; i < _moduleList.size(); i++) {
@@ -592,7 +723,7 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
 void 
 SALOME_ModuleCatalogImpl::ImportXmlCatalogFile(const char* file)
 {
-  _parse_xml_file(file, _personal_module_list, _personal_path_list);
+  _parse_xml_file(file, _personal_module_list, _personal_path_list,_typeMap,_typeList);
 }
 
 
@@ -607,7 +738,7 @@ SALOME_ModuleCatalogImpl::ImportXmlCatalogFile(const char* file)
 // Purpose  : create a component from the catalog parsing
 //----------------------------------------------------------------------
 void SALOME_ModuleCatalogImpl::duplicate
-(SALOME_ModuleCatalog::Component & C_corba, 
+(SALOME_ModuleCatalog::ComponentDef & C_corba, 
  const ParserComponent & C_parser)
 {
   C_corba.name = CORBA::string_dup(C_parser.name.c_str());
@@ -615,7 +746,13 @@ void SALOME_ModuleCatalogImpl::duplicate
   C_corba.multistudy = C_parser.multistudy;
   C_corba.icon = CORBA::string_dup(C_parser.icon.c_str());
   C_corba.type = ComponentTypeConvert[C_parser.type];
-  C_corba.implementationType = C_parser.implementationType;
+  if(C_parser.implementationType == "EXE")
+    C_corba.implementationType=SALOME_ModuleCatalog::EXE;
+  else if(C_parser.implementationType == "PY")
+    C_corba.implementationType=SALOME_ModuleCatalog::PY;
+  else
+    C_corba.implementationType=SALOME_ModuleCatalog::SO;
+  C_corba.implname = CORBA::string_dup(C_parser.implementationName.c_str());
 
   unsigned int _length = C_parser.interfaces.size();
   C_corba.interfaces.length(_length);
@@ -737,31 +874,11 @@ void SALOME_ModuleCatalogImpl::duplicate
  const ParserDataStreamParameter & P_parser)
 {
   std::map < std::string, 
-    SALOME_ModuleCatalog::DataStreamType >::const_iterator it_type;
-
-  std::map < std::string, 
     SALOME_ModuleCatalog::DataStreamDependency >::const_iterator it_dep;
 
   // duplicate parameter name
   P_corba.Parametername = CORBA::string_dup(P_parser.name.c_str());
   
-  // doesn't work ??? 
-  //   it_type = DataStreamTypeConvert.find(P_parser.type);
-  //   P_corba.Parametertype
-  //     = (it_type == DataStreamTypeConvert.end()) 
-  //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-
-  if(MYDEBUG) SCRUTE(P_parser.type);
-  P_corba.Parametertype = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
-  for (it_type = DataStreamTypeConvert.begin(); 
-       it_type != DataStreamTypeConvert.end(); 
-       it_type++)
-    if (P_parser.type.compare(it_type->first) == 0) {
-      P_corba.Parametertype = it_type->second;
-      break;
-    }
-  if(MYDEBUG) SCRUTE(P_corba.Parametertype);
-
   // duplicate parameter type
 
   // doesn't work ??? 
@@ -769,6 +886,10 @@ void SALOME_ModuleCatalogImpl::duplicate
   //   P_corba.Parametertype
   //     = (it_type == DataStreamTypeConvert.end()) 
   //     ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
+
+  P_corba.Parametertype = CORBA::string_dup(P_parser.type.c_str());
+
+  // duplicate parameter dependency
   
   if(MYDEBUG) SCRUTE(P_parser.dependency);
   P_corba.Parameterdependency = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
@@ -879,5 +1000,3 @@ SALOME_ModuleCatalogImpl::_parseArguments(int argc, char **argv,
     }
   return _return_value;
 }
-
-

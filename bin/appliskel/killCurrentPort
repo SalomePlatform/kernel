@@ -2,7 +2,8 @@
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
-. `dirname $0`/setAppliPath.sh
+APPLI_HOME=`dirname $0`
+export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
@@ -10,11 +11,10 @@
 
 # --- find omniORB configuration relative to current session if any
 
-myhost=`hostname`
-fileOmniConfig=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+fileOmniConfig=${HOME}/${APPLI}/.omniORB_last.cfg
 
 if [ -f $fileOmniConfig ]; then
-  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
   export OMNIORB_CONFIG
 fi
 
@@ -22,7 +22,7 @@ currentPort=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
 echo $currentPort
 
 # --- kill current salome session
-
+${KERNEL_ROOT_DIR}/bin/salome/shutdownSalome.py
 ${KERNEL_ROOT_DIR}/bin/salome/killSalomeWithPort.py $currentPort
 
 # --- delete config files

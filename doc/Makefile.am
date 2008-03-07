@@ -30,13 +30,13 @@ SUBDIRS = salome
 doc_DATA =
 
 if RST2HTML_IS_OK
-  doc_DATA += \
-	index.html \
-	UnitTests.html \
-	SALOME_Application.html \
-	INSTALL.html \
-	kernel_resources.html \
-	KERNEL_Services.html
+#  doc_DATA += \
+#	index.html \
+#	UnitTests.html \
+#	SALOME_Application.html \
+#	INSTALL.html \
+#	kernel_resources.html \
+#	KERNEL_Services.html
 endif
 
 EXTRA_DIST=$(doc_DATA)

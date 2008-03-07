@@ -24,6 +24,8 @@
 //  File   : Utils_Timer.hxx
 //  Module : SALOME
 
+#include "SALOME_Utils.hxx"
+
 #include <stdlib.h>
 #include <time.h>
 
@@ -38,7 +40,7 @@
 #define _POSIX_
 #endif
 
-class Utils_Timer {
+class UTILS_EXPORT Utils_Timer {
  public:
   Utils_Timer();
   virtual ~Utils_Timer();

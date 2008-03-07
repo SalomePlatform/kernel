@@ -22,22 +22,17 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributePixMap.hxx"
-#include <TCollection_ExtendedString.hxx>
-#include <Standard_GUID.hxx>
 
 using namespace std;
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributePixMap, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributePixMap, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributePixMap::GetID () 
+const std::string& SALOMEDSImpl_AttributePixMap::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributePixMapID ("12837187-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributePixMapID ("12837187-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributePixMapID;
 }
 
@@ -48,11 +43,11 @@ const Standard_GUID& SALOMEDSImpl_AttributePixMap::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributePixMap) SALOMEDSImpl_AttributePixMap::Set (const TDF_Label& L,
-									const TCollection_ExtendedString& S) 
+SALOMEDSImpl_AttributePixMap* SALOMEDSImpl_AttributePixMap::Set (const DF_Label& L,
+								 const std::string& S) 
 {
-  Handle(SALOMEDSImpl_AttributePixMap) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributePixMap::GetID(),A)) {
+  SALOMEDSImpl_AttributePixMap* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributePixMap*)L.FindAttribute(SALOMEDSImpl_AttributePixMap::GetID()))) {
     A = new  SALOMEDSImpl_AttributePixMap(); 
     L.AddAttribute(A);
   }
@@ -76,7 +71,7 @@ SALOMEDSImpl_AttributePixMap::SALOMEDSImpl_AttributePixMap()
 //function : SetPixMap
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributePixMap::SetPixMap (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributePixMap::SetPixMap (const std::string& S)
 {
   CheckLocked();
 
@@ -94,7 +89,7 @@ void SALOMEDSImpl_AttributePixMap::SetPixMap (const TCollection_ExtendedString& 
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributePixMap::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributePixMap::ID () const { return GetID(); }
 
 
 //=======================================================================
@@ -102,7 +97,7 @@ const Standard_GUID& SALOMEDSImpl_AttributePixMap::ID () const { return GetID();
 //purpose  : 
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributePixMap::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributePixMap::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributePixMap(); 
 }
@@ -112,9 +107,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributePixMap::NewEmpty () const
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributePixMap::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributePixMap::Restore(DF_Attribute* with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributePixMap)::DownCast (with)->GetPixMap ();
+  myString = dynamic_cast<SALOMEDSImpl_AttributePixMap*>(with)->GetPixMap ();
 }
 
 //=======================================================================
@@ -122,9 +117,8 @@ void SALOMEDSImpl_AttributePixMap::Restore(const Handle(TDF_Attribute)& with)
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_AttributePixMap::Paste (const Handle(TDF_Attribute)& into,
-		           const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributePixMap::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributePixMap)::DownCast (into)->SetPixMap (myString);
+  dynamic_cast<SALOMEDSImpl_AttributePixMap*>(into)->SetPixMap (myString);
 }
 

@@ -30,6 +30,8 @@
 #ifndef SALOMEDS_HeaderFile
 #define SALOMEDS_HeaderFile
 
+#include <SALOMEDS_Defines.hxx>
+
 #include <Utils_Mutex.hxx>
 
 namespace SALOMEDS
@@ -43,7 +45,7 @@ namespace SALOMEDS
   //
   //    Locker lock;
   //
-  class Locker : public Utils_Locker
+  class SALOMEDS_EXPORT Locker : public Utils_Locker
   {
   public:
     Locker();

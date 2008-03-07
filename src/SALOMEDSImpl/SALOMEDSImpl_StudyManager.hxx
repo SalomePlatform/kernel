@@ -24,36 +24,30 @@
 #ifndef __SALOMEDSImpl_STUDYMANAGER_I_H__
 #define __SALOMEDSImpl_STUDYMANAGER_I_H__
 
-//Handle definition
-#include <Handle_MMgt_TShared.hxx>
-#include <Standard_DefineHandle.hxx>
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
-
 // std C++ headers
 #include <strstream>
+#include <string>
+#include <vector>
 
-// Cascade headers
-#include "SALOMEDSImpl_OCAFApplication.hxx"
+#include "DF_Application.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Driver.hxx"
-#include <TCollection_AsciiString.hxx>
-#include <TDF_Attribute.hxx>
-#include <TDF_Label.hxx>
-#include <TDocStd_Document.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"
+#include "DF_Document.hxx"
 
 class HDFgroup;
 
-class SALOMEDSImpl_StudyManager : public MMgt_TShared 
+class SALOMEDSImpl_StudyManager
 {
 
 private:
 
-  Handle (SALOMEDSImpl_OCAFApplication) _OCAFApp;  
-  int _IDcounter;
-  Handle(TDocStd_Document) _clipboard;
-  TCollection_AsciiString  _errorCode;
+  DF_Application*   _appli;  
+  int               _IDcounter;
+  DF_Document*      _clipboard;
+  std::string       _errorCode;
 
 public:
 
@@ -64,85 +58,82 @@ public:
   Standard_EXPORT virtual  ~SALOMEDSImpl_StudyManager(); 
 
   //! method to Create a New Study of name study_name
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) NewStudy(const TCollection_AsciiString& study_name);
+  Standard_EXPORT virtual SALOMEDSImpl_Study* NewStudy(const std::string& study_name);
 
   //! method to Open a Study from it's persistent reference
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) Open(const TCollection_AsciiString& aStudyUrl);
+  Standard_EXPORT virtual SALOMEDSImpl_Study* Open(const std::string& aStudyUrl);
 
   //! method to close a Study 
-  Standard_EXPORT virtual void Close(const Handle(SALOMEDSImpl_Study)& aStudy);
+  Standard_EXPORT virtual void Close(SALOMEDSImpl_Study* aStudy);
 
   //! method to save a Study 
-  Standard_EXPORT virtual bool Save(const Handle(SALOMEDSImpl_Study)& aStudy, SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
+  Standard_EXPORT virtual bool Save(SALOMEDSImpl_Study* aStudy, SALOMEDSImpl_DriverFactory* aFactory, bool theMultiFile);
 
-  Standard_EXPORT virtual bool SaveASCII(const Handle(SALOMEDSImpl_Study)& aStudy, 
-			 SALOMEDSImpl_DriverFactory* aFactory, 
-			 bool theMultiFile);
+  Standard_EXPORT virtual bool SaveASCII(SALOMEDSImpl_Study* aStudy, 
+			                 SALOMEDSImpl_DriverFactory* aFactory, 
+			                 bool theMultiFile);
 
   //! method to save a Study to the persistent reference aUrl
-  Standard_EXPORT virtual bool SaveAs(const TCollection_AsciiString& aUrl,  
-		      const Handle(SALOMEDSImpl_Study)& aStudy, 
-		      SALOMEDSImpl_DriverFactory* aFactory,
-		      bool theMultiFile);
+  Standard_EXPORT virtual bool SaveAs(const std::string& aUrl,  
+		                      SALOMEDSImpl_Study* aStudy, 
+		                      SALOMEDSImpl_DriverFactory* aFactory,
+		                      bool theMultiFile);
 
-  Standard_EXPORT virtual bool SaveAsASCII(const TCollection_AsciiString& aUrl, 
-			   const Handle(SALOMEDSImpl_Study)& aStudy, 
-			   SALOMEDSImpl_DriverFactory* aFactory,
-			   bool theMultiFile);
+  Standard_EXPORT virtual bool SaveAsASCII(const std::string& aUrl, 
+			                   SALOMEDSImpl_Study* aStudy, 
+			                   SALOMEDSImpl_DriverFactory* aFactory,
+			                   bool theMultiFile);
 
   //! method to Get name list of open studies in the session
-  Standard_EXPORT virtual Handle(TColStd_HSequenceOfTransient) GetOpenStudies();
+  Standard_EXPORT virtual std::vector<SALOMEDSImpl_Study*> GetOpenStudies();
 
   //! method to get a Study from it's name
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) GetStudyByName(const TCollection_AsciiString& aStudyName) ;
+  Standard_EXPORT virtual SALOMEDSImpl_Study* GetStudyByName(const std::string& aStudyName) ;
 
   //! method to get a Study from it's ID
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_Study) GetStudyByID(int aStudyID) ;
+  Standard_EXPORT virtual SALOMEDSImpl_Study* GetStudyByID(int aStudyID) ;
 
 
-  Standard_EXPORT Handle(TDocStd_Document) GetDocumentOfStudy(const Handle(SALOMEDSImpl_Study)& theStudy);
+  Standard_EXPORT DF_Document* GetDocumentOfStudy(SALOMEDSImpl_Study* theStudy);
 
-  Standard_EXPORT Handle(TDocStd_Document) GetClipboard() { return _clipboard; }
+  Standard_EXPORT DF_Document* GetClipboard() { return _clipboard; }
   
-  Standard_EXPORT bool CopyLabel(const Handle(SALOMEDSImpl_Study)& theSourceStudy, 
-		 SALOMEDSImpl_Driver* theEngine,
-		 const int theSourceStartDepth,
-		 const TDF_Label& theSource,
-		 const TDF_Label& theDestinationMain);
+  Standard_EXPORT bool CopyLabel(SALOMEDSImpl_Study* theSourceStudy, 
+		                 SALOMEDSImpl_Driver* theEngine,
+		                 const int theSourceStartDepth,
+		                 const DF_Label& theSource,
+		                 const DF_Label& theDestinationMain);
 
-  Standard_EXPORT TDF_Label PasteLabel(const Handle(SALOMEDSImpl_Study)& theDestinationStudy,
-		       SALOMEDSImpl_Driver* theEngine,
-		       const TDF_Label& theSource,
-		       const TDF_Label& theDestinationStart,
-		       const int theCopiedStudyID,
-		       const bool isFirstElement);
+  Standard_EXPORT DF_Label PasteLabel(SALOMEDSImpl_Study* theDestinationStudy,
+		                       SALOMEDSImpl_Driver* theEngine,
+		                       const DF_Label& theSource,
+		                       const DF_Label& theDestinationStart,
+		                       const int theCopiedStudyID,
+		                       const bool isFirstElement);
   
-  Standard_EXPORT virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  Standard_EXPORT virtual bool Copy(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  Standard_EXPORT virtual bool CanPaste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_SObject) Paste(const Handle(SALOMEDSImpl_SObject)& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool CanCopy(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool Copy(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual bool CanPaste(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
+  Standard_EXPORT virtual SALOMEDSImpl_SObject Paste(const SALOMEDSImpl_SObject& theObject, SALOMEDSImpl_Driver* Engine);
 
   // _SaveAs private function called by Save and SaveAs
-  Standard_EXPORT virtual bool Impl_SaveAs(const TCollection_AsciiString& aUrl,
-			   const Handle(SALOMEDSImpl_Study)& aStudy,
-			   SALOMEDSImpl_DriverFactory* aFactory,
-			   bool theMultiFile,
-			   bool theASCII);
+  Standard_EXPORT virtual bool Impl_SaveAs(const std::string& aUrl,
+			                   SALOMEDSImpl_Study* aStudy,
+			                   SALOMEDSImpl_DriverFactory* aFactory,
+			                   bool theMultiFile,
+			                   bool theASCII);
 
   // _SaveObject private function called by _SaveAs
-  Standard_EXPORT virtual bool Impl_SaveObject(const Handle(SALOMEDSImpl_SObject)& SC, HDFgroup *hdf_group_datatype);
+  Standard_EXPORT virtual bool Impl_SaveObject(const SALOMEDSImpl_SObject& SC, HDFgroup *hdf_group_datatype);
 
   // _SubstituteSlash function called by Open and GetStudyByName
-  Standard_EXPORT virtual TCollection_AsciiString Impl_SubstituteSlash(const TCollection_AsciiString& aUrl);
+  Standard_EXPORT virtual std::string Impl_SubstituteSlash(const std::string& aUrl);
 
-  Standard_EXPORT virtual bool Impl_SaveProperties(const Handle(SALOMEDSImpl_Study)& aStudy, HDFgroup *hdf_group);
+  Standard_EXPORT virtual bool Impl_SaveProperties(SALOMEDSImpl_Study* aStudy, HDFgroup *hdf_group);
 
-  Standard_EXPORT TCollection_AsciiString GetErrorCode() { return _errorCode; }
+  Standard_EXPORT std::string GetErrorCode() { return _errorCode; }
   Standard_EXPORT virtual bool IsError() { return _errorCode != ""; }
 
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_StudyManager )
-  
 };
 
 #endif 

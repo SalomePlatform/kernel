@@ -37,7 +37,7 @@ class SALOMEDS_AttributeTextColor_i: public virtual POA_SALOMEDS::AttributeTextC
 {
 public:
   
-  SALOMEDS_AttributeTextColor_i(const Handle(SALOMEDSImpl_AttributeTextColor)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeTextColor_i(SALOMEDSImpl_AttributeTextColor* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeTextColor_i() {};

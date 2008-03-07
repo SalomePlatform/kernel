@@ -22,7 +22,6 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeFlags.hxx"
-#include <Standard_GUID.hxx>
 
 using namespace std;
 
@@ -33,16 +32,13 @@ using namespace std;
                 have only two states (0 and 1).
 */
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeFlags, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeFlags, SALOMEDSImpl_GenericAttribute )
-
 //=======================================================================
 //function : SALOMEDSImpl_AttributeFlags::GetID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeFlags::GetID ()
+const std::string& SALOMEDSImpl_AttributeFlags::GetID ()
 {
-  static Standard_GUID SALOMEDSImpl_AttributeFlagsID( "866EEC9F-A517-4cb4-88E6-E208DB8FC96F" );
+  static std::string SALOMEDSImpl_AttributeFlagsID( "866EEC9F-A517-4cb4-88E6-E208DB8FC96F" );
   return SALOMEDSImpl_AttributeFlagsID;                
 }
 
@@ -50,11 +46,11 @@ const Standard_GUID& SALOMEDSImpl_AttributeFlags::GetID ()
 //function : SALOMEDSImpl_AttributeFlags::Set
 //purpose  : Set value of the attribute
 //=======================================================================
-Handle(SALOMEDSImpl_AttributeFlags) SALOMEDSImpl_AttributeFlags::Set(const TDF_Label& L,
-								     const Standard_Integer value )
+SALOMEDSImpl_AttributeFlags* SALOMEDSImpl_AttributeFlags::Set(const DF_Label& L,
+							      const int value )
 {
-  Handle(SALOMEDSImpl_AttributeFlags) A;
-  if ( !L.FindAttribute(SALOMEDSImpl_AttributeFlags::GetID(),A ) )
+  SALOMEDSImpl_AttributeFlags* A = NULL;
+  if ( !(A=(SALOMEDSImpl_AttributeFlags*)L.FindAttribute(SALOMEDSImpl_AttributeFlags::GetID())) )
   {
     A = new  SALOMEDSImpl_AttributeFlags();
     L.AddAttribute( A );
@@ -82,7 +78,7 @@ SALOMEDSImpl_AttributeFlags::~SALOMEDSImpl_AttributeFlags()
 //function : SALOMEDSImpl_AttributeFlags::ID
 //purpose  : Get GUID of this attribute
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeFlags::ID () const
+const std::string& SALOMEDSImpl_AttributeFlags::ID () const
 {
   return GetID();
 }
@@ -92,7 +88,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeFlags::ID () const
 //purpose  : Create new empty attribute
 //=======================================================================
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeFlags::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeFlags::NewEmpty () const
 {
   return new SALOMEDSImpl_AttributeFlags();
 }
@@ -101,9 +97,9 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeFlags::NewEmpty () const
 //function : SALOMEDSImpl_AttributeFlags::Restore
 //purpose  : Assign given value to the attribute
 //=======================================================================
-void SALOMEDSImpl_AttributeFlags::Restore( const Handle(TDF_Attribute)& with )
+void SALOMEDSImpl_AttributeFlags::Restore( DF_Attribute* with )
 {
-  myValue = Handle(SALOMEDSImpl_AttributeFlags)::DownCast( with )->Get();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeFlags*>( with )->Get();
   return;
 }
 
@@ -111,17 +107,16 @@ void SALOMEDSImpl_AttributeFlags::Restore( const Handle(TDF_Attribute)& with )
 //function : SALOMEDSImpl_AttributeFlags::Paste
 //purpose  : Assign internal value to the given attribute
 //=======================================================================
-void SALOMEDSImpl_AttributeFlags::Paste(const Handle(TDF_Attribute)& into,
-					const Handle(TDF_RelocationTable)& RT ) const
+void SALOMEDSImpl_AttributeFlags::Paste( DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeFlags)::DownCast( into )->Set( myValue );
+  dynamic_cast<SALOMEDSImpl_AttributeFlags*>( into )->Set( myValue );
 }
 
 //=======================================================================
 //function : SALOMEDSImpl_AttributeFlags::Set
 //purpose  : Set value
 //=======================================================================
-void SALOMEDSImpl_AttributeFlags::Set( const Standard_Integer v )
+void SALOMEDSImpl_AttributeFlags::Set( const int v )
 {
   Backup();
   myValue=v;
@@ -131,7 +126,7 @@ void SALOMEDSImpl_AttributeFlags::Set( const Standard_Integer v )
 //function : SALOMEDSImpl_AttributeFlags::Get
 //purpose  : GetValue
 //=======================================================================
-Standard_Integer SALOMEDSImpl_AttributeFlags::Get() const
+int SALOMEDSImpl_AttributeFlags::Get() const
 {
   return myValue;
 }

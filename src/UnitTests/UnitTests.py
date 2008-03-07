@@ -19,13 +19,14 @@
 
 import sys, os,signal,string,commands
 import runSalome
+import setenv
 import orbmodule
 import TestKiller
 
 # get SALOME environment :
 
-args, modules_list, modules_root_dir = runSalome.get_config()
-runSalome.set_env(args, modules_list, modules_root_dir)
+args, modules_list, modules_root_dir = setenv.get_config()
+setenv.set_env(args, modules_list, modules_root_dir)
 
 # set environment for trace in logger
 # (with file, servers may be killed before the write to the file...)
@@ -64,10 +65,10 @@ clt.waitNS("/Kernel/ModulCatalog")
 
 # launch container manager server
 
-myCmServer = runSalome.ContainerManagerServer(args)
+myCmServer = runSalome.LauncherServer(args)
 myCmServer.setpath(modules_list,modules_root_dir)
 myCmServer.run()
-clt.waitNS("/ContainerManager")
+clt.waitNS("/SalomeLauncher")
 
 # execute Unit Test
 
@@ -77,8 +78,8 @@ ret = os.spawnvp(os.P_WAIT, command[0], command)
 # kill containers created by the Container Manager
 
 import Engines
-containerManager = clt.waitNS("/ContainerManager",Engines.ContainerManager)
-containerManager.Shutdown()
+launcher = clt.waitNS("/SalomeLauncher",Engines.SalomeLauncher)
+launcher.Shutdown()
 
 # kill Test process 
 

@@ -20,13 +20,13 @@
 #ifndef __SALOMEDS_DRIVER_I_H__
 #define __SALOMEDS_DRIVER_I_H__
 
-#include <CORBA.h>
-#include <TCollection_AsciiString.hxx>
+#include <SALOMEconfig.h>
+
+#include <omniORB4/CORBA.h>
 #include "SALOMEDSImpl_Driver.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
-#include <SALOMEconfig.h>   
 #include CORBA_SERVER_HEADER(SALOMEDS) 
 #include CORBA_SERVER_HEADER(SALOME_Component)
 
@@ -46,70 +46,70 @@ public:
 
   ~SALOMEDS_Driver_i();
 
-  virtual TCollection_AsciiString GetIOR() 
+  virtual std::string GetIOR() 
     {
       CORBA::String_var ior = _orb->object_to_string(_driver);
-      return TCollection_AsciiString(ior);
+      return std::string(ior);
     }
 
-  virtual Handle(SALOMEDSImpl_TMPFile) Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-					    const TCollection_AsciiString& theURL,
-					    long& theStreamLength,
-					    bool isMultiFile);
+  virtual SALOMEDSImpl_TMPFile* Save(const SALOMEDSImpl_SComponent& theComponent,
+		                     const std::string& theURL,
+		                     long& theStreamLength,
+			             bool isMultiFile);
 
-  virtual Handle(SALOMEDSImpl_TMPFile) SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-						 const TCollection_AsciiString& theURL,
-						 long& theStreamLength,
-						 bool isMultiFile);
+  virtual SALOMEDSImpl_TMPFile* SaveASCII(const SALOMEDSImpl_SComponent& theComponent,
+				          const std::string& theURL,
+				          long& theStreamLength,
+				          bool isMultiFile);
   
-  virtual bool Load(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+  virtual bool Load(const SALOMEDSImpl_SComponent& theComponent,
 		    const unsigned char* theStream,
 		    const long theStreamLength,
-		    const TCollection_AsciiString& theURL,
+		    const std::string& theURL,
 		    bool isMultiFile);
 
-  virtual bool LoadASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+  virtual bool LoadASCII(const SALOMEDSImpl_SComponent& theComponent,
 			 const unsigned char* theStream,
 			 const long theStreamLength,
-			 const TCollection_AsciiString& theURL,
+			 const std::string& theURL,
 			 bool isMultiFile);
 
-  virtual void Close(const Handle(SALOMEDSImpl_SComponent)& theComponent);
+  virtual void Close(const SALOMEDSImpl_SComponent& theComponent);
  
-  virtual TCollection_AsciiString ComponentDataType() 
+  virtual std::string ComponentDataType() 
     {
       CORBA::String_var ior = _driver->ComponentDataType();
-      return TCollection_AsciiString(ior);
+      return std::string(ior);
     }
 
 
-  virtual TCollection_AsciiString IORToLocalPersistentID(const Handle(SALOMEDSImpl_SObject)& theSObject,
-							 const TCollection_AsciiString& IORString,
-							 bool isMultiFile,
-							 bool isASCII);
+  virtual std::string IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
+					     const std::string& IORString,
+					     bool isMultiFile,
+					     bool isASCII);
 
-  virtual TCollection_AsciiString LocalPersistentIDToIOR(const Handle(SALOMEDSImpl_SObject)& theSObject,
-							 const TCollection_AsciiString& aLocalPersistentID,
-							 bool isMultiFile,
-							 bool isASCII);
+  virtual std::string LocalPersistentIDToIOR(const SALOMEDSImpl_SObject& theSObject,
+					     const std::string& aLocalPersistentID,
+					     bool isMultiFile,
+					     bool isASCII);
 
-  virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject);
+  virtual bool CanCopy(const SALOMEDSImpl_SObject& theObject);
 
-  virtual Handle(SALOMEDSImpl_TMPFile) CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
-						int& theObjectID,
-						long& theStreamLength);
+  virtual SALOMEDSImpl_TMPFile* CopyFrom(const SALOMEDSImpl_SObject& theObject, 
+				         int& theObjectID,
+				         long& theStreamLength);
   
-  virtual bool CanPaste(const TCollection_AsciiString& theComponentName, int theObjectID);
+  virtual bool CanPaste(const std::string& theComponentName, int theObjectID);
 
-  virtual TCollection_AsciiString PasteInto(const unsigned char* theStream,
-					    const long theStreamLength,
-					    int theObjectID,
-					    const Handle(SALOMEDSImpl_SObject)& theObject);
+  virtual std::string PasteInto(const unsigned char* theStream,
+				const long theStreamLength,
+				int theObjectID,
+				const SALOMEDSImpl_SObject& theObject);
 
-  virtual Handle(SALOMEDSImpl_TMPFile) DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
-						  bool isPublished, 
-						  bool& isValidScript,
-						  long& theStreamLength);
+  virtual SALOMEDSImpl_TMPFile* DumpPython(SALOMEDSImpl_Study* theStudy, 
+				           bool isPublished, 
+				           bool& isValidScript,
+				           long& theStreamLength);
 };
 
 #include "SALOME_NamingService.hxx"
@@ -118,7 +118,7 @@ public:
 class SALOMEDS_DriverFactory_i : public virtual SALOMEDSImpl_DriverFactory 
 {
 protected:  
-  CORBA::ORB_ptr        _orb;
+  CORBA::ORB_var        _orb;
   SALOME_NamingService* _name_service;
 
 public:
@@ -135,9 +135,9 @@ public:
     delete _name_service;
   }
    
-  virtual SALOMEDSImpl_Driver* GetDriverByType(const TCollection_AsciiString& theComponentType);
+  virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
 
-  virtual SALOMEDSImpl_Driver* GetDriverByIOR(const TCollection_AsciiString& theIOR);
+  virtual SALOMEDSImpl_Driver* GetDriverByIOR(const std::string& theIOR);
 };
 
 #endif 

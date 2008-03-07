@@ -48,7 +48,7 @@
 namespace SALOME{
   class GENERICOBJ_EXPORT GenericObj_i : 
     public virtual POA_SALOME::GenericObj,
-    public virtual PortableServer::RefCountServantBase
+    public virtual PortableServer::ServantBase
   {
   protected:
     PortableServer::POA_var myPOA;

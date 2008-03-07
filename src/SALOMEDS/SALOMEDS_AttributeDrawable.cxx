@@ -24,10 +24,7 @@
 #include "SALOMEDS_AttributeDrawable.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TCollection_AsciiString.hxx>
-#include <TCollection_ExtendedString.hxx>
-
-SALOMEDS_AttributeDrawable::SALOMEDS_AttributeDrawable(const Handle(SALOMEDSImpl_AttributeDrawable)& theAttr)
+SALOMEDS_AttributeDrawable::SALOMEDS_AttributeDrawable(SALOMEDSImpl_AttributeDrawable* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -43,7 +40,7 @@ bool SALOMEDS_AttributeDrawable::IsDrawable()
   bool aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = (bool)Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->IsDrawable();
+    aValue = (bool)dynamic_cast<SALOMEDSImpl_AttributeDrawable*>(_local_impl)->IsDrawable();
   }
   else aValue = SALOMEDS::AttributeDrawable::_narrow(_corba_impl)->IsDrawable();
   return aValue;
@@ -54,7 +51,7 @@ void SALOMEDS_AttributeDrawable::SetDrawable(bool value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributeDrawable)::DownCast(_local_impl)->SetDrawable((int)value);
+    dynamic_cast<SALOMEDSImpl_AttributeDrawable*>(_local_impl)->SetDrawable((int)value);
   }
   else SALOMEDS::AttributeDrawable::_narrow(_corba_impl)->SetDrawable(value);
 }

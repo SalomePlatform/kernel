@@ -159,7 +159,7 @@ class LifeCycleCORBA:
                     pass
                 pass
             if len(machinesOK)!=0:
-                bestMachine=self._contManager.FindBest(machinesOK)
+                bestMachine=self._contManager.FindFirst(machinesOK)
                 componentNameForNS= [CosNaming.NameComponent(bestMachine,"dir"),
                                      CosNaming.NameComponent(containerName,"dir"),
                                      CosNaming.NameComponent(componentName,"object")]
@@ -176,7 +176,7 @@ class LifeCycleCORBA:
             else:
                 return None
         else:
-            bestMachine=self._contManager.FindBest(listOfMachines)
+            bestMachine=self._contManager.FindFirst(listOfMachines)
             MESSAGE("Not implemented yet ...")
             return None
         pass

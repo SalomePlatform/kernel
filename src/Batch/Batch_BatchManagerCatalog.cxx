@@ -37,6 +37,7 @@ namespace Batch {
 
   pthread_mutex_t BatchManagerCatalog::_mutex = PTHREAD_MUTEX_INITIALIZER;
   std::map<string, FactBatchManager *> * BatchManagerCatalog::_p_catalog = 0;
+  BatchManagerCatalog BatchManagerCatalog::theCatalog;
 
   // Constructeur
   BatchManagerCatalog::BatchManagerCatalog()
@@ -47,7 +48,7 @@ namespace Batch {
   // Destructeur
   BatchManagerCatalog::~BatchManagerCatalog()
   {
-    // Nothing to do
+    delete BatchManagerCatalog::_p_catalog;
   }
 
   // Functor

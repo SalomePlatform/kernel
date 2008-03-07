@@ -37,11 +37,11 @@ class Standard_EXPORT SALOMEDS_GenericAttribute: public virtual SALOMEDSClient_G
 {
 protected:
   bool                                  _isLocal;
-  Handle(SALOMEDSImpl_GenericAttribute) _local_impl;
+  SALOMEDSImpl_GenericAttribute*        _local_impl;
   SALOMEDS::GenericAttribute_var        _corba_impl;
 
 public:
-  SALOMEDS_GenericAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA);
+  SALOMEDS_GenericAttribute(SALOMEDSImpl_GenericAttribute* theGA);
   SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_ptr theGA);
   virtual ~SALOMEDS_GenericAttribute();
 
@@ -50,7 +50,7 @@ public:
   std::string GetClassType();
   _PTR(SObject) GetSObject();
   
-  static SALOMEDS_GenericAttribute* CreateAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA);
+  static SALOMEDS_GenericAttribute* CreateAttribute(SALOMEDSImpl_GenericAttribute* theGA);
   static SALOMEDS_GenericAttribute* CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA);
 };
 

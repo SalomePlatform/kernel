@@ -39,7 +39,7 @@ using namespace std;
 int main(int argc,char **argv)
 {
   // initialize the ORB
-  CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
+  CORBA::ORB_var orb = CORBA::ORB_init (argc, argv);
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
@@ -137,19 +137,19 @@ int main(int argc,char **argv)
   
       // Active catalog
 
-      SALOME_ModuleCatalogImpl Catalogue_i(argc, argv, orb);
-      poa->activate_object (&Catalogue_i);
+      SALOME_ModuleCatalogImpl* Catalogue_i=new SALOME_ModuleCatalogImpl(argc, argv, orb);
+      PortableServer::ObjectId_var cataid = poa->activate_object (Catalogue_i);
 
+      //activate POA manager
       mgr->activate();
-
   
-      CORBA::Object_ptr myCata = Catalogue_i._this();
+      CORBA::Object_var myCata = Catalogue_i->_this();
+      Catalogue_i->_remove_ref();
 
       // initialise Naming Service
-      SALOME_NamingService *_NS;
-      _NS = new SALOME_NamingService(orb);
+      SALOME_NamingService _NS(orb);
       // register Catalog in Naming Service
-      _NS->Register(myCata ,"/Kernel/ModulCatalog");
+      _NS.Register(myCata ,"/Kernel/ModulCatalog");
 
       MESSAGE("Running CatalogServer.");
 
@@ -161,9 +161,11 @@ int main(int argc,char **argv)
       timer.ShowAbsolute();
 #endif
       orb->run();
+      std::cerr << "server returned from orb->run()" << std::endl;
+      orb->destroy();
  
-      mgr->deactivate(true,true);
-      poa->destroy(1,1);
+//       mgr->deactivate(true,true);
+//       poa->destroy(1,1);
 
     }
   catch(CORBA::SystemException&) {
@@ -173,6 +175,7 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
+  END_OF( argv[0] );
   //  delete myThreadTrace;
   return 0;
 }

@@ -40,14 +40,14 @@ class Standard_EXPORT SALOMEDS_SObject: public virtual SALOMEDSClient_SObject
 protected:
 
   bool                         _isLocal;
-  Handle(SALOMEDSImpl_SObject) _local_impl;
+  SALOMEDSImpl_SObject*        _local_impl;
   SALOMEDS::SObject_var        _corba_impl;
   CORBA::ORB_var               _orb;
 
 public:
   
   SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject);
-  SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObject);       
+  SALOMEDS_SObject(const SALOMEDSImpl_SObject& theSObject);       
   virtual ~SALOMEDS_SObject();
 
   virtual std::string GetID();
@@ -59,7 +59,7 @@ public:
   virtual _PTR(Study) GetStudy();
   virtual std::string Name();
   virtual void  Name(const std::string& theName);
-  virtual vector<_PTR(GenericAttribute)> GetAllAttributes();
+  virtual std::vector<_PTR(GenericAttribute)> GetAllAttributes();
   virtual std::string GetName();
   virtual std::string GetComment();
   virtual std::string GetIOR();
@@ -70,7 +70,7 @@ public:
   SALOMEDS::SObject_ptr GetSObject();
 
   SALOMEDS::SObject_ptr        GetCORBAImpl() { return SALOMEDS::SObject::_duplicate(_corba_impl); }
-  Handle(SALOMEDSImpl_SObject) GetLocalImpl() { return _local_impl; } 
+  SALOMEDSImpl_SObject*        GetLocalImpl() { return _local_impl; } 
 
 private:
   void init_orb();

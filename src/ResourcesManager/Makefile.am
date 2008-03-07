@@ -48,19 +48,22 @@ salomeinclude_HEADERS = \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
+	@LIBXML_INCLUDES@ \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBXML_LIBS@
 
 #
 # ===============================================================
@@ -75,10 +78,9 @@ libSalomeResourcesManager_la_SOURCES =\
 	SALOME_ResourcesManager.cxx
 
 libSalomeResourcesManager_la_CPPFLAGS =\
-	$(COMMON_CPPFLAGS) \
-	@QT_MT_INCLUDES@
+	$(COMMON_CPPFLAGS)
+
 
 libSalomeResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeResourcesManager_la_LIBADD  =\
-	$(COMMON_LIBS) \
-	@QT_MT_LIBS@
+	$(COMMON_LIBS)

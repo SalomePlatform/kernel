@@ -25,13 +25,6 @@
 
 #include "SALOMEDSImpl_TMPFile.hxx"
 
-#include <Handle_Standard_Type.hxx>
-#include <Standard_Transient.hxx>
-
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_TMPFile, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_TMPFile, MMgt_TShared )
-
 SALOMEDSImpl_TMPFile::TOctet*
 SALOMEDSImpl_TMPFile
 ::Data()

@@ -21,92 +21,84 @@
 //  Author : Michael Ponikarov
 //  Module : SALOME
 
-#include <SALOMEDSImpl_AttributeTableOfInteger.hxx>
-#include <Standard_Failure.hxx>
-#include <TColStd_DataMapIteratorOfDataMapOfIntegerInteger.hxx>
-#include <Standard_GUID.hxx>
-#include <TColStd_HSequenceOfExtendedString.hxx>
+#include "SALOMEDSImpl_AttributeTableOfInteger.hxx"
+#include <strstream>
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfInteger, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfInteger, SALOMEDSImpl_GenericAttribute )
-
 #define SEPARATOR '\1'
+typedef map<int, int>::const_iterator MI;
 
-static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
+static std::string getUnit(std::string theString)
 {
-  TCollection_ExtendedString aString(theString);
-  int aPos = aString.Search(SEPARATOR);
-  if(aPos <= 0 || aPos == aString.Length() ) return TCollection_ExtendedString();
-  return aString.Split(aPos);
+  std::string aString(theString);
+  int aPos = aString.find(SEPARATOR);
+  if(aPos <= 0 || aPos == aString.size() ) return std::string();
+  return aString.substr(aPos+1, aString.size());
 }
 
-static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
+static std::string getTitle(std::string theString)
 {
-  TCollection_ExtendedString aString(theString);
-  int aPos = aString.Search(SEPARATOR);
+  std::string aString(theString);
+  int aPos = aString.find(SEPARATOR);
   if(aPos < 1) return aString;
-  if(aPos == 1) return TCollection_ExtendedString();
-  aString.Split(aPos-1);
-  return aString;
+  if(aPos == 0) return std::string();
+  return aString.substr(0, aPos);
 }
 
-const Standard_GUID& SALOMEDSImpl_AttributeTableOfInteger::GetID() 
+const std::string& SALOMEDSImpl_AttributeTableOfInteger::GetID() 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeTableOfIntegerID ("128371A0-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeTableOfIntegerID ("128371A0-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeTableOfIntegerID;
 }
 
-Handle(SALOMEDSImpl_AttributeTableOfInteger) SALOMEDSImpl_AttributeTableOfInteger::Set(const TDF_Label& label) 
+SALOMEDSImpl_AttributeTableOfInteger* SALOMEDSImpl_AttributeTableOfInteger::Set(const DF_Label& label) 
 {
-  Handle(SALOMEDSImpl_AttributeTableOfInteger) anAttr;
-  if (!label.FindAttribute(SALOMEDSImpl_AttributeTableOfInteger::GetID(),anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeTableOfInteger();
-    label.AddAttribute(anAttr);
+  SALOMEDSImpl_AttributeTableOfInteger* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeTableOfInteger*)label.FindAttribute(SALOMEDSImpl_AttributeTableOfInteger::GetID()))) {
+    A = new SALOMEDSImpl_AttributeTableOfInteger();
+    label.AddAttribute(A);
   }
-  return anAttr;
+  return A;
 }
 
 SALOMEDSImpl_AttributeTableOfInteger::SALOMEDSImpl_AttributeTableOfInteger() 
 :SALOMEDSImpl_GenericAttribute("AttributeTableOfInteger")
 {
-  myRows = new TColStd_HSequenceOfExtendedString();
-  myCols = new TColStd_HSequenceOfExtendedString();
   myNbRows = 0;
   myNbColumns = 0;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetNbColumns(const Standard_Integer theNbColumns)
+void SALOMEDSImpl_AttributeTableOfInteger::SetNbColumns(const int theNbColumns)
 {
   CheckLocked();  
   Backup();
   
-  TColStd_DataMapOfIntegerInteger aMap;
+  map<int, int> aMap;
   aMap = myTable;
-  myTable.Clear();
+  myTable.clear();
 
-  TColStd_DataMapIteratorOfDataMapOfIntegerInteger anIterator(aMap);
-  for(; anIterator.More(); anIterator.Next()) {
-    int aRow = (int)(anIterator.Key()/myNbColumns) + 1;
-    int aCol = (int)(anIterator.Key() - myNbColumns*(aRow-1));
+  
+  for(MI p = aMap.begin(); p != aMap.end(); p++) {
+    int aRow = (int)(p->first/myNbColumns) + 1;
+    int aCol = (int)(p->first - myNbColumns*(aRow-1));
     if(aCol == 0) { aCol = myNbColumns; aRow--; }
     if(aCol > theNbColumns) continue;
     int aKey = (aRow-1)*theNbColumns+aCol;
-    myTable.Bind(aKey, anIterator.Value());
+    myTable[aKey] = p->second;
   }
 
   myNbColumns = theNbColumns;
 
-  while (myCols->Length() < myNbColumns) { // append empty columns titles
-    myCols->Append(TCollection_ExtendedString(""));
+  while (myCols.size() < myNbColumns) { // append empty columns titles
+    myCols.push_back(std::string(""));
   }
 
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetTitle(const TCollection_ExtendedString& theTitle) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetTitle(const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
@@ -115,26 +107,26 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetTitle(const TCollection_ExtendedSt
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetTitle() const 
+std::string SALOMEDSImpl_AttributeTableOfInteger::GetTitle() const 
 {
   return myTitle;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetRowData(const Standard_Integer theRow,
-						  const Handle(TColStd_HSequenceOfInteger)& theData) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetRowData(const int theRow,
+						      const vector<int>& theData) 
 {
   CheckLocked();  
-  if(theData->Length() > myNbColumns) SetNbColumns(theData->Length());
+  if(theData.size() > myNbColumns) SetNbColumns(theData.size());
 
   Backup();
 
-  while (myRows->Length() < theRow) { // append new row titles
-    myRows->Append(TCollection_ExtendedString(""));
+  while (myRows.size() < theRow) { // append new row titles
+    myRows.push_back(std::string(""));
   }
 
-  Standard_Integer i, aShift = (theRow-1)*myNbColumns, aLength = theData->Length();
+  int i, aShift = (theRow-1)*myNbColumns, aLength = theData.size();
   for(i = 1; i <= aLength; i++) {
-    myTable.Bind(aShift + i, theData->Value(i));
+    myTable[aShift + i] = theData[i-1];
   }
 
   if(theRow > myNbRows) myNbRows = theRow;
@@ -142,113 +134,113 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowData(const Standard_Integer the
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Handle(TColStd_HSequenceOfInteger) SALOMEDSImpl_AttributeTableOfInteger::GetRowData(const Standard_Integer theRow)
+vector<int> SALOMEDSImpl_AttributeTableOfInteger::GetRowData(const int theRow)
 {
-  Handle(TColStd_HSequenceOfInteger) aSeq = new TColStd_HSequenceOfInteger();
-  Standard_Integer i, aShift = (theRow-1)*myNbColumns;
+  vector<int> aSeq;
+  int i, aShift = (theRow-1)*myNbColumns;
   for(i = 1; i <= myNbColumns; i++) {
-     if(myTable.IsBound(aShift+i)) 
-       aSeq->Append(myTable.Find(aShift+i));
+     if(myTable.find(aShift+i) != myTable.end()) 
+       aSeq.push_back(myTable[aShift+i]);
      else
-       aSeq->Append(0);
+       aSeq.push_back(0);
   }
   
   return aSeq;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitle(const Standard_Integer theRow,
-						       const TCollection_ExtendedString& theTitle) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitle(const int theRow,
+						       const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
-  TCollection_ExtendedString aTitle(theTitle), aUnit = GetRowUnit(theRow);
-  if(aUnit.Length()>0) {
+  string aTitle(theTitle), aUnit = GetRowUnit(theRow);
+  if(aUnit.size()>0) {
     aTitle += SEPARATOR;
     aTitle += aUnit;
   }
-  myRows->SetValue(theRow, aTitle);
+  myRows[theRow-1] =  aTitle;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnit(const Standard_Integer theRow,
-						      const TCollection_ExtendedString& theUnit) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnit(const int theRow,
+			      		              const std::string& theUnit) 
 {
   CheckLocked();  
   Backup();
-  TCollection_ExtendedString aTitle = GetRowTitle(theRow);
+  std::string aTitle = GetRowTitle(theRow);
   aTitle += SEPARATOR;
   aTitle += theUnit;
 
-  myRows->SetValue(theRow, aTitle);
+  myRows[theRow-1] = aTitle;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
+void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnits(const vector<string>& theUnits)
 {
-  if (theUnits->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
-  int aLength = theUnits->Length(), i;
-  for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits->Value(i));
+  if (theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  int aLength = theUnits.size(), i;
+  for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits[i-1]);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetRowUnits()
+vector<string> SALOMEDSImpl_AttributeTableOfInteger::GetRowUnits()
 {
-  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-  int aLength = myRows->Length(), i;
-  for(i=1; i<=aLength; i++) aSeq->Append(getUnit(myRows->Value(i)));
+  vector<string> aSeq;
+  int aLength = myRows.size(), i;
+  for(i=0; i<aLength; i++) aSeq.push_back(getUnit(myRows[i]));
   return aSeq;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitles(const vector<string>& theTitles)
 {
-  if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
-  int aLength = theTitles->Length(), i;
-  for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+  if (theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  int aLength = theTitles.size(), i;
+  for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles[i-1]);
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetRowTitles()
+vector<string> SALOMEDSImpl_AttributeTableOfInteger::GetRowTitles()
 {
-  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-  int aLength = myRows->Length(), i;
-  for(i=1; i<=aLength; i++) aSeq->Append(getTitle(myRows->Value(i)));
+  vector<string> aSeq;
+  int aLength = myRows.size(), i;
+  for(i=0; i<aLength; i++) aSeq.push_back(getTitle(myRows[i]));
   return aSeq;
 }
 
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetRowTitle(const Standard_Integer theRow) const 
+std::string SALOMEDSImpl_AttributeTableOfInteger::GetRowTitle(const int theRow) const 
 {
-  return getTitle(myRows->Value(theRow));
+  return getTitle(myRows[theRow-1]);
 }
 
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetRowUnit(const Standard_Integer theRow) const 
+std::string SALOMEDSImpl_AttributeTableOfInteger::GetRowUnit(const int theRow) const 
 {
-  return getUnit(myRows->Value(theRow));
+  return getUnit(myRows[theRow-1]);
 }
 
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetColumnData(const Standard_Integer theColumn,
-						     const Handle(TColStd_HSequenceOfInteger)& theData) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetColumnData(const int theColumn,
+						         const vector<int>& theData) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
 
   Backup();
 
-  Standard_Integer i, aLength = theData->Length();
+  int i, aLength = theData.size();
   for(i = 1; i <= aLength; i++) {
-    myTable.Bind(myNbColumns*(i-1)+theColumn, theData->Value(i));
+    myTable[myNbColumns*(i-1)+theColumn] = theData[i-1];
   }
 
   if(aLength > myNbRows) {
     myNbRows = aLength;
-    while (myRows->Length() < myNbRows) { // append empty row titles
-      myRows->Append(TCollection_ExtendedString(""));
+    while (myRows.size() < myNbRows) { // append empty row titles
+      myRows.push_back(std::string(""));
     }
   }
   
@@ -256,80 +248,79 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetColumnData(const Standard_Integer 
 }
 
 
-Handle(TColStd_HSequenceOfInteger) SALOMEDSImpl_AttributeTableOfInteger::GetColumnData(const Standard_Integer theColumn)
+vector<int> SALOMEDSImpl_AttributeTableOfInteger::GetColumnData(const int theColumn)
 {
-  Handle(TColStd_HSequenceOfInteger) aSeq = new TColStd_HSequenceOfInteger;
-  
-  Standard_Integer i, anIndex;
+  vector<int> aSeq;
+  int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
     anIndex = myNbColumns*(i-1) + theColumn;
-    if(myTable.IsBound(anIndex)) 
-      aSeq->Append(myTable.Find(anIndex));
+    if(myTable.find(anIndex) != myTable.end()) 
+      aSeq.push_back(myTable[anIndex]);
     else
-      aSeq->Append(0);
+      aSeq.push_back(0);
   }
   
   return aSeq;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitle(const Standard_Integer theColumn,
-						      const TCollection_ExtendedString& theTitle) 
+void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitle(const int theColumn,
+						      const std::string& theTitle) 
 {
   CheckLocked();  						      
   Backup();
-  while(myCols->Length() < theColumn) myCols->Append(TCollection_ExtendedString(""));
-  myCols->SetValue(theColumn,theTitle);
+  while(myCols.size() < theColumn) myCols.push_back(std::string(""));
+  myCols[theColumn-1] = theTitle;
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitle(const Standard_Integer theColumn) const 
+std::string SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitle(const int theColumn) const 
 {
-  if(myCols.IsNull()) return "";
-  if(myCols->Length() < theColumn) return "";
-  return myCols->Value(theColumn);
+  if(myCols.empty()) return "";
+  if(myCols.size() < theColumn) return "";
+  return myCols[theColumn-1];
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitles(const vector<string>& theTitles)
 {
-  if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
-  int aLength = theTitles->Length(), i;
-  for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+  if (theTitles.size() != myNbColumns) throw DFexception("Invalid number of columns");
+  int aLength = theTitles.size(), i;
+  for(i = 0; i < aLength; i++)  myCols[i] = theTitles[i];
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitles()
+vector<string> SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitles()
 {
-  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
-  int aLength = myCols->Length(), i;
-  for(i=1; i<=aLength; i++) aSeq->Append(myCols->Value(i));
+  vector<string> aSeq;
+  int aLength = myCols.size(), i;
+  for(i=0; i<aLength; i++) aSeq.push_back(myCols[i]);
   return aSeq;
 }
 
-Standard_Integer SALOMEDSImpl_AttributeTableOfInteger::GetNbRows() const
+int SALOMEDSImpl_AttributeTableOfInteger::GetNbRows() const
 {
   return myNbRows;
 }
 
-Standard_Integer SALOMEDSImpl_AttributeTableOfInteger::GetNbColumns() const
+int SALOMEDSImpl_AttributeTableOfInteger::GetNbColumns() const
 {
   return myNbColumns;
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::PutValue(const Standard_Integer theValue,
-						const Standard_Integer theRow,
-						const Standard_Integer theColumn) 
+void SALOMEDSImpl_AttributeTableOfInteger::PutValue(const int theValue,
+						    const int theRow,
+						    const int theColumn) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
 
-  Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
-  myTable.Bind(anIndex, theValue);
+  int anIndex = (theRow-1)*myNbColumns + theColumn;
+  myTable[anIndex] = theValue;
 
   if(theRow > myNbRows) {
-    while (myRows->Length() < theRow) { // append empty row titles
-      myRows->Append(TCollection_ExtendedString(""));
+    while (myRows.size() < theRow) { // append empty row titles
+      myRows.push_back(std::string(""));
     }
     myNbRows = theRow;
   }
@@ -337,41 +328,42 @@ void SALOMEDSImpl_AttributeTableOfInteger::PutValue(const Standard_Integer theVa
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-Standard_Boolean SALOMEDSImpl_AttributeTableOfInteger::HasValue(const Standard_Integer theRow,
-							    const Standard_Integer theColumn) 
+bool SALOMEDSImpl_AttributeTableOfInteger::HasValue(const int theRow,
+						    const int theColumn) 
 {
-  if(theRow > myNbRows || theRow < 1) return Standard_False;
-  if(theColumn > myNbColumns || theColumn < 1) return Standard_False;
-  Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
-  return myTable.IsBound(anIndex); 
+  if(theRow > myNbRows || theRow < 1) return false;
+  if(theColumn > myNbColumns || theColumn < 1) return false;
+  int anIndex = (theRow-1)*myNbColumns + theColumn;
+  return (myTable.find(anIndex) != myTable.end()); 
 }
 
-Standard_Integer SALOMEDSImpl_AttributeTableOfInteger::GetValue(const Standard_Integer theRow,
-							    const Standard_Integer theColumn) 
+int SALOMEDSImpl_AttributeTableOfInteger::GetValue(const int theRow,
+						   const int theColumn) 
 {
-  if(theRow > myNbRows || theRow < 1) Standard_Failure::Raise("Invalid cell index");
-  if(theColumn > myNbColumns || theColumn < 1) Standard_Failure::Raise("Invalid cell index");
+  if(theRow > myNbRows || theRow < 1) throw DFexception("Invalid cell index");
+  if(theColumn > myNbColumns || theColumn < 1) DFexception("Invalid cell index");
 
-  Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
-  if(myTable.IsBound(anIndex)) return myTable.Find(anIndex);
+  int anIndex = (theRow-1)*myNbColumns + theColumn;
+  if(myTable.find(anIndex) != myTable.end()) return myTable[anIndex];
   
-  Standard_Failure::Raise("Invalid cell index");
+  throw DFexception("Invalid cell index");
   return 0;
 }
 
-const Standard_GUID& SALOMEDSImpl_AttributeTableOfInteger::ID() const
+const std::string& SALOMEDSImpl_AttributeTableOfInteger::ID() const
 {
   return GetID();
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeTableOfInteger::Restore(DF_Attribute* with) 
 {
-  Standard_Integer anIndex;
-  Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(with);
+  int anIndex;
+  SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(with);
+  if(!aTable) throw DFexception("Can't Restore from a null attribute");    
 
-  myTable.Clear();
-  myCols->Clear();
-  myRows->Clear();
+  myTable.clear();
+  myCols.clear();
+  myRows.clear();
 
   myTable = aTable->myTable;
   myNbRows = aTable->myNbRows;
@@ -379,26 +371,26 @@ void SALOMEDSImpl_AttributeTableOfInteger::Restore(const Handle(TDF_Attribute)& 
   myTitle = aTable->myTitle;
   
   for(anIndex = 1; anIndex <= aTable->GetNbRows();anIndex++)
-    myRows->Append(aTable->GetRowTitle(anIndex));
+    myRows.push_back(aTable->GetRowTitle(anIndex));
 
   for(anIndex = 1; anIndex <= aTable->GetNbColumns(); anIndex++) 
-    myCols->Append(aTable->GetColumnTitle(anIndex));
+    myCols.push_back(aTable->GetColumnTitle(anIndex));
 }
 
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeTableOfInteger::NewEmpty() const
+DF_Attribute* SALOMEDSImpl_AttributeTableOfInteger::NewEmpty() const
 {
   return new SALOMEDSImpl_AttributeTableOfInteger();
 }
 
-void SALOMEDSImpl_AttributeTableOfInteger::Paste(const Handle(TDF_Attribute)& into,
-					     const Handle(TDF_RelocationTable)&) const
+void SALOMEDSImpl_AttributeTableOfInteger::Paste(DF_Attribute* into)
 {
-  Standard_Integer anIndex;
-  Handle(SALOMEDSImpl_AttributeTableOfInteger) aTable = Handle(SALOMEDSImpl_AttributeTableOfInteger)::DownCast(into);
+  int anIndex;
+  SALOMEDSImpl_AttributeTableOfInteger* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(into);
+  if(!aTable) throw DFexception("Can't Paste into a null attribute");    
 
-  aTable->myTable.Clear();
-  aTable->myCols->Clear();
-  aTable->myRows->Clear();
+  aTable->myTable.clear();
+  aTable->myCols.clear();
+  aTable->myRows.clear();
 
   aTable->myTable = myTable;
   aTable->myTitle = myTitle;
@@ -406,156 +398,141 @@ void SALOMEDSImpl_AttributeTableOfInteger::Paste(const Handle(TDF_Attribute)& in
   aTable->myNbColumns = myNbColumns;
 
   for(anIndex = 1; anIndex <= GetNbRows();anIndex++)
-    aTable->myRows->Append(GetRowTitle(anIndex));
+    aTable->myRows.push_back(GetRowTitle(anIndex));
   for(anIndex = 1; anIndex <= GetNbColumns(); anIndex++) 
-    aTable->myCols->Append(GetColumnTitle(anIndex));
+    aTable->myCols.push_back(GetColumnTitle(anIndex));
 }
 
 
-Handle_TColStd_HSequenceOfInteger SALOMEDSImpl_AttributeTableOfInteger::GetSetRowIndices(const Standard_Integer theRow)
+vector<int> SALOMEDSImpl_AttributeTableOfInteger::GetSetRowIndices(const int theRow)
 {
-  Handle(TColStd_HSequenceOfInteger) aSeq = new TColStd_HSequenceOfInteger;
+  vector<int> aSeq;
 
-  Standard_Integer i, aShift = myNbColumns*(theRow-1);
+  int i, aShift = myNbColumns*(theRow-1);
   for(i = 1; i <= myNbColumns; i++) {
-    if(myTable.IsBound(aShift + i)) aSeq->Append(i);
+    if(myTable.find(aShift + i) != myTable.end()) aSeq.push_back(i);
   }
   
   return aSeq;
 }
 
-Handle_TColStd_HSequenceOfInteger SALOMEDSImpl_AttributeTableOfInteger::GetSetColumnIndices(const Standard_Integer theColumn)
+vector<int> SALOMEDSImpl_AttributeTableOfInteger::GetSetColumnIndices(const int theColumn)
 {
-  Handle(TColStd_HSequenceOfInteger) aSeq = new TColStd_HSequenceOfInteger;
+  vector<int> aSeq;
 
-  Standard_Integer i, anIndex;
+  int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
     anIndex = myNbColumns*(i-1)+theColumn;
-    if(myTable.IsBound(anIndex)) aSeq->Append(i);
+    if(myTable.find(anIndex) != myTable.end()) aSeq.push_back(i);
   }
   
   return aSeq;
 }
 
 
-void SALOMEDSImpl_AttributeTableOfInteger::ConvertToString(ostrstream& theStream)
+string SALOMEDSImpl_AttributeTableOfInteger::Save() 
 {
+  ostrstream theStream;
   int i, j, l;
 
   theStream.precision(64);
   
   //Title
-  l = myTitle.Length();
+  l = myTitle.size();
   theStream << l << "\n";
-  for(i=1; i<=l; i++)
-    theStream << myTitle.Value(i) << "\n";
+  for(i=0; i<l; i++)
+    theStream << myTitle[i] << "\n";
 
   //Nb rows
   theStream << myNbRows << "\n";
 
   //Rows titles
-  for(i=1; i<=myNbRows; i++) {
-    l = myRows->Value(i).Length();
+  for(i=0; i<myNbRows; i++) {
+    l = myRows[i].size();
     theStream << l << "\n";
-    for(j=1; j<=l; j++)
-      theStream << myRows->Value(i).Value(j) << "\n";
+    for(j=0; j<l; j++)
+      theStream << myRows[i][j] << "\n";
   }
 
   //Nb columns
   theStream << myNbColumns << "\n";
 
   //Columns titles
-  for(i=1; i<=myNbColumns; i++) {
-    l = myCols->Value(i).Length();
+  for(i=0; i<myNbColumns; i++) {
+    l = myCols[i].size();
     theStream << l << "\n";
-    for(j=1; j<=l; j++)
-      theStream << myCols->Value(i).Value(j) << "\n";
+    for(j=0; j<l; j++)
+      theStream << myCols[i][j] << "\n";
   }
 
   //Store the table values
-  l = myTable.Extent();
+  l = myTable.size();
   theStream << l << "\n";
-  TColStd_DataMapIteratorOfDataMapOfIntegerInteger anIterator(myTable);
-  for(; anIterator.More(); anIterator.Next()) {
-    theStream << anIterator.Key() << "\n";
-    theStream << anIterator.Value() << "\n";
+  for(MI p = myTable.begin(); p != myTable.end(); p++) {
+    theStream << p->first << "\n";
+    theStream << p->second << "\n";
   }
 
-  return;
+  string aString((char*)theStream.rdbuf()->str());
+  return aString;
 }
 
-bool SALOMEDSImpl_AttributeTableOfInteger::RestoreFromString(istrstream& theStream)
+void SALOMEDSImpl_AttributeTableOfInteger::Load(const string& value) 
 {
+  istrstream theStream(value.c_str(), strlen(value.c_str()));
   Backup();
 
   int i, j, l;
 
-  Standard_ExtCharacter anExtChar;
-  TCollection_ExtendedString aStr;
+  char anExtChar;
+  std::string aStr;
 
   //Title
   theStream >> l;
 
-  myTitle = TCollection_ExtendedString(l, 0);
-  for(i=1; i<=l; i++) {
+  myTitle = std::string(l, 0);
+  for(i=0; i<l; i++) {
     theStream >> anExtChar;
-    myTitle.SetValue(i, anExtChar);
+    myTitle[i] = anExtChar;
   }
 
   //Nb rows
   theStream >> myNbRows;
 
   //Rows titles
-  myRows->Clear();  
+  myRows.clear();  
   for(i=1; i<=myNbRows; i++) { 
     theStream >> l;
-    aStr = TCollection_ExtendedString(l,0);
-    for(j=1; j<=l; j++) {
+    aStr = std::string(l,0);
+    for(j=0; j<l; j++) {
       theStream >> anExtChar;
-      aStr.SetValue(j, anExtChar);
+      aStr[j] = anExtChar;
     }
-    myRows->Append(aStr);
+    myRows.push_back(aStr);
   }
 
   //Nb columns
   theStream >> myNbColumns;
 
   //Columns titles
-  myCols->Clear();
+  myCols.clear();
   for(i=1; i<=myNbColumns; i++) {
     theStream >> l;
-    aStr = TCollection_ExtendedString(l,0);
-    for(j=1; j<=l; j++) {
+    aStr = std::string(l,0);
+    for(j=0; j<l; j++) {
       theStream >> anExtChar;
-      aStr.SetValue(j, anExtChar);
+      aStr[j] = anExtChar;
     }
-    myCols->Append(aStr);
+    myCols.push_back(aStr);
   }
 
   //Restore the table values
   theStream >> l;
-  myTable.Clear();
+  myTable.clear();
   for(i=1; i<=l; i++) {
     int aKey, aValue;
     theStream >> aKey;
     theStream >> aValue;
-    myTable.Bind(aKey, aValue);
+    myTable[aKey] = aValue;
   }
-
-  return true;
-}
-
-
-TCollection_AsciiString SALOMEDSImpl_AttributeTableOfInteger::Save() 
-{
-  ostrstream ostr;
-  ConvertToString(ostr);
-  TCollection_AsciiString aString((char*)ostr.rdbuf()->str());
-  return aString;
-}
-
-void SALOMEDSImpl_AttributeTableOfInteger::Load(const TCollection_AsciiString& value) 
-{
-  istrstream aStream(value.ToCString(), strlen(value.ToCString()));
-  RestoreFromString(aStream);
 }

@@ -37,14 +37,14 @@
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 
 class SALOMEDS_SComponentIterator_i:public virtual POA_SALOMEDS::SComponentIterator,
-				    public virtual PortableServer::RefCountServantBase,
+				    public virtual PortableServer::ServantBase,
 				    public virtual SALOME::GenericObj_i 
 {
 
 private:
 
-  CORBA::ORB_ptr                  _orb;
-  SALOMEDSImpl_SComponentIterator _impl;
+  CORBA::ORB_ptr                   _orb;
+  SALOMEDSImpl_SComponentIterator* _impl;
 
 public:
   

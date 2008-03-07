@@ -36,7 +36,7 @@ class SALOMEDS_AttributeExternalFileDef_i: public virtual POA_SALOMEDS::Attribut
 {
 public:
   
-  SALOMEDS_AttributeExternalFileDef_i(const Handle(SALOMEDSImpl_AttributeExternalFileDef)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeExternalFileDef_i(SALOMEDSImpl_AttributeExternalFileDef* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {} 
   ~SALOMEDS_AttributeExternalFileDef_i() {};
 

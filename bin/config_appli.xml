@@ -1,0 +1,20 @@
+<application>
+<prerequisites path="/home/prascle/SALOME2/profileV322.sh"/>
+<modules>
+   <!-- variable name <MODULE>_ROOT_DIR is built with <MODULE> == name attribute value -->
+   <!-- <MODULE>_ROOT_DIR values is set with path attribute value -->
+   <!-- attribute gui (defaults = yes) indicates if the module has a gui interface -->
+   <module name="KERNEL"       gui="no"  path="/home/prascle/SALOME2/Install/KERNEL_V3_2_2"/>
+   <module name="GUI"          gui="no"  path="/home/prascle/SALOME2/Install/GUI_V3_2_2"/>
+   <module name="MED"                    path="/home/prascle/SALOME2/Install/MED_V3_2_2"/>
+   <module name="GEOM"                   path="/home/prascle/SALOME2/Install/GEOM_V3_2_2"/>
+   <module name="SMESH"                  path="/home/prascle/SALOME2/Install/SMESH_V3_2_2"/>
+   <module name="SUPERV"                 path="/home/prascle/SALOME2/Install/SUPERV_V3_2_2"/>
+   <module name="VISU"                   path="/home/prascle/SALOME2/Install/VISU_V3_2_2"/>
+   <module name="HELLO"                  path="/home/prascle/SALOME2/Install/HELLO1_V3_2_2"/>
+   <module name="PYHELLO"                path="/home/prascle/SALOME2/Install/PYHELLO1_V3_2_2"/>
+   <module name="NETGENPLUGIN" gui="no"  path="/home/prascle/SALOME2/Install/NETGENPLUGIN_V3_2_2"/>
+</modules>
+<samples path="/home/prascle/SALOME2/SAMPLES/V3_2_2/SAMPLES_SRC"/>
+</application>
+

@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeParameter: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeParameter
 {
 public:  
-  SALOMEDS_AttributeParameter(const Handle(SALOMEDSImpl_AttributeParameter)& theAttr);
+  SALOMEDS_AttributeParameter(SALOMEDSImpl_AttributeParameter* theAttr);
   SALOMEDS_AttributeParameter(SALOMEDS::AttributeParameter_ptr theAttr);
   ~SALOMEDS_AttributeParameter();
 

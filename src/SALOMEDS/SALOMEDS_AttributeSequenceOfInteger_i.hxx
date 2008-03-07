@@ -36,7 +36,7 @@ class SALOMEDS_AttributeSequenceOfInteger_i: public virtual POA_SALOMEDS::Attrib
 {    
 public:
   
-  SALOMEDS_AttributeSequenceOfInteger_i(const Handle(SALOMEDSImpl_AttributeSequenceOfInteger)& theAttr,CORBA::ORB_ptr orb)
+  SALOMEDS_AttributeSequenceOfInteger_i(SALOMEDSImpl_AttributeSequenceOfInteger* theAttr,CORBA::ORB_ptr orb)
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeSequenceOfInteger_i() {};

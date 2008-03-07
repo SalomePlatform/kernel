@@ -26,16 +26,11 @@
 
 #include "HDFOI.hxx"
 
-#include <OSD_Path.hxx>
-#include <OSD_File.hxx>
-#include <OSD_Protection.hxx>
-#include <OSD_Directory.hxx>
-#include <TCollection_AsciiString.hxx> 
-
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <string>
 
 #ifdef WNT
 #include <io.h>
@@ -44,6 +39,8 @@
 
 using namespace std;
 
+void Move(const string& fName, const string& fNameDst);
+bool Exists(const string thePath); 
 bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp);
 bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp);
 bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp);
@@ -52,7 +49,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident);
 void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident);
 void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident);
 
-char* GetTmpDir();
+string GetTmpDir();
 char* makeName(char* name);
 char* restoreName(char* name);
 void write_float64(FILE* fp, hdf_float64* value);
@@ -104,13 +101,13 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
 				      bool isReplace,
 			              const char* theExtension)
 {
-  TCollection_AsciiString aPath((char*)thePath);
+  string aPath(thePath);
   if(!isReplace) { 
     if(theExtension == NULL) aPath += ".asc";    
     else aPath += (char*)theExtension;
   }
 
-  TCollection_AsciiString aFileName(aPath);
+  string aFileName(aPath);
   if(isReplace) aFileName=aPath+".ascii_tmp";
  
   HDFfile *hdf_file = new HDFfile((char*)thePath); 
@@ -119,7 +116,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
   char name[HDF_NAME_MAX_LEN+1];
   int nbsons = hdf_file->nInternalObjects(), nbAttr = hdf_file->nAttributes(); 
 
-  FILE* fp = fopen(aFileName.ToCString(), "w");
+  FILE* fp = fopen(aFileName.c_str(), "w");
   fprintf(fp, "%s\n", ASCIIHDF_ID);
   fprintf(fp, "%i\n", nbsons+nbAttr);
 
@@ -131,7 +128,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
     hdf_attribute = 0;
   }
 
-  for (Standard_Integer i=0; i<nbsons; i++) {
+  for (int i=0; i<nbsons; i++) {
     hdf_file->InternalObjectIndentify(i,name);
     if (strncmp(name, "INTERNAL_COMPLEX",16) == 0) continue;
 
@@ -156,17 +153,15 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
   delete hdf_file;
 
   if(isReplace) {
-    OSD_Path anOSDPath(aFileName);
-    OSD_File anOSDFile(anOSDPath);
-    if(anOSDFile.Exists())
-      anOSDFile.Move(aPath);
+    if(Exists(aFileName))
+      Move(aFileName, aPath);
     else 
       return NULL;
   }
 
-  int length = strlen(aPath.ToCString());
+  int length = strlen(aPath.c_str());
   char *new_str = new char[ 1+length ];
-  strcpy(new_str , aPath.ToCString()) ;
+  strcpy(new_str , aPath.c_str()) ;
 
   return new_str;
 }
@@ -180,15 +175,12 @@ void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident)
 {
   hdf_group->OpenOnDisk();
 
-  TCollection_AsciiString anIdent(ident, '\t');
   int nbsons = hdf_group->nInternalObjects(), nbAttr = hdf_group->nAttributes(); 
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), GROUP_ID);*/
   fprintf(fp, "%s\n", GROUP_ID);
 
   char* name = makeName(hdf_group->GetName());
 
-  /*fprintf(fp, "%s%s %i\n", anIdent.ToCString(), name, nbsons+nbAttr);*/
   fprintf(fp, "%s %i\n", name, nbsons+nbAttr);
   delete name;
 
@@ -220,7 +212,6 @@ void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident)
     } 
   }
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), GROUP_ID_END);*/
   fprintf(fp, "%s\n", GROUP_ID_END);
 
   hdf_group->CloseOnDisk();  
@@ -241,32 +232,22 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   hdf_byte_order order = hdf_dataset->GetOrder();
   int nbAttr = hdf_dataset->nAttributes(); 
 
-  TCollection_AsciiString anIdent(ident, '\t');
-  TCollection_AsciiString anIdentChild(ident+1, '\t');
-
   char* name = makeName(hdf_dataset->GetName());
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), DATASET_ID);*/
   fprintf(fp, "%s\n", DATASET_ID);
-  /*fprintf(fp, "%s%s %i %i\n", anIdent.ToCString(), name, type, nbAttr);*/
   fprintf(fp, "%s %i %i\n", name, type, nbAttr);
   delete name;
 
   hdf_dataset->GetDim(dim);
-  /*fprintf(fp, "%s %i\n", anIdentChild.ToCString(), ndim);*/
   fprintf(fp, " %i\n", ndim);
 
   for(int i = 0;i < ndim;i++) {
-    /*fprintf(fp, "%s%i",  anIdentChild.ToCString(), dim[i]);*/
     fprintf(fp, " %i", dim[i]);
   }
 
-  /*fprintf(fp, "%s\n", anIdentChild.ToCString());*/
   fprintf(fp, "\n");
   delete dim;
 
-  /*fprintf(fp, "%s%li:", anIdentChild.ToCString(), size);*/
-//   fprintf(fp, "%li:", size);
   fprintf(fp, "%li %i:", size, order);
 
   if (type == HDF_STRING) {	
@@ -315,11 +296,8 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   
   fprintf(fp, "\n");
 
-#ifndef WNT
-  for(unsigned j=0; j<nbAttr; j++) {
-#else
-  for(j=0; j<nbAttr; j++) {
-#endif
+  for ( unsigned j=0; j<nbAttr; j++ )
+  {
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);
     delete name;
@@ -327,7 +305,6 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
     hdf_attribute = 0;
   }
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), DATASET_ID_END); */
   fprintf(fp, "%s\n", DATASET_ID_END);
 
   hdf_dataset->CloseOnDisk(); 
@@ -344,15 +321,10 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
 
   hdf_type type = hdf_attribute->GetType();
 
-  TCollection_AsciiString anIdent(ident, '\t');
-  TCollection_AsciiString anIdentChild(ident+1, '\t');
-
   char* name = makeName(hdf_attribute->GetName());
   int size = hdf_attribute->GetSize();
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), ATTRIBUTE_ID);*/
   fprintf(fp, "%s\n", ATTRIBUTE_ID);
-  /*fprintf(fp, "%s%s %i %i\n", anIdent.ToCString(), name, type, size);*/
   fprintf(fp, "%s %i %i\n", name, type, size);
 
   delete name;
@@ -360,7 +332,6 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   if (type == HDF_STRING) {    
     char* val = new char[size+1];
     hdf_attribute->ReadFromDisk(val);
-    /*fprintf(fp, "%s:", anIdentChild.ToCString());*/
     fprintf(fp, ":");
     fwrite(val, 1, size, fp);
     fprintf(fp, "\n");
@@ -368,22 +339,18 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   } else if (type == HDF_FLOAT64) {
     hdf_float64 val;
     hdf_attribute->ReadFromDisk(&val);
-    /*fprintf(fp, "%s",  anIdentChild.ToCString());*/
     write_float64(fp, &val);
     fprintf(fp, "\n");
   } else if(type == HDF_INT64) {
     hdf_int64 val;
     hdf_attribute->ReadFromDisk(&val);
-    /*fprintf(fp, "%s%li \n", anIdentChild.ToCString(), val);*/
     fprintf(fp, "%li \n", val);
   } else if(type == HDF_INT32) {
     hdf_int32 val;
     hdf_attribute->ReadFromDisk(&val);
-    /*fprintf(fp, "%s%i \n", anIdentChild.ToCString(), val);*/
     fprintf(fp, "%i \n", val);
   }
 
-  /*fprintf(fp, "%s%s\n", anIdent.ToCString(), ATTRIBUTE_ID_END);*/
   fprintf(fp, "%s\n", ATTRIBUTE_ID_END);
 
   hdf_attribute->CloseOnDisk();  
@@ -400,11 +367,11 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
 char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
 {
   // Get a temporary directory to store a file
-  TCollection_AsciiString aTmpDir = GetTmpDir(), aFileName("hdf_from_ascii.hdf");
+  string aTmpDir = GetTmpDir(), aFileName("hdf_from_ascii.hdf");
   // Build a full file name of temporary file
-  TCollection_AsciiString aFullName = aTmpDir + aFileName;
+  string aFullName = aTmpDir + aFileName;
 
-  HDFfile *hdf_file = new HDFfile(aFullName.ToCString()); 
+  HDFfile *hdf_file = new HDFfile((char*)aFullName.c_str()); 
   hdf_file->CreateOnDisk();
   
   FILE *fp = fopen(thePath, "r");
@@ -453,9 +420,9 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
   hdf_file->CloseOnDisk();
   delete hdf_file;
 
-  int length = strlen(aTmpDir.ToCString());
+  int length = strlen(aTmpDir.c_str());
   char *new_str = new char[ 1+length ];
-  strcpy(new_str , aTmpDir.ToCString()) ;
+  strcpy(new_str , aTmpDir.c_str()) ;
 
   return new_str;
 }
@@ -676,87 +643,92 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
 // function : GetTempDir
 // purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
 //============================================================================ 
-char* GetTmpDir()
+string GetTmpDir()
 {
-  //Find a temporary directory to store a file
 
-  TCollection_AsciiString aTmpDir;
+ //Find a temporary directory to store a file
 
-#ifdef WNT
-  char *aTmp;
-  aTmp = getenv("TMP");
-  if(aTmp != NULL)
-	aTmpDir = TCollection_AsciiString(aTmp);
-  else
-	aTmpDir = TCollection_AsciiString("C:\\");
+  string aTmpDir;
+
+  char *Tmp_dir = getenv("SALOME_TMP_DIR");
+  if(Tmp_dir != NULL) {
+    aTmpDir = string(Tmp_dir);
+#ifdef WIN32
+    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
-  aTmpDir = TCollection_AsciiString("/tmp/");
+    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
+#endif      
+  }
+  else {
+#ifdef WIN32
+    aTmpDir = string("C:\\");
+#else
+    aTmpDir = string("/tmp/");
 #endif
+  }
 
   srand((unsigned int)time(NULL));
-
   int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
-  TCollection_AsciiString aSubDir(aRND);
-  if(aSubDir.Length() <= 1) aSubDir = TCollection_AsciiString("123409876");
+  char buffer[127];
+  sprintf(buffer, "%d", aRND);
+  string aSubDir(buffer);
+  if(aSubDir.size() <= 1) aSubDir = string("123409876");
 
   aTmpDir += aSubDir; //Get RND sub directory
 
 #ifdef WIN32
-  if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
+  if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
-  if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
+  if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
 #endif
 
-  OSD_Path aPath(aTmpDir);
-  OSD_Directory aDir(aPath);
-
-  for(aRND = 0; aDir.Exists(); aRND++) {
-    aTmpDir.Insert((aTmpDir.Length() - 1), TCollection_AsciiString(aRND));  //Build a unique directory name
-    aPath = OSD_Path(aTmpDir);
-    aDir = OSD_Directory(aPath);
+  string aDir = aTmpDir;
+  
+  for(aRND = 0; Exists(aDir); aRND++) {
+    sprintf(buffer, "%d", aRND);
+    aDir = aTmpDir+buffer;  //Build a unique directory name
   }
 
-  OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
-  aDir.Build(aProtection);
+#ifdef WNT
+  CreateDirectory(aDir.c_str(), NULL);
+#else
+  mkdir(aDir.c_str(), 0x1ff); 
+#endif
 
-  int length = strlen(aTmpDir.ToCString());
-  char *new_str = new char[ 1+length ];
-  strcpy(new_str , aTmpDir.ToCString());
-
-  return new_str;
+  return aDir;
 }
 
 char* makeName(char* name)
 {
-  TCollection_AsciiString aName(name), aNewName;
-  Standard_Integer i, length = aName.Length();
+  string aName(name), aNewName;
+  int i, length = aName.size();
   char replace = (char)19;
 
-  for(i=1; i<=length; i++) {
-    if(aName.Value(i) == ' ') aNewName+=replace;
-    else aNewName += aName.Value(i);
+  for(i=0; i<length; i++) {
+    if(aName[i] == ' ') aNewName+=replace;
+    else aNewName += aName[i];
   }
 
-  length = strlen(aNewName.ToCString());
+  length = strlen(aNewName.c_str());
   char *new_str = new char[ 1+length ];
-  strcpy(new_str , aNewName.ToCString()) ;
+  strcpy(new_str , aNewName.c_str()) ;
   return new_str;
 }
 
 char* restoreName(char* name)
 {
-  TCollection_AsciiString aName(name), aNewName;
-  Standard_Integer i, length = aName.Length();
+  string aName(name), aNewName;
+  int i, length = aName.size();
   char replace = (char)19;
 
-  for(i=1; i<=length; i++) {
-    if(aName.Value(i) == replace) aNewName+=' ';
-    else aNewName += aName.Value(i);
+  for(i=0; i<length; i++) {
+    if(aName[i] == replace) aNewName+=' ';
+    else aNewName += aName[i];
   }
 
-  length = strlen(aNewName.ToCString());
+  length = strlen(aNewName.c_str());
   char *new_str = new char[ 1+length ];
-  strcpy(new_str , aNewName.ToCString()) ;
+  strcpy(new_str , aNewName.c_str()) ;
   return new_str;
 }
 
@@ -778,3 +750,28 @@ void read_float64(FILE* fp, hdf_float64* value)
     array[i] = (unsigned char)tmp;
   }
 }
+
+bool Exists(const string thePath) 
+{
+#ifdef WNT 
+  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+      return false;
+    }
+  }
+#else 
+  int status = access ( thePath.c_str() , F_OK ); 
+  if (status != 0) return false;
+#endif
+  return true;
+}
+
+void Move(const string& fName, const string& fNameDst)
+{ 
+#ifdef WNT
+  MoveFileEx (fName.c_str(), fNameDst.c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED);
+#else
+  rename(fName.c_str(), fNameDst.c_str());
+#endif
+}
+

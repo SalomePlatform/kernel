@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeFileType: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeFileType
 {
 public:  
-  SALOMEDS_AttributeFileType(const Handle(SALOMEDSImpl_AttributeFileType)& theAttr);
+  SALOMEDS_AttributeFileType(SALOMEDSImpl_AttributeFileType* theAttr);
   SALOMEDS_AttributeFileType(SALOMEDS::AttributeFileType_ptr theAttr);
   ~SALOMEDS_AttributeFileType();
 

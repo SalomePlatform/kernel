@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeUserID: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeUserID
 {
 public:  
-  SALOMEDS_AttributeUserID(const Handle(SALOMEDSImpl_AttributeUserID)& theAttr);
+  SALOMEDS_AttributeUserID(SALOMEDSImpl_AttributeUserID* theAttr);
   SALOMEDS_AttributeUserID(SALOMEDS::AttributeUserID_ptr theAttr);
   ~SALOMEDS_AttributeUserID();
 

@@ -34,7 +34,7 @@ class SALOMEDS_AttributeIOR_i: public virtual POA_SALOMEDS::AttributeIOR,
 			       public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeIOR_i(const Handle(SALOMEDSImpl_AttributeIOR)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeIOR_i(SALOMEDSImpl_AttributeIOR* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
 
   ~SALOMEDS_AttributeIOR_i() {};

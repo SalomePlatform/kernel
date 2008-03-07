@@ -27,9 +27,9 @@
 
 #define ChildNodeIterator_UpToBrother \
 { \
-    while (!myNode.IsNull() && (myNode->Depth() > myFirstLevel) && myNode->myNext == NULL) \
+    while (myNode && (myNode->Depth() > myFirstLevel) && myNode->myNext == NULL) \
       myNode = myNode->myFather; \
-	if (!myNode.IsNull() && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
+	if (myNode && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
 	  myNode = myNode->myNext; \
 	else \
 	  myNode = NULL; \
@@ -48,8 +48,8 @@ SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator()
 //purpose  : 
 //=======================================================================
 
-SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator (const Handle(SALOMEDSImpl_AttributeTreeNode)& aNode,
-								const Standard_Boolean allLevels)
+SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator (const SALOMEDSImpl_AttributeTreeNode* aNode,
+								const bool allLevels)
 : myNode(aNode->myFirst),
   myFirstLevel(allLevels ? aNode->Depth() : -1)
 {}
@@ -59,8 +59,8 @@ SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator (const Handle(SAL
 //purpose  : 
 //=======================================================================
 
-void SALOMEDSImpl_ChildNodeIterator::Initialize(const Handle(SALOMEDSImpl_AttributeTreeNode)& aNode,
-						const Standard_Boolean allLevels)
+void SALOMEDSImpl_ChildNodeIterator::Initialize(const SALOMEDSImpl_AttributeTreeNode* aNode,
+						const bool allLevels)
 {
   myNode = aNode->myFirst;
   myFirstLevel = allLevels ? aNode->Depth() : -1;

@@ -31,7 +31,7 @@
 import os
 import sys
 import string
-import omnipatch                     # PAL10310
+
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
@@ -40,6 +40,7 @@ from SALOME_ComponentPy import *
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
+from launchConfigureParser import verbose
 
 #=============================================================================
 
@@ -61,7 +62,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         Container_path = "/Containers/" + myMachine + "/" + containerName
         #self._containerName = containerName
         self._containerName = Container_path
-        print "container name ",self._containerName
+        if verbose(): print "container name ",self._containerName
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
@@ -140,10 +141,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._numInstance = self._numInstance +1
         instanceName = nameToRegister + "_inst_" + `self._numInstance`
 
-	component=__import__(componentName)
-	factory=getattr(component,componentName)
-	comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
-	               instanceName, nameToRegister)
+        component=__import__(componentName)
+        factory=getattr(component,componentName)
+        comp_i=factory(self._orb, self._poa, self._this(), self._containerName,
+                       instanceName, nameToRegister)
 
         MESSAGE( "SALOME_ContainerPy_i::instance : component created")
         comp_o = comp_i._this()
@@ -170,9 +171,9 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         MESSAGE( "SALOME_Container_i::import_component" )
         ret=0
         try:
-            print "try import ",componentName
-            __import__(componentName)
-            print "import ",componentName," successful"
+            if verbose(): print "try import ",componentName
+            module=__import__(componentName)
+            if verbose(): print "import ",componentName," successful"
             ret=1
         except:
             import traceback
@@ -309,15 +310,19 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 #=============================================================================
 
 #initialise the ORB and find the root POA
+print "Starting ",sys.argv[1]
 orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
 poa = orb.resolve_initial_references("RootPOA")
+print "ORB and POA initialized"
 
 #create an instance of SALOME_ContainerPy_i and a Container reference
 #containerName = "FactoryServerPy"
 MESSAGE( str(sys.argv) )
 containerName = sys.argv[1]
 cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
+print "SALOME_ContainerPy_i instance created ",cpy_i 
 cpy_o = cpy_i._this()
+print "SALOME_ContainerPy_i instance activated ",cpy_o
 
 #activate the POA
 poaManager = poa._get_the_POAManager()

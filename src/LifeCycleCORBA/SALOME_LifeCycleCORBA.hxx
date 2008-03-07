@@ -39,19 +39,16 @@
 #include <Utils_SALOME_Exception.hxx>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
-
-#if defined LIFECYCLECORBA_EXPORTS
-#if defined WIN32
-#define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+#include <iostream>
+using namespace std;
+#ifdef WNT
+# if defined LIFECYCLECORBA_EXPORTS
+#  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+# else
+#  define LIFECYCLECORBA_EXPORT __declspec( dllimport )
+# endif
 #else
-#define LIFECYCLECORBA_EXPORT
-#endif
-#else
-#if defined WNT
-#define LIFECYCLECORBA_EXPORT __declspec( dllimport )
-#else
-#define LIFECYCLECORBA_EXPORT
-#endif
+# define LIFECYCLECORBA_EXPORT
 #endif
 
 
@@ -89,6 +86,12 @@ public:
   FindOrLoad_Component(const char *containerName,
 		       const char *componentName); // for compatibility
   
+  // Parallel extension
+  Engines::Component_ptr 
+    Load_ParallelComponent(const Engines::MachineParameters& params,
+                           const char *componentName,
+                           int studyId);
+
   bool isKnownComponentClass(const char *componentName);
 
   bool isMpiContainer(const Engines::MachineParameters& params)
@@ -99,6 +102,7 @@ public:
   void preSet(Engines::MachineParameters& params);
 
   Engines::ContainerManager_ptr getContainerManager();
+  Engines::ResourcesManager_ptr getResourcesManager();
 
 protected:
 
@@ -121,6 +125,7 @@ protected:
   
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;
+  Engines::ResourcesManager_var _ResManager;
   
 } ;
 

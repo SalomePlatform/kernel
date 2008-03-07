@@ -32,9 +32,9 @@ extern "C"
 #include "HDFtypes.h"
 }
 #include "HDFcontainerObject.hxx"
-#include <Standard_Macro.hxx>
+#include "HDFexport.hxx"
 
-class Standard_EXPORT HDFfile : public HDFcontainerObject
+class HDF_EXPORT HDFfile : public HDFcontainerObject
 {
 private :
   hdf_access_mode _access_mode;

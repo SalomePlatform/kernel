@@ -40,21 +40,23 @@ BUILT_SOURCES = swig_wrap.cpp
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Notification
 SWIG_SOURCES  = NOTIFICATION.i
 
-pkgpython_PYTHON = libNOTIFICATION.py
-pkgpyexec_LTLIBRARIES = _libNOTIFICATION.la
+salomepython_PYTHON = libNOTIFICATION.py
+salomepyexec_LTLIBRARIES = _libNOTIFICATION.la
 _libNOTIFICATION_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES) \
-	NOTIFICATION_Swig.cxx NOTIFICATION_Swig.hxx
+	NOTIFICATION_Swig.cxx NOTIFICATION_Swig.hxx SALOME_NOTIFICATION_SWIG.hxx
 _libNOTIFICATION_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(top_builddir)/salome_adm/unix \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 
 _libNOTIFICATION_la_LDFLAGS  = -module
-_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la \
-	@PYTHON_LIBS@
+_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la
+
+#	@PYTHON_LIBS@
 
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<

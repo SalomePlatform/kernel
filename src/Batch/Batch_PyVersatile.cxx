@@ -27,12 +27,12 @@
  *
  */
 
-#include <string>
 #include <Python.h>
 #include "Batch_TypeMismatchException.hxx"
 #include "Batch_ListIsFullException.hxx"
 #include "Batch_InvalidArgumentException.hxx"
 #include "Batch_PyVersatile.hxx"
+#include <string>
 
 namespace Batch {
 
@@ -93,7 +93,7 @@ namespace Batch {
     if (_maxsize != 1) { // une liste
       obj = PyList_New(0);
       for(Versatile::const_iterator it=begin(); it!=end(); it++) {
-	char ch[2] = {0, 0};
+//	char ch[2] = {0, 0};
 	string st;
 	Couple cp;
 // 	PyObject * tuple;
@@ -137,7 +137,7 @@ namespace Batch {
       }
 
     } else { // un scalaire
-      char ch[2] = {0, 0};
+//      char ch[2] = {0, 0};
       string st;
       Couple cp;
 //       PyObject * tuple;

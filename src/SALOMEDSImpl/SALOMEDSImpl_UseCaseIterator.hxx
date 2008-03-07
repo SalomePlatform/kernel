@@ -24,32 +24,28 @@
 #ifndef __SALOMEDSIMPL_USECASEITERATOR_H__
 #define __SALOMEDSIMPL_USECASEITERATOR_H__
 
-//Handle definition
-#include <Handle_MMgt_TShared.hxx>
-#include <Standard_DefineHandle.hxx>
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
-
 #include "SALOMEDSImpl_SObject.hxx"
+#include "DF_ChildIterator.hxx"
+#include "SALOMEDSImpl_ChildNodeIterator.hxx"
 
-// Cascade headers
-#include <TDF_ChildIterator.hxx>
-#include <SALOMEDSImpl_ChildNodeIterator.hxx>
-#include <Standard_GUID.hxx>
+#include <string>
 
-class SALOMEDSImpl_UseCaseIterator : public MMgt_TShared 
+class Standard_EXPORT SALOMEDSImpl_UseCaseIterator
 {
 
 private:
-  Standard_GUID                              _guid;
+  std::string                                _guid;
   bool                                       _levels;
-  Handle(SALOMEDSImpl_AttributeTreeNode)     _node;
+  SALOMEDSImpl_AttributeTreeNode*            _node;
   SALOMEDSImpl_ChildNodeIterator             _it;
 
 public:
 
+  SALOMEDSImpl_UseCaseIterator();
+
   //! standard constructor  
-  SALOMEDSImpl_UseCaseIterator(const TDF_Label& theLabel, 
-			       const Standard_GUID& theGUID, 
+  SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
+			       const std::string& theGUID, 
 			       const bool allLevels);
   
   //! standard destructor
@@ -58,9 +54,8 @@ public:
   virtual void Init(bool);
   virtual bool More();
   virtual void Next();
-  virtual Handle(SALOMEDSImpl_SObject) Value();
+  virtual SALOMEDSImpl_SObject Value();
 
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_UseCaseIterator )
+  SALOMEDSImpl_UseCaseIterator* GetPersistentCopy() const;
 };
 #endif

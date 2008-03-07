@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeSelectable: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeSelectable
 {
 public:  
-  SALOMEDS_AttributeSelectable(const Handle(SALOMEDSImpl_AttributeSelectable)& theAttr);
+  SALOMEDS_AttributeSelectable(SALOMEDSImpl_AttributeSelectable* theAttr);
   SALOMEDS_AttributeSelectable(SALOMEDS::AttributeSelectable_ptr theAttr);
   ~SALOMEDS_AttributeSelectable();
 

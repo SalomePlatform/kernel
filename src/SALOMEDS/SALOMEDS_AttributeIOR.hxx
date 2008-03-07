@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeIOR: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeIOR
 {
 public:  
-  SALOMEDS_AttributeIOR(const Handle(SALOMEDSImpl_AttributeIOR)& theAttr);
+  SALOMEDS_AttributeIOR(SALOMEDSImpl_AttributeIOR* theAttr);
   SALOMEDS_AttributeIOR(SALOMEDS::AttributeIOR_ptr theAttr);
   ~SALOMEDS_AttributeIOR();
 

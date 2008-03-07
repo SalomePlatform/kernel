@@ -29,7 +29,6 @@
 #include "SALOMEDS_SComponent_i.hxx"
 
 #include <string> 
-#include <TCollection_AsciiString.hxx> 
 
 using namespace std; 
 
@@ -37,7 +36,7 @@ SALOMEDS_SComponent::SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent)
 :SALOMEDS_SObject(theSComponent) 
 {}
 
-SALOMEDS_SComponent::SALOMEDS_SComponent(const Handle(SALOMEDSImpl_SComponent)& theSComponent)
+SALOMEDS_SComponent::SALOMEDS_SComponent(const SALOMEDSImpl_SComponent& theSComponent)
 :SALOMEDS_SObject(theSComponent) 
 {}
 
@@ -49,7 +48,7 @@ std::string SALOMEDS_SComponent::ComponentDataType()
   std::string aType;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aType = (Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()))->ComponentDataType().ToCString();
+    aType = (dynamic_cast<SALOMEDSImpl_SComponent*>(GetLocalImpl()))->ComponentDataType();
   }
   else aType = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentDataType();
 
@@ -61,9 +60,7 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
   bool ret;
   if (_isLocal) { 
     SALOMEDS::Locker lock;
-    TCollection_AsciiString anIOR;
-    ret = (Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()))->ComponentIOR(anIOR);
-    theID = anIOR.ToCString();
+    ret = (dynamic_cast<SALOMEDSImpl_SComponent*>(GetLocalImpl()))->ComponentIOR(theID);
   }
   else {
     CORBA::String_var anIOR;
@@ -78,7 +75,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
 {
   if(_isLocal) {
     if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
-    SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+    SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(*(dynamic_cast<SALOMEDSImpl_SComponent*>(GetLocalImpl())), _orb);
     _corba_impl = SALOMEDS::SComponent::_duplicate(aSCO);
     return aSCO._retn();
   }

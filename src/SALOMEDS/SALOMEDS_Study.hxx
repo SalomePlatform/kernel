@@ -39,13 +39,13 @@ class Standard_EXPORT SALOMEDS_Study: public SALOMEDSClient_Study
 
 private:
   bool                       _isLocal;
-  Handle(SALOMEDSImpl_Study) _local_impl;
+  SALOMEDSImpl_Study*        _local_impl;
   SALOMEDS::Study_var        _corba_impl;
   CORBA::ORB_var             _orb;
 
 public:
 
-  SALOMEDS_Study(const Handle(SALOMEDSImpl_Study)& theStudy);
+  SALOMEDS_Study(SALOMEDSImpl_Study* theStudy);
   SALOMEDS_Study(SALOMEDS::Study_ptr theStudy);
   ~SALOMEDS_Study();
 
@@ -75,6 +75,7 @@ public:
   virtual bool IsSaved();
   virtual void  IsSaved(bool save);
   virtual bool IsModified();
+  virtual void Modified();
   virtual std::string URL();
   virtual void  URL(const std::string& url);
   virtual int StudyId();
@@ -90,6 +91,11 @@ public:
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
 						       const std::string& theModuleName, int theSavePoint);
+  virtual void SetStudyLock(const std::string& theLockerID);
+  virtual bool IsStudyLocked();
+  virtual void UnLockStudy(const std::string& theLockerID);
+  virtual std::vector<std::string> GetLockerID();
+
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 

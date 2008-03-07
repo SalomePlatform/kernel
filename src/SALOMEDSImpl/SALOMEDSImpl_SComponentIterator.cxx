@@ -33,10 +33,10 @@ using namespace std;
  */
 //============================================================================
 
-SALOMEDSImpl_SComponentIterator::SALOMEDSImpl_SComponentIterator(const Handle(TDocStd_Document)& theDocument)
+SALOMEDSImpl_SComponentIterator::SALOMEDSImpl_SComponentIterator(DF_Document* theDocument)
 {
   _lab = theDocument->Main();
-  _it.Initialize (_lab);
+  _it.Init (_lab);
 }
 
 //============================================================================
@@ -46,7 +46,7 @@ SALOMEDSImpl_SComponentIterator::SALOMEDSImpl_SComponentIterator(const Handle(TD
 //============================================================================
 void SALOMEDSImpl_SComponentIterator::Init()
 { 
-  _it.Initialize (_lab);
+  _it.Init (_lab);
 }
 
 //============================================================================
@@ -58,14 +58,11 @@ bool SALOMEDSImpl_SComponentIterator::More()
 {
   if (!_it.More())
     return false;
-  TDF_Label L = _it.Value();
-  if (SALOMEDSImpl_SComponent::IsA(L))
-     return true;
-
-  return _it.More();
+  DF_Label L = _it.Value();
+  return SALOMEDSImpl_SComponent::IsA(L);
 }
 
- //============================================================================
+//============================================================================
 /*! Function : Next
   */
 //============================================================================
@@ -80,8 +77,20 @@ void SALOMEDSImpl_SComponentIterator::Next()
  * 
  */
 //============================================================================
-Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SComponentIterator::Value()
+SALOMEDSImpl_SComponent SALOMEDSImpl_SComponentIterator::Value()
 {
   return SALOMEDSImpl_Study::SComponent(_it.Value());
 }
 
+//============================================================================
+/*! Function : GetPersistentCopy
+  */
+//============================================================================
+SALOMEDSImpl_SComponentIterator* SALOMEDSImpl_SComponentIterator::GetPersistentCopy() const
+{
+  SALOMEDSImpl_SComponentIterator* itr = new SALOMEDSImpl_SComponentIterator();
+  itr->_lab = _lab;
+  itr->_it = _it; 
+  
+  return itr;
+}

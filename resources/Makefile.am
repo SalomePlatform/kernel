@@ -31,8 +31,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 
-DEPRECATED_FILES=\
-	DEPRECATED/Plugin
+DEPRECATED_FILES=
 
 dist_salomeres_DATA=\
 	CatalogResources.xml \

@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeInteger: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeInteger
 {
 public:  
-  SALOMEDS_AttributeInteger(const Handle(SALOMEDSImpl_AttributeInteger)& theAttr);
+  SALOMEDS_AttributeInteger(SALOMEDSImpl_AttributeInteger* theAttr);
   SALOMEDS_AttributeInteger(SALOMEDS::AttributeInteger_ptr theAttr);
   ~SALOMEDS_AttributeInteger();
 

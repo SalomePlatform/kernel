@@ -66,13 +66,13 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeReference.hxx \
 	SALOMEDSImpl_AttributeParameter.hxx \
+	SALOMEDSImpl_AttributeString.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
 	SALOMEDSImpl_UseCaseIterator.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
 	SALOMEDSImpl_StudyBuilder.hxx \
 	SALOMEDSImpl_Study.hxx \
 	SALOMEDSImpl_StudyManager.hxx \
-	SALOMEDSImpl_OCAFApplication.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
 	SALOMEDSImpl_IParameters.hxx \
 	SALOMEDSImpl_TMPFile.hxx
@@ -85,21 +85,18 @@ salomeinclude_HEADERS= \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
-	@HDF5_INCLUDES@
-
-# This flag is used to resolve the dependencies of OCC libraries.
-LDXMUFLAGS = -L/usr/X11R6/lib@LIB_LOCATION_SUFFIX@ -lXmu
+	-I$(srcdir)/../DF \
+	@HDF5_INCLUDES@ \
+	@BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../HDFPersist/libSalomeHDFPersist.la \
-	@CAS_OCAF@ \
-	@HDF5_LIBS@ \
-	$(LDXMUFLAGS)
+	../DF/libDF.la \
+	@HDF5_LIBS@ 
 
 
 #
@@ -116,7 +113,6 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_SObject.cxx \
 	SALOMEDSImpl_SComponent.cxx \
 	SALOMEDSImpl_ChildIterator.cxx \
-	SALOMEDSImpl_OCAFApplication.cxx \
 	SALOMEDSImpl_AttributeIOR.cxx \
 	SALOMEDSImpl_AttributeExternalFileDef.cxx \
 	SALOMEDSImpl_AttributeFileType.cxx \
@@ -147,6 +143,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeComment.cxx \
 	SALOMEDSImpl_AttributeReference.cxx \
 	SALOMEDSImpl_AttributeParameter.cxx \
+	SALOMEDSImpl_AttributeString.cxx \
 	SALOMEDSImpl_ChildNodeIterator.cxx \
 	SALOMEDSImpl_UseCaseBuilder.cxx \
 	SALOMEDSImpl_UseCaseIterator.cxx \
@@ -187,12 +184,13 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeTextHighlightColor.hxx \
 	SALOMEDSImpl_AttributeTreeNode.hxx \
 	SALOMEDSImpl_AttributeUserID.hxx \
+	SALOMEDSImpl_AttributeParameter.hxx \
+	SALOMEDSImpl_AttributeString.hxx \
 	SALOMEDSImpl_Callback.hxx \
 	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
 	SALOMEDSImpl_Driver.hxx \
 	SALOMEDSImpl_GenericAttribute.hxx \
-	SALOMEDSImpl_OCAFApplication.hxx \
 	SALOMEDSImpl_SComponent.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
 	SALOMEDSImpl_SObject.hxx \
@@ -216,4 +214,5 @@ libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS)
 bin_PROGRAMS = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDS_LDADD    = libSalomeDSImpl.la $(COMMON_LIBS)
+testDS_LDADD    = libSalomeDSImpl.la \
+	$(HDF5_LIBS)

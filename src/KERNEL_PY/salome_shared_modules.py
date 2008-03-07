@@ -22,8 +22,6 @@
 #  File   : salome_shared_modules.py
 #  Module : SALOME
 
-from SALOME_utilities import *
-
 """
 This module with help of import_hook and *_shared_modules
 filters imports when using the embedded Python interpretor.
@@ -56,13 +54,19 @@ import glob,os,sys
 import import_hook
 # shared_imported, patterns, register_name, register_pattern
 # will be shared by all Python sub interpretors
-from omnipatch import shared_imported
-import_hook.shared_imported=shared_imported
 from import_hook import patterns
 from import_hook import register_name
 from import_hook import register_pattern
 
 register_name("salome_shared_modules")
+register_name("omniORB")
+register_name("omnipatch")
+register_pattern(lambda(x):x.endswith("_idl"))
+register_pattern(lambda(x):x.startswith("omniORB."))
+
+from omnipatch import shared_imported
+shared_imported.update(import_hook.shared_imported)
+import_hook.shared_imported=shared_imported
 
 # Get the SALOMEPATH if set or else use KERNEL_ROOT_DIR that should be set.
 salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
@@ -70,16 +74,30 @@ salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
 list_modules=[]
 
 # Import all *_shared_modules in the path and store them in list_modules
-path=salome_path.split(":")
+splitter = ":"
+if sys.platform == "win32":
+  splitter = ";"
+path=salome_path.split(splitter)
+import platform
+if platform.architecture()[0] == "64bit":
+    if platform.machine() == "ia64":
+        libdir = "lib"
+    else:
+        libdir = "lib64"
+else:
+    libdir = "lib"
 for rep in path:
     # Import all *_shared_modules in rep
-    for f in glob.glob(os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
+    for f in glob.glob(os.path.join(rep,libdir,"python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
         try:
            name=os.path.splitext(os.path.basename(f))[0]
            register_name(name)
+           #print name + " REGISTERED"
            m=__import__(name)
+           #print name + " IMPORTED"
            list_modules.append(m)
         except:
+           print "Exception during register and import shared module"
            pass
 
 # 
@@ -87,7 +105,7 @@ for rep in path:
 # we add them to shared_imported
 #
 for name,module in sys.modules.items():
-    if import_hook.is_shared(name) and shared_imported.get(name) is None:
+    if module and import_hook.is_shared(name) and not shared_imported.has_key(name):
        #print "Module shared added to shared_imported: ",name
        shared_imported[name]=module
 

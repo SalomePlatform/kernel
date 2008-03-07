@@ -20,6 +20,8 @@
 #ifndef __SALOME_CONTAINERMANAGER_HXX__
 #define __SALOME_CONTAINERMANAGER_HXX__
 
+#include <SALOME_Container.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
@@ -30,44 +32,42 @@
 
 class SALOME_NamingService;
 
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
-#endif
-
 class CONTAINER_EXPORT SALOME_ContainerManager:
-  public POA_Engines::ContainerManager,
-  public PortableServer::RefCountServantBase
+  public POA_Engines::ContainerManager
 {
 
 public:
-  SALOME_ContainerManager(CORBA::ORB_ptr orb);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns);
   ~SALOME_ContainerManager();
 
   Engines::Container_ptr
   FindOrStartContainer(const Engines::MachineParameters& params,
 		       const Engines::MachineList& possibleComputer);
 
-  Engines::MachineList *
-  GetFittingResources(const Engines::MachineParameters& params,
-		      const char *componentName);
+  Engines::Container_ptr
+  StartContainer(const Engines::MachineParameters& params,
+		 const Engines::MachineList& possibleComputer,
+		 Engines::ResPolicy policy);
 
-  char* FindBest(const Engines::MachineList& possibleComputers);
+  Engines::Container_ptr
+  StartContainer(const Engines::MachineParameters& params,
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
+
+  Engines::Container_ptr
+  GiveContainer(const Engines::MachineParameters& params,
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
 
   void Shutdown();
   void ShutdownContainers();
 
   static const char *_ContainerManagerNameInNS;
 
+  // Parallel extension
+  Engines::Container_ptr
+  FindOrStartParallelContainer(const Engines::MachineParameters& params,
+			       const Engines::MachineList& possibleComputer);
 protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
@@ -77,11 +77,23 @@ protected:
   FindContainer(const Engines::MachineParameters& params,
 		const char *theMachine);
 
+  // Parallel extension
+  CORBA::Object_ptr 
+  LaunchParallelContainer(const std::string& command, 
+			  const Engines::MachineParameters& params,
+			  const std::string& name);
+
+  void fillBatchLaunchedContainers();
+
   long GetIdForContainer(void);
   long _id;
+  CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+  static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
+  static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
 };
 
 #endif

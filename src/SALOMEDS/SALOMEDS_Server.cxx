@@ -26,12 +26,14 @@
 //  Module : SALOME
 //  $Header$
 
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS)
-#include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
 #include "Utils_SINGLETON.hxx"
+
 #include "SALOME_NamingService.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
+
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -54,11 +56,9 @@ int main(int argc, char** argv)
     {
       // Initialise the ORB.
 #if OMNIORB_VERSION >= 4
-      const char* options[][2] = { { "giopMaxMsgSize", "104857600" }, { 0, 0 } };
-      CORBA::ORB_var orb = CORBA::ORB_init( argc , argv , "omniORB4", options) ;
+      CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
 #else
-      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB3");
-      omniORB::MaxMessageSize(100 * 1024 * 1024);
+      CORBA::ORB_var orb = CORBA::ORB_init( argc, argv, "omniORB3" );
 #endif      
       // Obtain a reference to the root POA.
       long TIMESleep = 500000000;
@@ -161,6 +161,7 @@ int main(int argc, char** argv)
       // ready to accept requests.
       PortableServer::ObjectId_var myStudyManager_iid = poa->activate_object(myStudyManager_i);
       myStudyManager_i->register_name("/myStudyManager");
+      myStudyManager_i->_remove_ref();
        
       // Obtain a POAManager, and tell the POA to start accepting
       // requests on its objects.

@@ -36,9 +36,9 @@ using namespace std;
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const Handle(SALOMEDSImpl_ChildIterator)& theImpl,
+SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const SALOMEDSImpl_ChildIterator& theImpl,
 						   CORBA::ORB_ptr orb) 
-  : _it(theImpl)
+  : _it(theImpl.GetPersistentCopy())
 {
   SALOMEDS::Locker lock;
   _orb = CORBA::ORB::_duplicate(orb);
@@ -51,6 +51,7 @@ SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const Handle(SALOMEDSImpl_Chi
 //============================================================================
 SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 {
+    if(_it) delete _it;
 }
 
 //============================================================================
@@ -107,7 +108,7 @@ void SALOMEDS_ChildIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aSO = _it->Value();
+  SALOMEDSImpl_SObject aSO = _it->Value();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }

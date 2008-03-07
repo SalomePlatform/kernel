@@ -41,7 +41,8 @@ salomeinclude_HEADERS =\
 	Utils_SINGLETON.hxx \
 	Utils_DESTRUCTEUR_GENERIQUE.hxx \
 	Utils_ExceptHandlers.hxx \
-	Utils_Mutex.hxx
+	Utils_Mutex.hxx \
+	SALOME_Utils.hxx
 
 # Scripts to be exported
 dist_salomescript_DATA =\
@@ -70,7 +71,7 @@ libOpUtil_la_CPPFLAGS = \
 
 libOpUtil_la_LIBADD   = \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la\
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@CORBA_LIBS@
 
 

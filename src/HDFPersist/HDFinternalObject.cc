@@ -33,7 +33,7 @@ extern "C"
 using namespace std;
 #endif
 
-HDFinternalObject::HDFinternalObject(char *name)
+HDFinternalObject::HDFinternalObject(const char *name)
   : HDFobject(name)
 {
   _previousbrother = NULL;

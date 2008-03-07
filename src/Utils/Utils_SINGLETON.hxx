@@ -29,6 +29,8 @@
 # if !defined( __SINGLETON__H__ )
 # define __SINGLETON__H__
 
+#include "SALOME_Utils.hxx"
+
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
 # include <list>
 

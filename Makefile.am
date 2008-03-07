@@ -28,6 +28,8 @@ if CORBA_GEN
   IDLDIR = idl
 endif
 
+ACLOCAL_AMFLAGS = -I salome_adm/unix/config_files
+
 SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
 
 DIST_SUBDIRS=   idl salome_adm src doc bin resources

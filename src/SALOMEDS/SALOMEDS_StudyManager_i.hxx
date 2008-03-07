@@ -27,6 +27,10 @@
 // std C++ headers
 #include <iostream>
 
+#ifndef WNT
+#include <unistd.h>
+#endif
+
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -36,28 +40,23 @@
 
 #include <stdlib.h>
 
-//Standard not implemented
-#include <Standard_NotImplemented.hxx>
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDSImpl_StudyManager.hxx"
 
 namespace SALOMEDS{
-
-  // To convert IOR from SALOMEDS_IORAttribute to CORBA::Object
-  /* CORBA::Object_var GetObject(const TDF_Label&, CORBA::ORB_ptr); */
 
   // To convert CORBA::Object to  PortableServer::ServantBase
   PortableServer::ServantBase_var GetServant(CORBA::Object_ptr, PortableServer::POA_ptr);
 
 }    
 
-class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
-			       public PortableServer::RefCountServantBase {
+class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager
+{
 private:
 
-  CORBA::ORB_ptr                    _orb;
+  CORBA::ORB_var                    _orb;
   PortableServer::POA_var           _poa;
-  Handle(SALOMEDSImpl_StudyManager) _impl;  
+  SALOMEDSImpl_StudyManager*        _impl;  
   SALOME_NamingService*             _name_service;
   SALOMEDS_DriverFactory_i*         _factory; 
 
@@ -141,10 +140,14 @@ public:
   virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
   
   void ping(){};
+  CORBA::Long getPID();
+  void ShutdownWithExit();
 
-  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 
   static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
+
+  void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
 };
 
 #endif 

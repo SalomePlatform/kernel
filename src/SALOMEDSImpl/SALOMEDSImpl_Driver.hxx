@@ -20,7 +20,7 @@
 #ifndef __SALOMEDSIMPL_DRIVER_H__
 #define __SALOMEDSIMPL_DRIVER_H__
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
 #include <SALOMEDSImpl_SComponent.hxx>
 #include <SALOMEDSImpl_SObject.hxx>
 #include <SALOMEDSImpl_TMPFile.hxx>
@@ -30,71 +30,71 @@ class SALOMEDSImpl_Driver
 {
 public:
 
-  virtual TCollection_AsciiString GetIOR() = 0;
+  virtual std::string GetIOR() = 0;
 
-  virtual Handle(SALOMEDSImpl_TMPFile) Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-					    const TCollection_AsciiString& theURL,
-					    long& theStreamLength,
-					    bool isMultiFile) = 0;
+  virtual SALOMEDSImpl_TMPFile* Save(const SALOMEDSImpl_SComponent& theComponent,
+				     const std::string& theURL,
+				     long& theStreamLength,
+				     bool isMultiFile) = 0;
 
-  virtual Handle(SALOMEDSImpl_TMPFile) SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-						 const TCollection_AsciiString& theURL,
-						 long& theStreamLength,
-						 bool isMultiFile) = 0;
+  virtual SALOMEDSImpl_TMPFile* SaveASCII(const SALOMEDSImpl_SComponent& theComponent,
+				  	  const std::string& theURL,
+					  long& theStreamLength,
+					  bool isMultiFile) = 0;
   
-  virtual bool Load(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+  virtual bool Load(const SALOMEDSImpl_SComponent& theComponent,
 		    const unsigned char* theStream,
 		    const long theStreamLength,
-		    const TCollection_AsciiString& theURL,
+		    const std::string& theURL,
 		    bool isMultiFile) = 0;
 
-  virtual bool LoadASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+  virtual bool LoadASCII(const SALOMEDSImpl_SComponent& theComponent,
 			 const unsigned char* theStream,
 			 const long theStreamLength,
-			 const TCollection_AsciiString& theURL,
+			 const std::string& theURL,
 			 bool isMultiFile) = 0;
 
-  virtual void Close(const Handle(SALOMEDSImpl_SComponent)& theComponent) = 0;
+  virtual void Close(const SALOMEDSImpl_SComponent& theComponent) = 0;
  
-  virtual TCollection_AsciiString ComponentDataType() = 0;
+  virtual std::string ComponentDataType() = 0;
 
 
-  virtual TCollection_AsciiString IORToLocalPersistentID(const Handle(SALOMEDSImpl_SObject)& theSObject,
-							 const TCollection_AsciiString& IORString,
+  virtual std::string IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
+							 const std::string& IORString,
 							 bool isMultiFile,
 							 bool isASCII) = 0;
 
-  virtual TCollection_AsciiString LocalPersistentIDToIOR(const Handle(SALOMEDSImpl_SObject)& theSObject,
-							 const TCollection_AsciiString& aLocalPersistentID,
+  virtual std::string LocalPersistentIDToIOR(const SALOMEDSImpl_SObject& theSObject,
+							 const std::string& aLocalPersistentID,
 							 bool isMultiFile,
 							 bool isASCII) = 0;
 
-  virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject) = 0;
+  virtual bool CanCopy(const SALOMEDSImpl_SObject& theObject) = 0;
 
-  virtual Handle(SALOMEDSImpl_TMPFile) CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
-						int& theObjectID,
-						long& theStreamLength) = 0;
+  virtual SALOMEDSImpl_TMPFile* CopyFrom(const SALOMEDSImpl_SObject& theObject, 
+					 int& theObjectID,
+					 long& theStreamLength) = 0;
   
-  virtual bool CanPaste(const TCollection_AsciiString& theComponentName, int theObjectID) = 0;
+  virtual bool CanPaste(const std::string& theComponentName, int theObjectID) = 0;
 
-  virtual TCollection_AsciiString PasteInto(const unsigned char* theStream,
+  virtual std::string PasteInto(const unsigned char* theStream,
 					    const long theStreamLength,
 					    int theObjectID,
-					    const Handle(SALOMEDSImpl_SObject)& theObject) = 0;
+					    const SALOMEDSImpl_SObject& theObject) = 0;
 
-  virtual Handle(SALOMEDSImpl_TMPFile) DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
-						  bool isPublished, 
-						  bool& isValidScript,
-						  long& theStreamLength) = 0;
+  virtual SALOMEDSImpl_TMPFile* DumpPython(SALOMEDSImpl_Study* theStudy, 
+				           bool isPublished, 
+				           bool& isValidScript,
+				           long& theStreamLength) = 0;
 };
 
 class SALOMEDSImpl_DriverFactory
 {
 public:
   
-  virtual SALOMEDSImpl_Driver* GetDriverByType(const TCollection_AsciiString& theComponentType) = 0;
+  virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType) = 0;
 
-  virtual SALOMEDSImpl_Driver* GetDriverByIOR(const TCollection_AsciiString& theIOR) = 0;
+  virtual SALOMEDSImpl_Driver* GetDriverByIOR(const std::string& theIOR) = 0;
 };
 
 #endif 

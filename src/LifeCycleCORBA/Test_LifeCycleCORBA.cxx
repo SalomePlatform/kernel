@@ -140,12 +140,6 @@ int main (int argc, char * argv[])
     {
       INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.");
     }
-#ifndef WNT
-  catch(CORBA::SystemException&)
-    {
-      INFOS("Caught a CORBA::SystemException.");
-    }
-#endif
   catch(CORBA::Exception&)
     {
       INFOS("Caught CORBA::Exception.");

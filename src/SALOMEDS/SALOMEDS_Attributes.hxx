@@ -55,6 +55,7 @@
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
+#include "SALOMEDSImpl_AttributeString.hxx"
 
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeName_i.hxx"
@@ -86,9 +87,10 @@
 #include "SALOMEDS_AttributeFlags_i.hxx"
 #include "SALOMEDS_AttributeGraphic_i.hxx"
 #include "SALOMEDS_AttributeParameter_i.hxx"
+#include "SALOMEDS_AttributeString_i.hxx"
 
 #define __CreateCORBAAttribute(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
-    Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theAttr); \
+    SALOMEDSImpl_##CORBA_Name* A = dynamic_cast<SALOMEDSImpl_##CORBA_Name*>(theAttr); \
     SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(A, theOrb); \
     attr_servant = Attr; \
     anAttribute = Attr->CORBA_Name::_this(); \
@@ -124,6 +126,7 @@ __CreateCORBAAttribute(AttributeFlags) \
 __CreateCORBAAttribute(AttributeGraphic) \
 __CreateCORBAAttribute(AttributeTreeNode) \
 __CreateCORBAAttribute(AttributeUserID) \
-__CreateCORBAAttribute(AttributeParameter)
+__CreateCORBAAttribute(AttributeParameter) \
+__CreateCORBAAttribute(AttributeString)
 
 #endif

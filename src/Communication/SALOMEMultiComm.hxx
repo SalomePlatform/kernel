@@ -20,6 +20,8 @@
 #ifndef _SALOMEMULTICOMM_HXX_
 #define _SALOMEMULTICOMM_HXX_
 
+#include <SALOME_Communication.hxx>
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)
 
@@ -27,7 +29,7 @@
   Class is designed to ease the use of multi communication.\n
   Simply inherite from it your servant class you want to emit data with senders.
  */
-class SALOMEMultiComm : public virtual POA_SALOME::MultiCommClass {
+class COMMUNICATION_EXPORT SALOMEMultiComm : public virtual POA_SALOME::MultiCommClass {
 protected:
   SALOME::TypeOfCommunication _type;
 public:

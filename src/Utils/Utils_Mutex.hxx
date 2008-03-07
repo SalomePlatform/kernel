@@ -28,21 +28,9 @@
 #ifndef Utils_Mutex_HeaderFile
 #define Utils_Mutex_HeaderFile
 
-#include <pthread.h>
+#include "SALOME_Utils.hxx"
 
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
-#else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
-#endif
+#include <pthread.h>
 
 class UTILS_EXPORT Utils_Mutex
 {

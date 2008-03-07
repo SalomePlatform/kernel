@@ -31,7 +31,8 @@ salomeinclude_HEADERS = \
 	MultiCommException.hxx \
 	SALOME_Comm_i.hxx \
 	MatrixClient.hxx \
-	SALOME_Matrix_i.hxx
+	SALOME_Matrix_i.hxx \
+	SALOME_Communication.hxx
 
 # Scripts to be installed
 

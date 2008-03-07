@@ -55,6 +55,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_AttributeTreeNode.hxx \
                 SALOMEDSClient_AttributeUserID.hxx \
 		SALOMEDSClient_AttributeParameter.hxx \
+		SALOMEDSClient_AttributeString.hxx \
                 SALOMEDSClient_ChildIterator.hxx \
                 SALOMEDSClient_GenericAttribute.hxx \
                 SALOMEDSClient_SComponent.hxx \

@@ -1,0 +1,236 @@
+/*!
+  \page KERNEL_Services KERNEL Services for end user (Python interface)
+
+<b>WORK in PROGRESS, INCOMPLETE DOCUMENT</b>
+
+In a %SALOME application, distributed components, servers and clients use
+the CORBA middleware for comunication. CORBA interfaces are defined via idl
+files. All the different CORBA interfaces are available for users in Python,
+see CORBA interfaces below.
+
+For some general purpose services, CORBA interfaces have been encapsulated
+in order to provide a simple interface (encapsulation is generally done in
+C++ classes, and a Python SWIG interface is also generated from C++, to 
+ensure a consistent behavior between C++ modules and Python modules or user
+script).
+
+\section S1_kernel_ser General purpose services
+
+<ol>
+<li>
+<b>%SALOME services access from a Python shell</b>
+
+See \ref SALOME_Application for detailed instructions to launch a Python
+interpreter with full acces to the %SALOME environment and services.
+
+You can use the embedded Python interpreter in Grahic User Interface, or an
+external interpreter, with:
+
+\code
+./runSession
+python
+\endcode
+
+In either cases, %SALOME services access is done with:
+
+\code
+import salome
+salome.salome_init()
+\endcode
+
+In the embedded interpreter, it is already done, but there is no problem to
+do it several times, so it is preferable to add these instructions
+systematically in your scripts, to allow them to work in all configurations.
+
+</li>
+<li>
+<b>Container and component instanciation</b>
+
+See LifeCycleCORBA for the C++ interface (Python interface obtained with SWIG
+is very similar).
+
+In the following example, a test component provided in KERNEL is launched
+in the local container, "FactoryServer", created when %SALOME starts:
+
+\code
+import salome
+salome.salome_init()
+   
+import LifeCycleCORBA
+lcc = LifeCycleCORBA.LifeCycleCORBA()
+obj=lcc.FindOrLoad_Component("FactoryServer","SalomeTestComponent")
+   
+import Engines
+comp=obj._narrow(Engines.TestComponent)
+ 
+comp.Coucou(1)
+\endcode   
+
+The answer is something like:
+
+\code
+'TestComponent_i : L = 1'
+\endcode
+
+The _narrow() instruction is not always mandatory in Python, but sometimes 
+useful to be sure you have got the right type of %object. Here, Testcomponent
+interface is defined in CORBA module Engines. With this example, it works also
+without the _narrow() instruction:
+
+\code
+   obj.Coucou(1)
+\endcode
+
+In the next example, a component instance is created in a specific Container
+defined by it's computer hostname and it's name. Here we use the local
+computer. Note that in Utils_Identity, getShortHostName() gives the short
+hostname of the computer, without domain suffixes, which is used in %SALOME.
+The container process is created here if it does not exists, and a new
+component instance is created:
+
+\code
+import salome
+salome.salome_init()
+import LifeCycleCORBA
+lcc = LifeCycleCORBA.LifeCycleCORBA()
+
+import Utils_Identity
+host  = Utils_Identity.getShortHostName()
+
+import Engines
+params={}
+params['hostname']=host
+params['container_name']='myContainer'
+comp=lcc.LoadComponent(params,'SalomeTestComponent')
+comp.Coucou(1)
+\endcode
+
+If you want to get a list of containers and component instances, client %object
+from orbmodule provides a list:
+
+\code
+import orbmodule
+clt=orbmodule.client()
+clt.showNS()
+\endcode
+
+The list looks like:
+
+\code
+Logger.
+ContainerManager.object
+Containers.dir
+  cli70ac.dir
+    FactoryServerPy.object
+    SuperVisionContainer.object
+    FactoryServer.object
+    FactoryServer.dir
+      SalomeTestComponent_inst_1.object
+    myContainer.object
+    myContainer.dir
+      SalomeTestComponent_inst_1.object
+      SalomeTestComponent_inst_2.object
+Registry.object
+Kernel.dir
+  ModulCatalog.object
+  Session.object
+Study.dir
+  Study2.object
+  extStudy_1.object
+  extStudy_2.object
+  extStudy_3.object
+myStudyManager.object
+SalomeAppEngine.object
+\endcode
+
+</li>
+<li>
+<b>File transfer service</b>
+
+See SALOME_FileTransferCORBA for the C++ interface (Python interface obtained with
+SWIG is very similar).
+
+The following example shows how to tranfer a file from a remote host to the
+client computer. Remote hostname is 'cli76cc', we would like to copy
+'tkcvs_8_0_3.tar.gz' from remote to local computer. %A full pathname is
+required. %A container is created on remote computer if it does not exist,
+to handle the file transfer:
+
+\code
+import salome
+salome.salome_init()
+
+import LifeCycleCORBA
+remotefile="/home/prascle/tkcvs_8_0_3.tar.gz"
+aFileTransfer=LifeCycleCORBA.SALOME_FileTransferCORBA('cli76cc',remotefile)
+localFile=aFileTransfer.getLocalFile()
+\endcode
+
+</li>
+<li>
+<b>CORBA Naming service access</b>
+
+See SALOME_NamingService for the C++ interface. The Python interface
+SALOME_NamingServicePy is not yet derived from the C++ interface and offers
+only the most useful functions.
+
+</li>
+<li>
+<b>Batch services</b>
+
+See \ref batch_page documentation (in french only).
+
+</li>
+</ol>
+
+\section S2_kernel_ser All IDL Interfaces
+
+<ol>
+<li>
+<b>Containers and component life cycle, File transfer service</b>
+
+- Engines : engines CORBA module.                         
+- Engines::Component : generic component interface. All %SALOME components inherit this interface.
+- Engines::Container : host for C++ and Python components components instances                          
+- Engines::fileTransfer : agent for file transfer created by a container copy a local file to a distent client         
+- Engines::fileRef : reference to a file, used by a container for file transfers                                
+- Engines::ContainerManager : unique instance, in charge of container creation on remote computers                  
+- Engines::MPIContainer : an exemple of parallel implementation for containers and components                     
+- Engines::MPIObject
+
+</li>
+<li>
+<b>Study management</b>
+
+- SALOMEDS : SALOMEDS CORBA module
+- SALOMEDS.idl
+- SALOMEDS_Attributes.idl
+
+</li>
+<li>
+<b>High speed transfer, object life cycle, exceptions, GUI interface...</b>
+
+- SALOME : %SALOME CORBA module
+- SALOME_Comm.idl
+- SALOME_GenericObj.idl
+- SALOME_Exception
+- SALOME_Session.idl
+
+</li>
+<li>
+<b>Miscelleanous</b>
+
+- SALOME_ModuleCatalog
+- SALOME_RessourcesCatalog
+- SALOME_Registry.idl
+- Logger.idl
+
+<b>Other idl for test purposes</b>
+\n
+- nstest.idl
+- SALOME_TestComponent.idl
+- SALOME_TestModuleCatalog.idl
+- SALOME_TestMPIComponent.idl
+- TestNotif.idl
+
+*/

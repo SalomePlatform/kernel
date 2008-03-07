@@ -55,8 +55,8 @@ BUILT_SOURCES = swig_wrap.cpp
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Batch
 SWIG_SOURCES  = libBatch_Swig.i libBatch_Swig_exception.i libBatch_Swig_typemap.i
 
-pkgpython_PYTHON           = libBatch_Swig.py
-pkgpyexec_LTLIBRARIES      = _libBatch_Swig.la
+salomepython_PYTHON           = libBatch_Swig.py
+salomepyexec_LTLIBRARIES      = _libBatch_Swig.la
 _libBatch_Swig_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libBatch_Swig_la_CPPFLAGS = @PYTHON_INCLUDES@ -I$(srcdir) -I$(srcdir)/../Batch
 _libBatch_Swig_la_LDFLAGS  = -module
@@ -83,4 +83,4 @@ CLEANFILES = swig_wrap.cpp
 dist_salomescript_SCRIPTS = Batch_test.py
 
 # You don't need to specify libBatch_Swig.py. It is automatically
-# installed by means of the swig target pkgpython_PYTHON.
+# installed by means of the swig target salomepython_PYTHON.

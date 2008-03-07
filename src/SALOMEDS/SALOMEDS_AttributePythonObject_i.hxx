@@ -35,7 +35,7 @@ class SALOMEDS_AttributePythonObject_i: public virtual POA_SALOMEDS::AttributePy
                                         public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributePythonObject_i(const Handle(SALOMEDSImpl_AttributePythonObject)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributePythonObject_i(SALOMEDSImpl_AttributePythonObject* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributePythonObject_i() {};

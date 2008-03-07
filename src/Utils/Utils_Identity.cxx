@@ -83,23 +83,45 @@ const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-	char* hostName = new char[256];
-	DWORD nSize = 256;
-	ASSERT(GetComputerName(hostName, &nSize));
-	return hostName;
+	static std::string hostName(256, 0);
+	static DWORD nSize = hostName.length();
+	static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
+	ASSERT( res );
+	return hostName.c_str();
 }
 
 const char* get_adip( void )
 {
-  return get_uname();
+	//#include <Nspapi.h>
+	//#include <Svcguid.h>
+	//static GUID sType = SVCID_HOSTNAME;
+	//static CSADDR_INFO* ips = new CSADDR_INFO[8]; // in case multiple IP addresses are returned
+	//static DWORD nSize = 1024;
+	//static std::string uname = get_uname();
+	//static int res = ::GetAddressByName( NS_DEFAULT, &sType, &uname[0], 0, 0, 0, ips, &nSize, 0, 0 );
+	//if ( res )
+	//  return ips[0].LocalAddr.lpSockaddr->sa_data;
+
+	static hostent* he = ::gethostbyname( get_uname() );
+	if ( he && he->h_addr_list && he->h_length >0 ) {
+	  static char str[16];
+      unsigned i1 = (unsigned char)he->h_addr_list[0][0];
+      unsigned i2 = (unsigned char)he->h_addr_list[0][1];
+      unsigned i3 = (unsigned char)he->h_addr_list[0][2];
+      unsigned i4 = (unsigned char)he->h_addr_list[0][3];
+      sprintf ( str, "%03u.%03u.%03u.%03u", i1, i2, i3, i4 );
+		return str;
+	}
+	return "<unknown>";
 }
 
 const char* const get_pwname( void )
 {
-  DWORD                   dwSize = 256 + 1;
-  char* retVal = new char[256];
-  ASSERT(GetUserName ( retVal, &dwSize ));
-  return retVal;
+  static std::string retVal(256, 0);
+  static DWORD  dwSize = retVal.length() + 1;
+  static int res = GetUserName( &retVal[0], &dwSize );
+  ASSERT( res );
+  return retVal.c_str();
 }
 
 PSID getuid() {
@@ -149,9 +171,14 @@ Identity::~Identity(void)
 	//delete [] (char*)_dir ;
 	//(char*&)_dir = NULL ;
 	free((char*)_dir);
-	
+#ifndef WIN32	
+  // free the memory only on Unix
+  // becasue at Windows it is the same static variable
+  // (function get_adip() returns the same char* as get_uname() )
 	delete [] (char*)_adip ;
+#endif
 	(char*&)_adip = NULL ;
+
 }
 
 /*------------*/

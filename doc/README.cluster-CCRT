@@ -1,0 +1,63 @@
+
+OverView
+========
+
+That describes how to start Salome without IHM in "terminal" mode.
+
+With that "terminal" mode Salome may be started in "Batch" mode.
+
+And one or more python scripts may be executed
+
+Warnings
+========
+
+The list of needed modules must be explicited with --modules option
+
+It is not possible to use embbedded components, so we must use --standalone option
+
+After the python script(s) listed in the --terminal option, ",killall" should
+be added : so the processes of Salome will be killed after the execution of
+the python script(s).
+
+
+Examples
+========
+
+Sans IHM sans execution de script python (for interactive testing and developping) :
+---------------------------------------------
+
+runSalome --terminal --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+
+Sans IHM avec execution de script(s) python :
+---------------------------------------------
+
+runSalome --terminal=CALCULATOR_TEST --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+
+runSalome --terminal=CALCULATOR_TEST_WITHOUTIHM --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+
+runSalome --terminal=CALCULATOR_TEST_STUDY_WITHOUTIHM --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+
+runSalome --terminal=CALCULATOR_TEST_WITHOUTIHM,CALCULATOR_TEST_STUDY_WITHOUTIHM --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+
+runSalome --terminal=CALCULATOR_TEST,killall --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall --logger
+after the import of CALCULATOR_TEST, killall will be executed.
+
+
+===================================================
+Example for starting Salome in Batch mode on CCRT :
+===================================================
+
+Create a shell file "runSalome.batch" with for example :
+--------------------------------------------------------
+#BSUB -n 10
+#BSUB -o runSalome.log%J
+#BSUB -c 0:10
+runSalome --terminal=CALCULATOR_TEST,killall --modules=KERNEL,MED,CALCULATOR,COMPONENT --containers=cpp,python --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall
+exit
+
+Queue for execution that file (here runSalome.batch) :
+--------------------------------------------------------------------
+bsub < runSalome.batch
+
+See the "bsub" documentation for details (or "man bsub")
+

@@ -30,7 +30,6 @@
 #define __SALOMEDS_ATTREAL_I_H__
 
 // IDL headers
-#include <TDataStd_Real.hxx>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_AttReal)
 #include "SALOMEDS_BasicAttribute_i.hxx"

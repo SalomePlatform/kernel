@@ -25,24 +25,18 @@
 #include "SALOMEDSImpl_AttributeTarget.hxx"
 #include "SALOMEDSImpl_AttributeReference.hxx"
 #include "SALOMEDSImpl_Study.hxx"
-#include <TDF_RelocationTable.hxx>
-#include <TDF_ListIteratorOfAttributeList.hxx>
-#include <Standard_GUID.hxx>
 
 using namespace std;
 
-
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTarget, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTarget, SALOMEDSImpl_GenericAttribute )
 
 //=======================================================================
 //function : GetID
 //purpose  : 
 //=======================================================================
 
-const Standard_GUID& SALOMEDSImpl_AttributeTarget::GetID () 
+const std::string& SALOMEDSImpl_AttributeTarget::GetID () 
 {
-  static Standard_GUID SALOMEDSImpl_AttributeTargetID ("12837197-8F52-11d6-A8A3-0001021E8C7F");
+  static std::string SALOMEDSImpl_AttributeTargetID ("12837197-8F52-11d6-A8A3-0001021E8C7F");
   return SALOMEDSImpl_AttributeTargetID;
 }
 
@@ -52,10 +46,10 @@ const Standard_GUID& SALOMEDSImpl_AttributeTarget::GetID ()
 //purpose  : 
 //=======================================================================
 
-Handle(SALOMEDSImpl_AttributeTarget) SALOMEDSImpl_AttributeTarget::Set (const TDF_Label& L) 
+SALOMEDSImpl_AttributeTarget* SALOMEDSImpl_AttributeTarget::Set (const DF_Label& L) 
 {
-  Handle(SALOMEDSImpl_AttributeTarget) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),A)) {
+  SALOMEDSImpl_AttributeTarget* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeTarget*)L.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID()))) {
     A = new  SALOMEDSImpl_AttributeTarget(); 
     L.AddAttribute(A);
   }
@@ -72,7 +66,7 @@ SALOMEDSImpl_AttributeTarget::SALOMEDSImpl_AttributeTarget()
 {
 }
 
-void SALOMEDSImpl_AttributeTarget::SetRelation(const TCollection_ExtendedString& theRelation)
+void SALOMEDSImpl_AttributeTarget::SetRelation(const std::string& theRelation)
 {
   CheckLocked();
   if(myRelation == theRelation) return;
@@ -87,15 +81,14 @@ void SALOMEDSImpl_AttributeTarget::SetRelation(const TCollection_ExtendedString&
 //function : Add
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO) 
+void SALOMEDSImpl_AttributeTarget::Add(const SALOMEDSImpl_SObject& theSO) 
 {
   Backup();
-  TDF_Label aRefLabel = theSO->GetLabel();
-  Handle(SALOMEDSImpl_AttributeReference) aReference;
-  if (aRefLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(),aReference)) {
-    TDF_ListIteratorOfAttributeList anIter(GetVariables());
-    for(;anIter.More();anIter.Next()) if(anIter.Value()->Label() == aRefLabel) return; //BugID: PAL6192    
-    GetVariables().Append(aReference);
+  DF_Label aRefLabel = theSO.GetLabel();
+  SALOMEDSImpl_AttributeReference* aReference;
+  if ((aReference=(SALOMEDSImpl_AttributeReference*)aRefLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
+    for(int i = 0, len = myVariables.size(); i<len; i++) if(myVariables[i]->Label() == aRefLabel) return; //BugID: PAL6192    
+    myVariables.push_back(aReference);
   } 
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -105,15 +98,13 @@ void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO
 //function : Get
 //purpose  : 
 //=======================================================================
-Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_AttributeTarget::Get() 
+vector<SALOMEDSImpl_SObject> SALOMEDSImpl_AttributeTarget::Get() 
 {
-  Handle(TColStd_HSequenceOfTransient) aSeq = new TColStd_HSequenceOfTransient;
+  vector<SALOMEDSImpl_SObject> aSeq;
   
-  TDF_ListIteratorOfAttributeList anIter(GetVariables());
-  for(;anIter.More();anIter.Next()) {
-    const TDF_Label& aLabel = anIter.Value()->Label();
-   aSeq->Append( SALOMEDSImpl_Study::SObject(aLabel));
-  }
+  for(int i = 0, len = myVariables.size(); i<len; i++) 
+    aSeq.push_back( SALOMEDSImpl_Study::SObject(myVariables[i]->Label()));
+  
   return aSeq;
 }
 
@@ -121,17 +112,20 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_AttributeTarget::Get()
 //function : Remove
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& theSO) 
+void SALOMEDSImpl_AttributeTarget::Remove(const SALOMEDSImpl_SObject& theSO) 
 {
   Backup();
-  TDF_Label aRefLabel = theSO->GetLabel();
-  TDF_ListIteratorOfAttributeList anIter(GetVariables());
-  for(;anIter.More();anIter.Next()) {
-    if (anIter.Value()->Label() == aRefLabel) {
-      GetVariables().Remove(anIter);
-      return;
-    }
-  }  
+  DF_Label aRefLabel = theSO.GetLabel();
+
+  vector<DF_Attribute*> va;
+  for(int i = 0, len = myVariables.size(); i<len; i++) {
+    DF_Label L = myVariables[i]->Label();
+    if(myVariables[i]->Label() == aRefLabel) continue;
+    va.push_back(myVariables[i]);	
+  }
+
+  myVariables.clear();
+  myVariables = va;    
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -140,21 +134,19 @@ void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& th
 //function : ID
 //purpose  : 
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeTarget::ID () const { return GetID(); }
+const std::string& SALOMEDSImpl_AttributeTarget::ID () const { return GetID(); }
 
 //=======================================================================
 //function : Restore
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Restore(const Handle(TDF_Attribute)& With)
+void SALOMEDSImpl_AttributeTarget::Restore(DF_Attribute* With)
 {
-  Handle(SALOMEDSImpl_AttributeTarget) REL = Handle(SALOMEDSImpl_AttributeTarget)::DownCast (With);
+  SALOMEDSImpl_AttributeTarget* REL = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(With);
   myRelation = REL->GetRelation();
-  Handle(SALOMEDSImpl_AttributeReference) V;
-  myVariables.Clear();
-  for (TDF_ListIteratorOfAttributeList it (REL->GetVariables()); it.More(); it.Next()) {
-    V = Handle(SALOMEDSImpl_AttributeReference)::DownCast(it.Value());
-    myVariables.Append(V);
+  myVariables.clear();
+  for (int i = 0, len = REL->myVariables.size(); i<len; i++) {
+    myVariables.push_back(REL->myVariables[i]);
   }
 }
 
@@ -162,7 +154,7 @@ void SALOMEDSImpl_AttributeTarget::Restore(const Handle(TDF_Attribute)& With)
 //function : NewEmpty
 //purpose  :
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeTarget::NewEmpty() const
+DF_Attribute* SALOMEDSImpl_AttributeTarget::NewEmpty() const
 {
   return new SALOMEDSImpl_AttributeTarget();
 }
@@ -171,15 +163,12 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeTarget::NewEmpty() const
 //function : Paste
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Paste(const Handle(TDF_Attribute)& Into,
-					 const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeTarget::Paste(DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeTarget) REL = Handle(SALOMEDSImpl_AttributeTarget)::DownCast (Into);
+  SALOMEDSImpl_AttributeTarget* REL = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(into);
   REL->SetRelation(myRelation);
-  Handle(SALOMEDSImpl_AttributeReference) V1,V2;
-  for (TDF_ListIteratorOfAttributeList it (myVariables); it.More(); it.Next()) {
-    V1 = Handle(SALOMEDSImpl_AttributeReference)::DownCast(it.Value());
-    RT->HasRelocation (V1,V2);
-    REL->GetVariables().Append(V2);
-  }
+  REL->myVariables.clear();
+  for (int i = 0, len = myVariables.size(); i<len; i++) {
+    REL->myVariables.push_back(myVariables[i]);
+  }  
 }   

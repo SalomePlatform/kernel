@@ -37,7 +37,7 @@ class SALOMEDS_AttributeTableOfInteger_i: public virtual POA_SALOMEDS::Attribute
     
 public:
   
-  SALOMEDS_AttributeTableOfInteger_i(const Handle(SALOMEDSImpl_AttributeTableOfInteger)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeTableOfInteger_i(SALOMEDSImpl_AttributeTableOfInteger* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeTableOfInteger_i() {};

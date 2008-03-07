@@ -29,9 +29,14 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
-# include <list>
+#include <SALOMEconfig.h>
+
+#include "SALOME_Utils.hxx"
+
+#include <list>
 #include <cassert>
-# include <CORBA.h>
+#include <omniORB4/CORBA.h>
+#include <iostream>
 //# include "utilities.h"
 
 /*!\class DESTRUCTEUR_GENERIQUE_
@@ -55,29 +60,15 @@
  * 	-# an object method to execute the destruction : operator()().
  */
 
-#if defined UTILS_EXPORTS
-#if defined WIN32
-#define UTILS_EXPORT __declspec( dllexport )
-#else
-#define UTILS_EXPORT
-#endif
-#else
-#if defined WNT
-#define UTILS_EXPORT __declspec( dllimport )
-#else
-#define UTILS_EXPORT
-#endif
-#endif
-
-class DESTRUCTEUR_GENERIQUE_
+class UTILS_EXPORT DESTRUCTEUR_GENERIQUE_
 {
 public :
-  UTILS_EXPORT static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
+  static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
 
   virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
-  UTILS_EXPORT static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
-  UTILS_EXPORT virtual void operator()( void )=0 ;//!< performs the destruction
-} ;
+  static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
+  virtual void operator()( void )=0 ;//!< performs the destruction
+};
 
 
 /*!\class DESTRUCTEUR_DE_
@@ -122,12 +113,15 @@ public :
   virtual void operator()(void){
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
+      if(dynamic_cast<TServant*>(_PtrObjet)){
+       // std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
+  /*
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting ServantBase's _PtrObjet" << endl;
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());
 	aServant->_remove_ref();
+  */
       }else{
 	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting _PtrObjet" << endl;
 	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);

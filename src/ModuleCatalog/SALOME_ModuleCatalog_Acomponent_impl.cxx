@@ -50,7 +50,7 @@ static int MYDEBUG = 0;
 //            and the pathes prefixes for all computers
 //----------------------------------------------------------------------  
 SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl
-(SALOME_ModuleCatalog::Component &C) : _Component(C)
+(SALOME_ModuleCatalog::ComponentDef &C) : _Component(C)
 {
   if(MYDEBUG) BEGIN_OF("SALOME_ModuleCatalog_AcomponentImpl");
 
@@ -413,11 +413,20 @@ CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::multistudy()
 
 //----------------------------------------------------------------------
 // Function : implementation type
-// Purpose  : define if a component is implemented in C++ or Python
+// Purpose  : return the implementation type :  C++ (dyn lib), Python (module) or executable
 //----------------------------------------------------------------------
-CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::implementation_type()
+SALOME_ModuleCatalog::ImplType SALOME_ModuleCatalog_AcomponentImpl::implementation_type()
 {
   return _Component.implementationType ;
+}
+
+//----------------------------------------------------------------------
+// Function : implementation name
+// Purpose  : return the implementation name to exec if the default one is not convenient
+//----------------------------------------------------------------------
+char* SALOME_ModuleCatalog_AcomponentImpl::implementation_name()
+{
+  return _Component.implname ;
 }
 
 //----------------------------------------------------------------------

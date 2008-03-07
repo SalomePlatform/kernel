@@ -35,7 +35,7 @@ class SALOMEDS_AttributeComment_i: public virtual POA_SALOMEDS::AttributeComment
 				   public virtual SALOMEDS_GenericAttribute_i 
 {
 public:  
-  SALOMEDS_AttributeComment_i(const Handle(SALOMEDSImpl_AttributeComment)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeComment_i(SALOMEDSImpl_AttributeComment* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
 
   virtual ~SALOMEDS_AttributeComment_i() {};

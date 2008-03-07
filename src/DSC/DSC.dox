@@ -1,0 +1,49 @@
+/*!
+
+\page dsc_page DSC
+
+DSC means Dynamic Software Component. It's an extension of the %SALOME programming model.
+It provides a new paradigm to design %SALOME components. It also provides new ports for %SALOME services.
+These ports are : interface ports and datastream ports.
+
+\section S1_DSC Datastream ports
+
+We list in this section the datastream ports that are provided by %SALOME.
+
+<ol>
+
+<li>
+<b>BASIC datastream ports</b>
+<table>
+<tr><td> <b> Port name </b> </td><td> <b> Data type </b> </td><td> <b> Idl Name </b> </td><td> <b> Idl File </b> </td></tr>
+<tr><td> BASIC_short </td><td> short </td><td> Data_Short_Port </td><td> SALOME_Ports.idl </td></tr>
+</table>
+</li>
+
+<li>
+<b>CALCIUM datastream ports</b>
+<table>
+<tr><td> <b> Port name </b> </td><td> <b> Data type </b> </td><td> <b> Idl Name </b> </td><td> <b> Idl File </b> </td></tr>
+<tr><td> CALCIUM_integer </td><td> sequence of long </td><td> Calcium_Integer_Port </td><td> Calcium_Ports.idl </td></tr>
+<tr><td> CALCIUM_real </td><td> sequence of float </td><td> Calcium_Real_Port </td><td> Calcium_Ports.idl </td></tr>
+<tr><td> CALCIUM_double </td><td> sequence of double </td><td> Calcium_Double_Port </td><td> Calcium_Ports.idl </td></tr>
+<tr><td> CALCIUM_string </td><td> sequence of %string </td><td> Calcium_String_Port </td><td> Calcium_Ports.idl </td></tr>
+<tr><td> CALCIUM_logical </td><td> sequence of boolean </td><td> Calcium_Logical_Port </td><td> Calcium_Ports.idl </td></tr>
+<tr><td> CALCIUM_complex </td><td> sequence of float </td><td> Calcium_Complex_Port </td><td> Calcium_Ports.idl </td></tr>
+</table>
+</li>
+
+<li>
+<b>PALM datastream ports</b>
+<table>
+<tr><td> <b> Port name </b> </td><td> <b> Data type </b> </td><td> <b> Idl Name </b> </td><td> <b> Idl File </b> </td></tr>
+<tr><td> PALM_short </td><td> short </td><td> Palm_Data_Short_Port </td><td> Palm_Ports.idl </td></tr>
+<tr><td> PALM_seq_short </td><td> sequence of short </td><td> Palm_Data_Seq_Short_Port </td><td> Palm_Ports.idl </td></tr>
+</table>
+</li>
+
+</ol>
+
+*/
+
+

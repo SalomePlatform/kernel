@@ -36,7 +36,7 @@ def getNSparams(info=""):
     my_host=""
     if os.environ.has_key("OMNIORB_CONFIG"):
         file = open(os.environ["OMNIORB_CONFIG"], "r")
-        s = file.read()
+        s = file.readline()
         while len(s):
             l = string.split(s, ":")
             if string.split(l[0], " ")[0] == "ORBInitRef" or \
@@ -48,7 +48,7 @@ def getNSparams(info=""):
                 my_host = l[len(l)-2]
                 break;
                 pass
-            s = file.read()
+            s = file.readline()
             pass
         pass
     if info=='host':

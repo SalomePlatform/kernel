@@ -21,7 +21,7 @@
 #ifndef WNT
 #include <rpc/xdr.h>
 #endif
-#include "poa.h"
+#include "omniORB4/poa.h"
 #include "omnithread.h"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"

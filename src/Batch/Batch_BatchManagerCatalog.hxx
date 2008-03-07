@@ -53,6 +53,7 @@ namespace Batch {
     virtual std::string __repr__() const;
 
   protected:
+    static BatchManagerCatalog theCatalog;
     static std::map<std::string, FactBatchManager *> * _p_catalog;
     static pthread_mutex_t _mutex;
 

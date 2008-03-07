@@ -40,10 +40,11 @@ salomeinclude_HEADERS = \
 		PathPrefix.hxx \
 		SALOME_ModuleCatalog_Parser.hxx \
 		SALOME_ModuleCatalog_Parser_IO.hxx \
-                SALOME_ModuleCatalog_Handler.hxx 
+                SALOME_ModuleCatalog_Handler.hxx \
+		SALOME_ModuleCatalog.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA = SALOME_TestModuleCatalog.py
+dist_salomescript_DATA = TestModuleCatalog.py
 
 
 #
@@ -61,8 +62,8 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
-	@QT_MT_INCLUDES@
+	@LIBXML_INCLUDES@ \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -70,7 +71,8 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBXML_LIBS@
 
 libSalomeCatalog_la_SOURCES =\
 	SALOME_ModuleCatalog_Handler.cxx  \
@@ -84,8 +86,7 @@ libSalomeCatalog_la_CPPFLAGS =\
 libSalomeCatalog_la_LDFLAGS = -no-undefined -version-info=0:0:0
 
 libSalomeCatalog_la_LIBADD  =\
-	$(COMMON_LIBS) \
-	@QT_MT_LIBS@
+	$(COMMON_LIBS)
 
 
 #
@@ -102,7 +103,6 @@ SALOME_ModuleCatalog_Server_CPPFLAGS =\
 
 SALOME_ModuleCatalog_Server_LDADD   =\
 	libSalomeCatalog.la \
-	$(COMMON_LIBS) \
 	@CORBA_LIBS@
 
 # SALOME_ModuleCatalog_Client
@@ -112,5 +112,4 @@ SALOME_ModuleCatalog_Client_CPPFLAGS =\
 
 SALOME_ModuleCatalog_Client_LDADD   =\
 	libSalomeCatalog.la \
-	$(COMMON_LIBS) \
 	@CORBA_LIBS@

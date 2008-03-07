@@ -4,24 +4,22 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-#AC_INIT(src)
-AC_INIT([Salome2 Project], [3.2.0], [gboulant@CS], [salome])
+AC_INIT([Salome2 Project], [4.1.1], [paul.rascle@edf.fr], [SalomeKer])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-PACKAGE=salome
-AC_SUBST(PACKAGE)
-
-VERSION=3.2.0
-XVERSION=0x030200
-AC_SUBST(VERSION)
+XVERSION=0x040101
 AC_SUBST(XVERSION)
+
+# set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
+MODULE_NAME=kernel
+AC_SUBST(MODULE_NAME)
 
 echo
 echo ---------------------------------------------
@@ -100,8 +98,8 @@ echo Configuring production
 echo ---------------------------------------------
 echo
 # production.m4
-AC_ENABLE_DEBUG(yes)
-AC_DISABLE_PRODUCTION
+AC_ENABLE_DEBUG(no)
+AC_ENABLE_PRODUCTION(no)
 
 echo
 echo ---------------------------------------------
@@ -182,14 +180,6 @@ echo
 
 CHECK_HDF5
 
-echo
-echo ---------------------------------------------
-echo Testing OpenCascade
-echo ---------------------------------------------
-echo
-
-CHECK_CAS
-
 # ----------------------------------------------------------------------------
 # --- test corba
 
@@ -240,20 +230,19 @@ AC_SUBST_FILE(CORBA)
 
 echo
 echo ---------------------------------------------
-echo Testing QT
-echo ---------------------------------------------
-echo
-# Qt must be kept because kernel makes use of qxml and some other
-# non-graphical stuff.
-CHECK_QT
-
-echo
-echo ---------------------------------------------
 echo BOOST Library
 echo ---------------------------------------------
 echo
 
 CHECK_BOOST
+
+echo
+echo ---------------------------------------------
+echo Testing libxml2
+echo ---------------------------------------------
+echo
+
+CHECK_LIBXML
 
 fi 
 # --- end test corba
@@ -261,7 +250,7 @@ fi
 
 echo
 echo ============================================================
-echo testing optionnal products
+echo testing parallel products
 echo ============================================================
 echo
 
@@ -272,6 +261,48 @@ echo ---------------------------------------------
 echo
 
 CHECK_MPI
+
+echo
+echo ---------------------------------------------
+echo checking if PaCO++ is requested by user
+echo ---------------------------------------------
+echo
+
+CHECK_PACO
+
+echo
+echo ------------------------------------------------------------
+echo checking if parallel kernel extensions are requested by user
+echo ------------------------------------------------------------
+echo
+
+AC_MSG_CHECKING(whether to enable parallel kernel extension)
+AC_ARG_ENABLE(parallel_extension, 
+	      AC_HELP_STRING([--enable-parallel_extension], [parallel kernel extension = [no/yes] (default is no)]),
+	      parallel_extension_ok=$enableval,		       
+	      parallel_extension_ok=no)
+if test "x$parallel_extension_ok" = "xyes"
+then
+  if test "x$PaCO_ok" = "xno"
+  then
+    parallel_extension_ok=no
+  fi
+fi
+
+if test "x$parallel_extension_ok" = "xyes"
+then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
+AM_CONDITIONAL([WITH_PACO_PARALLEL], [test "x$parallel_extension_ok" = "xyes"])
+
+echo
+echo ============================================================
+echo testing optionnal products
+echo ============================================================
+echo
 
 echo
 echo ---------------------------------------------
@@ -378,9 +409,9 @@ function check_fatal_error {
 # --------------------------------------
 
 if test x$corba_gen = xtrue; then
-  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok"
 else
-  basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok hdf5_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -388,7 +419,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok qt_ok boost_ok"
+corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok libxml_ok"
 if test x$corba_gen = xtrue; then
   echo --- CORBA mandatory products - default configuration:
   summary $corba_mandatory_products
@@ -405,15 +436,12 @@ else
 fi
 echo
 
-if test x$MPIREQUESTED = xyes; then
-  requested_products="mpi_ok"
-  echo --- products requested by user
-  summary $requested_products
-  check_fatal_error $requested_products
-  echo
-fi
+parallel_products="mpi_ok PaCO_ok parallel_extension_ok"
+echo --- Kernel parallel extensions:
+summary $parallel_products
+echo
 
-optional_products="cppunit_ok openpbs_ok lsf_ok"
+optional_products="cppunit_ok openpbs_ok lsf_ok numpy_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]
@@ -490,7 +518,7 @@ AC_OUTPUT([ \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
-	./Makefile \
+	Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
 	./bin/runIDLparser \
@@ -510,13 +538,24 @@ AC_OUTPUT([ \
 	./src/Basics/Test/Makefile \
 	./src/Batch/Makefile \
 	./src/Batch_SWIG/Makefile \
-	./src/CASCatch/Makefile \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
+	./src/ParallelContainer/Makefile \
+	./src/DF/Makefile \
+	./src/DSC/Makefile \
+	./src/DSC/DSC_Basic/Makefile \
+	./src/DSC/DSC_User/Makefile \
+	./src/DSC/DSC_User/Basic/Makefile \
+	./src/DSC/DSC_User/Datastream/Makefile \
+	./src/DSC/DSC_User/Datastream/Palm/Makefile \
+	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
+	./src/DSC/ParallelDSC/Makefile \
+	./src/DSC/DSC_Python/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
+	./src/Launcher/Makefile \
 	./src/LifeCycleCORBA/Makefile \
 	./src/LifeCycleCORBA/Test/Makefile \
 	./src/LifeCycleCORBA_SWIG/Makefile \

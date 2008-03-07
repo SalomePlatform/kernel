@@ -17,7 +17,7 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
 AC_PATH_PROG(OMNIORB_IDL, omniidl)
-if test "xOMNIORB_IDL" = "x"
+if test "x$OMNIORB_IDL" = "x"
 then
   omniORB_ok=no
   AC_MSG_RESULT(omniORB binaries not in PATH variable)
@@ -61,31 +61,31 @@ then
   OMNIORB_CXXFLAGS="-DOMNIORB_VERSION=$OMNIORB_VERSION"
   case $build_cpu in
     sparc*)
-      AC_DEFINE(__sparc__)
+      # AC_DEFINE(__sparc__)
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__sparc__"
       ;;
    *86*)
-      AC_DEFINE(__x86__)
+      # AC_DEFINE(__x86__)
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__x86__"
       ;;
   esac
   case $build_os in
     osf*)
-      AC_DEFINE(__osf1__)
+      # AC_DEFINE(__osf1__)
       __OSVERSION__=5
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [5], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__osf1__"
       ;;
     solaris*)
-      AC_DEFINE(__sunos__)
+      # AC_DEFINE(__sunos__)
       __OSVERSION__=5
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [5], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__sunos__"
       ;;
    linux*)
-      AC_DEFINE(__linux__)
+      # AC_DEFINE(__linux__)
       __OSVERSION__=2
-      AC_DEFINE(__OSVERSION__)
+      AC_DEFINE([__OSVERSION__], [2], [Description])
       OMNIORB_CXXFLAGS="$OMNIORB_CXXFLAGS -D__linux__"
       ;;
   esac
@@ -101,15 +101,15 @@ then
 
 fi
 
-dnl omniORB_ok=yes
-
 if test "x$omniORB_ok" = "xyes" 
 then
   if test "x$OMNIORB_LIB" = "x/usr/lib"
   then
     OMNIORB_LDFLAGS=""
+    OMNIORB_RFLAGS=""
   else
     OMNIORB_LDFLAGS="-L$OMNIORB_LIB"
+    OMNIORB_RFLAGS="-R$OMNIORB_LIB"
   fi
 
   LIBS_old=$LIBS
@@ -153,6 +153,7 @@ then
   OMNIORB_LIBS="$OMNIORB_LIBS -lCOS${OMNIORB_VERSION}"
   OMNIORB_LIBS="$OMNIORB_LIBS -lCOSDynamic${OMNIORB_VERSION}"
   OMNIORB_LIBS="$OMNIORB_LIBS -lomnithread"
+  OMNIORB_LIBS="$OMNIORB_LIBS ${OMNIORB_RFLAGS}"
   if test $OMNIORB_VERSION = 3 ; then
     OMNIORB_LIBS="$OMNIORB_LIBS -ltcpwrapGK"
   fi
@@ -187,8 +188,8 @@ fi
 if test "x$omniORB_ok" = "xyes" 
 then
 
-  OMNIORB_IDLCXXFLAGS="-nf -I${OMNIORB_ROOT}/idl"
-  OMNIORB_IDLPYFLAGS_1='-bpythonbe -p ${top_srcdir}/salome_adm/unix'
+  OMNIORB_IDLCXXFLAGS="-Wba -nf -I${OMNIORB_ROOT}/idl"
+  OMNIORB_IDLPYFLAGS_1='-bpython'
   OMNIORB_IDLPYFLAGS_2=" -I${OMNIORB_ROOT}/idl"
   OMNIORB_IDLPYFLAGS=${OMNIORB_IDLPYFLAGS_1}${OMNIORB_IDLPYFLAGS_2}
 
@@ -214,15 +215,15 @@ then
   AC_SUBST(OMNIORB_IDL_TIE_H)
   AC_SUBST(OMNIORB_IDL_TIE_CXX)
   
-  AC_DEFINE(OMNIORB)
+  AC_DEFINE([OMNIORB], [], [Description])
 
   CORBA_HAVE_POA=1
-  AC_DEFINE(CORBA_HAVE_POA)
+  AC_DEFINE([CORBA_HAVE_POA], [], [Description])
 
   CORBA_ORB_INIT_HAVE_3_ARGS=1
-  AC_DEFINE(CORBA_ORB_INIT_HAVE_3_ARGS)
+  AC_DEFINE([CORBA_ORB_INIT_HAVE_3_ARGS], [], [Description])
   CORBA_ORB_INIT_THIRD_ARG='"omniORB"'
-  AC_DEFINE(CORBA_ORB_INIT_THIRD_ARG, "omniORB")
+  AC_DEFINE([CORBA_ORB_INIT_THIRD_ARG], [], [omniORB])
 
 fi
 

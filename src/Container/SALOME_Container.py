@@ -32,17 +32,14 @@ import os
 import sys
 import string
 from omniORB import CORBA, PortableServer
-# import SALOMEDS before other SALOME modules
-# (if not, incomplete import done by SALOME module: no load of SALOMEDS_attributes)
 import SALOMEDS 
 import Engines, Engines__POA
-reload(Engines)
-reload(Engines__POA)
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
+from launchConfigureParser import verbose
 
 #=============================================================================
 
@@ -61,11 +58,14 @@ class SALOME_Container_i:
         self._orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
-        print "SALOME_Container.SALOME_Container_i : _containerName ",self._containerName
+        if verbose(): print "SALOME_Container.SALOME_Container_i : _containerName ",self._containerName
         #self._naming_service = SALOME_NamingServicePy_i(self._orb)
         self._container = self._orb.string_to_object(containerIORStr)
 
     #-------------------------------------------------------------------------
+
+    def __del__(self ):
+      self._orb.destroy()
 
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )

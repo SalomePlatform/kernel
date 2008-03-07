@@ -37,7 +37,7 @@ class SALOMEDS_AttributeDrawable_i: public virtual POA_SALOMEDS::AttributeDrawab
 {
 public:
   
-  SALOMEDS_AttributeDrawable_i(const Handle(SALOMEDSImpl_AttributeDrawable)& theAttr, CORBA::ORB_ptr orb)
+  SALOMEDS_AttributeDrawable_i(SALOMEDSImpl_AttributeDrawable* theAttr, CORBA::ORB_ptr orb)
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   virtual ~SALOMEDS_AttributeDrawable_i() {};

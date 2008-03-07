@@ -72,6 +72,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._myConnexionToRegistry = 0
         self._graphName = ''
         self._nodeName = ''
+        self._serviceName = ''
         self._ThreadId = 0
         self._StartUsed = 0
         self._ThreadCpuUsed = 0
@@ -82,7 +83,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         myMachine=getShortHostName()
         Component_path = self._containerName + "/" + self._instanceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
-        naming_service.Register(self._this(), Component_path)
+        id_o = poa.activate_object(self)
+        compo_o = poa.id_to_reference(id_o)
+        naming_service.Register(compo_o, Component_path)
 
         # Add componentinstance to registry
         obj = naming_service.Resolve('/Registry')
@@ -144,15 +147,16 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        self._poa.deactivate_object(self)
-        CORBA.release(self._poa)
+        id = self._poa.servant_to_id(self)
+        self._poa.deactivate_object(id)
         
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
-        corbaObj_ptr = self._poa.id_to_reference(self._contId)
-        return corbaObj_ptr._narrow(Engines.Container)
+        #corbaObj_ptr = self._poa.id_to_reference(self._contId)
+        #return corbaObj_ptr._narrow(Engines.Container)
+        return self._contId._narrow(Engines.Container)
                 
     #-------------------------------------------------------------------------
 

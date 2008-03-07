@@ -42,6 +42,9 @@ def openModule(mname, fname=None):
 
     if mname == "CORBA":
         mod = sys.modules["omniORB.CORBA"]
+        # Salome modification start
+        shared_imported[mname]=mod
+        # Salome modification end
 
     elif sys.modules.has_key(mname):
         mod = sys.modules[mname]
@@ -50,16 +53,21 @@ def openModule(mname, fname=None):
             pmod = _partialModules[mname]
             mod.__dict__.update(pmod.__dict__)
             del _partialModules[mname]
+        # Salome modification start
+        shared_imported[mname]=mod
+        # Salome modification end
 
     elif _partialModules.has_key(mname):
         mod = _partialModules[mname]
 
+    # Salome modification start
+    elif shared_imported.get(mname) :
+        mod = shared_imported[mname]
+    # Salome modification end
+
     else:
         mod = newModule(mname)
 
-    # Salome modification start
-    shared_imported[mname]=mod
-    # Salome modification end
 
     if not hasattr(mod, "__doc__") or mod.__doc__ is None:
         mod.__doc__ = "omniORB IDL module " + mname + "\n\n" + \
@@ -103,11 +111,19 @@ def newModule(mname):
 # Function to update a module with the partial module store in the
 # partial module map
 def updateModule(mname):
+    # Salome modification start
+    # Be sure to use the right module dictionnary
+    import sys
+    # Salome modification end
     if _partialModules.has_key(mname):
         pmod = _partialModules[mname]
         mod  = sys.modules[mname]
         mod.__dict__.update(pmod.__dict__)
         del _partialModules[mname]
+
+    # Salome modification start
+    shared_imported[mname]=sys.modules[mname]
+    # Salome modification end
 
 omniORB.updateModule=updateModule
 omniORB.newModule=newModule

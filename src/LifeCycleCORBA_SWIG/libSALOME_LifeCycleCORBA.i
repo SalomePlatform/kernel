@@ -19,7 +19,14 @@
 //
 
 
+// ----------------------------------------------------------------------------
+
 %module libSALOME_LifeCycleCORBA
+
+%include <std_except.i>
+
+
+// ----------------------------------------------------------------------------
 
 %{
 #include "utilities.h"
@@ -27,6 +34,7 @@
 #include "SALOME_FileTransferCORBA.hxx"
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
   using namespace std;
 
@@ -55,6 +63,9 @@ struct omniORBpyAPI {
 %}
 
 
+// ----------------------------------------------------------------------------
+
+
 %init
 %{
   // init section
@@ -72,20 +83,8 @@ struct omniORBpyAPI {
 %}
 
 
-%exception {
-    try {
-      $action
-    }
-    catch (ServiceUnreachable) {
-      PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
-      return NULL;
-    }
-    catch (...) {
-      PyErr_SetString(PyExc_RuntimeError, "unknown exception");
-      return NULL;
-    }
-}
 
+// ----------------------------------------------------------------------------
 
 %typemap(python,out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr
 {
@@ -94,6 +93,20 @@ struct omniORBpyAPI {
   $result = api->cxxObjRefToPyObjRef($1, 1);
   SCRUTE($result);
 }
+
+%typemap(python,in) Engines::fileRef_ptr aFileRef
+{
+  MESSAGE("typemap in on CORBA object ptr");
+  try {
+     CORBA::Object_ptr obj = api->pyObjRefToCxxObjRef($input,1);
+     $1 = Engines::fileRef::_narrow(obj);
+     SCRUTE($1);
+  }
+  catch (...) {
+     PyErr_SetString(PyExc_RuntimeError, "not a valid CORBA object ptr");
+  }
+}
+
 
 %typemap(python,out) std::string, 
 		    string
@@ -150,6 +163,8 @@ struct omniORBpyAPI {
       param->nb_proc_per_node = 0;
       param->nb_node = 0;
       param->isMPI = false;
+      param->parallelLib = CORBA::string_dup("");
+      param->nb_component_nodes = 0;
       PyObject *key, *value;
       int pos = 0;
       while (PyDict_Next($input, &pos, &key, &value))
@@ -188,6 +203,14 @@ struct omniORBpyAPI {
 	    {
 	      param->isMPI = PyLong_AsLong(value);
 	    }
+	  else if (strcmp(keystr,"parallelLib")==0)
+	    {
+	      param->parallelLib = CORBA::string_dup(PyString_AsString(value));
+	    }
+	  else if (strcmp(keystr,"nb_component_nodes")==0)
+	    {
+	      param->nb_component_nodes = PyLong_AsLong(value);
+	    }
 	}
       $1 = param;
     }
@@ -206,5 +229,39 @@ struct omniORBpyAPI {
   delete $1;
 }
 
-%include "SALOME_LifeCycleCORBA.hxx"
-%include "SALOME_FileTransferCORBA.hxx"
+// ----------------------------------------------------------------------------
+
+%include <Utils_SALOME_Exception.hxx>
+
+%exception {
+    Py_BEGIN_ALLOW_THREADS
+    try {
+      $action
+    }
+    catch (ServiceUnreachable) {
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
+       return NULL;
+    }
+    catch (SALOME_Exception &e) {
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError,e.what());
+       return NULL;
+    }
+    catch (SALOME::SALOME_Exception &e) {
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError,e.details.text);
+       return NULL;
+    }
+    catch (...) {
+       Py_BLOCK_THREADS
+       PyErr_SetString(PyExc_RuntimeError, "unknown exception");
+       return NULL;
+    }
+    Py_END_ALLOW_THREADS
+}
+
+
+%include <SALOME_LifeCycleCORBA.hxx>
+%include <SALOME_FileTransferCORBA.hxx>
+

@@ -38,7 +38,7 @@
 class SALOMEDS_AttributeTableOfString: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeTableOfString
 {
 public:  
-  SALOMEDS_AttributeTableOfString(const Handle(SALOMEDSImpl_AttributeTableOfString)& theAttr);
+  SALOMEDS_AttributeTableOfString(SALOMEDSImpl_AttributeTableOfString* theAttr);
   SALOMEDS_AttributeTableOfString(SALOMEDS::AttributeTableOfString_ptr theAttr);
   ~SALOMEDS_AttributeTableOfString();
 

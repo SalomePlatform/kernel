@@ -24,37 +24,30 @@
 #ifndef __SALOMEDSIMPL_CALLBACK_H__
 #define __SALOMEDSIMPL_CALLBACK_H__
 
-//Handle definition
-#include <Handle_MMgt_TShared.hxx>
-#include <Standard_DefineHandle.hxx>
-DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Callback, MMgt_TShared )
 
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
-class SALOMEDSImpl_Callback : public MMgt_TShared  
+class SALOMEDSImpl_Callback
 {
 private:
-  Handle(SALOMEDSImpl_UseCaseBuilder) _builder;
+  SALOMEDSImpl_UseCaseBuilder* _builder;
 
 public:
 
- SALOMEDSImpl_Callback(const Handle(SALOMEDSImpl_UseCaseBuilder)& builder) 
+ SALOMEDSImpl_Callback(SALOMEDSImpl_UseCaseBuilder* builder) 
  {
    _builder = builder;
  }
 
- virtual void OnAddSObject(Handle(SALOMEDSImpl_SObject) theObject) 
+ virtual void OnAddSObject(const SALOMEDSImpl_SObject& theObject) 
  {
-   if(_builder != NULL && theObject != NULL) _builder->Append(theObject);
+   if(_builder != NULL && theObject) _builder->Append(theObject);
  }
 
- virtual void OnRemoveSObject(Handle(SALOMEDSImpl_SObject) theObject) 
+ virtual void OnRemoveSObject(const SALOMEDSImpl_SObject& theObject) 
  {
-   if(_builder != NULL && theObject != NULL) _builder->Remove(theObject);
+   if(_builder != NULL && theObject) _builder->Remove(theObject);
  }
-
-public:
-  DEFINE_STANDARD_RTTI( SALOMEDSImpl_Callback )
 
 };
 

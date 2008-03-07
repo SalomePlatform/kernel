@@ -28,10 +28,10 @@
 #ifndef __HDFascii_H__
 #define __HDFascii_H__
 
-#include <Standard_Macro.hxx>
+#include "HDFexport.hxx"
 
 
-class Standard_EXPORT HDFascii                                
+class HDF_EXPORT HDFascii                                
 {
 public:
  

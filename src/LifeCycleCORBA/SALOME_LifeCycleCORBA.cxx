@@ -32,7 +32,9 @@
 #include <iomanip>
 
 #include <time.h>
-#include <sys/time.h>
+#ifndef WNT
+  #include <sys/time.h>
+#endif
 
 #include "OpUtil.hxx"
 #include "utilities.h"
@@ -92,6 +94,10 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
     _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
   ASSERT( !CORBA::is_nil(obj));
   _ContManager=Engines::ContainerManager::_narrow(obj);
+
+  obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
+  ASSERT( !CORBA::is_nil(obj));
+  _ResManager=Engines::ResourcesManager::_narrow(obj);
 }
 
 //=============================================================================
@@ -122,8 +128,11 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, componentName);
+    _ResManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,
@@ -153,8 +162,11 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, componentName);
+    _ResManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _LoadComponent(params,
 						componentName,
@@ -186,8 +198,11 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params,componentName);
+    _ResManager->GetFittingResources(params,clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,
@@ -219,6 +234,23 @@ Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 					    const char *componentName)
 {
+  char *valenv=getenv("SALOME_BATCH");
+  if(valenv)
+    if (strcmp(valenv,"1")==0)
+      {
+        MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component BATCH " << containerName << " " << componentName ) ;
+        _NS->Change_Directory("/Containers");
+        CORBA::Object_ptr obj=_NS->Resolve(containerName);
+        Engines::Container_var cont=Engines::Container::_narrow(obj);
+        bool isLoadable = cont->load_component_Library(componentName);
+        if (!isLoadable) return Engines::Component::_nil();
+        
+        Engines::Component_ptr myInstance =
+          cont->create_component_instance(componentName, 0);
+        return myInstance;
+      }
+  MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component INTERACTIF " << containerName << " " << componentName ) ;
+  //#if 0
   // --- Check if Component Name is known in ModuleCatalog
 
   if (! isKnownComponentClass(componentName))
@@ -255,7 +287,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 //   SCRUTE(params->isMPI);
   free(stContainer);
   return FindOrLoad_Component(params,componentName);
-  
+  //#endif  
 }
 
 //=============================================================================
@@ -275,11 +307,12 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
 	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
       ASSERT(! CORBA::is_nil(Catalog));
-      SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
+      SALOME_ModuleCatalog::Acomponent_var compoInfo = 
 	Catalog->GetComponent(componentName);
       if (CORBA::is_nil (compoInfo)) 
 	{
-	  INFOS("Catalog Error : Component not found in the catalog");
+	  INFOS("Catalog Error: Component not found in the catalog" );
+          INFOS( componentName );	  
 	  return false;
 	}
       else return true;
@@ -337,6 +370,9 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.nb_proc_per_node = 0;
   params.nb_node = 0;
   params.isMPI = false;
+
+  params.parallelLib = "";
+  params.nb_component_nodes = 0;
 }
 
 //=============================================================================
@@ -370,6 +406,19 @@ Engines::ContainerManager_ptr SALOME_LifeCycleCORBA::getContainerManager()
  Engines::ContainerManager_var contManager =
    Engines::ContainerManager::_duplicate(_ContManager);
  return contManager._retn();
+}
+
+//=============================================================================
+/*! Public -
+ *  \return the container Manager
+ */
+//=============================================================================
+
+Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
+{
+ Engines::ResourcesManager_var resManager =
+   Engines::ResourcesManager::_duplicate(_ResManager);
+ return resManager._retn();
 }
 
 
@@ -422,7 +471,7 @@ _FindComponent(const Engines::MachineParameters& params,
   if(lghtOfmachinesOK != 0)
     {
       machinesOK->length(lghtOfmachinesOK);
-      CORBA::String_var bestMachine = _ContManager->FindBest(machinesOK);
+      CORBA::String_var bestMachine = _ResManager->FindFirst(machinesOK);
       CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,
 						    containerName,
 						    componentName,
@@ -454,11 +503,8 @@ _LoadComponent(const Engines::MachineParameters& params,
 	      int studyId,
 	      const Engines::MachineList& listOfMachines)
 {
-  const char *containerName = params.container_name;
-  int nbproc = NbProc(params);
-
-  MESSAGE("_LoadComponent, required " << containerName <<
-	  " " << componentName << " " << nbproc);
+  MESSAGE("_LoadComponent, required " << params.container_name <<
+	  " " << componentName << " " << NbProc(params));
 
   Engines::Container_var cont =
     _ContManager->FindOrStartContainer(params,
@@ -473,16 +519,50 @@ _LoadComponent(const Engines::MachineParameters& params,
   return myInstance._retn();
 }
 
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& params,
+                                              const char *componentName,
+                                              int studyId)
+{
+  MESSAGE("Entering LoadParallelComponent");
 
+/*MESSAGE("Parameters : ");
+  MESSAGE("Container name : " << params.container_name);
+  MESSAGE("Number of component nodes : " << params.nb_component_nodes);
+  MESSAGE("Component Name : " << componentName);*/
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
+  MESSAGE("Building a list of machines");
+  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(params, clist);
+  if (listOfMachines->length() == 0)
+  {
+    INFOS("No matching machines founded !");
+    return Engines::Component::_nil();
+  }
 
+  MESSAGE("Starting Parallel Container");
+  Engines::Container_var cont = _ContManager->FindOrStartParallelContainer(params, listOfMachines);
+  if (CORBA::is_nil(cont)) {
+    INFOS("FindOrStartParallelContainer() returns a NULL container !");
+    return Engines::Component::_nil();
+  }
 
+  MESSAGE("Loading component library");
+  bool isLoadable = cont->load_component_Library(componentName);
+  if (!isLoadable) {
+    INFOS(componentName <<" library is not loadable !");
+    return Engines::Component::_nil();
+  }
 
-
-
-
-
-
-
-
+  MESSAGE("Creating component instance");
+  // @PARALLEL@ permits to identify that the component requested
+  // is a parallel component.
+  string name = string(componentName) + string("@PARALLEL@");
+  Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
+  if (CORBA::is_nil(myInstance))
+    INFOS("create_component_instance returns a NULL component !");
+  return myInstance._retn();
+}
 

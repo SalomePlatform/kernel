@@ -24,44 +24,39 @@
 
 
 #include "SALOMEDSImpl_Attributes.hxx"
-
-using namespace std;
-
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
+#include "SALOMEDSImpl_ChildNodeIterator.hxx"
 
-#include <TDF_ChildIterator.hxx>
-#include <TDF_Label.hxx>
-#include <TDF_Tool.hxx>
-#include <TDF_Data.hxx>
-#include <SALOMEDSImpl_ChildNodeIterator.hxx>
-#include <TDF_ListIteratorOfAttributeList.hxx>
+#include "DF_ChildIterator.hxx"
+#include "DF_Label.hxx"
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyBuilder, MMgt_TShared )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyBuilder, MMgt_TShared )
+using namespace std;
 
 #define USE_CASE_LABEL_TAG            2
 #define DIRECTORYID                   16661
 #define FILELOCALID                   26662 
 
-static void Translate_persistentID_to_IOR(TDF_Label& Lab, SALOMEDSImpl_Driver* driver, bool isMultiFile, bool isASCII);
+static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* driver, bool isMultiFile, bool isASCII);
 
 //============================================================================
 /*! Function : constructor
  *  Purpose  :
  */
 //============================================================================
-SALOMEDSImpl_StudyBuilder::SALOMEDSImpl_StudyBuilder(const Handle(Standard_Transient)& theOwner)
+SALOMEDSImpl_StudyBuilder::SALOMEDSImpl_StudyBuilder(const SALOMEDSImpl_Study* theOwner)
 {
    _errorCode = "";
-   _study = theOwner;
-   _doc = Handle(SALOMEDSImpl_Study)::DownCast(theOwner)->GetDocument();
+  _callbackOnAdd=NULL;
+  _callbackOnRemove = NULL;
+   _study = (SALOMEDSImpl_Study*)theOwner;
+   _doc = _study->GetDocument();
 }
 
 //============================================================================
@@ -77,28 +72,27 @@ SALOMEDSImpl_StudyBuilder::~SALOMEDSImpl_StudyBuilder()
  *  Purpose  : Create a new component (Scomponent)
  */
 //============================================================================
-Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TCollection_AsciiString& DataType)
+SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& DataType)
 {
   _errorCode = "";
   CheckLocked();
-  //Always create component under main label.
-  TDF_Label L  = _doc->Main();
 
-  int imax = 0;
-  for (TDF_ChildIterator it(L); it.More(); it.Next()) {
-    if (it.Value().Tag() > imax)
-      imax = it.Value().Tag();
-  }
-  imax++;
-  TDF_Label NL = L.FindChild(imax);
+  SALOMEDSImpl_SComponent sco;
+
+  if(DataType.size() == 0) return sco;
+
+  //Always create component under main label.
+  DF_Label L  = _doc->Main();
+
+  DF_Label NL = L.NewChild();
 
   SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
-  Handle(SALOMEDSImpl_SComponent) so =  Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSComponent (NL);
+  SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
 
-  if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
+  if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
-  _doc->Modify();
+  _doc->SetModified(true);
 
   return so;
 }
@@ -108,20 +102,18 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TC
  *  Purpose  : Add IOR attribute of a Scomponent
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const Handle(SALOMEDSImpl_SComponent)& aComponent,
-							const TCollection_AsciiString& IOR)
+bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const SALOMEDSImpl_SComponent& aComponent,
+							const string& IOR)
 {
    _errorCode = "";
 
   CheckLocked();
-  if(aComponent.IsNull() || IOR.IsEmpty()) {
+  if(!aComponent || IOR.empty()) {
     _errorCode = "Invalid arguments";
     return false;
   }
   //add IOR definition 
-  SALOMEDSImpl_AttributeIOR::Set(aComponent->GetLabel(), IOR);  
-
-  //_doc->Modify();
+  SALOMEDSImpl_AttributeIOR::Set(aComponent.GetLabel(), IOR);  
 
   return true;
 }
@@ -131,7 +123,7 @@ bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const Handle(SALOMEDSImp
  *  Purpose  : Delete a Scomponent
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const Handle(SALOMEDSImpl_SComponent)& aComponent)
+bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const SALOMEDSImpl_SComponent& aComponent)
 {
    _errorCode = "";
   CheckLocked();
@@ -143,27 +135,21 @@ bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const Handle(SALOMEDSImpl_SCompo
  *  Purpose  : Create a new SObject
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObject(const Handle(SALOMEDSImpl_SObject)& theFatherObject)
+SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SObject& theFatherObject)
 {
-   _errorCode = "";
+  _errorCode = "";
   CheckLocked();
 
   //Find label of father
-  TDF_Label Lab = theFatherObject->GetLabel();
+  DF_Label Lab = theFatherObject.GetLabel();
   
   //Create a new label
-  int imax = 0;
-  for (TDF_ChildIterator it(Lab); it.More(); it.Next()) {
-    if (it.Value().Tag() > imax)
-      imax = it.Value().Tag();
-  }
-  imax++;
-  TDF_Label NewLab = Lab.FindChild(imax);
+  DF_Label NewLab = Lab.NewChild();
   
-  Handle(SALOMEDSImpl_SObject) so = Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSObject(NewLab);
-  if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
+  SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
+  if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
   return so;
 }
 
@@ -172,22 +158,22 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObject(const Handle(S
  *  Purpose  :
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObjectToTag(const Handle(SALOMEDSImpl_SObject)& theFatherObject,
-								       const int theTag)
+SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImpl_SObject& theFatherObject,
+						        const int theTag)
 {
   _errorCode = "";
   CheckLocked();
   //Find label of father
-  TDF_Label Lab = theFatherObject->GetLabel();
+  DF_Label Lab = theFatherObject.GetLabel();
 
   //Create or find label
-  TDF_Label NewLab = Lab.FindChild(theTag, 1);
+  DF_Label NewLab = Lab.FindChild(theTag, 1);
 
-  Handle(SALOMEDSImpl_SObject) so = Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSObject(NewLab);
+  SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
 
-  if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
+  if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
   return so;
 }
 
@@ -196,33 +182,33 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObjectToTag(const Han
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::RemoveObject(const Handle(SALOMEDSImpl_SObject)& anObject)
+bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObject)
 {
    _errorCode = "";
   CheckLocked();
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Null object";
     return false;
   }
 
-  if(!_callbackOnRemove.IsNull()) _callbackOnRemove->OnRemoveSObject(anObject);
+  if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
 
-  TDF_Label Lab = anObject->GetLabel();
+  DF_Label Lab = anObject.GetLabel();
 
-  Handle(SALOMEDSImpl_AttributeReference) aReference;
-  if (Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
-    Handle(SALOMEDSImpl_AttributeTarget) aTarget;
-    if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
+  SALOMEDSImpl_AttributeReference* aReference = NULL;
+  if ((aReference=(SALOMEDSImpl_AttributeReference*)Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
+    SALOMEDSImpl_AttributeTarget* aTarget = NULL;
+    if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))
       aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
   }
 
-  Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
-  if (Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
-    SALOMEDSImpl_Study::GetStudy(_doc->Main())->AddPostponed(TCollection_AsciiString(anAttr->Value()).ToCString());
+  SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
+  if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+  }
 
   Lab.ForgetAllAttributes();
  
-  _doc->Modify();  
+  _doc->SetModified(true);  
     
   return true;
 }
@@ -232,45 +218,45 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const Handle(SALOMEDSImpl_SObject)&
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSImpl_SObject)& anObject)
+bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObject& anObject)
 {
    _errorCode = "";
   CheckLocked();
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Null object";
     return false;
   }
 
-  if(!_callbackOnRemove.IsNull()) _callbackOnRemove->OnRemoveSObject(anObject);
+  if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
 
-  TDF_Label Lab = anObject->GetLabel();
+  DF_Label Lab = anObject.GetLabel();
 
-  Handle(SALOMEDSImpl_AttributeReference) aReference;
-  if (Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
-    Handle(SALOMEDSImpl_AttributeTarget) aTarget;
-    if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
+  SALOMEDSImpl_AttributeReference* aReference = NULL;
+  if ((aReference=(SALOMEDSImpl_AttributeReference*)Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
+    SALOMEDSImpl_AttributeTarget* aTarget = NULL;
+    if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))
       aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
   }
-  Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
-  if (Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
-    SALOMEDSImpl_Study::GetStudy(_doc->Main())->AddPostponed(TCollection_AsciiString(anAttr->Value()).ToCString());
-
-  TDF_ChildIterator it(Lab, Standard_True);
-  for(;it.More();it.Next()) {
-    TDF_Label aLabel = it.Value();
-    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
-      Handle(SALOMEDSImpl_AttributeTarget) aTarget;
-      if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
-	aTarget->Remove(SALOMEDSImpl_Study::SObject(aLabel));
-    }
-    Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
-    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
-      SALOMEDSImpl_Study::GetStudy(_doc->Main())->AddPostponed(TCollection_AsciiString(anAttr->Value()).ToCString());
+  SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
+  if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
   }
 
-  Lab.ForgetAllAttributes(Standard_True);
+  DF_ChildIterator it(Lab, true);
+  for(;it.More();it.Next()) {
+    DF_Label aLabel = it.Value();
+    if ((aReference=(SALOMEDSImpl_AttributeReference*)aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
+      SALOMEDSImpl_AttributeTarget* aTarget = NULL;
+      if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))
+	aTarget->Remove(SALOMEDSImpl_Study::SObject(aLabel));
+    }
+    SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
+    if ((anAttr=(SALOMEDSImpl_AttributeIOR*)aLabel.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    }
+  }
 
-  _doc->Modify();  
+  Lab.ForgetAllAttributes(true);
+
+  _doc->SetModified(true);  
   
   return true;
 }
@@ -280,24 +266,25 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSIm
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& anSCO,
+bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
                                          SALOMEDSImpl_Driver* aDriver) 
 {
   _errorCode = "";
 
-  TDF_Label Lab = anSCO->GetLabel();
-  Handle(SALOMEDSImpl_AttributePersistentRef) Att;
+  DF_Label Lab = anSCO.GetLabel();
+  SALOMEDSImpl_AttributePersistentRef* Att = NULL;
 
   //Find the current Url of the study  
-  if (_doc->Main().FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(),Att)) {
-    int aLocked = anSCO->GetStudy()->GetProperties()->IsLocked();
-    if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(false);
+  if ((Att=(SALOMEDSImpl_AttributePersistentRef*)_doc->Main().FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
+    int aLocked = _study->GetProperties()->IsLocked();
+    if (aLocked) _study->GetProperties()->SetLocked(false);
 
-    TCollection_ExtendedString Res(Att->Value());
+    std::string Res(Att->Value());
+    string aHDFPath(Res);
 
-    Handle(SALOMEDSImpl_AttributeComment) type;
-    TCollection_ExtendedString DataType;
-    if (Lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(),type))
+    SALOMEDSImpl_AttributeComment* type = NULL;
+    std::string DataType;
+    if ((type=(SALOMEDSImpl_AttributeComment*)Lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID())))
       DataType = type->Value();
 
     // associate the driver to the SComponent
@@ -307,37 +294,35 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     }
 
     // mpv 06.03.2003: SAL1927 - if component data if already loaded, it is not necessary to do it again
-    Handle(SALOMEDSImpl_AttributeIOR) attrIOR;
-    if (Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), attrIOR)) {
-      if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
+    SALOMEDSImpl_AttributeIOR* attrIOR = NULL;
+    if ((attrIOR=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+      if (aLocked) _study->GetProperties()->SetLocked(true);
       return true;
     }
 
     DefineComponentInstance (anSCO, aDriver->GetIOR());
 
-    TCollection_AsciiString aHDFPath(Res);
-
-    TCollection_AsciiString aHDFUrl;
+    string aHDFUrl;
     bool isASCII = false;
-    if (HDFascii::isASCII(aHDFPath.ToCString())) {
+    if (HDFascii::isASCII(aHDFPath.c_str())) {
       isASCII = true;
-      aHDFUrl = HDFascii::ConvertFromASCIIToHDF(aHDFPath.ToCString());
+      aHDFUrl = HDFascii::ConvertFromASCIIToHDF(aHDFPath.c_str());
       aHDFUrl += "hdf_from_ascii.hdf";
     } else {
       aHDFUrl = aHDFPath;
     }
 
     //Open the Study HDF file 
-    HDFfile *hdf_file = new HDFfile(aHDFUrl.ToCString()); 
+    HDFfile *hdf_file = new HDFfile((char*)aHDFUrl.c_str()); 
 
     char aMultifileState[2];
     char ASCIIfileState[2];
     try {
-      TCollection_AsciiString scoid = anSCO->GetID();
+      string scoid = anSCO.GetID();
       hdf_file->OpenOnDisk(HDF_RDONLY);
       HDFgroup *hdf_group = new HDFgroup("DATACOMPONENT",hdf_file);
       hdf_group->OpenOnDisk();
-      HDFgroup *hdf_sco_group = new HDFgroup(scoid.ToCString(), hdf_group);
+      HDFgroup *hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group);
       hdf_sco_group->OpenOnDisk();
 
       unsigned char* aStreamFile = NULL;
@@ -363,19 +348,11 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       ascii_hdf_dataset->OpenOnDisk();
       ascii_hdf_dataset->ReadFromDisk(ASCIIfileState);
 
-      // set path without file name from URL 
-      int aFileNameSize = Res.Length();
-      char* aDir = new char[aFileNameSize];
-      memcpy(aDir, TCollection_AsciiString(Res).ToCString(), aFileNameSize);
-      for(int aCounter = aFileNameSize-1; aCounter>=0; aCounter--)
-	if (aDir[aCounter] == '/') {
-	  aDir[aCounter+1] = 0;
-	  break;
-	}
+      string aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
 
       bool aResult = (ASCIIfileState[0]=='A')?
-	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M'):
-	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir, aMultifileState[0]=='M');
+	aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
+	aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
 
       if(aStreamFile != NULL) delete []aStreamFile; 
 
@@ -386,7 +363,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 	throw HDFexception("Unable to load component");
       }
 
-      if(aDir != NULL) delete []aDir;
+      //if(aDir != NULL) delete []aDir;
 
       multifile_hdf_dataset->CloseOnDisk();
       multifile_hdf_dataset = 0;
@@ -401,8 +378,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       delete hdf_file;
 
       if (isASCII) {
-	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-	aFilesToRemove->Append(aHDFUrl);
+	vector<string> aFilesToRemove;
+	aFilesToRemove.push_back("hdf_from_ascii.hdf");
 	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
                                                 aFilesToRemove, true);
       }      
@@ -411,12 +388,12 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       delete hdf_file;
 
       if (isASCII) {
-	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-	aFilesToRemove->Append(aHDFUrl);
+	vector<string> aFilesToRemove;
+	aFilesToRemove.push_back(aHDFUrl);
 	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl), aFilesToRemove, true);
       }
 
-      if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
+      if (aLocked) _study->GetProperties()->SetLocked(true);
       _errorCode = "No persistent file";   
       return false;
     }
@@ -428,7 +405,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
       return false;
     }
 
-    if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
+    if (aLocked) _study->GetProperties()->SetLocked(true);
   } else {
     _errorCode = "No persistent file";   
   }
@@ -442,7 +419,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::Load(const Handle(SALOMEDSImpl_SObject)& sco)
+bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& sco)
 {
   _errorCode = "Not implemented";
   return false;
@@ -454,51 +431,55 @@ bool SALOMEDSImpl_StudyBuilder::Load(const Handle(SALOMEDSImpl_SObject)& sco)
  *  existing one
  */
 //============================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
-								       const TCollection_AsciiString& aTypeOfAttribute)
+DF_Attribute* SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const SALOMEDSImpl_SObject& anObject, 
+							       const string& aTypeOfAttribute)
 {
   _errorCode = "";
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Invalid arguments";
     return NULL;
   }
 
-  TDF_Label Lab = anObject->GetLabel();
+  DF_Label Lab = anObject.GetLabel();
   if(Lab.IsNull()) {
     _errorCode = "Null label";
     return NULL;
   }
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 
   //The macro adds all necessary checks for standardly behaiving attributes
   __FindOrCreateAttributeForBuilder
-  
+
+ 
   //Add checks for TreeNode and UserID attributes  
-  if (strncmp(aTypeOfAttribute.ToCString(), "AttributeTreeNode",17) == 0 ) {
-    Standard_GUID aTreeNodeGUID;
-    if (strcmp(aTypeOfAttribute.ToCString(), "AttributeTreeNode") == 0) {
+  if (strncmp(aTypeOfAttribute.c_str(), "AttributeTreeNode",17) == 0 ) {
+    
+    string aTreeNodeGUID;
+    if (strcmp(aTypeOfAttribute.c_str(), "AttributeTreeNode") == 0) {
       aTreeNodeGUID = SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID();
     } else {
-      char* aGUIDString = new char[40];
-      char* aType = (char*)aTypeOfAttribute.ToCString();
-      sprintf(aGUIDString, &(aType[21]));
-      aTreeNodeGUID = Standard_GUID(aGUIDString); // create tree node GUID by name
-      delete(aGUIDString);
+      aTreeNodeGUID = aTypeOfAttribute.substr(21, aTypeOfAttribute.size()); // create tree node GUID by name
     }
-    Handle(SALOMEDSImpl_AttributeTreeNode) anAttr;
-    if (!Lab.FindAttribute(aTreeNodeGUID, anAttr)) {
+    SALOMEDSImpl_AttributeTreeNode* anAttr = NULL;
+    if (!(anAttr=(SALOMEDSImpl_AttributeTreeNode*)Lab.FindAttribute(aTreeNodeGUID))) {
       CheckLocked();
       anAttr = SALOMEDSImpl_AttributeTreeNode::Set(Lab, aTreeNodeGUID);
     }
     return anAttr;
   }
 
-  if (strncmp(aTypeOfAttribute.ToCString(), "AttributeUserID",15) == 0 ) {
-    Handle(SALOMEDSImpl_AttributeUserID) anAttr;
-    if (!Lab.FindAttribute(SALOMEDSImpl_AttributeUserID::DefaultID(), anAttr)) {
+  if (strncmp(aTypeOfAttribute.c_str(), "AttributeUserID",15) == 0 ) {
+    std::string aUserGUID;
+    if (strcmp(aTypeOfAttribute.c_str(), "AttributeUserID") == 0) {
+      aUserGUID = SALOMEDSImpl_AttributeUserID::DefaultID();
+    } else {
+      aUserGUID = aTypeOfAttribute.substr(15, aTypeOfAttribute.size()); // create tree node GUID by name
+    }
+    SALOMEDSImpl_AttributeUserID* anAttr = NULL;
+    if (!(anAttr=(SALOMEDSImpl_AttributeUserID*)Lab.FindAttribute(aUserGUID))) {
       CheckLocked();
-      anAttr = SALOMEDSImpl_AttributeUserID::Set(Lab, SALOMEDSImpl_AttributeUserID::DefaultID());
+      anAttr = SALOMEDSImpl_AttributeUserID::Set(Lab, aUserGUID);
     }
     return anAttr;
   }
@@ -513,21 +494,22 @@ Handle(TDF_Attribute) SALOMEDSImpl_StudyBuilder::FindOrCreateAttribute(const Han
  */
 //============================================================================
 
-bool SALOMEDSImpl_StudyBuilder::FindAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
-					      Handle(TDF_Attribute)& anAttribute, 
-					      const TCollection_AsciiString& aTypeOfAttribute)
+bool SALOMEDSImpl_StudyBuilder::FindAttribute(const SALOMEDSImpl_SObject& anObject, 
+					      DF_Attribute*& anAttribute, 
+					      const string& aTypeOfAttribute)
 {
   _errorCode = "";
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  TDF_Label Lab = anObject->GetLabel();
-  if (Lab.FindAttribute(SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute), anAttribute)) {
-    _doc->Modify();  
-    return Standard_True;
+  DF_Label Lab = anObject.GetLabel();
+  if ((anAttribute=Lab.FindAttribute(SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute)))) {
+    // commented out because NO MODIFICATION is done to attributes when calling FindAttribute()
+    // _doc->Modify();  
+    return true;
   }
-  return Standard_False;
+  return false;
 }
 
 //============================================================================
@@ -536,26 +518,26 @@ bool SALOMEDSImpl_StudyBuilder::FindAttribute(const Handle(SALOMEDSImpl_SObject)
  */
 //============================================================================
 
-bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const Handle(SALOMEDSImpl_SObject)& anObject, 
-						const TCollection_AsciiString& aTypeOfAttribute)
+bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anObject, 
+						const string& aTypeOfAttribute)
 {
   _errorCode = "";
   CheckLocked();
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  TDF_Label Lab = anObject->GetLabel();
+  DF_Label Lab = anObject.GetLabel();
   
-  if (aTypeOfAttribute == "AttributeIOR") { // postponed removing of CORBA objects
-    Handle(SALOMEDSImpl_AttributeIOR) anAttr;
-    if (Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
-      SALOMEDSImpl_Study::GetStudy(_doc->Main())->AddPostponed(anAttr->Value());
+  if (aTypeOfAttribute == string("AttributeIOR")) { // Remove from IORLabel map
+    SALOMEDSImpl_AttributeIOR* anAttr = NULL;
+    if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    }
   }
 
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
     
-  _doc->Modify();  
+  _doc->SetModified(true);  
     
   return true;
 }
@@ -565,22 +547,22 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const Handle(SALOMEDSImpl_SObjec
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::Addreference(const Handle(SALOMEDSImpl_SObject)& me, 
-					     const Handle(SALOMEDSImpl_SObject)& theReferencedObject)
+bool SALOMEDSImpl_StudyBuilder::Addreference(const SALOMEDSImpl_SObject& me, 
+					     const SALOMEDSImpl_SObject& theReferencedObject)
 {
   _errorCode = "";
-  if(me.IsNull() || theReferencedObject.IsNull()) {
+  if(!me || !theReferencedObject) {
    _errorCode = "Invalid arguments";
    return false;
   }
   CheckLocked();
-  TDF_Label Lab = me->GetLabel();
-  TDF_Label RefLab = theReferencedObject->GetLabel();
+  DF_Label Lab = me.GetLabel();
+  DF_Label RefLab = theReferencedObject.GetLabel();
   SALOMEDSImpl_AttributeReference::Set(Lab,RefLab);
 
   SALOMEDSImpl_AttributeTarget::Set(RefLab)->Add(SALOMEDSImpl_Study::SObject(Lab));
 
-  if(!_callbackOnRemove.IsNull() && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+  if(_callbackOnRemove && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
   
   return true;
 }
@@ -590,26 +572,28 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const Handle(SALOMEDSImpl_SObject)&
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::RemoveReference(const Handle(SALOMEDSImpl_SObject)& me)
+bool SALOMEDSImpl_StudyBuilder::RemoveReference(const SALOMEDSImpl_SObject& me)
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_SObject) theReferencedObject;
-  if(!me->ReferencedObject(theReferencedObject)) return false;  //No reference is found
-
+  SALOMEDSImpl_SObject theReferencedObject;
+  
+  if(!me.ReferencedObject(theReferencedObject)) return false;  //No reference is found
+  
   CheckLocked();
-  TDF_Label Lab = me->GetLabel();
-
-  Lab.ForgetAttribute(SALOMEDSImpl_AttributeReference::GetID());  
+  DF_Label Lab = me.GetLabel();
 
   //SRN: 30 Aug, 2004 : fix from Ecole l'ete version 
 
-  TDF_Label RefLab = theReferencedObject->GetLabel();
+  DF_Label RefLab = theReferencedObject.GetLabel();
        
-  Handle(SALOMEDSImpl_AttributeTarget) aTarget;
-  if(RefLab.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) 
+  SALOMEDSImpl_AttributeTarget* aTarget = NULL;
+  if((aTarget=(SALOMEDSImpl_AttributeTarget*)RefLab.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID()))) {
     aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
+  }
   
-  _doc->Modify();  
+  Lab.ForgetAttribute(SALOMEDSImpl_AttributeReference::GetID());  
+  
+  _doc->SetModified(true);  
   
   return true;
 }
@@ -621,70 +605,66 @@ bool SALOMEDSImpl_StudyBuilder::RemoveReference(const Handle(SALOMEDSImpl_SObjec
  *  Purpose  : adds a new directory with a path = thePath
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::AddDirectory(const TCollection_AsciiString& thePath) 
+bool SALOMEDSImpl_StudyBuilder::AddDirectory(const string& thePath) 
 {
   _errorCode = "";
   CheckLocked();
-  if(thePath.IsEmpty() || thePath == "") {
+  if(thePath.empty()) {
     _errorCode = "Invalid path";
     return false;
   }
 
-  TCollection_AsciiString aPath(thePath), aContext(""), aFatherPath;
-  TDF_Label aLabel;
-  Handle(SALOMEDSImpl_Study) aStudy = SALOMEDSImpl_Study::GetStudy(_doc->Main());
-  Handle(SALOMEDSImpl_SObject) anObject;
+  string aPath(thePath), aContext(""), aFatherPath;
+  DF_Label aLabel;
+  SALOMEDSImpl_SObject anObject;
 
   try { 
-    anObject = aStudy->FindObjectByPath(thePath); //Check if the directory already exists
+    anObject = _study->FindObjectByPath(thePath); //Check if the directory already exists
   }
   catch(...) { }
 
-  if(!anObject.IsNull()) {
+  if(anObject) {
     _errorCode = "StudyNameAlreadyUsed";
     return false; 
   }
 
-  if(aPath.Value(1) != '/') { //Relative path 
-    aPath.Prepend('/');
-    aPath = aStudy->GetContext() + aPath;
+  if(aPath[0] != '/') { //Relative path 
+    aPath.insert(aPath.begin(), '/');
+    aPath = _study->GetContext() + aPath;
   }
 
-  TCollection_AsciiString aToken = aPath.Token("/", 1);
-  if(aToken.Length() == 0) aFatherPath = "/";
-
-  int i = 1;  
-  while(aToken.Length() != 0) {
-    if(aPath.Token("/", i+1).Length() > 0) {
+  vector<string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
+  if(vs.size() == 1) 
+    aFatherPath = "/";
+  else {
+    for(int i = 0, len = vs.size()-1; i<len; i++) { 
       aFatherPath += "/";
-      aFatherPath += aToken;
+      aFatherPath += vs[i];
     }
-    aToken = aPath.Token("/", ++i);
   }
 
-  anObject.Nullify();
   try { 
-    anObject = aStudy->FindObjectByPath(aFatherPath); //Check if the father directory exists
+    anObject = _study->FindObjectByPath(aFatherPath); //Check if the father directory exists
   }
   catch(...) { ; }
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "StudyInvalidDirectory";
     return false; 
   }
 
-  Handle(SALOMEDSImpl_SObject) aNewObject = NewObject(anObject);
-  aLabel = aNewObject->GetLabel();
+  SALOMEDSImpl_SObject aNewObject = NewObject(anObject);
+  aLabel = aNewObject.GetLabel();
   if(aLabel.IsNull()) {
     _errorCode = "StudyInvalidComponent";
     return false;
   }
 
-  SALOMEDSImpl_AttributeName::Set(aLabel, aPath.Token("/", i-1));
+  SALOMEDSImpl_AttributeName::Set(aLabel, vs.back());
 
   //Set LocalID attribute to identify the directory object
-  Handle(SALOMEDSImpl_AttributeLocalID) aLocalID = SALOMEDSImpl_AttributeLocalID::Set(aLabel, DIRECTORYID);
+  SALOMEDSImpl_AttributeLocalID::Set(aLabel, DIRECTORYID);
   
-  _doc->Modify(); 
+  _doc->SetModified(true); 
   
   return true;
 }
@@ -695,20 +675,20 @@ bool SALOMEDSImpl_StudyBuilder::AddDirectory(const TCollection_AsciiString& theP
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::SetGUID(const Handle(SALOMEDSImpl_SObject)& anObject, 
-					const TCollection_AsciiString& theGUID)
+bool SALOMEDSImpl_StudyBuilder::SetGUID(const SALOMEDSImpl_SObject& anObject, 
+					const string& theGUID)
 {
   _errorCode = "";
   CheckLocked();
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Invalid arguments";
     return false;
   }
 
-  TDF_Label aLabel = anObject->GetLabel();
-  SALOMEDSImpl_AttributeUserID::Set(aLabel, theGUID.ToCString());
+  DF_Label aLabel = anObject.GetLabel();
+  SALOMEDSImpl_AttributeUserID::Set(aLabel, theGUID);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 
   return true;
 }
@@ -718,16 +698,16 @@ bool SALOMEDSImpl_StudyBuilder::SetGUID(const Handle(SALOMEDSImpl_SObject)& anOb
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::IsGUID(const Handle(SALOMEDSImpl_SObject)& anObject, 
-				       const TCollection_AsciiString& theGUID)
+bool SALOMEDSImpl_StudyBuilder::IsGUID(const SALOMEDSImpl_SObject& anObject, 
+				       const string& theGUID)
 {
   _errorCode = "";
-  if(anObject.IsNull()) {
+  if(!anObject) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  TDF_Label aLabel = anObject->GetLabel();
-  return aLabel.IsAttribute(theGUID.ToCString());
+  DF_Label aLabel = anObject.GetLabel();
+  return aLabel.IsAttribute(theGUID);
 }
 
 
@@ -739,15 +719,11 @@ bool SALOMEDSImpl_StudyBuilder::IsGUID(const Handle(SALOMEDSImpl_SObject)& anObj
 void SALOMEDSImpl_StudyBuilder::NewCommand()
 {
   _errorCode = "";
+
   // mpv: for SAL2114 - unset "lock changed" flag at the operation start
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!_doc->Main().FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(), anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties;
-    _doc->Main().AddAttribute(anAttr);
-  }
-  anAttr->IsLockChanged(true);
-  
-  _doc->NewCommand();
+  _study->GetProperties()->IsLockChanged(true);
+
+  //Not implemented
 }
 
 //============================================================================
@@ -758,25 +734,19 @@ void SALOMEDSImpl_StudyBuilder::NewCommand()
 void SALOMEDSImpl_StudyBuilder::CommitCommand()
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!_doc->Main().FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(), anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties;
-    _doc->Main().AddAttribute(anAttr);
-  }
+  SALOMEDSImpl_AttributeStudyProperties* anAttr = _study->GetProperties();
   if (anAttr->IsLocked() && !anAttr->IsLockChanged(true)) {
-    AbortCommand();
     _errorCode = "LockProtection";
     throw LockProtection("LockProtection");
   } else {
-    SALOMEDSImpl_Study::GetStudy(_doc->Main())->RemovePostponed(_doc->GetUndoLimit());
-
     int aModif = anAttr->GetModified();
     if (aModif < 0) aModif = 1000; // if user make undo and then - new transaction "modify" will never be zero
     anAttr->SetModified(aModif+1);
-    _doc->CommitCommand();
   }
   
-  _doc->Modify();  
+
+  //Not implemented
+  _doc->SetModified(true);  
 }
 
 //============================================================================
@@ -787,7 +757,9 @@ void SALOMEDSImpl_StudyBuilder::CommitCommand()
 bool SALOMEDSImpl_StudyBuilder::HasOpenCommand()
 {
   _errorCode = "";
-  return _doc->HasOpenCommand();
+
+  //Not implememnted
+  return false;
 }
 
 //============================================================================
@@ -798,9 +770,7 @@ bool SALOMEDSImpl_StudyBuilder::HasOpenCommand()
 void SALOMEDSImpl_StudyBuilder::AbortCommand()
 {
   _errorCode = "";
-  SALOMEDSImpl_Study::GetStudy(_doc->Main())->UndoPostponed(0);
-  
-  _doc->AbortCommand();
+  //Not implemented    
 }
 
 //============================================================================
@@ -810,22 +780,17 @@ void SALOMEDSImpl_StudyBuilder::AbortCommand()
 //============================================================================
 void SALOMEDSImpl_StudyBuilder::Undo()
 {
+  //Not implemented
   _errorCode = "";
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!_doc->Main().FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(), anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties;
-    _doc->Main().AddAttribute(anAttr);
-    }
+  SALOMEDSImpl_AttributeStudyProperties* anAttr = _study->GetProperties();
   if (anAttr->IsLocked()) {
     _errorCode = "LockProtection";
     throw LockProtection("LockProtection");
   } else {
-    SALOMEDSImpl_Study::GetStudy(_doc->Main())->UndoPostponed(1);
-    _doc->Undo();
     anAttr->SetModified(anAttr->GetModified()-1);
   }
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 }
 
 //============================================================================
@@ -836,22 +801,17 @@ void SALOMEDSImpl_StudyBuilder::Undo()
 void SALOMEDSImpl_StudyBuilder::Redo() 
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!_doc->Main().FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(), anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties;
-    _doc->Main().AddAttribute(anAttr);
-  }
-  
+  SALOMEDSImpl_AttributeStudyProperties* anAttr = _study->GetProperties();
   if (anAttr->IsLocked()) {
     _errorCode = "LockProtection";
     throw LockProtection("LockProtection");
   } else {
-    _doc->Redo();
-    SALOMEDSImpl_Study::GetStudy(_doc->Main())->UndoPostponed(-1);
     anAttr->SetModified(anAttr->GetModified()+1);
   }
-   
-  _doc->Modify();  
+
+  //Not implemented
+
+  _doc->SetModified(true);  
 }
 
 //============================================================================
@@ -862,7 +822,7 @@ void SALOMEDSImpl_StudyBuilder::Redo()
 bool SALOMEDSImpl_StudyBuilder::GetAvailableUndos()
 {
   _errorCode = "";
-  return _doc->GetAvailableUndos();
+  return false;
 }
 
 //============================================================================
@@ -873,7 +833,7 @@ bool SALOMEDSImpl_StudyBuilder::GetAvailableUndos()
 bool  SALOMEDSImpl_StudyBuilder::GetAvailableRedos()
 {
   _errorCode = "";
-  return _doc->GetAvailableRedos();
+  return false;
 }
 
 //============================================================================
@@ -884,7 +844,7 @@ bool  SALOMEDSImpl_StudyBuilder::GetAvailableRedos()
 int  SALOMEDSImpl_StudyBuilder::UndoLimit()
 {
   _errorCode = "";
-  return _doc->GetUndoLimit();
+  return 1;
 }
 
 //============================================================================
@@ -896,7 +856,7 @@ void SALOMEDSImpl_StudyBuilder::UndoLimit(int n)
 {
   _errorCode = "";
   CheckLocked();
-  _doc->SetUndoLimit (n);
+  //Not implemented
 }
 
 //============================================================================
@@ -904,12 +864,12 @@ void SALOMEDSImpl_StudyBuilder::UndoLimit(int n)
  *  Purpose  : 
  */
 //============================================================================
-Handle(SALOMEDSImpl_Callback) 
-SALOMEDSImpl_StudyBuilder::SetOnAddSObject(const Handle(SALOMEDSImpl_Callback)& theCallback)
+SALOMEDSImpl_Callback*
+SALOMEDSImpl_StudyBuilder::SetOnAddSObject(const SALOMEDSImpl_Callback* theCallback)
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_Callback) aRet = _callbackOnAdd;
-  _callbackOnAdd = theCallback;
+  SALOMEDSImpl_Callback* aRet = _callbackOnAdd;
+  _callbackOnAdd = (SALOMEDSImpl_Callback*)theCallback;
   return aRet;
 }
 
@@ -918,12 +878,12 @@ SALOMEDSImpl_StudyBuilder::SetOnAddSObject(const Handle(SALOMEDSImpl_Callback)& 
  *  Purpose  : 
  */
 //============================================================================
-Handle(SALOMEDSImpl_Callback) 
-SALOMEDSImpl_StudyBuilder::SetOnRemoveSObject(const Handle(SALOMEDSImpl_Callback)& theCallback)
+SALOMEDSImpl_Callback* 
+SALOMEDSImpl_StudyBuilder::SetOnRemoveSObject(const SALOMEDSImpl_Callback* theCallback)
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_Callback) aRet = _callbackOnRemove;
-  _callbackOnRemove = theCallback;
+  SALOMEDSImpl_Callback* aRet = _callbackOnRemove;
+  _callbackOnRemove = (SALOMEDSImpl_Callback*)theCallback;
   return aRet;
 }
 
@@ -935,12 +895,8 @@ SALOMEDSImpl_StudyBuilder::SetOnRemoveSObject(const Handle(SALOMEDSImpl_Callback
 void SALOMEDSImpl_StudyBuilder::CheckLocked()
 {
   _errorCode = "";
-  if (_doc->HasOpenCommand()) return;
-  Handle(SALOMEDSImpl_AttributeStudyProperties) anAttr;
-  if (!_doc->Main().FindAttribute(SALOMEDSImpl_AttributeStudyProperties::GetID(), anAttr)) {
-    anAttr = new SALOMEDSImpl_AttributeStudyProperties;
-    _doc->Main().AddAttribute(anAttr);
-    }
+  if (HasOpenCommand()) return;
+  SALOMEDSImpl_AttributeStudyProperties* anAttr = _study->GetProperties();
   if (anAttr->IsLocked()) {
     _errorCode = "LockProtection";
     throw LockProtection("LockProtection");
@@ -952,18 +908,18 @@ void SALOMEDSImpl_StudyBuilder::CheckLocked()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::SetName(const Handle(SALOMEDSImpl_SObject)& theSO, 
-					const TCollection_AsciiString& theValue)
+bool SALOMEDSImpl_StudyBuilder::SetName(const SALOMEDSImpl_SObject& theSO, 
+					const string& theValue)
 {
   _errorCode = "";
   CheckLocked();
-  if(theSO.IsNull()) {
+  if(!theSO) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  SALOMEDSImpl_AttributeName::Set(theSO->GetLabel(), theValue);
+  SALOMEDSImpl_AttributeName::Set(theSO.GetLabel(), theValue);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 
   return true;
 }
@@ -973,18 +929,18 @@ bool SALOMEDSImpl_StudyBuilder::SetName(const Handle(SALOMEDSImpl_SObject)& theS
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::SetComment(const Handle(SALOMEDSImpl_SObject)& theSO, 
-					   const TCollection_AsciiString& theValue)
+bool SALOMEDSImpl_StudyBuilder::SetComment(const SALOMEDSImpl_SObject& theSO, 
+					   const string& theValue)
 {
   _errorCode = "";
   CheckLocked();
-  if(theSO.IsNull()) {
+  if(!theSO) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  SALOMEDSImpl_AttributeComment::Set(theSO->GetLabel(), theValue);
+  SALOMEDSImpl_AttributeComment::Set(theSO.GetLabel(), theValue);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 
   return true;
 }
@@ -994,18 +950,18 @@ bool SALOMEDSImpl_StudyBuilder::SetComment(const Handle(SALOMEDSImpl_SObject)& t
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::SetIOR(const Handle(SALOMEDSImpl_SObject)& theSO, 
-				       const TCollection_AsciiString& theValue)
+bool SALOMEDSImpl_StudyBuilder::SetIOR(const SALOMEDSImpl_SObject& theSO, 
+				       const string& theValue)
 {
   _errorCode = "";
   CheckLocked();
-  if(theSO.IsNull()) {
+  if(!theSO) {
     _errorCode = "Invalid arguments";
     return false;
   }
-  SALOMEDSImpl_AttributeIOR::Set(theSO->GetLabel(), theValue);
+  SALOMEDSImpl_AttributeIOR::Set(theSO.GetLabel(), theValue);
 
-  _doc->Modify();  
+  _doc->SetModified(true);  
 
   return true;
 }
@@ -1016,26 +972,26 @@ bool SALOMEDSImpl_StudyBuilder::SetIOR(const Handle(SALOMEDSImpl_SObject)& theSO
  *  Purpose  :
  */
 //============================================================================
-static void Translate_persistentID_to_IOR(TDF_Label& Lab, SALOMEDSImpl_Driver* driver, bool isMultiFile, bool isASCII)
+static void Translate_persistentID_to_IOR(DF_Label& Lab, SALOMEDSImpl_Driver* driver, bool isMultiFile, bool isASCII)
 {
   if(driver == NULL) return;
-  TDF_ChildIterator  itchild (Lab);
+  DF_ChildIterator  itchild (Lab);
   
   for (; itchild.More(); itchild.Next()) {
-    TDF_Label current = itchild.Value();
-    Handle(SALOMEDSImpl_AttributePersistentRef) Att;
-    if (current.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(),Att)) {  
+    DF_Label current = itchild.Value();
+    SALOMEDSImpl_AttributePersistentRef* Att = NULL;
+    if ((Att=(SALOMEDSImpl_AttributePersistentRef*)current.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {  
 
-      Handle(SALOMEDSImpl_AttributeLocalID) anID;
-      if (current.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) 
-	if (anID->Value() == FILELOCALID) continue;        //SRN: This attribute store a file name, skip it 
+      SALOMEDSImpl_AttributeLocalID* anID = NULL;
+      if ((anID=(SALOMEDSImpl_AttributeLocalID*)current.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) 
+	if (anID->Value() == FILELOCALID) continue;   //SRN: This attribute store a file name, skip it 
 
-      TCollection_AsciiString persist_ref(Att->Value());
-      Handle(SALOMEDSImpl_SObject) so = SALOMEDSImpl_Study::SObject(current);
-      TCollection_AsciiString ior_string = driver->LocalPersistentIDToIOR(so, 
-									  persist_ref, 
-									  isMultiFile, 
-									  isASCII);
+      string persist_ref = Att->Value();
+      SALOMEDSImpl_SObject so = SALOMEDSImpl_Study::SObject(current);
+      string ior_string = driver->LocalPersistentIDToIOR(so, 
+							 persist_ref, 
+							 isMultiFile, 
+							 isASCII);
       SALOMEDSImpl_AttributeIOR::Set (current, ior_string); 
      
     }

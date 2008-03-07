@@ -35,7 +35,7 @@ class SALOMEDS_AttributeSequenceOfReal_i: public virtual POA_SALOMEDS::Attribute
 					  public virtual SALOMEDS_GenericAttribute_i {
 public:
   
-  SALOMEDS_AttributeSequenceOfReal_i(const Handle(SALOMEDSImpl_AttributeSequenceOfReal)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeSequenceOfReal_i(SALOMEDSImpl_AttributeSequenceOfReal* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
 
   ~SALOMEDS_AttributeSequenceOfReal_i() {};

@@ -37,6 +37,8 @@ extern "C"
 
 #ifndef WNT
 #include <unistd.h>
+#else
+#include <process.h>
 #endif
 using namespace std;
 
@@ -47,7 +49,7 @@ using namespace std;
 RegistryService::RegistryService( void ) : _SessionName(0), _Compteur(0)
 {
 	MESSAGE("Passage dans RegistryService::RegistryService()") ;
-
+	_orb = CORBA::ORB::_nil();
 }
 
 
@@ -257,5 +259,14 @@ void RegistryService::SessionName( const char *sessionName )
 }
 void RegistryService::ping()
 {
+#ifndef WNT
   MESSAGE(" RegistryService::ping() pid "<< getpid());
+#else
+  MESSAGE(" RegistryService::ping() pid "<< _getpid());
+#endif
+}
+
+CORBA::Long RegistryService::getPID()
+{
+  return (CORBA::Long)getpid();
 }

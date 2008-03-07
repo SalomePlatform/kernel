@@ -25,10 +25,8 @@
 #include "SALOMEDS.hxx"
 
 #include <string>
-#include <TCollection_AsciiString.hxx> 
-#include <TCollection_ExtendedString.hxx>
 
-SALOMEDS_AttributePythonObject::SALOMEDS_AttributePythonObject(const Handle(SALOMEDSImpl_AttributePythonObject)& theAttr)
+SALOMEDS_AttributePythonObject::SALOMEDS_AttributePythonObject(SALOMEDSImpl_AttributePythonObject* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
 
@@ -44,7 +42,7 @@ bool SALOMEDS_AttributePythonObject::IsScript()
   bool ret;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    ret = Handle(SALOMEDSImpl_AttributePythonObject)::DownCast(_local_impl)->IsScript();
+    ret = dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_local_impl)->IsScript();
   }
   else ret = SALOMEDS::AttributePythonObject::_narrow(_corba_impl)->IsScript();
   return ret;
@@ -55,8 +53,7 @@ std::string SALOMEDS_AttributePythonObject::GetObject()
   std::string aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributePythonObject)::
-                                     DownCast(_local_impl)->GetObject()).ToCString();
+    aValue = dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_local_impl)->GetObject().c_str();
   }
   else aValue = SALOMEDS::AttributePythonObject::_narrow(_corba_impl)->GetObject();
   return aValue;
@@ -67,8 +64,7 @@ void SALOMEDS_AttributePythonObject::SetObject(const std::string& theSequence, b
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    Handle(SALOMEDSImpl_AttributePythonObject)::
-      DownCast(_local_impl)->SetObject((char*)theSequence.c_str(), IsScript);
+    dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_local_impl)->SetObject(theSequence, IsScript);
   }
   else SALOMEDS::AttributePythonObject::_narrow(_corba_impl)->SetObject(theSequence.c_str(), IsScript);
 }

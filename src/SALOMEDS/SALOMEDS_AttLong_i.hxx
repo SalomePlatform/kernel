@@ -30,7 +30,6 @@
 #define __SALOMEDS_ATTLONG_I_H__
 
 // IDL headers
-#include <TDataStd_Integer.hxx>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_AttLong)
 #include "SALOMEDS_BasicAttribute_i.hxx"

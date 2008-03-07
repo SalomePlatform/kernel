@@ -31,7 +31,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
 	utilities.h \
 	LocalTraceBufferPool.hxx \
-	BaseTraceCollector.hxx
+	BaseTraceCollector.hxx \
+	SALOME_LocalTrace.hxx
 
 lib_LTLIBRARIES = libSALOMELocalTrace.la
 
@@ -43,7 +44,8 @@ libSALOMELocalTrace_la_SOURCES = \
 	FileTraceCollector.cxx \
 	FileTraceCollector.hxx \
 	LocalTraceBufferPool.cxx \
-	LocalTraceBufferPool.hxx
+	LocalTraceBufferPool.hxx \
+	SALOME_LocalTrace.hxx
 
 libSALOMELocalTrace_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSALOMELocalTrace_la_CPPFLAGS = -I$(srcdir)/../Basics

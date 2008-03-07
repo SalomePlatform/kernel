@@ -24,8 +24,8 @@
 #include CORBA_SERVER_HEADER(SALOME_Comm)
 #include "SALOMEMultiComm.hxx"
 
-class SALOME_Matrix_i : public virtual POA_SALOME::Matrix,
-			public PortableServer::RefCountServantBase {
+class SALOME_Matrix_i : public virtual POA_SALOME::Matrix
+{
 private:
   const double *_tabToSend;
   int _nbOfRow;

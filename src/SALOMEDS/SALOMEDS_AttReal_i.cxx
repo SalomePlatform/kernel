@@ -28,9 +28,9 @@
 
 #include "SALOMEDS_AttReal_i.hxx"
 #include "utilities.h"
-#include <TDF_Tool.hxx>
 #include <stdio.h>
 #include <cstring>
+#include <SALOMEDSImpl_AttributeReal.hxx>
 using namespace std;
 
 //============================================================================
@@ -41,7 +41,7 @@ using namespace std;
 void SALOMEDS_AttReal_i::Set(CORBA::Double r)
 {
   CheckLocked();
-  TDataStd_Real::Set (_Lab,r);
+  SALOMEDSImpl_AttributeReal::Set (_Lab,r);
 }
 
 //============================================================================
@@ -51,9 +51,9 @@ void SALOMEDS_AttReal_i::Set(CORBA::Double r)
 //============================================================================
 CORBA::Double SALOMEDS_AttReal_i::Get()
 {
-  Handle(TDataStd_Real) Att;
+  SALOMEDSImpl_AttributeReal* Att;
   CORBA::Double x;
-  if (_Lab.FindAttribute(TDataStd_Real::GetID(),Att))
+  if ((Att=(SALOMEDSImpl_AttributeReal*)_Lab.FindAttribute(TDataStd_Real::GetID())))
     x = Att->Get ();
   return x;
 }
@@ -89,8 +89,7 @@ void SALOMEDS_AttReal_i::Load()
 //============================================================================
 CORBA::Boolean SALOMEDS_AttReal_i::GetPtr(SALOMEDS::SObject_ptr anObject)
 {
-  Handle(TDataStd_Real) Att;
-  return _Lab.FindAttribute(TDataStd_Real::GetID(),Att);
+  return _Lab.IsAttribute(SALOMEDSImpl_AttributeReal::GetID());
 }
 
 //============================================================================

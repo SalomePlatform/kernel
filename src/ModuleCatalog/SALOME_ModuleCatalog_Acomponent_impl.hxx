@@ -29,31 +29,18 @@
 #ifndef ACOMPONENT_IMPL_H
 #define ACOMPONENT_IMPL_H
 
+#include <SALOME_ModuleCatalog.hxx>
+
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <SALOMEconfig.h>
 
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-#if defined MODULECATALOG_EXPORTS
-#if defined WIN32
-#define MODULECATALOG_EXPORT __declspec( dllexport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#else
-#if defined WNT
-#define MODULECATALOG_EXPORT __declspec( dllimport )
-#else
-#define MODULECATALOG_EXPORT
-#endif
-#endif
-
-class MODULECATALOG_EXPORT SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent,
-                      public PortableServer::RefCountServantBase 
+class MODULECATALOG_EXPORT SALOME_ModuleCatalog_AcomponentImpl: public POA_SALOME_ModuleCatalog::Acomponent
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalog_AcomponentImpl(SALOME_ModuleCatalog::Component &C);
+  SALOME_ModuleCatalog_AcomponentImpl(SALOME_ModuleCatalog::ComponentDef &C);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_AcomponentImpl();
@@ -148,15 +135,21 @@ public:
   */
   virtual char* component_icone();
 
-  //! method to define if a component is implemented in C++ or Python
+  //! method to define if a component is implemented in a dyn lib a python module or an executable
   /*!
-    \return true if it's a C++ component 
+    \return an enum SO or PY or EXE
   */
-  virtual CORBA::Boolean implementation_type();
+  virtual SALOME_ModuleCatalog::ImplType implementation_type();
+
+  //! method to obtain the implementation name of the component if the default one is not convenient
+  /*!
+    \return the implementation name to exec
+  */
+  virtual char* implementation_name();
 
 private :
 
-  SALOME_ModuleCatalog::Component _Component;
+  SALOME_ModuleCatalog::ComponentDef _Component;
 
  //! method to duplicate an interface
   /*!

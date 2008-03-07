@@ -38,7 +38,7 @@ class SALOMEDS_AttributeExpandable_i: public virtual POA_SALOMEDS::AttributeExpa
 {
 public:
   
-  SALOMEDS_AttributeExpandable_i(const Handle(SALOMEDSImpl_AttributeExpandable)& theAttr, CORBA::ORB_ptr orb)
+  SALOMEDS_AttributeExpandable_i(SALOMEDSImpl_AttributeExpandable* theAttr, CORBA::ORB_ptr orb)
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};  
 
   ~SALOMEDS_AttributeExpandable_i() {};

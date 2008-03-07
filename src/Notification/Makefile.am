@@ -38,7 +38,8 @@ salomeinclude_HEADERS = \
 	NOTIFICATION.hxx          \
 	NOTIFICATION_Supplier.hxx \
 	NOTIFICATION_Consumer.hxx \
-	CosNotifyShorthands.h
+	CosNotifyShorthands.h \
+	SALOME_NOTIFICATION.hxx
 
 #
 # ===============================================================
@@ -56,6 +57,7 @@ libSalomeNotification_la_CPPFLAGS =\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Utils \
+	-I$(top_builddir)/salome_adm/unix \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 

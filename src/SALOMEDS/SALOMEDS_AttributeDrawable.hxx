@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeDrawable: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeDrawable
 {
 public:  
-  SALOMEDS_AttributeDrawable(const Handle(SALOMEDSImpl_AttributeDrawable)& theAttr);
+  SALOMEDS_AttributeDrawable(SALOMEDSImpl_AttributeDrawable* theAttr);
   SALOMEDS_AttributeDrawable(SALOMEDS::AttributeDrawable_ptr theAttr);
   ~SALOMEDS_AttributeDrawable();
 

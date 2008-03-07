@@ -36,7 +36,7 @@
 class SALOMEDS_AttributeLocalID: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeLocalID
 {
 public:  
-  SALOMEDS_AttributeLocalID(const Handle(SALOMEDSImpl_AttributeLocalID)& theAttr);
+  SALOMEDS_AttributeLocalID(SALOMEDSImpl_AttributeLocalID* theAttr);
   SALOMEDS_AttributeLocalID(SALOMEDS::AttributeLocalID_ptr theAttr);
   ~SALOMEDS_AttributeLocalID();
 

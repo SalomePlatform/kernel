@@ -25,23 +25,23 @@
 
 using namespace std;
 
-IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeReal, SALOMEDSImpl_GenericAttribute )
-IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeReal, SALOMEDSImpl_GenericAttribute )
+#include <stdlib.h>
+
 
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeReal::GetID ()
+const std::string& SALOMEDSImpl_AttributeReal::GetID ()
 {
-  static Standard_GUID realID ("1D1992F0-56F4-46b4-8065-CDEA68061CAB");
+  static std::string realID ("1D1992F0-56F4-46b4-8065-CDEA68061CAB");
   return realID;
 }   
 
-Handle(SALOMEDSImpl_AttributeReal) SALOMEDSImpl_AttributeReal::Set (const TDF_Label& L, const Standard_Real Val) 
+SALOMEDSImpl_AttributeReal* SALOMEDSImpl_AttributeReal::Set (const DF_Label& L, const double& Val) 
 {
-  Handle(SALOMEDSImpl_AttributeReal) A;
-  if (!L.FindAttribute(SALOMEDSImpl_AttributeReal::GetID(), A)) {
+  SALOMEDSImpl_AttributeReal* A = NULL;
+  if (!(A=(SALOMEDSImpl_AttributeReal*)L.FindAttribute(SALOMEDSImpl_AttributeReal::GetID()))) {
     A = new  SALOMEDSImpl_AttributeReal(); 
     L.AddAttribute(A);
   }
@@ -54,7 +54,7 @@ Handle(SALOMEDSImpl_AttributeReal) SALOMEDSImpl_AttributeReal::Set (const TDF_La
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::SetValue(const Standard_Real v)
+void SALOMEDSImpl_AttributeReal::SetValue(const double& v)
 {
   CheckLocked();
 
@@ -70,7 +70,7 @@ void SALOMEDSImpl_AttributeReal::SetValue(const Standard_Real v)
 //function : ID
 //purpose  :
 //=======================================================================
-const Standard_GUID& SALOMEDSImpl_AttributeReal::ID () const 
+const std::string& SALOMEDSImpl_AttributeReal::ID () const 
 { 
   return GetID(); 
 } 
@@ -79,7 +79,7 @@ const Standard_GUID& SALOMEDSImpl_AttributeReal::ID () const
 //function : NewEmpty
 //purpose  : 
 //=======================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_AttributeReal::NewEmpty () const
+DF_Attribute* SALOMEDSImpl_AttributeReal::NewEmpty () const
 {  
   return new SALOMEDSImpl_AttributeReal(); 
 }
@@ -88,17 +88,36 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeReal::NewEmpty () const
 //function : Restore
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::Restore(const Handle(TDF_Attribute)& with) 
+void SALOMEDSImpl_AttributeReal::Restore(DF_Attribute* with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast (with)->Value ();
+  myValue = dynamic_cast<SALOMEDSImpl_AttributeReal*>(with)->Value ();
 }
 
 //=======================================================================
 //function : Paste
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::Paste (const Handle(TDF_Attribute)& into,
-					const Handle(TDF_RelocationTable)& RT) const
+void SALOMEDSImpl_AttributeReal::Paste (DF_Attribute* into)
 {
-  Handle(SALOMEDSImpl_AttributeReal)::DownCast (into)->SetValue(myValue);
+  dynamic_cast<SALOMEDSImpl_AttributeReal*>(into)->SetValue(myValue);
+}
+
+//=======================================================================
+//function : Save
+//purpose  :
+//=======================================================================
+string SALOMEDSImpl_AttributeReal::Save() 
+{ 
+  char buffer[255]; 
+  sprintf(buffer, "%.64e", myValue);
+  return string(buffer); 
+}
+
+//=======================================================================
+//function : Load
+//purpose  :
+//=======================================================================
+void SALOMEDSImpl_AttributeReal::Load(const string& theValue)
+{
+  myValue = atof(theValue.c_str());  
 }

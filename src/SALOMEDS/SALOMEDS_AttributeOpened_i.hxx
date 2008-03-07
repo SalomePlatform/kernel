@@ -37,7 +37,7 @@ class SALOMEDS_AttributeOpened_i: public virtual POA_SALOMEDS::AttributeOpened,
 {
 public:
   
-  SALOMEDS_AttributeOpened_i(const Handle(SALOMEDSImpl_AttributeOpened)& theAttr, CORBA::ORB_ptr orb) 
+  SALOMEDS_AttributeOpened_i(SALOMEDSImpl_AttributeOpened* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
   ~SALOMEDS_AttributeOpened_i() {};
 
