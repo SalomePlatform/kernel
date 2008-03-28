@@ -105,6 +105,9 @@ ecp_fin_ (void * component, int code) {
     } catch ( const CalciumException & ex) {				\
       DEBTRACE( ex.what() );						\
       return ex.getInfo();						\
+    } catch ( ... ) {				\
+      std::cerr << "Unexpected exception " << std::endl; \
+      return CalciumTypes::CPATAL;						\
     }									\
     if ( IsSameType< _name , cplx >::value ) { *nRead=_nRead/2;		\
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" ) \
@@ -144,6 +147,9 @@ ecp_fin_ (void * component, int code) {
     } catch ( const CalciumException & ex) {				\
       std::cerr << ex.what() << std::endl;				\
       return ex.getInfo();						\
+    } catch ( ... ) {				\
+      std::cerr << "Unexpected exception " << std::endl; \
+      return CalciumTypes::CPATAL;						\
     }									\
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data ) \
       return CalciumTypes::CPOK;					\

@@ -279,7 +279,7 @@ StartContainer(const Engines::MachineParameters& params,
     }
 
   //redirect stdout and stderr in a file
-  string logFilename="/tmp/"+_NS->ContainerName(params)+"_"+GetHostname()+"_"+getenv( "USER" )+".log" ;
+  string logFilename="/tmp/"+_NS->ContainerName(params)+"_"+ theMachine +"_"+getenv( "USER" )+".log" ;
   command += " > " + logFilename + " 2>&1 &";
 
   // launch container with a system call

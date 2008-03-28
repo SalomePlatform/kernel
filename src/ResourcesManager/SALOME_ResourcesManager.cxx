@@ -473,7 +473,7 @@ bool isPythonContainer(const char* ContainerName)
  *  see BuildTempFileToLaunchRemoteContainer()
  *
  *  Else rely on distant configuration. Command is under the form (example):
- *  ssh user@machine distantPath/runRemote.sh hostNS portNS workingdir \
+ *  ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
  *                   SALOME_Container containerName &"
 
  *  - where user is ommited if not specified in CatalogResources,
@@ -483,7 +483,8 @@ bool isPythonContainer(const char* ContainerName)
  *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
  *  - where portNS is the port used by CORBA naming server (set by scripts to
  *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
- *  - where workingdir is the requested working directory for the container
+ *  - where workingdir is the requested working directory for the container.
+ *    If WORKINGDIR (and workingdir) is not present the working dir will be $HOME
  */ 
 //=============================================================================
 
@@ -515,7 +516,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
             nbproc = params.nb_node * params.nb_proc_per_node;
         }
 
-      // "ssh user@machine distantPath/runRemote.sh hostNS portNS workingdir \
+      // "ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
       //  SALOME_Container containerName &"
 
       if (resInfo.Protocol == rsh)
@@ -551,12 +552,16 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
       ASSERT(getenv("NSPORT"));
       command += getenv("NSPORT"); // port of CORBA name server
 
-      command += " '";
       std::string wdir=params.workingdir.in();
-      if(wdir == "$TEMPDIR")
-        wdir="\\$TEMPDIR";
-      command += wdir; // requested working directory
-      command += "'"; 
+      if(wdir != "")
+        {
+          command += " WORKINGDIR ";
+          command += " '";
+          if(wdir == "$TEMPDIR")
+            wdir="\\$TEMPDIR";
+          command += wdir; // requested working directory
+          command += "'"; 
+        }
 
       if(params.isMPI)
 	{
@@ -632,7 +637,6 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
     {
       command="";
       std::string wdir=params.workingdir.in();
-      std::cerr << wdir << std::endl;
       if(wdir != "")
         {
           // a working directory is requested

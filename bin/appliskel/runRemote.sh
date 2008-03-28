@@ -37,8 +37,9 @@
 #     $0 : ${APPLI}/runRemote.sh: from arg name, rebuild and export $APPLI variable
 #     $1 : computer name for CORBA name service (where SALOME was launched)
 #     $2 : port for CORBA name service
-#     $3 : working directory
-#     $4 and following : local command to execute, with args
+#     $3 : WORKINGDIR (if $3 == WORKINDIR a working dir is given in $4. If not the working dir is $HOME)
+#     $4 : if $3 == WORKINGDIR, the path to the workingdir
+#     $5 (or $3 if no workingdir given) and following : local command to execute, with args
 #
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
@@ -62,33 +63,35 @@ initref="NameService=corbaname::"$1":$2"
 echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
 #go to the requested working directory if any
-if test "x$3" != x; then
-  if test "x$3" = "x\$TEMPDIR"; then
+if test "x$3" == "xWORKINGDIR"; then
+  if test "x$4" = "x\$TEMPDIR"; then
     #create a temp working dir and change to it
     WDIR=`mktemp -d` && {
       cd $WDIR
     }
   else
-    if test -d $3; then
+    if test -d $4; then
       #the dir exists, go to it
-      cd $3
+      cd $4
     else
-      if test -a $3; then
+      if test -a $4; then
         # It's a file do nothing
-        echo $3 "is an existing file. Can't use it as a working directory"
+        echo $4 "is an existing file. Can't use it as a working directory"
       else
         #It does not exists, create it
-        mkdir -p $3 && {
-          cd $3
+        mkdir -p $4 && {
+          cd $4
         }
       fi
     fi
   fi
+  shift 4
+else
+  shift 2
 fi
 
 # --- execute the command in the SALOME environment
 
-shift 3
 
 # suppress --rcfile option because of problem on Mandriva2006 - B Secher mai 2007
 #${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"
