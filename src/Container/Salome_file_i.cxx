@@ -741,12 +741,10 @@ Salome_file_i::recvFiles() {
 
   if (files_not_ok != "")
   {
-    std::cerr << "tutu" << std::endl;
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
     std::string text = "files not ready : " + files_not_ok;
     es.text = CORBA::string_dup(text.c_str());
-    std::cerr << "titi" << std::endl;
     throw SALOME::SALOME_Exception(es);
   }
   else

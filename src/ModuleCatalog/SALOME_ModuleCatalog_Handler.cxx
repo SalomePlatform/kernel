@@ -232,7 +232,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered basic type: " << aType.name << " " << aType.kind << std::endl;
+                        MESSAGE("Registered basic type: " << aType.name << " " << aType.kind );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -262,7 +262,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered sequence type: " << aType.name << " " << aType.content << std::endl;
+                        MESSAGE("Registered sequence type: " << aType.name << " " << aType.content );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -321,7 +321,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered objref type: " << aType.name << " " << aType.id << std::endl;
+                        MESSAGE("Registered objref type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -382,7 +382,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered struct type: " << aType.name << " " << aType.id << std::endl;
+                        MESSAGE("Registered struct type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }

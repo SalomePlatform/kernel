@@ -208,7 +208,6 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
 
   for (int ind = 0 ; ind < _typeList.size() ; ind++)
     {
-      std::cerr << "name: " << _typeList[ind].name << std::endl;
       //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
       type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
       type_list[ind].kind=SALOME_ModuleCatalog::NONE;
