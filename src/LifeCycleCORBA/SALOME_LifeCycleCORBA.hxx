@@ -104,6 +104,9 @@ public:
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
 
+  void shutdownServers();
+  static void killOmniNames();
+
 protected:
 
   /*! Establish if a component called "componentName" in a container called

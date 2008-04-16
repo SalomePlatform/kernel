@@ -44,8 +44,16 @@
 #include "SALOME_LifeCycleCORBA.hxx"
 #ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
+#include CORBA_CLIENT_HEADER(SALOME_Session)
+#include CORBA_CLIENT_HEADER(DSC_Engines)
+#include CORBA_CLIENT_HEADER(SALOME_Registry)
+#include CORBA_CLIENT_HEADER(SALOMEDS)
 #else
 #include "SALOME_ModuleCatalog.hh"
+#include "SALOME_Session.hh"
+#include "DSC_Engines.hh"
+#include "SALOME_Registry.hh"
+#include "SALOMEDS.hh"
 #endif
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
@@ -421,6 +429,100 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
  return resManager._retn();
 }
 
+//=============================================================================
+/*! Public -
+ *  shutdown all the SALOME servers except SALOME_Session_Server, omniNames and notifd
+ */
+//=============================================================================
+
+void SALOME_LifeCycleCORBA::shutdownServers()
+{
+  // get each Container from NamingService => shutdown it
+  // (the order is inverse to the order of servers initialization)
+  
+  SALOME::Session_var session = SALOME::Session::_nil();
+  CORBA::Long pid = 0;
+  CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
+  if (!CORBA::is_nil(objS))
+    {
+      session = SALOME::Session::_narrow(objS);
+      if (!CORBA::is_nil(session))
+        {
+          pid = session->getPID();
+          session->ping();
+        }
+    }
+
+  string hostname = GetHostname();
+  
+  // 1) SalomeLauncher
+  CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+  Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+  if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+    launcher->Shutdown();
+  
+  // 2) ConnectionManager
+  CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
+  Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
+  if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
+    connMan->ShutdownWithExit();
+  
+  // 3) SALOMEDS
+  CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
+  SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
+  if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
+    studyManager->Shutdown();
+  
+  // 4) ModuleCatalog
+  CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
+  SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
+  if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
+    catalog->shutdown();
+  
+  // 5) Registry
+  CORBA::Object_var objR = _NS->Resolve("/Registry");
+  Registry::Components_var registry = Registry::Components::_narrow(objR);
+  if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
+      registry->Shutdown();
+}
+
+//=============================================================================
+/*! Public -
+ *  shutdown  omniNames and notifd
+ */
+//=============================================================================
+
+void SALOME_LifeCycleCORBA::killOmniNames()
+{
+  string portNumber (::getenv ("NSPORT") );
+  if ( !portNumber.empty() ) 
+    {
+      string cmd ;
+      cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
+        + portNumber
+        + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
+      MESSAGE(cmd);
+      system ( cmd.c_str() );
+    }
+  
+  // NPAL 18309  (Kill Notifd)
+  if ( !portNumber.empty() ) 
+    {
+      string cmd = ("import pickle, os; ");
+      cmd += string("from killSalomeWithPort import getPiDict; ");
+      cmd += string("filedict=getPiDict(") + portNumber + "); ";
+      cmd += string("f=open(filedict, 'r'); ");
+      cmd += string("pids=pickle.load(f); ");
+      cmd += string("m={}; ");
+      cmd += string("[ m.update(i) for i in pids ]; ");
+      cmd += string("pids=filter(lambda a: 'notifd' in m[a], m.keys()); ");
+      cmd += string("[ os.kill(pid, 9) for pid in pids ]; ");
+      cmd += string("os.remove(filedict); ");
+      cmd  = string("python -c \"") + cmd +"\" > /dev/null";
+      MESSAGE(cmd);
+      system( cmd.c_str() );
+    }
+}
 
 //=============================================================================
 /*! Protected -
