@@ -79,13 +79,7 @@ if sys.platform == "win32":
   splitter = ";"
 path=salome_path.split(splitter)
 import platform
-if platform.architecture()[0] == "64bit":
-    if platform.machine() == "ia64":
-        libdir = "lib"
-    else:
-        libdir = "lib64"
-else:
-    libdir = "lib"
+libdir = "lib"
 for rep in path:
     # Import all *_shared_modules in rep
     for f in glob.glob(os.path.join(rep,libdir,"python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")):
