@@ -42,14 +42,15 @@ computer.
 
 \section S2_sal_appl Application Directory
 
-There is two ways for creation of an application directory
+There are two ways for creation of an application directory, <b>the recommended way is
+the second, easier to configure.</b>
 
 <ol>
   <li> 
     <b>First way - references to different module directories</b>
 
-The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/SALOME creates an
-application directory with the given path in parameter. ${APPLI} is a path 
+The script createAppli.sh in ${KERNEL_ROOT_DIR}/bin/salome creates an
+application directory with the given path in parameter. The path given, ${APPLI}, is 
 relative to ${HOME}.
 
 The directory is only a skeleton, the user has to edit several files to
@@ -66,7 +67,7 @@ configure his own application. These files are described after, the list is:
   <b>Second and easiest way - one single virtual install directory</b>
 
 The user must create a %SALOME application configuration file by modifying a
-copy of ${KERNEL_ROOT_DIR}/bin/SALOME/config_appli.xml.
+copy of ${KERNEL_ROOT_DIR}/bin/salome/config_appli.xml.
 The file describes the list of %SALOME modules used in the application, with
 their respective installation path. The configuration file also defines the
 path of an existing script which sets the %SALOME prerequisites,
@@ -74,19 +75,22 @@ and optionnaly, the path of samples directory (SAMPLES_SRC).
 The following command::
 
 \code
-python <KERNEL_ROOT_DIR>/bin/SALOME/appli_gen.py --prefix=<install directory> --config=<configuration file>
+python <KERNEL_ROOT_DIR>/bin/salome/appli_gen.py --prefix=<install directory> --config=<configuration file>
 \endcode
 
 creates a virtual installation of %SALOME in the application directory ${APPLI}
 (bin, lib, doc, share...), with, for each file (executable, script, data,
 library, resources...), symbolic links to the actual file.
+<b>Note: it is recommended to set the environment for %SALOME prerequisites
+before invoking the above command, in order to use the same python as SALOME,
+otherwise installation may be wrong</b>
 
-Providing an existing an existing script for %SALOME prerequisites (the same one
+Providing an existing script for %SALOME prerequisites (the same one
 used for modules compilation, or given with the modules installation), the
 installation works without further modification for a single computer (unless
 some modules needs a special environment not defined in the above script).
 For a distributed application (several computers), one must copy and adapt
-CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/SALOME/appliskel (see below).
+CatalogResources.xml from ${KERNEL_ROOT_DIR}/bin/salome/appliskel (see below).
   </li>
 </ol>  
 
@@ -112,8 +116,8 @@ script is used by run scripts.
 
 With the first way of installation, each user **must define** his own
 configuration for these scripts, following the above rules.
-With the virtual installation (second way, above), env.d
-scripts are built automatically.
+<b>With the virtual installation (second way, above), env.d
+scripts are built automatically.</b>
 
  **The following is only an example proposed by createAppli.sh, (first way of installation) not working as it is**.
 
@@ -144,8 +148,8 @@ The %SALOME user can use 4 scripts:
 
 - runAppli
    Launches a %SALOME Session
-   (similar to ${KERNEL_ROOT_DIR}/bin/SALOME/runSALOME but with a different
-   name to avoid confusions).
+   (similar to ${KERNEL_ROOT_DIR}/bin/salome/runSalome but with a different
+   name to avoid confusions). See parameters below.
 
 - runSession
    Launches a shell script in the %SALOME application environment, with access
@@ -158,9 +162,9 @@ The %SALOME user can use 4 scripts:
    It is also possible to use runSession, then python.
 
 - runTests
-   Similar to runSession, used for unit testing. runSession tries to use an
+   Similar to runSession, used for unit testing, but runSession tries to use an
    already existing naming service definition from a running session (hostname
-   and port number), runTests defines a new configuration for naming service
+   and port number), and runTests defines a new configuration for naming service
    (new port number).
   </li>
   <li>
@@ -172,8 +176,8 @@ The %SALOME user can use 4 scripts:
 For remote calls, %SALOME uses one script.
 
 - runRemote.sh
-   This script is mainly used to launch containers. The first 2 arguments
-   define the hostname and port userd for naming service, the remaining
+   This script is mainly used to launch containers. The first 3 arguments
+   define the hostname and port userd for naming service, plus a working directory, the remaining
    arguments define the command to execute.
   </li>
   <li>
@@ -249,10 +253,10 @@ If you have no active Python interpreter connected to your session, you can
 kill all the %SALOME servers of **all the sessions** on a given computer::
 
 \code
-./runSession killSALOME.py
+./runSession killSalome.py
 \endcode
 
-Remember! it's the same idea in *Windows (R) operating system* (Microsoft and Windows are either registered trademarks or trademarks of
+Remember! it's the same idea in <b>Windows (R) operating system</b> (Microsoft and Windows are either registered trademarks or trademarks of
        Microsoft Corporation in the United States and/or other countries) :
 use the start menu to stop...
 
@@ -262,7 +266,7 @@ To kill a given session (when several session are running), one needs
 the naming service port number::
 
 \code
-./runSession killSALOMEWithPort 2810
+./runSession killSalomeWithPort 2810
 \endcode
 
 Note that the port number of the last launched session can be found on Linux,
@@ -285,8 +289,8 @@ This is used to launch a %SALOME Python script without GUI
 Example of script (test_session_geom.py):
 
 \code
-import SALOME_session
-SALOME_session.startSession(modules=["GEOM"])
+import salome_session
+salome_session.startSession(modules=["GEOM"])
 import GEOM_usinggeom
 raw_input("Press a key and the servers will be killed ...")
 \endcode
@@ -313,13 +317,13 @@ first, launch a %SALOME session with gui, then, on another terminal::
 python
 \endcode
 
-Import %SALOME module. SALOME_init() without arguments creates a new study
+Import %SALOME module. salome_init() without arguments creates a new study
 in the running session (note: SALOME_init(n) attachs to a running session whose
 studyId is n)::
 
 \code
-import SALOME
-SALOME.SALOME_init()
+import salome
+salome.salome_init()
 \endcode
 
 An example of script given with SMESH::
