@@ -433,131 +433,137 @@ vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetColumnIndices(const int t
 
 string SALOMEDSImpl_AttributeTableOfString::Save() 
 {
-  ostrstream theStream;
+  string aString;
+  char* buffer = new char[1024];
   int i, j, l;
-  
+
   //Title
   l = myTitle.size();
-  theStream << l << "\n";
-  for(i=0; i<l; i++)
-    theStream << myTitle[i] << "\n";
-
+  sprintf(buffer, "%d\n", l);
+  aString+=buffer;
+  for(i=0; i<l; i++) {
+    aString += myTitle[i];
+    aString +='\n';
+  }
+  
   //Nb rows
-  theStream << myNbRows << "\n";
+  sprintf(buffer, "%d\n", myNbRows);
+  aString+=buffer;
 
-  //Rows titles
+  //Row titles
   for(i=0; i<myNbRows; i++) {
     l = myRows[i].size();
-    theStream << l << "\n";
-    for(j=0; j<l; j++)
-      theStream << myRows[i][j] << "\n";
-  }
+    sprintf(buffer, "%d\n", l);
+    aString+=buffer;
+    for(j=0; j<l; j++) {
+      aString += myRows[i][j];
+      aString += '\n';
+    }
+  }  
 
   //Nb columns
-  theStream << myNbColumns << "\n";
+  sprintf(buffer, "%d\n", myNbColumns);
+  aString+=buffer;
 
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
     l = myCols[i].size();
-    theStream << l << "\n";
-    for(j=0; j<l; j++)
-      theStream << myCols[i][j] << "\n";
+    sprintf(buffer, "%d\n", l);
+    aString+=buffer;
+    for(j=0; j<l; j++) {
+      aString += myCols[i][j];
+      aString += '\n';
+    }
   }
 
   //Store the table values
   l = myTable.size();
-  theStream << l << "\n";
+  sprintf(buffer, "%d\n", l);
+  aString+=buffer;
   for(MI p = myTable.begin(); p!=myTable.end(); p++) {
     if (p->second.size()) { // check empty string in the value table
-      theStream << p->first << "\n";
+      sprintf(buffer, "%d\n", p->first);
+      aString += buffer;
       unsigned long aValueSize = p->second.size();
-      theStream<<aValueSize << "\n";
-      theStream.write(p->second.c_str(),aValueSize);
-      theStream<<"\n";
+      sprintf(buffer, "%ld\n", aValueSize);
+      aString +=buffer;
+      aString += p->second;
+      aString += '\n';
     } else { // write index only of kind: "0key"; "05", for an example
-      theStream << "0" << p->first << "\n";
+      sprintf(buffer, "0%d\n", p->first);
+      aString+=buffer;
     }
   }
-  string aString((char*)theStream.rdbuf()->str());
+
+  delete []buffer;
   return aString;
 }
 
 void SALOMEDSImpl_AttributeTableOfString::Load(const string& value) 
 {
-  istrstream theStream(value.c_str(), strlen(value.c_str()));
+  vector<string> v;
+  int i,  j, l, pos, aSize = (int)value.size(); 
+  for(i = 0, pos = 0; i<aSize; i++) {
+    if(value[i] == '\n') {
+       v.push_back(value.substr(pos, i-pos));
+       pos = i+1;
+    }
+  }
+
   Backup();
 
-  theStream.seekg(0, ios::end);
-  long aSize = theStream.tellg();
-  theStream.seekg(0, ios::beg);
-
-  int i, j, l;
-  char *aValueString = new char[aSize];
-
-  char anExtChar;
+  pos = 0;
   std::string aStr;
 
   //Title
-  theStream >> l;
+  l = strtol(v[pos++].c_str(), NULL, 10);
 
   myTitle = std::string(l, 0);
   for(i=0; i<l; i++) {
-    theStream >> anExtChar;
-    myTitle[i] = anExtChar;
+    myTitle[i] = v[pos++][0];
   }
 
   //Nb rows
-  theStream >> myNbRows;
+  myNbRows = strtol(v[pos++].c_str(), NULL, 10);
 
   //Rows titles
   myRows.clear();  
-  for(i=0; i<myNbRows; i++) { 
-    theStream >> l;
+  for(i=1; i<=myNbRows; i++) { 
+    l = strtol(v[pos++].c_str(), NULL, 10);
     aStr = std::string(l,0);
     for(j=0; j<l; j++) {
-      theStream >> anExtChar;
-      aStr[j] = anExtChar;
+      aStr[j] = v[pos++][0];
     }
     myRows.push_back(aStr);
   }
 
   //Nb columns
-  theStream >> myNbColumns;
+  myNbColumns = strtol(v[pos++].c_str(), NULL, 10);
 
   //Columns titles
   myCols.clear();
-  for(i=0; i<myNbColumns; i++) {
-    theStream >> l;
+  for(i=1; i<=myNbColumns; i++) {
+    l = strtol(v[pos++].c_str(), NULL, 10);
     aStr = std::string(l,0);
     for(j=0; j<l; j++) {
-      theStream >> anExtChar;
-      aStr[j] = anExtChar;
+      aStr[j] = v[pos++][0];
     }
     myCols.push_back(aStr);
   }
 
   //Restore the table values
-  string aValue;
-  theStream >> l;
+  l = strtol(v[pos++].c_str(), NULL, 10);
   myTable.clear();
-  theStream.getline(aValueString,aSize,'\n');
   for(i=1; i<=l; i++) {
-    int aKey;
-
-    theStream.getline(aValueString,aSize,'\n');
-    aValue = aValueString;
-    aKey = atoi(aValue.c_str());
-    if (aValue[0] == '0')
+    aStr = v[pos++]; //Ket as a string 
+    int aKey = strtol(aStr.c_str(), NULL, 10);
+    string aValue;
+    if(aStr[0] == '0') //If the first character of the key is 0, then empty value
       aValue = "";
     else {
-      unsigned long aValueSize;
-      theStream >> aValueSize;
-      theStream.read(aValueString, 1); // an '\n' omitting
-      theStream.read(aValueString, aValueSize);
-      theStream.read(aValueString, 1); // an '\n' omitting
-      aValue = aValueString;
+      long aSize = strtol(v[pos++].c_str(), NULL, 10);
+      aValue = v[pos++];
     }
     myTable[aKey] = aValue;
   }
-  delete(aValueString);
 }
