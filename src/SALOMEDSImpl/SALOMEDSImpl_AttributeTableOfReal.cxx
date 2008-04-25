@@ -432,109 +432,120 @@ vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetColumnIndices(const int the
 
 string SALOMEDSImpl_AttributeTableOfReal::Save() 
 {
-  ostrstream theStream;
+  string aString;
+  char* buffer = new char[1024];
   int i, j, l;
 
   //Title
   l = myTitle.size();
-  theStream << l << "\n";
-  for(i=0; i<l; i++)
-    theStream << myTitle[i] << "\n";
-
+  sprintf(buffer, "%d\n", l);
+  aString+=buffer;
+  for(i=0; i<l; i++) {
+    aString += myTitle[i];
+    aString +='\n';
+  }
+  
   //Nb rows
-  theStream << myNbRows << "\n";
+  sprintf(buffer, "%d\n", myNbRows);
+  aString+=buffer;
 
-  //Rows titles
+  //Row titles
   for(i=0; i<myNbRows; i++) {
     l = myRows[i].size();
-    theStream << l << "\n";
-    for(j=0; j<l; j++)
-      theStream << myRows[i][j] << "\n";
-  }
+    sprintf(buffer, "%d\n", l);
+    aString+=buffer;
+    for(j=0; j<l; j++) {
+      aString += myRows[i][j];
+      aString += '\n';
+    }
+  }  
 
   //Nb columns
-  theStream << myNbColumns << "\n";
+  sprintf(buffer, "%d\n", myNbColumns);
+  aString+=buffer;
 
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
     l = myCols[i].size();
-    theStream << l << "\n";
-    for(j=0; j<l; j++)
-      theStream << myCols[i][j] << "\n";
+    sprintf(buffer, "%d\n", l);
+    aString+=buffer;
+    for(j=0; j<l; j++) {
+      aString += myCols[i][j];
+      aString += '\n';
+    }
   }
 
   //Store the table values
   l = myTable.size();
-  theStream << l << "\n";
-  char *aBuffer = new char[128];
+  sprintf(buffer, "%d\n", l);
+  aString+=buffer;
   for(MI p = myTable.begin(); p != myTable.end(); p++) {
-    theStream << p->first << "\n";
-    sprintf(aBuffer, "%.64e", p->second);
-    theStream << aBuffer << "\n";
+    sprintf(buffer, "%d\n%.64e\n", p->first, p->second);
+    aString += buffer;
   }
-  
-  delete []aBuffer;
-  string aString((char*)theStream.rdbuf()->str());
+
+  delete []buffer;
   return aString;
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::Load(const string& value) 
 {
-  istrstream theStream(value.c_str(), strlen(value.c_str()));
+  vector<string> v;
+  int i,  j, l, pos, aSize = (int)value.size(); 
+  for(i = 0, pos = 0; i<aSize; i++) {
+    if(value[i] == '\n') {
+       v.push_back(value.substr(pos, i-pos));
+       pos = i+1;
+    }
+  }
+
   Backup();
 
-  int i, j, l;
-
-  char anExtChar;
+  pos = 0;
   std::string aStr;
 
   //Title
-  theStream >> l;
+  l = strtol(v[pos++].c_str(), NULL, 10);
 
   myTitle = std::string(l, 0);
   for(i=0; i<l; i++) {
-    theStream >> anExtChar;
-    myTitle[i] = anExtChar;
+    myTitle[i] = v[pos++][0];
   }
 
   //Nb rows
-  theStream >> myNbRows;
+  myNbRows = strtol(v[pos++].c_str(), NULL, 10);
 
   //Rows titles
   myRows.clear();  
   for(i=1; i<=myNbRows; i++) { 
-    theStream >> l;
+    l = strtol(v[pos++].c_str(), NULL, 10);
     aStr = std::string(l,0);
     for(j=0; j<l; j++) {
-      theStream >> anExtChar;
-      aStr[j] = anExtChar;
+      aStr[j] = v[pos++][0];
     }
     myRows.push_back(aStr);
   }
 
   //Nb columns
-  theStream >> myNbColumns;
+  myNbColumns = strtol(v[pos++].c_str(), NULL, 10);
 
   //Columns titles
   myCols.clear();
   for(i=1; i<=myNbColumns; i++) {
-    theStream >> l;
+    l = strtol(v[pos++].c_str(), NULL, 10);
     aStr = std::string(l,0);
     for(j=0; j<l; j++) {
-      theStream >> anExtChar;
-      aStr[j] = anExtChar;
+      aStr[j] = v[pos++][0];
     }
     myCols.push_back(aStr);
   }
 
   //Restore the table values
-  theStream >> l;
+  l = strtol(v[pos++].c_str(), NULL, 10);
   myTable.clear();
   for(i=1; i<=l; i++) {
-    int aKey;
-    double aValue;
-    theStream >> aKey;
-    theStream >> aValue;
+    int aKey = strtol(v[pos++].c_str(), NULL, 10);
+    double aValue = strtod(v[pos++].c_str(), NULL);
     myTable[aKey] = aValue;
   }
 
