@@ -113,5 +113,22 @@ module SALOME
     Restores a state of the study at theSavePoint
 */
     boolean restoreVisualState(in long theSavePoint);
+/*!
+    Emit a qt signal from the session GUI desktop window.
+    This method can be used to send a message to the GUI from the standalone
+    container.
+    Caution: this method can block the Session and the calling container
+    if it is called when container processes some request from the GUI
+    (mutual lock takes place).
+    In such a case it is recommended to use oneway method.
+*/
+    void emitMessage(in string theMessage);
+/*!
+    Emit a qt signal from the session GUI desktop window.
+    This method can be used to send a message to the GUI from the standalone
+    container.
+    This method never blocks the Session and the calling container.
+*/
+    oneway void emitMessageOneWay(in string theMessage);
   } ;
 } ;
