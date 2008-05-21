@@ -29,6 +29,7 @@
 #ifndef __CALCIUM_H
 #define __CALCIUM_H
 
+#include <calciumE.h>
 #include <version.h>
 #include <calciumP.h>
 

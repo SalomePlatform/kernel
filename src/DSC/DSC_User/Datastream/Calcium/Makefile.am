@@ -57,6 +57,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calcium.h \
 			Calcium.hxx \
 			calciumP.h \
+			calciumE.h \
 			version.h \
 			calcium.hf
 

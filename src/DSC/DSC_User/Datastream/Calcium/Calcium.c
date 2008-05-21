@@ -34,7 +34,9 @@
 typedef int InfoType;
 typedef char bool;
 
-/* INTERFACES DE LECTURE en 0 copie */
+/************************************/
+/* INTERFACES DE LECTURE EN 0 COPIE */
+/************************************/
 
 /* Definition des méthodes calcium étendues en 0 copie */
 /* Le buffer est alloué par le port pas par l'utilisateur */
@@ -50,8 +52,11 @@ typedef char bool;
 			int * nRead, _type _qual ** data ) {		\
     size_t _nRead;							\
     long   _i=*i;							\
+    fflush(stdout);							\
+    fflush(stderr);							\
+    fprintf(stderr,"Beginning of ecp_" #_name " : %s %d %f\n",nomvar,*i,*ti); \
     									\
-    /*    std::cerr << "-------- CalciumInterface(C Part) MARK 1 ------------------" << std::endl; */ \
+    									\
     InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i, \
 					      nomvar, bufferLength, &_nRead, \
 					      data );			\
@@ -70,20 +75,54 @@ typedef char bool;
     return info;							\
   };									\
   void ecp_##_name##_free ( _type _qual * data) {			\
-    ecp_lecture_##_typeName##_free(data);					\
+    ecp_lecture_##_typeName##_free(data);				\
   };
 
 #define STAR *
 CALCIUM_EXT_LECT_INTERFACE_C_(len,float,int,int,);
 CALCIUM_EXT_LECT_INTERFACE_C_(lre,float,float,float,);
 CALCIUM_EXT_LECT_INTERFACE_C_(ldb,double,double,double,);
-/* CALCIUM_EXT_LECT_INTERFACE_C_(llo,float,bool,bool,); */
+CALCIUM_EXT_LECT_INTERFACE_C_(llo,float,int,bool,);
 CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 /* CALCIUM_EXT_LECT_INTERFACE_C_(lch,float,char,STAR[]);  */
 
+/* L'interface de cette routine diffère de celle obtenue par la macro :
+   CALCIUM_LECT_INTERFACE_C_.
+   Le paramètre supplémentaire strSize indique la taille fixe et identique
+   des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
+*/
+InfoType ecp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
+		char  *	nomvar, int bufferLength, int * nRead,
+		char *** data, int strSize) {
+
+  size_t _nRead;							
+  long   _i=*i;							
+  fflush(stdout);fflush(stderr);							
+  fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	
+    									
+ 
+  InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
+				    nomvar, bufferLength, &_nRead, 
+				    data);/*, strSize ); 
+					     strSize est  inutile pour les ports CALCIUM
+					     qui gèrent des tailles quelconques de chaines. */
+  if(mode == CP_SEQUENTIEL)						
+    *i = _i;								
+  *nRead=_nRead;							
+  fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			
+  fflush(stdout);fflush(stderr);							
+									
+  return info;							
+};									
+
+void ecp_lch_free (char* * data) {				\
+  ecp_lecture_str_free(data);					\
+};
 
 
-/* INTERFACES DE LECTURE avec recopie */
+/**************************************/
+/* INTERFACES DE LECTURE AVEC RECOPIE */
+/**************************************/
 
 #define CALCIUM_LECT_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual) \
   InfoType cp_##_name (void * component, int mode,			\
@@ -99,12 +138,12 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
     if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	\
     									\
     InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i, \
-					 nomvar, bufferLength, &_nRead, \
+					      nomvar, bufferLength, &_nRead, \
 					      &data );			\
     if(mode == CP_SEQUENTIEL)						\
       *i = _i;								\
     *nRead=_nRead;							\
-    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,*i);		\
+    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,*i);	\
     fflush(stdout);							\
     fflush(stderr);							\
 									\
@@ -115,7 +154,11 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
   };
 
 
-
+/* L'interface de cette routine diffère de celle obtenue par la macro :
+   CALCIUM_LECT_INTERFACE_C_.
+   Le paramètre supplémentaire strSize indique la taille fixe et identique
+   des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
+*/
 InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
 		char  *	nomvar, int bufferLength, int * nRead,
 		char ** data, int strSize) {
@@ -129,42 +172,13 @@ InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
   
   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
 				    nomvar, bufferLength, &_nRead, 
-				    &data);/*, strSize );*/
+				    &data);/*, strSize ); 
+					     strSize est  inutile pour les ports CALCIUM
+					     qui gèrent des tailles quelconques de chaines. */
   if(mode == CP_SEQUENTIEL)						
     *i = _i;								
   *nRead=_nRead;							
   fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			
-  fflush(stdout);fflush(stderr);							
-									
-  return info;							
-};									
-
-InfoType cp_llo(void * component, int mode, float * ti,	float *	tf, int * i,
-		char  *	nomvar, int bufferLength, int * nRead,
-		int * data ) {
-
-  bool    *dLogique=NULL;
-  size_t _nRead;							
-  long   _i=*i;
-  int j;
-  fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cpllo: %s %d %f\n",nomvar,*i,*ti);	
-    									
-  if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	
-
-  dLogique = (bool *) malloc(bufferLength * sizeof(int));
-
-  InfoType info =  ecp_lecture_bool (component, mode, ti, tf, &_i, 
-				     nomvar, bufferLength, &_nRead, 
-				     &dLogique);
-  if(mode == CP_SEQUENTIEL)						
-    *i = _i;								
-  *nRead=_nRead;
-
-  for ( j=0; j<_nRead; ++j) data[j] = dLogique[j];
-  free(dLogique);
-  
-  fprintf(stderr,"End of cpllo: %s %d \n",nomvar,*i);			
   fflush(stdout);fflush(stderr);							
 									
   return info;							
@@ -176,13 +190,16 @@ InfoType cp_llo(void * component, int mode, float * ti,	float *	tf, int * i,
 CALCIUM_LECT_INTERFACE_C_(len,float,int,int,);
 CALCIUM_LECT_INTERFACE_C_(lre,float,float,float,);
 CALCIUM_LECT_INTERFACE_C_(ldb,double,double,double,);
-/* CALCIUM_LECT_INTERFACE_C_(llo,float,bool,bool,); */
+CALCIUM_LECT_INTERFACE_C_(llo,float,int,bool,); 
 CALCIUM_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 #define STAR *
 /*   CALCIUM_LECT_INTERFACE_C_(lch,float,char,STAR); */
 
 
+
+/**********************************************/
 /*  INTERFACES DE DÉBUT ET DE FIN DE COUPLAGE */
+/**********************************************/
 
 InfoType cp_cd (void * component, char * instanceName) {
   /* TODO : Trouver le nom de l'instance SALOME*/
@@ -198,7 +215,10 @@ InfoType cp_fin (void * component, int code) {
 }
 
 
+
+/***************************/
 /*  INTERFACES D'ECRITURE  */
+/***************************/
 
 #define CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual)	\
   InfoType cp_##_name (void * component, int mode,			\
@@ -223,6 +243,15 @@ InfoType cp_fin (void * component, int code) {
   };									\
 
 
+/*  Definition des méthodes calcium standard  */
+
+CALCIUM_ECR_INTERFACE_C_(een,float,int,int,);
+CALCIUM_ECR_INTERFACE_C_(ere,float,float,float,);
+CALCIUM_ECR_INTERFACE_C_(edb,double,double,double,);
+/*CALCIUM_ECR_INTERFACE_C_(elo,float,bool,bool,);*/
+CALCIUM_ECR_INTERFACE_C_(elo,float,int,bool,);
+CALCIUM_ECR_INTERFACE_C_(ecp,float,float,cplx,);
+
 
 InfoType cp_ech(void * component, int mode, float t, int i,
 		char  *	nomvar,  int nbelem,
@@ -243,38 +272,4 @@ InfoType cp_ech(void * component, int mode, float t, int i,
   return info;							
 };									
 
-InfoType cp_elo(void * component, int mode, float t, int i,
-		char  *	nomvar,  int nbelem,
-		int * data ) {
-									
-  /*long   _i=i;*/							
-  bool * dLogique = NULL;
-  int j=0;
-  fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cpelo: %s %d %f\n",nomvar,i,t);	
-  if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		
-
-  dLogique = (bool *) malloc(nbelem * sizeof(int));
-  for (j=0; j<nbelem; ++j) dLogique[j]=data[j];
-
-  InfoType info =  ecp_ecriture_bool (component, mode, &t, i,	
-				     nomvar, nbelem,		
-				     dLogique);
-
-  free(dLogique);
-
-  fprintf(stderr,"End of cpelo: %s %d \n",nomvar,i);			
-  fflush(stdout);							
-  fflush(stderr);							
-									
-  return info;							
-};									
-
-/*  Definition des méthodes calcium standard  */
-
-CALCIUM_ECR_INTERFACE_C_(een,float,int,int,);
-CALCIUM_ECR_INTERFACE_C_(ere,float,float,float,);
-CALCIUM_ECR_INTERFACE_C_(edb,double,double,double,);
-/*CALCIUM_ECR_INTERFACE_C_(elo,float,bool,bool,);*/
-CALCIUM_ECR_INTERFACE_C_(ecp,float,float,cplx,);
 

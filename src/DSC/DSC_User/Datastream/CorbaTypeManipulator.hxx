@@ -208,19 +208,25 @@ public:
     CORBA::Long len = data.length();
     CORBA::Long max = data.maximum();
     // Récupère et devient propriétaire des données reçues dans la séquence. 
-    // La séquence (mais pas le buffer) sera désallouée au retour 
-    // de la méthode GenericPort::put (car le mapping CORBA de ce type IN est : const seq & )
+    // La séquence reçue (mais pas le buffer) sera désallouée au retour 
+    // de la méthode CORBA qui a reçu le type CorbaInType en paramètre
+    // (ex: GenericPort::put)
+    // REM : Le mapping CORBA du type séquence IN est : const seq &
 
     // OLD : On ne teste pas si le flag release de la séquence est à true ou false 
     // OLD : ( pour des séquences de chaines ou d'objrefs )
     // OLD :   -> Si on est collocalisé le port uses doit créer une copie pour éviter la modification
     // OLD : du contenu de la séquence lorsque l'utilisateur modifie ses données dans son programme (0 copie)
+    // OLD : ATTENTION TESTER p194 si le pointeur est null (release flag==false)
+    // OLD :   -> La séquence n'était pas propriétaire des données !
 
     // Le flag release() de la séquence est à false si elle n'est pas propriétaire du buffer
-    // En  collocalité c'est le cas (on évite ici la copie réalisée auparavant dans le port uses).
+    // En  collocalité release() renvoie false car 
+    // l'appelé n'est pas propriétaire de la séquence. On effectue alors
+    // une copie pour éviter de perturber les structures de données de l'appelant.
+    // En non collocalisé on recrée une séquence avec le buffer de la première dont on
+    // a demandé la propriété.
 
-    // ATTENTION TESTER p194 si le pointeur est null (release flag==false)
-    //    -> La séquence n'était pas propriétaire des données !
 #ifdef _DEBUG_
     std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1 ------------------" << std::endl;
 #endif
@@ -228,8 +234,8 @@ public:
       InnerType * p_data = const_cast<seq_T &>(data).get_buffer(true);
 
     // Crée une nouvelle sequence propriétaire des données du buffer (pas de recopie)
-    // Les données de la séquence seront automatiquement désallouées par appel à la méthode freebuf
-    // dans le destructeur de la séquence (cf  delete_data).
+    // Les données de la nouvelle séquence seront automatiquement désallouées 
+    // par appel à la méthode freebuf dans le destructeur de la séquence (cf  delete_data).
 #ifdef _DEBUG_
       std::cout << "----seq_u_manipulation::get_data(..)-- MARK 1(0 copy) bis ------"<<  p_data <<"------------" << std::endl;
 #endif
@@ -265,9 +271,13 @@ public:
     return new seq_T (data);
   }
 
-  // Permet d'obtenir un pointeur sur le buffer de la séquence
-  // si ownerShip=True, la séquence n'est plus propriétaire du buffer et est
-  // détruite (mais pas le buffer !)
+  // Permet d'obtenir un pointeur sur le buffer de la séquence :
+  // Si ownerShip=True, la séquence n'est plus propriétaire du buffer
+  //         (son pointeur de buffer interne est aussi réinitialisé) 
+  //       On détruit également explicitement la séquence (mais pas le buffer !)
+  // Si ownerShip=False, la séquence reste propriétaire du buffer
+  //    et l'utilisateur devra appeler delete_data sur la séquence contenante pour
+  //    détruire à la fois la séquence et le buffer contenu.
   static inline InnerType * const getPointer(Type data, bool ownerShip = false) {
     InnerType * p_data;
     if (ownerShip) {
@@ -278,9 +288,8 @@ public:
     return p_data;
   }
 
-  // Permet de désallouer le buffer dont on détient le pointeur par appel
-  // à la méthode getPointer avec ownerShip=True si la séquence contenante
-  // à été détruite.
+  // Permet de désallouer le buffer dont on détient le pointeur après appel
+  // à la méthode getPointer avec ownerShip=True 
   static inline void relPointer(InnerType * dataPtr) {
     seq_T::freebuf(dataPtr);
   }
@@ -290,7 +299,7 @@ public:
     return seq_T::allocbuf(size);
   }
 
-  // Operation de création de la séquence corba soit
+  // Opération de création de la séquence CORBA soit
   // - Vide et de taille size
   // - Utilisant les données du pointeur *data de taille size 
   // (généralement pas de recopie qlq soit l'ownership )
@@ -317,7 +326,7 @@ public:
     for (int i = 0; i< isize; ++i) 
       idata[i]=dataPtr[i];
 
-    // Ce mode de recopie ne permet pas  la conversion de type (ex int -> CORBA::Long
+    // Le mode de recopie suivant ne permet pas  la conversion de type (ex int -> CORBA::Long)
     //OLD:     Type tmp = new seq_T(isize,isize,idata,false); 
     //OLD:     // giveOwnerShip == false -> seul le contenu du buffer data est détruit et remplacé
     //OLD:     // par celui de data dans l'affectation suivante :
@@ -331,6 +340,10 @@ public:
   } 
 
   // Copie le contenu de la séquence de char* dans le buffer idata de taille isize
+  // La généralisation de la recopie profonde est difficile du fait que CORBA ne renvoie pas
+  // pas des objets de haut niveau de type std::vector<std::string> (avec des  interfaces d'accès identiques) 
+  // mais un type simple C comme char *Tab[N]. On doit alors utiliser une méthode de recopie spécifique
+  // comme l'appel C strcpy.
   static inline void copy( Type data, char* * const idata, size_t isize ) { 
 
     char* *dataPtr  = getPointer(data,false);
@@ -415,9 +428,13 @@ public:
     delete data;
   }
 
-  // Récupère un pointeur sur les données de type InnerType contenue dans la séquence
-  // si ownership=True, l'utilisateur devra appeler relPointer
-  // si ownership=False, l'utilisateur devra appeler delete_data sur la séquence contenante
+  // Permet d'obtenir un pointeur sur le buffer de la séquence :
+  // Si ownerShip=True, la séquence n'est plus propriétaire du buffer
+  //         (son pointeur de buffer interne est aussi réinitialisé) 
+  //       On détruit également explicitement la séquence (mais pas le buffer !)
+  // Si ownerShip=False, la séquence reste propriétaire du buffer
+  //    et l'utilisateur devra appeler delete_data sur la séquence contenante pour
+  //    détruire à la fois la séquence et le buffer contenu.
   static inline InnerType * const getPointer(Type data, bool getOwnerShip = false) {
     InnerType * p_data;
     if (getOwnerShip) {

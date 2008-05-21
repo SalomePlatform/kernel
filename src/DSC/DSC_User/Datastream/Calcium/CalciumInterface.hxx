@@ -47,6 +47,9 @@
 
 
 // Interface C/C++
+// L'utilisateur CALCIUM n'a normalement pas a utliser cette interface
+// En C/C++ il utilisera celle définie dans Calcium.c
+// En C++/CORBA directement celle de CalciumCxxInterface
 
 // En CALCIUM l'utilisation de données de type double
 // implique des dates de type double, pour les autres
@@ -159,24 +162,29 @@ ecp_fin_ (void * component, int code) {
 
 #define STAR *
 // Le premier argument est utilisée :
-//  - comme suffixe dans la définition des noms ecp_lecture_ ecp_ecriture_ ecp_free_
+//  - comme suffixe dans la définition des noms ecp_lecture_ , ecp_ecriture_ et ecp_free_
 //  - comme second argument template à l'appel de la méthode C++ correspondante
-//      ( le port correspondant est alors obtenu par un trait)
+//      ( le type de port correspondant est alors obtenu par un trait)
 // Le second argument est utilisée :
 // - pour typer le paramètre data de la procédure générée 
 // - pour déduire le type des paramètres t, ti tf via un trait
 // - comme premier paramètre template à l'appel de la méthode C++ correspondante
+//       (pour typer les données passées en paramètre )
+// Notons que dans le cas CALCIUM_C2CPP_INTERFACE_(int,int,), le type int n'existe pas
+// en CORBA, le port CALCIUM correspondant utilise une séquence de long. La méthode
+// C++ CALCIUM de lecture repère cette différence de type et charge 
+// le manipulateur de données d'effectuer  une recopie (qui fonctionne si les types sont compatibles). 
 CALCIUM_C2CPP_INTERFACE_(int,int,);
 CALCIUM_C2CPP_INTERFACE_(float,float, );
 CALCIUM_C2CPP_INTERFACE_(double,double,);
-CALCIUM_C2CPP_INTERFACE_(bool,bool,);
+// Fonctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);
+CALCIUM_C2CPP_INTERFACE_(bool,int,);
 CALCIUM_C2CPP_INTERFACE_(cplx,float,);
 CALCIUM_C2CPP_INTERFACE_(str,char*,);
 
 // INTERFACE C/CPP pour les chaines de caractères
 // Le paramètre supplémentaire strsize n'étant pas utilisé
 // j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);
-// TODO : vérifier ecp_free pour ce type particulier
 // extern "C" CalciumTypes::InfoType ecp_lecture_str (void * component, int dependencyType, 
 // 						   float * ti, float * tf, long * i, 
 // 						   const char * const nomvar, size_t bufferLength, 

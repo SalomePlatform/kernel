@@ -66,8 +66,8 @@ namespace CalciumInterface {
     std::vector<std::string>::const_iterator it;
     component.get_uses_port_names(usesPortNames);    
     
-    //récupérer le type de réel du port est un peu difficile
-    //car l'interface nous donne aucune indication
+    //Récupérer le type de réel du port est un peu difficile
+    //car l'interface ne donne aucune indication
 
     //     uses_port *myUsesPort;
     calcium_uses_port* myCalciumUsesPort;
@@ -127,10 +127,10 @@ namespace CalciumInterface {
   {
     typedef typename ProvidesPortTraits<T2>::PortType     PortType;
     typedef typename PortType::DataManipulator            DataManipulator;
-    typedef typename DataManipulator::Type                DataType; // Attention != T
+    typedef typename DataManipulator::Type                DataType; // Attention != T1
     typedef typename DataManipulator::InnerType           InnerType;
 
-    DeleteTraits<IsSameType<T1,InnerType>::value >::apply(dataPtr);
+    DeleteTraits<IsSameType<T1,InnerType>::value, DataManipulator >::apply(dataPtr);
   }
 
   template <typename T1> static void
@@ -160,7 +160,7 @@ namespace CalciumInterface {
   }
 
   // T1 est le type de données
-  // T2 est un <nom> de type Calcium permettant de sélectionner le port correspondant 
+  // T2 est un <nom> de type Calcium permettant de sélectionner le port CORBA correspondant 
   // T1 et T2 sont dissociés pour discriminer le cas des nombres complexes
   //  -> Les données des nombres complexes sont de type float mais
   //     le port à utiliser est le port cplx
@@ -269,30 +269,41 @@ namespace CalciumInterface {
 	MESSAGE("bufferLength devrait valoir 0 pour l'utilisation du mode sans copie (data==NULL)");
       }
       nRead = corbaDataSize;
-      // Si les types T et InnerType sont différents, il faudra effectuer tout de même une recopie
+      // Si les types T1 et InnerType sont différents, il faudra effectuer tout de même une recopie
       if (!IsSameType<T1,InnerType>::value) data = new T1[nRead];
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 9 ------------------" << std::endl;
 #endif
-      // On essaye de faire du 0 copy si les types T1 et InnerType sont les mêmes
-      Copy2UserSpace< IsSameType<T1,InnerType>::value >::apply(data,corbaData,nRead);
+      // On essaye de faire du 0 copy si les types T1 et InnerType sont les mêmes.
+      // Copy2UserSpace : 
+      // La raison d'être du foncteur Copy2UserSpace est que le compilateur n'acceptera
+      // pas une expresion d'affectation sur des types incompatibles même 
+      // si cette expression se trouve dans une branche non exécuté d'un test
+      // sur la compatibilité des types.
+      // En utilisant le foncteur Copy2UserSpace, seul la spécialisation en adéquation
+      // avec la compatibilité des types sera compilée 
+      Copy2UserSpace< IsSameType<T1,InnerType>::value, DataManipulator >::apply(data,corbaData,nRead);
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 10 ------------------" << std::endl;
 #endif
       // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
       // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
-      // DataManipulator::delete_data(corbaData);
+      // DataManipulator::delete_data(corbaData); 
+      // ni DataManipulator::getPointer(corbaData,true); qui détruit la sequence lorsque l'on
+      // prend la propriété du buffer
       //  old : Dans les deux cas la structure CORBA n'est plus utile 
       //  old : Si !IsSameType<T1,InnerType>::value l'objet CORBA est détruit avec son contenu
       //  old : Dans l'autre cas seul la coquille CORBA est détruite 
-      //  L'utilisateur devra appeler ecp_free (version modifiée) qui déterminera s'il est necessaire
-      //   de désallouer un buffer intermédiaire ( types différents) ou de rendre la propriété
+      //  L'utilisateur devra appeler ecp_free qui déterminera s'il est necessaire
+      //  de désallouer un buffer intermédiaire ( types différents) ou de rendre la propriété
    } else {
       nRead = std::min < size_t > (corbaDataSize,bufferLength);
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 11 ------------------" << std::endl;
 #endif
-      Copy2UserSpace<false>::apply(data,corbaData,nRead);
+      Copy2UserSpace<false, DataManipulator >::apply(data,corbaData,nRead);
+      DataManipulator::copy(corbaData,data,nRead);
+    
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 12 ------------------" << std::endl;
 #endif
@@ -445,7 +456,7 @@ namespace CalciumInterface {
     //   OLD : Il faut effectuer une copie dans le port provides.
     //   OLD : Cette copie est effectuée dans GenericPortUses::put 
     //   OLD : en fonction de la collocalisation ou non.
-    Copy2CorbaSpace<IsSameType<T1,InnerType>::value >::apply(corbaData,data,bufferLength);
+    Copy2CorbaSpace<IsSameType<T1,InnerType>::value, DataManipulator >::apply(corbaData,data,bufferLength);
  
     //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecté
     if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {

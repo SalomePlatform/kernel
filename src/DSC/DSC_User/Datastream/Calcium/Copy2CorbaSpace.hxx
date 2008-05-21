@@ -33,7 +33,7 @@
 #include <iostream>
 #include "CalciumPortTraits.hxx"
 
-template <bool zerocopy> 
+template <bool zerocopy, typename DataManipulator> 
 struct Copy2CorbaSpace  {
 
   template <class T1, class T2>
@@ -41,7 +41,7 @@ struct Copy2CorbaSpace  {
 
     typedef typename ProvidesPortTraits<T2>::PortType  PortType;
     //typedef typename UsesPortTraits<T2>::PortType      PortType;
-    typedef typename PortType::DataManipulator         DataManipulator;
+//ESSAI:     typedef typename PortType::DataManipulator         DataManipulator;
     typedef typename DataManipulator::InnerType        InnerType;
 
 #ifdef _DEBUG_
@@ -58,15 +58,15 @@ struct Copy2CorbaSpace  {
 };
 
 // Cas ou il faut effectuer une recopie
-template <> struct
-Copy2CorbaSpace<false>  {
+template <typename DataManipulator> struct
+Copy2CorbaSpace<false, DataManipulator>  {
   
   template <class T1, class T2>
   static void apply( T1 * & corbaData,  T2 & data, size_t nRead){
 
     typedef typename ProvidesPortTraits<T2>::PortType  PortType;
     // typedef typename UsesPortTraits<T2>::PortType     PortType;
-    typedef typename PortType::DataManipulator        DataManipulator;
+//ESSAI:    typedef typename PortType::DataManipulator        DataManipulator;
     typedef typename DataManipulator::InnerType       InnerType;
 
     corbaData = DataManipulator::create(nRead);

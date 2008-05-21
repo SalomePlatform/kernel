@@ -57,15 +57,13 @@ struct cplx {};
 template <> struct ProvidesPortTraits<cplx> {
    typedef calcium_complex_port_provides PortType;
 };
-// Défénition du type str pour obtenir le type de port
+// Définition du type str pour obtenir le type de port
 // correspondant
 struct str {};
 template <> struct ProvidesPortTraits<str> {
    typedef calcium_string_port_provides PortType;
 };
- template <> struct ProvidesPortTraits<char *> {
-   typedef  calcium_string_port_provides PortType;
- };
+
 
 template < typename T > struct StarTrait        { typedef  T NonStarType; };
 template < typename T > struct StarTrait< T * > { typedef  T NonStarType; };

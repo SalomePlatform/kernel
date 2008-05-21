@@ -27,6 +27,8 @@
 #ifndef _CALCIUM_GENERIC_PROVIDES_PORT_HXX_
 #define _CALCIUM_GENERIC_PROVIDES_PORT_HXX_
 
+#include <omnithread.h>
+
 #include "PortProperties_i.hxx"
 
 #include "calcium_provides_port.hxx"
@@ -55,17 +57,23 @@
   class specificPortName :   public virtual CorbaInterface ,		\
 			     public virtual POA_Ports::PortProperties,	\
 			     public GenericProvidesPort< __VA_ARGS__ , CalciumCouplingPolicy, calcium_provides_port > { \
+  private :								\
+    omni_semaphore _mustnotdisconnectyet;				\
   public :								\
     typedef  __VA_ARGS__               DataManipulator;			\
     typedef  DataManipulator::Type     CorbaDataType;			\
     typedef GenericPort< DataManipulator ,				\
       CalciumCouplingPolicy >          Port;				\
   									\
+    specificPortName () :_mustnotdisconnectyet(0) {};			\
+									\
     virtual ~ specificPortName ();					\
 									\
     inline void disconnect(bool provideLastGivenValue) {		\
-      Port::disconnect(provideLastGivenValue);				\
-    }									\
+      if (! _mustnotdisconnectyet.trywait() ) {				\
+	Port::disconnect(provideLastGivenValue);			\
+      }									\
+    }  									\
     inline void setDependencyType(CalciumTypes::DependencyType dependencyType) { \
       Port::setDependencyType(dependencyType);				\
     }									\
@@ -128,15 +136,14 @@
     virtual CORBA::Any* get_property(const char* name)			\
       throw (Ports::NotDefined);					\
 									\
-    virtual void provides_port_changed(int connection_nbr, \
-                       const Engines::DSC::Message message) { \
-      if ( !connection_nbr && (message == Engines::DSC::RemovingConnection) ) \
-        { \
-           disconnect(false); \
-        } \
-    } \
-  };	\
-  
+    virtual void provides_port_changed(int connection_nbr,		\
+				       const Engines::DSC::Message message) { \
+      if ( message == Engines::DSC::AddingConnection)			\
+	_mustnotdisconnectyet.post();					\
+      else if ( message == Engines::DSC::RemovingConnection )		\
+	disconnect(false);						\
+    }									\
+  };									\
 
 
 
