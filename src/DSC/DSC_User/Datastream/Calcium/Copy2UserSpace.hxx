@@ -119,6 +119,7 @@ struct Copy2UserSpace<false, DataManipulator> {
     std::cerr << std::endl;
 
     T1 * tmpData = data;
+    //Cette affichage peut provoquer la détection d'écriture d'un espace non initailisé.
     std::cerr << "-------- Copy2UserSpace<false> MARK 1b --data("<<tmpData<<")[0.."<<
       DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;
     std::copy(tmpData,tmpData+DataManipulator::size(corbaData),std::ostream_iterator<T1>(std::cerr," "));
