@@ -115,8 +115,6 @@ void F_FUNC(cplch,CPLCH)(long *compo,int *dep,float *ti,float *tf,int *iter,STR_
 
   *err=cp_lch((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tabChaine,STR_LEN(tab));
 
-/*   for (index = 0; index < *n; index++) */
-/*     strcpy(&tab[index * STR_LEN(tab)], tabChaine[index]); */
   for (index = 0; index < *n; index++)
     strncpy(&tab[index * STR_LEN(tab)], tabChaine[index], strlen(tabChaine[index]));
 
