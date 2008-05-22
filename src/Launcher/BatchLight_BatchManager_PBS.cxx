@@ -199,7 +199,10 @@ namespace BatchLight {
     // -----------------------------------------------
     // Code for rank 0 : launch runAppli and a container
     // RunAppli
-    tempOutputFile << "  ./runAppli --terminal --modules=" ;
+    if(_params.modulesList.size()>0)
+      tempOutputFile << "  ./runAppli --terminal --modules=" ;
+    else
+      tempOutputFile << "  ./runAppli --terminal ";
     for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
       if ( i != _params.modulesList.size()-1 )

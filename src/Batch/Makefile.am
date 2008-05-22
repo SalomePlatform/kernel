@@ -185,7 +185,7 @@ LIB_SRC += \
 	Batch_Job_LSF.cxx
 
 LIB_CPPFLAGS += ${LSF_INCLUDES}
-LIB_LIBADD   += ${LSF_LIBDIR} ${LSF_LIBS}
+LIB_LIBADD   += ${LSF_LDFLAGS} ${LSF_LIBS}
 endif
 
 

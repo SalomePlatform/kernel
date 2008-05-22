@@ -84,7 +84,7 @@ namespace Batch {
     _param[TEXT]             = jobInfo.numReasons ? lsb_pendreason(jobInfo.numReasons,
 								   jobInfo.reasonTb, 
 								   p_jInfoHead,
-								   p_ld) : "";
+								   p_ld,0) : "";
     // _param[TMPDIR]           = jobInfo.;
     _param[USEDCPUTIME]      = static_cast<long>(jobInfo.cpuTime);
     // _param[USEDDISKSIZE]     = jobInfo.;

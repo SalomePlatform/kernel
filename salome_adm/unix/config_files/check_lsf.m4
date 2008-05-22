@@ -49,7 +49,7 @@ AC_DEFUN([CHECK_LSF],
    else
      LSF_LDFLAGS="-L${LSF_LIBDIR}"
    fi
-   LSF_LIBS=""
+   LSF_LIBS="-lbat -llsf"
    saved_LDFLAGS=${LDFLAGS}
    saved_LIBS=${LIBS}
    LDFLAGS="${LDFLAGS} ${LSF_LDFLAGS}"
