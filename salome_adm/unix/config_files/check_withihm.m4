@@ -22,47 +22,38 @@ dnl
 
 AC_DEFUN([CHECK_WITHIHM],[
 
+AC_ARG_WITH(gui,
+	    [  --with-gui              build package with GUI support [[default=yes]]])
 AC_ARG_WITH(ihm,
-	    --with-ihm [default=yes],
-	    WITHIHM="yes",WITHIHM="no")
+	    [  --with-ihm              obsolete, use --with-gui instead])
 
-if test "${with_ihm}" = yes; then
-
-  echo
-  echo ---------------------------------------------
-  echo testing WITH_IHM : yes
-  echo ---------------------------------------------
-  echo
-  WITHIHM="yes"
-  if test "${with_ihm}" = "yes";then
-    withihm_ok=yes
-  fi
-
-elif test "${with_ihm}" = no; then
-
-  echo
-  echo ---------------------------------------------
-  echo testing WITH_IHM : no
-  echo ---------------------------------------------
-  echo
-  WITHIHM="no"
-  if test "${with_ihm}" = "no";then
-    withihm_ok=no
-  fi
-
+if test "${with_gui}" == "yes" || test "${with_gui}" == "no" ; then
+    WITHGUI="${with_gui}"
+    WITHIHM=$WITHGUI
+elif test "x${with_gui}" != "x" ; then
+    AC_MSG_FAILURE(wrong value for --with-gui or --without-gui option)
+elif test "${with_ihm}" == "yes" || test "${with_ihm}" == "no" ; then
+    WITHIHM="${with_ihm}"
+    WITHGUI=$WITHIHM
+elif test "x${with_ihm}" != "x" ; then
+    AC_MSG_FAILURE(wrong value for --with-ihm or --without-ihm option)
 else
-
-  echo
-  echo ---------------------------------------------
-  echo testing WITH_IHM : yes
-  echo ---------------------------------------------
-  echo
-  WITHIHM="yes"
-  if test "${with_ihm}" = "yes";then
-    withihm_ok=yes
-  fi
-
+    WITHIHM="yes"
+    WITHGUI="yes"
 fi
+
+echo
+echo ---------------------------------------------
+echo testing if GUI support is enabled : ${WITHGUI}
+echo ---------------------------------------------
+echo
+
+withihm_ok=$WITHGUI
+withgui_ok=$WITHGUI
+
 AC_SUBST(WITHIHM)
+AC_SUBST(WITHGUI)
 
 ])dnl
+
+AC_DEFUN([CHECK_WITHGUI],[CHECK_WITHIHM])
