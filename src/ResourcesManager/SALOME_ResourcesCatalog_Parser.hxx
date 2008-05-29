@@ -38,9 +38,9 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
-enum BatchType {none, pbs, lsf, slurm};
+enum BatchType {none, pbs, lsf};
 
-enum MpiImplType {indif, lam, mpich1, mpich2, openmpi};
+enum MpiImplType {indif, lam, mpich1, mpich2, openmpi, slurm};
 
 class ResourceDataToSort
   {
@@ -73,6 +73,7 @@ class ResourceDataToSort
 struct ParserResourcesType
   {
     ResourceDataToSort DataForSort;
+    std::string HostName;
     std::string Alias;
     AccessProtocolType Protocol;
     AccessModeType Mode;

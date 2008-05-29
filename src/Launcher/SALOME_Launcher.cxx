@@ -17,9 +17,6 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "BatchLight_BatchManager_PBS.hxx"
-#include "BatchLight_BatchManager_SLURM.hxx"
-#include "BatchLight_Job.hxx"
 #include "SALOME_Launcher.hxx"
 #include "OpUtil.hxx"
 #include <sys/types.h>
@@ -28,9 +25,6 @@
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
-#include "Batch_Date.hxx"
-
-#define TIME_OUT_TO_LAUNCH_CONT 21
 
 using namespace std;
 
@@ -45,11 +39,12 @@ const char *SALOME_Launcher::_LauncherNameInNS = "/SalomeLauncher";
  */
 //=============================================================================
 
-SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa)
+SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa) : _l()
 {
-  MESSAGE("constructor");
+  MESSAGE("SALOME_Launcher constructor");
   _NS = new SALOME_NamingService(orb);
   _ResManager = new SALOME_ResourcesManager(orb,poa,_NS);
+  _l.SetResourcesManager(_ResManager->GetImpl());
   _ContManager = new SALOME_ContainerManager(orb,poa,_ResManager,_NS);
   _ResManager->_remove_ref();
   _ContManager->_remove_ref();
@@ -61,7 +56,7 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
   Engines::SalomeLauncher_var refContMan = Engines::SalomeLauncher::_narrow(obj);
 
   _NS->Register(refContMan,_LauncherNameInNS);
-  MESSAGE("constructor end");
+  MESSAGE("SALOME_Launcher constructor end");
 }
 
 //=============================================================================
@@ -74,9 +69,6 @@ SALOME_Launcher::~SALOME_Launcher()
 {
   MESSAGE("destructor");
   delete _NS;
-  std::map < string, BatchLight::BatchManager * >::const_iterator it;
-  for(it=_batchmap.begin();it!=_batchmap.end();it++)
-    delete it->second;
 }
 
 //=============================================================================
@@ -125,7 +117,52 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
 {
   MESSAGE("BEGIN OF SALOME_Launcher::submitSalomeJob");
   CORBA::Long jobId;
+  
+  machineParams p;
+  p.hostname = params.hostname;
+  p.OS = params.OS;
+  p.nb_node = params.nb_node;
+  p.nb_proc_per_node = params.nb_proc_per_node;
+  p.cpu_clock = params.cpu_clock;
+  p.mem_mb = params.mem_mb;
+
+  batchParams bp;
+  bp.batch_directory = batch_params.batch_directory;
+  bp.expected_during_time = batch_params.expected_during_time;
+  bp.mem = batch_params.mem;
+  bp.nb_proc = batch_params.nb_proc;
+
+  vector<string> efl;
+  for(int i=0;i<filesToExport.length();i++)
+    efl.push_back(string(filesToExport[i]));
+
+  vector<string> ifl;
+  for(int i=0;i<filesToImport.length();i++)
+    ifl.push_back(string(filesToImport[i]));
+
   try{
+    jobId = _l.submitSalomeJob(fileToExecute,efl,ifl,bp,p);
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+  return jobId;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  the test batch configuration 
+ *  \param params             : The batch cluster
+ */
+//=============================================================================
+CORBA::Boolean 
+SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
+{
+  MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
+  CORBA::Boolean rtn = false;
+  try
+  {
     // find a cluster matching the structure params
     Engines::CompoList aCompoList ;
     Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
@@ -135,29 +172,17 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
     const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
     string clustername(p->alias);
     INFOS("Choose cluster" <<  clustername);
-
-    // search batch manager for that cluster in map or instanciate one
-    std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-    if(it == _batchmap.end())
+    BatchTest t(*p);
+    if (t.test()) 
     {
-      _batchmap[clustername] = FactoryBatchManager(p);
-      // TODO: Add a test for the cluster !
+      rtn = true;
     }
-    
-    // create and submit job on cluster
-    BatchLight::Job* job = new BatchLight::Job(fileToExecute, filesToExport, filesToImport, batch_params);
-    bool res = job->check();
-    if (!res) {
-      delete job;
-      throw SALOME_Exception("Job parameters are bad (see informations above)");
-    }
-    jobId = _batchmap[clustername]->submitJob(job);
   }
   catch(const SALOME_Exception &ex){
     INFOS(ex.what());
     THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
   }
-  return jobId;
+  return rtn;
 }
 
 //=============================================================================
@@ -171,23 +196,20 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
 				       const Engines::MachineParameters& params)
 {
   string status;
+  machineParams p;
+  p.hostname = params.hostname;
+  p.OS = params.OS;
+  p.nb_node = params.nb_node;
+  p.nb_proc_per_node = params.nb_proc_per_node;
+  p.cpu_clock = params.cpu_clock;
+  p.mem_mb = params.mem_mb;
+
   try{
-    // find a cluster matching params structure
-    Engines::CompoList aCompoList ;
-    Engines::MachineList * aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
-    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
-    string clustername(p->alias);
-    
-    // search batch manager for that cluster in map
-    std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-    if(it == _batchmap.end())
-      throw SALOME_Exception("no batchmanager for that cluster");
-    
-    status = _batchmap[clustername]->queryJob(jobId);
+    status = _l.querySalomeJob(jobId,p);
   }
-  catch(const SALOME_Exception &ex){
+  catch(const LauncherException &ex){
     INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
   return CORBA::string_dup(status.c_str());
 }
@@ -202,23 +224,20 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
 void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId, 
 				       const Engines::MachineParameters& params)
 {
+  machineParams p;
+  p.hostname = params.hostname;
+  p.OS = params.OS;
+  p.nb_node = params.nb_node;
+  p.nb_proc_per_node = params.nb_proc_per_node;
+  p.cpu_clock = params.cpu_clock;
+  p.mem_mb = params.mem_mb;
+
   try{
-    // find a cluster matching params structure
-    Engines::CompoList aCompoList ;
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
-    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
-    string clustername(p->alias);
-    
-    // search batch manager for that cluster in map
-    std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-    if(it == _batchmap.end())
-      throw SALOME_Exception("no batchmanager for that cluster");
-    
-    _batchmap[clustername]->deleteJob(jobId);
+    _l.deleteSalomeJob(jobId,p);
   }
-  catch(const SALOME_Exception &ex){
+  catch(const LauncherException &ex){
     INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
 }
 
@@ -233,54 +252,20 @@ void SALOME_Launcher::getResultSalomeJob( const char *directory,
 					  const CORBA::Long jobId, 
 					  const Engines::MachineParameters& params)
 {
+  machineParams p;
+  p.hostname = params.hostname;
+  p.OS = params.OS;
+  p.nb_node = params.nb_node;
+  p.nb_proc_per_node = params.nb_proc_per_node;
+  p.cpu_clock = params.cpu_clock;
+  p.mem_mb = params.mem_mb;
+
   try{
-    // find a cluster matching params structure
-    Engines::CompoList aCompoList ;
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
-    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
-    string clustername(p->alias);
-    
-    // search batch manager for that cluster in map
-    std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-    if(it == _batchmap.end())
-      throw SALOME_Exception("no batchmanager for that cluster");
-    
-    _batchmap[clustername]->importOutputFiles( directory, jobId );
+    _l.getResultSalomeJob( directory, jobId, p );
   }
-  catch(const SALOME_Exception &ex){
+  catch(const LauncherException &ex){
     INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-  }
-}
-
-//=============================================================================
-/*!
- *  Factory to instanciate the good batch manager for choosen cluster.
- */ 
-//=============================================================================
-
-BatchLight::BatchManager *SALOME_Launcher::FactoryBatchManager( const Engines::MachineParameters* params ) throw(SALOME_Exception)
-{
-  // Fill structure for batch manager
-  BatchLight::batchParams p;
-  p.hostname = params->alias;
-  p.protocol = params->protocol;
-  p.username = params->username;
-  p.applipath = params->applipath;
-  for(int i=0;i<params->modList.length();i++)
-    p.modulesList.push_back((const char*)params->modList[i]);
-  p.nbnodes = params->nb_node;
-  p.nbprocpernode = params->nb_proc_per_node;
-  p.mpiImpl = params->mpiImpl;
-
-  string sb = (const char*)params->batch;
-  if(sb == "pbs")
-    return new BatchLight::BatchManager_PBS(p);
-  else if(sb == "slurm")
-    return new BatchLight::BatchManager_SLURM(p);
-  else{
-    MESSAGE("BATCH = " << params->batch);
-    throw SALOME_Exception("no batchmanager for that cluster");
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
 }
 

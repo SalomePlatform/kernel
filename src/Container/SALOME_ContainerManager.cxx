@@ -21,6 +21,7 @@
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
 #include <sys/types.h>
+#include <sys/stat.h>
 #ifndef WNT
 #include <unistd.h>
 #endif
@@ -75,6 +76,8 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     Engines::ContainerManager::_narrow(obj);
 
   _NS->Register(refContMan,_ContainerManagerNameInNS);
+  _MpiStarted = false;
+  _isAppliSalomeDefined = (getenv("APPLI") != 0);
   MESSAGE("constructor end");
 }
 
@@ -211,17 +214,21 @@ StartContainer(const Engines::MachineParameters& params,
   MESSAGE("SALOME_ContainerManager::StartContainer " <<
 	  possibleComputers.length());
 
+  vector<string> lm;
+  for(int i=0;i<possibleComputers.length();i++)
+    lm.push_back(string(possibleComputers[i]));
+
   string theMachine;
   try{
     switch(policy){
     case Engines::P_FIRST:
-      theMachine=_ResManager->FindFirst(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindFirst(lm);
       break;
     case Engines::P_CYCL:
-      theMachine=_ResManager->FindNext(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindNext(lm);
       break;
     case Engines::P_BEST:
-      theMachine=_ResManager->FindBest(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindBest(lm);
       break;
     }
   }
@@ -252,11 +259,11 @@ StartContainer(const Engines::MachineParameters& params,
     return Engines::Container::_nil();
   }
   else if(theMachine==GetHostname())
-    command=_ResManager->BuildCommandToLaunchLocalContainer(params,id);
+    command = BuildCommandToLaunchLocalContainer(params,id);
   else
-    command = _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
+    command = BuildCommandToLaunchRemoteContainer(theMachine,params,id);
 
-  _ResManager->RmTmpFile();
+  RmTmpFile();
 
   //check if an entry exists in Naming service
   if(params.isMPI)
@@ -390,7 +397,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	params.hostname = CORBA::string_dup(theMachine.c_str());
 	Engines::MachineParameters params_proxy(params);
 	try {
-	  command = _ResManager->BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerProxy", params_proxy, "xterm");
+	  command = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerProxy", params_proxy, "xterm");
 	}
 	catch(const SALOME_Exception & ex){
 	  MESSAGE(ex.what());
@@ -403,7 +410,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	proxy = PaCO::InterfaceManager::_narrow(obj);
 
 	// Step 4 : starting parallel container nodes
-	command = _ResManager->BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerNode", params, "xterm");
+	command = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerNode", params, "xterm");
 	string name = _NS->ContainerName(params) + "Node";
 	LaunchParallelContainer(command, params, name);
 	// Step 5 : connecting nodes and the proxy to actually create a parallel container
@@ -508,9 +515,15 @@ GiveContainer(const Engines::MachineParameters& params,
   if(valenv)
     if (strcmp(valenv,"1")==0)
       {
-        if(_batchLaunchedContainers.empty())
-          fillBatchLaunchedContainers();
-        return *(_batchLaunchedContainersIter++);
+	if(_batchLaunchedContainers.empty())
+	  fillBatchLaunchedContainers();
+
+	if (_batchLaunchedContainersIter == _batchLaunchedContainers.end())
+	  _batchLaunchedContainersIter = _batchLaunchedContainers.begin();
+
+	Engines::Container_ptr rtn = Engines::Container::_duplicate(*_batchLaunchedContainersIter);
+	_batchLaunchedContainersIter++;
+        return rtn;
       }
   return StartContainer(params,policy,componentList);
 }
@@ -680,3 +693,579 @@ void SALOME_ContainerManager::fillBatchLaunchedContainers()
   }
   _batchLaunchedContainersIter=_batchLaunchedContainers.begin();
 }
+
+//=============================================================================
+/*!
+ *  This is no longer valid (C++ container are also python containers)
+ */ 
+//=============================================================================
+
+bool isPythonContainer(const char* ContainerName)
+{
+  bool ret = false;
+  int len = strlen(ContainerName);
+
+  if (len >= 2)
+    if (strcmp(ContainerName + len - 2, "Py") == 0)
+      ret = true;
+
+  return ret;
+}
+
+//=============================================================================
+/*!
+ *  Builds the script to be launched
+ *
+ *  If SALOME Application not defined ($APPLI),
+ *  see BuildTempFileToLaunchRemoteContainer()
+ *
+ *  Else rely on distant configuration. Command is under the form (example):
+ *  ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+ *                   SALOME_Container containerName &"
+
+ *  - where user is ommited if not specified in CatalogResources,
+ *  - where distant path is always relative to user@machine $HOME, and
+ *    equal to $APPLI if not specified in CatalogResources,
+ *  - where hostNS is the hostname of CORBA naming server (set by scripts to
+ *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
+ *  - where portNS is the port used by CORBA naming server (set by scripts to
+ *    use to launch SALOME and servers in $APPLI: runAppli.sh, runRemote.sh)
+ *  - where workingdir is the requested working directory for the container.
+ *    If WORKINGDIR (and workingdir) is not present the working dir will be $HOME
+ */ 
+//=============================================================================
+
+string
+SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
+(const string& machine,
+ const Engines::MachineParameters& params, const long id)
+{
+  string command;
+  int nbproc;
+  char idc[3*sizeof(long)];
+	  
+  if ( ! _isAppliSalomeDefined )
+    command = BuildTempFileToLaunchRemoteContainer(machine, params);
+
+  else
+    {
+      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
+
+      if (params.isMPI)
+        {
+          if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+            nbproc = 1;
+          else if ( params.nb_node == 0 )
+            nbproc = params.nb_proc_per_node;
+          else if ( params.nb_proc_per_node == 0 )
+            nbproc = params.nb_node;
+          else
+            nbproc = params.nb_node * params.nb_proc_per_node;
+        }
+
+      // "ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+      //  SALOME_Container containerName &"
+
+      if (resInfo.Protocol == rsh)
+        command = "rsh ";
+      else if (resInfo.Protocol == ssh)
+        command = "ssh ";
+      else
+        throw SALOME_Exception("Unknown protocol");
+
+      if (resInfo.UserName != "")
+	{
+	  command += resInfo.UserName;
+	  command += "@";
+	}
+
+      command += machine;
+      command += " ";
+
+      if (resInfo.AppliPath != "")
+	command += resInfo.AppliPath; // path relative to user@machine $HOME
+      else
+	{
+	  ASSERT(getenv("APPLI"));
+	  command += getenv("APPLI"); // path relative to user@machine $HOME
+	}
+
+      command += "/runRemote.sh ";
+
+      ASSERT(getenv("NSHOST")); 
+      command += getenv("NSHOST"); // hostname of CORBA name server
+
+      command += " ";
+      ASSERT(getenv("NSPORT"));
+      command += getenv("NSPORT"); // port of CORBA name server
+
+      std::string wdir=params.workingdir.in();
+      if(wdir != "")
+        {
+          command += " WORKINGDIR ";
+          command += " '";
+          if(wdir == "$TEMPDIR")
+            wdir="\\$TEMPDIR";
+          command += wdir; // requested working directory
+          command += "'"; 
+        }
+
+      if(params.isMPI)
+	{
+	  command += " mpirun -np ";
+	  std::ostringstream o;
+	  o << nbproc << " ";
+	  command += o.str();
+#ifdef WITHLAM
+	  command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif	
+	  command += " SALOME_MPIContainer ";
+	}
+      else
+	command += " SALOME_Container ";
+
+      command += _NS->ContainerName(params);
+      command += " -id ";
+      sprintf(idc,"%ld",id);
+      command += idc;
+      command += " -";
+      AddOmninamesParams(command);
+
+      MESSAGE("command =" << command);
+    }
+
+  return command;
+}
+
+//=============================================================================
+/*!
+ *  builds the command to be launched.
+ */ 
+//=============================================================================
+
+string
+SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
+(const Engines::MachineParameters& params, const long id)
+{
+  _TmpFileName = "";
+  string command;
+  int nbproc = 0;
+  char idc[3*sizeof(long)];
+
+  if (params.isMPI)
+    {
+      command = "mpirun -np ";
+
+      if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+        nbproc = 1;
+      else if ( params.nb_node == 0 )
+        nbproc = params.nb_proc_per_node;
+      else if ( params.nb_proc_per_node == 0 )
+        nbproc = params.nb_node;
+      else
+        nbproc = params.nb_node * params.nb_proc_per_node;
+
+      std::ostringstream o;
+
+      o << nbproc << " ";
+
+      command += o.str();
+#ifdef WITHLAM
+      command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif
+
+      if (isPythonContainer(params.container_name))
+        command += "pyMPI SALOME_ContainerPy.py ";
+      else
+        command += "SALOME_MPIContainer ";
+    }
+
+  else
+    {
+      command="";
+      std::string wdir=params.workingdir.in();
+      if(wdir != "")
+        {
+          // a working directory is requested
+          if(wdir == "$TEMPDIR")
+            {
+              // a new temporary directory is requested
+              char dir[]="/tmp/salomeXXXXXX";
+              char* mdir=mkdtemp(dir);
+              if(mdir==NULL)
+                std::cerr << "Problem in mkdtemp " << dir << " " << mdir << std::endl;
+              else
+                command="cd "+std::string(dir)+";";
+            }
+          else
+            {
+              // a permanent directory is requested use it or create it
+              command="mkdir -p " + wdir + " && cd " + wdir + ";";
+            }
+        }
+      if (isPythonContainer(params.container_name))
+        command += "SALOME_ContainerPy.py ";
+      else
+        command += "SALOME_Container ";
+    }
+
+  command += _NS->ContainerName(params);
+  command += " -id ";
+  sprintf(idc,"%ld",id);
+  command += idc;
+  command += " -";
+  AddOmninamesParams(command);
+
+  MESSAGE("Command is ... " << command);
+  return command;
+}
+
+
+//=============================================================================
+/*!
+ *  removes the generated temporary file in case of a remote launch.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::RmTmpFile()
+{
+  if (_TmpFileName != "")
+    {
+#ifndef WNT
+      string command = "rm ";
+#else
+      string command = "del /F ";
+#endif
+      command += _TmpFileName;
+      char *temp = strdup(command.c_str());
+      int lgthTemp = strlen(temp);
+      temp[lgthTemp - 3] = '*';
+      temp[lgthTemp - 2] = '\0';
+      system(temp);
+      free(temp);
+    }
+}
+
+//=============================================================================
+/*!
+ *   add to command all options relative to naming service.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::AddOmninamesParams(string& command) const
+  {
+    CORBA::String_var iorstr = _NS->getIORaddr();
+    command += "ORBInitRef NameService=";
+    command += iorstr;
+  }
+
+
+//=============================================================================
+/*!
+ *  add to command all options relative to naming service.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
+  {
+    CORBA::String_var iorstr = _NS->getIORaddr();
+    fileStream << "ORBInitRef NameService=";
+    fileStream << iorstr;
+  }
+
+//=============================================================================
+/*!
+ *  generate a file name in /tmp directory
+ */ 
+//=============================================================================
+
+string SALOME_ContainerManager::BuildTemporaryFileName() const
+  {
+    //build more complex file name to support multiple salome session
+    char *temp = new char[19];
+    strcpy(temp, "/tmp/command");
+    strcat(temp, "XXXXXX");
+#ifndef WNT
+
+    mkstemp(temp);
+#else
+
+    char aPID[80];
+    itoa(getpid(), aPID, 10);
+    strcat(temp, aPID);
+#endif
+
+    string command(temp);
+    delete [] temp;
+    command += ".sh";
+    return command;
+  }
+
+
+//=============================================================================
+/*!
+ *  Builds in a temporary file the script to be launched.
+ *  
+ *  Used if SALOME Application ($APPLI) is not defined.
+ *  The command is build with data from CatalogResources, in which every path
+ *  used on remote computer must be defined.
+ */ 
+//=============================================================================
+
+string
+SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
+(const string& machine,
+ const Engines::MachineParameters& params) throw(SALOME_Exception)
+{
+  int status;
+
+  _TmpFileName = BuildTemporaryFileName();
+  ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+  const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
+  tempOutputFile << "#! /bin/sh" << endl;
+
+  // --- set env vars
+
+  tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
+  //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
+
+  // ! env vars
+
+  if (params.isMPI)
+    {
+      tempOutputFile << "mpirun -np ";
+      int nbproc;
+
+      if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+        nbproc = 1;
+      else if ( params.nb_node == 0 )
+        nbproc = params.nb_proc_per_node;
+      else if ( params.nb_proc_per_node == 0 )
+        nbproc = params.nb_node;
+      else
+        nbproc = params.nb_node * params.nb_proc_per_node;
+
+      std::ostringstream o;
+
+      tempOutputFile << nbproc << " ";
+#ifdef WITHLAM
+      tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#endif
+    }
+
+  tempOutputFile << getenv("KERNEL_ROOT_DIR") << "/bin/salome/";
+
+  if (params.isMPI)
+    {
+      if (isPythonContainer(params.container_name))
+        tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
+      else
+        tempOutputFile << "SALOME_MPIContainer ";
+    }
+
+  else
+    {
+      if (isPythonContainer(params.container_name))
+        tempOutputFile << "SALOME_ContainerPy.py ";
+      else
+        tempOutputFile << "SALOME_Container ";
+    }
+
+  tempOutputFile << _NS->ContainerName(params) << " -";
+  AddOmninamesParams(tempOutputFile);
+  tempOutputFile << " &" << endl;
+  tempOutputFile.flush();
+  tempOutputFile.close();
+  chmod(_TmpFileName.c_str(), 0x1ED);
+
+  // --- Build command
+
+  string command;
+
+  if (resInfo.Protocol == rsh)
+    {
+      command = "rsh ";
+      string commandRcp = "rcp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += machine;
+      commandRcp += ":";
+      commandRcp += _TmpFileName;
+      status = system(commandRcp.c_str());
+    }
+
+  else if (resInfo.Protocol == ssh)
+    {
+      command = "ssh ";
+      string commandRcp = "scp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += machine;
+      commandRcp += ":";
+      commandRcp += _TmpFileName;
+      status = system(commandRcp.c_str());
+    }
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
+
+  command += machine;
+  _CommandForRemAccess = command;
+  command += " ";
+  command += _TmpFileName;
+
+  SCRUTE(command);
+
+  return command;
+
+}
+
+//=============================================================================
+/*! Creates a command line that the container manager uses to launch
+ * a parallel container.
+ */ 
+//=============================================================================
+string 
+SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name,
+								    const Engines::MachineParameters& params,
+								    const std::string& log)
+{
+  // This method knows the differences between the proxy and the nodes.
+  // nb_component_nodes is not used in the same way if it is a proxy or 
+  // a node.
+
+  string command;
+  string parallelLib(CORBA::string_dup(params.parallelLib));
+  string hostname(CORBA::string_dup(params.hostname));
+  int par = exe_name.find("Proxy");
+  int nbproc = params.nb_component_nodes;
+  char buffer [33];
+  sprintf(buffer,"%d",nbproc);
+
+  Engines::MachineParameters_var rtn = new Engines::MachineParameters();
+  rtn->container_name = params.container_name;
+  rtn->hostname = params.hostname;
+  rtn->OS = params.OS;
+  rtn->mem_mb = params.mem_mb;
+  rtn->cpu_clock = params.cpu_clock;
+  rtn->nb_proc_per_node = params.nb_proc_per_node;
+  rtn->nb_node = params.nb_node;
+  rtn->isMPI = params.isMPI;
+
+  string real_exe_name  = exe_name + parallelLib;
+
+  if (parallelLib == "Dummy")
+  {
+    //command = "gdb --args ";
+    //command = "valgrind --tool=memcheck --log-file=val_log ";
+    //command += real_exe_name;
+
+    command = real_exe_name;
+
+    command += " " + _NS->ContainerName(rtn);
+    command += " " + parallelLib;
+    command += " " + hostname;
+    command += " -";
+    AddOmninamesParams(command);
+  }
+
+  else if (parallelLib == "Mpi")
+  {
+    // Step 1 : check if MPI is started
+    if (_MpiStarted == false)
+    {
+      startMPI();
+    }
+
+    if (par < 0)
+    {
+      // Nodes case
+
+      command = "mpiexec -np " + string(buffer) + " ";
+//      command += "gdb --args ";
+      command += real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " -";
+      AddOmninamesParams(command);
+    }
+    else                                          
+    {
+      // Proxy case
+      command = "mpiexec -np 1 ";
+      command += real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + string(buffer);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " -";
+      AddOmninamesParams(command);
+    }
+  }
+  else
+  {
+    std::string message("Unknown parallelLib" + parallelLib);
+    throw SALOME_Exception(message.c_str());
+  }
+
+  // log choice
+  if (log == "default")
+  {
+    command += " > /tmp/";
+    command += _NS->ContainerName(rtn);
+    command += "_";
+    command += GetHostname();
+    command += "_";
+    command += getenv( "USER" ) ;
+    command += ".log 2>&1 &" ;
+  }
+  if (log == "xterm")
+  {
+    command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
+	      + command + " \" &";
+//	      + command + "; echo $LD_LIBRARY_PATH; cat \" &";
+  }
+  return command;
+
+/*  if (log == "xterm")
+  {
+    command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH; echo $LD_LIBRARY_PATH; echo $PATH; " + command + "; cat \" &";
+  }
+*/
+/*  command = "cd ; rm " + fichier_commande + "; touch " + \
+	     fichier_commande + "; echo \" export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; " + \
+	     command + " >& /tmp/ribes_" + fichier_commande + " & \" > " + fichier_commande + ";";
+  command += "ssh cn01 sh " + fichier_commande + " &";
+  cerr << "La commande : " << command << endl;
+*/
+}
+
+void SALOME_ContainerManager::startMPI()
+{
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "-Only Lam on Localhost is currently supported-" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+  cerr << "----------------------------------------------" << endl;
+
+  int status = system("lamboot");
+  if (status == -1)
+  {
+    INFOS("lamboot failed : system command status -1");
+  }
+  else if (status == 217)
+  {
+    INFOS("lamboot failed : system command status 217");
+  }
+  else
+  {
+    _MpiStarted = true;
+  }
+}
+

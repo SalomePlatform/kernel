@@ -103,6 +103,7 @@ namespace Batch {
     static const string USEDWALLTIME;
     static const string USER;
     static const string WORKDIR;
+    static const string HOMEDIR;
 
   protected:
     map< string, TypeParam > TypeMap; // map interne servant a controler le type de la valeur associee a chaque clef
@@ -151,5 +152,6 @@ def_extern_MapKey(USEDRAMSIZE);
 def_extern_MapKey(USEDWALLTIME);
 def_extern_MapKey(USER);
 def_extern_MapKey(WORKDIR);
+def_extern_MapKey(HOMEDIR);
 
 #endif

@@ -30,6 +30,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "ResourcesManager.hxx"
 
 #if defined RESOURCESMANAGER_EXPORTS
 #if defined WIN32
@@ -66,96 +67,29 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
                         const Engines::CompoList& componentList);
-//     throw(SALOME_Exception);
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
-    std::string FindNext(const Engines::MachineList& listOfMachines);
-    std::string FindBest(const Engines::MachineList& listOfMachines);
 
-    std::string BuildCommandToLaunchRemoteContainer
-    (const std::string& machine,
-     const Engines::MachineParameters& params, const long id);
-
-    std::string BuildCommandToLaunchLocalContainer
-    (const Engines::MachineParameters& params, const long id);
-
-    void RmTmpFile();
-
-    std::string BuildCommand(const std::string& machine,
-			     const char *containerName);
-
-    int AddResourceInCatalog
-    (const Engines::MachineParameters& paramsOfNewResources,
-     const std::vector<std::string>& modulesOnNewResources,
-     const char *alias,
-     const char *userName,
-     AccessModeType mode,
-     AccessProtocolType prot)
-    throw(SALOME_Exception);
-
-    void DeleteResourceInCatalog(const char *hostname);
-
-    void WriteInXmlFile();
-
-    const MapOfParserResourcesType& ParseXmlFile();
-
-    const MapOfParserResourcesType& GetList() const;
-
-    // Parallel extension
-    std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
-							   const Engines::MachineParameters& params, 
-							   const std::string& log = "default");
     Engines::MachineParameters* GetMachineParameters(const char *hostname);
 
     void Shutdown();
 
     static const char *_ResourcesManagerNameInNS;
 
+    ResourcesManager_cpp *GetImpl() { return &_rm; }
+
   protected:
     
-    // Parallel extension
-    void startMPI();
-    bool _MpiStarted;
-
     SALOME_NamingService *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
 
-    std::string BuildTempFileToLaunchRemoteContainer
-    (const std::string& machine,
-     const Engines::MachineParameters& params) throw(SALOME_Exception);
-
-    void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
-				   const char *OS) const
-      throw(SALOME_Exception);
-
-    void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
-				     const Engines::CompoList& componentList) const
-      throw(SALOME_Exception);
-
-    void AddOmninamesParams(std::string& command) const;
-
-    void AddOmninamesParams(std::ofstream& fileStream) const;
-
-    std::string BuildTemporaryFileName() const;
-
-    //! will contain the path to the ressources catalog
-    std::string _path_resources;
-
-    //! attribute that contains current tmp files generated
-    std::string _TmpFileName;
-
-    //! contains the rsh or ssh command to access directly to machine.
-    //  Only used by this->RmTmpFile in case of a remote launch.
-    std::string _CommandForRemAccess;
-
+    //
     //! will contain the informations on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesList;
+    MapOfParserResourcesType _resourcesBatchList;
 
-    SALOME_LoadRateManager _dynamicResourcesSelecter;
+    ResourcesManager_cpp _rm;
 
-    //! different behaviour if $APPLI exists (SALOME Application) 
-    bool _isAppliSalomeDefined;
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

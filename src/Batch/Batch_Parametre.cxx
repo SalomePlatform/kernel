@@ -72,6 +72,7 @@ def_static_MapKey(USEDRAMSIZE);
 def_static_MapKey(USEDWALLTIME);
 def_static_MapKey(USER);
 def_static_MapKey(WORKDIR);
+def_static_MapKey(HOMEDIR);
 
 namespace Batch {
 
@@ -195,6 +196,9 @@ namespace Batch {
 
     TypeMap[WORKDIR].type = STRING;
     TypeMap[WORKDIR].maxelem = 1;
+
+    TypeMap[HOMEDIR].type = STRING;
+    TypeMap[HOMEDIR].maxelem = 1;
   }
 
   // Operateur de recherche dans la map

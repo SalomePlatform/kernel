@@ -17,33 +17,44 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __SALOME_LOADRATEMANAGER_HXX__
-#define __SALOME_LOADRATEMANAGER_HXX__
+/*
+ * FactBatchManager_eLSF.hxx : 
+ *
+ * Auteur : Bernard SECHER : CEA DEN
+ * Date   : Avril 2008
+ * Projet : PAL Salome
+ *
+ */
 
+#ifndef _FACTBATCHMANAGER_eLSF_H_
+#define _FACTBATCHMANAGER_eLSF_H_
+
+using namespace std;
 #include <string>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
+#include <map>
+#include "Batch_BatchManager_eClient.hxx"
+#include "Batch_FactBatchManager_eClient.hxx"
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#endif
+namespace Batch {
+  
+  class BatchManager_eLSF;
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
+  class FactBatchManager_eLSF : public FactBatchManager_eClient
   {
-
   public:
-    std::string FindFirst(const std::vector<std::string>& hosts);
-    std::string FindNext(const std::vector<std::string>& hosts,MapOfParserResourcesType& resList);
-    std::string FindBest(const std::vector<std::string>& hosts);
+    // Constructeur et destructeur
+    FactBatchManager_eLSF();
+    virtual ~FactBatchManager_eLSF();
+
+    virtual BatchManager * operator() (const char * hostname) const;
+    virtual BatchManager_eClient * operator() (const char * hostname, const char * protocol, const char * mpiImpl) const;
+
+  protected:
+
+  private:
+
   };
+
+}
 
 #endif

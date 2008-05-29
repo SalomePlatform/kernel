@@ -86,6 +86,30 @@ protected:
   void fillBatchLaunchedContainers();
 
   long GetIdForContainer(void);
+
+  std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
+						  const Engines::MachineParameters& params, const long id);
+
+  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, const long id);
+
+  std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
+						   const Engines::MachineParameters& params) throw(SALOME_Exception);
+
+  void RmTmpFile();
+
+  void AddOmninamesParams(std::string& command) const;
+
+  void AddOmninamesParams(std::ofstream& fileStream) const;
+
+  std::string BuildTemporaryFileName() const;
+
+  // Parallel extension
+  std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
+							 const Engines::MachineParameters& params, 
+							 const std::string& log = "default");
+  void startMPI();
+  bool _MpiStarted;
+
   long _id;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
@@ -94,6 +118,16 @@ protected:
   SALOME_NamingService *_NS;
   static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
   static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
-};
 
+  //! attribute that contains current tmp files generated
+  std::string _TmpFileName;
+
+  //! contains the rsh or ssh command to access directly to machine.
+  //  Only used by this->RmTmpFile in case of a remote launch.
+  std::string _CommandForRemAccess;
+
+  //! different behaviour if $APPLI exists (SALOME Application) 
+  bool _isAppliSalomeDefined;
+
+};
 #endif

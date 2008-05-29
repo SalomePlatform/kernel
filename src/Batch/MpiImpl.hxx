@@ -30,8 +30,14 @@
 #define _BL_MPIIMPL_H_
 
 #include <string>
-#include "Utils_SALOME_Exception.hxx"
-#include <SALOMEconfig.h>
+
+class MpiImplException
+{
+public:
+  const std::string msg;
+  
+  MpiImplException(const std::string m) : msg(m) {}
+};
 
 class MpiImpl
 {
@@ -115,6 +121,25 @@ public:
   // Constructeur et destructeur
   MpiImpl_OPENMPI(); // constructor
   virtual ~MpiImpl_OPENMPI(); //Destructor
+
+  std::string size(); // get number of process of current job
+  std::string rank(); // get process number of current job
+  std::string boot( const std::string machinefile, const unsigned int nbnodes); // get boot command
+  std::string run( const std::string machinefile, const unsigned int nbproc, const std::string fileNameToExecute); // get run command
+  std::string halt(); // get stop command
+
+protected:
+
+private:
+
+};
+
+class MpiImpl_SLURM : public MpiImpl
+{
+public:
+  // Constructeur et destructeur
+  MpiImpl_SLURM(); // constructor
+  virtual ~MpiImpl_SLURM(); //Destructor
 
   std::string size(); // get number of process of current job
   std::string rank(); // get process number of current job

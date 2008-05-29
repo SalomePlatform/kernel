@@ -40,7 +40,8 @@ class SALOME_ResourcesCatalog_Handler
 {
   
   public :
-    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources);
+    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
+				    MapOfParserResourcesType& resources_batch_list);
 
     const MapOfParserResourcesType& GetResourcesAfterParsing() const;
 
@@ -55,6 +56,7 @@ class SALOME_ResourcesCatalog_Handler
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
+    MapOfParserResourcesType& _resources_batch_list;
 
     const char *test_machine;
     const char *test_resources;

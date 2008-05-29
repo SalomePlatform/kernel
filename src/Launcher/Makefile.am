@@ -36,12 +36,9 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-  BatchLight_BatchManager.hxx \
-  BatchLight_BatchManager_PBS.hxx \
-  BatchLight_BatchManager_SLURM.hxx \
-  BatchLight_Job.hxx \
-	MpiImpl.hxx \
-	SALOME_Launcher.hxx
+			BatchTest.hxx \
+			SALOME_Launcher.hxx \
+			Launcher.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =
@@ -95,14 +92,10 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeLauncher.la
+lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
 libSalomeLauncher_la_SOURCES=\
-	SALOME_Launcher.cxx \
-  BatchLight_BatchManager.cxx \
-  BatchLight_BatchManager_SLURM.cxx \
-  BatchLight_BatchManager_PBS.cxx \
-  BatchLight_Job.cxx \
-	MpiImpl.cxx
+			     BatchTest.cxx \
+			     SALOME_Launcher.cxx 
 
 libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -112,8 +105,24 @@ libSalomeLauncher_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libSalomeLauncher_la_LIBADD =\
-	$(COMMON_LIBS)
+	$(COMMON_LIBS) libLauncher.la
 
+libLauncher_la_SOURCES=\
+	Launcher.cxx
+
+libLauncher_la_CPPFLAGS =\
+	-I$(srcdir)/../Batch \
+	-I$(srcdir)/../ResourcesManager \
+	@MPI_INCLUDES@ \
+	@LIBXML_INCLUDES@
+
+libLauncher_la_LDFLAGS  =\
+	-no-undefined -version-info=0:0:0 \
+	@LDEXPDYNFLAGS@
+
+libLauncher_la_LIBADD =\
+	@MPI_LIBS@ \
+	@LIBXML_LIBS@
 
 #
 # ===============================================================

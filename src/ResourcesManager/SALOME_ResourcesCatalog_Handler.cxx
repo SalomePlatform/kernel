@@ -47,10 +47,11 @@ static int MYDEBUG = 0;
 //=============================================================================
 
 SALOME_ResourcesCatalog_Handler::
-SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
-    _resources_list(listOfResources)
+SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
+				MapOfParserResourcesType& resources_batch_list):
+    _resources_list(resources_list),
+    _resources_batch_list(resources_batch_list)
 {
-  MESSAGE("SALOME_ResourcesCatalog_Handler creation");
   //XML tags initialisation
   test_machine = "machine";
   test_resources = "resources";
@@ -80,7 +81,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
 
 SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 {
-  //  MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
+  //  cout << "SALOME_ResourcesCatalog_Handler destruction") << endl;
 }
 
 //=============================================================================
@@ -103,7 +104,7 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  if (MYDEBUG) MESSAGE("Begin parse document");
+//   if (MYDEBUG) cout << "Begin parse document" << endl;
 
   // Empty private elements
   _resources_list.clear();
@@ -123,6 +124,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
             {
 	      xmlChar* hostname = xmlGetProp(aCurNode, (const xmlChar*)test_hostname);
 	      _resource.DataForSort._hostName = (const char*)hostname;
+	      _resource.HostName = (const char*)hostname;
               xmlFree(hostname);
             }
 	  else
@@ -188,8 +190,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
                 _resource.Batch = lsf;
-              else if  (aBatch == "slurm")
-                _resource.Batch = slurm;
               else
                 _resource.Batch = none;
             }
@@ -207,6 +207,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.mpi = mpich2;
               else if (anMpi == "openmpi")
                 _resource.mpi = openmpi;
+              else if  (anMpi == "slurm")
+                _resource.mpi = slurm;
               else
                 _resource.mpi = indif;
             }
@@ -276,23 +278,32 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		}
 	      aCurSubNode = aCurSubNode->next;
 	    }
-	  
-	  int aNbNodes = _resource.DataForSort._nbOfNodes;
-	  if( aNbNodes > 1 ){
-	    string clusterNode = _resource.DataForSort._hostName ;
-	    for( int i=0; i < aNbNodes; i++ ){
-	      char inode[64];
-	      inode[0] = '\0' ;
-	      sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
-	      std::string nodeName(inode);
-	      _resource.DataForSort._hostName = nodeName ;
-	      _resources_list[nodeName] = _resource;
+	 
+	  // There is two lists
+	  // _resources_list for interactive resources
+	  // _resources_batch_list for batch resources
+	  // This choice is done with Mode parameter
+	  if (_resource.Mode == interactive)
+	  {
+	    int aNbNodes = _resource.DataForSort._nbOfNodes;
+	    if( aNbNodes > 1 ){
+	      string clusterNode = _resource.DataForSort._hostName ;
+	      for( int i=0; i < aNbNodes; i++ ){
+		char inode[64];
+		inode[0] = '\0' ;
+		sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
+		std::string nodeName(inode);
+		_resource.DataForSort._hostName = nodeName ;
+		_resource.HostName = nodeName ;
+		_resources_list[nodeName] = _resource;
+	      }
 	    }
+	    else
+	      _resources_list[_resource.HostName] = _resource;
 	  }
 	  else
-	    _resources_list[_resource.DataForSort._hostName] = _resource;
+	    _resources_batch_list[_resource.HostName] = _resource;
 	}
-      
       aCurNode = aCurNode->next;
     }
 
@@ -304,6 +315,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	   iter != _resources_list.end();
 	   iter++)
 	{
+	  SCRUTE((*iter).second.HostName);
 	  SCRUTE((*iter).second.Alias);
 	  SCRUTE((*iter).second.UserName);
 	  SCRUTE((*iter).second.AppliPath);
@@ -312,7 +324,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  SCRUTE((*iter).second.Mode);
 	}
       
-      MESSAGE("This is the end of document");
+//       cout << "This is the end of document" << endl;
+//     }
     }
 }
 
@@ -339,7 +352,90 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
        iter++)
     {
       node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
-      xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).first.c_str());
+      xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
+      xmlNewProp(node, BAD_CAST test_alias, BAD_CAST (*iter).second.Alias.c_str());
+      
+      switch ((*iter).second.Protocol)
+        {
+        case rsh:
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
+          break;
+        case ssh:
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
+	  break;
+        default:
+	  xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
+	}
+
+      switch ((*iter).second.Mode)
+        {
+	case interactive:
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
+          break;
+        case batch:
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "batch");
+          break;
+        default:
+	  xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
+        }
+
+      switch ((*iter).second.Batch)
+        {
+	case pbs:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "pbs");
+          break;
+	case lsf:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+          break;
+        default:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
+        }
+
+      switch ((*iter).second.mpi)
+        {
+	case lam:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "lam");
+          break;
+	case mpich1:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich1");
+          break;
+	case mpich2:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich2");
+          break;
+	case openmpi:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+        default:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
+        }
+
+      xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
+
+     for (vector<string>::const_iterator iter2 =
+             (*iter).second.ModulesList.begin();
+           iter2 != (*iter).second.ModulesList.end();
+           iter2++)
+        {
+	  node1 = xmlNewChild(node, NULL, BAD_CAST test_modules, NULL);
+	  xmlNewProp(node1, BAD_CAST test_module_name, BAD_CAST (*iter2).c_str());
+        }
+
+      xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());
+      xmlNewProp(node, BAD_CAST test_mem_in_mb, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._memInMB));
+      xmlNewProp(node, BAD_CAST test_cpu_freq_mhz, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._CPUFreqMHz));
+      xmlNewProp(node, BAD_CAST test_nb_of_nodes, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfNodes));
+      xmlNewProp(node, BAD_CAST test_nb_of_proc_per_node, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfProcPerNode));
+    }
+  for (map<string, ParserResourcesType>::iterator iter =
+         _resources_batch_list.begin();
+       iter != _resources_batch_list.end();
+       iter++)
+    {
+      node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
+      xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
       xmlNewProp(node, BAD_CAST test_alias, BAD_CAST (*iter).second.Alias.c_str());
       
       switch ((*iter).second.Protocol)

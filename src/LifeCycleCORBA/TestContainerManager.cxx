@@ -149,7 +149,7 @@ int main (int argc, char * argv[])
     }
   }
   string msg;
-  if( ((cmax-cmin) <= 2) && (fmax == 10/nbpmax) && !error ){
+  if( ((cmax-cmin) <= 1) && (fmax == 10/nbpmax) && !error ){
     if(bestImplemented)
       msg = "TEST OK";
     else

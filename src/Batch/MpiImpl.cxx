@@ -29,7 +29,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "utilities.h"
 #include "MpiImpl.hxx"
 
 using namespace std;
@@ -37,13 +36,11 @@ using namespace std;
 // Constructor
 MpiImpl::MpiImpl()
 {
-  MESSAGE("MpiImpl constructor");
 }
 
 // Destructor
 MpiImpl::~MpiImpl()
 {
-  MESSAGE("MpiImpl destructor");
 }
 
 // lam implementation
@@ -55,7 +52,6 @@ MpiImpl_LAM::MpiImpl_LAM() : MpiImpl()
 // Destructor
 MpiImpl_LAM::~MpiImpl_LAM()
 {
-  MESSAGE("MpiImpl_LAM destructor");
 }
 
 string MpiImpl_LAM::size()
@@ -98,17 +94,16 @@ MpiImpl_MPICH1::MpiImpl_MPICH1() : MpiImpl()
 // Destructor
 MpiImpl_MPICH1::~MpiImpl_MPICH1()
 {
-  MESSAGE("MpiImpl_MPICH1 destructor");
 }
 
 string MpiImpl_MPICH1::size()
 {
-  throw SALOME_Exception("mpich1 doesn't work with this batch system to submit salome session");
+  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
 }
 
 string MpiImpl_MPICH1::rank()
 {
-  throw SALOME_Exception("mpich1 doesn't work with this batch system to submit salome session");
+  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
 }
 
 string MpiImpl_MPICH1::boot(const string machinefile, const unsigned int nbnodes)
@@ -137,7 +132,6 @@ MpiImpl_MPICH2::MpiImpl_MPICH2() : MpiImpl()
 // Destructor
 MpiImpl_MPICH2::~MpiImpl_MPICH2()
 {
-  MESSAGE("MpiImpl_MPICH2 destructor");
 }
 
 string MpiImpl_MPICH2::size()
@@ -180,7 +174,6 @@ MpiImpl_OPENMPI::MpiImpl_OPENMPI() : MpiImpl()
 // Destructor
 MpiImpl_OPENMPI::~MpiImpl_OPENMPI()
 {
-  MESSAGE("MpiImpl_OPENMPI destructor");
 }
 
 string MpiImpl_OPENMPI::size()
@@ -206,6 +199,44 @@ string MpiImpl_OPENMPI::run(const string machinefile, const unsigned int nbproc,
 }
 
 string MpiImpl_OPENMPI::halt()
+{
+  return "";
+}
+
+// slurm implementation
+// Constructor
+MpiImpl_SLURM::MpiImpl_SLURM() : MpiImpl()
+{
+}
+
+// Destructor
+MpiImpl_SLURM::~MpiImpl_SLURM()
+{
+}
+
+string MpiImpl_SLURM::size()
+{
+  return "${SLURM_NPROCS}";
+}
+
+string MpiImpl_SLURM::rank()
+{
+  return "${SLURM_PROCID}";
+}
+
+string MpiImpl_SLURM::boot(const string machinefile, const unsigned int nbnodes)
+{
+  return "";
+}
+
+string MpiImpl_SLURM::run(const string machinefile, const unsigned int nbproc, const string fileNameToExecute)
+{
+  ostringstream oss;
+  oss << "srun " << fileNameToExecute << endl;
+  return oss.str();
+}
+
+string MpiImpl_SLURM::halt()
 {
   return "";
 }

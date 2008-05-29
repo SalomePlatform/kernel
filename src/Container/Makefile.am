@@ -83,6 +83,7 @@ COMMON_LIBS =\
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
+	../ResourcesManager/libResourcesManager.la \
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \

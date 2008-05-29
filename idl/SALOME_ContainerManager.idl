@@ -80,7 +80,6 @@ struct BatchParameters
 			       // has to be like this : hh:mm
   string mem; // Minimum of memory needed
 	      // has to be like : 32gb or 512mb
-
   long nb_proc; // Number of processors requested
 };
 
@@ -98,6 +97,8 @@ struct BatchParameters
     string querySalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
     void deleteSalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
     void getResultSalomeJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+
+    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
 
     void Shutdown();
 

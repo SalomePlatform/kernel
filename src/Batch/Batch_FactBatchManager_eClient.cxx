@@ -17,33 +17,32 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __SALOME_LOADRATEMANAGER_HXX__
-#define __SALOME_LOADRATEMANAGER_HXX__
+/*
+ * FactBatchManager_eClient.cxx : emulation of client
+ *
+ * Auteur : Bernard SECHER - CEA DEN
+ * Mail   : mailto:bernard.secher@cea.fr
+ * Date   : Thu Apr 24 10:17:22 2008
+ * Projet : PAL Salome 
+ *
+ */
 
 #include <string>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
+#include <sstream>
+#include "Batch_FactBatchManager_eClient.hxx"
+using namespace std;
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#endif
+namespace Batch {
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
+  // Constructeur
+  FactBatchManager_eClient::FactBatchManager_eClient(const string & _t) : FactBatchManager(_t)
   {
+  }
 
-  public:
-    std::string FindFirst(const std::vector<std::string>& hosts);
-    std::string FindNext(const std::vector<std::string>& hosts,MapOfParserResourcesType& resList);
-    std::string FindBest(const std::vector<std::string>& hosts);
-  };
+  // Destructeur
+  FactBatchManager_eClient::~FactBatchManager_eClient()
+  {
+    // Nothing to do
+  }
 
-#endif
+}
