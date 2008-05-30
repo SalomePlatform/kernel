@@ -387,11 +387,6 @@ def startSalome(args, modules_list, modules_root_dir):
     init_time = os.times()
 
     if verbose(): print "startSalome ", args
-
-    # set PYTHONINSPECT variable
-    if args['pinter']:
-        os.environ["PYTHONINSPECT"]="1"
-        import readline
     
     #
     # Initialisation ORB et Naming Service
@@ -599,6 +594,10 @@ def startSalome(args, modules_list, modules_root_dir):
             anInterp=InterpServer(args)
             anInterp.run()
 
+    # set PYTHONINSPECT variable
+    if args['pinter']:
+        os.environ["PYTHONINSPECT"]="1"
+        import readline
         
     return clt
 
