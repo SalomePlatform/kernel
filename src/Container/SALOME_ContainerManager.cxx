@@ -19,6 +19,7 @@
 //
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_ModuleCatalog.hh"
 #include "OpUtil.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -199,7 +200,7 @@ Engines::Container_ptr
 SALOME_ContainerManager::
 StartContainer(const Engines::MachineParameters& params,
 	       const Engines::MachineList& possibleComputers,
-	       Engines::ResPolicy policy)
+	       Engines::ResPolicy policy,const std::string& container_exe)
 {
 #ifdef WITH_PACO_PARALLEL
   std::string parallelLib(params.parallelLib);
@@ -259,9 +260,9 @@ StartContainer(const Engines::MachineParameters& params,
     return Engines::Container::_nil();
   }
   else if(theMachine==GetHostname())
-    command = BuildCommandToLaunchLocalContainer(params,id);
+    command = BuildCommandToLaunchLocalContainer(params,id,container_exe);
   else
-    command = BuildCommandToLaunchRemoteContainer(theMachine,params,id);
+    command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
 
   RmTmpFile();
 
@@ -349,7 +350,55 @@ StartContainer(const Engines::MachineParameters& params,
 	       const Engines::CompoList& componentList)
 {
   Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params,componentList);
-  return StartContainer(params,possibleComputers,policy);
+
+  // Look into ModulCatalog if a specific container must be launched
+  CORBA::String_var container_exe;
+  int found=0;
+  try
+    {
+      CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+      SALOME_ModuleCatalog::ModuleCatalog_var Catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+      if (CORBA::is_nil (Catalog))
+        return Engines::Container::_nil();
+      // Loop through component list
+      for(int i=0;i<componentList.length();i++)
+        {
+          const char* compoi = componentList[i];
+          SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
+          if (CORBA::is_nil (compoInfo))
+            {
+              INFOS("ContainerManager Error: Component not found in the catalog" );
+              INFOS( compoi );
+              return Engines::Container::_nil();
+            }
+          SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
+          container_exe=compoInfo->implementation_name();
+          if(impl==SALOME_ModuleCatalog::CEXE)
+            {
+              if(found)
+                {
+                  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+                  return Engines::Container::_nil();
+                }
+              found=1;
+            }
+        }
+    }
+  catch (ServiceUnreachable&)
+    {
+      INFOS("Caught exception: Naming Service Unreachable");
+      return Engines::Container::_nil();
+    }
+  catch (...)
+    {
+      INFOS("Caught unknown exception.");
+      return Engines::Container::_nil();
+    }
+
+  if(found)
+    return StartContainer(params,possibleComputers,policy,container_exe.in());
+  else
+    return StartContainer(params,possibleComputers,policy);
 }
 
 #ifdef WITH_PACO_PARALLEL
@@ -738,7 +787,7 @@ bool isPythonContainer(const char* ContainerName)
 string
 SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 (const string& machine,
- const Engines::MachineParameters& params, const long id)
+ const Engines::MachineParameters& params, const long id,const std::string& container_exe)
 {
   string command;
   int nbproc;
@@ -822,7 +871,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 	  command += " SALOME_MPIContainer ";
 	}
       else
-	command += " SALOME_Container ";
+        command += " " +container_exe+ " ";
 
       command += _NS->ContainerName(params);
       command += " -id ";
@@ -845,7 +894,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
 string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const Engines::MachineParameters& params, const long id)
+(const Engines::MachineParameters& params, const long id,const std::string& container_exe)
 {
   _TmpFileName = "";
   string command;
@@ -906,7 +955,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
       if (isPythonContainer(params.container_name))
         command += "SALOME_ContainerPy.py ";
       else
-        command += "SALOME_Container ";
+        command += container_exe + " ";
     }
 
   command += _NS->ContainerName(params);

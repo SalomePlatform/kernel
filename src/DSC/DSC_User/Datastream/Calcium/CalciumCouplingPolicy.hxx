@@ -244,6 +244,12 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
     Type              dataOut = DataManipulator::create(dataSize);
     InnerType * const OutIt   = DataManipulator::getPointer(dataOut);
  
+#ifdef _DEBUG_
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : interpolationSchem : " << _couplingPolicy._interpolationSchem << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : alpha : " << _couplingPolicy._alpha << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : datecalschem : " << _couplingPolicy._dateCalSchem << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : storageLevel : " << _couplingPolicy._storageLevel << std::endl;
+#endif
     if ( timeDiff == 0.0 ||  _couplingPolicy._interpolationSchem == CalciumTypes::L0_SCHEM ) {
       std::copy(InIt1,InIt1+dataSize,OutIt);
     } else {

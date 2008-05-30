@@ -47,7 +47,8 @@ public:
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
 		 const Engines::MachineList& possibleComputer,
-		 Engines::ResPolicy policy);
+		 Engines::ResPolicy policy,
+     const std::string& container_exe="SALOME_Container");
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
@@ -88,9 +89,11 @@ protected:
   long GetIdForContainer(void);
 
   std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
-						  const Engines::MachineParameters& params, const long id);
+						  const Engines::MachineParameters& params, const long id,
+              const std::string& container_exe="SALOME_Container");
 
-  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, const long id);
+  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, const long id,
+                                                 const std::string& container_exe="SALOME_Container");
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
 						   const Engines::MachineParameters& params) throw(SALOME_Exception);

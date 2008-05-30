@@ -413,6 +413,8 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
         _aModule.constraint = "";
         _aModule.icon="";       
         _aModule.interfaces.resize(0);
+        _aModule.implementationType ="";
+        _aModule.implementationName ="";
 
         xmlNodePtr aComponentSubNode = aComponentNode->xmlChildrenNode;
         while(aComponentSubNode != NULL)

@@ -307,6 +307,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._orb.shutdown(0)
         pass
 
+    def _get_logfilename(self):
+      return self._logfilename
+    def _set_logfilename(self,logfilename):
+      self._logfilename=logfilename
+    def _get_workingdir(self):
+      return os.getcwd()
+
 #=============================================================================
 
 #initialise the ORB and find the root POA
@@ -323,6 +330,8 @@ cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
 print "SALOME_ContainerPy_i instance created ",cpy_i 
 cpy_o = cpy_i._this()
 print "SALOME_ContainerPy_i instance activated ",cpy_o
+sys.stdout.flush()
+sys.stderr.flush()
 
 #activate the POA
 poaManager = poa._get_the_POAManager()

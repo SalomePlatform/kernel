@@ -137,7 +137,7 @@ public:
 
   //! method to define if a component is implemented in a dyn lib a python module or an executable
   /*!
-    \return an enum SO or PY or EXE
+    \return an enum SO or PY or EXE or CEXE
   */
   virtual SALOME_ModuleCatalog::ImplType implementation_type();
 

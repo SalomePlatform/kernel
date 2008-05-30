@@ -38,12 +38,18 @@ void CalciumCouplingPolicy::setDependencyType (CalciumTypes::DependencyType depe
 CalciumTypes::DependencyType CalciumCouplingPolicy::getDependencyType () const              { return _dependencyType;}
  
 void   CalciumCouplingPolicy::setStorageLevel   (size_t         storageLevel)   {
+#ifdef _DEBUG_
+  std::cerr << "CalciumCouplingPolicy::setStorageLevel: " << storageLevel << std::endl;
+#endif
   if ( storageLevel < 1 && (storageLevel != CalciumTypes::UNLIMITED_STORAGE_LEVEL)  )
     throw CalciumException(CalciumTypes::CPRENA,LOC("Un niveau < 1 n'est pas autorisé"));
   _storageLevel = storageLevel;
 }
 size_t CalciumCouplingPolicy::getStorageLevel   () const                        {return _storageLevel;}
 void   CalciumCouplingPolicy::setDateCalSchem   (CalciumTypes::DateCalSchem   dateCalSchem)   {
+#ifdef _DEBUG_
+  std::cerr << "CalciumCouplingPolicy::setDateCalSchem: " << dateCalSchem << std::endl;
+#endif
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner un schéma temporel sur un port qui n'est pas en dépendance temporelle"));
   _dateCalSchem = dateCalSchem;
@@ -52,6 +58,9 @@ void   CalciumCouplingPolicy::setDateCalSchem   (CalciumTypes::DateCalSchem   da
 CalciumTypes::DateCalSchem CalciumCouplingPolicy::getDateCalSchem () const   { return _dateCalSchem; }
 
 void CalciumCouplingPolicy::setAlpha(double alpha) {
+#ifdef _DEBUG_
+  std::cerr << "CalciumCouplingPolicy::setAlpha: " << alpha << std::endl;
+#endif
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner alpha sur un port qui n'est pas en dépendance temporelle"));
   
@@ -72,6 +81,9 @@ void CalciumCouplingPolicy::setDeltaT(double deltaT ) {
 double CalciumCouplingPolicy::getDeltaT() const  {return _deltaT;}
 
 void CalciumCouplingPolicy::setInterpolationSchem (CalciumTypes::InterpolationSchem interpolationSchem) {
+#ifdef _DEBUG_
+  std::cerr << "CalciumCouplingPolicy::setInterpolationSchem: " << interpolationSchem << std::endl;
+#endif
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre InterpolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
   _interpolationSchem=interpolationSchem;

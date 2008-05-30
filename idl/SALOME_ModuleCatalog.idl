@@ -171,7 +171,8 @@ Implementation type
   enum ImplType {
     SO,                       /* component implemented as a dynamic library loadable with dlopen */
     PY,                       /* component implemented as a python module loadable with import */
-    EXE                       /* component implemented as an executable */
+    EXE,                      /* component implemented as an executable */
+    CEXE                      /* component to be loaded by a container which executable is given in the catalog */
   } ;
 
 /*!
