@@ -61,6 +61,13 @@ public:
 		      const char *instanceName, 
 		      const char *interfaceName,
                       bool notif = false);
+  //Constructor for standalone component
+  Engines_Component_i(CORBA::ORB_ptr orb,
+		      PortableServer::POA_ptr poa,
+		      Engines::Container_ptr container, 
+		      const char *instanceName, 
+		      const char *interfaceName,
+                      bool notif = false);
   // Consructeur pour composant parallele: ne pas faire appel au registry
   Engines_Component_i(CORBA::ORB_ptr orb,
 		      PortableServer::POA_ptr poa,
@@ -147,6 +154,7 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id;
   PortableServer::ObjectId * _contId;
+  Engines::Container_var _container;
   Engines_Component_i * _thisObj ;
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;

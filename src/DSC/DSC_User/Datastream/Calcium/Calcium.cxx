@@ -13,7 +13,7 @@ PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               const char *instanceName,
                               const char *interfaceName,
                               bool notif) :
-  Superv_Component_i(orb, poa,poa->reference_to_id(contain), instanceName, interfaceName)
+  Superv_Component_i(orb, poa,contain, instanceName, interfaceName)
 {
 }
 

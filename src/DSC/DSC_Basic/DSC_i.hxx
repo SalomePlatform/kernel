@@ -56,6 +56,12 @@ public:
 			  const char *instanceName,
 			  const char *interfaceName,
 			  bool notif = false);
+  Engines_DSC_i(CORBA::ORB_ptr orb,
+			  PortableServer::POA_ptr poa,
+			  Engines::Container_ptr container, 
+			  const char *instanceName,
+			  const char *interfaceName,
+			  bool notif = false);
 
   virtual ~Engines_DSC_i();
 

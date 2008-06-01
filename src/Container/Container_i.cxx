@@ -337,6 +337,78 @@ void Engines_Container_i::Shutdown()
     }
 }
 
+/* int checkifexecutable(const char *filename)
+ * 
+ * Return non-zero if the name is an executable file, and
+ * zero if it is not executable, or if it does not exist.
+ */
+
+int checkifexecutable(const char *filename)
+{
+     int result;
+     struct stat statinfo;
+     
+     result = stat(filename, &statinfo);
+     if (result < 0) return 0;
+     if (!S_ISREG(statinfo.st_mode)) return 0;
+
+     if (statinfo.st_uid == geteuid()) return statinfo.st_mode & S_IXUSR;
+     if (statinfo.st_gid == getegid()) return statinfo.st_mode & S_IXGRP;
+     return statinfo.st_mode & S_IXOTH;
+}
+
+
+/* int findpathof(char *pth, const char *exe)
+ *
+ * Find executable by searching the PATH environment variable.
+ *
+ * const char *exe - executable name to search for.
+ *       char *pth - the path found is stored here, space
+ *                   needs to be available.
+ *
+ * If a path is found, returns non-zero, and the path is stored
+ * in pth.  If exe is not found returns 0, with pth undefined.
+ */
+
+int findpathof(char *pth, const char *exe)
+{
+     char *searchpath;
+     char *beg, *end;
+     int stop, found;
+     int len;
+
+     if (strchr(exe, '/') != NULL) {
+      if (realpath(exe, pth) == NULL) return 0;
+      return  checkifexecutable(pth);
+     }
+
+     searchpath = getenv("PATH");
+     if (searchpath == NULL) return 0;
+     if (strlen(searchpath) <= 0) return 0;
+
+     beg = searchpath;
+     stop = 0; found = 0;
+     do {
+      end = strchr(beg, ':');
+      if (end == NULL) {
+           stop = 1;
+           strncpy(pth, beg, PATH_MAX);
+           len = strlen(pth);
+      } else {
+           strncpy(pth, beg, end - beg);
+           pth[end - beg] = '\0';
+           len = end - beg;
+      }
+      if (pth[len - 1] != '/') strncat(pth, "/", 1);
+      strncat(pth, exe, PATH_MAX - len);
+      found = checkifexecutable(pth);
+      if (!stop) beg = end + 1;
+     } while (!stop && !found);
+      
+     return found;
+}
+
+
 
 //=============================================================================
 /*! 
@@ -424,9 +496,16 @@ Engines_Container_i::load_component_Library(const char* componentName)
           return true;
         }
     }
+  // Try to find an executable
+  std::string executable=aCompName+".exe";
+  char path[PATH_MAX+1];
+  if (findpathof(path, executable.c_str())) 
+    return true;
+
   INFOS( "Impossible to load component: " << componentName );
   INFOS( "Can't load shared library: " << impl_name );
   INFOS( "Can't import Python module: " << componentName );
+  INFOS( "Can't execute program: " << executable );
   return false;
 }
 
@@ -504,18 +583,103 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 #else
   string impl_name = genericRegisterName +string("Engine.dll");
 #endif
-  if (_library_map.count(impl_name) == 0) 
-    {
-      INFOS("shared library " << impl_name <<" must be loaded before creating instance");
-      return Engines::Component::_nil() ;
-    }
-  else
+  if (_library_map.count(impl_name) != 0) // C++ component
     {
       void* handle = _library_map[impl_name];
       iobject = createInstance(genericRegisterName,
                                handle,
                                studyId);
       return iobject._retn();
+    }
+
+  // If it's not a Python or a C++ component try to launch a standalone component
+  // in a sub directory
+  // This component is implemented in an executable with name genericRegisterName.exe
+  // It must register itself in Naming Service. The container waits some time (10 s max)
+  // it's registration.
+
+  _numInstanceMutex.lock() ; // lock on the instance number
+  _numInstance++ ;
+  int numInstance = _numInstance ;
+  _numInstanceMutex.unlock() ;
+
+  char aNumI[12];
+  sprintf( aNumI , "%d" , numInstance ) ;
+  string instanceName = aCompName + "_inst_" + aNumI ;
+  string component_registerName = _containerName + "/" + instanceName;
+
+  //check if an entry exist in naming service
+  CORBA::Object_var nsobj = _NS->Resolve(component_registerName.c_str());
+  if ( !CORBA::is_nil(nsobj) )
+    {
+      // unregister the registered component
+      _NS->Destroy_Name(component_registerName.c_str());
+      //kill or shutdown it ???
+    }
+
+  // first arg container ior string
+  // second arg container name
+  // third arg instance name
+
+  Engines::Container_var pCont= _this();
+  CORBA::String_var sior =  _orb->object_to_string(pCont);
+
+  std::string command;
+  command="mkdir -p ";
+  command+=instanceName;
+  command+=";cd ";
+  command+=instanceName;
+  command+=";";
+  command+=genericRegisterName ;
+  command+=".exe";
+  command+=" ";
+  command+= sior; // container ior string
+  command+=" ";
+  command+=_containerName; //container name
+  command+=" ";
+  command+=instanceName; //instance name
+  command+=" &";
+  MESSAGE("SALOME_Container::create_component_instance command=" << command);
+  // launch component with a system call
+  int status=system(command.c_str());
+
+  if (status == -1)
+    {
+      MESSAGE("SALOME_Container::create_component_instance system failed " << "(system command status -1)");
+      return Engines::Component::_nil();
+    }
+  else if (WEXITSTATUS(status) == 217)
+    {
+      MESSAGE("SALOME_Container::create_component_instance system failed " << "(system command status 217)");
+      return Engines::Component::_nil();
+    }
+  else
+    {
+      int count=10;
+      CORBA::Object_var obj = CORBA::Object::_nil() ;
+      while ( CORBA::is_nil(obj) && count )
+        {
+#ifndef WNT
+          sleep( 1 ) ;
+#else
+          Sleep(1000);
+#endif
+          count-- ;
+          MESSAGE( count << ". Waiting for component " << genericRegisterName);
+          obj = _NS->Resolve(component_registerName.c_str());
+        }
+
+      if(CORBA::is_nil(obj))
+        {
+          MESSAGE("SALOME_Container::create_component_instance failed");
+          return Engines::Component::_nil();
+        }
+      else
+        {
+          MESSAGE("SALOME_Container::create_component_instance successful");
+          iobject=Engines::Component::_narrow(obj);
+          return iobject._retn();
+        }
     }
 }
 

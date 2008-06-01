@@ -106,6 +106,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
+  _container=Engines::Container::_narrow(o);
   const CORBA::String_var ior = _orb->object_to_string(o);
   _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession",
 						 _instanceName.c_str());
@@ -113,6 +114,56 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
   //SCRUTE(pd_refCount);
 }
+
+//=============================================================================
+/*!
+ *  Standard Constructor for standalone Component, used in derived class
+ *  Connection to Registry and Notification
+ *  \param orb Object Request broker given by Container
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
+ *  \param container container CORBA reference
+ *  \param instanceName unique instance name for this object (see Container_i)
+ *  \param interfaceName component class name
+ *  \param notif use of notification
+ */
+//=============================================================================
+
+Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
+                                         PortableServer::POA_ptr poa,
+                                         Engines::Container_ptr container,
+                                         const char *instanceName,
+                                         const char *interfaceName,
+                                         bool notif) :
+  _instanceName(instanceName),
+  _interfaceName(interfaceName),
+  _myConnexionToRegistry(0),
+  _notifSupplier(0),
+  _ThreadId(0) ,
+  _ThreadCpuUsed(0) ,
+  _Executed(false) ,
+  _graphName("") ,
+  _nodeName(""),
+  _studyId(-1),
+  _CanceledThread(false)
+{
+  MESSAGE("Component constructor with instanceName "<< _instanceName);
+  _orb = CORBA::ORB::_duplicate(orb);
+  _poa = PortableServer::POA::_duplicate(poa);
+  _container=Engines::Container::_duplicate(container);
+  try
+    {
+      _contId=_poa->reference_to_id(container);
+    }
+  catch(PortableServer::POA::WrongAdapter)
+    {
+      //not created by this poa
+      _contId = 0;
+    }
+  const CORBA::String_var ior = _orb->object_to_string(_container);
+  _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
+  _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
+}
+
 
 //=============================================================================
 /*! 
@@ -261,9 +312,7 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
-  //  MESSAGE("Engines_Component_i::GetContainerRef");
-  CORBA::Object_var o = _poa->id_to_reference(*_contId) ;
-  return Engines::Container::_narrow(o);
+  return Engines::Container::_duplicate(_container);
 }
 
 //=============================================================================

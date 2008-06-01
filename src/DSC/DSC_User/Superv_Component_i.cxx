@@ -50,6 +50,20 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
   register_factory("PALM", new palm_port_factory());
   register_factory("CALCIUM", new calcium_port_factory());
 }
+Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
+				       PortableServer::POA_ptr poa,
+				       Engines::Container_ptr container, 
+				       const char *instanceName,
+				       const char *interfaceName,
+				       bool notif) : Engines_DSC_i(orb, poa, container, instanceName, interfaceName) 
+{
+#ifdef _DEBUG_
+  std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
+#endif
+  register_factory("BASIC", new basic_port_factory());
+  register_factory("PALM", new palm_port_factory());
+  register_factory("CALCIUM", new calcium_port_factory());
+}
 
   
 Superv_Component_i::~Superv_Component_i() 
