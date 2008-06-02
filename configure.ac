@@ -4,7 +4,7 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-AC_INIT([Salome2 Project], [4.1.2], [paul.rascle@edf.fr], [SalomeKer])
+AC_INIT([Salome2 Project], [4.1.3], [paul.rascle@edf.fr], [SalomeKer])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -14,7 +14,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-XVERSION=0x040102
+XVERSION=0x040103
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
