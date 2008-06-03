@@ -701,9 +701,16 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
             dirs += re.split(';', os.getenv(config_var))
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
-            
+
+    gui_available = True
     if os.getenv("GUI_ROOT_DIR") and os.path.isdir( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
         dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
+	pass
+    else:
+	gui_available = False
+	if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel" ):
+	    dirs += [os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel"]
+	pass
     os.environ[config_var] = separator.join(dirs)
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
@@ -800,6 +807,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[gui_nam] = cmd_opts.gui
     if cmd_opts.batch is not None:
         args[batch_nam] = True
+
+    if not gui_available:
+    	args[gui_nam] = False
+	
     if args[gui_nam]:
         args["session_gui"] = True
         if cmd_opts.desktop is not None:
