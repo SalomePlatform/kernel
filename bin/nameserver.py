@@ -4,6 +4,7 @@ import sys, os, re, socket
 #import commands
 from server import *
 from Utils_Identity import getShortHostName
+from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ class NamingServer(Server):
             pass
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
-        print "Name Service... ",
+        if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
           hname=getShortHostName();
@@ -60,7 +61,7 @@ class NamingServer(Server):
 
         f=open(os.environ["OMNIORB_CONFIG"])
         ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-        print "ss = ", ss,
+        if verbose(): print "ss = ", ss,
         f.close()
         sl=ss[0]
         ll = sl.split(':')
@@ -74,15 +75,15 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
+          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"', ' -errlog', 'omniNameErrors.log']
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
-          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath ]
+          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', 'omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
-        print "... ok"
-        print "to list contexts and objects bound into the context with the specified name : showNS "
+        if verbose(): print "... ok"
+        if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
 
 
    def initArgs(self):

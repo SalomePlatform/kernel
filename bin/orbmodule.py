@@ -20,6 +20,7 @@ import sys,os,time
 import string
 from nameserver import *
 from omniORB import CORBA
+from launchConfigureParser import verbose
 
 # Import the stubs for the Naming service
 import CosNaming
@@ -47,7 +48,7 @@ class client:
           return
       except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
-          print "Launch Naming Service++",
+          if verbose(): print "Launch Naming Service++",
           
       # On lance le Naming Server (doit etre dans le PATH)
       NamingServer(args).run()

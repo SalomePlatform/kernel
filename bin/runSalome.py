@@ -418,10 +418,8 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
-    if verbose(): print "Notify Server to launch"
-
     if sys.platform != "win32":
-      print "Notify Server to launch"
+      if verbose(): print "Notify Server to launch"
     
       myServer=NotifyServer(args,modules_root_dir)
       myServer.run()
