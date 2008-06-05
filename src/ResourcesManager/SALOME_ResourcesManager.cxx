@@ -218,12 +218,12 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->mpiImpl = "mpich2";
   else if( resource.mpi == openmpi )
     p_ptr->mpiImpl = "openmpi";
+  else if( resource.mpi == slurm )
+    p_ptr->mpiImpl = "slurm";
   if( resource.Batch == pbs )
     p_ptr->batch = "pbs";
   else if( resource.Batch == lsf )
     p_ptr->batch = "lsf";
-  else if( resource.Batch == slurm )
-    p_ptr->batch = "slurm";
 
   return p_ptr;
 }
