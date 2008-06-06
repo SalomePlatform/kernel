@@ -172,6 +172,7 @@ void HouseKeeping( void )
 
   delete GENERIC_DESTRUCTOR::Destructors;
   GENERIC_DESTRUCTOR::Destructors = 0;
+  atExitSingletonDone = false ;
   DEVTRACE("HouseKeeping() very end ");
   return ;
 }
