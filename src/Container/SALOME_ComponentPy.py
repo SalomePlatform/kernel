@@ -147,8 +147,9 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        id = self._poa.servant_to_id(self)
-        self._poa.deactivate_object(id)
+        #id = self._poa.servant_to_id(self)
+        #self._poa.deactivate_object(id)
+        return
         
     #-------------------------------------------------------------------------
 

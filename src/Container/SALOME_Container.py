@@ -64,8 +64,8 @@ class SALOME_Container_i:
 
     #-------------------------------------------------------------------------
 
-    def __del__(self ):
-      self._orb.destroy()
+    #def __del__(self ):
+    #  self._orb.destroy()
 
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
