@@ -295,8 +295,8 @@ void Engines_Component_i::destroy()
 
   delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
-  _poa->deactivate_object(*_id) ;
-  delete(_id) ;
+  if(_id)
+    delete(_id) ;
   //SCRUTE(pd_refCount);
   _thisObj->_remove_ref();
   //SCRUTE(pd_refCount);

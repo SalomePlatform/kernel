@@ -655,7 +655,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     }
   else
     {
-      int count=10;
+      int count=20;
       CORBA::Object_var obj = CORBA::Object::_nil() ;
       while ( CORBA::is_nil(obj) && count )
         {
@@ -678,6 +678,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
         {
           MESSAGE("SALOME_Container::create_component_instance successful");
           iobject=Engines::Component::_narrow(obj);
+          _listInstances_map[instanceName] = iobject;
           return iobject._retn();
         }
     }

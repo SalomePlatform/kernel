@@ -32,6 +32,7 @@ import sys
 import time
 from omniORB import CORBA
 import CosNaming
+import string
 from string import *
 
 from SALOME_utilities import *
@@ -88,7 +89,7 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = split(Path,'/')
+        result_resolve_path = string.split(Path,'/')
         if len(result_resolve_path)>1:
             # A directory is treated (not only an object name)
             # We had to test if the directory where ObjRef should be recorded 
@@ -156,7 +157,7 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = split(Path,'/')
+        result_resolve_path = string.split(Path,'/')
         _context_name=[]
         for i in range(len(result_resolve_path)-1):
             _context_name.append(CosNaming.NameComponent(result_resolve_path[i],"dir"))
@@ -189,7 +190,7 @@ class SALOME_NamingServicePy_i(object):
             #delete first '/' before split
             Path=Path[1:]
 
-        result_resolve_path = split(Path,'/')
+        result_resolve_path = string.split(Path,'/')
         _context_name = []
         for i in range(len(result_resolve_path)):
             _context_name[CosNaming.NameComponent(result_resolve_path[i],"dir")]            
@@ -204,7 +205,46 @@ class SALOME_NamingServicePy_i(object):
                 MESSAGE ( "Create_Directory : CosNaming.NamingContext.CannotProceed" )
             except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
                 MESSAGE ( "Create_Directory : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
-
  
+    def Destroy_Name(self,Path):
+      resolve_path=string.split(Path,'/')
+      if resolve_path[0] == '': del resolve_path[0]
+      dir_path=resolve_path[:-1]
+      context_name=[]
+      for e in dir_path:
+         context_name.append(CosNaming.NameComponent(e,"dir"))
+      context_name.append(CosNaming.NameComponent(resolve_path[-1],"object"))
+      
+      try:
+        self._root_context.unbind(context_name)
+      except CosNaming.NamingContext.NotFound, ex:
+        return
+      except CORBA.Exception,ex:
+        return
 
-    
+    def Destroy_FullDirectory(self,Path):
+      context_name=[]
+      for e in string.split(Path,'/'):
+        if e == '':continue
+        context_name.append(CosNaming.NameComponent(e,"dir"))
+
+      try:
+        context=self._root_context.resolve(context_name)
+      except CosNaming.NamingContext.NotFound, ex:
+        return
+      except CORBA.Exception,ex:
+        return
+
+      bl,bi=context.list(0)
+      if bi is not None:
+         ok,b=bi.next_one()
+         while(ok):
+            for s in b.binding_name :
+               if s.kind == "object":
+                  context.unbind([s])
+               elif s.kind == "dir":
+                  context.unbind([s])
+            ok,b=bi.next_one()
+
+      context.destroy()
+      self._root_context.unbind(context_name)

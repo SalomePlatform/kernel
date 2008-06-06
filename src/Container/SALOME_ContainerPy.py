@@ -304,6 +304,8 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     #-------------------------------------------------------------------------
 
     def Shutdown(self):
+        self._naming_service.Destroy_Name(self._containerName);
+        self._naming_service.Destroy_FullDirectory(self._containerName);
         self._orb.shutdown(0)
         pass
 
@@ -316,32 +318,28 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
 #=============================================================================
 
-#initialise the ORB and find the root POA
-print "Starting ",sys.argv[1]
-orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
-poa = orb.resolve_initial_references("RootPOA")
-if verbose(): print "ORB and POA initialized"
+if __name__ == "__main__":
+  #initialise the ORB and find the root POA
+  if verbose():print "Starting ",sys.argv[1]
+  orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+  poa = orb.resolve_initial_references("RootPOA")
+  if verbose():print "ORB and POA initialized"
 
-#create an instance of SALOME_ContainerPy_i and a Container reference
-#containerName = "FactoryServerPy"
-MESSAGE( str(sys.argv) )
-containerName = sys.argv[1]
-cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
-if verbose(): print "SALOME_ContainerPy_i instance created ",cpy_i 
-cpy_o = cpy_i._this()
-if verbose(): print "SALOME_ContainerPy_i instance activated ",cpy_o
-sys.stdout.flush()
-sys.stderr.flush()
+  #create an instance of SALOME_ContainerPy_i and a Container reference
+  #containerName = "FactoryServerPy"
+  MESSAGE( str(sys.argv) )
+  containerName = sys.argv[1]
+  cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
+  if verbose():print "SALOME_ContainerPy_i instance created ",cpy_i 
+  cpy_o = cpy_i._this()
+  if verbose():print "SALOME_ContainerPy_i instance activated ",cpy_o
+  sys.stdout.flush()
+  sys.stderr.flush()
 
-#activate the POA
-poaManager = poa._get_the_POAManager()
-poaManager.activate()
+  #activate the POA
+  poaManager = poa._get_the_POAManager()
+  poaManager.activate()
 
-#Block for ever
-orb.run()
-
-
-        
-            
-
-
+  #Block for ever
+  orb.run()
+  if verbose():print "SALOME_ContainerPy_i shutdown"

@@ -58,22 +58,30 @@
 			     public virtual POA_Ports::PortProperties,	\
 			     public GenericProvidesPort< __VA_ARGS__ , CalciumCouplingPolicy, calcium_provides_port > { \
   private :								\
-    omni_semaphore _mustnotdisconnectyet;				\
+    omni_mutex     _disconnect_mutex; \
+    int            _mustnotdisconnect; \
   public :								\
     typedef  __VA_ARGS__               DataManipulator;			\
     typedef  DataManipulator::Type     CorbaDataType;			\
     typedef GenericPort< DataManipulator ,				\
       CalciumCouplingPolicy >          Port;				\
+      specificPortName () : _mustnotdisconnect(0) {}; \
   									\
-    specificPortName () :_mustnotdisconnectyet(0) {};			\
-									\
     virtual ~ specificPortName ();					\
 									\
     inline void disconnect(bool provideLastGivenValue) {		\
-      if (! _mustnotdisconnectyet.trywait() ) {				\
-	Port::disconnect(provideLastGivenValue);			\
-      }									\
-    }  									\
+      _disconnect_mutex.lock();                       \
+      if(_mustnotdisconnect > 1)                      \
+      {                                               \
+        _mustnotdisconnect--;                         \
+      }                                               \
+      else if(_mustnotdisconnect == 1)                \
+      {                                               \
+        _mustnotdisconnect--;                         \
+        Port::disconnect(provideLastGivenValue);      \
+      }                                               \
+      _disconnect_mutex.unlock();                     \
+    }  									                              \
     inline void setDependencyType(CalciumTypes::DependencyType dependencyType) { \
       Port::setDependencyType(dependencyType);				\
     }									\
@@ -139,9 +147,15 @@
     virtual void provides_port_changed(int connection_nbr,		\
 				       const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)			\
-	_mustnotdisconnectyet.post();					\
+        {                                                 \
+          _disconnect_mutex.lock();                \
+          _mustnotdisconnect++;                           \
+          _disconnect_mutex.unlock();              \
+        }                                                 \
       else if ( message == Engines::DSC::RemovingConnection )		\
-	disconnect(false);						\
+        {                                                 \
+          disconnect(false);                              \
+        }                                                 \
     }									\
   };									\
 
