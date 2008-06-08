@@ -170,6 +170,7 @@ int main( int argc , char **argv )
       ptrRegistry->SessionName( ptrSessionName ) ;
       ptrRegistry->SetOrb(orb);
       varComponents = ptrRegistry->_this() ;
+      ptrRegistry->_remove_ref(); //let poa manage registryservice deletion
       // The RegistryService must not already exist.
 	    
       try

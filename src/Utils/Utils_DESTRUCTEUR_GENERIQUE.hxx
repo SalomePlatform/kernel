@@ -140,4 +140,4 @@ private :
 };
 
 
-# endif		/* # if !defined( __SINGLETON__H__ ) */
+# endif		/* # if !defined( __DESTRUCTEUR_GENERIQUE__H__ ) */

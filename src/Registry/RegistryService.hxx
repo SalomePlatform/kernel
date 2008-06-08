@@ -89,7 +89,7 @@ public :
 
 	void SessionName( const char *sessionName ) ;
 
-        void SetOrb( CORBA::ORB_ptr orb ) { _orb = orb; return; }
+        void SetOrb( CORBA::ORB_ptr orb ) { _orb = CORBA::ORB::_duplicate(orb); return; }
 
         void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
 
