@@ -26,7 +26,7 @@
 
 #include "SALOME_LocalTrace.hxx"
 
-#define TRACE_BUFFER_SIZE 256  // number of entries in circular buffer
+#define TRACE_BUFFER_SIZE 512  // number of entries in circular buffer
                                // must be power of 2
 #define MAX_TRACE_LENGTH 1024   // messages are truncated at this size
 

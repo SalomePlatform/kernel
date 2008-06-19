@@ -55,6 +55,11 @@
 #define MESS_END std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
 #define MESS_ABORT std::endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
 
+// Macroses for messages with separated structure in c++ file in _DUBUG mode
+#define MESSAGE_BEGIN(msg) {std::ostringstream ss; ss <<__FILE__ <<" ["<<__LINE__<<"] : "<< msg; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+#define MESSAGE_ADD(msg) {std::ostringstream ss; ss << msg; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+#define MESSAGE_END(msg) {std::ostringstream ss; ss << msg << std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
