@@ -204,10 +204,22 @@ class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        if sys.platform == "win32":
-            self.CMD=['SALOME_Logger_Server', os.environ["HOME"] + "/logger.log"];
-        else:
-            self.CMD=['SALOME_Logger_Server', 'logger.log']
+        from salome_utilities import generateFileName
+        if sys.platform == "win32": dirpath = os.environ["HOME"]
+        else:                       dirpath = "/tmp"
+        logfile = generateFileName( dirpath,
+                                    prefix="logger",
+                                    extension=".log",
+                                    with_username=True,
+                                    with_hostname=True,
+                                    with_port=True)
+        if verbose():
+            print "==========================================================="
+            print "Logger server: put log to the file:"
+            print logfile
+            print "==========================================================="
+            pass
+        self.CMD=['SALOME_Logger_Server', logfile]
 
 # ---
 
