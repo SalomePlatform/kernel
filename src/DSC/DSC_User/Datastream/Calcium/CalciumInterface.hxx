@@ -29,7 +29,7 @@
 #ifndef _CALCIUM_INTERFACE_HXX_
 #define _CALCIUM_INTERFACE_HXX_
 
-//Interface C++
+//Interface CALCIUM des utilisateurs en C++ 
 #include "CalciumCxxInterface.hxx"
 
 #include "CalciumException.hxx"
@@ -37,6 +37,9 @@
 
 #include <stdio.h>
 
+//Ce fichier déclare et défini l'interfaçage entre l'API utilisteur C et C++
+//Les procédures déclarées n'ont pas vocation à être utilisées directement (celà est
+// cependant possible).  
 //#define _DEBUG_
 
 #ifdef _DEBUG_
@@ -94,30 +97,28 @@ ecp_fin_ (void * component, int code) {
     double         _tf=*tf;						\
     size_t         _nRead=0;						\
     size_t         _bufferLength=bufferLength;				\
-    CalciumTypes::DependencyType _dependencyType=			\
-      static_cast<CalciumTypes::DependencyType>(dependencyType);	\
     									\
     if ( IsSameType< _name , cplx >::value ) _bufferLength*=2;		\
     DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) \
     try {								\
       CalciumInterface::ecp_lecture< _type, _name >( *_component,	\
-						     _dependencyType, \
+						     dependencyType,	\
 						     _ti, _tf, *i,	\
 						     nomvar,		\
 						     _bufferLength, _nRead, *data); \
     } catch ( const CalciumException & ex) {				\
       DEBTRACE( ex.what() );						\
       return ex.getInfo();						\
-    } catch ( ... ) {				\
-      std::cerr << "Unexpected exception " << std::endl; \
-      return CalciumTypes::CPATAL;						\
+    } catch ( ... ) {							\
+      std::cerr << "Unexpected exception " << std::endl;		\
+      return CalciumTypes::CPATAL;					\
     }									\
     if ( IsSameType< _name , cplx >::value ) { *nRead=_nRead/2;		\
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" ) \
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead ) \
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead ) \
     } else *nRead = _nRead;						\
-    if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
+    if (dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
         *ti=(CalTimeType< _type _qual >::TimeType)(_ti);			\
     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) \
     return CalciumTypes::CPOK;						\
@@ -142,10 +143,9 @@ ecp_fin_ (void * component, int code) {
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" ) \
     try {								\
       /*printf("-------- CalciumInterface(ecriture Inter Part), cp_name : Nom de la var. de type %s : %s\n",#_type,nomvar);*/ \
-      std::string essai(nomvar);					\
-      DEBTRACE( "----------->-" << nomvar )		\
+      DEBTRACE( "----------->-" << nomvar )				\
       CalciumInterface::ecp_ecriture< _type, _name >( *_component,	\
-						      static_cast<CalciumTypes::DependencyType>(dependencyType), \
+						      dependencyType,	\
 						      _t,i,nomvar,_bufferLength,*data); \
     } catch ( const CalciumException & ex) {				\
       std::cerr << ex.what() << std::endl;				\
@@ -195,7 +195,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
 //   double         _tf=*tf;						
 //   size_t         _nRead=0;						
 //   size_t         _bufferLength=bufferLength;				
-//   CalciumTypes::DependencyType _dependencyType=			
+//   CalciumTypes::DependencyType dependencyType=			
 //     static_cast<CalciumTypes::DependencyType>(dependencyType);	
   
 //   // - GERER POINTEUR NULL : NOTHING TODO 
@@ -204,7 +204,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
 //   DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) 
 //     try {								
 //       CalciumInterface::ecp_lecture< char*, char* >( *_component,	
-// 						     _dependencyType, 
+// 						     dependencyType, 
 // 						     _ti, _tf, *i,	
 // 						     nomvar,		
 // 						     _bufferLength, _nRead, *data); 
@@ -215,7 +215,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
     
 //     *nRead = _nRead;						
     
-//     if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) 
+//     if (dependencyType == CalciumTypes::CP_SEQUENTIEL ) 
 //       *ti=(float)(_ti);			
     
 //     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) ;

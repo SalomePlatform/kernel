@@ -32,9 +32,10 @@
 #include "Superv_Component_i.hxx"
 
 // PROVIDES PORT TRAITS
-struct UnknownProvidesPortType {};
+template <class T> struct UnknownProvidesPortType {};
+
 template <class T> struct ProvidesPortTraits {
-  typedef  UnknownProvidesPortType PortType;
+  typedef  UnknownProvidesPortType<T> PortType;
 };
 template <> struct ProvidesPortTraits<int> {
   typedef  calcium_integer_port_provides PortType;
@@ -70,9 +71,9 @@ template < typename T > struct StarTrait< T * > { typedef  T NonStarType; };
 
 
 // USES PORT TRAITS
-struct UnknownUsesPortType {};
+template <class T> struct UnknownUsesPortType {};
 template <class T> struct UsesPortTraits {
-  typedef  UnknownUsesPortType PortType;
+  typedef  UnknownUsesPortType<T> PortType;
 };
 template <> struct UsesPortTraits<int> {
   typedef  calcium_integer_port_uses PortType;

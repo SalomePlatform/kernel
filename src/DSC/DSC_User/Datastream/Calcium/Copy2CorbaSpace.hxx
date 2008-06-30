@@ -37,18 +37,21 @@ template <bool zerocopy, typename DataManipulator>
 struct Copy2CorbaSpace  {
 
   template <class T1, class T2>
-  static void apply( T1 * & corbaData, T2 & data, size_t nRead){
+  static void apply( T1 * & corbaData, T2 const & data, size_t nRead){
 
     typedef typename ProvidesPortTraits<T2>::PortType  PortType;
     //typedef typename UsesPortTraits<T2>::PortType      PortType;
-//ESSAI:     typedef typename PortType::DataManipulator         DataManipulator;
+    //ESSAI:     typedef typename PortType::DataManipulator         DataManipulator;
     typedef typename DataManipulator::InnerType        InnerType;
 
 #ifdef _DEBUG_
     std::cerr << "-------- Copy2CorbaSpace<true> MARK 1 ------------------" << std::endl;
 #endif
-    // Crée le type corba à partir du data sans lui en donner la propriété
-    corbaData = DataManipulator::create(nRead,&data,false);
+    // Crée le type corba à partir du data sans lui en donner la propriété.
+    // Le const_cast supprime le caractère const du type T2 const & de data car 
+    // DataManipulator::create n'a pas le caractère const sur son paramètre data pour le
+    // cas de figure où  la propriété de la donnée lui est donnée.
+    corbaData = DataManipulator::create(nRead,const_cast<T2 * > (&data),false);
 #ifdef _DEBUG_
     std::cerr << "-------- Copy2CorbaSpace<true> MARK 2 --(dataPtr : " 
 	      << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
@@ -62,7 +65,7 @@ template <typename DataManipulator> struct
 Copy2CorbaSpace<false, DataManipulator>  {
   
   template <class T1, class T2>
-  static void apply( T1 * & corbaData,  T2 & data, size_t nRead){
+  static void apply( T1 * & corbaData,  T2 const & data, size_t nRead){
 
     typedef typename ProvidesPortTraits<T2>::PortType  PortType;
     // typedef typename UsesPortTraits<T2>::PortType     PortType;

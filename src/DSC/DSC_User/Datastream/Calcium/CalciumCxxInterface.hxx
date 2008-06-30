@@ -54,10 +54,19 @@ struct IsSameType<T1,T1> {
 };
 
 
+#include <boost/type_traits/remove_all_extents.hpp>
 
 namespace CalciumInterface {
   
   /********************* INTERFACE DE DECONNEXION *****************/
+
+  static void
+  ecp_cd (Superv_Component_i & component, std::string & instanceName)
+  { 
+    /* TODO : Trouver le nom de l'instance SALOME*/
+    if (instanceName.empty()) instanceName="UNDEFINED";
+
+  }
 
   static void
   ecp_fin (Superv_Component_i & component, bool provideLastGivenValue)
@@ -142,22 +151,6 @@ namespace CalciumInterface {
 
   /********************* INTERFACES DE LECTURE *****************/
 
-  // T1 est le type de données
-  template <typename T1 > static void
-  ecp_lecture ( Superv_Component_i & component,
-	       CalciumTypes::DependencyType dependencyType,
-	       double        & ti,
-	       double const  & tf,
-	       long          & i,
-	       const string  & nomVar, 
-	       size_t          bufferLength,
-	       size_t        & nRead, 
-	       T1            * &data )
-  {
-    ecp_lecture<T1,T1> (component,dependencyType,ti,tf,
-			i,nomVar,bufferLength,nRead,data);
-  
-  }
 
   // T1 est le type de données
   // T2 est un <nom> de type Calcium permettant de sélectionner le port CORBA correspondant 
@@ -166,7 +159,7 @@ namespace CalciumInterface {
   //     le port à utiliser est le port cplx
   template <typename T1, typename T2 > static void
   ecp_lecture ( Superv_Component_i & component,
-	       CalciumTypes::DependencyType dependencyType,
+	       int    const  & dependencyType,
 	       double        & ti,
 	       double const  & tf,
 	       long          & i,
@@ -182,7 +175,9 @@ namespace CalciumInterface {
     typedef typename PortType::DataManipulator            DataManipulator;
     typedef typename DataManipulator::Type                CorbaDataType; // Attention != T1
     typedef typename DataManipulator::InnerType           InnerType;
-
+    CalciumTypes::DependencyType _dependencyType=		
+      static_cast<CalciumTypes::DependencyType>(dependencyType);
+    
     CorbaDataType     corbaData;
 
 #ifdef _DEBUG_
@@ -228,21 +223,21 @@ namespace CalciumInterface {
 			     LOC(OSS()<<"Le mode de dépendance de la variable " 
 				 << nomVar << " est indéfini."));
 
-    if ( ( portDependencyType != dependencyType ) && 
-	 ( dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
+    if ( ( portDependencyType != _dependencyType ) && 
+	 ( _dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
       throw CalciumException(CalciumTypes::CPITVR,
 			     LOC(OSS()<<"Le mode de dépendance de la variable " 
 				 << nomVar << ": " << portDependencyType 
 				 << " ne correspond pas au mode demandé."));
 
   
-    if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
+    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
       corbaData = port->get(ti,tf, 0);
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
 #endif
     } 
-    else if ( dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
+    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
       corbaData = port->get(0, i);
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
@@ -323,53 +318,68 @@ namespace CalciumInterface {
     return;
   }
 
+  // T1 est le type de données
+  template <typename T1 > static void
+  ecp_lecture ( Superv_Component_i & component,
+	       int    const  & dependencyType,
+	       double        & ti,
+	       double const  & tf,
+	       long          & i,
+	       const string  & nomVar, 
+	       size_t          bufferLength,
+	       size_t        & nRead, 
+	       T1            * &data )
+  {
+    ecp_lecture<T1,T1> (component,dependencyType,ti,tf,
+			i,nomVar,bufferLength,nRead,data);
+  
+  }
 
   /********************* INTERFACES D'ECRITURE *****************/
 
-  template <typename T1> static void
-  ecp_ecriture ( Superv_Component_i & component,
-		 CalciumTypes::DependencyType dependencyType,
-		 double const  & t,
-		 long   const  & i,
-		 const string  & nomVar, 
-		 size_t bufferLength,
-		 T1  & data ) {
-    ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 
-  }
-
+  // T1 : DataType
+  // T2 : PortType
   template <typename T1, typename T2> static void
   ecp_ecriture ( Superv_Component_i & component,
-		 CalciumTypes::DependencyType dependencyType,
+		 int    const  & dependencyType,
 		 double const  & t,
 		 long   const  & i,
 		 const string  & nomVar, 
 		 size_t bufferLength,
-		 T1  & data ) 
+		 T1     const  & data ) 
   {
     
     assert(&component);
 
-    //typedef typename StarTrait<TT>::NonStarType           T;
-    typedef typename UsesPortTraits<T2>::PortType          PortType;
-    typedef typename ProvidesPortTraits<T2>::PortType      ProvidesPortType;
-    typedef typename ProvidesPortType::DataManipulator     DataManipulator;
+    //typedef typename StarTrait<TT>::NonStarType                    T;
+    typedef typename boost::remove_all_extents< T2 >::type           T2_without_extent;
+    typedef typename boost::remove_all_extents< T1 >::type           T1_without_extent;
+
+    typedef typename UsesPortTraits    <T2_without_extent>::PortType UsesPortType;
+    typedef typename ProvidesPortTraits<T2_without_extent>::PortType ProvidesPortType;// pour obtenir un manipulateur de données
+    typedef typename ProvidesPortType::DataManipulator               DataManipulator;
     // Verifier que l'on peut définir UsesPortType::DataManipulator
     //    typedef typename PortType::DataManipulator            DataManipulator;
-    typedef typename DataManipulator::Type                CorbaDataType; // Attention != T1
-    typedef typename DataManipulator::InnerType           InnerType;
+    typedef typename DataManipulator::Type                           CorbaDataType; // Attention != T1
+    typedef typename DataManipulator::InnerType                      InnerType;
+    
+    T1_without_extent const & _data = data;
+
+    CalciumTypes::DependencyType _dependencyType=		
+      static_cast<CalciumTypes::DependencyType>(dependencyType);
 
 #ifdef _DEBUG_
     std::cerr << "-------- CalciumInterface(ecriture) MARK 1 ------------------" << std::endl;
 #endif
     if ( nomVar.empty() ) throw CalciumException(CalciumTypes::CPNMVR,
 						    LOC("Le nom de la variable est <nul>"));
-    PortType * port;
+    UsesPortType * port;
 #ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture) MARK 2 ------------------" << std::endl;
 #endif
 
     try {
-      port  = component.Superv_Component_i::get_port< PortType > (nomVar.c_str());
+      port  = component.Superv_Component_i::get_port< UsesPortType > (nomVar.c_str());
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecriture) MARK 3 ------------------" << std::endl;
 #endif
@@ -404,12 +414,12 @@ namespace CalciumInterface {
 //       throw (CalciumException(CalciumTypes::CPIT,ex));
 //     }
 
-    if ( dependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
+    if ( _dependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
       throw CalciumException(CalciumTypes::CPIT,
 				LOC(OSS()<<"Le mode de dépendance demandé pour la variable " 
 				    << nomVar << " est indéfini."));
 
-    if ( dependencyType == CalciumTypes::SEQUENCE_DEPENDENCY )
+    if ( _dependencyType == CalciumTypes::SEQUENCE_DEPENDENCY )
       throw CalciumException(CalciumTypes::CPIT,
 				LOC(OSS()<<"Le mode de dépendance SEQUENCE_DEPENDENCY pour la variable " 
 				    << nomVar << " est impossible en écriture."));
@@ -419,7 +429,7 @@ namespace CalciumInterface {
     // et vice-versa pour informer les provides port du mode dans lequel on est. Sinon il faut
     // modifier l'interface IDL pour y ajouter un mode de dépendance !
     // ---->
-//     if ( portDependencyType != dependencyType ) 
+//     if ( portDependencyType != _dependencyType ) 
 //       throw CalciumException(CalciumTypes::CPITVR,
 // 				LOC(OSS()<<"Le mode de dépendance de la variable " 
 // 				    << nomVar << " ne correspond pas au mode demandé."));
@@ -448,7 +458,7 @@ namespace CalciumInterface {
     //   OLD : la séquence locale. Or la méthode put récupère le buffer directement
     //   OLD : qui est alors le buffer utilisateur. Il pourrait alors arriver que :
     //   OLD :   * Le recepteur efface le buffer emetteur
-    //   OLD :   * Le port lui-même efface le buffer de l'ulisateur !
+    //   OLD :   * Le port lui-même efface le buffer de l'utilisateur !
     //   OLD : Cette copie est effectuée dans GenericPortUses::put 
     //   OLD : en fonction de la collocalisation ou non.
     // - OLD :En cas de connection multiples d'un port uses distant vers plusieurs port provides
@@ -456,10 +466,10 @@ namespace CalciumInterface {
     //   OLD : Il faut effectuer une copie dans le port provides.
     //   OLD : Cette copie est effectuée dans GenericPortUses::put 
     //   OLD : en fonction de la collocalisation ou non.
-    Copy2CorbaSpace<IsSameType<T1,InnerType>::value, DataManipulator >::apply(corbaData,data,bufferLength);
+    Copy2CorbaSpace<IsSameType<T1_without_extent,InnerType>::value, DataManipulator >::apply(corbaData,_data,bufferLength);
  
     //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecté
-    if ( dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
+    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
       try
       {
         port->put(*corbaData,t, -1); 
@@ -474,7 +484,7 @@ namespace CalciumInterface {
       std::cout << "-------- CalciumInterface(ecriture) MARK 5 ------------------" << std::endl;
 #endif
     } 
-    else if ( dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
+    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
       try
       {
         port->put(*corbaData,-1, i);
@@ -504,7 +514,18 @@ namespace CalciumInterface {
 #endif
    
     return;
-  }
+  };
+  
+  template <typename T1> static void
+  ecp_ecriture ( Superv_Component_i & component,
+		 int    const  & dependencyType,
+		 double const  & t,
+		 long   const  & i,
+		 const string  & nomVar, 
+		 size_t bufferLength,
+		 T1 const & data ) {
+    ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 
+  };
 
 };
 
