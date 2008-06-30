@@ -79,9 +79,10 @@
       {                                               \
         _mustnotdisconnect--;                         \
         Port::disconnect(provideLastGivenValue);      \
+	Port::wakeupWaiting();                        \
       }                                               \
       _disconnect_mutex.unlock();                     \
-    }  									                              \
+    } 			                              \
     inline void setDependencyType(CalciumTypes::DependencyType dependencyType) { \
       Port::setDependencyType(dependencyType);				\
     }									\
