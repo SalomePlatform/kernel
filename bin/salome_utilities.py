@@ -95,10 +95,10 @@ def getAppName():
     """
     Get application name:
     1. try APPNAME environment variable
-    2. if fails, return 'unknown' as default application name
+    2. if fails, return 'SALOME' as default application name
     """
     import os
-    return os.getenv( "APPNAME", "salome" ) # 'salome' is default user name
+    return os.getenv( "APPNAME", "SALOME" ) # 'SALOME' is default user name
 
 # ---
 
@@ -106,10 +106,29 @@ def getPortNumber():
     """
     Get current naming server port number:
     1. try NSPORT environment variable
+    1. if fails, try to parse config file defined by OMNIORB_CONFIG environment variable
     2. if fails, return 2809 as default port number
     """
-    import os
-    return os.getenv( "NSPORT", 2809 )      # '2809' is default port number
+    import os, re
+    try:
+        return int( os.getenv( "NSPORT" ) )
+    except:
+        pass
+    try:
+        f = open( os.getenv( "OMNIORB_CONFIG" ) )
+        lines = f.readlines()
+        f.close()
+        regvar = re.compile( "(ORB)?InitRef.*:(\d+)\s*$" )
+        for l in lines:
+            try:
+                return regvar.match( l ).group( 2 )
+            except:
+                pass
+            pass
+        pass
+    except:
+        pass
+    return 2809      # '2809' is default port number
 
 # ---
 
@@ -133,7 +152,7 @@ def generateFileName( dir, prefix, suffix = None, extension = None,
     <with_port> 'add port number' flag/option:
     - boolean value can be passed to determine port number automatically
     - string value to be used as port number
-    <with_appname> 'add application name' flag/option:
+    <with_app> 'add application name' flag/option:
     - boolean value can be passed to determine application name automatically
     - string value to be used as application name
     All <with_...> parameters are optional.
