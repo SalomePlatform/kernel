@@ -65,7 +65,8 @@ dist_salomescript_SCRIPTS=\
 	waitNS.sh \
 	waitNS.py \
 	waitContainers.py \
-	shutdownSalome.py
+	shutdownSalome.py \
+	salome_utilities.py
 
 EXTRA_DIST = appliskel
 
