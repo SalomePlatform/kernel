@@ -32,41 +32,44 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # These files are data, module or lib files
-dist_salomescript_DATA= \
-	VERSION \
-	orbmodule.py \
-	salomeConsole.py \
-	salome_session.py
+dist_salomescript_DATA =	\
+	config_appli.xml	\
+	salome.launch		\
+	VERSION
 
 # These files are executable scripts
-dist_salomescript_SCRIPTS=\
-	envSalome.py \
-	runIDLparser \
-	runSalome.py \
-	killSalome.py \
-	killSalomeWithPort.py \
-	runSalome \
-	runSalome.csh \
-	runNS.sh \
-	createAppli.sh \
-	appli_install.sh \
-	appli_clean.sh \
-	appli_gen.py \
-	virtual_salome.py \
-	config_appli.xml \
-	launchConfigureParser.py \
-	showNS.py \
-	addToKillList.py \
-	NSparam.py \
-	setenv.py \
-	launchSalome.py \
-	nameserver.py \
-        server.py \
-	waitNS.sh \
-	waitNS.py \
-	waitContainers.py \
-	shutdownSalome.py \
-	salome_utilities.py
+dist_salomescript_SCRIPTS =		\
+	addToKillList.py		\
+	appli_clean.sh			\
+	appli_gen.py			\
+	appli_install.sh		\
+	createAppli.sh			\
+	envSalome.py			\
+	killSalome.py			\
+	killSalomeWithPort.py		\
+	launchConfigureParser.py	\
+	launchSalome.py			\
+	nameserver.py			\
+	NSparam.py			\
+	orbmodule.py			\
+	runIDLparser			\
+	runNS.py			\
+	runNS.sh			\
+	runSalome			\
+	runSalome.csh			\
+	runSalome.ksh			\
+	runSalome.py			\
+	salomeConsole.py		\
+	salome_session.py		\
+	salome_utilities.py		\
+	server.py			\
+	setenv.py			\
+	showNS.py			\
+	shutdownSalome.py		\
+	virtual_salome.py		\
+	waitContainers.py		\
+	waitNS.py			\
+	waitNS.sh
 
 EXTRA_DIST = appliskel
 
@@ -75,21 +78,17 @@ dist-hook:
 
 DISTCLEANFILES = $(top_builddir)/bin/salome/Makefile.am
 
-clean-local:
-	rm -rf $(top_builddir)/bin/salome/appliskel
-	cd $(top_builddir)/bin/salome; \
-	rm -f $(dist_salomescript_DATA) $(dist_salomescript_SCRIPTS)
-
 # This is an ugly target to avoid exploring the appliskel subdirectory.
 install-exec-local:
 	$(INSTALL) -d $(DESTDIR)$(salomescriptdir)
 	$(RM) -rf $(DESTDIR)$(salomescriptdir)/appliskel 1> /dev/null 2>&1
 	cp -r $(srcdir)/appliskel $(DESTDIR)$(salomescriptdir)
+	chmod a+x -R $(DESTDIR)$(salomescriptdir)/appliskel
 	find $(DESTDIR)$(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
 
 uninstall-local:
 	if test -d $(DESTDIR)$(salomescriptdir)/appliskel; then \
 	  find $(DESTDIR)$(salomescriptdir)/appliskel -exec chmod +w {} ';' ; \
-    rm -rf $(DESTDIR)$(salomescriptdir)/appliskel; \
-  fi;
+	  rm -rf $(DESTDIR)$(salomescriptdir)/appliskel; \
+	fi;
 

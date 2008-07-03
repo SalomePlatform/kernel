@@ -475,38 +475,11 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-echo 
-echo ---------------------------------------------
-echo copying resource files, shell scripts, and 
-echo xml files
-echo ---------------------------------------------
-echo
-
-
-mkdir -p bin/salome
-cd bin/salome
-for i in  `find $ROOT_SRCDIR/bin`
-do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
-  case "$local_bin" in
-        *.in | *~) ;;
-        . | */CVS | */CVS/* | ./salome) ;;
-        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
-        *) $INSTALL $i $local_bin; echo $local_bin ;;
-  esac
-done
-cd $ROOT_BUILDDIR
-
 echo
 echo ---------------------------------------------
 echo generating Makefiles and configure files
 echo ---------------------------------------------
 echo
-
-AC_OUTPUT_COMMANDS([ \
-	chmod +x ./bin/*; \
-	chmod +x ./bin/salome/* \
-])
 
 # This list is initiated using autoscan and must be updated manually
 # when adding a new file <filename>.in to manage. When you execute
@@ -518,7 +491,7 @@ AC_OUTPUT([ \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
-	Makefile \
+	./Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
 	./bin/runIDLparser \
