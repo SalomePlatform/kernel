@@ -38,6 +38,7 @@ struct omniORBpyAPI {
 };
 
   omniORBpyAPI* api;
+  PyObject* dsc ;
 
 
 %}
@@ -60,6 +61,9 @@ struct omniORBpyAPI {
   PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
   api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
   Py_DECREF(pyapi);
+
+  PyObject* engines = PyImport_ImportModule("Engines");
+  dsc = PyObject_GetAttrString(engines, "DSC");
 %}
 
 %include <exception.i>
@@ -570,6 +574,10 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 {
   $1=(CORBA::Boolean)PyInt_AsLong($input);
 }
+%typemap(out) CORBA::Boolean
+{
+  $result=PyInt_FromLong($1 ? 1 : 0);
+}
 
 %define CORBAPTR(type)
 %typemap(in) type##_ptr
@@ -630,17 +638,29 @@ CORBAPTR(PortableServer::POA)
    }
    catch(Engines::DSC::PortNotDefined& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Port not defined");
+      PyObject* excc = PyObject_GetAttrString(dsc, "PortNotDefined");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch(Engines::DSC::PortNotConnected& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Port not connected");
+      PyObject* excc = PyObject_GetAttrString(dsc, "PortNotConnected");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch(Engines::DSC::BadPortType& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Bad port type");
+      PyObject* excc = PyObject_GetAttrString(dsc, "BadPortType");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch (SALOME_Exception &e) {
@@ -650,6 +670,7 @@ CORBAPTR(PortableServer::POA)
    }
    catch (SALOME::SALOME_Exception &e) {
       Py_BLOCK_THREADS
+      //This one should be converted into a python corba exception
       PyErr_SetString(PyExc_RuntimeError,e.details.text);
       return NULL;
    }
@@ -750,6 +771,7 @@ class PySupervCompo:public Superv_Component_i
   virtual void add_provides_port(Ports::Port_ptr ref, const char* provides_port_name, Ports::PortProperties_ptr port_prop);
   virtual void add_uses_port(const char* repository_id, const char* uses_port_name, Ports::PortProperties_ptr port_prop);
   virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name);
+  CORBA::Boolean is_connected(const char* port_name) throw (Engines::DSC::PortNotDefined);
 // End of DSC interface for python components
 
 
