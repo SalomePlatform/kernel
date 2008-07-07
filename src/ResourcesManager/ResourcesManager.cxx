@@ -44,7 +44,7 @@ ResourcesManager_cpp::
 ResourcesManager_cpp(const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
-  cerr << "ResourcesManager_cpp constructor" << endl;
+  MESSAGE ( "ResourcesManager_cpp constructor" );
 }
 
 //=============================================================================
@@ -60,7 +60,7 @@ ResourcesManager_cpp(const char *xmlFilePath) :
 
 ResourcesManager_cpp::ResourcesManager_cpp()
 {
-  cerr << "ResourcesManager_cpp constructor" << endl;
+  MESSAGE ( "ResourcesManager_cpp constructor" );
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
 
   if (_isAppliSalomeDefined)
@@ -78,7 +78,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
     }
 
   ParseXmlFile();
-  cerr << "ResourcesManager_cpp constructor end";
+  MESSAGE ( "ResourcesManager_cpp constructor end" );
 }
 
 //=============================================================================
@@ -89,7 +89,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
 
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
-  cerr << "ResourcesManager_cpp destructor" << endl;
+  MESSAGE ( "ResourcesManager_cpp destructor" );
 }
 
 //=============================================================================
@@ -116,7 +116,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
   ParseXmlFile();
 
   const char *hostname = params.hostname.c_str();
-  cerr << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+  INFOS ( "GetFittingResources " << hostname << " " << GetHostname().c_str() );
 
   if (hostname[0] != '\0'){
     //       cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
@@ -155,7 +155,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	}
 	if(cpt==0){
 	  // --- user specified an unknown hostame so notify him.
-	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+	  MESSAGE ( "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" );
 	  throw ResourcesException("unknown host");
 	}
       }
@@ -271,7 +271,7 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
   if (aFile == NULL)
     {
-      cerr << "Error opening file !"  << endl;
+      INFOS ( "Error opening file !" );
       return;
     }
   
@@ -286,14 +286,14 @@ void ResourcesManager_cpp::WriteInXmlFile()
   int isOk = xmlSaveFile(aFilePath, aDoc);
   
   if (!isOk)
-    cerr << "Error while XML file saving." << endl;
+    INFOS ( "Error while XML file saving." );
   
   // Free the document
   xmlFreeDoc(aDoc);
 
   fclose(aFile);
   
-  cerr << "WRITING DONE!" << endl;
+  INFOS ( "WRITING DONE!" );
 }
 
 //=============================================================================
@@ -317,7 +317,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       if (aDoc != NULL)
 	handler->ProcessXmlDocument(aDoc);
       else
-	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+	INFOS ( "ResourcesManager_cpp: could not parse file "<< aFilePath );
       
       // Free the document
       xmlFreeDoc(aDoc);
@@ -325,7 +325,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       fclose(aFile);
     }
   else
-    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+    INFOS ( "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." );
   
   delete handler;
 
