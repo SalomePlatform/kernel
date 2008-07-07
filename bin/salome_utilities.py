@@ -60,7 +60,7 @@ def _try_bool( arg ):
         if   v in [ "yes", "y", "true"  ]: return True
         elif v in [ "no",  "n", "false" ]: return False
         pass
-    raise "Not boolean value"
+    raise Exception("Not boolean value")
 
 # ---
 
@@ -323,7 +323,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
         pass
     # raise an exception if file name is empty
     if not filename:
-        raise "Empty file name"
+        raise Exception("Empty file name")
     #
     if extension is not None and extension.startswith("."): extension = extension[1:]
     #
