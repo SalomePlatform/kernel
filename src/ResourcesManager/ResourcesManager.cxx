@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <libxml/parser.h>
 
+#include "utilities.h"
+
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
 using namespace std;
