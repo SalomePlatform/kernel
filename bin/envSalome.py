@@ -39,6 +39,6 @@ sys.argv = argv[1:]
     
 #args, modules_list, modules_root_dir = setenv.get_config()
 #runSalome.set_env(args, modules_list, modules_root_dir)
-setenv.main();
+setenv.main(True);
 
 os.execvp(argv[0],argv)

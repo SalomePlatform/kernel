@@ -19,36 +19,40 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
 
-import os, string, sys, re
+import os, sys, re, signal
 
 from killSalomeWithPort import killMyPort, getPiDict
 
 def killAllPorts():
+    """
+    Kill all SALOME sessions belonging to the user.
+    """
     user = os.getenv('USER')
-    filedict = "^%s$"%(getPiDict('(\d*)',full=False))
-    fnamere = re.compile(filedict)
+    # new-style dot-prefixed pidict file
+    fnamere  = re.compile("^%s$"%(getPiDict('(\d*)',full=False,hidden=True)))
+    # provide compatibility with old-style pidict file (not dot-prefixed)
+    fnamere1 = re.compile("^%s$"%(getPiDict('(\d*)',full=False,hidden=False)))
     for file in os.listdir(os.getenv("HOME")):
-        mo = re.match(fnamere,file)
+        mo = fnamere.match(file)
+        if not mo: mo = fnamere1.match(file)
         if mo and len(mo.groups()):
-            killMyPort(mo.groups()[0])
+            killMyPort(mo.group(1))
         pass
 
-    if not sys.platform == 'win32':
-        cmd = "pid=`ps -fea | grep '"+os.getenv('USER')+"' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'` ; echo $pid > /tmp/logs/"+os.getenv('USER')+"/_"+"Pid_ghs3d.log"
-        a = os.system(cmd)
-        try:
-            fpidomniNames=open('/tmp/logs/'+os.getenv('USER')+"/_"+"Pid_ghs3d.log")
-            prc = fpidomniNames.read()
-            fpidomniNames.close()
-            if prc != None :
-                for field in prc.split(" ") :
-                    field = field.strip()
-                    if field != None and len(field) != 0:
-                        os.system('kill -9 '+field)
-        except:
+    if sys.platform != 'win32':
+        import commands
+        cmd = "ps -fea | grep '%s' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'" % user
+        prc = commands.getoutput(cmd)
+        for field in prc.split():
+            try:
+                os.kill(int(field), signal.SIGKILL)
+            except:
+                pass
             pass
         pass
+    pass
 
 if __name__ == "__main__":
     killAllPorts()
+    pass
     

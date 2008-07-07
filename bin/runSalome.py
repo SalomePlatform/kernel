@@ -19,7 +19,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
 
-import sys, os, string, glob, time, pickle
+import sys, os, string, glob, time, pickle, re
 import orbmodule
 import setenv
 from server import *
@@ -209,17 +209,17 @@ class LoggerServer(Server):
         else:                       dirpath = "/tmp"
         logfile = generateFileName( dirpath,
                                     prefix="logger",
-                                    extension=".log",
+                                    extension="log",
                                     with_username=True,
                                     with_hostname=True,
                                     with_port=True)
-        if verbose():
-            print "==========================================================="
-            print "Logger server: put log to the file:"
-            print logfile
-            print "==========================================================="
-            pass
+        print "==========================================================="
+        print "Logger server: put log to the file:"
+        print logfile
+        print "==========================================================="
         self.CMD=['SALOME_Logger_Server', logfile]
+        pass
+    pass # end of LoggerServer class
 
 # ---
 
@@ -633,22 +633,14 @@ def useSalome(args, modules_list, modules_root_dir):
         
     #print process_id
 
+    from addToKillList import addToKillList
     from killSalomeWithPort import getPiDict
-    filedict = getPiDict(args['port'])
 
-    process_ids = []
-    try:
-        fpid=open(filedict, 'r')
-        process_ids=pickle.load(fpid)
-        fpid.close()
-    except:
+    filedict = getPiDict(args['port'])
+    for pid, cmd in process_id.items():
+        addToKillList(pid, cmd, args['port'])
         pass
-    
-    fpid=open(filedict, 'w')
-    process_ids.append(process_id)
-    pickle.dump(process_ids,fpid)
-    fpid.close()
-    
+
     if verbose(): print """
     Saving of the dictionary of Salome processes in %s
     To kill SALOME processes from a console (kill all sessions from all ports):
@@ -724,89 +716,89 @@ def registerEnv(args, modules_list, modules_root_dir):
 
 def searchFreePort(args, save_config=1):
     print "Searching for a free port for naming service:",
-    NSPORT=2810
-    limit=NSPORT
-    limit=limit+10
-    while 1:
-        import os
-        import re
-        from os import getpid
-        from os import system
-
-        if sys.platform == "win32":
-            tmp_file = os.getenv('TEMP');
-        else:
-            tmp_file = '/tmp/'
-        tmp_file += 'hostname_%s'%(getpid())
-
-#       status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
-
-        system( "netstat -a -n > %s" % tmp_file );
-
-        f = open( tmp_file, 'r' );
-        lines = f.readlines();
-        f.close();
-
-        pattern = "tcp.*:([0-9]+).*:.*listen";
-        regObj = re.compile( pattern, re.IGNORECASE );
-
-        status = 1;
-        for item in lines:
-            m = regObj.search( item )
-            if m:
-                try:
-                    p = int( m.group(1) )
-                    if p == NSPORT: 
-                        status = 0;
-                        break;
-                except:
-                    pass
+    #
+    if sys.platform == "win32":
+        tmp_file = os.getenv('TEMP');
+    else:
+        tmp_file = '/tmp'
+    tmp_file = os.path.join(tmp_file, '.netstat_%s'%os.getpid())
+    #
+    ###status = os.system("netstat -ltn | grep -E :%s > /dev/null 2>&1"%(NSPORT))
+    os.system( "netstat -a -n > %s" % tmp_file );
+    f = open( tmp_file, 'r' );
+    ports = f.readlines();
+    f.close();
+    os.remove( tmp_file );
+    #
+    def portIsUsed(port, data):
+        regObj = re.compile( "tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
+        for item in data:
+            try:
+                p = int(regObj.match(item).group(1))
+                if p == port: return True
+                pass
+            except:
+                pass
             pass
-
-        if status == 1:
+        return False
+    #
+    NSPORT=2810
+    limit=NSPORT+100
+    #
+    while 1:
+        if not portIsUsed(NSPORT, ports):
             print "%s - OK"%(NSPORT)
             #
-            system('hostname > %s'%(tmp_file))
-            f = open(tmp_file)
-            myhost = f.read()
-            myhost = myhost[:-1]
-            f.close()
-
-            os.remove( tmp_file );
-
+            from salome_utilities import generateFileName, getHostName
+            hostname = getHostName()
             #
-            home = os.environ['HOME']
-            appli=os.environ.get("APPLI")
-            if appli is not None:
-                home='%s/%s'%(home,appli)
-                pass
+            home  = os.getenv("HOME")
+            appli = os.getenv("APPLI")
+            if appli is not None: home = os.path.join(home, appli)
             #
-            os.environ['OMNIORB_CONFIG'] = '%s/.omniORB_%s_%s.cfg'%(home, myhost, NSPORT)
-            initref = "NameService=corbaname::%s:%s"%(myhost, NSPORT)
-            os.environ['NSPORT'] = "%s"%(NSPORT)
-            os.environ['NSHOST'] = "%s"%(myhost)
-            f = open(os.environ['OMNIORB_CONFIG'], "w")
+            omniorb_config = generateFileName(home, prefix="omniORB",
+                                              extension="cfg",
+                                              hidden=True,
+                                              with_hostname=True,
+                                              with_port=NSPORT)
+            orbdata = []
+            initref = "NameService=corbaname::%s:%s"%(hostname, NSPORT)
             import CORBA
             if CORBA.ORB_ID == "omniORB4":
-                initref += "\ngiopMaxMsgSize = 2097152000  # 2 GBytes";
-                initref += "\ntraceLevel = 0 # critical errors only";
-                f.write("InitRef = %s\n"%(initref))
+                orbdata.append("InitRef = %s"%(initref))
+                orbdata.append("giopMaxMsgSize = 2097152000  # 2 GBytes")
+                orbdata.append("traceLevel = 0 # critical errors only")
             else:
-                initref += "\nORBgiopMaxMsgSize = 2097152000  # 2 GBytes";
-                initref += "\nORBtraceLevel = 0 # critical errors only";
-                f.write("ORBInitRef %s\n"%(initref))
+                orbdata.append("ORBInitRef %s"%(initref))
+                orbdata.append("ORBgiopMaxMsgSize = 2097152000  # 2 GBytes")
+                orbdata.append("ORBtraceLevel = 0 # critical errors only")
                 pass
+            orbdata.append("")
+            f = open(omniorb_config, "w")
+            f.write("\n".join(orbdata))
             f.close()
+            #
+            os.environ['OMNIORB_CONFIG'] = omniorb_config
+            os.environ['NSPORT'] = "%s"%(NSPORT)
+            os.environ['NSHOST'] = "%s"%(hostname)
             args['port'] = os.environ['NSPORT']
             #
             if save_config:
-                from os import system
-                if sys.platform == "win32":
-                    import shutil       
-                    shutil.copyfile( os.environ['OMNIORB_CONFIG'], "%s/.omniORB_last.cfg"%( home ) )
-                else:            
-                    system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))     
-                pass
+                last_running_config = generateFileName(home, prefix="omniORB",
+                                                       suffix="last",
+                                                       extension="cfg",
+                                                       hidden=True)
+                try:
+                    if sys.platform == "win32":
+                        import shutil       
+                        shutil.copyfile(omniorb_config, last_running_config)
+                    else:
+                        os.remove(last_running_config)
+                        os.symlink(omniorb_config, last_running_config)
+                        pass
+                    pass
+                except:
+                    pass
             break
         print "%s"%(NSPORT),
         if NSPORT == limit:
@@ -836,14 +828,16 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
-    print "runSalome running on ",os.getenv('HOSTNAME')
+    from salome_utilities import getHostName
+    print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)
     save_config = True
     if args.has_key('save_config'):
         save_config = args['save_config']
     searchFreePort(args, save_config)
-    setenv.main()
+    #setenv.main()
+    setenv.set_env(args, modules_list, modules_root_dir)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt,args
 

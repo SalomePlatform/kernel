@@ -75,7 +75,7 @@ def get_lib_dir():
 
 # -----------------------------------------------------------------------------
 
-def get_config():
+def get_config(silent=False):
     """
     Get list of modules, paths.
     
@@ -116,12 +116,14 @@ def get_config():
     for module in modules_list :
         module_variable=module+"_ROOT_DIR"
         if not os.environ.has_key(module_variable):
-            print "*******************************************************"
-            print "*"
-            print "* Environment variable",module_variable,"must be set"
-            print "* Module", module, "will be not available"
-            print "*"
-            print "********************************************************"
+            if not silent:
+                print "*******************************************************"
+                print "*"
+                print "* Environment variable",module_variable,"must be set"
+                print "* Module", module, "will be not available"
+                print "*"
+                print "********************************************************"
+                pass
             to_remove_list.append(module)
             continue
             pass
@@ -147,7 +149,7 @@ def get_config():
 
 # -----------------------------------------------------------------------------
 
-def set_env(args, modules_list, modules_root_dir):
+def set_env(args, modules_list, modules_root_dir, silent=False):
     """Add to the PATH-variables modules specific paths"""
     
     python_version="python%d.%d" % sys.version_info[0:2]
@@ -261,7 +263,7 @@ def set_env(args, modules_list, modules_root_dir):
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
-        if verbose(): print "GEOM OCAF Resources" 
+        if verbose() and not silent: print "GEOM OCAF Resources" 
         
 	# set CSF_PluginDefaults variable only if it is not customized
         # by the user
@@ -273,16 +275,16 @@ def set_env(args, modules_list, modules_root_dir):
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
-        if verbose(): print "GEOM Shape Healing Resources"
+        if verbose() and not silent: print "GEOM Shape Healing Resources"
         os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")
 
 # -----------------------------------------------------------------------------
 
-def main():
-    args, modules_list, modules_root_dir = get_config()
-    set_env(args, modules_list, modules_root_dir)
+def main(silent=False):
+    args, modules_list, modules_root_dir = get_config(silent=silent)
+    set_env(args, modules_list, modules_root_dir, silent=silent)
     return args
 
 # -----------------------------------------------------------------------------

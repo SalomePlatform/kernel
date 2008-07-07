@@ -20,7 +20,6 @@
 # 
 
 import sys,os
-import string
 
 def getNSparams(info=""):
     """
@@ -32,25 +31,8 @@ def getNSparams(info=""):
     elif info==port print host
     else    print 2 strings on stdout on one line: host port
     """
-    my_port=""
-    my_host=""
-    if os.environ.has_key("OMNIORB_CONFIG"):
-        file = open(os.environ["OMNIORB_CONFIG"], "r")
-        s = file.readline()
-        while len(s):
-            l = string.split(s, ":")
-            if string.split(l[0], " ")[0] == "ORBInitRef" or \
-               string.split(l[0], " ")[0] == "InitRef" :
-                my_port = l[len(l)-1]
-                if my_port[-1] == '\n':
-                    my_port = my_port[:-1]
-                    pass
-                my_host = l[len(l)-2]
-                break;
-                pass
-            s = file.readline()
-            pass
-        pass
+    from salome_utilities import getORBcfgInfo
+    my_version, my_host, my_port = getORBcfgInfo()
     if info=='host':
         # keep print, stdout used in shell
         print my_host
@@ -80,9 +62,10 @@ if __name__ == "__main__":
             getNSparams('port')
             pass
         else:
-            getNSparams('')
+            getNSparams()
             pass
         pass
     else:
-        getNSparams('')
+        getNSparams()
         pass
+    pass
