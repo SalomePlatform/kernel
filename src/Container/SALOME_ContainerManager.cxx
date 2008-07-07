@@ -376,9 +376,7 @@ StartContainer(const Engines::MachineParameters& params,
           SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
           if (CORBA::is_nil (compoInfo))
             {
-              INFOS("ContainerManager Error: Component not found in the catalog" );
-              INFOS( compoi );
-              return Engines::Container::_nil();
+              continue;
             }
           SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
           container_exe=compoInfo->implementation_name();
