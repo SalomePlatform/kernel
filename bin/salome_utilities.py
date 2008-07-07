@@ -31,15 +31,16 @@ Set of utility functions used by SALOME python scripts.
 # Exported functions
 #
 __all__ = [
+    'getORBcfgInfo',
+    'getHostFromORBcfg',
+    'getPortFromORBcfg',
     'getUserName',
     'getHostName',
     'getShortHostName',
     'getAppName',
     'getPortNumber',
+    'getTmpDir',
     'generateFileName',
-    'getORBcfgInfo',
-    'getHostFromORBcfg',
-    'getPortFromORBcfg',
     ]
 
 # ---
@@ -185,7 +186,7 @@ def getPortNumber():
     1. if fails, try to parse config file defined by OMNIORB_CONFIG environment variable
     2. if fails, return 2809 as default port number
     """
-    import os, re
+    import os
     try:
         return int( os.getenv( "NSPORT" ) )
     except:
@@ -193,6 +194,23 @@ def getPortNumber():
     port = getPortFromORBcfg()
     if port is not None: return port
     return 2809      # '2809' is default port number
+
+# ---
+
+def getTmpDir():
+    """
+    Get directory to be used for the temporary files.
+    """
+    import os, sys
+    if sys.platform == "win32":
+        # for Windows: temporarily using home directory for tmp files;
+        # to be replaced with TEMP environment variable later...
+        dir = os.getenv("HOME")
+    else:
+        # for Linux: use /tmp/logs/{user} folder
+        dir = os.path.join( '/tmp', 'logs', getUserName() )
+        pass
+    return dir
 
 # ---
 

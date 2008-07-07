@@ -67,16 +67,18 @@ def addToKillList(command_pid, command, port=None):
     # add process to the dictionary
     if not already_in:
         import types
-        if type(command) == types.ListType: command=" ".join(command)
+        if type(command) == types.ListType: command=" ".join([str(c) for c in command])
         command=command.split()[0]
         try:
             if verbose(): print "addToKillList: %s : %s" % ( str(command_pid), command )
             process_ids.append({int(command_pid): [command]})
-            fpid=open(filedict,'w')
+            dir = os.path.dirname(filedict)
+            if not os.path.exists(dir): os.makedirs(dir, 0777)
+            fpid = open(filedict,'w')
             pickle.dump(process_ids, fpid)
             fpid.close()
         except:
-            if verbose(): print "addToKillList: can not add command %s to the kill list" % filedict
+            if verbose(): print "addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command )
             pass
         pass
     pass
@@ -90,7 +92,10 @@ def killList(port=None):
     # retrieve processes dictionary
     from killSalomeWithPort import getPiDict
     if port is None: port=findFileDict()
-    filedict=getPiDict(port)
+    # new-style dot-prefixed pidict file
+    filedict=getPiDict(port, hidden=True)
+    # provide compatibility with old-style pidict file (not dot-prefixed)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
     try:
         fpid=open(filedict, 'r')
         process_ids=pickle.load(fpid)

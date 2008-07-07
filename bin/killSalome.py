@@ -29,16 +29,32 @@ def killAllPorts():
     """
     user = os.getenv('USER')
     # new-style dot-prefixed pidict file
-    fnamere  = re.compile("^%s$"%(getPiDict('(\d*)',full=False,hidden=True)))
-    # provide compatibility with old-style pidict file (not dot-prefixed)
-    fnamere1 = re.compile("^%s$"%(getPiDict('(\d*)',full=False,hidden=False)))
-    for file in os.listdir(os.getenv("HOME")):
-        mo = fnamere.match(file)
-        if not mo: mo = fnamere1.match(file)
-        if mo and len(mo.groups()):
-            killMyPort(mo.group(1))
+    fpidict   = getPiDict('(\d*)',hidden=True)
+    dirpidict = os.path.dirname(fpidict)
+    fpidict   = os.path.basename(fpidict)
+    fnamere   = re.compile("^%s$" % fpidict)
+    try:
+        for f in os.listdir(dirpidict):
+            mo = fnamere.match(f)
+            if mo: killMyPort(mo.group(1))
+            pass
         pass
-
+    except:
+        pass
+    # provide compatibility with old-style pidict file (not dot-prefixed)
+    fpidict   = getPiDict('(\d*)',hidden=False)
+    dirpidict = os.path.dirname(fpidict)
+    fpidict   = os.path.basename(fpidict)
+    fnamere   = re.compile("^%s$" % fpidict)
+    try:
+        for f in os.listdir(dirpidict):
+            mo = fnamere.match(f)
+            if mo: killMyPort(mo.group(1))
+            pass
+        pass
+    except:
+        pass    
+    # kill other processes
     if sys.platform != 'win32':
         import commands
         cmd = "ps -fea | grep '%s' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'" % user
