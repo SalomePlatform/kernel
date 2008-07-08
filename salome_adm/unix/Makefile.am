@@ -34,7 +34,7 @@ DEPRECATED_FILES=\
 # rules for install and build (see make_common_starter.am)
 salomeadmux_DATA = SALOMEconfig.h.in
 salomeinclude_DATA = SALOMEconfig.h
-BUILT_SOURCES=SALOMEconfig.h SALOMEconfig.h.in
+BUILT_SOURCES=SALOMEconfig.ref SALOMEconfig.h SALOMEconfig.h.in
 
 mostlyclean-local:
 	-rm -rf SALOMEconfig.h SALOMEconfig.h.in
@@ -45,9 +45,11 @@ SALOMEconfig.h.in : SALOMEconfig.ref.in
 # test if SALOMEconfig.ref has changed (contents), at build time
 SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
 	@if ! [ -a $@ ]; then \
+	  echo cp -p $< $@;   \
 	  cp -p $< $@;        \
 	fi;		      \
-	if ! cmp $< $@; then  \
+	if ! cmp -s $< $@; then  \
+	  echo cp -p $< $@;   \
 	  cp -p $< $@;        \
 	fi;
 
