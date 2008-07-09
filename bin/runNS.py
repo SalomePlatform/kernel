@@ -39,7 +39,7 @@ def startOmni():
   #os.system("touch " + upath + "/dummy")
   for fname in os.listdir(upath):
     try:
-      os.remove(upath + "/" + fname)
+      if not fname.startswith("."): os.remove(upath + "/" + fname)
     except:
       pass
   #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
