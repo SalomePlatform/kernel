@@ -142,8 +142,8 @@ int main(int argc, char* argv[])
 
   if (!isSupervContainer)
     {
-      int _argc = 1;
-      char* _argv[] = {""};
+      // int _argc = 1;
+      // char* _argv[] = {""};
       KERNEL_PYTHON::init_python(argc,argv);
     }
   else
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
       PySys_SetArgv( argc , argv ) ;
     }
     
-  char *containerName = "";
+  char *containerName = (char *)"";
   if(argc > 1)
     {
       containerName = argv[1] ;
@@ -173,8 +173,7 @@ int main(int argc, char* argv[])
       system(aCommand.str().c_str());
 #endif
       
-      Engines_Container_i * myContainer 
-	= new Engines_Container_i(orb, root_poa, containerName , argc , argv );
+      new Engines_Container_i(orb, root_poa, containerName , argc , argv );
       
       pman->activate();
       
@@ -189,7 +188,7 @@ int main(int argc, char* argv[])
 
       if (!isSupervContainer)
       {
-        PyGILState_STATE gstate = PyGILState_Ensure();
+        PyGILState_Ensure();
         //Delete python container that destroy orb from python (pyCont._orb.destroy())
         Py_Finalize();
       }

@@ -838,8 +838,12 @@ Salome_file_i::getDistributedFile(std::string file_name)
       aBlock = _fileDistributedSource[file_name]->getBlock(fileId);
       toFollow = aBlock->length();
       CORBA::Octet *buf = aBlock->get_buffer();
+#if defined(_DEBUG_) || defined(_DEBUG)
       int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
       ASSERT(nbWri == toFollow);
+#else
+      fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+#endif
       delete aBlock;
     }
     fclose(fp);

@@ -51,16 +51,24 @@ const char* duplicate( const char *const str ) ;
 const struct utsname get_uname( void )
 {
 	struct utsname		hostid;
+#if defined(_DEBUG_) || defined(_DEBUG)
 	const int retour=uname(&hostid);
 	ASSERT(retour>=0);
+#else
+	uname(&hostid);
+#endif
 	return hostid ;
 }
 
 const char* get_adip( void )
 {
 	struct utsname	hostid;
+#if defined(_DEBUG_) || defined(_DEBUG)
 	const int retour=uname(&hostid);
 	ASSERT(retour>=0);
+#else
+	uname(&hostid);
+#endif
 
 	const hostent* pour_adip=gethostbyname(hostid.nodename);
 	ASSERT(pour_adip!=NULL);

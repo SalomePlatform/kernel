@@ -82,7 +82,7 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 
   for(t=0;t<NUM_THREADS;t++)
     {
-      int ret = pthread_join(threads[t], NULL);
+      pthread_join(threads[t], NULL);
       MESSAGE("--------------------- end of PrintHello thread " << t);
     }
   MESSAGE(" ---- end of PrintHello threads ---- ");
@@ -101,9 +101,11 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 
 void *PrintHello(void *threadid)
 {
+#if defined(_DEBUG_) || defined(_DEBUG)
   long id_thread = (long)threadid;
       for (int i=0; i<NUM_MESSAGES;i++)	
 	MESSAGE("Hello World! This is a trace test : " << id_thread 
 	        << " - iter " << i);
+#endif
   pthread_exit(NULL);
 }

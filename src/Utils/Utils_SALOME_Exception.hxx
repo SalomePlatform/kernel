@@ -34,6 +34,9 @@
 # include <exception>
 # include <iostream>
 
+#ifdef LOCALIZED
+#undef LOCALIZED
+#endif
 #ifdef _DEBUG_
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 #else

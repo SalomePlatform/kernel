@@ -23,5 +23,5 @@
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 void fake_method(void) {
-int fake_int;
+  // int fake_int;
 };

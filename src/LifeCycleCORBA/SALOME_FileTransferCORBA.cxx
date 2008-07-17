@@ -183,9 +183,13 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 	      toFollow = aBlock->length();
 	      SCRUTE(toFollow);
 	      CORBA::Octet *buf = aBlock->get_buffer();
+#if defined(_DEBUG_) || defined(_DEBUG)
 	      int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
-              delete aBlock;
 	      ASSERT(nbWri == toFollow);
+#else
+	      fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+#endif
+              delete aBlock;
 	    }
 	  fclose(fp);
 	  MESSAGE("end of transfer");

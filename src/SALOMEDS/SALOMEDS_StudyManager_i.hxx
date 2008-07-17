@@ -72,7 +72,7 @@ public:
   /*!
     \param char* arguments, the context to register the study manager in the NS
   */  
-  void register_name(char * name);
+  void register_name(const char * name);
   
  //! method to Create a New Study of name study_name
   /*!

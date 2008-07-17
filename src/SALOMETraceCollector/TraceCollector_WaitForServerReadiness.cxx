@@ -114,7 +114,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 		}
 	    }
 #ifndef WNT
-	  int a = nanosleep(&ts_req,&ts_rem);
+	  nanosleep(&ts_req,&ts_rem);
 #else
 	  Sleep(TIMESleep / 1000000);
 #endif

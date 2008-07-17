@@ -59,7 +59,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
 
   CORBA::LongLong addr = theManager->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
-    _local_impl = ((SALOMEDSImpl_StudyManager*)(addr));
+    _local_impl = reinterpret_cast<SALOMEDSImpl_StudyManager*>(addr);
     _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
   }
   else {
@@ -87,7 +87,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager()
 
   CORBA::LongLong addr = theManager->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
-    _local_impl = ((SALOMEDSImpl_StudyManager*)(addr));
+    _local_impl = reinterpret_cast<SALOMEDSImpl_StudyManager*>(addr);
     _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
   }
   else {

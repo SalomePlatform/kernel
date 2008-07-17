@@ -82,7 +82,7 @@ char* SALOMEDS_GenericAttribute_i::Type()
     return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl));
   }    
 
-  return "";
+  return (char*)"";
 }
 
 char* SALOMEDS_GenericAttribute_i::GetClassType()
@@ -92,7 +92,7 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
     return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl));
   }
 
-  return "";
+  return (char*)"";
 }
 
 
@@ -122,5 +122,5 @@ CORBA::LongLong SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostnam
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)_impl);
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }

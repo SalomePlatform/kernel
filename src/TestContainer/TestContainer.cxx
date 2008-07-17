@@ -62,10 +62,14 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
 Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
 					   string componenttName)
 {
+#if defined(_DEBUG_) || defined(_DEBUG)
   bool isLib =
     iGenFact->load_component_Library(componenttName.c_str());
   //    iGenFact->load_component_Library("SalomeTestComponent");
   ASSERT(isLib);
+#else
+  iGenFact->load_component_Library(componenttName.c_str());
+#endif
   CORBA::Object_var obj =
     //    iGenFact->create_component_instance("SalomeTestComponent",
     iGenFact->create_component_instance(componenttName.c_str(),

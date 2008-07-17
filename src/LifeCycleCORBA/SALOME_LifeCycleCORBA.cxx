@@ -82,7 +82,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
   // be sure to have an instance of traceCollector, when used via SWIG
   // in a Python module
   int argc = 0;
-  char *xargv = "";
+  char *xargv = (char*)"";
   char **argv = &xargv;
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);

@@ -70,7 +70,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
 	  int bid = 0;
-	  int re2 = pthread_create(&traceThread, NULL,
+	  pthread_create(&traceThread, NULL,
 				   SALOMETraceCollector::run, (void *)bid);
 	  sem_wait(&_sem);
 	  _singleton = myInstance; // _singleton known only when init done
@@ -131,7 +131,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  //break;
 	}
 
-      int fullBuf = myTraceBuffer->retrieve(myTrace);
+      myTraceBuffer->retrieve(myTrace);
       if (!CORBA::is_nil(_orb))
 	{
 	  if (myTrace.traceType == ABORT_MESS)

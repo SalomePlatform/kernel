@@ -480,8 +480,8 @@ Engines_Container_i::load_component_Library(const char* componentName)
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-                                             "import_component",
-                                             "s",componentName);
+                                             (char*)"import_component",
+                                             (char*)"s",componentName);
       int ret= PyInt_AsLong(result);
       Py_XDECREF(result);
       SCRUTE(ret);
@@ -557,8 +557,8 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-                                             "create_component_instance",
-                                             "ssl",
+                                             (char*)"create_component_instance",
+                                             (char*)"ssl",
                                              aCompName.c_str(),
                                              instanceName.c_str(),
                                              studyId);
@@ -1076,8 +1076,12 @@ Engines_Container_i::createInstance(string genericRegisterName,
       SCRUTE(aGenRegisterName);
       SCRUTE(_cntInstances_map[aGenRegisterName]);
       //SCRUTE(servant->pd_refCount);
+#if defined(_DEBUG_) || defined(_DEBUG)
       bool ret_studyId = servant->setStudyId(studyId);
       ASSERT(ret_studyId);
+#else
+      servant->setStudyId(studyId);
+#endif
 
       // --- register the engine under the name
       //     containerName(.dir)/instanceName(.object)

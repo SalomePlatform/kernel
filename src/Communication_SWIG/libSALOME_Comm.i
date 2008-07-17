@@ -43,7 +43,7 @@
 
   // Ask omniORBpy to transform SUPPORT (python Corba) ptr to IOR string
 
-  PyObject* iorSupport = PyObject_CallMethod(orb, "object_to_string", "O", $input);
+  PyObject* iorSupport = PyObject_CallMethod(orb, (char*)"object_to_string", (char*)"O", $input);
  
   if (iorSupport == Py_None)
     return NULL;
@@ -52,7 +52,7 @@
   // Ask omniORB to convert IOR string to SALOME::SenderDouble_ptr
 
   int argc = 0;
-  char *xargv = "";
+  char *xargv = (char*)"";
   char **argv = &xargv;
   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
   CORBA::Object_var O =  ORB->string_to_object(s);
@@ -73,7 +73,7 @@
 
   // Ask omniORBpy to transform SUPPORT (python Corba) ptr to IOR string
 
-  PyObject* iorSupport = PyObject_CallMethod(orb, "object_to_string", "O", $input);
+  PyObject* iorSupport = PyObject_CallMethod(orb, (char*)"object_to_string", (char*)"O", $input);
  
   if (iorSupport == Py_None)
     return NULL;
@@ -82,7 +82,7 @@
   // Ask omniORB to convert IOR string to SALOME::SenderInt_ptr
 
   int argc = 0;
-  char *xargv = "";
+  char *xargv = (char*)"";
   char **argv = &xargv;
   CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
   CORBA::Object_var O =  ORB->string_to_object(s);
@@ -100,12 +100,12 @@
    PyObject* orb = PyDict_GetItemString(pdict, "o");
    // Get the orb Corba C++
    int argc = 0;
-   char *xargv = "";
+   char *xargv = (char*)"";
    char **argv = &xargv;
    CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
    std::string s =  ORB->object_to_string($1);
    PyObject * tmp = PyString_FromString(s.c_str());
-   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
+   $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
 }
 
 %typemap(python,out) SALOME::SenderInt_ptr
@@ -118,12 +118,12 @@
    PyObject* orb = PyDict_GetItemString(pdict, "o");
    // Get the orb Corba C++
    int argc = 0;
-   char *xargv = "";
+   char *xargv = (char*)"";
    char **argv = &xargv;
    CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
    std::string s =  ORB->object_to_string($1);
    PyObject * tmp = PyString_FromString(s.c_str());
-   $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
+   $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
 }
 
 PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble);
@@ -140,7 +140,7 @@ PyObject * getValueForSenderDouble(SALOME::SenderDouble_ptr senderDouble)
             int err = PyList_SetItem(py_list, i, Py_BuildValue("d", (double) ret[i]));
             if(err)
               {
-                char * message = "Error in SUPPORT::getTypes";
+                const char * message = "Error in SUPPORT::getTypes";
                 PyErr_SetString(PyExc_RuntimeError, message);
                 return NULL;
               }
@@ -167,7 +167,7 @@ PyObject * getValueForSenderInt(SALOME::SenderInt_ptr senderInt)
             int err = PyList_SetItem(py_list, i, Py_BuildValue("i", (int) ret[i]));
             if(err)
               {
-                char * message = "Error in SUPPORT::getTypes";
+                const char * message = "Error in SUPPORT::getTypes";
                 PyErr_SetString(PyExc_RuntimeError, message);
                 return NULL;
               }
@@ -195,7 +195,7 @@ PyObject * getValueForMatrix(SALOME::Matrix_ptr matrix)
            int err = PyList_SetItem(tmpRow, j, Py_BuildValue("d", (double) ret[i*column+j]));
             if(err)
               {
-                char * message = "PyList_SetItem matrix sent may be invalid";
+                const char * message = "PyList_SetItem matrix sent may be invalid";
                 PyErr_SetString(PyExc_RuntimeError, message);
                 return NULL;
               }

@@ -18,8 +18,10 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 
 
+#include <SALOMEconfig.h>
 #include <stdexcept>
 #include <omniORB4/CORBA.h>
+
 #include "utilities.h"
 
 // CCRT porting

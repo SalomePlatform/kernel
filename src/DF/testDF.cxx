@@ -186,9 +186,9 @@ int main (int argc, char * argv[])
   cout << "Test started " << endl;
   
   DF_Application* appli = new DF_Application;
+  /*  
   DF_Document* doc1 = appli->NewDocument("doc_1");
   
-  /*  
   DF_Label root1 = doc1->Main();
   DF_Label child = root1.FindChild(3, true); //0:1:3
   

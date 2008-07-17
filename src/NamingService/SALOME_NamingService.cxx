@@ -339,7 +339,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 
   CosNaming::Name context_name;
   vector<string> splitPath;
-  int dimension_resultat = _createContextNameDir(Path,
+  _createContextNameDir(Path,
 						 context_name,
 						 splitPath,
 						 false);
@@ -803,7 +803,7 @@ throw(ServiceUnreachable)
 //   SCRUTE(path);
   CosNaming::Name context_name;
   vector<string> splitPath;
-  int dimension_resultat = _createContextNameDir(path.c_str(),
+  _createContextNameDir(path.c_str(),
 						 context_name,
 						 splitPath,
 						 true);

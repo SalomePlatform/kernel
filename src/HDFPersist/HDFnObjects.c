@@ -39,7 +39,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 hdf_err Num(hdf_idt id,const char *name, void *data);
 
 hdf_err
-HDFnObjects(hdf_idt fid,char *path,int *n)
+HDFnObjects(hdf_idt fid,const char *path,int *n)
 {
   int idx;
   int m = 0;

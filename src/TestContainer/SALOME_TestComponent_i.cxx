@@ -73,7 +73,7 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
 
 void Engines_TestComponent_i::Setenv()
 {
-  bool overwrite = true;
+  // bool overwrite = true;
   map<std::string,CORBA::Any>::iterator it;
   MESSAGE("set environment associated with keys in map _fieldsDict");
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
@@ -88,7 +88,7 @@ void Engines_TestComponent_i::Setenv()
 	  s+='=';
 	  s+=value;
 	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
-	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 	  //int ret = setenv(cle.c_str(), value, overwrite);
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);

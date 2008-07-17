@@ -27,6 +27,7 @@
 #ifndef _TRACECOLLECTOR_WAITFORSERVERREADINESS_HXX_
 #define _TRACECOLLECTOR_WAITFORSERVERREADINESS_HXX_
 
+#include <SALOMEconfig.h>
 #include <omniORB4/CORBA.h> 
 #include <string>
 
