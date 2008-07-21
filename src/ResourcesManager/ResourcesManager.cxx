@@ -118,7 +118,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
   ParseXmlFile();
 
   const char *hostname = params.hostname.c_str();
-  INFOS ( "GetFittingResources " << hostname << " " << GetHostname().c_str() );
+  MESSAGE ( "GetFittingResources " << hostname << " " << GetHostname().c_str() );
 
   if (hostname[0] != '\0'){
     //       cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
