@@ -561,7 +561,7 @@ void SALOMEDSImpl_AttributeTableOfString::Load(const string& value)
     if(aStr[0] == '0') //If the first character of the key is 0, then empty value
       aValue = "";
     else {
-      long aSize = strtol(v[pos++].c_str(), NULL, 10);
+      strtol(v[pos++].c_str(), NULL, 10);
       aValue = v[pos++];
     }
     myTable[aKey] = aValue;

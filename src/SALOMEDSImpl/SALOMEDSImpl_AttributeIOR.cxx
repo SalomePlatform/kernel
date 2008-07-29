@@ -68,7 +68,7 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 {
   CheckLocked();
 
-  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(Label());
+  SALOMEDSImpl_Study::GetStudy(Label());
 
   Backup();
   myString = theValue;

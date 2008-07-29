@@ -332,5 +332,5 @@ CORBA::LongLong SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA:
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)(void*)_impl);
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }

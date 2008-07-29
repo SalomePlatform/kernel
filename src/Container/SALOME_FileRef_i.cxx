@@ -53,8 +53,12 @@ fileRef_i::fileRef_i(Engines::Container_ptr container,
   _container =  Engines::Container::_duplicate(container);
   _origFileName = origFileName;
   _machine = GetHostname();
+#if defined(_DEBUG_) || defined(_DEBUG)
   int OK = addRef(_machine.c_str(), _origFileName.c_str());
   SCRUTE(OK);
+#else
+  addRef(_machine.c_str(), _origFileName.c_str());
+#endif
 }
 
 

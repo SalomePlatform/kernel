@@ -30,6 +30,7 @@
 #define _CONTAINER_INIT_PYTHON_HXX_
 
 #include <SALOME_Container.hxx>
+#include <SALOMEconfig.h>
 
 #include <pthread.h>  // must be before Python.h !
 #include <Python.h>
@@ -50,7 +51,7 @@
 #define Py_ACQUIRE_NEW_THREAD \
   PyEval_AcquireLock(); \
   PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp); \
-  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+  PyThreadState_Swap(myTstate);
 
 #define Py_RELEASE_NEW_THREAD \
   PyEval_ReleaseThread(myTstate); \

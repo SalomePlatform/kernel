@@ -43,7 +43,7 @@ std::string SALOMEDS_AttributeUserID::Value()
   std::string aValue;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    char guid[40];
+    // char guid[40];
     aValue = dynamic_cast<SALOMEDSImpl_AttributeUserID*>(_local_impl)->Value();
   }
   else aValue = SALOMEDS::AttributeUserID::_narrow(_corba_impl)->Value();

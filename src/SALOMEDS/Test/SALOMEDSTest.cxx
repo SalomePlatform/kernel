@@ -51,7 +51,7 @@ using namespace std;
 void SALOMEDSTest::setUp()
 {  
   int argc = 1;
-  char* argv[] = {""};
+  char* argv[] = {(char*)""};
 
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
@@ -128,7 +128,7 @@ void SALOMEDSTest::tearDown()
 void SALOMEDSTest_Embedded::setUp()
 {  
   int argc = 1;
-  char* argv[] = {""};
+  char* argv[] = {(char*)""};
 
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());

@@ -60,7 +60,7 @@ namespace CalciumInterface {
   
   /********************* INTERFACE DE DECONNEXION *****************/
 
-  static void
+  static inline void
   ecp_cd (Superv_Component_i & component, std::string & instanceName)
   { 
     /* TODO : Trouver le nom de l'instance SALOME*/

@@ -100,7 +100,7 @@ void HDFgroup::InternalObjectIndentify(int rank, char *object_name)
     throw HDFexception("Can't identify an internal object");
 }
 
-int HDFgroup::ExistInternalObject(char *object_name)
+int HDFgroup::ExistInternalObject(const char *object_name)
 {
   int n,i;
   int ret = 0;

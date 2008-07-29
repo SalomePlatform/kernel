@@ -47,7 +47,7 @@ UtilsTest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  char *theFileName = TRACEFILE;
+  const char *theFileName = TRACEFILE;
 
   string s = "file:";
   s += theFileName;

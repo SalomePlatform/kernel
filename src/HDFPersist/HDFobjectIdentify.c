@@ -40,7 +40,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 
 hdf_err RankInfo(hdf_idt id, const char *name, void *data);
 
-hdf_err HDFobjectIdentify(hdf_idt fid,char *path,int i,char *name)
+hdf_err HDFobjectIdentify(hdf_idt fid,const char *path,int i,char *name)
 {
   int idx;
 

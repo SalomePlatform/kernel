@@ -184,7 +184,7 @@ namespace Batch {
   ostream & operator << (ostream & os, const Versatile & V)
   {
     Versatile::const_iterator it;
-    char * sep = "";
+    const char * sep = "";
 
     for(it=V.begin(); it!=V.end(); it++, sep=" ") {
       string s = (*it)->affiche();

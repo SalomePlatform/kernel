@@ -98,7 +98,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
  *             context name
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::register_name(char * name)
+void SALOMEDS_StudyManager_i::register_name(const char * name)
 {
   SALOMEDS::StudyManager_var aManager(_this());
   _name_service->Register(aManager.in(), name);
@@ -476,7 +476,7 @@ CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, C
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)(void*)_impl);
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }
 
 //===========================================================================

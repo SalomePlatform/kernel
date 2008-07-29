@@ -125,7 +125,7 @@ void HDFfile::InternalObjectIndentify(int rank, char *object_name)
     throw HDFexception("Can't identify an internal object");
 }
 
-int HDFfile::ExistInternalObject(char *object_name)
+int HDFfile::ExistInternalObject(const char *object_name)
 {
   int n,i;
   int ret = 0;

@@ -201,14 +201,15 @@ DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
 nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES) $(DYNIDL_SRCS)
-libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix \
+libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
 				-I$(top_builddir)/idl \
 				@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
 
 nodist_libSalomeParallelIDLKernel_la_SOURCES = $(PAR) $(GEN_PACO)
-libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/idl \
+libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
+					-I$(top_builddir)/idl \
 					@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
 					@PACO_INCLUDES@
 libSalomeParallelIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0

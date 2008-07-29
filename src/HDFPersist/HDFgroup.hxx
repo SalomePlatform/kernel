@@ -56,7 +56,7 @@ public :
 
   int nInternalObjects();
   void InternalObjectIndentify(int rank, char *object_name);
-  int ExistInternalObject(char *object_name);
+  int ExistInternalObject(const char *object_name);
   hdf_object_type InternalObjectType(char *object_name);
 
   int nAttributes();

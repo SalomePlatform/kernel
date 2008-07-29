@@ -59,7 +59,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
 
   CORBA::LongLong addr = theGA->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
-    _local_impl = ((SALOMEDSImpl_GenericAttribute*)(addr));
+    _local_impl = reinterpret_cast<SALOMEDSImpl_GenericAttribute*>(addr);
     _corba_impl = SALOMEDS::GenericAttribute::_nil();
   }
   else {

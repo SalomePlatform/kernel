@@ -138,7 +138,7 @@ SALOMEDS_EXPORT
     PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
     //give ownership to the poa : the object will be deleted by the poa
     aStudyManager_i->_remove_ref();
-    aStudyManager_i->register_name("/myStudyManager");
+    aStudyManager_i->register_name((char*)"/myStudyManager");
   }
   return new SALOMEDS_StudyManager();
 }

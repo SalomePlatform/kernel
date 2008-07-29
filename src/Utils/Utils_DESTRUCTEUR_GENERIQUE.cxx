@@ -40,9 +40,9 @@ extern "C"
 void Nettoyage();
 
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
+// static int MYDEBUG = 0;
 #else
-static int MYDEBUG = 0;
+// static int MYDEBUG = 0;
 #endif
 
 using namespace std;

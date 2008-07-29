@@ -35,7 +35,7 @@ public:
 
   std::cout << "------------  TEST1 --------------" << std::endl;
 
-  int ret=0;
+  // int ret=0;
   
   CORBA::Long time=1,tag=1;
   typedef PalmCouplingPolicy::DataIdContainer DataIdContainer;  
@@ -76,7 +76,7 @@ public:
  
     std::cout << "------------  TEST2 --------------" << std::endl;
 
-   int ret=0;
+    // int ret=0;
   
   CORBA::Long time=1,tag=1;
   typedef PalmCouplingPolicy::DataIdContainer DataIdContainer;  

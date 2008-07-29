@@ -115,10 +115,10 @@ void HDFerrorModeLock();
 
 extern
 hdf_err
-HDFnObjects(hdf_idt fid,char *path,int *n);
+HDFnObjects(hdf_idt fid,const char *path,int *n);
 
 extern
-hdf_err HDFobjectIdentify(hdf_idt fid,char *path,int i,char *name);
+hdf_err HDFobjectIdentify(hdf_idt fid,const char *path,int i,char *name);
 
 extern
 hdf_err HDFobjectType(hdf_idt id, char *name, hdf_object_type *type);

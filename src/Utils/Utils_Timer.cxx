@@ -118,10 +118,12 @@ void Utils_Timer::Reset() {
 }
 
 void Utils_Timer::ShowAbsolute(){
+#if defined(_DEBUG_) || defined(_DEBUG)
 #ifndef WNT
     unsigned long Absolute_user = (unsigned long) ((timeval*)RefToCurrentTimeB)->tv_sec ;
 #else
     unsigned long Absolute_user = *RefToCurrentTimeB;
 #endif
     MESSAGE("Absolute time: "   << Absolute_user  << " seconds ");
+#endif
 }

@@ -111,7 +111,7 @@ NamingServiceTest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  char *theFileName = TRACEFILE;
+  const char *theFileName = TRACEFILE;
 
   string s = "file:";
   s += theFileName;
@@ -131,7 +131,7 @@ NamingServiceTest::setUp()
   // --- Get or initialize the orb
 
   int _argc = 1;
-  char* _argv[] = {""};
+  char* _argv[] = {(char*)""};
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(_argc , _argv ) ;

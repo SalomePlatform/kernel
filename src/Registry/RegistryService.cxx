@@ -59,15 +59,19 @@ RegistryService::~RegistryService()
 	map<int,client_infos *>::iterator im;
 	for (im=_reg.begin();im!=_reg.end(); im++)
         {
+#if defined(_DEBUG_) || defined(_DEBUG)
 		const client_infos &lesInfos = *(*im).second ;
 		MESSAGE("Deletion") ; SCRUTE( lesInfos._name ) ;
+#endif
 		_reg.erase ( im ) ;
 	}
 	ASSERT(_reg.size()==0) ;
 	for (im=_fin.begin();im!=_fin.end(); im++)
         {
+#if defined(_DEBUG_) || defined(_DEBUG)
 		const client_infos &lesInfos = *(*im).second ;
 		MESSAGE("Deletion") ; SCRUTE( lesInfos._name ) ;
+#endif
 		_fin.erase ( im ) ;
 	}
 	ASSERT(_fin.size()==0) ;
