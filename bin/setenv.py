@@ -262,6 +262,13 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     = os.path.join(modules_root_dir["KERNEL"],"share",
                    salome_subdir,"resources","kernel")
 
+    if sys.platform == 'win32':
+	graphicShr = "OCCViewer.dll"	
+    else:
+	graphicShr = "libOCCViewer.so"	
+    os.environ["CSF_GraphicShr"] \
+    = os.path.join(modules_root_dir["GUI"],"lib","salome",graphicShr)
+
     if "GEOM" in modules_list:
         if verbose() and not silent: print "GEOM OCAF Resources" 
         
