@@ -793,7 +793,10 @@ def searchFreePort(args, save_config=1):
                         import shutil       
                         shutil.copyfile(omniorb_config, last_running_config)
                     else:
-                        os.remove(last_running_config)
+                        try:
+                            os.remove(last_running_config)
+                        except OSError:
+                            pass
                         os.symlink(omniorb_config, last_running_config)
                         pass
                     pass
