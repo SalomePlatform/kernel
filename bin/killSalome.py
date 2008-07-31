@@ -33,25 +33,33 @@ def killAllPorts():
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
     fnamere   = re.compile("^%s$" % fpidict)
-    for f in os.listdir(dirpidict):
-        mo = fnamere.match(f)
-	try:
-            killMyPort(mo.group(1))
-        except:
-    	    pass
+    try:
+        for f in os.listdir(dirpidict):
+            mo = fnamere.match(f)
+            try:
+                killMyPort(mo.group(1))
+            except:
+                pass
+            pass
+        pass
+    except:
         pass
     # provide compatibility with old-style pidict file (not dot-prefixed)
     fpidict   = getPiDict('(\d*)',hidden=False)
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
     fnamere   = re.compile("^%s$" % fpidict)
-    for f in os.listdir(dirpidict):
-        mo = fnamere.match(f)
-        try:
-            killMyPort(mo.group(1))
-	except:
-    	    pass
-        pass    
+    try:
+        for f in os.listdir(dirpidict):
+            mo = fnamere.match(f)
+            try:
+                killMyPort(mo.group(1))
+            except:
+                pass
+            pass
+        pass
+    except:
+        pass
     # kill other processes
     if sys.platform != 'win32':
         import commands
