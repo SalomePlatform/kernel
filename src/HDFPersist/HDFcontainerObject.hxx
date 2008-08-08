@@ -35,7 +35,7 @@ extern "C"
 #include "HDFinternalObject.hxx"
 #include "HDFexport.hxx"
 
-class HDF_EXPORT HDFcontainerObject : public HDFinternalObject
+class HDFPERSIST_EXPORT HDFcontainerObject : public HDFinternalObject
 { 
 private :
   HDFinternalObject *_firstson;

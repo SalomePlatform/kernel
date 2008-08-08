@@ -27,11 +27,13 @@
 #ifndef __HDFexception_H__
 #define __HDFexception_H__
 
+#include <HDFexport.hxx>
+
 /* Exception */
 #include <iostream>
 
 
-class HDFexception
+class HDFPERSIST_EXPORT HDFexception
 {
 public :
   HDFexception(const char *message) { 

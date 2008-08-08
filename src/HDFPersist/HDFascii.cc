@@ -35,6 +35,10 @@
 #ifdef WNT
 #include <io.h>
 #include <time.h>
+#include <windows.h>
+#define dir_separator '\\'
+#else
+#define dir_separator '/'
 #endif
 
 using namespace std;
@@ -653,11 +657,12 @@ string GetTmpDir()
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
     aTmpDir = string(Tmp_dir);
-#ifdef WIN32
+    if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
+/*#ifdef WIN32
     if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
     if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
-#endif      
+#endif*/
   }
   else {
 #ifdef WIN32
@@ -676,11 +681,14 @@ string GetTmpDir()
 
   aTmpDir += aSubDir; //Get RND sub directory
 
+  if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
+/*
 #ifdef WIN32
   if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
   if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
 #endif
+  */
 
   string aDir = aTmpDir;
   
@@ -690,12 +698,14 @@ string GetTmpDir()
   }
 
 #ifdef WNT
+  //fuction CreateDirectory create only final directory, but not intermediate
+  CreateDirectory(aTmpDir.c_str(), NULL);
   CreateDirectory(aDir.c_str(), NULL);
 #else
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
 
-  return aDir;
+  return aDir + dir_separator;
 }
 
 char* makeName(char* name)

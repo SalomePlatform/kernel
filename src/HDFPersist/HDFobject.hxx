@@ -33,7 +33,7 @@ extern "C"
 }
 #include <HDFexport.hxx>
 
-class HDF_EXPORT HDFobject {
+class HDFPERSIST_EXPORT HDFobject {
 protected :
   char *_name;
   hdf_idt _id;

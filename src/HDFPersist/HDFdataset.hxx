@@ -35,7 +35,7 @@ extern "C"
 #include "HDFcontainerObject.hxx"
 #include "HDFexport.hxx"
 
-class HDF_EXPORT HDFdataset : public HDFinternalObject
+class HDFPERSIST_EXPORT HDFdataset : public HDFinternalObject
 {
 private :
   HDFcontainerObject *_father;

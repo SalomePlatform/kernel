@@ -34,7 +34,7 @@ extern "C"
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
 
-class HDFattribute : public HDFobject
+class HDFPERSIST_EXPORT HDFattribute : public HDFobject
 {
 private :
   HDFinternalObject *_father;

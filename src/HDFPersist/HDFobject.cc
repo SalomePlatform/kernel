@@ -28,8 +28,9 @@
 extern "C"
 {
 #include "hdfi.h"
-#include <string.h>
 }
+
+#include <string>
 //#include "utilities.h"
 using namespace std;
 

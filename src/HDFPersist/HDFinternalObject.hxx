@@ -34,7 +34,7 @@ extern "C"
 #include "HDFobject.hxx"
 #include "HDFexport.hxx"
 
-class HDF_EXPORT HDFinternalObject : public HDFobject
+class HDFPERSIST_EXPORT HDFinternalObject : public HDFobject
 {
 private :
   HDFinternalObject *_previousbrother;

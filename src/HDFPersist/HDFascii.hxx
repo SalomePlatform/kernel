@@ -31,7 +31,7 @@
 #include "HDFexport.hxx"
 
 
-class HDF_EXPORT HDFascii                                
+class HDFPERSIST_EXPORT HDFascii                                
 {
 public:
  
