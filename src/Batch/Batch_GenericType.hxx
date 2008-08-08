@@ -29,13 +29,15 @@
 #ifndef _GENERICTYPE_H_
 #define _GENERICTYPE_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include <iostream>
 #include <string>
 
 namespace Batch {
 
-  class GenericType
+  class BATCH_EXPORT GenericType
   {
   public:
 		// Constructeur et destructeur

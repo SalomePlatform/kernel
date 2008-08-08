@@ -29,12 +29,14 @@
 #ifndef _STRINGTYPE_H_
 #define _STRINGTYPE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include "Batch_GenericType.hxx"
 
 namespace Batch {
 
-  class StringType : public GenericType
+  class BATCH_EXPORT StringType : public GenericType
   {
   public:
 		// Constructeur

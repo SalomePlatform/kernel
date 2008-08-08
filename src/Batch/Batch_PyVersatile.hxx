@@ -31,6 +31,8 @@
 #define _PYVERSATILE_H_
 
 
+#include "Batch_Defines.hxx"
+
 #include <Python.h>
 #include "Batch_Versatile.hxx"
 #include "Batch_TypeMismatchException.hxx"
@@ -40,7 +42,7 @@ using namespace std;
 
 namespace Batch {
 
-  class PyVersatile : public Versatile
+  class BATCH_EXPORT PyVersatile : public Versatile
   {
   public:
 		// Constructeur a partir d'un objet Versatile

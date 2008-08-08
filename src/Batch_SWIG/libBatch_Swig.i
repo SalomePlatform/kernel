@@ -48,6 +48,7 @@
 %include libBatch_Swig_exception.i
 
 %{
+#include "Batch_Defines.hxx"
 #include "Batch_Job.hxx"
 #include "Batch_JobId.hxx"
 #include "Batch_JobInfo.hxx"
@@ -58,6 +59,7 @@
 %}
 
 /* Les classes exportees en Python */
+%include Batch_Defines.hxx
 %include Batch_Job.hxx
 %include Batch_JobId.hxx
 %include Batch_JobInfo.hxx

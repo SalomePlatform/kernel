@@ -30,13 +30,15 @@
 #ifndef _DATETYPE_H_
 #define _DATETYPE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include "Batch_GenericType.hxx"
 #include "Batch_Date.hxx"
 
 namespace Batch {
 
-  class DateType : public GenericType
+  class BATCH_EXPORT DateType : public GenericType
   {
   public:
 		// Constructeur

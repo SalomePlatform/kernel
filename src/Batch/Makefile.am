@@ -68,7 +68,8 @@ LIB_INCLUDES = \
 	Batch_BatchManager_ePBS.hxx \
 	Batch_FactBatchManager_ePBS.hxx \
 	Batch_JobInfo_ePBS.hxx \
-	MpiImpl.hxx
+	MpiImpl.hxx \
+	Batch_Defines.hxx
 
 
 LIB_SRC = \

@@ -30,12 +30,14 @@
 #ifndef _CONNEXIONFAILUREEXCEPTION_H_
 #define _CONNEXIONFAILUREEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class ConnexionFailureException : public GenericException
+  class BATCH_EXPORT ConnexionFailureException : public GenericException
   {
   public:
 		// Constructeur

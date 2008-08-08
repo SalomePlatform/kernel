@@ -30,15 +30,18 @@
 #ifndef _JOBINFO_H_
 #define _JOBINFO_H_
 
-using namespace std;
+#include "Batch_Defines.hxx"
+
 #include <iostream>
 #include <string>
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
 
+using namespace std;
+
 namespace Batch {
 
-  class JobInfo
+  class BATCH_EXPORT JobInfo
   {
   public:
     // Constructeur standard et destructeur

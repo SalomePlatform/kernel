@@ -29,6 +29,8 @@
 #ifndef _FACTBATCHMANAGER_H_
 #define _FACTBATCHMANAGER_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include <map>
 
@@ -36,7 +38,7 @@ namespace Batch {
   
   class BatchManager;
 
-  class FactBatchManager
+  class BATCH_EXPORT FactBatchManager
   {
   public:
     // Constructeur et destructeur

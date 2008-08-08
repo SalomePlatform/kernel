@@ -29,6 +29,8 @@
 #ifndef _VERSATILE_H_
 #define _VERSATILE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -53,7 +55,7 @@ namespace Batch {
     int maxelem; // le nombre d'elements autorises
   } TypeParam;
 
-  class Versatile : public std::list< GenericType * >
+  class BATCH_EXPORT Versatile : public std::list< GenericType * >
   {
   public:
 		// Constructeur standard et destructeur

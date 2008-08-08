@@ -29,13 +29,15 @@
 #ifndef _JOB_H_
 #define _JOB_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
 
 namespace Batch {
 
-  class Job
+  class BATCH_EXPORT Job
   {
   public:
     // Constructeurs et destructeur

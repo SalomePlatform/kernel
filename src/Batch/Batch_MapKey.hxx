@@ -30,6 +30,8 @@
 #ifndef _MAPKEY_H_
 #define _MAPKEY_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include <string>
 
@@ -37,7 +39,7 @@ namespace Batch {
 
   // une classe privee pour les differents types
   // ces types ne peuvent pas etre redefinis
-  class MapKey : public std::string
+  class BATCH_EXPORT MapKey : public std::string
   {
   private:
     friend class Parametre; // seule la classe Parametre peut creer des MapKey

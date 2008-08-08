@@ -29,12 +29,14 @@
 #ifndef _PARAMETRE_H_
 #define _PARAMETRE_H_
 
-using namespace std;
+#include "Batch_Defines.hxx"
+
 #include <map>
 #include <string>
 #include "Batch_InvalidKeyException.hxx"
 #include "Batch_Versatile.hxx"
 
+using namespace std;
 
 // Ces macros permettent de simplifier l'ajout de nouvelles
 // clefs dans la map Parametre
@@ -47,7 +49,7 @@ using namespace std;
 
 namespace Batch {
 
-  class Parametre : public map< string, Versatile >
+  class BATCH_EXPORT Parametre : public map< string, Versatile >
   {
   public:
     // Constructeur standard

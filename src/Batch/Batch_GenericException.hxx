@@ -30,12 +30,14 @@
 #ifndef _GENERICEXCEPTION_H_
 #define _GENERICEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include <string>
 
 namespace Batch {
 
-  class GenericException
+  class BATCH_EXPORT GenericException
   {
   public:
     const std::string type;    // la nature de l'exception

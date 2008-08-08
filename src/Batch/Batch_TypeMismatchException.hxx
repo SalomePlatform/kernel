@@ -29,12 +29,14 @@
 #ifndef _TYPEMISMATCHEXCEPTION_H_
 #define _TYPEMISMATCHEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class TypeMismatchException : public GenericException
+  class BATCH_EXPORT TypeMismatchException : public GenericException
   {
   public:
 		// Constructeur
