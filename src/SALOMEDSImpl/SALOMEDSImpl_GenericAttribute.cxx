@@ -28,16 +28,22 @@
 
 using namespace std;
 
-char* SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
+string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);  
-  return (char*)ga->Type().c_str();
+  if (ga)
+    return ga->Type();
+
+  return "";
 }
 
-char* SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
+string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
-  return (char*)ga->GetClassType().c_str();
+  if (ga)
+    return ga->GetClassType();
+  
+  return "";
 } 
 
 void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(DF_Attribute* theAttr)

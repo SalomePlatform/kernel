@@ -26,15 +26,15 @@
 
 
 //SALOMEDSImpl headers
+#include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 
-// Cascade headers
 #include "DF_ChildIterator.hxx"
 #include "DF_Label.hxx"
 #include "DF_Document.hxx"
 #include <stdio.h>
 
-class Standard_EXPORT SALOMEDSImpl_SComponentIterator
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_SComponentIterator
 {
 private:
 
@@ -42,7 +42,7 @@ private:
   DF_Label                _lab;
 
 public:
-  
+
   SALOMEDSImpl_SComponentIterator(const SALOMEDSImpl_SComponentIterator& theIterator) 
   {
     _it = theIterator._it;
@@ -50,11 +50,11 @@ public:
   } 
 
   SALOMEDSImpl_SComponentIterator() {};
-  
+
   SALOMEDSImpl_SComponentIterator(DF_Document* theDocument);
- 
+
   ~SALOMEDSImpl_SComponentIterator() {};
-  
+
   virtual void Init();
   virtual bool More();
   virtual void Next();

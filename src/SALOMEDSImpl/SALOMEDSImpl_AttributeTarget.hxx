@@ -24,33 +24,35 @@
 #ifndef _SALOMEDSImpl_AttributeTarget_HeaderFile
 #define _SALOMEDSImpl_AttributeTarget_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
-class SALOMEDSImpl_AttributeTarget :  public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeTarget :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-std::string myRelation;
-std::vector<DF_Attribute*>  myVariables;
+  std::string myRelation;
+  std::vector<DF_Attribute*>  myVariables;
 
 public:
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeTarget* Set(const DF_Label& label) ;
-Standard_EXPORT SALOMEDSImpl_AttributeTarget();
-Standard_EXPORT void Add(const SALOMEDSImpl_SObject& theSO);
-Standard_EXPORT std::vector<SALOMEDSImpl_SObject> Get();
-Standard_EXPORT void Remove(const SALOMEDSImpl_SObject& theSO);
-Standard_EXPORT std::string GetRelation() { return myRelation; }
-Standard_EXPORT void SetRelation(const std::string& theRelation); 
-Standard_EXPORT std::vector<DF_Attribute*>& GetVariables() { return myVariables; }
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT  void Restore(DF_Attribute* with) ;
-Standard_EXPORT  DF_Attribute* NewEmpty() const;
-Standard_EXPORT  void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeTarget() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeTarget* Set(const DF_Label& label) ;
+  SALOMEDSImpl_AttributeTarget();
+  void Add(const SALOMEDSImpl_SObject& theSO);
+  std::vector<SALOMEDSImpl_SObject> Get();
+  void Remove(const SALOMEDSImpl_SObject& theSO);
+  std::string GetRelation() { return myRelation; }
+  void SetRelation(const std::string& theRelation); 
+  std::vector<DF_Attribute*>& GetVariables() { return myVariables; }
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeTarget() {}
 
 };
 

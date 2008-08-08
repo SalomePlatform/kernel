@@ -458,7 +458,7 @@ string SALOMEDSImpl_AttributeTableOfInteger::Save()
       aString += myRows[i][j];
       aString += '\n';
     }
-  }  
+  }
 
   //Nb columns
   sprintf(buffer, "%d\n", myNbColumns);

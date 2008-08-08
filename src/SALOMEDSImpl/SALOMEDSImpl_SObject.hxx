@@ -24,6 +24,8 @@
 #ifndef __SALOMEDSIMPL_SOBJECT_H__
 #define __SALOMEDSIMPL_SOBJECT_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
 #include <string>
@@ -32,7 +34,7 @@
 class SALOMEDSImpl_SComponent;
 class SALOMEDSImpl_Study;
 
-class SALOMEDSImpl_SObject
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_SObject
 {
 protected:
   DF_Label     _lab;
@@ -41,45 +43,45 @@ protected:
   std::string  _type;
 
 public:
-  
-  Standard_EXPORT SALOMEDSImpl_SObject();
-  Standard_EXPORT SALOMEDSImpl_SObject(const DF_Label& theLabel);
-  Standard_EXPORT SALOMEDSImpl_SObject(const SALOMEDSImpl_SObject& theSObject);
-  Standard_EXPORT virtual ~SALOMEDSImpl_SObject();
-  
-  Standard_EXPORT virtual std::string GetID() const;
-  Standard_EXPORT virtual SALOMEDSImpl_SComponent GetFatherComponent() const;
-  Standard_EXPORT virtual SALOMEDSImpl_SObject GetFather() const ;
-  Standard_EXPORT virtual bool FindAttribute(DF_Attribute*& theAttribute, const std::string& theTypeOfAttribute) const;
-  Standard_EXPORT virtual bool ReferencedObject(SALOMEDSImpl_SObject& theObject) const ;
-  Standard_EXPORT virtual bool FindSubObject(int theTag, SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual SALOMEDSImpl_Study*  GetStudy() const;
-  Standard_EXPORT virtual std::string Name() const { return _name; }
-  Standard_EXPORT virtual void Name(const std::string& theName) { _name = theName; }
-  Standard_EXPORT virtual std::vector<DF_Attribute*> GetAllAttributes() const; 
+  SALOMEDSImpl_SObject();
+  SALOMEDSImpl_SObject(const DF_Label& theLabel);
+  SALOMEDSImpl_SObject(const SALOMEDSImpl_SObject& theSObject);
+  virtual ~SALOMEDSImpl_SObject();
 
-  Standard_EXPORT virtual std::string GetName() const ;
-  Standard_EXPORT virtual std::string GetComment() const;
-  Standard_EXPORT virtual std::string GetIOR() const;
+  virtual std::string GetID() const;
+  virtual SALOMEDSImpl_SComponent GetFatherComponent() const;
+  virtual SALOMEDSImpl_SObject GetFather() const ;
+  virtual bool FindAttribute(DF_Attribute*& theAttribute, const std::string& theTypeOfAttribute) const;
+  virtual bool ReferencedObject(SALOMEDSImpl_SObject& theObject) const ;
+  virtual bool FindSubObject(int theTag, SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual int Tag() const { return _lab.Tag(); }
-  Standard_EXPORT virtual int Depth() const { return _lab.Depth(); }
+  virtual SALOMEDSImpl_Study*  GetStudy() const;
+  virtual std::string Name() const { return _name; }
+  virtual void Name(const std::string& theName) { _name = theName; }
+  virtual std::vector<DF_Attribute*> GetAllAttributes() const; 
 
-  Standard_EXPORT virtual DF_Label GetLabel() const { return _lab; }   
+  virtual std::string GetName() const ;
+  virtual std::string GetComment() const;
+  virtual std::string GetIOR() const;
 
-  Standard_EXPORT bool IsNull() const { return _lab.IsNull(); }
+  virtual int Tag() const { return _lab.Tag(); }
+  virtual int Depth() const { return _lab.Depth(); }
 
-  Standard_EXPORT bool IsComponent() const;
+  virtual DF_Label GetLabel() const { return _lab; }   
 
-  Standard_EXPORT operator SALOMEDSImpl_SComponent() const; 
+  bool IsNull() const { return _lab.IsNull(); }
 
-  Standard_EXPORT operator bool () const { return !IsNull(); }
-  
-  Standard_EXPORT SALOMEDSImpl_SObject* GetPersistentCopy() const;
+  bool IsComponent() const;
 
-  Standard_EXPORT static std::string GetGUID(const std::string& theTypeOfAttribute);
+  operator SALOMEDSImpl_SComponent() const; 
 
-  
+  operator bool () const { return !IsNull(); }
+
+  SALOMEDSImpl_SObject* GetPersistentCopy() const;
+
+  static std::string GetGUID(const std::string& theTypeOfAttribute);
+
+
 };
 #endif

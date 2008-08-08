@@ -24,38 +24,40 @@
 #ifndef _SALOMEDSImpl_AttributeSequenceOfInteger_HeaderFile
 #define _SALOMEDSImpl_AttributeSequenceOfInteger_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <vector>
 #include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeSequenceOfInteger : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeSequenceOfInteger :
+  public SALOMEDSImpl_GenericAttribute 
 {
 
 public:
 
-Standard_EXPORT virtual std::string Save();
-Standard_EXPORT virtual void Load(const std::string&);
- 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeSequenceOfInteger* Set(const DF_Label& label) ;
-Standard_EXPORT SALOMEDSImpl_AttributeSequenceOfInteger();
-Standard_EXPORT   void Assign(const std::vector<int>& other) ;
-Standard_EXPORT   void ChangeValue(const int Index,const int Value) ;
-Standard_EXPORT   void Add(const int value) ;
-Standard_EXPORT   int Value(const int Index) ;
-Standard_EXPORT   void Remove(const int Index) ;
-Standard_EXPORT   int Length() ;
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeSequenceOfInteger() {}
-Standard_EXPORT const std::vector<int>& Array() { return myValue; }
+  virtual std::string Save();
+  virtual void Load(const std::string&);
+
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeSequenceOfInteger* Set(const DF_Label& label) ;
+  SALOMEDSImpl_AttributeSequenceOfInteger();
+  void Assign(const std::vector<int>& other) ;
+  void ChangeValue(const int Index,const int Value) ;
+  void Add(const int value) ;
+  int Value(const int Index) ;
+  void Remove(const int Index) ;
+  int Length() ;
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeSequenceOfInteger() {}
+  const std::vector<int>& Array() { return myValue; }
 
 private: 
-std::vector<int> myValue;
+  std::vector<int> myValue;
 };
 
 #endif

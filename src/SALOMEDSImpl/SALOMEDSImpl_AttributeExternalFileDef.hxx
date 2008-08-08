@@ -21,32 +21,35 @@
 #ifndef _SALOMEDSImpl_AttributeExternalFileDef_HeaderFile
 #define _SALOMEDSImpl_AttributeExternalFileDef_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
+#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <string>
-#include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeExternalFileDef : public SALOMEDSImpl_GenericAttribute 
+
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeExternalFileDef : 
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
 
- std::string myString;
+  std::string myString;
 
 public:
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeExternalFileDef* Set(const DF_Label& label,
-							          const std::string& Name);
-Standard_EXPORT SALOMEDSImpl_AttributeExternalFileDef();
-Standard_EXPORT void SetValue(const std::string& value); 
-Standard_EXPORT std::string Value() const { return myString; }
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeExternalFileDef() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeExternalFileDef* Set(const DF_Label& label,
+    const std::string& Name);
+  SALOMEDSImpl_AttributeExternalFileDef();
+  void SetValue(const std::string& value); 
+  std::string Value() const { return myString; }
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeExternalFileDef() {}
 
-Standard_EXPORT  virtual std::string Save() { return myString; }
-Standard_EXPORT  virtual void Load(const std::string& theValue) { myString = theValue; } 
+  virtual std::string Save() { return myString; }
+  virtual void Load(const std::string& theValue) { myString = theValue; } 
 
 };
 

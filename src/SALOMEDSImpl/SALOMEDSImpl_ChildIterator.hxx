@@ -24,12 +24,12 @@
 #ifndef __SALOMEDSImpl_CHILDITERATOR_H__
 #define __SALOMEDSImpl_CHILDITERATOR_H__
 
-
+#include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "DF_ChildIterator.hxx"
 #include "DF_Label.hxx"
 
-class SALOMEDSImpl_ChildIterator
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_ChildIterator
 {
 private:
   DF_ChildIterator _it;
@@ -37,20 +37,20 @@ private:
 
 public:
 
-  Standard_EXPORT SALOMEDSImpl_ChildIterator() {}    
-  Standard_EXPORT SALOMEDSImpl_ChildIterator(const SALOMEDSImpl_SObject& theSO);
-  Standard_EXPORT SALOMEDSImpl_ChildIterator(const DF_Label& theLabel);
-  Standard_EXPORT ~SALOMEDSImpl_ChildIterator() {};
+  SALOMEDSImpl_ChildIterator() {}    
+  SALOMEDSImpl_ChildIterator(const SALOMEDSImpl_SObject& theSO);
+  SALOMEDSImpl_ChildIterator(const DF_Label& theLabel);
+  ~SALOMEDSImpl_ChildIterator() {};
 
-  Standard_EXPORT virtual void Init();
-  Standard_EXPORT virtual void Init(const DF_Label& theLabel);
-  Standard_EXPORT virtual void InitEx(bool theAllLevels);
-  Standard_EXPORT virtual void InitEx(const DF_Label& theLabel, bool theAllLevels);
-  Standard_EXPORT virtual bool More();
-  Standard_EXPORT virtual void Next();
-  Standard_EXPORT virtual SALOMEDSImpl_SObject Value();
-  Standard_EXPORT virtual DF_Label Label();
+  virtual void Init();
+  virtual void Init(const DF_Label& theLabel);
+  virtual void InitEx(bool theAllLevels);
+  virtual void InitEx(const DF_Label& theLabel, bool theAllLevels);
+  virtual bool More();
+  virtual void Next();
+  virtual SALOMEDSImpl_SObject Value();
+  virtual DF_Label Label();
 
-  Standard_EXPORT SALOMEDSImpl_ChildIterator* GetPersistentCopy() const;
+  SALOMEDSImpl_ChildIterator* GetPersistentCopy() const;
 };
 #endif

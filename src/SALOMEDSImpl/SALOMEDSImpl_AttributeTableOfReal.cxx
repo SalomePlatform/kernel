@@ -444,7 +444,7 @@ string SALOMEDSImpl_AttributeTableOfReal::Save()
     aString += myTitle[i];
     aString +='\n';
   }
-  
+
   //Nb rows
   sprintf(buffer, "%d\n", myNbRows);
   aString+=buffer;
@@ -458,7 +458,7 @@ string SALOMEDSImpl_AttributeTableOfReal::Save()
       aString += myRows[i][j];
       aString += '\n';
     }
-  }  
+  }
 
   //Nb columns
   sprintf(buffer, "%d\n", myNbColumns);
@@ -483,7 +483,7 @@ string SALOMEDSImpl_AttributeTableOfReal::Save()
     sprintf(buffer, "%d\n%.64e\n", p->first, p->second);
     aString += buffer;
   }
-
+  
   delete []buffer;
   return aString;
 }

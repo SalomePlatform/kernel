@@ -24,12 +24,12 @@
 //  Project   : SALOME
 //  Module    : SALOMEDSImpl
 
-#include "SALOMEDSImpl_Tool.hxx"
-
 #include <stdio.h>
 #include <iostream> 
 #include <fstream>
+#include <stdlib.h>
 
+#include "SALOMEDSImpl_Tool.hxx"
 
 #ifndef WNT
 #include <sys/time.h>
@@ -40,9 +40,9 @@
 #else
 #include <time.h>
 #include <lmcons.h>
+//#include <winbase.h>
+#include <windows.h>
 #endif
-
-#include <stdlib.h>
 
 using namespace std;
 
@@ -153,7 +153,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const string& theDirectory,
   if(IsDirDeleted) {
     if(Exists(aDirName)) {
 #ifdef WNT
-      RemoveDirectory(aDireName.c_str());
+      RemoveDirectory(aDirName.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
@@ -202,7 +202,7 @@ string SALOMEDSImpl_Tool::GetDirFromPath(const string& thePath) {
   }
   
 #ifdef WNT  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 
@@ -268,13 +268,17 @@ void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hour
 #endif
 }
 
+//Warning undef of Ascii Winwows define
+#ifdef WNT
+# undef GetUserName
+#endif
 string SALOMEDSImpl_Tool::GetUserName()
 {
 #ifdef WNT
   char*  pBuff = new char[UNLEN + 1];
   DWORD  dwSize = UNLEN + 1;
   string retVal;
-  GetUserName ( pBuff, &dwSize );
+  ::GetUserNameA( pBuff, &dwSize );
   string theTmpUserName(pBuff,(int)dwSize -1 );
   retVal = theTmpUserName;
   delete [] pBuff;

@@ -24,42 +24,39 @@
 #ifndef SALOMEDSImpl_AttributeGraphic_HeaderFile
 #define SALOMEDSImpl_AttributeGraphic_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
+#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
-#include "SALOMEDSImpl_GenericAttribute.hxx"
-
 #include <map>
 
 /*
-  Class       : SALOMEDSImpl_AttributeGraphic
-  Description : This class is intended for storing information about
-                graphic representation of objects in dirrent views
+Class       : SALOMEDSImpl_AttributeGraphic
+Description : This class is intended for storing information about
+graphic representation of objects in dirrent views
 */
 
-#ifndef WNT
-class Standard_EXPORT SALOMEDSImpl_AttributeGraphic : public SALOMEDSImpl_GenericAttribute
-#else
-class SALOMEDSImpl_AttributeGraphic : public SALOMEDSImpl_GenericAttribute
-#endif
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeGraphic :
+  public SALOMEDSImpl_GenericAttribute
 {
 
 public:
-Standard_EXPORT                                    SALOMEDSImpl_AttributeGraphic();
-Standard_EXPORT                                    ~SALOMEDSImpl_AttributeGraphic();
-				  
-Standard_EXPORT    static const                    std::string& GetID() ;
+  SALOMEDSImpl_AttributeGraphic();
+  ~SALOMEDSImpl_AttributeGraphic();
 
-Standard_EXPORT    void                            SetVisibility( const int, const bool );
-Standard_EXPORT    bool                            GetVisibility( const int );
-Standard_EXPORT    const std::string&              ID() const;
-Standard_EXPORT    void                            Restore( DF_Attribute* theWith );
-Standard_EXPORT    DF_Attribute*                   NewEmpty() const;
-Standard_EXPORT    void                            Paste( DF_Attribute* theInto);
+  static const                    std::string& GetID() ;
 
-Standard_EXPORT    void                            SetVisibility( const std::map<int, int>& );
+  void                            SetVisibility( const int, const bool );
+  bool                            GetVisibility( const int );
+  const std::string&              ID() const;
+  void                            Restore( DF_Attribute* theWith );
+  DF_Attribute*                   NewEmpty() const;
+  void                            Paste( DF_Attribute* theInto);
 
-Standard_EXPORT    const std::map<int, int>&       GetVisibility();
-  
+  void                            SetVisibility( const std::map<int, int>& );
+
+  const std::map<int, int>&       GetVisibility();
+
 private:
   std::map<int, int>  myVisibility;
 

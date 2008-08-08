@@ -23,11 +23,8 @@
 
 #include "SALOMEDSImpl_AttributeInteger.hxx"
 
-#ifndef WNT
-using namespace std;
-#endif
-
 #include <stdlib.h>
+using namespace std;
 
 //=======================================================================
 //function : GetID

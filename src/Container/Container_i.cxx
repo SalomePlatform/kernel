@@ -37,6 +37,7 @@
 #else
 #include <signal.h>
 #include <process.h>
+#include <direct.h>
 int SIGUSR1 = 1000;
 #endif
 

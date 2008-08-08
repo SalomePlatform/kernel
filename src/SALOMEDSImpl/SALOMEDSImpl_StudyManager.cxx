@@ -462,7 +462,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
   HDFdataset *hdf_dataset =0;
   hdf_size size[1];
   hdf_int32 name_len = 0;
-  char *component_name = 0;
+  string component_name;
 
   if(!aStudy) {
     _errorCode = "Study is null";
@@ -609,12 +609,12 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
 	  hdf_sco_group2->CreateOnDisk();
           SaveAttributes(SC, hdf_sco_group2);
 	  // ComponentDataType treatment
-	  component_name = (char*)SC.ComponentDataType().c_str();
-	  name_len = (hdf_int32)strlen(component_name);
+	  component_name = SC.ComponentDataType();
+	  name_len = (hdf_int32)component_name.length();
 	  size[0] = name_len +1 ;
 	  hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
 	  hdf_dataset->CreateOnDisk();
-	  hdf_dataset->WriteOnDisk(component_name);
+	  hdf_dataset->WriteOnDisk((char*)component_name.c_str());
 	  hdf_dataset->CloseOnDisk();
 	  hdf_dataset=0; //will be deleted by hdf_sco_group destructor
 	  Impl_SaveObject(SC, hdf_sco_group2);
@@ -638,12 +638,12 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
       //-----------------------------------------------------------------------
       //5 - Write the Study Properties
       //-----------------------------------------------------------------------
-      name_len = (hdf_int32) aStudy->Name().size();
+      string study_name = aStudy->Name();
+      name_len = (hdf_int32) study_name.size();
       size[0] = name_len +1 ;
       hdf_dataset = new HDFdataset("STUDY_NAME",hdf_group_study_structure,HDF_STRING,size,1);
       hdf_dataset->CreateOnDisk();
-      char* studid = (char*)aStudy->Name().c_str();
-      hdf_dataset->WriteOnDisk(studid);
+      hdf_dataset->WriteOnDisk((char*)study_name.c_str());
       hdf_dataset->CloseOnDisk();
       hdf_dataset=0; // will be deleted by hdf_group_study_structure destructor
 
@@ -717,8 +717,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const SALOMEDSImpl_SObject& SC,
 
       SALOMEDSImpl_SObject SO = SALOMEDSImpl_Study::SObject(itchild.Value());
 
-      char* scoid = (char*) SO.GetID().c_str();
-      hdf_group_sobject = new HDFgroup(scoid, hdf_group_datatype);
+      string scoid = SO.GetID();
+      hdf_group_sobject = new HDFgroup(scoid.c_str(), hdf_group_datatype);
       hdf_group_sobject->CreateOnDisk();
       SaveAttributes(SO, hdf_group_sobject);
       Impl_SaveObject(SO, hdf_group_sobject);

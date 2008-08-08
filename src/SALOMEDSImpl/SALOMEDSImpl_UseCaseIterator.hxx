@@ -24,13 +24,15 @@
 #ifndef __SALOMEDSIMPL_USECASEITERATOR_H__
 #define __SALOMEDSIMPL_USECASEITERATOR_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include "SALOMEDSImpl_SObject.hxx"
 #include "DF_ChildIterator.hxx"
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 
 #include <string>
 
-class Standard_EXPORT SALOMEDSImpl_UseCaseIterator
+class  SALOMEDSIMPL_EXPORT SALOMEDSImpl_UseCaseIterator
 {
 
 private:
@@ -45,12 +47,12 @@ public:
 
   //! standard constructor  
   SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
-			       const std::string& theGUID, 
-			       const bool allLevels);
-  
+    const std::string& theGUID, 
+    const bool allLevels);
+
   //! standard destructor
   ~SALOMEDSImpl_UseCaseIterator();
-  
+
   virtual void Init(bool);
   virtual bool More();
   virtual void Next();

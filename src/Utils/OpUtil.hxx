@@ -34,4 +34,24 @@
 UTILS_EXPORT std::string GetHostname();
 UTILS_EXPORT const char *duplicate(const char * const);
 
+class UTILS_EXPORT OpUtil_Dir
+{
+public:
+  // Returns the unique temporary directory, that is defined in tmp_path_env if this variable is set
+  // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
+  static std::string GetTmpDirByEnv( const std::string& tmp_path_env );
+
+  // Returns the unique temporary directory, that is defined in tmp_path if this variable is set
+  // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
+  static std::string GetTmpDirByPath( const std::string& tmp_path );
+  
+  // Returns the unique temporary directory in 
+  // /tmp/something/ for Unix or c:\something\ for WNT
+  static std::string GetTmpDir();
+
+  // Returns True(False) if the path (not)exists
+  static bool IsExists( const std::string& path );
+
+};
+
 #endif

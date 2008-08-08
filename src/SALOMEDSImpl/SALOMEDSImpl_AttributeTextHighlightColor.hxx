@@ -24,6 +24,7 @@
 #ifndef _SALOMEDSImpl_AttributeTextHighlightColor_HeaderFile
 #define _SALOMEDSImpl_AttributeTextHighlightColor_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <string>
@@ -31,24 +32,25 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 
-class SALOMEDSImpl_AttributeTextHighlightColor : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeTextHighlightColor :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
   std::vector<double> myValue;
 
 public:
-Standard_EXPORT virtual std::string Save();
-Standard_EXPORT virtual void Load(const std::string&); 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT SALOMEDSImpl_AttributeTextHighlightColor();
-Standard_EXPORT  void SetTextHighlightColor(const double& R, const double& G, const double& B);
-Standard_EXPORT  std::vector<double> TextHighlightColor(); 
-Standard_EXPORT  void ChangeArray(const std::vector<double>& newArray);
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeTextHighlightColor() {}
+  virtual std::string Save();
+  virtual void Load(const std::string&); 
+  static const std::string& GetID() ;
+  SALOMEDSImpl_AttributeTextHighlightColor();
+  void SetTextHighlightColor(const double& R, const double& G, const double& B);
+  std::vector<double> TextHighlightColor(); 
+  void ChangeArray(const std::vector<double>& newArray);
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeTextHighlightColor() {}
 };
 
 #endif

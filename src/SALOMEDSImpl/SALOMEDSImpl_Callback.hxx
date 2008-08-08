@@ -24,30 +24,30 @@
 #ifndef __SALOMEDSIMPL_CALLBACK_H__
 #define __SALOMEDSIMPL_CALLBACK_H__
 
-
+#include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
-class SALOMEDSImpl_Callback
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Callback
 {
 private:
   SALOMEDSImpl_UseCaseBuilder* _builder;
 
 public:
 
- SALOMEDSImpl_Callback(SALOMEDSImpl_UseCaseBuilder* builder) 
- {
-   _builder = builder;
- }
+  SALOMEDSImpl_Callback(SALOMEDSImpl_UseCaseBuilder* builder) 
+  {
+    _builder = builder;
+  }
 
- virtual void OnAddSObject(const SALOMEDSImpl_SObject& theObject) 
- {
-   if(_builder != NULL && theObject) _builder->Append(theObject);
- }
+  virtual void OnAddSObject(const SALOMEDSImpl_SObject& theObject) 
+  {
+    if(_builder != NULL && theObject) _builder->Append(theObject);
+  }
 
- virtual void OnRemoveSObject(const SALOMEDSImpl_SObject& theObject) 
- {
-   if(_builder != NULL && theObject) _builder->Remove(theObject);
- }
+  virtual void OnRemoveSObject(const SALOMEDSImpl_SObject& theObject) 
+  {
+    if(_builder != NULL && theObject) _builder->Remove(theObject);
+  }
 
 };
 

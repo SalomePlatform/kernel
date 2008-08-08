@@ -27,13 +27,12 @@
 #include "SALOMEDS_Tool.hxx"
 
 #include "utilities.h"
+#include "OpUtil.hxx"
 
 #ifndef WNT
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <iostream.h> 
-#include <fstream.h>
 #include <pwd.h> 
 #include <unistd.h>
 #else
@@ -41,6 +40,8 @@
 #include <lmcons.h>
 #endif
 
+#include <iostream> 
+#include <fstream>
 #include <stdlib.h>
 
 #include <SALOMEconfig.h>
@@ -52,7 +53,7 @@ bool Exists(const string thePath)
 {
 #ifdef WNT 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+    if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
       return false;
     }
   }
@@ -70,9 +71,10 @@ bool Exists(const string thePath)
 //============================================================================ 
 std::string SALOMEDS_Tool::GetTmpDir()
 {
+  return OpUtil_Dir::GetTmpDirByEnv("SALOME_TMP_DIR");
   //Find a temporary directory to store a file
 
-  string aTmpDir = "";
+  /*string aTmpDir = "";
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
@@ -122,7 +124,7 @@ std::string SALOMEDS_Tool::GetTmpDir()
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
 
-  return aDir;
+  return aDir;*/
 }
 
 //============================================================================
@@ -151,7 +153,7 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   if(IsDirDeleted) {
     if(Exists(aDirName)) {
 #ifdef WNT
-      RemoveDirectory(aDireName.c_str());
+      RemoveDirectory(aDirName.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
@@ -408,7 +410,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
   }
   
 #ifdef WNT  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 

@@ -24,13 +24,15 @@
 #ifndef _GENERICIMPL_ATTRIBUTE_HXX_
 #define _GENERICIMPL_ATTRIBUTE_HXX_
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
 #include <string>
 
 #include "SALOMEDSImpl_SObject.hxx"
 
-class SALOMEDSImpl_GenericAttribute: public DF_Attribute
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_GenericAttribute: 
+  public DF_Attribute
 {
 protected:
 
@@ -38,19 +40,19 @@ protected:
 
 public:
 
-Standard_EXPORT SALOMEDSImpl_GenericAttribute(const std::string& theType) 
-:_type(theType)
-{}
+  SALOMEDSImpl_GenericAttribute(const std::string& theType) 
+    :_type(theType)
+  {}
 
-Standard_EXPORT virtual std::string Type();
-Standard_EXPORT virtual void CheckLocked();
-Standard_EXPORT std::string GetClassType() { return _type; }
-Standard_EXPORT SALOMEDSImpl_SObject GetSObject();
-Standard_EXPORT void SetModifyFlag();
+  virtual std::string Type();
+  virtual void CheckLocked();
+  std::string GetClassType() { return _type; }
+  SALOMEDSImpl_SObject GetSObject();
+  void SetModifyFlag();
 
-Standard_EXPORT static char* Impl_GetType(DF_Attribute* theAttr); 
-Standard_EXPORT static char* Impl_GetClassType(DF_Attribute* theAttr);
-Standard_EXPORT static void Impl_CheckLocked(DF_Attribute* theAttr);
+  static std::string Impl_GetType(DF_Attribute* theAttr); 
+  static std::string Impl_GetClassType(DF_Attribute* theAttr);
+  static void Impl_CheckLocked(DF_Attribute* theAttr);
 
 };
 

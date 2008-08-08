@@ -24,31 +24,33 @@
 #ifndef _SALOMEDSImpl_AttributeSelectable_HeaderFile
 #define _SALOMEDSImpl_AttributeSelectable_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"       
 #include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeSelectable : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeSelectable :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-int myValue;
+  int myValue;
 
 public:
 
-Standard_EXPORT virtual std::string Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
-Standard_EXPORT virtual void Load(const std::string& theValue) { (theValue == "0")?myValue=0:myValue=1; }  
+  virtual std::string Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
+  virtual void Load(const std::string& theValue) { (theValue == "0")?myValue=0:myValue=1; }  
 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeSelectable* Set(const DF_Label& label,const int value) ;
-Standard_EXPORT SALOMEDSImpl_AttributeSelectable();
-Standard_EXPORT void SetSelectable(const int value);
-Standard_EXPORT int IsSelectable() const { return myValue; } 
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeSelectable() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeSelectable* Set(const DF_Label& label,const int value) ;
+  SALOMEDSImpl_AttributeSelectable();
+  void SetSelectable(const int value);
+  int IsSelectable() const { return myValue; } 
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeSelectable() {}
 
 };
 

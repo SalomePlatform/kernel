@@ -28,11 +28,13 @@
 #ifndef __SALOMEDSIMPL_TOOL_H__
 #define __SALOMEDSIMPL_TOOL_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include <string>
 #include <vector>
 #include "DF_Label.hxx"
 
-class SALOMEDSImpl_Tool                                
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 {
 
 public:

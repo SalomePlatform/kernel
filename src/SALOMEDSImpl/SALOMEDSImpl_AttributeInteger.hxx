@@ -24,31 +24,32 @@
 #ifndef _SALOMEDSImpl_AttributeInteger_HeaderFile
 #define _SALOMEDSImpl_AttributeInteger_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include <string>
 #include "DF_Label.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeInteger : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeInteger : public SALOMEDSImpl_GenericAttribute 
 {
 private:
-int myValue;
+  int myValue;
 
 public:
-Standard_EXPORT static const std::string& GetID() ;
+  static const std::string& GetID() ;
 
-Standard_EXPORT  SALOMEDSImpl_AttributeInteger():SALOMEDSImpl_GenericAttribute("AttributeInteger") {} 
-Standard_EXPORT  static SALOMEDSImpl_AttributeInteger* Set (const DF_Label& L, int Val); 
-Standard_EXPORT  void SetValue(const int theVal);
-Standard_EXPORT  int Value() const; 
-Standard_EXPORT  virtual std::string Save();
-Standard_EXPORT  virtual void Load(const std::string& theValue); 
+  SALOMEDSImpl_AttributeInteger():SALOMEDSImpl_GenericAttribute("AttributeInteger") {} 
+  static SALOMEDSImpl_AttributeInteger* Set (const DF_Label& L, int Val); 
+  void SetValue(const int theVal);
+  int Value() const; 
+  virtual std::string Save();
+  virtual void Load(const std::string& theValue); 
 
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT  void Restore(DF_Attribute* with) ;
-Standard_EXPORT  DF_Attribute* NewEmpty() const;
-Standard_EXPORT  void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeInteger() {}
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeInteger() {}
 
 };
 
