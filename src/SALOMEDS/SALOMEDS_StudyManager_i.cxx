@@ -476,7 +476,7 @@ CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, C
   long pid = (long)getpid();
 #endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return reinterpret_cast<CORBA::LongLong>(_impl);
+  return ((CORBA::LongLong)(void*)_impl);
 }
 
 //===========================================================================

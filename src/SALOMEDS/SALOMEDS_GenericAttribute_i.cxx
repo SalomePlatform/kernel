@@ -79,7 +79,8 @@ char* SALOMEDS_GenericAttribute_i::Type()
 {
   SALOMEDS::Locker lock;
   if (_impl) {
-    return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl));
+    string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl);
+    return CORBA::string_dup(type.c_str());
   }    
 
   return (char*)"";
@@ -89,7 +90,8 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
 {
   SALOMEDS::Locker lock;
   if (_impl) {
-    return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl));
+    string class_type = SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl);
+    return CORBA::string_dup(class_type.c_str());
   }
 
   return (char*)"";

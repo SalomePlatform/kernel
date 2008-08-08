@@ -31,6 +31,11 @@
 #include <fstream>
 #include <map>
 
+#ifdef WIN32
+# include <process.h>
+#endif
+
+
 using namespace std;
 
 #include "utilities.h"
@@ -619,7 +624,12 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
 
 CORBA::Long SALOME_ModuleCatalogImpl::getPID()
 { 
-  return (CORBA::Long)getpid();
+  return 
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)_getpid();
+#endif
 }
 
 void SALOME_ModuleCatalogImpl::ShutdownWithExit()
