@@ -132,9 +132,9 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 #endif
 		  if ( !TraceCollectorFactory )
 		  {
-		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
+		      MESSAGE ( "Can't resolve symbol: SingletonInstance" );
 #ifndef WNT
-		      cerr << "dlerror: " << dlerror() << endl;
+		      MESSAGE ( "dlerror: " << dlerror() );
 #endif
 		      exit( 1 );
 		    }
@@ -142,7 +142,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		}
 	      else
 		{
-		  cerr << "library: " << impl_name << " not found !" << endl;
+		  MESSAGE ( "library: " << impl_name << " not found !" );
 		  assert(handle); // to give file and line
 		  exit(1);        // in case assert is deactivated
 		}	      

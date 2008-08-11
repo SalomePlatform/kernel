@@ -161,7 +161,7 @@ int main(int argc,char **argv)
       timer.ShowAbsolute();
 #endif
       orb->run();
-      std::cerr << "server returned from orb->run()" << std::endl;
+      MESSAGE ( "server returned from orb->run()" );
       orb->destroy();
  
 //       mgr->deactivate(true,true);

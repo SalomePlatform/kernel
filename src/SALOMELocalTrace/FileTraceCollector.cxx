@@ -29,6 +29,8 @@
 #include <fstream>
 #include <cstdlib>
 
+#include "utilities.h"
+
 using namespace std;
 
 //#define _DEVDEBUG_
@@ -106,7 +108,7 @@ void* FileTraceCollector::run(void *bid)
   traceFile.open(theFileName, ios::out | ios::app);
   if (!traceFile)
     {
-      cerr << "impossible to open trace file "<< theFileName << endl;
+      MESSAGE ( "impossible to open trace file "<< theFileName );
       exit (1);
     }
 
@@ -135,11 +137,11 @@ void* FileTraceCollector::run(void *bid)
 	  traceFile.close();
 	  cout << flush ;
 #ifndef WNT
-	  cerr << "INTERRUPTION from thread " << myTrace.threadId
-	       << " : " <<  myTrace.trace;
+	  MESSAGE ( "INTERRUPTION from thread " << myTrace.threadId
+	         << " : " <<  myTrace.trace );
 #else
-	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	       << " : " <<  myTrace.trace;
+	  MESSAGE ( "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+	       << " : " <<  myTrace.trace );
 #endif
 	  cerr << flush ; 
 	  exit(1);     

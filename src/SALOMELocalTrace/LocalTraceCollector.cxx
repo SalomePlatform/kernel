@@ -28,6 +28,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
+#include "utilities.h"
 
 using namespace std;
 
@@ -102,11 +103,11 @@ void* LocalTraceCollector::run(void *bid)
 	{
 	  cout << flush ;
 #ifndef WNT
-	  cerr << "INTERRUPTION from thread " << myTrace.threadId
-	       << " : " <<  myTrace.trace;
+	  MESSAGE ( "INTERRUPTION from thread " << myTrace.threadId
+                 << " : " <<  myTrace.trace );
 #else
-	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	       << " : " <<  myTrace.trace;
+	  MESSAGE ( "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+	         << " : " <<  myTrace.trace );
 #endif
 	  cerr << flush ; 
 	  exit(1);     
@@ -115,10 +116,9 @@ void* LocalTraceCollector::run(void *bid)
 	{
 	  cout << flush ;
 #ifndef WNT
-	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+	  MESSAGE ( "th. " << myTrace.threadId << " " << myTrace.trace );
 #else
-	  cerr << "th. " << (void*)(&myTrace.threadId)
-	       << " " << myTrace.trace;
+	  MESSAGE ( "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace );
 #endif
 	  cerr << flush ; 
 	}
@@ -146,7 +146,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
       if (_threadId)
 	{
 	  int ret = pthread_join(*_threadId, NULL);
-	  if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
+	  if (ret) { MESSAGE ( "error close LocalTraceCollector : " << ret ); }
 	  else DEVTRACE("LocalTraceCollector destruction OK");
           delete _threadId;
 	  _threadId = 0;

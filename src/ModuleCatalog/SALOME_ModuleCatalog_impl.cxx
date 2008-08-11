@@ -30,15 +30,13 @@
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 #include <fstream>
 #include <map>
+#include "utilities.h"
 
 #ifdef WIN32
 # include <process.h>
 #endif
 
-
 using namespace std;
-
-#include "utilities.h"
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
@@ -698,14 +696,14 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
       if (aDoc != NULL) 
 	handler->ProcessXmlDocument(aDoc);
       else
-	INFOS("ModuleCatalog: could not parse file "<<file);
+	MESSAGE("ModuleCatalog: could not parse file "<<file);
 
       xmlFreeDoc(aDoc);
       xmlCleanupParser();
       fclose(aFile);
     }
   else
-    INFOS("ModuleCatalog: file "<<file<<" is not readable.");
+    MESSAGE("ModuleCatalog: file "<<file<<" is not readable.");
   
   delete handler;
   

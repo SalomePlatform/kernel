@@ -32,7 +32,7 @@ void AttachDebugger()
     {
       std::stringstream exec;
       exec << "$DEBUGGER SALOME_LauncherServer " << getpid() << "&";
-      std::cerr << exec.str() << std::endl;
+      MESSAGE ( exec.str() );
       system(exec.str().c_str());
       while(1);
     }
@@ -40,13 +40,13 @@ void AttachDebugger()
 
 void terminateHandler(void)
 {
-  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  MESSAGE ( "Terminate: not managed exception !"  );
   AttachDebugger();
 }
 
 void unexpectedHandler(void)
 {
-  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  MESSAGE ( "Unexpected: unexpected exception !"  );
   AttachDebugger();
 }
 

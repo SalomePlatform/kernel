@@ -129,7 +129,7 @@ int main(int argc,char **argv)
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){
     INFOS("SALOME_ModuleCatalog::NotFound")
-      cerr << ex.what << endl;
+      MESSAGE ( ex.what );
   }
     catch(CORBA::SystemException&) {
       INFOS("Caught CORBA::SystemException.")

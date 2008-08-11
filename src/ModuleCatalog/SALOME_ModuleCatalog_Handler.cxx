@@ -237,10 +237,10 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                         _typeList.push_back(aType);
                       }
                     else
-                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                      MESSAGE ( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  );
                   }
                 else
-                  std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." << std::endl;
+                  MESSAGE ( "Warning: this type (" << aType.name << "," << aType.kind << ") has incorrect kind, it will be ignored." );
               }
             else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"sequence" )) 
               {
@@ -267,11 +267,11 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                         _typeList.push_back(aType);
                       }
                     else
-                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                      MESSAGE ( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  );
                   }
                 else
                   {
-                    std::cerr << "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." << std::endl;
+                    MESSAGE ( "Warning: this sequence type (" << aType.name << "," << aType.content << ") has unknown content type, it will be ignored." );
                   }
               }
             else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"objref" )) 
@@ -309,7 +309,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                               }
                             else
                               {
-                                std::cerr << "Warning: this objref type (" << aType.name << ") has unknown base type (" << base << "), it will be ignored." << std::endl;
+                                MESSAGE ( "Warning: this objref type (" << aType.name << ") has unknown base type (" << base << "), it will be ignored." );
                                 error=1;
                                 break;
                               }
@@ -326,7 +326,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                         _typeList.push_back(aType);
                       }
                     else
-                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                      MESSAGE ( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  );
                   }
               }
             else if ( !xmlStrcmp(aTypeNode->name, (const xmlChar*)"struct" )) 
@@ -371,7 +371,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                           }
                         else
                           {
-                            std::cerr << "Warning: this struct type (" << aType.name << ") has unknown member type (" << member.first << "," << member.second << "), it will be ignored." << std::endl;
+                            MESSAGE ( "Warning: this struct type (" << aType.name << ") has unknown member type (" << member.first << "," << member.second << "), it will be ignored." );
                             error=1;
                             break;
                           }
@@ -387,7 +387,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                         _typeList.push_back(aType);
                       }
                     else
-                      std::cerr << "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  << std::endl;
+                      MESSAGE ( "Warning: this type (" << aType.name << "," << aType.kind << ") already exists, it will be ignored."  );
                   }
               } // end of struct
             aTypeNode = aTypeNode->next;
