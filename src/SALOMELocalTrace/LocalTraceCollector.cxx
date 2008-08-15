@@ -103,11 +103,11 @@ void* LocalTraceCollector::run(void *bid)
 	{
 	  cout << flush ;
 #ifndef WNT
-	  MESSAGE ( "INTERRUPTION from thread " << myTrace.threadId
-                 << " : " <<  myTrace.trace );
+	  cerr << "INTERRUPTION from thread " << myTrace.threadId
+                 << " : " <<  myTrace.trace;
 #else
-	  MESSAGE ( "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	         << " : " <<  myTrace.trace );
+	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+	         << " : " <<  myTrace.trace;
 #endif
 	  cerr << flush ; 
 	  exit(1);     
@@ -116,9 +116,9 @@ void* LocalTraceCollector::run(void *bid)
 	{
 	  cout << flush ;
 #ifndef WNT
-	  MESSAGE ( "th. " << myTrace.threadId << " " << myTrace.trace );
+	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-	  MESSAGE ( "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace );
+	  cerr << "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace;
 #endif
 	  cerr << flush ; 
 	}
