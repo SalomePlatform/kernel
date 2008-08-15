@@ -281,9 +281,9 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
 
 # -----------------------------------------------------------------------------
 
-def main():
-    args, modules_list, modules_root_dir = get_config()
-    set_env(args, modules_list, modules_root_dir)
+def main(silent=False):
+    args, modules_list, modules_root_dir = get_config(silent=silent)
+    set_env(args, modules_list, modules_root_dir, silent=silent)
     return args
 
 # -----------------------------------------------------------------------------
