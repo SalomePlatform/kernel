@@ -34,13 +34,13 @@
 
 
 #ifdef WIN32
-# ifdef RESOURCESMANAGER_EXPORTS
-#  define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+# ifdef SALOMERESOURCESMANAGER_EXPORTS
+#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
 # else
-#  define RESOURCESMANAGER_EXPORT __declspec( dllimport )
+#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
 # endif
 #else
-# define RESOURCESMANAGER_EXPORT
+# define SALOMERESOURCESMANAGER_EXPORT
 #endif
 
 // --- WARNING ---
@@ -49,7 +49,7 @@
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
 
-class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
+class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
   public POA_Engines::ResourcesManager,
   public PortableServer::RefCountServantBase
   {

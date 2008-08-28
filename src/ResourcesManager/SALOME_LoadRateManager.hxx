@@ -20,22 +20,9 @@
 #ifndef __SALOME_LOADRATEMANAGER_HXX__
 #define __SALOME_LOADRATEMANAGER_HXX__
 
+#include "ResourcesManager_Defs.hxx"
 #include <string>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#endif
 
 class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
   {

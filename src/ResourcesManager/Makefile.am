@@ -39,7 +39,8 @@ salomeinclude_HEADERS = \
 		SALOME_ResourcesManager.hxx \
                 SALOME_ResourcesCatalog_Handler.hxx \
 		SALOME_LoadRateManager.hxx \
-		ResourcesManager.hxx
+		ResourcesManager.hxx \
+		ResourcesManager_Defs.hxx
 
 #
 # ===============================================================
@@ -89,9 +90,7 @@ libResourcesManager_la_SOURCES =\
 	ResourcesManager.cxx
 
 libResourcesManager_la_CPPFLAGS =\
-	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
-	@LIBXML_INCLUDES@
+	$(COMMON_CPPFLAGS)
 
 libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libResourcesManager_la_LIBADD  =\

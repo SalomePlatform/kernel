@@ -20,6 +20,16 @@
 #ifndef __LAUNCHER_HXX__
 #define __LAUNCHER_HXX__
 
+#ifdef WIN32
+# ifdef LAUNCHER_EXPORTS
+#  define LAUNCHER_EXPORT __declspec(dllexport)
+# else
+#  define LAUNCHER_EXPORT __declspec(dllimport)
+# endif
+#else
+# define LAUNCHER_EXPORT
+#endif
+
 #include "Batch_BatchManager_eClient.hxx"
 #include "ResourcesManager.hxx"
 
@@ -32,7 +42,7 @@ struct batchParams{
   unsigned long nb_proc;
 };
 
-class LauncherException
+class LAUNCHER_EXPORT LauncherException
 {
 public:
   const std::string msg;
@@ -40,7 +50,7 @@ public:
   LauncherException(const std::string m) : msg(m) {}
 };
 
-class Launcher_cpp
+class LAUNCHER_EXPORT Launcher_cpp
 {
 
 public:

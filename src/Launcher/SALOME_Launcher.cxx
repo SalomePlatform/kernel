@@ -20,8 +20,10 @@
 #include "SALOME_Launcher.hxx"
 #include "OpUtil.hxx"
 #include <sys/types.h>
-#ifndef WNT
-#include <unistd.h>
+#ifndef WIN32
+# include <unistd.h>
+#else
+# include <process.h>
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
@@ -97,7 +99,13 @@ void SALOME_Launcher::Shutdown()
 //=============================================================================
 CORBA::Long SALOME_Launcher::getPID()
 {
-  return (CORBA::Long)getpid();
+  return 
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)_getpid();
+#endif
+
 }
 
 //=============================================================================

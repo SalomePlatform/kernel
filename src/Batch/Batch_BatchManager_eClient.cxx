@@ -18,20 +18,21 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager_eLSF.cxx : emulation of LSF client
- *
- * Auteur : Bernard SECHER - CEA DEN
- * Mail   : mailto:bernard.secher@cea.fr
- * Date   : Thu Apr 24 10:17:22 2008
- * Projet : PAL Salome 
- *
- */
+* BatchManager_eLSF.cxx : emulation of LSF client
+*
+* Auteur : Bernard SECHER - CEA DEN
+* Mail   : mailto:bernard.secher@cea.fr
+* Date   : Thu Apr 24 10:17:22 2008
+* Projet : PAL Salome 
+*
+*/
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
 #include "Batch_BatchManager_eClient.hxx"
+#include "OpUtil.hxx"
 
 namespace Batch {
 
@@ -65,7 +66,7 @@ namespace Batch {
       copy_command = "scp ";
     else
       throw EmulationException("Unknown protocol : only rsh and ssh are known !");
-    
+
     // First step : creating batch tmp files directory
     command = _protocol;
     command += " ";
@@ -108,7 +109,7 @@ namespace Batch {
       ex_mess += oss.str();
       throw EmulationException(ex_mess.c_str());
     }
-    
+
     // Third step : copy filesToExportList into
     // batch tmp files directory
     for(Vit=V.begin(); Vit!=V.end(); Vit++) {
@@ -118,8 +119,8 @@ namespace Batch {
       command += inputFile.getLocal();
       command += " ";
       if(_username != ""){
-	command += _username;
-	command += "@";
+        command += _username;
+        command += "@";
       }
       command += _hostname;
       command += ":";
@@ -127,11 +128,11 @@ namespace Batch {
       cerr << command.c_str() << endl;
       status = system(command.c_str());
       if(status) {
-	std::ostringstream oss;
-	oss << status;
-	std::string ex_mess("Error of connection on remote host ! status = ");
-	ex_mess += oss.str();
-	throw EmulationException(ex_mess.c_str());
+        std::ostringstream oss;
+        oss << status;
+        std::string ex_mess("Error of connection on remote host ! status = ");
+        ex_mess += oss.str();
+        throw EmulationException(ex_mess.c_str());
       }
     }
 
@@ -145,20 +146,20 @@ namespace Batch {
     Parametre params = job.getParametre();
     Versatile V = params[OUTFILE];
     Versatile::iterator Vit;
- 
+
     for(Vit=V.begin(); Vit!=V.end(); Vit++) {
       CoupleType cpt  = *static_cast< CoupleType * >(*Vit);
       Couple outputFile = cpt;
       if( _protocol == "rsh" )
-	command = "rcp ";
+        command = "rcp ";
       else if( _protocol == "ssh" )
-	command = "scp ";
+        command = "scp ";
       else
-	throw EmulationException("Unknown protocol");
+        throw EmulationException("Unknown protocol");
 
       if (_username != ""){
-	command += _username;
-	command += "@";
+        command += _username;
+        command += "@";
       }
       command += _hostname;
       command += ":";
@@ -169,13 +170,13 @@ namespace Batch {
       status = system(command.c_str());
       if(status) 
       {
-	// Try to get what we can (logs files)
-	// throw BatchException("Error of connection on remote host");    
-	std::string mess("Copy command failed ! status is :");
-	ostringstream status_str;
-	status_str << status;
-	mess += status_str.str();
-	cerr << mess << endl;
+        // Try to get what we can (logs files)
+        // throw BatchException("Error of connection on remote host");    
+        std::string mess("Copy command failed ! status is :");
+        ostringstream status_str;
+        status_str << status;
+        mess += status_str.str();
+        cerr << mess << endl;
       }
     }
 
@@ -203,26 +204,22 @@ namespace Batch {
   string BatchManager_eClient::BuildTemporaryFileName() const
   {
     //build more complex file name to support multiple salome session
-    char *temp = new char[19];
-    strcpy(temp, "/tmp/command");
-    strcat(temp, "XXXXXX");
-#ifndef WNT
-    mkstemp(temp);
+    string aFileName = OpUtil_Dir::GetTmpFileName();
+#ifndef WIN32
+    aFileName += ".sh";
 #else
-    char aPID[80];
-    itoa(getpid(), aPID, 10);
-    strcat(temp, aPID);
+    aFileName += ".bat";
 #endif
-
-    string command(temp);
-    delete [] temp;
-    command += ".sh";
-    return command;
+    return aFileName;
   }
 
   void BatchManager_eClient::RmTmpFile(std::string & TemporaryFileName)
   {
+#ifdef WIN32
+    string command = "del /F ";
+#else
     string command = "rm ";
+#endif
     command += TemporaryFileName;
     char *temp = strdup(command.c_str());
     int lgthTemp = strlen(temp);
@@ -231,5 +228,4 @@ namespace Batch {
     system(temp);
     free(temp);
   }
-
 }

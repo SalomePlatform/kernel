@@ -49,6 +49,10 @@ public:
   // /tmp/something/ for Unix or c:\something\ for WNT
   static std::string GetTmpDir();
 
+  // Returns the unique temporary file name without any extension
+  // /tmp/something/file for Unix or c:\something\file for WNT
+  static std::string GetTmpFileName();
+
   // Returns True(False) if the path (not)exists
   static bool IsExists( const std::string& path );
 

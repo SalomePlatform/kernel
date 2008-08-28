@@ -305,6 +305,7 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
 
 string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params)
 {
+#ifndef WIN32 //TODO: need for porting on Windows
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
@@ -412,6 +413,9 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   delete mpiImpl;
 
   return TmpFileName;
+#else
+  return "";
+#endif
     
 }
 
@@ -527,7 +531,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
       rtn = false;
     }
     std::string end_mem_value = mem_value.substr(mem_value.length()-2);
-    if (end_mem_value != "gb" and end_mem_value != "mb") {
+    if (end_mem_value != "gb" && end_mem_value != "mb") {
       mem_info = "Error on definition, type is bad ! " + mem_value;
       rtn = false;
     }

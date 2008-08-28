@@ -43,7 +43,7 @@ using namespace std;
 // TODO : remplacer ce mecanisme statique par la lecture
 // TODO : d'une descrption dans un fichier exterieur (genre XML)
 
-#define def_extern_MapKey(mk) extern const string & mk;
+#define def_extern_MapKey(mk) extern BATCH_EXPORT const string & mk;
 #define def_static_MapKey(mk) const string Batch::Parametre::mk(#mk);	\
   const string & mk = Batch::Parametre::mk;
 

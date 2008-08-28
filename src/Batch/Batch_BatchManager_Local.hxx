@@ -29,6 +29,7 @@
 #ifndef _BATCHMANAGER_LOCAL_H_
 #define _BATCHMANAGER_LOCAL_H_
 
+#include "Batch_Defines.hxx"
 
 #include <vector>
 #include <map>
@@ -50,7 +51,7 @@ namespace Batch {
 
   class FactBatchManager;
 
-  class BatchManager_Local : public BatchManager
+  class BATCH_EXPORT BatchManager_Local : public BatchManager
   {
   private:
     friend class ThreadAdapter;
@@ -148,7 +149,10 @@ namespace Batch {
     Id registerThread_id(pthread_t thread_id);
     pthread_mutex_t _thread_id_id_association_mutex;
     pthread_cond_t  _thread_id_id_association_cond;
+#ifndef WIN32 //TODO: porting of following functionality
+    //reason: pthread_t on win32 is a struct of pointer and int members
     map<pthread_t, Id> _thread_id_id_association;
+#endif
 
 #ifdef SWIG
   public:

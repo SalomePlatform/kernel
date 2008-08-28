@@ -30,6 +30,7 @@
 #ifndef _BATCHMANAGER_PBS_H_
 #define _BATCHMANAGER_PBS_H_
 
+#include "Batch_Defines.hxx"
 
 #include "Batch_Job.hxx"
 #include "Batch_Job.hxx"
@@ -50,7 +51,7 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BatchManager_PBS : public BatchManager
+  class BATCH_EXPORT BatchManager_PBS : public BatchManager
   {
   public:
     // Constructeur et destructeur

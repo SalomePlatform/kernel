@@ -29,6 +29,8 @@
 #ifndef SALOME_RESOURCES_CATALOG_PARSER
 #define SALOME_RESOURCES_CATALOG_PARSER
 
+#include "ResourcesManager_Defs.hxx"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -42,7 +44,7 @@ enum BatchType {none, pbs, lsf};
 
 enum MpiImplType {indif, lam, mpich1, mpich2, openmpi, slurm};
 
-class ResourceDataToSort
+class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
 
   public:
@@ -70,7 +72,7 @@ class ResourceDataToSort
     unsigned int GetNumberOfPoints() const;
   };
 
-struct ParserResourcesType
+struct RESOURCESMANAGER_EXPORT ParserResourcesType
   {
     ResourceDataToSort DataForSort;
     std::string HostName;

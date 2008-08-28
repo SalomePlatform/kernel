@@ -26,6 +26,10 @@
 #include "ConnectionManager_i.hxx"
 #include "SALOME_NamingService.hxx"
 
+#ifdef WIN32
+# include <process.h>
+#endif
+
 ConnectionManager_i::ConnectionManager_i(CORBA::ORB_ptr orb) {
   _orb = CORBA::ORB::_duplicate(orb) ;
   SALOME_NamingService * ns = new SALOME_NamingService(orb);
@@ -126,5 +130,10 @@ ConnectionManager_i::ShutdownWithExit()
 CORBA::Long
 ConnectionManager_i::getPID()
 {
-  return (CORBA::Long)getpid();
+    return
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)_getpid();
+#endif
 }

@@ -30,6 +30,7 @@
 #ifndef _BATCHMANAGER_eClient_H_
 #define _BATCHMANAGER_eClient_H_
 
+#include "Batch_Defines.hxx"
 
 #include "MpiImpl.hxx"
 #include "Batch_BatchManager.hxx"
@@ -38,7 +39,7 @@ namespace Batch {
 
   class Job;
 
-  class EmulationException
+  class BATCH_EXPORT EmulationException
   {
   public:
     const std::string msg;
@@ -46,7 +47,7 @@ namespace Batch {
     EmulationException(const std::string m) : msg(m) {}
   };
 
-  class BatchManager_eClient : public BatchManager
+  class BATCH_EXPORT BatchManager_eClient : public BatchManager
   {
   public:
     // Constructeur et destructeur

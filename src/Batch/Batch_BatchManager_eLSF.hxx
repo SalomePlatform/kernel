@@ -30,6 +30,7 @@
 #ifndef _BATCHMANAGER_eLSF_H_
 #define _BATCHMANAGER_eLSF_H_
 
+#include "Batch_Defines.hxx"
 
 #include "Batch_JobId.hxx"
 #include "Batch_JobInfo.hxx"
@@ -48,7 +49,7 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BatchManager_eLSF : public BatchManager_eClient
+  class BATCH_EXPORT BatchManager_eLSF : public BatchManager_eClient
   {
   public:
     // Constructeur et destructeur

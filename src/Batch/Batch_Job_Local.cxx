@@ -28,7 +28,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include "Batch_Job_Local.hxx"
 
 namespace Batch {

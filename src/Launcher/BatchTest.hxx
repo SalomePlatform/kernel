@@ -32,7 +32,18 @@
 #include "Batch_Date.hxx"
 #include "MpiImpl.hxx"
 
-class BatchTest 
+#ifdef WIN32
+# ifdef SALOMELAUNCHER_EXPORTS
+#  define SALOMELAUNCHER_EXPORT __declspec(dllexport)
+# else
+#  define SALOMELAUNCHER_EXPORT __declspec(dllimport)
+# endif
+#else
+# define SALOMELAUNCHER_EXPORT
+#endif
+
+
+class SALOMELAUNCHER_EXPORT BatchTest 
 {
   public:
     BatchTest(const Engines::MachineParameters& batch_descr);

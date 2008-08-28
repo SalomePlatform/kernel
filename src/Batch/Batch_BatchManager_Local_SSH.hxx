@@ -29,6 +29,7 @@
 #ifndef _BATCHMANAGER_LOCAL_SSH_H_
 #define _BATCHMANAGER_LOCAL_SSH_H_
 
+#include "Batch_Defines.hxx"
 
 #include <vector>
 #include <map>
@@ -50,7 +51,7 @@ namespace Batch {
 
   class FactBatchManager;
 
-  class BatchManager_Local_SSH : public BatchManager_Local
+  class BATCH_EXPORT BatchManager_Local_SSH : public BatchManager_Local
   {
   public:
     // Constructeur et destructeur
