@@ -222,7 +222,7 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
   while (ret)
     {
       ret = sem_wait(&_fullBufferSemaphore);
-      if (ret) perror(" LocalTraceBufferPool::retrieve, sem_wait");
+      if (ret) MESSAGE (" LocalTraceBufferPool::retrieve, sem_wait");
     }
 
   // get the next buffer to print
