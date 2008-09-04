@@ -31,12 +31,12 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 
-DEPRECATED_FILES=
-
-dist_salomeres_DATA=\
-	CatalogResources.xml \
-	config \
+dist_salomeres_DATA = \
+	CatalogDataType.xml \
+	CatalogModulePersonnel.xml_skel \
 	channel.cfg \
-	KERNELCatalog.xml \
-	SALOMEDS_Resources \
-	$(DEPRECATED_FILES)
+	SALOMEDS_Resources
+
+nodist_salomeres_DATA = \
+	CatalogResources.xml \
+	KERNELCatalog.xml
