@@ -4,7 +4,7 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-AC_INIT([Salome2 Project], [5.0.0], [paul.rascle@edf.fr], [SalomeKer])
+AC_INIT([Salome2 Project], [5.0.0], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -494,7 +494,6 @@ AC_OUTPUT([ \
 	Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
-	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/tui/Makefile \

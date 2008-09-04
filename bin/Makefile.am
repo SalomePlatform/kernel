@@ -34,7 +34,9 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # These files are data, module or lib files
 dist_salomescript_DATA =	\
 	config_appli.xml	\
-	salome.launch		\
+	salome.launch
+
+nodist_salomescript_DATA =	\
 	VERSION
 
 # These files are executable scripts
