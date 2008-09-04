@@ -20,15 +20,17 @@
 #ifndef __SALOME_LAUNCHER_HXX__
 #define __SALOME_LAUNCHER_HXX__
 
+#include "SALOME_Launcher_defs.hxx"
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include "SALOME_ContainerManager.hxx"
-#include "BatchTest.hxx"
 #include "Launcher.hxx"
 
 #include <string>
 
 class SALOME_NamingService;
+class SALOME_ContainerManager;
+class SALOME_ResourcesManager;
 
 class SALOMELAUNCHER_EXPORT SALOME_Launcher:
   public POA_Engines::SalomeLauncher,

@@ -1,5 +1,12 @@
 #include "BatchTest.hxx"
 
+#include "Batch_Date.hxx"
+#include "MpiImpl.hxx"
+#include "utilities.h"
+
+#include <sys/stat.h>
+#include <iostream>
+#include <fstream>
 #ifdef WIN32
 # include <io.h>
 #endif
@@ -20,7 +27,7 @@ BatchTest::BatchTest(const Engines::MachineParameters& batch_descr)
     }
     i++ ;
   }
-
+  
   // Creating test temporary file
   _test_filename =  "/tmp/";
   _test_filename +=  _date + "_test_cluster_file_";
@@ -585,7 +592,7 @@ BatchTest::test_jobsubmit_mpi()
     return result;
   }
   result = "OK";
-  return result;
+  return result;  
 }
 
 std::string 

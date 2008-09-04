@@ -1,4 +1,4 @@
-// Copyright (C) 2008 OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 // 
 // This library is free software; you can redistribute it and/or
@@ -17,40 +17,17 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#ifndef __SALOME_LAUNCHER_DEFS_HXX__
+#define __SALOME_LAUNCHER_DEFS_HXX__
 
-#ifndef __BatchTest_HXX__
-#define __BatchTest_HXX__
-
-#include "SALOME_Launcher_defs.hxx"
-
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-
-#include <string>
-
-class SALOMELAUNCHER_EXPORT BatchTest 
-{
-  public:
-    BatchTest(const Engines::MachineParameters& batch_descr);
-    virtual ~BatchTest();
-
-    bool test();
-
-    std::string test_connection();
-    std::string test_filecopy();
-    std::string test_getresult();
-    std::string test_jobsubmit_simple();
-    std::string test_jobsubmit_mpi();
-    std::string test_appli();
-
-  protected:
-    std::string get_home(std::string * home);
-  
-  private:
-    Engines::MachineParameters _batch_descr;
-    std::string _test_filename;
-    std::string _base_filename;
-    std::string _date;
-};
-
+#ifdef WIN32
+# ifdef SALOMELAUNCHER_EXPORTS
+#  define SALOMELAUNCHER_EXPORT __declspec(dllexport)
+# else
+#  define SALOMELAUNCHER_EXPORT __declspec(dllimport)
+# endif
+#else
+# define SALOMELAUNCHER_EXPORT
 #endif
+
+#endif //__SALOME_LAUNCHER_DEFS_HXX__

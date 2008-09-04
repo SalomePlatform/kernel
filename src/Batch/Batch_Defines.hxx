@@ -26,12 +26,15 @@
 #ifndef _BATCH_Defines_HXX_
 #define _BATCH_Defines_HXX_
 
-#ifdef WNT
+#ifdef WIN32
 # ifdef BATCH_EXPORTS
 #  define BATCH_EXPORT __declspec( dllexport )
 # else
 #  define BATCH_EXPORT __declspec( dllimport )
 # endif
+# define RM  "rm"
+# define RCP "rpc"
+# define RSH "rsh"
 #else
 # define BATCH_EXPORT
 #endif

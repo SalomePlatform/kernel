@@ -38,6 +38,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
 			BatchTest.hxx \
 			SALOME_Launcher.hxx \
+			SALOME_Launcher_defs.hxx \
 			Launcher.hxx
 
 # Scripts to be installed

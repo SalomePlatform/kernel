@@ -17,11 +17,15 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
+#include "Launcher.hxx"
+
 #include "Batch_Date.hxx"
 #include "Batch_FactBatchManager_eLSF.hxx"
 #include "Batch_FactBatchManager_ePBS.hxx"
-#include "Launcher.hxx"
+#include "Batch_BatchManager_eClient.hxx"
 #include "utilities.h"
+
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
@@ -149,7 +153,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     istringstream iss(jid.getReference());
     iss >> jobId;
 
-    _jobmap[ pair<string,long>(clustername,jobId) ] = job;
+    _jobmap[ pair<string,long>(clustername,jobId) ] = job;    
   }
   catch(const Batch::EmulationException &ex){
     throw LauncherException(ex.msg.c_str());

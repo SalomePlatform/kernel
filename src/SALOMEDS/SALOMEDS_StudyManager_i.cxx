@@ -157,6 +157,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->Open(string(aUrl));
 
+  if ( !aStudyImpl )
+    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
+
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
   // Temporary aStudyUrl in place of study name

@@ -31,8 +31,15 @@
 //#include "utilities.h"
 
 namespace Batch {
+  
+  static FactBatchManager_Local_RSH* instanceOfFBM_eLSF()
+  {
+    static FactBatchManager_Local_RSH* sFBM_Local_RSH = 0;
+    if ( !sFBM_Local_RSH )
+      sFBM_Local_RSH = new FactBatchManager_Local_RSH();
 
-  static FactBatchManager_Local_RSH sFBM_Local_RSH;
+    return sFBM_Local_RSH;
+  }
 
   // Constructeur
   FactBatchManager_Local_RSH::FactBatchManager_Local_RSH() : FactBatchManager("RSH")

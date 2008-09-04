@@ -18,15 +18,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOME_Launcher.hxx"
+#include "BatchTest.hxx"
 #include "OpUtil.hxx"
-#include <sys/types.h>
-#ifndef WIN32
-# include <unistd.h>
-#else
-# include <process.h>
-#endif
-#include <vector>
+#include "SALOME_ContainerManager.hxx"
 #include "Utils_CorbaException.hxx"
+
+#ifdef WIN32
+# include <process.h>
+#else
+# include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <vector>
 
 using namespace std;
 
@@ -180,6 +183,7 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
     const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
     string clustername(p->alias);
     INFOS("Choose cluster" <<  clustername);
+    
     BatchTest t(*p);
     if (t.test()) 
     {
@@ -213,7 +217,7 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
   p.mem_mb = params.mem_mb;
 
   try{
-    status = _l.querySalomeJob(jobId,p);
+    status =  _l.querySalomeJob(jobId,p);
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");

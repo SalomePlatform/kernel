@@ -39,9 +39,16 @@ namespace Batch {
   FactBatchManager::FactBatchManager(const string & _t) : type(_t)
   {
     BatchManagerCatalog::addFactBatchManager(type.c_str(), this);
+    /*
+    #ifndef WIN32
+    Win32 limitation: it's impossible to create new thread of LocalTraceCollector
+    during initialization of static objects of DLL
+    Be careful with static objects of types inherited from FactBatchManager class
+    */
     ostringstream msg;
     msg << "FactBatchManager of type '" << type << "' inserted into catalog";
     MESSAGE(msg.str().c_str());
+    //#endif
   }
 
   // Destructeur
