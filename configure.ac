@@ -504,7 +504,6 @@ AC_OUTPUT([ \
 	./resources/Makefile \
 	./resources/KERNELCatalog.xml \
 	./resources/CatalogResources.xml \
-	./resources/DEPRECATED/Plugin \
 	./src/Makefile \
 	./src/Basics/Makefile \
 	./src/Basics/Test/Makefile \
