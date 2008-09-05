@@ -180,8 +180,6 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeParameter.cxx \
 	SALOMEDS_AttributeString.cxx \
 	SALOMEDS_IParameters.cxx \
-	SALOMEDS_AttLong_i.hxx \
-	SALOMEDS_AttReal_i.hxx \
 	SALOMEDS_AttributeComment.hxx \
 	SALOMEDS_AttributeComment_i.hxx \
 	SALOMEDS_AttributeDrawable.hxx \
@@ -239,8 +237,6 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeTreeNode_i.hxx \
 	SALOMEDS_AttributeUserID.hxx \
 	SALOMEDS_AttributeUserID_i.hxx \
-	SALOMEDS_BasicAttributeFactory.hxx \
-	SALOMEDS_BasicAttribute_i.hxx \
 	SALOMEDS_Callback_i.hxx \
 	SALOMEDS_ChildIterator.hxx \
 	SALOMEDS_ChildIterator_i.hxx \
