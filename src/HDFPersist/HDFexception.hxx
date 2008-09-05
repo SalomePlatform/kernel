@@ -27,7 +27,7 @@
 #ifndef __HDFexception_H__
 #define __HDFexception_H__
 
-#include <HDFexport.hxx>
+#include "HDFexport.hxx"
 
 /* Exception */
 #include <iostream>

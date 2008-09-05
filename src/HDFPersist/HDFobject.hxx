@@ -31,7 +31,7 @@ extern "C"
 {
 #include "HDFtypes.h"
 }
-#include <HDFexport.hxx>
+#include "HDFexport.hxx"
 
 class HDFPERSIST_EXPORT HDFobject {
 protected :
