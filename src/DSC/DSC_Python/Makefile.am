@@ -57,11 +57,13 @@ COMMON_LIBS = @CORBA_LIBS@
 #
 
 AM_CFLAGS         = -fexceptions
-salomepython_PYTHON = calcium.py dsccalcium.py
+salomepython_PYTHON = dsccalcium.py
+nodist_salomepython_PYTHON = calcium.py 
 salomepyexec_LTLIBRARIES = _calcium.la
-MY_SWIG_FLAGS= $(SWIG_FLAGS) -noexcept -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium
-SWIG_SRC=calcium.i
-_calcium_la_SOURCES = calcium_wrap.cpp
+MY_SWIG_FLAGS = $(SWIG_FLAGS) -noexcept -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium
+SWIG_SRC = calcium.i
+nodist__calcium_la_SOURCES = calcium_wrap.cpp
+_calcium_la_SOURCES = $(SWIG_SRC)
 _calcium_la_LDFLAGS = -module
 _calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
 										 ../DSC_User/Datastream/libSalomeDatastream.la \
@@ -72,10 +74,8 @@ _calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
 
 _calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
 
-EXTRA_DIST=calcium_wrap.cpp calcium.i
-
-calcium_wrap.cpp calcium.py:calcium.i
+calcium_wrap.cpp calcium.py:$(SWIG_SRC)
 	$(SWIG) $(MY_SWIG_FLAGS) -o calcium_wrap.cpp $<
 
-CLEANFILES = calcium_wrap.cpp
+CLEANFILES = calcium_wrap.cpp calcium.py
 

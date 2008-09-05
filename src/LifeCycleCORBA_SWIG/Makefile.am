@@ -50,14 +50,13 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # The library will be installed in the same place.
 #
 
-BUILT_SOURCES = swig_wrap.cpp
-
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../Utils
 SWIG_SOURCES  = libSALOME_LifeCycleCORBA.i
 
-salomepython_PYTHON = libSALOME_LifeCycleCORBA.py
+nodist_salomepython_PYTHON = libSALOME_LifeCycleCORBA.py
 salomepyexec_LTLIBRARIES = _libSALOME_LifeCycleCORBA.la
-_libSALOME_LifeCycleCORBA_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
+nodist__libSALOME_LifeCycleCORBA_la_SOURCES = swig_wrap.cpp
+_libSALOME_LifeCycleCORBA_la_SOURCES  = $(SWIG_SOURCES)
 _libSALOME_LifeCycleCORBA_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
 	-I$(srcdir) \
@@ -78,7 +77,7 @@ _libSALOME_LifeCycleCORBA_la_LIBADD   = \
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
-CLEANFILES = swig_wrap.cpp
+CLEANFILES = swig_wrap.cpp libSALOME_LifeCycleCORBA.py
 
 
 #

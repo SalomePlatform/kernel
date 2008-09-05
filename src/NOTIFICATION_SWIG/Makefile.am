@@ -35,14 +35,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # (cf. http://www.geocities.com/foetsch/python/swig_linux.htm)
 # see also LifeCycleCORBA_SWIG 
 #
-BUILT_SOURCES = swig_wrap.cpp
 
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Notification
 SWIG_SOURCES  = NOTIFICATION.i
 
-salomepython_PYTHON = libNOTIFICATION.py
+nodist_salomepython_PYTHON = libNOTIFICATION.py
 salomepyexec_LTLIBRARIES = _libNOTIFICATION.la
-_libNOTIFICATION_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES) \
+nodist__libNOTIFICATION_la_SOURCES  = swig_wrap.cpp
+_libNOTIFICATION_la_SOURCES  = $(SWIG_SOURCES) \
 	NOTIFICATION_Swig.cxx NOTIFICATION_Swig.hxx SALOME_NOTIFICATION_SWIG.hxx
 _libNOTIFICATION_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
@@ -59,4 +59,4 @@ _libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
-CLEANFILES = swig_wrap.cpp
+CLEANFILES = swig_wrap.cpp libNOTIFICATION.py

@@ -63,9 +63,13 @@ if MPI_IS_OK
   IDL_FILES += $(MPIIDL_FILES)
 endif
 
+OTHER_IDL_FILES = \
+  TestNotif.idl \
+  TypeData.idl
+
 # all the idl files are needed for make dist
-EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) \
-	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
+	    SALOME_Exception.xml SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)

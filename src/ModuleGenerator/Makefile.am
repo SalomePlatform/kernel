@@ -27,3 +27,5 @@
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 dist_salomescript_DATA = IDLparser.py
+
+EXTRA_DIST = tests

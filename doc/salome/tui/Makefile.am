@@ -63,10 +63,10 @@ usr_docs:KERNEL/main.html
 	cp -fr $(srcdir)/KERNEL/exemple/ $(DESTDIR)$(docdir);
 
 uninstall-local:
-	chmod +w $(DESTDIR)$(docdir)/sources
-	chmod +w $(DESTDIR)$(docdir)/sources/static
-	chmod +w $(DESTDIR)$(docdir)/HTML
-	chmod +w $(DESTDIR)$(docdir)/exemple
+#	chmod +w $(DESTDIR)$(docdir)/sources
+#	chmod +w $(DESTDIR)$(docdir)/sources/static
+#	chmod +w $(DESTDIR)$(docdir)/HTML
+	chmod -R +w $(DESTDIR)$(docdir)
 	rm -rf $(DESTDIR)$(docdir)/pythfilter.py
 	find $(DESTDIR)$(docdir) -name "*.html" -type f -exec rm -rf {} \;
 	find $(DESTDIR)$(docdir) -name "*.jpg" -type f -exec rm -rf {} \;

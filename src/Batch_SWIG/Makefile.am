@@ -50,14 +50,13 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # The library will be installed in the common place.
 #
 
-BUILT_SOURCES = swig_wrap.cpp
-
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Batch
 SWIG_SOURCES  = libBatch_Swig.i libBatch_Swig_exception.i libBatch_Swig_typemap.i
 
-salomepython_PYTHON           = libBatch_Swig.py
-salomepyexec_LTLIBRARIES      = _libBatch_Swig.la
-_libBatch_Swig_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
+nodist_salomepython_PYTHON = libBatch_Swig.py
+salomepyexec_LTLIBRARIES   = _libBatch_Swig.la
+nodist__libBatch_Swig_la_SOURCES = swig_wrap.cpp
+_libBatch_Swig_la_SOURCES  = $(SWIG_SOURCES)
 _libBatch_Swig_la_CPPFLAGS = @PYTHON_INCLUDES@ -I$(srcdir) -I$(srcdir)/../Batch
 _libBatch_Swig_la_LDFLAGS  = -module
 _libBatch_Swig_la_LIBADD   = ../Batch/libSalomeBatch.la @PYTHON_LIBS@
@@ -70,7 +69,7 @@ endif
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
-CLEANFILES = swig_wrap.cpp
+CLEANFILES = swig_wrap.cpp libBatch_Swig.py
 
 
 #

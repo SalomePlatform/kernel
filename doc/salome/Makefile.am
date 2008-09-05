@@ -45,10 +45,16 @@ dev_docs: index_html
 	done;
 
 
+# VSR: nullify these make targets to avoid 'make distcheck' failure
+dvi:
+pdf:
+ps:
+
 info_TEXINFOS = Batch.texi
 
 install-data-local:  html usr_docs
 	cp -rp $(top_builddir)/doc/salome/Batch.html $(DESTDIR)$(docdir)
+
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/Batch.html
 
