@@ -34,9 +34,6 @@
 # include <unistd.h>
 #endif
 
-
-#include "utilities.h"
-
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
 using namespace std;
@@ -51,7 +48,9 @@ ResourcesManager_cpp::
 ResourcesManager_cpp(const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
-  MESSAGE ( "ResourcesManager_cpp constructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -67,7 +66,9 @@ ResourcesManager_cpp(const char *xmlFilePath) :
 
 ResourcesManager_cpp::ResourcesManager_cpp()
 {
-  MESSAGE ( "ResourcesManager_cpp constructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor" << endl;
+#endif
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
 
   if (_isAppliSalomeDefined)
@@ -85,7 +86,9 @@ ResourcesManager_cpp::ResourcesManager_cpp()
     }
 
   ParseXmlFile();
-  MESSAGE ( "ResourcesManager_cpp constructor end" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor end";
+#endif
 }
 
 //=============================================================================
@@ -96,7 +99,9 @@ ResourcesManager_cpp::ResourcesManager_cpp()
 
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
-  MESSAGE ( "ResourcesManager_cpp destructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp destructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -117,23 +122,33 @@ std::vector<std::string>
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 				      const std::vector<std::string>& componentList) throw(ResourcesException)
 {
+//#if defined(_DEBUG_) || defined(_DEBUG)
 //   cerr << "ResourcesManager_cpp::GetFittingResources" << endl;
+//#endif
   vector <std::string> vec;
 
   ParseXmlFile();
 
   const char *hostname = params.hostname.c_str();
-  MESSAGE ( "GetFittingResources " << hostname << " " << GetHostname().c_str() );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+#endif
 
   if (hostname[0] != '\0'){
-    //       cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//    cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
+//#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
 	 strcmp(hostname, GetHostname().c_str()) == 0 )
       {
-	//           cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
+//#endif
 	vec.push_back(GetHostname().c_str());
-	// 	  cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
+//#endif
       }
 	
     else if (_resourcesList.find(hostname) != _resourcesList.end())
@@ -154,15 +169,19 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
 	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
 	      vec.push_back((*iter).first.c_str());
-	      //cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
-	      //     << cpt << "] = " << (*iter).first.c_str() << endl ;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	      cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
+//	      << cpt << "] = " << (*iter).first.c_str() << endl ;
+//#endif
 	      cpt++;
 	    }
 	  }
 	}
 	if(cpt==0){
 	  // --- user specified an unknown hostame so notify him.
-	  MESSAGE ( "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+#endif
 	  throw ResourcesException("unknown host");
 	}
       }
@@ -278,7 +297,9 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
   if (aFile == NULL)
     {
-      INFOS ( "Error opening file !" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+      cerr << "Error opening file !"  << endl;
+#endif
       return;
     }
   
@@ -292,15 +313,18 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
   int isOk = xmlSaveFile(aFilePath, aDoc);
   
-  if (!isOk)
-    INFOS ( "Error while XML file saving." );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  if (!isOk) cerr << "Error while XML file saving." << endl;
+#endif
   
   // Free the document
   xmlFreeDoc(aDoc);
 
   fclose(aFile);
   
-  INFOS ( "WRITING DONE!" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "WRITING DONE!" << endl;
+#endif
 }
 
 //=============================================================================
@@ -323,16 +347,20 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       
       if (aDoc != NULL)
 	handler->ProcessXmlDocument(aDoc);
+#if defined(_DEBUG_) || defined(_DEBUG)
       else
-	INFOS ( "ResourcesManager_cpp: could not parse file "<< aFilePath );
+	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+#endif
       
       // Free the document
       xmlFreeDoc(aDoc);
 
       fclose(aFile);
     }
+#if defined(_DEBUG_) || defined(_DEBUG)
   else
-    INFOS ( "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." );
+    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+#endif
   
   delete handler;
 
