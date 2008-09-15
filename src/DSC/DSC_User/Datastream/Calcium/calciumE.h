@@ -29,7 +29,7 @@
 #ifndef __CALCIUM_E_H
 #define __CALCIUM_E_H
 
-#include <calciumP.h>
+#include "calciumP.h"
 
 #if defined(__STDC__) || defined(__cplusplus) || defined(c_plusplus)
 #define CPNeedPrototype	1

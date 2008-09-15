@@ -26,7 +26,7 @@
 #ifndef _PORTPROPERTIES_I_HXX_
 #define _PORTPROPERTIES_I_HXX_
 
-#include <DSC_Basic.hxx>
+#include "DSC_Basic.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Ports)

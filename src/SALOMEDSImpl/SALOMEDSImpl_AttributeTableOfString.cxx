@@ -21,7 +21,7 @@
 //  Author : Sergey Ruin
 //  Module : SALOME
 
-#include <SALOMEDSImpl_AttributeTableOfString.hxx>
+#include "SALOMEDSImpl_AttributeTableOfString.hxx"
 #include <stdio.h>
 #include <stdlib.h>
 #include <strstream>

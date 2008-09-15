@@ -20,7 +20,7 @@
 #ifndef _RECEIVERFACTORY_HXX_
 #define _RECEIVERFACTORY_HXX_
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)

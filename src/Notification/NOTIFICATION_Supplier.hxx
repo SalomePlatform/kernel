@@ -28,7 +28,7 @@
 #ifndef NOTIFICATION_Supplier_HXX
 #define NOTIFICATION_Supplier_HXX
 
-#include <SALOME_NOTIFICATION.hxx>
+#include "SALOME_NOTIFICATION.hxx"
 
 class NOTIFICATION_EXPORT NOTIFICATION_Supplier: public POA_CosNotifyComm::StructuredPushSupplier {
   public:

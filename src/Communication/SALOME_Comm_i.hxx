@@ -20,7 +20,7 @@
 #ifndef _SALOME_COMM_I_HXX_
 #define _SALOME_COMM_I_HXX_
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #ifdef HAVE_MPI2
 #include "mpi.h"

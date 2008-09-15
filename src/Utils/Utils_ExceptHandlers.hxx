@@ -29,7 +29,7 @@
 #ifndef Utils_ExceptHandlers_HeaderFile
 #define Utils_ExceptHandlers_HeaderFile
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <stdexcept>
 

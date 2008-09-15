@@ -26,7 +26,7 @@
 //  $Header$
 
 
-#include <Utils_Mutex.hxx>
+#include "Utils_Mutex.hxx"
 
 Utils_Mutex::Utils_Mutex() 
 : myCount( 0 )

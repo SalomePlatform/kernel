@@ -20,7 +20,7 @@
 #ifndef _SENDERFACTORY_HXX_
 #define _SENDERFACTORY_HXX_
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #include "MultiCommException.hxx"
 #include <SALOMEconfig.h>

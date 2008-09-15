@@ -19,7 +19,7 @@
 #ifndef __MATRIXCLIENT_HXX__
 #define __MATRIXCLIENT_HXX__
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)

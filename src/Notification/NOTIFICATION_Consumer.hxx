@@ -28,7 +28,7 @@
 #ifndef NOTIFICATION_Consumer_HXX
 #define NOTIFICATION_Consumer_HXX
 
-#include <SALOME_NOTIFICATION.hxx>
+#include "SALOME_NOTIFICATION.hxx"
 
 class NOTIFICATION_EXPORT NOTIFICATION_Consumer: public POA_CosNotifyComm::StructuredPullConsumer {
   public:

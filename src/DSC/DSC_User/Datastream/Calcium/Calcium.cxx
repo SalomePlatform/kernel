@@ -1,6 +1,6 @@
 #include "Calcium.hxx"
-#include <CalciumInterface.hxx>
-#include <calcium.h>
+#include "CalciumInterface.hxx"
+#include "calcium.h"
 #include <iostream>
 #include <string>
 #include <exception>

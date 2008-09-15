@@ -22,9 +22,9 @@
 
 #include "SALOMEDSImpl_Defines.hxx"
 #include <string>
-#include <SALOMEDSImpl_SComponent.hxx>
-#include <SALOMEDSImpl_SObject.hxx>
-#include <SALOMEDSImpl_TMPFile.hxx>
+#include "SALOMEDSImpl_SComponent.hxx"
+#include "SALOMEDSImpl_SObject.hxx"
+#include "SALOMEDSImpl_TMPFile.hxx"
 
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Driver

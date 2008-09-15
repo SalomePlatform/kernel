@@ -20,7 +20,7 @@
 
 
 #include "SALOMEDS_Driver_i.hxx"
-#include <SALOMEDS_TMPFile_i.hxx>
+#include "SALOMEDS_TMPFile_i.hxx"
 #include "utilities.h"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"

@@ -31,7 +31,7 @@
 
 #include <SALOMEconfig.h>
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 
 #include <iostream>
 #include <signal.h>

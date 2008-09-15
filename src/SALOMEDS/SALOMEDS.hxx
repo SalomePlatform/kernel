@@ -30,7 +30,7 @@
 #ifndef SALOMEDS_HeaderFile
 #define SALOMEDS_HeaderFile
 
-#include <SALOMEDS_Defines.hxx>
+#include "SALOMEDS_Defines.hxx"
 
 #include <Utils_Mutex.hxx>
 

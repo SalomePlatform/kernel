@@ -23,7 +23,7 @@
 //		<dp@dingox.paris1.matra-dtv.fr>
 
 
-#include <SALOMEDSImpl_ChildNodeIterator.hxx>
+#include "SALOMEDSImpl_ChildNodeIterator.hxx"
 
 #define ChildNodeIterator_UpToBrother \
 { \

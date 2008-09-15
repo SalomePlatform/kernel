@@ -21,7 +21,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-#include <SALOMEDSImpl_AttributeStudyProperties.hxx>
+#include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 
 using namespace std;
 

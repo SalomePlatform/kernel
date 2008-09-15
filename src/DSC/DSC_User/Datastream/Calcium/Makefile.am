@@ -69,7 +69,7 @@ EXTRA_DIST=fortoc.h
 #
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
-COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
+COMMON_CPPFLAGS= -I$(srcdir) -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \

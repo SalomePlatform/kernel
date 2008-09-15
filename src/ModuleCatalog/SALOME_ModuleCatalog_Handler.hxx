@@ -29,7 +29,7 @@
 #ifndef SALOME_CATALOG_HANDLER_H
 #define SALOME_CATALOG_HANDLER_H
 
-#include <SALOME_ModuleCatalog.hxx>
+#include "SALOME_ModuleCatalog.hxx"
 
 #include "SALOME_ModuleCatalog_Parser.hxx"
 

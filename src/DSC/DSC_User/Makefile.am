@@ -46,7 +46,7 @@ salomeinclude_HEADERS = base_port.hxx \
 #
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
-COMMON_CPPFLAGS= -I$(srcdir)/Basic \
+COMMON_CPPFLAGS= -I$(srcdir) -I$(srcdir)/Basic \
 		 -I$(srcdir)/Datastream  \
 		 -I$(srcdir)/Datastream/Palm \
 		 -I$(srcdir)/Datastream/Calcium \

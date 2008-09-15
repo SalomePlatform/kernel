@@ -20,7 +20,7 @@
 #ifndef _MULTICOMMEXCEPTION_HXX_
 #define _MULTICOMMEXCEPTION_HXX_
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #include <string>
 

@@ -30,7 +30,7 @@
 #ifndef MODULECATALOG_IMPL_H
 #define MODULECATALOG_IMPL_H
 
-#include <SALOME_ModuleCatalog.hxx>
+#include "SALOME_ModuleCatalog.hxx"
 
 #include <string>
 #include <map>

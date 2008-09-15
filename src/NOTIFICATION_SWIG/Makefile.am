@@ -46,6 +46,7 @@ _libNOTIFICATION_la_SOURCES  = $(SWIG_SOURCES) \
 	NOTIFICATION_Swig.cxx NOTIFICATION_Swig.hxx SALOME_NOTIFICATION_SWIG.hxx
 _libNOTIFICATION_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
+	-I$(srcdir) \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \

@@ -20,7 +20,7 @@
 #ifndef _SALOMEMULTICOMM_HXX_
 #define _SALOMEMULTICOMM_HXX_
 
-#include <SALOME_Communication.hxx>
+#include "SALOME_Communication.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Comm)

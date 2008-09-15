@@ -29,7 +29,7 @@
 #ifndef _CONTAINER_INIT_PYTHON_HXX_
 #define _CONTAINER_INIT_PYTHON_HXX_
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 #include <SALOMEconfig.h>
 
 #include <pthread.h>  // must be before Python.h !

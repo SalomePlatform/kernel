@@ -31,7 +31,7 @@
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 #include <map>
 #include <cstdio>
 

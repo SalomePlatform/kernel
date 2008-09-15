@@ -28,7 +28,7 @@
 #ifndef NOTIFICATION_HXX
 #define NOTIFICATION_HXX
 
-#include <SALOME_NOTIFICATION.hxx>
+#include "SALOME_NOTIFICATION.hxx"
 
 #define NOTIF_WARNING "Warning"
 #define NOTIF_STEP    "Step"

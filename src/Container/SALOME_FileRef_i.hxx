@@ -26,7 +26,7 @@
 #ifndef _SALOME_FILEREF_I_HXX_
 #define _SALOME_FILEREF_I_HXX_
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)

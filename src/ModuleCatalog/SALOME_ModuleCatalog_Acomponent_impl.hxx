@@ -29,7 +29,7 @@
 #ifndef ACOMPONENT_IMPL_H
 #define ACOMPONENT_IMPL_H
 
-#include <SALOME_ModuleCatalog.hxx>
+#include "SALOME_ModuleCatalog.hxx"
 
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <SALOMEconfig.h>

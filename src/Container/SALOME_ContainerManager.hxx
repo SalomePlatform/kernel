@@ -20,7 +20,7 @@
 #ifndef __SALOME_CONTAINERMANAGER_HXX__
 #define __SALOME_CONTAINERMANAGER_HXX__
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)

@@ -26,7 +26,7 @@
 #ifndef _DSC_I_HXX_
 #define _DSC_I_HXX_
 
-#include <DSC_Basic.hxx>
+#include "DSC_Basic.hxx"
 
 #include <iostream>
 #include <map>

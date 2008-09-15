@@ -29,7 +29,7 @@
 # if !defined(  __IDENTITE_H__ )
 # define __IDENTITE_H__
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 extern "C"
 {

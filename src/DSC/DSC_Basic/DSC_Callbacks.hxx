@@ -26,7 +26,7 @@
 #ifndef _DSC_CALLBACKS_HXX_
 #define _DSC_CALLBACKS_HXX_
 
-#include <DSC_Basic.hxx>
+#include "DSC_Basic.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(DSC_Engines)

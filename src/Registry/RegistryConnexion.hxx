@@ -33,7 +33,7 @@
 # if !defined( __RegistryConnexion_HXX__ )
 # define __RegistryConnexion_HXX__
 
-#include <SALOME_Registry.hxx>
+#include "SALOME_Registry.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Registry)

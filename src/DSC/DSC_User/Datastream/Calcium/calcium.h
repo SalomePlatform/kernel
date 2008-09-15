@@ -29,9 +29,9 @@
 #ifndef __CALCIUM_H
 #define __CALCIUM_H
 
-#include <calciumE.h>
-#include <version.h>
-#include <calciumP.h>
+#include "calciumE.h"
+#include "version.h"
+#include "calciumP.h"
 
 #if defined(__STDC__) || defined(__cplusplus) || defined(c_plusplus)
 #define CPNeedPrototype	1

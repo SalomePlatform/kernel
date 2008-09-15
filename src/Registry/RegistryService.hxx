@@ -29,7 +29,7 @@
 # ifndef __RegistryService_h__
 # define __RegistryService_h__
 
-#include <SALOME_Registry.hxx>
+#include "SALOME_Registry.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Registry)
