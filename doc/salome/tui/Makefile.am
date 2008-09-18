@@ -34,6 +34,17 @@ dist-hook:
 	fi
 	rm -rf `find $(distdir) -name CVS`
 
+clean-local:
+	rm -rf KERNEL
+	chmod -R +w INPUT
+	@for filen in `find INPUT -type f` ; do					\
+	  case $${filen} in							\
+	    INPUT/doxydev | INPUT/doxyuser | INPUT/sources/static/tree.js ) ;;	\
+	    . | .. ) ;;								\
+	    *) echo "Removing $${filen}" ; rm -rf $${filen} ;;			\
+	  esac ;								\
+	done ;
+
 KERNEL/main.html:../main.dox
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
 	cd ./INPUT; \
