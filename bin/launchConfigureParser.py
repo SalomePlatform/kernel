@@ -51,6 +51,8 @@ except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
 pinter_nam     = "pinter"
 batch_nam      = "batch"
+test_nam       = "test"
+play_nam       = "play"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -595,6 +597,24 @@ def CreateOptionParser (theAdditionalOptions=[]):
                              dest="ns_port_log_file",
                              help=help_str)
 
+    # Write/read test script file with help of TestRecorder. Default: False.
+    help_str = "Write/read test script file with help of TestRecorder."
+    o_test = optparse.Option("--test",
+                             metavar="<test_script_file>",
+                             type="string",
+                             action="store",
+                             dest="test_script_file",
+                             help=help_str)
+ 
+    # Reproducing test script with help of TestRecorder. Default: False.
+    help_str = "Reproducing test script with help of TestRecorder."
+    o_play = optparse.Option("--play",
+                             metavar="<play_script_file>",
+                             type="string",
+                             action="store",
+                             dest="play_script_file",
+                             help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -614,7 +634,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_a,     # Print free port and exit
                 o_n,     # --nosave-config
                 o_pi,    # Interactive python console
-                o_nspl]
+                o_nspl,
+                o_test,  # Write/read test script file with help of TestRecorder
+                o_play]  # Reproducing test script with help of TestRecorder
                 
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -923,6 +945,18 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
             #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
             elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
                 dirs.append( d2 )
+
+    # Test
+    if cmd_opts.test_script_file is not None:
+        args[test_nam] = []
+        filename = cmd_opts.test_script_file
+        args[test_nam] += re.split( "[:;,]", filename )
+ 
+    # Play
+    if cmd_opts.play_script_file is not None:
+        args[play_nam] = []
+        filename = cmd_opts.play_script_file
+        args[play_nam] += re.split( "[:;,]", filename )
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

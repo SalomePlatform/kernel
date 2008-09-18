@@ -309,6 +309,10 @@ class SessionServer(Server):
             self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
+        if self.args.has_key('test'):
+            self.CMD+=['-test'] + self.args['test']
+        elif self.args.has_key('play'):
+            self.CMD+=['-play'] + self.args['play']
       
 # ---
 
