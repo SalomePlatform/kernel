@@ -40,17 +40,17 @@ mostlyclean-local:
 	-rm -rf SALOMEconfig.h SALOMEconfig.h.in
 
 SALOMEconfig.h.in : SALOMEconfig.ref.in
-	cp -p $< $@;
+	cp -pf $< $@;
 
 # test if SALOMEconfig.ref has changed (contents), at build time
 SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
-	@if ! [ -a $@ ]; then \
-	  echo cp -p $< $@;   \
-	  cp -p $< $@;        \
-	fi;		      \
+	@if ! [ -a $@ ]; then    \
+	  echo cp -pf $< $@;     \
+	  cp -pf $< $@;          \
+	fi;		         \
 	if ! cmp -s $< $@; then  \
-	  echo cp -p $< $@;   \
-	  cp -p $< $@;        \
+	  echo cp -pf $< $@;     \
+	  cp -pf $< $@;          \
 	fi;
 
 # The deprecated files are deprecated for the KERNEL but not for the
