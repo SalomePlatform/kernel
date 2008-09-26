@@ -27,6 +27,7 @@
 //$Header$
 
 #include "SALOME_ResourcesCatalog_Handler.hxx"
+#include "OpUtil.hxx"
 #include <iostream>
 #include <map>
 #include "utilities.h"
@@ -297,13 +298,17 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		_resource.HostName = nodeName ;
 		_resources_list[nodeName] = _resource;
 	      }
-	    }
-	    else
-	      _resources_list[_resource.HostName] = _resource;
-	  }
-	  else
-	    _resources_batch_list[_resource.HostName] = _resource;
-	}
+            }
+            else
+              {
+                _resources_list[_resource.HostName] = _resource;
+                if(_resource.HostName == "localhost")
+                  _resources_list[GetHostname()] = _resource;
+              }
+          }
+          else
+            _resources_batch_list[_resource.HostName] = _resource;
+        }
       aCurNode = aCurNode->next;
     }
 

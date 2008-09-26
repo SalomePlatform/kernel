@@ -91,8 +91,10 @@ libResourcesManager_la_SOURCES =\
 libResourcesManager_la_CPPFLAGS =\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(srcdir)/../Utils \
 	@LIBXML_INCLUDES@
 
 libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libResourcesManager_la_LIBADD  =\
+	../Utils/libOpUtil.la \
 	@LIBXML_LIBS@
