@@ -80,6 +80,7 @@ class Tree:
         self.parent = None
         self.childs = []
         self.comments = []
+        self.attrs={}
         
     def addChild(self, tree):
         if tree is not None: 
@@ -114,7 +115,10 @@ class Tree:
         d = depth
         if self.name != '':
             s = string.ljust('', 4*depth)
-            s += '<' + self.name + '>'
+            s += '<' + self.name 
+            for k,v in self.attrs.items():
+              s += ' ' + k + '="' + v + '"'
+            s += '>'
             if self.content != '':
                 s +=  self.content
             else:
@@ -213,6 +217,9 @@ class Tree:
                 L_merge.addChild(i_ext)
                 
         self.replaceChild(L_merge)
+
+    def setAttrib(self, name,value):
+      self.attrs[name]=value
             
 
     
@@ -476,6 +483,7 @@ class Catalog(ContentHandler, Tree):
             parser.parse(filename)
         else:
             t = self.addNamedChild('begin-catalog')
+            t.addNamedChild('type-list')
             t.addNamedChild('component-list')
 
         n = self.getChild('begin-catalog')
@@ -484,6 +492,9 @@ class Catalog(ContentHandler, Tree):
             return
         if n.getChild('path-prefix-list') is None:
             n.insertFirstNamedChild('path-prefix-list')
+        if n.getChild('type-list') is None:
+            p=n.childs.index(n.getChild('path-prefix-list'))
+            n.childs.insert(p+1,Tree('type-list'))
         if n.getChild('component-list') is None:
             n.addNamedChild('component-list')
             
@@ -516,6 +527,16 @@ class Catalog(ContentHandler, Tree):
             e = p.addChild(parameter(mode='in'))
         elif name == 'outParameter':
             e = p.addChild(parameter(mode='out'))
+        elif name == 'sequence':
+            e = p.addChild(SeqType(attrs["name"],attrs["content"]))
+        elif name == 'objref':
+            e = p.addChild(ObjType(attrs["name"]))
+        elif name == 'struct':
+            e = p.addChild(StructType(attrs["name"]))
+        elif name == 'type':
+            e = p.addChild(Type(attrs["name"],attrs["kind"]))
+        elif name == 'member':
+            e = p.addChild(Member(attrs["name"],attrs["type"]))
         else:
             e = p.addNamedChild(name)
         self.list.append(e)
@@ -555,8 +576,66 @@ class Catalog(ContentHandler, Tree):
             print '   replace component', i_ext.getChild('component-name').content
             i_int.merge(i_ext)
             
+    def mergeType(self, type):
+      L_int = self.getNode('type-list')
+      if L_int is None:
+        error("Catalog.mergeType : 'type-list' is not found")
+        return
+      for t in L_int.childs:
+        if t.attrs["name"] == type.attrs["name"]:
+          t.merge(type)
+          return
 
-            
+      L_int.addChild(type)
+
+class Member(Tree):
+  def __init__(self, name,type):
+    Tree.__init__(self, 'member')
+    self.setAttrib("name",name)
+    self.setAttrib("type",type)
+
+class Type(Tree):
+  def __init__(self, name,kind):
+    Tree.__init__(self, 'type')
+    self.setAttrib("name",name)
+    self.setAttrib("kind",kind)
+
+  def merge(self,t):
+    self.setAttrib("kind",t.attrs["kind"])
+
+class SeqType(Tree):
+  def __init__(self, name,content):
+    Tree.__init__(self, 'sequence')
+    self.setAttrib("name",name)
+    self.setAttrib("content",content)
+
+  def merge(self,t):
+    self.setAttrib("content",t.attrs["content"])
+
+class StructType(Tree):
+  def __init__(self, name):
+    Tree.__init__(self, 'struct')
+    self.setAttrib("name",name)
+
+  def merge(self,t):
+    #remove childs and replace by t childs
+    self.childs=[]
+    for c in t.childs:
+      self.childs.append(c)
+
+class ObjType(Tree):
+  def __init__(self, name):
+    Tree.__init__(self, 'objref')
+    self.setAttrib("name",name)
+
+  def merge(self,t):
+    RepoId=t.attrs.get("id")
+    if RepoId:
+      self.setAttrib("id",RepoId)
+    #remove childs and replace by t childs
+    self.childs=[]
+    for c in t.childs:
+      self.childs.append(c)
 
 # IDL file reader
 
@@ -589,47 +668,61 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
     def __init__(self, catalog):
         self.catalog = catalog
         self.EngineType = 0
+        self.currentScope=None
         
     def visitAST(self, node):
         for n in node.declarations():
-            n.accept(self)
+            if n.mainFile():
+              n.accept(self)
             
     def visitModule(self, node):
+        self.currentScope=node
         for n in node.definitions():
             n.accept(self)
                 
     def visitInterface(self, node):
-            
         if node.mainFile():
 
             self.EngineType = 0
             
             for i in node.inherits():
                 s = i.scopedName();
-                if ((s[0] == "Engines") & (s[1] == "Component")):
+                if s[0] == "Engines":
+                  if s[1] == "Component":
                     self.EngineType = 1; break
+                  if s[1] == "Superv_Component":
+                    self.EngineType = 2; break
                 
-            Comp = Component(node.identifier())
+            if self.EngineType:
+              #This interface is a SALOME component
+              Comp = Component(node.identifier())
             
-            self.currentInterface = Comp.createInterface(node.identifier())
+              self.currentInterface = Comp.createInterface(node.identifier())
         
-            for c in node.callables():
+              for c in node.callables():
                 if isinstance(c, idlast.Operation):
                     c.accept(self)
 
-            for c in node.declarations():
+              for c in node.declarations():
                 if isinstance(c, idlast.Struct):
                     c.accept(self)
                 
-            for i in node.comments():
+              for i in node.comments():
                 self.currentInterface.comments.append(str(i))
 
-            self.currentInterface.processDataStreams()
+              if self.EngineType == 2:
+                self.currentInterface.processDataStreams()
             
-            if (self.EngineType):    
-                global nb_components
-                nb_components = nb_components + 1
-                self.catalog.mergeComponent(Comp)
+              global nb_components
+              nb_components = nb_components + 1
+              self.catalog.mergeComponent(Comp)
+
+            else:
+              #This interface is not a component : use it as a DataType
+              t=ObjType("/".join(node.scopedName()))
+              for i in node.inherits():
+                t.addNamedChild("base","/".join(i.scopedName()))
+              self.catalog.mergeType(t)
 
             self.EngineType = 0
             
@@ -652,7 +745,9 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
         
 
     def visitDeclaredType(self, type):
-        self.currentType = type.name()
+        name=type.name()
+        scoped_name="/".join(type.scopedName())
+        self.currentType = scoped_name
             
     def visitBaseType(self, type):
         self.currentType = ttsMap[type.kind()]
@@ -669,6 +764,58 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
             self.currentService.createOutParameter \
                      (node.identifier(), self.currentType)
         
+    def visitSequenceType(self,type):
+      type.seqType().accept(self)
+      if type.bound() == 0:
+          self.contentType=self.currentType
+          self.currentType = "sequence"
+      else:
+          self.currentType = None
+
+    def visitTypedef(self, node):
+      if node.constrType():
+            node.aliasType().decl().accept(self)
+
+      node.aliasType().accept(self)
+      type  = self.currentType
+      if not type:
+        return
+      decll = []
+      for d in node.declarators():
+            d.accept(self)
+            if self.__result_declarator:
+              decll.append(self.__result_declarator)
+      if type == "sequence":
+        #it's a sequence type
+        for name in decll:
+          scoped_name="/".join(self.currentScope.scopedName()+[name])
+          self.catalog.mergeType(SeqType(scoped_name,self.contentType))
+      #else:
+        #it's an alias
+      #  for name in decll:
+      #    scoped_name="/".join(self.currentScope.scopedName()+[name])
+      #    self.catalog.mergeType(Type(scoped_name,type))
+
+    def visitStruct(self, node):
+      t=StructType("/".join(node.scopedName()))
+      for m in node.members():
+            if m.constrType():
+                m.memberType().decl().accept(self)
+
+            m.memberType().accept(self)
+            type = self.currentType
+            for d in m.declarators():
+                d.accept(self)
+                t.addChild(Member(self.__result_declarator,type))
+
+      self.catalog.mergeType(t)
+
+    def visitDeclarator(self, node):
+        if node.sizes():
+          self.__result_declarator =None
+        else:
+          self.__result_declarator =node.identifier()
+
 #--------------------------------------------------
 # parse idl and store xml file
 #--------------------------------------------------

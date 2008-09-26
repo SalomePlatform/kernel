@@ -32,7 +32,8 @@ echo   "test1:
 
 \rm -f my_catalog.xml*
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
 		-Wbcatalog=my_catalog.xml \
-		${ROOT_SRCDIR}/idl/AddComponent.idl
+		${SRCDIR}/tests/AddComponent.idl
 

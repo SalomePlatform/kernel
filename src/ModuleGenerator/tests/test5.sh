@@ -24,7 +24,7 @@
 #  File   : test5.sh
 #  Module : SALOME
 
-echo   "test4:
+echo   "test5:
 
         creation d'un catalogue avec tous les idl de Salome 
 	(au 29/3/2002)
@@ -37,6 +37,7 @@ do
 	echo
 	echo "            processing " `basename $i`
 	echo
-	${ROOT_BUILDDIR}/bin/runIDLparser \
-		-Wbcatalog=my_catalog.xml $i
+  sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+     -I${ROOT_SRCDIR}/idl \
+		 -Wbcatalog=my_catalog.xml $i
 done

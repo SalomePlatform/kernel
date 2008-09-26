@@ -4,7 +4,7 @@ ROOT_SRCDIR=@ROOT_SRCDIR@
 export ROOT_SRCDIR
 ROOT_BUILDDIR=@ROOT_BUILDDIR@
 export ROOT_BUILDDIR
-SRCDIR=${ROOT_SRCDIR}/SALOME/src/ModuleGenerator
+SRCDIR=${ROOT_SRCDIR}/src/ModuleGenerator
 export SRCDIR
 
 ${SRCDIR}/tests/test$1.sh
