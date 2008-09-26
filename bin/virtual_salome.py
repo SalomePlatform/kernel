@@ -118,6 +118,7 @@ def link_module(options):
       return
 
     module_bin_dir=os.path.join(module_dir,'bin','salome')
+    module_idl_dir=os.path.join(module_dir,'idl','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
     module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
@@ -131,6 +132,7 @@ def link_module(options):
     module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
+    idl_dir=os.path.join(home_dir,'idl','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
     lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
     lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
@@ -147,6 +149,7 @@ def link_module(options):
 
     if options.clear:
         rmtree(bin_dir)
+        rmtree(idl_dir)
         rmtree(lib_dir)
         rmtree(lib_py_dir)
         rmtree(share_dir)
@@ -165,6 +168,14 @@ def link_module(options):
         print module_bin_dir, " doesn't exist"
         pass    
     
+    #directory idl/salome : create it and link content
+    if os.path.exists(module_idl_dir):
+        mkdir(idl_dir)
+        for fn in os.listdir(module_idl_dir):
+            symlink(os.path.join(module_idl_dir, fn), os.path.join(idl_dir, fn))
+    else:
+        print module_idl_dir, " doesn't exist"
+
     #directory lib/salome : create it and link content
     if os.path.exists(module_lib_dir):
         mkdir(lib_dir)
