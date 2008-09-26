@@ -48,7 +48,9 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
               Engines::Container_ptr container, 
               const char *instanceName,
               const char *interfaceName,
-              bool notif) : Engines_Component_i(orb, poa, container, instanceName, interfaceName) 
+              bool notif,
+              bool regist) : 
+    Engines_Component_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
 #ifdef _DEBUG_
   std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;

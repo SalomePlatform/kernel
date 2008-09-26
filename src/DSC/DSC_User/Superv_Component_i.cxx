@@ -55,7 +55,9 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       Engines::Container_ptr container, 
 				       const char *instanceName,
 				       const char *interfaceName,
-				       bool notif) : Engines_DSC_i(orb, poa, container, instanceName, interfaceName) 
+				       bool notif,
+                                       bool regist) : 
+  Engines_DSC_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
 #ifdef _DEBUG_
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;

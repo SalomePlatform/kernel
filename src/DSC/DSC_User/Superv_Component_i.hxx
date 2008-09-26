@@ -70,7 +70,8 @@ public:
 		     Engines::Container_ptr container, 
 		     const char *instanceName,
 		     const char *interfaceName,
-		     bool notif = false);
+		     bool notif = false,
+         bool regist = true );
   virtual ~Superv_Component_i();
 
   // Exceptions declarations.
