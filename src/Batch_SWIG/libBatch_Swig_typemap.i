@@ -53,6 +53,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Parametre
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Parametre C++
 %typemap(out) Batch::Parametre
@@ -136,6 +140,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Environnement
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Environnement C++
 %typemap(out) Batch::Environnement

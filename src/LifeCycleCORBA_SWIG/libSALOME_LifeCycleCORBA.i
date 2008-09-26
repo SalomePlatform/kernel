@@ -23,6 +23,8 @@
 
 %module libSALOME_LifeCycleCORBA
 
+%feature("autodoc", "1");
+
 %include <std_except.i>
 
 
@@ -116,10 +118,13 @@ struct omniORBpyAPI {
   $result = PyString_FromString($1.c_str());
 }
 
-%typemap(typecheck) const Engines::MachineParameters &,
-                    Engines::MachineParameters const &
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Engines::MachineParameters const &
 {
-  $1 = PyDict_Check($input);
+  $1 = PyDict_Check($input)? 1 : 0;
+}
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) const Engines::MachineParameters &
+{
+  $1 = PyDict_Check($input)? 1 : 0;
 }
 
 %typemap(typecheck) std::string, 

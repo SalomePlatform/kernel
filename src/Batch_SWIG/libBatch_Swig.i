@@ -41,6 +41,9 @@
 /* Le nom du module Python tel qu'il est importe */
 %module libBatch_Swig
 
+/* generate docstrings with types */
+%feature("autodoc", "1");
+
 /* Inclusion des conversions de type */
 %include libBatch_Swig_typemap.i
 
