@@ -307,10 +307,11 @@ void ResourcesManager_cpp::WriteInXmlFile()
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
-  int isOk = xmlSaveFile(aFilePath, aDoc);
-  
 #if defined(_DEBUG_) || defined(_DEBUG)
+  int isOk = xmlSaveFile(aFilePath, aDoc);
   if (!isOk) cerr << "Error while XML file saving." << endl;
+#else
+  xmlSaveFile(aFilePath, aDoc);
 #endif
   
   // Free the document
