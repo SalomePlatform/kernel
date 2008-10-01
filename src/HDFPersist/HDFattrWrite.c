@@ -48,7 +48,7 @@ hdf_err HDFattrWrite(hdf_idt id, void *val)
 #ifdef PCLINUX
   if((H5Tget_class(type_id) == H5T_INTEGER) && (H5Tget_size(type_id) == 4)) {
     isI32BE = 1; /* See HDFattrCreate */
-    if (H5Tconvert(H5T_NATIVE_INT,H5T_STD_I32BE,1,(void *)val,NULL,NULL) < 0)
+    if (H5Tconvert(H5T_NATIVE_INT,H5T_STD_I32BE,1,(void *)val,NULL,(hid_t)NULL) < 0)
       return -1;
   }
 #endif
@@ -57,7 +57,7 @@ hdf_err HDFattrWrite(hdf_idt id, void *val)
 
 
 #ifdef PCLINUX
-  if (isI32BE && (H5Tconvert(H5T_STD_I32BE,H5T_NATIVE_INT,1,(void *)val,NULL,NULL) < 0)) 
+  if (isI32BE && (H5Tconvert(H5T_STD_I32BE,H5T_NATIVE_INT,1,(void *)val,NULL,(hid_t)NULL) < 0))
     return -1;
 #endif
 
