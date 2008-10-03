@@ -37,7 +37,7 @@ using namespace std;
 void HouseKeeping();
 
 std::list<PROTECTED_DELETE*> PROTECTED_DELETE::_objList;
-#ifndef WNT
+#ifndef WIN32
 pthread_mutex_t PROTECTED_DELETE::_listMutex;
 #else
 pthread_mutex_t PROTECTED_DELETE::_listMutex =

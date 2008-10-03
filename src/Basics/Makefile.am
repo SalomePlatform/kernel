@@ -28,11 +28,20 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-salomeinclude_HEADERS       = BasicsGenericDestructor.hxx
+salomeinclude_HEADERS       = \
+	SALOME_Basics.hxx \
+	BasicsGenericDestructor.hxx \
+	Basics_Utils.hxx \
+	Basics_DirUtils.hxx
 
 lib_LTLIBRARIES             = libSALOMEBasics.la
 libSALOMEBasics_la_SOURCES  = \
 	BasicsGenericDestructor.cxx \
-	BasicsGenericDestructor.hxx
+	Basics_Utils.cxx \
+	Basics_DirUtils.cxx \
+	SALOME_Basics.hxx \
+	BasicsGenericDestructor.hxx \
+	Basics_Utils.hxx \
+	Basics_DirUtils.hxx
 libSALOMEBasics_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSALOMEBasics_la_CPPFLAGS = @CPPFLAGS@ 

@@ -29,23 +29,7 @@
 #ifndef _BASICGENERICDESTRUCTOR_HXX_
 #define _BASICGENERICDESTRUCTOR_HXX_
 
-#ifdef WNT
- #if defined BASICS_EXPORTS
-  #if defined WIN32
-   #define BASICS_EXPORT __declspec( dllexport )
-  #else
-   #define BASICS_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define BASICS_EXPORT __declspec( dllimport )
-  #else
-   #define BASICS_EXPORT
-  #endif
- #endif
-#else
- #define BASICS_EXPORT
-#endif
+#include "SALOME_Basics.hxx"
 
 #include <list>
 #include <algorithm>
