@@ -29,7 +29,8 @@
 #ifndef _FACTBATCHMANAGER_ePBS_H_
 #define _FACTBATCHMANAGER_ePBS_H_
 
-using namespace std;
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include <map>
 #include "Batch_BatchManager_eClient.hxx"
@@ -39,7 +40,7 @@ namespace Batch {
   
   class BatchManager_ePBS;
 
-  class FactBatchManager_ePBS : public FactBatchManager_eClient
+  class BATCH_EXPORT FactBatchManager_ePBS : public FactBatchManager_eClient
   {
   public:
     // Constructeur et destructeur

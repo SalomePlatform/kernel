@@ -29,9 +29,10 @@
 #ifndef _BL_MPIIMPL_H_
 #define _BL_MPIIMPL_H_
 
+#include "Batch_Defines.hxx"
 #include <string>
 
-class MpiImplException
+class BATCH_EXPORT MpiImplException
 {
 public:
   const std::string msg;
@@ -39,7 +40,7 @@ public:
   MpiImplException(const std::string m) : msg(m) {}
 };
 
-class MpiImpl
+class BATCH_EXPORT MpiImpl
 {
 public:
   // Constructeur et destructeur
@@ -58,7 +59,7 @@ private:
 
 };
 
-class MpiImpl_LAM : public MpiImpl
+class BATCH_EXPORT MpiImpl_LAM : public MpiImpl
 {
 public:
   // Constructeur et destructeur
@@ -77,7 +78,7 @@ private:
 
 };
 
-class MpiImpl_MPICH1 : public MpiImpl
+class BATCH_EXPORT MpiImpl_MPICH1 : public MpiImpl
 {
 public:
   // Constructeur et destructeur
@@ -96,7 +97,7 @@ private:
 
 };
 
-class MpiImpl_MPICH2 : public MpiImpl
+class BATCH_EXPORT MpiImpl_MPICH2 : public MpiImpl
 {
 public:
   // Constructeur et destructeur
@@ -115,7 +116,7 @@ private:
 
 };
 
-class MpiImpl_OPENMPI : public MpiImpl
+class BATCH_EXPORT MpiImpl_OPENMPI : public MpiImpl
 {
 public:
   // Constructeur et destructeur
@@ -134,7 +135,7 @@ private:
 
 };
 
-class MpiImpl_SLURM : public MpiImpl
+class BATCH_EXPORT MpiImpl_SLURM : public MpiImpl
 {
 public:
   // Constructeur et destructeur

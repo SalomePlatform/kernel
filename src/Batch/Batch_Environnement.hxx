@@ -30,6 +30,8 @@
 #ifndef _ENVIRONNEMENT_H_
 #define _ENVIRONNEMENT_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include <string>
 #include <map>

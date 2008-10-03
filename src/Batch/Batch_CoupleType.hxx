@@ -30,13 +30,15 @@
 #ifndef _COUPLETYPE_H_
 #define _COUPLETYPE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include "Batch_GenericType.hxx"
 #include "Batch_Couple.hxx"
 
 namespace Batch {
 
-  class CoupleType : public GenericType
+  class BATCH_EXPORT CoupleType : public GenericType
   {
   public:
 		// Constructeur

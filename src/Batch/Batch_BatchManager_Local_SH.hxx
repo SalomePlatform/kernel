@@ -29,6 +29,7 @@
 #ifndef _BATCHMANAGER_LOCAL_SH_H_
 #define _BATCHMANAGER_LOCAL_SH_H_
 
+#include "Batch_Defines.hxx"
 
 #include <vector>
 #include <map>
@@ -50,7 +51,7 @@ namespace Batch {
 
   class FactBatchManager;
 
-  class BatchManager_Local_SH : public BatchManager_Local
+  class BATCH_EXPORT BatchManager_Local_SH : public BatchManager_Local
   {
   public:
     // Constructeur et destructeur
@@ -59,13 +60,17 @@ namespace Batch {
 
   protected:
     // Methode qui renvoie la commande de copie du fichier source en destination
-    virtual string copy_command(const string & host_source, const string & source, const string & host_destination, const string & destination) const;
+    virtual std::string copy_command( const std::string & host_source,
+				      const std::string & source,
+				      const std::string & host_destination,
+				      const std::string & destination) const;
 
     // Methode qui renvoie la commande a executer
-    virtual string exec_command(Parametre & param) const;
+    virtual std::string exec_command(Parametre & param) const;
 
     // Methode qui renvoie la commande d'effacement du fichier
-    virtual string remove_command(const string & host_destination, const string & destination) const;
+    virtual std::string remove_command( const std::string & host_destination,
+					const std::string & destination) const;
 
   };
 

@@ -30,6 +30,8 @@
 #define _JOBID_H_
 
 
+#include "Batch_Defines.hxx"
+
 #include "Batch_JobInfo.hxx"
 #include "Batch_BatchManager.hxx"
 
@@ -37,7 +39,7 @@ namespace Batch {
 
   class BatchManager;
 
-  class JobId
+  class BATCH_EXPORT JobId
   {
     friend class BatchManager;
 

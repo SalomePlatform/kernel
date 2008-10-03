@@ -29,12 +29,14 @@
 #ifndef _LONGTYPE_H_
 #define _LONGTYPE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include "Batch_GenericType.hxx"
 
 namespace Batch {
 
-  class LongType : public GenericType
+  class BATCH_EXPORT LongType : public GenericType
   {
   public:
 		// Constructeur

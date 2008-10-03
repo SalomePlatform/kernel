@@ -33,7 +33,15 @@
 
 namespace Batch {
 
-  static FactBatchManager_eLSF sFBM_eLSF;
+static FactBatchManager_eLSF* instanceOfFBM_eLSF()
+{
+  static FactBatchManager_eLSF* sFBM_eLSF = 0;
+  if ( !sFBM_eLSF )
+    sFBM_eLSF = new FactBatchManager_eLSF();
+
+  return sFBM_eLSF;
+}
+  
 
   // Constructeur
   FactBatchManager_eLSF::FactBatchManager_eLSF() : FactBatchManager_eClient("eLSF")

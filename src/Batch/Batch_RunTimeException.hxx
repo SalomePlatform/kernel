@@ -30,12 +30,14 @@
 #ifndef _RUNTIMEEXCEPTION_H_
 #define _RUNTIMEEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class RunTimeException : public GenericException
+  class BATCH_EXPORT RunTimeException : public GenericException
   {
   public:
 		// Constructeur

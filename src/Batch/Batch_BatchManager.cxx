@@ -29,7 +29,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <netdb.h>
+#ifdef WIN32
+# include<winsock2.h>
+#else
+# include <netdb.h>
+#endif
+
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_Job.hxx"
 #include "Batch_JobId.hxx"

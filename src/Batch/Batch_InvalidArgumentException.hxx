@@ -31,12 +31,14 @@
 #define _INVALIDARGUMENTEXCEPTION_H_
 
 
+#include "Batch_Defines.hxx"
+
 #include "Batch_GenericException.hxx"
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class InvalidArgumentException : public GenericException
+  class BATCH_EXPORT InvalidArgumentException : public GenericException
   {
   public:
 		// Constructeur

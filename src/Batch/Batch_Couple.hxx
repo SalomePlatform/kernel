@@ -30,11 +30,13 @@
 #ifndef _COUPLE_H_
 #define _COUPLE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 
 namespace Batch {
 
-  class Couple
+  class BATCH_EXPORT Couple
   {
   public:
     // Constructeur standard

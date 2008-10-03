@@ -37,6 +37,8 @@
 #include "Batch_APIInternalFailureException.hxx"
 #include "Batch_JobInfo_ePBS.hxx"
 
+using namespace std;
+
 namespace Batch {
 
 

@@ -29,11 +29,13 @@
 #ifndef _LISTISFULLEXCEPTION_H_
 #define _LISTISFULLEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class ListIsFullException : public GenericException
+  class BATCH_EXPORT ListIsFullException : public GenericException
   {
   public:
 		// Constructeur

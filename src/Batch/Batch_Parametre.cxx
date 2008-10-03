@@ -26,10 +26,11 @@
  *
  */
 
-#include <map>
 #include "Batch_Versatile.hxx"
 #include "Batch_InvalidKeyException.hxx"
 #include "Batch_Parametre.hxx"
+
+using namespace std;
 
 // Definition des membres constants statiques
 // Definition des noms globaux pour les clefs en tant que references

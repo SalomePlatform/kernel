@@ -30,11 +30,13 @@
 #ifndef _DATE_H_
 #define _DATE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 
 namespace Batch {
 
-  class Date
+  class BATCH_EXPORT Date
   {
   public:
     Date(const long l=0);

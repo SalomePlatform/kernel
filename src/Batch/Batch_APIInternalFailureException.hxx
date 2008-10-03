@@ -30,13 +30,14 @@
 #ifndef _APIINTERNALFAILUREEXCEPTION_H_
 #define _APIINTERNALFAILUREEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
 
 #include "Batch_GenericException.hxx"
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class APIInternalFailureException : public GenericException
+  class BATCH_EXPORT APIInternalFailureException : public GenericException
   {
   public:
 		// Constructeur

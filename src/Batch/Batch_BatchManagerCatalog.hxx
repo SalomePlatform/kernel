@@ -29,6 +29,8 @@
 #ifndef _CATALOG_H_
 #define _CATALOG_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include <map>
 #include <pthread.h>
@@ -37,7 +39,7 @@ namespace Batch {
 
   class FactBatchManager;
   
-  class BatchManagerCatalog
+  class BATCH_EXPORT BatchManagerCatalog
   {
   public:
     // Constructeur

@@ -35,7 +35,9 @@
 #include <sstream>
 #include <cstdlib>
 #include <sys/types.h>
+#ifndef WIN32
 #include <sys/wait.h>
+#endif
 #include <ctime>
 #include <unistd.h>
 #include <pthread.h>
@@ -56,6 +58,8 @@
 #ifndef SH
 #error "SH undefined. You must set SH to a valid path to a sh-like command."
 #endif
+
+using namespace std;
 
 namespace Batch {
 

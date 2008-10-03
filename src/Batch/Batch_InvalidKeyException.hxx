@@ -30,13 +30,15 @@
 #ifndef _INVALIDKEYEXCEPTION_H_
 #define _INVALIDKEYEXCEPTION_H_
 
+#include "Batch_Defines.hxx"
+
 
 #include "Batch_GenericException.hxx"
 #include "Batch_GenericException.hxx"
 
 namespace Batch {
 
-  class InvalidKeyException : public GenericException
+  class BATCH_EXPORT InvalidKeyException : public GenericException
   {
   public:
 		// Constructeur

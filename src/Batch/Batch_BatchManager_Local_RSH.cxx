@@ -35,9 +35,11 @@
 #include <sstream>
 #include <cstdlib>
 #include <sys/types.h>
+#ifndef WIN32
 #include <sys/wait.h>
-#include <ctime>
 #include <unistd.h>
+#endif
+#include <ctime>
 #include <pthread.h>
 #include <signal.h>
 #include <errno.h>
@@ -56,6 +58,8 @@
 #ifndef RSH
 #error "RSH undefined. You must set RSH to a valid path to a rsh-like command."
 #endif
+
+using namespace std;
 
 namespace Batch {
 

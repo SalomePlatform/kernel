@@ -29,12 +29,14 @@
 #ifndef _BOOLTYPE_H_
 #define _BOOLTYPE_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include "Batch_GenericType.hxx"
 
 namespace Batch {
 
-  class BoolType : public GenericType
+  class BATCH_EXPORT BoolType : public GenericType
   {
   public:
 		// Constructeur

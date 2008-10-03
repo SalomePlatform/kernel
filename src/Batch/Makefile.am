@@ -68,7 +68,8 @@ LIB_INCLUDES = \
 	Batch_BatchManager_ePBS.hxx \
 	Batch_FactBatchManager_ePBS.hxx \
 	Batch_JobInfo_ePBS.hxx \
-	MpiImpl.hxx
+	MpiImpl.hxx \
+	Batch_Defines.hxx
 
 
 LIB_SRC = \
@@ -116,7 +117,7 @@ LIB_CPPFLAGS = \
 	${PYTHON_INCLUDES} \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-  -I$(top_builddir)/salome_adm/unix
+	-I$(top_builddir)/salome_adm/unix
 
 LIB_LIBADD   = \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
