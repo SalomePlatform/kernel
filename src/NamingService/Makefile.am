@@ -32,7 +32,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS =\
 	SALOME_NamingService.hxx \
 	ServiceUnreachable.hxx \
-	NamingService_WaitForServerReadiness.hxx
+	NamingService_WaitForServerReadiness.hxx \
+	SALOME_NamingService_defs.hxx
 
 # Scripts to be exported
 dist_salomescript_DATA =\

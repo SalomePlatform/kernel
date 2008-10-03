@@ -39,19 +39,7 @@
 #include "Utils_Mutex.hxx"
 #include "ServiceUnreachable.hxx"
 
-#if defined NAMINGSERVICE_EXPORTS
-#if defined WIN32
-#define NAMINGSERVICE_EXPORT __declspec( dllexport )
-#else
-#define NAMINGSERVICE_EXPORT
-#endif
-#else
-#if defined WNT
-#define NAMINGSERVICE_EXPORT __declspec( dllimport )
-#else
-#define NAMINGSERVICE_EXPORT
-#endif
-#endif
+#include "SALOME_NamingService_defs.hxx"
 
 class NAMINGSERVICE_EXPORT SALOME_NamingService
 {

@@ -79,7 +79,7 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
 		  break; // server found, no more try to do
 		}
 	      MESSAGE("Server "<< serverName <<" not yet ready, waiting...");
-#ifndef WNT
+#ifndef WIN32
               nanosleep(&ts_req,&ts_rem); // wait before retry
 #else
               Sleep(TIMESleep/1000000);
@@ -89,7 +89,7 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
       catch( ServiceUnreachable& )
 	{
 	  MESSAGE("CORBA::COMM_FAILURE: Naming Service not yet ready, waiting...");
-#ifndef WNT
+#ifndef WIN32
           nanosleep(&ts_req,&ts_rem); // wait before retry
 #else
           Sleep(TIMESleep/1000000);

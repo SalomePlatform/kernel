@@ -29,20 +29,7 @@
 #if !defined ( SERVICEUNREACHABLE_H )
 #define SERVICEUNREACHABLE_H
 
-#if defined NAMINGSERVICE_EXPORTS
-#if defined WNT
-#define NAMINGSERVICE_EXPORT __declspec( dllexport )
-#else
-#define NAMINGSERVICE_EXPORT
-#endif
-#else
-#if defined WNT
-#define NAMINGSERVICE_EXPORT __declspec( dllimport )
-#else
-#define NAMINGSERVICE_EXPORT
-#endif
-#endif
-
+#include "SALOME_NamingService_defs.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
 //! exception class for NamingService : ServiceUnreachable
