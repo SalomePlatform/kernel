@@ -204,7 +204,7 @@ class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        from salome_utilities import generateFileName
+        from salome_utils import generateFileName
         if sys.platform == "win32": dirpath = os.environ["HOME"]
         else:                       dirpath = "/tmp"
         logfile = generateFileName( dirpath,
@@ -749,7 +749,7 @@ def searchFreePort(args, save_config=1):
         if not portIsUsed(NSPORT, ports):
             print "%s - OK"%(NSPORT)
             #
-            from salome_utilities import generateFileName, getHostName
+            from salome_utils import generateFileName, getHostName
             hostname = getHostName()
             #
             home  = os.getenv("HOME")
@@ -831,7 +831,7 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
-    from salome_utilities import getHostName
+    from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)

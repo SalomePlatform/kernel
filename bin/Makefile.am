@@ -61,7 +61,7 @@ dist_salomescript_SCRIPTS =		\
 	runSalome.py			\
 	salomeConsole.py		\
 	salome_session.py		\
-	salome_utilities.py		\
+	salome_utils.py	        	\
 	server.py			\
 	setenv.py			\
 	showNS.py			\

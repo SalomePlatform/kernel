@@ -39,7 +39,7 @@ def getShortHostName():
     socket.gethostname() gives short or complete Hostname, depending on
     defined aliases.
     """
-    from salome_utilities import getShortHostName
+    from salome_utils import getShortHostName
     return getShortHostName()
 
 def searchFreePort():
@@ -48,7 +48,7 @@ def searchFreePort():
     Returns first found free port number.
     """
     print "Searching a free port for naming service:",
-    from salome_utilities import generateFileName, getHostName
+    from salome_utils import generateFileName, getHostName
     hostname = getHostName()
     NSPORT = 2810
     limit  = NSPORT+100

@@ -18,7 +18,7 @@
 #
 # ---
 #
-# File   : salome_utilities.py
+# File   : salome_utils.py
 # Author : Vadim SANDLER, Open CASCADE S.A.S. (vadim.sandler@opencascade.com)
 #
 # ---

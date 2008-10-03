@@ -29,7 +29,7 @@ def findFileDict():
     Detect current SALOME session's port number.
     Returns port number.
     """
-    from salome_utilities import getPortNumber
+    from salome_utils import getPortNumber
     port = getPortNumber()
     if verbose(): print "myport = ", port
     return port

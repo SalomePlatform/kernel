@@ -39,7 +39,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
     - hidden  : if True, file name is prefixed with . (dot) symbol; this internal parameter is used
     to support compatibility with older versions of SALOME
     """
-    from salome_utilities import generateFileName, getTmpDir
+    from salome_utils import generateFileName, getTmpDir
     dir = ""
     if full:
         # full path to the pidict file is requested
@@ -68,7 +68,7 @@ def appliCleanOmniOrbConfig(port):
     - ${HOME}/${APPLI}/.omniORB_last.cfg
     the last is removed only if the link points to the first file.
     """
-    from salome_utilities import generateFileName
+    from salome_utils import generateFileName
     home  = os.getenv("HOME")
     appli = os.getenv("APPLI")
     if appli is None:
@@ -115,7 +115,7 @@ def killMyPort(port):
     try:
         fpid = open(filedict, 'r')
         #
-        from salome_utilities import generateFileName
+        from salome_utils import generateFileName
         fpidomniNames = generateFileName(os.path.join('/tmp/logs', os.getenv('USER')),
                                          prefix="",
                                          suffix="Pid_omniNames",
