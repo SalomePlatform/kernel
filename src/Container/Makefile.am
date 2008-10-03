@@ -90,7 +90,7 @@ COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
 	../Batch/libSalomeBatch.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la\
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)
@@ -142,6 +142,7 @@ SALOME_Container_CPPFLAGS =\
 
 SALOME_Container_LDADD = \
 	libSalomeContainer.la \
+	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
@@ -158,6 +159,7 @@ TestSalome_file_CPPFLAGS =\
 
 TestSalome_file_LDADD =\
 	libSalomeContainer.la \
+	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \

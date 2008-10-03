@@ -36,7 +36,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <sys/types.h>
@@ -176,7 +176,7 @@ protected:
   std::string _nodeName ;
 
 private:
-#ifndef WNT
+#ifndef WIN32
   pthread_t _ThreadId ;
 #else
   pthread_t* _ThreadId ;

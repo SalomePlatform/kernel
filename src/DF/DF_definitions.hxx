@@ -68,7 +68,7 @@ public:
     
 };
 
-# if defined(WNT) && !defined(HAVE_NO_DLL)
+# if defined(WIN32) && !defined(HAVE_NO_DLL)
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT __declspec( dllexport )
@@ -82,7 +82,7 @@ public:
 #   define Standard_IMPORTC extern "C" __declspec( dllimport )
 #  endif  /* Standard_IMPORT */
 
-# else  /* WNT */
+# else  /* WIN32 */
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT
@@ -96,11 +96,11 @@ public:
 #   define Standard_IMPORTC extern "C"
 #  endif  /* Standard_IMPORT */
 
-# endif  /* WNT */
+# endif  /* WIN32 */
 
 # ifndef __Standard_API
-//#  ifdef WNT
-#   if !defined(WNT) 
+//#  ifdef WIN32
+#   if !defined(WIN32) 
 #    define __Standard_API Standard_EXPORT
 #    define __Standard_APIEXTERN Standard_EXPORTEXTERN
 #   else
@@ -109,7 +109,7 @@ public:
 #   endif  // __Standard_DLL
 //#  else
 //#   define __Standard_API
-//#  endif  // WNT
+//#  endif  // WIN32
 # endif  // __Standard_API
 
 #include <iostream>

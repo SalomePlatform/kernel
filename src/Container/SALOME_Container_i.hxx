@@ -37,7 +37,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <sys/types.h>

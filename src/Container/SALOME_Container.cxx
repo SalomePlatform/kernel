@@ -35,13 +35,13 @@
 #include <string>
 #include <stdio.h>
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
 # include <sys/time.h>
 # include <dlfcn.h>
 #endif
 
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -65,8 +65,11 @@ extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 #include <stdexcept>
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+#ifndef WIN32
+# include <sys/wait.h>
+#endif
 
+#ifndef WIN32
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
 {
@@ -78,9 +81,11 @@ sighandler_t setsig(int sig, sighandler_t handler)
     return SIG_ERR;
   return ocontext.sa_handler;
 }
+#endif //WIN32
 
 void AttachDebugger()
 {
+#ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       std::stringstream exec;
@@ -89,6 +94,7 @@ void AttachDebugger()
       system(exec.str().c_str());
       while(1);
     }
+#endif
 }
 
 void Handler(int theSigId)
@@ -117,12 +123,14 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
 
+#ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
       set_terminate(&terminateHandler);
       set_unexpected(&unexpectedHandler);
     }
+#endif
 
   // Initialise the ORB.
   //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
@@ -167,7 +175,7 @@ int main(int argc, char* argv[])
       PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
       // add new container to the kill list
-#ifndef WNT
+#ifndef WIN32
       stringstream aCommand ;
       aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
       system(aCommand.str().c_str());

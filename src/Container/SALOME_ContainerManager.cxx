@@ -20,10 +20,11 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <vector>
@@ -223,7 +224,7 @@ StartContainer(const Engines::MachineParameters& params,
 	  possibleComputers.length());
 
   vector<string> lm;
-  for(int i=0;i<possibleComputers.length();i++)
+  for(unsigned int i=0;i<possibleComputers.length();i++)
     lm.push_back(string(possibleComputers[i]));
 
   string theMachine;
@@ -247,7 +248,7 @@ StartContainer(const Engines::MachineParameters& params,
 
   //If the machine name is localhost use the real name
   if(theMachine == "localhost")
-    theMachine=GetHostname();
+    theMachine=Kernel_Utils::GetHostname();
 
   MESSAGE("try to launch it on " << theMachine);
 
@@ -266,7 +267,7 @@ StartContainer(const Engines::MachineParameters& params,
 	    "no possible computer");
     return Engines::Container::_nil();
   }
-  else if(theMachine==GetHostname())
+  else if(theMachine==Kernel_Utils::GetHostname())
     command = BuildCommandToLaunchLocalContainer(params,id,container_exe);
   else
     command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
@@ -320,7 +321,7 @@ StartContainer(const Engines::MachineParameters& params,
     int count=TIME_OUT_TO_LAUNCH_CONT;
     MESSAGE("count = "<<count);
     while ( CORBA::is_nil(ret) && count ){
-#ifndef WNT
+#ifndef WIN32
       sleep( 1 ) ;
 #else
       Sleep(1000);
@@ -340,7 +341,7 @@ StartContainer(const Engines::MachineParameters& params,
     else
       {
         logFilename=":"+logFilename;
-        logFilename="@"+GetHostname()+logFilename;
+        logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
         logFilename=getenv( "USER" )+logFilename;
         ret->logfilename(logFilename.c_str());
       }
@@ -375,7 +376,7 @@ StartContainer(const Engines::MachineParameters& params,
       if (CORBA::is_nil (Catalog))
         return Engines::Container::_nil();
       // Loop through component list
-      for(int i=0;i<componentList.length();i++)
+      for(unsigned int i=0;i<componentList.length();i++)
         {
           const char* compoi = componentList[i];
           SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
@@ -453,7 +454,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     else {
       INFOS("[FindOrStartParallelContainer] on machine : " << theMachine);
       string command;
-      if(theMachine == GetHostname()) {
+      if(theMachine == Kernel_Utils::GetHostname()) {
 	// Step 3 : starting parallel container proxy
 	params.hostname = CORBA::string_dup(theMachine.c_str());
 	Engines::MachineParameters params_proxy(params);
@@ -479,7 +480,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	  for (int i = 0; i < params.nb_component_nodes; i++) {
 
 	    char buffer [5];
-#ifndef WNT
+#ifndef WIN32
 	    snprintf(buffer,5,"%d",i);
 #else
 	    _snprintf(buffer,5,"%d",i);
@@ -492,7 +493,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	    obj = _NS->Resolve(containerNameInNS.c_str());
 	    while (CORBA::is_nil(obj) && count) {
 	      INFOS("[FindOrStartParallelContainer] CONNECTION FAILED !!!!!!!!!!!!!!!!!!!!!!!!");
-#ifndef WNT
+#ifndef WIN32
 	      sleep(1) ;
 #else
 	      Sleep(1000);
@@ -667,7 +668,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 
     INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy on " << theMachine);
     while (CORBA::is_nil(obj) && count) {
-#ifndef WNT
+#ifndef WIN32
       sleep(1) ;
 #else
       Sleep(1000);
@@ -692,7 +693,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 
       // Name of the node
       char buffer [5];
-#ifndef WNT
+#ifndef WIN32
       snprintf(buffer,5,"%d",i);
 #else
       _snprintf(buffer,5,"%d",i);
@@ -705,7 +706,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
       containerNameInNS = _NS->BuildContainerNameForNS((char*) name_cont.c_str(),theMachine.c_str());
       cerr << "[LaunchContainer]  Waiting for Parllel Container node " << containerNameInNS << " on " << theMachine << endl;
       while (CORBA::is_nil(obj) && count) {
-#ifndef WNT
+#ifndef WIN32
 	sleep(1) ;
 #else
 	Sleep(1000);
@@ -908,14 +909,17 @@ string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 (const Engines::MachineParameters& params, const long id,const std::string& container_exe)
 {
-  _TmpFileName = "";
+  _TmpFileName = BuildTemporaryFileName();
   string command;
   int nbproc = 0;
-  char idc[3*sizeof(long)];
+  //char idc[3*sizeof(long)];
+
+  ofstream command_file( _TmpFileName.c_str() );
 
   if (params.isMPI)
     {
-      command = "mpirun -np ";
+      //command = "mpirun -np ";
+      command_file << "mpirun -np ";
 
       if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
         nbproc = 1;
@@ -926,24 +930,28 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
       else
         nbproc = params.nb_node * params.nb_proc_per_node;
 
-      std::ostringstream o;
+      //std::ostringstream o;
 
-      o << nbproc << " ";
+      //o << nbproc << " ";
+      command_file << nbproc << " ";
 
-      command += o.str();
+      //command += o.str();
 #ifdef WITHLAM
-      command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+      //command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+      command_file << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #endif
 
       if (isPythonContainer(params.container_name))
-        command += "pyMPI SALOME_ContainerPy.py ";
+        //command += "pyMPI SALOME_ContainerPy.py ";
+        command_file << "pyMPI SALOME_ContainerPy.py ";
       else
-        command += "SALOME_MPIContainer ";
+        //command += "SALOME_MPIContainer ";
+        command_file << "SALOME_MPIContainer ";
     }
 
   else
     {
-      command="";
+      //command="";
       std::string wdir=params.workingdir.in();
       if(wdir != "")
         {
@@ -951,33 +959,57 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
           if(wdir == "$TEMPDIR")
             {
               // a new temporary directory is requested
-              char dir[]="/tmp/salomeXXXXXX";
-              char* mdir=mkdtemp(dir);
-              if(mdir==NULL)
-                std::cerr << "Problem in mkdtemp " << dir << " " << mdir << std::endl;
-              else
-                command="cd "+std::string(dir)+";";
+              string dir = Kernel_Utils::GetTmpDir();
+#ifdef WIN32
+              //command += "cd /d "+ dir +";";
+              command_file << "cd /d " << dir << endl;
+#else
+              //command = "cd "+ dir +";";
+              command_file << "cd " << dir << ";";
+#endif
+
             }
           else
             {
               // a permanent directory is requested use it or create it
-              command="mkdir -p " + wdir + " && cd " + wdir + ";";
+#ifdef WIN32
+              //command="mkdir " + wdir;
+              command_file << "mkdir " + wdir << endl;
+              command_file << "cd /D " + wdir << endl;
+#else
+              //command="mkdir -p " + wdir + " && cd " + wdir + ";";
+              command_file << "mkdir -p " << wdir << " && cd " << wdir + ";";
+#endif
             }
         }
       if (isPythonContainer(params.container_name))
-        command += "SALOME_ContainerPy.py ";
+        //command += "SALOME_ContainerPy.py ";
+        command_file << "SALOME_ContainerPy.py ";
       else
-        command += container_exe + " ";
+        //command += container_exe + " ";
+        command_file << container_exe + " ";
+
     }
 
-  command += _NS->ContainerName(params);
+
+  /*command += _NS->ContainerName(params);
   command += " -id ";
   sprintf(idc,"%ld",id);
   command += idc;
-  command += " -";
-  AddOmninamesParams(command);
+  command += " -";  
+  AddOmninamesParams(command);*/
 
-  MESSAGE("Command is ... " << command);
+  command_file << _NS->ContainerName(params);
+  command_file << " -id " << id << " -";
+  AddOmninamesParams(command_file);
+  command_file.close();
+
+#ifndef WIN32
+  chmod(_TmpFileName.c_str(), 0x1ED);
+#endif
+  command = _TmpFileName;
+
+  MESSAGE("Command is file ... " << command);
   return command;
 }
 
@@ -992,7 +1024,7 @@ void SALOME_ContainerManager::RmTmpFile()
 {
   if (_TmpFileName != "")
     {
-#ifndef WNT
+#ifndef WIN32
       string command = "rm ";
 #else
       string command = "del /F ";
@@ -1043,23 +1075,13 @@ void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
 string SALOME_ContainerManager::BuildTemporaryFileName() const
   {
     //build more complex file name to support multiple salome session
-    char *temp = new char[19];
-    strcpy(temp, "/tmp/command");
-    strcat(temp, "XXXXXX");
-#ifndef WNT
-
-    mkstemp(temp);
+    string aFileName = Kernel_Utils::GetTmpFileName();
+#ifndef WIN32
+    aFileName += ".sh";
 #else
-
-    char aPID[80];
-    itoa(getpid(), aPID, 10);
-    strcat(temp, aPID);
+    aFileName += ".bat";
 #endif
-
-    string command(temp);
-    delete [] temp;
-    command += ".sh";
-    return command;
+    return aFileName;
   }
 
 
@@ -1138,7 +1160,9 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   tempOutputFile << " &" << endl;
   tempOutputFile.flush();
   tempOutputFile.close();
+#ifndef WIN32
   chmod(_TmpFileName.c_str(), 0x1ED);
+#endif
 
   // --- Build command
 
@@ -1279,7 +1303,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     command += " > /tmp/";
     command += _NS->ContainerName(rtn);
     command += "_";
-    command += GetHostname();
+    command += Kernel_Utils::GetHostname();
     command += "_";
     command += getenv( "USER" ) ;
     command += ".log 2>&1 &" ;

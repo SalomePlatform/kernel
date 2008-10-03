@@ -26,22 +26,14 @@
 #ifndef _DSC_Basic_HXX_
 #define _DSC_Basic_HXX_
 
-#ifdef WNT
- #if defined DSC_BASIC_EXPORTS
-  #if defined WIN32
-   #define DSC_BASIC_EXPORT __declspec( dllexport )
-  #else
-   #define DSC_BASIC_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define DSC_BASIC_EXPORT __declspec( dllimport )
-  #else
-   #define DSC_BASIC_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef DSC_BASIC_EXPORTS
+#  define DSC_BASIC_EXPORT __declspec( dllexport )
+# else
+#  define DSC_BASIC_EXPORT __declspec( dllimport )
+# endif
 #else
- #define DSC_BASIC_EXPORT
+# define DSC_BASIC_EXPORT
 #endif
 
 #endif
