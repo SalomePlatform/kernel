@@ -73,7 +73,7 @@ int main(int argc,char **argv)
       for (int i = 1; i<=NumberOfTries; i++)
 	{
 	  if (i!=1) 
-#ifndef WNT
+#ifndef WIN32
 	    a=nanosleep(&ts_req,&ts_rem);
 #else
 	    Sleep(TIMESleep/1000000);
@@ -106,7 +106,7 @@ int main(int argc,char **argv)
 		      for(int j=1; j<=NumberOfTries; j++)
 			{
 			  if (j!=1) 
-#ifndef WNT
+#ifndef WIN32
 			    a=nanosleep(&ts_req, &ts_rem);
 #else
 			    Sleep(TIMESleep/1000000);

@@ -26,20 +26,12 @@
 #ifndef _SALOME_ModuleCatalog_HXX_
 #define _SALOME_ModuleCatalog_HXX_
 
-#ifdef WNT
- #if defined MODULECATALOG_EXPORTS
-  #if defined WIN32
-   #define MODULECATALOG_EXPORT __declspec( dllexport )
-  #else
-   #define MODULECATALOG_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define MODULECATALOG_EXPORT __declspec( dllimport )
-  #else
-   #define MODULECATALOG_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef MODULECATALOG_EXPORTS
+#  define MODULECATALOG_EXPORT __declspec( dllexport )
+# else
+#  define MODULECATALOG_EXPORT __declspec( dllimport )
+# endif
 #else
  #define MODULECATALOG_EXPORT
 #endif
