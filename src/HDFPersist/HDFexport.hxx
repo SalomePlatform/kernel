@@ -26,14 +26,14 @@
 #ifndef _HDF_export_HXX_
 #define _HDF_export_HXX_
 
-#ifdef WNT
-  #if defined WIN32
-   #define HDF_EXPORT __declspec( dllimport )
-  #else
-   #define HDF_EXPORT
-  #endif
+#ifdef WIN32
+# ifdef HDFPERSIST_EXPORTS
+#  define HDFPERSIST_EXPORT __declspec( dllexport )
+# else
+#  define HDFPERSIST_EXPORT __declspec( dllimport )
+# endif
 #else
- #define HDF_EXPORT
+# define HDFPERSIST_EXPORT
 #endif
 
 #endif

@@ -30,7 +30,7 @@
 extern "C"
 {
 #include "HDFtypes.h"
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #include <sys/mman.h>
 #else
@@ -41,13 +41,14 @@ extern "C"
 #include <sys/stat.h>
 #include <fcntl.h>
 }
+#include "HDFexport.hxx"
 #include "HDFcontainerObject.hxx"
 #include "HDFdataset.hxx"
 #include "HDFfile.hxx"
 #include <string>
 
 
-class HDFConvert 
+class HDFPERSIST_EXPORT HDFConvert 
 {
 private:
 

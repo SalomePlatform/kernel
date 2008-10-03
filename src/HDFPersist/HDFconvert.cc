@@ -27,7 +27,7 @@
 #include "HDFconvert.hxx"
 using namespace std;
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #include <windows.h>
 #endif
@@ -64,7 +64,7 @@ int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_con
     perror("HDFConvert::FromAscii");
     return -1;
   };
-#elif defined WNT
+#elif defined WIN32
 
 #define SHMEMSIZE 4096
 

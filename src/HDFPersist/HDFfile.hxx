@@ -34,7 +34,7 @@ extern "C"
 #include "HDFcontainerObject.hxx"
 #include "HDFexport.hxx"
 
-class HDF_EXPORT HDFfile : public HDFcontainerObject
+class HDFPERSIST_EXPORT HDFfile : public HDFcontainerObject
 {
 private :
   hdf_access_mode _access_mode;

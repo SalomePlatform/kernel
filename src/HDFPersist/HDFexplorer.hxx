@@ -30,7 +30,7 @@
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
 
-class HDFexplorer {
+class HDFPERSIST_EXPORT HDFexplorer {
 private :
   int _size;
   HDFcontainerObject *_container;
