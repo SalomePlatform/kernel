@@ -35,22 +35,14 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-#ifdef WNT
- #if defined TOOLSDS_EXPORTS
-  #if defined WIN32
-   #define TOOLSDS_EXPORT __declspec( dllexport )
-  #else
-   #define TOOLSDS_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define TOOLSDS_EXPORT __declspec( dllimport )
-  #else
-   #define TOOLSDS_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef TOOLSDS_EXPORTS
+#  define TOOLSDS_EXPORT __declspec( dllexport )
+# else
+#  define TOOLSDS_EXPORT __declspec( dllimport )
+# endif
 #else
- #define TOOLSDS_EXPORT
+# define TOOLSDS_EXPORT
 #endif
 
 class TOOLSDS_EXPORT SALOMEDS_Tool                                
@@ -58,7 +50,7 @@ class TOOLSDS_EXPORT SALOMEDS_Tool
 public:
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
-  // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
+  // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   static std::string GetTmpDir();
 
  

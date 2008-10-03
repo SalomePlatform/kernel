@@ -30,14 +30,14 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 extern "C"
 {
 #endif
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#ifndef WNT
+#ifndef WIN32
 }
 #endif
 

@@ -35,7 +35,7 @@ extern "C"
 {
 # include <stdlib.h>
 # include <time.h>
-#ifndef WNT
+#ifndef WIN32
 # include <unistd.h>
 # include <sys/utsname.h>
 #else
@@ -50,7 +50,7 @@ protected :
 	const char* const	_name ;
 	const char* const	_adip; // Internet address
 
-#ifndef WNT
+#ifndef WIN32
         const struct utsname    _hostid;        
 	const pid_t		_pid ;
 	const uid_t		_uid ;
@@ -73,7 +73,7 @@ public :
 	~Identity();
 	friend std::ostream & operator<< ( std::ostream& os , const Identity& monid );
 
-#ifndef WNT
+#ifndef WIN32
 	const pid_t&	        pid(void) const;
         const struct utsname&	hostid(void) const;
 	const uid_t&		uid(void) const;

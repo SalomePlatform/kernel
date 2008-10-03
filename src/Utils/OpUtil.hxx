@@ -27,11 +27,8 @@
 #ifndef _OPUTIL_HXX
 #define _OPUTIL_HXX
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
-#include <string>
-
-UTILS_EXPORT std::string GetHostname();
 UTILS_EXPORT const char *duplicate(const char * const);
 
 #endif

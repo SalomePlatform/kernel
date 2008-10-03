@@ -87,11 +87,11 @@ public:
       std::cout << "----Cst ----  InternalDataIdContainer(const DataId & dataId..) " << dataId <<std::endl;
       policy.filtre_convert_TIME.applique_filtre_conversion(dataId.first, _lTime);
       int c=0;
-      for(vector<CORBA::Long>::iterator i=_lTime.begin();i!=_lTime.end();++i)
+      for(std::vector<CORBA::Long>::iterator i=_lTime.begin();i!=_lTime.end();++i)
 	std::cout << "_lTime["<< c++ << "] : " << *i << std::endl;
       policy.filtre_convert_TAG.applique_filtre_conversion(dataId.second, _lTag);
       c=0;
-      for(vector<CORBA::Long>::iterator i=_lTag.begin();i!=_lTag.end();++i)
+      for(std::vector<CORBA::Long>::iterator i=_lTag.begin();i!=_lTag.end();++i)
 	std::cout << "_lTag["<< c++ << "] : " << *i << std::endl;
     }
 

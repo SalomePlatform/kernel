@@ -65,7 +65,7 @@ int main (int argc, char * argv[])
     // Use Name Service to find container
     SALOME_NamingService NS(orb) ;
     string containerName = "/Containers/" ;
-    string hostName = GetHostname();
+    string hostName = Kernel_Utils::GetHostname();
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
     string dirn(getenv("KERNEL_ROOT_DIR"));

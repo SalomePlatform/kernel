@@ -26,7 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
-#ifndef WNT
+#ifndef WIN32
 # define private protected
 #endif
 #include "utilities.h"

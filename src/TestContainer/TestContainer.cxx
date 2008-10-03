@@ -35,7 +35,7 @@
 
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
@@ -91,7 +91,7 @@ int main (int argc, char * argv[])
     {
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
-      string hostName = GetHostname();
+      string hostName = Kernel_Utils::GetHostname();
       containerName += hostName + "/FactoryServer";
       NamingService_WaitForServerReadiness(&_NS,containerName);
 

@@ -26,7 +26,7 @@
 #ifndef _SALOME_UTILS_HXX_
 #define _SALOME_UTILS_HXX_
 
-#ifdef WNT
+#ifdef WIN32
 # if defined UTILS_EXPORTS
 #  define UTILS_EXPORT __declspec( dllexport )
 # else

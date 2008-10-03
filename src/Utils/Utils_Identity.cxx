@@ -34,12 +34,12 @@ extern "C"
 {
 # include <string.h>
 
-#ifndef WNT /* unix functionality */
+#ifndef WIN32 /* unix functionality */
 # include <pwd.h>
 #endif
 }
 
-#ifndef WNT /* unix functionality */
+#ifndef WIN32 /* unix functionality */
 
 # include <arpa/inet.h>
 # include <netinet/in.h>
@@ -153,7 +153,7 @@ PSID getuid() {
 #define getcwd _getcwd
 #define getpid _getpid
 
-#endif /* WNT */
+#endif /* WIN32 */
 
 
 Identity::Identity( const char *name ):	_name(duplicate(name)),\
@@ -197,7 +197,7 @@ const char* const Identity::name (void) const
 {
 	return  _name ;
 }
-#ifndef WNT
+#ifndef WIN32
 	const pid_t& Identity::pid(void) const
 #else
 	const DWORD& Identity::pid(void) const
@@ -206,7 +206,7 @@ const char* const Identity::name (void) const
 	return _pid ;
 }
 
-#ifndef WNT
+#ifndef WIN32
         const struct utsname &Identity::hostid(void) const
 #else
         const char* const Identity::hostid(void) const
@@ -215,7 +215,7 @@ const char* const Identity::name (void) const
     return _hostid ;
 }
 
-#ifndef WNT
+#ifndef WIN32
 	const uid_t& Identity::uid(void) const
 #else
 	const PSID& Identity::uid(void) const
@@ -246,7 +246,7 @@ const char* const Identity::adip (void) const
 
 const char* Identity::host_char( void ) const
 {
-#ifndef WNT
+#ifndef WIN32
         return _hostid.nodename;
 #else
 	return _hostid;
@@ -266,7 +266,7 @@ std::ostream & operator<< ( std::ostream& os , const Identity& monid )
 	os << '\t' << "Numero de PID :  " << monid._pid << std::endl;
 	os << '\t' << "Uid utilisateur  : "   << monid._uid << std::endl;
 	os << '\t' << "nom utilisateur  : "   << monid._pwname << std::endl;
-#ifndef WNT
+#ifndef WIN32
 	os << '\t' << "Nom de machine : " << monid._hostid.nodename << std::endl;
 #else
 	os << '\t' << "Nom de machine : " << monid._hostid << std::endl;

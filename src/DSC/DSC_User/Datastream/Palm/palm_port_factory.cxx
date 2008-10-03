@@ -29,6 +29,8 @@
 
 #include "palm_port_factory.hxx"
 
+using namespace std;
+
 palm_port_factory::palm_port_factory() {
 }
 

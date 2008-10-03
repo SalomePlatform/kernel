@@ -29,7 +29,7 @@
 #ifndef Utils_ExceptHandlers_HeaderFile
 #define Utils_ExceptHandlers_HeaderFile
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <stdexcept>
 
@@ -38,7 +38,7 @@ typedef void (*PVF)();
 class UTILS_EXPORT Unexpect { //save / retrieve unexpected exceptions treatment
   PVF old;
   public :
-#ifndef WNT
+#ifndef WIN32
     Unexpect( PVF f ) 
       { old = std::set_unexpected(f); }
   ~Unexpect() { std::set_unexpected(old); }
@@ -53,7 +53,7 @@ class UTILS_EXPORT Terminate {//save / retrieve terminate function
   
   PVF old;
   public :
-#ifndef WNT
+#ifndef WIN32
     Terminate( PVF f ) 
       { old = std::set_terminate(f); }
   ~Terminate() { std::set_terminate(old); }
