@@ -34,12 +34,12 @@
 
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 extern "C"
 {
 #endif
 #include <string.h>
-#ifndef WNT
+#ifndef WIN32
 }
 #endif
 

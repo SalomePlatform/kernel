@@ -82,8 +82,6 @@
 #include <iostream>
 
 // Pour l'utilisation de "vector" de la STL
-using namespace std;
-
 // Classe filtre_elementaire
 //
 // Implémente une structure de donnée décrivant un filtre élémentaire
@@ -177,7 +175,7 @@ private:
     // Données de configuration de filtrage et conversion:
     //    une table de filtres élémentaires
     //    avec leurs données de conversion associées éventuelles
-    vector<conversion_elementaire> config;
+    std::vector<conversion_elementaire> config;
 
 public:
     // Constructeur: juste une allocation mémoire initiale
@@ -187,7 +185,7 @@ public:
     // réclamer la mémoire utilisée par tous les éléments du vecteur config
     ~filtre_conversion()
     {
-        vector<conversion_elementaire>::iterator i;
+        std::vector<conversion_elementaire>::iterator i;
         for (i = this->config.begin(); i != this->config.end(); i ++)
         {
             delete (*i).p_convers;
@@ -254,7 +252,7 @@ public:
     }
 
     // applique_filtre_conversion: Opération du filtre et de la conversion
-    template <typename T > T applique_filtre_conversion (T valeur_initiale, vector<T>& liste_conversions) const;
+    template <typename T > T applique_filtre_conversion (T valeur_initiale, std::vector<T>& liste_conversions) const;
 };
 
 
@@ -278,7 +276,7 @@ public:
 //     si cette longueur est 0, c'est que la valeur initiale ne passe pas le filtre
 //
 template <typename T>
-T filtre_conversion::applique_filtre_conversion (T valeur_initiale, vector<T>& liste_conversions) const
+T filtre_conversion::applique_filtre_conversion (T valeur_initiale, std::vector<T>& liste_conversions) const
 {
     // Part d'une liste vierge
     liste_conversions.clear();
@@ -289,7 +287,7 @@ T filtre_conversion::applique_filtre_conversion (T valeur_initiale, vector<T>& l
     // et cherche pour chacun d'eux si la valeur initiale est présente parmi les valeurs filtrées
 
     // Pour tous les éléments de configuration du filtrage/conversion
-    vector<conversion_elementaire>::const_iterator i;
+    std::vector<conversion_elementaire>::const_iterator i;
     for (i = config.begin(); i != config.end(); i ++)
     {
 
