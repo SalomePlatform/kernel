@@ -280,8 +280,13 @@ string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, int s
     for(int i = 0; i<v.size(); i++) {
       vector<string> lst = ip.getValues(v[i]);
       dump += "# fill list "+v[i]+"\n";
-      for(int j = 0; j < lst.size(); j++)
-	dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+      for(int j = 0; j < lst.size(); j++) {
+	printf("### %s \nFind : %i\n",lst[j].c_str(), lst[j].find('\"'));
+	if (lst[j].find('\"') == -1)
+	  dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+	else
+	  dump += "ipar.append(\""+v[i]+"\", \"\"\""+lst[j]+"\"\"\")\n";
+      }
     }
   }
 
