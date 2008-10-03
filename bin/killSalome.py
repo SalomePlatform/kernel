@@ -29,9 +29,12 @@ def killAllPorts():
     """
     user = os.getenv('USER')
     # new-style dot-prefixed pidict file
-    fpidict   = getPiDict('(\d*)',hidden=True)
+    #fpidict   = getPiDict('(\d*)',hidden=True)
+    #problem with WIN32 path slashes
+    fpidict   = getPiDict('#####',hidden=True)
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
+    fpidict = fpidict.replace('#####', '(\d*)')
     fnamere   = re.compile("^%s$" % fpidict)
     try:
         for f in os.listdir(dirpidict):
@@ -45,9 +48,11 @@ def killAllPorts():
     except:
         pass
     # provide compatibility with old-style pidict file (not dot-prefixed)
-    fpidict   = getPiDict('(\d*)',hidden=False)
+    #fpidict   = getPiDict('(\d*)',hidden=False)
+    fpidict   = getPiDict('#####',hidden=True)
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
+    fpidict = fpidict.replace('#####', '(\d*)')
     fnamere   = re.compile("^%s$" % fpidict)
     try:
         for f in os.listdir(dirpidict):
