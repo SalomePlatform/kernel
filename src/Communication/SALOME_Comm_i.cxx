@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOME_Comm_i.hxx"
-#ifndef WNT
+#ifndef WIN32
 #include <rpc/xdr.h>
 #endif
 #include "omniORB4/poa.h"
@@ -30,7 +30,7 @@
 #include "SenderFactory.hxx"
 using namespace std;
 
-#ifndef WNT
+#ifndef WIN32
 CORBA::ORB_var &getGlobalORB(){
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
   CORBA::ORB_var &orb = init(0,0);

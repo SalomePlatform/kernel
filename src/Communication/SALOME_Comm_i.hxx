@@ -130,7 +130,7 @@ public:
   ~SALOME_CorbaLongCSender_i();
   CORBA::ULong getSize();
   SALOME::vectorOfLong* sendPart(CORBA::ULong offset, CORBA::ULong length);
-#ifndef WNT
+#ifndef WIN32
   SALOME::CorbaLongCSender_ptr _this();
 #endif
 };
@@ -161,7 +161,7 @@ private:
   /*! Type the component of the array*/
   SALOME::TypeOfDataTransmitted _type;
 public:
-  SALOME_MPISender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend=false);
+  SALOME_MPISender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool owntabToSend=false);
   ~SALOME_MPISender_i();
   SALOME::MPISender::param* getParam();
   void send();
@@ -175,7 +175,7 @@ class COMMUNICATION_EXPORT SALOME_MPISenderDouble_i : public POA_SALOME::MPISend
 				 public SALOME_MPISender_i
 {
 public:
-  SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
+  SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool oWNTabToSend=false);
 };
 
 class COMMUNICATION_EXPORT SALOME_MPISenderInt_i : public POA_SALOME::MPISenderInt,
@@ -183,7 +183,7 @@ class COMMUNICATION_EXPORT SALOME_MPISenderInt_i : public POA_SALOME::MPISenderI
 			      public SALOME_MPISender_i
 {
 public:
-  SALOME_MPISenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
+  SALOME_MPISenderInt_i(const int *tabToSend,long lgrTabToSend,bool owntabToSend=false);
 };
 
 #endif
@@ -206,7 +206,7 @@ private:
   /*! Type the component of the array*/
   SALOME::TypeOfDataTransmitted _type;
 public:
-  SALOME_SocketSender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool ownTabToSend=false);
+  SALOME_SocketSender_i(const void *tabToSend,long lgrTabToSend,int sizeOf,bool owntabToSend=false);
   ~SALOME_SocketSender_i();
   SALOME::SocketSender::param* getParam();
   void send();
@@ -224,7 +224,7 @@ class COMMUNICATION_EXPORT SALOME_SocketSenderDouble_i : public POA_SALOME::Sock
 				    public SALOME_SocketSender_i
 {
 public:
-  SALOME_SocketSenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
+  SALOME_SocketSenderDouble_i(const double *tabToSend,long lgrTabToSend,bool owntabToSend=false);
 };
 
 class COMMUNICATION_EXPORT SALOME_SocketSenderInt_i : public POA_SALOME::SocketSenderInt,
@@ -232,7 +232,7 @@ class COMMUNICATION_EXPORT SALOME_SocketSenderInt_i : public POA_SALOME::SocketS
 				 public SALOME_SocketSender_i
 {
 public:
-  SALOME_SocketSenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend=false);
+  SALOME_SocketSenderInt_i(const int *tabToSend,long lgrTabToSend,bool owntabToSend=false);
 };
 
 #endif
