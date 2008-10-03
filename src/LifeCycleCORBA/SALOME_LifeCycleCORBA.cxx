@@ -32,29 +32,22 @@
 #include <iomanip>
 
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
   #include <sys/time.h>
 #endif
 
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
-#ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(DSC_Engines)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include CORBA_CLIENT_HEADER(SALOMEDS)
-#else
-#include "SALOME_ModuleCatalog.hh"
-#include "SALOME_Session.hh"
-#include "DSC_Engines.hh"
-#include "SALOME_Registry.hh"
-#include "SALOMEDS.hh"
-#endif
+
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
@@ -276,7 +269,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     {
       // containerName doesn't contain "/" => Local container
       params->container_name=CORBA::string_dup(stContainer);
-      params->hostname=CORBA::string_dup(GetHostname().c_str());
+      params->hostname=CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
     }
   else 
     {
@@ -453,7 +446,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
         }
     }
 
-  string hostname = GetHostname();
+  string hostname = Kernel_Utils::GetHostname();
   
   // 1) SalomeLauncher
   CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");

@@ -28,6 +28,7 @@ using namespace std;
 
 void AttachDebugger()
 {
+#ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       std::stringstream exec;
@@ -36,6 +37,7 @@ void AttachDebugger()
       system(exec.str().c_str());
       while(1);
     }
+#endif
 }
 
 void terminateHandler(void)

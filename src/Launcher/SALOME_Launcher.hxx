@@ -20,31 +20,19 @@
 #ifndef __SALOME_LAUNCHER_HXX__
 #define __SALOME_LAUNCHER_HXX__
 
+#include "SALOME_Launcher_defs.hxx"
+
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include "SALOME_ContainerManager.hxx"
-#include "BatchTest.hxx"
 #include "Launcher.hxx"
 
 #include <string>
 
 class SALOME_NamingService;
+class SALOME_ContainerManager;
+class SALOME_ResourcesManager;
 
-#if defined LAUNCHER_EXPORTS
-#if defined WIN32
-#define LAUNCHER_EXPORT __declspec( dllexport )
-#else
-#define LAUNCHER_EXPORT
-#endif
-#else
-#if defined WNT
-#define LAUNCHER_EXPORT __declspec( dllimport )
-#else
-#define LAUNCHER_EXPORT
-#endif
-#endif
-
-class LAUNCHER_EXPORT SALOME_Launcher:
+class SALOMELAUNCHER_EXPORT SALOME_Launcher:
   public POA_Engines::SalomeLauncher,
   public PortableServer::RefCountServantBase
 {
@@ -59,9 +47,9 @@ public:
 			      const Engines::BatchParameters& batch_params,
 			      const Engines::MachineParameters& params);
 
-  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* querySalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteSalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultSalomeJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
 
   CORBA::Boolean testBatch(const Engines::MachineParameters& params);
 

@@ -30,7 +30,7 @@
 #define _SALOME_LIFECYCLECORBA_HXX_
 
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <string>
@@ -40,8 +40,8 @@
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include <iostream>
-using namespace std;
-#ifdef WNT
+
+#ifdef WIN32
 # if defined LIFECYCLECORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
 # else

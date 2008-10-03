@@ -16,7 +16,7 @@
 # include <unistd.h>
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
 

@@ -1,5 +1,15 @@
 #include "BatchTest.hxx"
 
+#include "Batch_Date.hxx"
+#include "MpiImpl.hxx"
+#include "utilities.h"
+
+#include <sys/stat.h>
+#include <iostream>
+#include <fstream>
+#ifdef WIN32
+# include <io.h>
+#endif
 BatchTest::BatchTest(const Engines::MachineParameters& batch_descr) 
 {
   _batch_descr = batch_descr;
@@ -17,7 +27,7 @@ BatchTest::BatchTest(const Engines::MachineParameters& batch_descr)
     }
     i++ ;
   }
-
+  
   // Creating test temporary file
   _test_filename =  "/tmp/";
   _test_filename +=  _date + "_test_cluster_file_";
@@ -66,11 +76,11 @@ BatchTest::test()
 	<< "--- Application         : " << result_appli << std::endl
        );
   
-  if (result_connection == "OK"       and 
-      result_filecopy == "OK"         and 
-      result_getresult == "OK"        and
-      result_jobsubmit_simple == "OK" and 
-      result_jobsubmit_mpi == "OK"    and 
+  if (result_connection == "OK"       && 
+      result_filecopy == "OK"         &&
+      result_getresult == "OK"        &&
+      result_jobsubmit_simple == "OK" &&
+      result_jobsubmit_mpi == "OK"    &&
       result_appli == "OK")
     rtn = true;
       
@@ -99,7 +109,7 @@ BatchTest::test_connection()
     result += "username is empty !";
     return result;
   }
-  if( protocol != "rsh" and protocol != "ssh")
+  if( protocol != "rsh" && protocol != "ssh")
   {
     result += "protocol unknown ! (" + protocol + ")";
     return result;
@@ -341,7 +351,11 @@ BatchTest::test_jobsubmit_simple()
 
     if(status == 153 || status == 256*153 )
       stop = true;
+#ifdef WIN32
+    Sleep(1);
+#else
     sleep(1);
+#endif
   }
 
   // Build command for getting results
@@ -446,7 +460,12 @@ BatchTest::test_jobsubmit_mpi()
 	      << "echo HELLO MPI\n";
   file_script.flush();
   file_script.close();
-  chmod(_test_file_script.c_str(), 0x1ED);
+#ifdef WIN32
+  _chmod
+#else
+  chmod
+#endif
+    (_test_file_script.c_str(), 0x1ED);
 
   std::string _test_file_mpi = _test_filename + "_mpi";
   std::ofstream file_mpi;
@@ -529,7 +548,11 @@ BatchTest::test_jobsubmit_mpi()
 
     if(status == 153 || status == 256*153 )
       stop = true;
+#ifdef WIN32
+    Sleep(1);
+#else
     sleep(1);
+#endif
   }
 
   // Build command for getting results
@@ -569,7 +592,7 @@ BatchTest::test_jobsubmit_mpi()
     return result;
   }
   result = "OK";
-  return result;
+  return result;  
 }
 
 std::string 

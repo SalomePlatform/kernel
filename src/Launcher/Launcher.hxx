@@ -20,10 +20,28 @@
 #ifndef __LAUNCHER_HXX__
 #define __LAUNCHER_HXX__
 
-#include "Batch_BatchManager_eClient.hxx"
+#ifdef WIN32
+# ifdef LAUNCHER_EXPORTS
+#  define LAUNCHER_EXPORT __declspec(dllexport)
+# else
+#  define LAUNCHER_EXPORT __declspec(dllimport)
+# endif
+#else
+# define LAUNCHER_EXPORT
+#endif
+
+#include <SALOME_ResourcesCatalog_Parser.hxx>
 #include "ResourcesManager.hxx"
 
 #include <string>
+#include <vector>
+
+class MpiImpl;
+
+namespace Batch{
+  class BatchManager_eClient;
+  class Job;
+}
 
 struct batchParams{
   std::string batch_directory;
@@ -32,7 +50,7 @@ struct batchParams{
   unsigned long nb_proc;
 };
 
-class LauncherException
+class LAUNCHER_EXPORT LauncherException
 {
 public:
   const std::string msg;
@@ -40,7 +58,7 @@ public:
   LauncherException(const std::string m) : msg(m) {}
 };
 
-class Launcher_cpp
+class LAUNCHER_EXPORT Launcher_cpp
 {
 
 public:
@@ -61,7 +79,7 @@ public:
 
 protected:
 
-  std::string buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params);
+  std::string buildSalomeCouplingScript(const std::string fileToExecute, const std::string dirForTmpFiles, const ParserResourcesType& params);
   MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
   Batch::BatchManager_eClient *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
   std::string getTmpDirForBatchFiles();

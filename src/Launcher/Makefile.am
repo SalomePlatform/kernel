@@ -38,6 +38,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
 			BatchTest.hxx \
 			SALOME_Launcher.hxx \
+			SALOME_Launcher_defs.hxx \
 			Launcher.hxx
 
 # Scripts to be installed
@@ -139,6 +140,7 @@ SALOME_LauncherServer_CPPFLAGS=\
 
 SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
+	../Basics/libSALOMEBasics.la \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(LIBXML_LIBS) \

@@ -26,7 +26,7 @@
 #include "SALOME_FileTransferCORBA.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "utilities.h"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 
 using namespace std;
 
@@ -146,7 +146,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
   container = _theFileRef->getContainer();
   ASSERT(! CORBA::is_nil(container));
 
-  string myMachine = GetHostname();
+  string myMachine = Kernel_Utils::GetHostname();
   string localCopy = _theFileRef->getRef(myMachine.c_str());
 
   if (localCopy.empty()) // no existing copy available
