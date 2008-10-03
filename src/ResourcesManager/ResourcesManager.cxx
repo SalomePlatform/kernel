@@ -18,6 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "ResourcesManager.hxx" 
+#include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -27,8 +28,11 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <libxml/parser.h>
+
+#ifndef WIN32
+# include <unistd.h>
+#endif
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
@@ -127,7 +131,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 
   const char *hostname = params.hostname.c_str();
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+  cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
 #endif
 
   if (hostname[0] != '\0'){
@@ -136,12 +140,12 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 //#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
-	 strcmp(hostname, GetHostname().c_str()) == 0 )
+	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
       {
 //#if defined(_DEBUG_) || defined(_DEBUG)
 //	cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
 //#endif
-	vec.push_back(GetHostname().c_str());
+	vec.push_back(Kernel_Utils::GetHostname().c_str());
 //#if defined(_DEBUG_) || defined(_DEBUG)
 //	cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
 //#endif
@@ -449,7 +453,7 @@ throw(ResourcesException)
 
       bool erasedHost = false;
       if( mapOfModulesOfCurrentHost.size() > 0 ){
-	for(int i=0;i<componentList.size();i++){
+	for(unsigned int i=0;i<componentList.size();i++){
           const char* compoi = componentList[i].c_str();
 	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
 					      mapOfModulesOfCurrentHost.end(),
@@ -476,43 +480,3 @@ ParserResourcesType ResourcesManager_cpp::GetResourcesList(const std::string& ma
   else
     return _resourcesBatchList[machine];
 }
-
-std::string ResourcesManager_cpp::GetHostname()
-{
-  int ls = 100, r = 1;
-  char *s;
-
-  while (ls < 10000 && r) {
-    ls *= 2;
-    s = new char[ls];
-    r = gethostname(s, ls-1);
-    switch (r) 
-      {
-      case 0:
-	  break;
-      default:
-#ifdef EINVAL
-      case EINVAL:
-#endif
-#ifdef ENAMETOOLONG
-      case ENAMETOOLONG:
-#endif
-        delete [] s;
-	continue;
-      }
-  }
-
-  if (r != 0) {
-    s = new char[50];
-    strcpy(s, "localhost");
-  }
-
-  // remove all after '.'
-  char *aDot = (strchr(s,'.'));
-  if (aDot) aDot[0] = '\0';
-
-  string p = s;
-  delete [] s;
-  return p;
-}
-

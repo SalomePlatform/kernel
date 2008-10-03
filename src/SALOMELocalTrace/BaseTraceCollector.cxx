@@ -37,7 +37,7 @@ using namespace std;
 // Class attributes initialisation, for class method BaseTraceCollector::run
 
 BaseTraceCollector* BaseTraceCollector::_singleton = 0;
-#ifndef WNT
+#ifndef WIN32
 pthread_mutex_t BaseTraceCollector::_singletonMutex;
 #else
 pthread_mutex_t BaseTraceCollector::_singletonMutex =

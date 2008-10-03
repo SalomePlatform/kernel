@@ -46,10 +46,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "utilities.h"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
+
+using namespace std;
 
 // ============================================================================
 /*!
@@ -84,9 +86,9 @@ int main(int argc, char* argv[])
 
   sleep(15);
 
-  string host; // = GetHostname();
+  string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
-  if(wait_Superv) host = GetHostname(); 
+  if(wait_Superv) host = Kernel_Utils::GetHostname(); 
 
   SALOME_NamingService NS(orb);
   if(host.empty())

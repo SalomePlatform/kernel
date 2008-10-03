@@ -29,6 +29,9 @@
 #ifndef SALOME_RESOURCES_CATALOG_HANDLER
 #define SALOME_RESOURCES_CATALOG_HANDLER
 
+
+#include "ResourcesManager_Defs.hxx"
+
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
 #include <string>
@@ -36,7 +39,7 @@
 
 #include <libxml/parser.h>
 
-class SALOME_ResourcesCatalog_Handler
+class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 {
   
   public :

@@ -59,7 +59,7 @@ std::string SALOMEDS_AttributeStudyProperties::GetUserName()
     SALOMEDS::Locker lock;
     aName = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetCreatorName();
   }
-#ifndef WNT
+#ifndef WIN32
   else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserName();
 #else
   else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserNameA();

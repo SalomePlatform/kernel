@@ -32,18 +32,15 @@
 #include <vector>
 #include "ResourcesManager.hxx"
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+
+#ifdef WIN32
+# ifdef SALOMERESOURCESMANAGER_EXPORTS
+#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
+# else
+#  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
+# endif
 #else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
+# define SALOMERESOURCESMANAGER_EXPORT
 #endif
 
 // --- WARNING ---
@@ -52,7 +49,7 @@
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
 
-class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
+class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
   public POA_Engines::ResourcesManager,
   public PortableServer::RefCountServantBase
   {

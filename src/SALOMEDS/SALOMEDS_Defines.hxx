@@ -26,22 +26,14 @@
 #ifndef _SALOMEDS_Defines_HXX_
 #define _SALOMEDS_Defines_HXX_
 
-#ifdef WNT
- #if defined SALOMEDS_EXPORTS
-  #if defined WIN32
-   #define SALOMEDS_EXPORT __declspec( dllexport )
-  #else
-   #define SALOMEDS_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define SALOMEDS_EXPORT __declspec( dllimport )
-  #else
-   #define SALOMEDS_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef SALOMEDS_EXPORTS
+#  define SALOMEDS_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDS_EXPORT __declspec( dllimport )
+# endif
 #else
- #define SALOMEDS_EXPORT
+# define SALOMEDS_EXPORT
 #endif
 
 #endif

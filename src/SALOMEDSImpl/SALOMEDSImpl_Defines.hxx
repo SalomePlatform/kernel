@@ -19,22 +19,21 @@
 //
 //
 //
-//  File   : SALOME_LocalTrace.hxx
+//  File   : SALOMEDSImpl_Defines.hxx
 //  Author : Alexander A. BORODIN
-//  Module : SALOME
+//  Module : KERNEL
 
-#ifndef _SALOME_LOCALTRACE_HXX_
-#define _SALOME_LOCALTRACE_HXX_
+#ifndef _SALOMEDSImpl_Defines_HXX_
+#define _SALOMEDSImpl_Defines_HXX_
 
 #ifdef WIN32
-# ifdef SALOMELOCALTRACE_EXPORTS
-#  define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
+# if defined SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
 # else
-#  define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
 # endif
 #else
-# define SALOMELOCALTRACE_EXPORT
+# define SALOMEDSIMPL_EXPORT
 #endif
 
 #endif
-

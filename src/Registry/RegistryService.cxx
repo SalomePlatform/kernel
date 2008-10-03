@@ -35,7 +35,7 @@ extern "C"
 # include <time.h>
 }
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -78,7 +78,7 @@ RegistryService::~RegistryService()
 	_Compteur = -1 ;
 	if ( _SessionName )
 	{
-#ifndef WNT
+#ifndef WIN32
 		delete [] _SessionName ;
 #else
 		delete [] (char*)_SessionName ;
@@ -116,7 +116,7 @@ CORBA::ULong RegistryService::add( const Registry::Infos & infos )
 	return (CORBA::ULong)_Compteur ;
 }
 
-#ifndef WNT
+#ifndef WIN32
 void RegistryService::remove( const CORBA::ULong id)
 #else
 void RegistryService::remove( CORBA::ULong id)
@@ -144,7 +144,7 @@ void RegistryService::remove( CORBA::ULong id)
 }
 
 
-#ifndef WNT
+#ifndef WIN32
 void RegistryService::hello( const CORBA::ULong id )
 #else
 void RegistryService::hello( CORBA::ULong id )
@@ -263,7 +263,7 @@ void RegistryService::SessionName( const char *sessionName )
 }
 void RegistryService::ping()
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE(" RegistryService::ping() pid "<< getpid());
 #else
   MESSAGE(" RegistryService::ping() pid "<< _getpid());

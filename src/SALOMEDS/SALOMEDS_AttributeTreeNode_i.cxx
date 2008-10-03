@@ -64,7 +64,7 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFather()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aFather;
   aFather = new SALOMEDS_AttributeTreeNode_i(dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(_impl)->GetFather(), _orb);
-#ifndef WNT
+#ifndef WIN32
   return aFather->POA_SALOMEDS::AttributeTreeNode::_this();
 #else
   return aFather->AttributeTreeNode::_this();
@@ -90,7 +90,7 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetPrevious()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aPrevious;
   aPrevious=new SALOMEDS_AttributeTreeNode_i(dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(_impl)->GetPrevious(), _orb);
-#ifndef WNT
+#ifndef WIN32
   return aPrevious->POA_SALOMEDS::AttributeTreeNode::_this();
 #else
   return aPrevious->AttributeTreeNode::_this();
@@ -116,7 +116,7 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetNext()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aNext;
   aNext = new SALOMEDS_AttributeTreeNode_i(dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(_impl)->GetNext(), _orb);
-#ifndef WNT
+#ifndef WIN32
   return aNext->POA_SALOMEDS::AttributeTreeNode::_this();
 #else
   return aNext->AttributeTreeNode::_this();
@@ -142,7 +142,7 @@ SALOMEDS::AttributeTreeNode_ptr SALOMEDS_AttributeTreeNode_i::GetFirst()
   SALOMEDS::Locker lock;
   SALOMEDS_AttributeTreeNode_i* aFirst;
   aFirst = new SALOMEDS_AttributeTreeNode_i(dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(_impl)->GetFirst(), _orb);
-#ifndef WNT
+#ifndef WIN32
   return aFirst->POA_SALOMEDS::AttributeTreeNode::_this();
 #else
   return aFirst->AttributeTreeNode::_this();

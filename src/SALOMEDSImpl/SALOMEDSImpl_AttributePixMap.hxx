@@ -24,33 +24,35 @@
 #ifndef _SALOMEDSImpl_AttributePixMap_HeaderFile
 #define _SALOMEDSImpl_AttributePixMap_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include <string> 
 #include "DF_Label.hxx"       
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributePixMap : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributePixMap :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
 
- std::string myString;
+  std::string myString;
 public:
 
-Standard_EXPORT virtual std::string Save() { return myString; }
-Standard_EXPORT virtual void Load(const std::string& theValue) { myString = theValue; }  
+  virtual std::string Save() { return myString; }
+  virtual void Load(const std::string& theValue) { myString = theValue; }  
 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributePixMap* Set(const DF_Label& label,
-							 const std::string& string) ;
-Standard_EXPORT SALOMEDSImpl_AttributePixMap();
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT void SetPixMap(const std::string& value); 
-Standard_EXPORT std::string GetPixMap() const { return myString; }
-Standard_EXPORT bool HasPixMap() const { return (myString != "None"); } 
-Standard_EXPORT void Restore(DF_Attribute* with) ;
-Standard_EXPORT DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributePixMap() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributePixMap* Set(const DF_Label& label,
+    const std::string& string) ;
+  SALOMEDSImpl_AttributePixMap();
+  const std::string& ID() const;
+  void SetPixMap(const std::string& value); 
+  std::string GetPixMap() const { return myString; }
+  bool HasPixMap() const { return (myString != "None"); } 
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributePixMap() {}
 
 };
 

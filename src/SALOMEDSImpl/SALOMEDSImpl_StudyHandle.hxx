@@ -24,37 +24,35 @@
 #ifndef SALOMEDSImpl_StudyHandle_HeaderFile
 #define SALOMEDSImpl_StudyHandle_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 
 /*
-  Class       : SALOMEDSImpl_StudyHandle
-  Description : PRIVATE: This class is intended for storing of the study handle 
+Class       : SALOMEDSImpl_StudyHandle
+Description : PRIVATE: This class is intended for storing of the study handle 
 */
 
 #include "SALOMEDSImpl_Study.hxx"
 
-#ifndef WNT
-class Standard_EXPORT SALOMEDSImpl_StudyHandle : public DF_Attribute
-#else
-class SALOMEDSImpl_StudyHandle : public DF_Attribute
-#endif
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_StudyHandle :
+  public DF_Attribute
 {
 
 public:
-Standard_EXPORT                                  SALOMEDSImpl_StudyHandle();
-Standard_EXPORT                                  ~SALOMEDSImpl_StudyHandle() {; }
+  SALOMEDSImpl_StudyHandle();
+  ~SALOMEDSImpl_StudyHandle() {; }
 
-Standard_EXPORT  static SALOMEDSImpl_StudyHandle* Set(const DF_Label& theLabel, SALOMEDSImpl_Study* theStudy); 
-Standard_EXPORT  static const                    std::string& GetID() ;
+  static SALOMEDSImpl_StudyHandle* Set(const DF_Label& theLabel, SALOMEDSImpl_Study* theStudy); 
+  static const                    std::string& GetID() ;
 
-Standard_EXPORT  void                            Set(SALOMEDSImpl_Study* theStudy) { myHandle = theStudy; }
-Standard_EXPORT  SALOMEDSImpl_Study*             Get() { return myHandle; }
-Standard_EXPORT  const std::string&              ID() const;
-Standard_EXPORT  void                            Restore( DF_Attribute* theWith );
-Standard_EXPORT  DF_Attribute*                   NewEmpty() const;
-Standard_EXPORT  void                            Paste( DF_Attribute* theInto);
-  
+  void                            Set(SALOMEDSImpl_Study* theStudy) { myHandle = theStudy; }
+  SALOMEDSImpl_Study*             Get() { return myHandle; }
+  const std::string&              ID() const;
+  void                            Restore( DF_Attribute* theWith );
+  DF_Attribute*                   NewEmpty() const;
+  void                            Paste( DF_Attribute* theInto);
+
 private:
   SALOMEDSImpl_Study* myHandle;
 

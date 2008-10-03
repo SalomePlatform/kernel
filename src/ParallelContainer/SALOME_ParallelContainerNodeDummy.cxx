@@ -29,7 +29,7 @@
 #include <string>
 #include <stdio.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
     PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
-#ifndef WNT
+#ifndef WIN32
     // add this container to the kill list
     char aCommand[100];
     sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerNode", getpid());
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
     obj = root_poa->id_to_reference(*_id);
 
     // In the NamingService
-    string hostname = GetHostname();
+    string hostname = Kernel_Utils::GetHostname();
     int myid = 0;
     char buffer [5];
     snprintf(buffer, 5, "%d", myid);

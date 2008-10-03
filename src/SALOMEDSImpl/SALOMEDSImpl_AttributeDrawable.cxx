@@ -23,9 +23,7 @@
 
 #include "SALOMEDSImpl_AttributeDrawable.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID

@@ -39,7 +39,8 @@ salomeinclude_HEADERS = \
 		SALOME_ResourcesManager.hxx \
                 SALOME_ResourcesCatalog_Handler.hxx \
 		SALOME_LoadRateManager.hxx \
-		ResourcesManager.hxx
+		ResourcesManager.hxx \
+		ResourcesManager_Defs.hxx
 
 #
 # ===============================================================
@@ -63,6 +64,7 @@ COMMON_CPPFLAGS=\
 COMMON_LIBS =\
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
+	../Basics/libSALOMEBasics.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@LIBXML_LIBS@
 

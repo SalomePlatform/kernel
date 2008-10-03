@@ -24,36 +24,38 @@
 #ifndef _SALOMEDSImpl_AttributeUserID_HeaderFile
 #define _SALOMEDSImpl_AttributeUserID_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 
-class SALOMEDSImpl_AttributeUserID : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeUserID :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-std::string myID;   
+  std::string myID;   
 
 public:
-SALOMEDSImpl_AttributeUserID():SALOMEDSImpl_GenericAttribute("AttributeUserID") {}
-static SALOMEDSImpl_AttributeUserID* Set (const DF_Label& L, const std::string& ID);
-static const std::string& DefaultID() 
-{
-  static std::string SALOMEDSImpl_DefaultUserAttributeID ("FFFFFFFF-D9CD-11d6-945D-1050DA506788");
-  return SALOMEDSImpl_DefaultUserAttributeID;
-}   
+  SALOMEDSImpl_AttributeUserID():SALOMEDSImpl_GenericAttribute("AttributeUserID") {}
+  static SALOMEDSImpl_AttributeUserID* Set (const DF_Label& L, const std::string& ID);
+  static const std::string& DefaultID() 
+  {
+    static std::string SALOMEDSImpl_DefaultUserAttributeID ("FFFFFFFF-D9CD-11d6-945D-1050DA506788");
+    return SALOMEDSImpl_DefaultUserAttributeID;
+  }   
 
-Standard_EXPORT  const std::string& Value() const { return ID(); }
-Standard_EXPORT  void SetValue(const std::string& value);
+  const std::string& Value() const { return ID(); }
+  void SetValue(const std::string& value);
 
-Standard_EXPORT  virtual std::string Type(); 
+  virtual std::string Type(); 
 
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT  void Restore(DF_Attribute* with) ;
-Standard_EXPORT  DF_Attribute* NewEmpty() const;
-Standard_EXPORT  void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeUserID() {}
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeUserID() {}
 
 };
 

@@ -28,17 +28,19 @@
 #ifndef __SALOMEDSIMPL_TOOL_H__
 #define __SALOMEDSIMPL_TOOL_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include <string>
 #include <vector>
 #include "DF_Label.hxx"
 
-class SALOMEDSImpl_Tool                                
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 {
 
 public:
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
-  // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
+  // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   static std::string GetTmpDir();
 
  

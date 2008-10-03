@@ -25,33 +25,34 @@
 #define __SALOMEDSIMPL_SCOMPONENT_H__
 
 //SALOMEDSImpl headers
+#include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
 // std C++ headers
 #include <iostream>
 #include <string>
 
-// Cascade headers
 #include "DF_Label.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include <stdio.h>
 
-class SALOMEDSImpl_SComponent : public virtual SALOMEDSImpl_SObject
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_SComponent :
+  public virtual SALOMEDSImpl_SObject
 {
 public:
-  
-  Standard_EXPORT SALOMEDSImpl_SComponent();
-  Standard_EXPORT SALOMEDSImpl_SComponent(const SALOMEDSImpl_SComponent& theSCO);
-  Standard_EXPORT SALOMEDSImpl_SComponent(const DF_Label& lab);
-  
-  Standard_EXPORT ~SALOMEDSImpl_SComponent();
- 
-  Standard_EXPORT virtual std::string ComponentDataType();
-  Standard_EXPORT virtual bool ComponentIOR(std::string& theID);
 
-  Standard_EXPORT static bool IsA(const DF_Label& theLabel);
+  SALOMEDSImpl_SComponent();
+  SALOMEDSImpl_SComponent(const SALOMEDSImpl_SComponent& theSCO);
+  SALOMEDSImpl_SComponent(const DF_Label& lab);
 
-  Standard_EXPORT SALOMEDSImpl_SComponent* GetPersistentCopy() const;
+  ~SALOMEDSImpl_SComponent();
+
+  virtual std::string ComponentDataType();
+  virtual bool ComponentIOR(std::string& theID);
+
+  static bool IsA(const DF_Label& theLabel);
+
+  SALOMEDSImpl_SComponent* GetPersistentCopy() const;
 
 };
 #endif

@@ -24,38 +24,37 @@
 #ifndef SALOMEDSImpl_AttributeFlags_HeaderFile
 #define SALOMEDSImpl_AttributeFlags_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
+#include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
-#include "SALOMEDSImpl_GenericAttribute.hxx"
+
 
 /*
-  Class       : SALOMEDSImpl_AttributeFlags
-  Description : This class is intended for storing different object attributes that
-                have only two states (0 and 1).
+Class       : SALOMEDSImpl_AttributeFlags
+Description : This class is intended for storing different object attributes that
+have only two states (0 and 1).
 */
 
-#ifndef WNT
-class Standard_EXPORT SALOMEDSImpl_AttributeFlags :  public SALOMEDSImpl_GenericAttribute
-#else
-class SALOMEDSImpl_AttributeFlags :  public SALOMEDSImpl_GenericAttribute
-#endif
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeFlags :
+  public SALOMEDSImpl_GenericAttribute
 {
 private:
-int myValue;
+  int myValue;
 
 public:
-Standard_EXPORT  static const std::string&            GetID() ;
-Standard_EXPORT  static SALOMEDSImpl_AttributeFlags* Set(const DF_Label&, const int theValue );
-                                                               
-                                       SALOMEDSImpl_AttributeFlags();
-Standard_EXPORT  virtual               ~SALOMEDSImpl_AttributeFlags();
+  static const std::string&            GetID() ;
+  static SALOMEDSImpl_AttributeFlags* Set(const DF_Label&, const int theValue );
 
-Standard_EXPORT  const std::string&    ID() const;
-Standard_EXPORT  void                  Restore( DF_Attribute* with );
-Standard_EXPORT  DF_Attribute*         NewEmpty() const;
-Standard_EXPORT  void                  Paste( DF_Attribute* into);
-Standard_EXPORT  void                  Set( const int );
-Standard_EXPORT  int                   Get() const;
+  SALOMEDSImpl_AttributeFlags();
+  virtual               ~SALOMEDSImpl_AttributeFlags();
+
+  const std::string&    ID() const;
+  void                  Restore( DF_Attribute* with );
+  DF_Attribute*         NewEmpty() const;
+  void                  Paste( DF_Attribute* into);
+  void                  Set( const int );
+  int                   Get() const;
 
 };
 

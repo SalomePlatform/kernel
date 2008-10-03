@@ -21,27 +21,28 @@
 #ifndef _SALOMEDSImpl_ChildNodeIterator_HeaderFile
 #define _SALOMEDSImpl_ChildNodeIterator_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
 
-class SALOMEDSImpl_ChildNodeIterator  
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_ChildNodeIterator  
 {
 
 public:
 
-Standard_EXPORT SALOMEDSImpl_ChildNodeIterator();
-Standard_EXPORT SALOMEDSImpl_ChildNodeIterator(const SALOMEDSImpl_AttributeTreeNode* aTreeNode,
-					       const bool allLevels = false);
-Standard_EXPORT void Initialize(const SALOMEDSImpl_AttributeTreeNode* aTreeNode,
-				const bool allLevels = false) ;
-Standard_EXPORT bool More() const { return (myNode); }
-Standard_EXPORT void Next() ;
-Standard_EXPORT void NextBrother() ;
-Standard_EXPORT SALOMEDSImpl_AttributeTreeNode* Value() const { return myNode; }
+  SALOMEDSImpl_ChildNodeIterator();
+  SALOMEDSImpl_ChildNodeIterator(const SALOMEDSImpl_AttributeTreeNode* aTreeNode,
+    const bool allLevels = false);
+  void Initialize(const SALOMEDSImpl_AttributeTreeNode* aTreeNode,
+    const bool allLevels = false) ;
+  bool More() const { return (myNode); }
+  void Next() ;
+  void NextBrother() ;
+  SALOMEDSImpl_AttributeTreeNode* Value() const { return myNode; }
 
 private: 
 
-SALOMEDSImpl_AttributeTreeNode* myNode;
-int myFirstLevel;
+  SALOMEDSImpl_AttributeTreeNode* myNode;
+  int myFirstLevel;
 
 };
 

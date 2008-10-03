@@ -23,7 +23,7 @@
 #include "OpUtil.hxx"
 
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <io.h>
@@ -153,14 +153,14 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   p.mem_mb = params.mem_mb;
 
   vector<string> cl;
-  for(int i=0;i<componentList.length();i++)
+  for(unsigned int i=0;i<componentList.length();i++)
     cl.push_back(string(componentList[i]));
   
   Engines::MachineList *ret=new Engines::MachineList;
   try{
       vector <std::string> vec = _rm.GetFittingResources(p,cl);
       ret->length(vec.size());
-      for(int i=0;i<vec.size();i++)
+      for(unsigned int i=0;i<vec.size();i++)
 	(*ret)[i] = (vec[i]).c_str();
   }
   catch(const ResourcesException &ex){
@@ -181,7 +181,7 @@ char *
 SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 {
   vector<string> ml;
-  for(int i=0;i<listOfMachines.length();i++)
+  for(unsigned int i=0;i<listOfMachines.length();i++)
     ml.push_back(string(listOfMachines[i]));
 
   return CORBA::string_dup(_rm.FindFirst(ml).c_str());
@@ -201,7 +201,7 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->modList.length(resource.ModulesList.size());
-  for(int i=0;i<resource.ModulesList.size();i++)
+  for(unsigned int i=0;i<resource.ModulesList.size();i++)
     p_ptr->modList[i] = CORBA::string_dup(resource.ModulesList[i].c_str());
   p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
   p_ptr->mem_mb = resource.DataForSort._memInMB;

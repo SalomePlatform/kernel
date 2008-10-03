@@ -24,6 +24,7 @@
 #ifndef _SALOMEDSImpl_AttributeSequenceOfReal_HeaderFile
 #define _SALOMEDSImpl_AttributeSequenceOfReal_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"
 #include <string>
@@ -31,32 +32,33 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 
-class SALOMEDSImpl_AttributeSequenceOfReal : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeSequenceOfReal :
+  public SALOMEDSImpl_GenericAttribute 
 {
 
 public:
 
-Standard_EXPORT virtual std::string Save();
-Standard_EXPORT virtual void Load(const std::string&);
- 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeSequenceOfReal* Set(const DF_Label& label) ;
-Standard_EXPORT SALOMEDSImpl_AttributeSequenceOfReal();
-Standard_EXPORT   void Assign(const std::vector<double>& other) ;
-Standard_EXPORT   void ChangeValue(const int Index,const double& Value) ;
-Standard_EXPORT   void Add(const double& Value) ;
-Standard_EXPORT   double Value(const int Index) ;
-Standard_EXPORT   void Remove(const int Index) ;
-Standard_EXPORT   int Length() ;
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeSequenceOfReal() {}
-Standard_EXPORT  const std::vector<double>&  Array() { return myValue; }
+  virtual std::string Save();
+  virtual void Load(const std::string&);
+
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeSequenceOfReal* Set(const DF_Label& label) ;
+  SALOMEDSImpl_AttributeSequenceOfReal();
+  void Assign(const std::vector<double>& other) ;
+  void ChangeValue(const int Index,const double& Value) ;
+  void Add(const double& Value) ;
+  double Value(const int Index) ;
+  void Remove(const int Index) ;
+  int Length() ;
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeSequenceOfReal() {}
+  const std::vector<double>&  Array() { return myValue; }
 
 private: 
-std::vector<double> myValue;
+  std::vector<double> myValue;
 
 };
 

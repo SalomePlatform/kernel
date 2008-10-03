@@ -23,9 +23,7 @@
 
 #include "SALOMEDSImpl_AttributeExpandable.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID

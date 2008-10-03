@@ -33,7 +33,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <sys/types.h>
@@ -43,19 +43,14 @@
 
 class SALOME_NamingService;
 
-
-#if defined CONTAINER_EXPORTS
-#if defined WIN32
-#define CONTAINER_EXPORT __declspec( dllexport )
+#ifdef WIN32
+# ifdef CONTAINER_EXPORTS
+#  define CONTAINER_EXPORT __declspec( dllexport )
+# else
+#  define CONTAINER_EXPORT __declspec( dllimport )
+# endif
 #else
-#define CONTAINER_EXPORT
-#endif
-#else
-#if defined WNT
-#define CONTAINER_EXPORT __declspec( dllimport )
-#else
-#define CONTAINER_EXPORT
-#endif
+# define CONTAINER_EXPORT
 #endif
 
 class CONTAINER_EXPORT Engines_Parallel_Container_i:

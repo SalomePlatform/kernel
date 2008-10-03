@@ -26,22 +26,14 @@
 #ifndef _SALOME_Registry_HXX_
 #define _SALOME_Registry_HXX_
 
-#ifdef WNT
- #if defined REGISTRY_EXPORTS
-  #if defined WIN32
-   #define REGISTRY_EXPORT __declspec( dllexport )
-  #else
-   #define REGISTRY_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define REGISTRY_EXPORT __declspec( dllimport )
-  #else
-   #define REGISTRY_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef REGISTRY_EXPORTS
+#  define REGISTRY_EXPORT __declspec( dllexport )
+# else
+#  define REGISTRY_EXPORT __declspec( dllimport )
+# endif
 #else
- #define REGISTRY_EXPORT
+# define REGISTRY_EXPORT
 #endif
 
 #endif

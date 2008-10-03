@@ -24,6 +24,8 @@
 #ifndef __SALOMEDSIMPL_USECaseBuilder_H__
 #define __SALOMEDSIMPL_USECaseBuilder_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include <string>
 
 #include "DF_Document.hxx"
@@ -31,7 +33,7 @@
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 
-class SALOMEDSImpl_UseCaseBuilder
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_UseCaseBuilder
 {
 private:
 
@@ -41,38 +43,38 @@ private:
 public:
 
   //! standard constructor  
-  Standard_EXPORT SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument);
-  
+  SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument);
+
   //! standard destructor
-  Standard_EXPORT ~SALOMEDSImpl_UseCaseBuilder();
-  
-  Standard_EXPORT virtual bool Append(const SALOMEDSImpl_SObject& theObject);
+  ~SALOMEDSImpl_UseCaseBuilder();
 
-  Standard_EXPORT virtual bool Remove(const SALOMEDSImpl_SObject& theObject);
+  virtual bool Append(const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual bool AppendTo(const SALOMEDSImpl_SObject& theFather, const SALOMEDSImpl_SObject& theObject);
+  virtual bool Remove(const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual bool InsertBefore(const SALOMEDSImpl_SObject& theFirst, const SALOMEDSImpl_SObject& theNext);
+  virtual bool AppendTo(const SALOMEDSImpl_SObject& theFather, const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual bool  SetCurrentObject(const SALOMEDSImpl_SObject& theObject);
-  
-  Standard_EXPORT virtual bool SetRootCurrent();
+  virtual bool InsertBefore(const SALOMEDSImpl_SObject& theFirst, const SALOMEDSImpl_SObject& theNext);
 
-  Standard_EXPORT virtual bool  HasChildren(const SALOMEDSImpl_SObject& theObject);
+  virtual bool  SetCurrentObject(const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual bool  IsUseCase(const SALOMEDSImpl_SObject& theObject);
+  virtual bool SetRootCurrent();
 
-  Standard_EXPORT virtual bool SetName(const std::string& theName);
+  virtual bool  HasChildren(const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual SALOMEDSImpl_SObject GetCurrentObject();
+  virtual bool  IsUseCase(const SALOMEDSImpl_SObject& theObject);
 
-  Standard_EXPORT virtual std::string GetName();
+  virtual bool SetName(const std::string& theName);
 
-  Standard_EXPORT virtual SALOMEDSImpl_SObject AddUseCase(const std::string& theName);
+  virtual SALOMEDSImpl_SObject GetCurrentObject();
 
-  Standard_EXPORT virtual SALOMEDSImpl_UseCaseIterator GetUseCaseIterator(const SALOMEDSImpl_SObject& anObject);
+  virtual std::string GetName();
 
-  Standard_EXPORT SALOMEDSImpl_SObject GetSObject(const std::string& theEntry);    
+  virtual SALOMEDSImpl_SObject AddUseCase(const std::string& theName);
+
+  virtual SALOMEDSImpl_UseCaseIterator GetUseCaseIterator(const SALOMEDSImpl_SObject& anObject);
+
+  SALOMEDSImpl_SObject GetSObject(const std::string& theEntry);    
 
 };
 #endif

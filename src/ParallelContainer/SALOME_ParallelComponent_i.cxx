@@ -28,13 +28,13 @@
 
 #include "OpUtil.hxx"
 #include <stdio.h>
-#ifndef WNT
+#ifndef WIN32
 #include <dlfcn.h>
 #endif
 #include <cstdlib>
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -304,7 +304,7 @@ bool Engines_Parallel_Component_i::Kill_impl()
 //          << dec ) ;
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , 0 ) ;
@@ -333,12 +333,12 @@ bool Engines_Parallel_Component_i::Stop_impl()
   MESSAGE("Engines_Parallel_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
   
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , 0 ) ;
@@ -365,11 +365,11 @@ bool Engines_Parallel_Component_i::Suspend_impl()
   MESSAGE("Engines_Parallel_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
@@ -381,7 +381,7 @@ bool Engines_Parallel_Component_i::Suspend_impl()
 	}
     else 
       {
-#ifndef WNT
+#ifndef WIN32
 	RetVal = Killer( _ThreadId ,SIGINT ) ;
 #else
 	RetVal = Killer( *_ThreadId ,SIGINT ) ;
@@ -404,10 +404,10 @@ bool Engines_Parallel_Component_i::Resume_impl()
   MESSAGE("Engines_Parallel_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
@@ -439,7 +439,7 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
     {
     if ( _ThreadId > 0 )
       {
-#ifndef WNT
+#ifndef WIN32
       if ( pthread_self() != _ThreadId )
 #else
       if ( pthread_self().p != _ThreadId->p )
@@ -452,7 +452,7 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
 	  {
 	    // Get Cpu in the appropriate thread with that object !...
 	    theEngines_Component = this ;
-#ifndef WNT
+#ifndef WIN32
 	    Killer( _ThreadId ,SIGUSR1 ) ;
 #else
 	    Killer( *_ThreadId ,SIGUSR11 ) ;
@@ -543,7 +543,7 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
 {
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
-#ifndef WNT
+#ifndef WIN32
   _ThreadId = pthread_self() ;
 #else
   _ThreadId = new pthread_t;
@@ -645,7 +645,7 @@ char* Engines_Parallel_Component_i::nodeName()
 
 bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 {
-#ifndef WNT
+#ifndef WIN32
   if ( ThreadId )
 #else
   if ( ThreadId.p )
@@ -714,7 +714,7 @@ void Engines_Parallel_Component_i::SetCurCpu()
 long Engines_Parallel_Component_i::CpuUsed()
 {
   long cpu = 0 ;
-#ifndef WNT
+#ifndef WIN32
   struct rusage usage ;
   if ( _ThreadId || _Executed )
     {

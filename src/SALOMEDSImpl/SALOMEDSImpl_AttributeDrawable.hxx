@@ -24,31 +24,33 @@
 #ifndef _SALOMEDSImpl_AttributeDrawable_HeaderFile
 #define _SALOMEDSImpl_AttributeDrawable_HeaderFile
 
-#include "DF_Attribute.hxx"
-#include <string>
-#include "DF_Label.hxx"      
 #include "SALOMEDSImpl_GenericAttribute.hxx"
- 
-class SALOMEDSImpl_AttributeDrawable :  public SALOMEDSImpl_GenericAttribute 
+#include "SALOMEDSImpl_Defines.hxx"
+#include "DF_Attribute.hxx"
+#include "DF_Label.hxx"      
+#include <string>
+
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeDrawable :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-int myValue;
+  int myValue;
 
 public:
-Standard_EXPORT  virtual std::string Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
-Standard_EXPORT  virtual void Load(const std::string& theValue) { (theValue == "0")?myValue=0:myValue=1; }
- 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeDrawable* Set(const DF_Label& label,const int value) ;
+  virtual std::string Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
+  virtual void Load(const std::string& theValue) { (theValue == "0")?myValue=0:myValue=1; }
 
-Standard_EXPORT void SetDrawable(const int theValue); 
-Standard_EXPORT int IsDrawable() const { return myValue; }
-Standard_EXPORT SALOMEDSImpl_AttributeDrawable();
-Standard_EXPORT const std::string& ID() const;
-Standard_EXPORT void Restore(DF_Attribute* with) ;
-Standard_EXPORT DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
-Standard_EXPORT ~SALOMEDSImpl_AttributeDrawable() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeDrawable* Set(const DF_Label& label,const int value) ;
+
+  void SetDrawable(const int theValue); 
+  int IsDrawable() const { return myValue; }
+  SALOMEDSImpl_AttributeDrawable();
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
+  ~SALOMEDSImpl_AttributeDrawable() {}
 
 };
 

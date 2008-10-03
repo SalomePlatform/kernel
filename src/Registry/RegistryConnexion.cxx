@@ -98,7 +98,7 @@ RegistryConnexion::~RegistryConnexion()
 		_VarComponents->remove( _Id ) ;
 	}
 	_Id   = 0 ;
-#ifndef WNT
+#ifndef WIN32
 	delete [] _Ior;
 #else
 	delete [] (char*) _Ior;

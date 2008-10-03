@@ -28,7 +28,7 @@
 #include <iostream>
 #include <ctime>
 
-#ifdef WNT
+#ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
 
@@ -113,7 +113,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 		  cout << "Caught exception: Naming Service can't found Logger";
 		}
 	    }
-#ifndef WNT
+#ifndef WIN32
 	  nanosleep(&ts_req,&ts_rem);
 #else
 	  Sleep(TIMESleep / 1000000);

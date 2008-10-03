@@ -35,8 +35,8 @@
 //! See LocalTraceCollector instead of SALOMETraceCollector,
 //! for usage without CORBA
 
-#if defined WNT
-# if defined SALOMETRACECOLLECTOR_EXPORTS
+#ifdef WIN32
+# ifdef SALOMETRACECOLLECTOR_EXPORTS
 #  define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
 # else
 #  define SALOMETRACECOLLECTOR_EXPORT

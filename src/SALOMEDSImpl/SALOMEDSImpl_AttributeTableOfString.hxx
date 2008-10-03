@@ -11,6 +11,7 @@
 #ifndef _SALOMEDSImpl_AttributeTableOfString_HeaderFile
 #define _SALOMEDSImpl_AttributeTableOfString_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Label.hxx"       
 #include "DF_Attribute.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
@@ -19,58 +20,59 @@
 #include <vector>
 #include <map>
 
-class SALOMEDSImpl_AttributeTableOfString : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeTableOfString : 
+  public SALOMEDSImpl_GenericAttribute 
 {
 
 public:
-Standard_EXPORT virtual std::string Save();
-Standard_EXPORT virtual void Load(const std::string&); 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeTableOfString* Set(const DF_Label& label) ;
-Standard_EXPORT SALOMEDSImpl_AttributeTableOfString();
-Standard_EXPORT   void SetNbColumns(const int theNbColumns);
-Standard_EXPORT   void SetTitle(const std::string& theTitle) ;
-Standard_EXPORT   std::string GetTitle() const;
-Standard_EXPORT   void SetRowData(const int theRow,const std::vector<std::string>& theData) ;
-Standard_EXPORT   std::vector<std::string> GetRowData(const int theRow) ;
-Standard_EXPORT   void SetRowTitle(const int theRow,const std::string& theTitle) ;
-Standard_EXPORT   void SetRowUnit(const int theRow,const std::string& theUnit) ;
-Standard_EXPORT   std::string GetRowUnit(const int theRow) const;
-Standard_EXPORT   void SetRowUnits(const std::vector<std::string>& theUnits) ;
-Standard_EXPORT   std::vector<std::string> GetRowUnits();
-Standard_EXPORT   void SetRowTitles(const std::vector<std::string>& theTitles) ;
-Standard_EXPORT   std::vector<std::string> GetRowTitles();
-Standard_EXPORT   std::string GetRowTitle(const int theRow) const;
-Standard_EXPORT   void SetColumnData(const int theColumn,const std::vector<std::string>& theData) ;
-Standard_EXPORT   std::vector<std::string> GetColumnData(const int theColumn) ;
-Standard_EXPORT   void SetColumnTitle(const int theColumn,const std::string& theTitle) ;
-Standard_EXPORT   std::string GetColumnTitle(const int theColumn) const;
-Standard_EXPORT   void SetColumnTitles(const std::vector<std::string>& theTitles);
-Standard_EXPORT   std::vector<std::string> GetColumnTitles();
-Standard_EXPORT   int GetNbRows() const;
-Standard_EXPORT   int GetNbColumns() const;
+  virtual std::string Save();
+  virtual void Load(const std::string&); 
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeTableOfString* Set(const DF_Label& label) ;
+  SALOMEDSImpl_AttributeTableOfString();
+  void SetNbColumns(const int theNbColumns);
+  void SetTitle(const std::string& theTitle) ;
+  std::string GetTitle() const;
+  void SetRowData(const int theRow,const std::vector<std::string>& theData) ;
+  std::vector<std::string> GetRowData(const int theRow) ;
+  void SetRowTitle(const int theRow,const std::string& theTitle) ;
+  void SetRowUnit(const int theRow,const std::string& theUnit) ;
+  std::string GetRowUnit(const int theRow) const;
+  void SetRowUnits(const std::vector<std::string>& theUnits) ;
+  std::vector<std::string> GetRowUnits();
+  void SetRowTitles(const std::vector<std::string>& theTitles) ;
+  std::vector<std::string> GetRowTitles();
+  std::string GetRowTitle(const int theRow) const;
+  void SetColumnData(const int theColumn,const std::vector<std::string>& theData) ;
+  std::vector<std::string> GetColumnData(const int theColumn) ;
+  void SetColumnTitle(const int theColumn,const std::string& theTitle) ;
+  std::string GetColumnTitle(const int theColumn) const;
+  void SetColumnTitles(const std::vector<std::string>& theTitles);
+  std::vector<std::string> GetColumnTitles();
+  int GetNbRows() const;
+  int GetNbColumns() const;
 
-Standard_EXPORT   void PutValue(const std::string& theValue,const int theRow,const int theColumn) ;
-Standard_EXPORT   bool HasValue(const int theRow,const int theColumn) ;
-Standard_EXPORT   std::string GetValue(const int theRow,const int theColumn) ;
-Standard_EXPORT   const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute* into);
+  void PutValue(const std::string& theValue,const int theRow,const int theColumn) ;
+  bool HasValue(const int theRow,const int theColumn) ;
+  std::string GetValue(const int theRow,const int theColumn) ;
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
 
-Standard_EXPORT   std::vector<int> GetSetRowIndices(const int theRow);
-Standard_EXPORT   std::vector<int> GetSetColumnIndices(const int theColumn);
+  std::vector<int> GetSetRowIndices(const int theRow);
+  std::vector<int> GetSetColumnIndices(const int theColumn);
 
-Standard_EXPORT ~SALOMEDSImpl_AttributeTableOfString() {}
+  ~SALOMEDSImpl_AttributeTableOfString() {}
 
 private: 
 
-std::map<int, std::string> myTable;
-std::string myTitle;
-std::vector<std::string> myRows;
-std::vector<std::string> myCols;
-int myNbRows;
-int myNbColumns;
+  std::map<int, std::string> myTable;
+  std::string myTitle;
+  std::vector<std::string> myRows;
+  std::vector<std::string> myCols;
+  int myNbRows;
+  int myNbColumns;
 
 };
 

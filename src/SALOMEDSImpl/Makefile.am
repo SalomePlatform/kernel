@@ -74,6 +74,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_Study.hxx \
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_IParameters.hxx \
 	SALOMEDSImpl_TMPFile.hxx
 
@@ -189,6 +190,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_Callback.hxx \
 	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_Driver.hxx \
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_SComponent.hxx \

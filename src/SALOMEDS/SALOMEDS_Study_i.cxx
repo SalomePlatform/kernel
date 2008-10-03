@@ -43,14 +43,14 @@
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
 
+#include "Basics_Utils.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std;
 
@@ -704,7 +704,7 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR)
  *  Purpose  : 
  */
 //============================================================================
-#ifndef WNT
+#ifndef WIN32
 void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long /*theUndoLimit*/) 
 #else
 void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/) 
@@ -731,7 +731,7 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
  *  Purpose  : 
  */
 //============================================================================
-#ifndef WNT
+#ifndef WIN32
 void SALOMEDS_Study_i::UndoPostponed(const CORBA::Long theWay) 
 #else
 void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay) 
@@ -888,6 +888,6 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 #else
   long pid = (long)getpid();
 #endif  
-  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   return reinterpret_cast<CORBA::LongLong>(_impl);
 }

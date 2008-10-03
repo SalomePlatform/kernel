@@ -24,31 +24,33 @@
 #ifndef _SALOMEDSImpl_AttributeLocalID_HeaderFile
 #define _SALOMEDSImpl_AttributeLocalID_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include <string> 
 #include "DF_Label.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeLocalID : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeLocalID :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
-int myValue;
+  int myValue;
 
 public:
 
-Standard_EXPORT  virtual std::string Save();
-Standard_EXPORT  virtual void Load(const std::string& theValue);
+  virtual std::string Save();
+  virtual void Load(const std::string& theValue);
 
-Standard_EXPORT static const std::string& GetID() ;
-Standard_EXPORT static SALOMEDSImpl_AttributeLocalID* Set(const DF_Label& label,const int value) ;
-Standard_EXPORT  void SetValue(const int value);  
-Standard_EXPORT int Value() const { return myValue; }  
-Standard_EXPORT SALOMEDSImpl_AttributeLocalID();
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT   void Restore(DF_Attribute* with) ;
-Standard_EXPORT   DF_Attribute* NewEmpty() const;
-Standard_EXPORT   void Paste(DF_Attribute*);
-Standard_EXPORT ~SALOMEDSImpl_AttributeLocalID() {}
+  static const std::string& GetID() ;
+  static SALOMEDSImpl_AttributeLocalID* Set(const DF_Label& label,const int value) ;
+  void SetValue(const int value);  
+  int Value() const { return myValue; }  
+  SALOMEDSImpl_AttributeLocalID();
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute*);
+  ~SALOMEDSImpl_AttributeLocalID() {}
 
 };
 

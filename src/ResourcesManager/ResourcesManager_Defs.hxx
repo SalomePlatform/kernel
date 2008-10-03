@@ -17,38 +17,17 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : SALOMEDSImpl_Callback.hxx
-//  Author : Sergey RUIN
-//  Module : SALOME
+#ifndef __RESOURCESMANAGER_DEFS_HXX__
+#define __RESOURCESMANAGER_DEFS_HXX__
 
-#ifndef __SALOMEDSIMPL_CALLBACK_H__
-#define __SALOMEDSIMPL_CALLBACK_H__
-
-#include "SALOMEDSImpl_Defines.hxx"
-#include "SALOMEDSImpl_UseCaseBuilder.hxx"
-
-class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Callback
-{
-private:
-  SALOMEDSImpl_UseCaseBuilder* _builder;
-
-public:
-
-  SALOMEDSImpl_Callback(SALOMEDSImpl_UseCaseBuilder* builder) 
-  {
-    _builder = builder;
-  }
-
-  virtual void OnAddSObject(const SALOMEDSImpl_SObject& theObject) 
-  {
-    if(_builder != NULL && theObject) _builder->Append(theObject);
-  }
-
-  virtual void OnRemoveSObject(const SALOMEDSImpl_SObject& theObject) 
-  {
-    if(_builder != NULL && theObject) _builder->Remove(theObject);
-  }
-
-};
-
+#ifdef WIN32
+# ifdef RESOURCESMANAGER_EXPORTS
+#  define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+# else
+#  define RESOURCESMANAGER_EXPORT __declspec( dllimport )
+# endif
+#else
+# define RESOURCESMANAGER_EXPORT
 #endif
+
+#endif // __RESOURCESMANAGER_DEFS_HXX__

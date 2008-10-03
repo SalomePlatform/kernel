@@ -24,33 +24,35 @@
 #ifndef _SALOMEDSImpl_AttributeReference_HeaderFile
 #define _SALOMEDSImpl_AttributeReference_HeaderFile
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_Attribute.hxx"
 #include "DF_Label.hxx"       
 #include <string> 
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDSImpl_AttributeReference : public SALOMEDSImpl_GenericAttribute 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeReference :
+  public SALOMEDSImpl_GenericAttribute 
 {
 private:
- DF_Label myLabel;
+  DF_Label myLabel;
 
 public:
 
-Standard_EXPORT static const std::string& GetID() ;
+  static const std::string& GetID() ;
 
-Standard_EXPORT SALOMEDSImpl_AttributeReference():SALOMEDSImpl_GenericAttribute("AttributeReference") {}
-Standard_EXPORT static SALOMEDSImpl_AttributeReference* Set(const DF_Label& theLabel, const DF_Label& theRefLabel);
-Standard_EXPORT void Set(const DF_Label& theLabel);
-Standard_EXPORT DF_Label Get() const { return myLabel; }
-Standard_EXPORT virtual std::string Save();
-Standard_EXPORT virtual void Load(const std::string& theValue);
+  SALOMEDSImpl_AttributeReference():SALOMEDSImpl_GenericAttribute("AttributeReference") {}
+  static SALOMEDSImpl_AttributeReference* Set(const DF_Label& theLabel, const DF_Label& theRefLabel);
+  void Set(const DF_Label& theLabel);
+  DF_Label Get() const { return myLabel; }
+  virtual std::string Save();
+  virtual void Load(const std::string& theValue);
 
-Standard_EXPORT  const std::string& ID() const;
-Standard_EXPORT  void Restore(DF_Attribute* with) ;
-Standard_EXPORT  DF_Attribute* NewEmpty() const;
-Standard_EXPORT  void Paste(DF_Attribute* into);
+  const std::string& ID() const;
+  void Restore(DF_Attribute* with) ;
+  DF_Attribute* NewEmpty() const;
+  void Paste(DF_Attribute* into);
 
-Standard_EXPORT ~SALOMEDSImpl_AttributeReference() {}
+  ~SALOMEDSImpl_AttributeReference() {}
 };
 
 #endif

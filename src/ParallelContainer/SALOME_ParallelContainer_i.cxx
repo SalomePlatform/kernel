@@ -24,7 +24,7 @@
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA 
 
 #include <SALOMEconfig.h>
-#ifndef WNT
+#ifndef WIN32
 #else
 #include <SALOME_Component.hxx>
 #endif
@@ -40,11 +40,11 @@
 #include "OpUtil.hxx"
 #include <string.h>
 #include <stdio.h>
-#ifndef WNT
+#ifndef WIN32
 #include <dlfcn.h>
 #include <unistd.h>
 #else
-#include "../../adm/win32/SALOME_WNT.hxx"
+#include "../../adm/win32/SALOME_WIN32.hxx"
 #include <signal.h>
 #include <process.h>
 int SIGUSR1 = 1000;
@@ -60,7 +60,7 @@ bool _Sleeping = false ;
 // Other Containers are started via start_impl of FactoryServer
 
 extern "C" {void ActSigIntHandler() ; }
-#ifndef WNT
+#ifndef WIN32
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 #else
 extern "C" {void SigIntHandler( int ) ; }
@@ -114,7 +114,7 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
   _argc = argc ;
   _argv = argv ;
 
-  string hostname = GetHostname();
+  string hostname = Kernel_Utils::GetHostname();
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
@@ -157,7 +157,7 @@ char* Engines_Parallel_Container_i::name()
 
 char* Engines_Parallel_Container_i::getHostName()
 {
-  string s = GetHostname();
+  string s = Kernel_Utils::GetHostname();
   MESSAGE("Engines_Parallel_Container_i::getHostName " << s);
   return CORBA::string_dup(s.c_str()) ;
 }
@@ -226,7 +226,7 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
   string aCompName = componentName;
   // --- try dlopen C++ component
 
-#ifndef WNT
+#ifndef WIN32
   string impl_name = string ("lib") + aCompName + string("Engine.so");
 #else
   string impl_name = aCompName + string("Engine.dll");
@@ -244,7 +244,7 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
   }
 
   void* handle;
-#ifndef WNT
+#ifndef WIN32
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
   handle = dlopen( impl_name.c_str() , 0 ) ;
@@ -305,7 +305,7 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
   }
 
   //--- try C++
-#ifndef WNT
+#ifndef WIN32
   string impl_name = string ("lib") + aCompName +string("Engine.so");
 #else
   string impl_name = aCompName +string("Engine.dll");
@@ -452,7 +452,7 @@ bool Engines_Parallel_Container_i::Kill_impl()
 {
   MESSAGE("Engines_Parallel_Container_i::Kill() pid "<< getpid() << " containerName "
 	  << _containerName.c_str() << " machineName "
-	  << GetHostname().c_str());
+	  << Kernel_Utils::GetHostname().c_str());
   INFOS("===============================================================");
   INFOS("= REMOVE calls to Kill_impl in C++ container                  =");
   INFOS("===============================================================");
@@ -730,7 +730,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
   string instanceName = aGenRegisterName + "_inst_" + aNumI ;
 
   string component_registerName = _containerName + "/" + instanceName;
-  string hostname = GetHostname();
+  string hostname = Kernel_Utils::GetHostname();
 
   CORBA::Object_var temp = _NS->Resolve(component_registerName.c_str());
   Engines::Component_var obj_proxy = Engines::Component::_narrow(temp);
@@ -850,7 +850,7 @@ bool Engines_Parallel_Container_i::isPythonContainer(const char* ContainerName)
 
 void ActSigIntHandler()
 {
-#ifndef WNT
+#ifndef WIN32
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
@@ -860,7 +860,7 @@ void ActSigIntHandler()
   // (SIGINT | SIGUSR1) :
   // it must be only one signal ===> one call for SIGINT 
   // and an other one for SIGUSR1
-#ifndef WNT
+#ifndef WIN32
   if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;
     exit(0) ;
@@ -885,7 +885,7 @@ void ActSigIntHandler()
 
 void SetCpuUsed() ;
 
-#ifndef WNT
+#ifndef WIN32
 void SigIntHandler(int what , siginfo_t * siginfo ,
 		   void * toto ) {
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
@@ -921,7 +921,7 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     return ;
   }
 }
-#else // Case WNT
+#else // Case WIN32
 void SigIntHandler( int what ) {
   MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
   if ( _Sleeping ) {

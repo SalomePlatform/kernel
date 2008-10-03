@@ -24,14 +24,14 @@
 //  Project   : SALOME
 //  Module    : SALOMEDSImpl
 
-#include "SALOMEDSImpl_Tool.hxx"
-
 #include <stdio.h>
 #include <iostream> 
 #include <fstream>
+#include <stdlib.h>
 
+#include "SALOMEDSImpl_Tool.hxx"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -40,9 +40,9 @@
 #else
 #include <time.h>
 #include <lmcons.h>
+//#include <winbase.h>
+#include <windows.h>
 #endif
-
-#include <stdlib.h>
 
 using namespace std;
 
@@ -50,7 +50,7 @@ using namespace std;
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
     if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
       return false;
@@ -118,7 +118,7 @@ string SALOMEDSImpl_Tool::GetTmpDir()
 #endif
 
 
-#ifdef WNT
+#ifdef WIN32
   CreateDirectory(aDir.c_str(), NULL);
 #else
   mkdir(aDir.c_str(), 0x1ff); 
@@ -143,7 +143,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const string& theDirectory,
     aFile += theFiles[i-1];
     if(!Exists(aFile)) continue;
 
-#ifdef WNT
+#ifdef WIN32
     DeleteFile(aFile.c_str());
 #else 
     unlink(aFile.c_str());
@@ -152,8 +152,8 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const string& theDirectory,
 
   if(IsDirDeleted) {
     if(Exists(aDirName)) {
-#ifdef WNT
-      RemoveDirectory(aDireName.c_str());
+#ifdef WIN32
+      RemoveDirectory(aDirName.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
@@ -201,8 +201,8 @@ string SALOMEDSImpl_Tool::GetDirFromPath(const string& thePath) {
     path = thePath+"/";
   }
   
-#ifdef WNT  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+#ifdef WIN32  //Check if the only disk letter is given as path
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 
@@ -239,7 +239,7 @@ vector<string> SALOMEDSImpl_Tool::splitString(const string& theValue, char separ
 
 void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
 {
-#ifdef WNT
+#ifdef WIN32
   SYSTEMTIME    st;
 
   GetLocalTime ( &st );
@@ -268,13 +268,17 @@ void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hour
 #endif
 }
 
+//Warning undef of Ascii Winwows define
+#ifdef WIN32
+# undef GetUserName
+#endif
 string SALOMEDSImpl_Tool::GetUserName()
 {
-#ifdef WNT
+#ifdef WIN32
   char*  pBuff = new char[UNLEN + 1];
   DWORD  dwSize = UNLEN + 1;
   string retVal;
-  GetUserName ( pBuff, &dwSize );
+  ::GetUserNameA( pBuff, &dwSize );
   string theTmpUserName(pBuff,(int)dwSize -1 );
   retVal = theTmpUserName;
   delete [] pBuff;

@@ -24,15 +24,7 @@
 #ifndef __SALOMEDSIMPL_ATTRIBUTES__H__
 #define __SALOMEDSIMPL_ATTRIBUTES__H__
 
-#ifdef WNT
-# ifdef SALOMEDSIMPL_EXPORTS
-#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
-# else
-#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
-# endif
-#else
-# define SALOMEDSIMPL_EXPORT
-#endif
+#include "SALOMEDSImpl_Defines.hxx"
 
 #include <iostream>
 class SALOMEDSIMPL_EXPORT LockProtection

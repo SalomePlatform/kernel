@@ -21,19 +21,20 @@
 #ifndef __SALOMEDSIMPL_TMPFILE_H__
 #define __SALOMEDSIMPL_TMPFILE_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
 #include "DF_definitions.hxx"
 
 
-struct SALOMEDSImpl_TMPFile
+struct SALOMEDSIMPL_EXPORT SALOMEDSImpl_TMPFile
 {
   typedef unsigned char TOctet;
   //typedef unsigned int  size_t;
 
-  Standard_EXPORT virtual size_t Size() = 0;
+  virtual size_t Size() = 0;
 
-  Standard_EXPORT virtual TOctet* Data();
+  virtual TOctet* Data();
 
-  Standard_EXPORT virtual TOctet& Get(size_t) = 0;
+  virtual TOctet& Get(size_t) = 0;
 };
 
 

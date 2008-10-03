@@ -75,7 +75,7 @@ public :
         CORBA::Long getPID();
 	virtual CORBA::ULong add (const Registry::Infos & infos);
 	virtual CORBA::ULong size ( void );
-#ifndef WNT
+#ifndef WIN32
 	virtual void remove( const CORBA::ULong id );
 	virtual void hello( const CORBA::ULong id );
 #else

@@ -20,6 +20,8 @@
 #ifndef __RESOURCESMANAGER_HXX__
 #define __RESOURCESMANAGER_HXX__
 
+#include "ResourcesManager_Defs.hxx"
+
 #include <string>
 #include <fstream>
 #include <vector>
@@ -42,7 +44,7 @@ struct machineParams{
   unsigned int mem_mb;
 };
 
-class ResourcesException
+class RESOURCESMANAGER_EXPORT ResourcesException
 {
 public:
   const std::string msg;
@@ -50,7 +52,7 @@ public:
   ResourcesException(const std::string m) : msg(m) {}
 };
 
-class ResourcesManager_cpp
+class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
   {
 
   public:
@@ -108,9 +110,7 @@ class ResourcesManager_cpp
     SALOME_LoadRateManager _dynamicResourcesSelecter;
 
     //! different behaviour if $APPLI exists (SALOME Application) 
-    bool _isAppliSalomeDefined;
-
-    std::string GetHostname();
+    bool _isAppliSalomeDefined;    
   };
 
 #endif // __RESOURCESMANAGER_HXX__

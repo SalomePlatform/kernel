@@ -23,22 +23,20 @@
 
 #include "SALOMEDSImpl_AttributeComment.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const std::string& SALOMEDSImpl_AttributeComment::GetID ()
+const string& SALOMEDSImpl_AttributeComment::GetID ()
 {
-  static std::string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
+  static string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
   return CommentID;
 }   
 
 SALOMEDSImpl_AttributeComment* SALOMEDSImpl_AttributeComment::Set (const DF_Label& L, 
-							           const std::string& Val) 
+							           const string& Val) 
 {
   SALOMEDSImpl_AttributeComment* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeComment*)L.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
@@ -73,7 +71,7 @@ void SALOMEDSImpl_AttributeComment::SetValue (const string& S)
 //function : ID
 //purpose  :
 //=======================================================================
-const std::string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
+const string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
 
 //=======================================================================
 //function : NewEmpty

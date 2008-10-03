@@ -27,7 +27,7 @@
 //$Header$
 
 #include "SALOME_ResourcesCatalog_Handler.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include <iostream>
 #include <map>
 #include "utilities.h"
@@ -303,7 +303,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               {
                 _resources_list[_resource.HostName] = _resource;
                 if(_resource.HostName == "localhost")
-                  _resources_list[GetHostname()] = _resource;
+                  _resources_list[Kernel_Utils::GetHostname()] = _resource;
               }
           }
           else

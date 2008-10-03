@@ -137,7 +137,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  if (myTrace.traceType == ABORT_MESS)
 	    {
 	      stringstream abortMessage("");
-#ifndef WNT
+#ifndef WIN32
 	      abortMessage << "INTERRUPTION from thread "
 			   << myTrace.threadId << " : " << myTrace.trace;
 #else
@@ -153,7 +153,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  else
 	    {
 	      stringstream aMessage("");
-#ifndef WNT
+#ifndef WIN32
 	      aMessage << "th. " << myTrace.threadId
 #else
 		aMessage << "th. " << (void*)&myTrace.threadId
