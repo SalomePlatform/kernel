@@ -110,9 +110,9 @@ if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-#if MPI_IS_OK
-#  SUBDIRS += $(SUBDIR_MPI)
-#endif
+if MPI_IS_OK
+  SUBDIRS += $(SUBDIR_MPI)
+endif
 
 if CPPUNIT_IS_OK
 if CORBA_GEN
