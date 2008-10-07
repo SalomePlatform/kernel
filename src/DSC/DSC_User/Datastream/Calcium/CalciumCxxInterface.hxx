@@ -502,7 +502,7 @@ namespace CalciumInterface {
 #ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture), Valeur de corbaData : " << std::endl;
     for (int i = 0; i < corbaData->length(); ++i)
-      cout << "-------- CalciumInterface(ecriture), corbaData[" << i << "] = " << (*corbaData)[i] << endl;
+      std::cout << "-------- CalciumInterface(ecriture), corbaData[" << i << "] = " << (*corbaData)[i] << std::endl;
 #endif
     
     //    if ( !IsSameType<T1,InnerType>::value ) delete corbaData;
