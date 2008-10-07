@@ -32,6 +32,8 @@
 
 #ifndef WIN32
 # include <unistd.h>
+#else
+# include <algorithm>
 #endif
 
 #define MAX_SIZE_FOR_HOSTNAME 256;

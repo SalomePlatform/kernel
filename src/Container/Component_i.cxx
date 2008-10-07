@@ -30,7 +30,7 @@
 #include "SALOME_Component_i.hxx"
 #include "SALOME_Container_i.hxx"
 #include "RegistryConnexion.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include <stdio.h>
 #ifndef WIN32
 #include <dlfcn.h>

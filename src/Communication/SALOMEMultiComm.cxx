@@ -18,7 +18,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOMEMultiComm.hxx"
-using namespace std;
 
 SALOMEMultiComm::SALOMEMultiComm():_type(SALOME::CORBA_)
 {

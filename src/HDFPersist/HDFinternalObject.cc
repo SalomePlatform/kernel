@@ -30,8 +30,6 @@ extern "C"
 }
 #include "HDFinternalObject.hxx"
 
-using namespace std;
-
 HDFinternalObject::HDFinternalObject(const char *name)
   : HDFobject(name)
 {

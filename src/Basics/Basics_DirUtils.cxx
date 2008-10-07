@@ -29,6 +29,9 @@
 
 #ifndef WIN32
 # include <sys/stat.h>
+#else
+# include <windows.h>
+# include <time.h>
 #endif
 
 using namespace std;
