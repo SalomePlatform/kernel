@@ -127,7 +127,7 @@ namespace Kernel_Utils
       string aSubDir(buffer);
       if(aSubDir.size() <= 1) aSubDir = string("123409876");
       
-      string aFilePath = tmpDir;
+      aFilePath = tmpDir;
       for(aRND = 0; IsExists(aFilePath); aRND++) {
         sprintf(buffer, "%d", aRND);
         aFilePath = tmpDir+buffer;  //Build a unique file name
