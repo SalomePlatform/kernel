@@ -272,7 +272,7 @@ StartContainer(const Engines::MachineParameters& params,
   else
     command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
 
-  RmTmpFile();
+  // RmTmpFile(); Too early! May be this function has not been used for a long time...
 
   //check if an entry exists in Naming service
   if(params.isMPI)
@@ -307,6 +307,9 @@ StartContainer(const Engines::MachineParameters& params,
 
   // launch container with a system call
   int status=system(command.c_str());
+
+  RmTmpFile(); // command file can be removed here, but directory still remains...
+
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status -1)");
