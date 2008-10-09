@@ -308,7 +308,7 @@ StartContainer(const Engines::MachineParameters& params,
   // launch container with a system call
   int status=system(command.c_str());
 
-  RmTmpFile(); // command file can be removed here, but directory still remains...
+  RmTmpFile(); // command file can be removed here
 
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
@@ -1025,20 +1025,31 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 
 void SALOME_ContainerManager::RmTmpFile()
 {
-  if (_TmpFileName != "")
+  int lenght = _TmpFileName.size();
+  if ( lenght  > 0)
     {
-#ifndef WIN32
-      string command = "rm ";
-#else
+#ifdef WIN32
       string command = "del /F ";
+#else
+      string command = "rm ";      
 #endif
-      command += _TmpFileName;
-      char *temp = strdup(command.c_str());
-      int lgthTemp = strlen(temp);
-      temp[lgthTemp - 3] = '*';
-      temp[lgthTemp - 2] = '\0';
-      system(temp);
-      free(temp);
+      if ( lenght > 4 )
+        command += _TmpFileName.substr(0, lenght - 3 );
+      else
+        command += _TmpFileName;
+      command += '*';
+      system(command.c_str());
+      //if dir is empty - remove it
+      string tmp_dir = Kernel_Utils::GetDirByPath( _TmpFileName );
+      if ( Kernel_Utils::IsEmptyDir( tmp_dir ) )
+        {
+#ifdef WIN32
+          command = "del /F " + tmp_dir;
+#else
+          command = "rmdir " + tmp_dir;
+#endif
+          system(command.c_str());
+        }
     }
 }
 
