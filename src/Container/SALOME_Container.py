@@ -71,14 +71,15 @@ class SALOME_Container_i:
         MESSAGE( "SALOME_Container_i::import_component" )
         ret=0
         try:
-            print "try import ",componentName
+            if verbose(): print "try import ",componentName
             __import__(componentName)
-            print "import ",componentName," successful"
+            if verbose(): print "import ",componentName," successful"
             ret=1
         except:
-            import traceback
-            traceback.print_exc()
-            print "import ",componentName," not possible"
+            if verbose():
+              import traceback
+              traceback.print_exc()
+              print "import ",componentName," not possible"
         return ret
         
     #-------------------------------------------------------------------------

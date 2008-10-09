@@ -176,9 +176,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if verbose(): print "import ",componentName," successful"
             ret=1
         except:
-            import traceback
-            traceback.print_exc()
-            print "import ",componentName," not possible"
+            if verbose(): 
+              import traceback
+              traceback.print_exc()
+              print "import ",componentName," not possible"
         return ret
 
     #-------------------------------------------------------------------------

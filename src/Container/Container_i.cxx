@@ -326,7 +326,20 @@ void Engines_Container_i::Shutdown()
   */
   std::map<std::string, Engines::Component_var>::iterator itm;
   for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
-    itm->second->destroy();
+    {
+      try
+        {
+          itm->second->destroy();
+        }
+      catch(const CORBA::Exception& e)
+        {
+          // ignore this entry and continue
+        }
+      catch(...)
+        {
+          // ignore this entry and continue
+        }
+    }
 
   _NS->Destroy_FullDirectory(_containerName.c_str());
   _NS->Destroy_Name(_containerName.c_str());
