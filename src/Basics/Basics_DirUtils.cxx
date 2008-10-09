@@ -29,6 +29,7 @@
 
 #ifndef WIN32
 # include <sys/stat.h>
+# include <dirent.h>
 #else
 # include <windows.h>
 # include <time.h>
@@ -108,13 +109,17 @@ namespace Kernel_Utils
   
   //============================================================================
   // function : GetTempDir
-  // purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
+  // purpose  : Returns a temp directory to store created files like "/tmp/sub_dir/" 
   //============================================================================ 
   string GetTmpDir()
   {
     return GetTmpDirByPath( "" );
   }
-  
+
+  //============================================================================
+  // function : GetTempFileName
+  // purpose  : Returns the unique temporary file name without any extension /tmp/something/file for Unix or c:\something\file for WIN32
+  //============================================================================ 
   string GetTmpFileName()
   {
     string tmpDir = GetTmpDir();
@@ -136,7 +141,10 @@ namespace Kernel_Utils
     return aFilePath;
   }
   
-  
+  //============================================================================
+  // function : IsExists
+  // purpose  : Returns True(False) if the path (not)exists
+  //============================================================================ 
   bool IsExists(const string& thePath) 
   {
 #ifdef WIN32 
@@ -151,5 +159,104 @@ namespace Kernel_Utils
 #endif
     return true;
   }
-  
+
+  //============================================================================
+  // function : GetDirByPath
+  // purpose  : Returns directory by path and converts it to native system format
+  //============================================================================ 
+  string GetDirByPath(const string& thePath)
+  {
+    if (thePath.empty())
+      return "";
+    string path = thePath;
+    string::size_type length = path.length();
+
+    //detect all separators in Unix format
+    for ( int i = 0; i < length; i++ )
+    {
+      if( path[i] == '/' )
+        path[i] = '|';
+    }
+
+    //detect all separators in Windows format
+    for ( int i = 0; i < length; i++ )
+    {
+      if( path[i] == '\\' )
+        path[i] = '|';
+    }
+
+
+    string::size_type pos = path.rfind('|');
+    if ( pos == string::npos )
+    {
+#ifdef WIN32
+      //check for disk letter ( C: )
+      if ( path.length() == 2 && path[1] == ':' )
+        path += _separator_;
+#else
+      //not valid path
+      return "";
+#endif
+    }
+    else
+    {
+      //remove right subdirectory or filename from path
+      path = path.substr( 0, pos );
+    }
+
+    length = path.length();
+    for ( int i = 0; i < length; i++ )
+    {
+      if( path[i] == '|' )
+        path[i] = _separator_;
+    }
+    return path;
+  }
+
+  //============================================================================
+  // function : IsEmptyDir
+  // purpose  : Returns True(False) if the path (not) empty
+  //            Also returns False if the path is not valid
+  //============================================================================ 
+  bool IsEmptyDir(const string& thePath) 
+  {
+    if ( thePath.empty() || !IsExists(thePath))
+      return false;
+
+    bool result = false;
+
+#ifdef WIN32
+    WIN32_FIND_DATA aFileData;
+    HANDLE hFile = FindFirstFile( path.c_str(), &aFileData );
+    if ( hFile == INVALID_HANDLE_VALUE )
+    {
+      //empty dir
+      result = true;
+    }
+    else
+    {
+      //close serching. path is not empty
+      FindClose( hFile );
+    }
+#else
+    DIR *dp;
+    struct dirent *dirp;
+    if((dp  = opendir(thePath.c_str())) == NULL)
+    {
+      //Could not open directory
+      return false;
+    }
+    else
+    {
+      result = true; //empty if no file found
+      while ((dirp = readdir(dp)) != NULL && result )
+        {
+          string file_name(dirp->d_name);
+          result = file_name.empty() || file_name == "." || file_name == ".."; //if any file - break and return false
+        }
+        closedir(dp);
+    }
+#endif
+    return result;
+  }
 }

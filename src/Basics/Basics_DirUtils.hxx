@@ -46,12 +46,20 @@ namespace Kernel_Utils
   // /tmp/something/ for Unix or c:\something\ for WIN32
   BASICS_EXPORT std::string GetTmpDir();
 
+
   // Returns the unique temporary file name without any extension
   // /tmp/something/file for Unix or c:\something\file for WIN32
   BASICS_EXPORT std::string GetTmpFileName();
 
   // Returns True(False) if the path (not)exists
   BASICS_EXPORT bool IsExists( const std::string& path );
+
+  // Returns directory by path and converts it to native system format
+  BASICS_EXPORT std::string GetDirByPath( const std::string& path );
+
+  // Returns True(False) if the path (not) empty
+  // Also returns False if the path is not valid
+  BASICS_EXPORT bool IsEmptyDir( const std::string& path );
 }
 
 #endif
