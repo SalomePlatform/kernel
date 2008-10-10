@@ -27,12 +27,16 @@
 *
 */
 
+#include "Batch_BatchManager_eClient.hxx"
+#include "Basics_DirUtils.hxx"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
-#include "Batch_BatchManager_eClient.hxx"
-#include "OpUtil.hxx"
+
+using namespace std;
+
 
 namespace Batch {
 
@@ -204,7 +208,7 @@ namespace Batch {
   string BatchManager_eClient::BuildTemporaryFileName() const
   {
     //build more complex file name to support multiple salome session
-    string aFileName = OpUtil_Dir::GetTmpFileName();
+    string aFileName = Kernel_Utils::GetTmpFileName();
 #ifndef WIN32
     aFileName += ".sh";
 #else

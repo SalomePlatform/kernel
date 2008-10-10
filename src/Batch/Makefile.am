@@ -117,7 +117,6 @@ LIB_CPPFLAGS = \
 	${PYTHON_INCLUDES} \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix
 
 LIB_LIBADD   = \

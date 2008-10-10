@@ -29,11 +29,14 @@
 
 #include <cstdio>
 #include <sstream>
+#include <string>
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
 #include "Batch_RunTimeException.hxx"
 #include "Batch_APIInternalFailureException.hxx"
 #include "Batch_JobInfo_LSF.hxx"
+
+using namespace std;
 
 namespace Batch {
 

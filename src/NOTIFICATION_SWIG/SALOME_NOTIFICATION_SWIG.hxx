@@ -26,22 +26,14 @@
 #ifndef _SALOME_NOTIFICATION_SWIG_HXX_
 #define _SALOME_NOTIFICATION_SWIG_HXX_
 
-#ifdef WNT
- #if defined NOTIFICATION_SWIG_EXPORTS
-  #if defined WIN32
-   #define NOTIFICATION_SWIG_EXPORT __declspec( dllexport )
-  #else
-   #define NOTIFICATION_SWIG_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define NOTIFICATION_SWIG_EXPORT __declspec( dllimport )
-  #else
-   #define NOTIFICATION_SWIG_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef NOTIFICATION_SWIG_EXPORTS
+#  define NOTIFICATION_SWIG_EXPORT __declspec( dllexport )
+# else
+#  define NOTIFICATION_SWIG_EXPORT __declspec( dllimport )
+# endif
 #else
- #define NOTIFICATION_SWIG_EXPORT
+# define NOTIFICATION_SWIG_EXPORT
 #endif
 
 #endif

@@ -26,22 +26,14 @@
 #ifndef _SALOME_Container_HXX_
 #define _SALOME_Container_HXX_
 
-#ifdef WNT
- #if defined CONTAINER_EXPORTS
-  #if defined WIN32
-   #define CONTAINER_EXPORT __declspec( dllexport )
-  #else
-   #define CONTAINER_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define CONTAINER_EXPORT __declspec( dllimport )
-  #else
-   #define CONTAINER_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef CONTAINER_EXPORTS
+#  define CONTAINER_EXPORT __declspec( dllexport )
+# else
+#  define CONTAINER_EXPORT __declspec( dllimport )
+# endif
 #else
- #define CONTAINER_EXPORT
+# define CONTAINER_EXPORT
 #endif
 
 #endif

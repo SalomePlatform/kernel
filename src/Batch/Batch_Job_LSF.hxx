@@ -35,6 +35,7 @@ extern "C" {
 #include <lsf/lsf.h>
 #include <lsf/lsbatch.h>
 }
+#include <string>
 #include "Batch_Job.hxx"
 
 namespace Batch {
@@ -54,7 +55,7 @@ namespace Batch {
 
   private:
     struct submit * ParametreToSubmitStruct(const Parametre & P);
-    char * string2char(const string &);
+    char * string2char(const std::string &);
   };
 
 }

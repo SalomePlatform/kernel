@@ -27,22 +27,17 @@
 //  $Header$
 
 #include <iostream>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <SALOMEconfig.h>
-#ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
-#else
-#include <SALOME_Component.hh>
-#include <SALOME_TestComponent.hh>
-#endif
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
 #include "utilities.h"
-#include <OpUtil.hxx>
+#include <Basics_Utils.hxx>
 
 using namespace std;
 
@@ -108,7 +103,7 @@ int main (int argc, char * argv[])
       // --- yet another container, with hostname,
       //     load an engine, and invoque methods on that engine
 
-      string containerName4 = GetHostname();
+      string containerName4 = Kernel_Utils::GetHostname();
       containerName4  += "/titiPy";
       Engines::Component_var mycompo4 = 
 	_LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
@@ -120,7 +115,7 @@ int main (int argc, char * argv[])
       // --- try a local file transfer
 
       string origFileName = "/home/prascle/petitfichier";
-      SALOME_FileTransferCORBA transfer( GetHostname(),
+      SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
 					 origFileName);
       string local = transfer.getLocalFile();
       SCRUTE(local);

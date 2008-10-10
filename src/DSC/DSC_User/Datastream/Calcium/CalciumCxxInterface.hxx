@@ -163,7 +163,7 @@ namespace CalciumInterface {
 	       double        & ti,
 	       double const  & tf,
 	       long          & i,
-	       const string  & nomVar, 
+	       const std::string  & nomVar, 
 	       size_t          bufferLength,
 	       size_t        & nRead, 
 	       T1            * &data )
@@ -321,14 +321,14 @@ namespace CalciumInterface {
   // T1 est le type de données
   template <typename T1 > static void
   ecp_lecture ( Superv_Component_i & component,
-	       int    const  & dependencyType,
-	       double        & ti,
-	       double const  & tf,
-	       long          & i,
-	       const string  & nomVar, 
-	       size_t          bufferLength,
-	       size_t        & nRead, 
-	       T1            * &data )
+	       int    const      & dependencyType,
+	       double            & ti,
+	       double const      & tf,
+	       long              & i,
+	       const std::string & nomVar, 
+	       size_t              bufferLength,
+	       size_t            & nRead, 
+	       T1                * &data )
   {
     ecp_lecture<T1,T1> (component,dependencyType,ti,tf,
 			i,nomVar,bufferLength,nRead,data);
@@ -341,12 +341,12 @@ namespace CalciumInterface {
   // T2 : PortType
   template <typename T1, typename T2> static void
   ecp_ecriture ( Superv_Component_i & component,
-		 int    const  & dependencyType,
-		 double const  & t,
-		 long   const  & i,
-		 const string  & nomVar, 
-		 size_t bufferLength,
-		 T1     const  & data ) 
+		 int    const      & dependencyType,
+		 double const      & t,
+		 long   const      & i,
+		 const std::string & nomVar, 
+		 size_t              bufferLength,
+		 T1                  const  & data ) 
   {
     
     assert(&component);
@@ -502,7 +502,7 @@ namespace CalciumInterface {
 #ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture), Valeur de corbaData : " << std::endl;
     for (int i = 0; i < corbaData->length(); ++i)
-      cout << "-------- CalciumInterface(ecriture), corbaData[" << i << "] = " << (*corbaData)[i] << endl;
+      std::cout << "-------- CalciumInterface(ecriture), corbaData[" << i << "] = " << (*corbaData)[i] << std::endl;
 #endif
     
     //    if ( !IsSameType<T1,InnerType>::value ) delete corbaData;
@@ -521,7 +521,7 @@ namespace CalciumInterface {
 		 int    const  & dependencyType,
 		 double const  & t,
 		 long   const  & i,
-		 const string  & nomVar, 
+		 const std::string  & nomVar, 
 		 size_t bufferLength,
 		 T1 const & data ) {
     ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 

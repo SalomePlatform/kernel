@@ -30,7 +30,7 @@
 extern "C"
 {
 #include "HDFtypes.h"
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #include <sys/mman.h>
 #else

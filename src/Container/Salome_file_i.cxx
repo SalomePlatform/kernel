@@ -27,7 +27,7 @@
 #include "utilities.h"
 #include <stdlib.h>
 #include "HDFOI.hxx"
-#ifndef WNT
+#ifndef WIN32
 # include <unistd.h>
 # define _getcwd getcwd
 # define _open   open

@@ -25,6 +25,8 @@
 
 #include "basic_port_factory.hxx"
 
+using namespace std;
+
 basic_port_factory::basic_port_factory() {}
 
 basic_port_factory::~basic_port_factory() {}

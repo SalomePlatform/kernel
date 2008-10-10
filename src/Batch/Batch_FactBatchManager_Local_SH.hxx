@@ -28,9 +28,6 @@
 #ifndef _FACTBATCHMANAGER_LOCAL_SH_H_
 #define _FACTBATCHMANAGER_LOCAL_SH_H_
 
-using namespace std;
-#include <string>
-#include <map>
 #include "Batch_FactBatchManager.hxx"
 
 namespace Batch {

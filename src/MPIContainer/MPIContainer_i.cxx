@@ -76,7 +76,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
     Engines::Container_var pCont = Engines::Container::_narrow(obj);
 
-    string hostname = GetHostname();
+    string hostname = Kernel_Utils::GetHostname();
     _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());

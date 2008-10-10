@@ -27,7 +27,7 @@
 //  $Header$
 
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
   #include <sys/time.h>
 #endif
 

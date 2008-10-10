@@ -39,9 +39,6 @@
 
 #include "DSC_Exception.hxx"
 
-
-using namespace std;
-
 /*! \class Superv_Component_i
  *  \brief This class implements DSC_User component.
  *

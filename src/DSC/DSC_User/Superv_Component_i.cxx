@@ -25,6 +25,8 @@
 
 #include "Superv_Component_i.hxx"
 
+using namespace std;
+
 DSC_EXCEPTION_CXX(Superv_Component_i,BadFabType);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadType);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadCast);

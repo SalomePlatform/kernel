@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
       for (i = 1; i <= NumberOfTries; i++)
 	  {
-#ifndef WNT
+#ifndef WIN32
 		  if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
 		  if (i != 1) Sleep(TIMESleep / 1000000);

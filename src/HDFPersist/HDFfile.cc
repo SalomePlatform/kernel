@@ -27,7 +27,7 @@
 extern "C"
 {
 #include "hdfi.h"
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <io.h>

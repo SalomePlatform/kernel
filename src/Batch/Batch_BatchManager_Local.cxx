@@ -45,6 +45,8 @@
 #include "Batch_IOMutex.hxx"
 #include "Batch_BatchManager_Local.hxx"
 
+using namespace std;
+
 namespace Batch {
 
 

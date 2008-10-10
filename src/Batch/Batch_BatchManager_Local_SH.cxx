@@ -59,6 +59,8 @@
 #error "SH undefined. You must set SH to a valid path to a sh-like command."
 #endif
 
+using namespace std;
+
 namespace Batch {
 
 

@@ -26,22 +26,14 @@
 #ifndef _SALOME_COMMIUNICATION_HXX_
 #define _SALOME_COMMIUNICATION_HXX_
 
-#ifdef WNT
- #if defined COMMUNICATION_EXPORTS
-  #if defined WIN32
-   #define COMMUNICATION_EXPORT __declspec( dllexport )
-  #else
-   #define COMMUNICATION_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define COMMUNICATION_EXPORT __declspec( dllimport )
-  #else
-   #define COMMUNICATION_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef COMMUNICATION_EXPORTS
+#  define COMMUNICATION_EXPORT __declspec( dllexport )
+# else
+#  define COMMUNICATION_EXPORT __declspec( dllimport )
+# endif
 #else
- #define COMMUNICATION_EXPORT
+# define COMMUNICATION_EXPORT
 #endif
 
 #endif

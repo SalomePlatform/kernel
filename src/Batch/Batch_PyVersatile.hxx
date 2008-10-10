@@ -38,7 +38,6 @@
 #include "Batch_TypeMismatchException.hxx"
 #include "Batch_ListIsFullException.hxx"
 #include "Batch_InvalidArgumentException.hxx"
-using namespace std;
 
 namespace Batch {
 

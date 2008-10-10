@@ -41,7 +41,7 @@ GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1){
     MESSAGE("GenericObj_i::GenericObj_i() - this = "<<this<<
 	    "; CORBA::is_nil(thePOA) = "<<CORBA::is_nil(thePOA));
   if(CORBA::is_nil(thePOA))
-#ifndef WNT
+#ifndef WIN32
     myPOA = PortableServer::ServantBase::_default_POA();
 #else
     myPOA = ServantBase::_default_POA();

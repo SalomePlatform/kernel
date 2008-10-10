@@ -37,6 +37,8 @@
 # include <io.h>
 #endif
 
+using namespace std;
+
 namespace Batch {
 
   BatchManager_ePBS::BatchManager_ePBS(const FactBatchManager * parent, const char * host, const char * protocol, const char * mpiImpl) throw(InvalidArgumentException,ConnexionFailureException) : BatchManager_eClient(parent,host,protocol,mpiImpl)

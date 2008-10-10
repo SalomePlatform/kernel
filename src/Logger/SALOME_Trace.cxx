@@ -16,7 +16,7 @@
 #include <iostream>
 using namespace std;
 
-#ifdef WNT
+#ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
 
@@ -57,7 +57,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 
   // searchin for naming service for 0.25*40=10 seconds
   for (i = 1; i <= NumberOfTries; i++) {
-#ifndef WNT
+#ifndef WIN32
     if (i != 1) nanosleep(&ts_req,&ts_rem);
 #else
 	if (i != 1) Sleep(TIMESleep / 1000000);
@@ -92,7 +92,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
     name[0].id=CORBA::string_dup("Logger");    
     
     for(i = 1; i <= NumberOfTries; i++){
-#ifndef WNT
+#ifndef WIN32
       if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
 	  if (i != 1) Sleep(TIMESleep / 1000000);

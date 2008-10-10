@@ -31,18 +31,14 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_GenericObj)
 
-#if defined GENERICOBJ_EXPORTS
-#if defined WIN32
-#define GENERICOBJ_EXPORT __declspec( dllexport )
+#ifdef WIN32
+# ifdef GENERICOBJ_EXPORTS
+#  define GENERICOBJ_EXPORT __declspec( dllexport )
+# else
+#  define GENERICOBJ_EXPORT __declspec( dllimport )
+# endif
 #else
-#define GENERICOBJ_EXPORT
-#endif
-#else
-#if defined WNT
-#define GENERICOBJ_EXPORT __declspec( dllimport )
-#else
-#define GENERICOBJ_EXPORT
-#endif
+# define GENERICOBJ_EXPORT
 #endif
 
 namespace SALOME{

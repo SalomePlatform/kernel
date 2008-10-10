@@ -59,6 +59,8 @@
 #error "RSH undefined. You must set RSH to a valid path to a rsh-like command."
 #endif
 
+using namespace std;
+
 namespace Batch {
 
 

@@ -34,17 +34,17 @@
 
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 extern "C"
 {
 #endif
 #include <string.h>
-#ifndef WNT
+#ifndef WIN32
 }
 #endif
 
 
-#ifdef _DEBUG_
+#if defined(_DEBUG_) || defined(_DEBUG)
 # ifdef __GNUC__
 #  define LOC(message) (message), __FILE__ , __LINE__ , __FUNCTION__
 # else

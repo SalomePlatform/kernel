@@ -13,7 +13,7 @@
 
 #include <SALOMEconfig.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <fstream.h>
 #else
 #include <fstream>
@@ -22,7 +22,7 @@
 #include <omnithread.h>
 #include "Logger.hh"
 
-#ifdef WNT
+#ifdef WIN32
 # if defined LOGGER_EXPORTS
 #  define LOGGER_EXPORT __declspec( dllexport )
 # else
@@ -52,7 +52,7 @@ private:
 	//otherwise all messages will be put into terminal via cout 
         bool m_putIntoFile;
 	//ofstream class specialized for disk file output
-#ifndef WNT
+#ifndef WIN32
         ofstream m_outputFile; 
 #else
 		std::ofstream m_outputFile; 

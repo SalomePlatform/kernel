@@ -29,9 +29,6 @@
 #ifndef _FACTBATCHMANAGER_LSF_H_
 #define _FACTBATCHMANAGER_LSF_H_
 
-using namespace std;
-#include <string>
-#include <map>
 #include "Batch_FactBatchManager.hxx"
 
 namespace Batch {

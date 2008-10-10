@@ -35,6 +35,8 @@
 #include "MpiImpl.hxx"
 #include "Batch_BatchManager.hxx"
 
+#include <string>
+
 namespace Batch {
 
   class Job;
@@ -62,7 +64,7 @@ namespace Batch {
 
     std::string BuildTemporaryFileName() const;
     void RmTmpFile(std::string & TemporaryFileName);
-    MpiImpl* FactoryMpiImpl(string mpiImpl) throw(EmulationException);
+    MpiImpl* FactoryMpiImpl(std::string mpiImpl) throw(EmulationException);
     void exportInputFiles(const Job & job) throw(EmulationException);
 
   private:

@@ -33,7 +33,7 @@
 #include "DF_Container.hxx"
 #include "DF_ChildIterator.hxx"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -52,7 +52,7 @@ void printStr(const string& theValue)
 
 void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
 {
-#ifdef WNT
+#ifdef WIN32
   SYSTEMTIME    st;
 
   GetLocalTime ( &st );
@@ -83,7 +83,7 @@ void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, in
 
 string GetUserName()
 {
-#ifdef WNT
+#ifdef WIN32
   char*  pBuff = new char[UNLEN + 1];
   DWORD  dwSize = UNLEN + 1;
   string retVal;
@@ -128,7 +128,7 @@ string GetDirFromPath(const string& thePath) {
     path = thePath+"/";
   }
   
-#ifdef WNT  //Check if the only disk letter is given as path
+#ifdef WIN32  //Check if the only disk letter is given as path
   if(path.size() == 2 && path[1] == ":") path +='\\';
 #endif
 
@@ -140,7 +140,7 @@ string GetDirFromPath(const string& thePath) {
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
     if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
       return false;

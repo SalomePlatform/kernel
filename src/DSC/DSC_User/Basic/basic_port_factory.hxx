@@ -30,8 +30,6 @@
 #include "data_short_port_provides.hxx"
 #include "data_short_port_uses.hxx"
 
-using namespace std;
-
 /*! \class basic_port_factory
  *  \brief This class is an example of factory for DSC_User ports.
  *
@@ -52,7 +50,7 @@ class basic_port_factory :
      * \param type the basic port's type.
      * \return a pointer of the provides port.
      */
-    virtual provides_port * create_data_servant(string type); 
+    virtual provides_port * create_data_servant(std::string type); 
 
     /*!
      * This method creates a uses port of Basic ports.
@@ -60,7 +58,7 @@ class basic_port_factory :
      * \param type the basic port's type.
      * \return a pointer of the uses port.
      */
-    virtual uses_port * create_data_proxy(string type); 
+    virtual uses_port * create_data_proxy(std::string type); 
 };
 
 #endif

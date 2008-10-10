@@ -140,6 +140,7 @@ SALOME_LauncherServer_CPPFLAGS=\
 
 SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
+	../Basics/libSALOMEBasics.la \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(LIBXML_LIBS) \

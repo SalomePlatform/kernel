@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string>
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #include <time.h>
 #include <windows.h>
@@ -697,7 +697,7 @@ string GetTmpDir()
     aDir = aTmpDir+buffer;  //Build a unique directory name
   }
 
-#ifdef WNT
+#ifdef WIN32
   //fuction CreateDirectory create only final directory, but not intermediate
   CreateDirectory(aTmpDir.c_str(), NULL);
   CreateDirectory(aDir.c_str(), NULL);
@@ -763,7 +763,7 @@ void read_float64(FILE* fp, hdf_float64* value)
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
     if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
       return false;
@@ -778,7 +778,7 @@ bool Exists(const string thePath)
 
 void Move(const string& fName, const string& fNameDst)
 { 
-#ifdef WNT
+#ifdef WIN32
   MoveFileEx (fName.c_str(), fNameDst.c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED);
 #else
   rename(fName.c_str(), fNameDst.c_str());

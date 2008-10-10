@@ -29,7 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#ifdef WNT
+#ifdef WIN32
 # include<winsock2.h>
 #else
 # include <netdb.h>

@@ -25,7 +25,7 @@
 
 #include "SALOME_FileRef_i.hxx"
 #include "utilities.h"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include <string>
 
 using namespace std;
@@ -52,7 +52,7 @@ fileRef_i::fileRef_i(Engines::Container_ptr container,
   MESSAGE("fileRef_i::fileRef_i "<< origFileName);
   _container =  Engines::Container::_duplicate(container);
   _origFileName = origFileName;
-  _machine = GetHostname();
+  _machine = Kernel_Utils::GetHostname();
 #if defined(_DEBUG_) || defined(_DEBUG)
   int OK = addRef(_machine.c_str(), _origFileName.c_str());
   SCRUTE(OK);

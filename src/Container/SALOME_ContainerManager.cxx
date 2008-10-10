@@ -20,10 +20,11 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <vector>
@@ -125,13 +126,13 @@ void SALOME_ContainerManager::ShutdownContainers()
     vector<string> vec = _NS->list_directory_recurs();
     list<string> lstCont;
     for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
-      SCRUTE((*iter));
-      CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
-      Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont)){
-	lstCont.push_back((*iter));
+        SCRUTE((*iter));
+        CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+        Engines::Container_var cont=Engines::Container::_narrow(obj);
+        if(!CORBA::is_nil(cont)){
+	    lstCont.push_back((*iter));
+	}
       }
-    }
     MESSAGE("Container list: ");
     for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
@@ -240,7 +241,7 @@ StartContainer(const Engines::MachineParameters& params,
 
   //If the machine name is localhost use the real name
   if(theMachine == "localhost")
-    theMachine=GetHostname();
+    theMachine=Kernel_Utils::GetHostname();
 
   MESSAGE("try to launch it on " << theMachine);
 
@@ -259,12 +260,12 @@ StartContainer(const Engines::MachineParameters& params,
 	    "no possible computer");
     return Engines::Container::_nil();
   }
-  else if(theMachine==GetHostname())
+  else if(theMachine==Kernel_Utils::GetHostname())
     command = BuildCommandToLaunchLocalContainer(params,id,container_exe);
   else
     command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
 
-  RmTmpFile();
+  // RmTmpFile(); Too early! May be this function has not been used for a long time...
 
   //check if an entry exists in Naming service
   if(params.isMPI)
@@ -280,19 +281,19 @@ StartContainer(const Engines::MachineParameters& params,
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   if ( !CORBA::is_nil(obj) )
     {
-      // shutdown the registered container if it exists
-      Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-        {
-          try
+	// shutdown the registered container if it exists
+        Engines::Container_var cont=Engines::Container::_narrow(obj);
+        if(!CORBA::is_nil(cont))
+	  {
+	    try
+	    {
+        	cont->Shutdown();
+	    }
+    	    catch(CORBA::Exception&)
             {
-              cont->Shutdown();
-            }
-          catch(CORBA::Exception&)
-            {
-              INFOS("CORBA::Exception ignored.");
-            }
-        }
+	      INFOS("CORBA::Exception ignored.");
+    	    }
+	  }
     }
 
   //redirect stdout and stderr in a file
@@ -301,6 +302,9 @@ StartContainer(const Engines::MachineParameters& params,
 
   // launch container with a system call
   int status=system(command.c_str());
+
+  RmTmpFile(); // command file can be removed here
+
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status -1)");
@@ -315,7 +319,7 @@ StartContainer(const Engines::MachineParameters& params,
     int count=TIME_OUT_TO_LAUNCH_CONT;
     MESSAGE("count = "<<count);
     while ( CORBA::is_nil(ret) && count ){
-#ifndef WNT
+#ifndef WIN32
       sleep( 1 ) ;
 #else
       Sleep(1000);
@@ -335,7 +339,7 @@ StartContainer(const Engines::MachineParameters& params,
     else
       {
         logFilename=":"+logFilename;
-        logFilename="@"+GetHostname()+logFilename;
+        logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
         logFilename=getenv( "USER" )+logFilename;
         ret->logfilename(logFilename.c_str());
       }
@@ -448,7 +452,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     else {
       INFOS("[FindOrStartParallelContainer] on machine : " << theMachine);
       string command;
-      if(theMachine == GetHostname()) {
+      if(theMachine == Kernel_Utils::GetHostname()) {
 	// Step 3 : starting parallel container proxy
 	params.hostname = CORBA::string_dup(theMachine.c_str());
 	Engines::MachineParameters params_proxy(params);
@@ -474,7 +478,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	  for (int i = 0; i < params.nb_component_nodes; i++) {
 
 	    char buffer [5];
-#ifndef WNT
+#ifndef WIN32
 	    snprintf(buffer,5,"%d",i);
 #else
 	    _snprintf(buffer,5,"%d",i);
@@ -487,7 +491,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	    obj = _NS->Resolve(containerNameInNS.c_str());
 	    while (CORBA::is_nil(obj) && count) {
 	      INFOS("[FindOrStartParallelContainer] CONNECTION FAILED !!!!!!!!!!!!!!!!!!!!!!!!");
-#ifndef WNT
+#ifndef WIN32
 	      sleep(1) ;
 #else
 	      Sleep(1000);
@@ -662,7 +666,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 
     INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy on " << theMachine);
     while (CORBA::is_nil(obj) && count) {
-#ifndef WNT
+#ifndef WIN32
       sleep(1) ;
 #else
       Sleep(1000);
@@ -687,7 +691,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 
       // Name of the node
       char buffer [5];
-#ifndef WNT
+#ifndef WIN32
       snprintf(buffer,5,"%d",i);
 #else
       _snprintf(buffer,5,"%d",i);
@@ -700,7 +704,7 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
       containerNameInNS = _NS->BuildContainerNameForNS((char*) name_cont.c_str(),theMachine.c_str());
       cerr << "[LaunchContainer]  Waiting for Parllel Container node " << containerNameInNS << " on " << theMachine << endl;
       while (CORBA::is_nil(obj) && count) {
-#ifndef WNT
+#ifndef WIN32
 	sleep(1) ;
 #else
 	Sleep(1000);
@@ -953,7 +957,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
           if(wdir == "$TEMPDIR")
             {
               // a new temporary directory is requested
-              string dir = OpUtil_Dir::GetTmpDir();
+              string dir = Kernel_Utils::GetTmpDir();
 #ifdef WIN32
               //command += "cd /d "+ dir +";";
               command_file << "cd /d " << dir << endl;
@@ -1016,20 +1020,31 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 
 void SALOME_ContainerManager::RmTmpFile()
 {
-  if (_TmpFileName != "")
+  int lenght = _TmpFileName.size();
+  if ( lenght  > 0)
     {
-#ifndef WNT
-      string command = "rm ";
-#else
+#ifdef WIN32
       string command = "del /F ";
+#else
+      string command = "rm ";      
 #endif
-      command += _TmpFileName;
-      char *temp = strdup(command.c_str());
-      int lgthTemp = strlen(temp);
-      temp[lgthTemp - 3] = '*';
-      temp[lgthTemp - 2] = '\0';
-      system(temp);
-      free(temp);
+      if ( lenght > 4 )
+        command += _TmpFileName.substr(0, lenght - 3 );
+      else
+        command += _TmpFileName;
+      command += '*';
+      system(command.c_str());
+      //if dir is empty - remove it
+      string tmp_dir = Kernel_Utils::GetDirByPath( _TmpFileName );
+      if ( Kernel_Utils::IsEmptyDir( tmp_dir ) )
+        {
+#ifdef WIN32
+          command = "del /F " + tmp_dir;
+#else
+          command = "rmdir " + tmp_dir;
+#endif
+          system(command.c_str());
+        }
     }
 }
 
@@ -1069,7 +1084,7 @@ void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
 string SALOME_ContainerManager::BuildTemporaryFileName() const
   {
     //build more complex file name to support multiple salome session
-    string aFileName = OpUtil_Dir::GetTmpFileName();
+    string aFileName = Kernel_Utils::GetTmpFileName();
 #ifndef WIN32
     aFileName += ".sh";
 #else
@@ -1297,7 +1312,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     command += " > /tmp/";
     command += _NS->ContainerName(rtn);
     command += "_";
-    command += GetHostname();
+    command += Kernel_Utils::GetHostname();
     command += "_";
     command += getenv( "USER" ) ;
     command += ".log 2>&1 &" ;

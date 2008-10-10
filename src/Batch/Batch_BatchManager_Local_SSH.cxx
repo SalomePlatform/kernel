@@ -60,6 +60,8 @@
 #error "SSH undefined. You must set SSH to a valid path to a ssh-like command."
 #endif
 
+using namespace std;
+
 namespace Batch {
 
 

@@ -31,10 +31,9 @@
 #define _NOTYETIMPLEMENTEDEXCEPTION_H_
 
 #include "Batch_Defines.hxx"
-
-
 #include "Batch_GenericException.hxx"
-using namespace std;
+
+#include <string>
 
 namespace Batch {
 
@@ -42,7 +41,7 @@ namespace Batch {
   {
   public:
 		// Constructeur
-    NotYetImplementedException(string ch = "undefined") : GenericException("NotYetImplementedException", ch) {}
+    NotYetImplementedException(std::string ch = "undefined") : GenericException("NotYetImplementedException", ch) {}
   };
 
 }

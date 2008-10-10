@@ -33,6 +33,8 @@
 #endif
 #include "Batch_Job_Local.hxx"
 
+using namespace std;
+
 namespace Batch {
 
   // Constructeur

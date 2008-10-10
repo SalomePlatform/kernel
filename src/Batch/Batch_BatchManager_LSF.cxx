@@ -34,7 +34,10 @@ extern "C" {
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include "Batch_BatchManager_LSF.hxx"
+
+using namespace std;
 
 namespace Batch {
 

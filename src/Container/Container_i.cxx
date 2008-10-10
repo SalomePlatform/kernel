@@ -30,7 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
@@ -43,12 +43,8 @@ int SIGUSR1 = 1000;
 
 #include "utilities.h"
 #include <SALOMEconfig.h>
-//#ifndef WNT
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
-//#else
-//#include <SALOME_Component.hh>
-//#endif
 #include <pthread.h>  // must be before Python.h !
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"
@@ -56,7 +52,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_FileTransfer_i.hxx"
 #include "Salome_file_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 
 #include <Python.h>
 #include "Container_init_python.hxx"
@@ -126,8 +122,8 @@ _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
   _argc = argc ;
   _argv = argv ;
 
-  string hostname = GetHostname();
-#ifndef WNT
+  string hostname = Kernel_Utils::GetHostname();
+#ifndef WIN32
   MESSAGE(hostname << " " << getpid() << 
     " Engines_Container_i starting argc " <<
     _argc << " Thread " << pthread_self() ) ;
@@ -194,7 +190,7 @@ _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 
     if (!_isSupervContainer)
     {
-#ifdef WNT
+#ifdef WIN32
 
       PyEval_AcquireLock();
       PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
@@ -203,7 +199,7 @@ _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
       Py_ACQUIRE_NEW_THREAD;
 #endif
 
-#ifdef WNT
+#ifdef WIN32
       // mpv: this is temporary solution: there is a unregular crash if not
       //Sleep(2000);
       //
@@ -285,7 +281,7 @@ void Engines_Container_i::logfilename(const char* name)
 
 char* Engines_Container_i::getHostName()
 {
-  string s = GetHostname();
+  string s = Kernel_Utils::GetHostname();
   //  MESSAGE("Engines_Container_i::getHostName " << s);
   return CORBA::string_dup(s.c_str()) ;
 }
@@ -482,7 +478,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 
   // --- try dlopen C++ component
 
-#ifndef WNT
+#ifndef WIN32
   string impl_name = string ("lib") + aCompName + string("Engine.so");
 #else
   string impl_name = aCompName + string("Engine.dll");
@@ -499,7 +495,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
     return true;
   }
 
-#ifndef WNT
+#ifndef WIN32
   void* handle;
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
@@ -632,7 +628,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 
   //--- try C++
 
-#ifndef WNT
+#ifndef WIN32
   string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
 #else
   string impl_name = genericRegisterName +string("Engine.dll");
@@ -858,7 +854,7 @@ bool Engines_Container_i::Kill_impl()
 {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
     << _containerName.c_str() << " machineName "
-    << GetHostname().c_str());
+    << Kernel_Utils::GetHostname().c_str());
   INFOS("===============================================================");
   INFOS("= REMOVE calls to Kill_impl in C++ container                  =");
   INFOS("===============================================================");
@@ -1074,7 +1070,7 @@ Engines_Container_i::createInstance(string genericRegisterName,
     const char *, 
     const char *) ;
 
-#ifndef WNT
+#ifndef WIN32
   FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)dlsym( handle, factory_name.c_str() );
 #else
   FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
@@ -1083,7 +1079,7 @@ Engines_Container_i::createInstance(string genericRegisterName,
   if ( !Component_factory )
   {
     INFOS( "Can't resolve symbol: " + factory_name );
-#ifndef WNT
+#ifndef WIN32
     SCRUTE( dlerror() );
 #endif
     return Engines::Component::_nil() ;
@@ -1205,7 +1201,7 @@ bool Engines_Container_i::isPythonContainer(const char* ContainerName)
 
 void ActSigIntHandler()
 {
-#ifndef WNT
+#ifndef WIN32
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
@@ -1216,7 +1212,7 @@ void ActSigIntHandler()
   // it must be only one signal ===> one call for SIGINT 
   // and an other one for SIGUSR1
 
-#ifndef WNT
+#ifndef WIN32
   if ( sigaction( SIGINT , &SigIntAct, NULL ) ) 
   {
     perror("SALOME_Container main ") ;
@@ -1251,7 +1247,7 @@ void ActSigIntHandler()
 void SetCpuUsed() ;
 void CallCancelThread() ;
 
-#ifndef WNT
+#ifndef WIN32
 void SigIntHandler(int what ,
                    siginfo_t * siginfo ,
                    void * toto ) 
@@ -1299,10 +1295,10 @@ void SigIntHandler(int what ,
     return ;
   }
 }
-#else // Case WNT
+#else // Case WIN32
 void SigIntHandler( int what )
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
 #else
   MESSAGE( "SigIntHandler what     " << what << endl );

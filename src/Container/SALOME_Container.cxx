@@ -35,13 +35,13 @@
 #include <string>
 #include <stdio.h>
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
 # include <sys/time.h>
 # include <dlfcn.h>
 #endif
 
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
       PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
       // add new container to the kill list
-#ifndef WNT
+#ifndef WIN32
       stringstream aCommand ;
       aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
       system(aCommand.str().c_str());

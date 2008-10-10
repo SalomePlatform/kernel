@@ -44,8 +44,6 @@
 #include "calcium_logical_port_uses.hxx"
 #include "calcium_complex_port_uses.hxx"
 
-using namespace std;
-
 class calcium_port_factory :
   public port_factory
 {
@@ -53,8 +51,8 @@ class calcium_port_factory :
     calcium_port_factory();
     virtual ~calcium_port_factory();
 
-    virtual provides_port * create_data_servant(string type); 
-    virtual uses_port * create_data_proxy(string type); 
+    virtual provides_port * create_data_servant(std::string type); 
+    virtual uses_port * create_data_proxy(std::string type); 
 };
 
 #endif

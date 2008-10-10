@@ -28,6 +28,8 @@
 
 #include "calcium_port_factory.hxx"
 
+using namespace std;
+
 calcium_port_factory::calcium_port_factory() {}
 
 calcium_port_factory::~calcium_port_factory() {}

@@ -34,6 +34,8 @@
 #include "Batch_PyVersatile.hxx"
 #include <string>
 
+using namespace std;
+
 namespace Batch {
 
   // Constructeur a partir d'un objet Versatile

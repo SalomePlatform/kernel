@@ -34,7 +34,7 @@
 
 #include <string>
 
-#ifdef WNT
+#ifdef WIN32
 # if defined LIFECYCLECORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
 # else

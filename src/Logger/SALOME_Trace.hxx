@@ -16,7 +16,7 @@
 #include "Logger.hh"
 
 //these declarations for files don't using OCC includes (for example HDF)
-# ifdef WNT
+# ifdef WIN32
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT __declspec( dllexport )
@@ -30,7 +30,7 @@
 #   define Standard_IMPORTC extern "C" __declspec( dllimport )
 #  endif  /* Standard_IMPORT */
 
-# else  /* WNT */
+# else  /* WIN32 */
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT
@@ -44,7 +44,7 @@
 #   define Standard_IMPORTC extern "C"
 #  endif  /* Standard_IMPORT */
 
-# endif  /* WNT */
+# endif  /* WIN32 */
 
 class SALOME_Trace : public std::ostrstream  
 {
