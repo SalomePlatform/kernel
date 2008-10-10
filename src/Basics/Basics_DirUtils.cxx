@@ -227,7 +227,7 @@ namespace Kernel_Utils
 
 #ifdef WIN32
     WIN32_FIND_DATA aFileData;
-    HANDLE hFile = FindFirstFile( path.c_str(), &aFileData );
+    HANDLE hFile = FindFirstFile( thePath.c_str(), &aFileData );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
       //empty dir
