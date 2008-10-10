@@ -126,7 +126,7 @@ void* FileTraceCollector::run(void *bid)
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
 	{
-#ifndef WNT
+#ifndef WIN32
 	  traceFile << "INTERRUPTION from thread " << myTrace.threadId
 		    << " : " <<  myTrace.trace;
 #else
@@ -136,9 +136,9 @@ void* FileTraceCollector::run(void *bid)
 #endif
 	  traceFile.close();
 	  cout << flush ;
-#ifndef WNT
+#ifndef WIN32
 	  MESSAGE ( "INTERRUPTION from thread " << myTrace.threadId
-	         << " : " <<  myTrace.trace );
+	       << " : " <<  myTrace.trace );
 #else
 	  MESSAGE ( "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
 	       << " : " <<  myTrace.trace );
@@ -148,7 +148,7 @@ void* FileTraceCollector::run(void *bid)
 	}
       else
 	{
-#ifndef WNT
+#ifndef WIN32
 	  traceFile << "th. " << myTrace.threadId
 		    << " " << myTrace.trace;
 #else

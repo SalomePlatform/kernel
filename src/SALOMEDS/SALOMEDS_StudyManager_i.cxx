@@ -35,11 +35,13 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
 #include "Utils_CorbaException.hxx"
+#include "Utils_ExceptHandlers.hxx"
+#include "Basics_Utils.hxx"
+#include "SALOME_GenericObj_i.hh"
 
 #include <strstream>
 #include <vector>
 #include <map>
-using namespace std;
 
 #ifdef WIN32
 #include <process.h>
@@ -48,11 +50,7 @@ using namespace std;
 #include <unistd.h>
 #endif
 
-#include "OpUtil.hxx"
-
-#include "SALOME_GenericObj_i.hh"
-
-#include "Utils_ExceptHandlers.hxx"
+using namespace std;
 
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
@@ -478,8 +476,8 @@ CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, C
 #else
   long pid = (long)getpid();
 #endif
-  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)(void*)_impl);
+  isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }
 
 //===========================================================================

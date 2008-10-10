@@ -134,18 +134,12 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   }
   catch (HDFexception)
     {
-//#ifndef WNT
-//      char eStr[strlen(aUrl.ToCString())+17];
-//#else
-	  char *eStr;
-	  eStr = new char[strlen(aUrl.c_str())+17];
-//#endif
-      sprintf(eStr,"Can't open file %s",aUrl.c_str());
-//#ifdef WNT
-	  delete [] eStr;
-//#endif
-      _errorCode = string(eStr);
-      return NULL;
+	char *eStr;
+	eStr = new char[strlen(aUrl.c_str())+17];
+        sprintf(eStr,"Can't open file %s",aUrl.c_str());
+	 delete [] eStr;
+        _errorCode = string(eStr);
+        return NULL;
     }
 
   // Temporary aStudyUrl in place of study name
@@ -174,11 +168,7 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   }
   catch (HDFexception)
     {
-//#ifndef WNT
-//      char eStr[strlen(aUrl.ToCString())+17];
-//#else
-	  char *eStr = new char [strlen(aUrl.c_str())+17];
-//#endif
+      char *eStr = new char [strlen(aUrl.c_str())+17];
       sprintf(eStr,"Can't open file %s", aUrl.c_str());
       _errorCode = string(eStr);
       return NULL;

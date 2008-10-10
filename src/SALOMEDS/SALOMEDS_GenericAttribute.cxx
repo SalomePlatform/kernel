@@ -31,14 +31,14 @@
 #include "SALOMEDS_ClientAttributes.hxx"
 #include "SALOMEDS.hxx"
 
+#include "Basics_Utils.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std; 
 
@@ -57,7 +57,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
   long pid =  (long)getpid();
 #endif  
 
-  CORBA::LongLong addr = theGA->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  CORBA::LongLong addr = theGA->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = reinterpret_cast<SALOMEDSImpl_GenericAttribute*>(addr);
     _corba_impl = SALOMEDS::GenericAttribute::_nil();

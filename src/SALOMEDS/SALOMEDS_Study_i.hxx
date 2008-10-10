@@ -269,7 +269,7 @@ public:
 
   virtual void AddCreatedPostponed(const char* theIOR);
 
-#ifndef WNT
+#ifndef WIN32
   virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,

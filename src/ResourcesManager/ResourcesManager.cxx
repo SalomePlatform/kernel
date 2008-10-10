@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "ResourcesManager.hxx" 
-#include <OpUtil.hxx>
+#include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -32,6 +32,8 @@
 
 #ifndef WIN32
 # include <unistd.h>
+#else
+# include <algorithm>
 #endif
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
@@ -131,7 +133,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 
   const char *hostname = params.hostname.c_str();
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+  cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
 #endif
 
   if (hostname[0] != '\0'){
@@ -140,12 +142,12 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 //#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
-	 strcmp(hostname, GetHostname().c_str()) == 0 )
+	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
       {
 //#if defined(_DEBUG_) || defined(_DEBUG)
 //	cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
 //#endif
-	vec.push_back(GetHostname().c_str());
+	vec.push_back(Kernel_Utils::GetHostname().c_str());
 //#if defined(_DEBUG_) || defined(_DEBUG)
 //	cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
 //#endif

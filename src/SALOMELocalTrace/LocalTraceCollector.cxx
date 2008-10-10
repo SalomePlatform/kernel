@@ -102,7 +102,7 @@ void* LocalTraceCollector::run(void *bid)
       if (myTrace.traceType == ABORT_MESS)
 	{
 	  cout << flush ;
-#ifndef WNT
+#ifndef WIN32
 	  cerr << "INTERRUPTION from thread " << myTrace.threadId
                  << " : " <<  myTrace.trace;
 #else
@@ -115,7 +115,7 @@ void* LocalTraceCollector::run(void *bid)
       else
 	{
 	  cout << flush ;
-#ifndef WNT
+#ifndef WIN32
 	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
 	  cerr << "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace;

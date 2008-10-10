@@ -37,7 +37,7 @@
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 using namespace std;
 
 int main (int argc, char * argv[])
@@ -65,7 +65,7 @@ int main (int argc, char * argv[])
     // Use Name Service to find container
     SALOME_NamingService NS(orb) ;
     string containerName = "/Containers/" ;
-    string hostName = GetHostname();
+    string hostName = Kernel_Utils::GetHostname();
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
     string dirn(getenv("KERNEL_ROOT_DIR"));

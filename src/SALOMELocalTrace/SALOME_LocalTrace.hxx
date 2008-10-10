@@ -26,22 +26,14 @@
 #ifndef _SALOME_LOCALTRACE_HXX_
 #define _SALOME_LOCALTRACE_HXX_
 
-#ifdef WNT
- #if defined SALOMELOCALTRACE_EXPORTS
-  #if defined WIN32
-   #define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
-  #else
-   #define SALOMELOCALTRACE_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
-  #else
-   #define SALOMELOCALTRACE_EXPORT
-  #endif
- #endif
+#ifdef WIN32
+# ifdef SALOMELOCALTRACE_EXPORTS
+#  define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
+# else
+#  define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
+# endif
 #else
- #define SALOMELOCALTRACE_EXPORT
+# define SALOMELOCALTRACE_EXPORT
 #endif
 
 #endif

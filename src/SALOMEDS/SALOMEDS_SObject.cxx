@@ -38,6 +38,10 @@
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
+#include "Basics_Utils.hxx"
+
+#include "utilities.h"
+
 #ifdef WIN32
 #include <windows.h>
 #include <process.h>
@@ -46,8 +50,7 @@
 #include <unistd.h>
 #endif
 
-#include "OpUtil.hxx"
-#include "utilities.h"
+
 
 using namespace std;  
 
@@ -60,7 +63,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
 #endif  
 
   CORBA::LongLong addr =  // mpv: fix for IPAL13534: for 64-bit platforms use 8-bytes long for pointer storage
-  theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  theSObject->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
 
   if(_isLocal) {
     _local_impl = reinterpret_cast<SALOMEDSImpl_SObject*>(addr);

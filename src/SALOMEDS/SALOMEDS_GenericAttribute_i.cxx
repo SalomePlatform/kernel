@@ -29,6 +29,7 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "Utils_ExceptHandlers.hxx"
+#include "Basics_Utils.hxx"
 #include <map>
 
 #ifdef WIN32
@@ -37,8 +38,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std;
 
@@ -123,6 +122,6 @@ CORBA::LongLong SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostnam
 #else
   long pid = (long)getpid();
 #endif
-  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   return reinterpret_cast<CORBA::LongLong>(_impl);
 }

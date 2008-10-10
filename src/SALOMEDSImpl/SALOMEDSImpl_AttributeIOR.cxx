@@ -24,9 +24,7 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID

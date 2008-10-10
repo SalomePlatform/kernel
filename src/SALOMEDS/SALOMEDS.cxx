@@ -26,18 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-#ifdef WNT
-#include <SALOMEDS.hxx>
-#include <SALOMEDS_StudyManager.hxx>
-#include <SALOMEDS_Study.hxx>
-#include <SALOMEDS_SObject.hxx>
-#include <SALOMEDS_StudyBuilder.hxx>
-#include <SALOMEDS_SComponent.hxx>
-#include <SALOMEDSClient.hxx>
-#include <SALOMEDSClient_IParameters.hxx>
-#include <SALOMEDS_IParameters.hxx>
-#include <SALOMEDS_StudyManager_i.hxx>
-#else
 #include "SALOMEDS.hxx"
 #include "SALOMEDS_StudyManager.hxx"
 #include "SALOMEDS_Study.hxx"
@@ -48,7 +36,6 @@
 #include "SALOMEDSClient_IParameters.hxx"
 #include "SALOMEDS_IParameters.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
-#endif
 
 #include "SALOMEDS_Defines.hxx"
 

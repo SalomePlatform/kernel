@@ -30,7 +30,7 @@
 
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));
 #else
 //timezone *tz=_timezone;
@@ -41,7 +41,7 @@ static struct timezone *tz=(struct timezone*) malloc(sizeof(struct timezone));
 #endif
 
 Utils_Timer::Utils_Timer() {
-#ifndef WNT
+#ifndef WIN32
   RefToInitialTMS = new tms;
   RefToCurrentTMS = new tms;
 
@@ -70,7 +70,7 @@ Utils_Timer::~Utils_Timer() {
 void Utils_Timer::Start() {
   if (Stopped) {
     Stopped = 0;
-#ifndef WNT
+#ifndef WIN32
     times(RefToInitialTMS);
     gettimeofday(RefToInitialTimeB,tz);
 #else
@@ -84,7 +84,7 @@ void Utils_Timer::Start() {
 
 void Utils_Timer::Stop() {
   if (!Stopped) {
-#ifndef WNT
+#ifndef WIN32
     times(RefToCurrentTMS);
     int diffr_user = RefToCurrentTMS->tms_utime - RefToInitialTMS->tms_utime;
     int diffr_sys  = RefToCurrentTMS->tms_stime - RefToInitialTMS->tms_stime;
@@ -119,7 +119,7 @@ void Utils_Timer::Reset() {
 
 void Utils_Timer::ShowAbsolute(){
 #if defined(_DEBUG_) || defined(_DEBUG)
-#ifndef WNT
+#ifndef WIN32
     unsigned long Absolute_user = (unsigned long) ((timeval*)RefToCurrentTimeB)->tv_sec ;
 #else
     unsigned long Absolute_user = *RefToCurrentTimeB;

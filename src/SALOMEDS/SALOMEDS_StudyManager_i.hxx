@@ -27,7 +27,7 @@
 // std C++ headers
 #include <iostream>
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 

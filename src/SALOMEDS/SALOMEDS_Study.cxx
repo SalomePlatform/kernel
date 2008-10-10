@@ -52,14 +52,14 @@
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
+#include "Basics_Utils.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std; 
 
@@ -79,7 +79,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  long addr = theStudy->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = reinterpret_cast<SALOMEDSImpl_Study*>(addr);
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);

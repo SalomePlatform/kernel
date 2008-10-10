@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#ifndef WNT
+#ifndef WIN32
 # include <sys/times.h>
 # include <sys/time.h>
 # include <unistd.h>
@@ -53,7 +53,7 @@ class UTILS_EXPORT Utils_Timer {
   double Cumul_user;
   double Cumul_sys;
   bool Stopped;
-#ifndef WNT
+#ifndef WIN32
   tms *RefToCurrentTMS, *RefToInitialTMS;
   timeval *RefToCurrentTimeB, *RefToInitialTimeB;
 #else

@@ -40,7 +40,7 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 public:
  
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
-  // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
+  // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   static std::string GetTmpDir();
 
  

@@ -37,7 +37,7 @@
 #ifdef LOCALIZED
 #undef LOCALIZED
 #endif
-#ifdef _DEBUG_
+#if defined(_DEBUG_) || defined(_DEBUG)
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 #else
 # define LOCALIZED(message) #message
@@ -46,8 +46,8 @@
 //swig tool on Linux doesn't pass defines from header SALOME_Utils.hxx
 //therefore (temporary solution) defines are placed below
 
-#ifdef WNT
-# if defined UTILS_EXPORTS
+#ifdef WIN32
+# ifdef UTILS_EXPORTS
 #  define UTILS_EXPORT __declspec( dllexport )
 # else
 #  define UTILS_EXPORT __declspec( dllimport )

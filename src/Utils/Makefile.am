@@ -52,7 +52,8 @@ dist_salomescript_DATA =\
 # Libraries targets
 lib_LTLIBRARIES = libOpUtil.la
 libOpUtil_la_SOURCES =\
-	OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
+	Utils_Timer.cxx \
+	duplicate.cxx \
 	Utils_CommException.cxx \
 	Utils_SALOME_Exception.cxx \
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \

@@ -23,7 +23,7 @@
 #include "OpUtil.hxx"
 
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <io.h>
