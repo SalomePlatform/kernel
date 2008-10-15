@@ -21,7 +21,7 @@
 //Author:  Sergey RUIN
 
 #include <stdio.h>
-#include <iostream.h> 
+#include <iostream> 
 #include <vector>
 #include <string>
 
@@ -41,6 +41,7 @@
 #else
 #include <time.h>
 #include <lmcons.h>
+#include <windows.h>
 #endif
 
 using namespace std;
@@ -129,7 +130,7 @@ string GetDirFromPath(const string& thePath) {
   }
   
 #ifdef WIN32  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 

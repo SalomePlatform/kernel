@@ -25,4 +25,5 @@ libSalomeGenericObj_la_CPPFLAGS = \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeGenericObj_la_LIBADD  = \
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la

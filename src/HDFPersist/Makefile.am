@@ -90,7 +90,7 @@ libSalomeHDFPersist_la_SOURCES  =\
 
 libSalomeHDFPersist_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
-libSalomeHDFPersist_la_CPPFLAGS = @HDF5_INCLUDES@ -DPCLINUX \
+libSalomeHDFPersist_la_CPPFLAGS = @HDF5_INCLUDES@ -D@MACHINE@ \
                                   -I$(srcdir)/../SALOMELocalTrace \
                                   -I$(srcdir)/../Basics
 
@@ -112,10 +112,10 @@ EXTRA_DIST = \
 #HDFtest2_SOURCES = test2.c
 #HDFtest3_SOURCES = test3.cxx
 
-#AM_CFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
+#AM_CFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -D@MACHINE@ \
 #                                  -I$(srcdir)/../SALOMELocalTrace \
 #                                  -I$(srcdir)/../Basics
-#AM_CXXFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
+#AM_CXXFLAGS= @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -D@MACHINE@ \
 #                                  -I$(srcdir)/../SALOMELocalTrace \
 #                                  -I$(srcdir)/../Basics
 #AM_LDFLAGS= @HDF5_LIBS@
