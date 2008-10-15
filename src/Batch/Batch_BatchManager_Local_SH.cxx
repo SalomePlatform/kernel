@@ -37,9 +37,9 @@
 #include <sys/types.h>
 #ifndef WIN32
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 #include <ctime>
-#include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
 #include <errno.h>

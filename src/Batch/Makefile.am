@@ -120,6 +120,7 @@ LIB_CPPFLAGS = \
 	-I$(top_builddir)/salome_adm/unix
 
 LIB_LIBADD   = \
+	${PYTHON_LIBS} \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la
 
