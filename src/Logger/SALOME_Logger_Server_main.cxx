@@ -12,7 +12,7 @@
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
-#ifndef __WIN32__
+#ifndef WIN32
 # include <unistd.h>
 #else
 # include "utilities.h" // for compilation type "timespec"
