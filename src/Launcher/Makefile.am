@@ -122,6 +122,8 @@ libLauncher_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libLauncher_la_LIBADD =\
+	../Batch/libSalomeBatch.la \
+	../ResourcesManager/libResourcesManager.la \
 	@MPI_LIBS@ \
 	@LIBXML_LIBS@
 

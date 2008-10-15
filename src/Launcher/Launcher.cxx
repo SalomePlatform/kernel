@@ -28,12 +28,7 @@
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
-
-#ifdef WIN32
-# include <time.h>
-#endif
-
-using namespace std;
+#include <time.h>
 
 //=============================================================================
 /*! 
