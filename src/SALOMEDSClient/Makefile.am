@@ -86,7 +86,7 @@ COMMON_CPPFLAGS= \
 
 
 # This local variable defines the list of dependant libraries common to all target in this package.
-COMMON_LIBS =
+COMMON_LIBS = $(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
 # ===============================================================
