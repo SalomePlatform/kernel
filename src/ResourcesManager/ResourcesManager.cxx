@@ -25,6 +25,7 @@
 #include <string.h>
 #include <map>
 #include <list>
+#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,8 +33,6 @@
 
 #ifndef WIN32
 # include <unistd.h>
-#else
-# include <algorithm>
 #endif
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
