@@ -28,7 +28,9 @@
 
 #include "utilities.h"
 #include <iostream>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
@@ -40,9 +42,8 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-using namespace std;
 
-static ostream& operator<<(ostream& os, const CORBA::Exception& e)
+static std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
 {
   CORBA::Any tmp;
   tmp<<= e;
@@ -60,7 +61,7 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
 }
 
 Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
-					   string componenttName)
+					   std::string componenttName)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
   bool isLib =
@@ -90,8 +91,8 @@ int main (int argc, char * argv[])
   try
     {
       SALOME_NamingService _NS(orb) ;
-      string containerName = "/Containers/" ;
-      string hostName = Kernel_Utils::GetHostname();
+      std::string containerName = "/Containers/" ;
+      std::string hostName = Kernel_Utils::GetHostname();
       containerName += hostName + "/FactoryServer";
       NamingService_WaitForServerReadiness(&_NS,containerName);
 
@@ -101,7 +102,7 @@ int main (int argc, char * argv[])
 
       int nbInstances = 5;
 
-      vector<Engines::TestComponent_var> instances(nbInstances);
+      std::vector<Engines::TestComponent_var> instances(nbInstances);
     
       MESSAGE("------------------------------- create instances ");
       for (int iter = 0; iter < nbInstances ; iter++)

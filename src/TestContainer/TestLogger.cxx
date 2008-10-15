@@ -28,11 +28,12 @@
 
 #include "utilities.h"
 #include <iostream>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-using namespace std;
 
 int main (int argc, char * argv[])
 {
