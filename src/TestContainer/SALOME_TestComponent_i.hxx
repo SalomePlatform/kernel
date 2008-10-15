@@ -29,6 +29,8 @@
 #ifndef _SALOME_TESTCOMPONENT_I_HXX_
 #define _SALOME_TESTCOMPONENT_I_HXX_
 
+#include "SALOME_TestComponent.hxx"
+
 #include <iostream>
 
 #include "SALOME_Component_i.hxx"
@@ -36,7 +38,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_TestComponent)
 
-class Engines_TestComponent_i: 
+class TESTCONTAINER_EXPORT Engines_TestComponent_i: 
   public POA_Engines::TestComponent,
   public Engines_Component_i 
 {
