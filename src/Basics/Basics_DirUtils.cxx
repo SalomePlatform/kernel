@@ -45,6 +45,14 @@ using namespace std;
 
 namespace Kernel_Utils
 {
+  string GetBaseName( const std::string& file_path )
+  {
+    int pos = file_path.rfind( _separator_ );
+    if ( pos >= 0 )
+      return pos < file_path.size()-1 ? file_path.substr( pos+1 ) : "";
+    return file_path;
+  }
+
   string GetTmpDirByEnv( const std::string& tmp_path_env )
   {
     string dir;

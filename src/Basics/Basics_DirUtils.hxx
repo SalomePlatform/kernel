@@ -34,6 +34,9 @@
 
 namespace Kernel_Utils
 {
+  // Extracts and returns the base name of the specified file name.
+  BASICS_EXPORT std::string GetBaseName( const std::string& file_path );
+
   // Returns the unique temporary directory, that is defined in tmp_path_env if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   BASICS_EXPORT std::string GetTmpDirByEnv( const std::string& tmp_path_env );

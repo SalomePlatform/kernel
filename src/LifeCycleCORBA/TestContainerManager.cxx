@@ -28,7 +28,9 @@
 
 #include "utilities.h"
 #include <iostream>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ContainerManager.hxx"
@@ -39,12 +41,12 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-using namespace std;
+#include "Basics_DirUtils.hxx"
 
 int main (int argc, char * argv[])
 {
-  map<string, int> cycle;
-  map<string, int> first;
+  std::map<std::string, int> cycle;
+  std::map<std::string, int> first;
   Engines::Container_ptr cont;
   Engines::Component_ptr compo;
   bool error = false;
@@ -107,9 +109,9 @@ int main (int argc, char * argv[])
 
   _NS->Change_Directory("/Containers");
 
-  vector<string> vec = _NS->list_directory_recurs();
-  list<string> lstCont;
-  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
+  std::vector<std::string> vec = _NS->list_directory_recurs();
+  std::list<std::string> lstCont;
+  for(std::vector<std::string>::iterator iter = vec.begin();iter!=vec.end();iter++){
     CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
     Engines::Container_var cont=Engines::Container::_narrow(obj);
     if(!CORBA::is_nil(cont)){
@@ -118,13 +120,14 @@ int main (int argc, char * argv[])
       lstCont.push_back((*iter));
     }
   }
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
+  for(std::list<std::string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
     CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
     Engines::Container_var cont=Engines::Container::_narrow(obj);
     if(!CORBA::is_nil(cont)){
-      if(strncmp(basename(cont->name()),"cycl",4)==0)
+      std::string basename = Kernel_Utils::GetBaseName(cont->name());
+      if(basename.compare(0,4,"cycl")==0)
 	cycle[cont->getHostName()]++;
-      if(strncmp(basename(cont->name()),"first",5)==0)
+      if(basename.compare(0,5,"first")==0)
 	first[cont->getHostName()]++;
     }
   }
@@ -135,7 +138,7 @@ int main (int argc, char * argv[])
   int fmin=10;
   int fmax=0;
   int nbpmax;
-  for(map<string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
+  for(std::map<std::string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
       Engines::MachineParameters *p = _ResManager->GetMachineParameters((*iter).first.c_str());
       int nbproc = p->nb_node * p->nb_proc_per_node;
@@ -148,7 +151,7 @@ int main (int argc, char * argv[])
       }
     }
   }
-  string msg;
+  std::string msg;
   if( ((cmax-cmin) <= 1) && (fmax == 10/nbpmax) && !error ){
     if(bestImplemented)
       msg = "TEST OK";
@@ -160,7 +163,7 @@ int main (int argc, char * argv[])
     msg ="TEST KO";
     status=1;
   }
-  cout << msg << endl;
+  std::cout << msg << std::endl;
 
   return status;
 }
