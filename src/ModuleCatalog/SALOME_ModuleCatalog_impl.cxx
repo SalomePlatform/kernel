@@ -292,11 +292,13 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
   char* _path = NULL;
   bool _find = false ;
 
+  unsigned int ind, ind1;
+
   // Parse all the path prefixes
   // looking for the wanted computer
-  for (unsigned int ind = 0 ; ind < _personal_path_list.size() ; ind++)
+  for (ind = 0 ; ind < _personal_path_list.size() ; ind++)
     {
-      for (unsigned int ind1 = 0 ; ind1 < _personal_path_list[ind].listOfComputer.size() ; ind1++)    
+      for (ind1 = 0 ; ind1 < _personal_path_list[ind].listOfComputer.size() ; ind1++)    
 	{
 	  if (strcmp(machinename, _personal_path_list[ind].listOfComputer[ind1].c_str()) == 0)
 	    {
@@ -312,9 +314,9 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
 
   if (!_find)
     {
-    for (unsigned int ind = 0 ; ind < _general_path_list.size() ; ind++)
+    for (ind = 0 ; ind < _general_path_list.size() ; ind++)
       {
-        for (unsigned int ind1 = 0 ; ind1 < _general_path_list[ind].listOfComputer.size() ; ind1++)    
+        for (ind1 = 0 ; ind1 < _general_path_list[ind].listOfComputer.size() ; ind1++)    
 	  {
 	    if (strcmp(machinename, _general_path_list[ind].listOfComputer[ind1].c_str()) == 0)
 	      {
@@ -348,8 +350,10 @@ SALOME_ModuleCatalogImpl::GetComponentList()
 
   _list_components->length(_personal_module_list.size());
 
+  unsigned int ind;
+
   // All the components defined in the personal catalog are taken
-  for(unsigned int ind=0; ind < _personal_module_list.size();ind++){
+  for(ind=0; ind < _personal_module_list.size();ind++){
     _list_components[ind]=(_personal_module_list[ind].name).c_str();
     if(MYDEBUG) SCRUTE(_list_components[ind]) ;
   }
@@ -359,11 +363,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WIN32
-  for(unsigned int ind=0; ind < _general_module_list.size();ind++){
-#else
   for(ind=0; ind < _general_module_list.size();ind++){
-#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is already defined in 
@@ -408,8 +408,10 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
 
   _list_components_icone->length(_personal_module_list.size());
 
+  unsigned int ind;
+
   // All the components defined in the personal catalog are taken
-  for(unsigned int ind=0; ind < _personal_module_list.size();ind++){
+  for(ind=0; ind < _personal_module_list.size();ind++){
     _list_components_icone[ind].modulename=(_personal_module_list[ind].name).c_str();
     _list_components_icone[ind].moduleusername=(_personal_module_list[ind].username).c_str();
     _list_components_icone[ind].moduleicone=(_personal_module_list[ind].icon).c_str();
@@ -424,11 +426,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WIN32
-  for(unsigned int ind=0; ind < _general_module_list.size();ind++){
-#else
   for(ind=0; ind < _general_module_list.size();ind++){
-#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is aleready defined in 
@@ -502,8 +500,10 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
     break;
   }
 
+  unsigned int ind;
+
   // All the components in the personal catalog are taken
-  for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
+  for (ind=0; ind < _personal_module_list.size();ind++)
     {
       if  (_personal_module_list[ind].type == _temp_component_type)
 	{
@@ -519,11 +519,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WIN32
-  for (unsigned int ind=0; ind < _general_module_list.size();ind++)
-#else
   for (ind=0; ind < _general_module_list.size();ind++)
-#endif
     {
       _find = false;
 
@@ -640,8 +636,10 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 {
   ParserComponent * C_parser = NULL;
 
+  unsigned int ind;
+
   if (!C_parser)
-    for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
+    for (ind=0; ind < _personal_module_list.size();ind++)
       {
 	if (name.compare(_personal_module_list[ind].name) == 0)
 	  {
@@ -653,7 +651,7 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
       }
 
   if (!C_parser)
-    for (unsigned int ind=0; ind < _general_module_list.size();ind++)
+    for (ind=0; ind < _general_module_list.size();ind++)
       {
 	if (name.compare(_general_module_list[ind].name) == 0)
 	  {
@@ -810,13 +808,13 @@ void SALOME_ModuleCatalogImpl::duplicate
 
   S_corba.TypeOfNode = S_parser.typeOfNode;
 
-  unsigned int _length;
+  unsigned int _length, ind2;
 
   // duplicate in Parameters
   _length = S_parser.inParameters.size();
   S_corba.ServiceinParameter.length(_length);
 
-  for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
+  for (ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_corba.ServiceinParameter[ind2],
 	      S_parser.inParameters[ind2]);
   
@@ -824,11 +822,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   _length = S_parser.outParameters.size();
   S_corba.ServiceoutParameter.length(_length);
 
-#ifndef WIN32
-  for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
   for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceoutParameter[ind2],
 	      S_parser.outParameters[ind2]);
   
@@ -836,11 +830,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   _length = S_parser.inDataStreamParameters.size();
   S_corba.ServiceinDataStreamParameter.length(_length);
 
-#ifndef WIN32
-  for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
   for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceinDataStreamParameter[ind2],
 	      S_parser.inDataStreamParameters[ind2]);
   
@@ -849,11 +839,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   //  if(MYDEBUG) SCRUTE(_length);
   S_corba.ServiceoutDataStreamParameter.length(_length);
 
-#ifndef WIN32
-  for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
   for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceoutDataStreamParameter[ind2],
 	      S_parser.outDataStreamParameters[ind2]);
 }
@@ -937,19 +923,21 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
   bool _return_value = true;
   vector<string> _machine_list;
 
+  unsigned int ind, ind1;
+
   // Fill a list of all computers indicated in the path list
-  for (unsigned int ind = 0; ind < pathList.size(); ind++)
+  for (ind = 0; ind < pathList.size(); ind++)
     { 
-      for (unsigned int ind1 = 0 ; ind1 < pathList[ind].listOfComputer.size(); ind1++)
+      for (ind1 = 0 ; ind1 < pathList[ind].listOfComputer.size(); ind1++)
 	{
 	  _machine_list.push_back(pathList[ind].listOfComputer[ind1]);
 	}
     }
 
   // Parse if a computer name is twice in the list of computers
-  for (unsigned int ind = 0; ind < _machine_list.size(); ind++)
+  for (ind = 0; ind < _machine_list.size(); ind++)
     {
-     for (unsigned int ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
+     for (ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
        {
 	 if(_machine_list[ind].compare(_machine_list[ind1]) == 0)
 	   {

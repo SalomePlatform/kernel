@@ -67,24 +67,24 @@ int main(int argc,char **argv)
    SALOME_ModuleCatalog::ListOfComponents_var list_composants 
      = Catalogue->GetComponentList();
 
-
+   unsigned int ind;
    // Typed component list
    MESSAGE("Get Typed Component list (GEOM Type)");
    SALOME_ModuleCatalog::ListOfComponents_var list_typed_composants 
      = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::GEOM);
-   for (unsigned int ind = 0; ind < list_typed_composants->length();ind++)
+   for (ind = 0; ind < list_typed_composants->length();ind++)
      MESSAGE("Component GEOM list : " << list_typed_composants[ind]);      
 
    MESSAGE("Get Typed Component list (SUPERV Type)");
    list_typed_composants 
      = Catalogue->GetTypedComponentList(SALOME_ModuleCatalog::SUPERV);
-   for (unsigned int ind = 0; ind < list_typed_composants->length();ind++)
+   for (ind = 0; ind < list_typed_composants->length();ind++)
       MESSAGE("Component SUPERV list : " << list_typed_composants[ind]);
 
    // Get list of couple (component name, component icone)
    SALOME_ModuleCatalog::ListOfIAPP_Affich_var list_composants_icone 
      = Catalogue->GetComponentIconeList();
-   for (unsigned int ind = 0; ind < list_composants_icone->length();ind++)
+   for (ind = 0; ind < list_composants_icone->length();ind++)
      {
        MESSAGE("Component name: " << list_composants_icone[ind].modulename);
        MESSAGE("Component icone: " << list_composants_icone[ind].moduleicone);
