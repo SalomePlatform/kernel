@@ -57,6 +57,10 @@
 # define UTILS_EXPORT
 #endif
 
+class SALOME_Exception;
+
+UTILS_EXPORT std::ostream& operator<<( std::ostream&, const SALOME_Exception& );
+
 class UTILS_EXPORT SALOME_Exception : public std::exception
 {
 
