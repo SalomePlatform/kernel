@@ -23,6 +23,7 @@
 
 
 #include "SALOMEDSImpl_Study.hxx"
+#include <string.h>
 
 using namespace std;
 

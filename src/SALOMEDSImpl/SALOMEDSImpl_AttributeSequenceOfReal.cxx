@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeSequenceOfReal.hxx"
+#include <string.h>
 
 using namespace std;
 

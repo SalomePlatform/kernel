@@ -23,6 +23,7 @@
 
 
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
+#include <string.h>
 
 using namespace std;
 

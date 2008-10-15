@@ -34,6 +34,8 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace std;
 

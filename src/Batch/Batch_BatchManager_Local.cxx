@@ -42,6 +42,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 #include "Batch_IOMutex.hxx"
 #include "Batch_BatchManager_Local.hxx"
 

@@ -25,6 +25,8 @@
 
 #include "Basics_Utils.hxx"
 
+#include "string.h"
+
 #ifndef WIN32
 #include <unistd.h>
 #include <sys/stat.h>

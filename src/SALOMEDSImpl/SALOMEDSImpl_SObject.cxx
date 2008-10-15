@@ -32,6 +32,7 @@
 using namespace std;
 
 #include <map>
+#include <string.h>
 
 //============================================================================
 /*! Function : empty constructor

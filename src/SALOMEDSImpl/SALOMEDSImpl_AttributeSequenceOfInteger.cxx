@@ -22,6 +22,7 @@
 //  Module : SALOME
 
 #include "SALOMEDSImpl_AttributeSequenceOfInteger.hxx"
+#include <string.h>
 
 using namespace std;
 

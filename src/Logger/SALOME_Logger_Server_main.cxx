@@ -9,6 +9,7 @@
 //  Module : SALOME
 
 #include <iostream>
+#include <stdlib.h>
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>

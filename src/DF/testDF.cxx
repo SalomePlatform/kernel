@@ -24,6 +24,7 @@
 #include <iostream> 
 #include <vector>
 #include <string>
+#include <string.h>
 
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
