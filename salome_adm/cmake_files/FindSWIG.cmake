@@ -1,0 +1,3 @@
+
+FIND_PROGRAM(SWIG_EXECUTABLE swig)
+SET(SWIG_FLAGS -c++ -python -shadow)

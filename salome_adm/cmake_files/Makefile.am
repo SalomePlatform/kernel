@@ -16,5 +16,18 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
-SUBDIRS = unix cmake_files
-AUTOMAKE_OPTIONS=filename-length-max=255
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+dist_salome_cmake_DATA = \
+am2cmake.py \
+FindBOOST.cmake \
+FindCPPUNIT.cmake \
+FindHDF5.cmake \
+FindKERNEL.cmake \
+FindLIBXML2.cmake \
+FindOMNIORB.cmake \
+FindPLATFORM.cmake \
+FindPTHREADS.cmake \
+FindPYTHON.cmake \
+FindSWIG.cmake \
+install_python_from_idl.cmake
