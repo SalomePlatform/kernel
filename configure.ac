@@ -489,6 +489,7 @@ AC_OUTPUT([ \
 	./KERNEL_version.h \
 	./salome_adm/unix/SALOMEconfig.ref \
 	./salome_adm/Makefile \
+	./salome_adm/cmake_files/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
 	Makefile \

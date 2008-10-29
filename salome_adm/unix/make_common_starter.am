@@ -21,6 +21,9 @@ salomeidldir       = $(prefix)/idl/salome
 # Directory for installing resource files
 salomeresdir       = $(prefix)/share/salome/resources/@MODULE_NAME@
 
+# Directory for installation cmake files
+salome_cmakedir    = $(prefix)/salome_adm/cmake_files
+
 # Directories for installing admin files
 salomeadmdir       = $(prefix)/salome_adm
 salomeadmuxdir     = $(salomeadmdir)/unix
