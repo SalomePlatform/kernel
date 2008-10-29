@@ -494,7 +494,7 @@ class CMakeFile(object):
             SET(IDL_HEADER ${CMAKE_CURRENT_BINARY_DIR}/${base}.hh)
             install(FILES ${IDL_HEADER} DESTINATION include/salome)
             INSTALL(CODE "SET(IDL_FILE ${input})")
-            INSTALL(CODE "SET(DIR lib/${PYTHON_VERSION}/site-packages/salome)")
+            INSTALL(CODE "SET(DIR lib/python${PYTHON_VERSION}/site-packages/salome)")
             INSTALL(CODE "SET(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})")
             INSTALL(CODE "SET(OMNIORB_IDL_PYTHON ${OMNIORB_IDL_PYTHON})")
             INSTALL(CODE "SET(IDLPYFLAGS ${IDLPYFLAGS})")
@@ -615,9 +615,9 @@ class CMakeFile(object):
             "dist_salomescript_DATA"      :  "bin/salome",
             "dist_salomescript_PYTHON"    :  "bin/salome",
             "nodist_salomescript_DATA"    :  "bin/salome",
-            "salomepython_PYTHON"         :  "lib/python2.5/site-packages/salome",
-            "nodist_salomepython_PYTHON"  :  "lib/python2.5/site-packages/salome",
-            "sharedpkgpython_PYTHON"      :  "lib/python2.5/site-packages/salome/shared_modules",
+            "salomepython_PYTHON"         :  "lib/python${PYTHON_VERSION}/site-packages/salome",
+            "nodist_salomepython_PYTHON"  :  "lib/python${PYTHON_VERSION}/site-packages/salome",
+            "sharedpkgpython_PYTHON"      :  "lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules",
             }
         for key, value in d.items():
             if self.__thedict__.has_key(key):
@@ -792,13 +792,13 @@ class CMakeFile(object):
             ENDIF(name STREQUAL SalomePyQt)
             ELSE(BEGIN_WITH_lib)
             IF(WINDOWS)
-            INSTALL(TARGETS ${name} DESTINATION lib/python2.5/site-packages/salome)
+            INSTALL(TARGETS ${name} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome)
             ELSE(WINDOWS)
             GET_TARGET_PROPERTY(version ${name} VERSION)
             GET_TARGET_PROPERTY(soversion ${name} SOVERSION)
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python2.5/site-packages/salome RENAME ${name}.so.${version})
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python2.5/site-packages/salome RENAME ${name}.so.${soversion})
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python2.5/site-packages/salome RENAME ${name}.so)
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so.${version})
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so.${soversion})
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so)
             ENDIF(WINDOWS)
             ENDIF(BEGIN_WITH_lib)
             ''')
