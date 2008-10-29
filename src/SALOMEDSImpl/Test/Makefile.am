@@ -79,6 +79,7 @@ COMMON_LIBS =\
 	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	$(RPATH)/DF/libDF.la \
 	$(RPATH)/SALOMEDSImpl/libSalomeDSImpl.la \
+	$(RPATH)/HDFPersist/libSalomeHDFPersist.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #

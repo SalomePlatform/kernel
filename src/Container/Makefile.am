@@ -143,6 +143,7 @@ SALOME_Container_CPPFLAGS =\
 SALOME_Container_LDADD = \
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(HDF5_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
@@ -160,6 +161,7 @@ TestSalome_file_CPPFLAGS =\
 TestSalome_file_LDADD =\
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(HDF5_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \

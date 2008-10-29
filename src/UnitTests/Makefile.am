@@ -70,7 +70,9 @@ endif
 UnitTests_LDADD    =\
 	@CPPUNIT_LIBS@ \
 	../Basics/libSALOMEBasics.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la ../SALOMELocalTrace/Test/libSALOMELocalTraceTest.la
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	../SALOMELocalTrace/Test/libSALOMELocalTraceTest.la \
+	../HDFPersist/libSalomeHDFPersist.la
 
 if CORBA_GEN
   UnitTests_LDADD    +=\
