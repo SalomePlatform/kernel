@@ -51,6 +51,7 @@ except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
 pinter_nam     = "pinter"
 batch_nam      = "batch"
+gdb_session_nam = "gdb_session"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -595,6 +596,13 @@ def CreateOptionParser (theAdditionalOptions=[]):
                              dest="ns_port_log_file",
                              help=help_str)
 
+    # gdb session
+    help_str = "Launch session with gdb"
+    o_gdb = optparse.Option("--gdb-session",
+                            action="store_true",
+                            dest="gdb_session", default=False,
+                            help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -614,7 +622,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_a,     # Print free port and exit
                 o_n,     # --nosave-config
                 o_pi,    # Interactive python console
-                o_nspl]
+                o_nspl,
+                o_gdb,
+                ]
                 
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -894,6 +904,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Interactive python console
     if cmd_opts.pinter is not None:
         args[pinter_nam] = cmd_opts.pinter
+
+    # Interactive python console
+    if cmd_opts.gdb_session is not None:
+        args[gdb_session_nam] = cmd_opts.gdb_session
 
     ####################################################
     # Add <theAdditionalOptions> values to args

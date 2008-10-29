@@ -309,7 +309,18 @@ class SessionServer(Server):
             self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
-      
+        if self.args["gdb_session"]:
+            f = open(".gdbinit4salome", "w")
+            f.write("set args ")
+            args = " ".join(self.CMD[1:])
+            args = args.replace("(", "\(")
+            args = args.replace(")", "\)")
+            f.write(args)
+            f.write("\n")
+            f.close()
+            self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+            pass
+        
 # ---
 
 class LauncherServer(Server):
