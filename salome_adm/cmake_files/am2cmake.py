@@ -7,6 +7,7 @@ import re
 
 p_multiline = re.compile(r"""
 \\           # One backslash
+\s*          # 0 or more space
 \n           # One CR
 """, re.VERBOSE)
 
