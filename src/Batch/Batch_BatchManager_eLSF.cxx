@@ -32,11 +32,12 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <libgen.h>
 #include "Batch_BatchManager_eLSF.hxx"
 #ifdef WIN32
 # include <time.h>
 # include <io.h>
+#else
+# include <libgen.h>
 #endif
 
 using namespace std;
