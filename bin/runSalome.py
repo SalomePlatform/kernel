@@ -323,7 +323,7 @@ class SessionServer(Server):
             f.write(args)
             f.write("\n")
             f.close()
-            self.CMD += ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+            self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
             pass
       
 # ---
