@@ -81,6 +81,7 @@ COMMON_LIBS =\
 #
 lib_LTLIBRARIES = libSalomeTestComponentEngine.la
 libSalomeTestComponentEngine_la_SOURCES  = \
+	SALOME_TestComponent.hxx \
 	SALOME_TestComponent_i.cxx \
 	SALOME_TestComponent_i.hxx
 
