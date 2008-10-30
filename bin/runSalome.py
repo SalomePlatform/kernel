@@ -313,6 +313,18 @@ class SessionServer(Server):
             self.CMD+=['-test'] + self.args['test']
         elif self.args.has_key('play'):
             self.CMD+=['-play'] + self.args['play']
+	
+	if self.args["gdb_session"]:
+            f = open(".gdbinit4salome", "w")
+            f.write("set args ")
+            args = " ".join(self.CMD[1:])
+            args = args.replace("(", "\(")
+            args = args.replace(")", "\)")
+            f.write(args)
+            f.write("\n")
+            f.close()
+            self.CMD += ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+            pass
       
 # ---
 
