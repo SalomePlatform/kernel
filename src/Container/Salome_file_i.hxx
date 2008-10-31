@@ -34,6 +34,7 @@
 #include <SALOME_Container.hxx>
 #include <map>
 #include <cstdio>
+#include <string>
 
 class CONTAINER_EXPORT Salome_file_i:
   public virtual POA_Engines::Salome_file

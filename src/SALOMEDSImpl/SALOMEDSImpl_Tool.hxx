@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include "DF_Label.hxx"
+#include <string.h>
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 {

@@ -18,56 +18,47 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * FactBatchManager.cxx : 
+ * FactBatchManager_eSGE.cxx : 
  *
- * Auteur : Ivan DUTKA-MALEN - EDF R&D
- * Date   : Septembre 2004
- * Projet : SALOME 2
+ * Auteur : Bernard SECHER - CEA DEN
+ * Date   : Avril 2008
+ * Projet : PAL Salome
  *
  */
 
 #include <string>
-#include <sstream>
-#include <iostream>
-#include "Batch_BatchManagerCatalog.hxx"
-#include "Batch_FactBatchManager.hxx"
-using namespace std;
+#include "Batch_BatchManager_eSGE.hxx"
+#include "Batch_FactBatchManager_eSGE.hxx"
+//#include "utilities.h"
 
 namespace Batch {
 
-  // Constructeur
-  FactBatchManager::FactBatchManager(const string & _t) : type(_t)
-  {
-    BatchManagerCatalog::addFactBatchManager(type.c_str(), this);
-    /*
-    #ifndef WIN32
-    Win32 limitation: it's impossible to create new thread of LocalTraceCollector
-    during initialization of static objects of DLL
-    Be careful with static objects of types inherited from FactBatchManager class
-    */
-    ostringstream msg;
-    msg << "FactBatchManager of type '" << type << "' inserted into catalog";
-    cerr << msg.str().c_str() << endl;
-    //#endif
-  }
+  static FactBatchManager_eSGE sFBM_eSGE;
 
-  // Destructeur
-  FactBatchManager::~FactBatchManager()
+  // Constructeur
+  FactBatchManager_eSGE::FactBatchManager_eSGE() : FactBatchManager_eClient("eSGE")
   {
     // Nothing to do
   }
 
-  // Accesseur
-  string FactBatchManager::getType() const
+  // Destructeur
+  FactBatchManager_eSGE::~FactBatchManager_eSGE()
   {
-    return type;
+    // Nothing to do
   }
 
-  string FactBatchManager::__repr__() const
+  // Functor
+  BatchManager * FactBatchManager_eSGE::operator() (const char * hostname) const
   {
-    ostringstream oss;
-    oss << "<FactBatchManager of type '" << type << "'>";
-    return oss.str();
+    // MESSAGE("Building new BatchManager_SGE on host '" << hostname << "'");
+    return new BatchManager_eSGE(this, hostname);
   }
+
+  BatchManager_eClient * FactBatchManager_eSGE::operator() (const char * hostname, const char * protocol, const char * mpiImpl) const
+  {
+    // MESSAGE("Building new BatchManager_SGE on host '" << hostname << "'");
+    return new BatchManager_eSGE(this, hostname, protocol, mpiImpl);
+  }
+
 
 }

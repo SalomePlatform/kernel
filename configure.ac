@@ -66,6 +66,12 @@ AC_ARG_ENABLE(corba_gen,
   esac],[corba_gen=true])
 AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 
+# ---- option to build only launcher, resources manager and batch classes
+AC_ARG_WITH(onlylauncher,
+	    --with-onlylauncher,
+	    WITHONLYLAUNCHER="yes",WITHONLYLAUNCHER="no")
+AM_CONDITIONAL(WITHONLYLAUNCHER, test x$WITHONLYLAUNCHER = xyes)
+
 # ----------------------------------------------------------------------------
 
 echo
@@ -174,6 +180,15 @@ CHECK_SWIG
 
 echo
 echo ---------------------------------------------
+echo Testing libxml2
+echo ---------------------------------------------
+echo
+
+CHECK_LIBXML
+
+if test x$WITHONLYLAUNCHER = xno; then
+echo
+echo ---------------------------------------------
 echo testing HDF5
 echo ---------------------------------------------
 echo
@@ -236,16 +251,12 @@ echo
 
 CHECK_BOOST
 
-echo
-echo ---------------------------------------------
-echo Testing libxml2
-echo ---------------------------------------------
-echo
-
-CHECK_LIBXML
-
 fi 
 # --- end test corba
+# ----------------------------------------------------------------------------
+
+fi 
+# --- end test ONLYLAUNCHER
 # ----------------------------------------------------------------------------
 
 echo
@@ -408,10 +419,14 @@ function check_fatal_error {
 
 # --------------------------------------
 
-if test x$corba_gen = xtrue; then
-  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok"
+if test x$WITHONLYLAUNCHER = xno; then
+  if test x$corba_gen = xtrue; then
+    basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
+  else
+    basic_mandatory_products="cc_ok threads_ok hdf5_ok libxml_ok"
+  fi
 else
-  basic_mandatory_products="cc_ok threads_ok hdf5_ok"
+  basic_mandatory_products="cc_ok threads_ok libxml_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -419,19 +434,21 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok libxml_ok"
-if test x$corba_gen = xtrue; then
-  echo --- CORBA mandatory products - default configuration:
-  summary $corba_mandatory_products
-  check_fatal_error $corba_mandatory_products
-else
-  echo --- CORBA products not required - option --disable-corba-gen
-  if test x"$WITH_BATCH" = xyes; then
-    echo --- BATCH mode mandatory products - default configuration:
-    summary "python_ok"
-    check_fatal_error "python_ok"
-  else 
+if test x$WITHONLYLAUNCHER = xno; then
+  corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok"
+  if test x$corba_gen = xtrue; then
+    echo --- CORBA mandatory products - default configuration:
+    summary $corba_mandatory_products
+    check_fatal_error $corba_mandatory_products
+  else
+    echo --- CORBA products not required - option --disable-corba-gen
+    if test x"$WITH_BATCH" = xyes; then
+      echo --- BATCH mode mandatory products - default configuration:
+      summary "python_ok"
+      check_fatal_error "python_ok"
+    else 
     echo --- Python not required - option --enable-batch=no
+    fi
   fi
 fi
 echo
@@ -454,9 +471,11 @@ echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
 echo
 
+if test x$WITHONLYLAUNCHER = xno; then
 echo
 echo "Default ORB   : $DEFAULT_ORB"
 echo
+fi
 
 dnl generals files which could be included in every makefile
 
@@ -561,4 +580,3 @@ AC_OUTPUT([ \
 	./src/Utils/Makefile \
 	./src/Utils/Test/Makefile \
 ])
-

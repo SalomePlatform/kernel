@@ -150,7 +150,7 @@ void ParserResourcesType::Clear()
   Protocol = rsh;
   Mode = interactive;
   Batch = none;
-  mpi = indif;
+  mpi = nompi;
   UserName = "";
   AppliPath = "";
   ModulesList.clear();

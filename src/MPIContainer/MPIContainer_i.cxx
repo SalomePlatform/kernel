@@ -27,6 +27,7 @@
 #include <iostream.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include "Basics_Utils.hxx"
 #include "SALOME_Component_i.hxx"
 #include "MPIContainer_i.hxx"
 #include "SALOME_NamingService.hxx"

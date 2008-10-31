@@ -264,9 +264,15 @@ BatchTest::test_jobsubmit_simple()
   std::string batch_type = _batch_descr.batch.in();
 
   // Basic test
-  if (batch_type == "slurm")
+  if (batch_type == "lsf")
   {
-    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
+    INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+  if (batch_type == "sge")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
     result = "OK";
     return result;
   }
@@ -431,16 +437,25 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
+  else if(mpi_type == "slurm")
+    mpiImpl = new MpiImpl_SLURM();
   else
   {
     result += "Error MPI impl not supported : " + mpi_type;
     return result;
   }
 
-  // SLURM not yet implemented...
-  if (batch_type == "slurm")
+  // LSF et SGE not yet implemented...
+  if (batch_type == "lsf")
   {
-    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
+    INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "sge")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
     result = "OK";
     return result;
   }

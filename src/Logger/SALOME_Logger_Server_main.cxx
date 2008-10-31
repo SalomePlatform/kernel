@@ -12,6 +12,8 @@
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
+#include <stdlib.h>
+
 #ifndef __WIN32__
 # include <unistd.h>
 #else

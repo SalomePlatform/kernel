@@ -114,6 +114,28 @@ CORBA::Long SALOME_Launcher::getPID()
 //=============================================================================
 /*! CORBA Method:
  *  Submit a batch job on a cluster and returns the JobId
+ *  \param xmlExecuteFile     : .xml to parse to execute on the batch cluster
+ *  \param clusterName        : cluster name
+ */
+//=============================================================================
+CORBA::Long SALOME_Launcher::submitJob(const char * xmlExecuteFile,
+				       const char * clusterName)
+{
+  CORBA::Long jobId;
+
+  try{
+    jobId = _l.submitJob(xmlExecuteFile,clusterName);
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+  return jobId;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Submit a batch job on a cluster and returns the JobId
  *  \param fileToExecute      : .py/.exe/.sh/... to execute on the batch cluster
  *  \param filesToExport      : to export on the batch cluster
  *  \param NumberOfProcessors : Number of processors needed on the batch cluster
@@ -190,9 +212,9 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
       rtn = true;
     }
   }
-  catch(const SALOME_Exception &ex){
-    INFOS(ex.what());
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
   return rtn;
 }
@@ -204,8 +226,8 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId, 
-				       const Engines::MachineParameters& params)
+char* SALOME_Launcher::queryJob( const CORBA::Long jobId, 
+				 const Engines::MachineParameters& params)
 {
   string status;
   machineParams p;
@@ -217,10 +239,10 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
   p.mem_mb = params.mem_mb;
 
   try{
-    status =  _l.querySalomeJob(jobId,p);
+    status =  _l.queryJob(jobId,p);
   }
   catch(const LauncherException &ex){
-    INFOS("Caught exception.");
+    INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
   return CORBA::string_dup(status.c_str());
@@ -233,8 +255,8 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId, 
-				       const Engines::MachineParameters& params)
+void SALOME_Launcher::deleteJob( const CORBA::Long jobId, 
+				 const Engines::MachineParameters& params)
 {
   machineParams p;
   p.hostname = params.hostname;
@@ -245,7 +267,7 @@ void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId,
   p.mem_mb = params.mem_mb;
 
   try{
-    _l.deleteSalomeJob(jobId,p);
+    _l.deleteJob(jobId,p);
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");
@@ -260,9 +282,9 @@ void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void SALOME_Launcher::getResultSalomeJob( const char *directory,
-					  const CORBA::Long jobId, 
-					  const Engines::MachineParameters& params)
+void SALOME_Launcher::getResultsJob( const char *directory,
+				     const CORBA::Long jobId, 
+				     const Engines::MachineParameters& params)
 {
   machineParams p;
   p.hostname = params.hostname;
@@ -273,7 +295,7 @@ void SALOME_Launcher::getResultSalomeJob( const char *directory,
   p.mem_mb = params.mem_mb;
 
   try{
-    _l.getResultSalomeJob( directory, jobId, p );
+    _l.getResultsJob( directory, jobId, p );
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");

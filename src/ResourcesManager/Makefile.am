@@ -73,7 +73,11 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libResourcesManager.la libSalomeResourcesManager.la
+if WITHONLYLAUNCHER
+  lib_LTLIBRARIES = libResourcesManager.la
+else
+  lib_LTLIBRARIES = libResourcesManager.la libSalomeResourcesManager.la
+endif
 libSalomeResourcesManager_la_SOURCES =\
 	SALOME_ResourcesManager.cxx
 

@@ -33,10 +33,15 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 DEPRECATED_FILES=
 
-dist_salomeres_DATA=\
+if WITHONLYLAUNCHER
+  dist_salomeres_DATA=\
+	CatalogResources.xml
+else
+  dist_salomeres_DATA=\
 	CatalogResources.xml \
 	config \
 	channel.cfg \
 	KERNELCatalog.xml \
 	SALOMEDS_Resources \
 	$(DEPRECATED_FILES)
+endif

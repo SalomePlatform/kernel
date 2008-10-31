@@ -30,6 +30,8 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <limits.h>
+
 #include <sys/types.h>
 #ifdef WIN32
 # include <direct.h>

@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager_eLSF.cxx : emulation of LSF client
+ * BatchManager_eSGE.cxx : emulation of SGE client
  *
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
@@ -31,45 +31,35 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
-#include <string.h>
+#include "Batch_BatchManager_eSGE.hxx"
 #include <stdlib.h>
-
-#include "Batch_BatchManager_eLSF.hxx"
-#ifdef WIN32
-# include <time.h>
-# include <io.h>
-#endif
+#include <libgen.h>
 
 using namespace std;
 
 namespace Batch {
 
-  BatchManager_eLSF::BatchManager_eLSF(const FactBatchManager * parent, const char * host, const char * protocol, const char * mpiImpl) throw(InvalidArgumentException,ConnexionFailureException) : BatchManager_eClient(parent,host,protocol,mpiImpl)
+  BatchManager_eSGE::BatchManager_eSGE(const FactBatchManager * parent, const char * host, const char * protocol, const char * mpiImpl) throw(InvalidArgumentException,ConnexionFailureException) : BatchManager_eClient(parent,host,protocol,mpiImpl)
   {
     // Nothing to do
   }
 
   // Destructeur
-  BatchManager_eLSF::~BatchManager_eLSF()
+  BatchManager_eSGE::~BatchManager_eSGE()
   {
     // Nothing to do
   }
 
   // Methode pour le controle des jobs : soumet un job au gestionnaire
-  const JobId BatchManager_eLSF::submitJob(const Job & job)
+  const JobId BatchManager_eSGE::submitJob(const Job & job)
   {
     int status;
     Parametre params = job.getParametre();
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
-    std::string fileNameToExecute;
-    if( fileToExecute.size() > 0 ){
-      string::size_type p1 = fileToExecute.find_last_of("/");
-      string::size_type p2 = fileToExecute.find_last_of(".");
-      fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-    }
-    else
-      fileNameToExecute = "command";
+    string::size_type p1 = fileToExecute.find_last_of("/");
+    string::size_type p2 = fileToExecute.find_last_of(".");
+    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
 
     // export input files on cluster
     exportInputFiles(job);
@@ -102,7 +92,7 @@ namespace Batch {
     command += _hostname;
     command += " \"cd " ;
     command += dirForTmpFiles ;
-    command += "; bsub < " ;
+    command += "; qsub " ;
     command += fileNameToExecute ;
     command += "_Batch.sh\" > ";
     command += logFile;
@@ -117,17 +107,16 @@ namespace Batch {
     fgets( line, 128, fp);
     fclose(fp);
     
-    string sline(line);
-    int p10 = sline.find("<");
-    int p20 = sline.find(">");
-    string strjob = sline.substr(p10+1,p20-p10-1);
+    string strjob;
+    istringstream iss(line);
+    iss >> strjob >> strjob >> strjob;
 
     JobId id(this, strjob);
     return id;
   }
 
   // Methode pour le controle des jobs : retire un job du gestionnaire
-  void BatchManager_eLSF::deleteJob(const JobId & jobid)
+  void BatchManager_eSGE::deleteJob(const JobId & jobid)
   {
     int status;
     int ref;
@@ -145,7 +134,7 @@ namespace Batch {
     }
 
     command += _hostname;
-    command += " \"bkill " ;
+    command += " \"qdel " ;
     command += iss.str();
     command += "\"";
     cerr << command.c_str() << endl;
@@ -157,38 +146,38 @@ namespace Batch {
   }
    
   // Methode pour le controle des jobs : suspend un job en file d'attente
-  void BatchManager_eLSF::holdJob(const JobId & jobid)
+  void BatchManager_eSGE::holdJob(const JobId & jobid)
   {
     throw EmulationException("Not yet implemented");
   }
 
   // Methode pour le controle des jobs : relache un job suspendu
-  void BatchManager_eLSF::releaseJob(const JobId & jobid)
+  void BatchManager_eSGE::releaseJob(const JobId & jobid)
   {
     throw EmulationException("Not yet implemented");
   }
 
 
   // Methode pour le controle des jobs : modifie un job en file d'attente
-  void BatchManager_eLSF::alterJob(const JobId & jobid, const Parametre & param, const Environnement & env)
+  void BatchManager_eSGE::alterJob(const JobId & jobid, const Parametre & param, const Environnement & env)
   {
     throw EmulationException("Not yet implemented");
   }
 
   // Methode pour le controle des jobs : modifie un job en file d'attente
-  void BatchManager_eLSF::alterJob(const JobId & jobid, const Parametre & param)
+  void BatchManager_eSGE::alterJob(const JobId & jobid, const Parametre & param)
   {
     alterJob(jobid, param, Environnement());
   }
 
   // Methode pour le controle des jobs : modifie un job en file d'attente
-  void BatchManager_eLSF::alterJob(const JobId & jobid, const Environnement & env)
+  void BatchManager_eSGE::alterJob(const JobId & jobid, const Environnement & env)
   {
     alterJob(jobid, Parametre(), env);
   }
 
   // Methode pour le controle des jobs : renvoie l'etat du job
-  JobInfo BatchManager_eLSF::queryJob(const JobId & jobid)
+  JobInfo BatchManager_eSGE::queryJob(const JobId & jobid)
   {
     int id;
     istringstream iss(jobid.getReference());
@@ -199,10 +188,8 @@ namespace Batch {
     logFile += getenv("USER");
     logFile += "/batchSalome_";
 
-    srand ( time(NULL) );
-    int ir = rand();
     ostringstream oss;
-    oss << ir;
+    oss << this << "_" << id;
     logFile += oss.str();
     logFile += ".log";
 
@@ -219,34 +206,31 @@ namespace Batch {
     }
 
     command += _hostname;
-    command += " \"bjobs " ;
+    command += " \"qstat | grep " ;
     command += iss.str();
     command += "\" > ";
     command += logFile;
     cerr << command.c_str() << endl;
     status = system(command.c_str());
-    if(status)
+    if(status && status != 256)
       throw EmulationException("Error of connection on remote host");
 
-    JobInfo_eLSF ji = JobInfo_eLSF(id,logFile);
+    JobInfo_eSGE ji = JobInfo_eSGE(id,logFile);
     return ji;
   }
 
-
-
   // Methode pour le controle des jobs : teste si un job est present en machine
-  bool BatchManager_eLSF::isRunning(const JobId & jobid)
+  bool BatchManager_eSGE::isRunning(const JobId & jobid)
   {
     throw EmulationException("Not yet implemented");
   }
 
-  void BatchManager_eLSF::buildBatchScript(const Job & job) throw(EmulationException)
+  void BatchManager_eSGE::buildBatchScript(const Job & job) throw(EmulationException)
   {
-#ifndef WIN32 //TODO: need for porting on Windows
     int status;
     Parametre params = job.getParametre();
     Environnement env = job.getEnvironnement();
-    const int nbproc = params[NBPROC];
+    const long nbproc = params[NBPROC];
     const long edt = params[MAXWALLTIME];
     const long mem = params[MAXRAMSIZE];
     const string workDir = params[WORKDIR];
@@ -260,7 +244,7 @@ namespace Batch {
       string::size_type p1 = fileToExecute.find_last_of("/");
       string::size_type p2 = fileToExecute.find_last_of(".");
       rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
+      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename((char *) fileToExecute.c_str()));
 
       int idx = dirForTmpFiles.find("Batch/");
       filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
@@ -273,25 +257,25 @@ namespace Batch {
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
-    tempOutputFile << "#! /bin/sh -f" << endl ;
+    tempOutputFile << "#! /bin/sh -f" << endl;
+    tempOutputFile << "#$ -pe mpich " << nbproc << endl;
     if( edt > 0 )
-      tempOutputFile << "#BSUB -W " << getWallTime(edt) << endl ;
+      tempOutputFile << "#$ -l h_rt=" << getWallTime(edt) << endl ;
     if( mem > 0 )
-      tempOutputFile << "#BSUB -M " << mem*1024 << endl ;
-    tempOutputFile << "#BSUB -n " << nbproc << endl ;
+      tempOutputFile << "#$ -l h_vmem=" << mem << "M" << endl ;
     if( fileToExecute.size() > 0 ){
-      tempOutputFile << "#BSUB -o " << home << "/" << dirForTmpFiles << "/output.log." << filelogtemp << endl ;
-      tempOutputFile << "#BSUB -e " << home << "/" << dirForTmpFiles << "/error.log." << filelogtemp << endl ;
+      tempOutputFile << "#$ -o " << home << "/" << dirForTmpFiles << "/output.log." << filelogtemp << endl ;
+      tempOutputFile << "#$ -e " << home << "/" << dirForTmpFiles << "/error.log." << filelogtemp << endl ;
     }
     else{
-      tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/" << env["LOGFILE"] << ".output.log" << endl ;
-      tempOutputFile << "#BSUB -e " << dirForTmpFiles << "/" << env["LOGFILE"] << ".error.log" << endl ;
+      tempOutputFile << "#$ -o " << dirForTmpFiles << "/" << env["LOGFILE"] << ".output.log" << endl ;
+      tempOutputFile << "#$ -e " << dirForTmpFiles << "/" << env["LOGFILE"] << ".error.log" << endl ;
     }
     if( workDir.size() > 0 )
       tempOutputFile << "cd " << workDir << endl ;
     if( fileToExecute.size() > 0 ){
       tempOutputFile << _mpiImpl->boot("",nbproc);
-      tempOutputFile << _mpiImpl->run("",nbproc,fileNameToExecute);
+      tempOutputFile << _mpiImpl->run("${TMPDIR}/machines",nbproc,fileNameToExecute);
       tempOutputFile << _mpiImpl->halt();
     }
     else{
@@ -301,12 +285,7 @@ namespace Batch {
       
     tempOutputFile.flush();
     tempOutputFile.close();
-#ifdef WIN32
-    _chmod(
-#else
-    chmod(
-#endif
-      TmpFileName.c_str(), 0x1ED);
+    chmod(TmpFileName.c_str(), 0x1ED);
     cerr << TmpFileName.c_str() << endl;
 
     string command;
@@ -334,11 +313,10 @@ namespace Batch {
       throw EmulationException("Error of connection on remote host");    
 
     RmTmpFile(TmpFileName);
-#endif
     
   }
 
-  std::string BatchManager_eLSF::getWallTime(const long edt)
+  std::string BatchManager_eSGE::getWallTime(const long edt)
   {
     long h, m;
     h = edt / 60;

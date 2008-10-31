@@ -30,11 +30,7 @@
 #include <sys/stat.h>
 #include <libxml/parser.h>
 
-#ifndef WIN32
-# include <unistd.h>
-#else
-# include <algorithm>
-#endif
+#include <algorithm>
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
@@ -51,7 +47,7 @@ ResourcesManager_cpp(const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor" << endl;
+  cout << "ResourcesManager_cpp constructor" << endl;
 #endif
 }
 
@@ -66,12 +62,14 @@ ResourcesManager_cpp(const char *xmlFilePath) :
  */ 
 //=============================================================================
 
-ResourcesManager_cpp::ResourcesManager_cpp()
+ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor" << endl;
+  cout << "ResourcesManager_cpp constructor" << endl;
 #endif
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
+  if(!getenv("KERNEL_ROOT_DIR"))
+    throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
 
   if (_isAppliSalomeDefined)
     {
@@ -89,7 +87,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
 
   ParseXmlFile();
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor end";
+  cout << "ResourcesManager_cpp constructor end";
 #endif
 }
 
@@ -102,7 +100,7 @@ ResourcesManager_cpp::ResourcesManager_cpp()
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp destructor" << endl;
+  cout << "ResourcesManager_cpp destructor" << endl;
 #endif
 }
 
@@ -124,9 +122,6 @@ std::vector<std::string>
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 				      const std::vector<std::string>& componentList) throw(ResourcesException)
 {
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//   cerr << "ResourcesManager_cpp::GetFittingResources" << endl;
-//#endif
   vector <std::string> vec;
 
   ParseXmlFile();
@@ -137,9 +132,6 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 #endif
 
   if (hostname[0] != '\0'){
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//    cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
-//#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
 	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
@@ -158,11 +150,13 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	// --- params.hostname is in the list of resources so return it.
 	vec.push_back(hostname);
       }
+	
     else if (_resourcesBatchList.find(hostname) != _resourcesBatchList.end())
     {
       // --- params.hostname is in the list of resources so return it.
       vec.push_back(hostname);
     }
+
     else
       {
 	// Cas d'un cluster: nombre de noeuds > 1
@@ -171,10 +165,6 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
 	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
 	      vec.push_back((*iter).first.c_str());
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//	      cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
-//	      << cpt << "] = " << (*iter).first.c_str() << endl ;
-//#endif
 	      cpt++;
 	    }
 	  }
@@ -182,7 +172,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	if(cpt==0){
 	  // --- user specified an unknown hostame so notify him.
 #if defined(_DEBUG_) || defined(_DEBUG)
-	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+	  cout << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
 #endif
 	  throw ResourcesException("unknown host");
 	}
@@ -300,7 +290,7 @@ void ResourcesManager_cpp::WriteInXmlFile()
   if (aFile == NULL)
     {
 #if defined(_DEBUG_) || defined(_DEBUG)
-      cerr << "Error opening file !"  << endl;
+      cout << "Error opening file !"  << endl;
 #endif
       return;
     }
@@ -326,7 +316,7 @@ void ResourcesManager_cpp::WriteInXmlFile()
   fclose(aFile);
   
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "WRITING DONE!" << endl;
+  cout << "WRITING DONE!" << endl;
 #endif
 }
 
@@ -350,9 +340,9 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       
       if (aDoc != NULL)
 	handler->ProcessXmlDocument(aDoc);
-#if defined(_DEBUG_) || defined(_DEBUG)
       else
-	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+	cout << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
 #endif
       
       // Free the document
@@ -360,9 +350,9 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
 
       fclose(aFile);
     }
-#if defined(_DEBUG_) || defined(_DEBUG)
   else
-    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
 #endif
   
   delete handler;

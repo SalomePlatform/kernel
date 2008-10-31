@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager_ePBS.hxx : emulation of PBS client
+ * BatchManager_eSGE.hxx : emulation of SGE client
  *
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
@@ -30,11 +30,9 @@
 #ifndef _BATCHMANAGER_eLSF_H_
 #define _BATCHMANAGER_eLSF_H_
 
-#include "Batch_Defines.hxx"
-
 #include "Batch_JobId.hxx"
 #include "Batch_JobInfo.hxx"
-#include "Batch_JobInfo_ePBS.hxx"
+#include "Batch_JobInfo_eSGE.hxx"
 #include "Batch_InvalidArgumentException.hxx"
 #include "Batch_ConnexionFailureException.hxx"
 #include "Batch_APIInternalFailureException.hxx"
@@ -49,12 +47,12 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BATCH_EXPORT BatchManager_ePBS : public BatchManager_eClient
+  class BatchManager_eSGE : public BatchManager_eClient
   {
   public:
     // Constructeur et destructeur
-    BatchManager_ePBS(const FactBatchManager * parent, const char * host="localhost", const char * protocol="ssh", const char * mpiImpl="nompi") throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
-    virtual ~BatchManager_ePBS();
+    BatchManager_eSGE(const FactBatchManager * parent, const char * host="localhost", const char * protocol="ssh", const char * mpiImpl="nompi") throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
+    virtual ~BatchManager_eSGE();
 
     // Recupere le nom du serveur par defaut
     // static string BatchManager_LSF::getDefaultServer();
@@ -76,6 +74,7 @@ namespace Batch {
 
   protected:
     void buildBatchScript(const Job & job) throw(EmulationException);
+    std::string getWallTime(const long edt);
 
   private:
 

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include "HDFascii.hxx"
+#include <stdlib.h>
 
 using namespace std;
 

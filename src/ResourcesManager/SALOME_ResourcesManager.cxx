@@ -209,9 +209,7 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
   p_ptr->nb_node = resource.DataForSort._nbOfNodes;
 
-  if( resource.mpi == indif )
-    p_ptr->mpiImpl = "indif";
-  else if( resource.mpi == lam )
+  if( resource.mpi == lam )
     p_ptr->mpiImpl = "lam";
   else if( resource.mpi == mpich1 )
     p_ptr->mpiImpl = "mpich1";
@@ -221,15 +219,15 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->mpiImpl = "openmpi";
   else if( resource.mpi == slurm )
     p_ptr->mpiImpl = "slurm";
-
-  p_ptr->isMPI=false;
-  if(resource.mpi != indif )
-    p_ptr->isMPI=true;
+  else if( resource.mpi == prun )
+    p_ptr->mpiImpl = "prun";
 
   if( resource.Batch == pbs )
     p_ptr->batch = "pbs";
   else if( resource.Batch == lsf )
     p_ptr->batch = "lsf";
+  else if( resource.Batch == sge )
+    p_ptr->batch = "sge";
 
   p_ptr->nb_component_nodes=1;
 

@@ -58,7 +58,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
   public:
 
     ResourcesManager_cpp(const char *xmlFilePath);
-    ResourcesManager_cpp();
+    ResourcesManager_cpp() throw(ResourcesException);
 
     ~ResourcesManager_cpp();
 

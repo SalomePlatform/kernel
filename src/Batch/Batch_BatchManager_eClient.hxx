@@ -53,7 +53,7 @@ namespace Batch {
   {
   public:
     // Constructeur et destructeur
-    BatchManager_eClient(const Batch::FactBatchManager * parent, const char* host="localhost", const char* protocol="ssh", const char* mpiImpl="indif");
+    BatchManager_eClient(const Batch::FactBatchManager * parent, const char* host="localhost", const char* protocol="ssh", const char* mpiImpl="mpich1");
     virtual ~BatchManager_eClient();
     void importOutputFiles( const Job & job, const std::string directory ) throw(EmulationException);
 

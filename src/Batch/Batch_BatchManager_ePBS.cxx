@@ -31,6 +31,9 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "Batch_BatchManager_ePBS.hxx"
 #ifdef WIN32
 # include <time.h>
@@ -236,6 +239,7 @@ namespace Batch {
 #ifndef WIN32 //TODO: need for porting on Windows
     int status;
     Parametre params = job.getParametre();
+    Environnement env = job.getEnvironnement();
     const long nbproc = params[NBPROC];
     const long edt = params[MAXWALLTIME];
     const long mem = params[MAXRAMSIZE];
@@ -243,13 +247,21 @@ namespace Batch {
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
     const string home = params[HOMEDIR];
-    string::size_type p1 = fileToExecute.find_last_of("/");
-    string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-    std::string fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
+    std::string rootNameToExecute;
+    std::string fileNameToExecute;
+    std::string filelogtemp;
+    if( fileToExecute.size() > 0 ){
+      string::size_type p1 = fileToExecute.find_last_of("/");
+      string::size_type p2 = fileToExecute.find_last_of(".");
+      rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
 
-    int idx = dirForTmpFiles.find("Batch/");
-    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+      int idx = dirForTmpFiles.find("Batch/");
+      filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+    }
+    else{
+      rootNameToExecute = "command";
+    }
 
     std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
@@ -260,13 +272,26 @@ namespace Batch {
       tempOutputFile << "#PBS -l walltime=" << edt*60 << endl ;
     if( mem > 0 )
       tempOutputFile << "#PBS -l mem=" << mem << "mb" << endl ;
-    tempOutputFile << "#PBS -o " << home << "/" << dirForTmpFiles << "/runSalome.output.log." << filelogtemp << endl ;
-    tempOutputFile << "#PBS -e " << home << "/" << dirForTmpFiles << "/runSalome.error.log." << filelogtemp << endl ;
+    if( fileToExecute.size() > 0 ){
+      tempOutputFile << "#PBS -o " << home << "/" << dirForTmpFiles << "/output.log." << filelogtemp << endl ;
+      tempOutputFile << "#PBS -e " << home << "/" << dirForTmpFiles << "/error.log." << filelogtemp << endl ;
+    }
+    else{
+      tempOutputFile << "#PBS -o " << dirForTmpFiles << "/" << env["LOGFILE"] << ".output.log" << endl ;
+      tempOutputFile << "#PBS -e " << dirForTmpFiles << "/" << env["LOGFILE"] << ".error.log" << endl ;
+    }
     if( workDir.size() > 0 )
       tempOutputFile << "cd " << workDir << endl ;
-    tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbproc);
-    tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,fileNameToExecute);
-    tempOutputFile << _mpiImpl->halt();
+    if( fileToExecute.size() > 0 ){
+      tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbproc);
+      tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,fileNameToExecute);
+      tempOutputFile << _mpiImpl->halt();
+    }
+    else{
+      tempOutputFile << "source " << env["SOURCEFILE"] << endl ;
+      tempOutputFile << env["COMMAND"];
+    }
+      
     tempOutputFile.flush();
     tempOutputFile.close();
 #ifdef WIN32

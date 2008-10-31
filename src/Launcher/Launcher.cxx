@@ -24,7 +24,9 @@
 #include "Batch_FactBatchManager_eLSF.hxx"
 #include "Batch_FactBatchManager_ePBS.hxx"
 #include "Batch_BatchManager_eClient.hxx"
-
+#include "Batch_FactBatchManager_eSGE.hxx"
+#include "SALOME_Launcher_Handler.hxx"
+#include "Launcher.hxx"
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
@@ -47,7 +49,7 @@ using namespace std;
 Launcher_cpp::Launcher_cpp()
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Launcher_cpp constructor" << endl;
+  cout << "Launcher_cpp constructor" << endl;
 #endif
 }
 
@@ -60,7 +62,7 @@ Launcher_cpp::Launcher_cpp()
 Launcher_cpp::~Launcher_cpp()
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Launcher_cpp destructor" << endl;
+  cout << "Launcher_cpp destructor" << endl;
 #endif
   std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
@@ -68,6 +70,114 @@ Launcher_cpp::~Launcher_cpp()
   std::map < std::pair<std::string,long> , Batch::Job* >::const_iterator it2;
   for(it2=_jobmap.begin();it2!=_jobmap.end();it2++)
     delete it2->second;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Submit a batch job on a cluster and returns the JobId
+ *  \param xmlExecuteFile     : to define the execution on the batch cluster
+ *  \param clusterName        : name of the batch cluster
+ */
+//=============================================================================
+long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
+			      const std::string clusterName) throw(LauncherException)
+{
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "BEGIN OF Launcher_cpp::submitJob" << endl;
+#endif
+  long jobId;
+  vector<string> aMachineList;
+
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
+  // verify if cluster is in resources catalog
+  machineParams params;
+  params.hostname = clusterName;
+  vector<string> aCompoList ;
+  try{
+    aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+  }
+  catch(const ResourcesException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+  if (aMachineList.size() == 0)
+    throw LauncherException("This cluster is not in resources catalog");
+
+  // Parsing xml file
+  ParseXmlFile(xmlExecuteFile);
+
+  // verify if clustername is in xml file
+  map<std::string,MachineParameters>::const_iterator it1 = _launch.MachinesList.find(clusterName);
+  if(it1 == _launch.MachinesList.end())
+    throw LauncherException("This cluster is not in xml file");
+
+  ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
+  string cname(p.Alias);
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "Choose cluster: " <<  cname << endl;
+#endif
+
+  // search batch manager for that cluster in map or instanciate one
+  map < string, Batch::BatchManager_eClient * >::const_iterator it2 = _batchmap.find(cname);
+  if(it2 == _batchmap.end())
+    {
+      _batchmap[cname] = FactoryBatchManager(p);
+      // TODO: Add a test for the cluster !
+    }
+    
+  try{
+
+    // directory on cluster to put files to execute
+    string remotedir = _launch.MachinesList[clusterName].WorkDirectory;
+    // local directory to get files to execute and to put results
+    string localdir = _launch.RefDirectory;
+
+    int idx1 = xmlExecuteFile.find_last_of("/");
+    if(idx1 == string::npos) idx1 = -1;
+    int idx2 = xmlExecuteFile.find(".xml");
+    string logfile = xmlExecuteFile.substr(idx1+1,idx2-idx1-1);
+    string ologfile = logfile + ".output.log";
+    string elogfile = logfile + ".error.log";
+
+    // create and submit job on cluster
+    Batch::Parametre param;
+    param[USER] = p.UserName;
+    param[EXECUTABLE] = "";
+    for(int i=0; i<_launch.InputFile.size();i++)
+      param[INFILE] += Batch::Couple( localdir + "/" + _launch.InputFile[i], remotedir + "/" + _launch.InputFile[i] );
+    for(int i=0; i<_launch.OutputFile.size();i++)
+      param[OUTFILE] += Batch::Couple( localdir + "/" + _launch.OutputFile[i], remotedir + "/" + _launch.OutputFile[i] );
+    param[OUTFILE] += Batch::Couple( localdir + "/" + ologfile, remotedir + "/" + ologfile );
+    param[OUTFILE] += Batch::Couple( localdir + "/" + elogfile, remotedir + "/" + elogfile );
+    param[NBPROC] = _launch.NbOfProcesses;
+    param[WORKDIR] = remotedir;
+    param[TMPDIR] = remotedir;
+    param[MAXWALLTIME] = getWallTime("");
+    param[MAXRAMSIZE] = getRamSize("");
+    param[HOMEDIR] = "";
+
+    Batch::Environnement env;
+    env["COMMAND"] = _launch.Command;
+    env["SOURCEFILE"] = _launch.MachinesList[clusterName].EnvFile;
+    env["LOGFILE"] = logfile;
+
+    Batch::Job* job = new Batch::Job(param,env);
+
+    // submit job on cluster
+    Batch::JobId jid = _batchmap[cname]->submitJob(*job);
+
+    // get job id in long
+    istringstream iss(jid.getReference());
+    iss >> jobId;
+
+    _jobmap[ pair<string,long>(cname,jobId) ] = job;
+  }
+  catch(const Batch::EmulationException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+
+  return jobId;
 }
 
 //=============================================================================
@@ -86,10 +196,13 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 				    const machineParams& params) throw(LauncherException)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "BEGIN OF Launcher_cpp::submitSalomeJob" << endl;
+  cout << "BEGIN OF Launcher_cpp::submitSalomeJob" << endl;
 #endif
   long jobId;
   vector<string> aMachineList;
+
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
 
   // check batch params
   if ( !check(batch_params) )
@@ -109,7 +222,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Choose cluster: " <<  clustername << endl;
+  cout << "Choose cluster: " <<  clustername << endl;
 #endif
   
   // search batch manager for that cluster in map or instanciate one
@@ -132,11 +245,10 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     for(int i=0;i<filesToExport.size();i++)
       param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
 
-
     ostringstream file_name_output;
-    file_name_output << "~/" << tmpdir << "/" << "runSalome.output.log*";
+    file_name_output << "~/" << tmpdir << "/" << "output.log*";
     ostringstream file_name_error;
-    file_name_error << "~/" << tmpdir << "/" << "runSalome.error.log*";
+    file_name_error << "~/" << tmpdir << "/" << "error.log*";
     ostringstream file_container_log;
     file_container_log << "~/" << tmpdir << "/" << "YACS_Server*";
     param[OUTFILE] = Batch::Couple( "", file_name_output.str());
@@ -180,9 +292,12 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-string Launcher_cpp::querySalomeJob( long id, 
-				     const machineParams& params) throw(LauncherException)
+string Launcher_cpp::queryJob( long id, 
+			       const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // find a cluster matching params structure
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
@@ -194,13 +309,28 @@ string Launcher_cpp::querySalomeJob( long id,
   if(it == _batchmap.end())
     throw LauncherException("no batchmanager for that cluster");
     
-  ostringstream oss;
-  oss << id;
-  Batch::JobId jobId( _batchmap[clustername], oss.str() );
+  Batch::Parametre par;
+  try{
+    ostringstream oss;
+    oss << id;
+    Batch::JobId jobId( _batchmap[clustername], oss.str() );
 
-  Batch::JobInfo jinfo = jobId.queryJob();
-  Batch::Parametre par = jinfo.getParametre();
+    Batch::JobInfo jinfo = jobId.queryJob();
+    par = jinfo.getParametre();
+  }
+  catch(const Batch::EmulationException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+
   return par[STATE];
+}
+
+string Launcher_cpp::queryJob( long id, 
+			       const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  return queryJob(id,params);
 }
 
 //=============================================================================
@@ -210,9 +340,12 @@ string Launcher_cpp::querySalomeJob( long id,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void Launcher_cpp::deleteSalomeJob( const long id, 
-				    const machineParams& params) throw(LauncherException)
+void Launcher_cpp::deleteJob( const long id, 
+			      const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // find a cluster matching params structure
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
@@ -231,6 +364,14 @@ void Launcher_cpp::deleteSalomeJob( const long id,
   jobId.deleteJob();
 }
 
+void Launcher_cpp::deleteJob( long id, 
+			      const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  deleteJob(id,params);
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  Get result files of job on a cluster
@@ -238,10 +379,13 @@ void Launcher_cpp::deleteSalomeJob( const long id,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void Launcher_cpp::getResultSalomeJob( const string directory,
-				       const long id, 
-				       const machineParams& params) throw(LauncherException)
+void Launcher_cpp::getResultsJob( const string directory,
+				  const long id, 
+				  const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
@@ -255,6 +399,15 @@ void Launcher_cpp::getResultSalomeJob( const string directory,
   Batch::Job* job = _jobmap[ pair<string,long>(clustername,id) ];
 
   _batchmap[clustername]->importOutputFiles( *job, directory );
+}
+
+void Launcher_cpp::getResultsJob( const std::string directory, 
+				  long id, 
+				  const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  getResultsJob(directory,id,params);
 }
 
 //=============================================================================
@@ -297,29 +450,41 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
   case slurm:
     mpi = "slurm";
     break;
+  case prun:
+    mpi = "prun";
+    break;
+  case nompi:
+    throw LauncherException("you must specified an mpi implementation for batch manager");
+    break;
   default:
-    mpi = "indif";
+    throw LauncherException("unknown mpi implementation");
     break;
   }    
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Instanciation of batch manager" << endl;
+  cout << "Instanciation of batch manager" << endl;
 #endif
   switch( params.Batch ){
   case pbs:
 #if defined(_DEBUG_) || defined(_DEBUG)
-    cerr << "Instantiation of PBS batch manager" << endl;
+    cout << "Instantiation of PBS batch manager" << endl;
 #endif
     fact = new Batch::FactBatchManager_ePBS;
     break;
   case lsf:
 #if defined(_DEBUG_) || defined(_DEBUG)
-    cerr << "Instantiation of LSF batch manager" << endl;
+    cout << "Instantiation of LSF batch manager" << endl;
 #endif
     fact = new Batch::FactBatchManager_eLSF;
     break;
+  case sge:
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "Instantiation of SGE batch manager" << endl;
+#endif
+    fact = new Batch::FactBatchManager_eSGE;
+    break;
   default:
 #if defined(_DEBUG_) || defined(_DEBUG)
-    cerr << "BATCH = " << params.Batch << endl;
+    cout << "BATCH = " << params.Batch << endl;
 #endif
     throw LauncherException("no batchmanager for that cluster");
   }
@@ -352,9 +517,9 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile << ":$PYTHONPATH" << endl ;
 
   // Test node rank
-  tempOutputFile << "if test " ;
+  tempOutputFile << "if test \"" ;
   tempOutputFile << mpiImpl->rank() ;
-  tempOutputFile << " = 0; then" << endl ;
+  tempOutputFile << "\" = \"0\"; then" << endl ;
 
   // -----------------------------------------------
   // Code for rank 0 : launch runAppli and a container
@@ -432,7 +597,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile.close();
   chmod(TmpFileName.c_str(), 0x1ED);
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << TmpFileName.c_str() << endl;
+  cout << TmpFileName.c_str() << endl;
 #endif
 
   delete mpiImpl;
@@ -457,8 +622,11 @@ MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
     return new MpiImpl_OPENMPI();
   case slurm:
     return new MpiImpl_SLURM();
-  case indif:
-    throw LauncherException("you must specify a mpi implementation in CatalogResources.xml file");
+  case prun:
+    return new MpiImpl_PRUN();
+  case nompi:
+    throw LauncherException("you must specified an mpi implementation for batch manager");
+    break;
   default:
     ostringstream oss;
     oss << mpi << " : not yet implemented";
@@ -501,8 +669,8 @@ bool Launcher_cpp::check(const batchParams& batch_params)
 {
   bool rtn = true;
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Job parameters are :" << endl;
-  cerr << "Directory : $HOME/Batch/$date" << endl;
+  cout << "Job parameters are :" << endl;
+  cout << "Directory : $HOME/Batch/$date" << endl;
 #endif
 
   // check expected_during_time (check the format)
@@ -541,7 +709,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
     edt_info = "No value given";
   }
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Expected during time : " << edt_info << endl;;
+  cout << "Expected during time : " << edt_info << endl;;
 #endif
 
   // check memory (check the format)
@@ -569,7 +737,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
     mem_info = "No value given";
   }
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Memory : " << mem_info << endl;
+  cout << "Memory : " << mem_info << endl;
 #endif
 
   // check nb_proc
@@ -585,7 +753,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
     nb_proc_info = nb_proc_value.str();
   }
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Nb of processors : " << nb_proc_info << endl;
+  cout << "Nb of processors : " << nb_proc_info << endl;
 #endif
 
   return rtn;
@@ -632,37 +800,70 @@ long Launcher_cpp::getRamSize(std::string mem)
     return 0;
 }
 
-std::string
-Launcher_cpp::getHomeDir(const ParserResourcesType& p, const std::string& tmpdir)
+void Launcher_cpp::ParseXmlFile(string xmlExecuteFile)
 {
-    std::string home;
-    std::string command;
-    int idx = tmpdir.find("Batch/");
-    std::string filelogtemp = tmpdir.substr(idx+6, tmpdir.length());
-    filelogtemp = "/tmp/logs" + filelogtemp + "_home";
+  SALOME_Launcher_Handler* handler = new SALOME_Launcher_Handler(_launch);
 
-    if( p.Protocol == rsh )
-      command = "rsh ";
-    else if( p.Protocol == ssh )
-      command = "ssh ";
-    else
-      throw LauncherException("Unknown protocol");
-    if (p.UserName != ""){
-      command += p.UserName;
-      command += "@";
-    }
-    command += p.Alias;
-    command += " 'echo $HOME' > ";
-    command += filelogtemp;
+  const char* aFilePath = xmlExecuteFile.c_str();
+  FILE* aFile = fopen(aFilePath, "r");
+  
+  if (aFile != NULL)
+    {
+      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+      
+      if (aDoc != NULL)
+	handler->ProcessXmlDocument(aDoc);
+      else{
 #if defined(_DEBUG_) || defined(_DEBUG)
-    std::cerr << command.c_str() << std::endl;
+	cout << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
 #endif
-    int status = system(command.c_str());
-    if(status)
-      throw LauncherException("Error of launching home command on remote host");
+      }
+      
+      // Free the document
+      xmlFreeDoc(aDoc);
 
-    std::ifstream file_home(filelogtemp.c_str());
-    std::getline(file_home, home);
-    file_home.close();
-    return home;
+      fclose(aFile);
+    }
+  else{
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "Launcher_cpp: file "<<aFilePath<<" is not readable." << endl;
+#endif
+  }
+  
+  delete handler;
+
+}
+
+std::string Launcher_cpp::getHomeDir(const ParserResourcesType& p, const std::string& tmpdir)
+{
+  std::string home;
+  std::string command;
+  int idx = tmpdir.find("Batch/");
+  std::string filelogtemp = tmpdir.substr(idx+6, tmpdir.length());
+  filelogtemp = "/tmp/logs" + filelogtemp + "_home";
+  
+  if( p.Protocol == rsh )
+    command = "rsh ";
+  else if( p.Protocol == ssh )
+    command = "ssh ";
+  else
+    throw LauncherException("Unknown protocol");
+  if (p.UserName != ""){
+    command += p.UserName;
+    command += "@";
+  }
+  command += p.Alias;
+  command += " 'echo $HOME' > ";
+  command += filelogtemp;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << command.c_str() << endl;
+#endif
+  int status = system(command.c_str());
+  if(status)
+    throw LauncherException("Error of launching home command on remote host");
+  
+  std::ifstream file_home(filelogtemp.c_str());
+  std::getline(file_home, home);
+  file_home.close();
+  return home;
 }

@@ -35,7 +35,7 @@
 #include "PaCO++.h"
 #endif
 
-#define TIME_OUT_TO_LAUNCH_CONT 21
+#define TIME_OUT_TO_LAUNCH_CONT 61
 
 using namespace std;
 
@@ -308,16 +308,17 @@ StartContainer(const Engines::MachineParameters& params,
   // launch container with a system call
   int status=system(command.c_str());
 
-  RmTmpFile(); // command file can be removed here
 
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status -1)");
+    RmTmpFile(); // command file can be removed here
     return Engines::Container::_nil();
   }
   else if (status == 217){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status 217)");
+    RmTmpFile(); // command file can be removed here
     return Engines::Container::_nil();
   }
   else{
@@ -349,6 +350,7 @@ StartContainer(const Engines::MachineParameters& params,
         ret->logfilename(logFilename.c_str());
       }
 
+    RmTmpFile(); // command file can be removed here
     return ret;
   }
 }

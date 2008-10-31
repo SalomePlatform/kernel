@@ -32,6 +32,7 @@
 
 #include <SALOME_ResourcesCatalog_Parser.hxx>
 #include "ResourcesManager.hxx"
+#include "SALOME_Launcher_Parser.hxx"
 
 #include <string>
 #include <vector>
@@ -65,15 +66,21 @@ public:
   Launcher_cpp();
   ~Launcher_cpp();
 
+  long submitJob(const std::string xmlExecuteFile,
+		 const std::string clusterName) throw(LauncherException);
+
   long submitSalomeJob(const std::string fileToExecute ,
 		       const std::vector<std::string>& filesToExport ,
 		       const std::vector<std::string>& filesToImport ,
 		       const batchParams& batch_params,
 		       const machineParams& params) throw(LauncherException);
 
-  std::string querySalomeJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void deleteSalomeJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void getResultSalomeJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
+  std::string queryJob( const long jobId, const machineParams& params) throw(LauncherException);
+  std::string queryJob( const long jobId, const std::string clusterName);
+  void deleteJob( const long jobId, const machineParams& params) throw(LauncherException);
+  void deleteJob( const long jobId, const std::string clusterName);
+  void getResultsJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
+  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName );
 
   void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
 
@@ -92,6 +99,11 @@ protected:
   bool check(const batchParams& batch_params);
   long getWallTime(std::string edt);
   long getRamSize(std::string mem);
+  void ParseXmlFile(std::string xmlExecuteFile);
+
+  //! will contain the informations on the data type catalog(after parsing)
+  ParserLauncherType _launch;
+
 };
 
 #endif

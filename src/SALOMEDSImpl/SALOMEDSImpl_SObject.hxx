@@ -30,6 +30,7 @@
 #include "DF_Attribute.hxx"
 #include <string>
 #include <vector>
+#include <string.h>
 
 class SALOMEDSImpl_SComponent;
 class SALOMEDSImpl_Study;

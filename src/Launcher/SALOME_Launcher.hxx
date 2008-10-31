@@ -41,6 +41,9 @@ public:
   SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
   ~SALOME_Launcher();
 
+  CORBA::Long submitJob(const char * xmlExecuteFile,
+			const char * clusterName);
+
   CORBA::Long submitSalomeJob(const char * fileToExecute ,
 			      const Engines::FilesList& filesToExport ,
 			      const Engines::FilesList& filesToImport ,
@@ -50,6 +53,9 @@ public:
   char* querySalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
   void deleteSalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
   void getResultSalomeJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* queryJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultsJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
 
   CORBA::Boolean testBatch(const Engines::MachineParameters& params);
 

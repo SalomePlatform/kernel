@@ -26,6 +26,7 @@
 #include "Basics_DirUtils.hxx"
 
 #include <errno.h>
+#include <stdlib.h>
 
 #ifndef WIN32
 # include <sys/stat.h>

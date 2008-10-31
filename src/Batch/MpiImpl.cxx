@@ -98,12 +98,12 @@ MpiImpl_MPICH1::~MpiImpl_MPICH1()
 
 string MpiImpl_MPICH1::size()
 {
-  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
+  return "${MPIRUN_NPROCS}";
 }
 
 string MpiImpl_MPICH1::rank()
 {
-  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
+  return "${MPIRUN_RANK}";
 }
 
 string MpiImpl_MPICH1::boot(const string machinefile, const unsigned int nbnodes)
@@ -147,7 +147,10 @@ string MpiImpl_MPICH2::rank()
 string MpiImpl_MPICH2::boot(const string machinefile, const unsigned int nbnodes)
 {
   ostringstream oss;
-  oss << "mpdboot -n " << nbnodes << " -f " << machinefile << endl;
+  oss << "mpdboot" << " -n " << nbnodes;
+  if (machinefile!="")
+    oss  << " -f " << machinefile;
+  oss << endl;
   return oss.str();
 }
 
@@ -241,3 +244,40 @@ string MpiImpl_SLURM::halt()
   return "";
 }
 
+// prun implementation
+// Constructor
+MpiImpl_PRUN::MpiImpl_PRUN() : MpiImpl()
+{
+}
+
+// Destructor
+MpiImpl_PRUN::~MpiImpl_PRUN()
+{
+}
+
+string MpiImpl_PRUN::size()
+{
+  return "${RMS_NPROCS}";
+}
+
+string MpiImpl_PRUN::rank()
+{
+  return "${RMS_RANK}";
+}
+
+string MpiImpl_PRUN::boot(const string machinefile, const unsigned int nbnodes)
+{
+  return "";
+}
+
+string MpiImpl_PRUN::run(const string machinefile, const unsigned int nbproc, const string fileNameToExecute)
+{
+  ostringstream oss;
+  oss << "prun -n " << nbproc << " " << "-p mpi " << fileNameToExecute << endl;
+  return oss.str();
+}
+
+string MpiImpl_PRUN::halt()
+{
+  return "";
+}
