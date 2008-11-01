@@ -33,7 +33,12 @@
 #include <sys/stat.h>
 #include "Batch_BatchManager_eSGE.hxx"
 #include <stdlib.h>
+#ifdef WIN32
+# include <time.h>
+# include <io.h>
+#else
 #include <libgen.h>
+#endif
 
 using namespace std;
 
@@ -227,6 +232,8 @@ namespace Batch {
 
   void BatchManager_eSGE::buildBatchScript(const Job & job) throw(EmulationException)
   {
+#ifndef WIN32
+    //TODO porting on Win32 platform
     int status;
     Parametre params = job.getParametre();
     Environnement env = job.getEnvironnement();
@@ -313,7 +320,7 @@ namespace Batch {
       throw EmulationException("Error of connection on remote host");    
 
     RmTmpFile(TmpFileName);
-    
+#endif //WIN32    
   }
 
   std::string BatchManager_eSGE::getWallTime(const long edt)

@@ -31,12 +31,13 @@
 #define _JOBINFO_SGE_H_
 
 #include <string>
+#include "Batch_Defines.hxx"
 #include "Batch_RunTimeException.hxx"
 #include "Batch_JobInfo.hxx"
 
 namespace Batch {
 
-  class JobInfo_eSGE : public JobInfo
+  class BATCH_EXPORT JobInfo_eSGE : public JobInfo
   {
   public:
     // Constructeurs et destructeur
