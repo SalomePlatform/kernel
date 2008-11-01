@@ -53,9 +53,9 @@ public:
   char* querySalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
   void deleteSalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
   void getResultSalomeJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
-  char* queryJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultsJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* queryJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultsJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
 
   CORBA::Boolean testBatch(const Engines::MachineParameters& params);
 
