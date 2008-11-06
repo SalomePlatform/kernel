@@ -79,6 +79,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_cpu_freq_mhz;
     const char *test_nb_of_nodes;
     const char *test_nb_of_proc_per_node;
+    const char *test_batch_queue;
+    const char *test_user_commands;
 
   };
 

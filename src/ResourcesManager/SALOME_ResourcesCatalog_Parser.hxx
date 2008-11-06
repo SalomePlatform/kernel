@@ -85,6 +85,8 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
     std::string AppliPath;
     std::vector<std::string> ModulesList;
     std::string OS;
+    std::string batchQueue;
+    std::string userCommands;
 
     void Print() const;
     void Clear();

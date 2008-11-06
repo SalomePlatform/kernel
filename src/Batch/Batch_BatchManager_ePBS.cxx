@@ -247,6 +247,7 @@ namespace Batch {
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
     const string home = params[HOMEDIR];
+    const std::string queue = params[QUEUE];
     std::string rootNameToExecute;
     std::string fileNameToExecute;
     std::string filelogtemp;
@@ -268,6 +269,8 @@ namespace Batch {
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl;
+    if (queue != "")
+      tempOutputFile << "#BSUB -q " << queue << endl;
     if( edt > 0 )
       tempOutputFile << "#PBS -l walltime=" << edt*60 << endl ;
     if( mem > 0 )

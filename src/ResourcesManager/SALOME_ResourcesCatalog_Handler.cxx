@@ -65,6 +65,8 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
   test_cpu_freq_mhz = "CPUFreqMHz";
   test_nb_of_nodes = "nbOfNodes";
   test_nb_of_proc_per_node = "nbOfProcPerNode";
+  test_batch_queue = "batchQueue";
+  test_user_commands = "userCommands";
 }
 
 //=============================================================================
@@ -131,6 +133,24 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  else
 	    _resource.Alias = "";
 
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_batch_queue))
+            {
+	      xmlChar* batch_queue = xmlGetProp(aCurNode, (const xmlChar*)test_batch_queue);
+	      _resource.batchQueue = (const char*)batch_queue;
+              xmlFree(batch_queue);
+            }
+	  else
+	    _resource.batchQueue = "";
+
+	  if (xmlHasProp(aCurNode, (const xmlChar*)test_user_commands))
+            {
+	      xmlChar* user_commands= xmlGetProp(aCurNode, (const xmlChar*)test_user_commands);
+	      _resource.userCommands = (const char*)user_commands;
+              xmlFree(user_commands);
+            }
+	  else
+	    _resource.userCommands = "";
+	  
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_protocol))
             {
 	      xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
@@ -350,7 +370,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
       xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
       xmlNewProp(node, BAD_CAST test_alias, BAD_CAST (*iter).second.Alias.c_str());
-      
+      xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
+      xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
+  
       switch ((*iter).second.Protocol)
         {
         case rsh:

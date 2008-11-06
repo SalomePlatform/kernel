@@ -264,6 +264,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time);
     param[MAXRAMSIZE] = getRamSize(batch_params.mem);
     param[HOMEDIR] = getHomeDir(p, tmpdir);
+    param[QUEUE] = p.batchQueue;
 
     Batch::Environnement env;
 
@@ -516,6 +517,10 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile << dirForTmpFiles ;
   tempOutputFile << ":$PYTHONPATH" << endl ;
 
+  // Adding user script
+  std::string script = params.userCommands;
+  if (script != "")
+    tempOutputFile << script << endl;
   // Test node rank
   tempOutputFile << "if test \"" ;
   tempOutputFile << mpiImpl->rank() ;
