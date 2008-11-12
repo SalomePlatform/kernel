@@ -6,7 +6,7 @@ ELSE(WINDOWS)
 ENDIF(WINDOWS)
 
 EXECUTE_PROCESS(
-  COMMAND python -c "import sys; sys.stdout.write(sys.version[:3])"
+  COMMAND ${PYTHON_EXECUTABLE} -c "import sys; sys.stdout.write(sys.version[:3])"
   OUTPUT_VARIABLE PYTHON_VERSION
   )
 
