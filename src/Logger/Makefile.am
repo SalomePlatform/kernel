@@ -31,6 +31,7 @@ SALOME_Logger_Server_CPPFLAGS =\
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(srcdir)/../Basics \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # Libraries targets
