@@ -38,7 +38,7 @@
 /*! \class ConnectionManager_i
  *  \brief This class implements the interface Engines::ConnectionManager.
  */
-class DSC_BASIC_EXPORT ConnectionManager_i :
+class ConnectionManager_i :
   public virtual POA_Engines::ConnectionManager
 {
   public :
