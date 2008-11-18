@@ -495,7 +495,11 @@ void SALOME_LifeCycleCORBA::killOmniNames()
         + portNumber
         + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
       MESSAGE(cmd);
-      system ( cmd.c_str() );
+      try {
+	system ( cmd.c_str() );
+      }
+      catch ( ... ) {
+      }
     }
   
   // NPAL 18309  (Kill Notifd)
@@ -509,9 +513,9 @@ void SALOME_LifeCycleCORBA::killOmniNames()
       cmd += string("m={}; ");
       cmd += string("[ m.update(i) for i in pids ]; ");
       cmd += string("pids=filter(lambda a: 'notifd' in m[a], m.keys()); ");
-      cmd += string("[ os.kill(pid, 9) for pid in pids ]; ");
+      cmd += string("[ os.system('kill -9 %d'%pid) for pid in pids ]; ");
       cmd += string("os.remove(filedict); ");
-      cmd  = string("python -c \"") + cmd +"\" > /dev/null";
+      cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
       MESSAGE(cmd);
       system( cmd.c_str() );
     }
