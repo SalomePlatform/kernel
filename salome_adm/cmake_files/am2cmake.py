@@ -667,6 +667,17 @@ class CMakeFile(object):
     def setCompilationFlags(self, newlines):
         newlines.append(r'''
         SET(var)
+        IF(WINDOWS)
+        IF(name STREQUAL SalomeIDLKernel)
+        SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL SalomeIDLKernel)
+        IF(name STREQUAL SalomeDS)
+        SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL SalomeDS)
+        IF(name STREQUAL SALOMEDS_Client_exe)
+        SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL SALOMEDS_Client_exe)
+        ENDIF(WINDOWS)
 	SET(var ${var} ${PLATFORM_CPPFLAGS})
 	SET(var ${var} ${PTHREADS_INCLUDES})
 	SET(var ${var} ${${amname}_CPPFLAGS})
