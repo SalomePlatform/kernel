@@ -247,7 +247,13 @@ class CMakeFile(object):
                 # SET(ENABLE_QXGRAPHVIEWER ON)
                 """)
                 pass
+            # --
             pass
+        # --
+        newlines.append("""
+        SET(SUBDIRS)
+        """)
+        # --
         return
     
     def treatLine(self, line, newlines, opened_ifs):
@@ -439,7 +445,7 @@ class CMakeFile(object):
         # --
         # convert the SUBDIRS in cmake grammar
         # --
-        if self.__thedict__.has_key("SUBDIRS"):
+        if 1: # self.__thedict__.has_key("SUBDIRS"):
             newlines.append(r'''
             FOREACH(dir ${SUBDIRS})
             ADD_SUBDIRECTORY(${dir})
