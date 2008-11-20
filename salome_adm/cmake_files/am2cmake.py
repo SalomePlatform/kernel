@@ -504,7 +504,15 @@ class CMakeFile(object):
             INSTALL(CODE "SET(DIR lib/python${PYTHON_VERSION}/site-packages/salome)")
             INSTALL(CODE "SET(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})")
             INSTALL(CODE "SET(OMNIORB_IDL_PYTHON ${OMNIORB_IDL_PYTHON})")
+            # --
+            SET(flags)
+            FOREACH(f ${IDLPYFLAGS})
+            SET(flags "${flags} ${f}")
+            ENDFOREACH(f ${IDLPYFLAGS})
+            SET(IDLPYFLAGS ${flags})
+            STRING(REPLACE "\\\\" "/" IDLPYFLAGS ${IDLPYFLAGS})
             INSTALL(CODE "SET(IDLPYFLAGS ${IDLPYFLAGS})")
+            # --
             ''')
             if self.module == "kernel":
                 newlines.append('''
@@ -512,6 +520,7 @@ class CMakeFile(object):
                 ''')
             else:
                 newlines.append('''
+                STRING(REPLACE "\\\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
                 INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_python_from_idl.cmake)
                 ''')
                 pass
