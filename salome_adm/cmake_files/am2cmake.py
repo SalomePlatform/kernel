@@ -608,6 +608,7 @@ class CMakeFile(object):
             "dist_salomem4_DATA"          :  "salome_adm/unix/config_files",
             "dist_salome4depr_DATA"       :  "salome_adm/unix/config_files/DEPRECATED",
             "dist_admlocalm4_DATA"        :  "adm_local/unix/config_files",
+            "dist_admlocal_cmake_DATA"    :  "adm_local/cmake_files",
             "salomeinclude_DATA"          :  "include/salome",
             "salomeinclude_HEADERS"       :  "include/salome",
             "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(self.module),
