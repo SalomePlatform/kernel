@@ -86,6 +86,7 @@ int main(int argc, char **argv)
       else
 		  myLogger = new Logger(argv[1]);
 
+      myLogger->SetOrb(orb);
       myLoggerRef = myLogger->_this();
       CosNaming::Name name;
       name.length(1);

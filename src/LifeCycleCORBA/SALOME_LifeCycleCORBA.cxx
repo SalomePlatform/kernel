@@ -47,6 +47,7 @@
 #include CORBA_CLIENT_HEADER(DSC_Engines)
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
 #include CORBA_CLIENT_HEADER(SALOMEDS)
+#include CORBA_CLIENT_HEADER(Logger)
 
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
@@ -477,6 +478,42 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   Registry::Components_var registry = Registry::Components::_narrow(objR);
   if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
       registry->Shutdown();
+
+  // 6) Logger
+  int argc = 0;
+  char *xargv = (char*)"";
+  char **argv = &xargv;
+  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+
+  CORBA::Object_var objLog = CORBA::Object::_nil();
+  CosNaming::NamingContext_var inc;
+  CORBA::Object_var theObj = CORBA::Object::_nil();
+  std::string stdname = "Logger";
+  CosNaming::Name name;
+  name.length(1);
+  name[0].id = CORBA::string_dup(stdname.c_str());
+  try
+    { 
+      if(!CORBA::is_nil(orb)) 
+	theObj = orb->resolve_initial_references("NameService");
+      if (!CORBA::is_nil(theObj))
+	inc = CosNaming::NamingContext::_narrow(theObj);
+    }
+  catch(...)
+    {
+    }
+  if(!CORBA::is_nil(inc)) {
+    try
+      {
+	objLog = inc->resolve(name);
+	SALOME_Logger::Logger_var logger = SALOME_Logger::Logger::_narrow(objLog);
+	if ( !CORBA::is_nil(logger) )
+	  logger->shutdown();
+      }
+    catch(...)
+      {
+      }
+  }
 }
 
 //=============================================================================
