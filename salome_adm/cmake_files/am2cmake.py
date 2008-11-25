@@ -109,7 +109,15 @@ class CMakeFile(object):
         content = content.replace("-include SALOMEconfig.h", "")
         
         # --
-        cas_list = ["TKV3d", "TKOpenGl"]
+        cas_list = [
+            "TKV3d",
+            "TKOpenGl",
+            "TKBool",
+            "TKBRep",
+            "TKIGES",
+            "TKSTEP",
+            "TKSTL",
+            ]
         kernel_list  = [
             "SalomeIDLKernel",
             "SalomeHDFPersist",
@@ -130,7 +138,13 @@ class CMakeFile(object):
             "SALOMEBasics",
             "SalomeLauncher",
             ]
-        full_list = cas_list + kernel_list
+        gui_list = [
+            "qtx",
+            "suit",
+            "SalomeApp",
+            "SalomeSession",
+            ]
+        full_list = cas_list + kernel_list + gui_list
         for key in full_list:
             content = content.replace("-l%s"%(key), "${%s}"%(key))
             pass
@@ -205,7 +219,7 @@ class CMakeFile(object):
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                 """)
                 pass
-            else:
+            elif self.module == "gui":
                 newlines.append("""
                 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
                 INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
@@ -224,6 +238,28 @@ class CMakeFile(object):
                 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindVTK.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindQWT.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
+                """)
+            else:
+                newlines.append("""
+                SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+                SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindVTK.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQWT.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
+                INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
                 """)
                 pass
             # --
@@ -245,6 +281,11 @@ class CMakeFile(object):
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
                 # SET(ENABLE_QXGRAPHVIEWER ON)
+                """)
+                pass
+            elif self.module == "geom":
+                newlines.append("""
+                SET(GEOM_ENABLE_GUI ON)
                 """)
                 pass
             # --
@@ -575,6 +616,25 @@ class CMakeFile(object):
         
         # --
         # --
+        key = "UIC_FILES"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${UIC_FILES})
+            STRING(REPLACE "ui_" "" input ${output})
+            STRING(REPLACE ".h" ".ui" input ${input})
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${QT_UIC_EXECUTABLE} -o ${output} ${input}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${UIC_FILES})
+            ''')
+            pass
+        
+        # --
+        # --
         key = "QRC_FILES"
         if self.__thedict__.has_key(key):
             newlines.append('''
@@ -628,6 +688,7 @@ class CMakeFile(object):
             "salomeinclude_HEADERS"       :  "include/salome",
             "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(self.module),
             "nodist_salomeres_DATA"       :  "share/salome/resources/%s"%(self.module),
+            "nodist_salomeres_SCRIPTS"    :  "share/salome/resources/%s"%(self.module),
             "dist_salomescript_SCRIPTS"   :  "bin/salome",
             "dist_salomescript_DATA"      :  "bin/salome",
             "dist_salomescript_PYTHON"    :  "bin/salome",
@@ -694,6 +755,14 @@ class CMakeFile(object):
         SET(var ${var} -DNOGDI)
         ENDIF(name STREQUAL SALOMEDS_Client_exe)
         ENDIF(WINDOWS)
+        ''')
+        if self.module in ["geom"]:
+            newlines.append(r'''
+            SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
+            SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
+            ''')
+            pass
+        newlines.append(r'''
 	SET(var ${var} ${PLATFORM_CPPFLAGS})
 	SET(var ${var} ${PTHREADS_INCLUDES})
 	SET(var ${var} ${${amname}_CPPFLAGS})
@@ -909,7 +978,17 @@ class CMakeFile(object):
         GET_FILENAME_COMPONENT(ext ${f} EXT)
         IF(ext STREQUAL .qm)
         STRING(REGEX REPLACE .qm .ts input ${f})
-        SET(input ${CMAKE_CURRENT_SOURCE_DIR}/resources/${input})
+        ''')
+        if self.module in ["kernel", "gui"]:
+            newlines.append(r'''
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/resources/${input})
+            ''')
+        else:
+            newlines.append(r'''
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            ''')
+            pass
+        newlines.append(r'''
         SET(output ${CMAKE_CURRENT_BINARY_DIR}/${f})
         # ADD_CUSTOM_COMMAND(
         # OUTPUT ${output}
