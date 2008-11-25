@@ -821,6 +821,7 @@ class CMakeFile(object):
             ELSE(BEGIN_WITH_lib)
             IF(WINDOWS)
             INSTALL(TARGETS ${name} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome)
+            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/salome/${name}.dll DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}_d.pyd)
             ELSE(WINDOWS)
             GET_TARGET_PROPERTY(version ${name} VERSION)
             GET_TARGET_PROPERTY(soversion ${name} SOVERSION)
