@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
