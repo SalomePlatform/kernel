@@ -117,6 +117,8 @@ class CMakeFile(object):
             "TKIGES",
             "TKSTEP",
             "TKSTL",
+            "TKMesh",
+            "TKBO",
             ]
         kernel_list  = [
             "SalomeIDLKernel",
