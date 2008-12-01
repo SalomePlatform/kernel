@@ -484,7 +484,9 @@ class CMakeFile(object):
         if 1: # self.__thedict__.has_key("SUBDIRS"):
             newlines.append(r'''
             FOREACH(dir ${SUBDIRS})
+            IF(NOT dir STREQUAL .)
             ADD_SUBDIRECTORY(${dir})
+            ENDIF(NOT dir STREQUAL .)
             ENDFOREACH(dir ${SUBDIRS})
             ''')
             pass
@@ -912,6 +914,8 @@ class CMakeFile(object):
         newlines.append(r'''
         SET(name "${amname}_exe")
         SET(srcs ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
+        LIST(LENGTH srcs nb)
+        IF(nb)
         ADD_EXECUTABLE(${name} ${srcs})
         ''')
         # --
@@ -931,6 +935,10 @@ class CMakeFile(object):
         SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
         INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION bin/salome PERMISSIONS ${PERMS} RENAME ${amname})
         ENDIF(WINDOWS)
+        ''')
+        # --
+        newlines.append(r'''
+        ENDIF(nb)
         ''')
         # --
         newlines.append(r'''
