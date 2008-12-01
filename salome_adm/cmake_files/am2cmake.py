@@ -102,7 +102,7 @@ class CMakeFile(object):
         # --
         # Replace the composed lines separated by "\\n" by an unique line
         # --
-        content = p_multiline.sub(r'', content)
+        content = p_multiline.sub(r' ', content)
         
         # --
         content = content.replace("-no-undefined -version-info=0:0:0", "")
