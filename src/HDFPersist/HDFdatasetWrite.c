@@ -42,7 +42,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
 {
   hdf_idt datatype;
   hdf_err ret;
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   int isI32BE = 0;
   int size = 0;
 #endif
@@ -50,7 +50,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
   if ((datatype = H5Dget_type(id)) < 0)
     return -1;
 
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   if((H5Tget_class(datatype) == H5T_INTEGER) && (H5Tget_size(datatype) == 4)) {
     isI32BE = 1; /* See HDFdatasetCreate */
 
@@ -75,7 +75,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
   if ((ret = H5Dwrite(id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, val)) < 0) 
     return -1;
 
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   if (isI32BE && (H5Tconvert(H5T_STD_I32BE, H5T_NATIVE_INT, size, (void *)val, NULL, (hid_t)0) < 0)) 
     return -1;
 #endif

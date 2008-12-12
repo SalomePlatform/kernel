@@ -41,14 +41,14 @@ hdf_err HDFattrWrite(hdf_idt id, void *val)
 {
   hdf_idt type_id;
   int ret = 0;
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   int isI32BE = 0;
 #endif
 
   if ((type_id = H5Aget_type(id)) < 0)
     return -1;
 
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   if((H5Tget_class(type_id) == H5T_INTEGER) && (H5Tget_size(type_id) == 4)) {
     isI32BE = 1; /* See HDFattrCreate */
     if (H5Tconvert(H5T_NATIVE_INT,H5T_STD_I32BE,1,(void *)val,NULL,(hid_t)NULL) < 0)
@@ -59,7 +59,7 @@ hdf_err HDFattrWrite(hdf_idt id, void *val)
   ret = H5Awrite(id,type_id, val);
 
 
-#ifdef PCLINUX
+#if defined (PCLINUX) || defined (PCLINUX64)
   if (isI32BE && (H5Tconvert(H5T_STD_I32BE,H5T_NATIVE_INT,1,(void *)val,NULL,(hid_t)NULL) < 0))
     return -1;
 #endif
