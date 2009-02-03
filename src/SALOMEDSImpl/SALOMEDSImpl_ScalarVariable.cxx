@@ -24,6 +24,8 @@
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 #include "SALOMEDSImpl_GenericVariable.hxx"
 #include <iostream>
+#include <cstdlib>
+
 using namespace std;
 
 //============================================================================

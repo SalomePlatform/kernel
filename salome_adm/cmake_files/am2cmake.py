@@ -135,6 +135,11 @@ class CMakeFile(object):
         content = content.replace("-no-undefined -version-info 2:5:1", "")
         
         # --
+        # Compatibility netgen plugin
+        # --
+        content = content.replace("../NETGEN/libNETGEN.la", "${NETGEN_LIBS}")
+        
+        # --
         cas_list = [
             "BinLPlugin",
             "BinPlugin",
@@ -318,8 +323,29 @@ class CMakeFile(object):
             "MEDWrapper_V2_2",
             "SalomeIDLMED",
             ]
+        smesh_list = [
+            "MEFISTO2D",
+            "MeshDriverDAT",
+            "MeshDriverMED",
+            "MeshDriver",
+            "MeshDriverSTL",
+            "MeshDriverUNV",
+            "SalomeIDLSMESH",
+            "SMDS",
+            "SMESHClient",
+            "SMESHControls",
+            "SMESHDS",
+            "SMESHEngine",
+            "SMESHFiltersSelection",
+            "SMESHimpl",
+            "SMESHObject",
+            "SMESH",
+            "StdMeshersEngine",
+            "StdMeshersGUI",
+            "StdMeshers",
+            ]
         full_list = cas_list + kernel_list + gui_list
-        full_list += geom_list + med_list
+        full_list += geom_list + med_list + smesh_list
         # --
         full_list += [
             "boost_thread",
@@ -460,6 +486,17 @@ class CMakeFile(object):
                         INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                         """)
                         pass
+                    if self.module == "netgenplugin":
+                        newlines.append("""
+                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -503,6 +540,16 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(MED_ENABLE_KERNEL ON)
                 SET(MED_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "smesh":
+                newlines.append("""
+                SET(SMESH_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "netgenplugin":
+                newlines.append("""
+                SET(NETGENPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
             # --
@@ -957,6 +1004,21 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
+        IF(WINDOWS)
+        SET(targets)
+        SET(targets ${targets} MEFISTO2D)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        SET(dir $ENV{F2CHOME})
+        STRING(REPLACE "\\\\" "/" dir ${dir})
+        SET(libadd ${libadd} ${dir}/LIBF77.lib)
+        SET(libadd ${libadd} ${dir}/LIBI77.lib)
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
+        ENDIF(WINDOWS)
+        ''')
+        # --
+        newlines.append(r'''
         SET(libs ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
         ''')
         if key == "bin_PROGRAMS":
@@ -998,6 +1060,13 @@ class CMakeFile(object):
         SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
         ENDIF(name STREQUAL ${target})
         ENDFOREACH(target ${targets})
+        SET(targets)
+        SET(targets ${targets} MEFISTO2D)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
         ENDIF(WINDOWS)
         ''')
         # --
@@ -1023,9 +1092,24 @@ class CMakeFile(object):
         SET(targets ${targets} GEOMEngine)
         SET(targets ${targets} MEDEngine)
         SET(targets ${targets} SMESHEngine)
+        SET(targets ${targets} SMESH)
         FOREACH(target ${targets})
         IF(name STREQUAL ${target})
         SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
+        ENDIF(WINDOWS)
+        ''')
+        # --
+        newlines.append(r'''
+        IF(WINDOWS)
+        SET(targets)
+        SET(targets ${targets} MEFISTO2D)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        SET(dir $ENV{F2CHOME})
+        STRING(REPLACE "\\\\" "/" dir ${dir})
+        SET(var ${var} -I${dir})
         ENDIF(name STREQUAL ${target})
         ENDFOREACH(target ${targets})
         ENDIF(WINDOWS)
@@ -1121,6 +1205,17 @@ class CMakeFile(object):
         FOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
         GET_FILENAME_COMPONENT(ext ${src} EXT)
         IF(ext STREQUAL .f)
+        IF(src STREQUAL trte.f)
+        SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${src})
+        STRING(REPLACE ".f" ".c" src ${src})
+        SET(src ${CMAKE_CURRENT_BINARY_DIR}/${src})
+        SET(output ${src})
+        ADD_CUSTOM_COMMAND(
+        OUTPUT ${output}
+        COMMAND f2c ${input}
+        MAIN_DEPENDENCY ${input}
+        )
+        ELSE(src STREQUAL trte.f)
         SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${src})
         STRING(REPLACE ".f" ".o" src ${src})
         SET(src ${CMAKE_CURRENT_BINARY_DIR}/${src})
@@ -1135,6 +1230,7 @@ class CMakeFile(object):
         COMMAND ${F77} -c -o ${output} ${input}
         MAIN_DEPENDENCY ${input}
         )
+        ENDIF(src STREQUAL trte.f)
         ENDIF(ext STREQUAL .f)
         SET(srcs ${srcs} ${src})
         ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
@@ -1178,6 +1274,7 @@ class CMakeFile(object):
         newlines.append(r'''
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL %s_EXPORTS)
         '''%(upper_name))
+        # --
         newlines.append(r'''
         IF(name STREQUAL SalomeLauncher)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SALOME%s_EXPORTS)
@@ -1277,6 +1374,21 @@ class CMakeFile(object):
         IF(name STREQUAL MEFISTO2D)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEFISTO2D_EXPORTS)
         ENDIF(name STREQUAL MEFISTO2D)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL SMESHObject)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SMESHOBJECT_EXPORTS)
+        ENDIF(name STREQUAL SMESHObject)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL _libSMESH_Swig)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SMESH_SWIG_EXPORTS)
+        ENDIF(name STREQUAL _libSMESH_Swig)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL NETGENPluginGUI)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL NETGENPLUGIN_GUI_EXPORTS)
+        ENDIF(name STREQUAL NETGENPluginGUI)
         ''')
         # --
         self.setLibAdd(key, newlines)
