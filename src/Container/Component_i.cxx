@@ -1,44 +1,43 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME Container : implementation of container and engine for Kernel
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : Component_i.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
 //#define private protected  // for pd_refCount trace
+//
 #include "SALOME_Component_i.hxx"
 #include "SALOME_Container_i.hxx"
 #include "RegistryConnexion.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include <stdio.h>
-#ifndef WNT
+#ifndef WIN32
 #include <dlfcn.h>
 #endif
 #include <cstdlib>
 #include "utilities.h"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -106,6 +105,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
+  _container=Engines::Container::_narrow(o);
   const CORBA::String_var ior = _orb->object_to_string(o);
   _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession",
 						 _instanceName.c_str());
@@ -113,6 +113,59 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
   //SCRUTE(pd_refCount);
 }
+
+//=============================================================================
+/*!
+ *  Standard Constructor for standalone Component, used in derived class
+ *  Connection to Registry and Notification
+ *  \param orb Object Request broker given by Container
+ *  \param poa Portable Object Adapter from Container (normally root_poa)
+ *  \param container container CORBA reference
+ *  \param instanceName unique instance name for this object (see Container_i)
+ *  \param interfaceName component class name
+ *  \param notif use of notification
+ *  \param regist (true or false) use of registry (default true)
+ */
+//=============================================================================
+
+Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
+                                         PortableServer::POA_ptr poa,
+                                         Engines::Container_ptr container,
+                                         const char *instanceName,
+                                         const char *interfaceName,
+                                         bool notif,
+                                         bool regist) :
+  _instanceName(instanceName),
+  _interfaceName(interfaceName),
+  _myConnexionToRegistry(0),
+  _notifSupplier(0),
+  _ThreadId(0) ,
+  _ThreadCpuUsed(0) ,
+  _Executed(false) ,
+  _graphName("") ,
+  _nodeName(""),
+  _studyId(-1),
+  _CanceledThread(false)
+{
+  MESSAGE("Component constructor with instanceName "<< _instanceName);
+  _orb = CORBA::ORB::_duplicate(orb);
+  _poa = PortableServer::POA::_duplicate(poa);
+  _container=Engines::Container::_duplicate(container);
+  try
+    {
+      _contId=_poa->reference_to_id(container);
+    }
+  catch(PortableServer::POA::WrongAdapter)
+    {
+      //not created by this poa
+      _contId = 0;
+    }
+  const CORBA::String_var ior = _orb->object_to_string(_container);
+  if(regist)
+    _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
+  _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
+}
+
 
 //=============================================================================
 /*! 
@@ -150,6 +203,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
+  CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
+  _container=Engines::Container::_narrow(o);
 
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 }
@@ -214,7 +269,7 @@ CORBA::Long Engines_Component_i::getStudyId()
 
 void Engines_Component_i::ping()
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE("Engines_Component_i::ping() pid "<< getpid() << " threadid "
           << pthread_self());
 #else
@@ -239,13 +294,12 @@ void Engines_Component_i::destroy()
   MESSAGE("Engines_Component_i::destroy()");
   //SCRUTE(pd_refCount);
 
-  delete _notifSupplier;
-  _notifSupplier = 0;
-
-  delete _myConnexionToRegistry;
+  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
-  _poa->deactivate_object(*_id) ;
-  delete(_id) ;
+  if(_notifSupplier)delete _notifSupplier;
+  _notifSupplier = 0;
+  if(_id)
+    delete(_id) ;
   //SCRUTE(pd_refCount);
   _thisObj->_remove_ref();
   //SCRUTE(pd_refCount);
@@ -261,9 +315,7 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
-  //  MESSAGE("Engines_Component_i::GetContainerRef");
-  CORBA::Object_var o = _poa->id_to_reference(*_contId) ;
-  return Engines::Container::_narrow(o);
+  return Engines::Container::_duplicate(_container);
 }
 
 //=============================================================================
@@ -336,12 +388,12 @@ bool Engines_Component_i::Kill_impl()
 //  MESSAGE("Engines_Component_i::Kill_i() pthread_t "<< pthread_self()
 //          << " pid " << getpid() << " instanceName "
 //          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-//          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+//          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
 //          << dec << " _ThreadId " << _ThreadId << " this " << hex << this
 //          << dec ) ;
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , SIGUSR2 ) ;
@@ -367,23 +419,23 @@ bool Engines_Component_i::Kill_impl()
 
 bool Engines_Component_i::Stop_impl()
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #endif
   
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
       RetVal = Killer( _ThreadId , 0 ) ;
@@ -407,22 +459,22 @@ bool Engines_Component_i::Stop_impl()
 
 bool Engines_Component_i::Suspend_impl()
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #endif
 
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
@@ -434,7 +486,7 @@ bool Engines_Component_i::Suspend_impl()
 	}
     else 
       {
-#ifndef WNT
+#ifndef WIN32
 	RetVal = Killer( _ThreadId ,SIGINT ) ;
 #else
 	RetVal = Killer( *_ThreadId ,SIGINT ) ;
@@ -454,21 +506,21 @@ bool Engines_Component_i::Suspend_impl()
 
 bool Engines_Component_i::Resume_impl()
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
 #endif
   bool RetVal = false ;
-#ifndef WNT
+#ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
 #else
   if ( _ThreadId > 0 && pthread_self().p != _ThreadId->p )
@@ -500,7 +552,7 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
     {
     if ( _ThreadId > 0 )
       {
-#ifndef WNT
+#ifndef WIN32
       if ( pthread_self() != _ThreadId )
 #else
       if ( pthread_self().p != _ThreadId->p )
@@ -513,7 +565,7 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
 	  {
 	    // Get Cpu in the appropriate thread with that object !...
 	    theEngines_Component = this ;
-#ifndef WNT
+#ifndef WIN32
 	    Killer( _ThreadId ,SIGUSR1 ) ;
 #else
 	    Killer( *_ThreadId ,SIGUSR11 ) ;
@@ -602,14 +654,14 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
-#ifndef WNT
+#ifndef WIN32
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
 #else
   MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
 #endif
-#ifndef WNT
+#ifndef WIN32
   _ThreadId = pthread_self() ;
 #else
   _ThreadId = new pthread_t;
@@ -678,7 +730,7 @@ void Engines_Component_i::endService(const char *serviceName)
   if ( !_CanceledThread )
     _ThreadCpuUsed = CpuUsed_impl() ;
 
-#ifndef WNT
+#ifndef WIN32
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
 	  << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
@@ -720,7 +772,7 @@ char* Engines_Component_i::nodeName()
 
 bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 {
-#ifndef WNT
+#ifndef WIN32
   if ( ThreadId )
 #else
   if ( ThreadId.p )
@@ -735,7 +787,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else
 	    {
-#ifndef WNT
+#ifndef WIN32
 	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_canceled") ;
 #else
@@ -753,7 +805,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else 
 	    {
-#ifndef WNT
+#ifndef WIN32
         MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_killed(" << signum << ")") ;
 #else
@@ -800,7 +852,7 @@ void Engines_Component_i::SetCurCpu()
 long Engines_Component_i::CpuUsed()
 {
   long cpu = 0 ;
-#ifndef WNT
+#ifndef WIN32
   struct rusage usage ;
   if ( _ThreadId || _Executed )
     {

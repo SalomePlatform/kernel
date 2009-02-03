@@ -1,44 +1,44 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_AttributeComment.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
+//
 #include "SALOMEDSImpl_AttributeComment.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const std::string& SALOMEDSImpl_AttributeComment::GetID ()
+const string& SALOMEDSImpl_AttributeComment::GetID ()
 {
-  static std::string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
+  static string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
   return CommentID;
 }   
 
 SALOMEDSImpl_AttributeComment* SALOMEDSImpl_AttributeComment::Set (const DF_Label& L, 
-							           const std::string& Val) 
+							           const string& Val) 
 {
   SALOMEDSImpl_AttributeComment* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeComment*)L.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
@@ -73,7 +73,7 @@ void SALOMEDSImpl_AttributeComment::SetValue (const string& S)
 //function : ID
 //purpose  :
 //=======================================================================
-const std::string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
+const string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
 
 //=======================================================================
 //function : NewEmpty

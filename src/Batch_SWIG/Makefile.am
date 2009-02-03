@@ -1,30 +1,29 @@
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
 #  $Header$
-
-
+#
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
@@ -50,14 +49,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # The library will be installed in the common place.
 #
 
-BUILT_SOURCES = swig_wrap.cpp
+BUILT_SOURCES = swig_wrap.cpp libBatch_Swig.py
 
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Batch
-SWIG_SOURCES  = libBatch_Swig.i libBatch_Swig_exception.i libBatch_Swig_typemap.i
+SWIGSOURCES  = libBatch_Swig.i libBatch_Swig_exception.i libBatch_Swig_typemap.i
 
 salomepython_PYTHON           = libBatch_Swig.py
 salomepyexec_LTLIBRARIES      = _libBatch_Swig.la
-_libBatch_Swig_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
+_libBatch_Swig_la_SOURCES  = swig_wrap.cpp
 _libBatch_Swig_la_CPPFLAGS = @PYTHON_INCLUDES@ -I$(srcdir) -I$(srcdir)/../Batch
 _libBatch_Swig_la_LDFLAGS  = -module
 _libBatch_Swig_la_LIBADD   = ../Batch/libSalomeBatch.la @PYTHON_LIBS@
@@ -67,11 +66,12 @@ _libBatch_Swig_la_CPPFLAGS += @OPENPBS_INCLUDES@
 _libBatch_Swig_la_LIBADD   += @OPENPBS_LIBDIR@ @OPENPBS_LIBS@
 endif
 
-swig_wrap.cpp : $(SWIG_SOURCES)
-	$(SWIG) $(SWIG_FLAGS) -o $@ $<
+swig_wrap.cpp libBatch_Swig.py : $(SWIGSOURCES)
+	$(SWIG) $(SWIG_FLAGS) -o swig_wrap.cpp $<
 
 CLEANFILES = swig_wrap.cpp
 
+EXTRA_DIST = $(SWIGSOURCES)
 
 #
 # ===============================================================

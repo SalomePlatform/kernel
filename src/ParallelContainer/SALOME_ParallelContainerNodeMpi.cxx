@@ -1,35 +1,34 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME ParallelContainerNodeMpi : Launch mpi PaCO++ object nodes
-//
-//  Copyright (C) 2007 OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-//
-//
-//
 //  File   : SALOME_ParallelContainerNodeMpi.cxx
 //  Author : André Ribes, EDF
 //  Module : SALOME PARALLEL
-
+//
 #include <iostream>
 #include <string>
 #include <stdio.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -170,7 +169,7 @@ int main(int argc, char* argv[])
     PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
     PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
-#ifndef WNT
+#ifndef WIN32
     // add this container to the kill list
     char aCommand[100];
     sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerNodeMpi", getpid());
@@ -207,7 +206,7 @@ int main(int argc, char* argv[])
     obj = root_poa->id_to_reference(*_id);
 
     // In the NamingService
-    string hostname = GetHostname();
+    string hostname = Kernel_Utils::GetHostname();
 
     int myid;
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);

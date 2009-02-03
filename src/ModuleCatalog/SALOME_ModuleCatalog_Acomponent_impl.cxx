@@ -1,31 +1,30 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_ModuleCatalog_Acomponent_impl.cxx
 //  Author : Estelle Deville
 //  Module : SALOME
 //  $Header$
-
+//
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 
 #include "Utils_ExceptHandlers.hxx"
@@ -503,11 +502,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   _length = S_in.ServiceoutParameter.length();
   S_out.ServiceoutParameter.length(_length);
 
-#ifndef WNT  
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_out.ServiceoutParameter[ind2],
 	      S_in.ServiceoutParameter[ind2]);
   
@@ -515,11 +510,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   _length = S_in.ServiceinDataStreamParameter.length();
   S_out.ServiceinDataStreamParameter.length(_length);
 
-#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_out.ServiceinDataStreamParameter[ind2],
 	      S_in.ServiceinDataStreamParameter[ind2]);
   
@@ -528,11 +519,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   if(MYDEBUG) SCRUTE(_length);
   S_out.ServiceoutDataStreamParameter.length(_length);
   
-#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_out.ServiceoutDataStreamParameter[ind2],
 	      S_in.ServiceoutDataStreamParameter[ind2]);
 }

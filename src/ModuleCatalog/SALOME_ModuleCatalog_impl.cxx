@@ -1,26 +1,25 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_ModuleCatalog_impl.cxx
 //  Author : Estelle Deville
 //  Module : SALOME
@@ -30,15 +29,18 @@
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 #include <fstream>
 #include <map>
+#include "utilities.h"
+
+#ifdef WIN32
+# include <process.h>
+#endif
 
 using namespace std;
 
-#include "utilities.h"
-
 #ifdef _DEBUG_
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #else
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #endif
 
 static const char* SEPARATOR     = "::";
@@ -127,7 +129,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 
     list<string> dirList;
 
-#ifdef WNT
+#ifdef WIN32
     dirList = splitStringToList(_general_path, SEPARATOR);
 #else
     //check for new format
@@ -208,7 +210,6 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
 
   for (int ind = 0 ; ind < _typeList.size() ; ind++)
     {
-      std::cerr << "name: " << _typeList[ind].name << std::endl;
       //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
       type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
       type_list[ind].kind=SALOME_ModuleCatalog::NONE;
@@ -357,11 +358,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WNT
   for(unsigned int ind=0; ind < _general_module_list.size();ind++){
-#else
-  for(ind=0; ind < _general_module_list.size();ind++){
-#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is already defined in 
@@ -422,11 +419,7 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WNT
   for(unsigned int ind=0; ind < _general_module_list.size();ind++){
-#else
-  for(ind=0; ind < _general_module_list.size();ind++){
-#endif
     _find = false;
     for(unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++){
       // searching if the component is aleready defined in 
@@ -517,11 +510,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
   
   // The components in the general catalog are taken only if they're
   // not defined in the personal catalog
-#ifndef WNT
   for (unsigned int ind=0; ind < _general_module_list.size();ind++)
-#else
-  for (ind=0; ind < _general_module_list.size();ind++)
-#endif
     {
       _find = false;
 
@@ -620,7 +609,12 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
 
 CORBA::Long SALOME_ModuleCatalogImpl::getPID()
 { 
-  return (CORBA::Long)getpid();
+  return 
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)_getpid();
+#endif
 }
 
 void SALOME_ModuleCatalogImpl::ShutdownWithExit()
@@ -689,14 +683,14 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
       if (aDoc != NULL) 
 	handler->ProcessXmlDocument(aDoc);
       else
-	INFOS("ModuleCatalog: could not parse file "<<file);
+	MESSAGE("ModuleCatalog: could not parse file "<<file);
 
       xmlFreeDoc(aDoc);
       xmlCleanupParser();
       fclose(aFile);
     }
   else
-    INFOS("ModuleCatalog: file "<<file<<" is not readable.");
+    MESSAGE("ModuleCatalog: file "<<file<<" is not readable.");
   
   delete handler;
   
@@ -748,6 +742,8 @@ void SALOME_ModuleCatalogImpl::duplicate
   C_corba.type = ComponentTypeConvert[C_parser.type];
   if(C_parser.implementationType == "EXE")
     C_corba.implementationType=SALOME_ModuleCatalog::EXE;
+  else if(C_parser.implementationType == "CEXE")
+    C_corba.implementationType=SALOME_ModuleCatalog::CEXE;
   else if(C_parser.implementationType == "PY")
     C_corba.implementationType=SALOME_ModuleCatalog::PY;
   else
@@ -815,11 +811,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   _length = S_parser.outParameters.size();
   S_corba.ServiceoutParameter.length(_length);
 
-#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceoutParameter[ind2],
 	      S_parser.outParameters[ind2]);
   
@@ -827,11 +819,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   _length = S_parser.inDataStreamParameters.size();
   S_corba.ServiceinDataStreamParameter.length(_length);
 
-#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceinDataStreamParameter[ind2],
 	      S_parser.inDataStreamParameters[ind2]);
   
@@ -840,11 +828,7 @@ void SALOME_ModuleCatalogImpl::duplicate
   //  if(MYDEBUG) SCRUTE(_length);
   S_corba.ServiceoutDataStreamParameter.length(_length);
 
-#ifndef WNT
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
-#else
-  for (ind2 = 0; ind2 < _length ; ind2 ++)
-#endif
     duplicate(S_corba.ServiceoutDataStreamParameter[ind2],
 	      S_parser.outDataStreamParameters[ind2]);
 }
@@ -938,11 +922,7 @@ SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
     }
 
   // Parse if a computer name is twice in the list of computers
-#ifndef WNT
   for (unsigned int ind = 0; ind < _machine_list.size(); ind++)
-#else
-  for (ind = 0; ind < _machine_list.size(); ind++)
-#endif
     {
      for (unsigned int ind1 = ind+1 ; ind1 < _machine_list.size(); ind1++)
        {

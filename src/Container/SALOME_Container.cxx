@@ -1,31 +1,30 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME Container : implementation of container and engine for Kernel
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_Container.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
+//
 #ifdef HAVE_MPI2
 #include <mpi.h>
 #endif
@@ -35,13 +34,13 @@
 #include <string>
 #include <stdio.h>
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
 # include <sys/time.h>
 # include <dlfcn.h>
 #endif
 
 
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <process.h>
@@ -65,8 +64,11 @@ extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 #include <stdexcept>
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+#ifndef WIN32
+# include <sys/wait.h>
+#endif
 
+#ifndef WIN32
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
 {
@@ -78,9 +80,11 @@ sighandler_t setsig(int sig, sighandler_t handler)
     return SIG_ERR;
   return ocontext.sa_handler;
 }
+#endif //WIN32
 
 void AttachDebugger()
 {
+#ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       std::stringstream exec;
@@ -89,6 +93,7 @@ void AttachDebugger()
       system(exec.str().c_str());
       while(1);
     }
+#endif
 }
 
 void Handler(int theSigId)
@@ -117,12 +122,14 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
 
+#ifndef WIN32
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
       set_terminate(&terminateHandler);
       set_unexpected(&unexpectedHandler);
     }
+#endif
 
   // Initialise the ORB.
   //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
@@ -142,8 +149,8 @@ int main(int argc, char* argv[])
 
   if (!isSupervContainer)
     {
-      int _argc = 1;
-      char* _argv[] = {""};
+      // int _argc = 1;
+      // char* _argv[] = {""};
       KERNEL_PYTHON::init_python(argc,argv);
     }
   else
@@ -152,7 +159,7 @@ int main(int argc, char* argv[])
       PySys_SetArgv( argc , argv ) ;
     }
     
-  char *containerName = "";
+  char *containerName = (char *)"";
   if(argc > 1)
     {
       containerName = argv[1] ;
@@ -167,14 +174,13 @@ int main(int argc, char* argv[])
       PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
       // add new container to the kill list
-#ifndef WNT
+#ifndef WIN32
       stringstream aCommand ;
       aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
       system(aCommand.str().c_str());
 #endif
       
-      Engines_Container_i * myContainer 
-	= new Engines_Container_i(orb, root_poa, containerName , argc , argv );
+      new Engines_Container_i(orb, root_poa, containerName , argc , argv );
       
       pman->activate();
       
@@ -189,7 +195,7 @@ int main(int argc, char* argv[])
 
       if (!isSupervContainer)
       {
-        PyGILState_STATE gstate = PyGILState_Ensure();
+        PyGILState_Ensure();
         //Delete python container that destroy orb from python (pyCont._orb.destroy())
         Py_Finalize();
       }

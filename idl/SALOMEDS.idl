@@ -1,7 +1,9 @@
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
 //  License as published by the Free Software Foundation; either
 //  version 2.1 of the License.
@@ -15,14 +17,12 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS.idl
 //  Author : Yves FRICAUD
 //  $Header$
-
+//
 /*!
   \file SALOMEDS.idl This file contains a set of interfaces used for creation, managment
   and modification of the %Study
@@ -72,6 +72,9 @@ during each working session.
 /*! An unbounded sequence of strings
 */
   typedef sequence<string> ListOfStrings ;
+/*! An unbounded sequence of sequence of strings
+*/
+  typedef sequence<ListOfStrings> ListOfListOfStrings ;
 /*! A byte stream which is used for binary data transfer between different components
 */
   typedef sequence<octet> TMPFile;
@@ -427,7 +430,113 @@ during each working session.
 */
     ListOfStrings GetLockerID();
 
+/*!
+    Create real variable with Name theVarName value theValue 
+    (or set if variable value in to theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetReal( in string theVarName, in double theValue );
 
+/*!
+    Create integer variable with Name theVarName value theValue 
+    (or set if variable value in to theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetInteger( in string theVarName, in long theValue );
+/*!
+    Create boolean variable with Name theVarName value theValue 
+    (or set if variable value in to theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetBoolean( in string theVarName, in boolean theValue );
+
+/*!
+    Return real value of the variable
+    \param theVarName is a name of the variable.
+*/
+    double GetReal( in string theVarName );
+
+/*!
+    Return integer value of the variable
+    \param theVarName is a name of the variable.
+*/
+    long GetInteger( in string theVarName );
+
+/*!
+    Return boolean value of the variable
+    \param theVarName is a name of the variable.
+*/
+    boolean GetBoolean( in string theVarName );
+    
+
+/*!
+    Return true if variable is real otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsReal( in string theVarName );
+
+/*!
+    Return true if variable is integer otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsInteger( in string theVarName );
+
+/*!
+    Return true if variable is boolean otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsBoolean( in string theVarName );
+
+/*!
+    Return true if variable exists in the study,
+    otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsVariable( in string theVarName );
+
+/*!
+    Return names of all variables from the study.
+*/
+    ListOfStrings GetVariableNames();
+
+/*! \brief Removing variable
+
+   Remove variable with the specified name from the study with substitution of its value.
+
+   \param theVarName Name of the variable.
+   \return Status of operation.
+*/
+    boolean RemoveVariable( in string theVarName );
+
+/*! \brief Renaming variable
+
+   Rename variable with the specified name within the study.
+
+   \param theVarName Name of the variable.
+   \param theNewVarName New name for the variable.
+   \return Status of operation.
+*/
+    boolean RenameVariable( in string theVarName, in string theNewVarName );
+
+/*! \brief Checking variable usage
+
+   Check that variable is used in the study.
+
+   \param theVarName Name of the variable.
+   \return Variable usage.
+*/
+    boolean IsVariableUsed( in string theVarName );
+
+/*! \brief Parse variables used for object creation
+
+   \param string with variables, separated by special symbol. 
+   \return Variables list.
+*/
+    ListOfListOfStrings ParseVariables( in string theVars );
+    
   };
 
   //==========================================================================

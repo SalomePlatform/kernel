@@ -1,29 +1,29 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : CalciumCouplingPolicy.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 // Id          : $Id$
-
+//
 #ifndef __CALCIUM_COUPLING_POLICY__ 
 #define __CALCIUM_COUPLING_POLICY__
 
@@ -244,6 +244,12 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
     Type              dataOut = DataManipulator::create(dataSize);
     InnerType * const OutIt   = DataManipulator::getPointer(dataOut);
  
+#ifdef _DEBUG_
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : interpolationSchem : " << _couplingPolicy._interpolationSchem << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : alpha : " << _couplingPolicy._alpha << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : datecalschem : " << _couplingPolicy._dateCalSchem << std::endl;
+    std::cerr << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : storageLevel : " << _couplingPolicy._storageLevel << std::endl;
+#endif
     if ( timeDiff == 0.0 ||  _couplingPolicy._interpolationSchem == CalciumTypes::L0_SCHEM ) {
       std::copy(InIt1,InIt1+dataSize,OutIt);
     } else {

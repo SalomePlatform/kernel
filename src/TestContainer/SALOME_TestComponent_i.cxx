@@ -1,32 +1,31 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME TestContainer : test of container creation and its life cycle
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_TestComponent_i.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
-#ifndef WNT
+//
+#ifndef WIN32
 # define private protected
 #endif
 #include "utilities.h"
@@ -73,7 +72,7 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
 
 void Engines_TestComponent_i::Setenv()
 {
-  bool overwrite = true;
+  // bool overwrite = true;
   map<std::string,CORBA::Any>::iterator it;
   MESSAGE("set environment associated with keys in map _fieldsDict");
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
@@ -88,7 +87,7 @@ void Engines_TestComponent_i::Setenv()
 	  s+='=';
 	  s+=value;
 	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
-	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 	  //int ret = setenv(cle.c_str(), value, overwrite);
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);

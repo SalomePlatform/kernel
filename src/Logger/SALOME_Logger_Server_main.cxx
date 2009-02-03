@@ -1,18 +1,36 @@
-//  SALOME Logger : CORBA server managing trace output
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+//  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Logger_Server.cxx
 //  Author : Vasily Rusyaev
 //  Module : SALOME
-
+//
 #include <iostream>
 #include "SALOME_Logger_Server.hxx"
 #include <SALOMEconfig.h>
 #include <sys/types.h>
-#ifndef __WIN32__
+#include <stdlib.h>
+
+#ifndef WIN32
 # include <unistd.h>
 #else
 # include "utilities.h" // for compilation type "timespec"
@@ -45,7 +63,7 @@ int main(int argc, char **argv)
 
       for (i = 1; i <= NumberOfTries; i++)
 	  {
-#ifndef WNT
+#ifndef WIN32
 		  if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
 		  if (i != 1) Sleep(TIMESleep / 1000000);
@@ -85,6 +103,7 @@ int main(int argc, char **argv)
       else
 		  myLogger = new Logger(argv[1]);
 
+      myLogger->SetOrb(orb);
       myLoggerRef = myLogger->_this();
       CosNaming::Name name;
       name.length(1);

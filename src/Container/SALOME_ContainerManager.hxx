@@ -1,26 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __SALOME_CONTAINERMANAGER_HXX__
 #define __SALOME_CONTAINERMANAGER_HXX__
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
@@ -47,7 +49,8 @@ public:
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
 		 const Engines::MachineList& possibleComputer,
-		 Engines::ResPolicy policy);
+		 Engines::ResPolicy policy,
+     const std::string& container_exe="SALOME_Container");
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
@@ -86,6 +89,32 @@ protected:
   void fillBatchLaunchedContainers();
 
   long GetIdForContainer(void);
+
+  std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
+						  const Engines::MachineParameters& params, const long id,
+              const std::string& container_exe="SALOME_Container");
+
+  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, const long id,
+                                                 const std::string& container_exe="SALOME_Container");
+
+  std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
+						   const Engines::MachineParameters& params) throw(SALOME_Exception);
+
+  void RmTmpFile();
+
+  void AddOmninamesParams(std::string& command) const;
+
+  void AddOmninamesParams(std::ofstream& fileStream) const;
+
+  std::string BuildTemporaryFileName() const;
+
+  // Parallel extension
+  std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
+							 const Engines::MachineParameters& params, 
+							 const std::string& log = "default");
+  void startMPI();
+  bool _MpiStarted;
+
   long _id;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
@@ -94,6 +123,16 @@ protected:
   SALOME_NamingService *_NS;
   static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
   static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
-};
 
+  //! attribute that contains current tmp files generated
+  std::string _TmpFileName;
+
+  //! contains the rsh or ssh command to access directly to machine.
+  //  Only used by this->RmTmpFile in case of a remote launch.
+  std::string _CommandForRemAccess;
+
+  //! different behaviour if $APPLI exists (SALOME Application) 
+  bool _isAppliSalomeDefined;
+
+};
 #endif

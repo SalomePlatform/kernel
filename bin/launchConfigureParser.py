@@ -1,22 +1,24 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-# This library is distributed in the hope that it will be useful
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
 #
-
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 import os, glob, string, sys, re
 import xml.sax
 import optparse
@@ -51,6 +53,9 @@ except_nam     = "noexcepthandler"
 terminal_nam   = "terminal"
 pinter_nam     = "pinter"
 batch_nam      = "batch"
+test_nam       = "test"
+play_nam       = "play"
+gdb_session_nam = "gdb_session"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -595,6 +600,31 @@ def CreateOptionParser (theAdditionalOptions=[]):
                              dest="ns_port_log_file",
                              help=help_str)
 
+    # Write/read test script file with help of TestRecorder. Default: False.
+    help_str = "Write/read test script file with help of TestRecorder."
+    o_test = optparse.Option("--test",
+                             metavar="<test_script_file>",
+                             type="string",
+                             action="store",
+                             dest="test_script_file",
+                             help=help_str)
+ 
+    # Reproducing test script with help of TestRecorder. Default: False.
+    help_str = "Reproducing test script with help of TestRecorder."
+    o_play = optparse.Option("--play",
+                             metavar="<play_script_file>",
+                             type="string",
+                             action="store",
+                             dest="play_script_file",
+                             help=help_str)
+
+    # gdb session
+    help_str = "Launch session with gdb"
+    o_gdb = optparse.Option("--gdb-session",
+                            action="store_true",
+                            dest="gdb_session", default=False,
+                            help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -614,8 +644,10 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_a,     # Print free port and exit
                 o_n,     # --nosave-config
                 o_pi,    # Interactive python console
-                o_nspl]
-                
+                o_nspl,
+                o_test,  # Write/read test script file with help of TestRecorder
+                o_play,  # Reproducing test script with help of TestRecorder
+                o_gdb]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
@@ -701,9 +733,16 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
             dirs += re.split(';', os.getenv(config_var))
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
-            
+
+    gui_available = True
     if os.getenv("GUI_ROOT_DIR") and os.path.isdir( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
         dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
+	pass
+    else:
+	gui_available = False
+	if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel" ):
+	    dirs += [os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel"]
+	pass
     os.environ[config_var] = separator.join(dirs)
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
@@ -800,6 +839,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[gui_nam] = cmd_opts.gui
     if cmd_opts.batch is not None:
         args[batch_nam] = True
+
+    if not gui_available:
+    	args[gui_nam] = False
+	
     if args[gui_nam]:
         args["session_gui"] = True
         if cmd_opts.desktop is not None:
@@ -883,6 +926,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Interactive python console
     if cmd_opts.pinter is not None:
         args[pinter_nam] = cmd_opts.pinter
+	
+    # Gdb session in xterm
+    if cmd_opts.gdb_session is not None:
+        args[gdb_session_nam] = cmd_opts.gdb_session
 
     ####################################################
     # Add <theAdditionalOptions> values to args
@@ -912,6 +959,18 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
             #elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
             elif os.path.exists( "%s/%s.xml"%(d2, salomeappname) ):
                 dirs.append( d2 )
+
+    # Test
+    if cmd_opts.test_script_file is not None:
+        args[test_nam] = []
+        filename = cmd_opts.test_script_file
+        args[test_nam] += re.split( "[:;,]", filename )
+ 
+    # Play
+    if cmd_opts.play_script_file is not None:
+        args[play_nam] = []
+        filename = cmd_opts.play_script_file
+        args[play_nam] += re.split( "[:;,]", filename )
 
     # return arguments
     os.environ[config_var] = separator.join(dirs)

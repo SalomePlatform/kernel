@@ -1,28 +1,28 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : Superv_Component_i.cxx
 //  Author : André RIBES (EDF), Eric Fayolle (EDF)
 //  Module : KERNEL
-
+//
 #include "Superv_Component_i.hxx"
 
 DSC_EXCEPTION_CXX(Superv_Component_i,BadFabType);
@@ -35,6 +35,8 @@ DSC_EXCEPTION_CXX(Superv_Component_i,PortNotConnected);
 DSC_EXCEPTION_CXX(Superv_Component_i,NilPort);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadProperty);
 
+std::map<std::string, port_factory*> Superv_Component_i::_factory_map;
+
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       PortableServer::POA_ptr poa,
 				       PortableServer::ObjectId * contId,
@@ -46,25 +48,27 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 #ifdef _DEBUG_
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
-  register_factory("BASIC", new basic_port_factory());
-  register_factory("PALM", new palm_port_factory());
-  register_factory("CALCIUM", new calcium_port_factory());
+}
+Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
+				       PortableServer::POA_ptr poa,
+				       Engines::Container_ptr container, 
+				       const char *instanceName,
+				       const char *interfaceName,
+				       bool notif,
+                                       bool regist) : 
+  Engines_DSC_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
+{
+#ifdef _DEBUG_
+  std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
+#endif
 }
 
   
 Superv_Component_i::~Superv_Component_i() 
 {
-  factory_map_t::iterator begin = _factory_map.begin();
-  factory_map_t::iterator end = _factory_map.end();
-  for(;begin!=end;begin++) 
-  {
-    delete begin->second;
-  }
-
   my_superv_ports_it = my_superv_ports.begin();
   for(;my_superv_ports_it != my_superv_ports.end();my_superv_ports_it++) 
     delete my_superv_ports_it->second;
-
 }
 
 void 

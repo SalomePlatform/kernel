@@ -1,21 +1,23 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef _SALOME_CONTAINERMANAGER_IDL_
 #define _SALOME_CONTAINERMANAGER_IDL_
@@ -80,7 +82,6 @@ struct BatchParameters
 			       // has to be like this : hh:mm
   string mem; // Minimum of memory needed
 	      // has to be like : 32gb or 512mb
-
   long nb_proc; // Number of processors requested
 };
 
@@ -90,14 +91,18 @@ struct BatchParameters
 */
   interface SalomeLauncher
   {
+    long submitJob( in string xmlExecuteFile,
+                    in string clusterName ) raises (SALOME::SALOME_Exception);
     long submitSalomeJob( in string fileToExecute,
 			  in FilesList filesToExport,
 			  in FilesList filesToImport,
 			  in BatchParameters batch_params,
 			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    string querySalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void deleteSalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void getResultSalomeJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    string queryJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+
+    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
 
     void Shutdown();
 

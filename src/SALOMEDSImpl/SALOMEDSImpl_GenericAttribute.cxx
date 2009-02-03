@@ -1,43 +1,50 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_GenericAttribute.hxx
 //  Author : SERGEY_RUIN
 //  Module : SALOME
-
-
+//
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
 using namespace std;
 
-char* SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
+string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);  
-  return (char*)ga->Type().c_str();
+  if (ga)
+    return ga->Type();
+
+  return "";
 }
 
-char* SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
+string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
-  return (char*)ga->GetClassType().c_str();
+  if (ga)
+    return ga->GetClassType();
+  
+  return "";
 } 
 
 void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(DF_Attribute* theAttr)

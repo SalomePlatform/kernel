@@ -1,25 +1,28 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
-
+#
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
@@ -74,8 +77,11 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_Study.hxx \
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_IParameters.hxx \
-	SALOMEDSImpl_TMPFile.hxx
+	SALOMEDSImpl_TMPFile.hxx \
+	SALOMEDSImpl_GenericVariable.hxx \
+	SALOMEDSImpl_ScalarVariable.hxx
 
 #
 # ===============================================================
@@ -153,6 +159,8 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_StudyManager.cxx \
 	SALOMEDSImpl_IParameters.cxx \
 	SALOMEDSImpl_TMPFile.cxx \
+	SALOMEDSImpl_GenericVariable.cxx \
+	SALOMEDSImpl_ScalarVariable.cxx \
 	\
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeDrawable.hxx \
@@ -189,6 +197,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_Callback.hxx \
 	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_Driver.hxx \
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_SComponent.hxx \
@@ -200,7 +209,9 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_Tool.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
-	SALOMEDSImpl_UseCaseIterator.hxx
+	SALOMEDSImpl_UseCaseIterator.hxx \
+	SALOMEDSImpl_GenericVariable.hxx \
+	SALOMEDSImpl_ScalarVariable.hxx
 
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0

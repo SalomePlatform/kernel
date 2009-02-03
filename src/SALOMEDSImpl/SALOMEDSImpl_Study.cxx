@@ -1,28 +1,30 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_Study.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
-
+//
 #include "SALOMEDSImpl_Study.hxx"
+#include <string.h>
 
 using namespace std;
 
@@ -36,12 +38,15 @@ using namespace std;
 #include "SALOMEDSImpl_StudyHandle.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
+#include "SALOMEDSImpl_ScalarVariable.hxx"
 
 #include <fstream>
 
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
 #define FILEID            "FILE: "
+#define VARIABLE_SEPARATOR  ':'
+#define OPERATION_SEPARATOR '|'
 
 
 //============================================================================
@@ -876,6 +881,60 @@ SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
   return RefSO;
 }
 
+//============================================================================
+/*! Function : _GetNoteBookAccessor
+ *  Purpose  : Find an Object with SALOMEDSImpl_IOR = anObjectIOR
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetNoteBookAccessor(){
+  return string("notebook");
+}
+
+//============================================================================
+/*! Function : _GetStudyVariablesScript
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetStudyVariablesScript()
+{
+  string dump("");
+  
+  if(myNoteBookVars.empty())
+    return dump;
+  
+  dump += "####################################################\n";
+  dump += "##       Begin of NoteBook variables section      ##\n";
+  dump += "####################################################\n";
+
+  string set_method = _GetNoteBookAccessor()+".set(";
+  string varName;
+  string varValue;
+  for(int i = 0 ; i < myNoteBookVars.size();i++ ) {
+    varName = myNoteBookVars[i]->Name();
+    varValue = myNoteBookVars[i]->SaveToScript();
+    dump+=set_method+"\""+varName+"\", "+varValue+")\n";
+  }
+  
+  dump += "####################################################\n";
+  dump += "##        End of NoteBook variables section       ##\n";
+  dump += "####################################################\n";
+
+  return dump;
+}
+
+//============================================================================
+/*! Function : _GetNoteBookAccess
+ *  Purpose  :
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetNoteBookAccess()
+{
+  string accessor = _GetNoteBookAccessor();
+  string notebook = "import salome_notebook\n";
+         notebook += accessor+" = salome_notebook."+accessor + "\n";
+  return notebook;       
+}
+
 bool SALOMEDSImpl_Study::IsLocked()
 {
   _errorCode = "";
@@ -1155,8 +1214,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;
 
+  fp << _GetNoteBookAccess();
+
   fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
 
+  //Dump NoteBook Variables
+  fp << _GetStudyVariablesScript();
 
   //Check if it's necessary to dump visual parameters
   bool isDumpVisuals = SALOMEDSImpl_IParameters::isDumpPython(this);
@@ -1483,6 +1546,319 @@ void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 vector<string> SALOMEDSImpl_Study::GetLockerID()
 {
   return _lockers;
+}
+
+//============================================================================
+/*! Function : SetVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
+                                     const double theValue,
+                                     const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  bool modified = false;
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  
+  if( aGVar == NULL ) {
+
+    SALOMEDSImpl_ScalarVariable* aSVar = new SALOMEDSImpl_ScalarVariable(theType, theVarName);
+
+    aSVar->setValue(theValue);
+    myNoteBookVars.push_back(aSVar);
+    modified = true;
+  }
+  else {
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar)) {
+      modified = aSVar->setValue(theValue) || modified;
+      modified = aSVar->setType(theType) || modified;
+    }
+  }
+  if(modified)
+    Modify();
+}
+
+//============================================================================
+/*! Function : GetReal
+ *  Purpose  :
+ */
+//============================================================================
+double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  
+  if(aGVar != NULL )
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+      return aSVar->getValue();
+
+  return 0;
+}
+
+//============================================================================
+/*! Function : IsTypeOf
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
+                                  SALOMEDSImpl_GenericVariable::
+                                  VariableTypes theType) const
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  
+  if(aGVar != NULL )
+    return aGVar->Type() == theType;
+  
+  return false;
+}
+
+//============================================================================
+/*! Function : IsVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  return (aGVar != NULL);
+}
+
+//============================================================================
+/*! Function : GetVariableNames
+ *  Purpose  :
+ */
+//============================================================================
+vector<string> SALOMEDSImpl_Study::GetVariableNames() const
+{
+  vector<string> aResult;
+
+  for(int i = 0; i < myNoteBookVars.size(); i++)
+    aResult.push_back(myNoteBookVars[i]->Name());
+  
+  return aResult;
+}
+
+//============================================================================
+/*! Function : AddVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::AddVariable(SALOMEDSImpl_GenericVariable* theVariable)
+{
+  myNoteBookVars.push_back(theVariable);
+}
+
+//============================================================================
+/*! Function : AddVariable
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string& theName) const
+{
+  SALOMEDSImpl_GenericVariable* aResult = NULL;
+  for(int i = 0; i < myNoteBookVars.size();i++) {
+    if(theName.compare(myNoteBookVars[i]->Name()) == 0) {
+      aResult = myNoteBookVars[i];
+      break;
+    }  
+  }
+  return aResult;
+}
+
+//============================================================================
+/*! Function : RemoveVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::RemoveVariable(const string& theVarName)
+{
+  SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
+  if( !aVariable )
+    return false;
+
+  string aValue = aVariable->SaveToScript();
+  ReplaceVariableAttribute( theVarName, aValue );
+
+  std::vector<SALOMEDSImpl_GenericVariable*>::iterator it = myNoteBookVars.begin(), itEnd = myNoteBookVars.end();
+  for( ; it != itEnd; it++ )
+  {
+    SALOMEDSImpl_GenericVariable* aVariableRef = *it;
+    if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
+    {
+      myNoteBookVars.erase( it );
+      Modify();
+      break;
+    }
+  }
+
+  return true;
+}
+
+//============================================================================
+/*! Function : RenameVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::RenameVariable(const string& theVarName, const string& theNewVarName)
+{
+  SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
+  if( !aVariable )
+    return false;
+
+  ReplaceVariableAttribute( theVarName, theNewVarName );
+
+  std::vector<SALOMEDSImpl_GenericVariable*>::iterator it = myNoteBookVars.begin(), itEnd = myNoteBookVars.end();
+  for( ; it != itEnd; it++ )
+  {
+    SALOMEDSImpl_GenericVariable* aVariableRef = *it;
+    if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
+    {
+      aVariableRef->setName( theNewVarName );
+      Modify();
+      break;
+    }
+  }
+
+  return true;
+}
+
+//============================================================================
+/*! Function : IsVariableUsed
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsVariableUsed(const string& theVarName)
+{
+  return FindVariableAttribute( theVarName );
+}
+
+//============================================================================
+/*! Function : FindVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
+					       SALOMEDSImpl_SObject theSObject,
+					       const std::string& theName)
+{
+  SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
+  for( ; anIter.More(); anIter.Next() )
+    if( FindVariableAttribute( theStudyBuilder, anIter.Value(), theName ) )
+      return true;
+
+  DF_Attribute* anAttr;
+  if( theStudyBuilder->FindAttribute( theSObject, anAttr, "AttributeString" ) )
+  {
+    if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
+    {
+      string aString = aStringAttr->Value();
+
+      vector< vector<string> > aSections = ParseVariables( aString );
+      for( int i = 0, n = aSections.size(); i < n; i++ )
+      {
+	vector<string> aVector = aSections[i];
+	for( int j = 0, m = aVector.size(); j < m; j++ )
+	{
+	  string aStr = aVector[j];
+	  if( aStr.compare( theName ) == 0 )
+	    return true;
+	}
+      }
+    }
+  }
+  return false;
+}
+
+//============================================================================
+/*! Function : FindVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::FindVariableAttribute(const std::string& theName)
+{
+  SALOMEDSImpl_StudyBuilder* aStudyBuilder = NewBuilder();
+  SALOMEDSImpl_SComponentIterator aCompIter = NewComponentIterator();
+  for( ; aCompIter.More(); aCompIter.Next() )
+  {
+    SALOMEDSImpl_SObject aComp = aCompIter.Value();
+    if( FindVariableAttribute( aStudyBuilder, aComp, theName ) )
+      return true;
+  }
+  return false;
+}
+
+//============================================================================
+/*! Function : ReplaceVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
+						  SALOMEDSImpl_SObject theSObject,
+						  const std::string& theSource,
+						  const std::string& theDest)
+{
+  SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
+  for( ; anIter.More(); anIter.Next() )
+    ReplaceVariableAttribute( theStudyBuilder, anIter.Value(), theSource, theDest );
+
+  DF_Attribute* anAttr;
+  if( theStudyBuilder->FindAttribute( theSObject, anAttr, "AttributeString" ) )
+  {
+    if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
+    {
+      bool isChanged = false;
+      string aNewString, aCurrentString = aStringAttr->Value();
+
+      vector< vector<string> > aSections = ParseVariables( aCurrentString );
+      for( int i = 0, n = aSections.size(); i < n; i++ )
+      {
+	vector<string> aVector = aSections[i];
+	for( int j = 0, m = aVector.size(); j < m; j++ )
+	{
+	  string aStr = aVector[j];
+	  if( aStr.compare( theSource ) == 0 )
+	  {
+	    isChanged = true;
+	    aStr = theDest;
+	  }
+
+	  aNewString.append( aStr );
+	  if( j != m - 1 )
+	    aNewString.append( ":" );
+	}
+	if( i != n - 1 )
+	  aNewString.append( "|" );
+      }
+
+      if( isChanged )
+	aStringAttr->SetValue( aNewString );
+    }
+  }
+}
+
+//============================================================================
+/*! Function : ReplaceVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest)
+{
+  SALOMEDSImpl_StudyBuilder* aStudyBuilder = NewBuilder();
+  SALOMEDSImpl_SComponentIterator aCompIter = NewComponentIterator();
+  for( ; aCompIter.More(); aCompIter.Next() )
+  {
+    SALOMEDSImpl_SObject aComp = aCompIter.Value();
+    ReplaceVariableAttribute( aStudyBuilder, aComp, theSource, theDest );
+  }
+}
+
+//============================================================================
+/*! Function : ParseVariables
+ *  Purpose  :
+ */
+//============================================================================
+vector< vector< string > > SALOMEDSImpl_Study::ParseVariables(const string& theVariables) const
+{
+  return SALOMEDSImpl_Tool::splitStringWithEmpty( theVariables, OPERATION_SEPARATOR, VARIABLE_SEPARATOR );
 }
 
 //============================================================================

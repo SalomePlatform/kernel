@@ -1,26 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_StudyManager_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
+//
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
@@ -35,11 +37,13 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
 #include "Utils_CorbaException.hxx"
+#include "Utils_ExceptHandlers.hxx"
+#include "Basics_Utils.hxx"
+#include "SALOME_GenericObj_i.hh"
 
 #include <strstream>
 #include <vector>
 #include <map>
-using namespace std;
 
 #ifdef WIN32
 #include <process.h>
@@ -48,11 +52,7 @@ using namespace std;
 #include <unistd.h>
 #endif
 
-#include "OpUtil.hxx"
-
-#include "SALOME_GenericObj_i.hh"
-
-#include "Utils_ExceptHandlers.hxx"
+using namespace std;
 
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
@@ -98,7 +98,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
  *             context name
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::register_name(char * name)
+void SALOMEDS_StudyManager_i::register_name(const char * name)
 {
   SALOMEDS::StudyManager_var aManager(_this());
   _name_service->Register(aManager.in(), name);
@@ -156,6 +156,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->Open(string(aUrl));
+
+  if ( !aStudyImpl )
+    THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
@@ -475,8 +478,8 @@ CORBA::LongLong SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, C
 #else
   long pid = (long)getpid();
 #endif
-  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)(void*)_impl);
+  isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }
 
 //===========================================================================

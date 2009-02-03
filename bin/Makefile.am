@@ -1,28 +1,29 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# -* Makefile *- 
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+# -* Makefile *- 
 # Author : Guillaume Boulant (CSSI)
 # Module : KERNEL
 # $Header$
 #
-
-
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
@@ -32,40 +33,46 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # These files are data, module or lib files
-dist_salomescript_DATA= \
-	VERSION \
-	orbmodule.py \
-	salomeConsole.py \
-	salome_session.py
+dist_salomescript_DATA =	\
+	config_appli.xml	\
+	salome.launch
+
+nodist_salomescript_DATA =	\
+	VERSION
 
 # These files are executable scripts
-dist_salomescript_SCRIPTS=\
-	envSalome.py \
-	runIDLparser \
-	runSalome.py \
-	killSalome.py \
-	killSalomeWithPort.py \
-	runSalome \
-	runSalome.csh \
-	runNS.sh \
-	createAppli.sh \
-	appli_install.sh \
-	appli_clean.sh \
-	appli_gen.py \
-	virtual_salome.py \
-	config_appli.xml \
-	launchConfigureParser.py \
-	showNS.py \
-	addToKillList.py \
-	NSparam.py \
-	setenv.py \
-	launchSalome.py \
-	nameserver.py \
-        server.py \
-	waitNS.sh \
-	waitNS.py \
-	waitContainers.py \
-	shutdownSalome.py
+dist_salomescript_SCRIPTS =		\
+	addToKillList.py		\
+	appli_clean.sh			\
+	appli_gen.py			\
+	appli_install.sh		\
+	createAppli.sh			\
+	envSalome.py			\
+	killSalome.py			\
+	killSalomeWithPort.py		\
+	launchConfigureParser.py	\
+	launchSalome.py			\
+	nameserver.py			\
+	NSparam.py			\
+	orbmodule.py			\
+	runIDLparser			\
+	runNS.py			\
+	runNS.sh			\
+	runSalome			\
+	runSalome.csh			\
+	runSalome.ksh			\
+	runSalome.py			\
+	salomeConsole.py		\
+	salome_session.py		\
+	salome_utils.py	        	\
+	server.py			\
+	setenv.py			\
+	showNS.py			\
+	shutdownSalome.py		\
+	virtual_salome.py		\
+	waitContainers.py		\
+	waitNS.py			\
+	waitNS.sh
 
 EXTRA_DIST = appliskel
 
@@ -74,21 +81,17 @@ dist-hook:
 
 DISTCLEANFILES = $(top_builddir)/bin/salome/Makefile.am
 
-clean-local:
-	rm -rf $(top_builddir)/bin/salome/appliskel
-	cd $(top_builddir)/bin/salome; \
-	rm -f $(dist_salomescript_DATA) $(dist_salomescript_SCRIPTS)
-
 # This is an ugly target to avoid exploring the appliskel subdirectory.
 install-exec-local:
 	$(INSTALL) -d $(DESTDIR)$(salomescriptdir)
 	$(RM) -rf $(DESTDIR)$(salomescriptdir)/appliskel 1> /dev/null 2>&1
 	cp -r $(srcdir)/appliskel $(DESTDIR)$(salomescriptdir)
+	chmod a+x -R $(DESTDIR)$(salomescriptdir)/appliskel
 	find $(DESTDIR)$(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
 
 uninstall-local:
 	if test -d $(DESTDIR)$(salomescriptdir)/appliskel; then \
 	  find $(DESTDIR)$(salomescriptdir)/appliskel -exec chmod +w {} ';' ; \
-    rm -rf $(DESTDIR)$(salomescriptdir)/appliskel; \
-  fi;
+	  rm -rf $(DESTDIR)$(salomescriptdir)/appliskel; \
+	fi;
 

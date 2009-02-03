@@ -1,26 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_Study_i.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
+//
 #ifndef __SALOMEDS_STUDY_I_H__
 #define __SALOMEDS_STUDY_I_H__
 
@@ -269,7 +271,7 @@ public:
 
   virtual void AddCreatedPostponed(const char* theIOR);
 
-#ifndef WNT
+#ifndef WIN32
   virtual void RemovePostponed(const CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
   virtual void UndoPostponed(const CORBA::Long theWay); // theWay = 1: resurrect objects,
@@ -293,6 +295,36 @@ public:
   virtual void UnLockStudy(const char* theLockerID);
 
   virtual SALOMEDS::ListOfStrings* GetLockerID();
+
+  virtual void SetReal(const char* theVarName, CORBA::Double theValue);
+  
+  virtual void SetInteger(const char* theVarName, CORBA::Long theValue);
+
+  virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
+
+  virtual CORBA::Double GetReal(const char* theVarName);
+  
+  virtual CORBA::Long GetInteger(const char* theVarName);
+
+  virtual CORBA::Boolean GetBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsReal(const char* theVarName);
+  
+  virtual CORBA::Boolean IsInteger(const char* theVarName);
+
+  virtual CORBA::Boolean IsBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsVariable(const char* theVarName);
+
+  virtual SALOMEDS::ListOfStrings* GetVariableNames();
+
+  virtual CORBA::Boolean RemoveVariable(const char* theVarName);
+
+  virtual CORBA::Boolean RenameVariable(const char* theVarName, const char* theNewVarName);
+
+  virtual CORBA::Boolean IsVariableUsed(const char* theVarName);
+  
+  virtual SALOMEDS::ListOfListOfStrings* ParseVariables(const char* theVars);
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 

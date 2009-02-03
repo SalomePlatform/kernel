@@ -1,29 +1,30 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
-
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 #include "LifeCycleCORBATest.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 
 #include <iostream>
 #include <fstream>
@@ -64,7 +65,7 @@ LifeCycleCORBATest::setUp()
   bp1->deleteInstance(bp1);
 
   // --- trace on file
-  char *theFileName = TRACEFILE;
+  const char *theFileName = TRACEFILE;
 
   string s = "file:";
   s += theFileName;
@@ -84,7 +85,7 @@ LifeCycleCORBATest::setUp()
   // --- Get or initialize the orb
 
   int _argc = 1;
-  char* _argv[] = {""};
+  char* _argv[] = {(char*)""};
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(_argc , _argv ) ;
@@ -294,7 +295,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_LaunchContainerHostname()
   // --- get a local container (with a name based on local hostname),
   //     load an engine, check that the CORBA object is not null
 
-  string containerName = GetHostname();
+  string containerName = Kernel_Utils::GetHostname();
   containerName += "/theContainer";
   DEVTRACE("containerName = " << containerName);
   Engines::Component_var mycompo =
@@ -329,7 +330,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameContainer()
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
-  containerName = GetHostname();
+  containerName = Kernel_Utils::GetHostname();
   containerName += "/aContainer";
   DEVTRACE("containerName = " << containerName);
   Engines::Component_var mycompo2 =
@@ -441,7 +442,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);
-  string hostname=GetHostname();
+  string hostname=Kernel_Utils::GetHostname();
   params.hostname=hostname.c_str();
   Engines::Component_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
@@ -458,7 +459,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
   string hostname1 = c1->getHostName();
-  CPPUNIT_ASSERT_EQUAL(hostname1, GetHostname());
+  CPPUNIT_ASSERT_EQUAL(hostname1, Kernel_Utils::GetHostname());
 }
 
 
@@ -492,7 +493,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
   Engines::Container_var c1 = m1->GetContainerRef();
   CPPUNIT_ASSERT(!CORBA::is_nil(c1));
   string hostname1 = c1->getHostName();
-  CPPUNIT_ASSERT_EQUAL(hostname1, GetHostname());
+  CPPUNIT_ASSERT_EQUAL(hostname1, Kernel_Utils::GetHostname());
   string cname1 = c1->name();
   CPPUNIT_ASSERT(cname1.find(containerName) != string::npos);
 }
@@ -621,7 +622,7 @@ void  LifeCycleCORBATest::testgetLocalFile_localComputer()
   SALOME_LifeCycleCORBA _LCC(&_NS);
   string origFileName = getenv("KERNEL_ROOT_DIR");
   origFileName += "/lib/salome/libSalomeLifeCycleCORBA.so.0.0.0";
-  SALOME_FileTransferCORBA transfer( GetHostname(),
+  SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
 				     origFileName);
   string local = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local.empty());
@@ -688,7 +689,7 @@ string LifeCycleCORBATest::GetRemoteHost()
     resourcesManager->GetFittingResources(params,clist);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
-  string localHost = GetHostname();
+  string localHost = Kernel_Utils::GetHostname();
   string remoteHost;
   for (unsigned int i=0; i < hostList->length(); i++)
     {

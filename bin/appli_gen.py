@@ -1,15 +1,37 @@
 #!/usr/bin/env python
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 """Create a virtual Salome installation
 
 """
 usage="""usage: %prog [options]
 Typical use is:
   python appli_gen.py 
-Use with options:
-  python appli_gen.py --prefix=<install directory> --config=<configuration file>
+Typical use with options is:
+  python appli_gen.py --verbose --prefix=<install directory> --config=<configuration file>
 """
 
 import os, glob, string, sys, re
+import shutil
 import xml.sax
 import optparse
 import virtual_salome
@@ -109,7 +131,16 @@ class params:
 
 # -----------------------------------------------------------------------------
 
-def install(prefix,config_file):
+def makedirs(namedir):
+  if os.path.exists(namedir):
+    dirbak=namedir+".bak"
+    if os.path.exists(dirbak):
+      shutil.rmtree(dirbak)
+    os.rename(namedir,dirbak)
+    os.listdir(dirbak) #sert seulement a mettre a jour le systeme de fichier sur certaines machines
+  os.makedirs(namedir)
+
+def install(prefix,config_file,verbose=0):
     home_dir=os.path.abspath(os.path.expanduser(prefix))
     filename=os.path.abspath(os.path.expanduser(config_file))
     _config={}
@@ -128,14 +159,15 @@ def install(prefix,config_file):
         print "Configure parser: Error : can not read configuration file %s, check existence and rights" % filename
         pass
 
-    for cle in _config.keys():
-        print cle, _config[cle]
-        pass
+    if verbose:
+        for cle in _config.keys():
+            print cle, _config[cle]
+            pass
 
     for module in _config["modules"]:
         print "--- add module ", module, _config[module]
         options = params()
-        options.verbose=0
+        options.verbose=verbose
         options.clear=0
         options.prefix=home_dir
         options.module=_config[module]
@@ -238,6 +270,11 @@ def install(prefix,config_file):
     f.write(command)    
     f.close()
 
+    #Add USERS directory with 777 permission to store users configuration files
+    users_dir=os.path.join(home_dir,'USERS')
+    makedirs(users_dir)
+    os.chmod(users_dir, 0777)
+
 def main():
     parser = optparse.OptionParser(usage=usage)
 
@@ -247,8 +284,11 @@ def main():
     parser.add_option('--config', dest="config", default='config_appli.xml',
                       help="XML configuration file (default config_appli.xml)")
 
+    parser.add_option('-v', '--verbose', action='count', dest='verbose',
+                      default=0, help="Increase verbosity")
+
     options, args = parser.parse_args()
-    install(prefix=options.prefix,config_file=options.config)
+    install(prefix=options.prefix,config_file=options.config,verbose=options.verbose)
     pass
 
 # -----------------------------------------------------------------------------

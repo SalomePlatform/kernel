@@ -1,48 +1,48 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME TestContainer : test of container creation and its life cycle
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : TestContainer.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
+//
 #include "utilities.h"
 #include <iostream>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-using namespace std;
 
-static ostream& operator<<(ostream& os, const CORBA::Exception& e)
+static std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
 {
   CORBA::Any tmp;
   tmp<<= e;
@@ -60,12 +60,16 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
 }
 
 Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
-					   string componenttName)
+					   std::string componenttName)
 {
+#if defined(_DEBUG_) || defined(_DEBUG)
   bool isLib =
     iGenFact->load_component_Library(componenttName.c_str());
   //    iGenFact->load_component_Library("SalomeTestComponent");
   ASSERT(isLib);
+#else
+  iGenFact->load_component_Library(componenttName.c_str());
+#endif
   CORBA::Object_var obj =
     //    iGenFact->create_component_instance("SalomeTestComponent",
     iGenFact->create_component_instance(componenttName.c_str(),
@@ -86,8 +90,8 @@ int main (int argc, char * argv[])
   try
     {
       SALOME_NamingService _NS(orb) ;
-      string containerName = "/Containers/" ;
-      string hostName = GetHostname();
+      std::string containerName = "/Containers/" ;
+      std::string hostName = Kernel_Utils::GetHostname();
       containerName += hostName + "/FactoryServer";
       NamingService_WaitForServerReadiness(&_NS,containerName);
 
@@ -97,7 +101,7 @@ int main (int argc, char * argv[])
 
       int nbInstances = 5;
 
-      vector<Engines::TestComponent_var> instances(nbInstances);
+      std::vector<Engines::TestComponent_var> instances(nbInstances);
     
       MESSAGE("------------------------------- create instances ");
       for (int iter = 0; iter < nbInstances ; iter++)

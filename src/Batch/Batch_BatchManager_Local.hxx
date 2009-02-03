@@ -1,21 +1,24 @@
-// Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-//           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-// 
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 /*
  * BatchManager_Local.hxx : 
  *
@@ -29,11 +32,11 @@
 #ifndef _BATCHMANAGER_LOCAL_H_
 #define _BATCHMANAGER_LOCAL_H_
 
+#include "Batch_Defines.hxx"
 
 #include <vector>
 #include <map>
 #include <queue>
-#include <deque>
 #include <pthread.h>
 #include "Batch_Job.hxx"
 #include "Batch_JobId.hxx"
@@ -50,7 +53,7 @@ namespace Batch {
 
   class FactBatchManager;
 
-  class BatchManager_Local : public BatchManager
+  class BATCH_EXPORT BatchManager_Local : public BatchManager
   {
   private:
     friend class ThreadAdapter;
@@ -91,7 +94,7 @@ namespace Batch {
 
     struct Child {
       pthread_t thread_id;
-      queue<Commande, deque<Commande> > command_queue;
+      std::queue<Commande, std::deque<Commande> > command_queue;
       pid_t pid;
       int exit_code;
       Status status;
@@ -127,16 +130,20 @@ namespace Batch {
   protected:
     int _connect; // Local connect id
     pthread_mutex_t _threads_mutex;
-    map<Id, Child > _threads;
+    std::map<Id, Child > _threads;
 
     // Methode abstraite qui renvoie la commande de copie du fichier source en destination
-    virtual string copy_command(const string & host_source, const string & source, const string & host_destination, const string & destination) const = 0;
+    virtual std::string copy_command( const std::string & host_source,
+				      const std::string & source,
+				      const std::string & host_destination,
+				      const std::string & destination) const = 0;
 
     // Methode abstraite qui renvoie la commande a executer
-    virtual string exec_command(Parametre & param) const = 0;
+    virtual std::string exec_command(Parametre & param) const = 0;
 
     // Methode abstraite qui renvoie la commande d'effacement du fichier
-    virtual string remove_command(const string & host_destination, const string & destination) const = 0;
+    virtual std::string remove_command( const std::string & host_destination,
+					const std::string & destination) const = 0;
 
   private:
     virtual pthread_t submit(const Job_Local & job);
@@ -148,7 +155,10 @@ namespace Batch {
     Id registerThread_id(pthread_t thread_id);
     pthread_mutex_t _thread_id_id_association_mutex;
     pthread_cond_t  _thread_id_id_association_cond;
-    map<pthread_t, Id> _thread_id_id_association;
+#ifndef WIN32 //TODO: porting of following functionality
+    //reason: pthread_t on win32 is a struct of pointer and int members
+    std::map<pthread_t, Id> _thread_id_id_association;
+#endif
 
 #ifdef SWIG
   public:

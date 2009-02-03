@@ -1,31 +1,30 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME Utils : general SALOME's definitions and tools
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : Utils_Identity.cxx
 //  Author : Pascale NOYRET, EDF
 //  Module : SALOME
 //  $Header$
-
+//
 # include <iostream>
 # include "utilities.h"
 # include "Utils_Identity.hxx"
@@ -34,12 +33,12 @@ extern "C"
 {
 # include <string.h>
 
-#ifndef WNT /* unix functionality */
+#ifndef WIN32 /* unix functionality */
 # include <pwd.h>
 #endif
 }
 
-#ifndef WNT /* unix functionality */
+#ifndef WIN32 /* unix functionality */
 
 # include <arpa/inet.h>
 # include <netinet/in.h>
@@ -51,16 +50,24 @@ const char* duplicate( const char *const str ) ;
 const struct utsname get_uname( void )
 {
 	struct utsname		hostid;
+#if defined(_DEBUG_) || defined(_DEBUG)
 	const int retour=uname(&hostid);
 	ASSERT(retour>=0);
+#else
+	uname(&hostid);
+#endif
 	return hostid ;
 }
 
 const char* get_adip( void )
 {
 	struct utsname	hostid;
+#if defined(_DEBUG_) || defined(_DEBUG)
 	const int retour=uname(&hostid);
 	ASSERT(retour>=0);
+#else
+	uname(&hostid);
+#endif
 
 	const hostent* pour_adip=gethostbyname(hostid.nodename);
 	ASSERT(pour_adip!=NULL);
@@ -145,7 +152,7 @@ PSID getuid() {
 #define getcwd _getcwd
 #define getpid _getpid
 
-#endif /* WNT */
+#endif /* WIN32 */
 
 
 Identity::Identity( const char *name ):	_name(duplicate(name)),\
@@ -189,7 +196,7 @@ const char* const Identity::name (void) const
 {
 	return  _name ;
 }
-#ifndef WNT
+#ifndef WIN32
 	const pid_t& Identity::pid(void) const
 #else
 	const DWORD& Identity::pid(void) const
@@ -198,7 +205,7 @@ const char* const Identity::name (void) const
 	return _pid ;
 }
 
-#ifndef WNT
+#ifndef WIN32
         const struct utsname &Identity::hostid(void) const
 #else
         const char* const Identity::hostid(void) const
@@ -207,7 +214,7 @@ const char* const Identity::name (void) const
     return _hostid ;
 }
 
-#ifndef WNT
+#ifndef WIN32
 	const uid_t& Identity::uid(void) const
 #else
 	const PSID& Identity::uid(void) const
@@ -238,7 +245,7 @@ const char* const Identity::adip (void) const
 
 const char* Identity::host_char( void ) const
 {
-#ifndef WNT
+#ifndef WIN32
         return _hostid.nodename;
 #else
 	return _hostid;
@@ -258,7 +265,7 @@ std::ostream & operator<< ( std::ostream& os , const Identity& monid )
 	os << '\t' << "Numero de PID :  " << monid._pid << std::endl;
 	os << '\t' << "Uid utilisateur  : "   << monid._uid << std::endl;
 	os << '\t' << "nom utilisateur  : "   << monid._pwname << std::endl;
-#ifndef WNT
+#ifndef WIN32
 	os << '\t' << "Nom de machine : " << monid._hostid.nodename << std::endl;
 #else
 	os << '\t' << "Nom de machine : " << monid._hostid << std::endl;

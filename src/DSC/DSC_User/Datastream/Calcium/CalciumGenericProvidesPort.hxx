@@ -1,31 +1,33 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : CalciumGenericProvidesPort.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
 // Id          : $Id$
-
+//
 #ifndef _CALCIUM_GENERIC_PROVIDES_PORT_HXX_
 #define _CALCIUM_GENERIC_PROVIDES_PORT_HXX_
+
+#include <omnithread.h>
 
 #include "PortProperties_i.hxx"
 
@@ -55,17 +57,31 @@
   class specificPortName :   public virtual CorbaInterface ,		\
 			     public virtual POA_Ports::PortProperties,	\
 			     public GenericProvidesPort< __VA_ARGS__ , CalciumCouplingPolicy, calcium_provides_port > { \
+  private :								\
+    omni_mutex     _disconnect_mutex; \
+    int            _mustnotdisconnect; \
   public :								\
     typedef  __VA_ARGS__               DataManipulator;			\
     typedef  DataManipulator::Type     CorbaDataType;			\
     typedef GenericPort< DataManipulator ,				\
       CalciumCouplingPolicy >          Port;				\
+      specificPortName () : _mustnotdisconnect(0) {}; \
   									\
     virtual ~ specificPortName ();					\
 									\
     inline void disconnect(bool provideLastGivenValue) {		\
-      Port::disconnect(provideLastGivenValue);				\
-    }									\
+      _disconnect_mutex.lock();                       \
+      if(_mustnotdisconnect > 1)                      \
+      {                                               \
+        _mustnotdisconnect--;                         \
+      }                                               \
+      else if(_mustnotdisconnect == 1)                \
+      {                                               \
+        _mustnotdisconnect--;                         \
+        Port::disconnect(provideLastGivenValue);      \
+      }                                               \
+      _disconnect_mutex.unlock();                     \
+    } 			                              \
     inline void setDependencyType(CalciumTypes::DependencyType dependencyType) { \
       Port::setDependencyType(dependencyType);				\
     }									\
@@ -128,15 +144,20 @@
     virtual CORBA::Any* get_property(const char* name)			\
       throw (Ports::NotDefined);					\
 									\
-    virtual void provides_port_changed(int connection_nbr, \
-                       const Engines::DSC::Message message) { \
-      if ( !connection_nbr && (message == Engines::DSC::RemovingConnection) ) \
-        { \
-           disconnect(false); \
-        } \
-    } \
-  };	\
-  
+    virtual void provides_port_changed(int connection_nbr,		\
+				       const Engines::DSC::Message message) { \
+      if ( message == Engines::DSC::AddingConnection)			\
+        {                                                 \
+          _disconnect_mutex.lock();                \
+          _mustnotdisconnect++;                           \
+          _disconnect_mutex.unlock();              \
+        }                                                 \
+      else if ( message == Engines::DSC::RemovingConnection )		\
+        {                                                 \
+          disconnect(false);                              \
+        }                                                 \
+    }									\
+  };									\
 
 
 

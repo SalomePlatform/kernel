@@ -1,34 +1,43 @@
-// Copyright (C) 2007  OPEN CASCADE, CEA/DEN, EDF R&D, PRINCIPIA R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : Salome_file_i.cxx
 //  Author : André RIBES, EDF
 //  Module : SALOME
 //  $Header: 
-
+//
 #include "Salome_file_i.hxx"
 #include "utilities.h"
 #include <stdlib.h>
-#include <unistd.h>
 #include "HDFOI.hxx"
-#include <stdlib.h>
+#ifndef WIN32
+# include <unistd.h>
+# define _getcwd getcwd
+# define _open   open
+#else
+# include <direct.h>
+# include <io.h>
+# include <windows.h>
+#endif
+
 
 //=============================================================================
 /*! 
@@ -39,7 +48,14 @@
 Salome_file_i::Salome_file_i()
 {
   _fileId = 0;
+#ifndef WIN32
   _path_max = 1 + pathconf("/", _PC_PATH_MAX);
+#else
+  _path_max = 32768;
+  //from MSDN:
+  //Note The C Runtime supports path lengths up to 32768 characters in length, but it is up to the operating system, specifically the file system, to support these longer paths. The sum of the fields should not exceed _MAX_PATH for full backwards compatibility with Windows 98 FAT32 file systems. Windows NT 4.0, Windows 2000, Windows XP Home Edition, Windows XP Professional, Windows Server 2003, and Windows Server 2003 NTFS file system supports paths up to 32768 characters in length, but only when using the Unicode APIs. When using long path names, prefix the path with the characters \\?\ and use the Unicode versions of the C Runtime functions.
+  //currently #define _MAX_PATH   260
+#endif
   _state.name = CORBA::string_dup("");
   _state.hdf5_file_name = CORBA::string_dup("");
   _state.number_of_files = 0;
@@ -155,10 +171,8 @@ Salome_file_i::load(const char* hdf5_file) {
       if (mode == "all") {
 
 	// Changing path, is now current directory
-	char CurrentPath[_path_max];
-	getcwd(CurrentPath, _path_max);
-	path = CurrentPath;
-
+	path = getcwd(NULL, _path_max);
+  
 	std::string group_name("GROUP");
 	group_name += file_name;
 	hdf_group = new HDFgroup(group_name.c_str(),hdf_file); 
@@ -491,10 +505,8 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
   }
   else
   {
-    file_name = comp_file_name;
-    char CurrentPath[_path_max];
-    getcwd(CurrentPath, _path_max);
-    path = CurrentPath;
+    file_name = comp_file_name;    
+    path = getcwd(NULL, _path_max);;
   }
 
   // Test if this file is already added
@@ -556,9 +568,7 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
   else
   {
     file_name = comp_file_name;
-    char CurrentPath[_path_max];
-    getcwd(CurrentPath, _path_max);
-    path = CurrentPath;
+    path = getcwd(NULL, _path_max);;
   }
 
   // Test if this file is already added
@@ -741,12 +751,10 @@ Salome_file_i::recvFiles() {
 
   if (files_not_ok != "")
   {
-    std::cerr << "tutu" << std::endl;
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
     std::string text = "files not ready : " + files_not_ok;
     es.text = CORBA::string_dup(text.c_str());
-    std::cerr << "titi" << std::endl;
     throw SALOME::SALOME_Exception(es);
   }
   else
@@ -840,8 +848,12 @@ Salome_file_i::getDistributedFile(std::string file_name)
       aBlock = _fileDistributedSource[file_name]->getBlock(fileId);
       toFollow = aBlock->length();
       CORBA::Octet *buf = aBlock->get_buffer();
+#if defined(_DEBUG_) || defined(_DEBUG)
       int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
       ASSERT(nbWri == toFollow);
+#else
+      fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+#endif
       delete aBlock;
     }
     fclose(fp);

@@ -1,25 +1,27 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "utilities.h"
 #include <iostream>
+#include <sstream>
 
 #define NULL_VALUE 0
 
@@ -106,17 +108,17 @@ unsigned int ResourceDataToSort::GetNumberOfPoints() const
 //! Method used for debug
 void ResourceDataToSort::Print() const
   {
-    SCRUTE(_nbOfNodes);
-    SCRUTE(_nbOfProcPerNode);
-    SCRUTE(_CPUFreqMHz);
-    SCRUTE(_memInMB);
+    cout << _nbOfNodes << endl;
+    cout << _nbOfProcPerNode << endl;
+    cout << _CPUFreqMHz << endl;
+    cout << _memInMB << endl;
   }
 
 void ParserResourcesType::Print() const
 {
   ostringstream oss;
   oss << endl <<
-    "HostName : " << DataForSort._hostName << endl << 
+    "HostName : " << HostName << endl << 
     "Alias : " << Alias << endl <<
     "NbOfNodes : " << DataForSort._nbOfNodes << endl <<
     "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << endl <<
@@ -129,12 +131,14 @@ void ParserResourcesType::Print() const
     "UserName : " << UserName << endl <<
     "AppliPath : " << AppliPath << endl <<
     "OS : " << OS << endl <<
+    "batchQueue : " << batchQueue << endl <<
+    "userCommands : " << userCommands << endl <<
     "Modules : " << endl;
 
   for(int i=0;i<ModulesList.size();i++)
     oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
 
-  MESSAGE(oss.str());
+  cout << oss.str() << endl;
 
 }
 
@@ -145,13 +149,16 @@ void ParserResourcesType::Clear()
   DataForSort._nbOfProcPerNode = 1;
   DataForSort._CPUFreqMHz = 0;
   DataForSort._memInMB = 0;
+  HostName = "";
   Alias = "";
   Protocol = rsh;
   Mode = interactive;
   Batch = none;
-  mpi = indif;
+  mpi = nompi;
   UserName = "";
   AppliPath = "";
+  batchQueue = "";
+  userCommands = "";
   ModulesList.clear();
   OS = "";
 }

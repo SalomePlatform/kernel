@@ -1,29 +1,29 @@
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
 # $Header$
-
+#
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
@@ -100,6 +100,10 @@ DIST_SUBDIRS = \
 # check_cppunit for example with CPPUNIT_IS_OK.
 #
 
+if WITHONLYLAUNCHER
+  SUBDIRS = Batch Batch_SWIG ResourcesManager Launcher
+else
+
 SUBDIRS = $(SUBDIR_BASE)
 
 if WITH_BATCH
@@ -110,9 +114,9 @@ if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-#if MPI_IS_OK
-#  SUBDIRS += $(SUBDIR_MPI)
-#endif
+if MPI_IS_OK
+  SUBDIRS += $(SUBDIR_MPI)
+endif
 
 if CPPUNIT_IS_OK
 if CORBA_GEN
@@ -127,5 +131,8 @@ else
 endif
 endif
 if WITH_PACO_PARALLEL
-SUBDIRS += $(SUBDIR_PARALLEL)
+  SUBDIRS += $(SUBDIR_PARALLEL)
 endif
+
+endif
+EXTRA_DIST = win32pm

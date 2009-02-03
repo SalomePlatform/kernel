@@ -1,23 +1,23 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : CalciumInterface.hxx
 //  Author : Eric Fayolle (EDF)
@@ -25,11 +25,11 @@
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-03-01 13:27:58 +0100 (jeu, 01 mar 2007) $
 // Id          : $Id$
-
+//
 #ifndef _CALCIUM_INTERFACE_HXX_
 #define _CALCIUM_INTERFACE_HXX_
 
-//Interface C++
+//Interface CALCIUM des utilisateurs en C++ 
 #include "CalciumCxxInterface.hxx"
 
 #include "CalciumException.hxx"
@@ -37,6 +37,9 @@
 
 #include <stdio.h>
 
+//Ce fichier déclare et défini l'interfaçage entre l'API utilisteur C et C++
+//Les procédures déclarées n'ont pas vocation à être utilisées directement (celà est
+// cependant possible).  
 //#define _DEBUG_
 
 #ifdef _DEBUG_
@@ -47,6 +50,9 @@
 
 
 // Interface C/C++
+// L'utilisateur CALCIUM n'a normalement pas a utliser cette interface
+// En C/C++ il utilisera celle définie dans Calcium.c
+// En C++/CORBA directement celle de CalciumCxxInterface
 
 // En CALCIUM l'utilisation de données de type double
 // implique des dates de type double, pour les autres
@@ -91,27 +97,28 @@ ecp_fin_ (void * component, int code) {
     double         _tf=*tf;						\
     size_t         _nRead=0;						\
     size_t         _bufferLength=bufferLength;				\
-    CalciumTypes::DependencyType _dependencyType=			\
-      static_cast<CalciumTypes::DependencyType>(dependencyType);	\
     									\
     if ( IsSameType< _name , cplx >::value ) _bufferLength*=2;		\
     DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) \
     try {								\
       CalciumInterface::ecp_lecture< _type, _name >( *_component,	\
-						     _dependencyType, \
+						     dependencyType,	\
 						     _ti, _tf, *i,	\
 						     nomvar,		\
 						     _bufferLength, _nRead, *data); \
     } catch ( const CalciumException & ex) {				\
       DEBTRACE( ex.what() );						\
       return ex.getInfo();						\
+    } catch ( ... ) {							\
+      std::cerr << "Unexpected exception " << std::endl;		\
+      return CalciumTypes::CPATAL;					\
     }									\
     if ( IsSameType< _name , cplx >::value ) { *nRead=_nRead/2;		\
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) IsSameType cplx -------------" ) \
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead ) \
       DEBTRACE( "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead ) \
     } else *nRead = _nRead;						\
-    if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
+    if (dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
         *ti=(CalTimeType< _type _qual >::TimeType)(_ti);			\
     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) \
     return CalciumTypes::CPOK;						\
@@ -136,14 +143,16 @@ ecp_fin_ (void * component, int code) {
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" ) \
     try {								\
       /*printf("-------- CalciumInterface(ecriture Inter Part), cp_name : Nom de la var. de type %s : %s\n",#_type,nomvar);*/ \
-      std::string essai(nomvar);					\
-      DEBTRACE( "----------->-" << nomvar )		\
+      DEBTRACE( "----------->-" << nomvar )				\
       CalciumInterface::ecp_ecriture< _type, _name >( *_component,	\
-						      static_cast<CalciumTypes::DependencyType>(dependencyType), \
+						      dependencyType,	\
 						      _t,i,nomvar,_bufferLength,*data); \
     } catch ( const CalciumException & ex) {				\
       std::cerr << ex.what() << std::endl;				\
       return ex.getInfo();						\
+    } catch ( ... ) {				\
+      std::cerr << "Unexpected exception " << std::endl; \
+      return CalciumTypes::CPATAL;						\
     }									\
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data ) \
       return CalciumTypes::CPOK;					\
@@ -153,24 +162,29 @@ ecp_fin_ (void * component, int code) {
 
 #define STAR *
 // Le premier argument est utilisée :
-//  - comme suffixe dans la définition des noms ecp_lecture_ ecp_ecriture_ ecp_free_
+//  - comme suffixe dans la définition des noms ecp_lecture_ , ecp_ecriture_ et ecp_free_
 //  - comme second argument template à l'appel de la méthode C++ correspondante
-//      ( le port correspondant est alors obtenu par un trait)
+//      ( le type de port correspondant est alors obtenu par un trait)
 // Le second argument est utilisée :
 // - pour typer le paramètre data de la procédure générée 
 // - pour déduire le type des paramètres t, ti tf via un trait
 // - comme premier paramètre template à l'appel de la méthode C++ correspondante
+//       (pour typer les données passées en paramètre )
+// Notons que dans le cas CALCIUM_C2CPP_INTERFACE_(int,int,), le type int n'existe pas
+// en CORBA, le port CALCIUM correspondant utilise une séquence de long. La méthode
+// C++ CALCIUM de lecture repère cette différence de type et charge 
+// le manipulateur de données d'effectuer  une recopie (qui fonctionne si les types sont compatibles). 
 CALCIUM_C2CPP_INTERFACE_(int,int,);
 CALCIUM_C2CPP_INTERFACE_(float,float, );
 CALCIUM_C2CPP_INTERFACE_(double,double,);
-CALCIUM_C2CPP_INTERFACE_(bool,bool,);
+// Fonctionne mais essai suivant pour simplification de Calcium.c CALCIUM_C2CPP_INTERFACE_(bool,bool,);
+CALCIUM_C2CPP_INTERFACE_(bool,int,);
 CALCIUM_C2CPP_INTERFACE_(cplx,float,);
 CALCIUM_C2CPP_INTERFACE_(str,char*,);
 
 // INTERFACE C/CPP pour les chaines de caractères
 // Le paramètre supplémentaire strsize n'étant pas utilisé
 // j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);
-// TODO : vérifier ecp_free pour ce type particulier
 // extern "C" CalciumTypes::InfoType ecp_lecture_str (void * component, int dependencyType, 
 // 						   float * ti, float * tf, long * i, 
 // 						   const char * const nomvar, size_t bufferLength, 
@@ -181,7 +195,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
 //   double         _tf=*tf;						
 //   size_t         _nRead=0;						
 //   size_t         _bufferLength=bufferLength;				
-//   CalciumTypes::DependencyType _dependencyType=			
+//   CalciumTypes::DependencyType dependencyType=			
 //     static_cast<CalciumTypes::DependencyType>(dependencyType);	
   
 //   // - GERER POINTEUR NULL : NOTHING TODO 
@@ -190,7 +204,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
 //   DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) 
 //     try {								
 //       CalciumInterface::ecp_lecture< char*, char* >( *_component,	
-// 						     _dependencyType, 
+// 						     dependencyType, 
 // 						     _ti, _tf, *i,	
 // 						     nomvar,		
 // 						     _bufferLength, _nRead, *data); 
@@ -201,7 +215,7 @@ CALCIUM_C2CPP_INTERFACE_(str,char*,);
     
 //     *nRead = _nRead;						
     
-//     if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) 
+//     if (dependencyType == CalciumTypes::CP_SEQUENTIEL ) 
 //       *ti=(float)(_ti);			
     
 //     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) ;

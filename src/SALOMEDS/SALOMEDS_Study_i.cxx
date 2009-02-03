@@ -1,27 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_Study_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
-
+//
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
@@ -43,14 +44,14 @@
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
 
+#include "Basics_Utils.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std;
 
@@ -704,7 +705,7 @@ void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR)
  *  Purpose  : 
  */
 //============================================================================
-#ifndef WNT
+#ifndef WIN32
 void SALOMEDS_Study_i::RemovePostponed(const CORBA::Long /*theUndoLimit*/) 
 #else
 void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/) 
@@ -731,7 +732,7 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
  *  Purpose  : 
  */
 //============================================================================
-#ifndef WNT
+#ifndef WIN32
 void SALOMEDS_Study_i::UndoPostponed(const CORBA::Long theWay) 
 #else
 void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay) 
@@ -843,6 +844,195 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
   }
   return aResult._retn();
 }
+//============================================================================
+/*! Function : SetReal
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetReal(const char* theVarName, CORBA::Double theValue)
+{
+  _impl->SetVariable(string(theVarName), 
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::REAL_VAR);
+}
+
+//============================================================================
+/*! Function : SetInteger
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
+{
+  _impl->SetVariable(string(theVarName), 
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+}
+
+//============================================================================
+/*! Function : SetBoolean
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValue)
+{
+  _impl->SetVariable(string(theVarName), 
+                     theValue,
+                     SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+}
+
+//============================================================================
+/*! Function : GetReal
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Double SALOMEDS_Study_i::GetReal(const char* theVarName)
+{
+  return _impl->GetVariableValue(string(theVarName));
+}
+
+//============================================================================
+/*! Function : GetInteger
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
+{
+  return (int)_impl->GetVariableValue(string(theVarName));
+}
+
+//============================================================================
+/*! Function : GetBoolean
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::GetBoolean(const char* theVarName)
+{
+  return (bool)_impl->GetVariableValue(string(theVarName));
+}
+
+//============================================================================
+/*! Function : IsReal
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsReal(const char* theVarName)
+{
+  return _impl->IsTypeOf(string(theVarName),
+                         SALOMEDSImpl_GenericVariable::REAL_VAR);
+}
+
+//============================================================================
+/*! Function : IsInteger
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsInteger(const char* theVarName)
+{
+  return _impl->IsTypeOf(string(theVarName),
+                         SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+}
+
+//============================================================================
+/*! Function : IsBoolean
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsBoolean(const char* theVarName)
+{
+  return _impl->IsTypeOf(string(theVarName),
+                         SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+}
+
+//============================================================================
+/*! Function : IsVariable
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsVariable(const char* theVarName)
+{
+  return _impl->IsVariable(string(theVarName));
+}
+
+//============================================================================
+/*! Function : GetVariableNames
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
+{
+  vector<string> aVarNames = _impl->GetVariableNames();
+  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
+  
+  int aLen = aVarNames.size();
+  aResult->length(aLen);
+  
+  for (int anInd = 0; anInd < aLen; anInd++)
+    aResult[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
+  
+  return aResult._retn();
+}
+
+//============================================================================
+/*! Function : RemoveVariable
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
+{
+  return _impl->RemoveVariable(string(theVarName));
+}
+
+//============================================================================
+/*! Function : RenameVariable
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::RenameVariable(const char* theVarName, const char* theNewVarName)
+{
+  return _impl->RenameVariable(string(theVarName), string(theNewVarName));
+}
+
+//============================================================================
+/*! Function : IsVariableUsed
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
+{
+  return _impl->IsVariableUsed(string(theVarName));
+}
+
+
+//============================================================================
+/*! Function : ParseVariables
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theVarName)
+{
+  vector< vector<string> > aSections = _impl->ParseVariables(string(theVarName));
+
+  SALOMEDS::ListOfListOfStrings_var aResult = new SALOMEDS::ListOfListOfStrings;
+
+  int aSectionsLen = aSections.size();
+  aResult->length(aSectionsLen);
+
+  for (int aSectionInd = 0; aSectionInd < aSectionsLen; aSectionInd++) {
+    vector<string> aVarNames = aSections[aSectionInd];
+
+    SALOMEDS::ListOfStrings_var aList = new SALOMEDS::ListOfStrings;
+
+    int aLen = aVarNames.size();
+    aList->length(aLen);
+
+    for (int anInd = 0; anInd < aLen; anInd++)
+      aList[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
+
+    aResult[aSectionInd] = aList;
+  }
+
+  return aResult._retn();
+}
 
 //============================================================================
 /*! Function : GetDefaultScript
@@ -888,6 +1078,6 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 #else
   long pid = (long)getpid();
 #endif  
-  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
-  return ((CORBA::LongLong)_impl);
+  isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  return reinterpret_cast<CORBA::LongLong>(_impl);
 }

@@ -1,34 +1,35 @@
-//  copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
-//
 // Cf. C++ Users Journal, June 2004, Tracing Application Execution, Tomer Abramson
 //
-
 #include <iostream>
 #include <limits.h>
 #include <cassert>
+#include <string.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <dlfcn.h>
 #else
 #include <windows.h>
@@ -39,7 +40,6 @@
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceCollector.hxx"
 #include "FileTraceCollector.hxx"
-#include "BasicsGenericDestructor.hxx"
 #include "utilities.h"
 
 using namespace std;
@@ -52,7 +52,7 @@ using namespace std;
 // Class static attributes initialisation
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
-//#ifndef WNT
+//#ifndef WIN32
 //pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
 //#else
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
@@ -87,8 +87,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	  DEVTRACE("New buffer pool");
 	  LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
 
-  	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
-  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
+	  new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
 	  _singleton = myInstance;
 
 	  // --- start a trace Collector
@@ -101,7 +100,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	    }
 	  else if (strncmp(traceKind,"file",strlen("file"))==0)
 	    {
-	      char *fileName;
+	      const char *fileName;
 	      if (strlen(traceKind) > strlen("file"))
 		fileName = &traceKind[strlen("file")+1];
 	      else
@@ -111,7 +110,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	    }
 	  else // --- try a dynamic library
 	    {
-#ifndef WNT
+#ifndef WIN32
 	      void* handle;
 	      string impl_name = string ("lib") + traceKind 
 		+ string("TraceCollector.so");
@@ -124,7 +123,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	      if ( handle )
 		{
 		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
-#ifndef WNT
+#ifndef WIN32
 		  FACTORY_FUNCTION TraceCollectorFactory =
 		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
 #else
@@ -134,7 +133,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		  if ( !TraceCollectorFactory )
 		  {
 		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
-#ifndef WNT
+#ifndef WIN32
 		      cerr << "dlerror: " << dlerror() << endl;
 #endif
 		      exit( 1 );
@@ -223,7 +222,7 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
   while (ret)
     {
       ret = sem_wait(&_fullBufferSemaphore);
-      if (ret) perror(" LocalTraceBufferPool::retrieve, sem_wait");
+      if (ret) MESSAGE (" LocalTraceBufferPool::retrieve, sem_wait");
     }
 
   // get the next buffer to print

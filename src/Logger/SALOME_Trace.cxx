@@ -1,13 +1,29 @@
-//  SALOME Logger : CORBA server managing trace output
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+//  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Logger.cxx
 //  Author : Vasily Rusyaev
 //  Module : SALOME
-
+//
 #include "SALOME_Trace.hxx"
 #include <memory.h>
 #include <string>
@@ -16,7 +32,7 @@
 #include <iostream>
 using namespace std;
 
-#ifdef WNT
+#ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
 
@@ -57,7 +73,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 
   // searchin for naming service for 0.25*40=10 seconds
   for (i = 1; i <= NumberOfTries; i++) {
-#ifndef WNT
+#ifndef WIN32
     if (i != 1) nanosleep(&ts_req,&ts_rem);
 #else
 	if (i != 1) Sleep(TIMESleep / 1000000);
@@ -92,7 +108,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
     name[0].id=CORBA::string_dup("Logger");    
     
     for(i = 1; i <= NumberOfTries; i++){
-#ifndef WNT
+#ifndef WIN32
       if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
 	  if (i != 1) Sleep(TIMESleep / 1000000);

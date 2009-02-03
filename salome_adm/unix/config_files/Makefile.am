@@ -1,21 +1,24 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 
@@ -34,18 +37,11 @@ DEPRECATED_FILES=\
 	DEPRECATED/install-sh \
 	DEPRECATED/libtool.m4 \
 	DEPRECATED/ltconfig \
-	DEPRECATED/ltmain.sh
-
-## The following scripts are required for modules not built with autotools
-#dist_salomem4_SCRIPTS=\
-#	compile \
-#	config.guess \
-#	config.sub \
-#	depcomp \
-#	install-sh \
-#	ltmain.sh \
-#	missing \
-#	py-compile
+	DEPRECATED/ltmain.sh \
+	DEPRECATED/check_Salome.m4 \
+	DEPRECATED/check_java.m4 \
+	DEPRECATED/missing \
+	DEPRECATED/mkinstalldirs
 
 dist_salomem4_DATA=\
 ac_cxx_depend_flag.m4 \
@@ -79,7 +75,9 @@ enable_pthreads.m4 \
 production.m4 \
 pyembed.m4 \
 python.m4 \
-check_libxml.m4
+check_libxml.m4 \
+check_local.m4 \
+check_paco++.m4
 
 dist_salome4depr_DATA=\
 $(DEPRECATED_FILES)

@@ -1,33 +1,31 @@
 #! /usr/bin/env python
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  SALOME Container : implementation of container and engine for Kernel
-#
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-#
-#
-#
 #  File   : SALOME_ContainerPy.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
-
+#
 import os
 import sys
 import string
@@ -176,9 +174,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if verbose(): print "import ",componentName," successful"
             ret=1
         except:
-            import traceback
-            traceback.print_exc()
-            print "import ",componentName," not possible"
+            if verbose(): 
+              import traceback
+              traceback.print_exc()
+              print "import ",componentName," not possible"
         return ret
 
     #-------------------------------------------------------------------------
@@ -304,35 +303,44 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     #-------------------------------------------------------------------------
 
     def Shutdown(self):
+        self._naming_service.Destroy_Name(self._containerName);
+        self._naming_service.Destroy_FullDirectory(self._containerName);
         self._orb.shutdown(0)
         pass
 
+    def _get_logfilename(self):
+      return self._logfilename
+    def _set_logfilename(self,logfilename):
+      self._logfilename=logfilename
+    def _get_workingdir(self):
+      return os.getcwd()
+
 #=============================================================================
 
-#initialise the ORB and find the root POA
-print "Starting ",sys.argv[1]
-orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
-poa = orb.resolve_initial_references("RootPOA")
-print "ORB and POA initialized"
+if __name__ == "__main__":
+  # change the stdout buffering to line buffering (same as C++ cout buffering)
+  sys.stdout=os.fdopen(1,"w",1)
+  #initialise the ORB and find the root POA
+  if verbose():print "Starting ",sys.argv[1]
+  orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+  poa = orb.resolve_initial_references("RootPOA")
+  if verbose():print "ORB and POA initialized"
 
-#create an instance of SALOME_ContainerPy_i and a Container reference
-#containerName = "FactoryServerPy"
-MESSAGE( str(sys.argv) )
-containerName = sys.argv[1]
-cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
-print "SALOME_ContainerPy_i instance created ",cpy_i 
-cpy_o = cpy_i._this()
-print "SALOME_ContainerPy_i instance activated ",cpy_o
+  #create an instance of SALOME_ContainerPy_i and a Container reference
+  #containerName = "FactoryServerPy"
+  MESSAGE( str(sys.argv) )
+  containerName = sys.argv[1]
+  cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
+  if verbose():print "SALOME_ContainerPy_i instance created ",cpy_i 
+  cpy_o = cpy_i._this()
+  if verbose():print "SALOME_ContainerPy_i instance activated ",cpy_o
+  sys.stdout.flush()
+  sys.stderr.flush()
 
-#activate the POA
-poaManager = poa._get_the_POAManager()
-poaManager.activate()
+  #activate the POA
+  poaManager = poa._get_the_POAManager()
+  poaManager.activate()
 
-#Block for ever
-orb.run()
-
-
-        
-            
-
-
+  #Block for ever
+  orb.run()
+  if verbose():print "SALOME_ContainerPy_i shutdown"

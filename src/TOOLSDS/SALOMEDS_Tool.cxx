@@ -1,39 +1,39 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
-
 //  Project   : SALOME
 //  Module    : SALOMEDS
-
+//
 #include "SALOMEDS_Tool.hxx"
 
 #include "utilities.h"
+#include "Basics_DirUtils.hxx"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <iostream.h> 
-#include <fstream.h>
 #include <pwd.h> 
 #include <unistd.h>
 #else
@@ -41,6 +41,8 @@
 #include <lmcons.h>
 #endif
 
+#include <iostream> 
+#include <fstream>
 #include <stdlib.h>
 
 #include <SALOMEconfig.h>
@@ -50,9 +52,9 @@ using namespace std;
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+    if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
       return false;
     }
   }
@@ -70,9 +72,10 @@ bool Exists(const string thePath)
 //============================================================================ 
 std::string SALOMEDS_Tool::GetTmpDir()
 {
+  return Kernel_Utils::GetTmpDirByEnv("SALOME_TMP_DIR");
   //Find a temporary directory to store a file
 
-  string aTmpDir = "";
+  /*string aTmpDir = "";
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
@@ -116,13 +119,13 @@ std::string SALOMEDS_Tool::GetTmpDir()
 #endif
 
 
-#ifdef WNT
+#ifdef WIN32
   CreateDirectory(aDir.c_str(), NULL);
 #else
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
 
-  return aDir;
+  return aDir;*/
 }
 
 //============================================================================
@@ -141,7 +144,7 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
     aFile += theFiles[i-1];
     if(!Exists(aFile)) continue;
 
-#ifdef WNT
+#ifdef WIN32
     DeleteFile(aFile.c_str());
 #else 
     unlink(aFile.c_str());
@@ -150,8 +153,8 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 
   if(IsDirDeleted) {
     if(Exists(aDirName)) {
-#ifdef WNT
-      RemoveDirectory(aDireName.c_str());
+#ifdef WIN32
+      RemoveDirectory(aDirName.c_str());
 #else
       rmdir(aDirName.c_str());
 #endif
@@ -195,7 +198,7 @@ namespace
       if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
 	string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());   
 	if(!Exists(aFullPath)) continue;
-#ifdef WNT
+#ifdef WIN32
 	ifstream aFile(aFullPath.c_str(), ios::binary);
 #else
 	ifstream aFile(aFullPath.c_str());
@@ -229,7 +232,7 @@ namespace
       if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
 	string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());
 	if(!Exists(aFullPath)) continue;
-#ifdef WNT
+#ifdef WIN32
 	aFile = new ifstream(aFullPath.c_str(), ios::binary);
 #else
 	aFile = new ifstream(aFullPath.c_str());
@@ -336,7 +339,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       aCurrentPos += 8;    
       
       string aFullPath = aTmpDir + aFileName;
-#ifdef WNT
+#ifdef WIN32
       ofstream aFile(aFullPath.c_str(), ios::binary);
 #else
       ofstream aFile(aFullPath.c_str());
@@ -407,8 +410,8 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
     path = thePath+"/";
   }
   
-#ifdef WNT  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+#ifdef WIN32  //Check if the only disk letter is given as path
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 

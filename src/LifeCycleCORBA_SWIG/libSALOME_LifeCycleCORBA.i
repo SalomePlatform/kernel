@@ -1,27 +1,29 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
-
-
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 // ----------------------------------------------------------------------------
-
+//
 %module libSALOME_LifeCycleCORBA
+
+%feature("autodoc", "1");
 
 %include <std_except.i>
 
@@ -35,6 +37,11 @@
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
 #include "Utils_SALOME_Exception.hxx"
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#define PY_SSIZE_T_MAX INT_MAX
+#define PY_SSIZE_T_MIN INT_MIN
+#endif
 
   using namespace std;
 
@@ -116,10 +123,13 @@ struct omniORBpyAPI {
   $result = PyString_FromString($1.c_str());
 }
 
-%typemap(typecheck) const Engines::MachineParameters &,
-                    Engines::MachineParameters const &
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Engines::MachineParameters const &
 {
-  $1 = PyDict_Check($input);
+  $1 = PyDict_Check($input)? 1 : 0;
+}
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) const Engines::MachineParameters &
+{
+  $1 = PyDict_Check($input)? 1 : 0;
 }
 
 %typemap(typecheck) std::string, 
@@ -166,7 +176,7 @@ struct omniORBpyAPI {
       param->parallelLib = CORBA::string_dup("");
       param->nb_component_nodes = 0;
       PyObject *key, *value;
-      int pos = 0;
+      Py_ssize_t pos = 0;
       while (PyDict_Next($input, &pos, &key, &value))
 	{
 	  char* keystr = PyString_AsString(key);

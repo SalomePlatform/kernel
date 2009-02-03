@@ -1,28 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_GenericAttribute.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
-
-
+//
 #include <string>
 
 #include "SALOMEDS_GenericAttribute.hxx"
@@ -31,14 +31,14 @@
 #include "SALOMEDS_ClientAttributes.hxx"
 #include "SALOMEDS.hxx"
 
+#include "Basics_Utils.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-#include "OpUtil.hxx"
 
 using namespace std; 
 
@@ -57,9 +57,9 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
   long pid =  (long)getpid();
 #endif  
 
-  CORBA::LongLong addr = theGA->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  CORBA::LongLong addr = theGA->GetLocalImpl(Kernel_Utils::GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
-    _local_impl = ((SALOMEDSImpl_GenericAttribute*)(addr));
+    _local_impl = reinterpret_cast<SALOMEDSImpl_GenericAttribute*>(addr);
     _corba_impl = SALOMEDS::GenericAttribute::_nil();
   }
   else {

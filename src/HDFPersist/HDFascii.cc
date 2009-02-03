@@ -1,29 +1,30 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
-
 //  Project   : SALOME
 //  Module    : SALOMEDS
-
+//
 #include "HDFOI.hxx"
 
 #include <stdlib.h>
@@ -32,9 +33,13 @@
 #include <stdio.h>
 #include <string>
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #include <time.h>
+#include <windows.h>
+#define dir_separator '\\'
+#else
+#define dir_separator '/'
 #endif
 
 using namespace std;
@@ -653,11 +658,12 @@ string GetTmpDir()
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
     aTmpDir = string(Tmp_dir);
-#ifdef WIN32
+    if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
+/*#ifdef WIN32
     if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
     if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
-#endif      
+#endif*/
   }
   else {
 #ifdef WIN32
@@ -676,11 +682,14 @@ string GetTmpDir()
 
   aTmpDir += aSubDir; //Get RND sub directory
 
+  if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
+/*
 #ifdef WIN32
   if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
 #else
   if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
 #endif
+  */
 
   string aDir = aTmpDir;
   
@@ -689,13 +698,15 @@ string GetTmpDir()
     aDir = aTmpDir+buffer;  //Build a unique directory name
   }
 
-#ifdef WNT
+#ifdef WIN32
+  //fuction CreateDirectory create only final directory, but not intermediate
+  CreateDirectory(aTmpDir.c_str(), NULL);
   CreateDirectory(aDir.c_str(), NULL);
 #else
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
 
-  return aDir;
+  return aDir + dir_separator;
 }
 
 char* makeName(char* name)
@@ -753,7 +764,7 @@ void read_float64(FILE* fp, hdf_float64* value)
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
     if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
       return false;
@@ -768,7 +779,7 @@ bool Exists(const string thePath)
 
 void Move(const string& fName, const string& fNameDst)
 { 
-#ifdef WNT
+#ifdef WIN32
   MoveFileEx (fName.c_str(), fNameDst.c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED);
 #else
   rename(fName.c_str(), fNameDst.c_str());

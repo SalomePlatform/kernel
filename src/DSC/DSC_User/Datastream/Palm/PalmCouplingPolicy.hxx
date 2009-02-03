@@ -1,23 +1,23 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : PalmCouplingPolicy.hxx
 //  Author : Eric Fayolle (EDF)
@@ -25,7 +25,7 @@
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-01-29 16:12:41 +0100 (lun, 29 jan 2007) $
 // Id          : $Id$
-
+//
 #ifndef _PALM_COUPLING_POLICIES_HXX_
 #define _PALM_COUPLING_POLICIES_HXX_
 
@@ -87,11 +87,11 @@ public:
       std::cout << "----Cst ----  InternalDataIdContainer(const DataId & dataId..) " << dataId <<std::endl;
       policy.filtre_convert_TIME.applique_filtre_conversion(dataId.first, _lTime);
       int c=0;
-      for(vector<CORBA::Long>::iterator i=_lTime.begin();i!=_lTime.end();++i)
+      for(std::vector<CORBA::Long>::iterator i=_lTime.begin();i!=_lTime.end();++i)
 	std::cout << "_lTime["<< c++ << "] : " << *i << std::endl;
       policy.filtre_convert_TAG.applique_filtre_conversion(dataId.second, _lTag);
       c=0;
-      for(vector<CORBA::Long>::iterator i=_lTag.begin();i!=_lTag.end();++i)
+      for(std::vector<CORBA::Long>::iterator i=_lTag.begin();i!=_lTag.end();++i)
 	std::cout << "_lTag["<< c++ << "] : " << *i << std::endl;
     }
 

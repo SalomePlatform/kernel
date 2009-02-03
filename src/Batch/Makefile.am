@@ -1,32 +1,31 @@
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 ####################################### library
 #  SALOME Container : implementation of container and engine for Kernel
-#
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-#
-#
-#
 #  File   : Makefile.in
 #  Author : EDF
 #  Module : SALOME
 #  $Header$
-
+#
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 # header files  
@@ -59,7 +58,21 @@ LIB_INCLUDES = \
 	Batch_PyVersatile.hxx \
 	Batch_RunTimeException.hxx \
 	Batch_StringType.hxx \
-	Batch_TypeMismatchException.hxx 
+	Batch_TypeMismatchException.hxx \
+	Batch_BatchManager_eClient.hxx \
+	Batch_FactBatchManager_eClient.hxx \
+	Batch_BatchManager_eLSF.hxx \
+	Batch_FactBatchManager_eLSF.hxx \
+	Batch_JobInfo_eLSF.hxx \
+	Batch_BatchManager_ePBS.hxx \
+	Batch_FactBatchManager_ePBS.hxx \
+	Batch_JobInfo_ePBS.hxx \
+	MpiImpl.hxx \
+	Batch_Defines.hxx \
+	Batch_BatchManager_eSGE.hxx \
+	Batch_FactBatchManager_eSGE.hxx \
+	Batch_JobInfo_eSGE.hxx \
+	MpiImpl.hxx
 
 
 LIB_SRC = \
@@ -91,19 +104,36 @@ LIB_SRC = \
 	Batch_PyVersatile.cxx \
 	Batch_RunTimeException.cxx \
 	Batch_StringType.cxx \
-	Batch_TypeMismatchException.cxx 
+	Batch_TypeMismatchException.cxx \
+	Batch_BatchManager_eClient.cxx \
+	Batch_FactBatchManager_eClient.cxx \
+	Batch_BatchManager_eLSF.cxx \
+	Batch_FactBatchManager_eLSF.cxx \
+	Batch_JobInfo_eLSF.cxx \
+	Batch_BatchManager_ePBS.cxx \
+	Batch_FactBatchManager_ePBS.cxx \
+	Batch_JobInfo_ePBS.cxx \
+	Batch_BatchManager_eSGE.cxx \
+	Batch_FactBatchManager_eSGE.cxx \
+	Batch_JobInfo_eSGE.cxx \
+	MpiImpl.cxx
 
 
 LIB_CPPFLAGS = \
-	${PYTHON_INCLUDES} \
+	${PYTHON_INCLUDES}
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += \
 	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
-  -I$(top_builddir)/salome_adm/unix
+	-I$(top_builddir)/salome_adm/unix
+endif
 
-LIB_LIBADD   = \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
+LIB_LIBADD =
+if !WITHONLYLAUNCHER
+  LIB_LIBADD   += \
 	../Basics/libSALOMEBasics.la
+endif
 
+LIB_LIBADD   += $(PYTHON_LIBS)
 
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,7 +169,9 @@ LIB_SRC +=\
 	Batch_Job_Local.cxx \
 	Batch_IOMutex.cxx
 
-LIB_CPPFLAGS += -DHAVE_CONFIG_H
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += -DHAVE_CONFIG_H
+endif
 
 endif
 
@@ -185,7 +217,7 @@ LIB_SRC += \
 	Batch_Job_LSF.cxx
 
 LIB_CPPFLAGS += ${LSF_INCLUDES}
-LIB_LIBADD   += ${LSF_LIBDIR} ${LSF_LIBS}
+LIB_LIBADD   += ${LSF_LDFLAGS} ${LSF_LIBS}
 endif
 
 

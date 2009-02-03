@@ -1,31 +1,30 @@
-//  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//
-//
+//  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Handler.cxx
 //  Author : Estelle Deville
 //  Module : SALOME
 //  $Header$ 
-
+//
 #define WRITE_CATA_COMPONENT
 
 #include "SALOME_ModuleCatalog_Handler.hxx"
@@ -232,7 +231,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered basic type: " << aType.name << " " << aType.kind << std::endl;
+                        MESSAGE("Registered basic type: " << aType.name << " " << aType.kind );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -262,7 +261,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered sequence type: " << aType.name << " " << aType.content << std::endl;
+                        MESSAGE("Registered sequence type: " << aType.name << " " << aType.content );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -321,7 +320,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered objref type: " << aType.name << " " << aType.id << std::endl;
+                        MESSAGE("Registered objref type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -382,7 +381,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                   {
                     if ( _typeMap.find(aType.name) == _typeMap.end() )
                       {
-                        std::cerr << "Registered struct type: " << aType.name << " " << aType.id << std::endl;
+                        MESSAGE("Registered struct type: " << aType.name << " " << aType.id );
                         _typeMap[aType.name]=aType;
                         _typeList.push_back(aType);
                       }
@@ -413,6 +412,8 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
         _aModule.constraint = "";
         _aModule.icon="";       
         _aModule.interfaces.resize(0);
+        _aModule.implementationType ="";
+        _aModule.implementationName ="";
 
         xmlNodePtr aComponentSubNode = aComponentNode->xmlChildrenNode;
         while(aComponentSubNode != NULL)

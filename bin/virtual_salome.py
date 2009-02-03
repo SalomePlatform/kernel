@@ -1,21 +1,24 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 """Create a virtual Salome installation 
 
 Based on a script created by Ian Bicking.
@@ -37,7 +40,8 @@ verbose=0
 def mkdir(path):
     """Create a directory and all the intermediate directories if path does not exist"""
     if not os.path.exists(path):
-        print 'Creating %s' % path
+        if verbose:
+            print 'Creating %s' % path
         os.makedirs(path)
     else:
         if verbose:
@@ -55,7 +59,8 @@ def symlink(src, dest):
             pass
         os.symlink(src, dest)
     else:
-        print 'Symlink %s already exists' % dest
+        if verbose:
+            print 'Symlink %s already exists' % dest
         pass
     pass
 
@@ -80,18 +85,13 @@ def get_lib_dir():
     global __lib__dir__
     if __lib__dir__: return __lib__dir__
     import platform
-    if platform.architecture()[0] == "64bit":
-        if platform.machine() == "ia64":
-            __lib__dir__ = "lib"
-        else:
-            __lib__dir__ = "lib64"
-    else:
-        __lib__dir__ = "lib"
+    __lib__dir__ = "lib"
     return __lib__dir__
 
 # -----------------------------------------------------------------------------
 
 def link_module(options):
+    global verbose
 
     if not options.module:
         print "Option module is mandatory"
@@ -102,12 +102,34 @@ def link_module(options):
         print "Module %s does not exist" % module_dir
         return
 
+    verbose = options.verbose
+
     home_dir = os.path.expanduser(options.prefix)
+    #try to find python version of salome application and put it in versio
+    pys=[os.path.split(s)[1] for s in glob.glob(os.path.join(home_dir,get_lib_dir(),"python*.*"))]
+    if not pys :
+      versio=None
+    else:
+      versio=pys[0]
+
+    pys=[os.path.split(s)[1] for s in glob.glob(os.path.join(module_dir,get_lib_dir(),"python*.*"))]
+    #check if the module has a python version compatible with application version
+    if not pys :
+      pyversio=versio or py_version
+    elif versio is None:
+      pyversio=pys[0]
+    elif versio in pys:
+      pyversio=versio
+    else:
+      #incompatible python versions
+      print "incompatible python versions : application has version %s and module %s has not" % (versio,module_dir)
+      return
 
     module_bin_dir=os.path.join(module_dir,'bin','salome')
+    module_idl_dir=os.path.join(module_dir,'idl','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
-    module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),py_version,'site-packages','salome')
-    module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),py_version,
+    module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
+    module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
                                           'site-packages','salome','shared_modules')
     module_share_dir=os.path.join(module_dir,'share','salome','resources')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
@@ -118,9 +140,10 @@ def link_module(options):
     module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
+    idl_dir=os.path.join(home_dir,'idl','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
-    lib_py_dir=os.path.join(home_dir,'lib',py_version,'site-packages','salome')
-    lib_py_shared_dir=os.path.join(home_dir,'lib',py_version,
+    lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
+    lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
                                    'site-packages','salome','shared_modules')
     share_dir=os.path.join(home_dir,'share','salome','resources')
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
@@ -130,10 +153,9 @@ def link_module(options):
     sharedoc_gui_dir=os.path.join(home_dir,'share','doc','salome','gui')
     sharedoc_tui_dir=os.path.join(home_dir,'share','doc','salome','tui')
 
-    verbose = options.verbose
-
     if options.clear:
         rmtree(bin_dir)
+        rmtree(idl_dir)
         rmtree(lib_dir)
         rmtree(lib_py_dir)
         rmtree(share_dir)
@@ -149,9 +171,19 @@ def link_module(options):
             pass
         pass
     else:
-        print module_bin_dir, " doesn't exist"
+        if verbose:
+            print module_bin_dir, " doesn't exist"
         pass    
     
+    #directory idl/salome : create it and link content
+    if os.path.exists(module_idl_dir):
+        mkdir(idl_dir)
+        for fn in os.listdir(module_idl_dir):
+            symlink(os.path.join(module_idl_dir, fn), os.path.join(idl_dir, fn))
+    else:
+        if verbose:
+            print module_idl_dir, " doesn't exist"
+
     #directory lib/salome : create it and link content
     if os.path.exists(module_lib_dir):
         mkdir(lib_dir)
@@ -160,10 +192,11 @@ def link_module(options):
             pass
         pass
     else:
-        print module_lib_dir, " doesn't exist"
+        if verbose:
+            print module_lib_dir, " doesn't exist"
         pass    
     
-    #directory lib/py_version/site-packages/salome : create it and link content
+    #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
     else:
@@ -178,7 +211,8 @@ def link_module(options):
                 pass
             pass
         else:
-            print module_lib_py_shared_dir, " doesn't exist"
+            if verbose:
+                print module_lib_py_shared_dir, " doesn't exist"
             pass    
 
     #directory share/doc/salome (KERNEL doc) : create it and link content

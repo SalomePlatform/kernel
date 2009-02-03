@@ -1,6 +1,6 @@
-//  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
 //  This library is free software; you can redistribute it and/or
@@ -17,17 +17,19 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//
-//
+//  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 //  File   : SALOME_ResourcesCatalog_Handler.hxx
 //  Author : Estelle Deville
 //  Module : SALOME
 //$Header$
-
+//
 #ifndef SALOME_RESOURCES_CATALOG_HANDLER
 #define SALOME_RESOURCES_CATALOG_HANDLER
+
+
+#include "ResourcesManager_Defs.hxx"
 
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
@@ -36,11 +38,12 @@
 
 #include <libxml/parser.h>
 
-class SALOME_ResourcesCatalog_Handler
+class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 {
   
   public :
-    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources);
+    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
+				    MapOfParserResourcesType& resources_batch_list);
 
     const MapOfParserResourcesType& GetResourcesAfterParsing() const;
 
@@ -55,6 +58,7 @@ class SALOME_ResourcesCatalog_Handler
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
+    MapOfParserResourcesType& _resources_batch_list;
 
     const char *test_machine;
     const char *test_resources;
@@ -74,6 +78,8 @@ class SALOME_ResourcesCatalog_Handler
     const char *test_cpu_freq_mhz;
     const char *test_nb_of_nodes;
     const char *test_nb_of_proc_per_node;
+    const char *test_batch_queue;
+    const char *test_user_commands;
 
   };
 

@@ -1,29 +1,29 @@
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
-
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 # This Makefile is responsible of generating the client and server
 # implementation of IDL interfaces for both C++ and python usage.
 # The building process of the C++ files is in charge of each source
 # package and then is not manage here.
 #
-
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 if WITH_PACO_PARALLEL
@@ -63,9 +63,13 @@ if MPI_IS_OK
   IDL_FILES += $(MPIIDL_FILES)
 endif
 
+OTHER_IDL_FILES = \
+  TestNotif.idl \
+  TypeData.idl
+
 # all the idl files are needed for make dist
-EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) \
-	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
+	    SALOME_Exception.xml SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
@@ -201,14 +205,15 @@ DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
 nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES) $(DYNIDL_SRCS)
-libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix \
+libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
 				-I$(top_builddir)/idl \
 				@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
 
 nodist_libSalomeParallelIDLKernel_la_SOURCES = $(PAR) $(GEN_PACO)
-libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/idl \
+libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
+					-I$(top_builddir)/idl \
 					@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
 					@PACO_INCLUDES@
 libSalomeParallelIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0

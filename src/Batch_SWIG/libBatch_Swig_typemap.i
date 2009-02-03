@@ -1,21 +1,23 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
  * _typemap.i : 
@@ -34,6 +36,11 @@
 #include "Batch_PyVersatile.hxx"
 #include "Batch_JobId.hxx"
 #include "Batch_FactBatchManager.hxx"
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#define PY_SSIZE_T_MAX INT_MAX
+#define PY_SSIZE_T_MIN INT_MIN
+#endif
 %}
 
 # // supprime toutes les definitions par defaut => sert au debug
@@ -53,6 +60,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Parametre
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Parametre C++
 %typemap(out) Batch::Parametre
@@ -81,7 +92,7 @@
   // on itere sur toutes les clefs du dictionnaire, et on passe par la classe PyVersatile
 	// qui convertit un Versatile en PyObject et vice versa
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk = PyString_AsString(key);
 		Batch::PyVersatile PyV = value;
@@ -115,7 +126,7 @@
   // on itere sur toutes les clefs du dictionnaire, et on passe par la classe PyVersatile
 	// qui convertit un Versatile en PyObject et vice versa
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk = PyString_AsString(key);
 		Batch::PyVersatile PyV = value;
@@ -136,6 +147,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Environnement
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Environnement C++
 %typemap(out) Batch::Environnement
@@ -163,7 +178,7 @@
 
 	// on itere sur toutes les clefs du dictionnaire
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk  = PyString_AsString(key);
 		std::string val = PyString_AsString(value);
@@ -185,7 +200,7 @@
 
 	// on itere sur toutes les clefs du dictionnaire
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk  = PyString_AsString(key);
 		std::string val = PyString_AsString(value);

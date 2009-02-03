@@ -1,52 +1,53 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_LifeCycleCORBA.cxx
 //  Author : Paul RASCLE, EDF
 //  Module : SALOME
 //  $Header$
-
+//
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 
 #include <time.h>
-#ifndef WNT
+#ifndef WIN32
   #include <sys/time.h>
 #endif
 
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
-#ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
-#else
-#include "SALOME_ModuleCatalog.hh"
-#endif
+#include CORBA_CLIENT_HEADER(SALOME_Session)
+#include CORBA_CLIENT_HEADER(DSC_Engines)
+#include CORBA_CLIENT_HEADER(SALOME_Registry)
+#include CORBA_CLIENT_HEADER(SALOMEDS)
+#include CORBA_CLIENT_HEADER(Logger)
+
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
@@ -74,7 +75,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
   // be sure to have an instance of traceCollector, when used via SWIG
   // in a Python module
   int argc = 0;
-  char *xargv = "";
+  char *xargv = (char*)"";
   char **argv = &xargv;
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
@@ -268,7 +269,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     {
       // containerName doesn't contain "/" => Local container
       params->container_name=CORBA::string_dup(stContainer);
-      params->hostname=CORBA::string_dup(GetHostname().c_str());
+      params->hostname=CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
     }
   else 
     {
@@ -421,6 +422,132 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
  return resManager._retn();
 }
 
+//=============================================================================
+/*! Public -
+ *  shutdown all the SALOME servers except SALOME_Session_Server, omniNames and notifd
+ */
+//=============================================================================
+
+void SALOME_LifeCycleCORBA::shutdownServers()
+{
+  // get each Container from NamingService => shutdown it
+  // (the order is inverse to the order of servers initialization)
+  
+  SALOME::Session_var session = SALOME::Session::_nil();
+  CORBA::Long pid = 0;
+  CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
+  if (!CORBA::is_nil(objS))
+    {
+      session = SALOME::Session::_narrow(objS);
+      if (!CORBA::is_nil(session))
+        {
+          pid = session->getPID();
+          session->ping();
+        }
+    }
+
+  string hostname = Kernel_Utils::GetHostname();
+  
+  // 1) SalomeLauncher
+  CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+  Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+  if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+    launcher->Shutdown();
+  
+  // 2) ConnectionManager
+  CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
+  Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
+  if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
+    connMan->ShutdownWithExit();
+  
+  // 3) SALOMEDS
+  CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
+  SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
+  if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
+    studyManager->Shutdown();
+  
+  // 4) ModuleCatalog
+  CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
+  SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
+  if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
+    catalog->shutdown();
+  
+  // 5) Registry
+  CORBA::Object_var objR = _NS->Resolve("/Registry");
+  Registry::Components_var registry = Registry::Components::_narrow(objR);
+  if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
+      registry->Shutdown();
+
+  // 6) Logger
+  int argc = 0;
+  char *xargv = (char*)"";
+  char **argv = &xargv;
+  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+
+  CORBA::Object_var objLog = CORBA::Object::_nil();
+  CosNaming::NamingContext_var inc;
+  CORBA::Object_var theObj = CORBA::Object::_nil();
+  std::string stdname = "Logger";
+  CosNaming::Name name;
+  name.length(1);
+  name[0].id = CORBA::string_dup(stdname.c_str());
+  try
+    { 
+      if(!CORBA::is_nil(orb)) 
+	theObj = orb->resolve_initial_references("NameService");
+      if (!CORBA::is_nil(theObj))
+	inc = CosNaming::NamingContext::_narrow(theObj);
+    }
+  catch(...)
+    {
+    }
+  if(!CORBA::is_nil(inc)) {
+    try
+      {
+	objLog = inc->resolve(name);
+	SALOME_Logger::Logger_var logger = SALOME_Logger::Logger::_narrow(objLog);
+	if ( !CORBA::is_nil(logger) )
+	  logger->shutdown();
+      }
+    catch(...)
+      {
+      }
+  }
+}
+
+//=============================================================================
+/*! Public -
+ *  shutdown  omniNames and notifd
+ */
+//=============================================================================
+
+void SALOME_LifeCycleCORBA::killOmniNames()
+{
+  string portNumber (::getenv ("NSPORT") );
+  if ( !portNumber.empty() ) 
+    {
+      string cmd ;
+      cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
+        + portNumber
+        + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
+      MESSAGE(cmd);
+      try {
+	system ( cmd.c_str() );
+      }
+      catch ( ... ) {
+      }
+    }
+  
+  // NPAL 18309  (Kill Notifd)
+  if ( !portNumber.empty() ) 
+    {
+      string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
+      cmd += string("killNotifdAndClean(") + portNumber + "); ";
+      cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
+      MESSAGE(cmd);
+      system( cmd.c_str() );
+    }
+}
 
 //=============================================================================
 /*! Protected -

@@ -1,21 +1,23 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef  DF_DEF_HXX
 #define  DF_DEF_HXX
@@ -68,7 +70,7 @@ public:
     
 };
 
-# if defined(WNT) && !defined(HAVE_NO_DLL)
+# if defined(WIN32) && !defined(HAVE_NO_DLL)
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT __declspec( dllexport )
@@ -82,7 +84,7 @@ public:
 #   define Standard_IMPORTC extern "C" __declspec( dllimport )
 #  endif  /* Standard_IMPORT */
 
-# else  /* WNT */
+# else  /* WIN32 */
 
 #  ifndef Standard_EXPORT
 #   define Standard_EXPORT
@@ -96,11 +98,11 @@ public:
 #   define Standard_IMPORTC extern "C"
 #  endif  /* Standard_IMPORT */
 
-# endif  /* WNT */
+# endif  /* WIN32 */
 
 # ifndef __Standard_API
-//#  ifdef WNT
-#   if !defined(WNT) 
+//#  ifdef WIN32
+#   if !defined(WIN32) 
 #    define __Standard_API Standard_EXPORT
 #    define __Standard_APIEXTERN Standard_EXPORTEXTERN
 #   else
@@ -109,7 +111,7 @@ public:
 #   endif  // __Standard_DLL
 //#  else
 //#   define __Standard_API
-//#  endif  // WNT
+//#  endif  // WIN32
 # endif  // __Standard_API
 
 #include <iostream>

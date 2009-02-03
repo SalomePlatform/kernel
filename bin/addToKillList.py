@@ -1,102 +1,112 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
-#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
-# version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-# Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
-
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 import os, sys, pickle, string, signal
 from launchConfigureParser import verbose
 
 ########## adds to the kill list of SALOME one more process ##########
 
 def findFileDict():
-    if os.environ.has_key('NSPORT'):
-        my_port = os.environ['NSPORT']
-        pass
-    else:
-        my_port = 2809
-        try:
-            file = open(os.environ["OMNIORB_CONFIG"], "r")
-            s = file.read()
-            while len(s):
-                l = string.split(s, ":")
-                if string.split(l[0], " ")[0] == "ORBInitRef" or string.split(l[0], " ")[0] == "InitRef" :
-                    my_port = int(l[len(l)-1])
-                    pass
-                s = file.read()
-                pass
-            pass
-        except:
-            pass
-        pass
-    if verbose(): print "myport = ", my_port
-    return my_port
+    """
+    Detect current SALOME session's port number.
+    Returns port number.
+    """
+    from salome_utils import getPortNumber
+    port = getPortNumber()
+    if verbose(): print "myport = ", port
+    return port
     
-def addToKillList(command_pid, command):
-    my_port = findFileDict()
+def addToKillList(command_pid, command, port=None):
+    """
+    Add the process to the SALOME processes dictionary file.
+    Parameters:
+    - command_pid : command PID
+    - command     : command (string or list of strings)
+    - [port]      : SALOME port number; if this parameter is None (default),
+    it is detected automatically
+    """
+    # retrieve current processes dictionary
     from killSalomeWithPort import getPiDict
-    filedict=getPiDict(my_port)
+    if port is None: port=findFileDict()
+    filedict=getPiDict(port)
     try:
         fpid=open(filedict, 'r')
         process_ids=pickle.load(fpid)
         fpid.close()
     except:
-        process_ids=[{}]
+        process_ids=[]
         pass
-        
-    already_in=0
+    # check if PID is already in dictionary
+    already_in=False
     for process_id in process_ids:
-        if verbose(): print process_id
         for pid, cmd in process_id.items():
-            #print "see process %s : %s"% (pid, cmd[0])
-            if pid == command_pid:
-                already_in=1
-                pass
+            if int(pid) == int(command_pid):
+                already_in=True
+                break
             pass
+        if already_in: break
         pass
-
-    command=(command.split(" "))[0]
-    if already_in == 0:
+    # add process to the dictionary
+    if not already_in:
+        import types
+        if type(command) == types.ListType: command=" ".join([str(c) for c in command])
+        command=command.split()[0]
         try:
-            process_ids.append({command_pid: [command]})
-            fpid=open(filedict,'w')
+            if verbose(): print "addToKillList: %s : %s" % ( str(command_pid), command )
+            process_ids.append({int(command_pid): [command]})
+            dir = os.path.dirname(filedict)
+            if not os.path.exists(dir): os.makedirs(dir, 0777)
+            fpid = open(filedict,'w')
             pickle.dump(process_ids, fpid)
             fpid.close()
         except:
-            print "addToKillList: can not add command %s to the kill list"% filedict
+            if verbose(): print "addToKillList: can not add command %s : %s to the kill list" % ( str(command_pid), command )
             pass
         pass
     pass
 
-def killList():
-    my_port = findFileDict()
+def killList(port=None):
+    """
+    Kill all the processes listed in the SALOME processes dictionary file.
+    - [port]      : SALOME port number; if this parameter is None (default),
+    it is detected automatically
+    """
+    # retrieve processes dictionary
     from killSalomeWithPort import getPiDict
-    filedict=getPiDict(my_port)
+    if port is None: port=findFileDict()
+    # new-style dot-prefixed pidict file
+    filedict=getPiDict(port, hidden=True)
+    # provide compatibility with old-style pidict file (not dot-prefixed)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
     try:
         fpid=open(filedict, 'r')
         process_ids=pickle.load(fpid)
         fpid.close()
     except:
-        process_ids=[{}]
+        process_ids=[]
         pass
-
+    # kill processes
     for process_id in process_ids:
-        print process_id
+        #print process_id
         for pid, cmd in process_id.items():
             print "stop process %s : %s"% (pid, cmd[0])
             try:
@@ -106,11 +116,11 @@ def killList():
                 pass
             pass
         pass
+    # remove processes dictionary file
     os.remove(filedict)
     pass
-  
-
 
 if __name__ == "__main__":
     if verbose(): print sys.argv
     addToKillList(sys.argv[1], sys.argv[2])
+    pass

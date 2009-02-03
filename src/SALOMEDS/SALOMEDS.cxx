@@ -1,43 +1,30 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOMEDS.cxx
 //  Author : Sergey ANIKIN
 //  Module : SALOME
 //  $Header$
-
-#ifdef WNT
-#include <SALOMEDS.hxx>
-#include <SALOMEDS_StudyManager.hxx>
-#include <SALOMEDS_Study.hxx>
-#include <SALOMEDS_SObject.hxx>
-#include <SALOMEDS_StudyBuilder.hxx>
-#include <SALOMEDS_SComponent.hxx>
-#include <SALOMEDSClient.hxx>
-#include <SALOMEDSClient_IParameters.hxx>
-#include <SALOMEDS_IParameters.hxx>
-#include <SALOMEDS_StudyManager_i.hxx>
-#else
+//
 #include "SALOMEDS.hxx"
 #include "SALOMEDS_StudyManager.hxx"
 #include "SALOMEDS_Study.hxx"
@@ -48,7 +35,6 @@
 #include "SALOMEDSClient_IParameters.hxx"
 #include "SALOMEDS_IParameters.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
-#endif
 
 #include "SALOMEDS_Defines.hxx"
 
@@ -138,7 +124,7 @@ SALOMEDS_EXPORT
     PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
     //give ownership to the poa : the object will be deleted by the poa
     aStudyManager_i->_remove_ref();
-    aStudyManager_i->register_name("/myStudyManager");
+    aStudyManager_i->register_name((char*)"/myStudyManager");
   }
   return new SALOMEDS_StudyManager();
 }

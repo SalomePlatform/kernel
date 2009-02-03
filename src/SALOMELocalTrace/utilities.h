@@ -1,31 +1,30 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME Utils : general SALOME's definitions and tools
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : utilities.h
 //  Author : Antoine YESSAYAN, Paul RASCLE, EDF
 //  Module : SALOME
 //  $Header$
-
+//
 /* ---  Definition macros file to print informations if _DEBUG_ is defined --- */
 
 #ifndef UTILITIES_H
@@ -55,12 +54,18 @@
 #define MESS_END std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, os.str().c_str());
 #define MESS_ABORT std::endl; LocalTraceBufferPool::instance()->insert(ABORT_MESS, os.str().c_str());
 
+// Macroses for messages with separated structure in c++ file in _DUBUG mode
+#define MESSAGE_BEGIN(msg) {std::ostringstream ss; ss <<__FILE__ <<" ["<<__LINE__<<"] : "<< msg; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+#define MESSAGE_ADD(msg) {std::ostringstream ss; ss << msg; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+#define MESSAGE_END(msg) {std::ostringstream ss; ss << msg << std::endl; LocalTraceBufferPool::instance()->insert(NORMAL_MESS, ss.str().c_str());}
+
 // --- Some macros are always defined (without _DEBUG_): for use with release version
 
 #define INFOS(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define PYSCRIPT(msg) {MESS_INIT("---PYSCRIPT--- ") << msg << MESS_END}
 #define INTERRUPTION(msg) {MESS_BEGIN("- INTERRUPTION: ")<< msg << MESS_ABORT}
-#ifdef WNT
+
+#ifdef WIN32
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
                                std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \

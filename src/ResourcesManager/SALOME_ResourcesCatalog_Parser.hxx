@@ -1,6 +1,6 @@
-//  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
 //  This library is free software; you can redistribute it and/or
@@ -17,17 +17,18 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//
-//
+//  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 //  File   : SALOME_ResourcesCatalog_Parser.hxx
 //  Author : Estelle Deville
 //  Module : SALOME
 //$Header$
-
+//
 #ifndef SALOME_RESOURCES_CATALOG_PARSER
 #define SALOME_RESOURCES_CATALOG_PARSER
+
+#include "ResourcesManager_Defs.hxx"
 
 #include <string>
 #include <vector>
@@ -38,11 +39,11 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
-enum BatchType {none, pbs, lsf, slurm};
+enum BatchType {none, pbs, lsf, sge};
 
-enum MpiImplType {indif, lam, mpich1, mpich2, openmpi};
+enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm, prun};
 
-class ResourceDataToSort
+class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
 
   public:
@@ -70,9 +71,10 @@ class ResourceDataToSort
     unsigned int GetNumberOfPoints() const;
   };
 
-struct ParserResourcesType
+struct RESOURCESMANAGER_EXPORT ParserResourcesType
   {
     ResourceDataToSort DataForSort;
+    std::string HostName;
     std::string Alias;
     AccessProtocolType Protocol;
     AccessModeType Mode;
@@ -82,6 +84,8 @@ struct ParserResourcesType
     std::string AppliPath;
     std::vector<std::string> ModulesList;
     std::string OS;
+    std::string batchQueue;
+    std::string userCommands;
 
     void Print() const;
     void Clear();

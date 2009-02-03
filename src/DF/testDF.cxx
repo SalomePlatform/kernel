@@ -1,29 +1,32 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //File:    testDF.cxx
 //Author:  Sergey RUIN
-
+//
 #include <stdio.h>
-#include <iostream.h> 
+#include <iostream> 
 #include <vector>
 #include <string>
+#include <string.h>
 
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
@@ -33,7 +36,7 @@
 #include "DF_Container.hxx"
 #include "DF_ChildIterator.hxx"
 
-#ifndef WNT
+#ifndef WIN32
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -41,6 +44,7 @@
 #else
 #include <time.h>
 #include <lmcons.h>
+#include <windows.h>
 #endif
 
 using namespace std;
@@ -52,7 +56,7 @@ void printStr(const string& theValue)
 
 void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
 {
-#ifdef WNT
+#ifdef WIN32
   SYSTEMTIME    st;
 
   GetLocalTime ( &st );
@@ -83,7 +87,7 @@ void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, in
 
 string GetUserName()
 {
-#ifdef WNT
+#ifdef WIN32
   char*  pBuff = new char[UNLEN + 1];
   DWORD  dwSize = UNLEN + 1;
   string retVal;
@@ -128,8 +132,8 @@ string GetDirFromPath(const string& thePath) {
     path = thePath+"/";
   }
   
-#ifdef WNT  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ":") path +='\\';
+#ifdef WIN32  //Check if the only disk letter is given as path
+  if(path.size() == 2 && path[1] == ':') path +='\\';
 #endif
 
   for(int i = 0, len = path.size(); i<len; i++) 
@@ -140,7 +144,7 @@ string GetDirFromPath(const string& thePath) {
 
 bool Exists(const string thePath) 
 {
-#ifdef WNT 
+#ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
     if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
       return false;
@@ -186,9 +190,9 @@ int main (int argc, char * argv[])
   cout << "Test started " << endl;
   
   DF_Application* appli = new DF_Application;
+  /*  
   DF_Document* doc1 = appli->NewDocument("doc_1");
   
-  /*  
   DF_Label root1 = doc1->Main();
   DF_Label child = root1.FindChild(3, true); //0:1:3
   

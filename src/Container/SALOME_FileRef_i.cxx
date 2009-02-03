@@ -1,31 +1,32 @@
-// Copyright (C) 2006  OPEN CASCADE, CEA/DEN, EDF R&D, PRINCIPIA R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOME_FileRef_i.cxx
 //  Author : Paul RASCLE, EDF
 //  Module : SALOME
 //  $Header$
-
+//
 #include "SALOME_FileRef_i.hxx"
 #include "utilities.h"
-#include "OpUtil.hxx"
+#include "Basics_Utils.hxx"
 #include <string>
 
 using namespace std;
@@ -52,9 +53,13 @@ fileRef_i::fileRef_i(Engines::Container_ptr container,
   MESSAGE("fileRef_i::fileRef_i "<< origFileName);
   _container =  Engines::Container::_duplicate(container);
   _origFileName = origFileName;
-  _machine = GetHostname();
+  _machine = Kernel_Utils::GetHostname();
+#if defined(_DEBUG_) || defined(_DEBUG)
   int OK = addRef(_machine.c_str(), _origFileName.c_str());
   SCRUTE(OK);
+#else
+  addRef(_machine.c_str(), _origFileName.c_str());
+#endif
 }
 
 

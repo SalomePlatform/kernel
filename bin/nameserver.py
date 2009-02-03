@@ -1,9 +1,30 @@
 #!/usr/bin/env python
-
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 import sys, os, re, socket
 #import commands
 from server import *
 from Utils_Identity import getShortHostName
+from launchConfigureParser import verbose
 
 # -----------------------------------------------------------------------------
 
@@ -45,12 +66,12 @@ class NamingServer(Server):
         #os.system("touch " + upath + "/dummy")
         for fname in os.listdir(upath):
           try:
-            os.remove(upath + "/" + fname)
+            if not fname.startswith("."): os.remove(upath + "/" + fname)
           except:
             pass
         #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
-        print "Name Service... ",
+        if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
           hname=getShortHostName();
@@ -60,7 +81,7 @@ class NamingServer(Server):
 
         f=open(os.environ["OMNIORB_CONFIG"])
         ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
-        print "ss = ", ss,
+        if verbose(): print "ss = ", ss,
         f.close()
         sl=ss[0]
         ll = sl.split(':')
@@ -74,15 +95,15 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
+          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"', ' -errlog', upath+'/omniNameErrors.log']
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
-          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath ]
+          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath, '-errlog', upath+'/omniNameErrors.log']
           #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
-        print "... ok"
-        print "to list contexts and objects bound into the context with the specified name : showNS "
+        if verbose(): print "... ok"
+        if verbose(): print "to list contexts and objects bound into the context with the specified name : showNS "
 
 
    def initArgs(self):

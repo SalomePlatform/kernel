@@ -1,32 +1,34 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_AttributeParameter.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
-
+//
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <strstream>
+#include <sstream>
 
 using namespace std;
 
@@ -43,7 +45,7 @@ string convertString(const string& S)
   for(int i = 0, pos = 0; i<length; i++, pos+=3) {
     int val = (int)s[i];
     buffer[pos] = '%';
-    sprintf(c, "%x", val);
+    sprintf(c, "%.2x", val);
     buffer[pos+1] = c[0]; 
     buffer[pos+2] = c[1];
   }
@@ -627,7 +629,7 @@ void SALOMEDSImpl_AttributeParameter::Paste (DF_Attribute* into)
 //=======================================================================
 string SALOMEDSImpl_AttributeParameter::Save() 
 { 
-  ostrstream buffer;
+  ostringstream buffer;
   char *tmpBuffer = new char[255];
 
   buffer << _ints.size() << " ";
@@ -686,7 +688,7 @@ string SALOMEDSImpl_AttributeParameter::Save()
 
   delete tmpBuffer;
 
-  string AS((char*)buffer.rdbuf()->str());
+  string AS = buffer.str();
 
   return AS; 
 }

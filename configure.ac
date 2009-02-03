@@ -1,10 +1,30 @@
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 # ================================================================
 # Process this file with autoconf to produce a configure script
 # ================================================================
-#
 #AC_PREREQ(2.59)
-AC_INIT([Salome2 Project], [4.1.1], [paul.rascle@edf.fr], [SalomeKer])
+#
+AC_INIT([Salome2 Project], [5.1.0], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -14,7 +34,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-XVERSION=0x040101
+XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
@@ -65,6 +85,12 @@ AC_ARG_ENABLE(corba_gen,
      *) AC_MSG_ERROR(bad value ${enableval} for --enable-corba-gen) ;;
   esac],[corba_gen=true])
 AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
+
+# ---- option to build only launcher, resources manager and batch classes
+AC_ARG_WITH(onlylauncher,
+	    --with-onlylauncher,
+	    WITHONLYLAUNCHER="yes",WITHONLYLAUNCHER="no")
+AM_CONDITIONAL(WITHONLYLAUNCHER, test x$WITHONLYLAUNCHER = xyes)
 
 # ----------------------------------------------------------------------------
 
@@ -174,6 +200,15 @@ CHECK_SWIG
 
 echo
 echo ---------------------------------------------
+echo Testing libxml2
+echo ---------------------------------------------
+echo
+
+CHECK_LIBXML
+
+if test x$WITHONLYLAUNCHER = xno; then
+echo
+echo ---------------------------------------------
 echo testing HDF5
 echo ---------------------------------------------
 echo
@@ -236,16 +271,12 @@ echo
 
 CHECK_BOOST
 
-echo
-echo ---------------------------------------------
-echo Testing libxml2
-echo ---------------------------------------------
-echo
-
-CHECK_LIBXML
-
 fi 
 # --- end test corba
+# ----------------------------------------------------------------------------
+
+fi 
+# --- end test ONLYLAUNCHER
 # ----------------------------------------------------------------------------
 
 echo
@@ -408,10 +439,14 @@ function check_fatal_error {
 
 # --------------------------------------
 
-if test x$corba_gen = xtrue; then
-  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok"
+if test x$WITHONLYLAUNCHER = xno; then
+  if test x$corba_gen = xtrue; then
+    basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
+  else
+    basic_mandatory_products="cc_ok threads_ok hdf5_ok libxml_ok"
+  fi
 else
-  basic_mandatory_products="cc_ok threads_ok hdf5_ok"
+  basic_mandatory_products="cc_ok threads_ok libxml_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -419,19 +454,21 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok libxml_ok"
-if test x$corba_gen = xtrue; then
-  echo --- CORBA mandatory products - default configuration:
-  summary $corba_mandatory_products
-  check_fatal_error $corba_mandatory_products
-else
-  echo --- CORBA products not required - option --disable-corba-gen
-  if test x"$WITH_BATCH" = xyes; then
-    echo --- BATCH mode mandatory products - default configuration:
-    summary "python_ok"
-    check_fatal_error "python_ok"
-  else 
+if test x$WITHONLYLAUNCHER = xno; then
+  corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok"
+  if test x$corba_gen = xtrue; then
+    echo --- CORBA mandatory products - default configuration:
+    summary $corba_mandatory_products
+    check_fatal_error $corba_mandatory_products
+  else
+    echo --- CORBA products not required - option --disable-corba-gen
+    if test x"$WITH_BATCH" = xyes; then
+      echo --- BATCH mode mandatory products - default configuration:
+      summary "python_ok"
+      check_fatal_error "python_ok"
+    else 
     echo --- Python not required - option --enable-batch=no
+    fi
   fi
 fi
 echo
@@ -454,9 +491,11 @@ echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
 echo
 
+if test x$WITHONLYLAUNCHER = xno; then
 echo
 echo "Default ORB   : $DEFAULT_ORB"
 echo
+fi
 
 dnl generals files which could be included in every makefile
 
@@ -475,38 +514,11 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-echo 
-echo ---------------------------------------------
-echo copying resource files, shell scripts, and 
-echo xml files
-echo ---------------------------------------------
-echo
-
-
-mkdir -p bin/salome
-cd bin/salome
-for i in  `find $ROOT_SRCDIR/bin`
-do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
-  case "$local_bin" in
-        *.in | *~) ;;
-        . | */CVS | */CVS/* | ./salome) ;;
-        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
-        *) $INSTALL $i $local_bin; echo $local_bin ;;
-  esac
-done
-cd $ROOT_BUILDDIR
-
 echo
 echo ---------------------------------------------
 echo generating Makefiles and configure files
 echo ---------------------------------------------
 echo
-
-AC_OUTPUT_COMMANDS([ \
-	chmod +x ./bin/*; \
-	chmod +x ./bin/salome/* \
-])
 
 # This list is initiated using autoscan and must be updated manually
 # when adding a new file <filename>.in to manage. When you execute
@@ -516,12 +528,12 @@ AC_OUTPUT([ \
 	./KERNEL_version.h \
 	./salome_adm/unix/SALOMEconfig.ref \
 	./salome_adm/Makefile \
+	./salome_adm/cmake_files/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
 	Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
-	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/tui/Makefile \
@@ -532,7 +544,6 @@ AC_OUTPUT([ \
 	./resources/Makefile \
 	./resources/KERNELCatalog.xml \
 	./resources/CatalogResources.xml \
-	./resources/DEPRECATED/Plugin \
 	./src/Makefile \
 	./src/Basics/Makefile \
 	./src/Basics/Test/Makefile \

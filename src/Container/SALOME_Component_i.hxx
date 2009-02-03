@@ -1,26 +1,25 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 //  SALOME Container : implementation of container and engine for Kernel
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//
-//
 //  File   : SALOME_Component_i.hxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
@@ -31,12 +30,12 @@
 
 #include <SALOMEconfig.h>
 
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <sys/types.h>
@@ -61,7 +60,15 @@ public:
 		      const char *instanceName, 
 		      const char *interfaceName,
                       bool notif = false);
-  // Consructeur pour composant parallele: ne pas faire appel au registry
+  //Constructor for standalone component
+  Engines_Component_i(CORBA::ORB_ptr orb,
+		      PortableServer::POA_ptr poa,
+		      Engines::Container_ptr container, 
+		      const char *instanceName, 
+		      const char *interfaceName,
+                      bool notif = false,
+                      bool regist=true);
+  // Constructor for parallel component : don't call registry
   Engines_Component_i(CORBA::ORB_ptr orb,
 		      PortableServer::POA_ptr poa,
 		      PortableServer::ObjectId * contId, 
@@ -110,6 +117,11 @@ public:
  virtual void checkOutputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
 							 const char* Salome_file_name);
+
+  // Object information
+  virtual bool hasObjectInfo() { return false; }
+  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
+  
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
@@ -147,6 +159,7 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id;
   PortableServer::ObjectId * _contId;
+  Engines::Container_var _container;
   Engines_Component_i * _thisObj ;
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
@@ -167,7 +180,7 @@ protected:
   std::string _nodeName ;
 
 private:
-#ifndef WNT
+#ifndef WIN32
   pthread_t _ThreadId ;
 #else
   pthread_t* _ThreadId ;

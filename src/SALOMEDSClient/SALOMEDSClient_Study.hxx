@@ -1,26 +1,28 @@
-// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSClient_Study.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
-
+//
 #ifndef __SALOMEDSClient_STUDY_H__
 #define __SALOMEDSClient_STUDY_H__
 
@@ -91,6 +93,29 @@ public:
   virtual bool IsStudyLocked() = 0;
   virtual void UnLockStudy(const std::string& theLockerID) = 0;
   virtual std::vector<std::string> GetLockerID() = 0;
+
+  virtual void SetReal(const std::string& theVarName, const double theValue) = 0;
+  virtual void SetInteger(const std::string& theVarName, const int theValue) = 0;
+  virtual void SetBoolean(const std::string& theVarName, const bool theValue) = 0;  
+
+  virtual double GetReal(const std::string& theVarName) = 0;
+  virtual int GetInteger(const std::string& theVarName) = 0;
+  virtual bool GetBoolean(const std::string& theVarName) = 0;
+  
+  virtual bool IsReal(const std::string& theVarName) = 0;
+  virtual bool IsInteger(const std::string& theVarName) = 0;
+  virtual bool IsBoolean(const std::string& theVarName) = 0;
+  
+  virtual bool IsVariable(const std::string& theVarName) = 0;
+  virtual std::vector<std::string> GetVariableNames() = 0;
+
+  virtual bool RemoveVariable(const std::string& theVarName) = 0;
+  virtual bool RenameVariable(const std::string& theVarName,
+			      const std::string& theNewVarName) = 0;
+  virtual bool IsVariableUsed(const std::string& theVarName) = 0;
+
+  virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars) = 0;
+  
 };
 
 

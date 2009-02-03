@@ -1,29 +1,28 @@
 #!/bin/sh
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
 #
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : test2.sh
 #  Module : SALOME
-
+#
 echo   "test2:
 
         ajout dans un catalogue existant d'un nouveau composant 
@@ -37,25 +36,28 @@ echo  "
 --> creation d'un nouveau catalogue avec un composant
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
 		-Wbcatalog=my_catalog.xml \
-		${ROOT_SRCDIR}/idl/AddComponent.idl
+		${SRCDIR}/tests/AddComponent.idl
 
 
 echo  "
 --> ajout d'un nouveau composant dans le catalogue
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
 		-Wbcatalog=my_catalog.xml \
-		${ROOT_SRCDIR}/idl/SubComponent.idl
+		${SRCDIR}/tests/SubComponent.idl
 
 
 echo  "
 --> remplacement du premier composant dans le catalogue
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
 		-Wbcatalog=my_catalog.xml \
-		${ROOT_SRCDIR}/idl/AddComponent.idl
+		${SRCDIR}/tests/AddComponent.idl
 
