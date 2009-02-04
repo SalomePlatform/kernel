@@ -317,7 +317,11 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               {
                 _resources_list[_resource.HostName] = _resource;
                 if(_resource.HostName == "localhost")
-                  _resources_list[Kernel_Utils::GetHostname()] = _resource;
+                  {
+                    _resource.HostName = Kernel_Utils::GetHostname();
+                    _resource.DataForSort._hostName = Kernel_Utils::GetHostname();
+                    _resources_list[Kernel_Utils::GetHostname()] = _resource;
+                  }
               }
           }
           else
@@ -332,6 +336,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	 iter != _resources_list.end();
 	 iter++)
       {
+	std::cerr << (*iter).first << std::endl;
 	std::cerr << (*iter).second.HostName << std::endl;
 	std::cerr << (*iter).second.Alias << std::endl;
 	std::cerr << (*iter).second.UserName << std::endl;
