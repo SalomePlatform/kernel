@@ -288,3 +288,14 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def getStudyId(self):
         return self._studyId
+
+    #-------------------------------------------------------------------------    
+
+    def hasObjectInfo(self):
+	return 0
+
+    #-------------------------------------------------------------------------    
+
+    def getObjectInfo(self, studyId, entry):
+        return ""
+
