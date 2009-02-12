@@ -89,8 +89,8 @@ AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 # ---- option to build only launcher, resources manager and batch classes
 AC_ARG_WITH(onlylauncher,
 	    --with-onlylauncher,
-	    WITHONLYLAUNCHER="yes",WITHONLYLAUNCHER="no")
-AM_CONDITIONAL(WITHONLYLAUNCHER, test x$WITHONLYLAUNCHER = xyes)
+	    [],[with_onlylauncher="no"])
+AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
 
 # ----------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ echo
 
 CHECK_LIBXML
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
 echo
 echo ---------------------------------------------
 echo testing HDF5
@@ -439,7 +439,7 @@ function check_fatal_error {
 
 # --------------------------------------
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   if test x$corba_gen = xtrue; then
     basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
   else
@@ -454,7 +454,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok"
   if test x$corba_gen = xtrue; then
     echo --- CORBA mandatory products - default configuration:
@@ -491,7 +491,7 @@ echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
 echo
 echo "Default ORB   : $DEFAULT_ORB"
 echo
