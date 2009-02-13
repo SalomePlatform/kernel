@@ -37,11 +37,6 @@ import socket
 
 if not sys.platform == "win32":
     import pwd
-    def getUserName(uid):
-      return pwd.getpwuid(uid)[0]
-else:
-    def getUserName(uid):
-      return os.environ["USER"]
 
 import time
 import string
@@ -63,8 +58,14 @@ class Identity:
         self._pid =  os.getpid()
         self._machine = socket.gethostname()
         self._adip =  socket.gethostbyname(self._machine) # IP adress        
-        self._uid = os.getpid() 
-        self._pwname = getUserName(self._uid)
+        if sys.platform == "win32":
+          self._uid  = os.getpid() 
+          self._pwname = os.environ["USER"]
+        else:
+          self._uid = os.getuid()
+          list = pwd.getpwuid(self._uid)
+          self._pwname  = list[0] # user name
+
         self._tc_start = time.time()
         self._cstart    = time.ctime(self._tc_start)
         self._cdir = os.getcwd()
