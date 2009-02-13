@@ -39,7 +39,7 @@ if not sys.platform == "win32":
     import pwd
     def getUserName(uid):
       return pwd.getpwuid(uid)[0]
-else
+else:
     def getUserName(uid):
       return os.environ["USER"]
 
