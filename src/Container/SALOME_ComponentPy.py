@@ -26,6 +26,11 @@
 #  Module : SALOME
 #  $Header$
 #
+## @package SALOME_ComponentPy
+# \brief python implementation of component interface for Kernel
+#
+#
+
 import os
 import sys
 import time
@@ -46,8 +51,9 @@ from thread import *
 
 _Sleeping = 0
 
-#define an implementation of the component interface
-
+## define an implementation of the component interface Engines::Component
+#
+#  
 class SALOME_ComponentPy_i (Engines__POA.Component):
     _orb = None
     _poa = None

@@ -24,6 +24,11 @@
 # ifndef __TESTNOTIF_IDL_
 # define __TESTNOTIF_IDL_
 
+/*! \file TestNotif.idl \brief for testing notification service
+*/
+
+/* \brief interface to test notification service
+*/
 interface Solver
 {
   boolean Connect();

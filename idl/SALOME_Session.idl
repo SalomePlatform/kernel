@@ -25,9 +25,9 @@
 //
 #include "SALOME_Component.idl"
 
-/*!   
-  This package contains interfaces used for management of the session in %SALOME application.
-*/
+/*! \file SALOME_Session.idl \brief file that contains interface of the session
+ */
+
 module SALOME
 {
 /*! \brief State of the session
@@ -35,8 +35,8 @@ module SALOME
    This enumeration contains values defining the state of the session
   
 */ 
-  enum SessionState {asleep, /*! Session is inactive */
-		     running /*! Session is running */
+  enum SessionState {asleep, /*!< Session is inactive */
+		     running /*!< Session is running */
   } ;
 
 /*! \brief %Session State and Statistics
@@ -50,17 +50,16 @@ module SALOME
 /*! \brief State of the session
   
    It can be:
-   *     -# asleep  : no running study
-   *     -# running : one or more running studies
+        -# asleep  : no running study
+        -# running : one or more running studies
 */
     SessionState state ; 
-/*! Number of running studies
-*/
+//! Number of running studies
     short        runningStudies ;
-/*! It is True if GUI is active in the session
-*/
+//! It is True if GUI is active in the session
     boolean      activeGUI ;
   } ;
+
 /*! \brief Interface of the session
 
     The %session Server launches and stops GUI (Graphical User Interface).
@@ -69,52 +68,34 @@ module SALOME
 
   interface Session
   {
-/*! 
-   This exception is raised when trying to stop the %session with active GUI
-*/
+//!  This exception is raised when trying to stop the %session with active GUI
     exception GUIActive {} ;
-/*! 
-   This exception is raised when trying to stop the %session with a number of running studies.
-*/
+//!  This exception is raised when trying to stop the %session with a number of running studies.
     exception RunningStudies {} ;  
 
-/*! 
-   Launches GUI in the session
-*/
+//!  Launches GUI in the session
     void GetInterface(); 
 
-/*! 
-   Returns a standalone component
-*/
+//!  Returns a standalone component
     Engines::Component GetComponent(in string theLibraryName);
 
-/*! 
-  Stops the %Session (It must be idle)
-*/
+//!  Stops the %Session (It must be idle)
     void StopSession() raises(GUIActive, RunningStudies) ;
 
-/*! 
-  Gets Session State
-*/
+//!  Gets Session State
     StatSession GetStatSession() ;
-/*! 
-    Determines whether the server has already been loaded or not.
-*/ 
+
+//!  Determines whether the server has already been loaded or not.
     void ping();
-/*!
-    Returns the PID of the server
-*/
+//!  Returns the PID of the server
     long getPID();
-/*!
-    Get Active study ID
-*/
+//!  Get Active study ID
     long GetActiveStudyId();
-/*!
-    Restores a state of the study at theSavePoint
-*/
+//!  Restores a state of the study at theSavePoint
     boolean restoreVisualState(in long theSavePoint);
+
+ //! Send a message to the session GUI desktop that will emit a qt signal
 /*!
-    Emit a qt signal from the session GUI desktop window.
     This method can be used to send a message to the GUI from the standalone
     container.
     Caution: this method can block the Session and the calling container
@@ -123,6 +104,8 @@ module SALOME
     In such a case it is recommended to use oneway method.
 */
     void emitMessage(in string theMessage);
+
+    //! same as emitMessage but in a non blocking way
 /*!
     Emit a qt signal from the session GUI desktop window.
     This method can be used to send a message to the GUI from the standalone

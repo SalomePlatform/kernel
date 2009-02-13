@@ -19,11 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : SALOMEDS.idl
+//  File   : SALOMEDS_Attributes.idl
 //  Author : Yves FRICAUD
 //  $Header$
 //
-/*! \file SALOMEDS_Attributes.idl This file contains a set of interfaces
+/*! \file SALOMEDS_Attributes.idl 
+    \brief This file contains a set of interfaces
     for the attributes which can be assigned to %SObject
 */
 #ifndef _SALOMEDS_AttributesIDL_
@@ -33,28 +34,23 @@
 
 module SALOMEDS
 {
-/*! Sequence of double values
-*/
+//! Sequence of double values
   typedef sequence <double> DoubleSeq;
-/*! Sequence of long values
-*/
+//! Sequence of long values
   typedef sequence <long>   LongSeq;
-/*! Sequence of string values
-*/
+//! Sequence of string values
   typedef sequence <string> StringSeq;
-/*! \struct Color
-   This structure stores a set of elements defining the color based on RGB palette. These elements are
+/*! \brief  This structure stores a set of elements defining the color based on RGB palette. 
+   
+   These elements are
    used as input parameters for methods necessary for color definition of different items.
 */
   struct Color {
-/*! Red color
-*/
+//! Red color
    double R;
-/*! Green color
-*/
+//! Green color
    double G;
-/*! Blue color
-*/
+//! Blue color
    double B;
   };
   //==========================================================================
@@ -66,16 +62,16 @@ module SALOMEDS
 
   interface AttributeReal : GenericAttribute
   {
+//! Returns the value of this attribute.
 /*!
-    Returns the value of this attribute.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     double Value();
+ //! Sets the value of this attribute.
 /*!
-   Sets the value of this attribute.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in double value);
 
@@ -88,16 +84,17 @@ module SALOMEDS
   //==========================================================================
   interface AttributeInteger : GenericAttribute
   {
+  //!  Returns the value of this attribute
 /*!
-    Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     long   Value();
-/*!
-   Sets the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+   //! Sets the value of this attribute
+/*!
+
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in long value);
   };
@@ -109,51 +106,45 @@ module SALOMEDS
   //==========================================================================
   interface AttributeSequenceOfReal : GenericAttribute
   {
+ //!  Initialization of the attribute with initial data.
 /*!
-   Initialization of the attribute with initial data.
    \param other    Initially assigned sequence of real numbers.
 */
     void      Assign (in DoubleSeq other);
-/*!
-   Returns the sequence of real numbers stored in the attribute.
-*/
+//!  Returns the sequence of real numbers stored in the attribute.
     DoubleSeq CorbaSequence();
-/*!
-   Adds to the end of the sequence a real number.
+/*! \brief Adds to the end of the sequence a real number.
 
    \param value    A real number added to the sequence.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void      Add (in double value);
-/*!
-    Removes a real number with a definite index
+/*! \brief  Removes a real number with a definite index
     from the sequence of real numbers stored in the Attribute.
 
     \param index The index of the given real number
 */
     void      Remove(in long index);
-/*!
-    Substitutes a given real number with a definite index for another real number.
+/*! \brief Substitutes a given real number with a definite index for another real number.
+
     \param index The index of the given real number.
     \param value The value of another real number.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void      ChangeValue(in long index, in double value);
-/*!
-  Returns a given real number with a definite index
-    in the sequence of real numbers stored in the Attribute.
+/*! \brief Returns a given real number with a definite index in the sequence of real numbers stored in the Attribute.
+
     \param index The index of the given real number.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     double    Value(in short index);
-/*!
-    Returns the length of the sequence of real numbers stored in the Attribute.
+/*! \brief Returns the length of the sequence of real numbers stored in the Attribute.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     long      Length();
@@ -166,51 +157,44 @@ module SALOMEDS
   //==========================================================================
   interface AttributeSequenceOfInteger : GenericAttribute
   {
-/*!
-   Initialisation of the attribute with initial data.
+/*! \brief Initialisation of the attribute with initial data.
    \param other    Initially assigned sequence of integer numbers.
 */
     void      Assign (in LongSeq other);
-/*!
-   Returns the sequence of integer numbers stored in the Attribute.
-*/
+//!  Returns the sequence of integer numbers stored in the Attribute.
     LongSeq CorbaSequence();
-/*!
-   Adds to the end of the sequence an integer number.
+/*! \brief  Adds to the end of the sequence an integer number.
+
    \param value    An integer number added to the sequence.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void      Add (in long value);
-/*!
-    Removes an integer number with a definite index
-    from the sequence of integer numbers stored in the Attribute.
+/*! \brief Removes an integer number with a definite index from the sequence of integer numbers stored in the Attribute.
+
     \param index The index of the given integer number.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void      Remove(in long index);
-/*!
-    Substitutes an integer number with a definite index for another integer number.
+/*! \brief Substitutes an integer number with a definite index for another integer number.
+
     \param index The index of the given integer number.
     \param value The value of another integer number.
 
 */
     void      ChangeValue(in long index, in long value);
-/*!
-   Returns a given integer number with a definite index
-    in the sequence of integer numbers stored in the Attribute.
+/*!  \brief Returns a given integer number with a definite index in the sequence of integer numbers stored in the Attribute.
     \param index The index of the given integer number.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     long      Value(in short index);
-/*!
-    Returns the length of the sequence of integer numbers stored in the Attribute.
+/*! \brief  Returns the length of the sequence of integer numbers stored in the Attribute.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     long      Length();
@@ -226,18 +210,16 @@ module SALOMEDS
 
   interface AttributeName : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
+/*! \brief  Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
-/*!
-   Sets the value of this attribute
+/*! \brief Sets the value of this attribute
 
    \param value This parameter defines the value of this attribute.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -251,17 +233,15 @@ module SALOMEDS
   //==========================================================================
   interface AttributeComment : GenericAttribute
   {
-/*!
-    Returns the value of this attribute
+/*! \brief Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
-/*!
-   Sets the value of this attribute
+/*! \brief Sets the value of this attribute
    \param value This string parameter defines the value of this attribute - a description of a %SObject.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -295,14 +275,14 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
 /*!
    Sets the value of this attribute
    \param value This parameter defines the value of this attribute - IOR of a %SObject.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -318,14 +298,14 @@ module SALOMEDS
 /*!
     Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
 /*!
    Sets the value of this attribute
    \param value This parameter defines the value of this attribute.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -340,12 +320,12 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
 /*!
    Sets the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -360,12 +340,12 @@ module SALOMEDS
   {
 /*!
     Returns the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
 /*!
    Sets the value of this attribute
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -387,7 +367,7 @@ module SALOMEDS
 /*!
    Returns TRUE if the item is drawable (as it is by default) and FALSE if it isn't.
 
-<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example8 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     boolean IsDrawable();
@@ -396,7 +376,7 @@ Sets the item to be drawable.
 
 \param value If the value of this boolean parameter is TRUE (default) the item will be drawable.
 
-<BR><VAR>See also <A href="exemple/Example8.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example8 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetDrawable(in boolean value);
@@ -415,7 +395,7 @@ Sets the item to be drawable.
    Returns TRUE if the item is selectable (as it is by default) and FALSE if it isn't.
 
 
-<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example9 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     boolean IsSelectable();
@@ -424,7 +404,7 @@ Sets the item to be selectable
 
 \param value If the value of this parameter is TRUE (the default) the item will be set as selectable.
 
-<BR><VAR>See also <A href="exemple/Example9.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example9 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetSelectable(in boolean value);
@@ -443,7 +423,7 @@ Sets the item to be selectable
 /*!
     Returns TRUE if this item is expandable even when it has no children.
 
-<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example10 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     boolean IsExpandable();
@@ -451,7 +431,7 @@ Sets the item to be selectable
 
  \param value If the value of this boolean parameter is TRUE, this item will be set as expandable.
 
-<BR><VAR>See also <A href="exemple/Example10.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example10 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetExpandable(in boolean value);
@@ -500,7 +480,7 @@ Sets the item to be selectable
 /*!
     Returns TRUE if this item is open (its children are visible) and FALSE if it isn't.
 
-<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example11 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     boolean IsOpened();
@@ -510,7 +490,7 @@ Sets the item to be selectable
    \param value If the value of this boolean parameter is TRUE this item will be set as open,
     and as closed if FALSE.
 
-<BR><VAR>See also <A href="exemple/Example11.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example11 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetOpened(in boolean value);
@@ -526,7 +506,7 @@ Sets the item to be selectable
 /*!
    Returns the color of an item.
 
-<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example12 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     Color TextColor();
@@ -535,7 +515,7 @@ Sets the item to be selectable
 
    \param value This parameter defines the color of the item.
 
-<BR><VAR>See also <A href="exemple/Example12.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example12 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetTextColor(in Color value);
@@ -554,7 +534,7 @@ Sets the item to be selectable
 
 
 
-<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example13 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     Color TextHighlightColor();
@@ -562,7 +542,7 @@ Sets the item to be selectable
    Sets the highlight color of an item.
    \param value This parameter defines the highlight color of the item.
 
-<BR><VAR>See also <A href="exemple/Example13.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example13 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void   SetTextHighlightColor(in Color value);
@@ -582,7 +562,7 @@ Sets the item to be selectable
 /*!
    Returns the name of the icon in the format of a string.
 
-<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example14 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     string  GetPixMap();
@@ -590,7 +570,7 @@ Sets the item to be selectable
    Sets the name of the icon.
    \param value This string parameter defines the name of the icon.
 
-<BR><VAR>See also <A href="exemple/Example14.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example14 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void    SetPixMap(in string value);
@@ -603,7 +583,7 @@ Sets the item to be selectable
    tree whith its own structure and identifier. The quantity of such trees with different
    identifiers can be arbitrary.
 
-<BR><VAR>See also <A href="exemple/Example18.html"> an example </A> of usage of the methods of this interface in batchmode of %SALOME application.</VAR>
+<em>See \ref example18 for an example of usage of the methods of this interface in batchmode of %SALOME application.</em>
 
 */
   //==========================================================================
@@ -691,7 +671,7 @@ Sets the item to be selectable
 /*!
    Deletes a tree node.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void              Remove();
@@ -734,7 +714,7 @@ Sets the item to be selectable
 /*!
    Returns the value of this attribute.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     long   Value();
 /*!
@@ -742,7 +722,7 @@ Sets the item to be selectable
 
    \param value This parameter defines the local ID which will be set.
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in long value);
   };
@@ -758,13 +738,13 @@ Sets the item to be selectable
 /*!
    Returns the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     string Value();
 /*!
    Sets the value of this attribute
 
-<BR><VAR>See also <A href="exemple/Example1.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example1 for an example of this method usage in batchmode of %SALOME application.</em>
 */
     void   SetValue(in string value);
   };
@@ -783,7 +763,7 @@ Sets the item to be selectable
 /*!
     Adds a %SObject to the list of %SObjects which refer to this %SObject.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void          Add(in SObject anObject);
@@ -794,7 +774,7 @@ Sets the item to be selectable
 /*!
     Deletes a %SObject from the list of %SObjects which refer to this %SObject.
 
-<BR><VAR>See also <A href="exemple/Example3.html"> an example </A> of this method usage in batchmode of %SALOME application.</VAR>
+<em>See \ref example3 for an example of this method usage in batchmode of %SALOME application.</em>
 
 */
     void          Remove(in SObject anObject);
@@ -805,20 +785,16 @@ Sets the item to be selectable
    This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
 
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
 
 */
   //==========================================================================
 
   interface AttributeTableOfInteger : GenericAttribute
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
+//!  This exception is raised when an incorrect index is passed as parameter.
     exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
+//!  This exception is raised when an incorrect length of the argument is passed as parameter.
     exception IncorrectArgumentLength {};
 
     // titles: for table, for each row, for each column
@@ -964,20 +940,16 @@ Sets the item to be selectable
 
    This attribute allows to store a table of reals (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
 
 */
   //==========================================================================
 
   interface AttributeTableOfReal : GenericAttribute
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
+//!  This exception is raised when an incorrect index is passed as parameter.
     exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
+//!  This exception is raised when an incorrect length of the argument is passed as parameter.
     exception IncorrectArgumentLength {};
 
     // titles: for table, for each row, for each column
@@ -1114,20 +1086,16 @@ Sets the item to be selectable
 
    This attribute allows to store a table of strings (indexing from 1 like in CASCADE)
     and string titles of this table, of each row, of each column.
-<BR><VAR>See also <A href="exemple/Example21.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
 
 */
   //==========================================================================
 
   interface AttributeTableOfString : GenericAttribute
   {
-/*!
-   This exception is raised when an incorrect index is passed as parameter.
-*/
+//!  This exception is raised when an incorrect index is passed as parameter.
     exception IncorrectIndex {};
-/*!
-   This exception is raised when an incorrect length of the argument is passed as parameter.
-*/
+//!  This exception is raised when an incorrect length of the argument is passed as parameter.
     exception IncorrectArgumentLength {};
 
     // titles: for table, for each row, for each column
@@ -1263,7 +1231,7 @@ Sets the item to be selectable
 
    This attribute allows to store study properties: user name, creation date, creation
    mode, modified flag, locked flag.
-<BR><VAR>See also <A href="exemple/Example20.html"> an example </A> of usage of these methods in batchmode of %SALOME application.</VAR>
+<em>See \ref example20 for an example of usage of these methods in batchmode of %SALOME application.</em>
 
 */
   //==========================================================================

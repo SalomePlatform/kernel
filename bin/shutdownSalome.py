@@ -20,6 +20,11 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## \file shutdownSalome.py
+#  shutdown all %SALOME servers and naming service
+#
+#  
+
 import time
 import salome
 salome.salome_init()

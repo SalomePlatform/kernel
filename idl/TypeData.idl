@@ -24,6 +24,9 @@
 #ifndef _SALOME_TYPEDATA_IDL_
 #define _SALOME_TYPEDATA_IDL_
 
+/*! \file TypeData.idl \brief data definition for tests
+*/
+
 module Engines
 {
 

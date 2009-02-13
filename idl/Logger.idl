@@ -26,14 +26,26 @@
 #define SALOME_LOGGER_IDL
 
 #pragma prefix "opencascade.com"
+/*! \file Logger.idl \brief interfaces for %SALOME logger
+*/
 
+/*! \brief module that provides interface to %SALOME logger
+*/
 module SALOME_Logger 
 {
+/*! \brief interface to use the %SALOME logger
+*/
 	interface Logger 
 	  {
-	    //put message into one special place for all servers using Logger
+    /*! \brief put message into one special place for all servers using %SALOME logger
+
+      \param message the message to send
+    */
 	    oneway void putMessage (in string message);
+           
+           //! check if the logger is running
             void ping (); 
+           //! shutdown the logger server
             void shutdown();
 	  };
 };

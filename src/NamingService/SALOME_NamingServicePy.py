@@ -26,6 +26,11 @@
 #  Module : SALOME
 #  $Header$
 #
+## @package SALOME_NamingServicePy
+# \brief Module to manage SALOME naming service from python
+#  
+# 
+
 import sys
 import time
 from omniORB import CORBA
@@ -37,6 +42,9 @@ from SALOME_utilities import *
 #=============================================================================
 
 class SALOME_NamingServicePy_i(object):
+    """
+      A class to manage SALOME naming service from python code
+    """
     _orb = None
     _root_context=None
     _current_context=None
@@ -45,13 +53,18 @@ class SALOME_NamingServicePy_i(object):
     #-------------------------------------------------------------------------
 
     def __init__(self, orb):
+        """
+        Standard Constructor, with ORB reference.
+ 
+        Initializes the naming service root context
+        """
         #MESSAGE ( "SALOME_NamingServicePy_i::__init__" )
         self._orb = orb
         # initialize root context and current context
-	ok = 0
-	steps = 240
-	while steps > 0 and ok == 0:
-	  try:
+        ok = 0
+        steps = 240
+        while steps > 0 and ok == 0:
+          try:
             obj =self._orb.resolve_initial_references("NameService")
             self._root_context =obj._narrow(CosNaming.NamingContext)
             self._current_context = self._root_context
@@ -60,13 +73,13 @@ class SALOME_NamingServicePy_i(object):
             if self._root_context is None :
               #MESSAGE ( "Name Service Reference is invalid" )
               #sys.exit(1)
-	      MESSAGE(" Name service not found")
-	    else:
-	      ok = 1
-	  except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
-	    MESSAGE(" Name service not found")
-	  time.sleep(0.25)
-	  steps = steps - 1
+              MESSAGE(" Name service not found")
+            else:
+              ok = 1
+          except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
+            MESSAGE(" Name service not found")
+          time.sleep(0.25)
+          steps = steps - 1
         if steps == 0 and self._root_context is None: 
           MESSAGE ( "Name Service Reference is invalid" )
           sys.exit(1)
@@ -180,6 +193,10 @@ class SALOME_NamingServicePy_i(object):
     #-------------------------------------------------------------------------
 
     def Create_Directory(self,ObjRef, Path):
+        """ ns.Create_Directory(ObjRef, Path) 
+
+        create a sub directory 
+        """
         MESSAGE ( "SALOME_NamingServicePy_i::Create_Directory" )
         _not_exist = 0
         path_list = list(Path)
@@ -205,6 +222,10 @@ class SALOME_NamingServicePy_i(object):
                 MESSAGE ( "Create_Directory : CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE" )
  
     def Destroy_Name(self,Path):
+      """ ns.Destroy_Name(Path) 
+
+        remove a name in naming service
+      """
       resolve_path=string.split(Path,'/')
       if resolve_path[0] == '': del resolve_path[0]
       dir_path=resolve_path[:-1]
@@ -221,6 +242,10 @@ class SALOME_NamingServicePy_i(object):
         return
 
     def Destroy_FullDirectory(self,Path):
+      """ ns.Destroy_FullDirectory(Path)
+
+        remove recursively a directory
+      """
       context_name=[]
       for e in string.split(Path,'/'):
         if e == '':continue

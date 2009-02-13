@@ -24,9 +24,10 @@
 # Author : Vadim SANDLER, Open CASCADE S.A.S. (vadim.sandler@opencascade.com)
 # ---
 #
-"""
-Set of utility functions used by SALOME python scripts.
-"""
+## @package salome_utils
+# \brief Set of utility functions used by SALOME python scripts.
+#
+#
 
 #
 # Exported functions

@@ -26,38 +26,17 @@
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS= tui
-SUBDIRSGUI= tui
-SUBDIRSTUI= tui
+SUBDIRS= tui gui
 
-index_html:
-	$(INSTALL) -d $(DESTDIR)$(docdir); 
+docs:usr_docs
 
-usr_docs: index_html
-	list='$(SUBDIRSGUI)'; for subdir in $$list; do \
-	  echo "Making usr_docs in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) usr_docs) \
-	done;
+usr_docs: 
+	echo "Making usr_docs in gui"; \
+	(cd gui && $(MAKE) $(AM_MAKEFLAGS) usr_docs)
 
-dev_docs: index_html
-	list='$(SUBDIRSTUI)'; for subdir in $$list; do \
-	  echo "Making dev_docs in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) dev_docs) \
-	done;
-
-
-# VSR: nullify these make targets to avoid 'make distcheck' failure
-dvi:
-pdf:
-ps:
-
-info_TEXINFOS = Batch.texi
-
-install-data-local:  html usr_docs
-	cp -rp $(top_builddir)/doc/salome/Batch.html $(DESTDIR)$(docdir)
-
-uninstall-local:
-	rm -rf $(DESTDIR)$(docdir)/Batch.html
+dev_docs: 
+	echo "Making dev_docs in tui"; \
+	(cd tui && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
 
 EXTRA_DIST= main.dox install.dox \
 	    kernel_resources.dox kernel_services.dox \

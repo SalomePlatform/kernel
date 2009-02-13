@@ -20,9 +20,9 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-"""Create a virtual Salome installation
-
-"""
+## \file appli_gen.py
+#  Create a %SALOME application (virtual Salome installation)
+#
 usage="""usage: %prog [options]
 Typical use is:
   python appli_gen.py 

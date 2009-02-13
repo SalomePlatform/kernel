@@ -64,10 +64,6 @@ bool _Sleeping = false ;
 int _ArgC ;
 char ** _ArgV ;
 
-
-// Containers with name FactoryServer are started via rsh in LifeCycleCORBA
-// Other Containers are started via start_impl of FactoryServer
-
 extern "C" {void ActSigIntHandler() ; }
 #ifndef WIN32
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
@@ -86,6 +82,12 @@ map<std::string, int> Engines_Container_i::_cntInstances_map;
 map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
 omni_mutex Engines_Container_i::_numInstanceMutex ;
+
+/*! \class Engines_Container_i
+ *  \brief C++ implementation of Engines::Container interface
+ *
+ */
+
 
 //=============================================================================
 /*! 
@@ -233,6 +235,7 @@ Engines_Container_i::~Engines_Container_i()
 }
 
 //=============================================================================
+//! Get container name
 /*! 
 *  CORBA attribute: Container name (see constructor)
 */
@@ -244,6 +247,7 @@ char* Engines_Container_i::name()
 }
 
 //=============================================================================
+//! Get container working directory
 /*! 
 *  CORBA attribute: Container working directory 
 */
@@ -257,6 +261,7 @@ char* Engines_Container_i::workingdir()
 }
 
 //=============================================================================
+//! Get container log file name
 /*! 
 *  CORBA attribute: Container log file name
 */
@@ -267,12 +272,14 @@ char* Engines_Container_i::logfilename()
   return CORBA::string_dup(_logfilename.c_str()) ;
 }
 
+//! Set container log file name
 void Engines_Container_i::logfilename(const char* name)
 {
   _logfilename=name;
 }
 
 //=============================================================================
+//! Get container host name
 /*! 
 *  CORBA method: Get the hostName of the Container (without domain extensions)
 */
@@ -286,6 +293,7 @@ char* Engines_Container_i::getHostName()
 }
 
 //=============================================================================
+//! Get container PID
 /*! 
 *  CORBA method: Get the PID (process identification) of the Container
 */
@@ -297,6 +305,7 @@ CORBA::Long Engines_Container_i::getPID()
 }
 
 //=============================================================================
+//! Ping the servant to check it is still alive
 /*! 
 *  CORBA method: check if servant is still alive
 */
@@ -308,6 +317,7 @@ void Engines_Container_i::ping()
 }
 
 //=============================================================================
+//! Shutdown the container
 /*! 
 *  CORBA method, oneway: Server shutdown. 
 *  - Container name removed from naming service,
@@ -473,6 +483,7 @@ int findpathof(string& pth, const string& exe)
 
 
 //=============================================================================
+//! load a new component class
 /*! 
 *  CORBA method: load a new component class (Python or C++ implementation)
 *  \param componentName like COMPONENT
@@ -572,6 +583,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 }
 
 //=============================================================================
+//! Create a new component instance
 /*! 
 *  CORBA method: Creates a new servant instance of a component.
 *  The servant registers itself to naming service and Registry.
@@ -749,6 +761,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 }
 
 //=============================================================================
+//! Find an existing (in the container) component instance
 /*! 
 *  CORBA method: Finds a servant instance of a component
 *  \param registeredName  Name of the component in Registry or Name Service,
@@ -783,11 +796,15 @@ Engines_Container_i::find_component_instance( const char* registeredName,
 }
 
 //=============================================================================
+//! Find or create a new component instance
 /*! 
 *  CORBA method: find or create an instance of the component (servant),
 *  load a new component class (dynamic library) if required,
+*
 *  ---- FOR COMPATIBILITY WITH 2.2 ---- 
+*
 *  ---- USE ONLY FOR MULTISTUDY INSTANCES ! --------
+*
 *  The servant registers itself to naming service and Registry.
 *  \param genericRegisterName  Name of the component to register
 *                              in Registry & Name Service
@@ -809,6 +826,7 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
 
 
 //=============================================================================
+//! Remove the component instance from container
 /*! 
 *  CORBA method: Stops the component servant, and deletes all related objects
 *  \param component_i     Component to be removed
@@ -828,6 +846,7 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
 }
 
 //=============================================================================
+//! Unload component libraries from the container
 /*! 
 *  CORBA method: Discharges unused libraries from the container.
 */
@@ -856,6 +875,7 @@ void Engines_Container_i::finalize_removal()
 }
 
 //=============================================================================
+//! Kill the container
 /*! 
 *  CORBA method: Kill the container process with exit(0).
 *  To remove :  never returns !
@@ -876,6 +896,7 @@ bool Engines_Container_i::Kill_impl()
 }
 
 //=============================================================================
+//! Get or create a file reference object associated to a local file (to transfer it)
 /*! 
 *  CORBA method: get or create a fileRef object associated to a local file
 *  (a file on the computer on which runs the container server), which stores
@@ -916,6 +937,7 @@ Engines_Container_i::createFileRef(const char* origFileName)
 }
 
 //=============================================================================
+//! Get a fileTransfer reference
 /*! 
 *  CORBA method:
 *  \return a reference to the fileTransfer object
@@ -931,6 +953,7 @@ Engines_Container_i::getFileTransfer()
 }
 
 
+//! Create a Salome file
 Engines::Salome_file_ptr 
 Engines_Container_i::createSalome_file(const char* origFileName) 
 {
@@ -962,6 +985,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
   return theSalome_file;
 }
 //=============================================================================
+//! Finds an already existing component instance or create a new instance
 /*! 
 *  C++ method: Finds an already existing servant instance of a component, or
 *              create an instance.
@@ -973,20 +997,19 @@ Engines_Container_i::createSalome_file(const char* origFileName)
 *  \return a loaded component
 * 
 *  example with names:
-*  aGenRegisterName = COMPONENT (= first argument)
-*  impl_name = libCOMPONENTEngine.so (= second argument)
-*  _containerName = /Containers/cli76ce/FactoryServer
-*  factoryName = COMPONENTEngine_factory
-*  component_registerBase = /Containers/cli76ce/FactoryServer/COMPONENT
-*
-*  instanceName = COMPONENT_inst_1
-*  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
+*    - aGenRegisterName = COMPONENT (= first argument)
+*    - impl_name = libCOMPONENTEngine.so (= second argument)
+*    - _containerName = /Containers/cli76ce/FactoryServer
+*    - factoryName = COMPONENTEngine_factory
+*    - component_registerBase = /Containers/cli76ce/FactoryServer/COMPONENT
+*    - instanceName = COMPONENT_inst_1
+*    - component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
 */
 //=============================================================================
 
 Engines::Component_ptr
-Engines_Container_i::find_or_create_instance(string genericRegisterName,
-                                             string componentLibraryName)
+Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
+                                             std::string componentLibraryName)
 {
   string aGenRegisterName = genericRegisterName;
   string impl_name = componentLibraryName;
@@ -1044,6 +1067,7 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
 }
 
 //=============================================================================
+//! Create a new component instance 
 /*! 
 *  C++ method: create a servant instance of a component.
 *  \param genericRegisterName    Name of the component instance to register
@@ -1055,17 +1079,17 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
 *  \return a loaded component
 * 
 *  example with names:
-*  aGenRegisterName = COMPONENT (= first argument)
-*  _containerName = /Containers/cli76ce/FactoryServer
-*  factoryName = COMPONENTEngine_factory
-*  component_registerBase = /Containers/cli76ce/FactoryServer/COMPONENT
-*  instanceName = COMPONENT_inst_1
-*  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
+*    - aGenRegisterName = COMPONENT (= first argument)
+*    - _containerName = /Containers/cli76ce/FactoryServer
+*    - factoryName = COMPONENTEngine_factory
+*    - component_registerBase = /Containers/cli76ce/FactoryServer/COMPONENT
+*    - instanceName = COMPONENT_inst_1
+*    - component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
 */
 //=============================================================================
 
 Engines::Component_ptr
-Engines_Container_i::createInstance(string genericRegisterName,
+Engines_Container_i::createInstance(std::string genericRegisterName,
                                     void *handle,
                                     int studyId)
 {
@@ -1161,12 +1185,13 @@ Engines_Container_i::createInstance(string genericRegisterName,
 }
 
 //=============================================================================
+//! Decrement component instance reference count
 /*! 
 *
 */
 //=============================================================================
 
-void Engines_Container_i::decInstanceCnt(string genericRegisterName)
+void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 {
   if(_cntInstances_map.count(genericRegisterName)==0)
     return;
@@ -1190,6 +1215,7 @@ void Engines_Container_i::decInstanceCnt(string genericRegisterName)
 }
 
 //=============================================================================
+//! Indicate if container is a python one
 /*! 
 *  Retrieves only with container naming convention if it is a python container
 */

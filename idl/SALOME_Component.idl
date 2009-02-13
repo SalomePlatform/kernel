@@ -29,6 +29,9 @@
 #include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
 
+/*! \file SALOME_Component.idl \brief interfaces for Component and Container
+*/
+
 /*! \brief
 This is a package of interfaces used for connecting new components to %SALOME
 application. It also contains a set of interfaces used for management of %MED
@@ -42,9 +45,7 @@ module Engines
   */
   typedef sequence<octet> TMPFile;  
   
-  /*!
-    General Key Value Structure to set or get properties, for component
-  */
+  //!  General Key Value Structure to set or get properties, for component
   struct KeyValuePair
   {
     string key;
@@ -66,8 +67,8 @@ module Engines
   interface Container
   {
 
-    /*!
-      Loads a new component class (dynamic library).
+    /*! \brief Loads a new component class (dynamic library).
+
       \param componentName like COMPONENT, (Python or C++ implementation)
                            try to make a Python import of COMPONENT,
                            then a lib open of libCOMPONENTEngine.so
@@ -75,8 +76,8 @@ module Engines
     */
     boolean load_component_Library(in string componentName);
 
+    //! Create a new servant instance of a component.
     /*!
-      Creates a new servant instance of a component.
       Component library must be loaded.
       \param componentName Name of the component which will be registered
                            in Registry and Name Service,
@@ -88,8 +89,8 @@ module Engines
     Engines::Component create_component_instance(in string componentName,
                                                  in long studyId);
 
+    //! Find a servant instance of a component
     /*!
-      Finds a servant instance of a component
       \param registeredName  Name of the component in Registry or Name Service,
                              without instance suffix number
       \param studyId        0 if instance is not associated to a study, 
@@ -99,8 +100,8 @@ module Engines
     Component find_component_instance(in string registeredName,
 				      in long studyId);
 
+    //! Find a servant instance of a component, or create a new one.
     /*!
-      Find a servant instance of a component, or create a new one.
       Loads the component library if needed.
       Only applicable to multiStudy components.
       \param nameToRegister Name of the component which will be registered
@@ -112,52 +113,37 @@ module Engines
     Component load_impl(in string nameToRegister,
 			in string componentName);
 
+    //! Remove the component servant, and deletes all related objects
     /*!
-      Stops the component servant, and deletes all related objects
       \param component_i     Component to be removed
     */
     void remove_impl(in Component component_i);
 
-    /*!
-      Discharges all components from the container.
-    */
+    //!  Unload component libraries from the container. 
     void finalize_removal() ;
 
-    /*!
-      Determines whether the server has been loaded or not.
-    */
+    //!  Determines whether the server has been loaded or not.
     void ping();
 
-    /*!
-      Name of the %container
-    */
+    //!  Name of the %container
     readonly attribute string name ;
 
-    /*!
-      working directory of the %container
-    */
+    //!  working directory of the %container
     readonly attribute string workingdir ;
 
-    /*!
-      name of the %container log file (this has been set by the launcher)
-    */
+    //!  name of the %container log file (this has been set by the launcher)
     attribute string logfilename ;
 
-    /*!
-      Shutdown the Container process.
-    */
+    //!  Shutdown the Container process.
     void Shutdown();
 
-    /*!
-      Returns the hostname of the container
-    */
+    //!  Returns the hostname of the container
     string getHostName();
 
-    /*!
-      Returns the PID of the container
-    */
+    //!  Returns the PID of the container
     long getPID();
 
+    //! Kill the container 
     /*!
       Returns True if the %container has been killed.
       Kept for Superv compilation but can't work, unless oneway...
@@ -165,6 +151,7 @@ module Engines
     */
     boolean Kill_impl() ;
 
+    //! Create a fileRef
     /*!
       returns a fileRef object if origFileName exists and is readable
       else returns null object. Only one fileRef is created for a given
@@ -173,6 +160,7 @@ module Engines
     */
     fileRef createFileRef(in string origFileName);
 
+    //! Create a Salome_file
     /*!
       returns a Salome_file object if origFileName exists and is readable
       else returns null object. 
@@ -183,6 +171,7 @@ module Engines
     */
     Salome_file createSalome_file(in string origFileName);
 
+    //! Create a fileTransfer
     /*!
       returns a fileTransfer object used to copy files from the container
       machine to the clients machines. Only one fileTransfer instance is
@@ -198,30 +187,25 @@ module Engines
   */
   interface Component
   {
-    /*!
-      The name of the instance of the %Component
-    */
+    //!  The name of the instance of the %Component
     readonly attribute string instanceName ;
 
-    /*!
-      The name of the interface of the %Component
-    */
+    //!  The name of the interface of the %Component
     readonly attribute string interfaceName ;
 
-    /*!
-      Determines whether the server has already been loaded or not.
-    */
+    //!  Determines whether the server has already been loaded or not.
     void ping();
 
-//     /*!
+//    
 //       Set study associated to component instance
 //       \param studyId
 //       (=0:  multistudy component instance,
 //        >0: study id associated to this instance
 //       \return false if already set with a different value (change not possible)
-//     */
+//     
 //     boolean setStudyId(in long studyId);
 
+    //!  Get study associated to component instance
     /*!
       get study associated to component instance
       \return -1: not initialised (Internal Error)
@@ -230,6 +214,7 @@ module Engines
     */
     long getStudyId();
 
+    //! Remove component instance from container
     /*!
       Deactivates the %Component.
       -- TO BE USED BY CONTAINER ONLY (Container housekeeping) --
@@ -237,11 +222,10 @@ module Engines
     */
     void destroy() ;
 
-    /*!
-      Returns the container that the %Component refers to.
-    */
+    //!  Returns the container that the %Component refers to.
     Container GetContainerRef() ;
 
+    //! Set component instance properties
     /*!
       Gives a sequence of (key=string,value=any) to the component. 
       Base class component stores the sequence in a map.
@@ -250,12 +234,14 @@ module Engines
     */
     void setProperties(in FieldsDict dico);
 
+    //! Get component instance properties
     /*!
       returns a previously stored map (key=string,value=any) as a sequence.
       See setProperties(in FieldsDict dico).
     */
     FieldsDict getProperties();
 
+    //! Set name of a node in a graph (for %SUPERVISOR use)
     /*!
       This method is used by the %SUPERVISOR component. It sets the names of
       the graph and of the node.
@@ -264,33 +250,39 @@ module Engines
     */
     void Names( in string aGraphName , in string aNodeName ) ;
 
+    //! Kill the component (if you can)
     /*!
       Returns True if the %Component has been killed.
     */
     boolean Kill_impl() ;
 
+    //! Stop the component (if you can)
     /*!
       Returns True if the activity of the %Component has been stopped.
       (It's action can't be resumed)
     */
     boolean Stop_impl() ;
 
+    //! Suspend the component
     /*!
       Returns True if the activity of the %Component has been suspended.
       (It's action can be resumed)
     */
     boolean Suspend_impl() ;
 
+    //! Resume the component
     /*!
       Returns True if the activity of the %Component has been resumed.
     */
     boolean Resume_impl() ;
 
+    //! Get the cpu used
     /*!
-      Returns the Cpu used (long does not run with python !...)
+      Returns the Cpu used 
     */
     long CpuUsed_impl() ;
     
+    //! Get a python dump
     /*!
       Returns a python script, which is being played back reproduces
       the data model of component
@@ -300,8 +292,8 @@ module Engines
 		       out boolean isValidScript);
 
     
+    //! Returns a CORBA Ref of a input Salome_file managed by a service.
     /*!
-      Returns a CORBA Ref of a input Salome_file managed by a service.
 
       \param service_name service's name.
       \param file_name name of the requested file.
@@ -314,6 +306,7 @@ module Engines
     Engines::Salome_file getInputFileToService(in string service_name, 
 					       in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
 
+    //! Check service input files (transfer them if needed) 
     /*!
       This method is used before the activation of the service. It calls
       recvFiles() on all the input Salome_file files of the service. 
@@ -331,8 +324,8 @@ module Engines
     */
     void checkInputFilesToService(in string service_name)				raises(SALOME::SALOME_Exception);
 
+    //!  This method adds a input Salome_file to a service of the component.
     /*!
-      This method adds a input Salome_file to a service of the component.
 
       \param service_name service's name.
       \param Salome_file_name name of the Salome_file
@@ -345,8 +338,8 @@ module Engines
     Engines::Salome_file setInputFileToService(in string service_name,
 					       in string Salome_file_name)	raises(SALOME::SALOME_Exception);
 
+    //!  Returns a CORBA Ref of a output Salome_file managed by a service.
     /*!
-      Returns a CORBA Ref of a output Salome_file managed by a service.
 
       \param service_name service's name.
       \param file_name name of the requested file.
@@ -359,6 +352,7 @@ module Engines
     Engines::Salome_file getOutputFileToService(in string service_name, 
 						in string Salome_file_name) raises(SALOME::SALOME_Exception);
 
+    //! Check service output files (transfer them if needed) 
     /*!
       This method is used at the end of the service. It calls
       recvFiles() on all the output Salome_file files of the service. 
@@ -376,8 +370,8 @@ module Engines
     */
     void checkOutputFilesToService(in string service_name)			 raises(SALOME::SALOME_Exception);
 
+    //!  This method adds an output Salome_file to a service of the component.
     /*!
-      This method adds an output Salome_file to a service of the component.
 
       \param service_name service's name.
       \param Salome_file_name name of the Salome_file
@@ -389,6 +383,8 @@ module Engines
     */
     Engines::Salome_file setOutputFileToService(in string service_name,
 						in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
+
+    //! Indicate if the component instance provides custom information about its objects.
     /*!
       Returns true if the component provides custom information about its objects, false otherwise.
       Should be redefined in the certain component to return true in case of this
@@ -396,6 +392,7 @@ module Engines
     */
     boolean hasObjectInfo();
     
+    //! Get custom information about the given object.
     /*!
       This method is used to get the custom information about the given object.
       Should be redefined in the certain component in case of this
@@ -414,10 +411,7 @@ module Engines
     void send_parallel_proxy_object(in Object proxy_ref);
   };
 
-  /*!
-    A block of binary data used for file transfer. The maximum size of the
-    block is defined on server side.
-   */
+  //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.
   typedef sequence<octet> fileBlock;
 
   /*! \brief Interface of fileTransfer.
@@ -426,6 +420,7 @@ module Engines
   */
   interface fileTransfer
   {
+    //! Open the file transfer
     /*!
       open method returns a key (fileId) that identifies the structure
       (ex: C FILE), associated to the original file on the server.
@@ -436,12 +431,14 @@ module Engines
     */
     long open(in string fileName);
 
+    //! Close the file transfer
     /*!
     when the file transfer is finished, close method releases structures 
     created by open method, identified by fileId.
     */
     void close(in long fileId);
 
+    //! Get a file data block
     /*!
       Get successive blocks of octets from the original file.
       The last block is empty, and identifies the end of file.
@@ -449,36 +446,35 @@ module Engines
     fileBlock getBlock(in long fileId);
   };
 
-  /*!
-    This is a file managed by a Salome_file. It contains file's name, path and status.
-    The status is : "present" or "notpresent".
-  */
+  //!  A file managed by a Salome_file. 
   struct file {
+    //! file name
     string file_name;
-    string path;
+    //! path name
+    string path; 
     string type;
     string source_file_name;
-    string status;
+    //! status ("present" or "notpresent")
+    string status; 
     long   node;
     Engines::Container container;
   };
 
-  /*!
-    A sequence of Engines::file.
-  */
+  //!  A sequence of Engines::file.
   typedef sequence<Engines::file> files;
 
 
-  /*!
-    It is the state of a Salome_file. It contains the Salome_file's name, the name
-    of the hdf5 file where it can be saved, the number of files managed and the information
-    if all the files are received.
-  */
+  //!  The state of a Salome_file. 
   struct SfState {
-    string  name;
-    string  hdf5_file_name;
-    long    number_of_files;
-    boolean files_ok;
+    //! file name
+    string  name; 
+    //! hdf5 file where the file can be saved
+    string  hdf5_file_name; 
+    //! number of files managed
+    long    number_of_files; 
+    //! information if all the files are received
+    boolean files_ok; 
+
   };
 
   /*! \brief Interface of a Salome_file managed
@@ -488,8 +484,8 @@ module Engines
   */
   interface Salome_file : Engines::fileTransfer
   {
+    //!  Load a Salome_file from a hdf5 file.
     /*!
-      Load a Salome_file from a hdf5 file.
 
       \param hdf5_file name (with path) of the hdf5_file.
 
@@ -497,8 +493,8 @@ module Engines
      */
     void load(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
 
+    //!  Save a Salome_file into a hdf5_file.
     /*!
-      Save a Salome_file into a hdf5_file.
 
       \param  hdf5_file name (with path) of the hdf5_file.
 
@@ -507,9 +503,9 @@ module Engines
     */
     void save(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
 
+    //!  Save a Salome_file into a hdf5_file. 
     /*!
-      Save a Salome_file into a hdf5_file. All files that are managed
-      are saved into the hdf5_file
+      All files that are managed are saved into the hdf5_file
 
       \param  hdf5_file name (with path) of the hdf5_file.
 
@@ -520,8 +516,8 @@ module Engines
 
 /**************/
 
+    //!  Add a Local file to the Salome_file.
     /*!
-      Add a Local file to the Salome_file.
 
       \param file_name name of the file with the path.
 
@@ -529,8 +525,8 @@ module Engines
     */
     void setLocalFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
 
+    //!  Add a Distributed file to the Salome_file.
     /*!
-      Add a Distributed file to the Salome_file.
 
       \param comp_file_name name of the file with the path.
 
@@ -538,8 +534,8 @@ module Engines
     */
     void setDistributedFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
 
+    //!  Connect a Salome_file with another Salome_file.
     /*!
-      Connect a Salome_file with another Salome_file.
       It works only if the Salome_file managed only one file
 
       \param source_Salome_file Salome_file that managed the distributed version of the file.
@@ -548,8 +544,8 @@ module Engines
     */
     void connect(in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
 
+    //!  Connect the managed file file_name to a Salome_file.
     /*!
-      Connect the managed file file_name to a Salome_file.
 
       \param file_name name of the file without the path.
       \param source_Salome_file Salome_file that managed the distributed version of the file.
@@ -559,8 +555,8 @@ module Engines
     void connectDistributedFile(in string file_name,
 				in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
     
+    //!  Connect the file_name with a Distributed file_name.
     /*!
-      Connect the file_name with a Distributed file_name.
 
       \param file_name name of the file without the path.
       \param source_file_name It's the name of the file managed by the distributed source Salome_file.
@@ -572,9 +568,8 @@ module Engines
 
 /**************/
 
+    //! Get all the distributed files managed by the Salome_file and check all the local files.
     /*!
-      Get all the distributed files managed by the Salome_file and
-      check all the local files.
 
       \exception raised if some of the files are not ok.
     */
@@ -582,8 +577,8 @@ module Engines
 
 /**************/
 
+    //!  Remove a file of the Salome_file.
     /*!
-      Remove a file of the Salome_file.
 
       \param file_name name of the file.
 
@@ -591,21 +586,19 @@ module Engines
     */
     void removeFile(in string file_name)		    raises (SALOME::SALOME_Exception);
 
-    /*!
-      Remove all the files of the Salome_file.
-    */
+    //!  Remove all the files of the Salome_file.
     void removeFiles();
 
 /**************/
 
+    //! Get the list of the files managed by the Salome_file.
     /*!
-      Get the list of the files managed by the Salome_file.
       The list can be empty.
     */
     Engines::files getFilesInfos();
 
+    //! Get a file managed by the Salome_file.
     /*!
-      Get a file managed by the Salome_file.
 
       \param file_name the name of the file.
 
@@ -615,14 +608,12 @@ module Engines
     */
     Engines::file  getFileInfos(in string file_name)	    raises (SALOME::SALOME_Exception);
 
-    /*!
-      Return the state of the Salome_file.
-    */
+    //!  Return the state of the Salome_file.
     Engines::SfState getSalome_fileState();
 
 
+    //! Set the container where files are.
     /*!
-      Set the container where files are.
 
       \param container container CORBA's reference.
     */
@@ -648,7 +639,9 @@ module Engines
   */
   interface fileRef
   {
+    //! the original file
     readonly attribute string origFileName;
+    //! the machine of the original file
     readonly attribute string refMachine;
 
     Container getContainer();

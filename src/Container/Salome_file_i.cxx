@@ -38,6 +38,11 @@
 # include <windows.h>
 #endif
 
+/*! \class Salome_file_i
+ *  \brief A class to manage file transfer in %SALOME
+ *
+ */
+
 
 //=============================================================================
 /*! 

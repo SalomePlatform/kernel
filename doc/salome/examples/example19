@@ -1,0 +1,540 @@
+
+#======================================================================
+#1. Create Study and add some components to it
+#======================================================================
+
+#=================================
+#       create AttributeReal      
+#=================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeReal attribute"
+A = A._narrow(SALOMEDS.AttributeReal)
+A.SetValue(0.0001)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+
+# ===  Geometry  ==================================================
+
+import batchmode_geompy
+ 
+#===================================
+#     define a box
+#===================================
+
+box = batchmode_geompy.MakeBox(0., 0., 0., 100., 200., 300.)
+idbox = batchmode_geompy.addToStudy(box,"box")
+
+
+geom = batchmode_geompy.geom
+import SMESH
+import batchmode_smesh
+ShapeType = batchmode_smesh.ShapeType
+
+# ---- add first face of box in study
+
+subShapeList = batchmode_geompy.SubShapeAll(box,ShapeType["Face"])
+face=subShapeList[0]
+name = "box_face"
+print name
+idface= batchmode_geompy.addToStudyInFather(box,face,name)
+
+# ---- add shell from box  in study
+
+subShellList= batchmode_geompy.SubShapeAll(box,ShapeType["Shell"])
+shell = subShellList[0]
+name = "box_shell"
+print name
+idshell= batchmode_geompy.addToStudyInFather(box,shell,name)
+
+# ---- add first edge of face in study
+
+edgeList =  batchmode_geompy.SubShapeAll(face,ShapeType["Edge"])
+edge=edgeList[0];
+name = "face_edge"
+print name
+idedge= batchmode_geompy.addToStudyInFather(face,edge,name)
+
+# ---- launch SMESH, init a Mesh with the box
+
+smesh =  batchmode_smesh.smesh
+#  --  Init  --
+shape = batchmode_geompy.IDToObject(idbox)
+mesh=smesh.Init(geom, batchmode_geompy.myStudyId, shape)
+
+orb = batchmode_geompy.orb
+
+idmesh = batchmode_smesh.AddNewMesh( orb.object_to_string(mesh) )
+batchmode_smesh.SetName(idmesh, "Meshbox");
+batchmode_smesh.SetShape(idbox, idmesh);
+
+# ---- create Hypothesis
+
+print "-------------------------- create Hypothesis ----------------------"
+print "-------------------------- LocalLength"
+hyp1 = smesh.CreateHypothesis("LocalLength", batchmode_geompy.myStudyId )
+hypLen1 = hyp1._narrow(SMESH.SMESH_LocalLength)
+hypLen1.SetLength(100)
+print hypLen1.GetName()
+print hypLen1.GetId()
+print hypLen1.GetLength()
+
+idlength = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypLen1) );
+batchmode_smesh.SetName(idlength, "Local_Length_100");
+
+print "-------------------------- NumberOfSegments"
+hyp2 =  smesh.CreateHypothesis("NumberOfSegments", batchmode_geompy.myStudyId )
+hypNbSeg1=hyp2._narrow(SMESH.SMESH_NumberOfSegments)
+hypNbSeg1.SetNumberOfSegments(7)
+print hypNbSeg1.GetName()
+print hypNbSeg1.GetId()
+print hypNbSeg1.GetNumberOfSegments()
+
+idseg =  batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypNbSeg1) );
+batchmode_smesh.SetName(idseg, "NumberOfSegments_7");
+
+print "-------------------------- MaxElementArea"
+hyp3 = smesh.CreateHypothesis("MaxElementArea",  batchmode_geompy.myStudyId)
+hypArea1=hyp3._narrow(SMESH.SMESH_MaxElementArea)
+hypArea1.SetMaxElementArea(2500)
+print hypArea1.GetName()
+print hypArea1.GetId()
+print hypArea1.GetMaxElementArea()
+
+idarea1 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea1) );
+batchmode_smesh.SetName(idarea1, "MaxElementArea_2500");
+
+print "-------------------------- MaxElementArea"
+hyp3 = smesh.CreateHypothesis("MaxElementArea",  batchmode_geompy.myStudyId)
+hypArea2 = hyp3._narrow(SMESH.SMESH_MaxElementArea)
+hypArea2.SetMaxElementArea(500)
+print hypArea2.GetName()
+print hypArea2.GetId()
+print hypArea2.GetMaxElementArea()
+
+idarea2 = batchmode_smesh.AddNewHypothesis( orb.object_to_string(hypArea2) );
+batchmode_smesh.SetName(idarea2, "MaxElementArea_500");
+
+print "-------------------------- Regular_1D"
+alg1 = smesh.CreateHypothesis("Regular_1D",  batchmode_geompy.myStudyId)
+algo1 = alg1._narrow(SMESH.SMESH_Algo)
+listHyp = algo1.GetCompatibleHypothesis()
+for hyp in listHyp:
+    print hyp
+algoReg=alg1._narrow(SMESH.SMESH_Regular_1D)
+print algoReg.GetName()
+print algoReg.GetId()
+
+idreg = batchmode_smesh.AddNewAlgorithms( orb.object_to_string(algoReg) );
+batchmode_smesh.SetName(idreg, "Regular_1D");
+
+print "-------------------------- MEFISTO_2D"
+alg2 = smesh.CreateHypothesis("MEFISTO_2D",  batchmode_geompy.myStudyId)
+algo2 = alg2._narrow(SMESH.SMESH_Algo)
+listHyp=algo2.GetCompatibleHypothesis()
+for hyp in listHyp:
+    print hyp
+algoMef=alg2._narrow(SMESH.SMESH_MEFISTO_2D)
+print algoMef.GetName()
+print algoMef.GetId()
+
+idmef = batchmode_smesh.AddNewAlgorithms( orb.object_to_string(algoMef) );
+batchmode_smesh.SetName(idmef, "MEFISTO_2D");
+
+
+# ---- add hypothesis to edge
+
+print "-------------------------- add hypothesis to edge"
+edge = batchmode_geompy.IDToObject(idedge)
+submesh = mesh.GetElementsOnShape(edge)
+ret = mesh.AddHypothesis(edge,algoReg)
+print ret
+ret=mesh.AddHypothesis(edge,hypLen1)
+print ret
+
+idsm1 = batchmode_smesh.AddSubMeshOnShape( idmesh,
+                                           idedge,
+                                           orb.object_to_string(submesh),
+                                           ShapeType["Edge"] )
+batchmode_smesh.SetName(idsm1, "SubMeshEdge")
+batchmode_smesh.SetAlgorithms( idsm1, idreg );
+batchmode_smesh.SetHypothesis( idsm1, idlength );
+
+print "-------------------------- add hypothesis to face"
+face=batchmode_geompy.IDToObject(idface)
+submesh=mesh.GetElementsOnShape(face)
+ret=mesh.AddHypothesis(face,hypArea2)
+print ret
+
+idsm2 = batchmode_smesh.AddSubMeshOnShape( idmesh,
+                                    idface,
+                                    orb.object_to_string(submesh),
+                                    ShapeType["Face"] )
+batchmode_smesh.SetName(idsm2, "SubMeshFace")
+batchmode_smesh.SetHypothesis( idsm2, idarea2 );
+
+# ---- add hypothesis to box
+
+print "-------------------------- add hypothesis to box"
+box=batchmode_geompy.IDToObject(idbox)
+submesh=mesh.GetElementsOnShape(box)
+ret=mesh.AddHypothesis(box,algoReg)
+print ret
+ret=mesh.AddHypothesis(box,hypNbSeg1)
+print ret
+ret=mesh.AddHypothesis(box,algoMef)
+print ret
+ret=mesh.AddHypothesis(box,hypArea1)
+print ret
+
+batchmode_smesh.SetAlgorithms( idmesh, idreg );
+batchmode_smesh.SetHypothesis( idmesh, idseg );
+batchmode_smesh.SetAlgorithms( idmesh, idmef );
+batchmode_smesh.SetHypothesis( idmesh, idarea1 );
+
+# ---- compute box
+
+print "-------------------------- compute box"
+ret=smesh.Compute(mesh,box)
+print ret
+log=mesh.GetLog(0); # no erase trace
+for linelog in log:
+    print linelog
+
+
+#=======================================================
+#    add  SuperVision component
+#=======================================================
+
+from batchmode_SuperV import *
+import os
+dir= os.getenv("SUPERV_ROOT_DIR")
+if dir == None:
+        raise RuntimeError, "SUPERV_ROOT_DIR is not defined"
+xmlfile = dir +"/examples/GraphEssai.xml"
+print "--------------\n"+xmlfile+"\n--------------\n"
+
+myGraph = Graph ( xmlfile )
+
+# This DataFlow is "valid" : no loop, correct links between Nodes etc...
+print myGraph.IsValid()
+
+# Get Nodes
+myGraph.PrintNodes()
+Add,Sub,Mul,Div = myGraph.Nodes()
+
+# Load Datas
+Addx = Add.Input("x",3.)
+Addy = Add.Input("y",4.5)
+Subx = Sub.Input("x",1.5)
+
+# Get Output Port
+Addz = Add.Port('z')
+Subz = Sub.Port('z')
+Mulz = Mul.Port('z')
+Divz = Div.Port('z')
+
+# This DataFlow is "executable" : all pending Ports are defined with Datas
+print myGraph.IsExecutable()
+
+# Starts only execution of that DataFlow and gets control immediatly
+print myGraph.Run()
+
+# That DataFlow is running ==> 0 (false)
+print myGraph.IsDone()
+
+# Events of execution :
+aStatus,aNode,anEvent,aState = myGraph.Event()
+while aStatus :
+    print aNode.Thread(),aNode.SubGraph(),aNode.Name(),anEvent,aState
+    aStatus,aNode,anEvent,aState = myGraph.Event()
+print myGraph.IsDone()
+
+# Wait for Completion (but it is already done after event loop ...)
+print "Done : ",myGraph.DoneW()
+
+# Get result
+print "Result : ",Divz.ToString()
+
+# Intermediate results :
+print "Intermediate Result Add\z : ",Addz.ToString()
+print "Intermediate Result Sub\z : ",Subz.ToString()
+print "Intermediate Result Mul\z : ",Mulz.ToString()
+
+print " "
+#print "Type : print myGraph.IsDone()"
+#print "       If execution is finished ==> 1 (true)"
+res=myGraph.IsDone()
+if res != 1:
+        raise RuntimeError, "myGraph.Run() is not done"
+
+print " "
+print "Type : print Divz.ToString()"
+print "       You will get the result"
+Divz.ToString()
+
+print " "
+print "Type : myGraph.PrintPorts()"
+print "       to see input and output values of the graph"
+myGraph.PrintPorts()
+
+print " "
+print "Type : Add.PrintPorts()"
+Add.PrintPorts()
+
+print "Type : Sub.PrintPorts()"
+Sub.PrintPorts()
+
+print "Type : Mul.PrintPorts()"
+Mul.PrintPorts()
+
+print "Type : Div.PrintPorts()"
+print "       to see input and output values of nodes"
+Div.PrintPorts()
+
+# Export will create newsupervisionexample.xml and the corresponding .py file
+tmpdir=os.getenv("TmpDir")
+if tmpdir is None:
+        tmpdir="/tmp"
+file = tmpdir + "/newsupervisionexample"
+print "--------------\n"+file+"\n--------------\n"
+myGraph.Export(file)
+
+ior = batchmode_geompy.orb.object_to_string(myGraph.G)
+addStudy(ior)
+
+GraphName = myGraph.Name()
+print "Befor save ",
+nodes = myGraph.Nodes()
+length_bs = len(nodes)
+print "ListOfNodes length = ", length_bs
+names=[]
+for node in nodes:
+        names.append(node.Name())
+print names
+
+
+#=================================
+#      save / restore study      
+#=================================
+str= os.getenv("TmpDir")
+if str == None:  
+        str = "/tmp"
+file = str+"/test.hdf"
+
+
+#==================================================
+#1. SaveAs
+#==================================================
+print " -------  We will save to", file, "-----------"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+batchmode_geompy.myStudyManager.Close(batchmode_geompy.myStudy)
+
+#rename the file and try to reread it again
+
+os.mkdir(str + "/test_dir")
+
+#2.==================================================
+print " ------- We rename the file as " + str + "/test_dir/test_new.hdf"
+os.rename(file, str+"/test_dir/test_new.hdf")
+
+#==================================================
+#3. Open
+#==================================================
+print " ------- We try to open " + str + "/test_dir/test_new.hdf"
+
+try:
+        openedStudy=batchmode_geompy.myStudyManager.Open(str+"/test_dir/test_new.hdf")
+except Exception:
+        raise  RuntimeError, "Can't open saved study!"
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "GEOM component is not found!  Wrong study is opened." 
+
+
+#=================================
+#     find AttributeReal
+#=================================
+
+res,A=father.FindAttribute("AttributeReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeReal"
+
+A = A._narrow(SALOMEDS.AttributeReal)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+
+#==================================================
+#     find  box
+#==================================================
+box = openedStudy.FindObject("box")
+if box is None :
+        raise  RuntimeError, "box was not found! Wrong study is opened."
+
+edge=openedStudy.FindObject("face_edge")
+if edge is None :
+        raise  RuntimeError, "face_edge was not found! Wrong study is opened."
+
+
+father = openedStudy.FindComponent("MESH")
+if father is None:
+         raise  RuntimeError, "MESH component is not found!  Wrong study is opened." 
+
+hp=openedStudy.FindObject("Meshbox")
+if hp is None:
+        raise  RuntimeError, "Meshbox object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("Algorithms Definition")
+if hp is None:
+        raise  RuntimeError, "Algorithms Definition object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("MEFISTO_2D")
+if hp is None:
+        raise  RuntimeError, "MEFISTO_2D object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("Hypothesis Definition")
+if hp is None:
+        raise  RuntimeError, "Algoriths Definition was not found! Wrong study is opened."
+
+#==================================================
+# Find Supervisor
+#==================================================
+father = openedStudy.FindComponent("SUPERV")
+if father is None: 
+         raise  RuntimeError, "SUPERV component is not found!  Wrong study is opened." 
+
+SuperV = lcc.FindOrLoadComponent("SuperVisionContainer","Supervision")
+Builder = openedStudy.NewBuilder()
+Builder.LoadWith(father, SuperV)
+import SALOMEDS
+
+aChildIterator = openedStudy.NewChildIterator(father)
+
+#while aChildIterator.More():
+anSObject = aChildIterator.Value()
+#print "iterate: ", anSObject.GetID()
+res, anAttr=anSObject.FindAttribute("AttributeIOR")
+if res :
+        anAttr=anAttr._narrow(SALOMEDS.AttributeIOR)
+        ior = anAttr.Value()
+        Graph=SuperV.getGraph(ior)
+        ListOfNodes=Graph.Nodes()
+        length_as= len(ListOfNodes)
+        print "ListOfNodes length = ", length_as
+        if length_as != length_bs:
+                raise RuntimeErrror, "defferent length of nodes after study open"
+#aChildIterator.Next()
+
+Names = []
+for node in ListOfNodes:
+        Names.append(node.Name())
+names.sort()
+Names.sort()
+if names != Names :
+        raise RuntimeError, "List of dataflow nodes after save differs from one befor save operation"
+
+#==================================================
+#4. Save
+#==================================================
+batchmode_geompy.myStudyManager.Save(openedStudy)
+batchmode_geompy.myStudyManager.Close(openedStudy)
+#==================================================
+#5. Open
+#==================================================
+try:
+        openedStudy = batchmode_geompy.myStudyManager.Open(str+"/test_dir/test_new.hdf")
+except Exception:
+        raise  RuntimeError, "Can't open saved study!"
+
+
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#find AttributeReal
+res,A=father.FindAttribute("AttributeReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeReal"
+
+A = A._narrow(SALOMEDS.AttributeReal)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+#==================================================
+#     find  box
+#==================================================
+box = openedStudy.FindObject("box")
+if box is None :
+        raise  RuntimeError, "box was not found! Wrong study is opened."
+
+edge=openedStudy.FindObject("face_edge")
+if edge is None :
+        raise  RuntimeError, "face_edge was not found! Wrong study is opened."
+
+
+father = openedStudy.FindComponent("MESH")
+if father is None:
+         raise  RuntimeError, "MESH component is not found!  Wrong study is opened." 
+
+hp=openedStudy.FindObject("Meshbox")
+if hp is None:
+        raise  RuntimeError, "Meshbox object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("Algorithms Definition")
+if hp is None:
+        raise  RuntimeError, "Algorithms Definition object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("MEFISTO_2D")
+if hp is None:
+        raise  RuntimeError, "MEFISTO_2D object was not found! Wrong study is opened."
+
+hp = openedStudy.FindObject("Hypothesis Definition")
+if hp is None:
+        raise  RuntimeError, "Algoriths Definition was not found! Wrong study is opened."
+
+#==================================================
+# Find Supervisor
+#==================================================
+father = openedStudy.FindComponent("SUPERV")
+if father is None:
+         raise  RuntimeError, "SUPERV component is not found!  Wrong study is opened." 
+
+SuperV = lcc.FindOrLoadComponent("SuperVisionContainer","Supervision")
+Builder = openedStudy.NewBuilder()
+Builder.LoadWith(father, SuperV)
+import SALOMEDS
+
+aChildIterator = openedStudy.NewChildIterator(father)
+
+#while aChildIterator.More():
+anSObject = aChildIterator.Value()
+
+res, anAttr=anSObject.FindAttribute("AttributeIOR")
+if res :
+        anAttr=anAttr._narrow(SALOMEDS.AttributeIOR)
+        ior = anAttr.Value()
+        Graph=SuperV.getGraph(ior)
+        ListOfNodes=Graph.Nodes()
+        length_as= len(ListOfNodes)
+        print "ListOfNodes length = ", length_as
+        if length_as != length_bs:
+                raise RuntimeErrror, "defferent length of nodes after study open"
+#aChildIterator.Next()
+
+Names = []
+for node in ListOfNodes:
+        Names.append(node.Name())
+names.sort()
+Names.sort()
+if names != Names :
+        raise RuntimeError, "List of dataflow nodes after save differs from one befor save operation"
+

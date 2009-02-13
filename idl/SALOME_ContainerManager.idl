@@ -25,20 +25,22 @@
 #include "SALOME_Exception.idl"
 #include "SALOME_Component.idl"
 
+/*! \file SALOME_ContainerManager.idl \brief interfaces for %SALOME launcher and container manager
+*/
+
 module Engines
 {
 
-/*!
-    Type to transmit list of machines.
-*/
+//!  Type to transmit list of machines.
   typedef sequence<string> MachineList;
+//! components list
   typedef sequence<string> CompoList;
+//! files list
   typedef sequence<string> FilesList;
+//! modules list
   typedef sequence<string> ModulesList;
 
-/*!
-    Type to describe properties of resource.
-*/
+//!  Type to describe properties of a resource.
 struct MachineParameters
 {
   string container_name;
@@ -63,26 +65,31 @@ struct MachineParameters
   long nb_component_nodes;
 };
 
-/*!
-    exception thrown if a computer is not found in the catalog
-*/
+//! exception thrown if a computer is not found in the catalog
   exception NotFound {};
 
-  enum policy {P_FIRST,P_CYCL,P_BEST};
+//! enumeration to set a resource management policy
+  enum policy {
+  //! first machine in the list of admissible computers
+  P_FIRST,
+  //! next machine in the list of admissible computers
+  P_CYCL,
+  //! best machine in the list of admissible computers
+  P_BEST};
+//! resource management policy
   typedef policy ResPolicy;
 
-/*!
-  Structure used for Salome Batch Job parameters
-*/
+//!  Structure used for Salome Batch Job parameters
 struct BatchParameters
 {
-  string batch_directory; // Where batch command will be launched
-			  // and log files will be created
-  string expected_during_time; // Time for the batch
-			       // has to be like this : hh:mm
-  string mem; // Minimum of memory needed
-	      // has to be like : 32gb or 512mb
-  long nb_proc; // Number of processors requested
+  //! Where batch command will be launched and log files will be created
+  string batch_directory; 
+  //! Time for the batch (has to be like this : hh:mm)
+  string expected_during_time; 
+  //! Minimum of memory needed (has to be like : 32gb or 512mb)
+  string mem; 
+  //! Number of processors requested
+  long nb_proc; 
 };
 
 /*! \brief Interface of the %salomelauncher
@@ -116,11 +123,12 @@ struct BatchParameters
 */
   interface ContainerManager
   {
+    //!  Find an existing container satisfying the constraints given by input parameters or start a new one.
     Container FindOrStartContainer( in MachineParameters params,
 				    in MachineList possibleComputers);
 
-    /*!
-      This operation launches a PaCO++ container.
+    //!  This operation launches a PaCO++ container.
+    /*!  
 
       \param Description of the container resquested.
       \param List of computers ressources.
@@ -130,14 +138,23 @@ struct BatchParameters
     Container FindOrStartParallelContainer( in MachineParameters params,
 					    in MachineList possibleComputers);
 
+    //!  Start a new container satisfying the constraints given by input parameters.
     Container StartContainer( in MachineParameters params,
 			      in ResPolicy policy,
 			      in CompoList componentList );
 
+    //!  Same as StartContainer except that in batch all containers have already been launched
+    /*! 
+
+         We are in batch if environment variable SALOME_BATCH is 1.
+         In this case, containers have been launched at the beginning of the Salome session and 
+         the container manager picks one in the pool of existing containers.
+    */
     Container GiveContainer( in MachineParameters params,
 		             in ResPolicy policy,
 		             in CompoList componentList );
 
+    //!  Shutdown all containers that have been launched by the container manager
     void ShutdownContainers();
 
   } ;
@@ -148,12 +165,19 @@ struct BatchParameters
 */
   interface ResourcesManager
   {
+    //!  Find first available computer in a computers list
     string FindFirst(in MachineList possibleComputers);
 
+    //!  Get a list of computers that are best suited to launch a container given constraints 
+    /*! 
+
+         The constraints are resource constraints (params) and components constraints (componentList)
+    */
     MachineList GetFittingResources( in MachineParameters params,
 				     in CompoList componentList )
       raises (SALOME::SALOME_Exception);
 
+    //!  Get the current machine parameters of a computer
     MachineParameters GetMachineParameters( in string hostname );
 
   } ;

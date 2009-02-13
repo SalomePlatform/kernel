@@ -23,20 +23,19 @@
 //  Author : Estelle Deville
 //  $Header$
 //
-/*! \file SALOME_ModuleCatalog.idl This file conatins a set of interfaces used for  
-  creation of the catalog of components in %SALOME application
+/*! \file SALOME_ModuleCatalog.idl \brief interfaces used for  
+  getting information from module catalog in %SALOME application
 */
 
-/*!  
-The main package of interfaces used for creation of the module catalog in %SALOME application.
+/*!  \brief
+The main package of interfaces used for the module catalog in %SALOME application.
+
 Module catalog allows to manage components of %SALOME application, to call specified in the
 xml files interfaces with the help of AComponent interface.
 */
 module SALOME_ModuleCatalog
 {
-  // Type Definitions
-/*! 
-This enumeration contains a current set of definitions of the components integrated
+/*! \brief This enumeration contains a current set of definitions of the components integrated
 into %SALOME application.
 */
   enum ComponentType {  GEOM,  /*!<Module %GEOM */
@@ -48,74 +47,74 @@ into %SALOME application.
                       SUPERV,  /*!<Module %SUPERVISION */
                        OTHER   /*!<Any other type of module */
                      } ;
-/*! 
-This struct contains fields defining the parameter of the service.
-*/
-
+//! This struct contains fields defining the parameter of the service.
   struct ServicesParameter
   {
-    string Parametertype; /*!<Type of the parameter.*/
-    string Parametername; /*!<Name of the parameter.*/
+    string Parametertype; /*!<Parameter type name.*/
+    string Parametername; /*!<Parameter name.*/
   } ;
 
+//! enumeration to define datastream ports dependency
   enum DataStreamDependency {
-    DATASTREAM_UNDEFINED,
-    DATASTREAM_TEMPORAL,
-    DATASTREAM_ITERATIVE
+    DATASTREAM_UNDEFINED, /*!< dependency not defined */
+    DATASTREAM_TEMPORAL, /*!< time dependency */
+    DATASTREAM_ITERATIVE /*!< iterative dependency */
   } ;
 
+//! struct to define datastream ports 
   struct ServicesDataStreamParameter
   {
-    string Parametertype;                     /*!<Type of the parameter.*/
-    string Parametername;                     /*!<Name of the parameter.*/
+    string Parametertype;                     /*!<Parameter type name.*/
+    string Parametername;                     /*!<Parameter name.*/
     DataStreamDependency Parameterdependency; /*!<Temporal or iterative dependency.*/
   } ;
 
-/*! 
-The list of the parameters of service.
-*/
-
+//!  The list of the parameters of service.
   typedef sequence<ServicesParameter> ListOfServicesParameter;
+//!  The list of datastream parameters of service.
   typedef sequence<ServicesDataStreamParameter> ListOfServicesDataStreamParameter;
 
+//!  a string list
   typedef sequence<string> ListOfString;
+
+//! enumeration to define data types used by services
   enum TypeKind 
   {
     NONE     ,
-    Dble   ,
-    Int      ,
-    Str   ,
-    Bool     ,
-    Objref   ,
-    Seq ,
-    Array    ,
-    Struc 
+    Dble   , /*!< a double */
+    Int      , /*!< an integer  */
+    Str   , /*!< a string */
+    Bool     , /*!< a boolean */
+    Objref   , /*!< an object reference */
+    Seq , /*!< a sequence of a content type */
+    Array    , /*!< an array */
+    Struc  /*!< a structure with named members */
   };
+
+//! struct to define members of a Struc TypeKind
   struct MemberDefinition
   {
-    string name; /*! Name of the member */
-    string type; /*! Type of the member */
+    string name; /*!< Member name */
+    string type; /*!< Member type name */
   };
+//! List of member definitions in a structure
   typedef sequence<MemberDefinition> ListOfMemberDefinition;
-/*! 
- * Struct to get the definition of types used in Salome catalogs
- */
+
+//! Struct to get the definition of types used in Salome catalogs
   struct TypeDefinition
   {
-    string name; /*! Name of the type */
-    TypeKind kind; /*! Kind of the type.*/
-    string id; /*! id (if needed) */
-    string content; /*! Content type (if needed) */
-    ListOfString bases; /*! Content type (if needed) */
-    ListOfMemberDefinition members; /*! Members types (if needed) */
+    string name; /*!< Type name*/
+    TypeKind kind; /*!< Type kind.*/
+    string id; /*!< id (if needed) */
+    string content; /*!< Content type (if needed) */
+    ListOfString bases; /*!< base types (if needed) */
+    ListOfMemberDefinition members; /*!< Member types (if needed) */
   };
 
+//! list of type definitions
   typedef sequence<TypeDefinition> ListOfTypeDefinition;
 
-/*! 
-This struct contains fields completely defining each service.
-*/
-
+//! This struct contains fields defining each service.
   struct Service
   {
     string                            ServiceName; /*!<Name of the service.*/
@@ -126,33 +125,22 @@ This struct contains fields completely defining each service.
     boolean                           Servicebydefault; /*!<True if the service is taken with its default fields.*/
     boolean                           TypeOfNode; /*!<True is the service is a factory node. Otherwise, it's a compute node.*/
   } ;
-/*! 
-List of services of the interface.
-*/
+//!  List of services of the interface.
   typedef sequence<Service> ListOfInterfaceService;
-/*! 
-List of services.
-*/
+//!  List of services.
   typedef sequence<string> ListOfServices ;
-/*! 
-This struct contains fields defining each interface.
-*/
+//! This struct contains fields defining each interface.
   struct DefinitionInterface
   {
     string                 interfacename ; /*!<Name of the interface.*/
     ListOfInterfaceService interfaceservicelist ; /*!<List of services of the interface.*/
   } ;
-/*! 
-List of interface definitions.
-*/
+//!  List of interface definitions.
   typedef sequence<DefinitionInterface> ListOfDefInterface ;
-/*! 
-List of names of interfaces.
-*/
+//!  List of interface names.
   typedef sequence<string> ListOfInterfaces ;
 
-/*!
-PathPrefix : association of a machine name and
+/*! \brief PathPrefix : association of a machine name and
 a path to a component
 */
   struct PathPrefix {
@@ -160,24 +148,18 @@ a path to a component
     string             path;
   };
 
-/*! 
-List of path prefixes
-*/
+//!  List of path prefixes
   typedef sequence<PathPrefix> PathPrefixes;
 
-/*!
-Implementation type
-*/
+//! Component implementation type
   enum ImplType {
-    SO,                       /* component implemented as a dynamic library loadable with dlopen */
-    PY,                       /* component implemented as a python module loadable with import */
-    EXE,                      /* component implemented as an executable */
-    CEXE                      /* component to be loaded by a container which executable is given in the catalog */
+    SO,                       /*!< component implemented as a dynamic library loadable with dlopen */
+    PY,                       /*!< component implemented as a python module loadable with import */
+    EXE,                      /*!< component implemented as an executable */
+    CEXE                      /*!< component to be loaded by a container which executable is given in the catalog */
   } ;
 
-/*!
-Description of a component
-*/
+//! Description of a component
   struct ComponentDef
   {
     ComponentType      type;
@@ -192,17 +174,11 @@ Description of a component
     PathPrefixes       paths;
   };
 
-/*! 
-List of names of components.
-*/
+//!  List of component names.
   typedef sequence<string> ListOfComponents ;
-/*! 
-List of names of computers.
-*/
+//!  List of computer names.
   typedef sequence<string> ListOfComputers ;
-/*! 
-This struct contains GUI elements used for representation of the module in %IAPP component.
-*/
+//! This struct contains GUI elements used for representation of the module in %IAPP component.
   struct IAPP_Affich
   {
     string modulename;     /*!<Name of the module.*/
@@ -211,48 +187,40 @@ This struct contains GUI elements used for representation of the module in %IAPP
     string moduleversion;  /*!<Version of the module.*/
     string modulecomment;  /*!<Comment to the module.*/
   };
-/*!
-List of pair GUI elements (component name, component icone)
+/*! \brief  List of pair GUI elements (component name, component icone)
+
  used for representation of the module in %IAPP component.
 */
   typedef sequence<IAPP_Affich> ListOfIAPP_Affich ;
 
-/*! 
- This exception is raised when a %component, a %service or a % pathPrefix is not found.
-*/
+//! This exception is raised when a %component, a %service or a %pathPrefix is not found.
   exception NotFound
   {
     string what ; /*!<Indicates if it's a %component, a %service or a % pathPrefix.*/
   } ;
 
-  /*!
-   This interface provides the common funcionality information of corresponding component.
+  /*! \brief  This interface provides the common functionality information of corresponding component.
+
    Information is loaded from specific xml files.
   */
   interface Acomponent
   {
-    // GetInterfaceList : operation to get a list of the interfaces name of
-    //                    a component
-  /*!
-   Gets the list of names of interfaces of the component
+  /*! \brief  Get the list of interface names of the component
+
     \return a list of interfaces of the component 
   */
     ListOfInterfaces GetInterfaceList() ;
 
-    // GetInterface : operation to get one interface of a component
-  
-  /*! 
-    Gets a definite interface of the component
+  /*! \brief Get an interface of the component
+
     \note <BR>If the specified interface doesn't exist, Notfound exception is thrown
     \param interfacename  Name of the interface 
     \return Required interface
   */
     DefinitionInterface GetInterface(in string interfacename) raises(NotFound);
 
-    // GetServiceList : operation to get a list of the services name of
-    //                  an interface of a component
- /*! 
-   Gets the list of names of services of a definite interface belonging to the component.
+ /*! \brief  Get the list of service names of an interface belonging to the component.
+
    \note <BR>If the specified interface doesn't exist, Notfound exception is thrown.
    \param interfacename Name of the interface 
    \return List of services of the required interface
@@ -260,77 +228,66 @@ List of pair GUI elements (component name, component icone)
     ListOfServices GetServiceList(in string interfacename) raises(NotFound);
 
     
-    // GetService : operation to get one service of an interface of a component
-  
- /*! 
-   Gets a definite service of an interface of the component.
+ /*! \brief  Get a service of an interface of the component.
+
    \note <BR>If the required service or the specified interface don't exist, Notfound exception is thrown.
    \param interfacename Name of the interface
    \param servicename Name of the service
    \return Required service
  */
-
     Service GetService(in string interfacename, 
 		       in string servicename) raises(NotFound);
 
-    // GetDefaultService : operation to get the default service
-    //                     of an interface of a component
-/*! 
-   Gets the default service of an interface of the component.
+/*! \brief Get the default service of an interface of the component.
+
    \note <BR>If the required service or the specified interface don't exist, Notfound exception is thrown.
    \param interfacename Name of the interface
    \return Required service
  */
-
     Service GetDefaultService(in string interfacename) raises(NotFound);
 
-    // GetPathPrefix : operation to get the PathPrefix of a computer
- /*!  
-   Gets the prefix path of the computer containing the %component.
+ /*!  \brief Get the prefix path of the computer containing the %component.
+
    \note <BR>If the required computer doesn't exist, Notfound exception is thrown
    \param machinename Name of the machine 
    \return Prefix path
  */
-
     string GetPathPrefix(in string machinename) raises(NotFound);
 
-/*! 
-    Get the constraint affected to the component 
-    (to be resolved by LifeCycle for the computer choice)
+/*! \brief Get the constraint affected to the component 
+
+    constraint to be resolved by LifeCycle for the computer choice
 */
     readonly attribute string constraint ;
 
-/*! 
-Get the name of the component
+/*! \brief Get the component name
 */
     readonly attribute string componentname;
 
-/*!
-Get the user name of the component
+/*!  \brief Get the user name of the component
 */
     readonly attribute string componentusername;
 
-/*! 
-Ask whether the component is multistudy or not
+/*!  \brief Get whether the component is multistudy or not
 */
     readonly attribute boolean multistudy;
 
-/*! 
-Ask the type of the component
+/*!  \brief Get the type of the component
 */
     readonly attribute ComponentType component_type ;
 
-/*! 
-Gets the icone of the component (for IAPP)
+/*! \brief Get the icone of the component (for IAPP)
 */
     readonly attribute string component_icone;
 
-/*! 
-Gets the implementation type of the component : C++ (dyn lib), Python (module) or executable 
+/*! \brief Get the implementation type of the component 
+
+ C++ (dyn lib), Python (module) or executable 
 */
     readonly attribute ImplType implementation_type;
-/*! 
-Gets the implementation name of the component : name of the dyn lib or the python module or the executable
+/*! \brief Get the implementation name of the component 
+
+ It's the name of the dyn lib or the python module or the executable
 if the default naming scheme is not convenient.
 */
     readonly attribute string implementation_name;
@@ -338,69 +295,61 @@ if the default naming scheme is not convenient.
 
 /*! \brief %Module catalog interface
 
-This interface is used for creation of the module catalog in %SALOME application.
+Interface to get information about components from the module catalog in %SALOME application.
 */
   interface ModuleCatalog
   {
+/*!  \brief ping the ModuleCatalog server
+*/
     void ping();
 
-/*!
-    Returns the PID of the server
+/*!  \brief Returns the PID of the ModuleCatalog server
 */
     long getPID();
 
-/*!
-    Shutdown the ModuleCatalog process.
+/*! \brief  Shutdown the ModuleCatalog server
 */    
     oneway void ShutdownWithExit();
 
-/*! 
- * Get the types of the catalog
+/*!  \brief Get the types of the catalog
  */   
     ListOfTypeDefinition GetTypes();
 
-/*! 
- Gets a list of names of computers of the catalog 
+/*! \brief Get a list of computer names of the catalog 
 */   
     ListOfComputers GetComputerList();
 
-/*! 
-Gets the %PathPrefix of a computer
-*/
+//!  Get the %PathPrefix of a computer
     string GetPathPrefix(in string machinename) raises(NotFound);
-/*! 
- Gets a list of names of components of the catalog 
-*/   
+
+//! Get a list of component names of the catalog 
     ListOfComponents GetComponentList();
-/*! 
-Gets a list of pair GUI elements (component name, component icone) 
+
+/*! \brief  Get a list of pair GUI elements (component name, component icone) 
 used for representation of the module in %IAPP component.
 */
-
     ListOfIAPP_Affich GetComponentIconeList();
-/*! 
-Gets a list of names of components of a particular type, which belong to this catalog.
+
+/*! \brief  Get a list of component names of a particular type, which belong to this catalog.
 */  
-    // GetComponentList : operation to get a list of the components name of
-    //                    a particular type of the catalog   
     ListOfComponents GetTypedComponentList(in ComponentType _component_type);
 
-/*! 
-Gets one component of the catalog.
+/*! \brief Get one component of the catalog.
 */
     Acomponent GetComponent(in string componentname) raises(NotFound);
 
-/*! 
-Gets the description of a component of the catalog.
+/*! \brief Get the description of a component of the catalog.
 */
     ComponentDef GetComponentInfo(in string componentName) raises(NotFound);
 
-/*!
-Reads a xml file and imports new components from this file.
+/*! \brief  Read a xml file and import new components from this file.
+
 New components replace existing components with the same name.
 */
     void ImportXmlCatalogFile(in string filename) raises(NotFound);
 
+/*! \brief  Shutdown the module catalog server
+*/
     void shutdown();
   } ;
 };

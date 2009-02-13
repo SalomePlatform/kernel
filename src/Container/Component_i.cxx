@@ -56,6 +56,11 @@ static Engines_Component_i * theEngines_Component ;
 bool Engines_Component_i::_isMultiStudy = true;
 bool Engines_Component_i::_isMultiInstance = false;
 
+/*! \class Engines_Component_i
+ *  \brief C++ implementation of Engines::Component interface
+ *
+ */
+
 //=============================================================================
 /*! 
  *  Default constructor, not for use
@@ -69,8 +74,8 @@ Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupp
 }
 
 //=============================================================================
-/*! 
- *  Standard Constructor for generic Component, used in derived class
+/*!  \brief  Standard Constructor for generic Component, used in derived class
+ *
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
  *  \param poa Portable Object Adapter from Container (normally root_poa)
@@ -115,8 +120,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 }
 
 //=============================================================================
-/*!
- *  Standard Constructor for standalone Component, used in derived class
+/*!  \brief  Standard Constructor for standalone Component, used in derived class
+ *
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
  *  \param poa Portable Object Adapter from Container (normally root_poa)
@@ -168,8 +173,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 
 
 //=============================================================================
-/*! 
- * Standard constructor for parallel component
+/*!  \brief Standard constructor for parallel component
+ *
  *  Connection Notification (no connection to Registry !)
  *  \param orb Object Request broker given by Container
  *  \param poa Portable Object Adapter from Container (normally root_poa)

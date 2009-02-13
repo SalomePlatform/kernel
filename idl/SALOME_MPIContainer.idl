@@ -27,8 +27,16 @@
 #include "SALOME_Component.idl"
 #include "SALOME_MPIObject.idl"
 
+/*! \file SALOME_MPIContainer.idl \brief interfaces for parallel container 
+*/
+
 module Engines
 {
+  /*! \brief Interface of the MPI parallel container.
+    This interface defines the process of loading and registration
+    of new components in %SALOME application
+   */
+
   interface MPIContainer:Container,MPIObject
   {
     // asynchronous version to load and remove parallel component in parallel

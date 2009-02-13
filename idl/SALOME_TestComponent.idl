@@ -25,9 +25,14 @@
 //
 #include "SALOME_Component.idl"
 
+/*! \file SALOME_TestComponent.idl \brief an interface for testing Component and Container
+*/
+
 module Engines
 {
   
+/*! \brief a component with 2 operations (Coucou and Setenv)
+*/
   interface TestComponent : Component
   {
     string Coucou(in long L);
@@ -35,3 +40,4 @@ module Engines
   };
 
 };
+

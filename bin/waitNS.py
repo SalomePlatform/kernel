@@ -20,6 +20,9 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## \file waitNS.py
+# \brief command to wait until module catalog server is launched
+#
 import orbmodule
 clt=orbmodule.client()
 clt.waitNS("/Kernel/ModulCatalog")

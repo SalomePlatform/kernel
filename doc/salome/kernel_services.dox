@@ -1,8 +1,6 @@
 /*!
   \page KERNEL_Services KERNEL Services for end user (Python interface)
 
-<b>WORK in PROGRESS, INCOMPLETE DOCUMENT</b>
-
 In a %SALOME application, distributed components, servers and clients use
 the CORBA middleware for comunication. CORBA interfaces are defined via idl
 files. All the different CORBA interfaces are available for users in Python,
@@ -16,14 +14,12 @@ script).
 
 \section S1_kernel_ser General purpose services
 
-<ol>
-<li>
-<b>%SALOME services access from a Python shell</b>
+\subsection subsection11 SALOME services access from a Python shell
 
-See \ref SALOME_Application for detailed instructions to launch a Python
-interpreter with full acces to the %SALOME environment and services.
+See \ref SALOME_Application for detailed instructions on how to launch a Python
+interpreter with full access to the %SALOME environment and services.
 
-You can use the embedded Python interpreter in Grahic User Interface, or an
+You can use the embedded Python interpreter in Graphical User Interface, or an
 external interpreter, with:
 
 \code
@@ -42,11 +38,9 @@ In the embedded interpreter, it is already done, but there is no problem to
 do it several times, so it is preferable to add these instructions
 systematically in your scripts, to allow them to work in all configurations.
 
-</li>
-<li>
-<b>Container and component instanciation</b>
+\subsection subsection12 Container and component instanciation
 
-See LifeCycleCORBA for the C++ interface (Python interface obtained with SWIG
+See SALOME_LifeCycleCORBA for the C++ interface (Python interface obtained with SWIG
 is very similar).
 
 In the following example, a test component provided in KERNEL is launched
@@ -83,7 +77,7 @@ without the _narrow() instruction:
 
 In the next example, a component instance is created in a specific Container
 defined by it's computer hostname and it's name. Here we use the local
-computer. Note that in Utils_Identity, getShortHostName() gives the short
+computer. Note that in Utils_Identity, Utils_Identity::getShortHostName() gives the short
 hostname of the computer, without domain suffixes, which is used in %SALOME.
 The container process is created here if it does not exists, and a new
 component instance is created:
@@ -143,9 +137,7 @@ myStudyManager.object
 SalomeAppEngine.object
 \endcode
 
-</li>
-<li>
-<b>File transfer service</b>
+\subsection subsection13 File transfer service
 
 See SALOME_FileTransferCORBA for the C++ interface (Python interface obtained with
 SWIG is very similar).
@@ -166,71 +158,165 @@ aFileTransfer=LifeCycleCORBA.SALOME_FileTransferCORBA('cli76cc',remotefile)
 localFile=aFileTransfer.getLocalFile()
 \endcode
 
-</li>
-<li>
-<b>CORBA Naming service access</b>
+\subsection subsection14 CORBA Naming service access
 
 See SALOME_NamingService for the C++ interface. The Python interface
-SALOME_NamingServicePy is not yet derived from the C++ interface and offers
+SALOME_NamingServicePy::SALOME_NamingServicePy_i is not yet derived from the C++ interface and offers
 only the most useful functions.
 
-</li>
-<li>
-<b>Batch services</b>
+\subsection subsection5 Batch services
 
-See \ref batch_page documentation (in french only).
-
-</li>
-</ol>
+See <a href="Batch.html/index.html"> Batch documentation </a> (in french only).
 
 \section S2_kernel_ser All IDL Interfaces
 
-<ol>
-<li>
-<b>Containers and component life cycle, File transfer service</b>
-
-- Engines : engines CORBA module.                         
-- Engines::Component : generic component interface. All %SALOME components inherit this interface.
-- Engines::Container : host for C++ and Python components components instances                          
-- Engines::fileTransfer : agent for file transfer created by a container copy a local file to a distent client         
-- Engines::fileRef : reference to a file, used by a container for file transfers                                
-- Engines::ContainerManager : unique instance, in charge of container creation on remote computers                  
-- Engines::MPIContainer : an exemple of parallel implementation for containers and components                     
-- Engines::MPIObject
-
-</li>
-<li>
-<b>Study management</b>
-
-- SALOMEDS : SALOMEDS CORBA module
-- SALOMEDS.idl
-- SALOMEDS_Attributes.idl
-
-</li>
-<li>
-<b>High speed transfer, object life cycle, exceptions, GUI interface...</b>
-
-- SALOME : %SALOME CORBA module
-- SALOME_Comm.idl
-- SALOME_GenericObj.idl
-- SALOME_Exception
-- SALOME_Session.idl
-
-</li>
-<li>
-<b>Miscelleanous</b>
-
-- SALOME_ModuleCatalog
-- SALOME_RessourcesCatalog
-- SALOME_Registry.idl
-- Logger.idl
-
-<b>Other idl for test purposes</b>
-\n
-- nstest.idl
-- SALOME_TestComponent.idl
-- SALOME_TestModuleCatalog.idl
-- SALOME_TestMPIComponent.idl
-- TestNotif.idl
+-# <b>Containers and component life cycle, File transfer service</b>
+   - Engines : engines CORBA module.                         
+   - Engines::Component : generic component interface. All %SALOME components inherit this interface.
+   - Engines::Container : host for C++ and Python components components instances                          
+   - Engines::fileTransfer : agent for file transfer created by a container copy a local file to a distent client         
+   - Engines::fileRef : reference to a file, used by a container for file transfers                                
+   - Engines::ContainerManager : unique instance, in charge of container creation on remote computers                  
+   - Engines::MPIContainer : a parallel implementation for containers and components                     
+   - Engines::MPIObject
+   .
+-# <b>Study management</b>
+   - SALOMEDS : SALOMEDS CORBA module
+   - SALOMEDS.idl : \copybrief SALOMEDS.idl
+   - SALOMEDS_Attributes.idl : \copybrief SALOMEDS_Attributes.idl
+   .
+-# <b>High speed transfer, object life cycle, exceptions, GUI interface...</b>
+   - SALOME : \copybrief SALOME
+   - SALOME_Comm.idl : \copybrief SALOME_Comm.idl
+   - SALOME_GenericObj.idl : \copybrief SALOME_GenericObj.idl
+   - SALOME_Exception.idl : \copybrief SALOME_Exception.idl
+   - SALOME_Session.idl : \copybrief SALOME_Session.idl
+   .
+-# <b>Miscelleanous</b>
+   - SALOME_ModuleCatalog : \copybrief SALOME_ModuleCatalog
+   - SALOME_RessourcesCatalog : \copybrief SALOME_RessourcesCatalog
+   - Registry : \copybrief Registry
+   - SALOME_Logger : \copybrief SALOME_Logger
+   .
+-# <b>Other idl for test purposes</b>
+   - NSTEST : for naming service test
+   - SALOME_TestComponent.idl : for Component test
+   - SALOME_TestModuleCatalog : for SALOME_ModuleCatalog test
+   - SALOME_TestMPIComponent.idl : \copybrief SALOME_TestMPIComponent.idl
+   - TestNotif.idl : \copybrief TestNotif.idl
+   .
+-# <b>Some useful command scripts </b>
+   - waitNS.py : \copybrief waitNS.py
+   - waitContainers.py : \copybrief waitContainers.py
+   - showNS.py : \copybrief showNS.py
+   - shutdownSalome.py : \copybrief shutdownSalome.py
+   - killSalome.py : \copybrief killSalome.py
+   - killSalomeWithPort.py : \copybrief killSalomeWithPort.py
+   - appli_gen.py : \copybrief appli_gen.py
+   .
 
 */
+
+/** \example example1
+AttributeReal interface (creations/saving/restoring)
+\n
+Methods : FindOrCreateAttribute, Value, SaveAs, SetValue, FindComponent, FindAttribute, Open
+ */
+/** \example example3
+AttributeSequenceOfReal interface(creations/saving/restoring)\n
+AttributeSequenceOfReal  : ChangeValue, Add,  Value,  Remove,  Length\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open
+ */
+/** \example example16
+Methods : GetAvailableUndos, ChangeValue, FindOrCreateAttribute, SaveAs, GetAvailableRedos, Undo, FindComponent, Redo, FindAttribute, Open, CommitCommand, NewCommand
+ */
+/** \example example17
+SALOMEDS methods : RemoveAttribute, FindOrCreateAttribute, NewStudy, GetAllAttributes, NewCommand, CommitCommand, AbortCommand, NewComponent
+ */
+/** \example example18
+AttributeTreeNode interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, NewObject\n
+Attribute methods : HasFirst, HasFather, SetPrevious, Next, InsertAfter, GetFather, HasNext, SetValue, Append, NewStudy, Label, IsRoot, Prepend, SetFather, Depth, HasPrevious
+ */
+/** \example example19
+ SALOMEDS methods :  FindOrCreateAttribute, Save, SaveAs, Close, Open, FindComponent, FindAttribute, FindObject, LoadWith
+\n
+ Attribute methods : Value, SetValue
+ */
+/** \example example20
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, NewCommand, GetProperties, Open, CommitCommand, NewBuilder\n
+Attribute methods : SetLocked, IsLocked, GetCreationMode, SetCreationDate, IsModified, GetUserName, Value, SetUserName, SetValue, GetCreationDate
+ */
+/** \example example23
+Methods:
+ */
+/** \example example8
+AttributeDrawable interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : SetDrawable, IsDrawable
+ */
+/** \example example9
+AttributeSelectable interface(creations/saving/restoring)\n
+SALOMEDS methods: FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods: SetSelectable, IsSelectable
+ */
+/** \example example10
+AttributeExpandable interface(creations/saving/restoring)\n
+SALOMEDS methods : SaveAs FindComponent  FindAttribute Open\n
+Attribute methods : SetExpandable IsExpandable
+ */
+/** \example example11
+Test AttributeOpened (creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : SetOpened, IsOpened
+ */
+/** \example example12
+AttributeTextColor interface (creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : SetTextColor  TextColor
+ */
+/** \example example13
+Test AttributeTextHighlightColor interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods :  SetTextHighlightColor TextHighlightColor
+ */
+/** \example example14
+AttributePixMap interface (creations/saving/restoring)\n
+SALOMEDS methods  : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : SetPixMap, GetPixMap
+ */
+
+/** \example example21
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods: GetValue, GetNbColumns, AddColumn, SetRowTitles, PutValue, GetColumn, GetColumnTitles, GetTitle, SetRow, GetRowTitles, SetColumnTitles, SetColumn, GetRow, GetNbRows, SetColumnTitle, AddRow, SetTitle, SetRowTitle
+ */
+/** \example example15
+AttributeLocalID interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : Value,  SetValue
+*/
+/** \example example22
+SALOMEDS methods  : FindOrCreateAttribute, SaveAs, FindComponent, FindAttribute, Open\n
+Attribute methods : GetValue, GetNbColumns, AddColumn, SetRowTitles, PutValue,  GetColumn,  GetColumnTitles, GetTitle, SetRow, GetRowTitles, SetColumnTitles,  SetColumn,  GetRow,  GetNbRows, SetColumnTitle, AddRow, SetTitle, SetRowTitle
+*/
+/** \example example4
+AttributeSequenceOfInteger interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute FindComponent FindAttribute Open Add SaveAs
+AttributeSequenceOfInteger methods :  Value, Remove, Length
+*/
+/** \example example5
+AttributeName interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute,  SaveAs, FindComponent FindAttribute Open\n
+Attribute methods : SetValue, Value
+*/
+/** \example example6
+AttributeComment interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute, SaveAs FindComponent FindAttribute  Open\n
+Attribute methods : Value, SetValue
+*/
+/** \example example7
+AttributePersistentRef interface(creations/saving/restoring)\n
+SALOMEDS methods : FindOrCreateAttribute,  SaveAs, FindComponent FindAttribute Open\n
+Attribute methods : SetValue, Value
+*/
+

@@ -36,6 +36,11 @@
 
 using namespace std;
 
+/*! \class SALOME_NamingService
+    \brief A class to manage the SALOME naming service
+
+*/
+
 // ============================================================================
 /*! \brief Default Constructor without ORB reference.
  *

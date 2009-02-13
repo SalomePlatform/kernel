@@ -1,0 +1,154 @@
+
+batchmode_geompy.myBuilder._set_UndoLimit(20)
+
+batchmode_geompy.myBuilder.NewCommand() 
+child = batchmode_geompy.myBuilder.NewObject(batchmode_geompy.father)
+batchmode_geompy.myBuilder.CommitCommand()
+
+batchmode_geompy.myBuilder.NewCommand() 
+#==========================================================
+#       create AttributeSequenceOfReal      
+#==========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeSequenceOfReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSequenceOfReal attribute"
+A = A._narrow(SALOMEDS.AttributeSequenceOfReal)
+if A == None :
+        raise  RuntimeError, "_narrow returns None instead of AttributeSequenceOfReal pointer"
+
+A.Add(0.0293)
+A.Add(522)
+A.Add(98234)
+A.Add(83.287)
+batchmode_geompy.myBuilder.CommitCommand()
+
+
+batchmode_geompy.myBuilder.NewCommand() 
+#==========================================================
+#      create  AttributeInteger      
+#==========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeInteger")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeInteger attribute"
+A = A._narrow(SALOMEDS.AttributeInteger)
+A.SetValue(1000000)
+
+if A.Value() != 1000000:
+        raise  RuntimeError, "Error : wrong value of  AttributeInteger"
+
+batchmode_geompy.myBuilder.CommitCommand()
+
+batchmode_geompy.myBuilder.NewCommand() #===================
+#              create AttributeName     
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeName")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A = A._narrow(SALOMEDS.AttributeName)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeName attribute"
+A.SetValue("AttributesTesting")
+
+if A.Value() != "AttributesTesting":
+        print "Wrong  value of AttributeName"        
+
+batchmode_geompy.myBuilder.CommitCommand()
+
+batchmode_geompy.myBuilder.NewCommand() #===================
+#              create     AttributeComment 
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeComment")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeComment attribute"
+A = A._narrow(SALOMEDS.AttributeComment)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeComment attribute"
+
+A.SetValue("GEOM")
+
+batchmode_geompy.myBuilder.AbortCommand()
+
+batchmode_geompy.myBuilder.NewCommand() #===================
+#             create   AttributePersistentRef   
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributePersistentRef")
+if A == None :
+        raise  RuntimeError, "Can't create AttributePersistentRef attribute"
+A = A._narrow(SALOMEDS.AttributePersistentRef)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributePersistentRef attribute"
+
+A.SetValue("/tmp/test;1")
+batchmode_geompy.myBuilder.CommitCommand()
+
+batchmode_geompy.myBuilder.NewCommand()  #===================================
+#              create    AttributeDrawable  
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeDrawable")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeDrawable attribute"
+A = A._narrow(SALOMEDS.AttributeDrawable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeDrawable attribute"
+
+A.SetDrawable(1)
+
+if A.IsDrawable() == 0:
+        "Error: wrong value of AttributeDrawable"
+batchmode_geompy.myBuilder.CommitCommand()
+
+
+
+batchmode_geompy.myBuilder.NewCommand() #===================
+#              create    AttributeSelectable  
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(child, "AttributeSelectable")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSelectable attribute"
+A = A._narrow(SALOMEDS.AttributeSelectable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeSelectable attribute"
+
+A.SetSelectable(1)
+
+if A.IsSelectable() == 0:
+        "Error: wrong value of AttributeSelectable"
+batchmode_geompy.myBuilder.CommitCommand()
+
+
+batchmode_geompy.myBuilder.NewCommand() #===================
+#===========================================================
+batchmode_geompy.myBuilder.RemoveAttribute(child,"AttributeSelectable")
+batchmode_geompy.myBuilder.CommitCommand()
+
+# Control the attributes 
+#===========================================================
+
+res, A = batchmode_geompy.myBuilder.FindAttribute(child, "AttributeComment")
+print "res = ", res
+if A != None :
+        print " AttributeComment was found"
+else:
+        print " AttributeComment is not found. It's correct"
+
+attributes=[]
+ 
+attributes = child.GetAllAttributes()
+
+length = len(attributes)
+
+print "Attributes number = ", length
+print attributes
+for i in range(0, length) :
+        attr = attributes[i]
+        if attr is None :
+                print i,"None item of object attributes list"
+
+if length != 5 :
+        raise RuntimeError, "Wrong number of attributes"
+

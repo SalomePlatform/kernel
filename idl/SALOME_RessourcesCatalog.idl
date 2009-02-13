@@ -23,42 +23,68 @@
 //  Author : Estelle Deville
 //  $Header$
 //
-module SALOME_RessourcesCatalog{
-  // Type Definitions
 
-  //Proc_info : information about a processor
+/*! \file SALOME_RessourcesCatalog.idl \brief interfaces for %SALOME Resources Catalog
+*/
+
+/*! \brief module that provides interface to manage the Resources Catalog of %SALOME 
+*/
+module SALOME_RessourcesCatalog{
+
+  //! Information about a processor
   struct proc_info{
+    //! processor number
     long number;
+    //! model name
     string model_name;
+    //! frequency in MHz
     float cpu_mhz;
+    //! cache size in MB
     float cache_size;
   };
 
+  //! a list of processor informations
   typedef sequence<proc_info> ListOfProc;
 
-  //Computer_info : information about a computer
-  // Os and informations about processors
+  //! Information about a computer
+  /*!
+     Os and informations about processors
+  */
   struct computer_info{
+    //! computer name
     string name;
+    //! OS name
     string OS;
+    //! OS version
     string OS_version;
+    //! processors list
     ListOfProc procs;
   };
 
-  enum ContainerType {Cpp, python, NP};
+  //! Container type
+  enum ContainerType {
+  Cpp, /*!< C++ container */
+  python, /*!< python container */
+  NP /*!< NP container */
+  };
+  //! a list of container types
   typedef sequence<ContainerType> ListOfContainerType;
 
+  //! a list of computer names
   typedef sequence<string> ListOfComputer;
 
-  // exception thrown if a computer is not found in the catalog 
-
+  //! exception thrown if a computer is not found in the catalog 
   exception NotFound {};
 
   //------------------------------------------------------------------
-  //Interface
+/*! \brief interface to get information about Resources
+*/
   interface RessourcesCatalog {
+    //! Get the catalog computers list
     ListOfComputer GetComputerList();
+    //! Get the container types list for a given computer
     ListOfContainerType GetContainerTypeList (in string computer) raises(NotFound);
+    //! Get computer information for a given computer
     computer_info GetComputerInfo(in string computer) raises(NotFound);
   };
 };

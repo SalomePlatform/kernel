@@ -27,6 +27,11 @@
 #include "SALOME_FileTransfer_i.hxx"
 #include "utilities.h"
 
+/*! \class fileTransfer_i
+    \brief A class to manage file transfer in SALOME
+
+*/
+
 //=============================================================================
 /*! 
  *  Default constructor,
@@ -52,8 +57,9 @@ fileTransfer_i::~fileTransfer_i()
 
 
 //=============================================================================
-/*! 
- *  CORBA method: try to open the file given. If the file is readable, return
+/*! \brief open the given file
+ *
+ *  CORBA method: try to open the file. If the file is readable, return
  *  a positive integer else return 0;
  *  \param  fileName path to the file to be transfered
  *  \return fileId = positive integer > 0 if open OK.
@@ -76,7 +82,8 @@ CORBA::Long fileTransfer_i::open(const char* fileName)
 }
 
 //=============================================================================
-/*! 
+/*! \brief close a file
+ *
  *  CORBA method: close the file associated to the fileId given at open.
  *  \param fileId got in return from open method
  */
@@ -93,16 +100,17 @@ void fileTransfer_i::close(CORBA::Long fileId)
   else fclose(fp);
 }
 
+#define FILEBLOCK_SIZE 256*1024
+
 //=============================================================================
-/*! 
+/*! \brief get a data block from a file
+ * 
  *  CORBA method: get a block of data from the file associated to the fileId
  *  given at open.
  *  \param fileId got in return from open method
  *  \return an octet sequence. Last one is empty.
  */
 //=============================================================================
-
-#define FILEBLOCK_SIZE 256*1024
 
 Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
 {

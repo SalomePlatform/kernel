@@ -19,14 +19,19 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : MPIObject.idl
+//  File   : SALOME_MPIObject.idl
 //
 #ifndef _SALOME_MPIOBJECT_IDL_
 #define _SALOME_MPIOBJECT_IDL_
 
+/*! \file SALOME_MPIObject.idl \brief interfaces for parallel (MPI) objects
+*/
+
 module Engines
 {
   typedef sequence<Object> IORTab;
+  /*! \brief Interface of a parallel %object for the MPI parallel container.
+   */
   interface MPIObject
   {
     attribute IORTab tior;

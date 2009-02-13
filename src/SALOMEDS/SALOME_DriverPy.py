@@ -19,11 +19,17 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## @package SALOME_DriverPy
+#  \brief python implementation of SALOMEDS::Driver interface
+#
+#  
 import SALOMEDS__POA
 
+## Python implementation of generic SALOMEDS::Driver.
+#
+#
 class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     """
-    Python implementation of generic SALOMEDS driver.
     Should be inherited by any Python module's engine
     to provide persistence mechanism.
     """

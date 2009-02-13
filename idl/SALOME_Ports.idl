@@ -26,11 +26,13 @@
 #ifndef _SALOME_PORTS_IDL_
 #define _SALOME_PORTS_IDL_
 
-/*! \file
-  This file contains the IDL declarations of the kind of ports provided by the 
-  SALOME component model.
+/*! \file SALOME_Ports.idl
+  \brief This file contains the IDL base interfaces for ports in the SALOME component model.
  */
 
+/*! \brief module that contains interfaces to define the kind of ports provided by the
+SALOME component model.
+*/
 module Ports {
   
   /*! \brief Interface of a DSC Port.
@@ -68,21 +70,13 @@ module Ports {
   */
   interface Data_And_Control_Port : Ports::Port {};
 
-  /*!
-    This exception indicates that the property doesn't not exist.
-  */
+  //!  This exception indicates that the property doesn't not exist.
   exception NotDefined {};
 
-  /*!
-    This exception indicates that the given value to the property is not
-    of a good type.
-  */
+  //!  This exception indicates that the given value to the property is not of a good type.
   exception BadType {};
 
-  /*!
-    This exception indicates that the given value to the property is not
-    authorized.
-  */
+  //!  This exception indicates that the given value to the property is not authorized.
   exception BadValue {};
 
   /*! \brief Interface of a PortProperties.
@@ -92,8 +86,8 @@ module Ports {
   */
   interface PortProperties {
     
+    //!  This operation permits to set a value of a property.
     /*!
-      This operation permits to set a value of a property.
 
       \param name property's name.
       \param value value of the property.
@@ -105,8 +99,8 @@ module Ports {
 							    Ports::BadValue,
 							    Ports::NotDefined);
 
+    //!  This operation permits to get property's value.
     /*!
-      This operation permits to get property's value.
 
       \param name property's name.
       \return value of the property.
@@ -122,6 +116,7 @@ module Ports {
     a port in the DSC_User programming model.
   */
   interface Data_Short_Port : Ports::Data_Port {
+    //! this operation can be used by a uses port to send me a short 
     void put(in short data);
   };
 };

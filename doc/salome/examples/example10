@@ -1,0 +1,50 @@
+
+#              create    AttributeExpandable
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute( batchmode_geompy.father, "AttributeExpandable")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeExpandable attribute"
+A = A._narrow(SALOMEDS.AttributeExpandable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeExpandable attribute"
+
+A.SetExpandable(1)
+
+if A.IsExpandable() == 0:
+        "Error: wrong value of AttributeExpandable"
+
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file,  batchmode_geompy.myStudy)
+openedStudy = batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find   AttributeExpandable
+#============================================================
+
+res,A=father.FindAttribute("AttributeExpandable")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeExpandable"
+
+A = A._narrow(SALOMEDS.AttributeExpandable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeExpandable attribute"
+
+if A.IsExpandable() == 0:
+        "Error: wrong value of AttributeExpandable"
+

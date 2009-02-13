@@ -28,31 +28,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS = salome
 
-# if RST2HTML_IS_OK
-#   DOC_FILES = \
-# 	index.html \
-# 	UnitTests.html \
-# 	SALOME_Application.html \
-# 	INSTALL.html \
-# 	kernel_resources.html \
-# 	KERNEL_Services.html
-#   CSS_FILE = rst.css
-# endif
-
-nodist_doc_DATA = $(DOC_FILES)
-
-EXTRA_DIST=$(DOC_FILES:%.html=%.txt) $(CSS_FILE)
-
-# Building html from restructured text files
-STYLESHEET=$(CSS_FILE)
-RST2HTML=@RST2HTML@
-RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
-
-%.html: %.txt
-	$(RST2HTML) $(RSTOPTS) $< $@
+docs: usr_docs
 
 usr_docs:
 	(cd salome && $(MAKE) $(AM_MAKEFLAGS) usr_docs)
 
 dev_docs:
 	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
+
+dist-hook:
+	cp -Rp $(srcdir)/configuration_examples $(distdir)
+	rm -rf $(distdir)/configuration_examples/CVS

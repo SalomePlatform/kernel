@@ -1,0 +1,54 @@
+
+from batchmode_geompy import *
+import os
+
+#--------------------------------------------------------------------------
+#              create    AttributeDrawable  
+#===========================================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeDrawable")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeDrawable attribute"
+A = A._narrow(SALOMEDS.AttributeDrawable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeDrawable attribute"
+
+A.SetDrawable(1)
+
+if A.IsDrawable() == 0:
+        "Error: wrong value of AttributeDrawable"
+
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy=batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#     find   AttributeDrawable
+#============================================================
+
+res,A=father.FindAttribute("AttributeDrawable")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeDrawable"
+
+A = A._narrow(SALOMEDS.AttributeDrawable)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeDrawable attribute"
+
+if A.IsDrawable() == 0:
+        "Error: wrong value of AttributeDrawable"
+

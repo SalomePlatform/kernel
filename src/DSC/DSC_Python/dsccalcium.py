@@ -19,19 +19,25 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## @package dsccalcium
+# \brief Module that provides the base class for DSC components implemented in python
+#
+#
+
 import calcium
 import SALOME_ComponentPy
 import SALOME_DriverPy
 import Engines
 
+## The SALOME base class for all DSC components implemented in python (interface Engines::Superv_Component).
+#
+#
 class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
                      SALOME_DriverPy.SALOME_DriverPy_i):
   """
-     A Python SALOME component is implemented by a Python class that has
+     A Python DSC component is implemented by a Python class that has
      the name of the component and is located in a python module that has the
      name of the component.
-
-     This class is a base class for Python DSC components.
 
      You must derive it and implement init_service and those methods
      that are services of the component.

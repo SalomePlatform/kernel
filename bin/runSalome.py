@@ -20,6 +20,11 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## @package runSalome
+# \brief Module that provides services to launch SALOME
+#
+#
+
 import sys, os, string, glob, time, pickle, re
 import orbmodule
 import setenv

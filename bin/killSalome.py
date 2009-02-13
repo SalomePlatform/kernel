@@ -20,6 +20,10 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## \file killSalome.py
+#  Stop all %SALOME servers from all sessions by killing them
+#
+
 import os, sys, re, signal
 
 from killSalomeWithPort import killMyPort, getPiDict

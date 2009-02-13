@@ -1,0 +1,152 @@
+
+batchmode_geompy.myBuilder._set_UndoLimit(20)
+
+#--------------------------------------------------------------------------
+#       create AttributeReal      
+#===============================================
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeReal")
+if A == None :
+        raise  RuntimeError, "Can't create AttributeReal attribute"
+A = A._narrow(SALOMEDS.AttributeReal)
+A.SetValue(0.0001)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+
+#      create AttributeStudyProperties
+#================================================
+A = batchmode_geompy.myStudy.GetProperties()
+if A == None :
+        raise  RuntimeError, "Can't create AttributeStudyProperties attribute"
+A = A._narrow(SALOMEDS.AttributeStudyProperties)
+
+batchmode_geompy.myBuilder.NewCommand();
+print "A.GetUserName()= ", A.GetUserName()
+res,mm,hh,dd,mnth,yy=A.GetCreationDate()
+print "A.GetCreationDate() = ", mm,hh,dd,mnth,yy
+print "A.GetCreationMode() = ", A.GetCreationMode()
+print "A.IsModified() = ", A.IsModified()
+print "A.IsLocked() = ", A.IsLocked()
+if A.IsLocked() == 0 :
+        A.SetUserName("tester"); print 'A.SetUserName("tester"), A.GetUserName() = ', A.GetUserName()
+        A.SetCreationDate(11,11,11,11,2002); print 'A.SetCreationDate(11,11,11,11,2002), A.GetCreationDate() =', A.GetCreationDate()
+        print "A.IsModified() = ", A.IsModified()
+A.SetLocked(1)
+
+#check the transaction result 
+batchmode_geompy.myBuilder.CommitCommand()
+if A.GetUserName() != "tester":
+        print 'Control after transaction close : A.GetUserName() = ', A.GetUserName()
+        raise RuntimeError, "Field 'UserName' was not modified but had to!"
+
+# try to make some changes wrapped by transaction 
+#================================================
+batchmode_geompy.myBuilder.NewCommand()
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeInteger")
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeInteger attribute"
+A = A._narrow(SALOMEDS.AttributeInteger)
+A.SetValue(1000000)
+
+exception_was = None
+try : batchmode_geompy.myBuilder.CommitCommand()
+except Exception: exception_was = 1
+
+if exception_was is None:
+        raise RuntimeError, "Study was locked for changes but CommitCommand did not generate an exception !"
+
+#      save / restore study      
+
+#================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+print " -------  We will save to", file, "-----------"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+
+
+#--------------------------------------------------------------------------#
+#--------------------------- Open file ------------------------------------# 
+#--------------------------------------------------------------------------#
+
+print" -------------- Open  " + file + "-------------- " 
+
+openedStudy = batchmode_geompy.myStudyManager.Open(file)
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#1.     find AttributeReal
+#================================================
+
+res,A=father.FindAttribute("AttributeReal")
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeReal"
+
+A = A._narrow(SALOMEDS.AttributeReal)
+if A.Value() != 0.0001:
+        raise  RuntimeError, "Error : wrong value of  AttributeReal"
+ 
+
+#2.     find AttributeStudyProperties
+#=================================================
+A=openedStudy.GetProperties()
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeStudyProperties"
+
+A = A._narrow(SALOMEDS.AttributeStudyProperties)
+if A.IsLocked() == 0 :
+        raise  RuntimeError, "Error : AttributeStudyProperties must have Locked flag but have no!"
+
+#get the builder
+myBuilder = openedStudy.NewBuilder()
+
+#3. try to make some changes wrapped by transaction 
+#==================================================
+exception_was = None
+try : 
+        myBuilder.NewCommand()
+        A = myBuilder.FindOrCreateAttribute(father, "AttributeInteger")
+
+        if A == None :
+                raise  RuntimeError, "Can't create AttributeInteger attribute"
+        A = A._narrow(SALOMEDS.AttributeInteger)
+        A.SetValue(1000000)
+        myBuilder.CommitCommand()
+except Exception: exception_was = 1
+
+if exception_was is None:
+        raise RuntimeError, "Study was locked for changes but CommitCommand did not generate an exception !"
+
+
+myBuilder.NewCommand()
+A=openedStudy.GetProperties()
+A = A._narrow(SALOMEDS.AttributeStudyProperties)
+A.SetLocked(0)
+myBuilder.CommitCommand()
+
+#4.
+myBuilder.NewCommand()
+A.SetLocked(0);
+print "A.GetUserName()= ", A.GetUserName()
+print "A.GetCreationDate() = ", A.GetCreationDate()
+print "A.GetCreationMode() = ", A.GetCreationMode()
+print "A.IsModified() = ", A.IsModified()
+myBuilder.CommitCommand()
+
+#5.
+myBuilder.NewCommand()
+A.SetUserName("tester1")
+myBuilder.CommitCommand()
+print "A.GetUserName()= ", A.GetUserName()
+
+#remove the document file
+os.remove(file)
+

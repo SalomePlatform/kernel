@@ -22,15 +22,28 @@
 #ifndef NSTEST_IDL
 #define NSTEST_IDL
 
+/*! \file nstest.idl \brief interfaces for naming service test
+*/
+
+/*! \brief module with one interface to test naming service
+*/
 module NSTEST
 {
+/*! \brief small interface for test 
+*/
   interface echo
   {
+/*! \brief operation that returns a long
+*/
     long getId();
   };
 
+/*! \brief factory interface for test 
+*/
   interface aFactory
   {
+/*! \brief operation that creates a echo %object
+*/
     echo createInstance();
   };
 };

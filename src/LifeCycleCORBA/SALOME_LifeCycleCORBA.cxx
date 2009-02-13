@@ -64,6 +64,11 @@ IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
 {
 }
 
+/*! \class SALOME_LifeCycleCORBA
+    \brief A class to manage life cycle of SALOME components.
+
+*/
+
 //=============================================================================
 /*! 
  *  Constructor
@@ -112,15 +117,14 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 }
 
 //=============================================================================
-/*! Public - 
- *  Find and aready existing and registered component instance.
+/*! \brief Find an already existing and registered component instance.
+ *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \return a CORBA reference of the component instance, or _nil if not found
  */
 //=============================================================================
-
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 				     const char *componentName,
@@ -144,8 +148,8 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! Public - 
- *  Load a component instance on a container defined by machine parameters
+/*! \brief Load a component instance on a container defined by machine parameters
+ *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
@@ -178,9 +182,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! Public - 
- *  Find and aready existing and registered component instance or load a new
- *  component instance on a container defined by machine parameters.
+/*! \brief Find an already existing and registered component instance or load a new
+ *         component instance on a container defined by machine parameters.
+ *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
@@ -220,9 +224,9 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! Public - 
- *  Find and aready existing and registered component instance or load a new
- *  component instance on a container defined by name
+/*! \brief Find an already existing and registered component instance or load a new
+ *         component instance on a container defined by name
+ *
  *  \param containerName  the name of container, under one of the forms
  *           - 1 aContainer (local container)
  *           - 2 machine/aContainer (container on hostname = machine)
@@ -292,8 +296,8 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 }
 
 //=============================================================================
-/*! Public -
- *  Check if the component class is known in module catalog
+/*! \brief Check if the component class is known in module catalog
+ *
  *  \param componentName  the name of component class
  *  \return true if found, false otherwise
  */
@@ -330,7 +334,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 }
 
 //=============================================================================
-/*! Public -
+/*! 
  *  Not so complex... useful ?
  */
 //=============================================================================
@@ -347,9 +351,8 @@ SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
 
 
 //=============================================================================
-/*! Public -
- *  Pre initialisation of a given Engines::MachineParameters with default
- *  values.
+/*! \brief Initialisation of a given Engines::MachineParameters with default values.
+ *
  *  - container_name = ""  : not relevant
  *  - hostname = ""        : not relevant
  *  - OS = ""              : not relevant
@@ -377,7 +380,7 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
 }
 
 //=============================================================================
-/*! Public -
+/*! 
  *  \return a number of processors not 0, only for MPI containers
  */
 //=============================================================================
@@ -397,7 +400,8 @@ int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
 }
 
 //=============================================================================
-/*! Public -
+/*! \brief Get the container manager
+ *
  *  \return the container Manager
  */
 //=============================================================================
@@ -410,7 +414,8 @@ Engines::ContainerManager_ptr SALOME_LifeCycleCORBA::getContainerManager()
 }
 
 //=============================================================================
-/*! Public -
+/*! \brief Get the resources manager
+ *
  *  \return the container Manager
  */
 //=============================================================================
@@ -423,8 +428,7 @@ Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
 }
 
 //=============================================================================
-/*! Public -
- *  shutdown all the SALOME servers except SALOME_Session_Server, omniNames and notifd
+/*! \brief shutdown all the SALOME servers except SALOME_Session_Server, omniNames and notifd
  */
 //=============================================================================
 
@@ -516,8 +520,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 }
 
 //=============================================================================
-/*! Public -
- *  shutdown  omniNames and notifd
+/*! \brief shutdown  omniNames and notifd
  */
 //=============================================================================
 
@@ -550,15 +553,16 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 }
 
 //=============================================================================
-/*! Protected -
- *  Find and aready existing and registered component instance.
+/*! \brief Find an already existing and registered component instance.
+ *
+ * - build a list of machines on which an instance of the component is running,
+ * - find the best machine among the list
+ *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \param listOfMachines list of machine address
  *  \return a CORBA reference of the component instance, or _nil if not found
- * - build a list of machines on which an instance of the component is running,
- * - find the best machine among the list
  */
 //=============================================================================
 
@@ -610,16 +614,17 @@ _FindComponent(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! Protected -
- *  Load a component instance.
+/*! \brief  Load a component instance.
+ *
+ *  - Finds a container in the list of machine or start one.
+ *  - Try to load the component library in the container,
+ *  - then create an instance of the component.
+ *
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
  *  \param listOfMachines list of machine address
  *  \return a CORBA reference of the component instance, or _nil if problem
- *  - Finds a container in the list of machine or start one.
- *  - Try to load the component library in the container,
- *  - then create an instance of the component.
  */
 //=============================================================================
 
@@ -646,6 +651,15 @@ _LoadComponent(const Engines::MachineParameters& params,
   return myInstance._retn();
 }
 
+//=============================================================================
+/*! \brief  Load a parallel component instance.
+ *
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \return a CORBA reference of the parallel component instance, or _nil if problem
+ */
+//=============================================================================
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& params,
                                               const char *componentName,

@@ -19,6 +19,12 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## @package salome_session
+# \brief Module that provides the SalomeSession object that helps to launch
+#        a SALOME script session
+#
+#
+
 import os
 import sys
 import string
@@ -99,6 +105,7 @@ def searchFreePort():
 
 
 class SalomeSession(object):
+    """Salome session launcher"""
     import runSalome
     import killSalomeWithPort
     import killSalome

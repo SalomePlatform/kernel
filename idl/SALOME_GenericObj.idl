@@ -25,16 +25,17 @@
 //
 #ifndef _SALOME_GENERICOBJ_IDL_
 #define _SALOME_GENERICOBJ_IDL_
-/*!  
 
-This is a package of interfaces used for providing of common bechavior 
-of SALOME transient CORBA objects in %SALOME application.
+/*! \file SALOME_GenericObj.idl \brief interface for common behavior of %SALOME transient CORBA objects 
 */
+
 module SALOME{
+/*! \brief interface for common behavior of %SALOME transient CORBA objects 
+*/
   interface GenericObj{
-    /*! Increase the reference count (mark as used by another object).*/
+    /*! \brief Increase the reference count (mark as used by another object).*/
     void Register();
-    /*! Decrease the reference count (release by another object).*/
+    /*! \brief Decrease the reference count (release by another object).*/
     void Destroy();
   };
 };

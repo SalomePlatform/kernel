@@ -537,9 +537,9 @@ AC_OUTPUT([ \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/tui/Makefile \
-	./doc/salome/tui/INPUT/doxyuser:./doc/salome/tui/KERNEL/doxyuser.in \
-	./doc/salome/tui/INPUT/doxydev:./doc/salome/tui/KERNEL/doxydev.in \
-	./doc/salome/tui/INPUT/sources/static/tree.js:./doc/salome/tui/KERNEL/sources/static/tree.js.in \
+  ./doc/salome/tui/doxyfile \
+	./doc/salome/gui/Makefile \
+  ./doc/salome/gui/doxyfile \
 	./idl/Makefile \
 	./resources/Makefile \
 	./resources/KERNELCatalog.xml \

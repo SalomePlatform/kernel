@@ -19,7 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : SALOME_Ports.idl
+//  File   : Calcium_Ports.idl
 //  Author : Eric Fayolle, EDF
 //
 #ifndef _CALCIUM_PORTS_IDL_
@@ -27,8 +27,13 @@
 
 #include "SALOME_Ports.idl"
 
+/*! \file Calcium_Ports.idl \brief interfaces for Calcium ports
+*/
+
 module Ports {
 
+/*! \brief module that contains interfaces to define Calcium ports 
+*/
   module Calcium_Ports {
 
     const long UNLIMITED_STORAGE_LEVEL = -70;   

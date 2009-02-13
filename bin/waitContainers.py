@@ -20,6 +20,12 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## \file waitContainers.py
+# \brief command to wait until containers are launched
+#
+# the container names (in naming service) are passed on the command line as in :
+# waitContainers.py FactoryServer
+
 import sys
 import time
 import orbmodule

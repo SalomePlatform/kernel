@@ -10,60 +10,57 @@ the unit tests.
 
 \section S1_unit SALOME KERNEL source code structuration
 
-<ol>
-<li> <b>General structure of KERNEL_SRC</b>
+\subsection sub11 General structure of KERNEL_SRC
 
-- KERNEL_SRC :
+- KERNEL_SRC :\n
    Some README files and configuration tools for build
 
-- KERNEL_SRC/adm_local :
+- KERNEL_SRC/adm_local :\n
    Part of the configuration files, other modules have a directory with the
    same name. Not used in KERNEL.
 
-- KERNEL_SRC/bin :
+- KERNEL_SRC/bin :\n
    Python and shell scripts used at run time.
    Kit to install a %SALOME Application.
 
-- KERNEL_SRC/doc :
+- KERNEL_SRC/doc :\n
    Kit for KERNEL end user documentation production:
    public interfaces, Python, CORBA.
    Integrator and Developper documentation.
 
-- KERNEL_SRC/idl :
+- KERNEL_SRC/idl :\n
    All CORBA interfaces from KERNEL are regrouped here.
 
-- KERNEL_SRC/resources :
+- KERNEL_SRC/resources :\n
    Configuration files for servers (examples).
    Interfaces definitions for KERNEL test components.
 
-- KERNEL_SRC/salome_adm :
+- KERNEL_SRC/salome_adm :\n
    Configuration files used by autotools (M4 macros & co.)
 
-- KERNEL_SRC/src :
+- KERNEL_SRC/src :\n
    The source code (C++ and Python)
 
-</li> 
-<li>
-<b>Directory src: C++ and Python source code</b>
+\subsection sub12 Directory src: C++ and Python source code
 
 <ol>
 <li>
 <b>Basic services non related to CORBA</b>
 
-- Basics
+- Basics\n
   %A set of general purpose C++ services, not related to CORBA.
   Some general purpose services that are in Utils directory (CORBA related),
   are progressivley moved here, as they are not related to CORBA.
   
 
-- SALOMELocalTrace
+- SALOMELocalTrace\n
   %A multithread trace system that allows message tracing on standard error
   or a file. 
 
-- CASCatch
+- CASCatch\n
   Exceptions and signal handler.
 
-- HDFPersist
+- HDFPersist\n
   %A C++ interface to HDF.
 
 </li>
@@ -71,22 +68,22 @@ the unit tests.
 <li>
 <b>Basic CORBA services</b>
 
-- Logger :
+- Logger :\n
   %A CORBA %server that collects the trace messages from differents CORBA 
   process. 
 
-- SALOMETraceCollector :
+- SALOMETraceCollector :\n
   %A multithread trace system derived from SALOMELocalTrace, that sends messages
   to Logger %server via CORBA.
 
-- Utils :
+- Utils :\n
   %A set of general purpose services related to CORBA, such as basic CORBA
   exception system. See also Basics directory above.
 
-- NamingService :
+- NamingService :\n
   C++ and Python interfaces to name, store and retrieve CORBA objects
 
-- GenericObj :
+- GenericObj :\n
   %A generic CORBA interface for CORBA objects, to count distributed references,
   and to allow destruction by client. 
 
@@ -94,21 +91,21 @@ the unit tests.
 <li>
 <b>Miscellaneous CORBA servers</b>
 
-- %Registry :
+- %Registry :\n
   Implements SALOME_registry.idl.
   Provides a CORBA %server library and a separate %server program.
 
-- ModuleCatalog :
+- ModuleCatalog :\n
   Implements SALOME_moduleCatalog.idl.
   Provide a CORBA %server library and separate %server and client programs.
 
-- ModuleGenerator :
+- ModuleGenerator :\n
   Tool to generate a module catalog from CORBA idl
 
-- ResourcesManager :
+- ResourcesManager :\n
   library included in container %server
 
-- Notification :
+- Notification :\n
   library included in differents servers (container)
 
 - NOTIFICATION_SWIG
@@ -137,7 +134,7 @@ the unit tests.
 
 - SALOMEDSImpl
 
-- SALOMEDS
+- %SALOMEDS
 
 </li>
 <li>
@@ -182,7 +179,7 @@ the unit tests.
 
 \section S2_unit Tools and principles used for Unit testing
 
-<b>**TO BE COMPLETED**</b>
+<b>TO BE COMPLETED</b>
 
 Unit Testing rely on cppunit package for C++ testing, and on unittest module
 for Python. See these products for general principles of unit testing.

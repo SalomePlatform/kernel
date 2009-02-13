@@ -33,7 +33,8 @@
 
 /*! \class DSC_Callbacks
  *  \brief This is an abstract class that defines methods that the component
- *  uses to prevent the component user code that the state of the component has changed.
+ *  uses to notify the component user code that the state of the component has changed.
+ *
  *  Currently only port's connection modifications are signaled.
  */
 class DSC_BASIC_EXPORT DSC_Callbacks
@@ -42,11 +43,10 @@ class DSC_BASIC_EXPORT DSC_Callbacks
     DSC_Callbacks() {}
     virtual ~DSC_Callbacks() {}
 
-    /*!
-     * This method is used by the component when the number of connection
-     * on a provides port changes. This information helps the user code to detect
-     * operation on its ports.
-     * 
+    /*! \brief This method is used by the component when the number of connection
+     * on a provides port changes. 
+     *
+     * This information helps the user code to detect operation on its ports.
      *
      * \param provides_port_name the name of the provides name that has changed.
      * \param connection_nbr the new number of connection on the provides port.
@@ -56,11 +56,10 @@ class DSC_BASIC_EXPORT DSC_Callbacks
 				       int connection_nbr,
 				       const Engines::DSC::Message message) = 0;
 
-    /*!
-     * This method is used by the component when the number of connection
-     * on a uses port changes. This information helps the user code to detect
-     * operation on its ports.
-     * 
+    /*! \brief  This method is used by the component when the number of connection
+     * on a uses port changes. 
+     *
+     * This information helps the user code to detect operation on its ports.
      *
      * \param uses_port_name the name of the uses name that has changed.
      * \param new_uses_port the new sequence representing the uses port.

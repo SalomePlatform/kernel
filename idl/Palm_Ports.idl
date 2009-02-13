@@ -19,7 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : SALOME_Ports.idl
+//  File   : Palm_Ports.idl
 //  Author : André RIBES, EDF
 //
 #ifndef _PALM_PORTS_IDL_
@@ -27,8 +27,8 @@
 
 #include "SALOME_Ports.idl"
 
-/*! \file
-  This file contains IDL palm ports declations.
+/*! \file  Palm_Ports.idl
+    \brief This file contains IDL palm ports declarations.
 */
 
 module Ports {
@@ -39,8 +39,7 @@ module Ports {
      */
     interface Palm_Data_Short_Port : Ports::Data_Port {
 
-      /*!
-	This operation permits to transmit a short.
+      /*! \brief  This operation permits to transmit a short.
 
 	\param data the short transmitted.
 	\param time time associated to the short.
@@ -57,8 +56,7 @@ module Ports {
     /*! \brief Interface of a sequence of short port.
      */
     interface Palm_Data_Seq_Short_Port : Ports::Data_Port {
-      /*!
-	This operation permits to transmit a sequence of short.
+      /*! \brief  This operation permits to transmit a sequence of short.
 
 	\param data the sequence transmitted.
 	\param time time associated to the data.

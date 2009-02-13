@@ -24,8 +24,14 @@
 # ifndef __registry_idl__
 # define __registry_idl__
 
+/*! \file SALOME_Registry.idl \brief interfaces for %SALOME registry
+*/
+
+/*! \brief module that provides interface to %SALOME registry
+*/
 module Registry
 {
+  //! a struct to collect informations about servers (processes)
 	struct Infos
 	{
 		string  name;
@@ -43,20 +49,33 @@ module Registry
 		string  ior;		//  client 
 	};
 
+  //! a list of informations
 	typedef sequence<Infos> AllInfos;
 
+/*! \brief interface to use %SALOME registry
+*/
 	interface Components
 	{
+    //! check if registry is running
 		void ping();
-	        long getPID();
+    //! Get the pid of registry server
+	  long getPID();
+    //! Add one information to the registry
 		unsigned long add ( in Infos lesInfos ) ;
+    //! Remove an information from the registry
 		void remove ( in unsigned long id ) ;
+    //! Get the size of the registry
 		unsigned long size() ;
+    //! Get all informations from registry
 		AllInfos getall () ;
+    //! Get history information from registry
 		AllInfos history () ;
+    //! Stop the registry (hard exit)
 		oneway void end() ;
+    //! Say hello to registry from process id
 		oneway void hello( in unsigned long id ) ;
-	        void Shutdown();
+    //! Shutdown registry server (CORBA exit)
+	  void Shutdown();
 	} ;
 } ;
 

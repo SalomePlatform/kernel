@@ -29,9 +29,8 @@
 #include "SALOME_Component.idl"
 #include "SALOME_Ports.idl"
 
-/*! \file
-  This is a package that contains IDL interfaces that permits to add 
-  a dynamic port model to the SALOME object model. 
+/*! \file DSC_Engines.idl 
+     \brief interfaces that permits to add a dynamic port model to the SALOME object model. 
  */
 module Engines {
 
@@ -63,6 +62,7 @@ module Engines {
 /*--------------------------------------------------------------------------------------------*/
 /*-------------------------------------- Types Part ------------------------------------------*/
 
+    //! a uses port
     /*!
       This sequence is a uses port. It's a sequence since a uses port can be
       connected with x provides port. Sometimes this kind of uses port is called multiple port.
@@ -71,33 +71,25 @@ module Engines {
     */  
     typedef sequence<Ports::Port> uses_port;
 
+    //! This enumeration is used when the connection of a port (uses or provides) is changed. 
     /*!
-      This enumeration is used when the connection of a port (uses or provides) 
-      is changed. This information is for the component's user code.
+      This information is for the component's user code.
     */  
     enum Message {AddingConnection,
                   RemovingConnection, 
                   ApplicationError};
     
-    /*!
-      This exception is raised when a port's name is gived before
-      it is added to the component.
-    */
+    //!  This exception is raised when a port is used before it is added to the component.
     exception PortNotDefined {};
     
-    /*!
-      This exception is raised if you try to add a port with the same
-      name than a previous defined port.
-    */
+    //!  This exception is raised if you try to add a port with the same name than a previous defined port.
     exception PortAlreadyDefined {};
     
-    /*!
-      This exception is raised when you try to use a port that is not connected.
-    */
+    //!  This exception is raised when you try to use a port that is not connected.
     exception PortNotConnected {};
 
+    //! This exception is raised if the type of the provides port is bad.
     /*!
-      This exception is raised if the type of the provides port is bad.
       This exception contains a string that gives what type is expected
       and the type that the operation received.
     */
@@ -106,27 +98,21 @@ module Engines {
       string received;
     };
 
-    /*!
-      Port's reference is Nil !
-    */
+    //!  Port's reference is Nil !
     exception NilPort {};
 
-    /*!
-      Port's reference is not the right reference.
-    */
+    //!  Port's reference is not the right reference.
     exception BadPortReference {};
 
-    /*!
-      Object porperty is not good for the port
-    */
+    //!  Object property is not good for the port
     exception BadProperty {};
 
 
 /*--------------------------------------------------------------------------------------------*/
 /*-------------------------------------- Operation Part --------------------------------------*/
 
+    //!  This operation adds a provides port to the component.
     /*!
-      This operation adds a provides port to the component.
 
       \param ref  port's Corba reference.
       \param provides_port_name port's name.
@@ -146,8 +132,8 @@ module Engines {
 								      NilPort,
 								      BadProperty);
 
+    //!  This operation adds a uses port to the component.
     /*!
-      This operation adds a uses port to the component.
 
       \param repository_id  port's Corba repository id. 
 	     Eg : IDL:toto.tata/MODULE/INTERFACE_NAME:1.0
@@ -166,8 +152,8 @@ module Engines {
 		       in Ports::PortProperties port_prop) raises(PortAlreadyDefined,
 								  BadProperty);
 
+    //!  Get a provides port of the component.
     /*! 
-      This operation is used to get a provides port of the component.
       It can be used by the framework or the component himself.
 
       If it's the framework that wants the port, the reference has to be gived
@@ -191,8 +177,8 @@ module Engines {
 								      PortNotConnected,
 								      BadPortType);
 
+    //! Get a uses port of the component.
     /*! 
-      This operation is used to get a uses port of the component.
       It can be used by the framework or the component himself.
       Actually, only the user layer of the component will use this operation.
       A uses port could be obtained if and only if the uses port is connected. The sequence
@@ -215,8 +201,8 @@ module Engines {
 							     BadPortType);
 
 
+    //!  Connect a provides port with a uses port.
     /*!
-      This operation connects a provides port with a uses port.
 
       \param provides_port_name provides port's name.
 
@@ -226,8 +212,8 @@ module Engines {
     */
     void connect_provides_port(in string provides_port_name) raises(PortNotDefined); 
     
+    //!  Connect a uses port with a provides port.
     /*!
-      This operation connects a uses port with a provides port.
 
       \param uses_port_name uses port's name.
       \param provides_port_ref provides port's Corba reference.
@@ -240,9 +226,10 @@ module Engines {
 			   in Ports::Port provides_port_ref) raises(PortNotDefined, 
 								    BadPortType, 
 								    NilPort);
+
+    //! Check if a port is connected. 
     /*!
-      This operation tests if a port is connected. You can test 
-      a uses port or a provides port.
+      You can test a uses port or a provides port.
 
       \param port_name port's name.
       \return true if the uses port is connected.      
@@ -251,8 +238,8 @@ module Engines {
     */
     boolean is_connected(in string port_name) raises(PortNotDefined);
 
+    //! Disconnect a uses port from a provides port.
     /*!
-      This operation disconnects a uses port to a provides port.
 
       \param provides_port_name provides port's name.
       \param message state associated with the disconnection.
@@ -264,8 +251,8 @@ module Engines {
 				  in Engines::DSC::Message message) raises(PortNotDefined,
 									   PortNotConnected);
 
+    //!  Disconnect a provides port from a uses port.
     /*!
-      This operation disconnects a provides port to a uses port.
 
       \param uses_port_name uses port's name.
       \param provides_port_ref CORBA reference of the provides port.
@@ -280,8 +267,8 @@ module Engines {
 			      in Engines::DSC::Message message) raises(PortNotDefined,
 								       PortNotConnected,
 								       BadPortReference);
+    //! Get port's property object.
     /*!
-      This operation permits to get port's property object.
 
       \param port_name port's name.
       \return properties object's CORBA reference.
@@ -298,18 +285,14 @@ module Engines {
   */
   interface ConnectionManager {
    
-    /*!
-      The Id gived to the disconnect method is bad.
-    */
+    //!  The Id given to the disconnect method is bad.
     exception BadId {};
 
-    /*!
-      A connection Id. It's unique.
-    */
+    //!  A connection Id. It's unique.
     typedef short connectionId;
 
+    //!  Connect a uses port with a provides port.
     /*!
-      This operation connects a uses port with a provides port.
 
       \param uses_component The component that have the uses port.
       \param uses_port_name uses port's name.
@@ -331,9 +314,8 @@ module Engines {
 							      Engines::DSC::BadPortType, 
 							      Engines::DSC::NilPort);
 
+    //!  Release a connection that has been previously created by the ConnectionManager.
     /*!
-      This operation releases a connection that has been previously created by 
-      the ConnectionManager.
 
       \param id The id of the connection previously gived by the connect operation
       of the ConnectionManager.
@@ -347,14 +329,10 @@ module Engines {
                                                  Engines::DSC::PortNotConnected,
 							                                   Engines::DSC::BadPortReference);
 
-    /*!
-      Shutdown the ConnectionManager process.
-    */
+    //!  Shutdown the ConnectionManager process.
     oneway void ShutdownWithExit();
 
-    /*!
-      Returns the PID of the connection manager
-    */
+    //!  Return the PID of the connection manager
     long getPID();
   };
 
@@ -368,9 +346,10 @@ module Engines {
   */
   interface Superv_Component : Engines::DSC {
     
+    //! Operation to create the service ports before it is executed
     /*! 
       The SUPERV module call this method before starting the service. Thus the service 
-      can add is dynamics ports before it is started.
+      can add its dynamics ports before it is started.
 
       \param service_name service's name.
       \return true if the service is correctly initialised.

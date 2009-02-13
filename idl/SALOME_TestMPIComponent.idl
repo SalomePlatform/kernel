@@ -30,6 +30,9 @@
 #include "SALOME_Component.idl"
 #include "SALOME_MPIObject.idl"
 
+/*! \file SALOME_TestMPIComponent.idl \brief interface to test MPIObject and MPIContainer
+*/
+
 module Engines
 {
   

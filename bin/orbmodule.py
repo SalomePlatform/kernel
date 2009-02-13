@@ -19,6 +19,11 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## @package orbmodule
+# \brief Module that provides a client for %SALOME
+#
+#
+
 import sys,os,time
 import string
 from nameserver import *
@@ -32,6 +37,7 @@ import CosNaming
 # -----------------------------------------------------------------------------
 
 class client:
+   """Client for SALOME"""
 
    def __init__(self,args=None):
       #set GIOP message size for bug 10560: impossible to get field values in TUI mode
@@ -93,7 +99,7 @@ class client:
    # --------------------------------------------------------------------------
 
    def showNS(self):
-      """ Show the content of NS"""
+      """ Show the content of SALOME naming service """
       self.showNScontext(self.rootContext)
 
    # --------------------------------------------------------------------------

@@ -24,6 +24,10 @@
 #  Module : SALOME
 #  $Header$
 #
+## @package salome_iapp
+# Module salome gives access to Salome GUI ressources (if GUI has been launched).
+#
+
 import salome_ComponentGUI
 
     #--------------------------------------------------------------------------
@@ -70,69 +74,86 @@ class SalomeOutsideGUI(object):
     global myStudyId, myStudyName
     
     def hasDesktop(self):
+        """Indicate if GUI is running"""
         return False
     
     def updateObjBrowser(self, bid):
+        """update the GUI object browser"""
         print "SalomeOutsideGUI: no objectBrowser update outside GUI"
         pass
     
     def getActiveStudyId(self):
+        """Get the active study id"""
         print "SalomeOutsideGUI.getActiveStudyId: avoid use outside GUI"
         return myStudyId
     
     def getActiveStudyName(self):
+        """Get the active study name"""
         print "SalomeOutsideGUI.getActiveStudyName: avoid use outside GUI"
         return myStudyName
     
     def SelectedCount(self):
+        """Get the number of active selections"""
         print "SalomeOutsideGUI: no selection mecanism available outside GUI"
         return 0
     
     def getSelected(self, i):
+        """Get the selection number i """
         print "SalomeOutsideGUI: no selection mecanism available outside GUI"
         return none
     
     def AddIObject(self, Entry):
+        """Add an entry"""
         print "SalomeOutsideGUI.AddIOObject: not available outside GUI"
         pass
     
     def RemoveIObject(self, Entry):
+        """Remove an entry"""
         print "SalomeOutsideGUI.REmoveIOObject: not available outside GUI"
         pass
     
     def ClearIObjects(self):
+        """Clear entries"""
         print "SalomeOutsideGUI.ClearIOObject: not available outside GUI"
         pass
     
     def Display(self, Entry):
+        """Display an entry"""
         print "SalomeOutsideGUI.Display: not available outside GUI"
         pass
     
     def DisplayOnly(self, Entry):
+        """Display only an entry"""
         print "SalomeOutsideGUI.DisplayOnly: not available outside GUI"
         pass
     
     def Erase(self, Entry):
+        """Erase en entry"""
         print "SalomeOutsideGUI.Erase: not available outside GUI"
         pass
     
     def DisplayAll(self):
+        """Display all"""
         print "SalomeOutsideGUI.Erase: not available outside GUI"
         pass
     
     def EraseAll(self):
+        """Erase all"""
         print "SalomeOutsideGUI.EraseAll: not available outside GUI"
         pass
 
     def IsInCurrentView(self, Entry):
+        """Indicate if an entry is in current view"""
         print "SalomeOutsideGUI.IsIncurentView: not available outside GUI"
         return False
         
     def getComponentName(self, ComponentUserName ):
+        """Get component name from component user name"""
         print "SalomeOutsideGUI.getComponentName: not available outside GUI"
         return ""
    
     def getComponentUserName( self, ComponentName ):
+        """Get component user name from component name"""
         print "SalomeOutsideGUI.getComponentUserName: not available outside GUI"
         return ""
         

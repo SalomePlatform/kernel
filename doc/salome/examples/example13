@@ -1,0 +1,60 @@
+
+#--------------------------------------------------------------------------
+#              create    AttributeTextHighlightColor
+#===========================================================
+
+import SALOMEDS_Attributes_idl
+highlightcolor=SALOMEDS_Attributes_idl._0_SALOMEDS.Color(256,256,256)
+
+A = batchmode_geompy.myBuilder.FindOrCreateAttribute(batchmode_geompy.father, "AttributeTextHighlightColor")
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeTextHighlightColor attribute"
+A = A._narrow(SALOMEDS.AttributeTextHighlightColor)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeTextHighlightColor attribute"
+
+A.SetTextHighlightColor(highlightcolor)
+
+c = A.TextHighlightColor();
+if c.R != 256 or c.G != 256 or c.B != 256:
+        print "Error: wrong value of AttributeTextHighlightColor"
+
+
+#      save / restore study      
+#============================================================
+str= os.getenv("TmpDir")
+if str == None:
+        str = "/tmp"
+file = str+"/test.hdf"
+
+batchmode_geompy.myStudyManager.SaveAs(file, batchmode_geompy.myStudy)
+openedStudy=batchmode_geompy.myStudyManager.Open(file);
+
+if openedStudy == None:
+        raise  RuntimeError, "Can't open saved study!"
+
+father = openedStudy.FindComponent("GEOM")
+if father is None:
+         raise  RuntimeError, "Geom component is not found!  Wrong study is opened." 
+
+
+#       find   AttributeTextHighlightColor
+#============================================================
+
+res, A = father.FindAttribute("AttributeTextHighlightColor")
+print res, A
+if res == 0 or A == None:
+        raise  RuntimeError, "Error:  not found AttributeTextHighlightColor"
+
+A = A._narrow(SALOMEDS.AttributeTextHighlightColor)
+
+if A == None :
+        raise  RuntimeError, "Can't create AttributeTextHighlightColor attribute"
+
+c = A.TextHighlightColor();
+
+if c.R != 256 or c.G != 256 or c.B != 256:
+        print "Error: wrong value of AttributeTextTextHighlightColor"
+

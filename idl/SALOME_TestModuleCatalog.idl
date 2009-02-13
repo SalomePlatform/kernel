@@ -27,6 +27,12 @@
 
 #include "SALOME_Component.idl"
 
+/*! \file SALOME_TestModuleCatalog.idl \brief interfaces for %SALOME module catalog test
+*/
+
+/*! \brief module to test SALOME_ModuleCatalog
+*/
+
 module SALOME_TestModuleCatalog {
 
   interface Adder ;

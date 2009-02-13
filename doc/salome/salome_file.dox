@@ -9,7 +9,7 @@ SALOME_FileTransfer. It extends it to enable a higher model for managing files i
 \section S1_Salome_file Principles
 
 Salome_file is a CORBA %object. It's role is to managed many system files. When a Salome_file
-is created, no files are managed. Then, files are added using Salome_file interface. %A file is represented
+is created, no files are managed. Then, files are added using Salome_file_i interface. %A file is represented
 by a <b>name</b> and a <b>path</b>.
 
 There is two different cases when a file is added :
@@ -114,10 +114,5 @@ To avoid these cases, Salome_file API provides advanced methods :
   print_state(state); // You have to implement this function.
 };
 \endcode
-
-\section S3_Salome_file Using Salome_file into %SALOME services
-
-Currently you can't use Salome_file into YACS schema. In the next version of %SALOME,
-files ports will be available to connect output files to input files.
 
 */

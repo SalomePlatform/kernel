@@ -26,6 +26,11 @@
 #  Module : SALOME
 #  $Header$
 #
+## @package SALOME_Container
+# \brief python implementation of container interface for Kernel
+#
+#
+
 import os
 import sys
 import string

@@ -24,6 +24,11 @@
 
 #include "SALOME_Exception.idl"
 
+/*!
+  \file SALOME_Comm.idl \brief This file contains a set of interfaces used for communication
+  between components
+ */
+
 module SALOME {
   
   enum TypeOfDataTransmitted { _DOUBLE_,_INT_ };

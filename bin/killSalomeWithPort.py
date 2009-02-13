@@ -20,6 +20,14 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+## \file killSalomeWithPort.py
+#  Stop all %SALOME servers from given sessions by killing them
+#
+#   The sessions are indicated by their ports on the command line as in :
+#
+#    killSalomeWithPort.py 2811 2815
+#
+
 import os, sys, pickle, signal, commands,glob
 from launchConfigureParser import verbose
 import Utils_Identity

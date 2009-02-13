@@ -24,49 +24,62 @@
 #  Module : SALOME
 #  $Header$
 #
-"""
+""" 
 Module salome gives access to Salome ressources.
 
 variables:
 
-  salome.orb             : CORBA
-  salome.naming_service  : instance of naming Service class
-      methods:
-          Resolve(name)  : find a CORBA object (ior) by its pathname
-          Register(name) : register a CORBA object under a pathname
-  salome.lcc             : instance of lifeCycleCORBA class
-      methods:
-          FindOrLoadComponent(server,name) :
+  - salome.orb             : CORBA
+  - salome.naming_service  : instance of naming Service class
+      - methods:
+          - Resolve(name)  : find a CORBA object (ior) by its pathname
+          - Register(name) : register a CORBA object under a pathname
+
+  - salome.lcc             : instance of lifeCycleCORBA class
+      - methods:
+          - FindOrLoadComponent(server,name) :
                            obtain an Engine (CORBA object)
                            or launch the Engine if not found,
                            with a Server name and an Engine name
-  salome.sg
-      methods:
-         updateObjBrowser(bool):
-         getActiveStudyId():
-         getActiveStudyName():
 
-         SelectedCount():      returns number of selected objects
-         getSelected(i):       returns entry of selected object number i
-         getAllSelected():     returns list of entry of selected objects
-         AddIObject(Entry):    select an existing Interactive object
-         RemoveIObject(Entry): remove object from selection
-         ClearIObjects():      clear selection
+  - salome.sg              : salome object to communicate with the graphical user interface (if any)
+      - methods:
+         - updateObjBrowser(bool):
+         - getActiveStudyId():
+         - getActiveStudyName():
 
-         Display(*Entry):
-         DisplayOnly(Entry):
-         Erase(Entry):
-         DisplayAll():
-         EraseAll():
+         - SelectedCount():      returns number of selected objects
+         - getSelected(i):       returns entry of selected object number i
+         - getAllSelected():     returns list of entry of selected objects
+         - AddIObject(Entry):    select an existing Interactive object
+         - RemoveIObject(Entry): remove object from selection
+         - ClearIObjects():      clear selection
 
-         IDToObject(Entry):    returns CORBA reference from entry
+         - Display(*Entry):
+         - DisplayOnly(Entry):
+         - Erase(Entry):
+         - DisplayAll():
+         - EraseAll():
 
-  salome.myStudyName     : active Study Name
-  salome.myStudyId       : active Study Id
-  salome.myStudy         : the active Study itself (CORBA ior)
-                           methods : defined in SALOMEDS.idl
+         - IDToObject(Entry):    returns CORBA reference from entry
+
+  - salome.myStudyName     : active Study Name
+  - salome.myStudyId       : active Study Id
+  - salome.myStudy         : the active Study itself (CORBA ior)
+      - methods : defined in SALOMEDS.idl
 
 """
+## @package salome
+# Module salome gives access to Salome ressources.
+#
+#  \param salome.orb             : CORBA orb object
+#  \param salome.naming_service  : instance of naming Service class (SALOME_NamingServicePy::SALOME_NamingServicePy_i)
+#  \param salome.lcc             : instance of lifeCycleCORBA class (SALOME_LifeCycleCORBA)
+#  \param salome.sg              : Salome object to communicate with the graphical user interface, if running (see interface in salome_iapp::SalomeOutsideGUI)
+#  \param salome.myStudyName     : active Study Name
+#  \param salome.myStudyId       : active Study Id
+#  \param salome.myStudy         : the active Study (interface SALOMEDS::Study)
+
 
 from salome_kernel import *
 from salome_study import *
