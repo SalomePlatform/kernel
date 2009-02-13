@@ -307,7 +307,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
     strncpy(aName, &(aCopy[anIndex]), aNameSize);
     aName[aNameSize] = 0;
     SetModification(aName,aMinute,aHour,aDay,aMonth,aYear);
-    delete(aName);
+    delete [] (aName);
     anIndex += aNameSize + 1;
   }
   if (aCopy[1] == 'l') {

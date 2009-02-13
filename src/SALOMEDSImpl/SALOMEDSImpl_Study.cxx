@@ -767,7 +767,7 @@ bool SALOMEDSImpl_Study::IsModified()
   _errorCode = "";
 
   // True if is modified
-  if (_doc->IsModified()) return true;
+  if (_doc && _doc->IsModified()) return true;
 
   return false;
 }

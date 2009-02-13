@@ -187,12 +187,12 @@ void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident)
   char* name = makeName(hdf_group->GetName());
 
   fprintf(fp, "%s %i\n", name, nbsons+nbAttr);
-  delete name;
+  delete [] name;
 
   for(unsigned j=0; j<nbAttr; j++) {
     name = hdf_group->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_group);
-    delete name;
+    delete [] name;
     SaveAttributeInASCIIfile(hdf_attribute, fp, ident+1);
     hdf_attribute = 0;
   }
@@ -241,7 +241,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 
   fprintf(fp, "%s\n", DATASET_ID);
   fprintf(fp, "%s %i %i\n", name, type, nbAttr);
-  delete name;
+  delete [] name;
 
   hdf_dataset->GetDim(dim);
   fprintf(fp, " %i\n", ndim);
@@ -251,7 +251,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   }
 
   fprintf(fp, "\n");
-  delete dim;
+  delete [] dim;
 
   fprintf(fp, "%li %i:", size, order);
 
@@ -259,7 +259,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
     char* val = new char[size];
     hdf_dataset->ReadFromDisk(val);
     fwrite(val, 1, size, fp);
-    delete val;
+    delete [] val;
   } else if (type == HDF_FLOAT64) {
     hdf_float64* val = new hdf_float64[size];
     hdf_dataset->ReadFromDisk(val);
@@ -272,7 +272,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
       }
       else fprintf(fp,"  ");
     }
-    delete val;
+    delete [] val;
   } else if(type == HDF_INT64) {
     hdf_int64* val = new hdf_int64[size];
     hdf_dataset->ReadFromDisk(val);
@@ -284,7 +284,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 	j = 0;
       }
     }
-    delete val;
+    delete [] val;
   } else if(type == HDF_INT32) {
     hdf_int32* val = new hdf_int32[size];
     hdf_dataset->ReadFromDisk(val);
@@ -296,7 +296,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 	j = 0;
       }
     }
-    delete val;
+    delete [] val;
   }
   
   fprintf(fp, "\n");
@@ -305,7 +305,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   {
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);
-    delete name;
+    delete [] name;
     SaveAttributeInASCIIfile(hdf_attribute, fp, ident+1);
     hdf_attribute = 0;
   }
@@ -332,7 +332,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   fprintf(fp, "%s\n", ATTRIBUTE_ID);
   fprintf(fp, "%s %i %i\n", name, type, size);
 
-  delete name;
+  delete [] name;
 
   if (type == HDF_STRING) {    
     char* val = new char[size+1];
@@ -340,7 +340,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
     fprintf(fp, ":");
     fwrite(val, 1, size, fp);
     fprintf(fp, "\n");
-    delete val;
+    delete [] val;
   } else if (type == HDF_FLOAT64) {
     hdf_float64 val;
     hdf_attribute->ReadFromDisk(&val);
@@ -447,7 +447,7 @@ bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp)
 
   HDFgroup* hdf_group = new HDFgroup(new_name, father);
 
-  delete new_name;
+  delete [] new_name;
 
   hdf_group->CreateOnDisk();
 
@@ -526,8 +526,8 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     order = H5T_ORDER_NONE;
 
   HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim, order);
-  delete new_name;
-  delete sizeArray;
+  delete [] new_name;
+  delete [] sizeArray;
 
   hdf_dataset->CreateOnDisk();
 
@@ -535,28 +535,28 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     char *val = new char[size+1];
     fread(val, 1, size, fp);
     hdf_dataset->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   } else if (type == HDF_FLOAT64) {
     hdf_float64* val = new hdf_float64[size];
     for(i=0; i<size; i++) {
       read_float64(fp, &(val[i]));
     }
     hdf_dataset->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   } else if(type == HDF_INT64) {
     hdf_int64* val = new hdf_int64[size];
     for(i=0; i<size; i++) {
       fscanf(fp, " %li", &(val[i]));
     }
     hdf_dataset->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   } else if(type == HDF_INT32) {
     hdf_int32* val = new hdf_int32[size];
     for(i=0; i<size; i++) {
       fscanf(fp, " %i", &(val[i]));
     }
     hdf_dataset->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   }
 
   char token[MAX_ID_SIZE];
@@ -605,7 +605,7 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
 
   hdf_attribute->CreateOnDisk();
 
-  delete new_name;
+  delete [] new_name;
   
   if (type == HDF_STRING) {	
     char tmp;
@@ -614,7 +614,7 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
     val[size] = (char)0;
     fread(val, 1, size, fp);
     hdf_attribute->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   } else if (type == HDF_FLOAT64) {
     hdf_float64 val;
     read_float64(fp, &val);

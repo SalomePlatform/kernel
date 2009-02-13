@@ -443,7 +443,7 @@ string SALOMEDSImpl_AttributeTreeNode::Type()
    char* aNodeName = new char[127];
    sprintf(aNodeName, "AttributeTreeNodeGUID%s", ID().c_str());
    string ret(aNodeName); 
-   delete aNodeName;
+   delete [] aNodeName;
    
    return ret;                               
 }
@@ -462,7 +462,7 @@ string SALOMEDSImpl_AttributeTreeNode::Save()
   char* aResult = new char[aLength];
   sprintf(aResult, "%s %s %s %s", aFather.c_str(), aPrevious.c_str(), aNext.c_str(), aFirst.c_str());
   string ret(aResult);
-  delete aResult;
+  delete [] aResult;
   return ret;
 }
 

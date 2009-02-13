@@ -125,9 +125,9 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
     char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl.c_str());
     aC_HDFUrl = new char[strlen(aResultPath) + 19];
     sprintf(aC_HDFUrl, "%shdf_from_ascii.hdf", aResultPath);
-    delete(aResultPath);
+    delete [] (aResultPath);
     aHDFUrl = aC_HDFUrl;
-    delete aC_HDFUrl;
+    delete [] aC_HDFUrl;
   } else {
     aHDFUrl = aUrl;
   }
@@ -1195,7 +1195,7 @@ static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
   } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
              !strcmp(hdf_dataset->GetName(),"Reference")) { // Old format maintainance
     theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
-    delete(current_string);
+    delete [] (current_string);
     hdf_dataset->CloseOnDisk();
     return;
   } else {
@@ -1206,7 +1206,7 @@ static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
     anAttr->Load(current_string);
   }
   
-  delete(current_string);
+  delete [] (current_string);
   hdf_dataset->CloseOnDisk();
 }
 
@@ -1319,7 +1319,7 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
         new_dataset->CloseOnDisk();
         new_dataset = 0; //will be deleted by hdf_sco_group destructor
         order = atoi(currentVarIndex);
-        delete currentVarIndex;
+        delete [] currentVarIndex;
       }
       else
         order = iVar;
@@ -1337,14 +1337,14 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
       
       SALOMEDSImpl_GenericVariable::VariableTypes aVarType =
         SALOMEDSImpl_GenericVariable::String2VariableType(string(currentVarType));
-      delete currentVarType;
+      delete [] currentVarType;
 
       //Create variable and add it in the study
       SALOMEDSImpl_GenericVariable* aVariable = 
         new SALOMEDSImpl_ScalarVariable(aVarType,string(aVarName));
       aVariable->Load(string(currentVarValue));
       aVarsMap.insert(make_pair<int,SALOMEDSImpl_GenericVariable*>(order,aVariable));
-      delete currentVarValue;
+      delete [] currentVarValue;
     }
   }
   
