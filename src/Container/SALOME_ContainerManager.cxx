@@ -177,8 +177,8 @@ void SALOME_ContainerManager::ShutdownContainers()
 }
 
 //=============================================================================
+ //!  Find a suitable Container in a list of machines, or start one
 /*! CORBA Method:
- *  Find a suitable Container in a list of machines, or start one
  *  \param params            Machine Parameters required for the container
  *  \param possibleComputers list of machines usable for find or start
  */
@@ -199,10 +199,13 @@ FindOrStartContainer(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-/*! CORBA Method:
- *  Start a suitable Container in a list of machines
+//! Start a suitable Container in a list of machines with constraints and a policy
+/*! C++ Method:
+ * Constraints are given by a machine parameters struct
  *  \param params            Machine Parameters required for the container
  *  \param possibleComputers list of machines usable for start
+ *  \param policy        policy to use (first,cycl or best)
+ *  \param container_exe specific container executable (default=SALOME_Container)
  */
 //=============================================================================
 
@@ -273,8 +276,6 @@ StartContainer(const Engines::MachineParameters& params,
     command = BuildCommandToLaunchLocalContainer(params,id,container_exe);
   else
     command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
-
-  // RmTmpFile(); Too early! May be this function has not been used for a long time...
 
   //check if an entry exists in Naming service
   if(params.isMPI)
@@ -358,10 +359,11 @@ StartContainer(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
+//! Start a suitable Container for a list of components with constraints and a policy
 /*! CORBA Method:
- *  Start a suitable Container in a list of machines
  *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for start
+ *  \param policy        policy to use (first,cycl or best)
+ *  \param componentList list of component to be loaded on this container
  */
 //=============================================================================
 
@@ -567,10 +569,11 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params,
 #endif
 
 //=============================================================================
+//! Give a suitable Container for a list of components with constraints and a policy
 /*! CORBA Method:
- *  Give a suitable Container in a list of machines
  *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for start
+ *  \param policy        policy to use (first,cycl or best)
+ *  \param componentList list of component to be loaded on this container
  */
 //=============================================================================
 
