@@ -48,51 +48,21 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 					       int argc, char *argv[]) 
   : Engines_Container_i(orb,poa,containerName,argc,argv,false), MPIObject_i(nbproc,numproc)
 {
-  long id=0;
-  string IdContainerinNS;
-  char idc[3*sizeof(long)];
 
-  MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);
-
-  if(argc>1)
-    {
-      for(int i=0;i<argc;i++)
-	{
-	  if(strcmp(argv[i],"-id")==NULL)
-	    {
-	      id = atoi(argv[i+1]);
-	      continue;
-	    }
-	}
-    }
-  SCRUTE(id);
+  CORBA::Object_var obj=_poa->id_to_reference(*_id);
+  Engines::Container_var pCont = Engines::Container::_narrow(obj);
+  _remove_ref();
 
   if(numproc==0){
 
     _NS = new SALOME_NamingService();
     _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
 
-    CORBA::Object_var obj=_poa->id_to_reference(*_id);
-    Engines::Container_var pCont = Engines::Container::_narrow(obj);
-
     string hostname = Kernel_Utils::GetHostname();
     _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
-
-    // A parallel container registers in Naming Service
-    // on the machine where is process 0. ContainerManager does'nt know the name
-    // of this machine before the launch of the parallel container. So to get
-    // the IOR of the parallel container in Naming Service, ContainerManager
-    // gives a unique Id. The parallel container registers his name under
-    // /ContainerManager/Id directory in NamingService
-
-    IdContainerinNS = "/ContainerManager/id";
-    sprintf(idc,"%ld",id);
-    IdContainerinNS += idc;
-    SCRUTE(IdContainerinNS);
-    _NS->Register(pCont, IdContainerinNS.c_str());
 
   }
 
@@ -121,6 +91,24 @@ void Engines_MPIContainer_i::Shutdown()
     for(ip= 1;ip<_nbproc;ip++)
       (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
   }
+
+  std::map<std::string, Engines::Component_var>::iterator itm;
+  for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
+    {
+      try
+        {
+          itm->second->destroy();
+        }
+      catch(const CORBA::Exception& e)
+        {
+          // ignore this entry and continue
+        }
+      catch(...)
+        {
+          // ignore this entry and continue
+        }
+    }
+
   _orb->shutdown(0);
 
 }
@@ -149,7 +137,6 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
   // --- try dlopen C++ component
 
   string impl_name = string ("lib") + aCompName + string("Engine.so");
-  SCRUTE(impl_name);
   
   _numInstanceMutex.lock(); // lock to be alone 
   // (see decInstanceCnt, finalize_removal))
@@ -167,12 +154,15 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
     {
       _library_map[impl_name] = handle;
       _numInstanceMutex.unlock();
+      MESSAGE("[" << _numproc << "] Library " << impl_name << " loaded");
+      MPI_Barrier(MPI_COMM_WORLD);
       return true;
     }
   else
     {
-      INFOS("[" << _numproc << "] Can't load shared library : " << impl_name);
-      INFOS("[" << _numproc << "] error dlopen: " << dlerror());
+      MESSAGE("[" << _numproc << "] Can't load shared library : " << impl_name);
+      MESSAGE("[" << _numproc << "] error dlopen: " << dlerror());
+      MPI_Barrier(MPI_COMM_WORLD);
     }
   _numInstanceMutex.unlock();
 
@@ -287,17 +277,15 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
   //--- try C++
 
   string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
-  void* handle = _library_map[impl_name];
-  if ( !handle ) {
-    INFOS("shared library " << impl_name <<"must be loaded before instance");
-    return Engines::Component::_nil() ;
-  }
-  else {
-    iobject = createMPIInstance(genericRegisterName,
-				handle,
-				studyId);
-    return iobject._retn();
-  }
+  if (_library_map.count(impl_name) != 0) // C++ component
+    {
+      void* handle = _library_map[impl_name];
+      iobject = createMPIInstance(genericRegisterName,
+				    handle,
+				    studyId);
+      return iobject._retn();
+    }
+
 }
 
 Engines::Component_ptr
@@ -311,7 +299,6 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
 
   string aGenRegisterName = genericRegisterName;
   string factory_name = aGenRegisterName + string("Engine_factory");
-  SCRUTE(factory_name) ;
 
   typedef  PortableServer::ObjectId * (*MPIFACTORY_FUNCTION)
     (int,int,
@@ -321,17 +308,17 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
      const char *, 
      const char *) ;
 
-  MPIFACTORY_FUNCTION MPIComponent_factory
-    = (MPIFACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+  dlerror();
+  MPIFACTORY_FUNCTION MPIComponent_factory = (MPIFACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
 
-  char *error ;
-  if ( (error = dlerror() ) != NULL) {
-    // Try to load a sequential component
-    MESSAGE("[" << _numproc << "] Try to load a sequential component");
-    _numInstanceMutex.unlock() ;
-    iobject = Engines_Container_i::createInstance(genericRegisterName,handle,studyId);
-    if( CORBA::is_nil(iobject) ) return Engines::Component::_duplicate(iobject);
-  }
+  if ( !MPIComponent_factory )
+    {
+      INFOS( "[" << _numproc << "] Can't resolve symbol: " + factory_name );
+      SCRUTE( dlerror() );
+      pobj = Engines::MPIObject::_nil();
+      BCastIOR(_orb,pobj,false);
+      return Engines::Component::_nil();
+    }
 
   // --- create instance
 
@@ -370,8 +357,6 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       //SCRUTE(servant->pd_refCount);
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
-      SCRUTE(aGenRegisterName);
-      SCRUTE(_cntInstances_map[aGenRegisterName]);
       //SCRUTE(servant->pd_refCount);
       bool ret_studyId = servant->setStudyId(studyId);
       ASSERT(ret_studyId);
@@ -387,10 +372,14 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       BCastIOR(_orb,pobj,false);
 
     }
-  catch (...)
-    {
-      INFOS( "Container_i::createInstance exception catched" ) ;
-    }
+  catch(const POException &ex){
+    INFOS( ex.msg << " on process number " << ex.numproc ) ;
+    return Engines::Component::_nil();
+  }
+  catch (...){
+    INFOS( "Container_i::createInstance exception catched" ) ;
+    return Engines::Component::_nil();
+  }
   return iobject._retn();
 }
 
@@ -450,6 +439,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   string factory_name = _nameToRegister + string("Engine_factory");
   MESSAGE("[" << _numproc << "] factory_name=" << factory_name) ;
 
+  dlerror();
   PortableServer::ObjectId * (*MPIComponent_factory) (int,int,
 						  CORBA::ORB_ptr,
 						  PortableServer::POA_ptr,

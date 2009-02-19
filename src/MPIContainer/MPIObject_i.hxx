@@ -26,8 +26,19 @@
 #ifndef _SALOME_POBJECT_I_H_
 #define _SALOME_POBJECT_I_H_ 
 
+#include <mpi.h>
+#include <string>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_MPIObject)
+#define defaultService "SERVER"
+
+class POException
+{
+public:
+  const std::string msg;
+  const int numproc;
+  POException(const int ip,const std::string m) : numproc(ip),msg(m) {}
+};
 
 class MPIObject_i: public POA_Engines::MPIObject
 {
@@ -47,7 +58,19 @@ class MPIObject_i: public POA_Engines::MPIObject
   // IOR des objets paralleles sur tous les process mpi
   Engines::IORTab* _tior;
   // Echange des IOR de l'objet entre process
-  void BCastIOR(CORBA::ORB_ptr orb,Engines::MPIObject_ptr pobj,bool amiCont);
+  void BCastIOR(CORBA::ORB_ptr orb,Engines::MPIObject_ptr pobj,bool amiCont) throw(POException);
+#ifdef HAVE_MPI2
+  // MPI2 connection
+  MPI_Comm remoteMPI2Connect(std::string service=defaultService) throw(POException);
+  // MPI2 disconnection
+  void remoteMPI2Disconnect(MPI_Comm gcom);
+#endif
+
+private:
+  int _srv;
+  char _port_name[MPI_MAX_PORT_NAME];
+  std::string _service;
+
 } ;
 
 #endif

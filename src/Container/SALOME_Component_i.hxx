@@ -59,7 +59,8 @@ public:
 		      PortableServer::ObjectId * contId, 
 		      const char *instanceName, 
 		      const char *interfaceName,
-                      bool notif = false);
+                      bool notif = false,
+                      bool regist = true);
   //Constructor for standalone component
   Engines_Component_i(CORBA::ORB_ptr orb,
 		      PortableServer::POA_ptr poa,
@@ -67,15 +68,7 @@ public:
 		      const char *instanceName, 
 		      const char *interfaceName,
                       bool notif = false,
-                      bool regist=true);
-  // Constructor for parallel component : don't call registry
-  Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      PortableServer::ObjectId * contId, 
-		      const char *instanceName, 
-		      const char *interfaceName,
-		      int flag,
-                      bool notif = false);
+                      bool regist = true);
 
   virtual ~Engines_Component_i();
 
@@ -100,23 +93,23 @@ public:
   bool Resume_impl();
   CORBA::Long CpuUsed_impl() ;
 
- virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
-				      CORBA::Boolean isPublished,
-				      CORBA::Boolean& isValidScript);
+  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
+                                       CORBA::Boolean isPublished,
+                                       CORBA::Boolean& isValidScript);
 
- // CORBA operations for Salome_file
- virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
- virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
-							      const char* Salome_file_name);
+  // CORBA operations for Salome_file
+  virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
+                                                         const char* Salome_file_name);
+  virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
+                                                          const char* Salome_file_name);
 
- virtual void checkInputFilesToService(const char* service_name);
- virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
+  virtual void checkInputFilesToService(const char* service_name);
+  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
+                                                         const char* Salome_file_name);
 
- virtual void checkOutputFilesToService(const char* service_name);
- virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
-							 const char* Salome_file_name);
+  virtual void checkOutputFilesToService(const char* service_name);
+  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
+                                                          const char* Salome_file_name);
 
   // Object information
   virtual bool hasObjectInfo() { return false; }
@@ -143,8 +136,8 @@ public:
   void CancelThread() ;
 
   virtual void configureSalome_file(std::string service_name,
-				    std::string file_port_name,
-				    Salome_file_i * file);
+                                    std::string file_port_name,
+                                    Salome_file_i * file);
 
 
 protected:

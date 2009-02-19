@@ -42,9 +42,15 @@ if test "$WITHOPENMPI" = yes; then
   AC_CHECK_HEADER(mpi.h,WITHOPENMPI="yes",WITHOPENMPI="no")
   CPPFLAGS="$CPPFLAGS_old"
 
+  LIBS_old="$LIBS"
+  LIBS="-L${OPENMPI_HOME}/lib $LIBS"
+  AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
+  LIBS="$LIBS_old"
+
   AC_MSG_CHECKING(for openmpi)
   if test "$WITHOPENMPI" = "yes";then
      mpi_ok=yes
+     CPPFLAGS="-DWITHOPENMPI $CPPFLAGS"
      AC_MSG_RESULT(yes)
   else
      mpi_ok=no

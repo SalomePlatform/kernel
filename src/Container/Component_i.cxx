@@ -83,6 +83,7 @@ Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupp
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name
  *  \param notif use of notification
+ *  \param regist (true or false) use of registry (default true)
  */
 //=============================================================================
 
@@ -91,7 +92,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 					 PortableServer::ObjectId * contId, 
 					 const char *instanceName,
 					 const char *interfaceName,
-                                         bool notif) :
+                                         bool notif,
+                                         bool regist ) :
   _instanceName(instanceName),
   _interfaceName(interfaceName),
   _myConnexionToRegistry(0),
@@ -105,18 +107,20 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
-  //SCRUTE(pd_refCount);
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
   _container=Engines::Container::_narrow(o);
-  const CORBA::String_var ior = _orb->object_to_string(o);
-  _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession",
-						 _instanceName.c_str());
+
+  if(regist)
+    {
+      const CORBA::String_var ior = _orb->object_to_string(o);
+      _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession",
+                                                     _instanceName.c_str());
+    }
 
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
-  //SCRUTE(pd_refCount);
 }
 
 //=============================================================================
@@ -171,48 +175,6 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 }
 
-
-//=============================================================================
-/*!  \brief Standard constructor for parallel component
- *
- *  Connection Notification (no connection to Registry !)
- *  \param orb Object Request broker given by Container
- *  \param poa Portable Object Adapter from Container (normally root_poa)
- *  \param contId container CORBA id inside the server
- *  \param instanceName unique instance name for this object (see Container_i)
- *  \param interfaceName component class name
- *  \param flag not used...
- *  \param notif use of notification
- */
-//=============================================================================
-
-Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
-					 PortableServer::POA_ptr poa, 
-					 PortableServer::ObjectId * contId, 
-					 const char *instanceName,
-					 const char *interfaceName,
-					 int flag,
-                                         bool notif ) :
- _instanceName(instanceName),
- _interfaceName(interfaceName),
- _myConnexionToRegistry(0),
-  _notifSupplier(0),
- _ThreadId(0) ,
- _ThreadCpuUsed(0) ,
- _Executed(false) ,
- _graphName("") ,
- _nodeName(""),
- _studyId(-1),
- _CanceledThread(false)
-{
-  _orb = CORBA::ORB::_duplicate(orb);
-  _poa = PortableServer::POA::_duplicate(poa);
-  _contId = contId ;
-  CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
-  _container=Engines::Container::_narrow(o);
-
-  _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
-}
 
 //=============================================================================
 /*! 

@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     }
 
     MESSAGE("[" << numproc << "] MPIContainer: load MPIContainer servant");
-    myContainer = new Engines_MPIContainer_i(nbproc,numproc,orb,factory_poa, containerName,argc,argv);
+    new Engines_MPIContainer_i(nbproc,numproc,orb,factory_poa, containerName,argc,argv);
 
     pman->activate();
 
@@ -106,13 +106,11 @@ int main(int argc, char* argv[])
     INFOS("Caught unknown exception.");
   }
 
-  if(myContainer)
-    delete myContainer;
+  MPI_Finalize();
 
   END_OF("[" << numproc << "] " << argv[0]);
-  //  delete myThreadTrace;
 
-  MPI_Finalize();
+  exit(0);
 
 }
 

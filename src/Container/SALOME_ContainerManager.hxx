@@ -50,12 +50,12 @@ public:
   StartContainer(const Engines::MachineParameters& params,
 		 const Engines::MachineList& possibleComputer,
 		 Engines::ResPolicy policy,
-     const std::string& container_exe="SALOME_Container");
+                 const std::string& container_exe="SALOME_Container");
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
-		Engines::ResPolicy policy,
-		const Engines::CompoList& componentList);
+                 Engines::ResPolicy policy,
+                 const Engines::CompoList& componentList);
 
   Engines::Container_ptr
   GiveContainer(const Engines::MachineParameters& params,
@@ -88,25 +88,25 @@ protected:
 
   void fillBatchLaunchedContainers();
 
-  long GetIdForContainer(void);
-
   std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
-						  const Engines::MachineParameters& params, const long id,
-              const std::string& container_exe="SALOME_Container");
+						  const Engines::MachineParameters& params, 
+						  const std::string& container_exe="SALOME_Container");
 
-  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, const long id,
+  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, 
                                                  const std::string& container_exe="SALOME_Container");
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
 						   const Engines::MachineParameters& params) throw(SALOME_Exception);
 
-  void RmTmpFile();
+  void RmTmpFile(std::string& tmpFile);
 
   void AddOmninamesParams(std::string& command) const;
 
   void AddOmninamesParams(std::ofstream& fileStream) const;
 
   std::string BuildTemporaryFileName() const;
+
+  std::string GetMPIZeroNode(std::string machine);
 
   // Parallel extension
   std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
@@ -115,7 +115,6 @@ protected:
   void startMPI();
   bool _MpiStarted;
 
-  long _id;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 

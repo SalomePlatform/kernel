@@ -96,7 +96,7 @@ omni_mutex Engines_Container_i::_numInstanceMutex ;
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i () :
-_numInstance(0)
+_numInstance(0),_id(0),_NS(0)
 {
 }
 
@@ -113,7 +113,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           bool activAndRegist,
                                           bool isServantAloneInProcess
                                           ) :
-_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
+  _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess),_id(0),_NS(0)
 {
   _pid = (long)getpid();
 
@@ -229,7 +229,8 @@ _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 Engines_Container_i::~Engines_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
-  delete _id;
+  if(_id)
+    delete _id;
   if(_NS)
     delete _NS;
 }
