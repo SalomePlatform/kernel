@@ -518,7 +518,8 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
   else
     {
       SCRUTE(name);
-      if (Change_Directory(name.c_str()))
+      string basename = name;
+      if (Change_Directory(basename.c_str()))
 	{
 	  vector<string> contList = list_subdirs();
 
@@ -542,6 +543,8 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 
 	      if ( !CORBA::is_nil(obj) )
 		return obj;
+              else
+                Change_Directory(basename.c_str());
 	    }
 	}
 
