@@ -312,10 +312,15 @@ class CMakeFile(object):
             "TransformationGUI",
             ]
         med_list = [
+            "InterpGeometric2DAlg",
+            "interpkernelbases",
             "interpkernel",
-            "InterpKernelTest",
-            "MEDMEMCppTest",
+            "MEDClientcmodule",
+            "medcoupling",
+            "MEDEngine",
+            "MEDMEMImpl",
             "medmem",
+            "MED",
             "med_V2_1",
             "MEDWrapperBase",
             "MEDWrapper",
@@ -736,6 +741,12 @@ class CMakeFile(object):
             if f[-3:] == ".in":
                 if f == "sstream.in":
                     continue
+                if f in ["runContainer.in", "stopContainer.in"]:
+                    if self.module == "med":
+                        if self.root[-3:] == "csh":
+                            continue
+                        pass
+                    pass
                 if f == "SALOMEconfig.ref.in":
                     out = "SALOMEconfig.h"
                 else:
@@ -1310,6 +1321,7 @@ class CMakeFile(object):
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDIMPORTCXX_DLL_EXPORTS)
         ENDIF(name STREQUAL medimportcxx)
         ''')
+        # --
         newlines.append(r'''
         IF(name STREQUAL MEDWrapperBase)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_BASE_EXPORTS)
@@ -1336,10 +1348,20 @@ class CMakeFile(object):
         ENDIF(name STREQUAL MEDWrapper)
         ''')
         newlines.append(r'''
+        IF(name STREQUAL interpkernelbases)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL INTERPKERNELBASES_EXPORTS)
+        ENDIF(name STREQUAL interpkernelbases)
+        IF(name STREQUAL InterpGeometric2DAlg)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL INTERPKERNELGEOMETRIC2D_EXPORTS)
+        ENDIF(name STREQUAL InterpGeometric2DAlg)
         IF(name STREQUAL interpkernel)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL INTERPKERNEL_EXPORTS)
         ENDIF(name STREQUAL interpkernel)
+        IF(name STREQUAL MEDClientcmodule)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDCLIENT_EXPORTS)
+        ENDIF(name STREQUAL MEDClientcmodule)
         ''')
+        # --
         newlines.append(r'''
         IF(name STREQUAL SMESHControls)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SMESHCONTROLS_EXPORTS)
