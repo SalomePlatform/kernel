@@ -29,7 +29,7 @@
 #include "SALOMEDSImpl_Defines.hxx"
 
 // std C++ headers
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <vector>
 

@@ -25,7 +25,7 @@
 //
 #include "SALOMEDSImpl_AttributeTableOfReal.hxx"
 #include <stdio.h>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 

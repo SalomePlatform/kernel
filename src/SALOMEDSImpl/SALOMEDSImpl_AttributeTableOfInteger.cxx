@@ -24,7 +24,7 @@
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeTableOfInteger.hxx"
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 

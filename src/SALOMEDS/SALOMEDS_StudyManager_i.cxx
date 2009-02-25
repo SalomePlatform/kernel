@@ -41,7 +41,7 @@
 #include "Basics_Utils.hxx"
 #include "SALOME_GenericObj_i.hh"
 
-#include <strstream>
+#include <sstream>
 #include <vector>
 #include <map>
 

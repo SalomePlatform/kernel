@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <strstream>
+#include <sstream>
 #include <sstream>
 
 using namespace std;
@@ -710,7 +710,7 @@ void SALOMEDSImpl_AttributeParameter::Load(const string& theValue)
   _realarrays.clear();
   _intarrays.clear();
 
-  istrstream buffer(theValue.c_str(), theValue.size());
+  istringstream buffer(theValue.c_str());
 
   int size, val, ival;
   double val2;

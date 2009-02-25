@@ -26,7 +26,7 @@
 #include "SALOMEDS_AttributeTableOfString_i.hxx"
 #include "SALOMEDS.hxx"
 
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <vector>
 

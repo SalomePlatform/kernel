@@ -26,7 +26,7 @@
 #include "SALOMEDSImpl_AttributeTableOfString.hxx"
 #include <stdio.h>
 #include <stdlib.h>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 

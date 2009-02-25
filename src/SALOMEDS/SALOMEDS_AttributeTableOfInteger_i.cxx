@@ -29,7 +29,7 @@
 #include "Utils_ExceptHandlers.hxx"
 
 #include <stdexcept>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <vector>
 

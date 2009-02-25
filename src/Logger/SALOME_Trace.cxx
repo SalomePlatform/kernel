@@ -144,9 +144,9 @@ void SALOME_Trace::putMessage(ostream& msg)
 
   //   CORBA::String_var LogMsg = CORBA::string_dup( str() );
   //Allow automatic deletion of ostrstream content 
-  char* adt = str();
+  const char* adt = str().c_str();
   CORBA::String_var LogMsg = CORBA::string_dup( adt );
-  rdbuf()->freeze(false);
+  //rdbuf()->freeze(false);
   //rdbuf()->sync(); // problem with gcc3.2
   seekp(0);
 
