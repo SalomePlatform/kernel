@@ -38,7 +38,6 @@ AC_ARG_ENABLE([production],
     ],
     [enable_production=]AC_ENABLE_PRODUCTION_DEFAULT)
 
-AC_CXX_OPTION(-Wno-deprecated,CXXFLAGS)
 AC_CXX_OPTION(-Wparentheses,CXXFLAGS)
 AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
 AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)

@@ -23,7 +23,6 @@ dnl @synopsis AC_CXX_WARNINGS
 dnl Check warning flags for C++ compiler to control warning messages
 dnl
 AC_DEFUN([AC_CXX_WARNINGS],[
-  AC_CXX_OPTION(-Wno-deprecated,CXXFLAGS)
   AC_CXX_OPTION(-Wparentheses,CXXFLAGS)
   AC_CXX_OPTION(-Wreturn-type,CXXFLAGS)
   AC_CXX_OPTION(-Wmissing-declarations,CXXFLAGS)

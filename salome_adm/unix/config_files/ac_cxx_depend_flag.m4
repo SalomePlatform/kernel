@@ -121,7 +121,7 @@ dnl sur CCRT/osf pas d'equivalent de l'option -MG de gcc avec compilo natif
 dnl on utilise donc gnu pour generer les dependances.
      DEPCC=gcc
      DEPCXX=g++
-     DEPCXXFLAGS="-Wno-deprecated"
+     DEPCXXFLAGS=
      DIFFFLAGS="-w"
 dnl  MACHINE="OSF1"
      ;;
