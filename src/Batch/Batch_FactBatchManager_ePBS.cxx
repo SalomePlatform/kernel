@@ -35,15 +35,6 @@
 
 namespace Batch {
 
-  static FactBatchManager_ePBS* instanceOfFBM_eLSF()
-  {
-    static FactBatchManager_ePBS* sFBM_ePBS = 0;
-    if ( !sFBM_ePBS )
-      sFBM_ePBS = new FactBatchManager_ePBS();
-
-    return sFBM_ePBS;
-  }
-
   // Constructeur
   FactBatchManager_ePBS::FactBatchManager_ePBS() : FactBatchManager_eClient("ePBS")
   {
