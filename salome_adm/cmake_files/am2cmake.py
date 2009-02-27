@@ -502,6 +502,17 @@ class CMakeFile(object):
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
                         """)
                         pass
+                    if self.module == "blsurfplugin":
+                        newlines.append("""
+                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
+                        """)
+                        pass
                     if self.module == "visu":
                         newlines.append("""
                         SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
@@ -561,6 +572,11 @@ class CMakeFile(object):
             elif self.module == "netgenplugin":
                 newlines.append("""
                 SET(NETGENPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "blsurfplugin":
+                newlines.append("""
+                SET(BLSURFPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
             # --
