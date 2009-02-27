@@ -502,6 +502,12 @@ class CMakeFile(object):
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
                         """)
                         pass
+                    if self.module == "visu":
+                        newlines.append("""
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
