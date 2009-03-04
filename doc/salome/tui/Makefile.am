@@ -27,22 +27,11 @@
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 dev_docs:
-	echo "DOXYGEN SUPPORT PYTHON - $(DOXYGEN_WITH_PYTHON)"; \
-	if( test "x$(DOXYGEN_WITH_PYTHON)" = "xyes"); then \
-	  sed 's|python_extension_must_be_here|*.py|' ./doxyfile > ./doxyfile1; \
-	  $(DOXYGEN) -u ./doxyfile1; \
-	else \
-	  sed 's|python_extension_must_be_here||' ./doxyfile > ./doxyfile1; \
-	fi; \
-	echo "DOXYGEN SUPPORT STL - $(DOXYGEN_WITH_STL)"; \
-	if( test "x$(DOXYGEN_WITH_STL)" = "xyes"); then \
-	  sed -e 's|BUILTIN_STL_SUPPORT    = NO|BUILTIN_STL_SUPPORT    = YES|' ./doxyfile1 > ./doxyfile2; \
-	  mv -f doxyfile2 doxyfile1; \
-	fi; \
-	$(DOXYGEN) ./doxyfile1
+	$(DOXYGEN) -u doxyfile; \
+	$(DOXYGEN) doxyfile
 
 clean-local:
-	-rm -fr KERNEL log.txt doxyfile1.bak doxyfile1
+	-rm -fr KERNEL log.txt doxyfile.bak
 
 install-data-local:
 	if test -d KERNEL; then \
@@ -53,9 +42,4 @@ install-data-local:
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/tui/KERNEL
 
-EXTRA_DIST=static KERNEL/exemple
-
-dist-hook:
-	rm -rf $(distdir)/static/CVS ; \
-	rm -rf $(distdir)/KERNEL/exemple/CVS
-
+EXTRA_DIST = static
