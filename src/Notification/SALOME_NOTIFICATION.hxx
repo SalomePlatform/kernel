@@ -27,7 +27,7 @@
 #define _SALOME_NOTIFICATION_HXX_
 
 #ifdef WIN32
-# ifdef NOTIFICATION_EXPORTS
+# if defined NOTIFICATION_EXPORTS || defined SalomeNotification_EXPORTS
 #  define NOTIFICATION_EXPORT __declspec( dllexport )
 # else
 #  define NOTIFICATION_EXPORT __declspec( dllimport )

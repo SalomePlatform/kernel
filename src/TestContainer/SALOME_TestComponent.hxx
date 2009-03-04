@@ -27,7 +27,7 @@
 #define SALOME_TESTCOMPONENT_HXX
 
 #ifdef WIN32
-# if defined TESTCONTAINER_EXPORTS
+# if defined TESTCONTAINER_EXPORTS || defined SalomeTestComponentEngine_EXPORTS
 #  define TESTCONTAINER_EXPORT __declspec( dllexport )
 # else
 #  define TESTCONTAINER_EXPORT __declspec( dllimport )

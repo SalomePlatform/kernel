@@ -23,7 +23,7 @@
 #define __SALOME_LAUNCHER_DEFS_HXX__
 
 #ifdef WIN32
-# ifdef SALOMELAUNCHER_EXPORTS
+# if defined SALOMELAUNCHER_EXPORTS || defined SalomeLauncher_EXPORTS
 #  define SALOMELAUNCHER_EXPORT __declspec(dllexport)
 # else
 #  define SALOMELAUNCHER_EXPORT __declspec(dllimport)

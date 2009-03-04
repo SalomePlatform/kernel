@@ -41,7 +41,7 @@
 #include <iostream>
 
 #ifdef WIN32
-# if defined LIFECYCLECORBA_EXPORTS
+# if defined LIFECYCLECORBA_EXPORTS || defined SalomeLifeCycleCORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
 # else
 #  define LIFECYCLECORBA_EXPORT __declspec( dllimport )

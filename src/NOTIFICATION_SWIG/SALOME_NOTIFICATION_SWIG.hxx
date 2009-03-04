@@ -27,7 +27,7 @@
 #define _SALOME_NOTIFICATION_SWIG_HXX_
 
 #ifdef WIN32
-# ifdef NOTIFICATION_SWIG_EXPORTS
+# if defined NOTIFICATION_SWIG_EXPORTS || defined _libNOTIFICATION_EXPORTS
 #  define NOTIFICATION_SWIG_EXPORT __declspec( dllexport )
 # else
 #  define NOTIFICATION_SWIG_EXPORT __declspec( dllimport )

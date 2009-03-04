@@ -23,7 +23,7 @@
 #define __LAUNCHER_HXX__
 
 #ifdef WIN32
-# ifdef LAUNCHER_EXPORTS
+# if defined LAUNCHER_EXPORTS || defined Launcher_EXPORTS
 #  define LAUNCHER_EXPORT __declspec(dllexport)
 # else
 #  define LAUNCHER_EXPORT __declspec(dllimport)

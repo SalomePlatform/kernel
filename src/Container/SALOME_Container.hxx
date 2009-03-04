@@ -27,7 +27,7 @@
 #define _SALOME_Container_HXX_
 
 #ifdef WIN32
-# ifdef CONTAINER_EXPORTS
+# if defined CONTAINER_EXPORTS || defined SalomeContainer_EXPORTS
 #  define CONTAINER_EXPORT __declspec( dllexport )
 # else
 #  define CONTAINER_EXPORT __declspec( dllimport )

@@ -23,7 +23,7 @@
 #define __RESOURCESMANAGER_DEFS_HXX__
 
 #ifdef WIN32
-# ifdef RESOURCESMANAGER_EXPORTS
+# if defined RESOURCESMANAGER_EXPORTS || defined ResourcesManager_EXPORTS
 #  define RESOURCESMANAGER_EXPORT __declspec( dllexport )
 # else
 #  define RESOURCESMANAGER_EXPORT __declspec( dllimport )

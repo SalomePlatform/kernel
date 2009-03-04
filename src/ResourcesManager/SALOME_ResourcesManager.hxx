@@ -36,7 +36,7 @@
 
 
 #ifdef WIN32
-# ifdef SALOMERESOURCESMANAGER_EXPORTS
+# if defined SALOMERESOURCESMANAGER_EXPORTS || defined SalomeResourcesManager_EXPORTS
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
 # else
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
