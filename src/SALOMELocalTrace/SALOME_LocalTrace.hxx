@@ -27,7 +27,7 @@
 #define _SALOME_LOCALTRACE_HXX_
 
 #ifdef WIN32
-# ifdef SALOMELOCALTRACE_EXPORTS
+# if defined SALOMELOCALTRACE_EXPORTS || defined SALOMELocalTrace_EXPORTS
 #  define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
 # else
 #  define SALOMELOCALTRACE_EXPORT __declspec( dllimport )

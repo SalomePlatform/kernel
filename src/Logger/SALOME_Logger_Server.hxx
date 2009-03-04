@@ -37,7 +37,7 @@
 #include "Logger.hh"
 
 #ifdef WIN32
-# if defined LOGGER_EXPORTS
+# if defined LOGGER_EXPORTS || defined SalomeLoggerServer_EXPORTS
 #  define LOGGER_EXPORT __declspec( dllexport )
 # else
 #  define LOGGER_EXPORT __declspec( dllimport )

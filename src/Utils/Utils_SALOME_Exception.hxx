@@ -46,7 +46,7 @@
 //therefore (temporary solution) defines are placed below
 
 #ifdef WIN32
-# ifdef UTILS_EXPORTS
+# if defined UTILS_EXPORTS || defined OpUtil_EXPORTS
 #  define UTILS_EXPORT __declspec( dllexport )
 # else
 #  define UTILS_EXPORT __declspec( dllimport )

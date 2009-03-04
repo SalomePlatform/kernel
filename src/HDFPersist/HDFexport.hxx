@@ -27,7 +27,7 @@
 #define _HDF_export_HXX_
 
 #ifdef WIN32
-# ifdef HDFPERSIST_EXPORTS
+# if defined HDFPERSIST_EXPORTS || defined SalomeHDFPersist_EXPORTS
 #  define HDFPERSIST_EXPORT __declspec( dllexport )
 # else
 #  define HDFPERSIST_EXPORT __declspec( dllimport )

@@ -36,7 +36,7 @@
 //! for usage without CORBA
 
 #ifdef WIN32
-# ifdef SALOMETRACECOLLECTOR_EXPORTS
+# if defined SALOMETRACECOLLECTOR_EXPORTS || defined with_loggerTraceCollector_EXPORTS
 #  define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
 # else
 #  define SALOMETRACECOLLECTOR_EXPORT

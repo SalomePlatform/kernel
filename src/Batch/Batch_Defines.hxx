@@ -27,7 +27,7 @@
 #define _BATCH_Defines_HXX_
 
 #ifdef WIN32
-# ifdef BATCH_EXPORTS
+# if defined BATCH_EXPORTS || defined SalomeBatch_EXPORTS
 #  define BATCH_EXPORT __declspec( dllexport )
 # else
 #  define BATCH_EXPORT __declspec( dllimport )

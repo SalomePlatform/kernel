@@ -30,7 +30,7 @@
 
 
 #ifdef WIN32
-# ifdef BASICS_EXPORTS
+# if defined BASICS_EXPORTS || defined SALOMEBasics_EXPORTS
 #  define BASICS_EXPORT __declspec( dllexport )
 # else
 #  define BASICS_EXPORT __declspec( dllimport )

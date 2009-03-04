@@ -29,7 +29,7 @@
 #define SALOME_NAMINGSERVICE_DEFS_HXX
 
 #ifdef WIN32
-# ifdef NAMINGSERVICE_EXPORTS
+# if defined NAMINGSERVICE_EXPORTS || defined SalomeNS_EXPORTS
 #  define NAMINGSERVICE_EXPORT __declspec( dllexport )
 # else
 #  define NAMINGSERVICE_EXPORT __declspec( dllimport )
