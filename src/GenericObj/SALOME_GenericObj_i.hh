@@ -32,7 +32,7 @@
 #include CORBA_SERVER_HEADER(SALOME_GenericObj)
 
 #ifdef WIN32
-# ifdef GENERICOBJ_EXPORTS
+# if defined GENERICOBJ_EXPORTS || defined SalomeGenericObj_EXPORTS
 #  define GENERICOBJ_EXPORT __declspec( dllexport )
 # else
 #  define GENERICOBJ_EXPORT __declspec( dllimport )
