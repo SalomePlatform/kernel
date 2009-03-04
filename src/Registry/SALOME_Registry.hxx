@@ -27,7 +27,7 @@
 #define _SALOME_Registry_HXX_
 
 #ifdef WIN32
-# ifdef REGISTRY_EXPORTS
+# if defined REGISTRY_EXPORTS || defined Registry_EXPORTS
 #  define REGISTRY_EXPORT __declspec( dllexport )
 # else
 #  define REGISTRY_EXPORT __declspec( dllimport )

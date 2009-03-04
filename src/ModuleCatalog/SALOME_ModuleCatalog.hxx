@@ -27,7 +27,7 @@
 #define _SALOME_ModuleCatalog_HXX_
 
 #ifdef WIN32
-# ifdef MODULECATALOG_EXPORTS
+# if defined MODULECATALOG_EXPORTS || defined SalomeCatalog_EXPORTS
 #  define MODULECATALOG_EXPORT __declspec( dllexport )
 # else
 #  define MODULECATALOG_EXPORT __declspec( dllimport )
