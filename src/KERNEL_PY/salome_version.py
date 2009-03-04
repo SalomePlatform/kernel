@@ -84,3 +84,26 @@ def getVersionRelease( mod = "KERNEL" ):
     except:
         pass
     return None
+
+def getVersions( mod = "KERNEL" ):
+    """
+    Get SALOME module version as list of [major, minor, release] numbers
+    Returns: version numbers list
+    """
+    try:
+        major = int( getVersionMajor( mod ) )
+    except:
+        major = 0
+        pass
+    try:
+        minor = int( getVersionMinor( mod ) )
+    except:
+        minor = 0
+        pass
+    try:
+        rel = int( getVersionRelease( mod ) )
+    except:
+        rel = 0
+        pass
+    return [ major, minor, rel ]
+    

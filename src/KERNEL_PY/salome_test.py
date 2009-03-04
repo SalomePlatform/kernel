@@ -253,14 +253,16 @@ print ret
 smesh.Compute(mesh, box)
 sg.updateObjBrowser(1);
 
+#####################################################################
 # SUPERVISOR module is not available since SALOME 5.0 version
-defineSuperV = 0
-
-if (defineSuperV != 0) & (sys.platform != "win32"):
-	print
-	print "=============  Test	Supervisor	============================="
-	print
-
+#####################################################################
+print
+print "=============  Test	Supervisor	============================="
+print
+import salome_version
+versions = salome_version.getVersions()
+if versions[0] < 5:
+	# SUPERV module is avaiable
 	comp = catalog.GetComponent("SUPERV")
 	if comp	is None:
 		raise RuntimeError,"Component SUPERV not found in Module Catalog."
@@ -454,6 +456,10 @@ if (defineSuperV != 0) & (sys.platform != "win32"):
 
 	sg.updateObjBrowser(1);
 
+	pass
+else:
+	# SUPERV module is NOT avaiable
+	print "WARNING! Supervisor is not avaiable in this version of SALOME!"
 	pass
 
 print
