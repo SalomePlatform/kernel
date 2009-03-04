@@ -27,7 +27,7 @@
 #define _SALOMEDSImpl_Defines_HXX_
 
 #ifdef WIN32
-# if defined SALOMEDSIMPL_EXPORTS
+# if defined SALOMEDSIMPL_EXPORTS || defined SalomeDSImpl_EXPORTS
 #  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
 # else
 #  define SALOMEDSIMPL_EXPORT __declspec( dllimport )

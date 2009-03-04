@@ -47,7 +47,7 @@
 class Engines_Parallel_Container_i;
 
 #ifdef WIN32
-# ifdef CONTAINER_EXPORTS
+# if defined CONTAINER_EXPORTS || defined SalomeParallelContainer_EXPORTS
 #  define CONTAINER_EXPORT __declspec( dllexport )
 # else
 #  define CONTAINER_EXPORT __declspec( dllimport )

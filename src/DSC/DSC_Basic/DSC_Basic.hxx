@@ -27,7 +27,7 @@
 #define _DSC_Basic_HXX_
 
 #ifdef WIN32
-# ifdef DSC_BASIC_EXPORTS
+# if defined DSC_BASIC_EXPORTS || defined SalomeDSCContainer_EXPORTS
 #  define DSC_BASIC_EXPORT __declspec( dllexport )
 # else
 #  define DSC_BASIC_EXPORT __declspec( dllimport )

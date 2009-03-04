@@ -27,7 +27,7 @@
 #define _SALOME_COMMIUNICATION_HXX_
 
 #ifdef WIN32
-# ifdef COMMUNICATION_EXPORTS
+# if defined COMMUNICATION_EXPORTS || defined SalomeCommunication_EXPORTS
 #  define COMMUNICATION_EXPORT __declspec( dllexport )
 # else
 #  define COMMUNICATION_EXPORT __declspec( dllimport )

@@ -23,7 +23,7 @@
 #define  SALOMEDSCLIENT_DEF_HXX
 
 #ifdef WIN32
-# ifdef SALOMEDSCLIENT_EXPORTS
+# if defined SALOMEDSCLIENT_EXPORTS || defined SalomeDSClient_EXPORTS
 #  define SALOMEDSCLIENT_EXPORT __declspec( dllexport )
 # else
 #  define SALOMEDSCLIENT_EXPORT __declspec( dllimport )

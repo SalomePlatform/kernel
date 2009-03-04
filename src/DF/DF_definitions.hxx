@@ -23,7 +23,7 @@
 #define  DF_DEF_HXX
 
 #ifdef WIN32
-# ifdef DF_EXPORTS
+# if defined DF_EXPORTS
 #  define DF_EXPORT __declspec( dllexport )
 # else
 #  define DF_EXPORT __declspec( dllimport )

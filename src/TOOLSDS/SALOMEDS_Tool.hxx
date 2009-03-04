@@ -37,7 +37,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #ifdef WIN32
-# ifdef TOOLSDS_EXPORTS
+# if defined TOOLSDS_EXPORTS
 #  define TOOLSDS_EXPORT __declspec( dllexport )
 # else
 #  define TOOLSDS_EXPORT __declspec( dllimport )
