@@ -25,3 +25,8 @@ dist-hook:
 	cp -Rp $(srcdir)/static $(distdir) ; \
 	rm -rf $(distdir)/static/CVS
 
+# VSR: nullify these make targets to avoid 'make distcheck' failure
+dvi:
+pdf:
+ps:
+
