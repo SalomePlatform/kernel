@@ -19,19 +19,9 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
-
-dist_salome_cmake_DATA = \
-am2cmake.py \
-FindBOOST.cmake \
-FindCPPUNIT.cmake \
-FindHDF5.cmake \
-FindKERNEL.cmake \
-FindLIBXML2.cmake \
-FindOMNIORB.cmake \
-FindPLATFORM.cmake \
-FindPTHREADS.cmake \
-FindPYTHON.cmake \
-FindSWIG.cmake \
-install_python_from_idl.cmake \
-install_and_compile_python_file.cmake
+SET(FULLDIR ${CMAKE_INSTALL_PREFIX}/${DEST})
+MESSAGE(STATUS "py compiling ${FULLDIR}/${PYTHON_FILE}")
+SET(CMD "import py_compile ; py_compile.compile('${FULLDIR}/${PYTHON_FILE}')")
+EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "${CMD}")
+SET(CMD "import py_compile ; py_compile.compile('${FULLDIR}/${PYTHON_FILE}')")
+EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c "${CMD}")
