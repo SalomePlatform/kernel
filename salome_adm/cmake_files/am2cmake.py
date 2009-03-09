@@ -1057,6 +1057,9 @@ class CMakeFile(object):
         # --
         newlines.append(r'''
         SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        IF(name STREQUAL SALOMEBasics)
+        SET(libs ${libs} ${PTHREAD_LIBS})
+        ENDIF(name STREQUAL SALOMEBasics)
         ''')
         if key == "bin_PROGRAMS":
             newlines.append(r'''
@@ -1088,11 +1091,7 @@ class CMakeFile(object):
         ENDFOREACH(v ${vars})
         SET(libadd ${libadd} ${lib})
         ENDFOREACH(lib ${libs})
-        IF(name STREQUAL SALOMEBasics)
-        TARGET_LINK_LIBRARIES(${name} ${PTHREAD_LIBS} ${libadd})
-        ELSE(name STREQUAL SALOMEBasics)
         TARGET_LINK_LIBRARIES(${name} ${libadd})
-        ENDIF(name STREQUAL SALOMEBasics)
         ''')
         # --
         return
@@ -1154,6 +1153,7 @@ class CMakeFile(object):
         SET(vars)
         IF(WINDOWS)
         SET(vars ${vars} -include SALOMEconfig.h)
+        SET(vars ${vars} -ftemplate-depth-32)
         ENDIF(WINDOWS)
         SET(flags)
         FOREACH(f ${var})
