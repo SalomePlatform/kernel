@@ -1094,6 +1094,20 @@ class CMakeFile(object):
         TARGET_LINK_LIBRARIES(${name} ${libadd})
         ''')
         # --
+        newlines.append(r'''
+        IF(WINDOWS)
+        SET(targets)
+        SET(targets ${targets} MEFISTO2D)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
+        ENDIF(CMAKE_BUILD_TYPE STREQUAL Debug)
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
+        ENDIF(WINDOWS)
+        ''')
+        # --
         return
     
     def setCompilationFlags(self, key, newlines):
