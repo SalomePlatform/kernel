@@ -33,6 +33,9 @@
   <objref name="BASIC_short" id="IDL:Ports/Data_Short_Port:1.0"/>
   <objref name="Study" id="IDL:SALOMEDS/Study:1.0"/>
   <objref name="SObject" id="IDL:SALOMEDS/SObject:1.0"/>
+  <objref name="SALOME/SenderDouble"/>
+  <objref name="SALOME/SenderInt"/>
+  <objref name="SALOME/Matrix"/>
 </type-list>
 
 <!-- Component list -->
