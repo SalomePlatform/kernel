@@ -58,6 +58,11 @@ COMMON_CPPFLAGS=\
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
+# This local variable defines the list of dependant libraries common to all target in this package.
+COMMON_LIBS =\
+	@CPPUNIT_LIBS@ \
+	../libSalomeNS.la
+
 #
 # ===============================================================
 # Libraries targets
@@ -67,7 +72,7 @@ lib_LTLIBRARIES = libNamingServiceTest.la
 libNamingServiceTest_la_SOURCES = NamingServiceTest.cxx
 libNamingServiceTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libNamingServiceTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libNamingServiceTest_la_LIBADD   = @CPPUNIT_LIBS@
+libNamingServiceTest_la_LIBADD   = $(COMMON_LIBS)
 
 
 #
