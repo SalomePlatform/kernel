@@ -39,12 +39,6 @@ module Engines
 
   interface MPIContainer:Container,MPIObject
   {
-    // asynchronous version to load and remove parallel component in parallel
-    oneway void Asload_component_Library(in string componentName);
-    oneway void Ascreate_component_instance(in string componentName,in long studyId);
-    oneway void Asload_impl(in string nameToRegister, in string componentName);
-    oneway void Asremove_impl(in Component component_i);
-    oneway void Asfinalize_removal();
   };
 } ;
 
