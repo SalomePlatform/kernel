@@ -35,7 +35,7 @@ salomeinclude_HEADERS =\
 	SALOME_NamingService_defs.hxx
 
 # Scripts to be exported
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	SALOME_NamingServicePy.py
 
 

@@ -68,4 +68,4 @@ libSalomeLoggerServer_la_LIBADD  = \
 	@CORBA_LIBS@
 
 # Scripts target
-dist_salomescript_DATA = SALOME_Trace.py
+dist_salomescript_PYTHON = SALOME_Trace.py

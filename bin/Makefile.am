@@ -42,11 +42,20 @@ nodist_salomescript_DATA =	\
 
 # These files are executable scripts
 dist_salomescript_SCRIPTS =		\
-	addToKillList.py		\
 	appli_clean.sh			\
-	appli_gen.py			\
 	appli_install.sh		\
 	createAppli.sh			\
+	runIDLparser			\
+	runNS.sh			\
+	runSalome			\
+	runSalome.csh			\
+	runSalome.ksh			\
+	waitNS.sh
+
+# These files are python files
+dist_salomescript_PYTHON =		\
+	addToKillList.py		\
+	appli_gen.py			\
 	envSalome.py			\
 	killSalome.py			\
 	killSalomeWithPort.py		\
@@ -55,12 +64,7 @@ dist_salomescript_SCRIPTS =		\
 	nameserver.py			\
 	NSparam.py			\
 	orbmodule.py			\
-	runIDLparser			\
 	runNS.py			\
-	runNS.sh			\
-	runSalome			\
-	runSalome.csh			\
-	runSalome.ksh			\
 	runSalome.py			\
 	salomeConsole.py		\
 	salome_session.py		\
@@ -71,8 +75,7 @@ dist_salomescript_SCRIPTS =		\
 	shutdownSalome.py		\
 	virtual_salome.py		\
 	waitContainers.py		\
-	waitNS.py			\
-	waitNS.sh
+	waitNS.py
 
 EXTRA_DIST = appliskel
 

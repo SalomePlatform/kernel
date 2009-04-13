@@ -47,7 +47,7 @@ salomeinclude_HEADERS= \
 	SALOMEDS_Defines.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA = SALOME_DriverPy.py
+dist_salomescript_PYTHON = SALOME_DriverPy.py
 
 #
 # ===============================================================

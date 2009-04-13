@@ -88,7 +88,7 @@ EXTRA_DIST = $(SWIGSOURCES)
 #
 
 # Scripts to be installed.
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	LifeCycleCORBA.py \
 	TestLifeCycleCORBA.py
 

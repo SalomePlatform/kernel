@@ -44,7 +44,7 @@ salomeinclude_HEADERS = \
 	Salome_file_i.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
 	SALOME_Container.py
 

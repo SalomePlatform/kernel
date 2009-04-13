@@ -43,7 +43,7 @@ salomeinclude_HEADERS =\
 	SALOME_Utils.hxx
 
 # Scripts to be exported
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	Utils_Identity.py \
 	SALOME_utilities.py
 

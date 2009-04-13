@@ -80,7 +80,7 @@ EXTRA_DIST = $(SWIGSOURCES)
 #
 
 # Scripts to be installed.
-dist_salomescript_SCRIPTS = Batch_test.py
+dist_salomescript_PYTHON = Batch_test.py
 
 # You don't need to specify libBatch_Swig.py. It is automatically
 # installed by means of the swig target salomepython_PYTHON.

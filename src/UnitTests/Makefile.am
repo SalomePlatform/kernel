@@ -33,7 +33,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # Executable scripts to be installed
-dist_salomescript_SCRIPTS = UnitTests.py
+dist_salomescript_PYTHON = UnitTests.py
 
 #
 # ===============================================================

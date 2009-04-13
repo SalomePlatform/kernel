@@ -36,7 +36,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS=
 
 # Scripts to be installed
-dist_salomescript_SCRIPTS = \
+dist_salomescript_PYTHON = \
 	LifeCycleCORBA_SWIGTest.py \
 	TestLifeCycleCORBA_SWIG.py
 

@@ -37,7 +37,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS= UtilsTest.hxx
 
 # Scripts to be installed
-dist_salomescript_SCRIPTS = TestUtils.py
+dist_salomescript_PYTHON = TestUtils.py
 
 
 #
