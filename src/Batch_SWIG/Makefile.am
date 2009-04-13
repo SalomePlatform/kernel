@@ -84,3 +84,8 @@ dist_salomescript_PYTHON = Batch_test.py
 
 # You don't need to specify libBatch_Swig.py. It is automatically
 # installed by means of the swig target salomepython_PYTHON.
+
+install-data-hook:
+	@for f in $(dist_salomescript_PYTHON) ; do \
+          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
+        done
