@@ -705,8 +705,7 @@ def useSalome(args, modules_list, modules_root_dir):
                 scrname = toimport[ i ]
                 if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
                     print 'executing',scrname
-                    doexec = 'execfile(\"%s\")'%scrname
-                    exec doexec
+                    execfile(scrname,globals())
                 else:
                     print 'importing',scrname
                     doimport = 'import ' + scrname

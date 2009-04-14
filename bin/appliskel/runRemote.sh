@@ -57,7 +57,7 @@ export NSHOST
 NSPORT=$2
 export NSPORT
 initref="NameService=corbaname::"$1":$2"
-echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+echo "InitRef = $initref" > $OMNIORB_CONFIG
 
 #go to the requested working directory if any
 if test "x$3" == "xWORKINGDIR"; then

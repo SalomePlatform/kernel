@@ -667,16 +667,23 @@ void SALOMEDS_Study_i::Close()
     if (sco->ComponentIOR(IOREngine)) {
       // we have found the associated engine to write the data 
       MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
-      CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-      if (!CORBA::is_nil(obj)) {
-	SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-
-	if (!anEngine->_is_nil()) { 
-	  SALOMEDS::unlock();
-	  anEngine->Close(sco);
-	  SALOMEDS::lock();
-	}
-      }
+      //_narrow can throw a corba exception
+      try
+        {
+          CORBA::Object_var obj = _orb->string_to_object(IOREngine);
+          if (!CORBA::is_nil(obj)) 
+            {
+              SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+              if (!anEngine->_is_nil()) 
+                { 
+                  SALOMEDS::unlock();
+                  anEngine->Close(sco);
+                  SALOMEDS::lock();
+                }
+            }
+        } 
+      catch (CORBA::Exception&) 
+        {/*pass*/ }
     }
   }
 
