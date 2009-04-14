@@ -47,10 +47,12 @@ public:
   void close(CORBA::Long fileId);
 
   Engines::fileBlock* getBlock(CORBA::Long fileId);
+  CORBA::Long openW(const char* fileName);
+  void putBlock(CORBA::Long fileId, const Engines::fileBlock& block);
 
 protected:
   int _fileKey;
-  std::map<int, FILE*> _fileAccess;
+  std::map<int, FILE* > _fileAccess;
   int _ctr;
 };
 

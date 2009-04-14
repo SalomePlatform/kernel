@@ -96,6 +96,7 @@ public:
   Engines::fileTransfer_ptr getFileTransfer();
 
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
+  void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
   // --- local C++ methods
 
   Engines::Component_ptr

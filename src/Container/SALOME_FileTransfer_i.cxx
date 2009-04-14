@@ -97,7 +97,11 @@ void fileTransfer_i::close(CORBA::Long fileId)
     {
       INFOS(" no FILE structure associated to fileId " <<fileId);
     }
-  else fclose(fp);
+  else 
+    {
+      fclose(fp);
+      _fileAccess.erase(fileId);
+    }
 }
 
 #define FILEBLOCK_SIZE 256*1024
@@ -134,4 +138,49 @@ Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
   aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
   return aBlock;
 }
+
+/*! \brief open the given file in write mode (for copy)
+ *
+ *  CORBA method: try to open the file. If the file is writable, 
+ *  return a positive integer else return 0;
+ *  \param  fileName path to the file to be transfered
+ *  \return fileId = positive integer > 0 if open OK.
+ */
+CORBA::Long fileTransfer_i::openW(const char* fileName)
+{
+  MESSAGE(" fileTransfer_i::openW " << fileName);
+  int aKey = _fileKey++;
+  _ctr=0;
+  FILE* fp;
+  if ((fp = fopen(fileName,"wb")) == NULL)
+    {
+      INFOS("file " << fileName << " is not writable");
+      return 0;
+    }
+  _fileAccess[aKey] = fp;
+  return aKey;
+}
+
+/*! \brief put a data block for copy into a file
+ * 
+ *  CORBA method: put a block of data into the file associated to the fileId
+ *  given at openW.
+ *  \param fileId got in return from openW method
+ *  \param block an octet sequence to copy into opened file
+ */
+void fileTransfer_i::putBlock(CORBA::Long fileId, const Engines::fileBlock& block)
+{
+  MESSAGE("fileTransfer_i::putBlock");
+  FILE* fp;
+  if (! (fp = _fileAccess[fileId]) )
+    {
+      INFOS(" no FILE structure associated to fileId " <<fileId);
+      return ;
+    }
+  int toFollow = block.length();
+  SCRUTE(toFollow);
+  const CORBA::Octet *buf = block.get_buffer();
+  fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+}
+
 

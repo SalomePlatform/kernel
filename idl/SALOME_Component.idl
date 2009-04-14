@@ -179,6 +179,13 @@ module Engines
     */
     fileTransfer getFileTransfer();
 
+    //! Copy a file from a remote host (container) to a local file
+    /*!
+      \param contai the remote container
+      \param remoteFile the file on the remote host to copy
+      \param localFile the local file to create by copy
+     */
+    void copyFile(in Container contai, in string remoteFile, in string localFile);
   };
 
   /*! \brief Interface of the %component.
@@ -430,6 +437,12 @@ module Engines
       File.
     */
     long open(in string fileName);
+    //! Open the file transfer in write mode for file fileName
+    /*!
+      \param fileName the file to copy into with putBlock
+      \return the id to use with putBlock
+    */
+    long openW(in string fileName);
 
     //! Close the file transfer
     /*!
@@ -444,6 +457,14 @@ module Engines
       The last block is empty, and identifies the end of file.
     */
     fileBlock getBlock(in long fileId);
+
+    //! Put a file data block
+    /*!
+       \param fileId identification of the file obtained by openW
+       \param block a data block to copy into the file identified by fileId
+    */
+    void putBlock(in long fileId, in fileBlock block);
+
   };
 
   //!  A file managed by a Salome_file. 

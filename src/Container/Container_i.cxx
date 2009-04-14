@@ -1371,3 +1371,47 @@ void SigIntHandler( int what )
   }
 }
 #endif
+
+/*! \brief copy a file from a remote host (container) to the local host
+ * \param container the remote container
+ * \param remoteFile the file to copy locally from the remote host into localFile
+ * \param localFile the local file
+ */
+void Engines_Container_i::copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile)
+{
+  Engines::fileTransfer_var fileTransfer = container->getFileTransfer();
+
+  FILE* fp;
+  if ((fp = fopen(localFile,"wb")) == NULL)
+    {
+      INFOS("file " << localFile << " cannot be open for writing");
+      return;
+    }
+
+  CORBA::Long fileId = fileTransfer->open(remoteFile);
+  if (fileId > 0)
+    {
+      Engines::fileBlock* aBlock;
+      int toFollow = 1;
+      int ctr=0;
+      while (toFollow)
+        {
+          ctr++;
+          SCRUTE(ctr);
+          aBlock = fileTransfer->getBlock(fileId);
+          toFollow = aBlock->length();
+          SCRUTE(toFollow);
+          CORBA::Octet *buf = aBlock->get_buffer();
+          fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+          delete aBlock;
+        }
+      fclose(fp);
+      MESSAGE("end of transfer");
+      fileTransfer->close(fileId);
+    }
+  else
+    {
+      INFOS("open reference file for copy impossible");
+    }
+}
+

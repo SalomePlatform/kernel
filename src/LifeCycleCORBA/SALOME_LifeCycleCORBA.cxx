@@ -51,6 +51,7 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
 
 using namespace std;
 
@@ -368,13 +369,19 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
 {
   params.container_name = "";
   params.hostname = "";
+  params.alias = "";
+  params.protocol = "";
+  params.username = "";
+  params.applipath = "";
   params.OS = "";
   params.mem_mb = 0;
   params.cpu_clock = 0;
   params.nb_proc_per_node = 0;
   params.nb_node = 0;
   params.isMPI = false;
-
+  params.mpiImpl="";
+  params.batch="";
+  params.workingdir = "";
   params.parallelLib = "";
   params.nb_component_nodes = 0;
 }
@@ -705,5 +712,40 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");
   return myInstance._retn();
+}
+
+/*! \brief copy a file from a source host to a destination host
+ * \param hostSrc the source host
+ * \param fileSrc the file to copy from the source host to the destination host
+ * \param hostDest the destination host
+ * \param fileDest the destination file
+ */
+void SALOME_LifeCycleCORBA::copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest)
+{
+  if(strcmp(hostDest,"localhost") == 0)
+    {
+      //if localhost use a shortcut
+      SALOME_FileTransferCORBA transfer(hostSrc,fileSrc);
+      transfer.getLocalFile(fileDest);
+      return;
+    }
+
+  Engines::ContainerManager_var contManager = getContainerManager();
+
+  Engines::MachineParameters params;
+  preSet(params);
+
+  Engines::MachineList listOfMachines;
+  listOfMachines.length(1);
+
+  params.hostname = hostDest;
+  listOfMachines[0] = hostDest;
+  Engines::Container_var containerDest = contManager->FindOrStartContainer(params, listOfMachines);
+
+  params.hostname = hostSrc;
+  listOfMachines[0] = hostSrc;
+  Engines::Container_var containerSrc = contManager->FindOrStartContainer(params, listOfMachines);
+
+  containerDest->copyFile(containerSrc,fileSrc,fileDest);
 }
 

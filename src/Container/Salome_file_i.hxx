@@ -33,12 +33,14 @@
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 
 #include "SALOME_Container.hxx"
+#include "SALOME_FileTransfer_i.hxx"
+
 #include <map>
 #include <cstdio>
 #include <string>
 
 class CONTAINER_EXPORT Salome_file_i:
-  public virtual POA_Engines::Salome_file
+  public virtual POA_Engines::Salome_file,public virtual fileTransfer_i
 {
   public:
     Salome_file_i();
