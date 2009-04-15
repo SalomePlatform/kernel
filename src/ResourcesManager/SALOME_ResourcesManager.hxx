@@ -69,7 +69,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
 
-    Engines::MachineParameters* GetMachineParameters(const char *hostname);
+    Engines::MachineDefinition* GetMachineParameters(const char *hostname);
 
     void Shutdown();
 

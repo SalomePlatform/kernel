@@ -66,9 +66,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   _poa = PortableServer::POA::_duplicate(poa) ;
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
-  Engines::SalomeLauncher_var refContMan =
-    Engines::SalomeLauncher::_narrow(obj);
-
+  Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
   _NS->Register(refContMan,_ResourcesManagerNameInNS);
   MESSAGE("SALOME_ResourcesManager constructor end");
 }
@@ -124,20 +122,19 @@ void SALOME_ResourcesManager::Shutdown()
   _NS->Destroy_Name(_ResourcesManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  //_remove_ref();
 }
 
 //=============================================================================
 /*!
- *  get the list of name of ressources fitting for the specified module.
+ *  get the list of name of ressources fitting for the specified component.
  *  If hostname specified, check it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the module is known
+ *  - then select the sublist of machines on witch the component is known
  *    (if the result is empty, that probably means that the inventory of
- *    modules is probably not done, so give complete list from previous step)
+ *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
@@ -189,11 +186,10 @@ SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
   return CORBA::string_dup(_rm.FindFirst(ml).c_str());
 }
 
-Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
+Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
 {
   ParserResourcesType resource = _rm.GetResourcesList(string(hostname));
-  Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
-  p_ptr->container_name = CORBA::string_dup("");
+  Engines::MachineDefinition *p_ptr = new Engines::MachineDefinition;
   p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
   p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
   if( resource.Protocol == rsh )
@@ -202,9 +198,9 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->protocol = "ssh";
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
-  p_ptr->modList.length(resource.ModulesList.size());
-  for(unsigned int i=0;i<resource.ModulesList.size();i++)
-    p_ptr->modList[i] = CORBA::string_dup(resource.ModulesList[i].c_str());
+  p_ptr->componentList.length(resource.ComponentsList.size());
+  for(unsigned int i=0;i<resource.ComponentsList.size();i++)
+    p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
   p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
   p_ptr->mem_mb = resource.DataForSort._memInMB;
   p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;

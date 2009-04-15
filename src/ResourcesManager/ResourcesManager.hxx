@@ -74,7 +74,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     int AddResourceInCatalog
     (const machineParams& paramsOfNewResources,
-     const std::vector<std::string>& modulesOnNewResources,
+     const std::vector<std::string>& componentsOnNewResources,
      const char *alias,
      const char *userName,
      AccessModeType mode,
@@ -96,7 +96,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 				   const char *OS) const
       throw(ResourcesException);
 
-    void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
+    void KeepOnlyResourcesWithComponent(std::vector<std::string>& hosts,
 				     const std::vector<std::string>& componentList) const
       throw(ResourcesException);
 

@@ -59,6 +59,8 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
   test_appli_path = "appliPath";
   test_modules = "modules";
   test_module_name = "moduleName";
+  test_components = "component";
+  test_component_name = "name";
   test_os = "OS";
   test_mem_in_mb = "memInMB";
   test_cpu_freq_mhz = "CPUFreqMHz";
@@ -277,18 +279,42 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               xmlFree(nb_of_proc_per_node);
             }
 	  
-	  // Process modules
+	  // Process components
 	  xmlNodePtr aCurSubNode = aCurNode->xmlChildrenNode;
 	  while(aCurSubNode != NULL)
 	    {
-	      if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
+	      if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_components) )
 		{
+                  //If a component is given, it is in a module with the same name
+                  //except if the module name is given
+		  if (xmlHasProp(aCurSubNode, (const xmlChar*)test_component_name)) 
+		    {
+		      xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_component_name);
+		      std::string aComponentName = (const char*)component_name;
+                      _resource.ComponentsList.push_back(aComponentName);
+		      if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
+                        {
+		          xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+		          std::string aModuleName = (const char*)module_name;
+                          _resource.ModulesList.push_back(aModuleName);
+                          xmlFree(module_name);
+                        }
+                      else
+                        _resource.ModulesList.push_back(aComponentName);
+                      xmlFree(component_name);
+		    }
+		}
+              else if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
+		{
+                  // If a module is given, we create an entry in componentsList and modulesList
+                  // with the same name (module == component)
 		  if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
 		    {
-		      xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
-		      std::string aModuleName = (const char*)module_name;
-                      _resource.ModulesList.push_back(aModuleName);
-                      xmlFree(module_name);
+		      xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+		      std::string aComponentName = (const char*)component_name;
+                      _resource.ComponentsList.push_back(aComponentName);
+                      _resource.ModulesList.push_back(aComponentName);
+                      xmlFree(component_name);
 		    }
 		}
 	      aCurSubNode = aCurSubNode->next;
@@ -315,13 +341,14 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
             }
             else
               {
-                _resources_list[_resource.HostName] = _resource;
                 if(_resource.HostName == "localhost")
                   {
                     _resource.HostName = Kernel_Utils::GetHostname();
                     _resource.DataForSort._hostName = Kernel_Utils::GetHostname();
                     _resources_list[Kernel_Utils::GetHostname()] = _resource;
                   }
+                else
+                  _resources_list[_resource.HostName] = _resource;
               }
           }
           else
@@ -443,12 +470,12 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
 
      for (vector<string>::const_iterator iter2 =
-             (*iter).second.ModulesList.begin();
-           iter2 != (*iter).second.ModulesList.end();
+             (*iter).second.ComponentsList.begin();
+           iter2 != (*iter).second.ComponentsList.end();
            iter2++)
         {
-	  node1 = xmlNewChild(node, NULL, BAD_CAST test_modules, NULL);
-	  xmlNewProp(node1, BAD_CAST test_module_name, BAD_CAST (*iter2).c_str());
+	  node1 = xmlNewChild(node, NULL, BAD_CAST test_components, NULL);
+	  xmlNewProp(node1, BAD_CAST test_component_name, BAD_CAST (*iter2).c_str());
         }
 
       xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());
@@ -532,12 +559,12 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
 
      for (vector<string>::const_iterator iter2 =
-             (*iter).second.ModulesList.begin();
-           iter2 != (*iter).second.ModulesList.end();
+             (*iter).second.ComponentsList.begin();
+           iter2 != (*iter).second.ComponentsList.end();
            iter2++)
         {
-	  node1 = xmlNewChild(node, NULL, BAD_CAST test_modules, NULL);
-	  xmlNewProp(node1, BAD_CAST test_module_name, BAD_CAST (*iter2).c_str());
+	  node1 = xmlNewChild(node, NULL, BAD_CAST test_components, NULL);
+	  xmlNewProp(node1, BAD_CAST test_component_name, BAD_CAST (*iter2).c_str());
         }
 
       xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());

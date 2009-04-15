@@ -108,15 +108,15 @@ ResourcesManager_cpp::~ResourcesManager_cpp()
 
 //=============================================================================
 /*!
- *  get the list of name of ressources fitting for the specified module.
+ *  get the list of name of ressources fitting for the specified component.
  *  If hostname specified, check it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the module is known
+ *  - then select the sublist of machines on witch the component is known
  *    (if the result is empty, that probably means that the inventory of
- *    modules is probably not done, so give complete list from previous step)
+ *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
@@ -185,7 +185,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
     // --- Search for available resources sorted by priority
     SelectOnlyResourcesWithOS(vec, params.OS.c_str());
       
-    KeepOnlyResourcesWithModule(vec, componentList);
+    KeepOnlyResourcesWithComponent(vec, componentList);
 	
     if (vec.size() == 0)
       SelectOnlyResourcesWithOS(vec, params.OS.c_str());
@@ -225,25 +225,25 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 //=============================================================================
 /*!
  *  add an entry in the ressources catalog  xml file.
- *  Return 0 if OK (KERNEL found in new resources modules) else throw exception
+ *  Return 0 if OK (KERNEL found in new resources components) else throw exception
  */ 
 //=============================================================================
 
 int
 ResourcesManager_cpp::
 AddResourceInCatalog(const machineParams& paramsOfNewResources,
-                     const vector<string>& modulesOnNewResources,
+                     const vector<string>& componentsOnNewResources,
                      const char *alias,
                      const char *userName,
                      AccessModeType mode,
                      AccessProtocolType prot)
 throw(ResourcesException)
 {
-  vector<string>::const_iterator iter = find(modulesOnNewResources.begin(),
-					     modulesOnNewResources.end(),
+  vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
+					     componentsOnNewResources.end(),
 					     "KERNEL");
 
-  if (iter != modulesOnNewResources.end())
+  if (iter != componentsOnNewResources.end())
     {
       ParserResourcesType newElt;
       newElt.DataForSort._hostName = paramsOfNewResources.hostname;
@@ -251,7 +251,7 @@ throw(ResourcesException)
       newElt.Protocol = prot;
       newElt.Mode = mode;
       newElt.UserName = userName;
-      newElt.ModulesList = modulesOnNewResources;
+      newElt.ComponentsList = componentsOnNewResources;
       newElt.OS = paramsOfNewResources.OS;
       newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
       newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
@@ -369,9 +369,9 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
 //=============================================================================
 
 const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
-  {
-    return _resourcesList;
-  }
+{
+  return _resourcesList;
+}
 
 
 //=============================================================================
@@ -432,28 +432,28 @@ throw(ResourcesException)
 
 //=============================================================================
 /*!
- *  Gives a sublist of machines on which the module is known.
+ *  Gives a sublist of machines on which the component is known.
  */ 
 //=============================================================================
 
 //Warning need an updated parsed list : _resourcesList
-void ResourcesManager_cpp::KeepOnlyResourcesWithModule( vector<string>& hosts, const vector<string>& componentList) const
+void ResourcesManager_cpp::KeepOnlyResourcesWithComponent( vector<string>& hosts, const vector<string>& componentList) const
 throw(ResourcesException)
 {
   for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const vector<string>& mapOfModulesOfCurrentHost = (((*it).second).ModulesList);
+      const vector<string>& mapOfComponentsOfCurrentHost = (((*it).second).ComponentsList);
 
       bool erasedHost = false;
-      if( mapOfModulesOfCurrentHost.size() > 0 ){
+      if( mapOfComponentsOfCurrentHost.size() > 0 ){
 	for(unsigned int i=0;i<componentList.size();i++){
           const char* compoi = componentList[i].c_str();
-	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
-					      mapOfModulesOfCurrentHost.end(),
+	  vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
+					      mapOfComponentsOfCurrentHost.end(),
 					      compoi);
 // 					      componentList[i]);
-	  if (itt == mapOfModulesOfCurrentHost.end()){
+	  if (itt == mapOfComponentsOfCurrentHost.end()){
 	    erasedHost = true;
 	    break;
 	  }

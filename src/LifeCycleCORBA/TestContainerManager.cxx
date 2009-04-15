@@ -139,7 +139,7 @@ int main (int argc, char * argv[])
   int nbpmax;
   for(std::map<std::string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
-      Engines::MachineParameters *p = _ResManager->GetMachineParameters((*iter).first.c_str());
+      Engines::MachineDefinition *p = _ResManager->GetMachineParameters((*iter).first.c_str());
       int nbproc = p->nb_node * p->nb_proc_per_node;
       if(cycle[(*iter).first]/nbproc<cmin) cmin=cycle[(*iter).first]/nbproc;
       if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;

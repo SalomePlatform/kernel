@@ -40,24 +40,38 @@ module Engines
 //! modules list
   typedef sequence<string> ModulesList;
 
-//!  Type to describe properties of a resource.
+//!  Type to describe required properties of a container.
 struct MachineParameters
 {
+  //! container name if given else automatic
   string container_name;
+  //! host name if given else automatic
   string hostname;
+  //! if given alias name to use ??
   string alias;
+  //! protocol to use to start a remote container (ssh or rsh)
   string protocol;
+  //! login name to use to start a remote container
   string username;
+  //! salome application to use to start a remote container
   string applipath;
   ModulesList modList;
   string OS;
+  //! required memory size
   long mem_mb;
+  //! required frequency
   long cpu_clock;
+  //! required number of proc per node
   long nb_proc_per_node;
+  //! required number of node
   long nb_node;
+  //! if true start a MPI container ??
   boolean isMPI;
+  //! required MPI implementation to use
   string mpiImpl;
+  //! required batch system to use
   string batch;
+  //! container working directory 
   string workingdir;
 
   // PaCO specific informations
@@ -65,6 +79,36 @@ struct MachineParameters
   long nb_component_nodes;
 };
 
+//!  Type to describe properties of a resource.
+struct MachineDefinition
+{
+  //! host name 
+  string hostname;
+  string alias;
+  //! protocol to use to start a remote container (ssh or rsh)
+  string protocol;
+  //! login name to use to start a remote container
+  string username;
+  //! salome application to use to start a remote container
+  string applipath;
+  //! list of available components 
+  CompoList componentList;
+  //! operating system 
+  string OS;
+  //! memory size
+  long mem_mb;
+  //! frequency
+  long cpu_clock;
+  //! number of proc per node
+  long nb_proc_per_node;
+  //! number of node
+  long nb_node;
+  //! MPI implementation
+  string mpiImpl;
+  //! batch system
+  string batch;
+  long nb_component_nodes;
+};
 //! exception thrown if a computer is not found in the catalog
   exception NotFound {};
 
@@ -178,7 +222,7 @@ struct BatchParameters
       raises (SALOME::SALOME_Exception);
 
     //!  Get the current machine parameters of a computer
-    MachineParameters GetMachineParameters( in string hostname );
+    MachineDefinition GetMachineParameters( in string hostname );
 
   } ;
 };

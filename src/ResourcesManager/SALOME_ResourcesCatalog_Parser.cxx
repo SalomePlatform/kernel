@@ -133,10 +133,10 @@ void ParserResourcesType::Print() const
     "OS : " << OS << endl <<
     "batchQueue : " << batchQueue << endl <<
     "userCommands : " << userCommands << endl <<
-    "Modules : " << endl;
+    "Components : " << endl;
 
-  for(int i=0;i<ModulesList.size();i++)
-    oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
+  for(int i=0;i<ComponentsList.size();i++)
+    oss << "Component " << i+1 << " called : " << ComponentsList[i] << endl;
 
   cout << oss.str() << endl;
 
@@ -159,6 +159,6 @@ void ParserResourcesType::Clear()
   AppliPath = "";
   batchQueue = "";
   userCommands = "";
-  ModulesList.clear();
+  ComponentsList.clear();
   OS = "";
 }

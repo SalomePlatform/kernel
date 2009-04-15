@@ -31,7 +31,7 @@
 #ifdef WIN32
 # include <io.h>
 #endif
-BatchTest::BatchTest(const Engines::MachineParameters& batch_descr) 
+BatchTest::BatchTest(const Engines::MachineDefinition& batch_descr) 
 {
   _batch_descr = batch_descr;
 
