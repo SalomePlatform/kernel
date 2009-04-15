@@ -38,6 +38,9 @@
 
 using namespace std;
 
+static LoadRateManagerFirst first;
+static LoadRateManagerCycl cycl;
+static LoadRateManagerAltCycl altcycl;
 //=============================================================================
 /*!
  * just for test
@@ -51,6 +54,10 @@ ResourcesManager_cpp(const char *xmlFilePath) :
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
+  _resourceManagerMap["first"]=&first;
+  _resourceManagerMap["cycl"]=&cycl;
+  _resourceManagerMap["altcycl"]=&altcycl;
+  _resourceManagerMap["best"]=&altcycl;
 }
 
 //=============================================================================
@@ -69,6 +76,10 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
+  _resourceManagerMap["first"]=&first;
+  _resourceManagerMap["cycl"]=&cycl;
+  _resourceManagerMap["altcycl"]=&altcycl;
+  _resourceManagerMap["best"]=&altcycl;
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   if(!getenv("KERNEL_ROOT_DIR"))
     throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
@@ -373,37 +384,10 @@ const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
   return _resourcesList;
 }
 
-
-//=============================================================================
-/*!
- *  dynamically obtains the first machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindFirst(const std::vector<std::string>& listOfMachines)
+string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindFirst(listOfMachines);
-}
-
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindNext(const std::vector<std::string>& listOfMachines)
-{
-  return _dynamicResourcesSelecter.FindNext(listOfMachines,_resourcesList);
-}
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindBest(const std::vector<std::string>& listOfMachines)
-{
-  return _dynamicResourcesSelecter.FindBest(listOfMachines);
+  if(_resourceManagerMap.count(policy)==0)return "";
+  return _resourceManagerMap[policy]->Find(listOfMachines,_resourcesList);
 }
 
 //=============================================================================

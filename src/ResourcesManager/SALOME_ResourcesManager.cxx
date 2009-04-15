@@ -183,7 +183,16 @@ SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
   for(unsigned int i=0;i<listOfMachines.length();i++)
     ml.push_back(string(listOfMachines[i]));
 
-  return CORBA::string_dup(_rm.FindFirst(ml).c_str());
+  return CORBA::string_dup(_rm.Find("first",ml).c_str());
+}
+
+char *
+SALOME_ResourcesManager::Find(const char* policy, const Engines::MachineList& listOfMachines)
+{
+  vector<string> ml;
+  for(unsigned int i=0;i<listOfMachines.length();i++)
+    ml.push_back(string(listOfMachines[i]));
+  return CORBA::string_dup(_rm.Find(policy,ml).c_str());
 }
 
 Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)

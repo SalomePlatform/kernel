@@ -68,9 +68,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     GetFittingResources(const machineParams& params,
                         const std::vector<std::string>& componentList) throw(ResourcesException);
 
-    std::string FindFirst(const std::vector<std::string>& listOfMachines);
-    std::string FindNext(const std::vector<std::string>& listOfMachines);
-    std::string FindBest(const std::vector<std::string>& listOfMachines);
+    std::string Find(const std::string& policy, const std::vector<std::string>& listOfMachines);
 
     int AddResourceInCatalog
     (const machineParams& paramsOfNewResources,
@@ -109,7 +107,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesBatchList;
 
-    SALOME_LoadRateManager _dynamicResourcesSelecter;
+    //! a map that contains all the available load rate managers (the key is the name)
+    std::map<std::string , LoadRateManager*> _resourceManagerMap;
 
     //! different behaviour if $APPLI exists (SALOME Application) 
     bool _isAppliSalomeDefined;    

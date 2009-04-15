@@ -24,15 +24,37 @@
 
 #include "ResourcesManager_Defs.hxx"
 #include <string>
+#include <map>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 
-class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
-  {
-
+class RESOURCESMANAGER_EXPORT LoadRateManager
+{
   public:
-    std::string FindFirst(const std::vector<std::string>& hosts);
-    std::string FindNext(const std::vector<std::string>& hosts,MapOfParserResourcesType& resList);
-    std::string FindBest(const std::vector<std::string>& hosts);
-  };
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList){return "";};
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerFirst:public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerCycl :public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+};
+
+class RESOURCESMANAGER_EXPORT LoadRateManagerAltCycl :public LoadRateManager
+{
+  public:
+    virtual std::string Find(const std::vector<std::string>& hosts,
+                             MapOfParserResourcesType& resList);
+  protected:
+    std::map<std::string,int> _numberOfUses;
+};
 
 #endif

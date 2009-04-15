@@ -187,6 +187,10 @@ using namespace std;
              param->batch = CORBA::string_dup(PyString_AsString(value));
          else if (strcmp(keystr,"workingdir")==0)
              param->workingdir = CORBA::string_dup(PyString_AsString(value));
+         else if (strcmp(keystr,"mode")==0)
+             param->mode = CORBA::string_dup(PyString_AsString(value));
+         else if (strcmp(keystr,"policy")==0)
+             param->policy = CORBA::string_dup(PyString_AsString(value));
          else if (strcmp(keystr,"parallelLib")==0)
            {
              param->parallelLib = CORBA::string_dup(PyString_AsString(value));

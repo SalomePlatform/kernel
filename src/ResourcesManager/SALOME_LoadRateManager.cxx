@@ -25,7 +25,8 @@
 
 using namespace std;
 
-string SALOME_LoadRateManager::FindFirst(const vector<string>& hosts)
+string LoadRateManagerFirst::Find(const vector<string>& hosts,
+                                  MapOfParserResourcesType& resList)
 {
   if (hosts.size() == 0)
     return string("");
@@ -33,7 +34,8 @@ string SALOME_LoadRateManager::FindFirst(const vector<string>& hosts)
   return string(hosts[0]);
 }
 
-string SALOME_LoadRateManager::FindNext(const vector<string>& hosts,MapOfParserResourcesType& resList)
+string LoadRateManagerCycl::Find(const vector<string>& hosts,
+                                 MapOfParserResourcesType& resList)
 {
   static int imachine = 0;
   static int iproc = 0;
@@ -52,15 +54,40 @@ string SALOME_LoadRateManager::FindNext(const vector<string>& hosts,MapOfParserR
     else{
       iproc = 1;
       imachine++;
-      if(imachine == hosts.size())
-	imachine = 0;
+      if(imachine >= hosts.size())
+        imachine = 0;
       return string(hosts[imachine]);
     }
   }
 }
 
-string SALOME_LoadRateManager::FindBest(const vector<string>& hosts)
+string LoadRateManagerAltCycl::Find(const vector<string>& hosts,
+                                    MapOfParserResourcesType& resList)
 {
-  // for the moment then "maui" will be used for dynamic selection ...
-  return FindFirst(hosts);
+  if (hosts.size() == 0)
+    return string("");
+
+  std::string selected=hosts[0];
+  int uses=0;
+  if(_numberOfUses.count(selected) != 0)
+    uses=_numberOfUses[selected];
+  else
+    uses=0;
+
+  for (std::vector<std::string>::const_iterator iter = hosts.begin(); iter != hosts.end(); iter++)
+    {
+      std::string machine=*iter;
+      if(_numberOfUses.count(machine) == 0)
+        _numberOfUses[machine]=0;
+      if(_numberOfUses[machine] < uses)
+        {
+          selected=machine;
+          uses=_numberOfUses[machine];
+        }
+    }
+
+  _numberOfUses[selected]=_numberOfUses[selected]+1;
+  std::cerr << "selected: " << selected << " " << _numberOfUses[selected] << std::endl;
+  return selected;
 }
+

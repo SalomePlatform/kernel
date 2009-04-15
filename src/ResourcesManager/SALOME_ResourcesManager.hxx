@@ -68,6 +68,7 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
                         const Engines::CompoList& componentList);
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
+    char* Find(const char *policy, const Engines::MachineList& listOfMachines);
 
     Engines::MachineDefinition* GetMachineParameters(const char *hostname);
 

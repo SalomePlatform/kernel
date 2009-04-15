@@ -55,7 +55,11 @@ struct MachineParameters
   string username;
   //! salome application to use to start a remote container
   string applipath;
-  ModulesList modList;
+  //! if given list of components that could be loaded on the container
+  CompoList componentList;
+  //! if given restricted list of machines to search in
+  MachineList computerList;
+  //! required operating system 
   string OS;
   //! required memory size
   long mem_mb;
@@ -73,8 +77,16 @@ struct MachineParameters
   string batch;
   //! container working directory 
   string workingdir;
+  //! creation mode for GiveContainer. 
+  /*!start creates a new container
+   * get  try to find an existing container
+   * getorstart   use an existing container if it exists or creates a new one
+   */
+  string mode;
+  //! resource management policy : first, cycl, altcycl or best (can be extended)
+  string policy;
 
-  // PaCO specific informations
+  //! PaCO specific informations
   string parallelLib;
   long nb_component_nodes;
 };
@@ -212,9 +224,11 @@ struct BatchParameters
     //!  Find first available computer in a computers list
     string FindFirst(in MachineList possibleComputers);
 
+    //!  Find best available computer according to policy in a computers list
+    string Find(in string policy, in MachineList possibleComputers);
+
     //!  Get a list of computers that are best suited to launch a container given constraints 
     /*! 
-
          The constraints are resource constraints (params) and components constraints (componentList)
     */
     MachineList GetFittingResources( in MachineParameters params,

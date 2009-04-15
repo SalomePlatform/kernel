@@ -373,6 +373,8 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.protocol = "";
   params.username = "";
   params.applipath = "";
+  //param.componentList = 0;
+  //param.computerList = 0;
   params.OS = "";
   params.mem_mb = 0;
   params.cpu_clock = 0;
@@ -382,6 +384,8 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.mpiImpl="";
   params.batch="";
   params.workingdir = "";
+  params.mode = "";
+  params.policy = "";
   params.parallelLib = "";
   params.nb_component_nodes = 0;
 }
