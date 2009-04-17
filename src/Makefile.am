@@ -27,7 +27,8 @@
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
-  HDFPersist
+  HDFPersist\
+  KERNEL_PY
 
 SUBDIR_CORBA = \
   DF \
@@ -50,7 +51,6 @@ SUBDIR_CORBA = \
   TOOLSDS \
   SALOMEDSImpl \
   SALOMEDS \
-  KERNEL_PY \
   ModuleGenerator \
   Communication \
   Communication_SWIG \
