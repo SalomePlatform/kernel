@@ -30,6 +30,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 
+BUILT_SOURCES = calcium_wrap.cpp calcium.py
+
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
