@@ -517,8 +517,8 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(WITH_LOCAL 1)
                 SET(WITH_BATCH 1)
-                set(VERSION 5.1.1)
-                set(XVERSION 0x050101)
+                set(VERSION 5.1.2)
+                set(XVERSION 0x050102)
                 """)
             elif self.module == "gui":
                 newlines.append("""
@@ -531,6 +531,8 @@ class CMakeFile(object):
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
                 # SET(ENABLE_QXGRAPHVIEWER ON)
+                set(VERSION 5.1.2)
+                set(XVERSION 0x050102)
                 """)
                 pass
             elif self.module == "geom":
@@ -1076,13 +1078,15 @@ class CMakeFile(object):
         ENDIF(ext STREQUAL .la)
         SET(vars)
         SET(vars ${vars} -no-undefined)
-        SET(vars ${vars} -lboost_thread)
         IF(WINDOWS)
         SET(vars ${vars} -module)
         SET(vars ${vars} -Wl,-E)
         SET(vars ${vars} -Xlinker)
         SET(vars ${vars} -export-dynamic)
         SET(vars ${vars} -lm)
+        SET(vars ${vars} -lboost_thread)
+        SET(vars ${vars} -lboost_signals)
+        SET(vars ${vars} -lvtkWidgets)
         ENDIF(WINDOWS)
         FOREACH(v ${vars})
         IF(lib STREQUAL v)
@@ -1269,14 +1273,21 @@ class CMakeFile(object):
         ENDIF(ext STREQUAL .f)
         SET(srcs ${srcs} ${src})
         ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
+        ''')
+        newlines.append(r'''
         SET(build_srcs)
-        FOREACH(f ${nodist_${amname}_SOURCES} ${BUILT_SOURCES})
+        ''')
+        newlines.append(r'''
+        SET(l ${nodist_${amname}_SOURCES} ${BUILT_SOURCES})
+        ''')
+        newlines.append(r'''
+        FOREACH(f ${l})
         GET_FILENAME_COMPONENT(ext ${f} EXT)
         IF(ext STREQUAL .py)
         ELSE(ext STREQUAL .py)
         SET(build_srcs ${build_srcs} ${CMAKE_CURRENT_BINARY_DIR}/${f})
         ENDIF(ext STREQUAL .py)
-        ENDFOREACH(f ${nodist_${amname}_SOURCES})
+        ENDFOREACH(f ${l})
         SET(srcs ${build_srcs} ${srcs})
         ''')
         # --
