@@ -21,8 +21,8 @@
 //
 #include <string.h>
 #include <stdlib.h>
-#include <fortoc.h>
-#include <calcium.h>
+#include "fortoc.h"
+#include "calcium.h"
 #include <stdio.h>
 
 static void* COMPO=0;
