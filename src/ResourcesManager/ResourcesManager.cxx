@@ -58,6 +58,7 @@ ResourcesManager_cpp(const char *xmlFilePath) :
   _resourceManagerMap["cycl"]=&cycl;
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
+  _resourceManagerMap[""]=&altcycl;
 }
 
 //=============================================================================
@@ -80,6 +81,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["cycl"]=&cycl;
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
+  _resourceManagerMap[""]=&altcycl;
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   if(!getenv("KERNEL_ROOT_DIR"))
     throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
@@ -386,7 +388,8 @@ const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
 
 string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfMachines)
 {
-  if(_resourceManagerMap.count(policy)==0)return "";
+  if(_resourceManagerMap.count(policy)==0)
+    return _resourceManagerMap[""]->Find(listOfMachines,_resourcesList);
   return _resourceManagerMap[policy]->Find(listOfMachines,_resourcesList);
 }
 
