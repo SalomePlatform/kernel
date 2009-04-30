@@ -38,6 +38,8 @@ salomeinclude_HEADERS=
 # Scripts to be installed
 dist_salomescript_PYTHON = \
 	LifeCycleCORBA_SWIGTest.py \
+	testresourcemanager.py \
+	testcontainermanager.py \
 	TestLifeCycleCORBA_SWIG.py
 
 #

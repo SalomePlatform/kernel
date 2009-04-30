@@ -66,10 +66,9 @@ int main (int argc, char * argv[])
   Engines::ResourcesManager_var _ResManager=Engines::ResourcesManager::_narrow(obj);
 
   Engines::MachineParameters p;
-  Engines::CompoList clist;
-  clist.length(2);
-  clist[0] = "MED";
-  clist[1] = "GEOM";
+  p.componentList.length(2);
+  p.componentList[0] = "MED";
+  p.componentList[1] = "GEOM";
 
   p.hostname = "";
   p.OS = "LINUX";
@@ -83,19 +82,22 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->GiveContainer(p,Engines::P_CYCL,clist);
+    p.policy="cycl";
+    cont = _ContManager->GiveContainer(p);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->GiveContainer(p,Engines::P_FIRST,clist);
+    p.policy="best";
+    cont = _ContManager->GiveContainer(p);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  cont = _ContManager->GiveContainer(p,Engines::P_BEST,clist);
+  p.policy="best";
+  cont = _ContManager->GiveContainer(p);
   if(CORBA::is_nil(cont)) bestImplemented = false;
   else bestImplemented = true;
 

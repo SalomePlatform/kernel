@@ -92,9 +92,8 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
   // verify if cluster is in resources catalog
   machineParams params;
   params.hostname = clusterName;
-  vector<string> aCompoList ;
   try{
-    aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    aMachineList = _ResManager->GetFittingResources(params);
   }
   catch(const ResourcesException &ex){
     throw LauncherException(ex.msg.c_str());
@@ -207,9 +206,8 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     throw LauncherException("Batch parameters are bad (see informations above)");
 
   // find a cluster matching the structure params
-  vector<string> aCompoList ;
   try{
-    aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    aMachineList = _ResManager->GetFittingResources(params);
   }
   catch(const ResourcesException &ex){
     throw LauncherException(ex.msg.c_str());
@@ -298,8 +296,7 @@ string Launcher_cpp::queryJob( long id,
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
   // find a cluster matching params structure
-  vector<string> aCompoList ;
-  vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
+  vector<string> aMachineList = _ResManager->GetFittingResources( params ) ;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
     
@@ -346,8 +343,7 @@ void Launcher_cpp::deleteJob( const long id,
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
   // find a cluster matching params structure
-  vector<string> aCompoList ;
-  vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
+  vector<string> aMachineList = _ResManager->GetFittingResources( params ) ;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
     
@@ -385,8 +381,7 @@ void Launcher_cpp::getResultsJob( const string directory,
   if(!_ResManager)
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
-  vector<string> aCompoList ;
-  vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
+  vector<string> aMachineList = _ResManager->GetFittingResources( params ) ;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
     

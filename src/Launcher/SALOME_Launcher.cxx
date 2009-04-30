@@ -198,8 +198,7 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
   try
   {
     // find a cluster matching the structure params
-    Engines::CompoList aCompoList ;
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params);
     if (aMachineList->length() == 0)
       throw SALOME_Exception("No resources have been found with your parameters");
 

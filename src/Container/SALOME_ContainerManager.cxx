@@ -96,8 +96,8 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
 }
 
 //=============================================================================
+//! shutdown all the containers, then the ContainerManager servant
 /*! CORBA method:
- *  shutdown all the containers, then the ContainerManager servant
  */
 //=============================================================================
 
@@ -111,8 +111,8 @@ void SALOME_ContainerManager::Shutdown()
 }
 
 //=============================================================================
+//! Loop on all the containers listed in naming service, ask shutdown on each
 /*! CORBA Method:
- *  Loop on all the containers listed in naming service, ask shutdown on each
  */
 //=============================================================================
 
@@ -174,48 +174,56 @@ void SALOME_ContainerManager::ShutdownContainers()
 }
 
 //=============================================================================
-//!  Find a suitable Container in a list of machines, or start one
+//! Give a suitable Container given constraints
 /*! CORBA Method:
  *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for find or start
+ *  \return the container or nil
  */
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::
-FindOrStartContainer(const Engines::MachineParameters& params,
-                     const Engines::MachineList& possibleComputers)
+SALOME_ContainerManager::GiveContainer(const Engines::MachineParameters& params)
 {
-  Engines::Container_ptr ret = FindContainer(params,possibleComputers);
-  if(!CORBA::is_nil(ret))
-    return ret;
-  MESSAGE("Container doesn't exist try to launch it ...");
+  char *valenv=getenv("SALOME_BATCH");
+  if(valenv)
+    if (strcmp(valenv,"1")==0)
+      {
+        if(_batchLaunchedContainers.empty())
+          fillBatchLaunchedContainers();
 
-  return StartContainer(params,possibleComputers,Engines::P_FIRST);
+        if (_batchLaunchedContainersIter == _batchLaunchedContainers.end())
+          _batchLaunchedContainersIter = _batchLaunchedContainers.begin();
 
+        Engines::Container_ptr rtn = Engines::Container::_duplicate(*_batchLaunchedContainersIter);
+        _batchLaunchedContainersIter++;
+        return rtn;
+      }
+  return StartContainer(params);
 }
 
 //=============================================================================
-//! Start a suitable Container in a list of machines with constraints and a policy
+//! Start a suitable Container in a list of machines with constraints 
 /*! C++ Method:
  * Constraints are given by a machine parameters struct
  *  \param params            Machine Parameters required for the container
  *  \param possibleComputers list of machines usable for start
- *  \param policy        policy to use (first,cycl or best)
  *  \param container_exe specific container executable (default=SALOME_Container)
  */
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::
-StartContainer(const Engines::MachineParameters& params,
+SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params,
                const Engines::MachineList& possibleComputers,
-               Engines::ResPolicy policy,const std::string& container_exe)
+               const std::string& container_exe)
 {
 #ifdef WITH_PACO_PARALLEL
   std::string parallelLib(params.parallelLib);
   if (parallelLib != "")
-    return FindOrStartParallelContainer(params, possibleComputers);
+    {
+      Engines::MachineParameters myparams(params);
+      myparams.computerList=possibleComputers;
+      return FindOrStartParallelContainer(myparams);
+    }
 #endif
   string containerNameInNS;
   Engines::Container_ptr ret = Engines::Container::_nil();
@@ -352,21 +360,16 @@ StartContainer(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
-//! Start a suitable Container for a list of components with constraints and a policy
+//! Start a suitable Container given constraints 
 /*! CORBA Method:
  *  \param params            Machine Parameters required for the container
- *  \param policy        policy to use (first,cycl or best)
- *  \param componentList list of component to be loaded on this container
  */
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::
-StartContainer(const Engines::MachineParameters& params,
-               Engines::ResPolicy policy,
-               const Engines::CompoList& componentList)
+SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params)
 {
-  Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params,componentList);
+  Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params);
 
   // Look into ModulCatalog if a specific container must be launched
   CORBA::String_var container_exe;
@@ -378,9 +381,9 @@ StartContainer(const Engines::MachineParameters& params,
       if (CORBA::is_nil (Catalog))
         return Engines::Container::_nil();
       // Loop through component list
-      for(unsigned int i=0;i<componentList.length();i++)
+      for(unsigned int i=0;i<params.componentList.length();i++)
         {
-          const char* compoi = componentList[i];
+          const char* compoi = params.componentList[i];
           SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
           if (CORBA::is_nil (compoInfo))
             {
@@ -411,9 +414,77 @@ StartContainer(const Engines::MachineParameters& params,
     }
 
   if(found)
-    return StartContainer(params,possibleComputers,policy,container_exe.in());
+    return StartContainer(params,possibleComputers,container_exe.in());
   else
-    return StartContainer(params,possibleComputers,policy);
+    return StartContainer(params,possibleComputers);
+}
+
+//=============================================================================
+//!  Find or start a suitable Container given some constraints
+/*! CORBA Method:
+ *  \param params            Machine Parameters required for the container
+ *  \return the container or nil
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::FindOrStartContainer(const Engines::MachineParameters& params)
+{
+  Engines::Container_ptr ret = FindContainer(params,params.computerList);
+  if(!CORBA::is_nil(ret))
+    return ret;
+  MESSAGE("Container doesn't exist try to launch it ...");
+
+  return StartContainer(params);
+}
+
+//=============================================================================
+//! Find a container given constraints (params) on a list of machines (possibleComputers)
+/*!
+ *
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::FindContainer(const Engines::MachineParameters& params,
+                                       const Engines::MachineList& possibleComputers)
+{
+  MESSAGE("FindContainer "<<possibleComputers.length());
+  for(unsigned int i=0;i<possibleComputers.length();i++)
+    {
+      MESSAGE("FindContainer possible " << possibleComputers[i]);
+      Engines::Container_ptr cont = FindContainer(params,possibleComputers[i]);
+      if( !CORBA::is_nil(cont) )
+        return cont;
+    }
+  MESSAGE("FindContainer: not found");
+  return Engines::Container::_nil();
+}
+
+//=============================================================================
+//! Find a container given constraints (params) on a machine (theMachine)
+/*!
+ *
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::FindContainer(const Engines::MachineParameters& params,
+                                       const char *theMachine)
+{
+  string containerNameInNS(_NS->BuildContainerNameForNS(params,theMachine));
+  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+  try
+    {
+      if(obj->_non_existent())
+        return Engines::Container::_nil();
+      else
+        return Engines::Container::_narrow(obj);
+    }
+  catch(const CORBA::Exception& e)
+    {
+      return Engines::Container::_nil();
+    }
 }
 
 #ifdef WITH_PACO_PARALLEL
@@ -421,15 +492,11 @@ StartContainer(const Engines::MachineParameters& params,
 /*! CORBA Method:
  *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
  *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for find or start
- *
  *  \return CORBA container reference.
  */
 //=============================================================================
 Engines::Container_ptr
-SALOME_ContainerManager::
-FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
-                             const Engines::MachineList& possibleComputers)
+SALOME_ContainerManager::FindOrStartParallelContainer(const Engines::MachineParameters& params_const)
 {
   CORBA::Object_var obj;
   PaCO::InterfaceManager_var proxy;
@@ -440,14 +507,14 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
   // Currently not as good as could be since
   // we have to verified the number of nodes of the container
   // if a user tell that.
-  ret = FindContainer(params, possibleComputers);
+  ret = FindContainer(params, params.computerList);
 
   if(CORBA::is_nil(ret)) {
     // Step 2 : Starting a new parallel container
     INFOS("[FindOrStartParallelContainer] Starting a parallel container");
 
     // Step 2.1 : Choose a computer
-    string theMachine = _ResManager->FindFirst(possibleComputers);
+    string theMachine = _ResManager->FindFirst(params.computerList);
     if(theMachine == "") {
       INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
       INFOS("[FindOrStartParallelContainer] No possible computer found");
@@ -544,15 +611,11 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 /*! CORBA Method:
  *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
  *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for find or start
- *
  *  \return CORBA container reference.
  */
 //=============================================================================
 Engines::Container_ptr
-SALOME_ContainerManager::
-FindOrStartParallelContainer(const Engines::MachineParameters& params,
-			     const Engines::MachineList& possibleComputers)
+SALOME_ContainerManager::FindOrStartParallelContainer(const Engines::MachineParameters& params)
 {
   Engines::Container_ptr ret = Engines::Container::_nil();
   INFOS("[FindOrStartParallelContainer] is disabled !");
@@ -560,87 +623,6 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params,
   return ret;
 }
 #endif
-
-//=============================================================================
-//! Give a suitable Container for a list of components with constraints and a policy
-/*! CORBA Method:
- *  \param params            Machine Parameters required for the container
- *  \param policy        policy to use (first,cycl or best)
- *  \param componentList list of component to be loaded on this container
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::
-GiveContainer(const Engines::MachineParameters& params,
-              Engines::ResPolicy policy,
-              const Engines::CompoList& componentList)
-{
-  char *valenv=getenv("SALOME_BATCH");
-  if(valenv)
-    if (strcmp(valenv,"1")==0)
-      {
-	if(_batchLaunchedContainers.empty())
-	  fillBatchLaunchedContainers();
-
-	if (_batchLaunchedContainersIter == _batchLaunchedContainers.end())
-	  _batchLaunchedContainersIter = _batchLaunchedContainers.begin();
-
-	Engines::Container_ptr rtn = Engines::Container::_duplicate(*_batchLaunchedContainersIter);
-	_batchLaunchedContainersIter++;
-        return rtn;
-      }
-  return StartContainer(params,policy,componentList);
-}
-
-//=============================================================================
-/*! 
- * 
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::
-FindContainer(const Engines::MachineParameters& params,
-	      const char *theMachine)
-{
-  string containerNameInNS(_NS->BuildContainerNameForNS(params,theMachine));
-  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-  try
-    {
-      if(obj->_non_existent())
-        return Engines::Container::_nil();
-      else
-        return Engines::Container::_narrow(obj);
-    }
-  catch(const CORBA::Exception& e)
-    {
-      return Engines::Container::_nil();
-    }
-}
-
-//=============================================================================
-/*! 
- * 
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::
-FindContainer(const Engines::MachineParameters& params,
-	      const Engines::MachineList& possibleComputers)
-{
-  MESSAGE("FindContainer "<<possibleComputers.length());
-  for(unsigned int i=0;i<possibleComputers.length();i++)
-    {
-      MESSAGE("FindContainer possible " << possibleComputers[i]);
-      Engines::Container_ptr cont = FindContainer(params,possibleComputers[i]);
-      if( !CORBA::is_nil(cont) )
-	return cont;
-    }
-  MESSAGE("FindContainer: not found");
-  return Engines::Container::_nil();
-}
 
 //=============================================================================
 /*! This method launches the parallel container.

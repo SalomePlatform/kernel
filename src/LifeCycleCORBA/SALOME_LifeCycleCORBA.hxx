@@ -123,8 +123,7 @@ protected:
   Engines::Component_ptr
   _LoadComponent(const Engines::MachineParameters& params,
 		 const char *componentName,
-		 int studyId,
-		 const Engines::MachineList& listOfMachines);
+		 int studyId);
   
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;

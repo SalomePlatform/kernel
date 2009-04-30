@@ -30,6 +30,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <libxml/parser.h>
 
 #include <algorithm>
@@ -82,6 +83,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
+
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   if(!getenv("KERNEL_ROOT_DIR"))
     throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
@@ -120,22 +122,21 @@ ResourcesManager_cpp::~ResourcesManager_cpp()
 }
 
 //=============================================================================
+//! get the list of resource names fitting constraints given by params
 /*!
- *  get the list of name of ressources fitting for the specified component.
- *  If hostname specified, check it is local or known in resources catalog.
+ *  If hostname is specified, check if it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the component is known
+ *  - then select the sublist of machines on which the component is known
  *    (if the result is empty, that probably means that the inventory of
  *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
 std::vector<std::string> 
-ResourcesManager_cpp::GetFittingResources(const machineParams& params,
-				      const std::vector<std::string>& componentList) throw(ResourcesException)
+ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(ResourcesException)
 {
   vector <std::string> vec;
 
@@ -196,10 +197,13 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
     
   else{
     // --- Search for available resources sorted by priority
+    vec=params.computerList;
+
     SelectOnlyResourcesWithOS(vec, params.OS.c_str());
       
-    KeepOnlyResourcesWithComponent(vec, componentList);
-	
+    KeepOnlyResourcesWithComponent(vec, params.componentList);
+
+    //if hosts list (vec) is empty, ignore componentList constraint and use only OS constraint
     if (vec.size() == 0)
       SelectOnlyResourcesWithOS(vec, params.OS.c_str());
     
@@ -343,6 +347,15 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
 const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
 {
+  //Parse file only if its modification time is greater than lasttime (last registered modification time) 
+  static time_t lasttime=0;
+  struct stat statinfo;
+  int result = stat(_path_resources.c_str(), &statinfo);
+  if (result < 0) return _resourcesList;
+  if(statinfo.st_mtime <= lasttime)
+    return _resourcesList;
+  lasttime=statinfo.st_mtime;
+
   SALOME_ResourcesCatalog_Handler* handler =
     new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
 
@@ -406,13 +419,29 @@ throw(ResourcesException)
 {
   string base(OS);
 
-  for (map<string, ParserResourcesType>::const_iterator iter =
-         _resourcesList.begin();
-       iter != _resourcesList.end();
-       iter++)
+  if(hosts.size()==0)
     {
-      if ( (*iter).second.OS == base || base.size() == 0)
-        hosts.push_back((*iter).first);
+      //No constraint on computer list : take all known resources with OS
+      map<string, ParserResourcesType>::const_iterator iter;
+      for (iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++)
+        {
+          if ( (*iter).second.OS == base || base.size() == 0)
+            hosts.push_back((*iter).first);
+        }
+    }
+  else
+    {
+      //a computer list is given : take only resources with OS on those computers
+      vector<string> vec=hosts;
+      hosts.clear();
+      vector<string>::iterator iter;
+      for (iter = vec.begin(); iter != vec.end(); iter++)
+        {
+          MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+          if(it != _resourcesList.end())
+            if ( (*it).second.OS == base || base.size() == 0 )
+              hosts.push_back(*iter);
+        }
     }
 }
 
@@ -439,7 +468,6 @@ throw(ResourcesException)
 	  vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
 					      mapOfComponentsOfCurrentHost.end(),
 					      compoi);
-// 					      componentList[i]);
 	  if (itt == mapOfComponentsOfCurrentHost.end()){
 	    erasedHost = true;
 	    break;

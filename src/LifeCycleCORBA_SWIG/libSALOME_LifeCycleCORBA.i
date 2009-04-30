@@ -149,14 +149,6 @@ using namespace std;
            {
              param->hostname = CORBA::string_dup(PyString_AsString(value));
            }
-         else if (strcmp(keystr,"alias")==0)
-           param->alias = CORBA::string_dup(PyString_AsString(value));
-         else if (strcmp(keystr,"protocol")==0)
-           param->protocol = CORBA::string_dup(PyString_AsString(value));
-         else if (strcmp(keystr,"username")==0)
-           param->username = CORBA::string_dup(PyString_AsString(value));
-         else if (strcmp(keystr,"applipath")==0)
-           param->applipath = CORBA::string_dup(PyString_AsString(value));
          else if (strcmp(keystr,"OS")==0)
            {
              param->OS = CORBA::string_dup(PyString_AsString(value));
@@ -181,10 +173,6 @@ using namespace std;
            {
              param->isMPI = PyLong_AsLong(value);
            }
-         else if (strcmp(keystr,"mpiImpl")==0)
-             param->mpiImpl = CORBA::string_dup(PyString_AsString(value));
-         else if (strcmp(keystr,"batch")==0)
-             param->batch = CORBA::string_dup(PyString_AsString(value));
          else if (strcmp(keystr,"workingdir")==0)
              param->workingdir = CORBA::string_dup(PyString_AsString(value));
          else if (strcmp(keystr,"mode")==0)

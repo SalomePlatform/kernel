@@ -44,6 +44,8 @@ struct machineParams{
   unsigned int nb_proc_per_node;
   unsigned int cpu_clock;
   unsigned int mem_mb;
+  std::vector<std::string> componentList;
+  std::vector<std::string> computerList;
 };
 
 class RESOURCESMANAGER_EXPORT ResourcesException
@@ -65,8 +67,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     ~ResourcesManager_cpp();
 
     std::vector<std::string> 
-    GetFittingResources(const machineParams& params,
-                        const std::vector<std::string>& componentList) throw(ResourcesException);
+    GetFittingResources(const machineParams& params) throw(ResourcesException);
 
     std::string Find(const std::string& policy, const std::vector<std::string>& listOfMachines);
 

@@ -681,12 +681,10 @@ string LifeCycleCORBATest::GetRemoteHost()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);               // empty params to get all the machines
+  params.componentList.length(1);
+  params.componentList[0]="SalomeTestComponent";
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = "SalomeTestComponent";
-  Engines::MachineList_var hostList =
-    resourcesManager->GetFittingResources(params,clist);
+  Engines::MachineList_var hostList = resourcesManager->GetFittingResources(params);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
   string localHost = Kernel_Utils::GetHostname();

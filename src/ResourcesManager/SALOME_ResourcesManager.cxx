@@ -125,22 +125,21 @@ void SALOME_ResourcesManager::Shutdown()
 }
 
 //=============================================================================
+//! get the name of resources fitting the specified constraints (params)
 /*!
- *  get the list of name of ressources fitting for the specified component.
  *  If hostname specified, check it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the component is known
+ *  - then select the sublist of machines on which the component is known
  *    (if the result is empty, that probably means that the inventory of
  *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
 Engines::MachineList *
-SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
-					     const Engines::CompoList& componentList)
+SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
   machineParams p;
@@ -151,13 +150,15 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
 
-  vector<string> cl;
-  for(unsigned int i=0;i<componentList.length();i++)
-    cl.push_back(string(componentList[i]));
+  for(unsigned int i=0;i<params.componentList.length();i++)
+    p.componentList.push_back(string(params.componentList[i]));
+
+  for(unsigned int i=0;i<params.computerList.length();i++)
+    p.computerList.push_back(string(params.computerList[i]));
   
   Engines::MachineList *ret=new Engines::MachineList;
   try{
-      vector <std::string> vec = _rm.GetFittingResources(p,cl);
+      vector <std::string> vec = _rm.GetFittingResources(p);
       ret->length(vec.size());
       for(unsigned int i=0;i<vec.size();i++)
 	(*ret)[i] = (vec[i]).c_str();

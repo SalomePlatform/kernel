@@ -39,12 +39,10 @@ class LifeCycleCORBA (SALOME_LifeCycleCORBA):
                                                           componentName)
 
 class MachineParameters (Engines.MachineParameters):
-          def __init__(self, container_name='', hostname='', alias='', protocol='', username='', 
-                             applipath='', componentList=[], computerList=[], OS='', mem_mb=0, cpu_clock=0, 
-                             nb_proc_per_node=0, nb_node=0, isMPI=False, mpiImpl='', batch='', workingdir='', 
+          def __init__(self, container_name='', hostname='', componentList=[], computerList=[], OS='', 
+                             mem_mb=0, cpu_clock=0, nb_proc_per_node=0, nb_node=0, isMPI=False, workingdir='', 
                              mode='start', policy='altcycl', parallelLib='', nb_component_nodes=0):
-            Engines.MachineParameters.__init__(self,container_name, hostname, alias, protocol, username, 
-                                                    applipath, componentList, computerList, OS, mem_mb, cpu_clock, 
-                                                    nb_proc_per_node, nb_node, isMPI, mpiImpl, batch, workingdir, 
+            Engines.MachineParameters.__init__(self,container_name, hostname, componentList, computerList, OS, 
+                                                    mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir, 
                                                     mode, policy, parallelLib, nb_component_nodes)
 
