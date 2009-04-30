@@ -1210,13 +1210,24 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
   //set sys.path and add a creation of the study.
   fp << GetDumpStudyComment() << endl << endl;
   fp << "import sys" << endl;
+  fp << "import os.path" << endl;
   fp << "import " << aBatchModeScript << endl << endl;
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;
 
-  fp << _GetNoteBookAccess();
+  fp << _GetNoteBookAccess() << endl;
 
-  fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
+  // IPAL21005 (Dump/load python script works only with absolute path)
+  // try to use '__file__' to get an absolute path to the generated scripts
+  // or use the path passed to this method (case of using execfile() command)
+  fp << "#Get absolute path to generated scripts:" << endl;
+  fp << "try:"                                     << endl;
+  fp << "    absPath = os.path.dirname(__file__)"  << endl;
+  fp << "except NameError:"                        << endl;
+  fp << "    absPath = \'" << thePath << "\'"      << endl;
+  fp << "    pass"                                 << endl;
+  fp << "sys.path.insert( 0, absPath )"            << endl << endl;
+  //fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
 
   //Dump NoteBook Variables
   fp << _GetStudyVariablesScript();
