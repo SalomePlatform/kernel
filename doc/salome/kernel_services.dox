@@ -37,6 +37,8 @@ salome.salome_init()
 In the embedded interpreter, it is already done, but there is no problem to
 do it several times, so it is preferable to add these instructions
 systematically in your scripts, to allow them to work in all configurations.
+See \ref kernel_salome for a short description of most useful variables and
+functions.
 
 \subsection subsection12 Container and component instanciation
 

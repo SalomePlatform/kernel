@@ -52,6 +52,7 @@
     You will find in the next pages informations about
     specific points of %SALOME Kernel :
 
+    - \subpage kernel_salome 
     - \subpage dsc_page : DSC documentation page.
     - \subpage salome_file_page : Salome_file documentation page.
     - <a href="Batch.html/index.html"> Batch documentation </a>
