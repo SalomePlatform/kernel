@@ -60,6 +60,8 @@ class SALOME_Exception;
 
 UTILS_EXPORT std::ostream& operator<<( std::ostream&, const SALOME_Exception& );
 
+UTILS_EXPORT const char *makeText( const char *text, const char *fileName, const unsigned int lineNumber );
+
 class UTILS_EXPORT SALOME_Exception : public std::exception
 {
 
