@@ -171,6 +171,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   parms.componentList.length(1);
   parms.componentList[0] = componentName;
 
+  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
+  parms.computerList=listOfMachines;
+
   Engines::Component_var compo = _LoadComponent(parms,
 						componentName,
 						studyId);
@@ -211,9 +214,12 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
 						listOfMachines);
 
   if(CORBA::is_nil(compo))
-    compo = _LoadComponent(parms,
+    {
+      parms.computerList=listOfMachines;
+      compo = _LoadComponent(parms,
 			   componentName,
 			   studyId);
+    }
 
   return compo._retn();
 }
