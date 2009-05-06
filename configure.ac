@@ -403,6 +403,9 @@ echo
 
 CHECK_HTML_GENERATORS
 
+# Additional conditional to avoid compilation of non-portable code
+AM_CONDITIONAL(WINDOWS, 0)
+
 echo
 echo ============================================================
 echo Summary

@@ -23,10 +23,19 @@
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
 #
-if WITH_PACO_PARALLEL
-SUBDIR_PAR = ParallelDSC
+
+SUBDIRS_COMMON = DSC_Basic 
+
+if !WINDOWS
+  SUBDIRS_ADD = DSC_User DSC_Python
 endif
 
-SUBDIRS = DSC_Basic DSC_User $(SUBDIR_PAR) DSC_Python
+if WITH_PACO_PARALLEL
+  SUBDIR_PAR = ParallelDSC
+endif
+
+SUBDIRS = $(SUBDIRS_COMMON) $(SUBDIRS_ADD) $(SUBDIR_PAR) 
 
 EXTRA_DIST= DSC.dox
+
+DIST_SUBDIRS = DSC_Basic DSC_User DSC_Python ParallelDSC
