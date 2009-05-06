@@ -43,6 +43,8 @@ __all__ = [
     'getPortNumber',
     'getTmpDir',
     'generateFileName',
+    'makeTmpDir',
+    'uniteFiles',
     ]
 
 # ---
@@ -346,3 +348,61 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
             pass
         pass
     return os.path.normpath(name)
+
+# ---
+
+def makeTmpDir( path ):
+    """
+    Make temporary directory with the specified path.
+    If the directory exists then clear its contents.
+
+    Parameters:
+    - path : absolute path to the directory to be created.
+    """
+    import os
+
+    if os.path.exists( path ):
+        os.system( "rm -rf " + path + "/*" )
+        pass
+    else:
+        os.makedirs( path, 0777 )
+        pass
+
+# ---
+
+def uniteFiles( src_file, dest_file ):
+    """
+    Unite contents of the source file with contents of the destination file
+    and put result of the uniting to the destination file.
+    If the destination file does not exist then the source file is simply
+    copied to its path.
+
+    Parameters:
+    - src_file  : absolute path to the source file
+    - dest_file : absolute path to the destination file
+    """
+    import os
+
+    if not os.path.exists( src_file ):
+        return
+        pass
+
+    if os.path.exists( dest_file ):
+        # add a symbol of new line to contents of the destination file (just in case)
+        dest = open( dest_file, 'r' )
+        dest_lines = dest.readlines()
+        dest.close()
+
+        dest_lines.append( "\n" )
+
+        dest = open( dest_file, 'w' )
+        dest.writelines( dest_lines )
+        dest.close()
+
+        command = "cat " + src_file + " >> " + dest_file
+        pass
+    else:
+        command = "cp " + src_file + " " + dest_file
+        pass
+
+    os.system( command )
