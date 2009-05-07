@@ -34,6 +34,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = SALOME_ParallelComponent_i.hxx \
 			SALOME_ParallelContainer_i.hxx \
 			SALOME_ParallelContainerProxy_i.hxx \
+			SALOME_ParallelGlobalProcessVar_i.hxx \
 			Parallel_Salome_file_i.hxx
 
 #
@@ -54,8 +55,10 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMETraceCollector \
+		 @PYTHON_INCLUDES@ \
 		 @CORBA_CXXFLAGS@ \
 		 @CORBA_INCLUDES@ \
+		 @MPI_INCLUDES@ \
 		 @PACO_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
@@ -64,7 +67,8 @@ COMMON_LIBS = $(top_builddir)/src/Container/libSalomeContainer.la \
 	      $(top_builddir)/idl/libSalomeParallelIDLKernel.la \
 	      $(top_builddir)/idl/libSalomeIDLKernel.la \
 	      @CORBA_LIBS@ \
-	      @PACO_LIBS@
+	      @PACO_LIBS@ \
+	      $(PYTHON_LIBS)
 
 #
 # ===============================================================
@@ -77,11 +81,12 @@ libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 					 SALOME_ParallelContainer_i.cxx \
 					 SALOME_ParallelContainerProxy_i.cxx \
 					 $(top_srcdir)/src/Container/Salome_file_i.cxx \
-					 Parallel_Salome_file_i.cxx
+					 Parallel_Salome_file_i.cxx \
+					 SALOME_ParallelGlobalProcessVar_i.cxx
 
 libSalomeParallelContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS)
+libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS) @MPI_LIBS@
 
 libSalomeParallelContainer_la_LDFLAGS = -no-undefined -version-info=0:0:0
 

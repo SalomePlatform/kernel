@@ -94,7 +94,7 @@ public:
 
 protected:
   Utils_Mutex _myMutex;
-  CORBA::ORB_ptr _orb;
+  CORBA::ORB_var _orb;
   CosNaming::NamingContext_var _root_context, _current_context;
 
   void _initialize_root_context();

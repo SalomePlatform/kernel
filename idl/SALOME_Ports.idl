@@ -21,8 +21,7 @@
 //
 //  File   : SALOME_Ports.idl
 //  Author : Andre RIBES, EDF
-//  $Header:
-//
+
 #ifndef _SALOME_PORTS_IDL_
 #define _SALOME_PORTS_IDL_
 

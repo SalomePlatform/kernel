@@ -42,10 +42,13 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
+
+#include "Container_init_python.hxx"
 
 using namespace std;
 
@@ -119,15 +122,19 @@ int main(int argc, char* argv[])
 
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
   std::string containerName("");
   if(argc > 1) {
     containerName = argv[1];
   }
-  std::string hostname("");
+  std::string proxy_hostname("");
   if(argc > 3) {
-    hostname = argv[3];
+    proxy_hostname = argv[3];
   }
+  int myid = 0;
+  if(argc > 4) 
+    sscanf(argv[4],"%d",&myid);
 
   try {  
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
@@ -141,10 +148,10 @@ int main(int argc, char* argv[])
     system(aCommand);
 #endif
 
-    SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
+    SALOME_NamingService * ns = new SALOME_NamingService(orb);
     // Get the proxy
     string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
-						       hostname.c_str());
+						       proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
@@ -152,10 +159,9 @@ int main(int argc, char* argv[])
     string node_name = containerName + "Node";
     Engines_Parallel_Container_i * servant = new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
 									      proxy_ior,
-									      0,
+									      myid,
 									      root_poa,
-									      (char*) node_name.c_str(),
-									      argc, argv);
+									      node_name);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
@@ -164,13 +170,10 @@ int main(int argc, char* argv[])
     servant->setLibThread("omni");
 
     // Activation
-    PortableServer::ObjectId * _id = root_poa->activate_object(servant);
-    servant->set_id(_id);
-    obj = root_poa->id_to_reference(*_id);
+    obj = servant->_this();
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();
-    int myid = 0;
     char buffer [5];
     snprintf(buffer, 5, "%d", myid);
     node_name = node_name + buffer;
@@ -180,6 +183,11 @@ int main(int argc, char* argv[])
     ns->Register(obj, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
+    CORBA::string_free(proxy_ior);
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
@@ -197,6 +205,13 @@ int main(int argc, char* argv[])
   catch(CORBA::Exception&)
   {
     INFOS("Caught CORBA::Exception.");
+  }
+  catch(omniORB::fatalException& fe) 
+  {
+    INFOS("Caught omniORB::fatalException:");
+    INFOS(" file: " << fe.file());
+    INFOS(" line: " << fe.line());
+    INFOS(" mesg: " << fe.errmsg());
   }
   catch(std::exception& exc)
   {

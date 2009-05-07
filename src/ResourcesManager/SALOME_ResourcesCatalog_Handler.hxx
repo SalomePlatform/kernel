@@ -50,6 +50,10 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     virtual ~SALOME_ResourcesCatalog_Handler();
 
     void ProcessXmlDocument(xmlDocPtr theDoc);
+
+    bool ProcessMachine(xmlNodePtr machine_descr, ParserResourcesType & resource);
+    bool ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType & resource);
+    bool ProcessMember(xmlNodePtr member_descr, ParserResourcesClusterMembersType & resource);
   
     void PrepareDocToXmlFile(xmlDocPtr theDoc);
 
@@ -61,8 +65,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     MapOfParserResourcesType& _resources_batch_list;
 
     const char *test_machine;
-    const char *test_resources;
-
+    const char *test_cluster;
     const char *test_hostname;
     const char *test_alias;
     const char *test_protocol;
@@ -80,9 +83,12 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_mem_in_mb;
     const char *test_cpu_freq_mhz;
     const char *test_nb_of_nodes;
+    const char *test_nb_of_proc;
     const char *test_nb_of_proc_per_node;
     const char *test_batch_queue;
     const char *test_user_commands;
+    const char *test_use;
+    const char *test_members;
 
   };
 

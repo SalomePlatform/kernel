@@ -61,9 +61,10 @@ public:
 
   static const char *_ContainerManagerNameInNS;
 
-  // Parallel extension
+  // PaCO++ Parallel extension
   Engines::Container_ptr
-  FindOrStartParallelContainer(const Engines::MachineParameters& params);
+  StartParallelContainer(const Engines::MachineParameters& params);
+
 protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
@@ -72,12 +73,6 @@ protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
                 const char *theMachine);
-
-  // Parallel extension
-  CORBA::Object_ptr 
-  LaunchParallelContainer(const std::string& command, 
-			  const Engines::MachineParameters& params,
-			  const std::string& name);
 
   void fillBatchLaunchedContainers();
 
@@ -101,13 +96,17 @@ protected:
 
   std::string GetMPIZeroNode(std::string machine);
 
-  // Parallel extension
-  std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
-							 const Engines::MachineParameters& params, 
-							 const std::string& log = "default");
-  void startMPI();
-  bool _MpiStarted;
-
+  // For PacO++ Parallel extension
+  typedef std::vector<std::string> actual_launch_machine_t;
+  std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
+						    const Engines::MachineParameters& params,
+						    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+						    const std::string proxy_hostname = ""); 
+  CORBA::Object_ptr 
+  LaunchParallelContainer(const std::string& command, 
+			  const Engines::MachineParameters& params,
+			  const std::string& name,
+			  SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 

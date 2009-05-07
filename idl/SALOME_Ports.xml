@@ -24,11 +24,7 @@
 //  File   : SALOME_Ports.xml
 //  Author : Andre RIBES, EDF
 -->
-<GridCCM_Interface_description
-      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-      xsi:noNamespaceSchemaLocation='$PACOPATH/IDL2Tool/interface.xsd'
->
-
+<PaCO_Interface_description>
 <Module>
  <Name>Ports</Name>
  <Interface>
@@ -37,5 +33,8 @@
  <Interface>
   <Name>Control_Port</Name>
  </Interface>
+ <Interface>
+  <Name>Data_Port</Name>
+ </Interface>
 </Module>
-</GridCCM_Interface_description>
+</PaCO_Interface_description>

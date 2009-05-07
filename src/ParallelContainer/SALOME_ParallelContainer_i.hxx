@@ -22,14 +22,14 @@
 //  SALOME_ParallelContainer : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainer_i.hxx
 //  Author : André RIBES, EDF
-//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //
 #ifndef _SALOME_PARALLEL_CONTAINER_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_I_HXX_
 
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+#include "SALOME_PACOExtensionPaCO_Engines_PACO_Container_server.hxx"
+#include "SALOME_ParallelGlobalProcessVar_i.hxx"
 
 #include <iostream>
 #include <signal.h>
@@ -55,18 +55,18 @@ class SALOME_NamingService;
 #endif
 
 class CONTAINER_EXPORT Engines_Parallel_Container_i:
-  /*  public virtual POA_Engines::Container, */
-  public Engines::Container_serv,
-  public virtual PortableServer::RefCountServantBase
+  virtual public Engines::PACO_Container_serv,
+  virtual public ParallelGlobalProcessVar_i,
+  virtual public PortableServer::RefCountServantBase
 {
 public:
-  Engines_Parallel_Container_i(CORBA::ORB_ptr orb, char * ior, int rank);
-  Engines_Parallel_Container_i(CORBA::ORB_ptr orb, char * ior, int rank,
-		      PortableServer::POA_ptr poa,
-		      char * containerName ,
-                      int argc, char* argv[],
-		      bool activAndRegist = true,
-		      bool isServantAloneInProcess = true);
+  Engines_Parallel_Container_i(CORBA::ORB_ptr orb, 
+			       char * ior, 
+			       int rank,
+			       PortableServer::POA_ptr poa,
+			       std::string containerName ,
+			       bool isServantAloneInProcess = true);
+
   virtual ~Engines_Parallel_Container_i();
 
   // --- CORBA methods
@@ -85,6 +85,12 @@ public:
   load_impl(const char* nameToRegister,
 	    const char* componentName);
 
+  void
+  create_paco_component_node_instance(const char* componentName,
+				      const char* proxy_containerName,
+				      CORBA::Long studyId); // 0 for multiStudy
+
+  void updateInstanceNumber();
 
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
@@ -98,65 +104,66 @@ public:
   virtual void Shutdown();
   char* getHostName();
   CORBA::Long getPID();
+
   //! Kill current container
   bool Kill_impl() ;
 
   // --- local C++ methods
+  Engines::Component_ptr
+  find_or_create_instance(std::string genericRegisterName);
 
   Engines::Component_ptr
-  find_or_create_instance( std::string genericRegisterName,
-			   std::string componentLibraryName);
+  createCPPInstance(std::string genericRegisterName,
+		    void *handle,
+		    int studyId);
 
   Engines::Component_ptr
-  createInstance(std::string genericRegisterName,
-		 void *handle,
-		 int studyId);
-
-  Engines::Component_ptr
-  createParallelInstance(std::string genericRegisterName,
-			 void *handle,
-			 int studyId);
+  createPythonInstance(std::string genericRegisterName,
+		       int studyId);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
 
   // --- needed for parallel components, Numerical Platon
-
-  int getArgc() { return _argc; }
-  char **getArgv() { return _argv; }
-
   void set_id(PortableServer::ObjectId * id) { _id = id;}
 
   Engines::fileRef_ptr createFileRef(const char* origFileName);
   Engines::fileTransfer_ptr getFileTransfer();
 
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
+  void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
+
 protected:
 
-  static std::map<std::string, int> _cntInstances_map;
-  static std::map<std::string, void *> _library_map; // library names, loaded
-  static std::map<std::string, void *> _toRemove_map;// library names to remove
-  static omni_mutex _numInstanceMutex ; // lib and instance protection
-
-  bool _isSupervContainer;
-
-  SALOME_NamingService *_NS ;
+  SALOME_NamingService *_NS;
+  std::string _hostname;
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
-  PortableServer::ObjectId * _id ;
-  int _numInstance ;
-  std::map<std::string,Engines::Component_var> _listInstances_map;
-  std::map<std::string,Engines::fileRef_var> _fileRef_map;
-  std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
+  PortableServer::ObjectId * _id;
+  int _numInstance;
+  CORBA::Long   _pid;
+  bool   _isServantAloneInProcess;
   Engines::fileTransfer_var _fileTransfer;
 
-  int    _argc ;
-  char** _argv ;
-  long   _pid;
-  bool   _isServantAloneInProcess;
+  typedef std::map<std::string,Engines::Component_var> _listInstances_map_t;
+  typedef std::map<std::string,Engines::fileRef_var> _fileRef_map_t;
+  typedef std::map<std::string,Engines::Salome_file_var> _Salome_file_map_t;
+  _listInstances_map_t _listInstances_map;
+  _fileRef_map_t _fileRef_map;
+  _Salome_file_map_t _Salome_file_map;
+
+  // Cette map contient les references vers les différentes
+  // instances d'objets parallèles.
+  std::map<std::string, PortableServer::ObjectId *> _par_obj_inst_map;
+
+  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,
+							   PortableServer::POA_ptr, 
+							   PortableServer::ObjectId *, 
+							   const char *, 
+							   const char *);
 };
 
 #endif

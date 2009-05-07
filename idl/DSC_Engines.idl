@@ -325,9 +325,9 @@ module Engines {
     */  
     void disconnect(in connectionId id,
 		    in Engines::DSC::Message message) raises(Engines::ConnectionManager::BadId,
-                                                 Engines::DSC::PortNotDefined,
-                                                 Engines::DSC::PortNotConnected,
-							                                   Engines::DSC::BadPortReference);
+							     Engines::DSC::PortNotDefined,
+							     Engines::DSC::PortNotConnected,
+							     Engines::DSC::BadPortReference);
 
     //!  Shutdown the ConnectionManager process.
     oneway void ShutdownWithExit();
@@ -356,30 +356,6 @@ module Engines {
      */
     boolean init_service(in string service_name);
   };
-
-/*--------------------------------------------------------------------------------------------*/
-
-  /*! \brief Interface of a Parallel_DSC component.
-    This interface defines the operations needed to add a paco++ port 
-    into a parallel DSC component.
-  */
-  interface Parallel_DSC : Engines::Superv_Component, Engines::Parallel_Component {
-
-    /*!
-      This operation gives the proxy node of a paco++ port to all the nodes.
-      Only a node of the parallel component is going to add a proxy object 
-      with an internal method.
-
-      \param ref provides proxy port's reference.
-      \param provides_port_name provides port's name.
-
-      \see Engines_ParallelDSC_i::add_parallel_provides_proxy_port
-     */
-    void set_paco_proxy(in Object ref, 
-			in string provides_port_name,
-			in Ports::PortProperties port_prop);
-			
-  };  
 };
 
 #endif

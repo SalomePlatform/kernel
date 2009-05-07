@@ -25,8 +25,10 @@
 //  Module : SALOME
 //  $Header$
 //
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
 #include <mpi.h>
+  #endif
 #endif
 
 #include <iostream>
@@ -118,9 +120,11 @@ void unexpectedHandler(void)
 
 int main(int argc, char* argv[])
 {
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
   MPI_Init(&argc,&argv);
-#endif
+  #endif
+#endif  
 
 #ifndef WIN32
   if(getenv ("DEBUGGER"))
@@ -225,9 +229,11 @@ int main(int argc, char* argv[])
       INFOS("Caught unknown exception.");
     }
 
-#ifdef HAVE_MPI2
+#ifdef _MPI_SEQ_CONTAINER_
+  #ifdef HAVE_MPI2
   MPI_Finalize();
-#endif
+  #endif
+#endif  
 
   //END_OF(argv[0]);
   //LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();

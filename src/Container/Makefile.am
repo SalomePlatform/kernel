@@ -61,7 +61,6 @@ dist_salomescript_SCRIPTS=\
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
-	@MPI_INCLUDES@ \
 	@HDF5_INCLUDES@ \
 	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
@@ -89,9 +88,13 @@ COMMON_LIBS =\
 	../HDFPersist/libSalomeHDFPersist.la \
 	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
-	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)
+
+if WITH_MPI_SEQ_CONTAINER	
+COMMON_CPPFLAGS += @MPI_INCLUDES@
+COMMON_LIBS += @MPI_LIBS@
+endif
 
 #
 # ===============================================================
@@ -142,9 +145,12 @@ SALOME_Container_LDADD = \
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
-	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
+
+if WITH_MPI_SEQ_CONTAINER	
+SALOME_Container_LDADD += $(MPI_LIBS)
+endif
 
 SALOME_Container_LDFLAGS  =\
 -Xlinker -export-dynamic
@@ -159,7 +165,6 @@ TestSalome_file_LDADD =\
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
-	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
 

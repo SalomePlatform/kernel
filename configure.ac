@@ -126,6 +126,7 @@ echo
 # production.m4
 AC_ENABLE_DEBUG(no)
 AC_ENABLE_PRODUCTION(no)
+AC_ENABLE_MPI_SEQ_CONTAINER(no)
 
 echo
 echo ---------------------------------------------

@@ -167,7 +167,7 @@ struct BatchParameters
 
       \return Container's CORBA reference.
     */
-    Container FindOrStartParallelContainer( in MachineParameters params);
+    Container StartParallelContainer( in MachineParameters params);
 
     //!  Start a new container satisfying the constraints given by input parameters.
     Container StartContainer( in MachineParameters params);

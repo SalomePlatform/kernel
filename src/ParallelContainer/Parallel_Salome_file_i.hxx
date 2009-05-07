@@ -32,7 +32,7 @@
 #include <map>
 #include <cstdio>
 
-#include "SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.h"
+#include "SALOME_PACOExtensionPaCO_Engines_Parallel_Salome_file_server.hxx"
 #include "Salome_file_i.hxx"
 
 class CONTAINER_EXPORT Parallel_Salome_file_i:

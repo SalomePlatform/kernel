@@ -30,6 +30,7 @@
   <objref name="CALCIUM_logical" id="IDL:Ports/Calcium_Ports/Calcium_Logical_Port:1.0"/>
   <objref name="CALCIUM_boolean" id="IDL:Ports/Calcium_Ports/Calcium_Logical_Port:1.0"/>
   <objref name="CALCIUM_complex" id="IDL:Ports/Calcium_Ports/Calcium_Complex_Port:1.0"/>
+  <objref name="Param_Double_Port" id="IDL:Ports/Param_Double_Port:1.0"/>
   <objref name="BASIC_short" id="IDL:Ports/Data_Short_Port:1.0"/>
   <objref name="Study" id="IDL:SALOMEDS/Study:1.0"/>
   <objref name="SObject" id="IDL:SALOMEDS/SObject:1.0"/>

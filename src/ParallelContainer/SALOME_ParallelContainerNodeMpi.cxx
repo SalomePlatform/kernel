@@ -45,24 +45,18 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 #ifdef _DEBUG_
 #include <signal.h>
-
-void test(int sigval) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  while (1) {}
-}
 
 void handler(int t) {
   cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -128,13 +122,17 @@ int main(int argc, char* argv[])
   MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
+#ifdef _DEBUG_
   if(getenv ("DEBUGGER"))
   {
     std::cerr << "Unexpected: unexpected exception !"  << std::endl;
     setsig(SIGSEGV,&Handler);
     set_terminate(&terminateHandler);
+    //set_terminate(__gnu_cxx::__verbose_terminate_handler);
     set_unexpected(&unexpectedHandler);
   }
+#endif
+
   cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
   cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
   cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;
@@ -142,6 +140,7 @@ int main(int argc, char* argv[])
   cerr << "Level provided : " << provided << endl;
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
   // Code pour choisir le reseau infiniband .....
   /*	string hostname_temp = GetHostname();
@@ -159,9 +158,9 @@ int main(int argc, char* argv[])
   std::string containerName("");
   containerName = argv[1];
 
-  std::string hostname("");
+  std::string proxy_hostname("");
   if(argc > 3) {
-    hostname = argv[3];
+    proxy_hostname = argv[3];
   }
 
   try {  
@@ -179,31 +178,26 @@ int main(int argc, char* argv[])
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
     // On récupère le proxy 
     string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
-						       hostname.c_str());
+						       proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
     // Node creation
     string node_name = containerName + "Node";
-    Engines_Parallel_Container_i * servant = 
-      new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
-				       proxy_ior,
-				       myid,
-				       root_poa,
-				       (char*) node_name.c_str(),
-				       argc, argv);
+    Engines_Parallel_Container_i * servant =  new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
+									       proxy_ior,
+									       myid,
+									       root_poa,
+									       node_name);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
     pfm->register_thread("omni", new paco_omni_fabrique());
-    MPI_Comm group = MPI_COMM_WORLD;
-    servant->setLibCom("mpi", &group);
+    servant->setLibCom("mpi", MPI_COMM_WORLD);
     servant->setLibThread("omni");
 
     // Activation
-    PortableServer::ObjectId * _id = root_poa->activate_object(servant);
-    servant->set_id(_id);
-    obj = root_poa->id_to_reference(*_id);
+    obj = servant->_this();
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();
@@ -213,12 +207,25 @@ int main(int argc, char* argv[])
     char buffer [5];
     snprintf(buffer, 5, "%d", myid);
     node_name = node_name + buffer;
+
+    // We register nodes in two different parts
+    // In the real machine name and in the proxy machine
     string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
 							hostname.c_str());
-    cerr << "---------" << _containerName << "----------" << endl;
+    string _proxymachine_containerName = ns->BuildContainerNameForNS(node_name.c_str(),
+								     proxy_hostname.c_str());
+    cerr << "Register container node : " << _containerName << endl;
+    cerr << "Register container node : " << _proxymachine_containerName << endl;
     ns->Register(obj, _containerName.c_str());
+    ns->Register(obj, _proxymachine_containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
+    MPI_Finalize();
+    CORBA::string_free(proxy_ior);
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
@@ -245,9 +252,6 @@ int main(int argc, char* argv[])
   {
     INFOS("Caught unknown exception.");
   }
-
-  MPI_Finalize();
-
   return 0 ;
 }
 

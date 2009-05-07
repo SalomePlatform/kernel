@@ -37,21 +37,68 @@
 //#include "SALOME_ComponentPaCO_Engines_Container_server.h"
 #include "SALOME_ParallelContainerProxy_i.hxx"
 #include <paco_omni.h>
-#include <paco_mpi.h>
+#include <paco_dummy.h>
 
 #include <mpi.h>
 
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
+
+#include "Container_init_python.hxx"
+
+#ifdef _DEBUG_
+#include <signal.h>
 using namespace std;
 
-#ifdef DEBUG_PARALLEL
-#include <signal.h>
+typedef void (*sighandler_t)(int);
+sighandler_t setsig(int sig, sighandler_t handler)
+{
+  struct sigaction context, ocontext;
+  context.sa_handler = handler;
+  sigemptyset(&context.sa_mask);
+  context.sa_flags = 0;
+  if (sigaction(sig, &context, &ocontext) == -1)
+    return SIG_ERR;
+  return ocontext.sa_handler;
+}
+
+void AttachDebugger()
+{
+  if(getenv ("DEBUGGER"))
+  {
+    std::stringstream exec;
+    exec << "$DEBUGGER SALOME_ParallelContainerProxyMpi " << getpid() << "&";
+    std::cerr << exec.str() << std::endl;
+    system(exec.str().c_str());
+    while(1);
+  }
+}
+
+void Handler(int theSigId)
+{
+  std::cerr << "SIGSEGV: "  << std::endl;
+  AttachDebugger();
+  //to exit or not to exit
+  exit(1);
+}
+
+void terminateHandler(void)
+{
+  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  AttachDebugger();
+}
+
+void unexpectedHandler(void)
+{
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  AttachDebugger();
+}
 
 void handler(int t) {
   cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -67,7 +114,7 @@ int main(int argc, char* argv[])
 {
   INFOS("Launching a parallel Mpi proxy container");
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
   signal(SIGSEGV, handler);
 #endif
 
@@ -75,6 +122,18 @@ int main(int argc, char* argv[])
   int provided;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED ,&provided);
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
+
+#ifdef _DEBUG_
+  if(getenv ("DEBUGGER"))
+  {
+    std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+    setsig(SIGSEGV,&Handler);
+    //set_terminate(&terminateHandler);
+    set_terminate(__gnu_cxx::__verbose_terminate_handler);
+    set_unexpected(&unexpectedHandler);
+  }
+#endif
 
   std::string containerName("");
   containerName = argv[1];
@@ -95,27 +154,28 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-//    Engines::Container_proxy_impl * proxy = 
-//      new Engines::Container_proxy_impl(orb, 
-//					new paco_omni_fabrique());
-    Container_proxy_impl_final * proxy = 
-      new Container_proxy_impl_final(orb, 
-				     new paco_omni_fabrique());
 
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
-    pfm->register_com("mpi", new paco_mpi_fabrique());
-    MPI_Comm group = MPI_COMM_WORLD;
-    proxy->setLibCom("mpi", &group);
+    pfm->register_com("dummy", new paco_dummy_fabrique());
     pfm->register_thread("omnithread", new paco_omni_fabrique());
+
+    Container_proxy_impl_final * proxy =   new Container_proxy_impl_final(orb,
+									  pfm->get_thread("omnithread"),
+									  root_poa,
+									  containerName);
+
+    // PaCO++ code
+    proxy->setLibCom("dummy", proxy);
     proxy->setLibThread("omnithread");
     PaCO::PacoTopology_t serveur_topo;
     serveur_topo.total = nb_nodes;
     proxy->setTopology(serveur_topo);
 
     // Activation
-    PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
-    obj = root_poa->id_to_reference(_id);
+    //PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
+    //obj = root_poa->id_to_reference(_id);
+    obj = proxy->_this();
 
     // in the NamingService
     string hostname = Kernel_Utils::GetHostname();
@@ -126,6 +186,11 @@ int main(int argc, char* argv[])
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
+    MPI_Finalize();
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
@@ -152,9 +217,6 @@ int main(int argc, char* argv[])
   {
     INFOS("Caught unknown exception.");
   }
-
-  MPI_Finalize();
-
   return 0 ;
 }
 

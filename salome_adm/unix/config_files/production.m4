@@ -81,3 +81,25 @@ fi
 
 # AC_DISABLE_DEBUG - set the default flag to --disable-debug
 AC_DEFUN([AC_DISABLE_DEBUG], [AC_ENABLE_DEBUG(no)])
+
+dnl AC_ENABLE_MPI_SEQ_CONTAINER
+dnl
+dnl This macro enables mpi into the sequential container
+dnl default = not enabled
+dnl
+AC_DEFUN([AC_ENABLE_MPI_SEQ_CONTAINER],
+    [define([AC_ENABLE_MPI_SEQ_CONTAINER_DEFAULT], ifelse($1, no, no, yes))dnl
+    AC_ARG_ENABLE([mpi-seq-container],
+       [AC_HELP_STRING([--enable-mpi-seq-container],
+             [enable mpi into seq container @<:@default=]AC_ENABLE_MPI_SEQ_CONTAINER_DEFAULT[@:>@])],
+    [
+    enable_mpi_seq_container=$enableval
+    ],
+    [enable_mpi_seq_container=]AC_ENABLE_MPI_SEQ_CONTAINER_DEFAULT)
+
+if test "X$enable_mpi_seq_container" = "Xyes"; then
+  CFLAGS="$CFLAGS -D_MPI_SEQ_CONTAINER_ "
+  CXXFLAGS="$CXXFLAGS -D_MPI_SEQ_CONTAINER_ "
+fi
+AM_CONDITIONAL([WITH_MPI_SEQ_CONTAINER], [test "x$enable_mpi_seq_container" = "xyes"])
+])

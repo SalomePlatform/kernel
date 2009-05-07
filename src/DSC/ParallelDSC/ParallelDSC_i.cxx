@@ -35,10 +35,15 @@ Engines_ParallelDSC_i::Engines_ParallelDSC_i(CORBA::ORB_ptr orb,
 					     bool notif) :
   Engines_Parallel_Component_i(orb, ior, rank, poa, contId, instanceName, interfaceName, notif),
   Engines::Parallel_DSC_serv(orb, ior, rank),
+  Engines::Parallel_DSC_base_serv(orb, ior, rank),
   Engines::DSC_serv(orb, ior, rank),
+  Engines::DSC_base_serv(orb, ior, rank),
   Engines::Superv_Component_serv(orb, ior, rank),
+  Engines::Superv_Component_base_serv(orb, ior, rank),
   Engines::Component_serv(orb, ior, rank),
+  Engines::Component_base_serv(orb, ior, rank),
   Engines::Parallel_Component_serv(orb, ior, rank),
+  Engines::Parallel_Component_base_serv(orb, ior, rank),
   InterfaceParallel_impl(orb, ior, rank)
 {
 }

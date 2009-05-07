@@ -23,7 +23,7 @@
 //  File   : MPIContainer_i.cxx
 //  Module : SALOME
 //
-#include <iostream.h>
+#include <iostream>
 #include <dlfcn.h>
 #include <stdio.h>
 #include "Basics_Utils.hxx"

@@ -34,14 +34,14 @@ if test "x$WITHPACO" = "xyes";
 then
   PACOPATH=$withval
   PACO_INCLUDES="-I${PACOPATH}/include"
-  PACO_LIBS="-L${PACOPATH}/lib -lPaCO"
+  PACO_LIBS="-L${PACOPATH}/lib -lPaCO -lGaBro -lBasicBC"
   dnl a basic test to be sure that PaCO++
   dnl is correctly installed.
-  AC_CHECK_PROG(PACO_IDL, PaCOIdlTool, yes, no, ${PACOPATH}/bin)
+  AC_CHECK_PROG(PACO_IDL, PaCOIdlTool.sh, yes, no, ${PACOPATH}/bin)
   if test "x$PACO_IDL" = "xno";
   then
     PaCO_ok=no
-    AC_MSG_RESULT(PaCO++ binary not in ${PACOPATH})
+    AC_MSG_RESULT(PaCO++ binary not in ${PACOPATH}/bin)
   fi
 else
   PaCO_ok=no
@@ -51,7 +51,7 @@ AC_MSG_CHECKING(for PaCO++)
 if  test "x$PaCO_ok" = "xyes"
 then
   AC_MSG_RESULT([yes])
-  PACO_IDL=${PACOPATH}/bin/PaCOIdlTool
+  PACO_IDL=${PACOPATH}/bin/PaCOIdlTool.sh
   AC_SUBST(PACO_IDL)
   AC_SUBST(PACOPATH)
   AC_SUBST(PACO_INCLUDES)

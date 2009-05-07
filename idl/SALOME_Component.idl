@@ -414,10 +414,6 @@ module Engines
     string getObjectInfo(in long studyId, in string entry);
   } ;
 
-  interface Parallel_Component : Engines::Component {
-    void send_parallel_proxy_object(in Object proxy_ref);
-  };
-
   //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.
   typedef sequence<octet> fileBlock;
 
@@ -671,50 +667,6 @@ module Engines
 		in string fileName);
 
     string getRef(in string machine);
-  };
-
-  /*! \brief Interface of a Parallel_Salome_file
-    This interface is used by parallel components and containers.
-    It adds methods to enable to choose on which node of the parallel component the file has to 
-    be received.
-  */
-  interface Parallel_Salome_file : Engines::Salome_file {
-
-    /*!
-      Set a number of node for the file. Default is the node 0.
-
-      \param file_name name of the file.
-      \param node_nbr node number where the file is.
-
-      \exception raised if the file doesn't exist.
-    */
-    void setFileNode(in string file_name, in long node_nbr) raises (SALOME::SALOME_Exception);
-
-    /*!
-      Get the number of the node that actually managed the file.
-
-      \param file_name name of managed file.
-
-      \return node number of the file
-
-      \exception raised if the file doesn't exist.
-     */
-    long getFileNode(in string file_name) raises (SALOME::SALOME_Exception);
-
-    /*!
-      This method update the state of file for the Parallel_Salome_file. 
-
-      \param new_file the new state of file.
-     */
-    Engines::Container updateFile(in Engines::file new_file);
-
-    /*!
-      This method is used by the parallel implementation of recvFiles.
-
-      \exception raised if the file cannot be ok.
-     */
-    void recvFiles_node() raises (SALOME::SALOME_Exception);
-
   };
 };
 

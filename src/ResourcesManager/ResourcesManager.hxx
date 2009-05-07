@@ -27,9 +27,13 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <list>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
@@ -40,10 +44,12 @@
 struct machineParams{
   std::string hostname;
   std::string OS;
+  std::string parallelLib;
   unsigned int nb_node;
   unsigned int nb_proc_per_node;
   unsigned int cpu_clock;
   unsigned int mem_mb;
+  unsigned int nb_component_nodes;
   std::vector<std::string> componentList;
   std::vector<std::string> computerList;
 };
@@ -81,9 +87,9 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     void DeleteResourceInCatalog(const char *hostname);
 
-    void WriteInXmlFile();
+    void WriteInXmlFile(std::string & xml_file);
 
-    const MapOfParserResourcesType& ParseXmlFile();
+    const MapOfParserResourcesType& ParseXmlFiles();
 
     const MapOfParserResourcesType& GetList() const;
 
@@ -100,7 +106,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
       throw(ResourcesException);
 
     //! will contain the path to the ressources catalog
-    std::string _path_resources;
+    std::list<std::string> _path_resources;
+    std::list<std::string>::iterator _path_resources_it;
 
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
@@ -111,8 +118,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     //! a map that contains all the available load rate managers (the key is the name)
     std::map<std::string , LoadRateManager*> _resourceManagerMap;
 
-    //! different behaviour if $APPLI exists (SALOME Application) 
-    bool _isAppliSalomeDefined;    
+    //! contain the time where resourcesList was created
+    time_t _lasttime;
   };
 
 #endif // __RESOURCESMANAGER_HXX__

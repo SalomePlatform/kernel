@@ -76,7 +76,7 @@ const char* get_adip( void )
 }
 const char* const get_pwname( void )
 {
-	struct passwd *papa = getpwuid( getuid() ) ;
+	struct passwd *papa = getpwuid(getuid());
 	return papa->pw_name ;
 }
 

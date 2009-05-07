@@ -24,11 +24,7 @@
 //  File   : DSC_Engines.xml
 //  Author : Andre RIBES, EDF
 -->
-<GridCCM_Interface_description
-      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-      xsi:noNamespaceSchemaLocation='$PACOPATH/IDL2Tool/interface.xsd'
->
-
+<PaCO_Interface_description>
 <Module>
  <Name>Engines</Name>
  <Interface>
@@ -43,13 +39,6 @@
  </Method>
  </Interface>
  <Interface>
-   <Name>Parallel_DSC</Name>
-   <Method>
-     <Name>set_paco_proxy</Name>
-     <Type>distributed</Type>
-   </Method>
- </Interface>
- <Interface>
    <Name>Superv_Component</Name>
    <Method>
      <Name>init_service</Name>
@@ -57,4 +46,4 @@
    </Method>
  </Interface>
 </Module>
-</GridCCM_Interface_description>
+</PaCO_Interface_description>

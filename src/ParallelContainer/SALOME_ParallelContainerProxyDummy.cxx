@@ -43,10 +43,13 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
+
+#include "Container_init_python.hxx"
 
 #ifdef DEBUG_PARALLEL
 #include <signal.h>
@@ -71,11 +74,16 @@ int main(int argc, char* argv[])
 #endif
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
   std::string containerName("");
   if(argc > 1) {
     containerName = argv[1];
   }
+
+  int nbnodes = 1;
+  if(argc > 4) 
+    sscanf(argv[4],"%d",&nbnodes);
 
   try {  
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
@@ -90,27 +98,28 @@ int main(int argc, char* argv[])
     system(aCommand);
 #endif
 
-    SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-//    Engines::Container_proxy_impl * proxy = 
-//      new Engines::Container_proxy_impl(orb,
-//					new paco_omni_fabrique());
+    SALOME_NamingService * ns = new SALOME_NamingService(orb);
 
-    Container_proxy_impl_final * proxy = 
-      new Container_proxy_impl_final(orb,
-				     new paco_omni_fabrique());
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
-    proxy->setLibCom("dummy", proxy);
     pfm->register_thread("omnithread", new paco_omni_fabrique());
+
+    Container_proxy_impl_final * proxy = 
+      new Container_proxy_impl_final(orb,
+				     pfm->get_thread("omnithread"),
+				     root_poa,
+				     containerName);
+    proxy->setLibCom("dummy", proxy);
     proxy->setLibThread("omnithread");
     // Topo of the parallel object
     PaCO::PacoTopology_t serveur_topo;
-    serveur_topo.total = 1;
+    serveur_topo.total = nbnodes;
     proxy->setTopology(serveur_topo);
 
-    PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
-    obj = root_poa->id_to_reference(_id);
+    //PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
+    //obj = root_poa->id_to_reference(_id);
+    obj = proxy->_this();
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();
@@ -121,6 +130,10 @@ int main(int argc, char* argv[])
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {

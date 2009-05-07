@@ -67,7 +67,7 @@ SALOME_NamingService::SALOME_NamingService()
 SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 {
   MESSAGE("SALOME_NamingService creation");
-  _orb = orb ;
+  _orb = CORBA::ORB::_duplicate(orb);
   _initialize_root_context();
 }
 
@@ -99,7 +99,7 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
   MESSAGE("SALOME_NamingService initialisation");
 
   Utils_Locker lock (&_myMutex);
-  _orb = orb;
+  _orb = CORBA::ORB::_duplicate(orb);
 
   _initialize_root_context();
 }

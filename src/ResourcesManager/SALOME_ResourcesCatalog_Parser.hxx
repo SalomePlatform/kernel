@@ -32,6 +32,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 #include <iostream>
 
@@ -71,27 +72,40 @@ class RESOURCESMANAGER_EXPORT ResourceDataToSort
     unsigned int GetNumberOfPoints() const;
   };
 
-struct RESOURCESMANAGER_EXPORT ParserResourcesType
-  {
-    ResourceDataToSort DataForSort;
-    std::string HostName;
-    std::string Alias;
-    AccessProtocolType Protocol;
-    AccessModeType Mode;
-    BatchType Batch;
-    MpiImplType mpi;
-    std::string UserName;
-    std::string AppliPath;
-    std::vector<std::string> ComponentsList;
-    std::vector<std::string> ModulesList;
-    std::string OS;
-    std::string batchQueue;
-    std::string userCommands;
+struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
+{
+  std::string HostName;
+  AccessProtocolType Protocol;
+  std::string UserName;
+  std::string AppliPath;
+  ResourceDataToSort DataForSort;
+};
 
-    void Print() const;
-    void Clear();
-  };
+struct RESOURCESMANAGER_EXPORT ParserResourcesType
+{
+  ResourceDataToSort DataForSort;
+  std::string HostName;
+  std::string Alias;
+  AccessProtocolType Protocol;
+  AccessModeType Mode;
+  BatchType Batch;
+  MpiImplType mpi;
+  std::string UserName;
+  std::string AppliPath;
+  std::vector<std::string> ComponentsList;
+  std::vector<std::string> ModulesList;
+  std::string OS;
+  std::string batchQueue;
+  std::string userCommands;
+  std::string use;
+  std::list<ParserResourcesClusterMembersType> ClusterMembersList;
+  unsigned int nbOfProc;
+
+  void Print();
+  void Clear();
+};
 
 typedef std::map<std::string, ParserResourcesType> MapOfParserResourcesType;
+typedef std::map<std::string, ParserResourcesType>::iterator MapOfParserResourcesType_it;
 
 #endif //SALOME_RESOURCES_CATALOG_PARSER

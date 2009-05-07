@@ -27,7 +27,6 @@
 #include <string.h>
 #include <map>
 #include <list>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef WNT
@@ -52,9 +51,9 @@ static LoadRateManagerAltCycl altcycl;
 //=============================================================================
 
 ResourcesManager_cpp::
-ResourcesManager_cpp(const char *xmlFilePath) :
-    _path_resources(xmlFilePath)
+ResourcesManager_cpp(const char *xmlFilePath)
 {
+  _path_resources.push_back(xmlFilePath);
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
@@ -87,25 +86,34 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
 
-  _isAppliSalomeDefined = (getenv("APPLI") != 0);
-  if(!getenv("KERNEL_ROOT_DIR"))
-    throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
-
-  if (_isAppliSalomeDefined)
+  std::string default_file("");
+  if (getenv("APPLI") != 0)
     {
-      _path_resources = getenv("HOME");
-      _path_resources += "/";
-      _path_resources += getenv("APPLI");
-      _path_resources += "/CatalogResources.xml";
+      default_file += getenv("HOME");
+      default_file += "/";
+      default_file += getenv("APPLI");
+      default_file += "/CatalogResources.xml";
+      _path_resources.push_back(default_file);
     }
-
   else
     {
-      _path_resources = getenv("KERNEL_ROOT_DIR");
-      _path_resources += "/share/salome/resources/kernel/CatalogResources.xml";
+      if(!getenv("KERNEL_ROOT_DIR"))
+	throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
+      default_file = getenv("KERNEL_ROOT_DIR");
+      default_file += "/share/salome/resources/kernel/CatalogResources.xml";
+      _path_resources.push_back(default_file);
     }
 
-  ParseXmlFile();
+  if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
+  {
+    std::string user_file("");
+    user_file = getenv("USER_CATALOG_RESOURCES_FILE");
+    _path_resources.push_back(user_file);
+  }
+
+  _lasttime=0;
+
+  ParseXmlFiles();
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor end";
 #endif
@@ -143,12 +151,42 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(Res
 {
   vector <std::string> vec;
 
-  ParseXmlFile();
+  ParseXmlFiles();
 
   const char *hostname = params.hostname.c_str();
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
 #endif
+
+  // PaCO++ parallel container case
+  std::string parallelLib(params.parallelLib);
+  if (params.nb_component_nodes > 0 and parallelLib != "")
+  {
+#if defined(_DEBUG_) || defined(_DEBUG)
+    std::cerr << "[GetFittingResources] ParallelContainer case" << std::endl;
+    std::cerr << "[GetFittingResources] parallelLib is " << parallelLib << std::endl;
+    std::cerr << "[GetFittingResources] nb_component_nodes is " << params.nb_component_nodes << std::endl;
+#endif
+
+    // Currently we only support parallel containers that define a hostname target
+    if (hostname[0] != '\0')
+    {
+      // Special case of localhost -> put containers into the real computer name
+      if (strcmp(hostname, "localhost") == 0)
+	vec.push_back(Kernel_Utils::GetHostname().c_str());
+      else 
+      {
+	// Try find the resource into the map
+	if (_resourcesList.find(hostname) != _resourcesList.end())
+	  vec.push_back(hostname);
+	else
+	  std::cerr << "[GetFittingResources] ParallelContainer hostname does not exist into the resource list !" << std::endl;
+      }
+    }
+    else
+      std::cerr << "[GetFittingResources] ParallelContainer hostname is empty -> cannot find a possible resource" << std::endl;
+    return vec;
+  }
 
   if (hostname[0] != '\0'){
 
@@ -193,7 +231,9 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(Res
 #if defined(_DEBUG_) || defined(_DEBUG)
 	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
 #endif
-	  throw ResourcesException("unknown host");
+	  std::string error("GetFittinResouces : ResourcesManager doesn't find the host requested : ");
+	  error += hostname;
+	  throw ResourcesException(error);
 	}
       }
   }
@@ -303,19 +343,19 @@ void ResourcesManager_cpp::DeleteResourceInCatalog(const char *hostname)
  */ 
 //=============================================================================
 
-void ResourcesManager_cpp::WriteInXmlFile()
+void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
 {
-  const char* aFilePath = _path_resources.c_str();
-  
+#if defined(_DEBUG_) || defined(_DEBUG)
+  std::cerr << "WriteInXmlFile : start" << std::endl;
+#endif
+  const char* aFilePath = xml_file.c_str();
   FILE* aFile = fopen(aFilePath, "w");
 
   if (aFile == NULL)
-    {
-#if defined(_DEBUG_) || defined(_DEBUG)
-      cerr << "Error opening file !"  << endl;
-#endif
-      return;
-    }
+  {
+    std::cerr << "Error opening file in WriteInXmlFile : " << xml_file << std::endl;
+    return;
+  }
   
   xmlDocPtr aDoc = xmlNewDoc(BAD_CAST "1.0");
   xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
@@ -325,20 +365,15 @@ void ResourcesManager_cpp::WriteInXmlFile()
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
-#if defined(_DEBUG_) || defined(_DEBUG)
   int isOk = xmlSaveFile(aFilePath, aDoc);
-  if (!isOk) cerr << "Error while XML file saving." << endl;
-#else
-  xmlSaveFile(aFilePath, aDoc);
-#endif
+  if (!isOk) 
+     std::cerr << "Error while XML file saving : " << xml_file << std::endl;
   
   // Free the document
   xmlFreeDoc(aDoc);
-
   fclose(aFile);
-  
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "WRITING DONE!" << endl;
+  std::cerr << "WriteInXmlFile : WRITING DONE!" << std::endl;
 #endif
 }
 
@@ -348,46 +383,86 @@ void ResourcesManager_cpp::WriteInXmlFile()
  */ 
 //=============================================================================
 
-const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
+const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
 {
-  //Parse file only if its modification time is greater than lasttime (last registered modification time) 
-  static time_t lasttime=0;
-  struct stat statinfo;
-  int result = stat(_path_resources.c_str(), &statinfo);
-  if (result < 0) return _resourcesList;
-  if(statinfo.st_mtime <= lasttime)
-    return _resourcesList;
-  lasttime=statinfo.st_mtime;
-
-  SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
-
-  const char* aFilePath = _path_resources.c_str();
-  FILE* aFile = fopen(aFilePath, "r");
-  
-  if (aFile != NULL)
+  // Parse file only if its modification time is greater than lasttime (last registered modification time)
+  bool to_parse = false;
+  for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
+  {
+    struct stat statinfo;
+    int result = stat((*_path_resources_it).c_str(), &statinfo);
+    if (result < 0)
     {
-      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
-      
-      if (aDoc != NULL)
-	handler->ProcessXmlDocument(aDoc);
-#if defined(_DEBUG_) || defined(_DEBUG)
-      else
-	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
-#endif
-      
-      // Free the document
-      xmlFreeDoc(aDoc);
-
-      fclose(aFile);
+      std::cerr << "Error in method stat for file : " << (*_path_resources_it).c_str() << " no new xml file is parsed" << std::endl;
+      return _resourcesList;
     }
-#if defined(_DEBUG_) || defined(_DEBUG)
-  else
-    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
-#endif
-  
-  delete handler;
 
+    if(statinfo.st_mtime > _lasttime)
+    {
+      to_parse = true;
+      _lasttime = statinfo.st_mtime;
+    }
+  }
+
+  if (to_parse)
+  {
+    _resourcesList.clear();
+    _resourcesBatchList.clear();
+    // On parse tous les fichiers
+    for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
+    {
+      MapOfParserResourcesType _resourcesList_tmp;
+      MapOfParserResourcesType _resourcesBatchList_tmp;
+      SALOME_ResourcesCatalog_Handler* handler =
+	new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp, _resourcesBatchList_tmp);
+      const char* aFilePath = (*_path_resources_it).c_str();
+      FILE* aFile = fopen(aFilePath, "r");
+
+      if (aFile != NULL)
+      {
+	xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+	if (aDoc != NULL)
+	{
+	  handler->ProcessXmlDocument(aDoc);
+
+	  // adding new resources to the file
+	  for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
+	  {
+	    MapOfParserResourcesType_it j = _resourcesList.find(i->first);
+	    if (j == _resourcesList.end())
+	    {
+	      _resourcesList[i->first] = i->second;
+	    }
+	    else
+	    {
+	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+	    }
+	  }
+	  for (MapOfParserResourcesType_it i = _resourcesBatchList_tmp.begin(); i != _resourcesBatchList_tmp.end(); ++i)
+	  {
+	    MapOfParserResourcesType_it j = _resourcesBatchList.find(i->first);
+	    if (j == _resourcesBatchList.end())
+	    {
+	      _resourcesBatchList[i->first] = i->second;
+	    }
+	    else
+	    {
+	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+	    }
+	  }
+	}
+	else
+	  std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
+	// Free the document
+	xmlFreeDoc(aDoc);
+	fclose(aFile);
+      }
+      else
+	std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
+
+      delete handler;
+    }
+  }
   return _resourcesList;
 }
 

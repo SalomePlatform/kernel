@@ -30,7 +30,7 @@
 #ifndef _SALOME_TESTCOMPONENT_I_HXX_
 #define _SALOME_TESTCOMPONENT_I_HXX_
 
-#include <iostream.h>
+#include <iostream>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_TestMPIComponent)
 #include "SALOME_Component_i.hxx"

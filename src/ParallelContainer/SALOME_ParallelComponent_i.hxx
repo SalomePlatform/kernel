@@ -38,7 +38,7 @@
 #include <map>
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Parallel_Component_server.h"
+#include "SALOME_PACOExtensionPaCO_Engines_Parallel_Component_server.hxx"
 
 #include "NOTIFICATION.hxx"
 #include "RegistryConnexion.hxx"
@@ -61,13 +61,13 @@ class CONTAINER_EXPORT Engines_Parallel_Component_i:
   public virtual PortableServer::RefCountServantBase
 {
 public:
-  Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank);
   Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
 		               PortableServer::POA_ptr poa,
 			       PortableServer::ObjectId * contId, 
 			       const char *instanceName, 
 			       const char *interfaceName,
-			       bool notif = false);
+			       bool notif = false,
+			       bool regist = true);
 
   virtual ~Engines_Parallel_Component_i();
 
@@ -112,6 +112,10 @@ public:
 
  void send_parallel_proxy_object(CORBA::Object_ptr proxy_ref);
 
+  // Object information
+  virtual bool hasObjectInfo() { return false; }
+  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
+
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
@@ -130,6 +134,7 @@ public:
   bool Killer( pthread_t ThreadId , int signum );
   void SetCurCpu() ;
   long CpuUsed() ;
+  void CancelThread();
 
   void wait_parallel_object_proxy();
   char * get_parallel_proxy_object();
@@ -146,8 +151,8 @@ protected:
   std::string _instanceName ;
   std::string _interfaceName ;
 
-  CORBA::ORB_ptr _orb;
-  PortableServer::POA_ptr _poa;
+  CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id;
   PortableServer::ObjectId * _contId;
   Engines_Parallel_Component_i * _thisObj ;
@@ -196,6 +201,8 @@ private:
   long      _StartUsed ;
   long      _ThreadCpuUsed ;
   bool      _Executed ;
+  bool      _CanceledThread ;
+  bool	    _destroyed;
 };
 
 #endif
