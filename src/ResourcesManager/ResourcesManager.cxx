@@ -160,7 +160,7 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(Res
 
   // PaCO++ parallel container case
   std::string parallelLib(params.parallelLib);
-  if (params.nb_component_nodes > 0 and parallelLib != "")
+  if (params.nb_component_nodes > 0 && parallelLib != "")
   {
 #if defined(_DEBUG_) || defined(_DEBUG)
     std::cerr << "[GetFittingResources] ParallelContainer case" << std::endl;

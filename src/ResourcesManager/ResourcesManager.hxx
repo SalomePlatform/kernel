@@ -33,7 +33,10 @@
 #include "SALOME_LoadRateManager.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef WNT
+#else
 #include <unistd.h>
+#endif
 
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
