@@ -37,6 +37,11 @@ AC_DEFUN([AC_LINKER_OPTIONS],[
   done
   AC_SUBST(LDEXPDYNFLAGS)
 
+  for opt in "-Xlinker -enable-new-dtags" ; do
+    AC_CXX_OPTION($opt,LDFLAGS)
+  done
+  AC_SUBST(LDFLAGS)
+
 dnl 
   case $host_os in
     osf*)
