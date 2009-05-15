@@ -200,6 +200,11 @@ class CMakeFile(object):
             "XmlTObjPlugin",
             "XmlXCAFPlugin",
             ]
+        vtk_list = [
+            "vtkCommonPythonD",
+            "vtkGraphicsPythonD",
+            "vtkImagingPythonD",
+            ]
         kernel_list  = [
             "DF",
             "Launcher",
@@ -339,7 +344,8 @@ class CMakeFile(object):
             "StdMeshersGUI",
             "StdMeshers",
             ]
-        full_list = cas_list + kernel_list + gui_list
+        full_list  = cas_list + vtk_list
+        full_list += kernel_list + gui_list
         full_list += geom_list + med_list + smesh_list
         # --
         # E.A. : sort by len before substitution ...
@@ -1321,6 +1327,34 @@ class CMakeFile(object):
             IF(BEGIN_WITH_lib)
             INSTALL(TARGETS ${name} DESTINATION ${DEST})
             ''')
+            if self.module == "gui":
+                newlines.append(r'''
+                FOREACH(lib SalomePyQt)
+                IF(name STREQUAL lib)
+                IF(WINDOWS)
+                IF(CMAKE_BUILD_TYPE STREQUAL Release)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME ${name}.pyd)
+                ELSE(CMAKE_BUILD_TYPE STREQUAL Release)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME ${name}_d.pyd)
+                ENDIF(CMAKE_BUILD_TYPE STREQUAL Release)
+                ELSE(WINDOWS)
+                INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so DESTINATION ${DEST} RENAME ${name}.so)
+                ENDIF(WINDOWS)
+                ENDIF(name STREQUAL lib)
+                ENDFOREACH(lib SalomePyQt)
+                FOREACH(lib SalomePy)
+                IF(name STREQUAL lib)
+                IF(WINDOWS)
+                IF(CMAKE_BUILD_TYPE STREQUAL Release)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME lib${name}.pyd)
+                ELSE(CMAKE_BUILD_TYPE STREQUAL Release)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME lib${name}_d.pyd)
+                ENDIF(CMAKE_BUILD_TYPE STREQUAL Release)
+                ENDIF(WINDOWS)
+                ENDIF(name STREQUAL lib)
+                ENDFOREACH(lib SalomePy)
+                ''')
+                pass
             if self.module == "geom":
                 newlines.append(r'''
                 IF(WINDOWS)
@@ -1335,11 +1369,6 @@ class CMakeFile(object):
                 ENDIF(WINDOWS)
                 ''')
                 pass
-            newlines.append(r'''
-            # IF(name STREQUAL SalomePyQt)
-            # INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so DESTINATION ${DEST} RENAME ${name}.so)
-            # ENDIF(name STREQUAL SalomePyQt)
-            ''')
             newlines.append(r'''
             ELSE(BEGIN_WITH_lib)
             ''')
@@ -1448,7 +1477,20 @@ class CMakeFile(object):
             ''')
         else:
             newlines.append(r'''
+            GET_FILENAME_COMPONENT(ext ${f} EXT)
+            IF(ext STREQUAL .py)
+            IF(DEST STREQUAL bin/salome)
+            SET(PERMS)
+            SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+            SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
+            SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
+            INSTALL(FILES ${f} DESTINATION ${DEST} PERMISSIONS ${PERMS})
+            ELSE(DEST STREQUAL bin/salome)
             INSTALL(FILES ${f} DESTINATION ${DEST})
+            ENDIF(DEST STREQUAL bin/salome)
+            ELSE(ext STREQUAL .py)
+            INSTALL(FILES ${f} DESTINATION ${DEST})
+            ENDIF(ext STREQUAL .py)
             ''')
             pass
         newlines.append(r'''
