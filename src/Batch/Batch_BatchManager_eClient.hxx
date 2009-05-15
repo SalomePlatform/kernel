@@ -25,7 +25,7 @@
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
  * Date   : Thu Apr 24 10:17:22 2008
- * Projet : PAL Salome 
+ * Projet : PAL Salome
  *
  */
 
@@ -47,7 +47,7 @@ namespace Batch {
   {
   public:
     const std::string msg;
-    
+
     EmulationException(const std::string m) : msg(m) {}
   };
 
@@ -64,8 +64,7 @@ namespace Batch {
     std::string _username; // username to access _hostname
     MpiImpl *_mpiImpl; // Mpi implementation to launch executable in batch script
 
-    std::string BuildTemporaryFileName() const;
-    void RmTmpFile(std::string & TemporaryFileName);
+    std::string createAndOpenTemporaryFile(std::ofstream & outputStream) const;
     MpiImpl* FactoryMpiImpl(std::string mpiImpl) throw(EmulationException);
     void exportInputFiles(const Job & job) throw(EmulationException);
 

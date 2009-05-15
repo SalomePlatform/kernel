@@ -25,7 +25,7 @@
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
  * Date   : Thu Apr 24 10:17:22 2008
- * Projet : PAL Salome 
+ * Projet : PAL Salome
  *
  */
 
@@ -113,7 +113,7 @@ namespace Batch {
     FILE *fp = fopen(logFile.c_str(),"r");
     fgets( line, 128, fp);
     fclose(fp);
-    
+
     string strjob;
     istringstream iss(line);
     iss >> strjob >> strjob >> strjob;
@@ -129,7 +129,7 @@ namespace Batch {
     int ref;
     istringstream iss(jobid.getReference());
     iss >> ref;
-    
+
     // define command to submit batch
     string command;
     command = _protocol;
@@ -151,7 +151,7 @@ namespace Batch {
 
     cerr << "jobId = " << ref << "killed" << endl;
   }
-   
+
   // Methode pour le controle des jobs : suspend un job en file d'attente
   void BatchManager_eSGE::holdJob(const JobId & jobid)
   {
@@ -232,7 +232,7 @@ namespace Batch {
     throw EmulationException("Not yet implemented");
   }
 
-  void BatchManager_eSGE::buildBatchScript(const Job & job) throw(EmulationException)
+  void BatchManager_eSGE::buildBatchScript(const Job & job)
   {
 #ifndef WIN32
     //TODO porting on Win32 platform
@@ -263,9 +263,8 @@ namespace Batch {
       rootNameToExecute = "command";
     }
 
-    std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
-    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
+    std::string TmpFileName = createAndOpenTemporaryFile(tempOutputFile);
 
     tempOutputFile << "#! /bin/sh -f" << endl;
     if (queue != "")
@@ -294,7 +293,7 @@ namespace Batch {
       tempOutputFile << "source " << env["SOURCEFILE"] << endl ;
       tempOutputFile << env["COMMAND"];
     }
-      
+
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(TmpFileName.c_str(), 0x1ED);
@@ -322,10 +321,10 @@ namespace Batch {
     cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw EmulationException("Error of connection on remote host");    
+      throw EmulationException("Error of connection on remote host");
 
-    RmTmpFile(TmpFileName);
-#endif //WIN32    
+    remove(TmpFileName.c_str());
+#endif //WIN32
   }
 
   std::string BatchManager_eSGE::getWallTime(const long edt)

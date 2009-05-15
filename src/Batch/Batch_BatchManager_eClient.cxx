@@ -25,12 +25,13 @@
 * Auteur : Bernard SECHER - CEA DEN
 * Mail   : mailto:bernard.secher@cea.fr
 * Date   : Thu Apr 24 10:17:22 2008
-* Projet : PAL Salome 
+* Projet : PAL Salome
 *
 */
 
 #include "Batch_BatchManager_eClient.hxx"
-#include "Basics_DirUtils.hxx"
+#include "Batch_RunTimeException.hxx"
+#include "Batch_NotYetImplementedException.hxx"
 
 #include <iostream>
 #include <fstream>
@@ -179,10 +180,10 @@ namespace Batch {
       command += directory;
       cerr << command.c_str() << endl;
       status = system(command.c_str());
-      if(status) 
+      if(status)
       {
         // Try to get what we can (logs files)
-        // throw BatchException("Error of connection on remote host");    
+        // throw BatchException("Error of connection on remote host");
         std::string mess("Copy command failed ! status is :");
         ostringstream status_str;
         status_str << status;
@@ -216,31 +217,36 @@ namespace Batch {
     }
   }
 
-  string BatchManager_eClient::BuildTemporaryFileName() const
+  /**
+   * This method creates a temporary file and opens an output stream to write into this file.
+   * The file is created with the pattern "/tmp/batch_XXXXXX" where the X's are replaced by random
+   * characters. The caller is responsible for closing and deleting the file when it is no more used.
+   * \param outputStream an output stream that will be opened for writing in the temporary file. If
+   * the stream is already open, it will be closed first.
+   * \return the name of the created file.
+   */
+  string BatchManager_eClient::createAndOpenTemporaryFile(ofstream & outputStream) const
   {
-    //build more complex file name to support multiple salome session
-    string aFileName = Kernel_Utils::GetTmpFileName();
-#ifndef WIN32
-    aFileName += ".sh";
+    string fileName;
+#ifdef WIN32
+    throw NotYetImplementedException("Temporary file creation in Batch library has not been ported to Windows yet");
 #else
-    aFileName += ".bat";
+    char * tmpFileName = strdup("/tmp/batch_XXXXXX");
+    int fd = mkstemp(tmpFileName);
+    if (fd == -1)
+    {
+      throw RunTimeException("Can't create temporary file");
+    }
+
+    if (outputStream.is_open())
+      outputStream.close();
+    outputStream.open(tmpFileName);
+    close(fd);  // Close the file descriptor so that the file is not opened twice
+
+    fileName = tmpFileName;
+    delete[] tmpFileName;
 #endif
-    return aFileName;
+    return fileName;
   }
 
-  void BatchManager_eClient::RmTmpFile(std::string & TemporaryFileName)
-  {
-#ifdef WIN32
-    string command = "del /F ";
-#else
-    string command = "rm ";
-#endif
-    command += TemporaryFileName;
-    char *temp = strdup(command.c_str());
-    int lgthTemp = strlen(temp);
-    temp[lgthTemp - 3] = '*';
-    temp[lgthTemp - 2] = '\0';
-    system(temp);
-    free(temp);
-  }
 }

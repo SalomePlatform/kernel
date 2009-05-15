@@ -20,7 +20,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManagerCatalog.cxx : 
+ * BatchManagerCatalog.cxx :
  *
  * Auteur : Ivan DUTKA-MALEN - EDF R&D
  * Date   : Septembre 2004
@@ -39,7 +39,7 @@ namespace Batch {
 
   pthread_mutex_t BatchManagerCatalog::_mutex = PTHREAD_MUTEX_INITIALIZER;
   std::map<string, FactBatchManager *> * BatchManagerCatalog::_p_catalog = 0;
-  BatchManagerCatalog BatchManagerCatalog::theCatalog;
+//  BatchManagerCatalog BatchManagerCatalog::theCatalog;
 
   // Constructeur
   BatchManagerCatalog::BatchManagerCatalog()
@@ -50,7 +50,12 @@ namespace Batch {
   // Destructeur
   BatchManagerCatalog::~BatchManagerCatalog()
   {
-    delete BatchManagerCatalog::_p_catalog;
+    // Note (RB, 6mar09) : this deletion can cause big memory problems as the pointer
+    // may have been destroyed before this call to delete, and delete can be called
+    // several times. So it's better to remove it for now, even if there is a (small)
+    // memory leak.
+    // TODO: Replace that by a clean singleton implementation
+//    delete BatchManagerCatalog::_p_catalog;
   }
 
   // Functor

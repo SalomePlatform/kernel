@@ -119,21 +119,12 @@ LIB_SRC = \
 	MpiImpl.cxx
 
 
-LIB_CPPFLAGS = \
-	${PYTHON_INCLUDES}
+LIB_CPPFLAGS = ${PYTHON_INCLUDES}
 if !WITHONLYLAUNCHER
-  LIB_CPPFLAGS += \
-	-I$(srcdir)/../Basics \
-	-I$(top_builddir)/salome_adm/unix
+  LIB_CPPFLAGS += -I$(top_builddir)/salome_adm/unix
 endif
 
-LIB_LIBADD =
-if !WITHONLYLAUNCHER
-  LIB_LIBADD   += \
-	../Basics/libSALOMEBasics.la
-endif
-
-LIB_LIBADD   += $(PYTHON_LIBS)
+LIB_LIBADD = $(PYTHON_LIBS)
 
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

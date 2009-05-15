@@ -25,7 +25,7 @@
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
  * Date   : Thu Apr 24 10:17:22 2008
- * Projet : PAL Salome 
+ * Projet : PAL Salome
  *
  */
 
@@ -115,7 +115,7 @@ namespace Batch {
     FILE *fp = fopen(logFile.c_str(),"r");
     fgets( line, 128, fp);
     fclose(fp);
-    
+
     string sline(line);
     int pos = sline.find(".");
     string strjob;
@@ -135,7 +135,7 @@ namespace Batch {
     int ref;
     istringstream iss(jobid.getReference());
     iss >> ref;
-    
+
     // define command to submit batch
     string command;
     command = _protocol;
@@ -157,7 +157,7 @@ namespace Batch {
 
     cerr << "jobId = " << ref << "killed" << endl;
   }
-   
+
   // Methode pour le controle des jobs : suspend un job en file d'attente
   void BatchManager_ePBS::holdJob(const JobId & jobid)
   {
@@ -238,7 +238,7 @@ namespace Batch {
     throw EmulationException("Not yet implemented");
   }
 
-  void BatchManager_ePBS::buildBatchScript(const Job & job) throw(EmulationException)
+  void BatchManager_ePBS::buildBatchScript(const Job & job)
   {
 #ifndef WIN32 //TODO: need for porting on Windows
     int status;
@@ -270,9 +270,8 @@ namespace Batch {
       rootNameToExecute = "command";
     }
 
-    std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
-    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
+    std::string TmpFileName = createAndOpenTemporaryFile(tempOutputFile);
 
     tempOutputFile << "#! /bin/sh -f" << endl;
     if (queue != "")
@@ -300,7 +299,7 @@ namespace Batch {
       tempOutputFile << "source " << env["SOURCEFILE"] << endl ;
       tempOutputFile << env["COMMAND"];
     }
-      
+
     tempOutputFile.flush();
     tempOutputFile.close();
 #ifdef WIN32
@@ -333,10 +332,10 @@ namespace Batch {
     cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw EmulationException("Error of connection on remote host");    
+      throw EmulationException("Error of connection on remote host");
 
-    RmTmpFile(TmpFileName);
-#endif    
+    remove(TmpFileName.c_str());
+#endif
   }
 
 }

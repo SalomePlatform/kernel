@@ -25,7 +25,7 @@
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
  * Date   : Thu Apr 24 10:17:22 2008
- * Projet : PAL Salome 
+ * Projet : PAL Salome
  *
  */
 
@@ -77,7 +77,7 @@ namespace Batch {
 
 
   protected:
-    void buildBatchScript(const Job & job) throw(EmulationException);
+    void buildBatchScript(const Job & job);
     std::string getWallTime(const long edt);
 
   private:

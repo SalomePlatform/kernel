@@ -88,8 +88,9 @@ AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 
 # ---- option to build only launcher, resources manager and batch classes
 AC_ARG_WITH(onlylauncher,
-	    --with-onlylauncher,
-	    [],[with_onlylauncher="no"])
+	[AC_HELP_STRING([--with-onlylauncher],[Build only launcher, resources manager and batch classes [default=no]])],
+	[],
+	[with_onlylauncher="no"])
 AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
 
 # ----------------------------------------------------------------------------

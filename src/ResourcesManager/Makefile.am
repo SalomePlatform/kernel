@@ -101,5 +101,4 @@ libResourcesManager_la_CPPFLAGS =\
 
 libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libResourcesManager_la_LIBADD  =\
-	../Utils/libOpUtil.la \
 	@LIBXML_LIBS@
