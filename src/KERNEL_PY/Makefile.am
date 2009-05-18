@@ -47,7 +47,8 @@ if CORBA_GEN
 		omnipatch.py \
 		iparameters.py \
 		salome_version.py \
-		salome_notebook.py
+		salome_notebook.py \
+    salome_genericobj.py
 endif
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py
