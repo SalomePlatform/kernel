@@ -42,7 +42,7 @@
 
 #include <stdio.h>
 
-//#define _DEBUG_
+#include <typeinfo>
 
 template <typename T1, typename T2>
 struct IsSameType {
@@ -154,7 +154,7 @@ namespace CalciumInterface {
 
   // T1 est le type de données
   // T2 est un <nom> de type Calcium permettant de sélectionner le port CORBA correspondant 
-  // T1 et T2 sont dissociés pour discriminer le cas des nombres complexes
+  // T1 et T2 sont dissociés pour discriminer par exemple le cas des nombres complexes
   //  -> Les données des nombres complexes sont de type float mais
   //     le port à utiliser est le port cplx
   template <typename T1, typename T2 > static void
@@ -189,7 +189,11 @@ namespace CalciumInterface {
 				LOC("Le nom de la variable est <nul>"));
     PortType * port;
 #ifdef _DEBUG_
-    std::cout << "-------- CalciumInterface(ecp_lecture) MARK 2 ------------------" << std::endl;
+    std::cout << "-------- CalciumInterface(lecture) MARK 2 --"<<typeid(port).name()<<"----------------" << std::endl;
+    T1 t1;
+    T2 t2;
+    std::cout << "-------- CalciumInterface(lecture) MARK 2b1 -----" << typeid(t1).name() << "-------------" << std::endl;
+    std::cout << "-------- CalciumInterface(lecture) MARK 2b2 -----" << typeid(t2).name() << "-------------" << std::endl;
 #endif
 
     try {
@@ -271,11 +275,11 @@ namespace CalciumInterface {
 #endif
       // On essaye de faire du 0 copy si les types T1 et InnerType sont les mêmes.
       // Copy2UserSpace : 
-      // La raison d'être du foncteur Copy2UserSpace est que le compilateur n'acceptera
-      // pas une expresion d'affectation sur des types incompatibles même 
+      // La raison d'être du foncteur Copy2UserSpace est qu'il n'est pas possible de compiler
+      // une expression d'affectation sur des types incompatibles ; même 
       // si cette expression se trouve dans une branche non exécuté d'un test
-      // sur la compatibilité des types.
-      // En utilisant le foncteur Copy2UserSpace, seul la spécialisation en adéquation
+      // portant sur la compatibilité des types.
+      // En utilisant le foncteur Copy2UserSpace, seule la spécialisation en adéquation
       // avec la compatibilité des types sera compilée 
       Copy2UserSpace< IsSameType<T1,InnerType>::value, DataManipulator >::apply(data,corbaData,nRead);
 #ifdef _DEBUG_
@@ -297,14 +301,12 @@ namespace CalciumInterface {
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 11 ------------------" << std::endl;
 #endif
       Copy2UserSpace<false, DataManipulator >::apply(data,corbaData,nRead);
-      DataManipulator::copy(corbaData,data,nRead);
+      //Déjà fait ci-dessus : 
+      //DataManipulator::copy(corbaData,data,nRead);
     
 #ifdef _DEBUG_
       std::cout << "-------- CalciumInterface(ecp_lecture) MARK 12 ------------------" << std::endl;
 #endif
-      // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
-      // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
-      // DataManipulator::delete_data(corbaData);
    }
 #ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecp_lecture), Valeur de data : " << std::endl;
@@ -352,9 +354,8 @@ namespace CalciumInterface {
     assert(&component);
 
     //typedef typename StarTrait<TT>::NonStarType                    T;
-    typedef typename boost::remove_all_extents< T2 >::type           T2_without_extent;
     typedef typename boost::remove_all_extents< T1 >::type           T1_without_extent;
-
+    typedef typename boost::remove_all_extents< T2 >::type           T2_without_extent;
     typedef typename UsesPortTraits    <T2_without_extent>::PortType UsesPortType;
     typedef typename ProvidesPortTraits<T2_without_extent>::PortType ProvidesPortType;// pour obtenir un manipulateur de données
     typedef typename ProvidesPortType::DataManipulator               DataManipulator;
@@ -375,7 +376,11 @@ namespace CalciumInterface {
 						    LOC("Le nom de la variable est <nul>"));
     UsesPortType * port;
 #ifdef _DEBUG_
-    std::cout << "-------- CalciumInterface(ecriture) MARK 2 ------------------" << std::endl;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 2 ---"<<typeid(port).name()<<"---------------" << std::endl;
+    T1 t1;
+    T2 t2;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 2b1 -----" << typeid(t1).name() << "-------------" << std::endl;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 2b2 -----" << typeid(t2).name() << "-------------" << std::endl;
 #endif
 
     try {
@@ -440,10 +445,10 @@ namespace CalciumInterface {
 				LOC(OSS()<<"Le buffer a envoyer est de taille nulle "));
 
 
+    CorbaDataType corbaData;
 #ifdef _DEBUG_
     std::cout << "-------- CalciumInterface(ecriture) MARK 4 ------------------" << std::endl;
 #endif
-    CorbaDataType corbaData;
 
     
     // Si les types Utilisateurs et CORBA sont différents
@@ -466,6 +471,11 @@ namespace CalciumInterface {
     //   OLD : Il faut effectuer une copie dans le port provides.
     //   OLD : Cette copie est effectuée dans GenericPortUses::put 
     //   OLD : en fonction de la collocalisation ou non.
+    T1_without_extent t1b;
+    InnerType         t2b;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 4b1 -----" << typeid(t1b).name() << "-------------" << std::endl;
+    std::cout << "-------- CalciumInterface(ecriture) MARK 4b2 -----" << typeid(t2b).name() << "-------------" << std::endl;
+
     Copy2CorbaSpace<IsSameType<T1_without_extent,InnerType>::value, DataManipulator >::apply(corbaData,_data,bufferLength);
  
     //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecté

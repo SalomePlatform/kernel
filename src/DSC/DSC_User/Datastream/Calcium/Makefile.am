@@ -38,8 +38,8 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calcium_uses_port.hxx \
 			CalciumGenericUsesPort.hxx \
 			calcium_provides_port.hxx \
-			CalciumProvidesPort.hxx \
-			calcium_integer_port_uses.hxx \
+			calcium_intc_port_uses.hxx \
+			calcium_long_port_uses.hxx \
 			calcium_real_port_uses.hxx \
 			calcium_double_port_uses.hxx \
 			calcium_string_port_uses.hxx \
@@ -49,18 +49,28 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			CalciumException.hxx \
 			CalciumTypes.hxx \
 			CalciumCxxInterface.hxx \
+			CalciumMacroCInterface.hxx \
+			CalciumCInterface.hxx \
 			CalciumInterface.hxx \
 			Copy2UserSpace.hxx \
 			Copy2CorbaSpace.hxx \
 			CalciumPortTraits.hxx \
 			calcium.h \
+			calciumf.h \
 			Calcium.hxx \
 			calciumP.h \
 			calciumE.h \
 			version.h \
 			calcium.hf
 
-EXTRA_DIST=fortoc.h
+nodist_salomeinclude_HEADERS = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h
+
+EXTRA_DIST=fortoc.h calcium_integer_port_uses.hxx.in CalciumProvidesPort.hxx.in CalciumFortranInt.h.in
+
+calcium_integer_port_uses.hxx: calcium_integer_port_uses.hxx.in
+CalciumProvidesPort.hxx     : CalciumProvidesPort.hxx.in
+CalciumFortranInt.h      : CalciumFortranInt.h.in
+
 #
 # ===============================================================
 # Local definitions
@@ -99,6 +109,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       CalciumCouplingPolicy.cxx \
 			       CorbaTypes2CalciumTypes.cxx \
 			       CalciumTypes2CorbaTypes.cxx \
+                               CalciumCInterface.cxx \
 			       CalciumProvidesPort.cxx \
 			       Calcium.cxx \
 			       calcium_destructors_port_uses.cxx
@@ -130,3 +141,4 @@ test_DataIdContainer_LDADD   = libSalomeCalcium.la $(top_builddir)/src/Utils/lib
 
 test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
 
+CLEANFILES = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h

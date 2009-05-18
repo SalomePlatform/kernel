@@ -35,6 +35,14 @@
 
 CALCIUM_GENERIC_PROVIDES_PORT_HXX(calcium_integer_port_provides,		\
 			      POA_Ports::Calcium_Ports::Calcium_Integer_Port, \
+			      seq_u_manipulation<Ports::Calcium_Ports::seq_integer,@CALCIUM_CORBA_INT_F77@> ) \
+
+CALCIUM_GENERIC_PROVIDES_PORT_HXX(calcium_long_port_provides,		\
+			      POA_Ports::Calcium_Ports::Calcium_Long_Port, \
+			      seq_u_manipulation<Ports::Calcium_Ports::seq_long_long,CORBA::LongLong> ) \
+
+CALCIUM_GENERIC_PROVIDES_PORT_HXX(calcium_intc_port_provides,		\
+			      POA_Ports::Calcium_Ports::Calcium_Intc_Port, \
 			      seq_u_manipulation<Ports::Calcium_Ports::seq_long,CORBA::Long> ) \
 
 CALCIUM_GENERIC_PROVIDES_PORT_HXX(calcium_real_port_provides,		\

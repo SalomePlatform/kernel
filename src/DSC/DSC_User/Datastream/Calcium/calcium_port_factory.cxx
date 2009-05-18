@@ -43,6 +43,10 @@ calcium_port_factory::create_data_servant(string type) {
 
   if ( type == "integer")
     rtn_port = new calcium_integer_port_provides();
+  if ( type == "long")
+    rtn_port = new calcium_long_port_provides();
+  if ( type == "intc")
+    rtn_port = new calcium_intc_port_provides();
   if ( type == "real")
     rtn_port = new calcium_real_port_provides();
   if ( type == "double")
@@ -63,6 +67,10 @@ calcium_port_factory::create_data_proxy(string type) {
 
   if ( type == "integer")
     rtn_port = new calcium_integer_port_uses();
+  if ( type == "long")
+    rtn_port = new calcium_long_port_uses();
+  if ( type == "intc")
+    rtn_port = new calcium_intc_port_uses();
   if ( type == "real")
     rtn_port = new calcium_real_port_uses();
   if ( type == "double")

@@ -20,7 +20,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : Makefile.am
-#  Author : André RIBES (EDF), Eric Fayolle (EDF)
+#  Author : AndrÃ© RIBES (EDF), Eric Fayolle (EDF)
 #  Module : KERNEL
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
@@ -37,6 +37,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium \
+                 -I$(top_builddir)/src/DSC/DSC_User/Datastream/Calcium \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
@@ -71,7 +72,7 @@ _calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
 										 ../DSC_Basic/libSalomeDSCContainer.la \
 										 ../../Container/libSalomeContainer.la 
 
-_calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
+_calcium_la_CPPFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
 
 EXTRA_DIST=calcium_wrap.cpp calcium.i
 

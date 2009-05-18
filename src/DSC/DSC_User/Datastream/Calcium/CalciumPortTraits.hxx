@@ -38,11 +38,15 @@ template <class T> struct UnknownProvidesPortType {};
 template <class T> struct ProvidesPortTraits {
   typedef  UnknownProvidesPortType<T> PortType;
 };
-template <> struct ProvidesPortTraits<int> {
+struct integer {};
+template <> struct ProvidesPortTraits<integer> {
   typedef  calcium_integer_port_provides PortType;
 };
+template <> struct ProvidesPortTraits<int> {
+  typedef  calcium_intc_port_provides PortType;
+};
 template <> struct ProvidesPortTraits<long> {
-  typedef  calcium_integer_port_provides PortType;
+  typedef  calcium_long_port_provides PortType;
 };
 template <> struct ProvidesPortTraits<float> {
   typedef  calcium_real_port_provides PortType;
@@ -65,6 +69,12 @@ struct str {};
 template <> struct ProvidesPortTraits<str> {
    typedef calcium_string_port_provides PortType;
 };
+// Définition du type intc pour obtenir le type de port
+// correspondant
+struct intc {};
+template <> struct ProvidesPortTraits<intc> {
+   typedef calcium_intc_port_provides PortType;
+};
 
 
 template < typename T > struct StarTrait        { typedef  T NonStarType; };
@@ -76,11 +86,14 @@ template <class T> struct UnknownUsesPortType {};
 template <class T> struct UsesPortTraits {
   typedef  UnknownUsesPortType<T> PortType;
 };
-template <> struct UsesPortTraits<int> {
+template <> struct UsesPortTraits<integer> {
   typedef  calcium_integer_port_uses PortType;
 };
+template <> struct UsesPortTraits<int> {
+  typedef  calcium_intc_port_uses PortType;
+};
 template <> struct UsesPortTraits<long> {
-  typedef  calcium_integer_port_uses PortType;
+  typedef  calcium_long_port_uses PortType;
 };
 template <> struct UsesPortTraits<float> {
   typedef  calcium_real_port_uses PortType;
@@ -96,6 +109,9 @@ template <> struct UsesPortTraits<bool> {
 };
 template <> struct UsesPortTraits<cplx> {
    typedef  calcium_complex_port_uses PortType;
+};
+template <> struct UsesPortTraits<intc> {
+   typedef  calcium_intc_port_uses PortType;
 };
 
 #endif

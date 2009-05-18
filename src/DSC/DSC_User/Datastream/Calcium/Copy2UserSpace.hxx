@@ -69,11 +69,11 @@ struct Copy2UserSpace{
      // Le PORT doit être capable de répondre aux demandes de lecture
      // multiples d'une donnée pour une même estampille et doit donc garder un pointeur valide
      // sur le buffer. Il se pose cependant un problème s'il décide
-     // de supprimer la donnée alors que des client utilise le buffer (historique) !
+     // de supprimer la donnée alors que des client utilise le buffer (historique calcium) !
      // La seule façon de gérer proprement cette situation est d'utiliser un shared_pointer (TODO).
      // Pour l'instant l'utilisateur du mode zero copie doit s'assurer que le niveau d'historique
      // utilisé par le port est compatible avec son utilisation des buffers. Il doit
-     // être également conscient que s'il modifie le buffer, il est modifier pour tous les
+     // être également conscient que s'il modifie le buffer, il est modifié pour tous les
      // utilisateurs actuels et futurs.
     
      //REF:    InnerType * dataPtr  = DataManipulator::getPointer(corbaData,true);
@@ -84,7 +84,7 @@ struct Copy2UserSpace{
     // Cette ligne poserait uun problème dans la méthode appelante, si elle
     // ne testait pas que les types utilisateurs et CORBA sont identiques :
     // ex :  InnerType == Corba::Long et d'un T == int
-    // C'est l'objet de la procédure suivante
+    // C'est l'objet de la spécialisation ci-dessous.
     data = dataPtr; 
 
     // En zero copie l'utilisateur doit appeler ecp_free ( cas ou un buffer intermédiaire

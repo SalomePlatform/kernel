@@ -380,6 +380,21 @@ extern int	cp_een(
 #endif
 );
 
+extern int	cp_elg(
+/*		------						*/
+#if CPNeedPrototype
+	void * component /* Pointeur de type Superv_Component_i* sur le */
+	  	         /* composant SALOME Supervisable  */,
+	int	/* E   Type de dependance 			*/
+		/*     CP_TEMPS, CP_ITERATION			*/,
+	float  	/* E   Pas de temps a ecrire			*/,
+	int     /* E   Pas d'iteration a ecrire			*/,
+	char  *	/* E   Nom de la variable a ecrire		*/,
+	int	/* E   Nombre de valeurs a ecrire		*/,
+	long  *	/* E   Tableau d'entiers a ecrire		*/
+#endif
+);
+
 extern int	cp_ere(
 /*		------						*/
 #if CPNeedPrototype

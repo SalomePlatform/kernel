@@ -52,6 +52,7 @@ ac_cxx_template_options.m4 \
 ac_cxx_use_std_iostream.m4 \
 ac_cxx_warnings.m4 \
 ac_linker_options.m4 \
+ac_check_sizeof_fortran.m4 \
 acx_pthread.m4 \
 check_Kernel.m4 \
 check_boost.m4 \
@@ -59,6 +60,7 @@ check_cas.m4 \
 check_corba.m4 \
 check_cppunit.m4 \
 check_f77.m4 \
+check_calcium.m4 \
 check_hdf5.m4 \
 check_htmlgen.m4 \
 check_lam.m4 \

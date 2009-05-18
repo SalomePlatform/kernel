@@ -24,14 +24,18 @@
 //  Module : KERNEL
 
 #include "calcium.h"
+#include "calciumf.h"
+#include "CalciumFortranInt.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 
 // Interface C de SalomeCalcium 
 
 typedef int InfoType;
 typedef char bool;
+
 
 /************************************/
 /* INTERFACES DE LECTURE EN 0 COPIE */
@@ -77,13 +81,6 @@ typedef char bool;
     ecp_lecture_##_typeName##_free(data);				\
   };
 
-#define STAR *
-CALCIUM_EXT_LECT_INTERFACE_C_(len,float,int,int,);
-CALCIUM_EXT_LECT_INTERFACE_C_(lre,float,float,float,);
-CALCIUM_EXT_LECT_INTERFACE_C_(ldb,double,double,double,);
-CALCIUM_EXT_LECT_INTERFACE_C_(llo,float,int,bool,);
-CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
-/* CALCIUM_EXT_LECT_INTERFACE_C_(lch,float,char,STAR[]);  */
 
 /* L'interface de cette routine diffère de celle obtenue par la macro :
    CALCIUM_LECT_INTERFACE_C_.
@@ -119,25 +116,39 @@ void ecp_lch_free (char* * data) {				\
 };
 
 
+#define STAR *
+/*REVERIFIER MAINTENANT 0 COPY avec int2integer*/
+CALCIUM_EXT_LECT_INTERFACE_C_(len,float,int,int2integer,);
+CALCIUM_EXT_LECT_INTERFACE_C_(lre,float,float,float,);
+CALCIUM_EXT_LECT_INTERFACE_C_(ldb,double,double,double,);
+CALCIUM_EXT_LECT_INTERFACE_C_(llo,float,int,bool,);
+CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
+/* CALCIUM_EXT_LECT_INTERFACE_C_(lch,float,char,STAR[]);  */
+
+
 /**************************************/
 /* INTERFACES DE LECTURE AVEC RECOPIE */
 /**************************************/
 
-#define CALCIUM_LECT_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual) \
-  InfoType cp_##_name (void * component, int mode,			\
-		       _timeType * ti, _timeType * tf, int * i,		\
-		       char * nomvar, int bufferLength,			\
-		       int * nRead, _type _qual * data ) {		\
+#define CALCIUM_LECT_INTERFACE_C_(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
+  _calInt cp_##_name (void * component, _calInt mode,			\
+		       _timeType * ti, _timeType * tf, _calInt * i,	\
+		       char * nomvar, _calInt bufferLength,		\
+		       _calInt * nRead, _type _qual * data		\
+		       lastarg ) {					\
+									\
+    int    _mode         = (int) mode;					\
+    size_t _bufferLength = bufferLength;				\
     size_t _nRead;							\
-    long   _i=*i;							\
+    long   _i            =*i;						\
     fflush(stdout);							\
     fflush(stderr);							\
     fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,*i,*ti); \
     									\
-    if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	\
+    if ( (data == NULL) || (_bufferLength < 1) ) return CPNTNULL;	\
     									\
-    InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i, \
-					      nomvar, bufferLength, &_nRead, \
+    _calInt info =  ecp_lecture_##_typeName (component, _mode, ti, tf, &_i, \
+					      nomvar, _bufferLength, &_nRead, \
 					      &data );			\
     if(mode == CP_SEQUENTIEL)						\
       *i = _i;								\
@@ -158,42 +169,66 @@ void ecp_lch_free (char* * data) {				\
    Le paramètre supplémentaire strSize indique la taille fixe et identique
    des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
 */
-InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
-		char  *	nomvar, int bufferLength, int * nRead,
-		char ** data, int strSize) {
 
-  size_t _nRead;							
-  long   _i=*i;							
-  fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	
+/* InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i, */
+/* 		char  *	nomvar, int bufferLength, int * nRead, */
+/* 		char ** data, int strSize) { */
+
+/*   size_t _nRead;							 */
+/*   long   _i=*i;							 */
+/*   fflush(stdout);fflush(stderr);							 */
+/*   fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	 */
     									
-  if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	
+/*   if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	 */
   
-  InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
-				    nomvar, bufferLength, &_nRead, 
-				    &data);/*, strSize ); 
-					     strSize est  inutile pour les ports CALCIUM
-					     qui gèrent des tailles quelconques de chaines. */
-  if(mode == CP_SEQUENTIEL)						
-    *i = _i;								
-  *nRead=_nRead;							
-  fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			
-  fflush(stdout);fflush(stderr);							
+/*   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i,  */
+/* 				    nomvar, bufferLength, &_nRead,  */
+/* 				    &data);*/
+/*, strSize );  */
+/* 					     strSize est  inutile pour les ports CALCIUM */
+/* 					     qui gèrent des tailles quelconques de chaines.  */
+/*   if(mode == CP_SEQUENTIEL)						 */
+/*     *i = _i;								 */
+/*   *nRead=_nRead;							 */
+/*   fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			 */
+/*   fflush(stdout);fflush(stderr);							 */
 									
-  return info;							
-};									
+/*   return info;							 */
+/* };									 */
 
 
 /* Definition des méthodes calcium standard  */
+/* CALCIUM_LECT_INTERFACE_C_( <suffixe du nom de l'interface à générer>, <type du paramètre temporel>, <type d'entier à utiliser pour les paramètres de type entier>,
+                              <type de données>, <nom de l'interface C2CPP à utiliser>, <qualificateur de type optionnel des données>,<paramètres supplémentaire ignoré>)*/
 
-CALCIUM_LECT_INTERFACE_C_(len,float,int,int,);
-CALCIUM_LECT_INTERFACE_C_(lre,float,float,float,);
-CALCIUM_LECT_INTERFACE_C_(ldb,double,double,double,);
-CALCIUM_LECT_INTERFACE_C_(llo,float,int,bool,); 
-CALCIUM_LECT_INTERFACE_C_(lcp,float,float,cplx,);
+CALCIUM_LECT_INTERFACE_C_(len,float ,int,int    ,int2integer,,);
+/*llg ne sera pas disponible si sizeof(long) == 64 bits && cal_int==int
+  sinon problème de conversion de 64bits vers 32bits */  
+CALCIUM_LECT_INTERFACE_C_(llg,float ,int,long   ,long2integer,,);
+
+CALCIUM_LECT_INTERFACE_C_(lre,float ,int,float  ,float,,);
+CALCIUM_LECT_INTERFACE_C_(ldb,double,int,double ,double,,);
+CALCIUM_LECT_INTERFACE_C_(llo,float ,int,int    ,bool,,); 
+CALCIUM_LECT_INTERFACE_C_(lcp,float ,int,float  ,cplx,,);
 #define STAR *
-/*   CALCIUM_LECT_INTERFACE_C_(lch,float,char,STAR); */
+#define LCH_LAST_PARAM ,int strsize
+CALCIUM_LECT_INTERFACE_C_(lch,float ,int,char   ,str,STAR, LCH_LAST_PARAM );
 
+
+/* Definition des méthodes calcium destinées à l'interfaçage fortran
+   avec une taille des INTEGER fortran paramétrés à la configuration du KERNEL  */
+
+CALCIUM_LECT_INTERFACE_C_(len_fort_,float ,cal_int,cal_int ,integer,,);
+CALCIUM_LECT_INTERFACE_C_(lin_fort_,float ,cal_int,int     ,int2integer,,);
+/*llg ne sera pas disponible si sizeof(long) == 64 bits && cal_int==int
+  sinon problème de conversion de 64bits vers 32bits */  
+CALCIUM_LECT_INTERFACE_C_(llg_fort_,float ,cal_int,long    ,long2integer,,);
+
+CALCIUM_LECT_INTERFACE_C_(lre_fort_,float ,cal_int,float   ,float,,);
+CALCIUM_LECT_INTERFACE_C_(ldb_fort_,double,cal_int,double  ,double,,);
+CALCIUM_LECT_INTERFACE_C_(llo_fort_,float ,cal_int,int     ,bool,,);   /*int pour bool ou cal_int */
+CALCIUM_LECT_INTERFACE_C_(lcp_fort_,float ,cal_int,float   ,cplx,,);
+CALCIUM_LECT_INTERFACE_C_(lch_fort_,float ,cal_int,char    ,str,STAR, LCH_LAST_PARAM );
 
 
 /**********************************************/
@@ -205,6 +240,7 @@ InfoType cp_cd (void * component, char * instanceName) {
   if (instanceName) strcpy(instanceName,"UNDEFINED");
   return CPOK;
 }
+
 InfoType cp_fin (void * component, int code) {
   /* TODO : gérer avec les callbacks des ports DSC */
   
@@ -214,25 +250,28 @@ InfoType cp_fin (void * component, int code) {
 }
 
 
-
 /***************************/
 /*  INTERFACES D'ECRITURE  */
 /***************************/
 
-#define CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual)	\
-  InfoType cp_##_name (void * component, int mode,			\
-		       _timeType t, int i,				\
-		       char * nomvar, int nbelem,			\
-		       _type _qual * data ) {				\
+#define CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
+  _calInt cp_##_name (void * component, _calInt mode,			\
+		       _timeType t, _calInt i,				\
+		       char * nomvar, _calInt nbelem,			\
+		       _type _qual * data				\
+		       lastarg ) {					\
 									\
-    /*long   _i=i;*/							\
+    int     _mode         =  mode;					\
+    long    _i            =  i;						\
+    size_t  _nbelem       =  nbelem;					\
+    _timeType _t          =  t;						\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,i,t);	\
+    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,i,t); \
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
-									\
-    InfoType info =  ecp_ecriture_##_typeName (component, mode, &t, i,	\
-					       nomvar, nbelem,		\
+    									\
+    _calInt info =  ecp_ecriture_##_typeName (component, _mode, &_t, _i, \
+					       nomvar, _nbelem,		\
 					       data );			\
     fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,i);		\
     fflush(stdout);							\
@@ -242,33 +281,46 @@ InfoType cp_fin (void * component, int code) {
   };									\
 
 
-/*  Definition des méthodes calcium standard  */
-
-CALCIUM_ECR_INTERFACE_C_(een,float,int,int,);
-CALCIUM_ECR_INTERFACE_C_(ere,float,float,float,);
-CALCIUM_ECR_INTERFACE_C_(edb,double,double,double,);
-/*CALCIUM_ECR_INTERFACE_C_(elo,float,bool,bool,);*/
-CALCIUM_ECR_INTERFACE_C_(elo,float,int,bool,);
-CALCIUM_ECR_INTERFACE_C_(ecp,float,float,cplx,);
 
 
-InfoType cp_ech(void * component, int mode, float t, int i,
-		char  *	nomvar,  int nbelem,
-		char ** data, int strSize) {
+/* InfoType cp_ech(void * component, int mode, float t, int i, */
+/* 		char  *	nomvar,  int nbelem, */
+/* 		char ** data, int strSize) { */
 									
-  /*long   _i=i;*/							
-  fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);	
-  if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		
+/*long   _i=i;*/							 
+/*   fflush(stdout);fflush(stderr);							 */
+/*   fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);	 */
+/*   if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		 */
     
-  InfoType info =  ecp_ecriture_str (component, mode, &t, i,	
-				     nomvar, nbelem,		
-				     data);/*, strSize );*/
-  fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);			
-  fflush(stdout);							
-  fflush(stderr);							
+/*   InfoType info =  ecp_ecriture_str (component, mode, &t, i,	 */
+/* 				     nomvar, nbelem,		 */
+/* 				     data); */
+/*, strSize );*/
+/*   fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);			 */
+/*   fflush(stdout);							 */
+/*   fflush(stderr);							 */
 									
-  return info;							
-};									
+/*   return info;							 */
+/* };									 */
 
+/*  Definition des méthodes calcium standard  */
+/*  CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,type,_typeName,_qual) */
+CALCIUM_ECR_INTERFACE_C_(een,float ,int,int   ,int2integer,,);
+CALCIUM_ECR_INTERFACE_C_(elg,float ,int,long  ,long2integer,,);
+CALCIUM_ECR_INTERFACE_C_(ere,float ,int,float ,float,,);
+CALCIUM_ECR_INTERFACE_C_(edb,double,int,double,double,,);
+CALCIUM_ECR_INTERFACE_C_(elo,float ,int,int   ,bool,,);
+CALCIUM_ECR_INTERFACE_C_(ecp,float ,int,float ,cplx,,);
+CALCIUM_ECR_INTERFACE_C_(ech,float ,int,char  ,str,STAR,LCH_LAST_PARAM );
 
+/* Definition des méthodes calcium destinées à l'interfaçage fortran
+   avec une taille des INTEGER fortran paramétrés à la configuration du KERNEL  */
+
+CALCIUM_ECR_INTERFACE_C_(een_fort_,float ,cal_int,cal_int,integer,,);
+CALCIUM_ECR_INTERFACE_C_(elg_fort_,float ,cal_int,long   ,long2integer,,);
+CALCIUM_ECR_INTERFACE_C_(ein_fort_,float ,cal_int,int    ,int2integer,,);
+CALCIUM_ECR_INTERFACE_C_(ere_fort_,float ,cal_int,float ,float,,);
+CALCIUM_ECR_INTERFACE_C_(edb_fort_,double,cal_int,double,double,,);
+CALCIUM_ECR_INTERFACE_C_(elo_fort_,float ,cal_int,int   ,bool,,);
+CALCIUM_ECR_INTERFACE_C_(ecp_fort_,float ,cal_int,float ,cplx,,);
+CALCIUM_ECR_INTERFACE_C_(ech_fort_,float ,cal_int,char  ,str,STAR,LCH_LAST_PARAM );

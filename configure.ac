@@ -176,6 +176,14 @@ AC_LINKER_OPTIONS
 
 echo
 echo ---------------------------------------------
+echo testing Fortran INTEGER size for CALCIUM 
+echo ---------------------------------------------
+echo
+
+CHECK_CALCIUM
+
+echo
+echo ---------------------------------------------
 echo testing threads
 echo ---------------------------------------------
 echo
@@ -546,6 +554,7 @@ AC_OUTPUT([ \
 	./doc/salome/gui/Makefile \
   ./doc/salome/gui/doxyfile \
 	./idl/Makefile \
+	./idl/Calcium_Ports.idl \
 	./resources/Makefile \
 	./resources/KERNELCatalog.xml \
 	./resources/CatalogResources.xml \
@@ -566,6 +575,9 @@ AC_OUTPUT([ \
 	./src/DSC/DSC_User/Datastream/Makefile \
 	./src/DSC/DSC_User/Datastream/Palm/Makefile \
 	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
+        ./src/DSC/DSC_User/Datastream/Calcium/calcium_integer_port_uses.hxx \
+        ./src/DSC/DSC_User/Datastream/Calcium/CalciumProvidesPort.hxx \
+        ./src/DSC/DSC_User/Datastream/Calcium/CalciumFortranInt.h \
 	./src/DSC/ParallelDSC/Makefile \
 	./src/DSC/DSC_Python/Makefile \
 	./src/GenericObj/Makefile \
