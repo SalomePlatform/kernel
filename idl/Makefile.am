@@ -242,10 +242,10 @@ libSalomeParallelIDLKernel_la_LIBADD  = libSalomeIDLKernel.la @PACO_LIBS@
 
 # These variables defines the building process of CORBA files
 OMNIORB_IDL         = @OMNIORB_IDL@
-OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@ -I$(srcdir)
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/salome/idl
-IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -Wba -I$(top_builddir)/salome/idl
-IDLPYFLAGS  = @IDLPYFLAGS@
+OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
+OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -Wba -I$(srcdir) -I$(top_builddir)/salome/idl
+IDLPYFLAGS  = @IDLPYFLAGS@ -I$(srcdir)
 
 # potential problem on parallel make on the following - multiple outputs
 SUFFIXES = .idl .hh SK.cc
@@ -266,7 +266,7 @@ if WITH_PACO_PARALLEL
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
 endif
 
-install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
+install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%) Calcium_Ports.idl
 	$(INSTALL) -d  $(DESTDIR)$(salomepythondir)
 	ls $^ | while read file; do \
 	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
