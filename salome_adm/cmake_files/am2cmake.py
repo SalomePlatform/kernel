@@ -525,6 +525,9 @@ class CMakeFile(object):
                 SET(WITH_BATCH 1)
                 set(VERSION 5.1.2)
                 set(XVERSION 0x050102)
+                SET(CALCIUM_IDL_INT_F77 long)
+                SET(CALCIUM_CORBA_INT_F77 CORBA::Long)
+                SET(LONG_OR_INT int)
                 """)
             elif self.module == "gui":
                 newlines.append("""
@@ -852,6 +855,11 @@ class CMakeFile(object):
         
         key = "IDL_FILES"
         if self.__thedict__.has_key(key):
+            if self.module == "kernel":
+                newlines.append('''
+                SET(IDL_FILES ${IDL_FILES} Calcium_Ports.idl)
+                ''')
+                pass
             newlines.append('''
             FOREACH(input ${IDL_FILES})
             STRING(REGEX REPLACE ".idl" "" base ${input})
@@ -859,9 +867,14 @@ class CMakeFile(object):
             SET(outputs ${src})
             SET(dynsrc ${CMAKE_CURRENT_BINARY_DIR}/${base}DynSK.cc)
             SET(outputs ${outputs} ${dynsrc})
+            IF(input STREQUAL Calcium_Ports.idl)
+            SET(input ${CMAKE_CURRENT_BINARY_DIR}/${input})
+            ELSE(input STREQUAL Calcium_Ports.idl)
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            ENDIF(input STREQUAL Calcium_Ports.idl)
             ADD_CUSTOM_COMMAND(
             OUTPUT ${outputs}
-            COMMAND ${OMNIORB_IDL} ${IDLCXXFLAGS} ${OMNIORB_IDLCXXFLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+            COMMAND ${OMNIORB_IDL} ${IDLCXXFLAGS} ${OMNIORB_IDLCXXFLAGS} ${input}
             MAIN_DEPENDENCY ${input}
             )
             install(FILES ${input} DESTINATION idl/salome)
@@ -1065,9 +1078,11 @@ class CMakeFile(object):
         # --
         newlines.append(r'''
         SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
-        IF(name STREQUAL SALOMEBasics)
+        FOREACH(lib SALOMEBasics SalomeBatch)
+        IF(name STREQUAL lib)
         SET(libs ${libs} ${PTHREAD_LIBS})
-        ENDIF(name STREQUAL SALOMEBasics)
+        ENDIF(name STREQUAL lib)
+        ENDFOREACH(lib SALOMEBasics SalomeBatch)
         ''')
         if key == "bin_PROGRAMS":
             newlines.append(r'''
