@@ -9,12 +9,13 @@ AC_ARG_WITH([cal_int],
 	    [],
 	    [withval=no])
 
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(int)
+
 if test "x$withval" = "xno"
 then
   AC_REQUIRE([CHECK_F77])
   AC_CHECK_SIZEOF_FORTRAN(integer)
-  AC_CHECK_SIZEOF(long)
-  AC_CHECK_SIZEOF(int)
 
   if test "x$ac_cv_sizeof_fortran_integer" = "x8" ; then
      AC_DEFINE(HAVE_F77INT64,[],
@@ -32,11 +33,21 @@ then
      AC_MSG_ERROR([Size of Fortran type integer is neither four nor eigth bytes])
   fi
 
-else
-  LONG_OR_INT="$withval" 
+elif test "x$withval" = "xint"
+then
+  LONG_OR_INT="int" 
   CALCIUM_IDL_INT_F77="long"
   CALCIUM_CORBA_INT_F77="CORBA::Long"
-  AC_MSG_NOTICE([Using C type $withval for cal_int])
+  AC_MSG_NOTICE([Using C type int for cal_int])
+
+elif test "x$withval" = "xlong"
+then
+  LONG_OR_INT="long"
+  CALCIUM_IDL_INT_F77="long long"
+  CALCIUM_CORBA_INT_F77="CORBA::LongLong"
+  AC_MSG_NOTICE([Using C type long for cal_int])
+else
+  AC_MSG_ERROR([Fortran type integer must be mapped to C type int or C type long]) 
 fi
 
 AC_SUBST(CALCIUM_IDL_INT_F77)

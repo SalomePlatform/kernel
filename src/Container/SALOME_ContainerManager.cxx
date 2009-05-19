@@ -287,7 +287,10 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
               if(std::string(params.mode.in())=="getorstart"||std::string(params.mode.in())=="get")
                 return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
               else
-                cont->Shutdown(); // shutdown the registered container if it exists
+                {
+                  INFOS("A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+                  cont->Shutdown(); // shutdown the registered container if it exists
+                }
             }
         }
       catch(CORBA::Exception&)

@@ -34,7 +34,7 @@
 #include "SALOME_GenericObj.idl"
 
 /*! \brief
-     This package contains the interfaces used for creation, managment
+     This package contains the interfaces used for creation, management
      and modification of the %Study
 */
 module SALOMEDS

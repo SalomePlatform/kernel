@@ -131,17 +131,7 @@ void F_FUNC(cplen,CPLEN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
   fprintf(stderr,"CPLEN: %s %f %f\n",cnom,*ti,*tf);
-  /*Les tests suivants n'empêchent pas l'utilisateur fortran de compiler son
-    module avec une taille d'entier différente de celle qu'il a précisée à SALOME.
-    Sans adaptation spécifique du code (integer*8, integer*4), ce cas de figure entrainera
-    inévitablement un crash.*/
-#if !(SIZEOF_FORTRAN_INTEGER && SIZEOF_INT && SIZEOF_LONG)
-# error "The macros SIZEOF_FORTRAN_INTEGER, SIZEOF_INT and SIZEOF_LONG must be defined."
-#elif ( SIZEOF_FORTRAN_INTEGER == SIZEOF_INT ) ||  ( SIZEOF_FORTRAN_INTEGER == SIZEOF_LONG )
    *err=cp_len_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
-#else
-# error "The SIZEOF_FORTRAN_INTEGER is not equal to SIZEOF_INT nor SIZEOF_LONG."
-#endif
   fprintf(stderr,"End of CPLEN: %s \n",cnom);
   free_str1(cnom);
 }
@@ -317,16 +307,7 @@ void F_FUNC(cpeen,CPEEN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
   fprintf(stderr,"CPEEN: %s %f %d\n",cnom, *ti,*iter);
-  /*Les tests suivants n'empêchent pas l'utilisateur fortran de compiler son
-    module avec une taille d'entier différente de celle qu'il a précisée à SALOME.
-    Ce cas de figure entrainera inévitablement un crash.*/
-#if !(SIZEOF_FORTRAN_INTEGER && SIZEOF_INT && SIZEOF_LONG)
-# error "The macros SIZEOF_FORTRAN_INTEGER, SIZEOF_INT and SIZEOF_LONG must be defined."
-#elif ( SIZEOF_FORTRAN_INTEGER == SIZEOF_INT ) || ( SIZEOF_FORTRAN_INTEGER == SIZEOF_LONG )
     *err=cp_een_fort_((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
-#else
-# error "The SIZEOF_FORTRAN_INTEGER is not equal to SIZEOF_INT nor SIZEOF_LONG."
-#endif
   fprintf(stderr,"End of CPEEN: %s %f \n",cnom,*ti);
   free_str1(cnom);
 }

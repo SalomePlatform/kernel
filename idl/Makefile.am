@@ -262,7 +262,7 @@ if WITH_PACO_PARALLEL
 %PaCO.idl %PaCO.hxx %PaCO.cxx : %.idl %.xml
 	$(OMNIORB_IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
 
-%.hxx: %.idl
+.idl.hxx:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
 endif
 
