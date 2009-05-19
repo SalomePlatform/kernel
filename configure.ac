@@ -414,7 +414,7 @@ echo
 CHECK_HTML_GENERATORS
 
 # Additional conditional to avoid compilation of non-portable code
-AM_CONDITIONAL(WINDOWS, 0)
+AM_CONDITIONAL(WINDOWS, [ test ])
 
 echo
 echo ============================================================
