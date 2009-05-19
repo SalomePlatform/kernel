@@ -81,6 +81,7 @@ CalciumFortranInt.h      : CalciumFortranInt.h.in
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
@@ -90,6 +91,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
 		 -I$(top_builddir)/idl \
+		 -I$(top_builddir)/src/DSC/DSC_User/Datastream/Calcium \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
