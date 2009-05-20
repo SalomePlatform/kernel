@@ -154,12 +154,15 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     """Add to the PATH-variables modules specific paths"""
     
     import os
-    from salome_utils import getTmpDir, generateFileName, makeTmpDir
+    from salome_utils import getTmpDir, generateFileName, makeTmpDir, getPortNumber
 
     # create temporary directory for environment files needed by modules from the list
-    tmp_dir = getTmpDir()
-    env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
-    makeTmpDir(env_dir)
+    port = getPortNumber(False)
+    if port:
+	tmp_dir = getTmpDir()
+	env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
+	makeTmpDir(env_dir)
+	pass
 
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
@@ -198,13 +201,15 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                                   salome_subdir,
                                   "shared_modules"),
                      "PYTHONPATH")
-
+		     
             # set environment by modules from the list
-            try:
-                mod=__import__(module.lower()+"_setenv")
-                mod.set_env(args)
-                pass
-            except:
+            if port:
+                try:
+                    mod=__import__(module.lower()+"_setenv")
+                    mod.set_env(args)
+                    pass
+                except:
+                    pass
                 pass
             pass
         pass
