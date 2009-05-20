@@ -101,7 +101,7 @@ DIST_SUBDIRS = \
 #
 
 if WITHONLYLAUNCHER
-  SUBDIRS = Batch Batch_SWIG ResourcesManager Launcher
+  SUBDIRS = Basics Batch Batch_SWIG ResourcesManager Launcher
 else
 
 SUBDIRS = $(SUBDIR_BASE)
