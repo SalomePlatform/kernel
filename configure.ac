@@ -31,7 +31,7 @@ AC_INIT([Salome2 Project], [5.1.2ax], [paul.rascle@edf.fr], [SalomeKERNEL])
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([tar-pax])
+AM_INIT_AUTOMAKE([tar-pax -Wno-portability])
 #AC_CONFIG_HEADER([config.h])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
