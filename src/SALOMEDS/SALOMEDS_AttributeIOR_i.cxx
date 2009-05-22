@@ -36,8 +36,41 @@ char* SALOMEDS_AttributeIOR_i::Value()
   return c_s._retn();
 }
 
+//To disable automatic management of GenericObj, comment the following line
+#define WITHGENERICOBJ
+
 void SALOMEDS_AttributeIOR_i::SetValue(const char* value) 
 {
+#ifdef WITHGENERICOBJ
+  CORBA::Object_var obj;
+  SALOME::GenericObj_var gobj;
+  try
+    {
+      obj = _orb->string_to_object(value);
+      gobj = SALOME::GenericObj::_narrow(obj);
+      if(! CORBA::is_nil(gobj) )
+        gobj->Register();
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+  //unregister value
+  try
+    {
+      std::string value=dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->Value();
+      if(value != "")
+        {
+          obj = _orb->string_to_object(value.c_str());
+          gobj = SALOME::GenericObj::_narrow(obj);
+          if(! CORBA::is_nil(gobj) )
+            gobj->Destroy();
+        }
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+#endif
+
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
