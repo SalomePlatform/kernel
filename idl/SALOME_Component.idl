@@ -203,15 +203,6 @@ module Engines
     //!  Determines whether the server has already been loaded or not.
     void ping();
 
-//    
-//       Set study associated to component instance
-//       \param studyId
-//       (=0:  multistudy component instance,
-//        >0: study id associated to this instance
-//       \return false if already set with a different value (change not possible)
-//     
-//     boolean setStudyId(in long studyId);
-
     //!  Get study associated to component instance
     /*!
       get study associated to component instance
