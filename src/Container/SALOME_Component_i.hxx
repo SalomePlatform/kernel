@@ -120,7 +120,7 @@ public:
   PortableServer::ObjectId * getId(); 
   Engines_Container_i *GetContainerPtr();
 
-  bool setStudyId(CORBA::Long studyId);
+  virtual bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
