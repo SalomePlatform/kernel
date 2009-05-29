@@ -42,4 +42,11 @@ sys.argv = argv[1:]
 #runSalome.set_env(args, modules_list, modules_root_dir)
 setenv.main(True);
 
+if sys.platform == "win32":
+    if len(argv) >= 2:
+        # Fix a problem of spaces in argv[1]
+        argv[1] = '"%s"'%(argv[1])
+        pass
+    pass
+
 os.execvp(argv[0],argv)
