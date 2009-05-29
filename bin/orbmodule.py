@@ -127,7 +127,7 @@ class client:
 
    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=60):
+   def waitNS(self,name,typobj=None,maxcount=240):
       count=0
       delta=0.5
       print "Searching %s in Naming Service " % name,
