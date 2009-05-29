@@ -534,6 +534,8 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() ) 
     {
+#ifdef WNT
+#else
       string cmd ;
       cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
         + portNumber
@@ -544,6 +546,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
       }
       catch ( ... ) {
       }
+#endif
     }
   
   // NPAL 18309  (Kill Notifd)
