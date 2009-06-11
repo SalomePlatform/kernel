@@ -90,7 +90,7 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    p.policy="best";
+    p.policy="first";
     cont = _ContManager->GiveContainer(p);
     if(CORBA::is_nil(cont)) error = true;
   }
