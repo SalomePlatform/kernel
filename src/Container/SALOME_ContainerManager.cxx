@@ -273,7 +273,11 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
   //check if an entry exists in Naming service
   //if params.mode == "start" or "" shutdown the existing container before launching a new one with that name
   //if params.mode == "getorstart" or "get" use the existing container
-  containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
+  if(params.isMPI)
+    // A parallel container register on zero node in NS
+    containerNameInNS = _NS->BuildContainerNameForNS(params,GetMPIZeroNode(theMachine).c_str());
+  else
+    containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
 
   SCRUTE(containerNameInNS);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
