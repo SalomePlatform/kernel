@@ -40,6 +40,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 using namespace std;
 
 #define USE_CASE_LABEL_ID                       "0:2"
@@ -443,7 +447,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
  *  Purpose  : save the study in HDF file
  */
 //============================================================================
-bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
+bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
 					    SALOMEDSImpl_Study* aStudy,
 					    SALOMEDSImpl_DriverFactory* aFactory,
 					    bool theMultiFile,
@@ -474,6 +478,9 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
     _errorCode = "Study is null";
     return false;
   }
+
+  //Create a temporary url to which the study is saved 
+  string aUrl = SALOMEDSImpl_Tool::GetTmpDir() + SALOMEDSImpl_Tool::GetNameFromPath(aStudyUrl);
 
   int aLocked = aStudy->GetProperties()->IsLocked();
   if (aLocked) aStudy->GetProperties()->SetLocked(false);
@@ -513,7 +520,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
 	}
 
       string anOldName = aStudy->Name();
-      aStudy->URL(aUrl);
+      aStudy->URL(aStudyUrl);
 
       // To change for Save
       // Do not have to do a new file but just a Open??? Rewrite all informations after erasing evrything??
@@ -732,6 +739,55 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
   if (theASCII) { // save file in ASCII format
     HDFascii::ConvertFromHDFToASCII(aUrl.c_str(), true);
   }
+  
+  //Now it's necessary to copy files from the temporary directory to the user defined directory.
+
+  //      The easiest way to get a list of file in the temporary directory
+
+  string aCmd, aTmpFileDir = SALOMEDSImpl_Tool::GetTmpDir();
+  string aTmpFile = aTmpFileDir +"files";
+  string aStudyTmpDir = SALOMEDSImpl_Tool::GetDirFromPath(aUrl);
+
+#ifdef WNT32
+  aCmd = "dir /B \"" + aStudyTmpDir +"\" > " + aTmpFile;
+#else
+  aCmd ="ls -1 \"" + aStudyTmpDir +"\" > " + aTmpFile;
+#endif
+  system(aCmd.c_str());
+
+  //       Iterate and move files in the temporary directory
+  FILE* fp = fopen(aTmpFile.c_str(), "r");
+  if(!fp) return false;
+  char* buffer = new char[2047];
+  while(!feof(fp)) {
+    if((fgets(buffer, 2046, fp)) == NULL) break;
+    size_t aLen = strlen(buffer);
+    if(buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
+#ifdef WNT32
+    aCmd = "move /Y \"" + aStudyTmpDir + string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\"";
+#else 
+    aCmd = "mv -f \"" + aStudyTmpDir + string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
+#endif
+    system(aCmd.c_str());    
+  }
+
+  delete []buffer;
+  fclose(fp);
+
+  //       Perform cleanup
+#ifdef WIN32
+  DeleteFileA(aTmpFile.c_str());
+#else 
+  unlink(aTmpFile.c_str());
+#endif
+
+#ifdef WIN32
+  RemoveDirectoryA(aTmpFileDir.c_str());
+  RemoveDirectoryA(aStudyTmpDir.c_str());
+#else
+  rmdir(aTmpFileDir.c_str());
+  rmdir(aStudyTmpDir.c_str());
+#endif
 
   return true;
 }
