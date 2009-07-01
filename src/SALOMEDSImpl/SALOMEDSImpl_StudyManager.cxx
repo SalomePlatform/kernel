@@ -748,7 +748,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
   string aTmpFile = aTmpFileDir +"files";
   string aStudyTmpDir = SALOMEDSImpl_Tool::GetDirFromPath(aUrl);
 
-#ifdef WNT32
+#ifdef WIN32
   aCmd = "dir /B \"" + aStudyTmpDir +"\" > " + aTmpFile;
 #else
   aCmd ="ls -1 \"" + aStudyTmpDir +"\" > " + aTmpFile;
@@ -763,7 +763,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
     if((fgets(buffer, 2046, fp)) == NULL) break;
     size_t aLen = strlen(buffer);
     if(buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
-#ifdef WNT32
+#ifdef WIN32
     aCmd = "move /Y \"" + aStudyTmpDir + string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\"";
 #else 
     aCmd = "mv -f \"" + aStudyTmpDir + string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
