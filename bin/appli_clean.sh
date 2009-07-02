@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -21,5 +21,14 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #clean appli
-#
-rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc
+
+DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc"
+echo "Do you want to delete a SALOME application in this directory ? " `pwd`
+echo "command to execute: " $DELCOM
+echo "enter yes or no"
+read ANSWER
+echo "ANSWER="$ANSWER
+if [ "x$ANSWER" == "xyes" ]
+then
+  $DELCOM
+fi
