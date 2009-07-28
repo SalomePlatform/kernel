@@ -187,12 +187,12 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
   else
     {
       Py_ACQUIRE_NEW_THREAD;
-      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *mainmod = PyImport_AddModule((char *)"__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-					     "import_component",
-					     "s",componentName);
+					     (char*)"import_component",
+					     (char*)"s",componentName);
       int ret= PyInt_AsLong(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
@@ -265,12 +265,12 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
       _containerName + "/" + instanceName;
 
     Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule("__main__");
+    PyObject *mainmod = PyImport_AddModule((char*)"__main__");
     PyObject *globals = PyModule_GetDict(mainmod);
     PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
     PyObject *result = PyObject_CallMethod(pyCont,
-					   "create_component_instance",
-					   "ssl",
+					   (char*)"create_component_instance",
+					   (char*)"ssl",
 					   aCompName.c_str(),
 					   instanceName.c_str(),
 					   studyId);
@@ -301,6 +301,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
       return iobject._retn();
     }
 
+  return Engines::Component::_nil() ;
 }
 
 Engines::Component_ptr
@@ -591,29 +592,33 @@ void *th_loadcomponentlibrary(void *s)
 {
   thread_st *st = (thread_st*)s;
   (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_component_Library(st->compoName.c_str());
+  return NULL;
 }
 
 void *th_createcomponentinstance(void *s)
 {
   thread_st *st = (thread_st*)s;
   (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->create_component_instance(st->compoName.c_str(),st->studyId);
+  return NULL;
 }
 
 void *th_loadimpl(void *s)
 {
   thread_st *st = (thread_st*)s;
   (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_impl(st->nameToRegister.c_str(),st->compoName.c_str());
+  return NULL;
 }
 
 void *th_removeimpl(void *s)
 {
   thread_st *st = (thread_st*)s;
   (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->remove_impl(st->cptr);
+  return NULL;
 }
 
 void *th_finalizeremoval(void *s)
 {
   thread_st *st = (thread_st*)s;
   (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->finalize_removal();
+  return NULL;
 }
-
