@@ -320,7 +320,7 @@ class SessionServer(Server):
         elif self.args.has_key('play'):
             self.CMD+=['-play'] + self.args['play']
 
-        if self.args["gdb_session"]:
+        if self.args["gdb_session"] or self.args["ddd_session"]:
             f = open(".gdbinit4salome", "w")
             f.write("set args ")
             args = " ".join(self.CMD[1:])
@@ -329,7 +329,11 @@ class SessionServer(Server):
             f.write(args)
             f.write("\n")
             f.close()
-            self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+            if self.args["ddd_session"]:
+                self.CMD = ["ddd", "--command=.gdbinit4salome", self.CMD[0]]
+            elif self.args["gdb_session"]:
+                self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+                pass
             pass
         
 # ---

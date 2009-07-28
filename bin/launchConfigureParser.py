@@ -56,6 +56,7 @@ batch_nam      = "batch"
 test_nam       = "test"
 play_nam       = "play"
 gdb_session_nam = "gdb_session"
+ddd_session_nam = "ddd_session"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -625,6 +626,13 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="gdb_session", default=False,
                             help=help_str)
     
+    # ddd session
+    help_str = "Launch session with ddd"
+    o_ddd = optparse.Option("--ddd-session",
+                            action="store_true",
+                            dest="ddd_session", default=False,
+                            help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -647,7 +655,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_nspl,
                 o_test,  # Write/read test script file with help of TestRecorder
                 o_play,  # Reproducing test script with help of TestRecorder
-                o_gdb]
+                o_gdb,
+                o_ddd,
+                ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
@@ -930,6 +940,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Gdb session in xterm
     if cmd_opts.gdb_session is not None:
         args[gdb_session_nam] = cmd_opts.gdb_session
+
+    # Ddd session in xterm
+    if cmd_opts.ddd_session is not None:
+        args[ddd_session_nam] = cmd_opts.ddd_session
 
     ####################################################
     # Add <theAdditionalOptions> values to args
