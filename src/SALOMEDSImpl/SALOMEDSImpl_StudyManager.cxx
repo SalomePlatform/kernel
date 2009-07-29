@@ -44,6 +44,11 @@
 #include <Windows.h>
 #endif
 
+//Warning undef of Ascii Winwows define
+#ifdef WIN32
+# undef GetUserName
+#endif
+
 using namespace std;
 
 #define USE_CASE_LABEL_ID                       "0:2"
