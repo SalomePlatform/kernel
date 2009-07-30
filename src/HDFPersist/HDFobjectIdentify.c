@@ -26,6 +26,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 ----------------------------------------------------------------------------*/
 
 #include "hdfi.h"
+#include <string.h>
 
 /*
  * - Name: HDFobjectIdentify
