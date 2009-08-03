@@ -50,6 +50,7 @@ dist_salomescript_SCRIPTS =		\
 	runSalome			\
 	runSalome.csh			\
 	runSalome.ksh			\
+	runSalome.bat			\
 	waitNS.sh
 
 # These files are python files
