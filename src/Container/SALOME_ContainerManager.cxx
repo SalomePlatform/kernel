@@ -317,8 +317,19 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
     command = BuildCommandToLaunchRemoteContainer(theMachine,params,container_exe);
 
   //redirect stdout and stderr in a file
-  string logFilename="/tmp/"+_NS->ContainerName(params)+"_"+ theMachine +"_"+getenv( "USER" )+".log" ;
-  command += " > " + logFilename + " 2>&1 &";
+#ifdef WNT
+  string logFilename=getenv("TEMP");
+  logFilename += "\\";
+#else
+  string logFilename="/tmp/";
+#endif
+  logFilename += _NS->ContainerName(params)+"_"+ theMachine +"_"+getenv( "USER" )+".log" ;
+  command += " > " + logFilename + " 2>&1";
+#ifdef WNT
+  command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
+#else
+  command += " &";
+#endif
 
   // launch container with a system call
   int status=system(command.c_str());
