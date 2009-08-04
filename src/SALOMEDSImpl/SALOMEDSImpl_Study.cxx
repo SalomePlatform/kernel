@@ -1216,7 +1216,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
   fp << _GetNoteBookAccess();
 
-  fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
+  fp << "sys.path.insert( 0, r\'" << thePath << "\')" << endl << endl;
 
   //Dump NoteBook Variables
   fp << _GetStudyVariablesScript();
