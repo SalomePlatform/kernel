@@ -23,12 +23,29 @@
 #clean appli
 
 DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc"
-echo "Do you want to delete a SALOME application in this directory ? " `pwd`
-echo "command to execute: " $DELCOM
-echo "enter yes or no"
-read ANSWER
-echo "ANSWER="$ANSWER
-if [ "x$ANSWER" == "xyes" ]
+DOIT="false"
+
+if [ $# > 0 ]
+then
+  if [ "x$1" == "x-f" ]
+  then DOIT="true"
+  fi
+fi
+
+if [ $DOIT == "false" ]
+then
+  echo "Do you want to delete a SALOME application in this directory ? " `pwd`
+  echo "command to execute: " $DELCOM
+  echo "enter yes or no"
+  read ANSWER
+  echo "ANSWER="$ANSWER
+  if [ "x$ANSWER" == "xyes" ]
+  then
+    DOIT="true"
+  fi
+fi
+
+if [ $DOIT == "true" ] 
 then
   $DELCOM
 fi
