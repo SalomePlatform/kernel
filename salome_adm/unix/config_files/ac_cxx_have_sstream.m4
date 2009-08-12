@@ -26,18 +26,23 @@ dnl @version $Id$
 dnl modified by Marc Tajchman (CEA) - 10/10/2002
 dnl
 
-AC_DEFUN([AC_CXX_HAVE_SSTREAM],
-[AC_CACHE_CHECK(whether the compiler has stringstream,
-HAVE_SSTREAM,
-[AC_REQUIRE([AC_CXX_NAMESPACES])
- AC_LANG_SAVE
- AC_LANG_CPLUSPLUS
- AC_TRY_COMPILE([#include <sstream>
-#ifdef HAVE_NAMESPACES
-using namespace std;
-#endif],[stringstream message; message << "Hello"; return 0;],
- HAVE_SSTREAM=yes, HAVE_SSTREAM=no)
- AC_LANG_RESTORE
-])
-AC_SUBST(HAVE_SSTREAM)
+AC_DEFUN([AC_CXX_HAVE_SSTREAM],[
+  AC_CACHE_CHECK([whether the compiler has stringstream],
+                 [ac_cv_prog_cxx_have_sstream],
+                 [ac_cv_prog_cxx_have_sstream=no
+    AC_REQUIRE([AC_CXX_NAMESPACES])
+    AC_LANG_SAVE
+    AC_LANG_CPLUSPLUS
+    AC_TRY_COMPILE([
+      #include <sstream>
+      #ifdef HAVE_NAMESPACES
+      using namespace std;
+      #endif
+    ],
+    [stringstream message; message << "Hello"; return 0;],
+    [ac_cv_prog_cxx_have_sstream=yes],[ac_cv_prog_cxx_have_sstream=no])
+    AC_LANG_RESTORE
+  ])
+  HAVE_SSTREAM=$ac_cv_prog_cxx_have_sstream
+  AC_SUBST(HAVE_SSTREAM)
 ])

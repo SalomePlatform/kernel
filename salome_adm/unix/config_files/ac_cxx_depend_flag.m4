@@ -25,10 +25,9 @@ dnl define CXX_DEPEND_FLAG
 dnl @version $Id$
 dnl @author Marc Tajchman
 dnl
-AC_DEFUN([AC_DEPEND_FLAG],
-[AC_CACHE_CHECK(which flag for dependency information generation,
-ac_cv_depend_flag,
-[AC_LANG_SAVE
+AC_DEFUN([AC_DEPEND_FLAG],[
+ AC_MSG_CHECKING([which flag for dependency information generation])
+ AC_LANG_SAVE
  AC_LANG_C
  echo "conftest.o: conftest.c" > conftest.verif
  echo "int  main() { return 0; }" > conftest.c
@@ -213,11 +212,12 @@ dnl use g++ option -MG : asume unknown file will be construct later
  printf " C++ : ${DEPCXX} ${CXX_DEPEND_FLAG}"
  AC_LANG_RESTORE
 
+ AC_MSG_RESULT([ ... done])
+
  AC_SUBST(DEPCC)
  AC_SUBST(DEPCXX)
  AC_SUBST(DEPCXXFLAGS)
  AC_SUBST(C_DEPEND_FLAG)
  AC_SUBST(CXX_DEPEND_FLAG)
  AC_SUBST(MACHINE)
-])
 ])
