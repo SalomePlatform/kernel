@@ -118,12 +118,7 @@ LIB_SRC = \
 	Batch_JobInfo_eSGE.cxx \
 	MpiImpl.cxx
 
-
 LIB_CPPFLAGS = ${PYTHON_INCLUDES}
-if !WITHONLYLAUNCHER
-  LIB_CPPFLAGS += -I$(top_builddir)/salome_adm/unix
-endif
-
 LIB_LIBADD = $(PYTHON_LIBS)
 
 #
@@ -159,10 +154,6 @@ LIB_SRC +=\
 	Batch_JobInfo_Local.cxx \
 	Batch_Job_Local.cxx \
 	Batch_IOMutex.cxx
-
-if !WITHONLYLAUNCHER
-  LIB_CPPFLAGS += -DHAVE_CONFIG_H
-endif
 
 endif
 

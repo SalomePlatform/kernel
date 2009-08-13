@@ -19,6 +19,19 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
+# ============================================================
+# The following is to avoid PACKAGE_... env variable
+# redefinition compilation warnings
+# ============================================================
+if !WITHONLYLAUNCHER
+    AM_CXXFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h
+    AM_CPPFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h
+else WITHONLYLAUNCHER
+    AM_CXXFLAGS =
+    AM_CPPFLAGS =
+endif
+
 # ============================================================
 # This file defines the common definitions used in several
 # Makefile. This file must be included, if needed, by the file

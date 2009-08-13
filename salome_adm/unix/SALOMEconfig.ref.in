@@ -20,42 +20,62 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef SALOME_CONFIG_H
-#define SALOME_CONFIG_H
+/* Debug mode ??? */
+#ifndef DEBUG
+# define DEBUG
+#endif
 
-#define DEBUG
+/* CORBA headers include rules */
+#ifndef CORBA_CLIENT_HEADER
+# define QUOTE(x)  #x
+# define CORBA_CLIENT_HEADER(x)  QUOTE(x@IDL_CLN_H@)
+# define CORBA_SERVER_HEADER(x)  QUOTE(x@IDL_SRV_H@)
+#endif
 
-#define QUOTE(x)  #x
-#define CORBA_CLIENT_HEADER(x)  QUOTE(x@IDL_CLN_H@)
-#define CORBA_SERVER_HEADER(x)  QUOTE(x@IDL_SRV_H@)
-
+/* Platform definition */
 #ifndef @MACHINE@
   #define @MACHINE@
 #endif
 
-
 /* A path to a rcp-like command */
-#define RCP "@RCP@"
+#ifndef RCP
+# define RCP "@RCP@"
+#endif
 
 /* A path to a rm-like command */
-#define RM "@RM@"
+#ifndef RM
+# define RM "@RM@"
+#endif
 
 /* A path to a cp-like command */
+#ifndef CP
 #define CP "@CP@"
+#endif
 
 /* A path to a rsh-like command */
+#ifndef RSH
 #define RSH "@RSH@"
+#endif
 
 /* A path to a scp-like command */
+#ifndef SCP
 #define SCP "@SCP@"
+#endif
 
 /* A path to a sh-like command */
+#ifndef SH
 #define SH "@SH@"
+#endif
 
 /* A path to a ssh-like command */
+#ifndef SSH
 #define SSH "@SSH@"
+#endif
 
 // This is only to suppress warning messages with defines redefined (cause of omniORB that exports these names)
+#ifdef PACKAGE
+#undef PACKAGE
+#endif
 #ifdef PACKAGE_BUGREPORT
 #undef PACKAGE_BUGREPORT
 #endif
@@ -71,9 +91,10 @@
 #ifdef PACKAGE_VERSION
 #undef PACKAGE_VERSION
 #endif
+#ifdef VERSION
+#undef VERSION
+#endif
 
 #ifdef _POSIX_C_SOURCE
 #undef _POSIX_C_SOURCE
-#endif
-
 #endif

@@ -92,6 +92,9 @@ AC_ARG_WITH(onlylauncher,
 	[],
 	[with_onlylauncher="no"])
 AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
+if test "$with_onlylauncher" != "yes"; then
+  AC_DEFINE([HAVE_SALOME_CONFIG], [], [True if SALOMEconfig.h file is used])
+fi
 
 # ----------------------------------------------------------------------------
 
