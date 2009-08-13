@@ -58,7 +58,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../MPIContainer \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

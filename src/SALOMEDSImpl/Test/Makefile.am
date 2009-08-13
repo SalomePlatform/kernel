@@ -58,7 +58,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
 	-I$(srcdir)/$(RPATH)/DF \
 	-I$(srcdir)/$(RPATH)/SALOMEDSImpl \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 

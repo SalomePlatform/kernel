@@ -52,7 +52,6 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(srcdir)/../HDFPersist \
-		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMETraceCollector \
 		 @PYTHON_INCLUDES@ \

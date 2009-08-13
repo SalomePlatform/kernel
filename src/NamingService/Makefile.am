@@ -52,7 +52,6 @@ libSalomeNS_la_CPPFLAGS = \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

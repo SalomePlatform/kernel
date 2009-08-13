@@ -45,7 +45,6 @@ libRegistry_la_CPPFLAGS =\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -68,6 +67,5 @@ SALOME_Registry_Server_CPPFLAGS =\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@

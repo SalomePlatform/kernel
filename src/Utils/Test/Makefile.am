@@ -54,8 +54,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Basics -I$(srcdir)/$(RPATH)/Basics/Test \
 	-I$(srcdir)/$(RPATH)/SALOMELocalTrace -I$(srcdir)/$(RPATH)/SALOMELocalTrace/Test \
 	-I$(srcdir)/$(RPATH)/SALOMETraceCollector -I$(srcdir)/$(RPATH)/SALOMETraceCollector/Test \
-	-I$(srcdir)/$(RPATH)/Utils -I$(srcdir)/$(RPATH)/Utils/Test \
-	-I$(top_builddir)/salome_adm/unix
+	-I$(srcdir)/$(RPATH)/Utils -I$(srcdir)/$(RPATH)/Utils/Test
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\

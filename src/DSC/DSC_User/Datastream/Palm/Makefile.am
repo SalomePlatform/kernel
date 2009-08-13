@@ -51,7 +51,6 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
-		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

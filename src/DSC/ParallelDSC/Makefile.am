@@ -50,7 +50,6 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/NamingService \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
-		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \

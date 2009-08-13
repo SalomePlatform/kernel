@@ -59,7 +59,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@LIBXML_INCLUDES@ \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@

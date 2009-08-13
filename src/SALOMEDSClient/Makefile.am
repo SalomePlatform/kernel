@@ -81,7 +81,6 @@ salomeinclude_HEADERS=\
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= \
 	@BOOST_CPPFLAGS@ \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

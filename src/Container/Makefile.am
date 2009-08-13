@@ -71,7 +71,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../HDFPersist \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @LIBXML_INCLUDES@
 

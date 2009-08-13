@@ -60,7 +60,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/SALOMEDSClient \
 	-I$(srcdir)/$(RPATH)/DF \
 	-I$(srcdir)/$(RPATH)/SALOMEDSImpl  -I$(srcdir)/$(RPATH)/SALOMEDSImpl/Test \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 

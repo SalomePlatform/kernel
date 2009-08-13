@@ -50,7 +50,6 @@ COMMON_CPPFLAGS= -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
-		 -I$(top_builddir)/salome_adm/unix \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.

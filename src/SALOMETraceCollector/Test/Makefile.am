@@ -56,8 +56,7 @@ COMMON_CPPFLAGS=\
 	@CPPUNIT_INCLUDES@ \
 	-I$(srcdir)/$(RPATH)/Basics -I$(srcdir)/$(RPATH)/Basics/Test \
 	-I$(srcdir)/$(RPATH)/SALOMELocalTrace -I$(srcdir)/$(RPATH)/SALOMELocalTrace/Test\
-	-I$(srcdir)/$(RPATH)/SALOMETraceCollector \
-	-I$(top_builddir)/salome_adm/unix
+	-I$(srcdir)/$(RPATH)/SALOMETraceCollector
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\

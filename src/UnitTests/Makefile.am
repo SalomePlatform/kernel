@@ -46,8 +46,7 @@ UnitTests_SOURCES  = UnitTests.cxx
 UnitTests_CPPFLAGS =\
 	@CPPUNIT_INCLUDES@ \
 	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \
-	-I$(srcdir)/../SALOMELocalTrace -I$(srcdir)/../SALOMELocalTrace/Test \
-	-I$(top_builddir)/salome_adm/unix
+	-I$(srcdir)/../SALOMELocalTrace -I$(srcdir)/../SALOMELocalTrace/Test
 
 if CORBA_GEN
   UnitTests_CPPFLAGS +=\

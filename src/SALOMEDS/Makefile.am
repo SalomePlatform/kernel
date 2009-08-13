@@ -69,7 +69,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../GenericObj \
 	-I$(srcdir)/../SALOMEDSClient \
 	-I$(srcdir)/../LifeCycleCORBA \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 

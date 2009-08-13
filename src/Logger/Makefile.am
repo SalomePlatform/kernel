@@ -45,7 +45,6 @@ SALOME_Logger_Server_SOURCES = \
 
 SALOME_Logger_Server_LDADD   = libSalomeLoggerServer.la
 SALOME_Logger_Server_CPPFLAGS =\
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Basics \
@@ -58,7 +57,6 @@ libSalomeLoggerServer_la_SOURCES =\
 	SALOME_Logger_Server.cxx 
 
 libSalomeLoggerServer_la_CPPFLAGS =\
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeLoggerServer_la_LDFLAGS = -no-undefined -version-info=0:0:0

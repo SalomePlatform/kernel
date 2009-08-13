@@ -58,7 +58,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/Utils -I$(srcdir)/$(RPATH)/Utils/Test \
 	-I$(srcdir)/$(RPATH)/ResourcesManager \
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
