@@ -452,7 +452,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
     help_str  = "Python script(s) to be imported. Python scripts are imported "
     help_str += "in the order of their appearance. In GUI mode python scripts "
     help_str += "are imported in the embedded python interpreter of current study, "
-    help_str += "otherwise in an external python interpreter"
+    help_str += "otherwise in an external python interpreter. "
+    help_str += "Note: this option is obsolete. Instead you can pass Python script(s) "
+    help_str += "directly as positional parameter."
     o_u = optparse.Option("-u",
                           "--execute",
                           metavar="<script1,script2,...>",
@@ -666,7 +668,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
 
     opt_list += theAdditionalOptions
 
-    a_usage = "%prog [options] [STUDY_FILE]"
+    a_usage = "%prog [options] [STUDY_FILE] [PYTHON_FILE [PYTHON_FILE ...]]"
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -861,8 +863,6 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         if args["session_gui"]:
             if cmd_opts.splash is not None:
                 args[splash_nam] = cmd_opts.splash
-        if len(cmd_args) > 0:
-            args["study_hdf"] = cmd_args[0]
     else:
         args["session_gui"] = False
         args[splash_nam] = False
@@ -884,6 +884,13 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         listlist = cmd_opts.py_scripts
         for listi in listlist:
             args[script_nam] += re.split( "[:;,]", listi)
+    for arg in cmd_args:
+        if arg[-3:] == ".py":
+            args[script_nam].append(arg)
+        elif not args["study_hdf"]:
+            args["study_hdf"] = arg
+            pass
+        pass
 
     # xterm
     if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm
