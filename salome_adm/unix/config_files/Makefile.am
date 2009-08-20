@@ -64,6 +64,7 @@ check_calcium.m4 \
 check_hdf5.m4 \
 check_htmlgen.m4 \
 check_lam.m4 \
+check_local.m4 \
 check_lsf.m4 \
 check_mpi.m4 \
 check_openmpi.m4 \
