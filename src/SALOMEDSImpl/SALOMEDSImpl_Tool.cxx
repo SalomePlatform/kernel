@@ -184,31 +184,31 @@ string SALOMEDSImpl_Tool::GetNameFromPath(const string& thePath) {
 // purpose  : Returns the dir by the path
 //============================================================================
 string SALOMEDSImpl_Tool::GetDirFromPath(const string& thePath) {
-  if (thePath.empty()) return "";
-
-  int pos = thePath.rfind('/');
-  string path;
-  if(pos > 0) {
-    path = thePath.substr(0, pos+1);
-  }
-  if(path.empty()) {
-    pos = thePath.rfind('\\');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
-  }
-  if(path.empty()) {
-    pos = thePath.rfind('|');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
-  }
-  if(path.empty()) {
-    path = thePath+"/";
-  }
-  
-#ifdef WIN32  //Check if the only disk letter is given as path
-  if(path.size() == 2 && path[1] == ':') path +='\\';
+#ifdef WIN32
+  string separator = "\\";
+#else
+  string separator = "/";
 #endif
 
-  for(int i = 0, len = path.size(); i<len; i++) 
-    if(path[i] == '|') path[i] = '/';
+  string path;
+  if (!thePath.empty()) {
+    int pos = thePath.rfind('/');
+    if (pos < 0) pos = thePath.rfind('\\');
+    if (pos < 0) pos = thePath.rfind('|');
+    
+    if (pos > 0)
+      path = thePath.substr(0, pos+1);
+    else
+      path = string(".") + separator;
+
+#ifdef WIN32  //Check if the only disk letter is given as path
+    if (path.size() == 2 && path[1] == ':') path += separator;
+#endif
+    
+    while ( (pos=path.find('|')) >= 0 )
+      path.replace(pos, 1, separator);
+  }
+  
   return path;
 }
 
