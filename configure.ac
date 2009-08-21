@@ -121,6 +121,7 @@ echo ---------------------------------------------
 echo
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+AC_LOCAL_INSTALL
 
 echo
 echo ---------------------------------------------
