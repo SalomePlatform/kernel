@@ -41,11 +41,11 @@ class Standard_EXPORT SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::
 
 protected:
   DF_Attribute*    _impl;
-  CORBA::ORB_ptr   _orb;
+  CORBA::ORB_var   _orb;
 
 public:
   SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb);
-  virtual ~SALOMEDS_GenericAttribute_i() {};
+  virtual ~SALOMEDS_GenericAttribute_i();
 
   void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
   

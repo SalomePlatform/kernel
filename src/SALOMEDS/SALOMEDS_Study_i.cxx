@@ -426,9 +426,8 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 
   //Create iterator
   SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(anItr, _orb);
-  SALOMEDS::ChildIterator_var it = SALOMEDS::ChildIterator::_narrow(it_servant->_this()); 
 
-  return it;
+  return it_servant->_this();
 }
 
 
@@ -661,12 +660,13 @@ void SALOMEDS_Study_i::Close()
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
   for (; itcomponent->More(); itcomponent->Next()) {
     SALOMEDS::SComponent_var sco = itcomponent->Value();
-    MESSAGE ( "Look for an engine for data type :"<< sco->ComponentDataType());
+    CORBA::String_var compodatatype=sco->ComponentDataType();
+    MESSAGE ( "Look for an engine for data type :"<< compodatatype);
     // if there is an associated Engine call its method for closing
     CORBA::String_var IOREngine;
     if (sco->ComponentIOR(IOREngine)) {
       // we have found the associated engine to write the data 
-      MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
+      MESSAGE ( "We have found an engine for data type :"<< compodatatype);
       //_narrow can throw a corba exception
       try
         {

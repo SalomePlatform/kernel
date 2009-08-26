@@ -123,7 +123,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   MESSAGE("NewStudy : Creating the CORBA servant holding it... ");
 
   SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this());
+  SALOMEDS::Study_var Study = Study_servant->_this();
 
   // Register study in the naming service
   // Path to acces the study
@@ -139,7 +139,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 
   _mapOfPOA[Study->StudyId()] = _poa;
 
-  return Study;
+  return Study._retn();
 }
 
 //============================================================================

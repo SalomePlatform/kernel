@@ -46,7 +46,7 @@ class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
 {
 private:
 
-  CORBA::ORB_ptr               _orb;
+  CORBA::ORB_var               _orb;
   SALOMEDSImpl_UseCaseBuilder* _impl;
 
 public:

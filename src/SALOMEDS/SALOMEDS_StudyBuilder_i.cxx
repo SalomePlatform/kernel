@@ -112,7 +112,8 @@ void SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr aComponen
   SALOMEDS::Locker lock;
   CheckLocked();
   ASSERT(!CORBA::is_nil(aComponent));
-  SALOMEDSImpl_SComponent aSCO = _impl->GetOwner()->GetSComponent(aComponent->GetID());
+  CORBA::String_var cid=aComponent->GetID();
+  SALOMEDSImpl_SComponent aSCO = _impl->GetOwner()->GetSComponent(cid.in());
   _impl->RemoveComponent(aSCO);
 }
 

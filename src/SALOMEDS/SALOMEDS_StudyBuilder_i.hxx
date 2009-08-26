@@ -39,7 +39,7 @@
 class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder
 {
 private:
-  CORBA::ORB_ptr                    _orb;
+  CORBA::ORB_var                    _orb;
   SALOMEDSImpl_StudyBuilder*        _impl;  
 public:
     

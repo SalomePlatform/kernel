@@ -50,6 +50,10 @@ SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, 
   _impl = theImpl;
 }
 
+SALOMEDS_GenericAttribute_i::~SALOMEDS_GenericAttribute_i()
+{
+}
+
 void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) 
 {
   SALOMEDS::Locker lock;

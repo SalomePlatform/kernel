@@ -79,7 +79,11 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
  */
 //============================================================================
 SALOMEDSImpl_Study::~SALOMEDSImpl_Study()
-{}
+{
+  delete _builder;
+  delete _cb;
+  delete _useCaseBuilder;
+}
 
 //============================================================================
 /*! Function : GetPersistentReference

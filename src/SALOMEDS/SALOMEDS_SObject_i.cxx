@@ -49,9 +49,8 @@ using namespace std;
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
-  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this());
 
-  return so._retn();
+  return so_servant->_this();
 }
 
 

@@ -42,7 +42,7 @@ class Standard_EXPORT SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
 			  public virtual SALOME::GenericObj_i
 {
 protected:
-  CORBA::ORB_ptr               _orb;
+  CORBA::ORB_var               _orb;
   SALOMEDSImpl_SObject*        _impl;
 
 public:

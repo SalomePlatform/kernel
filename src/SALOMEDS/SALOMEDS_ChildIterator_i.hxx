@@ -43,7 +43,7 @@ class SALOMEDS_ChildIterator_i: public virtual POA_SALOMEDS::ChildIterator,
 				public virtual SALOME::GenericObj_i
 {
 private:
-  CORBA::ORB_ptr                     _orb;
+  CORBA::ORB_var                     _orb;
   SALOMEDSImpl_ChildIterator*        _it;
 public:
 

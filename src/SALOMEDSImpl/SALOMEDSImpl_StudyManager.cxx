@@ -80,6 +80,7 @@ SALOMEDSImpl_StudyManager::SALOMEDSImpl_StudyManager()
 //============================================================================
 SALOMEDSImpl_StudyManager::~SALOMEDSImpl_StudyManager()
 {
+  _appli->Close(_clipboard);
   // Destroy application
   delete _appli;    
 }

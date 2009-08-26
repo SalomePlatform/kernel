@@ -52,13 +52,15 @@ class SALOME_NamingServicePy_i(object):
     
     #-------------------------------------------------------------------------
 
-    def __init__(self, orb):
+    def __init__(self, orb=None):
         """
         Standard Constructor, with ORB reference.
  
         Initializes the naming service root context
         """
         #MESSAGE ( "SALOME_NamingServicePy_i::__init__" )
+        if orb is None:
+          orb=CORBA.ORB_init([''], CORBA.ORB_ID)
         self._orb = orb
         # initialize root context and current context
         ok = 0

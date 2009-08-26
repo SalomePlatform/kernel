@@ -33,9 +33,8 @@ using namespace std;
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const SALOMEDSImpl_SComponent& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SComponent_i* sco_servant = new SALOMEDS_SComponent_i(theImpl, theORB);
-  SALOMEDS::SComponent_var sco  = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
 
-  return sco._retn();
+  return sco_servant->_this();
 }    
 
 //============================================================================

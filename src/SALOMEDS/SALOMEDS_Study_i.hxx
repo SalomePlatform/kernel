@@ -48,7 +48,7 @@
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
-  CORBA::ORB_ptr                 _orb;
+  CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
 
