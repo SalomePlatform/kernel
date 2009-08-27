@@ -321,7 +321,17 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
   string logFilename=getenv("TEMP");
   logFilename += "\\";
 #else
-  string logFilename="/tmp/";
+  string logFilename="/tmp";
+  char* val = getenv("SALOME_TMP_DIR");
+  if(val)
+    {
+      struct stat file_info;
+      stat(val, &file_info);
+      bool is_dir = S_ISDIR(file_info.st_mode);
+      if (is_dir)logFilename=val;
+      else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
+    }
+  logFilename += "/";
 #endif
   logFilename += _NS->ContainerName(params)+"_"+ theMachine +"_"+getenv( "USER" )+".log" ;
   command += " > " + logFilename + " 2>&1";
