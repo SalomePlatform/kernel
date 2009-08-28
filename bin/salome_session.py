@@ -96,7 +96,7 @@ def searchFreePort():
             msg  = ""
             msg += "Can not find a free port to launch omniNames\n"
             msg += "Kill the running servers and try again.\n"
-            raise msg
+            raise RuntimeError, msg
         NSPORT = NSPORT+1
         pass
     os.environ['NSHOST'] = hostname

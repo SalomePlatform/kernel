@@ -838,7 +838,7 @@ def searchFreePort(args, save_config=1):
             msg  = "\n"
             msg += "Can't find a free port to launch omniNames\n"
             msg += "Try to kill the running servers and then launch SALOME again.\n"
-            raise msg
+            raise RuntimeError, msg
         NSPORT=NSPORT+1
         pass
     return
