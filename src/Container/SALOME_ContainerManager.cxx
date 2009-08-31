@@ -81,6 +81,19 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
   _NS->Register(refContMan,_ContainerManagerNameInNS);
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
+
+#ifdef HAVE_MPI2
+  if( getenv("OMPI_URI_FILE") != NULL ){
+    system("killall ompi-server");
+    string command;
+    command = "ompi-server -r ";
+    command += getenv("OMPI_URI_FILE");
+    int status=system(command.c_str());
+    if(status!=0)
+      throw SALOME_Exception("Error when launching ompi-server");
+  }
+#endif
+
   MESSAGE("constructor end");
 }
 
@@ -93,6 +106,10 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
   MESSAGE("destructor");
+#ifdef HAVE_MPI2
+  if( getenv("OMPI_URI_FILE") != NULL )
+    system("killall ompi-server");
+#endif
 }
 
 //=============================================================================
