@@ -1125,6 +1125,7 @@ class CMakeFile(object):
         SET(vars ${vars} -no-undefined)
         SET(vars ${vars} -lvtkWidgets)
         IF(WINDOWS)
+        SET(vars ${vars} -fPIC)
         SET(vars ${vars} -module)
         SET(vars ${vars} -Wl,-E)
         SET(vars ${vars} -Xlinker)
