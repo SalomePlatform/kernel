@@ -1119,7 +1119,7 @@ class CMakeFile(object):
         GET_FILENAME_COMPONENT(ext ${lib} EXT)
         IF(ext STREQUAL .la)
         GET_FILENAME_COMPONENT(lib ${lib} NAME_WE)
-        STRING(REPLACE "lib" "" lib ${lib})
+        STRING(REGEX REPLACE "^lib" "" lib ${lib})
         ENDIF(ext STREQUAL .la)
         SET(vars)
         SET(vars ${vars} -no-undefined)
