@@ -612,6 +612,10 @@ class CMakeFile(object):
         SET(AM_CXXFLAGS)
         SET(LDADD)
         """)
+        newlines.append(r'''
+        SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
+        SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
+        ''')
         # --
         return
     
@@ -1197,12 +1201,10 @@ class CMakeFile(object):
             SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
             ''')
             pass
-        if key == "bin_PROGRAMS":
-            newlines.append(r'''
-            SET(var ${var} ${AM_CPPFLAGS})
-            SET(var ${var} ${AM_CXXFLAGS})
-            ''')
-            pass
+        newlines.append(r'''
+        SET(var ${var} ${AM_CPPFLAGS})
+        SET(var ${var} ${AM_CXXFLAGS})
+        ''')
         newlines.append(r'''
 	SET(var ${var} ${PLATFORM_CPPFLAGS})
 	SET(var ${var} ${PTHREAD_CFLAGS})
