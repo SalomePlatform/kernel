@@ -58,9 +58,9 @@ class CONTAINER_EXPORT Salome_file_i:
     // Configure DistributedFile
     virtual void connect(Engines::Salome_file_ptr source_Salome_file);
     virtual void connectDistributedFile(const char * file_name,
-					Engines::Salome_file_ptr source_Salome_file);
+                                        Engines::Salome_file_ptr source_Salome_file);
     virtual void setDistributedSourceFile(const char* file_name,
-					  const char * source_file_name);
+                                          const char * source_file_name);
 
     // Recv and check files
     virtual void recvFiles();

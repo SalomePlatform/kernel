@@ -42,7 +42,7 @@ from launchConfigureParser import verbose
 
 #=============================================================================
 
-#define an implementation of the container interface
+#define an implementation of the container interface for the container implemented in Python
 
 class SALOME_ContainerPy_i (Engines__POA.Container):
     _orb = None
@@ -58,7 +58,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._poa = poa
         myMachine=getShortHostName()
         Container_path = "/Containers/" + myMachine + "/" + containerName
-        #self._containerName = containerName
         self._containerName = Container_path
         if verbose(): print "container name ",self._containerName
 
@@ -174,10 +173,9 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if verbose(): print "import ",componentName," successful"
             ret=1
         except:
-            if verbose(): 
-              import traceback
-              traceback.print_exc()
-              print "import ",componentName," not possible"
+            import traceback
+            traceback.print_exc()
+            print "import ",componentName," not possible"
         return ret
 
     #-------------------------------------------------------------------------
@@ -187,24 +185,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        #the_command = "import " + componentName + "\n"
-        #the_command = the_command + "comp_i = " + componentName + "." + componentName
-        #the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
-        #MESSAGE( "SALOME_ContainerPy_i::load_component_Library :" + str (the_command) )
-        #exec the_command
-        #comp_o = comp_i._this()
-        #if comp_o is not None:
-        #    ret = 1
-        #else:
-            # --- try to import Python component
-        #    retImpl = self.import_component(componentName)
-        #    if retImpl == 1:
-                #import is possible
-        #        ret = 1
-        #    else:
-                #import isn't possible
-        #        ret = 0
-        #return ret
         return self.import_component(componentName)
     
     #-------------------------------------------------------------------------

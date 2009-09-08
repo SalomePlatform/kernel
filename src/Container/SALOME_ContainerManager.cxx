@@ -168,28 +168,28 @@ void SALOME_ContainerManager::ShutdownContainers()
     {
       try
       {
-	SCRUTE((*iter));
-	CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
-	Engines::Container_var cont=Engines::Container::_narrow(obj);
-	if(!CORBA::is_nil(cont))
-	{
-	  MESSAGE("ShutdownContainers: " << (*iter));
-	  cont->Shutdown();
-	}
-	else 
-	  MESSAGE("ShutdownContainers: no container ref for " << (*iter));
+        SCRUTE((*iter));
+        CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+        Engines::Container_var cont=Engines::Container::_narrow(obj);
+        if(!CORBA::is_nil(cont))
+        {
+          MESSAGE("ShutdownContainers: " << (*iter));
+          cont->Shutdown();
+        }
+        else 
+          MESSAGE("ShutdownContainers: no container ref for " << (*iter));
       }
       catch(CORBA::SystemException& e)
       {
-	INFOS("CORBA::SystemException ignored : " << e);
+        INFOS("CORBA::SystemException ignored : " << e);
       }
       catch(CORBA::Exception&)
       {
-	INFOS("CORBA::Exception ignored.");
+        INFOS("CORBA::Exception ignored.");
       }
       catch(...)
       {
-	INFOS("Unknown exception ignored.");
+        INFOS("Unknown exception ignored.");
       }
     }
   }
@@ -648,12 +648,12 @@ SALOME_ContainerManager::StartParallelContainer(const Engines::MachineParameters
       // Il faut tuer le proxy
       try 
       {
-	Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
-	proxy->Shutdown();
+        Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
+        proxy->Shutdown();
       }
       catch (...)
       {
-	INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
+        INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
       }
       return ret;
     }
@@ -671,34 +671,34 @@ SALOME_ContainerManager::StartParallelContainer(const Engines::MachineParameters
       obj = _NS->Resolve(containerNameInNS.c_str());
       if (CORBA::is_nil(obj)) 
       {
-	INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
-	INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
-	return ret;
+        INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
+        INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
+        return ret;
       }
       try
       {
-	MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
-	PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
-	node->deploy();
-	MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
+        MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
+        PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
+        node->deploy();
+        MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
       }
       catch(CORBA::SystemException& e)
       {
-	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-	INFOS("CORBA::SystemException : " << e);
-	return ret;
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("CORBA::SystemException : " << e);
+        return ret;
       }
       catch(CORBA::Exception& e)
       {
-	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-	INFOS("CORBA::Exception" << e);
-	return ret;
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("CORBA::Exception" << e);
+        return ret;
       }
       catch(...)
       {
-	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-	INFOS("Unknown exception !");
-	return ret;
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("Unknown exception !");
+        return ret;
       }
     }
 
@@ -764,9 +764,9 @@ SALOME_ContainerManager::StartParallelContainer(const Engines::MachineParameters
 //=============================================================================
 CORBA::Object_ptr 
 SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
-						 const Engines::MachineParameters& params,
-						 const std::string& name,
-						 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+                                                 const Engines::MachineParameters& params,
+                                                 const std::string& name,
+                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
 {
   CORBA::Object_ptr obj = CORBA::Object::_nil();
   std::string containerNameInNS;
@@ -817,17 +817,17 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
       INFOS("[LaunchParallelContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
       while (CORBA::is_nil(obj) && count) {
 #ifndef WIN32
-	sleep(1) ;
+        sleep(1) ;
 #else
-	Sleep(1000);
+        Sleep(1000);
 #endif
-	count-- ;
-	obj = _NS->Resolve(containerNameInNS.c_str());
+        count-- ;
+        obj = _NS->Resolve(containerNameInNS.c_str());
       }
       if (CORBA::is_nil(obj))
       {
-	INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
-	return obj;
+        INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
+        return obj;
       }
     }
   }
@@ -900,7 +900,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 {
   string command;
   int nbproc;
-	  
+          
   if ( ! _isAppliSalomeDefined )
     command = BuildTempFileToLaunchRemoteContainer(machine, params);
 
@@ -931,21 +931,21 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
         throw SALOME_Exception("Unknown protocol");
 
       if (resInfo.UserName != "")
-	{
-	  command += resInfo.UserName;
-	  command += "@";
-	}
+        {
+          command += resInfo.UserName;
+          command += "@";
+        }
 
       command += machine;
       command += " ";
 
       if (resInfo.AppliPath != "")
-	command += resInfo.AppliPath; // path relative to user@machine $HOME
+        command += resInfo.AppliPath; // path relative to user@machine $HOME
       else
-	{
-	  ASSERT(getenv("APPLI"));
-	  command += getenv("APPLI"); // path relative to user@machine $HOME
-	}
+        {
+          ASSERT(getenv("APPLI"));
+          command += getenv("APPLI"); // path relative to user@machine $HOME
+        }
 
       command += "/runRemote.sh ";
 
@@ -968,23 +968,23 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
         }
 
       if(params.isMPI)
-	{
-	  command += " mpirun -np ";
-	  std::ostringstream o;
-	  o << nbproc << " ";
-	  command += o.str();
+        {
+          command += " mpirun -np ";
+          std::ostringstream o;
+          o << nbproc << " ";
+          command += o.str();
 #ifdef WITHLAM
-	  command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+          command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
-	  if( getenv("OMPI_URI_FILE") == NULL )
-	    command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
-	  else{
-	    command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-	    command += getenv("OMPI_URI_FILE");
-	  }
-#endif	
-	  command += " SALOME_MPIContainer ";
-	}
+          if( getenv("OMPI_URI_FILE") == NULL )
+            command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+          else{
+            command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+            command += getenv("OMPI_URI_FILE");
+          }
+#endif        
+          command += " SALOME_MPIContainer ";
+        }
       else
         command += " " +container_exe+ " ";
 
@@ -1040,7 +1040,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 #elif defined(WITHOPENMPI)
       //command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace ";
       if( getenv("OMPI_URI_FILE") == NULL )
-	command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+        command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else
         {
           command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
@@ -1246,10 +1246,10 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
       if( getenv("OMPI_URI_FILE") == NULL )
-	tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+        tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
-	tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-	tempOutputFile << getenv("OMPI_URI_FILE");
+        tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+        tempOutputFile << getenv("OMPI_URI_FILE");
       }
 #endif
     }
@@ -1332,9 +1332,9 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 //=============================================================================
 string 
 SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string& exe_name,
-							       const Engines::MachineParameters& params,
-							       SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
-							       const std::string proxy_hostname)
+                                                               const Engines::MachineParameters& params,
+                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
+                                                               const std::string proxy_hostname)
 {
   // This method knows the differences between the proxy and the nodes.
   // nb_component_nodes is not used in the same way if it is a proxy or 
@@ -1387,14 +1387,14 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
     if (is_a_proxy)
     {
       machine_file_name = _ResManager->getMachineFile(hostname,
-						      1,
-						      parallelLib);
+                                                      1,
+                                                      parallelLib);
     }
     else
     {
       machine_file_name = _ResManager->getMachineFile(hostname, 
-						      params.nb_component_nodes,
-						      parallelLib);
+                                                      params.nb_component_nodes,
+                                                      parallelLib);
     }
     if (machine_file_name == "")
     {
@@ -1442,32 +1442,32 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       std::string command_remote("");
       if (remote)
       {
-	std::string machine_name;
-	std::ifstream machine_file(machine_file_name.c_str());
-	std::getline(machine_file, machine_name);
-	MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
+        std::string machine_name;
+        std::ifstream machine_file(machine_file_name.c_str());
+        std::getline(machine_file, machine_name);
+        MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
 
-	// We want to launch a command like : 
-	// ssh user@machine distantPath/runRemote.sh hostNS portNS
-	const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
-	if (resInfo.Protocol == rsh)
-	  command_remote = "rsh ";
-	else 
-	  command_remote = "ssh ";
-	command_remote += resInfo.UserName;
-	command_remote += "@";
-	command_remote += machine_name;
-	command_remote += " ";
-	command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-	command_remote += "/runRemote.sh ";
-	ASSERT(getenv("NSHOST")); 
-	command_remote += getenv("NSHOST"); // hostname of CORBA name server
-	command_remote += " ";
-	ASSERT(getenv("NSPORT"));
-	command_remote += getenv("NSPORT"); // port of CORBA name server
-	command_remote += " ";
+        // We want to launch a command like : 
+        // ssh user@machine distantPath/runRemote.sh hostNS portNS
+        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
+        if (resInfo.Protocol == rsh)
+          command_remote = "rsh ";
+        else 
+          command_remote = "ssh ";
+        command_remote += resInfo.UserName;
+        command_remote += "@";
+        command_remote += machine_name;
+        command_remote += " ";
+        command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
+        command_remote += "/runRemote.sh ";
+        ASSERT(getenv("NSHOST")); 
+        command_remote += getenv("NSHOST"); // hostname of CORBA name server
+        command_remote += " ";
+        ASSERT(getenv("NSPORT"));
+        command_remote += getenv("NSPORT"); // port of CORBA name server
+        command_remote += " ";
 
-	hostname = machine_name;
+        hostname = machine_name;
       }
 
       command =  real_exe_name;
@@ -1485,63 +1485,63 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
     {
       std::ifstream * machine_file = NULL;
       if (remote)
-	machine_file = new std::ifstream(machine_file_name.c_str());
+        machine_file = new std::ifstream(machine_file_name.c_str());
       for (int i= 0; i < nb_nodes; i++)
       {
-	std::string command_remote("");
-	if (remote)
-	{
-	  std::string machine_name;
-	  std::getline(*machine_file, machine_name);
-	  MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
+        std::string command_remote("");
+        if (remote)
+        {
+          std::string machine_name;
+          std::getline(*machine_file, machine_name);
+          MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
 
-	    // We want to launch a command like : 
-	    // ssh user@machine distantPath/runRemote.sh hostNS portNS
-	    const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
-	  if (resInfo.Protocol == rsh)
-	    command_remote = "rsh ";
-	  else 
-	    command_remote = "ssh ";
-	  command_remote += resInfo.UserName;
-	  command_remote += "@";
-	  command_remote += machine_name;
-	  command_remote += " ";
-	  command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-	  command_remote += "/runRemote.sh ";
-	  ASSERT(getenv("NSHOST")); 
-	  command_remote += getenv("NSHOST"); // hostname of CORBA name server
-	  command_remote += " ";
-	  ASSERT(getenv("NSPORT"));
-	  command_remote += getenv("NSPORT"); // port of CORBA name server
-	  command_remote += " ";
+            // We want to launch a command like : 
+            // ssh user@machine distantPath/runRemote.sh hostNS portNS
+            const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
+          if (resInfo.Protocol == rsh)
+            command_remote = "rsh ";
+          else 
+            command_remote = "ssh ";
+          command_remote += resInfo.UserName;
+          command_remote += "@";
+          command_remote += machine_name;
+          command_remote += " ";
+          command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
+          command_remote += "/runRemote.sh ";
+          ASSERT(getenv("NSHOST")); 
+          command_remote += getenv("NSHOST"); // hostname of CORBA name server
+          command_remote += " ";
+          ASSERT(getenv("NSPORT"));
+          command_remote += getenv("NSPORT"); // port of CORBA name server
+          command_remote += " ";
 
-	  hostname = machine_name;
-	}
+          hostname = machine_name;
+        }
 
-	std::ostringstream tmp;
-	tmp << i;
-	std::string proc_number = tmp.str();
+        std::ostringstream tmp;
+        tmp << i;
+        std::string proc_number = tmp.str();
 
-	std::string command_tmp("");
-	command_tmp += real_exe_name;
-	command_tmp += " " + _NS->ContainerName(rtn);
-	command_tmp += " " + parallelLib;
-	command_tmp += " " + proxy_hostname;
-	command_tmp += " " + proc_number;
-	command_tmp += " -";
-	AddOmninamesParams(command_tmp);
+        std::string command_tmp("");
+        command_tmp += real_exe_name;
+        command_tmp += " " + _NS->ContainerName(rtn);
+        command_tmp += " " + parallelLib;
+        command_tmp += " " + proxy_hostname;
+        command_tmp += " " + proc_number;
+        command_tmp += " -";
+        AddOmninamesParams(command_tmp);
 
-	// On change _Node_ par _Nodex_ pour avoir chaque noeud
-	// sur un fichier
-	std::string command_end_tmp = command_end;
-	std::string::size_type loc_node = command_end_tmp.find("_Node_");
-	if (loc_node != std::string::npos)
-	  command_end_tmp.insert(loc_node+5, proc_number);
-	command += command_begin + command_remote + command_tmp + command_end_tmp;
-	vect_machine.push_back(hostname);
+        // On change _Node_ par _Nodex_ pour avoir chaque noeud
+        // sur un fichier
+        std::string command_end_tmp = command_end;
+        std::string::size_type loc_node = command_end_tmp.find("_Node_");
+        if (loc_node != std::string::npos)
+          command_end_tmp.insert(loc_node+5, proc_number);
+        command += command_begin + command_remote + command_tmp + command_end_tmp;
+        vect_machine.push_back(hostname);
       }
       if (machine_file)
-	delete machine_file;
+        delete machine_file;
     }
   }
   else if (parallelLib == "Mpi")
@@ -1565,9 +1565,9 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       std::string command_remote("");
       const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
       if (resInfo.Protocol == rsh)
-	command_remote = "rcp ";
+        command_remote = "rcp ";
       else 
-	command_remote = "scp ";
+        command_remote = "scp ";
 
       command_remote += machine_file_name;
       command_remote += " ";
@@ -1580,8 +1580,8 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       int status = system(command_remote.c_str());
       if (status == -1)
       {
-	INFOS("copy of the mpi machine file failed !");
-	return "";
+        INFOS("copy of the mpi machine file failed !");
+        return "";
       }
     }
 
@@ -1590,27 +1590,27 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       std::string command_remote("");
       if (remote)
       {
-	// We want to launch a command like : 
-	// ssh user@machine distantPath/runRemote.sh hostNS portNS
-	const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
-	if (resInfo.Protocol == rsh)
-	  command_remote = "rsh ";
-	else 
-	  command_remote = "ssh ";
-	command_remote += resInfo.UserName;
-	command_remote += "@";
-	command_remote += remote_machine;
-	command_remote += " ";
-	command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-	command_remote += "/runRemote.sh ";
-	ASSERT(getenv("NSHOST")); 
-	command_remote += getenv("NSHOST"); // hostname of CORBA name server
-	command_remote += " ";
-	ASSERT(getenv("NSPORT"));
-	command_remote += getenv("NSPORT"); // port of CORBA name server
-	command_remote += " ";
+        // We want to launch a command like : 
+        // ssh user@machine distantPath/runRemote.sh hostNS portNS
+        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
+        if (resInfo.Protocol == rsh)
+          command_remote = "rsh ";
+        else 
+          command_remote = "ssh ";
+        command_remote += resInfo.UserName;
+        command_remote += "@";
+        command_remote += remote_machine;
+        command_remote += " ";
+        command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
+        command_remote += "/runRemote.sh ";
+        ASSERT(getenv("NSHOST")); 
+        command_remote += getenv("NSHOST"); // hostname of CORBA name server
+        command_remote += " ";
+        ASSERT(getenv("NSPORT"));
+        command_remote += getenv("NSPORT"); // port of CORBA name server
+        command_remote += " ";
 
-	hostname = remote_machine;
+        hostname = remote_machine;
       }
 
       // We use Dummy proxy for MPI parallel containers
@@ -1631,61 +1631,61 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       std::string command_remote("");
       if (remote)
       {
-	const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
-	if (resInfo.Protocol == rsh)
-	  command_remote = "rsh ";
-	else 
-	  command_remote = "ssh ";
-	command_remote += resInfo.UserName;
-	command_remote += "@";
-	command_remote += remote_machine;
-	command_remote += " ";
+        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
+        if (resInfo.Protocol == rsh)
+          command_remote = "rsh ";
+        else 
+          command_remote = "ssh ";
+        command_remote += resInfo.UserName;
+        command_remote += "@";
+        command_remote += remote_machine;
+        command_remote += " ";
 
-	std::string new_real_exe_name("");
-	new_real_exe_name += resInfo.AppliPath; // path relative to user@machine $HOME
-	new_real_exe_name += "/runRemote.sh ";
-	ASSERT(getenv("NSHOST")); 
-	new_real_exe_name += getenv("NSHOST"); // hostname of CORBA name server
-	new_real_exe_name += " ";
-	ASSERT(getenv("NSPORT"));
-	new_real_exe_name += getenv("NSPORT"); // port of CORBA name server
-	new_real_exe_name += " ";
+        std::string new_real_exe_name("");
+        new_real_exe_name += resInfo.AppliPath; // path relative to user@machine $HOME
+        new_real_exe_name += "/runRemote.sh ";
+        ASSERT(getenv("NSHOST")); 
+        new_real_exe_name += getenv("NSHOST"); // hostname of CORBA name server
+        new_real_exe_name += " ";
+        ASSERT(getenv("NSPORT"));
+        new_real_exe_name += getenv("NSPORT"); // port of CORBA name server
+        new_real_exe_name += " ";
 
-	real_exe_name = new_real_exe_name + real_exe_name;
-	hostname = remote_machine;
+        real_exe_name = new_real_exe_name + real_exe_name;
+        hostname = remote_machine;
       }
 
       const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(hostname);
       if (resInfo.mpi == lam)
       {
-	command = "mpiexec -ssi boot ";
-	if (resInfo.Protocol == rsh)
-	  command += "rsh ";
-	else 
-	  command += "ssh ";
-	command += "-machinefile " + machine_file_name + " "; 
-	command += "-n " + nbproc + " ";
-	command += real_exe_name;
-	command += " " + _NS->ContainerName(rtn);
-	command += " " + parallelLib;
-	command += " " + proxy_hostname;
-	command += " -";
-	AddOmninamesParams(command);
+        command = "mpiexec -ssi boot ";
+        if (resInfo.Protocol == rsh)
+          command += "rsh ";
+        else 
+          command += "ssh ";
+        command += "-machinefile " + machine_file_name + " "; 
+        command += "-n " + nbproc + " ";
+        command += real_exe_name;
+        command += " " + _NS->ContainerName(rtn);
+        command += " " + parallelLib;
+        command += " " + proxy_hostname;
+        command += " -";
+        AddOmninamesParams(command);
       }
       else
       {
-	command = "mpirun -np " + nbproc + " ";
-	command += real_exe_name;
-	command += " " + _NS->ContainerName(rtn);
-	command += " " + parallelLib;
-	command += " " + proxy_hostname;
-	command += " -";
-	AddOmninamesParams(command);
+        command = "mpirun -np " + nbproc + " ";
+        command += real_exe_name;
+        command += " " + _NS->ContainerName(rtn);
+        command += " " + parallelLib;
+        command += " " + proxy_hostname;
+        command += " -";
+        AddOmninamesParams(command);
       }
 
       command = command_begin + command_remote + command + command_end;
       for (int i= 0; i < nb_nodes; i++)
-	vect_machine.push_back(proxy_hostname);
+        vect_machine.push_back(proxy_hostname);
     }
   }
   else

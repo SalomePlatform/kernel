@@ -288,7 +288,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
    
     def DumpPython(self, theStudy, isPublished):
         aBuffer = "def RebuildData(theStudy): pass\n\0"
-	return (aBuffer, 1)
+        return (aBuffer, 1)
 
     #-------------------------------------------------------------------------    
 
@@ -298,7 +298,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     #-------------------------------------------------------------------------    
 
     def hasObjectInfo(self):
-	return 0
+        return 0
 
     #-------------------------------------------------------------------------    
 

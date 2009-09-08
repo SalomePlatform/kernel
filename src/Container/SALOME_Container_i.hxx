@@ -53,11 +53,11 @@ class CONTAINER_EXPORT Engines_Container_i:
 public:
   Engines_Container_i();
   Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_ptr poa,
-		      char * containerName ,
+                      PortableServer::POA_ptr poa,
+                      char * containerName ,
                       int argc, char* argv[],
-		      bool activAndRegist = true,
-		      bool isServantAloneInProcess = true);
+                      bool activAndRegist = true,
+                      bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
   // --- CORBA methods
@@ -66,15 +66,15 @@ public:
 
   virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
-			     CORBA::Long studyId); // 0 for multiStudy
+                             CORBA::Long studyId); // 0 for multiStudy
 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,
-			   CORBA::Long studyId); // 0 for multiStudy
+                           CORBA::Long studyId); // 0 for multiStudy
 
   Engines::Component_ptr
   load_impl(const char* nameToRegister,
-	    const char* componentName);
+            const char* componentName);
 
 
   void remove_impl(Engines::Component_ptr component_i);
@@ -101,12 +101,12 @@ public:
 
   Engines::Component_ptr
   find_or_create_instance( std::string genericRegisterName,
-			   std::string componentLibraryName);
+                           std::string componentLibraryName);
 
   Engines::Component_ptr
   createInstance(std::string genericRegisterName,
-		 void *handle,
-		 int studyId);
+                 void *handle,
+                 int studyId);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);

@@ -55,18 +55,18 @@ class CONTAINER_EXPORT Engines_Component_i:
 public:
   Engines_Component_i();
   Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      PortableServer::ObjectId * contId, 
-		      const char *instanceName, 
-		      const char *interfaceName,
+                      PortableServer::POA_ptr poa,
+                      PortableServer::ObjectId * contId, 
+                      const char *instanceName, 
+                      const char *interfaceName,
                       bool notif = false,
                       bool regist = true);
   //Constructor for standalone component
   Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      Engines::Container_ptr container, 
-		      const char *instanceName, 
-		      const char *interfaceName,
+                      PortableServer::POA_ptr poa,
+                      Engines::Container_ptr container, 
+                      const char *instanceName, 
+                      const char *interfaceName,
                       bool notif = false,
                       bool regist = true);
 

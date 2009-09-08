@@ -77,14 +77,14 @@ protected:
   void fillBatchLaunchedContainers();
 
   std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
-						  const Engines::MachineParameters& params, 
-						  const std::string& container_exe="SALOME_Container");
+                                                  const Engines::MachineParameters& params, 
+                                                  const std::string& container_exe="SALOME_Container");
 
   std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, 
                                                  const std::string& container_exe="SALOME_Container");
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
-						   const Engines::MachineParameters& params) throw(SALOME_Exception);
+                                                   const Engines::MachineParameters& params) throw(SALOME_Exception);
 
   void RmTmpFile(std::string& tmpFile);
 
@@ -99,14 +99,14 @@ protected:
   // For PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
   std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
-						    const Engines::MachineParameters& params,
-						    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
-						    const std::string proxy_hostname = ""); 
+                                                    const Engines::MachineParameters& params,
+                                                    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+                                                    const std::string proxy_hostname = ""); 
   CORBA::Object_ptr 
   LaunchParallelContainer(const std::string& command, 
-			  const Engines::MachineParameters& params,
-			  const std::string& name,
-			  SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
+                          const Engines::MachineParameters& params,
+                          const std::string& name,
+                          SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 

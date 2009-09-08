@@ -83,6 +83,9 @@ map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
 omni_mutex Engines_Container_i::_numInstanceMutex ;
 
+int checkifexecutable(const std::string&);
+int findpathof(std::string&, const std::string&);
+
 /*! \class Engines_Container_i
  *  \brief C++ implementation of Engines::Container interface
  *
@@ -404,8 +407,8 @@ int findpathof(string& pth, const string& exe)
 {
   string path( getenv("PATH") );
   if ( path.size() == 0 )
-	  return 0;
-	
+         return 0;
+       
   char path_spr =
 #ifdef WIN32
                   ';';
@@ -519,9 +522,11 @@ Engines_Container_i::load_component_Library(const char* componentName)
     return true;
   }
 
+  std::string retso="";
 #ifndef WIN32
   void* handle;
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  if ( !handle )retso=dlerror();
 #else
   HINSTANCE handle;
   handle = LoadLibrary( impl_name.c_str() );
@@ -538,6 +543,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
   // --- try import Python component
 
   INFOS("try import Python component "<<componentName);
+  std::string retpy;
   if (_isSupervContainer)
   {
     INFOS("Supervision Container does not support Python Component Engines");
@@ -556,12 +562,13 @@ Engines_Container_i::load_component_Library(const char* componentName)
     PyObject *result = PyObject_CallMethod(pyCont,
       (char*)"import_component",
       (char*)"s",componentName);
-    int ret= PyInt_AsLong(result);
+
+    retpy=PyString_AsString(result);
     Py_XDECREF(result);
-    SCRUTE(ret);
+    SCRUTE(retpy);
     Py_RELEASE_NEW_THREAD;
 
-    if (ret) // import possible: Python component
+    if (retpy=="") // import possible: Python component
     {
       _numInstanceMutex.lock() ; // lock to be alone (stl container write)
       _library_map[aCompName] = (void *)pyCont; // any non O value OK
@@ -578,7 +585,9 @@ Engines_Container_i::load_component_Library(const char* componentName)
 
   INFOS( "Impossible to load component: " << componentName );
   INFOS( "Can't load shared library: " << impl_name );
+  std::cerr << retso << std::endl;
   INFOS( "Can't import Python module: " << componentName );
+  std::cerr << retpy << std::endl;
   INFOS( "Can't execute program: " << executable );
   return false;
 }

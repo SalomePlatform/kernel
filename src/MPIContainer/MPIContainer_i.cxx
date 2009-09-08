@@ -193,11 +193,11 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
       PyObject *result = PyObject_CallMethod(pyCont,
 					     (char*)"import_component",
 					     (char*)"s",componentName);
-      int ret= PyInt_AsLong(result);
+      std::string ret= PyString_AsString(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   
-      if (ret) // import possible: Python component
+      if (ret=="") // import possible: Python component
 	{
 	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
 	  MESSAGE("[" << _numproc << "] import Python: "<<aCompName<<" OK");

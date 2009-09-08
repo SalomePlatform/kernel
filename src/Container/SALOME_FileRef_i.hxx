@@ -42,7 +42,7 @@ class CONTAINER_EXPORT fileRef_i:
 public:
   fileRef_i();
   fileRef_i(Engines::Container_ptr container,
-	    const char* origFileName);
+            const char* origFileName);
   virtual ~fileRef_i();
 
   char* origFileName();
@@ -52,7 +52,7 @@ public:
   Engines::Container_ptr getContainer();
 
   CORBA::Boolean addRef(const char* machine,
-			const char* fileName);
+                        const char* fileName);
 
   char* getRef(const char* machine);
 

@@ -46,7 +46,7 @@ from launchConfigureParser import verbose
 
 #=============================================================================
 
-#define an implementation of the container interface
+#define an implementation of the container interface for embedding in Container implemented in C++
 
 class SALOME_Container_i:
     _orb = None
@@ -67,20 +67,17 @@ class SALOME_Container_i:
 
     #-------------------------------------------------------------------------
 
-    #def __del__(self ):
-    #  self._orb.destroy()
-
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
-        ret=0
+        ret=""
         try:
             if verbose(): print "try import ",componentName
             __import__(componentName)
             if verbose(): print "import ",componentName," successful"
-            ret=1
         except:
+            import traceback
+            ret=traceback.format_exc(10)
             if verbose():
-              import traceback
               traceback.print_exc()
               print "import ",componentName," not possible"
         return ret

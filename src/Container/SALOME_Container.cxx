@@ -200,7 +200,10 @@ int main(int argc, char* argv[])
       if (!isSupervContainer)
       {
         PyGILState_Ensure();
-        //Delete python container that destroy orb from python (pyCont._orb.destroy())
+        //Destroy orb from python (for chasing memory leaks)
+        //PyRun_SimpleString("from omniORB import CORBA");
+        //PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
+        //PyRun_SimpleString("orb.destroy()");
         Py_Finalize();
       }
       else
@@ -235,9 +238,6 @@ int main(int argc, char* argv[])
   #endif
 #endif  
 
-  //END_OF(argv[0]);
-  //LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-  //bp1->deleteInstance(bp1);
   return 0 ;
 }
 

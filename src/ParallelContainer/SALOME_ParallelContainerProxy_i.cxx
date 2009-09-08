@@ -209,11 +209,11 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
       PyObject *result = PyObject_CallMethod(pyCont,
 					     (char*)"import_component",
 					     (char*)"s",componentName);
-      int ret_p= PyInt_AsLong(result);
+      std::string ret_p= PyString_AsString(result);
       Py_XDECREF(result);
       Py_RELEASE_NEW_THREAD;
 
-      if (ret_p) // import possible: Python component
+      if (ret_p=="") // import possible: Python component
       {
 	MESSAGE("import Python: " << aCompName <<" OK");
       }

@@ -48,7 +48,7 @@ fileRef_i::fileRef_i()
 //=============================================================================
 
 fileRef_i::fileRef_i(Engines::Container_ptr container,
-		     const char* origFileName)
+                     const char* origFileName)
 {
   MESSAGE("fileRef_i::fileRef_i "<< origFileName);
   _container =  Engines::Container::_duplicate(container);
@@ -126,7 +126,7 @@ Engines::Container_ptr fileRef_i::getContainer()
 //=============================================================================
 
 CORBA::Boolean fileRef_i::addRef(const char* machine,
-				 const char* fileName)
+                                 const char* fileName)
 {
   MESSAGE("fileRef_i::addRef " << machine << " " << fileName);
   string theMachine = machine;
@@ -147,7 +147,7 @@ CORBA::Boolean fileRef_i::addRef(const char* machine,
   if (! _copies[theMachine].empty())
     {
       INFOS("there is already a copy on " << theMachine << " under the path "
-	    <<  _copies[theMachine] << " new ref not added! ");
+            <<  _copies[theMachine] << " new ref not added! ");
       return 0;
     }
 
@@ -173,12 +173,12 @@ char* fileRef_i::getRef(const char* machine)
   if (_copies[theMachine].empty())
     {
       MESSAGE("no copy of " << _machine << _origFileName << " available on "
-	      << theMachine);
+              << theMachine);
     }
   else
     {
       MESSAGE("a copy of " << _machine << _origFileName << "is available on "
-	      << theMachine << _copies[theMachine]);
+              << theMachine << _copies[theMachine]);
     }
   return CORBA::string_dup(_copies[theMachine].c_str());
 }
