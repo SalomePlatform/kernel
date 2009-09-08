@@ -107,16 +107,14 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     //OLD :   copyOfData = DataManipulator::clone(data);
-#ifdef _DEBUG_
-    std::cout << "-------- GenericUsesPort::put -------- " << std::endl;
-#endif
+    MESSAGE("-------- GenericUsesPort::put -------- " );
     //} PB1
     try {
       port->put(data,time,tag);
       // OLD : port->put(*copyOfData,time,tag);
     } catch(const CORBA::SystemException& ex) {
       //OLD : DataManipulator::delete_data(copyOfData);
-      throw DSC_Exception(LOC(OSS() << "Impossible d'invoquer la méthode put sur le port n°"
+      throw DSC_Exception(LOC(OSS() << "Can't invoke put method on port number "
 			      << i << "( i>=  0)"));
 
     }
@@ -137,9 +135,7 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
 {
   if (_my_ports) delete _my_ports;
 
-#ifdef _DEBUG_
-  std::cerr << "GenericUsesPort::uses_port_changed" << std::endl;
-#endif
+  MESSAGE("GenericUsesPort::uses_port_changed");
   _my_ports = new_uses_port;
 }
 

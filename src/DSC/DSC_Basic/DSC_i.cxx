@@ -25,6 +25,8 @@
 //
 #include "DSC_i.hxx"
 
+//#define MYDEBUG
+
 Engines_DSC_i::
 Engines_DSC_i(CORBA::ORB_ptr orb,
 			PortableServer::POA_ptr poa,
@@ -37,7 +39,7 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
 							  instanceName, 
 							  interfaceName) 
 {
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
 #endif
 }
@@ -52,7 +54,7 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
               bool regist) : 
     Engines_Component_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cerr << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
 #endif
 }

@@ -26,8 +26,6 @@
 #include <string>
 #include <exception>
 
-//#define _DEBUG_
-
 PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               PortableServer::POA_ptr poa,
                               Engines::Container_ptr contain,
@@ -45,6 +43,9 @@ PySupervCompo::~PySupervCompo()
 
 extern "C" 
 {
+  void cp_exit(int);
+  void setDependency(provides_port*, char*, CalciumTypes::DependencyType);
+
   void cp_exit(int err)
     {
       throw CalciumException(err,LOC("Abort coupling"));
@@ -84,9 +85,7 @@ extern "C"
 
   void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
-#ifdef _DEBUG_
-    std::cerr << "create_calcium_port: " << name << " " << type << " " << mode << " " << depend << std::endl;
-#endif
+    MESSAGE( "create_calcium_port: " << name << " " << type << " " << mode << " " << depend );
 
     if(std::string(mode) == "IN")
       {

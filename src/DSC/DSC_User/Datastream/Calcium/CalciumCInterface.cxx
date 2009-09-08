@@ -4,7 +4,8 @@
 #include <stdio.h>
 
 
-#ifdef _DEBUG_
+//#define MYDEBUG
+#ifdef MYDEBUG
 #define DEBTRACE(msg) {std::cerr<<std::flush<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<std::endl<<std::flush;}
 #else
 #define DEBTRACE(msg)

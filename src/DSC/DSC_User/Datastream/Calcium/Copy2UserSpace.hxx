@@ -35,6 +35,8 @@
 
 #include <cstdio>
 
+//#define MYDEBUG
+
 //Les demandes de copies vers l'espace utilisateur
 //proviennent d'une procédure de lecture  
 
@@ -106,7 +108,7 @@ struct Copy2UserSpace<false, DataManipulator> {
     typedef typename DataManipulator::InnerType        InnerType;
     
   
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     InnerType * dataPtr = NULL;
     // Affiche la valeur du pointeur de la structure corba
     //  et les pointeurs contenus le cas échéant
@@ -139,7 +141,7 @@ struct Copy2UserSpace<false, DataManipulator> {
     //std::copy(dataPtr,dataPtr+nRead,data);
     DataManipulator::copy(corbaData,data,nRead);
       
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     tmpData = data;
     std::cerr << "-------- Copy2UserSpace<false> MARK 1c --data("<<tmpData<<")[0.."<<
       DataManipulator::size(corbaData) <<"] : ----------------" << std::endl;

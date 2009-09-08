@@ -38,18 +38,14 @@ void CalciumCouplingPolicy::setDependencyType (CalciumTypes::DependencyType depe
 CalciumTypes::DependencyType CalciumCouplingPolicy::getDependencyType () const              { return _dependencyType;}
  
 void   CalciumCouplingPolicy::setStorageLevel   (size_t         storageLevel)   {
-#ifdef _DEBUG_
-  std::cerr << "CalciumCouplingPolicy::setStorageLevel: " << storageLevel << std::endl;
-#endif
+  MESSAGE( "CalciumCouplingPolicy::setStorageLevel: " << storageLevel );
   if ( storageLevel < 1 && (storageLevel != CalciumTypes::UNLIMITED_STORAGE_LEVEL)  )
     throw CalciumException(CalciumTypes::CPRENA,LOC("Un niveau < 1 n'est pas autorisé"));
   _storageLevel = storageLevel;
 }
 size_t CalciumCouplingPolicy::getStorageLevel   () const                        {return _storageLevel;}
 void   CalciumCouplingPolicy::setDateCalSchem   (CalciumTypes::DateCalSchem   dateCalSchem)   {
-#ifdef _DEBUG_
-  std::cerr << "CalciumCouplingPolicy::setDateCalSchem: " << dateCalSchem << std::endl;
-#endif
+  MESSAGE( "CalciumCouplingPolicy::setDateCalSchem: " << dateCalSchem );
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner un schéma temporel sur un port qui n'est pas en dépendance temporelle"));
   _dateCalSchem = dateCalSchem;
@@ -58,13 +54,11 @@ void   CalciumCouplingPolicy::setDateCalSchem   (CalciumTypes::DateCalSchem   da
 CalciumTypes::DateCalSchem CalciumCouplingPolicy::getDateCalSchem () const   { return _dateCalSchem; }
 
 void CalciumCouplingPolicy::setAlpha(double alpha) {
-#ifdef _DEBUG_
-  std::cerr << "CalciumCouplingPolicy::setAlpha: " << alpha << std::endl;
-#endif
+  MESSAGE( "CalciumCouplingPolicy::setAlpha: " << alpha );
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Il est impossible de positionner alpha sur un port qui n'est pas en dépendance temporelle"));
   
-  if ( 0 <= alpha <= 1 ) _alpha = alpha; 
+  if ( 0 <= alpha && alpha <= 1 ) _alpha = alpha; 
   else 
     throw CalciumException(CalciumTypes::CPRENA,LOC("Le paramètre alpha doit être compris entre [0,1]"));
 }
@@ -74,16 +68,14 @@ double CalciumCouplingPolicy::getAlpha() const   { return _alpha; }
 void CalciumCouplingPolicy::setDeltaT(double deltaT ) {
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre deltaT sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
-  if ( 0 <= deltaT <= 1 ) _deltaT = deltaT; 
+  if ( 0 <= deltaT && deltaT <= 1 ) _deltaT = deltaT; 
   else 
     throw(CalciumException(CalciumTypes::CPRENA,LOC("Le paramètre deltaT doit être compris entre [0,1]")));
 }
 double CalciumCouplingPolicy::getDeltaT() const  {return _deltaT;}
 
 void CalciumCouplingPolicy::setInterpolationSchem (CalciumTypes::InterpolationSchem interpolationSchem) {
-#ifdef _DEBUG_
-  std::cerr << "CalciumCouplingPolicy::setInterpolationSchem: " << interpolationSchem << std::endl;
-#endif
+  MESSAGE( "CalciumCouplingPolicy::setInterpolationSchem: " << interpolationSchem );
   if ( _dependencyType != CalciumTypes::TIME_DEPENDENCY )
     throw CalciumException(CalciumTypes::CPITVR,LOC("Le paramètre InterpolationSchem sur un port qui n'est pas en dépendance temporelle n'a pas de sens"));
   _interpolationSchem=interpolationSchem;

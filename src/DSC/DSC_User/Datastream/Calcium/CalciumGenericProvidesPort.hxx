@@ -180,21 +180,21 @@
     try {								\
 									\
       if (key == "StorageLevel" )					\
-	{if ( ok=(value >>= sl)    ) Port::setStorageLevel(sl);}	\
+	{if ( ( ok=(value >>= sl) )   ) Port::setStorageLevel(sl);}	\
       else if (key == "Alpha"      )					\
-	{if ( ok=(value >>= alpha) ) Port::setAlpha(alpha);}		\
+	{if ( ( ok=(value >>= alpha) ) ) Port::setAlpha(alpha);}		\
       else if (key == "DeltaT"     )					\
-	{if ( ok=(value >>= delta) ) Port::setDeltaT(delta);}		\
+	{if ( ( ok=(value >>= delta) ) ) Port::setDeltaT(delta);}		\
       else if (key == "DependencyType" )				\
-	{if ( ok=( value >>= dt)   ) Port::setDependencyType(dependencyType[dt]);} \
+	{if ( ( ok=( value >>= dt)  )  ) Port::setDependencyType(dependencyType[dt]);} \
       else if (key == "DateCalSchem" )					\
-	{if ( ok=(value >>= dcs) )					\
+	{if ( ( ok=(value >>= dcs) ) )					\
 	    Port::setDateCalSchem(dateCalSchem[dcs]);}			\
       else if (key == "InterpolationSchem")				\
-	{if ( ok=(value >>= is) )					\
+	{if ( ( ok=(value >>= is) ) )					\
 	    Port::setInterpolationSchem(interpolationSchem[is]);}	\
       else if (key == "ExtrapolationSchem")				\
-	{if ( ok=(value >>= es) )					\
+	{if ( ( ok=(value >>= es) ) )					\
 	    Port::setExtrapolationSchem(extrapolationSchem[es]);}	\
       else 								\
 	throw Ports::NotDefined();					\

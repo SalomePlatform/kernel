@@ -24,6 +24,7 @@
 // Id          : $Id$
 //
 #include "CorbaTypes2CalciumTypes.hxx"
+#include "utilities.h"
 #include <iostream>
 
 using namespace std;
@@ -61,21 +62,15 @@ DEPENDENCY_TYPE::DEPENDENCY_TYPE() : map<Ports::Calcium_Ports::DependencyType,
   map<Ports::Calcium_Ports::DependencyType,
     CalciumTypes::DependencyType > &
     table  = ( map<Ports::Calcium_Ports::DependencyType,
-	       CalciumTypes::DependencyType > & ) *this ;
+               CalciumTypes::DependencyType > & ) *this ;
 
-table[Ports::Calcium_Ports::TIME_DEPENDENCY ]      = CalciumTypes::TIME_DEPENDENCY ;
-table[Ports::Calcium_Ports::ITERATION_DEPENDENCY ] = CalciumTypes::ITERATION_DEPENDENCY ;
-table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY ] = CalciumTypes::UNDEFINED_DEPENDENCY ;
+  table[Ports::Calcium_Ports::TIME_DEPENDENCY ]      = CalciumTypes::TIME_DEPENDENCY ;
+  table[Ports::Calcium_Ports::ITERATION_DEPENDENCY ] = CalciumTypes::ITERATION_DEPENDENCY ;
+  table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY ] = CalciumTypes::UNDEFINED_DEPENDENCY ;
 
-
-#ifdef _DEBUG_
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::TIME_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::TIME_DEPENDENCY] << std::endl;
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::ITERATION_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::ITERATION_DEPENDENCY] << std::endl;
-std::cerr << "DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::UNDEFINED_DEPENDENCY<<"] : "<< 
-  table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY] << std::endl;
-#endif
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::TIME_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::TIME_DEPENDENCY]);
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::ITERATION_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::ITERATION_DEPENDENCY]);
+  MESSAGE("DEPENDENCY_TYPE() : table["<<Ports::Calcium_Ports::UNDEFINED_DEPENDENCY<<"] : "<< table[Ports::Calcium_Ports::UNDEFINED_DEPENDENCY]);
 }
 
 
@@ -85,9 +80,7 @@ CalciumTypes::DependencyType DEPENDENCY_TYPE::operator[]( const Ports::Calcium_P
     CalciumTypes::DependencyType> &table = (map<Ports::Calcium_Ports::DependencyType,
 					    CalciumTypes::DependencyType>&)*this ;
 
-#ifdef _DEBUG_
-std::cerr << "DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c] << std::endl;
-#endif
+  MESSAGE("DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c]);
 
   assert( table.find( (Ports::Calcium_Ports::DependencyType)c ) != table.end() ) ;
   return table[ (Ports::Calcium_Ports::DependencyType)c ] ;

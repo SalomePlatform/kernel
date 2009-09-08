@@ -82,7 +82,7 @@ Id          : $Id$
       DEBTRACE( ex.what() );						\
       return ex.getInfo();						\
     } catch ( ... ) {							\
-      std::cerr << "Unexpected exception " << std::endl;		\
+      DEBTRACE( "Unexpected exception ") ;		\
       return CalciumTypes::CPATAL;					\
     }									\
     if ( IsSameType< _porttype , cplx >::value ) { *nRead=_nRead/2;		\
@@ -122,10 +122,10 @@ Id          : $Id$
 							dependencyType,	\
 							_t,i,nomvar,_bufferLength,*data); \
     } catch ( const CalciumException & ex) {				\
-      std::cerr << ex.what() << std::endl;				\
+      DEBTRACE( ex.what() );				\
       return ex.getInfo();						\
     } catch ( ... ) {				\
-      std::cerr << "Unexpected exception " << std::endl; \
+      DEBTRACE("Unexpected exception " ); \
       return CalciumTypes::CPATAL;						\
     }									\
     fprintf(stderr,"End of ecp_ecriture_" #_name " : %s %ld %e\n",nomvar,i,_t); \

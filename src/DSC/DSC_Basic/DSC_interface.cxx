@@ -26,6 +26,8 @@
 #include <string>
 #include "DSC_interface.hxx"
 
+//#define MYDEBUG
+
 Engines_DSC_interface::Engines_DSC_interface() {}
 
 Engines_DSC_interface::~Engines_DSC_interface() 
@@ -154,7 +156,9 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
     Engines::DSC::BadPortType BPT;
     BPT.expected = CORBA::string_dup("Expected a uses port");
     BPT.received = CORBA::string_dup((std::string("Received a provides/none port : ")+uses_port_name).c_str());
+#ifdef MYDEBUG
    std::cout << "---- DSC_Interface : MARK 1 ---- exception : " << uses_port_name << "----" << std::endl;
+#endif
     throw BPT;
   }
 
@@ -164,7 +168,9 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
   }
   else
     {
+#ifdef MYDEBUG
    std::cout << "---- DSC_Interface : MARK 2 ---- exception : " << uses_port_name << "----" << std::endl;
+#endif
     throw Engines::DSC::PortNotConnected();
     }
   

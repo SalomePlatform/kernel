@@ -34,6 +34,8 @@
 #include "DisplayPair.hxx"
 //
 
+//#define MYDEBUG
+
 // Suppose que le container est trié
 template < typename T > struct AdjacentFunctor {
 
@@ -50,14 +52,14 @@ template < typename T > struct AdjacentFunctor {
 
   // Suppose que les valeurs passées en paramètres sont triées par ordre croissant
   bool operator()(const T &v1) {
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "AdjacentFunctor: " << _minValue << _maxValue << std::endl;
     std::cout << "AdjacentFunctor: " << _min << _max << std::endl;
 #endif
     if ( v1 <= _minValue && v1 >= _maxValue)    
     {
       _equal= true;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
       std::cout << "AdjacentFunctor: _equal : " << v1 << std::endl;   
 #endif
       return true; 
@@ -65,14 +67,14 @@ template < typename T > struct AdjacentFunctor {
     if ( v1 < _minValue )    
     {
       _min=v1;_minFound=true;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
       std::cout << "AdjacentFunctor: _minFound : " <<_min << std::endl;
 #endif
     }
     else if ( v1 > _maxValue )
     {
       _max=v1;_maxFound=true;
-#ifdef _DEBUG_
+#ifdef MYDEBUG
       std::cout << "AdjacentFunctor: _maxFound : " <<_max << std::endl;
 #endif
     }
@@ -101,7 +103,7 @@ template < typename T > struct AdjacentFunctor {
   bool isEqual()   const { return _equal;}
   bool isBounded() const { return _minFound && _maxFound;}
   bool getBounds(TNoConst & min, TNoConst & max) const {
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "_minFound : " <<_minFound << ", _maxFound " << _maxFound << std::endl;
 #endif
     if (_minFound && _maxFound ) { min=_min; max=_max; return true; }
