@@ -756,7 +756,7 @@ def searchFreePort(args, save_config=1):
     os.remove( tmp_file );
     #
     def portIsUsed(port, data):
-        regObj = re.compile( "tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
+        regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
         for item in data:
             try:
                 p = int(regObj.match(item).group(1))
