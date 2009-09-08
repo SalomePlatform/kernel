@@ -559,7 +559,7 @@ class CMakeFile(object):
                 SET(ENABLE_PLOT2DVIEWER ON)
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
-                # SET(ENABLE_QXGRAPHVIEWER ON)
+                SET(ENABLE_QXGRAPHVIEWER ON)
                 set(VERSION 5.1.2)
                 set(XVERSION 0x050102)
                 """)
