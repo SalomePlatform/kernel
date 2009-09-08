@@ -102,6 +102,8 @@ public:
 
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
+  SALOME_NamingService * namingService();
+  CORBA::ORB_ptr orb();
   void copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest);
 
   void shutdownServers();
@@ -126,6 +128,7 @@ protected:
 		 int studyId);
   
   SALOME_NamingService *_NS;
+  SALOME_NamingService *_NSnew;
   Engines::ContainerManager_var _ContManager;
   Engines::ResourcesManager_var _ResManager;
   

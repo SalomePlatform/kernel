@@ -90,6 +90,7 @@ SALOME_NamingService::~SALOME_NamingService()
  * 
  *  Initializes ORB reference and naming service root context.
  *  For use after default constructor.
+ *  If param orb is null, the orb is initialized
  *  \param orb CORBA::ORB_ptr arguments
  */ 
 // ============================================================================
@@ -99,7 +100,13 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
   MESSAGE("SALOME_NamingService initialisation");
 
   Utils_Locker lock (&_myMutex);
-  _orb = CORBA::ORB::_duplicate(orb);
+  if(orb)
+    _orb = CORBA::ORB::_duplicate(orb);
+  else
+    {
+      int argc=0;
+      _orb = CORBA::ORB_init(argc, 0); // Here we make the assumption that the orb has already been initialized
+    }
 
   _initialize_root_context();
 }
@@ -1823,5 +1830,14 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
 char * SALOME_NamingService::getIORaddr()
 {
   return _orb->object_to_string(_root_context);
+}
+
+/*! \brief get the orb used by the naming service
+ *
+ *  \return the orb
+ */
+CORBA::ORB_ptr SALOME_NamingService::orb()
+{
+  return _orb;
 }
 

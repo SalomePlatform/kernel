@@ -48,7 +48,7 @@ public:
 
   virtual ~SALOME_NamingService();
 
-  void init_orb(CORBA::ORB_ptr orb);
+  void init_orb(CORBA::ORB_ptr orb=0);
   void Register(CORBA::Object_ptr ObjRef,
 		const char* Path) 
     throw(ServiceUnreachable);
@@ -91,6 +91,7 @@ public:
   virtual void Destroy_FullDirectory(const char* Path)
     throw(ServiceUnreachable);
   char* getIORaddr();
+  CORBA::ORB_ptr orb();
 
 protected:
   Utils_Mutex _myMutex;
