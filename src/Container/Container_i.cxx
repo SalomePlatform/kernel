@@ -83,6 +83,8 @@ map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
 omni_mutex Engines_Container_i::_numInstanceMutex ;
 
+static PyObject* _pyCont;
+
 int checkifexecutable(const std::string&);
 int findpathof(std::string&, const std::string&);
 
@@ -194,14 +196,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
     if (!_isSupervContainer)
     {
-#ifdef WIN32
-
-      PyEval_AcquireLock();
-      PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-      PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
-#else
-      Py_ACQUIRE_NEW_THREAD;
-#endif
+      PyGILState_STATE gstate = PyGILState_Ensure();
 
 #ifdef WIN32
       // mpv: this is temporary solution: there is a unregular crash if not
@@ -213,7 +208,11 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 #endif
       PyRun_SimpleString("import SALOME_Container\n");
       PyRun_SimpleString((char*)myCommand.c_str());
-      Py_RELEASE_NEW_THREAD;
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      _pyCont = PyDict_GetItemString(globals, "pyCont");
+
+      PyGILState_Release(gstate);
     }
 
     fileTransfer_i* aFileTransfer = new fileTransfer_i();
@@ -555,23 +554,20 @@ Engines_Container_i::load_component_Library(const char* componentName)
   }
   else
   {
-    Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule("__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-    PyObject *result = PyObject_CallMethod(pyCont,
+    PyGILState_STATE gstate = PyGILState_Ensure(); 
+    PyObject *result = PyObject_CallMethod(_pyCont,
       (char*)"import_component",
       (char*)"s",componentName);
 
     retpy=PyString_AsString(result);
     Py_XDECREF(result);
     SCRUTE(retpy);
-    Py_RELEASE_NEW_THREAD;
+    PyGILState_Release(gstate);
 
     if (retpy=="") // import possible: Python component
     {
       _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-      _library_map[aCompName] = (void *)pyCont; // any non O value OK
+      _library_map[aCompName] = (void *)_pyCont; // any non O value OK
       _numInstanceMutex.unlock() ;
       MESSAGE("import Python: "<<aCompName<<" OK");
       return true;
@@ -636,11 +632,8 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     string component_registerName =
       _containerName + "/" + instanceName;
 
-    Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule("__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-    PyObject *result = PyObject_CallMethod(pyCont,
+    PyGILState_STATE gstate = PyGILState_Ensure(); 
+    PyObject *result = PyObject_CallMethod(_pyCont,
       (char*)"create_component_instance",
       (char*)"ssl",
       aCompName.c_str(),
@@ -649,7 +642,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     string iors = PyString_AsString(result);
     Py_DECREF(result);
     SCRUTE(iors);
-    Py_RELEASE_NEW_THREAD;
+    PyGILState_Release(gstate);
 
     if( iors!="" )
     {
