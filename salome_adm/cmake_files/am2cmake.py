@@ -583,6 +583,9 @@ class CMakeFile(object):
             elif self.module == "med":
                 newlines.append("""
                 SET(MED_ENABLE_KERNEL ON)
+                IF(NOT WINDOWS)
+                SET(MED_ENABLE_SPLITTER ON)
+                ENDIF(NOT WINDOWS)
                 SET(MED_ENABLE_GUI ON)
                 """)
                 pass
@@ -1067,6 +1070,7 @@ class CMakeFile(object):
             "nodist_salomescript_DATA"    :  "bin/salome",
             "salomepython_PYTHON"         :  "lib/python${PYTHON_VERSION}/site-packages/salome",
             "nodist_salomepython_PYTHON"  :  "lib/python${PYTHON_VERSION}/site-packages/salome",
+            "dist_salomepython_DATA"      :  "lib/python${PYTHON_VERSION}/site-packages/salome",
             "sharedpkgpython_PYTHON"      :  "lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules",
             }
         if self.module == "medfile":
