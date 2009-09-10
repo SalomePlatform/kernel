@@ -60,7 +60,7 @@ class MPIObject_i: public POA_Engines::MPIObject
   void BCastIOR(CORBA::ORB_ptr orb,Engines::MPIObject_ptr pobj,bool amiCont);
 #ifdef HAVE_MPI2
   // MPI2 connection
-  void remoteMPI2Connect(bool high, std::string service);
+  void remoteMPI2Connect(std::string service);
   // MPI2 disconnection
   void remoteMPI2Disconnect(std::string service);
 #endif

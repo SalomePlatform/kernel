@@ -124,7 +124,7 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
 }
 
 #ifdef HAVE_MPI2
-void MPIObject_i::remoteMPI2Connect(bool high, string service)
+void MPIObject_i::remoteMPI2Connect(string service)
 {
   int i;
   char port_name[MPI_MAX_PORT_NAME];
@@ -192,8 +192,8 @@ void MPIObject_i::remoteMPI2Connect(bool high, string service)
   else
     MPI_Comm_connect(port_name_clt, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &(_icom[service]) );
 
-  /* create global communicator */
-  MPI_Intercomm_merge(_icom[service],high,&(_gcom[service]));
+  /* create global communicator: servers have low index in global communicator*/
+  MPI_Intercomm_merge(_icom[service],!_srv[service],&(_gcom[service]));
 
   /* only rank 0 can be server for unpublish name */
   if(_numproc != 0) _srv[service] = false;
