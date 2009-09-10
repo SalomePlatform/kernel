@@ -365,8 +365,8 @@ def makeTmpDir( path, mode=0777 ):
     if os.path.exists( path ):
         import sys
         if sys.platform == "win32":
-            os.system( "rmdir /S /Q " + path )
-            os.system( "mkdir " + path )
+            os.system( "rmdir /S /Q " + '"' + path + '"' )
+            os.system( "mkdir " + '"' + path + '"' )
         else:
             os.system( "rm -rf " + path + "/*" )
             pass
@@ -420,7 +420,7 @@ def uniteFiles( src_file, dest_file ):
 
         import sys
         if sys.platform == "win32":
-            command = "type " + src_file + " >> " + dest_file
+            command = "type " + '"' + src_file + '"' + " >> " + '"' + dest_file + '"'
         else:
             command = "cat " + src_file + " >> " + dest_file
             pass
@@ -428,7 +428,7 @@ def uniteFiles( src_file, dest_file ):
     else:
         import sys
         if sys.platform == "win32":
-            command = "copy " + src_file + " " + dest_file + " > nul"
+            command = "copy " + '"' + src_file + '"' + " " + '"' + dest_file + '"' + " > nul"
         else:
             command = "cp " + src_file + " " + dest_file
             pass
