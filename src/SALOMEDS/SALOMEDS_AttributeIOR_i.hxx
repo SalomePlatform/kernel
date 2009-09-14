@@ -39,7 +39,7 @@ public:
   SALOMEDS_AttributeIOR_i(SALOMEDSImpl_AttributeIOR* theAttr, CORBA::ORB_ptr orb) 
     :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
 
-  ~SALOMEDS_AttributeIOR_i() {};
+  ~SALOMEDS_AttributeIOR_i();
 
   char* Value();
   void SetValue(const char* value);

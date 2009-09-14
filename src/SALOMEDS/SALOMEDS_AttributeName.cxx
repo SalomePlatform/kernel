@@ -46,7 +46,7 @@ std::string SALOMEDS_AttributeName::Value()
     SALOMEDS::Locker lock; 
     aValue = dynamic_cast<SALOMEDSImpl_AttributeName*>(_local_impl)->Value();
   }
-  else aValue = SALOMEDS::AttributeName::_narrow(_corba_impl)->Value();
+  else aValue = (CORBA::String_var)((SALOMEDS::AttributeName_var)SALOMEDS::AttributeName::_narrow(_corba_impl))->Value();
   return aValue;
 }
 
@@ -57,5 +57,5 @@ void SALOMEDS_AttributeName::SetValue(const std::string& value)
     SALOMEDS::Locker lock; 
     dynamic_cast<SALOMEDSImpl_AttributeName*>(_local_impl)->SetValue(value);
   }
-  else SALOMEDS::AttributeName::_narrow(_corba_impl)->SetValue(value.c_str());
+  else ((SALOMEDS::AttributeName_var)SALOMEDS::AttributeName::_narrow(_corba_impl))->SetValue(value.c_str());
 }

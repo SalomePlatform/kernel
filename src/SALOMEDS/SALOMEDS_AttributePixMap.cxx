@@ -46,7 +46,7 @@ bool SALOMEDS_AttributePixMap::HasPixMap()
     SALOMEDS::Locker lock;
     ret = dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_local_impl)->HasPixMap();
   }
-  else ret = SALOMEDS::AttributePixMap::_narrow(_corba_impl)->HasPixMap();
+  else ret = ((SALOMEDS::AttributePixMap_var)SALOMEDS::AttributePixMap::_narrow(_corba_impl))->HasPixMap();
   return ret;
 }
 
@@ -57,7 +57,7 @@ std::string SALOMEDS_AttributePixMap::GetPixMap()
     SALOMEDS::Locker lock;
     aValue = dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_local_impl)->GetPixMap();
   }
-  else aValue = SALOMEDS::AttributePixMap::_narrow(_corba_impl)->GetPixMap();
+  else aValue = (CORBA::String_var)((SALOMEDS::AttributePixMap_var)SALOMEDS::AttributePixMap::_narrow(_corba_impl))->GetPixMap();
   return aValue;
 }
 
@@ -68,5 +68,5 @@ void SALOMEDS_AttributePixMap::SetPixMap(const std::string& value)
     SALOMEDS::Locker lock;
     dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_local_impl)->SetPixMap(value);
   }
-  else SALOMEDS::AttributePixMap::_narrow(_corba_impl)->SetPixMap(value.c_str());
+  else ((SALOMEDS::AttributePixMap_var)SALOMEDS::AttributePixMap::_narrow(_corba_impl))->SetPixMap(value.c_str());
 }

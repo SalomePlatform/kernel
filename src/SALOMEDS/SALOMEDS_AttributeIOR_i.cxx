@@ -77,3 +77,6 @@ void SALOMEDS_AttributeIOR_i::SetValue(const char* value)
   string anExtStr((char *)Str.in());
   dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->SetValue(anExtStr);
 }
+
+SALOMEDS_AttributeIOR_i::~SALOMEDS_AttributeIOR_i()
+{}
