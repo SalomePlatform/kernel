@@ -231,6 +231,8 @@ void  SALOMEDSImpl_StudyManager::Close(SALOMEDSImpl_Study* aStudy)
   }
 
   aStudy->Close();
+  DF_Document* doc=aStudy->GetDocument();
+  _appli->Close(doc);
 }
 
 //============================================================================

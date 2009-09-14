@@ -51,7 +51,7 @@ public:
   void Restore(DF_Attribute* with);
   DF_Attribute* NewEmpty() const;
   void Paste(DF_Attribute* into);
-  ~SALOMEDSImpl_AttributeIOR() {}
+  ~SALOMEDSImpl_AttributeIOR() ;
 
 };
 

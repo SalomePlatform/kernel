@@ -94,6 +94,9 @@ SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 {
 }
 
+SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR()
+{}
+
 //=======================================================================
 //function : ID
 //purpose  : 
