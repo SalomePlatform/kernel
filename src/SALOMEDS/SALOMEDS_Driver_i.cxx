@@ -160,6 +160,7 @@ bool SALOMEDS_Driver_i::CanCopy(const SALOMEDSImpl_SObject& theObject)
 
   SALOMEDS::unlock();
   bool isOk = _driver->CanCopy(so.in());
+  so->Destroy();
   SALOMEDS::lock();
 
   return isOk;

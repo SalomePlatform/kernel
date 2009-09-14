@@ -112,7 +112,7 @@ std::string SALOMEDS_SObject::GetID()
     SALOMEDS::Locker lock;
     aValue = _local_impl->GetID();
   }
-  else aValue = _corba_impl->GetID();  
+  else aValue = (CORBA::String_var)_corba_impl->GetID();  
   return aValue;
 }
 
@@ -122,7 +122,7 @@ _PTR(SComponent) SALOMEDS_SObject::GetFatherComponent()
     SALOMEDS::Locker lock;
     return _PTR(SComponent)(new SALOMEDS_SComponent(_local_impl->GetFatherComponent()));
   }
-  return _PTR(SComponent)(new SALOMEDS_SComponent(_corba_impl->GetFatherComponent()));
+  return _PTR(SComponent)(new SALOMEDS_SComponent((SALOMEDS::SComponent_var)_corba_impl->GetFatherComponent()));
 }
 
 _PTR(SObject) SALOMEDS_SObject::GetFather()
@@ -131,7 +131,7 @@ _PTR(SObject) SALOMEDS_SObject::GetFather()
     SALOMEDS::Locker lock;
     return _PTR(SObject)(new SALOMEDS_SObject(_local_impl->GetFather()));
   }
-  return _PTR(SObject)(new SALOMEDS_SObject(_corba_impl->GetFather()));
+  return _PTR(SObject)(new SALOMEDS_SObject((SALOMEDS::SObject_var)_corba_impl->GetFather()));
 }
 
 bool SALOMEDS_SObject::FindAttribute(_PTR(GenericAttribute)& anAttribute,
@@ -199,7 +199,8 @@ _PTR(Study) SALOMEDS_SObject::GetStudy()
     SALOMEDS::Locker lock;
     return _PTR(Study)(new SALOMEDS_Study(_local_impl->GetStudy()));
   }
-  return _PTR(Study)(new SALOMEDS_Study(_corba_impl->GetStudy()));
+  SALOMEDS::Study_var study=_corba_impl->GetStudy();
+  return _PTR(Study)(new SALOMEDS_Study(study));
 }
 
 std::string SALOMEDS_SObject::Name()
@@ -209,7 +210,7 @@ std::string SALOMEDS_SObject::Name()
     SALOMEDS::Locker lock;
     aName = _local_impl->Name();
   }
-  else aName = _corba_impl->Name();
+  else aName = (CORBA::String_var)_corba_impl->Name();
 
   return aName;
 }
@@ -257,7 +258,7 @@ std::string SALOMEDS_SObject::GetName()
     SALOMEDS::Locker lock;
     aName = _local_impl->GetName();
   }
-  else aName = _corba_impl->GetName();
+  else aName = (CORBA::String_var) _corba_impl->GetName();
 
   return aName;
 }
@@ -269,7 +270,7 @@ std::string SALOMEDS_SObject::GetComment()
     SALOMEDS::Locker lock;
     aComment = _local_impl->GetComment();
   }
-  else aComment = _corba_impl->GetComment();
+  else aComment = (CORBA::String_var) _corba_impl->GetComment();
 
   return aComment;
 }
@@ -281,7 +282,7 @@ std::string SALOMEDS_SObject::GetIOR()
     SALOMEDS::Locker lock;
     anIOR = _local_impl->GetIOR();
   }
-  else anIOR = _corba_impl->GetIOR();
+  else anIOR = (CORBA::String_var) _corba_impl->GetIOR();
 
   return anIOR;
 }

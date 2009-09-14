@@ -50,7 +50,12 @@ std::string SALOMEDS_SComponent::ComponentDataType()
     SALOMEDS::Locker lock;
     aType = (dynamic_cast<SALOMEDSImpl_SComponent*>(GetLocalImpl()))->ComponentDataType();
   }
-  else aType = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentDataType();
+  else 
+    {
+      SALOMEDS::SComponent_var aCompo=SALOMEDS::SComponent::_narrow(GetCORBAImpl());
+      CORBA::String_var aString = aCompo->ComponentDataType();
+      aType=aString.in();
+    }
 
   return aType;
 }
@@ -74,13 +79,13 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
 {
   if(_isLocal) {
-    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
     SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(*(dynamic_cast<SALOMEDSImpl_SComponent*>(GetLocalImpl())), _orb);
     _corba_impl = SALOMEDS::SComponent::_duplicate(aSCO);
     return aSCO._retn();
   }
   else {
-    return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
+    return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
   }
   return SALOMEDS::SComponent::_nil();
 }

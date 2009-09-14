@@ -99,7 +99,7 @@ std::string SALOMEDS_GenericAttribute::Type()
     aType = _local_impl->Type();
   }
   else {
-    aType = _corba_impl->Type();
+    aType = (CORBA::String_var)_corba_impl->Type();
   }
   return aType;
 }
@@ -112,7 +112,7 @@ std::string SALOMEDS_GenericAttribute::GetClassType()
     aType = _local_impl->GetClassType();
   }
   else {
-    aType = _corba_impl->GetClassType();
+    aType = (CORBA::String_var)_corba_impl->GetClassType();
   }
   return aType;
 }
@@ -125,7 +125,7 @@ _PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
     aSO = new SALOMEDS_SObject(_local_impl->GetSObject());
   }
   else {
-    aSO = new SALOMEDS_SObject(_corba_impl->GetSObject());
+    aSO = new SALOMEDS_SObject((SALOMEDS::SObject_var)_corba_impl->GetSObject());
   }
 
   return _PTR(SObject)(aSO);
@@ -148,7 +148,8 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::
 {
   SALOMEDS_GenericAttribute* aGA = NULL;
   if(!CORBA::is_nil(theGA)) {
-      std::string aTypeOfAttribute = theGA->GetClassType();
+      CORBA::String_var astr=theGA->GetClassType();
+      std::string aTypeOfAttribute = astr.in();
       __CreateGenericClientAttributeCORBA
   }
   return aGA;

@@ -87,7 +87,7 @@ char* SALOMEDS_GenericAttribute_i::Type()
     return CORBA::string_dup(type.c_str());
   }    
 
-  return (char*)"";
+  return CORBA::string_dup("");
 }
 
 char* SALOMEDS_GenericAttribute_i::GetClassType()
@@ -98,7 +98,7 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
     return CORBA::string_dup(class_type.c_str());
   }
 
-  return (char*)"";
+  return CORBA::string_dup("");
 }
 
 

@@ -71,7 +71,7 @@ public:
   CORBA::Object_ptr GetObject();
   SALOMEDS::SObject_ptr GetSObject();
 
-  SALOMEDS::SObject_ptr        GetCORBAImpl() { return SALOMEDS::SObject::_duplicate(_corba_impl); }
+  SALOMEDS::SObject_var        GetCORBAImpl() { return _corba_impl; }
   SALOMEDSImpl_SObject*        GetLocalImpl() { return _local_impl; } 
 
 private:

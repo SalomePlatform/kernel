@@ -95,6 +95,9 @@ _PTR(SObject) SALOMEDS_ChildIterator::Value()
     SALOMEDS::Locker lock;
     aSO = new SALOMEDS_SObject(_local_impl->Value());
   }
-  else aSO = new SALOMEDS_SObject(_corba_impl->Value());
+  else {
+    SALOMEDS::SObject_var so=_corba_impl->Value();
+    aSO = new SALOMEDS_SObject(so);
+  }
   return _PTR(SObject)(aSO);
 }

@@ -84,6 +84,6 @@ _PTR(SComponent) SALOMEDS_SComponentIterator::Value()
     SALOMEDS::Locker lock; 
     aSCO = new SALOMEDS_SComponent(_local_impl->Value());
   }
-  else aSCO = new SALOMEDS_SComponent(_corba_impl->Value());
+  else aSCO = new SALOMEDS_SComponent((SALOMEDS::SComponent_var)_corba_impl->Value());
   return _PTR(SComponent)(aSCO);
 }
