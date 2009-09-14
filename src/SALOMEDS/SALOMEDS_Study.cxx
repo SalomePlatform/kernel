@@ -104,7 +104,7 @@ std::string SALOMEDS_Study::GetPersistentReference()
     SALOMEDS::Locker lock;
     aRef = _local_impl->GetPersistentReference();
   }
-  else aRef = _corba_impl->GetPersistentReference();
+  else aRef = (CORBA::String_var)_corba_impl->GetPersistentReference();
   return aRef;
 }
 
@@ -567,7 +567,7 @@ _PTR(AttributeStudyProperties) SALOMEDS_Study::GetProperties()
     SALOMEDS::Locker lock;
     aProp = new SALOMEDS_AttributeStudyProperties(_local_impl->GetProperties());
   }
-  else aProp = new SALOMEDS_AttributeStudyProperties(_corba_impl->GetProperties());
+  else aProp = new SALOMEDS_AttributeStudyProperties((SALOMEDS::AttributeStudyProperties_var)_corba_impl->GetProperties());
   return _PTR(AttributeStudyProperties)(aProp);
 }
  
