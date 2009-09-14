@@ -1202,6 +1202,7 @@ class CMakeFile(object):
         SET(dir $ENV{F2CHOME})
         STRING(REPLACE "\\\\" "/" dir ${dir})
         SET(var ${var} -I${dir})
+        SET(var ${var} -DF2C_BUILD)
         ENDIF(name STREQUAL ${target})
         ENDFOREACH(target ${targets})
         ENDIF(WINDOWS)
