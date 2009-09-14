@@ -259,17 +259,18 @@ void Engines_Component_i::ping()
 void Engines_Component_i::destroy()
 {
   MESSAGE("Engines_Component_i::destroy()");
-  //SCRUTE(pd_refCount);
+  //SCRUTE(_refcount_value());
 
   if(_myConnexionToRegistry)delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
   if(_notifSupplier)delete _notifSupplier;
   _notifSupplier = 0;
+  _poa->deactivate_object(*_id);
   if(_id)
     delete(_id) ;
-  //SCRUTE(pd_refCount);
-  _thisObj->_remove_ref();
-  //SCRUTE(pd_refCount);
+  //SCRUTE(_refcount_value());
+  _remove_ref();
+  //SCRUTE(_refcount_value());
   MESSAGE("Engines_Component_i::destroyed") ;
 }
 

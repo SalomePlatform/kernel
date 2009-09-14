@@ -352,11 +352,10 @@ void Engines_Container_i::Shutdown()
           // ignore this entry and continue
         }
     }
+  _listInstances_map.clear();
 
   _NS->Destroy_FullDirectory(_containerName.c_str());
   _NS->Destroy_Name(_containerName.c_str());
-  //_remove_ref();
-  //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
@@ -1157,22 +1156,16 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     Engines_Component_i *servant =
       dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
     ASSERT(servant);
-    //SCRUTE(servant->pd_refCount);
-    servant->_remove_ref(); // compensate previous id_to_reference 
-    //SCRUTE(servant->pd_refCount);
+    //SCRUTE(servant->_refcount_value());
     _numInstanceMutex.lock() ; // lock to be alone (stl container write)
     _listInstances_map[instanceName] = iobject;
     _cntInstances_map[aGenRegisterName] += 1;
     _numInstanceMutex.unlock() ;
     SCRUTE(aGenRegisterName);
     SCRUTE(_cntInstances_map[aGenRegisterName]);
-    //SCRUTE(servant->pd_refCount);
-#if defined(_DEBUG_) || defined(_DEBUG)
-    bool ret_studyId = servant->setStudyId(studyId);
-    ASSERT(ret_studyId);
-#else
     servant->setStudyId(studyId);
-#endif
+    servant->_remove_ref(); // do not need servant any more (remove ref from reference_to_servant)
+    //SCRUTE(servant->_refcount_value());
 
     // --- register the engine under the name
     //     containerName(.dir)/instanceName(.object)
@@ -1245,6 +1238,7 @@ void ActSigIntHandler()
 #ifndef WIN32
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
+  sigemptyset(&SigIntAct.sa_mask);
   SigIntAct.sa_flags = SA_SIGINFO ;
 #endif
 
