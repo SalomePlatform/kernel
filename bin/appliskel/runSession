@@ -28,6 +28,39 @@
 
 APPLI_HOME=`dirname $0`
 
+NSPORT=last
+NSHOST=localhost
+
+usage()
+{
+        echo "Connect to a SALOME session (local or remote)"
+        echo ""
+        echo "Usage: $(basename $0) [ -p PORT ] [ -m MACHINE ] [ -h ] [command]"
+        echo ""
+        echo "  -p PORT          : The port to connect to "
+        echo "  -m MACHINE       : The machine to connect to "
+        echo "  -h               : Print this message"
+        echo "  command          : The command to execute in the SALOME session"
+        echo ""
+        echo "If the command is not given a shell is opened"
+        echo "If PORT and MACHINE are not given, try to connect to the last active session on the local machine"
+        echo "If PORT and MACHINE are given, try to connect to the remote session associated with PORT on MACHINE"
+        echo "If MACHINE is not given, try to connect to the session associated to PORT on the local machine"
+        echo "If PORT is not given, try to connect to the remote session associated to port 2810 on MACHINE"
+        echo ""
+}
+
+while getopts 'm:p:h' OPTION
+  do
+    case $OPTION in
+      m)NSHOST="$OPTARG" ;;
+      p)NSPORT="$OPTARG" ;;
+      h|?) usage
+          exit 1 ;;
+    esac
+  done
+shift $(($OPTIND - 1))
+
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 
 export APPLI=`${APPLI_HOME}/getAppliPath.py`
@@ -36,32 +69,47 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
-if test "x$1" == "xNSPORT"; then
-  NSPORT=$2
-  export NSPORT
-  myhost=`hostname`
-  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${myhost}_${NSPORT}.cfg
-  export OMNIORB_CONFIG
-  NSHOST=${myhost}
-  export NSHOST
-  shift 2
-else
-
-  # --- set omniORB configuration to current session if any
-
-  fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
-
-  if [ -f $fileOmniConfig ]; then
-    OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+if test "x${NSPORT}" == "xlast"; then
+  #PORT is not given
+  if test "x${NSHOST}" == "xlocalhost"; then
+    #MACHINE and PORT are not given
+    # --- set omniORB configuration to current session if any
+    fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+    if [ -f $fileOmniConfig ]; then
+      OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+      export OMNIORB_CONFIG
+      # --- set environment variables for port and hostname of NamingService
+      NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
+      NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+      export NSPORT
+      export NSHOST
+    fi
+  else
+    #MACHINE is given PORT is not given
+    NSPORT=2810
+    OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${NSHOST}_${NSPORT}.cfg
     export OMNIORB_CONFIG
-
-    # --- set environment variables for port and hostname of NamingService
-
-    NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
-    export NSHOST
-    NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+    #if omniorb config file exists do not override (perhaps too conservative)
+    if [ ! -f ${OMNIORB_CONFIG} ]; then
+      echo "InitRef = NameService=corbaname::${NSHOST}:${NSPORT}" > ${OMNIORB_CONFIG}
+    fi
     export NSPORT
+    export NSHOST
   fi
+else
+  #PORT is given
+  if test "x${NSHOST}" == "xlocalhost"; then
+    #MACHINE is not given PORT is given
+    NSHOST=`hostname`
+  fi
+  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${NSHOST}_${NSPORT}.cfg
+  export OMNIORB_CONFIG
+  #if omniorb config file exists do not override (perhaps too conservative)
+  if [ ! -f ${OMNIORB_CONFIG} ]; then
+    echo "InitRef = NameService=corbaname::${NSHOST}:${NSPORT}" > ${OMNIORB_CONFIG}
+  fi
+  export NSPORT
+  export NSHOST
 fi
 
 # --- invoke shell with or without args
