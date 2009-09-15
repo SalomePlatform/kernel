@@ -277,7 +277,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     {
       // containerName doesn't contain "/" => Local container
       params->container_name=CORBA::string_dup(stContainer);
-      params->hostname=CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
+      params->hostname="";
     }
   else 
     {
