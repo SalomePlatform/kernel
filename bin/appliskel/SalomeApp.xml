@@ -16,7 +16,7 @@
     <parameter name="xterm"      value="no"/>
     <parameter name="portkill"   value="no"/>
     <parameter name="killall"    value="no"/>
-    <parameter name="modules"    value="GUI,GEOM,SMESH,VISU,SUPERV,MED,COMPONENT,LIGHT,PYHELLO,PYCALCULATOR"/>
+    <parameter name="modules"    value="GUI,GEOM,SMESH,VISU,MED,COMPONENT,LIGHT,PYHELLO,PYCALCULATOR"/>
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,cppContainer,registry,moduleCatalog,study"/>
     <parameter name="standalone" value="pyContainer"/>
@@ -39,7 +39,6 @@
     <parameter name="GEOM"         value="${GEOM_ROOT_DIR}/share/salome/resources/geom"/>
     <parameter name="SMESH"        value="${SMESH_ROOT_DIR}/share/salome/resources/smesh"/>
     <parameter name="VISU"         value="${VISU_ROOT_DIR}/share/salome/resources/visu"/>
-    <parameter name="SUPERV"       value="${SUPERV_ROOT_DIR}/share/salome/resources/superv"/>
     <parameter name="MED"          value="${MED_ROOT_DIR}/share/salome/resources/med"/>
     <parameter name="StdMeshers"   value="${SMESH_ROOT_DIR}/share/salome/resources/smesh"/>
     <parameter name="NETGENPlugin" value="${NETGENPLUGIN_ROOT_DIR}/share/salome/resources/netgenplugin"/>
@@ -61,10 +60,6 @@
   <section name="VISU">
     <parameter name="name"       value="Post-Pro"/>
     <parameter name="icon"       value="ModuleVisu.png"/>
-  </section>
-  <section name="SUPERV">
-    <parameter name="name"       value="Supervisor"/>
-    <parameter name="icon"       value="ModuleSupervision.png"/>
   </section>
   <section name="MED">
     <parameter name="name"       value="Med"/>

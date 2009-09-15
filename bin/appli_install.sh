@@ -58,7 +58,7 @@ fi
 
 VERSION=V3_2_0
 
-for module in KERNEL MED GUI GEOM SMESH VISU SUPERV LIGHT NETGENPLUGIN PYCALCULATOR; 
+for module in KERNEL MED GUI GEOM SMESH VISU LIGHT NETGENPLUGIN PYCALCULATOR; 
 do 
     echo " ========= " ${module};
     python virtual_salome.py -v --prefix="." --module=$INSTALL_ROOT/${module}_${VERSION}

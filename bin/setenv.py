@@ -142,10 +142,6 @@ def get_config(silent=False):
         modules_list.remove("GUI")
         pass
 
-    if "SUPERV" in modules_list and not 'supervContainer' in args['standalone']:
-        args['standalone'].append("supervContainer")
-        pass
-   
     return args, modules_list, modules_root_dir
 
 # -----------------------------------------------------------------------------
@@ -228,12 +224,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
-    # set environment for SUPERV module
-    os.environ["ENABLE_MACRO_NODE"]="1"
     # set resources variables if not yet set
-    # Done now by launchConfigureParser.py
-    #if os.getenv("GUI_ROOT_DIR"):
-        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",

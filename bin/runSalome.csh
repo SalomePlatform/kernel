@@ -22,4 +22,4 @@
 #
 
 
-runSalome --gui --modules=GEOM,SMESH,VISU,SUPERV,MED --killall
+runSalome --gui --modules=GEOM,SMESH,VISU,MED --killall

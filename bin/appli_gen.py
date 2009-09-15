@@ -253,7 +253,7 @@ def install(prefix,config_file,verbose=0):
     command="""
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
-    <parameter name="standalone" value="pyContainer,supervContainer"/>
+    <parameter name="standalone" value="pyContainer"/>
   </section>
 </document>
 """

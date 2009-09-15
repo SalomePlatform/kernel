@@ -30,7 +30,7 @@ import orbmodule
 import setenv
 from server import *
 from launchConfigureParser import verbose
-#process_id = {} move to server.py
+from server import process_id
 
 # -----------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ def kill_salome(args):
 
 # -----------------------------------------------------------------------------
 #
-# Definition des classes d'objets pour le lancement des Server CORBA
+# Class definitions to launch CORBA Servers
 #
 
 class InterpServer(Server):
@@ -88,7 +88,6 @@ class InterpServer(Server):
         self.args=args
         env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
         self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
-        #self.CMD=['xterm', '-e', 'python']
        
     def run(self):
         global process_id
@@ -195,17 +194,6 @@ class ContainerPYServer(Server):
 
 # ---
 
-class ContainerSUPERVServer(Server):
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-   #  if sys.platform == "win32":
-#          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'SuperVisionContainer']
-# else:
-        self.CMD=['SALOME_Container','SuperVisionContainer']
-
-# ---
-
 class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
@@ -258,8 +246,6 @@ class SessionServer(Server):
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
             self.SCMD2+=['PY']
-        if 'supervContainer' in self.args['standalone']:
-            self.SCMD2+=['SUPERV']
         if self.args['gui']:
             session_gui = True
             if self.args.has_key('session_gui'):
@@ -411,9 +397,6 @@ def startGUI():
     import SALOME
     import SALOMEDS
     import SALOME_ModuleCatalog
-    reload(Engines)
-    reload(SALOME)
-    reload(SALOMEDS)
     import SALOME_Session_idl
     session=clt.waitNS("/Kernel/Session",SALOME.Session)
     session.GetInterface()
@@ -427,7 +410,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if verbose(): print "startSalome ", args
     
     #
-    # Initialisation ORB et Naming Service
+    # Initialisation ORB and Naming Service
     #
    
     clt=orbmodule.client(args)
@@ -444,8 +427,8 @@ def startSalome(args, modules_list, modules_root_dir):
       f.write(os.environ['NSPORT'])
       f.close()
 
-    # (non obligatoire) Lancement Logger Server
-    # et attente de sa disponibilite dans le naming service
+    # Launch Logger Server (optional)
+    # and wait until it is registered in naming service
     #
 
     if args['logger']:
@@ -462,7 +445,7 @@ def startSalome(args, modules_list, modules_root_dir):
       myServer=NotifyServer(args,modules_root_dir)
       myServer.run()
 
-    # Lancement Session Server (to show splash ASAP)
+    # Launch  Session Server (to show splash ASAP)
     #
 
     if args["gui"]:
@@ -471,8 +454,8 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ.run()
 
     #
-    # Lancement Registry Server,
-    # attente de la disponibilite du Registry dans le Naming Service
+    # Launch Registry Server,
+    # and wait until it is registered in naming service
     #
 
     if ('registry' not in args['embedded']) | (args["gui"] == 0) :
@@ -484,10 +467,9 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Registry",myServer.PID)
 
     #
-    # Lancement Catalog Server,
-    # attente de la disponibilite du Catalog Server dans le Naming Service
+    # Launch Catalog Server,
+    # and wait until it is registered in naming service
     #
-    
 
     if ('moduleCatalog' not in args['embedded']) | (args["gui"] == 0):
         cataServer=CatalogServer(args)
@@ -500,8 +482,8 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Kernel/ModulCatalog",cataServer.PID,SALOME_ModuleCatalog.ModuleCatalog)
 
     #
-    # Lancement SalomeDS Server,
-    # attente de la disponibilite du SalomeDS dans le Naming Service
+    # Launch SalomeDS Server,
+    # and wait until it is registered in naming service
     #
 
     #print "ARGS = ",args
@@ -515,7 +497,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/myStudyManager",myServer.PID)
 
     #
-    # Lancement LauncherServer
+    # Launch LauncherServer
     #
     
     myCmServer = LauncherServer(args)
@@ -541,8 +523,8 @@ def startSalome(args, modules_list, modules_root_dir):
     theComputer = getShortHostName()
     
     #
-    # Lancement Container C++ local,
-    # attente de la disponibilite du Container C++ local dans le Naming Service
+    # Launch local C++ Container (FactoryServer),
+    # and wait until it is registered in naming service
     #
 
     if ('cppContainer' in args['standalone']) | (args["gui"] == 0) : 
@@ -554,9 +536,8 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
 
     #
-    # Lancement Container Python local,
-    # attente de la disponibilite du Container Python local
-    # dans le Naming Service
+    # Launch local Python Container (FactoryServerPy),
+    # and wait until it is registered in naming service
     #
 
     if 'pyContainer' in args['standalone']:
@@ -568,21 +549,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
 
     #
-    # Lancement Container Supervision local,
-    # attente de la disponibilite du Container Supervision local
-    # dans le Naming Service
-    #
-
-    if 'supervContainer' in args['standalone']:
-        myServer=ContainerSUPERVServer(args)
-        myServer.run()
-        if sys.platform == "win32":
-          clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
-        else:
-          clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
-  
-    #
-    # Attente de la disponibilite du Session Server dans le Naming Service
+    # Wait until Session Server is registered in naming service
     #
     
     if args["gui"]:
@@ -591,9 +558,6 @@ def startSalome(args, modules_list, modules_root_dir):
         import SALOME
         import SALOMEDS
         import SALOME_ModuleCatalog
-        reload(Engines)
-        reload(SALOME)
-        reload(SALOMEDS)
         import SALOME_Session_idl
         if sys.platform == "win32":
           session=clt.waitNS("/Kernel/Session",SALOME.Session)
@@ -630,7 +594,7 @@ def startSalome(args, modules_list, modules_root_dir):
             anInterp=InterpServer(args)
             anInterp.run()
 
-    # set PYTHONINSPECT variable
+    # set PYTHONINSPECT variable (python interpreter in interactive mode)
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
         import readline
@@ -682,7 +646,7 @@ def useSalome(args, modules_list, modules_root_dir):
     """%filedict
     
     #
-    #  Impression arborescence Naming Service
+    #  Print Naming Service directory list
     #
     
     if clt != None:
@@ -703,13 +667,14 @@ def useSalome(args, modules_list, modules_root_dir):
             if toimport[ i ] == 'killall':
                 clt.showNS()
                 killAllPorts()
-                import sys
                 sys.exit(0)
             else:
                 scrname = toimport[ i ]
                 if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
                     print 'executing',scrname
+                    sys.path.insert( 0, os.path.dirname(scrname))
                     execfile(scrname,globals())
+                    del sys.path[0]
                 else:
                     print 'importing',scrname
                     doimport = 'import ' + scrname
@@ -860,7 +825,6 @@ def no_main():
 
 def main():
     """Salome launch as a main application"""
-    import sys
     from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()

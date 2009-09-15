@@ -75,7 +75,7 @@ fi
 #     - if the config file does not exist, it is created with default values.
 #
 #  
-#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,SUPERV,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer,supervContainer --xterm --killall
+#  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer --xterm --killall
 #
 #     parameters from command line supersede those from SalomeApp.xml
 #
@@ -83,7 +83,7 @@ fi
 # (embedded = same process) or in a separate process (standalone):
 # --> registry,study,moduleCatalog,cppContainer
 # Other CORBA servers could only be launched in separate process (standalone):
-# --> pyContainer,supervContainer
+# --> pyContainer
 #
 # $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome -h
 #    help
@@ -96,4 +96,4 @@ fi
 # 
 # -----------------------------------------------------------------------------
 # Example on CCRT (without ihm) :
-# ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --terminal --modules=MED,CALCULATOR,COMPONENT --standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer --killall
+# ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --terminal --modules=MED,CALCULATOR,COMPONENT --standalone=registry,study,moduleCatalog,cppContainer,pyContainer --killall
