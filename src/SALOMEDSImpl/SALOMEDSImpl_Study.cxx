@@ -965,6 +965,15 @@ void SALOMEDSImpl_Study::UpdateIORLabelMap(const string& anIOR,const string& anE
   myIORLabels[anIOR] = aLabel;
 }
 
+void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
+{
+  if (myIORLabels.find(anIOR) != myIORLabels.end()) 
+    {
+      //remove the ior entry
+      myIORLabels.erase(anIOR);
+    }
+}
+
 SALOMEDSImpl_Study* SALOMEDSImpl_Study::GetStudy(const DF_Label& theLabel)
 {
   SALOMEDSImpl_StudyHandle* Att;

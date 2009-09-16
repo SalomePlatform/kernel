@@ -196,6 +196,7 @@ public:
 
   virtual void  StudyId(int id);
   
+  virtual void DeleteIORLabelMapItem(const std::string& anIOR);
   virtual void UpdateIORLabelMap(const std::string& anIOR, const std::string& aLabel);
   
   virtual std::vector<SALOMEDSImpl_SObject> FindDependances(const SALOMEDSImpl_SObject& anObject);

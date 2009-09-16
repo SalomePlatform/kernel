@@ -25,6 +25,7 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
@@ -55,6 +56,8 @@
 
 using namespace std;
 
+std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
+
 //============================================================================
 /*! Function : SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i constructor
@@ -76,6 +79,13 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 //============================================================================
 SALOMEDS_Study_i::~SALOMEDS_Study_i()
 {
+  //delete the builder servant
+  PortableServer::POA_var poa=_builder->_default_POA();
+  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
+  poa->deactivate_object(anObjectId.in());
+  _builder->_remove_ref();
+  //delete implementation
+  delete _impl;
 }  
 
 //============================================================================
@@ -421,7 +431,8 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->GetSObject(theSO->GetID());
+  CORBA::String_var anID=theSO->GetID();
+  SALOMEDSImpl_SObject aSO = _impl->GetSObject(anID.in());
   SALOMEDSImpl_ChildIterator anItr(aSO);
 
   //Create iterator
@@ -581,6 +592,18 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::
   return SALOMEDS::Study::_nil();
 }
 
+SALOMEDS_Study_i* SALOMEDS_Study_i::GetStudyServant(SALOMEDSImpl_Study* aStudyImpl, CORBA::ORB_ptr orb)
+{
+  if (_mapOfStudies.find(aStudyImpl) != _mapOfStudies.end()) 
+    return _mapOfStudies[aStudyImpl];
+  else
+    {
+      SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, orb);
+      _mapOfStudies[aStudyImpl]=Study_servant;
+      return Study_servant;
+    }
+}
+
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 
 {
   SALOMEDS::Locker lock; 
@@ -685,7 +708,12 @@ void SALOMEDS_Study_i::Close()
       catch (CORBA::Exception&) 
         {/*pass*/ }
     }
+    sco->Destroy();
   }
+
+  //Does not need any more this iterator
+  itcomponent->Destroy();
+
 
   _impl->Close();
 }

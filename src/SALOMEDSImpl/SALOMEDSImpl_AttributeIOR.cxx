@@ -56,7 +56,6 @@ SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
   }
 
   A->SetValue(S); 
-  SALOMEDSImpl_Study::IORUpdated(A);
   return A;
 }
 
@@ -73,6 +72,7 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
   Backup();
   myString = theValue;
 
+  //add IOR entry in study
   SALOMEDSImpl_Study::IORUpdated(this);
 }
 

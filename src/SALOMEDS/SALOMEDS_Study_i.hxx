@@ -51,6 +51,7 @@ private:
   CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
+  static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
 
 public:
 
@@ -244,6 +245,7 @@ public:
   virtual void  StudyId(CORBA::Short id);
 
   static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
+  static SALOMEDS_Study_i* GetStudyServant(SALOMEDSImpl_Study*, CORBA::ORB_ptr orb);
 
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 
