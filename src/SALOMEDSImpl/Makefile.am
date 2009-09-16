@@ -98,7 +98,7 @@ COMMON_CPPFLAGS=\
     -I$(srcdir)/../GenericObj \
     -I$(top_builddir)/idl \
 	@HDF5_INCLUDES@ \
-	@BOOST_CPPFLAGS@
+	@BOOST_CPPFLAGS@ @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
