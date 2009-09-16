@@ -67,9 +67,13 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 {
   CheckLocked();
 
-  SALOMEDSImpl_Study::GetStudy(Label());
+  SALOMEDSImpl_Study* study=SALOMEDSImpl_Study::GetStudy(Label());
 
   Backup();
+  //remove IOR entry in study
+  if(theValue != myString)
+    study->DeleteIORLabelMapItem(myString);
+
   myString = theValue;
 
   //add IOR entry in study

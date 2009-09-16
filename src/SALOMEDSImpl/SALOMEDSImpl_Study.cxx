@@ -48,6 +48,17 @@ using namespace std;
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
 
+//to disable automatic genericobj management comment the following line
+#define WITHGENERICOBJ
+
+#ifdef WITHGENERICOBJ
+#include "SALOME_GenericObj_i.hh"
+static CORBA::ORB_var getORB()
+{
+  int argc=0;
+  return CORBA::ORB_init(argc,0);
+}
+#endif
 
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
@@ -55,7 +66,7 @@ using namespace std;
  */
 //============================================================================
 SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
-				       const string& study_name)
+                                       const string& study_name)
 {
   _name = study_name;
   _doc = (DF_Document*)doc;
@@ -194,8 +205,8 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::FindComponentID(const string& aCompo
     ID = SC.GetID();
     if(aComponentID == ID)
       {
-	// ComponentID found
-	_find = true;
+        // ComponentID found
+        _find = true;
         compo = SC;
       }
   }
@@ -227,14 +238,14 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObject(const string& anObjectName)
   for (; it.More();it.Next()){
     if(!_find)
       {
-	SALOMEDSImpl_SComponent SC = it.Value();
-	if (SC.GetName() == anObjectName)
-	{
-	    _find = true;
-	    RefSO = SC;
+        SALOMEDSImpl_SComponent SC = it.Value();
+        if (SC.GetName() == anObjectName)
+        {
+            _find = true;
+            RefSO = SC;
 
-	}
-	if (!_find) RefSO =  _FindObject(SC, anObjectName, _find);
+        }
+        if (!_find) RefSO =  _FindObject(SC, anObjectName, _find);
       }
   }
   if(!RefSO) _errorCode = "No object was found";
@@ -290,7 +301,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::CreateObjectID(const string& anObjectID
  */
 //============================================================================
 vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const string& anObjectName,
-							  const string& aComponentName)
+                                                          const string& aComponentName)
 {
   _errorCode = "";
 
@@ -312,8 +323,8 @@ vector<SALOMEDSImpl_SObject> SALOMEDSImpl_Study::FindObjectByName(const string& 
 
     SALOMEDSImpl_SObject CSO = it.Value();
     if ( CSO.GetName() == anObjectName ) {
-	/* add to list */
-	listSO.push_back(CSO) ;
+        /* add to list */
+        listSO.push_back(CSO) ;
     }
 
     /* looks also for eventual children */
@@ -399,14 +410,14 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const string& thePath)
     for ( ; anIterator.More(); anIterator.Next() ) {
       aLabel = anIterator.Value();
       if((anAttr=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-	if(anAttr->Value() == aToken) {
-	  if(i == (len-1)) {  //The searched label is found (no part of the path is left)
-	      return GetSObject(aLabel);
-	  }
+        if(anAttr->Value() == aToken) {
+          if(i == (len-1)) {  //The searched label is found (no part of the path is left)
+              return GetSObject(aLabel);
+          }
 
-	  anIterator.Init(aLabel, false);
-	  break;
-	}
+          anIterator.Init(aLabel, false);
+          break;
+        }
       }
     }
 
@@ -441,8 +452,8 @@ string SALOMEDSImpl_Study::GetObjectPath(const SALOMEDSImpl_SObject& theObject)
     if(aFather) {
        aName = aFather.GetName();
        if(!aName.empty() && aName != "") {
- 	  aValue = GetObjectPath(aFather);
-	  aPath = aValue + aPath;
+           aValue = GetObjectPath(aFather);
+          aPath = aValue + aPath;
        }
     }
   }
@@ -601,10 +612,10 @@ vector<string> SALOMEDSImpl_Study::GetDirectoryNames(const string& theContext)
     SALOMEDSImpl_AttributeLocalID* anID;
     if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
       if (anID->Value() == DIRECTORYID) {
-	SALOMEDSImpl_AttributeName* aName;
-	if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-	  aResultSeq.push_back(aName->Value());
-	}
+        SALOMEDSImpl_AttributeName* aName;
+        if ((aName=(SALOMEDSImpl_AttributeName*)aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
+          aResultSeq.push_back(aName->Value());
+        }
       }
     }
   }
@@ -642,12 +653,12 @@ vector<string> SALOMEDSImpl_Study::GetFileNames(const string& theContext)
     SALOMEDSImpl_AttributeLocalID* anID;
     if ((anID=(SALOMEDSImpl_AttributeLocalID*)aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID()))) {
       if (anID->Value() == FILELOCALID) {
-	SALOMEDSImpl_AttributePersistentRef* aName;
-	if ((aName=(SALOMEDSImpl_AttributePersistentRef*)aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
-	  std::string aFileName = aName->Value();
-	  if (aFileName.size() > 0)
-	    aResultSeq.push_back(aFileName.substr(strlen(FILEID), aFileName.size()));
-	}
+        SALOMEDSImpl_AttributePersistentRef* aName;
+        if ((aName=(SALOMEDSImpl_AttributePersistentRef*)aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {
+          std::string aFileName = aName->Value();
+          if (aFileName.size() > 0)
+            aResultSeq.push_back(aFileName.substr(strlen(FILEID), aFileName.size()));
+        }
       }
     }
   }
@@ -818,8 +829,8 @@ void SALOMEDSImpl_Study::URL(const string& url)
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject& SO,
-						             const string& theObjectName,
-						             bool& _find)
+                                                             const string& theObjectName,
+                                                             bool& _find)
 {
   SALOMEDSImpl_SObject RefSO;
   if(!SO) return RefSO;
@@ -833,16 +844,16 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject&
   for (; it.More(); it.Next()){
     if(!_find)
       {
-	if ((anAttr=(SALOMEDSImpl_AttributeName*)it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
-	{
+        if ((anAttr=(SALOMEDSImpl_AttributeName*)it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID())))
+        {
           string Val(anAttr->Value());
-	  if (Val == theObjectName)
-	    {
-	      RefSO = GetSObject(it.Value());
-	      _find = true;
-	    }
-	}
-	if (!_find) RefSO = _FindObject(GetSObject(it.Value()), theObjectName, _find);
+          if (Val == theObjectName)
+            {
+              RefSO = GetSObject(it.Value());
+              _find = true;
+            }
+        }
+        if (!_find) RefSO = _FindObject(GetSObject(it.Value()), theObjectName, _find);
       }
   }
   return RefSO;
@@ -855,8 +866,8 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::_FindObject(const SALOMEDSImpl_SObject&
 //============================================================================
 SALOMEDSImpl_SObject
 SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
-				   const string& theObjectIOR,
-				   bool& _find)
+                                   const string& theObjectIOR,
+                                   bool& _find)
 {
   SALOMEDSImpl_SObject RefSO, aSO;
   if(!SO) return RefSO;
@@ -869,17 +880,17 @@ SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
   for (; it.More();it.Next()){
     if(!_find)
       {
-	if ((anAttr=(SALOMEDSImpl_AttributeIOR*)it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())))
-	{
+        if ((anAttr=(SALOMEDSImpl_AttributeIOR*)it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())))
+        {
           string Val(anAttr->Value());
-	  if (Val == theObjectIOR)
-	    {
-	      RefSO = GetSObject(it.Value());
-	      _find = true;
-	    }
-	}
-	aSO = GetSObject(it.Value());
-	if (!_find) RefSO =  _FindObjectIOR(aSO, theObjectIOR, _find);
+          if (Val == theObjectIOR)
+            {
+              RefSO = GetSObject(it.Value());
+              _find = true;
+            }
+        }
+        aSO = GetSObject(it.Value());
+        if (!_find) RefSO =  _FindObjectIOR(aSO, theObjectIOR, _find);
       }
   }
   return RefSO;
@@ -962,6 +973,26 @@ void SALOMEDSImpl_Study::UpdateIORLabelMap(const string& anIOR,const string& anE
   _errorCode = "";
   DF_Label aLabel = DF_Label::Label(_doc->Main(), anEntry, true);
   if (myIORLabels.find(anIOR) != myIORLabels.end()) myIORLabels.erase(anIOR);
+#ifdef WITHGENERICOBJ
+  else
+    {
+      // if the ior was not already registered, incref the genericobj (if it's one)
+      CORBA::Object_var obj;
+      SALOME::GenericObj_var gobj;
+      try
+        {
+          obj = getORB()->string_to_object(anIOR.c_str());
+          gobj = SALOME::GenericObj::_narrow(obj);
+          if(! CORBA::is_nil(gobj) )
+            {
+              gobj->Register();
+            }
+        }
+      catch(const CORBA::Exception& e)
+        {
+        }
+    }
+#endif
   myIORLabels[anIOR] = aLabel;
 }
 
@@ -969,8 +1000,24 @@ void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
 {
   if (myIORLabels.find(anIOR) != myIORLabels.end()) 
     {
-      //remove the ior entry
+      //remove the ior entry and decref the genericobj (if it's one)
       myIORLabels.erase(anIOR);
+#ifdef WITHGENERICOBJ
+       CORBA::Object_var obj;
+       SALOME::GenericObj_var gobj;
+       try
+         {
+           obj = getORB()->string_to_object(anIOR.c_str());
+           gobj = SALOME::GenericObj::_narrow(obj);
+           if(! CORBA::is_nil(gobj) )
+             {
+               gobj->Destroy();
+             }
+         }
+       catch(const CORBA::Exception& e)
+         {
+         }
+#endif
     }
 }
 
@@ -1054,7 +1101,7 @@ vector<string> SALOMEDSImpl_Study::GetModificationsDate()
     char aDate[20];
     sprintf(aDate, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
             (int)(aDays[anIndex]), (int)(aMonths[anIndex]), (int)(aYears[anIndex]),
-	    (int)(aHours[anIndex]), (int)(aMinutes[anIndex]));
+            (int)(aHours[anIndex]), (int)(aMinutes[anIndex]));
     aDates.push_back(aDate);
   }
   return aDates;
@@ -1153,7 +1200,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const DF_Label& theLabel)
  */
 //============================================================================
 DF_Attribute* SALOMEDSImpl_Study::GetAttribute(const string& theEntry,
-					       const string& theType)
+                                               const string& theType)
 {
   SALOMEDSImpl_SObject aSO = GetSObject(theEntry);
   DF_Attribute* anAttr;
@@ -1167,9 +1214,9 @@ DF_Attribute* SALOMEDSImpl_Study::GetAttribute(const string& theEntry,
  */
 //============================================================================
 bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
-				   const string& theBaseName,
-				   bool isPublished,
-				   SALOMEDSImpl_DriverFactory* theFactory)
+                                   const string& theBaseName,
+                                   bool isPublished,
+                                   SALOMEDSImpl_DriverFactory* theFactory)
 {
   _errorCode = "";
 
@@ -1259,22 +1306,22 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
     string IOREngine;
     try {
       if (!sco.ComponentIOR(IOREngine)) {
-	if (!aCompType.empty()) {
+        if (!aCompType.empty()) {
 
-	  aDriver = theFactory->GetDriverByType(aCompType);
+          aDriver = theFactory->GetDriverByType(aCompType);
 
-	  if (aDriver != NULL) {
-	    SALOMEDSImpl_StudyBuilder* SB = NewBuilder();
-	    if(!SB->LoadWith(sco, aDriver)) {
-	      _errorCode = SB->GetErrorCode();
-	      return false;
-	    }
-	  }
-	  else continue;
-	}
+          if (aDriver != NULL) {
+            SALOMEDSImpl_StudyBuilder* SB = NewBuilder();
+            if(!SB->LoadWith(sco, aDriver)) {
+              _errorCode = SB->GetErrorCode();
+              return false;
+            }
+          }
+          else continue;
+        }
       }
       else {
-	aDriver = theFactory->GetDriverByIOR(IOREngine);
+        aDriver = theFactory->GetDriverByIOR(IOREngine);
       }
     } catch(...) {
       _errorCode = "Can not restore information to dump it";
@@ -1357,9 +1404,9 @@ string SALOMEDSImpl_Study::GetDumpStudyComment(const char* theComponentName)
 }
 
 void dumpSO(const SALOMEDSImpl_SObject& theSO,
-	    fstream& fp,
-	    const string& Tab,
-	    SALOMEDSImpl_Study* theStudy);
+            fstream& fp,
+            const string& Tab,
+            SALOMEDSImpl_Study* theStudy);
 
 //============================================================================
 /*! Function : dump
@@ -1397,9 +1444,9 @@ void SALOMEDSImpl_Study::dump(const string& theFileName)
 
 
 void dumpSO(const SALOMEDSImpl_SObject& theSO,
-	    fstream& fp,
-	    const string& Tab,
-	    SALOMEDSImpl_Study* theStudy)
+            fstream& fp,
+            const string& Tab,
+            SALOMEDSImpl_Study* theStudy)
 {
   string aTab(Tab), anID(theSO.GetID());
   fp << aTab << anID << endl;
@@ -1486,8 +1533,8 @@ SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const c
  */
 //============================================================================
 SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetModuleParameters(const char* theID, 
-									 const char* theModuleName,
-									 int theSavePoint)
+                                                                         const char* theModuleName,
+                                                                         int theSavePoint)
 {
   if(theSavePoint <= 0) return NULL;
   SALOMEDSImpl_AttributeParameter* main_ap = GetCommonParameters(theID, theSavePoint);
@@ -1750,8 +1797,8 @@ bool SALOMEDSImpl_Study::IsVariableUsed(const string& theVarName)
  */
 //============================================================================
 bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-					       SALOMEDSImpl_SObject theSObject,
-					       const std::string& theName)
+                                               SALOMEDSImpl_SObject theSObject,
+                                               const std::string& theName)
 {
   SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
   for( ; anIter.More(); anIter.Next() )
@@ -1768,13 +1815,13 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStu
       vector< vector<string> > aSections = ParseVariables( aString );
       for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	vector<string> aVector = aSections[i];
-	for( int j = 0, m = aVector.size(); j < m; j++ )
-	{
-	  string aStr = aVector[j];
-	  if( aStr.compare( theName ) == 0 )
-	    return true;
-	}
+        vector<string> aVector = aSections[i];
+        for( int j = 0, m = aVector.size(); j < m; j++ )
+        {
+          string aStr = aVector[j];
+          if( aStr.compare( theName ) == 0 )
+            return true;
+        }
       }
     }
   }
@@ -1805,9 +1852,9 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(const std::string& theName)
  */
 //============================================================================
 void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-						  SALOMEDSImpl_SObject theSObject,
-						  const std::string& theSource,
-						  const std::string& theDest)
+                                                  SALOMEDSImpl_SObject theSObject,
+                                                  const std::string& theSource,
+                                                  const std::string& theDest)
 {
   SALOMEDSImpl_ChildIterator anIter = NewChildIterator( theSObject );
   for( ; anIter.More(); anIter.Next() )
@@ -1824,26 +1871,26 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
       vector< vector<string> > aSections = ParseVariables( aCurrentString );
       for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	vector<string> aVector = aSections[i];
-	for( int j = 0, m = aVector.size(); j < m; j++ )
-	{
-	  string aStr = aVector[j];
-	  if( aStr.compare( theSource ) == 0 )
-	  {
-	    isChanged = true;
-	    aStr = theDest;
-	  }
+        vector<string> aVector = aSections[i];
+        for( int j = 0, m = aVector.size(); j < m; j++ )
+        {
+          string aStr = aVector[j];
+          if( aStr.compare( theSource ) == 0 )
+          {
+            isChanged = true;
+            aStr = theDest;
+          }
 
-	  aNewString.append( aStr );
-	  if( j != m - 1 )
-	    aNewString.append( ":" );
-	}
-	if( i != n - 1 )
-	  aNewString.append( "|" );
+          aNewString.append( aStr );
+          if( j != m - 1 )
+            aNewString.append( ":" );
+        }
+        if( i != n - 1 )
+          aNewString.append( "|" );
       }
 
       if( isChanged )
-	aStringAttr->SetValue( aNewString );
+        aStringAttr->SetValue( aNewString );
     }
   }
 }
