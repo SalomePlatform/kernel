@@ -28,6 +28,55 @@
 
 using namespace std;
 
+//to disable automatic genericobj management comment the following line
+#define WITHGENERICOBJ
+
+#ifdef WITHGENERICOBJ
+#include "SALOME_GenericObj_i.hh"
+
+static CORBA::ORB_var getORB()
+{
+  int argc=0;
+  return CORBA::ORB_init(argc,0);
+}
+
+void IORGenericObjDecref(const std::string& anIOR)
+{
+  CORBA::Object_var obj;
+  SALOME::GenericObj_var gobj;
+  try
+    {
+       obj = getORB()->string_to_object(anIOR.c_str());
+       gobj = SALOME::GenericObj::_narrow(obj);
+       if(! CORBA::is_nil(gobj) )
+         {
+           gobj->Destroy();
+         }
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+}
+
+void IORGenericObjIncref(const std::string& anIOR)
+{
+  CORBA::Object_var obj;
+  SALOME::GenericObj_var gobj;
+  try
+    {
+      obj = getORB()->string_to_object(anIOR.c_str());
+      gobj = SALOME::GenericObj::_narrow(obj);
+      if(! CORBA::is_nil(gobj) )
+        {
+          gobj->Register();
+        }
+    }
+  catch(const CORBA::Exception& e)
+    {
+    }
+}
+#endif
+
 //=======================================================================
 //function : GetID
 //purpose  : 
@@ -72,7 +121,11 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
   Backup();
   //remove IOR entry in study
   if(theValue != myString)
-    study->DeleteIORLabelMapItem(myString);
+    {
+      IORGenericObjIncref(theValue);
+      IORGenericObjDecref(myString);
+      study->DeleteIORLabelMapItem(myString);
+    }
 
   myString = theValue;
 
@@ -99,7 +152,9 @@ SALOMEDSImpl_AttributeIOR::SALOMEDSImpl_AttributeIOR()
 }
 
 SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR()
-{}
+{
+  IORGenericObjDecref(myString);
+}
 
 //=======================================================================
 //function : ID

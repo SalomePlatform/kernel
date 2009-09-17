@@ -48,18 +48,6 @@ using namespace std;
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
 
-//to disable automatic genericobj management comment the following line
-#define WITHGENERICOBJ
-
-#ifdef WITHGENERICOBJ
-#include "SALOME_GenericObj_i.hh"
-static CORBA::ORB_var getORB()
-{
-  int argc=0;
-  return CORBA::ORB_init(argc,0);
-}
-#endif
-
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
  *  Purpose  : SALOMEDSImpl_Study constructor
@@ -973,26 +961,6 @@ void SALOMEDSImpl_Study::UpdateIORLabelMap(const string& anIOR,const string& anE
   _errorCode = "";
   DF_Label aLabel = DF_Label::Label(_doc->Main(), anEntry, true);
   if (myIORLabels.find(anIOR) != myIORLabels.end()) myIORLabels.erase(anIOR);
-#ifdef WITHGENERICOBJ
-  else
-    {
-      // if the ior was not already registered, incref the genericobj (if it's one)
-      CORBA::Object_var obj;
-      SALOME::GenericObj_var gobj;
-      try
-        {
-          obj = getORB()->string_to_object(anIOR.c_str());
-          gobj = SALOME::GenericObj::_narrow(obj);
-          if(! CORBA::is_nil(gobj) )
-            {
-              gobj->Register();
-            }
-        }
-      catch(const CORBA::Exception& e)
-        {
-        }
-    }
-#endif
   myIORLabels[anIOR] = aLabel;
 }
 
@@ -1002,22 +970,6 @@ void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
     {
       //remove the ior entry and decref the genericobj (if it's one)
       myIORLabels.erase(anIOR);
-#ifdef WITHGENERICOBJ
-       CORBA::Object_var obj;
-       SALOME::GenericObj_var gobj;
-       try
-         {
-           obj = getORB()->string_to_object(anIOR.c_str());
-           gobj = SALOME::GenericObj::_narrow(obj);
-           if(! CORBA::is_nil(gobj) )
-             {
-               gobj->Destroy();
-             }
-         }
-       catch(const CORBA::Exception& e)
-         {
-         }
-#endif
     }
 }
 
