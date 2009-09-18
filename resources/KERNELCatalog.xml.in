@@ -23,6 +23,9 @@
   <sequence name="intvec" content="int"/>
   <sequence name="stringvec" content="string"/>
   <sequence name="boolvec" content="bool"/>
+  <struct name="dataref" >
+    <member name="ref" type="string"/>
+  </struct>
   <objref name="CALCIUM_integer" id="IDL:Ports/Calcium_Ports/Calcium_Integer_Port:1.0"/>
   <objref name="CALCIUM_real" id="IDL:Ports/Calcium_Ports/Calcium_Real_Port:1.0"/>
   <objref name="CALCIUM_double" id="IDL:Ports/Calcium_Ports/Calcium_Double_Port:1.0"/>

@@ -52,6 +52,12 @@ module Engines
     any value;
   };
 
+  //!  Structure data type to hold reference on data 
+  struct dataref
+  {
+    string ref;
+  };
+
   typedef sequence<KeyValuePair> FieldsDict;
 
   interface Component ;
