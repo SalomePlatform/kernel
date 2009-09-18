@@ -46,12 +46,13 @@ void IORGenericObjDecref(const std::string& anIOR)
   SALOME::GenericObj_var gobj;
   try
     {
-       obj = getORB()->string_to_object(anIOR.c_str());
-       gobj = SALOME::GenericObj::_narrow(obj);
-       if(! CORBA::is_nil(gobj) )
-         {
-           gobj->Destroy();
-         }
+      obj = getORB()->string_to_object(anIOR.c_str());
+      if(obj->_non_existent())return;
+      gobj = SALOME::GenericObj::_narrow(obj);
+      if(! CORBA::is_nil(gobj) )
+        {
+          gobj->Destroy();
+        }
     }
   catch(const CORBA::Exception& e)
     {
@@ -65,6 +66,7 @@ void IORGenericObjIncref(const std::string& anIOR)
   try
     {
       obj = getORB()->string_to_object(anIOR.c_str());
+      if(obj->_non_existent())return;
       gobj = SALOME::GenericObj::_narrow(obj);
       if(! CORBA::is_nil(gobj) )
         {
@@ -96,7 +98,7 @@ const std::string& SALOMEDSImpl_AttributeIOR::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeIOR* SALOMEDSImpl_AttributeIOR::Set (const DF_Label& L,
-							   const std::string& S) 
+                                                           const std::string& S) 
 {
   SALOMEDSImpl_AttributeIOR* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeIOR*)L.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
