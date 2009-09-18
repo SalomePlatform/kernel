@@ -604,6 +604,11 @@ class CMakeFile(object):
                 SET(BLSURFPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
+            elif self.module == "ghs3dplugin":
+                newlines.append("""
+                SET(GHS3DPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
             # --
             pass
         # --
