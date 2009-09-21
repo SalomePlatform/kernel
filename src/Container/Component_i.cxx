@@ -629,6 +629,7 @@ void Engines_Component_i::beginService(const char *serviceName)
   MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
           << endl << "Component instance : " << _instanceName << endl << endl);
 #endif
+  std::cerr << "beginService for " << serviceName << " Component instance : " << _instanceName << std::endl;
 #ifndef WIN32
   _ThreadId = pthread_self() ;
 #else
@@ -698,6 +699,9 @@ void Engines_Component_i::endService(const char *serviceName)
   if ( !_CanceledThread )
     _ThreadCpuUsed = CpuUsed_impl() ;
 
+  float cpus=_ThreadCpuUsed/1000.;
+  std::cerr << "endService for " << serviceName << " Component instance : " << _instanceName ;
+  std::cerr << " Cpu Used: " << cpus << " (s) " << std::endl;
 #ifndef WIN32
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
           << endl << " Component instance : " << _instanceName << " StartUsed "
@@ -829,7 +833,10 @@ long Engines_Component_i::CpuUsed()
           perror("Engines_Component_i::CpuUsed") ;
           return 0 ;
         }
-      cpu = usage.ru_utime.tv_sec - _StartUsed ;
+      //cpu time is calculated in millisecond (user+system times)
+      cpu = usage.ru_utime.tv_sec*1000 +usage.ru_utime.tv_usec/1000;
+      cpu = cpu+ usage.ru_stime.tv_sec*1000 +usage.ru_stime.tv_usec/1000;
+      cpu=cpu-_StartUsed ;
       // cout << pthread_self() << " Engines_Component_i::CpuUsed " << " "
       //      << _serviceName   << usage.ru_utime.tv_sec << " - " << _StartUsed
       //      << " = " << cpu << endl ;
