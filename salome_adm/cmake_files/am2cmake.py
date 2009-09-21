@@ -884,7 +884,7 @@ class CMakeFile(object):
         
         # --
         # --
-        for key in ["bin_PROGRAMS"]:
+        for key in ["bin_PROGRAMS", "check_PROGRAMS"]:
             if self.__thedict__.has_key(key):
                 self.addBinTarget(key, newlines)
                 pass
@@ -1485,7 +1485,7 @@ class CMakeFile(object):
     def addBinTarget(self, key, newlines):
         # --
         newlines.append(r'''
-        FOREACH(amname ${bin_PROGRAMS})
+        FOREACH(amname ${bin_PROGRAMS} ${check_PROGRAMS})
         ''')
         # --
         newlines.append(r'''
@@ -1510,26 +1510,28 @@ class CMakeFile(object):
             ''')
             pass
         # --
-        newlines.append(r'''
-        IF(WINDOWS)
-        INSTALL(TARGETS ${name} DESTINATION ${DEST})
-        INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe DESTINATION ${DEST} RENAME ${amname}.exe)
-        INSTALL(CODE "FILE(REMOVE ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe)")
-        ELSE(WINDOWS)
-        SET(PERMS)
-        SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-        SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
-        SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
-        INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION ${DEST} PERMISSIONS ${PERMS} RENAME ${amname})
-        ENDIF(WINDOWS)
-        ''')
+        if key == "bin_PROGRAMS":
+            newlines.append(r'''
+            IF(WINDOWS)
+            INSTALL(TARGETS ${name} DESTINATION ${DEST})
+            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe DESTINATION ${DEST} RENAME ${amname}.exe)
+            INSTALL(CODE "FILE(REMOVE ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe)")
+            ELSE(WINDOWS)
+            SET(PERMS)
+            SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+            SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
+            SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION ${DEST} PERMISSIONS ${PERMS} RENAME ${amname})
+            ENDIF(WINDOWS)
+            ''')
+            pass
         # --
         newlines.append(r'''
         ENDIF(nb)
         ''')
         # --
         newlines.append(r'''
-        ENDFOREACH(amname ${bin_PROGRAMS})
+        ENDFOREACH(amname ${bin_PROGRAMS} ${check_PROGRAMS})
         ''')
         # --
         return
