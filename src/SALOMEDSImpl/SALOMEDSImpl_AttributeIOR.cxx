@@ -77,6 +77,11 @@ void IORGenericObjIncref(const std::string& anIOR)
     {
     }
 }
+#else
+void IORGenericObjDecref(const std::string& anIOR)
+{}
+void IORGenericObjIncref(const std::string& anIOR)
+{}
 #endif
 
 //=======================================================================

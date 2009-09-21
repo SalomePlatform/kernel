@@ -172,6 +172,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
   aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
+  _mapOfPOA[Study->StudyId()] = _poa;
+
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
