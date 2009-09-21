@@ -84,8 +84,10 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
   PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
   poa->deactivate_object(anObjectId.in());
   _builder->_remove_ref();
+  
   //delete implementation
   delete _impl;
+  _mapOfStudies.erase(_impl);
 }  
 
 //============================================================================
