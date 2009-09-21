@@ -999,6 +999,24 @@ class CMakeFile(object):
         
         # --
         # --
+        if self.__thedict__.has_key("BUILT_SOURCES"):
+            newlines.append('''
+            FOREACH(f ${BUILT_SOURCES})
+            IF(f MATCHES "WRAP.cxx$")
+            # STRING(REGEX REPLACE "WRAP.cxx" "WRAP.h" inc ${f})
+            STRING(REGEX REPLACE "WRAP.cxx" ".i" input ${f})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${f} # ${inc}
+            COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} ${SWIG_PYTHON_INCLUDES} ${MYSWIG_FLAGS} -o ${f} ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+            MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+            )
+            ENDIF(f MATCHES "WRAP.cxx$")
+            ENDFOREACH(f ${BUILT_SOURCES})
+            ''')
+            pass
+
+        # --
+        # --
         key = "MOC_FILES"
         if self.__thedict__.has_key(key):
             newlines.append('''
