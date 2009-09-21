@@ -638,10 +638,12 @@ class CMakeFile(object):
             SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
             ''')
         else:
-            newlines.append(r'''
-            SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
-            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
-            ''')
+            if self.module not in ["yacs"]:
+                newlines.append(r'''
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
+                ''')
+                pass
             pass
         # --
         return
@@ -1236,6 +1238,14 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
+        if self.module == "yacs":
+            newlines.append(r'''
+            IF(WINDOWS)
+            SET(var ${var} -DNOGDI)
+            ENDIF(WINDOWS)
+            ''')
+            pass
+        # --
         newlines.append(r'''
         IF(WINDOWS)
         SET(targets)
@@ -1264,6 +1274,7 @@ class CMakeFile(object):
         if self.module == "yacs":
             newlines.append(r'''
             SET(var ${var} -DYACS_PTHREAD)
+            SET(var ${var} -DCMAKE_BUILD)
             ''')
             pass
         newlines.append(r'''
