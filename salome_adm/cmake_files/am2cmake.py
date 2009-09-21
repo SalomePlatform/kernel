@@ -536,6 +536,12 @@ class CMakeFile(object):
                         INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                         """)
                         pass
+                    if self.module == "yacs":
+                        newlines.append("""
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -607,6 +613,12 @@ class CMakeFile(object):
             elif self.module == "ghs3dplugin":
                 newlines.append("""
                 SET(GHS3DPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "yacs":
+                newlines.append("""
+                SET(SALOME_KERNEL ON)
+                SET(HAS_GUI ON)
                 """)
                 pass
             # --
@@ -911,9 +923,14 @@ class CMakeFile(object):
             ELSE(input STREQUAL Calcium_Ports.idl)
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             ENDIF(input STREQUAL Calcium_Ports.idl)
+            SET(flags ${IDLCXXFLAGS} ${OMNIORB_IDLCXXFLAGS})
+            STRING(REGEX MATCH "-bcxx" ISBCXX ${flags})
+            IF(NOT ISBCXX)
+            SET(flags -bcxx ${flags})
+            ENDIF(NOT ISBCXX)
             ADD_CUSTOM_COMMAND(
             OUTPUT ${outputs}
-            COMMAND ${OMNIORB_IDL} ${IDLCXXFLAGS} ${OMNIORB_IDLCXXFLAGS} ${input}
+            COMMAND ${OMNIORB_IDL} ${flags} ${input}
             MAIN_DEPENDENCY ${input}
             )
             install(FILES ${input} DESTINATION idl/salome)
@@ -928,6 +945,10 @@ class CMakeFile(object):
             FOREACH(f ${IDLPYFLAGS})
             SET(flags "${flags} ${f}")
             ENDFOREACH(f ${IDLPYFLAGS})
+            STRING(REGEX MATCH "-bpython" ISBPYTHON ${flags})
+            IF(NOT ISBPYTHON)
+            SET(flags "-bpython ${flags}")
+            ENDIF(NOT ISBPYTHON)
             SET(IDLPYFLAGS ${flags})
             STRING(REPLACE "\\\\" "/" IDLPYFLAGS ${IDLPYFLAGS})
             INSTALL(CODE "SET(IDLPYFLAGS ${IDLPYFLAGS})")
@@ -1222,6 +1243,11 @@ class CMakeFile(object):
         SET(var ${var} ${AM_CPPFLAGS})
         SET(var ${var} ${AM_CXXFLAGS})
         ''')
+        if self.module == "yacs":
+            newlines.append(r'''
+            SET(var ${var} -DYACS_PTHREAD)
+            ''')
+            pass
         newlines.append(r'''
 	SET(var ${var} ${PLATFORM_CPPFLAGS})
 	SET(var ${var} ${PTHREAD_CFLAGS})
@@ -1336,12 +1362,15 @@ class CMakeFile(object):
         ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
         ''')
         newlines.append(r'''
+        SET(l ${nodist_${amname}_SOURCES})
+        FOREACH(f ${l})
+        SET(src ${CMAKE_CURRENT_BINARY_DIR}/${f})
+        SET(srcs ${srcs} ${src})
+        ENDFOREACH(f ${l})
+        ''')
+        newlines.append(r'''
         SET(build_srcs)
-        ''')
-        newlines.append(r'''
         SET(l ${nodist_${amname}_SOURCES} ${BUILT_SOURCES})
-        ''')
-        newlines.append(r'''
         FOREACH(f ${l})
         GET_FILENAME_COMPONENT(ext ${f} EXT)
         IF(ext STREQUAL .py)
@@ -1349,7 +1378,6 @@ class CMakeFile(object):
         SET(build_srcs ${build_srcs} ${CMAKE_CURRENT_BINARY_DIR}/${f})
         ENDIF(ext STREQUAL .py)
         ENDFOREACH(f ${l})
-        SET(srcs ${build_srcs} ${srcs})
         ''')
         # --
         # Add the library to cmake
