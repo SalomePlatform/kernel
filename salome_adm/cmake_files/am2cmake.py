@@ -1189,6 +1189,7 @@ class CMakeFile(object):
         SET(vars ${vars} -lm)
         SET(vars ${vars} -lboost_thread)
         SET(vars ${vars} -lboost_signals)
+        SET(vars ${vars} -pthread -lpthread -ldl)
         ENDIF(WINDOWS)
         FOREACH(v ${vars})
         IF(lib STREQUAL v)
