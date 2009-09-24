@@ -1276,6 +1276,9 @@ class CMakeFile(object):
             newlines.append(r'''
             SET(var ${var} -DYACS_PTHREAD)
             SET(var ${var} -DCMAKE_BUILD)
+            SET(var ${var} -DSALOME_KERNEL)
+            SET(var ${var} -DDSC_PORTS)
+            SET(var ${var} -DOMNIORB)
             ''')
             pass
         newlines.append(r'''
