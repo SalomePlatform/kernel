@@ -119,6 +119,7 @@ public:
 
   PortableServer::ObjectId * getId(); 
   Engines_Container_i *GetContainerPtr();
+  std::string getContainerName();
 
   virtual bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();

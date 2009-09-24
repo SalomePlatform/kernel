@@ -1077,3 +1077,20 @@ Engines_Component_i::configureSalome_file(std::string service_name,
   // By default this method does nothing
 }
 
+//=============================================================================
+/*! 
+ *  C++ method: return the name of the container associated with this component
+ *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
+ *  \return the container name (reformatted)
+ */
+//=============================================================================
+std::string Engines_Component_i::getContainerName()
+{
+  CORBA::String_var containerName=_container->name();
+  std::string name(containerName);
+  name.erase(0,12);
+  string::size_type slash =name.find_first_of('/');
+  if(slash != std::string::npos)
+    name[slash]='_';
+  return name;
+}
