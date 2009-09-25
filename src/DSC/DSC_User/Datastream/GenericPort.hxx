@@ -67,7 +67,7 @@ public:
 
   template <typename TimeType,typename TagType> void     put(CorbaInDataType data,  TimeType time, TagType tag);
   template <typename TimeType,typename TagType> DataType get(TimeType time, TagType tag);
-  template <typename TimeType,typename TagType> DataType get(TimeType ti, TimeType tf, TagType tag = 0);
+  template <typename TimeType,typename TagType> DataType get(TimeType& ti, TimeType tf, TagType tag = 0);
   template <typename TimeType,typename TagType> DataType next(TimeType &t, TagType  &tag );
   void      close (PortableServer::POA_var poa, PortableServer::ObjectId_var id);
   void wakeupWaiting();
@@ -308,7 +308,9 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // Pb2 : également si deux attentes de DataIds même différents car on n'en stocke qu'un !
       // Conclusion : Pour l'instant on ne gère pas un service multithreadé qui effectue
       // des lectures simultanées sur le même port !
-      MESSAGE("-------- Put : new datas available ------------------");
+#ifdef MYDEBUG
+      std::cerr << "-------- Put : new datas available ------------------" << std::endl;
+#endif
       fflush(stdout);fflush(stderr);
       cond_instance.signal();
     }
@@ -515,11 +517,11 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 template < typename DataManipulator, typename COUPLING_POLICY >
 template < typename TimeType,typename TagType>
 typename DataManipulator::Type 
-GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType ti,
+GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType& ti,
 						   TimeType tf, 
 						   TagType  tag ) {
-  TimeType t = COUPLING_POLICY::getEffectiveTime(ti,tf);
-  return get(t,tag);
+  ti = COUPLING_POLICY::getEffectiveTime(ti,tf);
+  return get(ti,tag);
 }
 
 

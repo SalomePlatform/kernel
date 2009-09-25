@@ -20,6 +20,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "base_port.hxx"
+#include <omniORB4/CORBA.h>
 
 
 base_port::base_port() 
@@ -29,7 +30,11 @@ base_port::base_port()
 
 base_port::~base_port() 
 {
-  delete default_properties;
+  //do not call delete on corba servant: deactivate it and then call _remove_ref or delete
+  PortableServer::POA_var poa =default_properties->_default_POA();
+  PortableServer::ObjectId_var oid = poa->servant_to_id(default_properties);
+  poa->deactivate_object(oid);
+  default_properties->_remove_ref();
 }
 
 Ports::PortProperties_ptr 

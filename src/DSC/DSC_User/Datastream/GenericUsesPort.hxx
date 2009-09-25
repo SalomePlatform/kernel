@@ -107,7 +107,9 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     //OLD :   copyOfData = DataManipulator::clone(data);
-    MESSAGE("-------- GenericUsesPort::put -------- " );
+#ifdef MYDEBUG
+    std::cerr << "-------- GenericUsesPort::put -------- " << std::endl;
+#endif
     //} PB1
     try {
       port->put(data,time,tag);
@@ -135,7 +137,9 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
 {
   if (_my_ports) delete _my_ports;
 
-  MESSAGE("GenericUsesPort::uses_port_changed");
+#ifdef MYDEBUG
+  std::cerr << "GenericUsesPort::uses_port_changed" << std::endl;
+#endif
   _my_ports = new_uses_port;
 }
 

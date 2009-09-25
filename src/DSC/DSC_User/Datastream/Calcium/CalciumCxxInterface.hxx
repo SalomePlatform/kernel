@@ -59,19 +59,30 @@ struct IsSameType<T1,T1> {
 
 namespace CalciumInterface {
   
-  /********************* INTERFACE DE DECONNEXION *****************/
+  /********************* LOGGING INTERFACE *****************/
+
+  void initTrace(const std::string&);
+  void writeEvent(const char*, const std::string&, const char*, const char*, int, const char*);
+
+  /********************* CONNECTION INTERFACE *****************/
 
   static inline void
   ecp_cd (Superv_Component_i & component, std::string & instanceName)
   { 
     /* TODO : Trouver le nom de l'instance SALOME*/
-    if (instanceName.empty()) instanceName="UNDEFINED";
-
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
+    if (instanceName.empty()) instanceName=componentName;
+    writeEvent("CP_CD",containerName,componentName,"",0,"");
   }
 
   static void
   ecp_fin (Superv_Component_i & component, bool provideLastGivenValue)
   { 
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
+    writeEvent("CP_FIN",containerName,componentName,"",0,"");
+
     std::vector<std::string> usesPortNames;
     std::vector<std::string>::const_iterator it;
     component.get_uses_port_names(usesPortNames);    
@@ -82,42 +93,48 @@ namespace CalciumInterface {
     //     uses_port *myUsesPort;
     calcium_uses_port* myCalciumUsesPort;
       
-    for (it=usesPortNames.begin(); it != usesPortNames.end(); ++it) {
-      try {
+    for (it=usesPortNames.begin(); it != usesPortNames.end(); ++it) 
+      {
+        try 
+          {
+            myCalciumUsesPort= component.Superv_Component_i::get_port< calcium_uses_port >((*it).c_str());
 
-	myCalciumUsesPort= 
-	  component.Superv_Component_i::get_port< calcium_uses_port >((*it).c_str());
-
-// 	component.Superv_Component_i::get_port(myUsesPort,(*it).c_str());
-// 	calcium_uses_port* myCalciumUsesPort=
-// 	  dynamic_cast<calcium_uses_port*>(myUsesPort);
+//         component.Superv_Component_i::get_port(myUsesPort,(*it).c_str());
+//         calcium_uses_port* myCalciumUsesPort=
+//           dynamic_cast<calcium_uses_port*>(myUsesPort);
 
 #ifdef MYDEBUG
-	std::cerr << "-------- CalciumInterface(ecp_fin) MARK 1 -|"<< *it <<"|----"<< 
-	  //	  typeid(myUsesPort).name() <<"-------------" <<
-	  typeid(myCalciumUsesPort).name() <<"-------------" << std::endl;
+            std::cerr << "-------- CalciumInterface(ecp_fin) MARK 1 -|"<< *it <<"|----"<< 
+          //          typeid(myUsesPort).name() <<"-------------" <<
+              typeid(myCalciumUsesPort).name() <<"-------------" << std::endl;
 #endif
-	
-// 	if ( !myCalciumUsesPort )
-// 	  throw Superv_Component_i::BadCast(LOC(OSS()<<"Impossible de convertir le port "
-// 						<< *it << " en port de type calcium_uses_port." ));
+        
+//         if ( !myCalciumUsesPort )
+//           throw Superv_Component_i::BadCast(LOC(OSS()<<"Impossible de convertir le port "
+//                                                 << *it << " en port de type calcium_uses_port." ));
 
-	myCalciumUsesPort->disconnect(provideLastGivenValue);
-
-      } catch ( const Superv_Component_i::BadCast & ex) {
-      MESSAGE(ex.what());
- 	throw (CalciumException(CalciumTypes::CPTPVR,ex));
-      } catch ( const DSC_Exception & ex) {
-      MESSAGE(ex.what());
-	// Exception venant de SupervComponent :
-	//   PortNotDefined(CPNMVR), PortNotConnected(CPLIEN)  
-	// ou du port uses : Dsc_Exception
-	// On continue à traiter la deconnexion des autres ports uses
-      } catch (...) {
- 	throw (CalciumException(CalciumTypes::CPATAL,"Exception innatendue"));
-	// En fonction du mode de gestion des erreurs throw;
+            myCalciumUsesPort->disconnect(provideLastGivenValue);
+          }
+        catch ( const Superv_Component_i::BadCast & ex) 
+          {
+            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPTPVR,ex.what());
+            throw (CalciumException(CalciumTypes::CPTPVR,ex));
+          }
+        catch ( const DSC_Exception & ex) 
+          {
+            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPOK,ex.what());
+            // Exception venant de SupervComponent :
+            //   PortNotDefined(CPNMVR), PortNotConnected(CPLIEN)  
+            // ou du port uses : Dsc_Exception
+            // On continue à traiter la deconnexion des autres ports uses
+          }
+        catch (...) 
+          {
+            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPATAL,"Unexpected exception");
+            throw (CalciumException(CalciumTypes::CPATAL,"Unexpected exception"));
+            // En fonction du mode de gestion des erreurs throw;
+          }
       }
-    }
   }
 
 
@@ -146,7 +163,7 @@ namespace CalciumInterface {
   }
 
 
-  /********************* INTERFACES DE LECTURE *****************/
+  /********************* READING INTERFACE *****************/
 
 
   // T1 est le type de données
@@ -156,23 +173,25 @@ namespace CalciumInterface {
   //     le port à utiliser est le port cplx
   template <typename T1, typename T2 > static void
   ecp_lecture ( Superv_Component_i & component,
-	       int    const  & dependencyType,
-	       double        & ti,
-	       double const  & tf,
-	       long          & i,
-	       const std::string  & nomVar, 
-	       size_t          bufferLength,
-	       size_t        & nRead, 
-	       T1            * &data )
+               int    const  & dependencyType,
+               double        & ti,
+               double const  & tf,
+               long          & i,
+               const std::string  & nomVar, 
+               size_t          bufferLength,
+               size_t        & nRead, 
+               T1            * &data )
   {
 
     assert(&component);
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
 
     typedef typename ProvidesPortTraits<T2>::PortType     PortType;
     typedef typename PortType::DataManipulator            DataManipulator;
     typedef typename DataManipulator::Type                CorbaDataType; // Attention != T1
     typedef typename DataManipulator::InnerType           InnerType;
-    CalciumTypes::DependencyType _dependencyType=		
+    CalciumTypes::DependencyType _dependencyType=                
       static_cast<CalciumTypes::DependencyType>(dependencyType);
     
     CorbaDataType     corbaData;
@@ -182,8 +201,10 @@ namespace CalciumInterface {
 #endif
 
     if (nomVar.empty())
-      throw CalciumException(CalciumTypes::CPNMVR,
-				LOC("Le nom de la variable est <nul>"));
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,"",CalciumTypes::CPNMVR,"");
+        throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
+      }
     PortType * port;
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(lecture) MARK 2 --"<<typeid(port).name()<<"----------------" << std::endl;
@@ -193,57 +214,82 @@ namespace CalciumInterface {
     std::cout << "-------- CalciumInterface(lecture) MARK 2b2 -----" << typeid(t2).name() << "-------------" << std::endl;
 #endif
 
-    try {
-      port  = component.Superv_Component_i::get_port< PortType > (nomVar.c_str());
+    try 
+      {
+        port  = component.Superv_Component_i::get_port< PortType > (nomVar.c_str());
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 3 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 3 ------------------" << std::endl;
 #endif
-    } catch ( const Superv_Component_i::PortNotDefined & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPNMVR,ex));
-    } catch ( const Superv_Component_i::PortNotConnected & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
-      // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
-    } catch ( const Superv_Component_i::BadCast & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPTPVR,ex));
-    }
+      }
+    catch ( const Superv_Component_i::PortNotDefined & ex) 
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNMVR,ex.what());
+        throw (CalciumException(CalciumTypes::CPNMVR,ex));
+      }
+    catch ( const Superv_Component_i::PortNotConnected & ex) 
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPLIEN,ex.what());
+        throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
+        // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
+      }
+    catch ( const Superv_Component_i::BadCast & ex) 
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPTPVR,ex.what());
+        throw (CalciumException(CalciumTypes::CPTPVR,ex));
+      }
   
     // mode == mode du port 
     CalciumTypes::DependencyType portDependencyType = port->getDependencyType();
 
     if ( portDependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
-      throw CalciumException(CalciumTypes::CPIT,
-			     LOC(OSS()<<"Le mode de dépendance de la variable " 
-				 << nomVar << " est indéfini."));
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,"Dependency mode is undefined");
+        throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
+      }
 
-    if ( ( portDependencyType != _dependencyType ) && 
-	 ( _dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
-      throw CalciumException(CalciumTypes::CPITVR,
-			     LOC(OSS()<<"Le mode de dépendance de la variable " 
-				 << nomVar << ": " << portDependencyType 
-				 << " ne correspond pas au mode demandé."));
+    if ( ( portDependencyType != _dependencyType ) && ( _dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
+      {
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,
+                   "Dependency mode is not the same as the required one");
+        throw CalciumException(CalciumTypes::CPITVR, LOC(OSS()<<"Dependency mode of variable " << nomVar << ": " 
+                                << portDependencyType << " is not the same as the required one."));
+      }
 
   
-    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
-      corbaData = port->get(ti,tf, 0);
+    std::stringstream msgout,msg;
+    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) 
+      {
+        double   tt=ti;
+        msg << "ti=" << ti << ", tf=" << tf ;
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+        corbaData = port->get(tt,tf, 0);
+        msgout << "read t=" << tt ;
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
 #endif
-    } 
-    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
-      corbaData = port->get(0, i);
+      } 
+    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) 
+      {
+        msg << "i=" << i ;
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+        corbaData = port->get(0, i);
+        msgout << "read i=" << i ;
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
 #endif
-    } else {
-      // Lecture en séquence
+      } 
+    else 
+      {
+        // Sequential read
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
 #endif
-      corbaData = port->next(ti,i);
-    }
+        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,"Sequential read");
+        corbaData = port->next(ti,i);
+        msgout << "read ";
+        if(i==0)msgout<< "t=" <<ti;
+        else msgout<< "i=" <<i;
+      }
  
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 8 ------------------" << std::endl;
@@ -254,95 +300,98 @@ namespace CalciumInterface {
 #endif
    
     // Vérifie si l'utilisateur demande du 0 copie
-    if ( data == NULL ) {
-      if ( bufferLength != 0 ) {
-	MESSAGE("bufferLength devrait valoir 0 pour l'utilisation du mode sans copie (data==NULL)");
+    if ( data == NULL ) 
+      {
+        if ( bufferLength != 0 ) 
+          {
+            MESSAGE("bufferLength devrait valoir 0 pour l'utilisation du mode sans copie (data==NULL)");
+          }
+        nRead = corbaDataSize;
+        // Si les types T1 et InnerType sont différents, il faudra effectuer tout de même une recopie
+        if (!IsSameType<T1,InnerType>::value) data = new T1[nRead];
+#ifdef MYDEBUG
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 9 ------------------" << std::endl;
+#endif
+        // On essaye de faire du 0 copy si les types T1 et InnerType sont les mêmes.
+        // Copy2UserSpace : 
+        // La raison d'être du foncteur Copy2UserSpace est qu'il n'est pas possible de compiler
+        // une expression d'affectation sur des types incompatibles ; même 
+        // si cette expression se trouve dans une branche non exécuté d'un test
+        // portant sur la compatibilité des types.
+        // En utilisant le foncteur Copy2UserSpace, seule la spécialisation en adéquation
+        // avec la compatibilité des types sera compilée 
+        Copy2UserSpace< IsSameType<T1,InnerType>::value, DataManipulator >::apply(data,corbaData,nRead);
+#ifdef MYDEBUG
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 10 ------------------" << std::endl;
+#endif
+        // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
+        // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
+        // DataManipulator::delete_data(corbaData); 
+        // ni DataManipulator::getPointer(corbaData,true); qui détruit la sequence lorsque l'on
+        // prend la propriété du buffer
+        //  old : Dans les deux cas la structure CORBA n'est plus utile 
+        //  old : Si !IsSameType<T1,InnerType>::value l'objet CORBA est détruit avec son contenu
+        //  old : Dans l'autre cas seul la coquille CORBA est détruite 
+        //  L'utilisateur devra appeler ecp_free qui déterminera s'il est necessaire
+        //  de désallouer un buffer intermédiaire ( types différents) ou de rendre la propriété
       }
-      nRead = corbaDataSize;
-      // Si les types T1 et InnerType sont différents, il faudra effectuer tout de même une recopie
-      if (!IsSameType<T1,InnerType>::value) data = new T1[nRead];
+    else 
+      {
+        nRead = std::min < size_t > (corbaDataSize,bufferLength);
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 9 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 11 ------------------" << std::endl;
 #endif
-      // On essaye de faire du 0 copy si les types T1 et InnerType sont les mêmes.
-      // Copy2UserSpace : 
-      // La raison d'être du foncteur Copy2UserSpace est qu'il n'est pas possible de compiler
-      // une expression d'affectation sur des types incompatibles ; même 
-      // si cette expression se trouve dans une branche non exécuté d'un test
-      // portant sur la compatibilité des types.
-      // En utilisant le foncteur Copy2UserSpace, seule la spécialisation en adéquation
-      // avec la compatibilité des types sera compilée 
-      Copy2UserSpace< IsSameType<T1,InnerType>::value, DataManipulator >::apply(data,corbaData,nRead);
+        Copy2UserSpace<false, DataManipulator >::apply(data,corbaData,nRead);
+        //Déjà fait ci-dessus : 
+        //DataManipulator::copy(corbaData,data,nRead);
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 10 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 12 ------------------" << std::endl;
 #endif
-      // Attention : Seul CalciumCouplingPolicy via eraseDataId doit décider de supprimer ou non
-      // la donnée corba associée à un DataId ! Ne pas effectuer la desallocation suivante :
-      // DataManipulator::delete_data(corbaData); 
-      // ni DataManipulator::getPointer(corbaData,true); qui détruit la sequence lorsque l'on
-      // prend la propriété du buffer
-      //  old : Dans les deux cas la structure CORBA n'est plus utile 
-      //  old : Si !IsSameType<T1,InnerType>::value l'objet CORBA est détruit avec son contenu
-      //  old : Dans l'autre cas seul la coquille CORBA est détruite 
-      //  L'utilisateur devra appeler ecp_free qui déterminera s'il est necessaire
-      //  de désallouer un buffer intermédiaire ( types différents) ou de rendre la propriété
-   } else {
-      nRead = std::min < size_t > (corbaDataSize,bufferLength);
-#ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 11 ------------------" << std::endl;
-#endif
-      Copy2UserSpace<false, DataManipulator >::apply(data,corbaData,nRead);
-      //Déjà fait ci-dessus : 
-      //DataManipulator::copy(corbaData,data,nRead);
-    
-#ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecp_lecture) MARK 12 ------------------" << std::endl;
-#endif
-   }
+      }
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(ecp_lecture), Valeur de data : " << std::endl;
     std::copy(data,data+nRead,std::ostream_iterator<T1>(std::cout," "));
     std::cout << "Ptr :" << data << std::endl;
-
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 13 ------------------" << std::endl;
 #endif
- 
-  
+    writeEvent("END_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msgout.str().c_str());
     return;
   }
 
-  // T1 est le type de données
+  // T1 is the data type
   template <typename T1 > static void
   ecp_lecture ( Superv_Component_i & component,
-	       int    const      & dependencyType,
-	       double            & ti,
-	       double const      & tf,
-	       long              & i,
-	       const std::string & nomVar, 
-	       size_t              bufferLength,
-	       size_t            & nRead, 
-	       T1                * &data )
+               int    const      & dependencyType,
+               double            & ti,
+               double const      & tf,
+               long              & i,
+               const std::string & nomVar, 
+               size_t              bufferLength,
+               size_t            & nRead, 
+               T1                * &data )
   {
     ecp_lecture<T1,T1> (component,dependencyType,ti,tf,
-			i,nomVar,bufferLength,nRead,data);
+                        i,nomVar,bufferLength,nRead,data);
   
   }
 
-  /********************* INTERFACES D'ECRITURE *****************/
+  /********************* WRITING INTERFACE *****************/
 
   // T1 : DataType
   // T2 : PortType
   template <typename T1, typename T2> static void
   ecp_ecriture ( Superv_Component_i & component,
-		 int    const      & dependencyType,
-		 double const      & t,
-		 long   const      & i,
-		 const std::string & nomVar, 
-		 size_t              bufferLength,
-		 T1                  const  & data ) 
+                 int    const      & dependencyType,
+                 double const      & t,
+                 long   const      & i,
+                 const std::string & nomVar, 
+                 size_t              bufferLength,
+                 T1                  const  & data ) 
   {
     
     assert(&component);
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
 
     //typedef typename StarTrait<TT>::NonStarType                    T;
     typedef typename boost::remove_all_extents< T1 >::type           T1_without_extent;
@@ -357,14 +406,17 @@ namespace CalciumInterface {
     
     T1_without_extent const & _data = data;
 
-    CalciumTypes::DependencyType _dependencyType=		
+    CalciumTypes::DependencyType _dependencyType=                
       static_cast<CalciumTypes::DependencyType>(dependencyType);
 
 #ifdef MYDEBUG
     std::cerr << "-------- CalciumInterface(ecriture) MARK 1 ------------------" << std::endl;
 #endif
-    if ( nomVar.empty() ) throw CalciumException(CalciumTypes::CPNMVR,
-						    LOC("Le nom de la variable est <nul>"));
+    if ( nomVar.empty() )
+      {
+        writeEvent("WRITE",containerName,componentName,"",CalciumTypes::CPNMVR,"");
+        throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
+      }
     UsesPortType * port;
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(ecriture) MARK 2 ---"<<typeid(port).name()<<"---------------" << std::endl;
@@ -374,22 +426,29 @@ namespace CalciumInterface {
     std::cout << "-------- CalciumInterface(ecriture) MARK 2b2 -----" << typeid(t2).name() << "-------------" << std::endl;
 #endif
 
-    try {
-      port  = component.Superv_Component_i::get_port< UsesPortType > (nomVar.c_str());
+    try 
+      {
+        port  = component.Superv_Component_i::get_port< UsesPortType > (nomVar.c_str());
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecriture) MARK 3 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecriture) MARK 3 ------------------" << std::endl;
 #endif
-    } catch ( const Superv_Component_i::PortNotDefined & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPNMVR,ex));
-    } catch ( const Superv_Component_i::PortNotConnected & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
-      // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
-    } catch ( const Superv_Component_i::BadCast & ex) {
-      MESSAGE(ex.what());
-      throw (CalciumException(CalciumTypes::CPTPVR,ex));
-    }
+      }
+    catch ( const Superv_Component_i::PortNotDefined & ex) 
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNMVR,ex.what());
+        throw (CalciumException(CalciumTypes::CPNMVR,ex));
+      }
+    catch ( const Superv_Component_i::PortNotConnected & ex) 
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPLIEN,ex.what());
+        throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
+        // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
+      }
+    catch ( const Superv_Component_i::BadCast & ex) 
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPTPVR,ex.what());
+        throw (CalciumException(CalciumTypes::CPTPVR,ex));
+      }
  
     // mode == mode du port 
     // On pourrait créer la méthode CORBA dans le mode de Couplage CALCIUM.
@@ -405,14 +464,18 @@ namespace CalciumInterface {
 //     }
 
     if ( _dependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
-      throw CalciumException(CalciumTypes::CPIT,
-				LOC(OSS()<<"Le mode de dépendance demandé pour la variable " 
-				    << nomVar << " est indéfini."));
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,"Dependency mode is undefined");
+        throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
+      }
 
     if ( _dependencyType == CalciumTypes::SEQUENCE_DEPENDENCY )
-      throw CalciumException(CalciumTypes::CPIT,
-				LOC(OSS()<<"Le mode de dépendance SEQUENCE_DEPENDENCY pour la variable " 
-				    << nomVar << " est impossible en écriture."));
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,
+                   "SEQUENCE_DEPENDENCY mode is not possible when writing");
+        throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode SEQUENCE_DEPENDENCY for variable " << nomVar 
+                               << " is not possible when writing."));
+      }
 
     // Il faudrait que le port provides génère une exception si le mode donnée n'est pas
     // le bon. La seule façon de le faire est d'envoyer -1 en temps si on n'est en itération
@@ -421,20 +484,20 @@ namespace CalciumInterface {
     // ---->
 //     if ( portDependencyType != _dependencyType ) 
 //       throw CalciumException(CalciumTypes::CPITVR,
-// 				LOC(OSS()<<"Le mode de dépendance de la variable " 
-// 				    << nomVar << " ne correspond pas au mode demandé."));
+//                                 LOC(OSS()<<"Le mode de dépendance de la variable " 
+//                                     << nomVar << " ne correspond pas au mode demandé."));
 
   
     if ( bufferLength < 1 )
-      throw CalciumException(CalciumTypes::CPNTNULL,
-				LOC(OSS()<<"Le buffer a envoyer est de taille nulle "));
-
+      {
+        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNTNULL,"Buffer to send is empty");
+        throw CalciumException(CalciumTypes::CPNTNULL, LOC(OSS()<<"Buffer to send is empty"));
+      }
 
     CorbaDataType corbaData;
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(ecriture) MARK 4 ------------------" << std::endl;
 #endif
-
     
     // Si les types Utilisateurs et CORBA sont différents
     // il faut effectuer une recopie sinon on utilise directement le
@@ -465,36 +528,45 @@ namespace CalciumInterface {
 
     Copy2CorbaSpace<IsSameType<T1_without_extent,InnerType>::value, DataManipulator >::apply(corbaData,_data,bufferLength);
  
-    //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecté
-    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) {
-      try
+    //TODO : GERER LES EXCEPTIONS ICI : ex le port n'est pas connecte
+    if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) 
       {
-        port->put(*corbaData,t, -1); 
-      }
-      catch ( const DSC_Exception & ex) 
-      {
-        throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
-      }
-      //Le -1 peut être traité par le cst DataIdContainer et transformé en 0 
-      //Etre obligé de mettre une étoile ds (*corbadata) va poser des pb pour les types <> seq
+        try
+          {
+            port->put(*corbaData,t, -1); 
+            std::stringstream msg;
+            msg << "t=" << t ;
+            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msg.str().c_str());
+          }
+        catch ( const DSC_Exception & ex) 
+          {
+            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPATAL,ex.what());
+            throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
+          }
+        //Le -1 peut être traité par le cst DataIdContainer et transformé en 0 
+        //Etre obligé de mettre une étoile ds (*corbadata) va poser des pb pour les types <> seq
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecriture) MARK 5 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecriture) MARK 5 ------------------" << std::endl;
 #endif
-    } 
-    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) {
-      try
+      } 
+    else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) 
       {
-        port->put(*corbaData,-1, i);
-      }
-      catch ( const DSC_Exception & ex) 
-      {
-        throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
-      }
+        try
+          {
+            port->put(*corbaData,-1, i);
+            std::stringstream msg;
+            msg << "i=" << i ;
+            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msg.str().c_str());
+          }
+        catch ( const DSC_Exception & ex) 
+          {
+            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPATAL,ex.what());
+            throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
+          }
 #ifdef MYDEBUG
-      std::cout << "-------- CalciumInterface(ecriture) MARK 6 ------------------" << std::endl;
+        std::cout << "-------- CalciumInterface(ecriture) MARK 6 ------------------" << std::endl;
 #endif
-    } 
-
+      } 
     
 #ifdef MYDEBUG
     std::cout << "-------- CalciumInterface(ecriture), Valeur de corbaData : " << std::endl;
@@ -515,12 +587,13 @@ namespace CalciumInterface {
   
   template <typename T1> static void
   ecp_ecriture ( Superv_Component_i & component,
-		 int    const  & dependencyType,
-		 double const  & t,
-		 long   const  & i,
-		 const std::string  & nomVar, 
-		 size_t bufferLength,
-		 T1 const & data ) {
+                 int    const  & dependencyType,
+                 double const  & t,
+                 long   const  & i,
+                 const std::string  & nomVar, 
+                 size_t bufferLength,
+                 T1 const & data ) 
+  {
     ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 
   };
 

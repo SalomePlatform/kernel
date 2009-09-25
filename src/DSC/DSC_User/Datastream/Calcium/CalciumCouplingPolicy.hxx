@@ -171,7 +171,9 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor{
 		    const DataId & dataId,
 		    const Iterator  & it1) const {
     typedef typename iterator_t<Iterator>::value_type value_type;
+#ifdef MYDEBUG
     std::cout << "-------- Calcium Generic BoundedDataIdProcessor.apply() called " << std::endl;
+#endif
 
   }
 };
@@ -385,9 +387,9 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
       }
       // Si l'itérateur pointait sur une valeur que l'on vient de supprimer
       if (dist < s ) {
-	throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La gestion du niveau CALCIUM " 
+        throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "StorageLevel management " 
 					    << _couplingPolicy._storageLevel << 
-					    " vient d'entraîner la suppression de la donnée à renvoyer")));
+					    " has just removed the data to send")));
       }
     }
 #ifdef MYDEBUG
@@ -435,8 +437,8 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
 
     // TODO : Ds GenericPort::next il faut convertir en CPSTOPSEQ
     if ( _couplingPolicy._disconnectDirective == CalciumTypes::CP_ARRET )
-      throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "La directive CP_ARRET" 
-					   << " provoque l'interruption de toute lecture de données")));
+      throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "CP_ARRET directive" 
+					   << " interrupts all further data reading")));
 #ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK3 --------" << std::endl;
 #endif
@@ -445,8 +447,8 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // S'il n'y a plus de données indique que l'on a pas pu effectuer de traitement
     // TODO : Dans la gestion des niveaux il faut peut être interdire un niveau ==  0
     if ( storedDatas.empty() ) 
-      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
-					  << " est active mais aucune donnée n'est disponible.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
+					  << " is active but no data is available.")));
     
     // expectedDataId n'a ni été trouvé dans storedDataIds ni encadré mais il se peut
     // qu'en mode itératif il ne soit pas plus grand que le plus grand DataId stocké auquel
@@ -467,8 +469,8 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
 
     // TODO : Il faut en fait renvoyer le plus proche cf IT ou DT
     if (it1 == storedDatas.end())
-      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
-					  << " est active mais le dataId demandé est inférieur ou égal au dernier reçu.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
+					  << " is active but the requested dataId is less or equal to the last one received.")));
   
 #ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK6 " << std::endl;

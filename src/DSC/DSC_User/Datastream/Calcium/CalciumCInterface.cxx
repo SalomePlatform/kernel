@@ -71,6 +71,15 @@ ecp_fin_ (void * component, int code) {
   return CalciumTypes::CPOK;
 };
 
+extern "C" CalciumTypes::InfoType 
+ecp_cd_ (void * component, char * instanceName) {
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  std::string name;
+  CalciumInterface::ecp_cd( *_component,name);
+  strcpy(instanceName,name.c_str());
+  return CalciumTypes::CPOK;
+}
+
 // INTERFACE C/CPP pour les chaines de caractères
 // Le paramètre supplémentaire strsize n'étant pas utilisé
 // j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);

@@ -109,6 +109,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       calcium_repository_types.cxx \
 			       CalciumCouplingPolicy.cxx \
 			       CorbaTypes2CalciumTypes.cxx \
+			       CalciumCxxInterface.cxx \
 			       CalciumTypes2CorbaTypes.cxx \
                                CalciumCInterface.cxx \
 			       CalciumProvidesPort.cxx \

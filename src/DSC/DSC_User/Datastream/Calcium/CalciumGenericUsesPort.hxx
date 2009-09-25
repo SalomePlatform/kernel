@@ -53,7 +53,9 @@ CalciumGenericUsesPort< DataManipulator,CorbaPortType, repositoryName >::disconn
   for(int i = 0; i < this->_my_ports->length(); i++) {
     CorbaPortTypePtr port = CorbaPortType::_narrow((*this->_my_ports)[i]);
     try {
+#ifdef MYDEBUG
       std::cerr << "-------- CalciumGenericUsesPort<>::disconnect: "<< i << std::endl;
+#endif
 
       port->disconnect(provideLastGivenValue);
     } catch(const CORBA::SystemException& ex){

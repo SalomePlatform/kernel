@@ -116,7 +116,7 @@ Superv_Component_i::create_provides_data_port(const std::string& port_fab_type)
   }
 
   if (rtn_port == NULL)
-    throw  BadFabType( LOC(OSS()<< "Impossible d'accéder à la fabrique "
+    throw  BadFabType( LOC(OSS()<< "No way to get the port factory "
 			   <<port_fab_type));
 
   return rtn_port;
@@ -141,7 +141,7 @@ throw (BadFabType)
   }
   
   if (rtn_proxy == NULL)
-   throw BadFabType( LOC(OSS()<< "Impossible d'accéder à la fabrique "
+   throw BadFabType( LOC(OSS()<< "No way to get the port factory "
 			  <<port_fab_type));
 
   return rtn_proxy;
@@ -173,7 +173,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
     add_port(port, port_name);
   }
   else
-    throw BadType( LOC(OSS()<< "Le port_type doit être soit 'provides' soit 'uses' not "
+    throw BadType( LOC(OSS()<< "port_type must be either 'provides' either 'uses' not "
 		       << port_type));
 
 }
@@ -200,14 +200,14 @@ Superv_Component_i::add_port(provides_port * port,
 
   } 
   catch (const Engines::DSC::PortAlreadyDefined&) {
-    throw PortAlreadyDefined( LOC(OSS()<< "Le port provides "
-				  << provides_port_name <<" existe déjà."));
+    throw PortAlreadyDefined( LOC(OSS()<< "provides port "
+				  << provides_port_name <<" already exist."));
   } 
   catch (const Engines::DSC::NilPort&) {
-    throw NilPort( LOC(OSS()<< "Le pointeur sur port provides est nul."));
+    throw NilPort( LOC(OSS()<< "provides port pointer is nul."));
   }
   catch (const Engines::DSC::BadProperty&) {
-    throw BadProperty( LOC(OSS()<< "La propriété est mal définie"));
+    throw BadProperty( LOC(OSS()<< "Property is not well defined"));
   }
 }
 
@@ -229,14 +229,14 @@ Superv_Component_i::add_port(uses_port * port,
     my_superv_ports[uses_port_name] = new_superv_port;
   } 
   catch (const Engines::DSC::PortAlreadyDefined&) {
-    throw PortAlreadyDefined( LOC(OSS()<< "Le port uses " 
-				  << uses_port_name <<" existe déjà."));
+    throw PortAlreadyDefined( LOC(OSS()<< "uses port " 
+				  << uses_port_name <<" already exists."));
   } 
   catch (const Engines::DSC::NilPort&) {
-    throw NilPort( LOC(OSS()<< "Le pointeur sur port uses est nul."));
+    throw NilPort( LOC(OSS()<< "uses port pointer is nul."));
   }
   catch (const Engines::DSC::BadProperty&) {
-    throw BadProperty( LOC(OSS()<< "La propriété est mal définie"));
+    throw BadProperty( LOC(OSS()<< "Property is not well defined"));
   }
 }
 
@@ -251,11 +251,11 @@ Superv_Component_i::get_port(provides_port *& port,
     Ports::Port_var portref=Engines_DSC_interface::get_provides_port(provides_port_name, false);
     port = my_superv_ports[provides_port_name]->p_ref;
   } catch (const Engines::DSC::PortNotDefined&) {
-    throw PortNotDefined( LOC(OSS()<< "Le port provides  "
-			      << provides_port_name <<" n'existe pas."));
+    throw PortNotDefined( LOC(OSS()<< "provides  port "
+			      << provides_port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
-    throw PortNotConnected( LOC(OSS()<< "Le port provides " << provides_port_name 
-				<< " n'est pas connecté."));
+    throw PortNotConnected( LOC(OSS()<< "provides port " << provides_port_name 
+				<< " is not connected."));
   }
 }
 
@@ -271,11 +271,11 @@ Superv_Component_i::get_port(uses_port *& port,
     delete portseq;
     port = my_superv_ports[uses_port_name]->u_ref;
   } catch (const Engines::DSC::PortNotDefined&) {    
-    throw PortNotDefined( LOC(OSS()<< "Le port uses  "
-			      << uses_port_name <<" n'existe pas."));
+    throw PortNotDefined( LOC(OSS()<< "uses port "
+			      << uses_port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
-    throw PortNotConnected( LOC(OSS()<< "Le port uses " << uses_port_name 
-				<< " n'est pas connecté."));
+    throw PortNotConnected( LOC(OSS()<< "uses port " << uses_port_name 
+				<< " is not connected."));
   }
 }
 

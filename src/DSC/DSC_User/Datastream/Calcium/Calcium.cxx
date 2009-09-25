@@ -23,6 +23,7 @@
 #include "CalciumInterface.hxx"
 #include "calcium.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <exception>
 
@@ -85,7 +86,11 @@ extern "C"
 
   void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
-    MESSAGE( "create_calcium_port: " << name << " " << type << " " << mode << " " << depend );
+    std::stringstream msg;
+    msg << type << " " << mode << " " << depend;
+    CORBA::String_var componentName=compo->instanceName();
+    std::string containerName=compo->getContainerName();
+    CalciumInterface::writeEvent("create_calcium_port",containerName,componentName,name,0,msg.str().c_str());
 
     if(std::string(mode) == "IN")
       {

@@ -57,8 +57,6 @@ typedef char bool;
     long   _i=*i;							\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of ecp_" #_name " : %s %d %f\n",nomvar,*i,*ti); \
-    									\
     									\
     InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i, \
 					      nomvar, bufferLength, &_nRead, \
@@ -94,8 +92,6 @@ InfoType ecp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
   size_t _nRead;							
   long   _i=*i;							
   fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	
-    									
  
   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
 				    nomvar, bufferLength, &_nRead, 
@@ -105,7 +101,6 @@ InfoType ecp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
   if(mode == CP_SEQUENTIEL)						
     *i = _i;								
   *nRead=_nRead;							
-  fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			
   fflush(stdout);fflush(stderr);							
 									
   return info;							
@@ -143,7 +138,6 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
     long   _i            =*i;						\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,*i,*ti); \
     									\
     if ( (data == NULL) || (_bufferLength < 1) ) return CPNTNULL;	\
     									\
@@ -153,7 +147,6 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
     if(mode == CP_SEQUENTIEL)						\
       *i = _i;								\
     *nRead=_nRead;							\
-    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,*i);	\
     fflush(stdout);							\
     fflush(stderr);							\
 									\
@@ -236,9 +229,8 @@ CALCIUM_LECT_INTERFACE_C_(lch_fort_,float ,cal_int,char    ,str,STAR, LCH_LAST_P
 /**********************************************/
 
 InfoType cp_cd (void * component, char * instanceName) {
-  /* TODO : Trouver le nom de l'instance SALOME*/
-  if (instanceName) strcpy(instanceName,"UNDEFINED");
-  return CPOK;
+  InfoType info =  ecp_cd_(component,instanceName);
+  return info;
 }
 
 InfoType cp_fin (void * component, int code) {
@@ -267,13 +259,11 @@ InfoType cp_fin (void * component, int code) {
     _timeType _t          =  t;						\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,i,t); \
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
     									\
     _calInt info =  ecp_ecriture_##_typeName (component, _mode, &_t, _i, \
 					       nomvar, _nbelem,		\
 					       data );			\
-    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,i);		\
     fflush(stdout);							\
     fflush(stderr);							\
 									\
