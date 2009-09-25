@@ -62,7 +62,6 @@ dist_salomescript_SCRIPTS=\
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@HDF5_INCLUDES@ \
-	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -85,7 +84,6 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
-	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)

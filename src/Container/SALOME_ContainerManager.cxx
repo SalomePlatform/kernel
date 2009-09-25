@@ -31,7 +31,6 @@
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
-#include "Batch_Date.hxx"
 #include <sstream>
 
 #ifdef WITH_PACO_PARALLEL

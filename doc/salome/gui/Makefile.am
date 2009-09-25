@@ -1,13 +1,10 @@
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-usr_docs: doxyfile ../Batch.html
+usr_docs: doxyfile
 	echo "Running doxygen in directory: "`pwd`; \
-	$(DOXYGEN) $< ; \
-	cp -rf ../Batch.html KERNEL
+	$(DOXYGEN) $< ;
 
 docs: usr_docs
-
-info_TEXINFOS = ../Batch.texi
 
 install-data-local: usr_docs
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui

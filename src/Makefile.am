@@ -77,10 +77,6 @@ SUBDIR_MPI = \
   MPIContainer \
   TestMPIContainer
 
-SUBDIR_BATCH= \
-  Batch \
-  Batch_SWIG
-
 SUBDIR_PARALLEL= ParallelContainer
 		 
 
@@ -89,7 +85,6 @@ DIST_SUBDIRS = \
   $(SUBDIR_CORBA) \
   $(SUBDIR_MPI) \
   $(SUBDIR_PARALLEL) \
-  $(SUBDIR_BATCH) \
   $(SUBDIR_CPPUNIT_BASE) \
   $(SUBDIR_CPPUNIT_CORBA) \
   $(SUBDIR_CPPUNIT_GENERAL)
@@ -101,14 +96,10 @@ DIST_SUBDIRS = \
 #
 
 if WITHONLYLAUNCHER
-  SUBDIRS = Basics Batch Batch_SWIG ResourcesManager Launcher
+  SUBDIRS = Basics ResourcesManager Launcher
 else
 
 SUBDIRS = $(SUBDIR_BASE)
-
-if WITH_BATCH
-  SUBDIRS += $(SUBDIR_BATCH)
-endif
 
 if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)

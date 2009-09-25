@@ -20,9 +20,13 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "BatchTest.hxx"
+#include "Launcher.hxx"
 
-#include "Batch_Date.hxx"
-#include "MpiImpl.hxx"
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_MpiImpl.hxx>
+#endif
+
 #include "utilities.h"
 
 #include <sys/stat.h>
@@ -33,6 +37,7 @@
 #endif
 BatchTest::BatchTest(const Engines::MachineDefinition& batch_descr) 
 {
+#ifdef WITH_LIBBATCH
   _batch_descr = batch_descr;
 
   // Getting date
@@ -54,6 +59,7 @@ BatchTest::BatchTest(const Engines::MachineDefinition& batch_descr)
   _test_filename +=  _date + "_test_cluster_file_";
   _test_filename += _batch_descr.alias.in();
   _base_filename = _date + "_test_cluster_file_" + _batch_descr.alias.in();
+#endif
 }
 
 BatchTest::~BatchTest() {}
@@ -438,6 +444,7 @@ BatchTest::test_jobsubmit_simple()
 std::string 
 BatchTest::test_jobsubmit_mpi() 
 {
+#ifdef WITH_LIBBATCH
   int status;
   std::string home;
   std::string command;
@@ -629,6 +636,10 @@ BatchTest::test_jobsubmit_mpi()
   }
   result = "OK";
   return result;  
+#else
+  throw LauncherException("Method BatchTest::test_jobsubmit_mpi is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 std::string 

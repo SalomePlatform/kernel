@@ -91,7 +91,7 @@ INPUT                  = \
 
 FILE_PATTERNS          = *.dox *.idl *.hxx *.cxx *.py
 RECURSIVE              = YES
-EXCLUDE                = @top_srcdir@/doc/salome/batch.dox
+EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = @top_srcdir@/doc/salome/examples

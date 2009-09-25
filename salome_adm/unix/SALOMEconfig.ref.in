@@ -37,41 +37,6 @@
   #define @MACHINE@
 #endif
 
-/* A path to a rcp-like command */
-#ifndef RCP
-# define RCP "@RCP@"
-#endif
-
-/* A path to a rm-like command */
-#ifndef RM
-# define RM "@RM@"
-#endif
-
-/* A path to a cp-like command */
-#ifndef CP
-#define CP "@CP@"
-#endif
-
-/* A path to a rsh-like command */
-#ifndef RSH
-#define RSH "@RSH@"
-#endif
-
-/* A path to a scp-like command */
-#ifndef SCP
-#define SCP "@SCP@"
-#endif
-
-/* A path to a sh-like command */
-#ifndef SH
-#define SH "@SH@"
-#endif
-
-/* A path to a ssh-like command */
-#ifndef SSH
-#define SSH "@SSH@"
-#endif
-
 // This is only to suppress warning messages with defines redefined (cause of omniORB that exports these names)
 #ifdef PACKAGE
 #undef PACKAGE

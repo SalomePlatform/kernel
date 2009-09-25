@@ -86,9 +86,9 @@ AC_ARG_ENABLE(corba_gen,
   esac],[corba_gen=true])
 AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 
-# ---- option to build only launcher, resources manager and batch classes
+# ---- option to build only launcher and resources manager
 AC_ARG_WITH(onlylauncher,
-	[AC_HELP_STRING([--with-onlylauncher],[Build only launcher, resources manager and batch classes [default=no]])],
+	[AC_HELP_STRING([--with-onlylauncher],[Build only launcher and resources manager [default=no]])],
 	[],
 	[with_onlylauncher="no"])
 AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
@@ -154,6 +154,7 @@ echo
 cc_ok=no
 AC_PROG_CC
 AC_PROG_CXX
+AC_LANG(C++)
 AC_CXX_WARNINGS
 AC_CXX_TEMPLATE_OPTIONS
 AC_DEPEND_FLAG
@@ -350,58 +351,20 @@ echo ============================================================
 echo
 
 echo
-echo ---------------------------------------------
-echo Testing Batch
-echo ---------------------------------------------
-echo
-
-dnl Several batch systems (OpenPBS, LSF, ...) can be operated using
-dnl the Batch classes library integrated in the KERNEL module. The
-dnl checking process tests here the presence of underlying batch
-dnl softwares. If none is detected, the KERNEL is declared to be
-dnl "without batch". 
-
-echo testing OpenPBS
-echo ---------------
-openpbs_ok=no
-CHECK_OPENPBS
-dnl openpbs_ok is set to yes by CHECK_OPENPBS
-
-echo testing LSF
-echo -----------
-lsf_ok=no
-CHECK_LSF
-dnl lsf_ok is set to yes by CHECK_LSF
-echo lsf = $lsf_ok
-
-echo testing Local batch system
-echo --------------------------
-localbatch_ok=no
-CHECK_LOCAL
-dnl localbatch_ok is set to yes by CHECK_LOCAL
-
-WITH_BATCH=no
-test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
-
-AC_ARG_ENABLE(batch,
-  [AC_HELP_STRING([--enable-batch],[Batch [default=yes]])],
-  [case "${enableval}" in
-     yes) test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes;;
-     no)  WITH_BATCH=no ;;
-     *) AC_MSG_ERROR(bad value ${enableval} for --enable-batch) ;;
-  esac],[test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes])
-
-echo Batch mode = $WITH_BATCH
-
-AC_SUBST(WITH_BATCH)
-AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
-
-echo
 echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
 echo
 CHECK_CPPUNIT
+
+echo
+echo --------------------------------------------------------------
+echo Testing libBatch only required for batch functions in Launcher
+echo --------------------------------------------------------------
+echo
+
+CHECK_LIBBATCH
+AM_CONDITIONAL(WITH_LIBBATCH, [test x"$libbatch_ok" = xyes])
 
 echo
 echo ============================================================
@@ -479,13 +442,6 @@ if test x$with_onlylauncher = xno; then
     check_fatal_error $corba_mandatory_products
   else
     echo --- CORBA products not required - option --disable-corba-gen
-    if test x"$WITH_BATCH" = xyes; then
-      echo --- BATCH mode mandatory products - default configuration:
-      summary "python_ok"
-      check_fatal_error "python_ok"
-    else 
-    echo --- Python not required - option --enable-batch=no
-    fi
   fi
 fi
 echo
@@ -495,12 +451,17 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok openpbs_ok lsf_ok numpy_ok"
+optional_products="cppunit_ok numpy_ok libbatch_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]
 summary $optional_products
 echo
+if test x$libbatch_ok = xno; then
+  echo ["    Warning: Batch functions will not be available in"]
+  echo ["    Salome Launcher because they require libBatch."]
+  echo
+fi
 
 htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
 
@@ -565,8 +526,6 @@ AC_OUTPUT([ \
   src/Makefile \
   src/Basics/Makefile \
   src/Basics/Test/Makefile \
-  src/Batch/Makefile \
-  src/Batch_SWIG/Makefile \
   src/Communication/Makefile \
   src/Communication_SWIG/Makefile \
   src/Container/Makefile \

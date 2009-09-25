@@ -78,11 +78,11 @@ public:
 		       const machineParams& params) throw(LauncherException);
 
   std::string queryJob( const long jobId, const machineParams& params) throw(LauncherException);
-  std::string queryJob( const long jobId, const std::string clusterName);
+  std::string queryJob( const long jobId, const std::string clusterName) throw(LauncherException);
   void deleteJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void deleteJob( const long jobId, const std::string clusterName);
+  void deleteJob( const long jobId, const std::string clusterName) throw(LauncherException);
   void getResultsJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
-  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName );
+  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName ) throw (LauncherException);
 
   void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
 
