@@ -1025,7 +1025,20 @@ class CMakeFile(object):
         if self.__thedict__.has_key(key):
             newlines.append('''
             FOREACH(output ${MOC_FILES})
-            STRING(REGEX REPLACE _moc.cxx .h input ${output})
+            ''')
+            if self.module == "yacs":
+                newlines.append('''
+                STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
+                IF(input STREQUAL WrapGraphicsView.hxx)
+                SET(input ../genericgui/${input})
+                ENDIF(input STREQUAL WrapGraphicsView.hxx)
+                ''')
+            else:
+                newlines.append('''
+                STRING(REGEX REPLACE _moc.cxx .h input ${output})
+                ''')
+                pass
+            newlines.append('''
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
             SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
             ADD_CUSTOM_COMMAND(
@@ -1398,7 +1411,7 @@ class CMakeFile(object):
         ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
         ''')
         newlines.append(r'''
-        SET(l ${nodist_${amname}_SOURCES})
+        SET(l ${nodist_${amname}_SOURCES} ${UIC_FILES})
         FOREACH(f ${l})
         SET(src ${CMAKE_CURRENT_BINARY_DIR}/${f})
         SET(srcs ${srcs} ${src})
