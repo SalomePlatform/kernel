@@ -36,7 +36,7 @@ import sys
 import time
 import string
 import signal
-from omniORB import CORBA, PortableServer
+from omniORB import CORBA, PortableServer, any
 import Engines, Engines__POA
 import Registry
 from Utils_Identity import *
@@ -151,16 +151,14 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        #id = self._poa.servant_to_id(self)
-        #self._poa.deactivate_object(id)
+        id = self._poa.servant_to_id(self)
+        self._poa.deactivate_object(id)
         return
         
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
-        #corbaObj_ptr = self._poa.id_to_reference(self._contId)
-        #return corbaObj_ptr._narrow(Engines.Container)
         return self._contId._narrow(Engines.Container)
                 
     #-------------------------------------------------------------------------
@@ -174,7 +172,13 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._StartUsed = self.CpuUsed_impl()
         self._ThreadCpuUsed = 0
         self._Executed = 1
+        print "beginService for ",serviceName," Component instance : ",self._instanceName
         MESSAGE( "SALOME_ComponentPy_i::beginService _StartUsed " + str( self._ThreadId ) + " " + str( self._StartUsed ) )
+        for e in self._fieldsDict:
+          key=e.key
+          value=any.from_any(e.value)
+          if isinstance(value,str):
+            os.environ[key]=value
         
 
     #-------------------------------------------------------------------------
@@ -182,6 +186,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     def endService(self , serviceName ):
         MESSAGE(  "Send EndService notification for " + str( self._ThreadId ) + " " + str(serviceName) + " for graph/node " + str(self._graphName) + " " + str(self._nodeName) + " CpuUsed " + str( self.CpuUsed_impl() ) )
         MESSAGE(  "Component instance : " + str(self._instanceName) )
+        print "endService for",serviceName,"Component instance :",self._instanceName,"Cpu Used:",self.CpuUsed_impl()," (s) "
+
 
     #-------------------------------------------------------------------------
 
@@ -276,7 +282,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         if ( self._ThreadId | self._Executed ) :
             if self._ThreadId == get_ident() :
                 cpu = time.clock()
-                self._ThreadCpuUsed = int(cpu) - self._StartUsed
+                self._ThreadCpuUsed = cpu - self._StartUsed
                 MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( int(cpu) ) + " - " + str( self._StartUsed ) + " = " + str( self._ThreadCpuUsed ) )
                 return self._ThreadCpuUsed
             MESSAGE( "SALOME_ComponentPy_i::CpuUsed_impl " + self._serviceName + " " + str( self._ThreadCpuUsed ) )

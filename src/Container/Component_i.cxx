@@ -104,6 +104,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _graphName("") ,
   _nodeName(""),
   _studyId(-1),
+  _id(0),
+  _contId(0),
   _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
@@ -154,21 +156,14 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _graphName("") ,
   _nodeName(""),
   _studyId(-1),
+  _id(0),
+  _contId(0),
   _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _container=Engines::Container::_duplicate(container);
-  try
-    {
-      _contId=_poa->reference_to_id(container);
-    }
-  catch(PortableServer::POA::WrongAdapter)
-    {
-      //not created by this poa
-      _contId = 0;
-    }
   const CORBA::String_var ior = _orb->object_to_string(_container);
   if(regist)
     _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
@@ -189,7 +184,11 @@ Engines_Component_i::~Engines_Component_i()
   MESSAGE("Component destructor");
   Engines_Container_i::decInstanceCnt(_interfaceName);
   if(_myConnexionToRegistry)delete _myConnexionToRegistry;
+  _myConnexionToRegistry = 0 ;
   if(_notifSupplier)delete _notifSupplier;
+  _notifSupplier = 0;
+  if(_id) delete _id;
+  _id=0;
 }
 
 //=============================================================================
@@ -260,14 +259,7 @@ void Engines_Component_i::destroy()
 {
   MESSAGE("Engines_Component_i::destroy()");
   //SCRUTE(_refcount_value());
-
-  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
-  _myConnexionToRegistry = 0 ;
-  if(_notifSupplier)delete _notifSupplier;
-  _notifSupplier = 0;
   _poa->deactivate_object(*_id);
-  if(_id)
-    delete(_id) ;
   //SCRUTE(_refcount_value());
   _remove_ref();
   //SCRUTE(_refcount_value());
@@ -573,7 +565,8 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
 
 Engines_Container_i *Engines_Component_i::GetContainerPtr()
 {
-  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(*_contId)) ;
+  PortableServer::ObjectId_var  contId=_poa->reference_to_id(_container);
+  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(contId)) ;
 }
 
 //=============================================================================
@@ -622,14 +615,8 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
-#ifndef WIN32
-  MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
-          << endl << "Component instance : " << _instanceName << endl << endl);
-#else
-  MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
-          << endl << "Component instance : " << _instanceName << endl << endl);
-#endif
   std::cerr << "beginService for " << serviceName << " Component instance : " << _instanceName << std::endl;
+
 #ifndef WIN32
   _ThreadId = pthread_self() ;
 #else
@@ -653,13 +640,8 @@ void Engines_Component_i::beginService(const char *serviceName)
       perror("pthread_setcancelstate ") ;
       exit(0) ;
     }
-//  MESSAGE(pthread_self() << " Return from BeginService for " << serviceName
-//          << " ThreadId " << _ThreadId << " StartUsed " << _StartUsed
-//          << " _graphName " << _graphName << " _nodeName " << _nodeName );
 
-  // --- for supervisor : all strings given with setProperties
-  //     are set in environment
-  bool overwrite = true;
+  // --- all strings given with setProperties are set in environment
   map<std::string,CORBA::Any>::iterator it;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {
@@ -668,21 +650,10 @@ void Engines_Component_i::beginService(const char *serviceName)
         {
           const char* value;
           (*it).second >>= value;
-          // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
-#if defined __GNUC__
-//          int ret = setenv(cle.c_str(), value, overwrite);
-          setenv(cle.c_str(), value, overwrite);
-#else
-          //CCRT porting : setenv not defined in stdlib.h
           std::string s(cle);
           s+='=';
           s+=value;
-          // char* cast because 1st arg of linux putenv function
-          // is not a const char* !
-//          int ret=putenv((char *)s.c_str());
           putenv((char *)s.c_str());
-          //End of CCRT porting
-#endif
           MESSAGE("--- setenv: "<<cle<<" = "<< value);
         }
     }
@@ -702,15 +673,9 @@ void Engines_Component_i::endService(const char *serviceName)
   float cpus=_ThreadCpuUsed/1000.;
   std::cerr << "endService for " << serviceName << " Component instance : " << _instanceName ;
   std::cerr << " Cpu Used: " << cpus << " (s) " << std::endl;
-#ifndef WIN32
-  MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
+  MESSAGE("Send EndService notification for " << serviceName
           << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
-#else
-  MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
-          << endl << " Component instance : " << _instanceName << " StartUsed "
-    << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
-#endif
   _ThreadId = 0 ;
 }
 
@@ -759,13 +724,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else
             {
-#ifndef WIN32
-              MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
-                      << " pthread_canceled") ;
-#else
-        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
-                      << " pthread_canceled") ;
-#endif
+              MESSAGE("Killer : ThreadId " << ThreadId << " pthread_canceled") ;
             }
         }
       else
@@ -777,13 +736,7 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
             }
           else 
             {
-#ifndef WIN32
-        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
-                      << " pthread_killed(" << signum << ")") ;
-#else
-        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
-                      << " pthread_killed(" << signum << ")") ;
-#endif
+              MESSAGE("Killer : ThreadId " << ThreadId << " pthread_killed(" << signum << ")") ;
             }
         }
     }
