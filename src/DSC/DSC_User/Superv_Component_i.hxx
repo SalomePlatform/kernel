@@ -44,7 +44,7 @@
  *  a programming level for service's developpers who want to use DSC ports.
  *
  *  This class has two level for using and declare ports. The higher level proposes
- *  operations to add ports that are provided by default by Salomé like Calcium ports.
+ *  operations to add ports that are provided by default by SALOME like Calcium ports.
  *  It provides too some methods to add their own DSC_User ports.
  *
  *  \note This class doesn't implement the init_service CORBA operation.
@@ -256,6 +256,12 @@ public:
    */
   virtual port_factory * get_factory(const std::string & factory_name);
 
+  /*!
+   */
+  static long dscTimeOut;
+  static void setTimeOut();
+  void beginService(const char *serviceName);
+
 private:   
   // Factory map
   typedef std::map<std::string, port_factory*> factory_map_t;
@@ -384,8 +390,7 @@ Superv_Component_i::get_port( const char * port_name)
   
   retPort = dynamic_cast<SpecificPortType *>(port);
   if ( retPort == NULL ) {
-    delete port; 
-    throw BadCast( LOC("Can't cast to asked port type " ));
+    throw BadCast( LOC("Can't cast to required port type " ));
   }
 
   return retPort;

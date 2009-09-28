@@ -96,3 +96,7 @@ class PyDSCComponent(SALOME_ComponentPy.SALOME_ComponentPy_i,
   def checkOutputFilesToService(self,service_name):
     return self.proxy.checkOutputFilesToService(service_name)
 
+  def beginService(self,service_name):
+    SALOME_ComponentPy.SALOME_ComponentPy_i.beginService(self,service_name)
+    self.proxy.setTimeOut()
+

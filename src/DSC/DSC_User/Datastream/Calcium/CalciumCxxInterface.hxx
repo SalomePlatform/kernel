@@ -259,36 +259,60 @@ namespace CalciumInterface {
     std::stringstream msgout,msg;
     if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY ) 
       {
-        double   tt=ti;
-        msg << "ti=" << ti << ", tf=" << tf ;
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
-        corbaData = port->get(tt,tf, 0);
-        msgout << "read t=" << tt ;
+        try
+          {
+            double   tt=ti;
+            msg << "ti=" << ti << ", tf=" << tf ;
+            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+            corbaData = port->get(tt,tf, 0);
+            msgout << "read t=" << tt ;
 #ifdef MYDEBUG
-        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
+            std::cout << "-------- CalciumInterface(ecp_lecture) MARK 5 ------------------" << std::endl;
 #endif
+          }
+        catch ( const DSC_Exception & ex)
+          {
+            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            throw;
+          }
       } 
     else if ( _dependencyType == CalciumTypes::ITERATION_DEPENDENCY ) 
       {
-        msg << "i=" << i ;
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
-        corbaData = port->get(0, i);
-        msgout << "read i=" << i ;
+        try
+          {
+            msg << "i=" << i ;
+            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+            corbaData = port->get(0, i);
+            msgout << "read i=" << i ;
 #ifdef MYDEBUG
-        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
+            std::cout << "-------- CalciumInterface(ecp_lecture) MARK 6 ------------------" << std::endl;
 #endif
+          }
+        catch ( const DSC_Exception & ex)
+          {
+            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            throw;
+          }
       } 
     else 
       {
         // Sequential read
+        try
+          {
 #ifdef MYDEBUG
-        std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
+            std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
 #endif
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,"Sequential read");
-        corbaData = port->next(ti,i);
-        msgout << "read ";
-        if(i==0)msgout<< "t=" <<ti;
-        else msgout<< "i=" <<i;
+            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,"Sequential read");
+            corbaData = port->next(ti,i);
+            msgout << "read ";
+            if(i==0)msgout<< "t=" <<ti;
+            else msgout<< "i=" <<i;
+          }
+        catch ( const DSC_Exception & ex)
+          {
+            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            throw;
+          }
       }
  
 #ifdef MYDEBUG

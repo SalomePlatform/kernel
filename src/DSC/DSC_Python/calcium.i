@@ -419,7 +419,6 @@ struct stringArray
   }
   ~stringArray() 
   {
-    std::cerr << "~stringArray() " << nelem << std::endl;
     for(int i=0;i<nelem;i++)
       free(data[i]);
     delete [] data;
@@ -636,13 +635,16 @@ CORBAPTR(PortableServer::POA)
 %typemap(out) Ports::Port_ptr 
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
-  //All output Ports::Port_ptr variables are duplicated by security. Need to release them for python . Explanation ??
+  //All output Ports::Port_ptr variables are duplicated by security. Need to release them for python.
   CORBA::release($1);
 }
 
 %typemap(out) Ports::PortProperties_ptr, Engines::Salome_file_ptr
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
+  //the _ptr is duplicated by the routine called. 
+  //Need to release it for Python because the call to cxxObjRefToPyObjRef has created another ref with a count of 1
+  CORBA::release($1);
 }
 
 %typemap(out) Engines::DSC::uses_port *
@@ -801,6 +803,7 @@ class PySupervCompo:public Superv_Component_i
   CORBA::Boolean is_connected(const char* port_name) throw (Engines::DSC::PortNotDefined);
 // End of DSC interface for python components
 
+   static void setTimeOut();
 
 
     %extend

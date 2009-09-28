@@ -36,6 +36,8 @@ DSC_EXCEPTION_CXX(Superv_Component_i,NilPort);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadProperty);
 
 std::map<std::string, port_factory*> Superv_Component_i::_factory_map;
+long Superv_Component_i::dscTimeOut=0;
+
 
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       PortableServer::POA_ptr poa,
@@ -48,6 +50,7 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 #ifdef MYDEBUG
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
+  setTimeOut();
 }
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       PortableServer::POA_ptr poa,
@@ -61,6 +64,7 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 #ifdef MYDEBUG
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
+  setTimeOut();
 }
 
   
@@ -317,4 +321,23 @@ Superv_Component_i::get_uses_port_names(std::vector<std::string> & port_names,
 
   for (it=my_superv_ports.begin(); it!=my_superv_ports.end();++it)
     if( (*it).second->p_ref == NULL ) port_names.push_back((*it).first);
+}
+
+void Superv_Component_i::setTimeOut()
+{
+  char* valenv=getenv("DSC_TIMEOUT");
+  if(valenv)
+    {
+      std::istringstream iss(valenv);
+      long temp;
+      if (iss >> temp)
+        if(temp >=0)
+          Superv_Component_i::dscTimeOut=temp;
+    }
+}
+
+void Superv_Component_i::beginService(const char *serviceName)
+{
+  Engines_DSC_i::beginService(serviceName);
+  setTimeOut();
 }
