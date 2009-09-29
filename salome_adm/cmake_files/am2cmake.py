@@ -1254,7 +1254,7 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
-        if self.module == "yacs":
+        if self.module in ["medfile", "yacs"]:
             newlines.append(r'''
             IF(WINDOWS)
             SET(var ${var} -DNOGDI)
@@ -1743,6 +1743,14 @@ if __name__ == "__main__":
         # --
         for f in files:
             if f == "Makefile.am":
+                if module == "medfile":
+                    tmp = root[len(the_root)+1:]
+                    from os import sep
+                    l = tmp.split(sep)
+                    if l in [ ["src"], ["tools", "mdump"], ["tools", "medconforme"], ["tools", "medimport"] ]:
+                        f = "Makefile.am.cmake"
+                        pass
+                    pass
                 convertAmFile(the_root, root, dirs, files, f, module)
                 pass
             pass
