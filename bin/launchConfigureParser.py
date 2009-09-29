@@ -57,6 +57,7 @@ test_nam       = "test"
 play_nam       = "play"
 gdb_session_nam = "gdb_session"
 ddd_session_nam = "ddd_session"
+shutdown_servers_nam = "shutdown_servers"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -74,7 +75,7 @@ standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "py
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam )
 intKeys = ( interp_nam, )
 
 # values of list type
@@ -635,6 +636,19 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="ddd_session", default=False,
                             help=help_str)
     
+    # shutdown-servers. Default: False.
+    help_str  = "1 to shutdown standalone servers when leaving python interpreter, "
+    help_str += "0 to keep the standalone servers as daemon [default]. "
+    help_str += "This option is only useful in batchmode "
+    help_str += "(terminal mode or without showing desktop)."
+    o_shutdown = optparse.Option("--shutdown-servers",
+                                 metavar="<1/0>",
+                                 #type="choice", choices=boolean_choices,
+                                 type="string",
+                                 action="callback", callback=store_boolean, callback_args=('shutdown_servers',),
+                                 dest="shutdown_servers",
+                                 help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -659,6 +673,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_play,  # Reproducing test script with help of TestRecorder
                 o_gdb,
                 o_ddd,
+                o_shutdown,
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -952,6 +967,13 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     if cmd_opts.ddd_session is not None:
         args[ddd_session_nam] = cmd_opts.ddd_session
 
+    # Shutdown servers
+    if cmd_opts.shutdown_servers is None:
+        args[shutdown_servers_nam] = 0
+    else:
+        args[shutdown_servers_nam] = cmd_opts.shutdown_servers
+        pass
+        
     ####################################################
     # Add <theAdditionalOptions> values to args
     for add_opt in theAdditionalOptions:

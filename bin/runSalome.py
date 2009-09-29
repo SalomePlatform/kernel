@@ -656,6 +656,22 @@ def useSalome(args, modules_list, modules_root_dir):
             clt.showNS()
             pass
         
+        if not args['gui'] or not args['session_gui']:
+            if args['shutdown_servers']:
+                class __utils__(object):
+                    def __init__(self, port):
+                        self.port = port
+                        import killSalomeWithPort
+                        self.killSalomeWithPort = killSalomeWithPort
+                        return
+                    def __del__(self):
+                        self.killSalomeWithPort.killMyPort(self.port)
+                        return
+                    pass
+                args['shutdown_servers'] = __utils__(args['port'])
+                pass
+            pass
+        
         # run python scripts, passed via --execute option
         toimport = []
         if args.has_key('pyscript'):
