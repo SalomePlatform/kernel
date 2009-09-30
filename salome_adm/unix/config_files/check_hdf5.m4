@@ -86,6 +86,11 @@ then
   HDF5_MT_LIBS="$LOCAL_LIBS -lhdf5 $LOCAL_RLIBS"
 fi
 
+if  test "x$hdf5_ok" = "xyes"
+then
+  HDF5_INCLUDES="$HDF5_INCLUDES -DH5_USE_16_API"
+fi
+
 AC_MSG_RESULT(for hdf5: $hdf5_ok)
 
 ])dnl
