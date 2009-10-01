@@ -502,6 +502,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
               // Waiting too long probably blocking
               std::stringstream msg;
               msg<<"Timeout ("<<rs<<" s) exceeded";
+              Engines_DSC_interface::writeEvent("BLOCKING","","","","Probably blocking",msg.str().c_str());
               throw DSC_Exception(msg.str());
             }
         }
@@ -616,6 +617,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
               // Waiting too long probably blocking
               std::stringstream msg;
               msg<<"Timeout ("<<rs<<" s) exceeded";
+              Engines_DSC_interface::writeEvent("BLOCKING","","","","Probably blocking",msg.str().c_str());
               throw DSC_Exception(msg.str());
             }
         }

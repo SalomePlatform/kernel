@@ -148,6 +148,9 @@ public:
   virtual Ports::PortProperties_ptr get_port_properties(const char* port_name)
     throw (Engines::DSC::PortNotDefined);
 
+  static void writeEvent(const char* request,const std::string& containerName, const char* instance_name,
+                         const char* port_name, const char* error, const char* message);
+
 protected:
 
   /*-------------------------------------------------*/

@@ -53,17 +53,14 @@ struct IsSameType<T1,T1> {
   static const bool value = true;
 };
 
+extern const char * CPMESSAGE[];
+
 //#define MYDEBUG
 
 #include <boost/type_traits/remove_all_extents.hpp>
 
 namespace CalciumInterface {
   
-  /********************* LOGGING INTERFACE *****************/
-
-  void initTrace(const std::string&);
-  void writeEvent(const char*, const std::string&, const char*, const char*, int, const char*);
-
   /********************* CONNECTION INTERFACE *****************/
 
   static inline void
@@ -73,7 +70,7 @@ namespace CalciumInterface {
     CORBA::String_var componentName=component.instanceName();
     std::string containerName=component.getContainerName();
     if (instanceName.empty()) instanceName=componentName;
-    writeEvent("CP_CD",containerName,componentName,"",0,"");
+    Engines_DSC_interface::writeEvent("CP_CD",containerName,componentName,"","","");
   }
 
   static void
@@ -81,7 +78,7 @@ namespace CalciumInterface {
   { 
     CORBA::String_var componentName=component.instanceName();
     std::string containerName=component.getContainerName();
-    writeEvent("CP_FIN",containerName,componentName,"",0,"");
+    Engines_DSC_interface::writeEvent("CP_FIN",containerName,componentName,"","","");
 
     std::vector<std::string> usesPortNames;
     std::vector<std::string>::const_iterator it;
@@ -117,12 +114,12 @@ namespace CalciumInterface {
           }
         catch ( const Superv_Component_i::BadCast & ex) 
           {
-            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPTPVR,ex.what());
+            Engines_DSC_interface::writeEvent("CP_FIN",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPTPVR],ex.what());
             throw (CalciumException(CalciumTypes::CPTPVR,ex));
           }
         catch ( const DSC_Exception & ex) 
           {
-            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPOK,ex.what());
+            Engines_DSC_interface::writeEvent("CP_FIN",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPOK],ex.what());
             // Exception venant de SupervComponent :
             //   PortNotDefined(CPNMVR), PortNotConnected(CPLIEN)  
             // ou du port uses : Dsc_Exception
@@ -130,7 +127,7 @@ namespace CalciumInterface {
           }
         catch (...) 
           {
-            writeEvent("CP_FIN",containerName,componentName,"",CalciumTypes::CPATAL,"Unexpected exception");
+            Engines_DSC_interface::writeEvent("CP_FIN",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPATAL],"Unexpected exception");
             throw (CalciumException(CalciumTypes::CPATAL,"Unexpected exception"));
             // En fonction du mode de gestion des erreurs throw;
           }
@@ -202,7 +199,7 @@ namespace CalciumInterface {
 
     if (nomVar.empty())
       {
-        writeEvent("BEGIN_READ",containerName,componentName,"",CalciumTypes::CPNMVR,"");
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPNMVR],"");
         throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
       }
     PortType * port;
@@ -223,18 +220,18 @@ namespace CalciumInterface {
       }
     catch ( const Superv_Component_i::PortNotDefined & ex) 
       {
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNMVR,ex.what());
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPNMVR],ex.what());
         throw (CalciumException(CalciumTypes::CPNMVR,ex));
       }
     catch ( const Superv_Component_i::PortNotConnected & ex) 
       {
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPLIEN,ex.what());
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPLIEN],ex.what());
         throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
         // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
       }
     catch ( const Superv_Component_i::BadCast & ex) 
       {
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPTPVR,ex.what());
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPTPVR],ex.what());
         throw (CalciumException(CalciumTypes::CPTPVR,ex));
       }
   
@@ -243,13 +240,13 @@ namespace CalciumInterface {
 
     if ( portDependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
       {
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,"Dependency mode is undefined");
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],"Dependency mode is undefined");
         throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
       }
 
     if ( ( portDependencyType != _dependencyType ) && ( _dependencyType != CalciumTypes::SEQUENCE_DEPENDENCY ) ) 
       {
-        writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,
+        Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],
                    "Dependency mode is not the same as the required one");
         throw CalciumException(CalciumTypes::CPITVR, LOC(OSS()<<"Dependency mode of variable " << nomVar << ": " 
                                 << portDependencyType << " is not the same as the required one."));
@@ -263,7 +260,7 @@ namespace CalciumInterface {
           {
             double   tt=ti;
             msg << "ti=" << ti << ", tf=" << tf ;
-            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+            Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
             corbaData = port->get(tt,tf, 0);
             msgout << "read t=" << tt ;
 #ifdef MYDEBUG
@@ -272,7 +269,7 @@ namespace CalciumInterface {
           }
         catch ( const DSC_Exception & ex)
           {
-            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            Engines_DSC_interface::writeEvent("END_READ",containerName,componentName,nomVar.c_str(),"",ex.what());
             throw;
           }
       } 
@@ -281,7 +278,7 @@ namespace CalciumInterface {
         try
           {
             msg << "i=" << i ;
-            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,msg.str().c_str());
+            Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
             corbaData = port->get(0, i);
             msgout << "read i=" << i ;
 #ifdef MYDEBUG
@@ -290,7 +287,7 @@ namespace CalciumInterface {
           }
         catch ( const DSC_Exception & ex)
           {
-            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            Engines_DSC_interface::writeEvent("END_READ",containerName,componentName,nomVar.c_str(),"",ex.what());
             throw;
           }
       } 
@@ -302,7 +299,7 @@ namespace CalciumInterface {
 #ifdef MYDEBUG
             std::cout << "-------- CalciumInterface(ecp_lecture) MARK 7 ------------------" << std::endl;
 #endif
-            writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),0,"Sequential read");
+            Engines_DSC_interface::writeEvent("BEGIN_READ",containerName,componentName,nomVar.c_str(),"","Sequential read");
             corbaData = port->next(ti,i);
             msgout << "read ";
             if(i==0)msgout<< "t=" <<ti;
@@ -310,7 +307,7 @@ namespace CalciumInterface {
           }
         catch ( const DSC_Exception & ex)
           {
-            writeEvent("END_READ",containerName,componentName,nomVar.c_str(),0,ex.what());
+            Engines_DSC_interface::writeEvent("END_READ",containerName,componentName,nomVar.c_str(),"",ex.what());
             throw;
           }
       }
@@ -378,7 +375,7 @@ namespace CalciumInterface {
     std::cout << "Ptr :" << data << std::endl;
     std::cout << "-------- CalciumInterface(ecp_lecture) MARK 13 ------------------" << std::endl;
 #endif
-    writeEvent("END_READ",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msgout.str().c_str());
+    Engines_DSC_interface::writeEvent("END_READ",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPOK],msgout.str().c_str());
     return;
   }
 
@@ -438,7 +435,7 @@ namespace CalciumInterface {
 #endif
     if ( nomVar.empty() )
       {
-        writeEvent("WRITE",containerName,componentName,"",CalciumTypes::CPNMVR,"");
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPNMVR],"");
         throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
       }
     UsesPortType * port;
@@ -459,18 +456,18 @@ namespace CalciumInterface {
       }
     catch ( const Superv_Component_i::PortNotDefined & ex) 
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNMVR,ex.what());
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPNMVR],ex.what());
         throw (CalciumException(CalciumTypes::CPNMVR,ex));
       }
     catch ( const Superv_Component_i::PortNotConnected & ex) 
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPLIEN,ex.what());
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPLIEN],ex.what());
         throw (CalciumException(CalciumTypes::CPLIEN,ex)); 
         // VERIFIER LES CAS DES CODES : CPINARRET, CPSTOPSEQ, CPCTVR, CPLIEN
       }
     catch ( const Superv_Component_i::BadCast & ex) 
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPTPVR,ex.what());
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPTPVR],ex.what());
         throw (CalciumException(CalciumTypes::CPTPVR,ex));
       }
  
@@ -489,13 +486,13 @@ namespace CalciumInterface {
 
     if ( _dependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,"Dependency mode is undefined");
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],"Dependency mode is undefined");
         throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
       }
 
     if ( _dependencyType == CalciumTypes::SEQUENCE_DEPENDENCY )
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPIT,
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],
                    "SEQUENCE_DEPENDENCY mode is not possible when writing");
         throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode SEQUENCE_DEPENDENCY for variable " << nomVar 
                                << " is not possible when writing."));
@@ -514,7 +511,7 @@ namespace CalciumInterface {
   
     if ( bufferLength < 1 )
       {
-        writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPNTNULL,"Buffer to send is empty");
+        Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPNTNULL],"Buffer to send is empty");
         throw CalciumException(CalciumTypes::CPNTNULL, LOC(OSS()<<"Buffer to send is empty"));
       }
 
@@ -560,11 +557,11 @@ namespace CalciumInterface {
             port->put(*corbaData,t, -1); 
             std::stringstream msg;
             msg << "t=" << t ;
-            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msg.str().c_str());
+            Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPOK],msg.str().c_str());
           }
         catch ( const DSC_Exception & ex) 
           {
-            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPATAL,ex.what());
+            Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPATAL],ex.what());
             throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
           }
         //Le -1 peut être traité par le cst DataIdContainer et transformé en 0 
@@ -580,11 +577,11 @@ namespace CalciumInterface {
             port->put(*corbaData,-1, i);
             std::stringstream msg;
             msg << "i=" << i ;
-            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPOK,msg.str().c_str());
+            Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPOK],msg.str().c_str());
           }
         catch ( const DSC_Exception & ex) 
           {
-            writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CalciumTypes::CPATAL,ex.what());
+            Engines_DSC_interface::writeEvent("WRITE",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPATAL],ex.what());
             throw (CalciumException(CalciumTypes::CPATAL,ex.what()));
           }
 #ifdef MYDEBUG

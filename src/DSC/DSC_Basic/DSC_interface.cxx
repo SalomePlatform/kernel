@@ -25,6 +25,11 @@
 //
 #include <string>
 #include "DSC_interface.hxx"
+#include <sys/time.h>
+#include <fstream>
+#include <sys/stat.h>
+#include <sstream>
+#include <stdlib.h>
 
 //#define MYDEBUG
 
@@ -385,3 +390,179 @@ Engines_DSC_interface::get_port_properties(const char* port_name)
   rtn_properties = Ports::PortProperties::_duplicate(my_ports[port_name]->port_prop);
   return rtn_properties;
 }
+
+//Trace functions for DSC operations: a local function (initTrace) and a class method (Engines_DSC_interface::writeEvent)
+static  int traceType=-1; // 0=stderr;1=file;
+static  int traceLevel=-1; // 0=no trace;1=normal trace;2=detailed trace
+static  std::ofstream traceFile;
+static  std::ostream *out;
+
+//! Initialize the trace file
+/*!
+ * The trace file depends on an environment variable (DSC_TRACE). If this variable
+ * is equal to 1, the trace file is a file with the name : <TMPDIR>/<container name>.tce.
+ * In all other cases, the trace file is stderr
+ * The environment variable DSC_TRACELEVEL can be used to suppress the trace (value 0)
+ *
+ * \param containerName the name of the container where the trace is built
+ */
+static void initTrace(const std::string& containerName)
+{
+  // if initialization has already been done do nothing
+  if(traceLevel >= 0)return;
+
+  std::string typeenv="0";
+  std::string levelenv="1";
+  char* valenv=0;
+  valenv=getenv("DSC_TRACE");
+  if(valenv)typeenv=valenv;
+  valenv=getenv("DSC_TRACELEVEL");
+  if(valenv)levelenv=valenv;
+
+  if(levelenv=="0")
+    traceLevel=0; // no trace
+  else if(levelenv=="2")
+    traceLevel=2; //detailed trace
+  else
+    traceLevel=1; // normal trace (default)
+
+  if(traceLevel==0)
+    return;
+
+  if(typeenv=="1")
+    {
+      //trace in file
+      traceType=1;
+#ifdef WNT
+      std::string logFilename=getenv("TEMP");
+      logFilename += "\\";
+#else
+      std::string logFilename="/tmp";
+      char* val = getenv("SALOME_TMP_DIR");
+      if(val)
+        {
+          struct stat file_info;
+          stat(val, &file_info);
+          bool is_dir = S_ISDIR(file_info.st_mode);
+          if (is_dir)logFilename=val;
+        }
+      logFilename += "/";
+#endif
+
+      logFilename=logFilename+containerName+".tce";
+      traceFile.open(logFilename.c_str(), std::ios::out | std::ios::app);
+      out=&traceFile;
+    }
+  else
+    {
+      //trace to stderr (default)
+      traceType=0;
+      out=&std::cerr;
+    }
+  //trace heading
+  out->width(17);
+  *out << "Elapsed time" ;
+  *out << " | " ;
+  out->width(16);
+  *out << "Request" ;
+  *out << " | " ;
+  out->width(16);
+  *out << "Container" ;
+  *out << " | " ;
+  out->width(16);
+  *out << "Instance" ;
+  *out << " | " ;
+  out->width(16);
+  *out << "Port" ;
+  *out << " | " ;
+  out->width(24);
+  *out << "Error";
+  *out << " | " ;
+  *out << "Infos" ;
+  *out << std::endl;
+}
+
+
+//! Write a record in the trace file
+/*!
+ * \param request the name of the request executed
+ * \param containerName the name of the container where the request is executed
+ * \param instance_name the name of the component where the request is executed
+ * \param port_name the name of the port that is concerned
+ * \param error if an error has occured, a string that identifies the error
+ * \param message informations about error or about the request
+ */
+void Engines_DSC_interface::writeEvent(const char* request,const std::string& containerName, const char* instance_name, 
+                                       const char* port_name, const char* error, const char* message)
+{
+  if(traceLevel < 0)
+    initTrace(containerName);
+  if(traceLevel == 0)return;
+
+  struct timeval tv;
+  gettimeofday(&tv,0);
+  long tt0=tv.tv_sec/3600; //hours
+
+  if(traceType == 2)
+    {
+      //notifier (not used: salome notifier is now obsolete)
+      std::ostringstream msg;
+      msg.width(7);
+      msg << tt0 ;
+      msg << ":" ;
+      long tt1=(tv.tv_sec-3600*tt0)/60;//minutes
+      msg.width(2);
+      msg << tt1 ;
+      msg << ":" ;
+      long tt2=tv.tv_sec - 3600*tt0-60*tt1; //seconds
+      msg.width(2);
+      msg << tt2 ;
+      msg << ":" ;
+      long tt3=tv.tv_usec/1000; //milliseconds
+      msg.width(3);
+      msg << tt3 ;
+      msg << " | " ;
+      msg.width(24);
+      msg << error;
+      msg << " | " ;
+      msg << message ;
+      //send event to notifier (containerName.c_str(),instance_name, request, msg.str().c_str())
+    }
+  else
+    {
+      //cerr or file
+      out->width(7);
+      *out << tt0 ;
+      *out << ":" ;
+      long tt1=(tv.tv_sec-3600*tt0)/60;//minutes
+      out->width(2);
+      *out << tt1 ;
+      *out << ":" ;
+      long tt2=tv.tv_sec - 3600*tt0-60*tt1; //seconds
+      out->width(2);
+      *out << tt2 ;
+      *out << ":" ;
+      long tt3=tv.tv_usec/1000; //milliseconds
+      out->width(3);
+      *out << tt3 ;
+      *out << " | " ;
+      out->width(16);
+      *out << request ;
+      *out << " | " ;
+      out->width(16);
+      *out << containerName ;
+      *out << " | " ;
+      out->width(16);
+      *out << instance_name ;
+      *out << " | " ;
+      out->width(16);
+      *out << port_name ;
+      *out << " | " ;
+      out->width(24);
+      *out << error;
+      *out << " | " ;
+      *out << message ;
+      *out << std::endl;
+    }
+}
+

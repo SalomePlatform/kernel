@@ -90,7 +90,7 @@ extern "C"
     msg << type << " " << mode << " " << depend;
     CORBA::String_var componentName=compo->instanceName();
     std::string containerName=compo->getContainerName();
-    CalciumInterface::writeEvent("create_calcium_port",containerName,componentName,name,0,msg.str().c_str());
+    Engines_DSC_interface::writeEvent("create_calcium_port",containerName,componentName,name,"",msg.str().c_str());
 
     if(std::string(mode) == "IN")
       {
