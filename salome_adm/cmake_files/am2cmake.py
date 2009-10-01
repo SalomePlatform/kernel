@@ -835,6 +835,12 @@ class CMakeFile(object):
         # --
         # Convert the .in files in build dir
         # --
+        if self.module == "yacs":
+            key = "salomegui"
+            if self.root[-len(key):] == key:
+                self.files.append("resources/YACSCatalog.xml.in")
+                pass
+            pass
         for f in self.files:
             if f[-3:] == ".in":
                 if f == "sstream.in":
@@ -1029,9 +1035,6 @@ class CMakeFile(object):
             if self.module == "yacs":
                 newlines.append('''
                 STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
-                IF(input STREQUAL WrapGraphicsView.hxx)
-                SET(input ../genericgui/${input})
-                ENDIF(input STREQUAL WrapGraphicsView.hxx)
                 ''')
             else:
                 newlines.append('''
@@ -1638,7 +1641,7 @@ class CMakeFile(object):
         IF(ext STREQUAL .qm)
         STRING(REGEX REPLACE .qm .ts input ${f})
         ''')
-        if self.module in ["kernel", "gui"]:
+        if self.module in ["kernel", "gui", "yacs"]:
             newlines.append(r'''
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/resources/${input})
             ''')
@@ -1741,16 +1744,14 @@ if __name__ == "__main__":
         except ValueError:
             pass
         # --
+        if "Makefile.am.cmake" in files:
+            if "Makefile.am" in files:
+                files.remove("Makefile.am")
+                pass
+            pass
+        # --
         for f in files:
-            if f == "Makefile.am":
-                if module == "medfile":
-                    tmp = root[len(the_root)+1:]
-                    from os import sep
-                    l = tmp.split(sep)
-                    if l in [ ["src"], ["tools", "mdump"], ["tools", "medconforme"], ["tools", "medimport"] ]:
-                        f = "Makefile.am.cmake"
-                        pass
-                    pass
+            if f in ["Makefile.am", "Makefile.am.cmake"]:
                 convertAmFile(the_root, root, dirs, files, f, module)
                 pass
             pass
