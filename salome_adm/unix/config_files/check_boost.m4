@@ -133,6 +133,15 @@ if test "x${boost_binaries_ok}" = "xno" ; then
 else
   AC_MSG_RESULT(\$BOOST_LIBSUFFIX = ${BOOST_LIBSUFFIX})
   AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
+                BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}",
+                BOOST_LIB_THREAD="")
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_signals${BOOST_LIBSUFFIX}.so,
+                BOOST_LIB_SIGNALS="${BOOST_LIBS} -lboost_signals${BOOST_LIBSUFFIX}",
+                BOOST_LIB_SIGNALS="")
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_system${BOOST_LIBSUFFIX}.so,
+                BOOST_LIB_SYSTEM="${BOOST_LIBS} -lboost_system${BOOST_LIBSUFFIX}",
+                BOOST_LIB_SYSTEM="")
 fi
 AC_MSG_RESULT(for boost binaries: $boost_binaries_ok)
 
@@ -150,6 +159,9 @@ AC_MSG_RESULT(for boost: $boost_ok)
 AC_SUBST(BOOST_CPPFLAGS)
 AC_SUBST(BOOST_LIBSUFFIX)
 AC_SUBST(BOOST_LIBS)
+AC_SUBST(BOOST_LIB_THREAD)
+AC_SUBST(BOOST_LIB_SIGNALS)
+AC_SUBST(BOOST_LIB_SYSTEM)
 AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB)
 
 AC_LANG_RESTORE
