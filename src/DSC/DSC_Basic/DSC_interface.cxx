@@ -25,7 +25,10 @@
 //
 #include <string>
 #include "DSC_interface.hxx"
+#ifdef WNT
+#else
 #include <sys/time.h>
+#endif
 #include <fstream>
 #include <sys/stat.h>
 #include <sstream>
@@ -499,6 +502,8 @@ void Engines_DSC_interface::writeEvent(const char* request,const std::string& co
     initTrace(containerName);
   if(traceLevel == 0)return;
 
+#ifdef WNT
+#else
   struct timeval tv;
   gettimeofday(&tv,0);
   long tt0=tv.tv_sec/3600; //hours
@@ -564,5 +569,6 @@ void Engines_DSC_interface::writeEvent(const char* request,const std::string& co
       *out << message ;
       *out << std::endl;
     }
+#endif
 }
 
