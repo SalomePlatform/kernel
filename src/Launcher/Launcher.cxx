@@ -526,6 +526,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 #ifndef WIN32 //TODO: need for porting on Windows
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+  std::string dfilelogtemp = params.AppliPath + "/" + filelogtemp;
 
   string::size_type p1 = fileToExecute.find_last_of("/");
   string::size_type p2 = fileToExecute.find_last_of(".");
@@ -539,8 +540,8 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 
   // Begin
   tempOutputFile << "#! /bin/sh -f" << endl ;
-  tempOutputFile << "cd " ;
-  tempOutputFile << params.AppliPath << endl ;
+  tempOutputFile << "cd ~/" ;
+  tempOutputFile << dirForTmpFiles << endl ;
   tempOutputFile << "export SALOME_BATCH=1\n";
   tempOutputFile << "export PYTHONPATH=~/" ;
   tempOutputFile << dirForTmpFiles ;
@@ -559,9 +560,9 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Code for rank 0 : launch runAppli and a container
   // RunAppli
   if(params.ModulesList.size()>0)
-    tempOutputFile << "  ./runAppli --terminal --modules=" ;
+    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal --modules=" ;
   else
-    tempOutputFile << "  ./runAppli --terminal ";
+    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal ";
   for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
     tempOutputFile << params.ModulesList[i] ;
     if ( i != params.ModulesList.size()-1 )
@@ -574,7 +575,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Wait NamingService
   tempOutputFile << "  current=0\n"
 		 << "  stop=20\n" 
-		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  while ! test -f " << dfilelogtemp << "\n"
 		 << "  do\n"
 		 << "    sleep 2\n"
 		 << "    let current=current+1\n"
@@ -583,7 +584,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 		 << "      exit\n"
 		 << "    fi\n"
 		 << "  done\n"
-		 << "  port=`cat " << filelogtemp << "`\n";
+		 << "  port=`cat " << dfilelogtemp << "`\n";
     
   // Wait other containers
   tempOutputFile << "  for ((ip=1; ip < ";
@@ -593,14 +594,14 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
   tempOutputFile << "  done" << endl ;
   tempOutputFile << "  sleep 5" << endl ;
-  tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
+  tempOutputFile << "  " << params.AppliPath << "/runSession waitContainers.py $arglist" << endl ;
   
   // Launch user script
-  tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
+  tempOutputFile << "  " << params.AppliPath << "/runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
 
   // Stop application
-  tempOutputFile << "  rm " << filelogtemp << "\n"
-		 << "  ./runSession shutdownSalome.py" << endl;
+  tempOutputFile << "  rm " << dfilelogtemp << "\n"
+		 << "  " << params.AppliPath << "/runSession shutdownSalome.py" << endl;
 
   // -------------------------------------
   // Other nodes launch a container
@@ -609,7 +610,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Wait NamingService
   tempOutputFile << "  current=0\n"
 		 << "  stop=20\n" 
-		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  while ! test -f " << dfilelogtemp << "\n"
 		 << "  do\n"
 		 << "    sleep 2\n"
 		 << "    let current=current+1\n"
@@ -618,10 +619,10 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 		 << "      exit\n"
 		 << "    fi\n"
 		 << "  done\n"
-		 << "  port=`cat " << filelogtemp << "`\n";
+		 << "  port=`cat " << dfilelogtemp << "`\n";
 
   // Launching container
-  tempOutputFile << "  ./runSession SALOME_Container YACS_Server_";
+  tempOutputFile << "  " << params.AppliPath << "/runSession SALOME_Container YACS_Server_";
   tempOutputFile << mpiImpl->rank()
 		 << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
 		 << mpiImpl->rank() << "_container_log." << filelogtemp
