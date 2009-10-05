@@ -252,18 +252,11 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     for(int i=0;i<filesToExport.size();i++)
       param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
 
-    ostringstream file_name_output;
-    file_name_output << "~/" << tmpdir << "/" << "output.log*";
-    ostringstream file_name_error;
-    file_name_error << "~/" << tmpdir << "/" << "error.log*";
-    ostringstream file_container_log;
-    file_container_log << "~/" << tmpdir << "/" << "YACS_Server*";
-    param[OUTFILE] = Batch::Couple( "", file_name_output.str());
-    param[OUTFILE] += Batch::Couple( "", file_name_error.str());
-    param[OUTFILE] += Batch::Couple( "", file_container_log.str());
-
+    param[OUTFILE] = Batch::Couple( "", "~/" + tmpdir + "/" + "output.log*" );
+    param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "error.log*" );
+    param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "YACS_Server*" );
     for(int i=0;i<filesToImport.size();i++)
-      param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
+      param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + filesToImport[i] );
 
     param[NBPROC] = batch_params.nb_proc;
     param[WORKDIR] = batch_params.batch_directory;
