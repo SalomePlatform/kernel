@@ -67,7 +67,7 @@ bool Engines_Component_i::_isMultiInstance = false;
  */
 //=============================================================================
 
-Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupplier(0)
+Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupplier(0), _id(0)
 {
   //ASSERT(0);
   MESSAGE("Default Constructor, not for normal use...");
