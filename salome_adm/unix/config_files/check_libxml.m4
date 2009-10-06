@@ -39,11 +39,14 @@ then
   LOCAL_INCLUDES="-I$LIBXML_DIR/include/libxml2"
   if test "x$LIBXML_DIR" = "x/usr"
   then
+    AC_MSG_NOTICE(Trying native Libxml2...)
     LOCAL_LIBS="-lxml2"
   else
+    AC_MSG_NOTICE(Trying Libxml2 from $LIBXML_DIR ...)
     LOCAL_LIBS="-L$LIBXML_DIR/lib -lxml2"
   fi
 else
+  AC_MSG_NOTICE(Trying native Libxml2...)
   LOCAL_INCLUDES="-I/usr/include/libxml2"
   LOCAL_LIBS="-lxml2"
 fi
