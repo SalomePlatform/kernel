@@ -25,6 +25,7 @@ dist_salome_cmake_DATA = \
 am2cmake.py \
 FindBOOST.cmake \
 FindCPPUNIT.cmake \
+FindDOXYGEN.cmake \
 FindHDF5.cmake \
 FindKERNEL.cmake \
 FindLIBXML2.cmake \
