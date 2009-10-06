@@ -48,12 +48,15 @@ LOCAL_RLIBS=""
 if test -z $HDF5HOME
 then
    AC_MSG_WARN(undefined HDF5HOME variable which specify hdf5 installation directory)
+   AC_MSG_NOTICE(Trying native Hdf5...)
 else
    LOCAL_INCLUDES="-I$HDF5HOME/include"
    if test "x$HDF5HOME" = "x/usr"
    then
+      AC_MSG_NOTICE(Trying native Hdf5...)
       LOCAL_LIBS=""
    else
+      AC_MSG_NOTICE(Trying Hdf5 from $HDF5HOME ...)
       LOCAL_LIBS="-L$HDF5HOME/lib"
       LOCAL_RLIBS="-R$HDF5HOME/lib"
    fi
