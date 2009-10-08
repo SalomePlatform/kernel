@@ -32,6 +32,7 @@
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
+#include CORBA_SERVER_HEADER(SALOME_PyNode)
 
 #include <iostream>
 #include <signal.h>
@@ -97,6 +98,7 @@ public:
 
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
+  Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
   // --- local C++ methods
 
   Engines::Component_ptr

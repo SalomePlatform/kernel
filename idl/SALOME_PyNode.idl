@@ -1,0 +1,57 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+//  File   : SALOME_PyNode.idl
+//  Author : Christian CAREMOLI, EDF
+//  $Header: 
+//
+#ifndef _SALOME_PYNODE_IDL_
+#define _SALOME_PYNODE_IDL_
+
+#include "SALOME_GenericObj.idl"
+#include "SALOME_Exception.idl"
+
+/*! \file SALOME_PyNode.idl \brief interface for remote python execution
+*/
+
+/*! \brief
+This is a package of interfaces used for executing Python code on remote container
+*/
+module Engines
+{
+  typedef sequence<octet> pickledArgs;
+
+  interface PyNode : SALOME::GenericObj
+  {
+
+    /*! \brief execute a python function defined in the node
+
+      \param functionName the python function defined in the node to execute
+      \param inargs input argument values provided as a python pickle
+      \return output argument values as a python pickle
+    */
+    pickledArgs execute(in string functionName,in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+
+  } ;
+
+};
+
+#endif

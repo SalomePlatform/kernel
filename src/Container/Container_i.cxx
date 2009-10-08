@@ -1411,3 +1411,49 @@ void Engines_Container_i::copyFile(Engines::Container_ptr container, const char*
     }
 }
 
+/*! \brief create a PyNode object to execute remote python code
+ * \param nodeName the name of the node
+ * \param code the python code to load
+ * \return the PyNode
+ */
+Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, const char* code)
+{
+    Engines::PyNode_var node= Engines::PyNode::_nil();
+
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject *res = PyObject_CallMethod(_pyCont,
+      (char*)"create_pynode",
+      (char*)"ss",
+      nodeName,
+      code);
+    if(res==NULL)
+      {
+        //internal error
+        PyErr_Print();
+        PyGILState_Release(gstate);
+        SALOME::ExceptionStruct es;
+        es.type = SALOME::INTERNAL_ERROR;
+        es.text = "can not create a python node";
+        throw SALOME::SALOME_Exception(es);
+      }
+    long ierr=PyInt_AsLong(PyTuple_GetItem(res,0));
+    PyObject* result=PyTuple_GetItem(res,1);
+    std::string astr=PyString_AsString(result);
+    Py_DECREF(res);
+    PyGILState_Release(gstate);
+
+    if(ierr==0)
+      {
+        CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
+        node = Engines::PyNode::_narrow(obj);
+        return node._retn();
+      }
+    else
+      {
+        SALOME::ExceptionStruct es;
+        es.type = SALOME::INTERNAL_ERROR;
+        es.text = astr.c_str();
+        throw SALOME::SALOME_Exception(es);
+      }
+
+}

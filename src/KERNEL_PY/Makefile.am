@@ -45,6 +45,7 @@ if CORBA_GEN
 		iparameters.py \
 		salome_version.py \
 		salome_notebook.py \
+		salome_pynode.py \
     salome_genericobj.py
 endif
 

@@ -28,6 +28,7 @@
 
 #include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
+#include "SALOME_PyNode.idl"
 
 /*! \file SALOME_Component.idl \brief interfaces for Component and Container
 */
@@ -192,6 +193,13 @@ module Engines
       \param localFile the local file to create by copy
      */
     void copyFile(in Container contai, in string remoteFile, in string localFile);
+
+    //! Create a PyNode in the container
+    /*!
+      \param nodeName the name of the PyNode
+      \param code python code as text to load in the node
+     */
+    PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
   };
 
   /*! \brief Interface of the %component.

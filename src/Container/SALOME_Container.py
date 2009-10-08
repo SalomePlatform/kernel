@@ -34,11 +34,13 @@
 import os
 import sys
 import string
+import traceback
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
+import SALOME_PyNode
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
@@ -107,3 +109,14 @@ class SALOME_Container_i:
         return comp_iors 
         
 
+    def create_pynode(self,nodeName,code):
+        try:
+          node=SALOME_PyNode.PyNode_i(nodeName,code,self._poa)
+          id_o = self._poa.activate_object(node)
+          comp_o = self._poa.id_to_reference(id_o)
+          comp_iors = self._orb.object_to_string(comp_o)
+          return 0,comp_iors
+        except:
+          exc_typ,exc_val,exc_fr=sys.exc_info()
+          l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+          return 1,"".join(l)

@@ -46,6 +46,7 @@ salomeinclude_HEADERS = \
 # Scripts to be installed
 dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
+  SALOME_PyNode.py \
 	SALOME_Container.py
 
 # These files are executable scripts
