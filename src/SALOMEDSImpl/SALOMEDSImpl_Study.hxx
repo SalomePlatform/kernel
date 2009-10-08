@@ -263,7 +263,17 @@ public:
                    const double theValue, 
                    const SALOMEDSImpl_GenericVariable::VariableTypes);
 
+  void SetStringVariable(const std::string& theVarName,
+			 const std::string& theValue, 
+			 const SALOMEDSImpl_GenericVariable::VariableTypes);
+
+  void SetStringVariableAsDouble(const std::string& theVarName,
+				 const double theValue, 
+				 const SALOMEDSImpl_GenericVariable::VariableTypes);
+  
   double GetVariableValue(const std::string& theVarName);
+
+  std::string GetStringVariableValue(const std::string& theVarName);
 
   bool IsTypeOf(const std::string& theVarName,
                 SALOMEDSImpl_GenericVariable::VariableTypes theType) const;

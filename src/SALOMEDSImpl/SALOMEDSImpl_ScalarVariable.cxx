@@ -62,6 +62,21 @@ bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
 }
 
 //============================================================================
+/*! Function : 
+ *  Purpose  : 
+ */
+//============================================================================
+bool SALOMEDSImpl_ScalarVariable::setStringValue(const string& theValue)
+{
+  
+  if(myStrValue == theValue) 
+    return false;
+  
+  myStrValue = theValue;
+  return true;
+}
+
+//============================================================================
 /*! Function : getValue()
  *  Purpose  : 
  */
@@ -69,6 +84,16 @@ bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
 double SALOMEDSImpl_ScalarVariable::getValue() const
 {
   return myValue;
+}
+
+//============================================================================
+/*! Function : getStringValue()
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_ScalarVariable::getStringValue() const
+{
+  return myStrValue;
 }
 
 //============================================================================
@@ -89,6 +114,11 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
     case SALOMEDSImpl_GenericVariable::INTEGER_VAR:
       {
         sprintf(buffer, "%d", (int)myValue);
+        break;
+      }
+    case SALOMEDSImpl_GenericVariable::STRING_VAR:
+      {
+        sprintf(buffer, "\"%s\"", myStrValue.c_str());
         break;
       }
     default:break;
@@ -122,6 +152,11 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
           sprintf(buffer, "%s", "True");
         else
           sprintf(buffer, "%s", "False");
+        break;
+      }
+    case SALOMEDSImpl_GenericVariable::STRING_VAR:
+      {
+        sprintf(buffer, "\"%s\"", myStrValue.c_str());
         break;
       }
     default:break;

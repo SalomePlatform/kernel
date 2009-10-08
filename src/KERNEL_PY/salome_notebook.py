@@ -29,6 +29,44 @@ Module salome_notebook gives access to Salome Notebook.
 
 import salome
 
+class PseudoStudyForNoteBook(object):
+    
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        pass
+    
+    def GetVariableNames(self):
+        return self.kwargs.keys()
+    
+    def IsVariable(self, variableName):
+        return variableName in self.kwargs
+    
+    def IsReal(self, variableName):
+        val = self.kwargs[variableName]
+        try:
+            float(val)
+            return True
+        except:
+            pass
+        return False
+    
+    IsInteger = IsReal
+    IsBoolean = IsReal
+    
+    def IsString(self, variableName):
+        return not self.IsReal(variableName)
+    
+    def GetString(self, variableName):
+        return self.kwargs[variableName]
+    
+    def GetReal(self, variableName):
+        return float(self.kwargs[variableName])
+    
+    GetInteger = GetReal
+    GetBoolean = GetReal
+    
+    pass
+
 class NoteBook:
     
     def __init__(self, Study):
@@ -48,6 +86,9 @@ class NoteBook:
         elif type(variable) == bool:
             self.myStudy.SetBoolean(variableName, variable)
             
+        elif type(variable) == str:
+            self.myStudy.SetString(variableName, variable)
+            
     def get(self, variableName):
 	"""
 	Return value of the variable with name "variableName".
@@ -63,6 +104,33 @@ class NoteBook:
 
             elif self.myStudy.IsBoolean(variableName):
                 aResult = self.myStudy.GetBoolean(variableName)
+
+            elif self.myStudy.IsString(variableName):
+                aResult = self.myStudy.GetString(variableName)
+                aResult_orig = aResult
+                l = self.myStudy.GetVariableNames()
+                l.remove(variableName)
+                for name in l:
+            	    val = self.get(name)
+		    import re
+		    while 1:
+		        m = re.search(r"\b(%s)\b"%name, aResult)
+		        if not m: break
+                	aResult = aResult[:m.start()] + "%s"%(val) + aResult[m.end():]
+                    	pass
+                    pass
+                try:
+                    aResult = eval(aResult)
+                except Exception, e:
+                    msg = str(e)
+                    msg += "\n"
+                    msg += "A problem occurs while parsing "
+                    msg += "the variable %s "%(variableName.__repr__())
+                    msg += "with value %s ..."%(aResult_orig.__repr__())
+                    msg += "\n"
+                    msg += "Please, check your notebook !"
+                    raise Exception(msg)
+                pass
                 
         return aResult
     
@@ -72,5 +140,37 @@ class NoteBook:
 	exists in the study, otherwise return false.
 	"""
         return self.myStudy.IsVariable(variableName)
-                
+
+    def setAs(self, variableName, typ):
+        value = self.get(variableName)
+        value = float(typ(value))
+        self.myStudy.SetStringAsDouble(variableName, value)
+        return
+    
+    def setAsReal(self, variableName):
+        self.setAs(variableName, float)
+        return
+    
+    def setAsInteger(self, variableName):
+        self.setAs(variableName, int)
+        return
+    
+    def setAsBool(self, variableName):
+        self.setAs(variableName, bool)
+        return
+    
+    def check(self):
+        for variableName in self.myStudy.GetVariableNames():
+            self.get(variableName)
+            pass
+        return
+    
+    pass
+
+def checkThisNoteBook(**kwargs):
+    study = PseudoStudyForNoteBook(**kwargs)
+    note_book = NoteBook(study)
+    note_book.check()
+    return
+
 notebook = NoteBook(salome.myStudy)

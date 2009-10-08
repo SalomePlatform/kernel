@@ -427,6 +427,18 @@ during each working session.
 */
     void SetBoolean( in string theVarName, in boolean theValue );
 
+/*! \brief  Create string variable with Name theVarName and value theValue 
+
+    (or set if variable value into theValue already exists)
+    \param theVarName is a name of the variable
+    \param theVarName is a value of the variable.
+*/
+    void SetString( in string theVarName, in string theValue );
+
+/*! \brief  Set current value as double for string variable
+*/
+    void SetStringAsDouble( in string theVarName, in double theValue );
+
 /*! \brief Get value of a real variable
 
     \param theVarName is a name of the variable.
@@ -444,6 +456,12 @@ during each working session.
     \param theVarName is a name of the variable.
 */
     boolean GetBoolean( in string theVarName );
+
+/*! \brief Get value of a string variable
+
+    \param theVarName is a name of the variable.
+*/
+    string GetString( in string theVarName );
     
 
 /*! \brief Indicate if a variable is real
@@ -466,6 +484,13 @@ during each working session.
     \param theVarName is a name of the variable.
 */
     boolean IsBoolean( in string theVarName );
+
+/*! \brief Indicate if a variable is string
+
+    Return true if variable is string otherwise return false.
+    \param theVarName is a name of the variable.
+*/
+    boolean IsString( in string theVarName );
 
 /*! \brief Indicate if a variable exists in the study
 

@@ -918,6 +918,30 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
 }
 
 //============================================================================
+/*! Function : SetString
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
+{
+  _impl->SetStringVariable(string(theVarName), 
+			   theValue,
+			   SALOMEDSImpl_GenericVariable::STRING_VAR);
+}
+
+//============================================================================
+/*! Function : SetStringAsDouble
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetStringAsDouble(const char* theVarName, CORBA::Double theValue)
+{
+  _impl->SetStringVariableAsDouble(string(theVarName), 
+				   theValue,
+				   SALOMEDSImpl_GenericVariable::STRING_VAR);
+}
+
+//============================================================================
 /*! Function : GetReal
  *  Purpose  : 
  */
@@ -945,6 +969,16 @@ CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
 CORBA::Boolean SALOMEDS_Study_i::GetBoolean(const char* theVarName)
 {
   return (bool)_impl->GetVariableValue(string(theVarName));
+}
+
+//============================================================================
+/*! Function : GetString
+ *  Purpose  : 
+ */
+//============================================================================
+char* SALOMEDS_Study_i::GetString(const char* theVarName)
+{
+  return CORBA::string_dup(_impl->GetStringVariableValue(string(theVarName)).c_str());
 }
 
 //============================================================================
@@ -978,6 +1012,17 @@ CORBA::Boolean SALOMEDS_Study_i::IsBoolean(const char* theVarName)
 {
   return _impl->IsTypeOf(string(theVarName),
                          SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+}
+
+//============================================================================
+/*! Function : IsString
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsString(const char* theVarName)
+{
+  return _impl->IsTypeOf(string(theVarName),
+                         SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================

@@ -97,14 +97,18 @@ public:
   virtual void SetReal(const std::string& theVarName, const double theValue) = 0;
   virtual void SetInteger(const std::string& theVarName, const int theValue) = 0;
   virtual void SetBoolean(const std::string& theVarName, const bool theValue) = 0;  
+  virtual void SetString(const std::string& theVarName, const std::string& theValue) = 0;
+  virtual void SetStringAsDouble(const std::string& theVarName, const double theValue) = 0;
 
   virtual double GetReal(const std::string& theVarName) = 0;
   virtual int GetInteger(const std::string& theVarName) = 0;
   virtual bool GetBoolean(const std::string& theVarName) = 0;
+  virtual std::string GetString(const std::string& theVarName) = 0;
   
   virtual bool IsReal(const std::string& theVarName) = 0;
   virtual bool IsInteger(const std::string& theVarName) = 0;
   virtual bool IsBoolean(const std::string& theVarName) = 0;
+  virtual bool IsString(const std::string& theVarName) = 0;
   
   virtual bool IsVariable(const std::string& theVarName) = 0;
   virtual std::vector<std::string> GetVariableNames() = 0;

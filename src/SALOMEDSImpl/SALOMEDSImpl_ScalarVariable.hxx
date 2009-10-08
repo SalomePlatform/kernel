@@ -38,6 +38,9 @@ public:
   bool setValue(const double theValue);
   double getValue() const;
 
+  bool setStringValue(const std::string& theValue);
+  std::string getStringValue() const;
+
   virtual std::string Save() const;
   virtual std::string SaveToScript() const;
   virtual std::string SaveType() const;
@@ -46,6 +49,7 @@ public:
 
 private:
   double myValue;
+  std::string myStrValue;
 };
 
 

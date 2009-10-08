@@ -1591,6 +1591,50 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
 }
 
 //============================================================================
+/*! Function : SetStringVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStringVariable(const string& theVarName,
+					   const string& theValue,
+					   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  bool modified = false;
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  
+  if( aGVar == NULL ) {
+    
+    SALOMEDSImpl_ScalarVariable* aSVar = new SALOMEDSImpl_ScalarVariable(theType, theVarName);
+    
+    aSVar->setStringValue(theValue);
+    myNoteBookVars.push_back(aSVar);
+    modified = true;
+  }
+  else {
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar)) {
+      modified = aSVar->setStringValue(theValue) || modified;
+      modified = aSVar->setType(theType) || modified;
+    }
+  }
+  if(modified)
+    Modify();
+}
+
+//============================================================================
+/*! Function : SetStringVariableAsDouble
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStringVariableAsDouble(const string& theVarName,
+						   const double theValue,
+						   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+    aSVar->setValue(theValue);
+}
+
+//============================================================================
 /*! Function : GetReal
  *  Purpose  :
  */
@@ -1603,6 +1647,22 @@ double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
     if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
       return aSVar->getValue();
 
+  return 0;
+}
+
+//============================================================================
+/*! Function : GetString
+ *  Purpose  :
+ */
+//============================================================================
+string SALOMEDSImpl_Study::GetStringVariableValue(const string& theVarName)
+{
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  
+  if(aGVar != NULL )
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+      return aSVar->getStringValue();
+  
   return 0;
 }
 

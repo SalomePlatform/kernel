@@ -304,17 +304,25 @@ public:
 
   virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
 
+  virtual void SetString(const char* theVarName, const char* theValue);
+
+  virtual void SetStringAsDouble(const char* theVarName, CORBA::Double theValue);
+
   virtual CORBA::Double GetReal(const char* theVarName);
   
   virtual CORBA::Long GetInteger(const char* theVarName);
 
   virtual CORBA::Boolean GetBoolean(const char* theVarName);
 
+  virtual char* GetString(const char* theVarName);
+
   virtual CORBA::Boolean IsReal(const char* theVarName);
   
   virtual CORBA::Boolean IsInteger(const char* theVarName);
 
   virtual CORBA::Boolean IsBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsString(const char* theVarName);
 
   virtual CORBA::Boolean IsVariable(const char* theVarName);
 
