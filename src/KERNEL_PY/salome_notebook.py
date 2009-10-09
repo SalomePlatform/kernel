@@ -110,14 +110,17 @@ class NoteBook:
                 aResult_orig = aResult
                 l = self.myStudy.GetVariableNames()
                 l.remove(variableName)
+                # --
+                # To avoid the smallest strings to be replaced first,
+                # the list is sorted by decreasing lengths
+                # --
+                l.sort(key=str.__len__)
+                l.reverse()
                 for name in l:
-            	    val = self.get(name)
-		    import re
-		    while 1:
-		        m = re.search(r"\b(%s)\b"%name, aResult)
-		        if not m: break
-                	aResult = aResult[:m.start()] + "%s"%(val) + aResult[m.end():]
-                    	pass
+                    if aResult.find(name) >= 0:
+                        val = self.get(name)
+                        aResult = aResult.replace(name, "%s"%(val))
+                        pass
                     pass
                 try:
                     aResult = eval(aResult)
