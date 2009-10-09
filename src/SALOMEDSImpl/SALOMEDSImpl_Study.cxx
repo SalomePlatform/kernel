@@ -1220,8 +1220,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
   //Output to the main Study script required Python modules import,
   //set sys.path and add a creation of the study.
+  fp << "#!/usr/bin/python" << endl << "# -*- coding: iso-8859-1 -*-\n" << endl;
+
   fp << GetDumpStudyComment() << endl << endl;
-  fp << "import sys" << endl;
+
   fp << "import " << aBatchModeScript << endl << endl;
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;

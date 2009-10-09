@@ -1,3 +1,6 @@
+#! /usr/bin/python
+#  -*- coding: iso-8859-1 -*-
+
 """
  When imported this module adds to CORBA objref from GenericObj type
  automatic management of reference count
