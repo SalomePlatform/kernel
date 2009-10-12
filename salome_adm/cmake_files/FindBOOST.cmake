@@ -103,7 +103,7 @@ ENDIF(BOOST_STATUS)
 
 IF(BOOST_STATUS)
   SET(BOOST_LIBS)
-  FOREACH(name thread date_time signals filesystem system)
+  FOREACH(name thread date_time signals filesystem system regex)
     IF(WINDOWS)
       IF(CMAKE_BUILD_TYPE STREQUAL Debug)
 	SET(EXTENSION -gd)
