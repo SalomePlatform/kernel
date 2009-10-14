@@ -1223,7 +1223,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
   fp << "# -*- coding: iso-8859-1 -*-\n" << endl;
 
   fp << GetDumpStudyComment() << endl << endl;
-
+  fp << "import sys" << endl;
   fp << "import " << aBatchModeScript << endl << endl;
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;
