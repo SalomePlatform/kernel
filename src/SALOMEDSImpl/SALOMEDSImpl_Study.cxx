@@ -48,6 +48,23 @@ using namespace std;
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
 
+// auxilary class intended to fix problems with locales
+class Localizer
+{
+public:
+  Localizer()
+  {
+    myCurLocale = setlocale(LC_NUMERIC, 0);
+    setlocale(LC_NUMERIC, "C");
+  }
+  ~Localizer()
+  {
+    setlocale(LC_NUMERIC, myCurLocale.c_str());
+  }
+private:
+  std::string myCurLocale;
+};
+
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
  *  Purpose  : SALOMEDSImpl_Study constructor
@@ -904,6 +921,8 @@ string SALOMEDSImpl_Study::_GetStudyVariablesScript()
   
   if(myNoteBookVars.empty())
     return dump;
+
+  Localizer loc;
   
   dump += "####################################################\n";
   dump += "##       Begin of NoteBook variables section      ##\n";
