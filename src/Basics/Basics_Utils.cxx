@@ -82,4 +82,14 @@ namespace Kernel_Utils
     return p;
   }
   
+  Localizer::Localizer()
+  {
+    myCurLocale = setlocale(LC_NUMERIC, 0);
+    setlocale(LC_NUMERIC, "C");
+  }
+
+  Localizer::~Localizer()
+  {
+    setlocale(LC_NUMERIC, myCurLocale.c_str());
+  }
 }

@@ -28,6 +28,8 @@
 
 using namespace std;
 
+#include <Basics_Utils.hxx>
+
 #include "DF_Application.hxx"
 #include "DF_ChildIterator.hxx"
 
@@ -47,23 +49,6 @@ using namespace std;
 #define FILEID            "FILE: "
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
-
-// auxilary class intended to fix problems with locales
-class Localizer
-{
-public:
-  Localizer()
-  {
-    myCurLocale = setlocale(LC_NUMERIC, 0);
-    setlocale(LC_NUMERIC, "C");
-  }
-  ~Localizer()
-  {
-    setlocale(LC_NUMERIC, myCurLocale.c_str());
-  }
-private:
-  std::string myCurLocale;
-};
 
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
@@ -922,7 +907,7 @@ string SALOMEDSImpl_Study::_GetStudyVariablesScript()
   if(myNoteBookVars.empty())
     return dump;
 
-  Localizer loc;
+  Kernel_Utils::Localizer loc;
   
   dump += "####################################################\n";
   dump += "##       Begin of NoteBook variables section      ##\n";
