@@ -25,6 +25,7 @@
 #include "SALOMEDSImpl_GenericVariable.hxx"
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 

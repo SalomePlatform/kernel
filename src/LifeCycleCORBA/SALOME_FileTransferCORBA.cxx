@@ -28,6 +28,7 @@
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "utilities.h"
 #include "Basics_Utils.hxx"
+#include <cstdio>
 
 using namespace std;
 
