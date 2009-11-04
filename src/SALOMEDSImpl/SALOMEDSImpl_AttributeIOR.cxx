@@ -29,7 +29,7 @@
 using namespace std;
 
 //to disable automatic genericobj management comment the following line
-#define WITHGENERICOBJ
+//#define WITHGENERICOBJ
 
 #ifdef WITHGENERICOBJ
 #include "SALOME_GenericObj_i.hh"
