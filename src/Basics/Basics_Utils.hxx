@@ -35,7 +35,7 @@ namespace Kernel_Utils
 {
   BASICS_EXPORT std::string GetHostname();
 
-  class Localizer
+  class BASICS_EXPORT Localizer
   {
   public:
     Localizer();
