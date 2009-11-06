@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <cstdio>
 
 #ifndef WIN32
 # include <sys/stat.h>
