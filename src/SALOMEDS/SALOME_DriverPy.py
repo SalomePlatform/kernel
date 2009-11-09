@@ -23,7 +23,7 @@
 ## @package SALOME_DriverPy
 #  \brief python implementation of SALOMEDS::Driver interface
 #
-#  
+#
 import SALOMEDS__POA
 
 ## Python implementation of generic SALOMEDS::Driver.
@@ -35,7 +35,6 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     to provide persistence mechanism.
     """
     def __init__ (self, componentDataType):
-        print "SALOME_DriverPy.__init__: ",componentDataType
         self._ComponentDataType = componentDataType
 
     def IORToLocalPersistentID(self, theSObject, IORString, isMultiFile, isASCII):
