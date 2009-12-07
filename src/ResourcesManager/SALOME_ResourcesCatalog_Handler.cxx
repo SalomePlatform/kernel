@@ -144,13 +144,14 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  else
 	  {
 	    // Adding a machine
-	    _resources_list[_resource.HostName] = _resource;
-	    if(_resource.HostName == "localhost")
-	    {
-	      _resource.HostName = Kernel_Utils::GetHostname();
-	      _resource.DataForSort._hostName = Kernel_Utils::GetHostname();
-	      _resources_list[Kernel_Utils::GetHostname()] = _resource;
-	    }
+        if(_resource.HostName == "localhost")
+          {
+            _resource.HostName = Kernel_Utils::GetHostname();
+            _resource.DataForSort._hostName = Kernel_Utils::GetHostname();
+            _resources_list[Kernel_Utils::GetHostname()] = _resource;
+          }
+        else
+          _resources_list[_resource.HostName] = _resource;
 	  }
 	}
 	else
@@ -555,6 +556,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
   xmlNodePtr aCurSubNode = machine_descr->xmlChildrenNode;
   while(aCurSubNode != NULL)
   {
+    // Process components
     if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_components) )
     {
       //If a component is given, it is in a module with the same name
@@ -577,14 +579,17 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       }
     }
     // Process modules
-    if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
+    else if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
     {
+      // If a module is given, we create an entry in componentsList and modulesList
+      // with the same name (module == component)
       if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
       {
-	xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
-	std::string aModuleName = (const char*)module_name;
-	resource.ModulesList.push_back(aModuleName);
-	xmlFree(module_name);
+        xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+        std::string aComponentName = (const char*)component_name;
+        _resource.ComponentsList.push_back(aComponentName);
+        _resource.ModulesList.push_back(aComponentName);
+        xmlFree(component_name);
       }
     }
     aCurSubNode = aCurSubNode->next;

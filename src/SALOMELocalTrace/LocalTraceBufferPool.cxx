@@ -28,6 +28,7 @@
 #include <limits.h>
 #include <cassert>
 #include <string.h>
+#include <cstdio>
 
 #ifndef WIN32
 #include <dlfcn.h>

@@ -34,6 +34,15 @@
 namespace Kernel_Utils
 {
   BASICS_EXPORT std::string GetHostname();
+
+  class BASICS_EXPORT Localizer
+  {
+  public:
+    Localizer();
+    ~Localizer();
+  private:
+    std::string myCurLocale;
+  };
 }
 
 #endif //_Basics_UTILS_HXX_

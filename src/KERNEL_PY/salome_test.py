@@ -261,8 +261,9 @@ print
 print "=============  Test	Supervisor	============================="
 print
 import salome_version
-versions = salome_version.getVersions()
-if versions[0] < 5:
+version = salome_version.getVersions("GUI")[0]
+if not version: version = salome_version.getVersions("KERNEL")[0]
+if version < 5:
 	# SUPERV module is avaiable
 	comp = catalog.GetComponent("SUPERV")
 	if comp	is None:

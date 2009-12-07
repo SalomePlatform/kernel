@@ -27,6 +27,7 @@
 //
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
+#include <libxml/parser.h>
 #include <fstream>
 #include <map>
 #include "utilities.h"
@@ -79,6 +80,8 @@ list<string> splitStringToList(const string& theString, const string& theSeparat
 SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA::ORB_ptr orb) : _orb(orb)
 {
   if(MYDEBUG) MESSAGE("Catalog creation");
+  /* Init libxml */
+  xmlInitParser();
 
   // Conversion rules for component types
   ComponentTypeConvert[GEOM]
@@ -686,7 +689,6 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
 	MESSAGE("ModuleCatalog: could not parse file "<<file);
 
       xmlFreeDoc(aDoc);
-      xmlCleanupParser();
       fclose(aFile);
     }
   else

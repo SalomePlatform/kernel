@@ -40,7 +40,6 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_var orb = CORBA::ORB_init (argc, argv);
-  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
@@ -157,11 +156,9 @@ int main(int argc,char **argv)
       Utils_Timer timer;
       timer.Start();
       timer.Stop();
-      MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
       timer.ShowAbsolute();
 #endif
       orb->run();
-      std::cerr << "server returned from orb->run()" << std::endl;
       orb->destroy();
  
 //       mgr->deactivate(true,true);
@@ -176,6 +173,5 @@ int main(int argc,char **argv)
       }
 
   END_OF( argv[0] );
-  //  delete myThreadTrace;
   return 0;
 }
