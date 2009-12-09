@@ -114,6 +114,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
   _container=Engines::Container::_narrow(o);
+  setContainerName();
 
   if(regist)
     {
@@ -164,6 +165,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _container=Engines::Container::_duplicate(container);
+  setContainerName();
   const CORBA::String_var ior = _orb->object_to_string(_container);
   if(regist)
     _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
@@ -1047,11 +1049,22 @@ Engines_Component_i::configureSalome_file(std::string service_name,
 //=============================================================================
 std::string Engines_Component_i::getContainerName()
 {
+  return _containerName;
+}
+//=============================================================================
+/*! 
+ *  C++ method: set the name of the container associated with this component (attribute _containerName)
+ *  This name does not contains the "/Containers" string and all "/" are replaced by "_"
+ *  \return the container name (reformatted)
+ */
+//=============================================================================
+void Engines_Component_i::setContainerName()
+{
   CORBA::String_var containerName=_container->name();
   std::string name(containerName);
   name.erase(0,12);
   string::size_type slash =name.find_first_of('/');
   if(slash != std::string::npos)
     name[slash]='_';
-  return name;
+  _containerName=name;
 }

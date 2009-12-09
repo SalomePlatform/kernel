@@ -120,6 +120,7 @@ public:
   PortableServer::ObjectId * getId(); 
   Engines_Container_i *GetContainerPtr();
   std::string getContainerName();
+  void setContainerName();
 
   virtual bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
@@ -148,6 +149,7 @@ protected:
 
   std::string _instanceName ;
   std::string _interfaceName ;
+  std::string _containerName ;
 
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
