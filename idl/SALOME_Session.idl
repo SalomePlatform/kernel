@@ -89,6 +89,8 @@ module SALOME
     void ping();
 //!  Returns the PID of the server
     long getPID();
+//!  Returns host name
+    string getHostname();
 //!  Get Active study ID
     long GetActiveStudyId();
 //!  Restores a state of the study at theSavePoint
