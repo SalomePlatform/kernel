@@ -139,35 +139,40 @@ void SALOME_ResourcesManager::Shutdown()
  */ 
 //=============================================================================
 
-Engines::MachineList *
-SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params)
+Engines::ResourceList *
+SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& params)
 {
-//   MESSAGE("ResourcesManager::GetFittingResources");
-  machineParams p;
+  MESSAGE("ResourcesManager::GetFittingResources");
+  Engines::ResourceList * ret = new Engines::ResourceList;
+
+  // CORBA -> C++
+  resourceParams p;
+  p.name = params.name;
   p.hostname = params.hostname;
   p.OS = params.OS;
+  p.nb_proc = params.nb_proc;
   p.nb_node = params.nb_node;
   p.nb_proc_per_node = params.nb_proc_per_node;
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
-  p.parallelLib = params.parallelLib;
-  p.nb_component_nodes = params.nb_component_nodes;
-
-  for(unsigned int i=0;i<params.componentList.length();i++)
+  for(unsigned int i=0; i<params.componentList.length(); i++)
     p.componentList.push_back(string(params.componentList[i]));
-
-  for(unsigned int i=0;i<params.computerList.length();i++)
-    p.computerList.push_back(string(params.computerList[i]));
+  for(unsigned int i=0; i<params.resList.length(); i++)
+    p.resourceList.push_back(string(params.resList[i]));
   
-  Engines::MachineList *ret=new Engines::MachineList;
-  try{
-      vector <std::string> vec = _rm.GetFittingResources(p);
-      ret->length(vec.size());
-      for(unsigned int i=0;i<vec.size();i++)
-	(*ret)[i] = (vec[i]).c_str();
+  try
+  {
+    // Call C++ ResourceManager
+    vector <std::string> vec = _rm.GetFittingResources(p);
+
+    // C++ -> CORBA
+    ret->length(vec.size());
+    for(unsigned int i=0;i<vec.size();i++)
+      (*ret)[i] = (vec[i]).c_str();
   }
-  catch(const ResourcesException &ex){
-    INFOS("Caught exception.");
+  catch(const ResourcesException &ex)
+  {
+    INFOS("Caught exception in GetFittingResources C++:  " << ex.msg);
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }  
 
@@ -181,34 +186,43 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
 //=============================================================================
 
 char *
-SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
+SALOME_ResourcesManager::FindFirst(const Engines::ResourceList& listOfResources)
 {
-  vector<string> ml;
-  for(unsigned int i=0;i<listOfMachines.length();i++)
-    ml.push_back(string(listOfMachines[i]));
+  // CORBA -> C++
+  vector<string> rl;
+  for(unsigned int i=0; i<listOfResources.length(); i++)
+    rl.push_back(string(listOfResources[i]));
 
-  return CORBA::string_dup(_rm.Find("first",ml).c_str());
+  return CORBA::string_dup(_rm.Find("first", rl).c_str());
 }
 
 char *
-SALOME_ResourcesManager::Find(const char* policy, const Engines::MachineList& listOfMachines)
+SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& listOfResources)
 {
-  vector<string> ml;
-  for(unsigned int i=0;i<listOfMachines.length();i++)
-    ml.push_back(string(listOfMachines[i]));
-  return CORBA::string_dup(_rm.Find(policy,ml).c_str());
+  // CORBA -> C++
+  vector<string> rl;
+  for(unsigned int i=0; i<listOfResources.length(); i++)
+    rl.push_back(string(listOfResources[i]));
+
+  return CORBA::string_dup(_rm.Find(policy, rl).c_str());
 }
 
-Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
+Engines::ResourceDefinition* 
+SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 {
-  ParserResourcesType resource = _rm.GetResourcesList(string(hostname));
-  Engines::MachineDefinition *p_ptr = new Engines::MachineDefinition;
+  ParserResourcesType resource = _rm.GetResourcesDescr(name);
+  Engines::ResourceDefinition *p_ptr = new Engines::ResourceDefinition;
+
+  p_ptr->name = CORBA::string_dup(resource.Name.c_str());
   p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
-  p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
   if( resource.Protocol == rsh )
     p_ptr->protocol = "rsh";
   else if( resource.Protocol == ssh )
     p_ptr->protocol = "ssh";
+  if( resource.ClusterInternalProtocol == rsh )
+    p_ptr->iprotocol = "rsh";
+  else if( resource.ClusterInternalProtocol == ssh )
+    p_ptr->iprotocol = "ssh";
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->componentList.length(resource.ComponentsList.size());
@@ -240,13 +254,12 @@ Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const 
   else if( resource.Batch == sge )
     p_ptr->batch = "sge";
 
-  p_ptr->nb_component_nodes=1;
-
   return p_ptr;
 }
 
 std::string 
-SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_procs, 
+SALOME_ResourcesManager::getMachineFile(std::string hostname, 
+					CORBA::Long nb_procs, 
 					std::string parallelLib)
 {
   std::string machine_file_name("");
@@ -266,6 +279,7 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_pro
 	ParserResourcesClusterMembersType fake_node;
 	fake_node.HostName = resource.HostName;
 	fake_node.Protocol = resource.Protocol;
+	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
 	fake_node.UserName = resource.UserName;
 	fake_node.AppliPath = resource.AppliPath;
 	fake_node.DataForSort = resource.DataForSort;
@@ -323,6 +337,7 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_pro
 	ParserResourcesClusterMembersType fake_node;
 	fake_node.HostName = resource.HostName;
 	fake_node.Protocol = resource.Protocol;
+	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
 	fake_node.UserName = resource.UserName;
 	fake_node.AppliPath = resource.AppliPath;
 	fake_node.DataForSort = resource.DataForSort;

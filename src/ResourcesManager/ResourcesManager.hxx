@@ -43,18 +43,18 @@
 // in a critical section to be sure to be clean.
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
-
-struct machineParams{
+struct resourceParams
+{
+  std::string name;
   std::string hostname;
   std::string OS;
-  std::string parallelLib;
+  unsigned int nb_proc;
   unsigned int nb_node;
   unsigned int nb_proc_per_node;
   unsigned int cpu_clock;
   unsigned int mem_mb;
-  unsigned int nb_component_nodes;
   std::vector<std::string> componentList;
-  std::vector<std::string> computerList;
+  std::vector<std::string> resourceList;
 };
 
 class RESOURCESMANAGER_EXPORT ResourcesException
@@ -76,19 +76,19 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     ~ResourcesManager_cpp();
 
     std::vector<std::string> 
-    GetFittingResources(const machineParams& params) throw(ResourcesException);
+    GetFittingResources(const resourceParams& params) throw(ResourcesException);
 
-    std::string Find(const std::string& policy, const std::vector<std::string>& listOfMachines);
+    std::string Find(const std::string& policy, 
+		     const std::vector<std::string>& listOfResources);
 
-    int AddResourceInCatalog
-    (const machineParams& paramsOfNewResources,
-     const std::vector<std::string>& componentsOnNewResources,
-     const char *alias,
-     const char *userName,
-     AccessModeType mode,
-     AccessProtocolType prot) throw(ResourcesException);
+    int AddResourceInCatalog (const resourceParams& paramsOfNewResources,
+			      const std::vector<std::string>& componentsOnNewResources,
+			      const char *userName,
+			      AccessModeType mode,
+			      AccessProtocolType prot,
+			      AccessProtocolType iprot) throw(ResourcesException);
 
-    void DeleteResourceInCatalog(const char *hostname);
+    void DeleteResourceInCatalog(const char * name);
 
     void WriteInXmlFile(std::string & xml_file);
 
@@ -96,17 +96,14 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     const MapOfParserResourcesType& GetList() const;
 
-    ParserResourcesType GetResourcesList(const std::string& machine);
+    ParserResourcesType GetResourcesDescr(const std::string & name);
 
   protected:
     
-    void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
-				   const char *OS) const
-      throw(ResourcesException);
+    void SelectOnlyResourcesWithOS(std::vector<std::string>& resources, std::string OS);
 
-    void KeepOnlyResourcesWithComponent(std::vector<std::string>& hosts,
-				     const std::vector<std::string>& componentList) const
-      throw(ResourcesException);
+    void KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
+					const std::vector<std::string>& componentList);
 
     //! will contain the path to the ressources catalog
     std::list<std::string> _path_resources;
@@ -114,9 +111,6 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
-
-    //! will contain the informations on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesBatchList;
 
     //! a map that contains all the available load rate managers (the key is the name)
     std::map<std::string , LoadRateManager*> _resourceManagerMap;

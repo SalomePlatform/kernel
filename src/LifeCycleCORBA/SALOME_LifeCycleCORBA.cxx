@@ -137,15 +137,16 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::MachineParameters parms(params);
-  parms.componentList.length(1);
-  parms.componentList[0] = componentName;
-  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
+  Engines::ContainerParameters new_params;
+  convert(params, new_params);
+  new_params.resource_params.componentList.length(1);
+  new_params.resource_params.componentList[0] = componentName;
+  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
 
-  Engines::Component_var compo = _FindComponent(parms,
+  Engines::Component_var compo = _FindComponent(new_params,
 						componentName,
 						studyId,
-						listOfMachines);
+						listOfResources);
 
   return compo._retn();
 }
@@ -170,14 +171,15 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::MachineParameters parms(params);
-  parms.componentList.length(1);
-  parms.componentList[0] = componentName;
+  Engines::ContainerParameters new_params;
+  convert(params, new_params);
+  new_params.resource_params.componentList.length(1);
+  new_params.resource_params.componentList[0] = componentName;
 
-  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
-  parms.computerList=listOfMachines;
+  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  new_params.resource_params.resList = listOfResources;
 
-  Engines::Component_var compo = _LoadComponent(parms,
+  Engines::Component_var compo = _LoadComponent(new_params,
 						componentName,
 						studyId);
 
@@ -206,23 +208,65 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::MachineParameters parms(params);
-  parms.componentList.length(1);
-  parms.componentList[0] = componentName;
-  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
+  Engines::ContainerParameters new_params;
+  convert(params, new_params);
+  new_params.resource_params.componentList.length(1);
+  new_params.resource_params.componentList[0] = componentName;
 
-  Engines::Component_var compo = _FindComponent(parms,
+  // For Compatibility -> if hostname == localhost put name == hostname
+  if (std::string(new_params.resource_params.hostname.in()) == "localhost")
+  {
+    new_params.resource_params.hostname = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
+    new_params.resource_params.name = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
+  }
+
+  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+
+  Engines::Component_var compo = _FindComponent(new_params,
 						componentName,
 						studyId,
-						listOfMachines);
+						listOfResources);
 
   if(CORBA::is_nil(compo))
-    {
-      parms.computerList=listOfMachines;
-      compo = _LoadComponent(parms,
+  {
+    new_params.resource_params.resList = listOfResources;
+    compo = _LoadComponent(new_params,
 			   componentName,
 			   studyId);
-    }
+  }
+
+  return compo._retn();
+}
+
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::
+FindOrLoad_Component(const Engines::ContainerParameters& params,
+		     const char *componentName,
+		     int studyId)
+{
+  // --- Check if Component Name is known in ModuleCatalog
+
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  Engines::ContainerParameters new_params(params);
+  new_params.resource_params.componentList.length(1);
+  new_params.resource_params.componentList[0] = componentName;
+
+  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+
+  Engines::Component_var compo = _FindComponent(new_params,
+						componentName,
+						studyId,
+						listOfResources);
+
+  if(CORBA::is_nil(compo))
+  {
+    new_params.resource_params.resList = listOfResources;
+    compo = _LoadComponent(new_params,
+			   componentName,
+			   studyId);
+  }
 
   return compo._retn();
 }
@@ -243,30 +287,13 @@ Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 					    const char *componentName)
 {
-  char *valenv=getenv("SALOME_BATCH");
-  if(valenv)
-    if (strcmp(valenv,"1")==0)
-      {
-        MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component BATCH " << containerName << " " << componentName ) ;
-        _NS->Change_Directory("/Containers");
-        CORBA::Object_ptr obj=_NS->Resolve(containerName);
-        Engines::Container_var cont=Engines::Container::_narrow(obj);
-        bool isLoadable = cont->load_component_Library(componentName);
-        if (!isLoadable) return Engines::Component::_nil();
-        
-        Engines::Component_ptr myInstance =
-          cont->create_component_instance(componentName, 0);
-        return myInstance;
-      }
   MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component INTERACTIF " << containerName << " " << componentName ) ;
-  //#if 0
-  // --- Check if Component Name is known in ModuleCatalog
 
+  // --- Check if Component Name is known in ModuleCatalog
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
   // --- Check if containerName contains machine name (if yes: rg>0)
-
   char *stContainer=strdup(containerName);
   string st2Container(stContainer);
   int rg=st2Container.find("/");
@@ -274,29 +301,21 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
   Engines::MachineParameters_var params=new Engines::MachineParameters;
   preSet(params);
   if (rg<0)
-    {
-      // containerName doesn't contain "/" => Local container
-      params->container_name=CORBA::string_dup(stContainer);
-      params->hostname="";
-    }
+  {
+    // containerName doesn't contain "/" => Local container
+    params->container_name=CORBA::string_dup(stContainer);
+    params->hostname="";
+  }
   else 
-    {
-      stContainer[rg]='\0';
-      params->container_name=CORBA::string_dup(stContainer+rg+1);
-      params->hostname=CORBA::string_dup(stContainer);
-    }
+  {
+    stContainer[rg]='\0';
+    params->container_name=CORBA::string_dup(stContainer+rg+1);
+    params->hostname=CORBA::string_dup(stContainer);
+  }
   params->isMPI = false;
   SCRUTE(params->container_name);
-//   SCRUTE(params->hostname);
-//   SCRUTE(params->OS);
-//   SCRUTE(params->mem_mb);
-//   SCRUTE(params->cpu_clock);
-//   SCRUTE(params->nb_proc_per_node);
-//   SCRUTE(params->nb_node);
-//   SCRUTE(params->isMPI);
   free(stContainer);
-  return FindOrLoad_Component(params,componentName);
-  //#endif  
+  return FindOrLoad_Component(params, componentName);
 }
 
 //=============================================================================
@@ -309,31 +328,30 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 
 bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 {
-
   try
+  {
+    CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+    SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
+      SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+    ASSERT(! CORBA::is_nil(Catalog));
+    SALOME_ModuleCatalog::Acomponent_var compoInfo = 
+      Catalog->GetComponent(componentName);
+    if (CORBA::is_nil (compoInfo)) 
     {
-      CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
-      SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
-	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
-      ASSERT(! CORBA::is_nil(Catalog));
-      SALOME_ModuleCatalog::Acomponent_var compoInfo = 
-	Catalog->GetComponent(componentName);
-      if (CORBA::is_nil (compoInfo)) 
-	{
-	  INFOS("Catalog Error: Component not found in the catalog" );
-          INFOS( componentName );	  
-	  return false;
-	}
-      else return true;
+      INFOS("Catalog Error: Component not found in the catalog" );
+      INFOS( componentName );	  
+      return false;
     }
+    else return true;
+  }
   catch (ServiceUnreachable&)
-    {
-      INFOS("Caught exception: Naming Service Unreachable");
-    }
+  {
+    INFOS("Caught exception: Naming Service Unreachable");
+  }
   catch (...)
-    {
-      INFOS("Caught unknown exception.");
-    }
+  {
+    INFOS("Caught unknown exception.");
+  }
   return false;
 }
 
@@ -344,7 +362,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 //=============================================================================
 
 bool 
-SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
+SALOME_LifeCycleCORBA::isMpiContainer(const Engines::ContainerParameters& params)
   throw(IncompatibleComponent)
 {
   if( params.isMPI )
@@ -360,6 +378,7 @@ SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
  *  - container_name = ""  : not relevant
  *  - hostname = ""        : not relevant
  *  - OS = ""              : not relevant
+ *  - nb_proc = 0          : not relevant
  *  - mem_mb = 0           : not relevant
  *  - cpu_clock = 0        : not relevant
  *  - nb_proc_per_node = 0 : not relevant
@@ -368,12 +387,10 @@ SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
  */
 //=============================================================================
 
-void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
+void SALOME_LifeCycleCORBA::preSet(Engines::MachineParameters& params)
 {
   params.container_name = "";
   params.hostname = "";
-  //param.componentList = 0;
-  //param.computerList = 0;
   params.OS = "";
   params.mem_mb = 0;
   params.cpu_clock = 0;
@@ -387,24 +404,77 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.nb_component_nodes = 0;
 }
 
+void 
+SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
+{
+  params.name = "";
+  params.hostname = "";
+  params.OS = "";
+  params.nb_proc = 0;
+  params.mem_mb = 0;
+  params.cpu_clock = 0;
+  params.nb_node = 0;
+  params.nb_proc_per_node = 0;
+  params.policy = "";
+}
+
+void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)
+{
+  params.container_name = "";
+  params.mode = "";
+  params.workingdir = "";
+  params.nb_proc = 0;
+  params.isMPI = false;
+  params.parallelLib = "";
+  SALOME_LifeCycleCORBA::preSet(params.resource_params);
+}
+
+void 
+SALOME_LifeCycleCORBA::convert(const Engines::MachineParameters& params_in, 
+			       Engines::ContainerParameters& params_out)
+{
+  SALOME_LifeCycleCORBA::preSet(params_out);
+
+  // Container part
+  params_out.container_name = params_in.container_name;
+  params_out.mode = params_in.mode;
+  params_out.workingdir = params_in.workingdir;
+  params_out.isMPI = params_in.isMPI;
+  params_out.parallelLib = params_in.parallelLib;
+
+  // Resource part
+  params_out.resource_params.hostname = params_in.hostname;
+  params_out.resource_params.OS = params_in.OS;
+  params_out.resource_params.mem_mb = params_in.mem_mb;
+  params_out.resource_params.cpu_clock = params_in.cpu_clock;
+  params_out.resource_params.nb_node = params_in.nb_node;
+  params_out.resource_params.nb_proc_per_node = params_in.nb_proc_per_node;
+  params_out.resource_params.policy = params_in.policy;
+  params_out.resource_params.componentList = params_in.componentList;
+
+  params_out.resource_params.resList.length(params_in.computerList.length());
+  for (CORBA::ULong i = 0; i < params_in.computerList.length(); i++)
+    params_out.resource_params.resList[i] = params_in.computerList[i];
+}
+
 //=============================================================================
 /*! 
  *  \return a number of processors not 0, only for MPI containers
  */
 //=============================================================================
 
-int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
+int SALOME_LifeCycleCORBA::NbProc(const Engines::ContainerParameters& params)
 {
   if( !isMpiContainer(params) )
     return 0;
-  else if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+  else if( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
     return 1;
-  else if( params.nb_node == 0 )
-    return params.nb_proc_per_node;
-  else if( params.nb_proc_per_node == 0 )
-    return params.nb_node;
+  else if( params.resource_params.nb_node == 0 )
+    return params.resource_params.nb_proc_per_node;
+  else if( params.resource_params.nb_proc_per_node == 0 )
+    return params.resource_params.nb_node;
   else
-    return params.nb_node * params.nb_proc_per_node;
+    return params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
 }
 
 //=============================================================================
@@ -449,14 +519,14 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   CORBA::Long pid = 0;
   CORBA::Object_var objS = _NS->Resolve("/Kernel/Session");
   if (!CORBA::is_nil(objS))
+  {
+    session = SALOME::Session::_narrow(objS);
+    if (!CORBA::is_nil(session))
     {
-      session = SALOME::Session::_narrow(objS);
-      if (!CORBA::is_nil(session))
-        {
-          pid = session->getPID();
-          session->ping();
-        }
+      pid = session->getPID();
+      session->ping();
     }
+  }
 
   string hostname = Kernel_Utils::GetHostname();
   
@@ -504,26 +574,27 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   name.length(1);
   name[0].id = CORBA::string_dup(stdname.c_str());
   try
-    { 
-      if(!CORBA::is_nil(orb)) 
-	theObj = orb->resolve_initial_references("NameService");
-      if (!CORBA::is_nil(theObj))
-	inc = CosNaming::NamingContext::_narrow(theObj);
-    }
+  { 
+    if(!CORBA::is_nil(orb)) 
+      theObj = orb->resolve_initial_references("NameService");
+    if (!CORBA::is_nil(theObj))
+      inc = CosNaming::NamingContext::_narrow(theObj);
+  }
   catch(...)
+  {
+  }
+  if(!CORBA::is_nil(inc)) 
+  {
+    try
+    {
+      objLog = inc->resolve(name);
+      SALOME_Logger::Logger_var logger = SALOME_Logger::Logger::_narrow(objLog);
+      if ( !CORBA::is_nil(logger) )
+	logger->shutdown();
+    }
+    catch(...)
     {
     }
-  if(!CORBA::is_nil(inc)) {
-    try
-      {
-	objLog = inc->resolve(name);
-	SALOME_Logger::Logger_var logger = SALOME_Logger::Logger::_narrow(objLog);
-	if ( !CORBA::is_nil(logger) )
-	  logger->shutdown();
-      }
-    catch(...)
-      {
-      }
   }
 }
 
@@ -536,31 +607,31 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 {
   string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() ) 
-    {
+  {
 #ifdef WNT
 #else
-      string cmd ;
-      cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
-        + portNumber
-        + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
-      MESSAGE(cmd);
-      try {
-	system ( cmd.c_str() );
-      }
-      catch ( ... ) {
-      }
-#endif
+    string cmd ;
+    cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
+      + portNumber
+      + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
+    MESSAGE(cmd);
+    try {
+      system ( cmd.c_str() );
     }
+    catch ( ... ) {
+    }
+#endif
+  }
   
   // NPAL 18309  (Kill Notifd)
   if ( !portNumber.empty() ) 
-    {
-      string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
-      cmd += string("killNotifdAndClean(") + portNumber + "); ";
-      cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
-      MESSAGE(cmd);
-      system( cmd.c_str() );
-    }
+  {
+    string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
+    cmd += string("killNotifdAndClean(") + portNumber + "); ";
+    cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
+    MESSAGE(cmd);
+    system( cmd.c_str() );
+  }
 }
 
 //=============================================================================
@@ -579,47 +650,42 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
-_FindComponent(const Engines::MachineParameters& params,
+_FindComponent(const Engines::ContainerParameters& params,
 	       const char *componentName,
 	       int studyId,
-	       const Engines::MachineList& listOfMachines)
+	       const Engines::ResourceList& listOfResources)
 {
   // --- build the list of machines on which the component is already running
-
   const char *containerName = params.container_name;
   int nbproc = NbProc(params);
-//   MESSAGE("_FindComponent, required " << containerName <<
-// 	  " " << componentName << " " << nbproc);
 
-  Engines::MachineList_var machinesOK = new Engines::MachineList;
+  Engines::ResourceList_var resourcesOK = new Engines::ResourceList;
 
-  unsigned int lghtOfmachinesOK = 0;
-  machinesOK->length(listOfMachines.length());
+  unsigned int lghtOfresourcesOK = 0;
+  resourcesOK->length(listOfResources.length());
 
-  for(unsigned int i=0; i<listOfMachines.length(); i++)
-    {
-      const char *currentMachine=listOfMachines[i];
-//       MESSAGE("_FindComponent, look at " << currentMachine);
-      CORBA::Object_var obj = _NS->ResolveComponent(currentMachine,
-						    containerName,
-						    componentName,
-						    nbproc);
-      if (!CORBA::is_nil(obj))
-	machinesOK[lghtOfmachinesOK++] = CORBA::string_dup(currentMachine);
-    }
+  for(unsigned int i=0; i < listOfResources.length(); i++)
+  {
+    const char * currentResource = listOfResources[i];
+    CORBA::Object_var obj = _NS->ResolveComponent(currentResource,
+						  containerName,
+						  componentName,
+						  nbproc);
+    if (!CORBA::is_nil(obj))
+      resourcesOK[lghtOfresourcesOK++] = CORBA::string_dup(currentResource);
+  }
 
   // --- find the best machine among the list
-
-  if(lghtOfmachinesOK != 0)
-    {
-      machinesOK->length(lghtOfmachinesOK);
-      CORBA::String_var bestMachine = _ResManager->FindFirst(machinesOK);
-      CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,
-						    containerName,
-						    componentName,
-						    nbproc);
-      return Engines::Component::_narrow(obj);
-    }
+  if(lghtOfresourcesOK != 0)
+  {
+    resourcesOK->length(lghtOfresourcesOK);
+    CORBA::String_var bestResource = _ResManager->FindFirst(resourcesOK);
+    CORBA::Object_var obj = _NS->ResolveComponent(bestResource,
+						  containerName,
+						  componentName,
+						  nbproc);
+    return Engines::Component::_narrow(obj);
+  }
   else
     return Engines::Component::_nil();
 }
@@ -640,14 +706,16 @@ _FindComponent(const Engines::MachineParameters& params,
 
 Engines::Component_ptr 
 SALOME_LifeCycleCORBA::
-_LoadComponent(const Engines::MachineParameters& params, 
+_LoadComponent(const Engines::ContainerParameters& params, 
 	      const char *componentName,
 	      int studyId)
 {
   MESSAGE("_LoadComponent, required " << params.container_name <<
 	  " " << componentName << " " << NbProc(params));
 
-  Engines::Container_var cont = _ContManager->FindOrStartContainer(params);
+  Engines::ContainerParameters local_params(params);
+  local_params.mode = CORBA::string_dup("findorstart");
+  Engines::Container_var cont = _ContManager->GiveContainer(local_params);
   if (CORBA::is_nil(cont)) return Engines::Component::_nil();
 
   bool isLoadable = cont->load_component_Library(componentName);
@@ -668,7 +736,7 @@ _LoadComponent(const Engines::MachineParameters& params,
  */
 //=============================================================================
 Engines::Component_ptr
-SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& params,
+SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters& params,
                                               const char *componentName,
                                               int studyId)
 {
@@ -679,12 +747,13 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   MESSAGE("Number of component nodes : " << params.nb_component_nodes);
   MESSAGE("Component Name : " << componentName);*/
 
-  Engines::MachineParameters parms(params);
-  parms.componentList.length(1);
-  parms.componentList[0] = componentName;
+  Engines::ContainerParameters parms(params);
+  parms.resource_params.componentList.length(1);
+  parms.resource_params.componentList[0] = componentName;
+  parms.mode = CORBA::string_dup("findorstart");
 
   MESSAGE("Starting Parallel Container");
-  Engines::Container_var cont = _ContManager->StartParallelContainer(parms);
+  Engines::Container_var cont = _ContManager->GiveContainer(parms);
   if (CORBA::is_nil(cont)) {
     INFOS("FindOrStartParallelContainer() returns a NULL container !");
     return Engines::Component::_nil();
@@ -725,14 +794,15 @@ void SALOME_LifeCycleCORBA::copyFile(const char* hostSrc, const char* fileSrc, c
 
   Engines::ContainerManager_var contManager = getContainerManager();
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   preSet(params);
 
-  params.hostname = hostDest;
-  Engines::Container_var containerDest = contManager->FindOrStartContainer(params);
+  params.resource_params.hostname = hostDest;
+  params.mode = CORBA::string_dup("findorstart");
+  Engines::Container_var containerDest = contManager->GiveContainer(params);
 
-  params.hostname = hostSrc;
-  Engines::Container_var containerSrc = contManager->FindOrStartContainer(params);
+  params.resource_params.hostname = hostSrc;
+  Engines::Container_var containerSrc = contManager->GiveContainer(params);
 
   containerDest->copyFile(containerSrc,fileSrc,fileDest);
 }

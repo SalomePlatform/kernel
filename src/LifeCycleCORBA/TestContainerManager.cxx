@@ -65,24 +65,24 @@ int main (int argc, char * argv[])
   ASSERT( !CORBA::is_nil(obj));
   Engines::ResourcesManager_var _ResManager=Engines::ResourcesManager::_narrow(obj);
 
-  Engines::MachineParameters p;
-  p.componentList.length(2);
-  p.componentList[0] = "MED";
-  p.componentList[1] = "GEOM";
+  Engines::ContainerParameters p;
+  p.resource_params.componentList.length(2);
+  p.resource_params.componentList[0] = "MED";
+  p.resource_params.componentList[1] = "GEOM";
 
-  p.hostname = "";
-  p.OS = "LINUX";
-  p.mem_mb = 1000;
-  p.cpu_clock = 1000;
-  p.nb_proc_per_node = 1;
-  p.nb_node = 1;
+  p.resource_params.hostname = "";
+  p.resource_params.OS = "LINUX";
+  p.resource_params.mem_mb = 1000;
+  p.resource_params.cpu_clock = 1000;
+  p.resource_params.nb_proc_per_node = 1;
+  p.resource_params.nb_node = 1;
   p.isMPI = false;
 
   char st[10];
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    p.policy="cycl";
+    p.resource_params.policy="cycl";
     cont = _ContManager->GiveContainer(p);
     if(CORBA::is_nil(cont)) error = true;
   }
@@ -90,13 +90,13 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    p.policy="first";
+    p.resource_params.policy="first";
     cont = _ContManager->GiveContainer(p);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  p.policy="best";
+  p.resource_params.policy="best";
   cont = _ContManager->GiveContainer(p);
   if(CORBA::is_nil(cont)) bestImplemented = false;
   else bestImplemented = true;
@@ -141,7 +141,7 @@ int main (int argc, char * argv[])
   int nbpmax;
   for(std::map<std::string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
-      Engines::MachineDefinition *p = _ResManager->GetMachineParameters((*iter).first.c_str());
+      Engines::ResourceDefinition *p = _ResManager->GetResourceDefinition((*iter).first.c_str());
       int nbproc = p->nb_node * p->nb_proc_per_node;
       if(cycle[(*iter).first]/nbproc<cmin) cmin=cycle[(*iter).first]/nbproc;
       if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;

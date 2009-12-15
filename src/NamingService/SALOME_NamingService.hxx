@@ -62,9 +62,15 @@ public:
 				     const int nbproc=0)
     throw(ServiceUnreachable);
   std::string ContainerName(const char *ContainerName);
-  std::string ContainerName(const Engines::MachineParameters& params);
+  std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName,
 				      const char *hostname);
+  std::string 
+  BuildContainerNameForNS(const Engines::ContainerParameters& params,
+			  const char *hostname);
+
+  // Will Be deleted on SALOME 6
+  std::string ContainerName(const Engines::MachineParameters& params);
   std::string 
   BuildContainerNameForNS(const Engines::MachineParameters& params,
 			  const char *hostname);

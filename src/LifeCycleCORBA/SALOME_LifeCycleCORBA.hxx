@@ -81,24 +81,32 @@ public:
 		       const char *componentName,
 		       int studyId =0);
 
+  // SALOME 6 - Interface
+  Engines::Component_ptr 
+  FindOrLoad_Component(const Engines::ContainerParameters& params,
+		       const char *componentName,
+		       int studyId =0);
+
   Engines::Component_ptr
   FindOrLoad_Component(const char *containerName,
 		       const char *componentName); // for compatibility
   
   // Parallel extension
   Engines::Component_ptr 
-    Load_ParallelComponent(const Engines::MachineParameters& params,
+    Load_ParallelComponent(const Engines::ContainerParameters& params,
                            const char *componentName,
                            int studyId);
 
   bool isKnownComponentClass(const char *componentName);
 
-  bool isMpiContainer(const Engines::MachineParameters& params)
+  bool isMpiContainer(const Engines::ContainerParameters& params)
     throw(IncompatibleComponent);
 
-  int NbProc(const Engines::MachineParameters& params);
+  int NbProc(const Engines::ContainerParameters& params);
 
   static void preSet(Engines::MachineParameters& outparams);
+  static void preSet(Engines::ResourceParameters& outparams);
+  static void preSet(Engines::ContainerParameters& outparams);
 
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
@@ -109,6 +117,10 @@ public:
   void shutdownServers();
   static void killOmniNames();
 
+  // For SALOME 5.1.x
+  // Will be deleted on SALOME 6
+  void convert(const Engines::MachineParameters& params_in, 
+	       Engines::ContainerParameters& params_out);
 protected:
 
   /*! Establish if a component called "componentName" in a container called
@@ -117,16 +129,16 @@ protected:
    *  This method uses Naming Service to find the component.
    */
   Engines::Component_ptr 
-  _FindComponent(const Engines::MachineParameters& params,
+  _FindComponent(const Engines::ContainerParameters& params,
 		 const char *componentName,
 		 int studyId,
-		 const Engines::MachineList& listOfMachines);
+		 const Engines::ResourceList& listOfResources);
 
   Engines::Component_ptr
-  _LoadComponent(const Engines::MachineParameters& params,
+  _LoadComponent(const Engines::ContainerParameters& params,
 		 const char *componentName,
 		 int studyId);
-  
+
   SALOME_NamingService *_NS;
   SALOME_NamingService *_NSnew;
   Engines::ContainerManager_var _ContManager;

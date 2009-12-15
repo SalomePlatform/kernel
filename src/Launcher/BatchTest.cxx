@@ -35,7 +35,7 @@
 #ifdef WIN32
 # include <io.h>
 #endif
-BatchTest::BatchTest(const Engines::MachineDefinition& batch_descr) 
+BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr) 
 {
 #ifdef WITH_LIBBATCH
   _batch_descr = batch_descr;
@@ -57,8 +57,8 @@ BatchTest::BatchTest(const Engines::MachineDefinition& batch_descr)
   // Creating test temporary file
   _test_filename =  "/tmp/";
   _test_filename +=  _date + "_test_cluster_file_";
-  _test_filename += _batch_descr.alias.in();
-  _base_filename = _date + "_test_cluster_file_" + _batch_descr.alias.in();
+  _test_filename += _batch_descr.hostname.in();
+  _base_filename = _date + "_test_cluster_file_" + _batch_descr.hostname.in();
 #endif
 }
 
@@ -71,7 +71,7 @@ BatchTest::test()
   INFOS(std::endl 
 	<< "--- Testing batch Machine :" << std::endl
 	<< "--- Name       : " << _batch_descr.hostname << std::endl
-	<< "--- Alias      : " << _batch_descr.alias << std::endl
+	<< "--- hostname      : " << _batch_descr.hostname << std::endl
 	<< "--- Protocol   : " << _batch_descr.protocol << std::endl
 	<< "--- User Name  : " << _batch_descr.username << std::endl
 	<< "--- Batch Type : " << _batch_descr.batch << std::endl
@@ -114,21 +114,21 @@ BatchTest::test()
   return rtn;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_connection()
 {
   int status;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
   // Basic tests
-  if(alias == "")
+  if(hostname == "")
   {
-    result += "alias is empty !";
+    result += "hostname is empty !";
     return result;
   }
   if(username == "")
@@ -145,7 +145,7 @@ BatchTest::test_connection()
   // Build command
   command += protocol
 	  + " "
-	  + username + "@" + alias;
+	  + username + "@" + hostname;
 
   // Test
   status = system(command.c_str());
@@ -161,7 +161,7 @@ BatchTest::test_connection()
   return result;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_filecopy()
 {
@@ -169,7 +169,7 @@ BatchTest::test_filecopy()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
@@ -196,7 +196,7 @@ BatchTest::test_filecopy()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_filename + " "
-	  + username + "@" + alias + ":" + home;
+	  + username + "@" + hostname + ":" + home;
 
   // Test
   status = system(command.c_str());
@@ -212,7 +212,7 @@ BatchTest::test_filecopy()
   return result;
 }
 
-// For this test we use : alias, protocol, username
+// For this test we use : hostname, protocol, username
 std::string
 BatchTest::test_getresult()
 {
@@ -220,7 +220,7 @@ BatchTest::test_getresult()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
 
@@ -235,7 +235,7 @@ BatchTest::test_getresult()
   command = "scp";
   if(protocol == "rsh")
     command = "rcp";
-  command += " " + username + "@" + alias + ":" + home 
+  command += " " + username + "@" + hostname + ":" + home 
 	  + "/" + _base_filename + " " + _test_filename + "_copy";
 
   // Test
@@ -285,7 +285,7 @@ BatchTest::test_jobsubmit_simple()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string batch_type = _batch_descr.batch.in();
@@ -336,7 +336,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_simple + " "
-	  + username + "@" + alias + ":" + home;
+	  + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -348,7 +348,7 @@ BatchTest::test_jobsubmit_simple()
 
   // Build command for submit job
   std::string file_job_name = _test_filename + "_jobid";
-  command = protocol + " " + username + "@" + alias + " qsub " + _base_filename + "_simple > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qsub " + _base_filename + "_simple > " + file_job_name;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -368,7 +368,7 @@ BatchTest::test_jobsubmit_simple()
   file_job.close();
  
   // Wait the end of the job
-  command = protocol + " " + username + "@" + alias + " qstat -f " + jobid + " > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
   while (!stop) 
   {
@@ -396,7 +396,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + alias + ":" + home + "/" + _date + "_simple* /tmp";
+	  + username + "@" + hostname + ":" + home + "/" + _date + "_simple* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -450,7 +450,7 @@ BatchTest::test_jobsubmit_mpi()
   std::string command;
   MpiImpl * mpiImpl;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string batch_type = _batch_descr.batch.in();
@@ -530,7 +530,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_script + " "
-	  + username + "@" + alias + ":" + home;
+	  + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -543,7 +543,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_mpi + " "
-	  + username + "@" + alias + ":" + home;
+	  + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -555,7 +555,7 @@ BatchTest::test_jobsubmit_mpi()
 
   // Build command for submit job
   std::string file_job_name = _test_filename + "_jobid";
-  command = protocol + " " + username + "@" + alias + " qsub " + _base_filename + "_mpi > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qsub " + _base_filename + "_mpi > " + file_job_name;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -575,7 +575,7 @@ BatchTest::test_jobsubmit_mpi()
   file_job.close();
  
   // Wait the end of the job
-  command = protocol + " " + username + "@" + alias + " qstat -f " + jobid + " > " + file_job_name;
+  command = protocol + " " + username + "@" + hostname + " qstat -f " + jobid + " > " + file_job_name;
   bool stop = false;
   while (!stop) 
   {
@@ -603,7 +603,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + alias + ":" + home + "/" + _date + "_mpi* /tmp";
+	  + username + "@" + hostname + ":" + home + "/" + _date + "_mpi* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -649,7 +649,7 @@ BatchTest::test_appli()
   std::string home;
   std::string command;
   std::string result("Failed : ");
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string applipath = _batch_descr.applipath.in();
@@ -679,7 +679,7 @@ BatchTest::test_appli()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_appli + " "
-	  + username + "@" + alias + ":" + home;
+	  + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -690,7 +690,7 @@ BatchTest::test_appli()
   }
 
   // Launch test
-  command = protocol + " " + username + "@" + alias 
+  command = protocol + " " + username + "@" + hostname 
 	  + " sh " + home + "/" + _base_filename + "_appli_test > " 
 	  + _test_filename + "_appli_test_result";
 
@@ -732,12 +732,12 @@ BatchTest::get_home(std::string * home)
   int status;
   std::string result = "";
   std::string command;
-  std::string alias = _batch_descr.alias.in();
+  std::string hostname = _batch_descr.hostname.in();
   std::string username = _batch_descr.username.in();
   std::string protocol = _batch_descr.protocol.in();
   std::string file_home_name = _test_filename + "_home";
 
-  command = protocol + " " + username + "@" + alias + " 'echo $HOME' > " + file_home_name; 
+  command = protocol + " " + username + "@" + hostname + " 'echo $HOME' > " + file_home_name; 
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;

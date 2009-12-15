@@ -626,6 +626,34 @@ SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
   return ret;
 }
 
+string 
+SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
+{
+  int nbproc;
+
+  if ( !params.isMPI )
+    nbproc = 0;
+  else if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+    nbproc = 1;
+  else if ( params.resource_params.nb_node == 0 )
+    nbproc = params.resource_params.nb_proc_per_node;
+  else if ( params.resource_params.nb_proc_per_node == 0 )
+    nbproc = params.resource_params.nb_node;
+  else
+    nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+
+  string ret = ContainerName(params.container_name);
+
+  if ( nbproc >= 1 )
+    {
+      char *suffix = new char[8];
+      sprintf(suffix, "_%d", nbproc);
+      ret += suffix;
+    }
+
+  return ret;
+}
+
 // ============================================================================
 /*! \brief build a string representing a container in Naming Service.
  *
@@ -666,6 +694,19 @@ string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
 string
 SALOME_NamingService::
 BuildContainerNameForNS(const Engines::MachineParameters& params,
+			const char *hostname)
+{
+  string ret = "/Containers/";
+  ret += hostname;
+  ret += "/";
+  ret += ContainerName(params);
+
+  return ret;
+}
+
+string
+SALOME_NamingService::
+BuildContainerNameForNS(const Engines::ContainerParameters& params,
 			const char *hostname)
 {
   string ret = "/Containers/";

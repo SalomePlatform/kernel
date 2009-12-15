@@ -40,7 +40,7 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
-enum BatchType {none, pbs, lsf, sge};
+enum BatchType {none, pbs, lsf, sge, ssh_batch};
 
 enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm, prun};
 
@@ -48,11 +48,12 @@ class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
 
   public:
-    std::string _hostName;
+    std::string _Name;
     unsigned int _nbOfNodes;
     unsigned int _nbOfProcPerNode;
     unsigned int _CPUFreqMHz;
     unsigned int _memInMB;
+    static unsigned int _nbOfProcWanted;
     static unsigned int _nbOfNodesWanted;
     static unsigned int _nbOfProcPerNodeWanted;
     static unsigned int _CPUFreqMHzWanted;
@@ -60,7 +61,7 @@ class RESOURCESMANAGER_EXPORT ResourceDataToSort
 
   public:
     ResourceDataToSort();
-    ResourceDataToSort(const std::string& hostname,
+    ResourceDataToSort(const std::string& name,
                        unsigned int nbOfNodes,
                        unsigned int nbOfProcPerNode,
                        unsigned int CPUFreqMHz,
@@ -76,6 +77,7 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
 {
   std::string HostName;
   AccessProtocolType Protocol;
+  AccessProtocolType ClusterInternalProtocol;
   std::string UserName;
   std::string AppliPath;
   ResourceDataToSort DataForSort;
@@ -84,9 +86,10 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
 struct RESOURCESMANAGER_EXPORT ParserResourcesType
 {
   ResourceDataToSort DataForSort;
+  std::string Name;
   std::string HostName;
-  std::string Alias;
   AccessProtocolType Protocol;
+  AccessProtocolType ClusterInternalProtocol;
   AccessModeType Mode;
   BatchType Batch;
   MpiImplType mpi;
@@ -103,6 +106,12 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
 
   void Print();
   void Clear();
+
+  std::string PrintAccessProtocolType() const;
+  std::string PrintAccessModeType() const;
+  std::string PrintBatchType() const;
+  std::string PrintMpiImplType() const;
+  std::string PrintClusterInternalProtocol() const;
 };
 
 typedef std::map<std::string, ParserResourcesType> MapOfParserResourcesType;

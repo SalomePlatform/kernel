@@ -43,26 +43,19 @@ public:
   SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
   ~SALOME_Launcher();
 
-  CORBA::Long submitJob(const char * xmlExecuteFile,
-                        const char * clusterName);
+  // Main methods
+  CORBA::Long createJob    (const Engines::JobParameters & job_parameters);
+  void        launchJob    (CORBA::Long job_id);
+  char *      getJobState  (CORBA::Long job_id);
+  void        getJobResults(CORBA::Long job_id, const char * directory);
+  void        removeJob    (CORBA::Long job_id);
 
-  CORBA::Long submitSalomeJob(const char * fileToExecute ,
-			      const Engines::FilesList& filesToExport ,
-			      const Engines::FilesList& filesToImport ,
-			      const Engines::BatchParameters& batch_params,
-			      const Engines::MachineParameters& params);
+  // Useful methods
+  CORBA::Long    createJobWithFile(const char * xmlExecuteFile, const char * clusterName);
+  CORBA::Boolean testBatch        (const Engines::ResourceParameters& params);
 
-  char* querySalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
-  char* queryJob( CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteJob( CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultsJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
-
-  CORBA::Boolean testBatch(const Engines::MachineParameters& params);
-
+  // SALOME Kernel service methods
   void Shutdown();
-
   CORBA::Long getPID();
 
   static const char *_LauncherNameInNS;

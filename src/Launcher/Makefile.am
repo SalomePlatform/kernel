@@ -33,6 +33,12 @@ salomeinclude_HEADERS = \
   BatchTest.hxx \
   SALOME_Launcher_defs.hxx \
   SALOME_Launcher.hxx \
+  Launcher_Utils.hxx \
+  Launcher_Job.hxx \
+  Launcher_Job_Command.hxx \
+  Launcher_Job_SALOME.hxx \
+  Launcher_Job_PythonSALOME.hxx \
+  Launcher_Job_YACSFile.hxx \
   Launcher.hxx
 
 # Scripts to be installed
@@ -112,6 +118,12 @@ libSalomeLauncher_la_LIBADD =\
 libLauncher_la_SOURCES=\
 	SALOME_Launcher_Parser.cxx \
 	SALOME_Launcher_Handler.cxx  \
+	Launcher_Utils.hxx \
+	Launcher_Job.cxx \
+	Launcher_Job_Command.cxx \
+	Launcher_Job_SALOME.cxx \
+	Launcher_Job_PythonSALOME.cxx \
+	Launcher_Job_YACSFile.cxx \
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\

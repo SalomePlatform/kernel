@@ -34,6 +34,7 @@
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
 #include <string>
+#include <stdio.h>
 
 #ifdef WIN32
 # if defined LIFECYCLECORBA_EXPORTS || defined SalomeLifeCycleCORBA_EXPORTS

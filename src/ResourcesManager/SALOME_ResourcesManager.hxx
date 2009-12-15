@@ -64,16 +64,16 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     ~SALOME_ResourcesManager();
 
     // CORBA Methods
-    Engines::MachineList *
-    GetFittingResources(const Engines::MachineParameters& params);
-    char* FindFirst(const Engines::MachineList& listOfMachines);
-    char* Find(const char *policy, const Engines::MachineList& listOfMachines);
-    Engines::MachineDefinition* GetMachineParameters(const char *hostname);
+    Engines::ResourceList * GetFittingResources(const Engines::ResourceParameters& params);
+    char* FindFirst(const Engines::ResourceList& listOfResources);
+    char* Find(const char *policy, const Engines::ResourceList& listOfResources);
+    Engines::ResourceDefinition * GetResourceDefinition(const char * name);
 
     // Cpp Methods
     void Shutdown();
     ResourcesManager_cpp *GetImpl() { return &_rm; }
-    std::string getMachineFile(std::string hostname, CORBA::Long nb_procs,
+    std::string getMachineFile(std::string hostname, 
+			       CORBA::Long nb_procs,
 			       std::string parallelLib);
 
 
@@ -89,7 +89,6 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     MapOfParserResourcesType _resourcesBatchList;
 
     ResourcesManager_cpp _rm;
-
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

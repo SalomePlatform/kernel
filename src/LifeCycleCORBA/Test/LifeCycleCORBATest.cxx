@@ -679,12 +679,12 @@ string LifeCycleCORBATest::GetRemoteHost()
     Engines::ResourcesManager::_narrow(obj);
   CPPUNIT_ASSERT(!CORBA::is_nil(resourcesManager));
 
-  Engines::MachineParameters params;
+  Engines::ContainerParameters params;
   _LCC.preSet(params);               // empty params to get all the machines
-  params.componentList.length(1);
-  params.componentList[0]="SalomeTestComponent";
+  params.resource_params.componentList.length(1);
+  params.resource_params.componentList[0]="SalomeTestComponent";
 
-  Engines::MachineList_var hostList = resourcesManager->GetFittingResources(params);
+  Engines::ResourceList_var hostList = resourcesManager->GetFittingResources(params.resource_params);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
   string localHost = Kernel_Utils::GetHostname();
@@ -692,7 +692,8 @@ string LifeCycleCORBATest::GetRemoteHost()
   for (unsigned int i=0; i < hostList->length(); i++)
     {
       const char* aMachine = hostList[i];
-      string machine(aMachine);
+      Engines::ResourceDefinition_var resource_definition = resourcesManager->GetResourceDefinition(aMachine);
+      string machine(resource_definition->hostname.in());
       if (machine != localHost)
 	{
 	  remoteHost = machine;

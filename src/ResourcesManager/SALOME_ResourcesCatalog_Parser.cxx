@@ -27,6 +27,7 @@
 
 using namespace std;
 
+unsigned int ResourceDataToSort::_nbOfProcWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfNodesWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfProcPerNodeWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_CPUFreqMHzWanted = NULL_VALUE;
@@ -35,12 +36,12 @@ unsigned int ResourceDataToSort::_memInMBWanted = NULL_VALUE;
 ResourceDataToSort::ResourceDataToSort()
 {}
 
-ResourceDataToSort::ResourceDataToSort(const string& hostname,
+ResourceDataToSort::ResourceDataToSort(const string& name,
                                        unsigned int nbOfNodes,
                                        unsigned int nbOfProcPerNode,
                                        unsigned int CPUFreqMHz,
                                        unsigned int memInMB):
-    _hostName(hostname),
+    _Name(name),
     _nbOfNodes(nbOfNodes),
     _nbOfProcPerNode(nbOfProcPerNode),
     _CPUFreqMHz(CPUFreqMHz),
@@ -57,6 +58,19 @@ bool ResourceDataToSort::operator< (const ResourceDataToSort& other) const
 unsigned int ResourceDataToSort::GetNumberOfPoints() const
   {
     unsigned int ret = 0;
+    //priority 0 : Nb of proc
+
+    if (_nbOfProcWanted != NULL_VALUE)
+      {
+	unsigned int nb_proc = _nbOfNodes * _nbOfProcPerNode;
+        if (nb_proc == _nbOfProcWanted)
+          ret += 30000;
+        else if (nb_proc > _nbOfProcWanted)
+          ret += 20000;
+        else
+          ret += 10000;
+      }
+
     //priority 1 : Nb of nodes
 
     if (_nbOfNodesWanted != NULL_VALUE)
@@ -102,6 +116,7 @@ unsigned int ResourceDataToSort::GetNumberOfPoints() const
           ret += 1;
       }
 
+    //RES_MESSAGE("[GetNumberOfPoints] points number for resource: " << _Name << " " << ret);
     return ret;
   }
 
@@ -118,13 +133,14 @@ void ParserResourcesType::Print()
 {
   ostringstream oss;
   oss << endl <<
+    "Name : " << Name << endl <<
     "HostName : " << HostName << endl << 
-    "Alias : " << Alias << endl <<
     "NbOfNodes : " << DataForSort._nbOfNodes << endl <<
     "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << endl <<
     "CPUFreqMHz : " << DataForSort._CPUFreqMHz << endl <<
     "MemInMB : " << DataForSort._memInMB << endl <<
     "Protocol : " << Protocol << endl <<
+    "ClusterInternalProtocol : " << ClusterInternalProtocol << endl <<
     "Mode : " << Mode << endl <<
     "Batch : " << Batch << endl <<
     "mpi : " << mpi << endl <<
@@ -150,19 +166,75 @@ void ParserResourcesType::Print()
     oss << "Cluster member  called : " << (*it).HostName << endl;
   }
   cout << oss.str() << endl;
+}
 
+std::string
+ParserResourcesType::PrintAccessProtocolType() const
+{
+  if (Protocol == rsh)
+    return "rsh";
+  else
+    return "ssh";
+}
+
+std::string
+ParserResourcesType::PrintClusterInternalProtocol() const
+{
+  if (ClusterInternalProtocol == rsh)
+    return "rsh";
+  else
+    return "ssh";
+}
+
+std::string 
+ParserResourcesType::PrintAccessModeType() const
+{
+  if (Mode == interactive)
+    return "interactive";
+  else
+    return "batch";
+}
+
+std::string 
+ParserResourcesType::PrintBatchType() const
+{
+  if (Batch == none)
+    return "none";
+  else if (Batch == pbs)
+    return "pbs";
+  else if (Batch == lsf)
+    return "lsf";
+  else if (Batch == sge)
+    return "sge";
+  else 
+    return "ssh";
+}
+
+std::string 
+ParserResourcesType::PrintMpiImplType() const
+{
+  if (mpi == nompi)
+    return "no mpi";
+  else if (mpi == lam)
+    return "lam";
+  else if (mpi == mpich1)
+    return "mpich1";
+  else if (mpi == mpich2)
+    return "mpich2";
+  else if (mpi == openmpi)
+    return "openmpi";
+  else if (mpi == slurm)
+    return "slurm";
+  else
+    return "prun";
 }
 
 void ParserResourcesType::Clear()
 {
-  DataForSort._hostName = "";
-  DataForSort._nbOfNodes = 1;
-  DataForSort._nbOfProcPerNode = 1;
-  DataForSort._CPUFreqMHz = 0;
-  DataForSort._memInMB = 0;
+  Name = "";
   HostName = "";
-  Alias = "";
   Protocol = rsh;
+  ClusterInternalProtocol = rsh;
   Mode = interactive;
   Batch = none;
   mpi = nompi;
@@ -175,4 +247,10 @@ void ParserResourcesType::Clear()
   use = "";
   ClusterMembersList.clear();
   nbOfProc = 1;
+
+  DataForSort._Name = "";
+  DataForSort._nbOfNodes = 1;
+  DataForSort._nbOfProcPerNode = 1;
+  DataForSort._CPUFreqMHz = 0;
+  DataForSort._memInMB = 0;
 }

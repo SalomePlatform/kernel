@@ -42,53 +42,45 @@ public:
   SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns);
   ~SALOME_ContainerManager();
 
-  void Shutdown();
+  // Corba Methods
+  Engines::Container_ptr
+  GiveContainer(const Engines::ContainerParameters& params);
+
   void ShutdownContainers();
 
-  Engines::Container_ptr
-  StartContainer(const Engines::MachineParameters& params,
-                 const Engines::MachineList& possibleComputer,
-                 const std::string& container_exe="SALOME_Container");
-
-  Engines::Container_ptr
-  StartContainer(const Engines::MachineParameters& params);
-
-  Engines::Container_ptr
-  GiveContainer(const Engines::MachineParameters& params);
-
-  Engines::Container_ptr
-  FindOrStartContainer(const Engines::MachineParameters& params);
+  // C++ Methods
+  void Shutdown();
 
   static const char *_ContainerManagerNameInNS;
 
-  // PaCO++ Parallel extension
-  Engines::Container_ptr
-  StartParallelContainer(const Engines::MachineParameters& params);
-
 protected:
-  Engines::Container_ptr
-  FindContainer(const Engines::MachineParameters& params,
-                const Engines::MachineList& possibleComputers);
+  // C++ methods
+  Engines::Container_ptr 
+  StartPaCOPPContainer(const Engines::ContainerParameters& params);
 
   Engines::Container_ptr
-  FindContainer(const Engines::MachineParameters& params,
-                const char *theMachine);
+  FindContainer(const Engines::ContainerParameters& params,
+                const Engines::ResourceList& possibleResources);
 
-  void fillBatchLaunchedContainers();
+  Engines::Container_ptr
+  FindContainer(const Engines::ContainerParameters& params,
+                const std::string& resource);
 
-  std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
-                                                  const Engines::MachineParameters& params, 
+  std::string BuildCommandToLaunchRemoteContainer(const std::string & resource_name,
+                                                  const Engines::ContainerParameters& params, 
                                                   const std::string& container_exe="SALOME_Container");
 
-  std::string BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params, 
+  std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params, 
                                                  const std::string& container_exe="SALOME_Container");
 
-  std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,
-                                                   const Engines::MachineParameters& params) throw(SALOME_Exception);
+  std::string BuildTempFileToLaunchRemoteContainer(const std::string& resource_name,
+                                                   const Engines::ContainerParameters& params) throw(SALOME_Exception);
 
   void RmTmpFile(std::string& tmpFile);
 
   void AddOmninamesParams(std::string& command) const;
+
+  void AddOmninamesParams(std::ostringstream& oss) const;
 
   void AddOmninamesParams(std::ofstream& fileStream) const;
 
@@ -99,12 +91,12 @@ protected:
   // For PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
   std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
-                                                    const Engines::MachineParameters& params,
+                                                    const Engines::ContainerParameters& params,
                                                     SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
                                                     const std::string proxy_hostname = ""); 
   CORBA::Object_ptr 
   LaunchParallelContainer(const std::string& command, 
-                          const Engines::MachineParameters& params,
+                          const Engines::ContainerParameters& params,
                           const std::string& name,
                           SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   CORBA::ORB_var _orb;
@@ -112,8 +104,6 @@ protected:
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
-  static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
-  static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
 
   //! attribute that contains current tmp files generated
   std::string _TmpFileName;

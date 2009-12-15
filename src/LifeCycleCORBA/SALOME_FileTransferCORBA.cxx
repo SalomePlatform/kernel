@@ -131,7 +131,10 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
       params.container_name = _containerName.c_str();
       params.hostname = _refMachine.c_str();
 
-      container = contManager->FindOrStartContainer(params);
+      Engines::ContainerParameters new_params;
+      LCC.convert(params, new_params);
+      new_params.mode = CORBA::string_dup("findorstart");
+      container = contManager->GiveContainer(new_params);
       if (CORBA::is_nil(container))
 	{
 	  INFOS("machine " << _refMachine << " unreachable");

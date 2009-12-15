@@ -77,32 +77,13 @@ ResourcesManager_cpp(const char *xmlFilePath)
 
 ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 {
-#if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor" << endl;
-#endif
+  RES_MESSAGE("ResourcesManager_cpp constructor");
+
   _resourceManagerMap["first"]=&first;
   _resourceManagerMap["cycl"]=&cycl;
   _resourceManagerMap["altcycl"]=&altcycl;
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
-
-  std::string default_file("");
-  if (getenv("APPLI") != 0)
-    {
-      default_file += getenv("HOME");
-      default_file += "/";
-      default_file += getenv("APPLI");
-      default_file += "/CatalogResources.xml";
-      _path_resources.push_back(default_file);
-    }
-  else
-    {
-      if(!getenv("KERNEL_ROOT_DIR"))
-	throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
-      default_file = getenv("KERNEL_ROOT_DIR");
-      default_file += "/share/salome/resources/kernel/CatalogResources.xml";
-      _path_resources.push_back(default_file);
-    }
 
   if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
   {
@@ -110,13 +91,31 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     user_file = getenv("USER_CATALOG_RESOURCES_FILE");
     _path_resources.push_back(user_file);
   }
+  else
+  {
+    std::string default_file("");
+    if (getenv("APPLI") != 0)
+    {
+      default_file += getenv("HOME");
+      default_file += "/";
+      default_file += getenv("APPLI");
+      default_file += "/CatalogResources.xml";
+      _path_resources.push_back(default_file);
+    }
+    else
+    {
+      if(!getenv("KERNEL_ROOT_DIR"))
+	throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
+      default_file = getenv("KERNEL_ROOT_DIR");
+      default_file += "/share/salome/resources/kernel/CatalogResources.xml";
+      _path_resources.push_back(default_file);
+    }
+  }
 
   _lasttime=0;
 
   ParseXmlFiles();
-#if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor end";
-#endif
+  RES_MESSAGE("ResourcesManager_cpp constructor end");
 }
 
 //=============================================================================
@@ -127,159 +126,134 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
-#if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp destructor" << endl;
-#endif
+  RES_MESSAGE("ResourcesManager_cpp destructor");
 }
 
 //=============================================================================
 //! get the list of resource names fitting constraints given by params
 /*!
- *  If hostname is specified, check if it is local or known in resources catalog.
- *
- *  Else
- *  - select first machines with corresponding OS (all machines if
- *    parameter OS empty),
- *  - then select the sublist of machines on which the component is known
- *    (if the result is empty, that probably means that the inventory of
- *    components is probably not done, so give complete list from previous step)
+ * Steps:
+ * 1: Restrict list with resourceList if defined
+ * 2: If name is defined -> check resource list
+ * 3: If not 2:, if hostname is defined -> check resource list
+ * 4: If not 3:, sort resource with nb_proc, etc...
+ * 5: In all cases remove resource that does not correspond with OS
+ * 6: And remove resource with componentList - if list is empty ignored it...
  */ 
 //=============================================================================
 
 std::vector<std::string> 
-ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(ResourcesException)
+ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(ResourcesException)
 {
-  vector <std::string> vec;
+  RES_MESSAGE("[GetFittingResources] on computer " << Kernel_Utils::GetHostname().c_str());
+  RES_MESSAGE("[GetFittingResources] with resource name: " << params.name);
+  RES_MESSAGE("[GetFittingResources] with hostname: "<< params.hostname);
 
+  // Result
+  std::vector<std::string> vec;
+
+  // Parse Again CalatogResource File
   ParseXmlFiles();
 
-  const char *hostname = params.hostname.c_str();
-#if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
-#endif
-
-  // PaCO++ parallel container case
-  std::string parallelLib(params.parallelLib);
-  if (params.nb_component_nodes > 0 && parallelLib != "")
+  // Steps:
+  // 1: Restrict list with resourceList if defined
+  // 2: If name is defined -> check resource list
+  // 3: If not 2:, if hostname is defined -> check resource list
+  // 4: If not 3:, sort resource with nb_proc, etc...
+  // 5: In all cases remove resource that does not correspond with OS
+  // 6: And remove resource with componentList - if list is empty ignored it...
+  
+ 
+  MapOfParserResourcesType local_resourcesList = _resourcesList;
+  // Step 1
+  if (params.resourceList.size() > 0)
   {
-#if defined(_DEBUG_) || defined(_DEBUG)
-    std::cerr << "[GetFittingResources] ParallelContainer case" << std::endl;
-    std::cerr << "[GetFittingResources] parallelLib is " << parallelLib << std::endl;
-    std::cerr << "[GetFittingResources] nb_component_nodes is " << params.nb_component_nodes << std::endl;
-#endif
+    RES_MESSAGE("[GetFittingResources] Restricted resource list found !");
+    local_resourcesList.clear();
+    std::vector<std::string>::size_type sz = params.resourceList.size();
 
-    // Currently we only support parallel containers that define a hostname target
-    if (hostname[0] != '\0')
+    for (unsigned int i=0; i < sz; i++)
     {
-      // Special case of localhost -> put containers into the real computer name
-      if (strcmp(hostname, "localhost") == 0)
-	vec.push_back(Kernel_Utils::GetHostname().c_str());
-      else 
-      {
-	// Try find the resource into the map
-	if (_resourcesList.find(hostname) != _resourcesList.end())
-	  vec.push_back(hostname);
-	else
-	  std::cerr << "[GetFittingResources] ParallelContainer hostname does not exist into the resource list !" << std::endl;
-      }
+      if (_resourcesList.find(params.resourceList[i]) != _resourcesList.end())
+	local_resourcesList[params.resourceList[i]] = _resourcesList[params.resourceList[i]];
     }
-    else
-      std::cerr << "[GetFittingResources] ParallelContainer hostname is empty -> cannot find a possible resource" << std::endl;
-    return vec;
   }
 
-  if (hostname[0] != '\0'){
-
-    if ( strcmp(hostname, "localhost") == 0 ||
-	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
-      {
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//	cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
-//#endif
-	vec.push_back(Kernel_Utils::GetHostname().c_str());
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//	cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
-//#endif
-      }
-	
-    else if (_resourcesList.find(hostname) != _resourcesList.end())
-      {
-	// --- params.hostname is in the list of resources so return it.
-	vec.push_back(hostname);
-      }
-        
-    else if (_resourcesBatchList.find(hostname) != _resourcesBatchList.end())
+  // Step 2
+  if (params.name != "")
+  {
+    RES_MESSAGE("[GetFittingResources] name parameter found !");
+    if (_resourcesList.find(params.name) != _resourcesList.end())
     {
-      // --- params.hostname is in the list of resources so return it.
-      vec.push_back(hostname);
+      vec.push_back(params.name);
     }
-
     else
-      {
-	// Cas d'un cluster: nombre de noeuds > 1
-	int cpt=0;
-	for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
-	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
-	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
-	      vec.push_back((*iter).first.c_str());
-	      cpt++;
-	    }
-	  }
-	}
-	if(cpt==0){
-	  // --- user specified an unknown hostame so notify him.
-#if defined(_DEBUG_) || defined(_DEBUG)
-	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
-#endif
-	  std::string error("GetFittinResouces : ResourcesManager doesn't find the host requested : ");
-	  error += hostname;
-	  throw ResourcesException(error);
-	}
-      }
+      RES_MESSAGE("[GetFittingResources] name was not found on resource list ! name was " << params.name);
   }
-    
-  else{
+
+  // Step 3
+  else if (params.hostname != "")
+  {
+    RES_MESSAGE("[GetFittingResources] Entering in hostname case !");
+
+    std::string hostname = params.hostname;
+    if (hostname ==  "localhost")
+      hostname = Kernel_Utils::GetHostname().c_str();
+
+    std::map<std::string, ParserResourcesType>::const_iterator iter = _resourcesList.begin();
+    for (; iter != _resourcesList.end(); iter++)
+    {
+      if ((*iter).second.HostName == hostname)
+	vec.push_back((*iter).first);
+    }
+  }
+
+  // Step 4
+  else
+  {
     // --- Search for available resources sorted by priority
-    vec=params.computerList;
+    MapOfParserResourcesType_it i = local_resourcesList.begin();
+    for (; i != local_resourcesList.end(); ++i)
+      vec.push_back(i->first);
 
-    SelectOnlyResourcesWithOS(vec, params.OS.c_str());
-      
-    KeepOnlyResourcesWithComponent(vec, params.componentList);
-
-    //if hosts list (vec) is empty, ignore componentList constraint and use only OS constraint
-    if (vec.size() == 0)
-      SelectOnlyResourcesWithOS(vec, params.OS.c_str());
-    
     // --- set wanted parameters
+    ResourceDataToSort::_nbOfProcWanted = params.nb_proc;
     ResourceDataToSort::_nbOfNodesWanted = params.nb_node;
-      
     ResourceDataToSort::_nbOfProcPerNodeWanted = params.nb_proc_per_node;
-	
     ResourceDataToSort::_CPUFreqMHzWanted = params.cpu_clock;
-	
     ResourceDataToSort::_memInMBWanted = params.mem_mb;
-	
     // --- end of set
 	
-    list<ResourceDataToSort> li;
-	
-    for (vector<string>::iterator iter = vec.begin();
-	 iter != vec.end();
-	 iter++)
-      li.push_back(_resourcesList[(*iter)].DataForSort);
-	
+    // Sort
+    std::list<ResourceDataToSort> li;
+    std::vector<std::string>::iterator iter = vec.begin();
+    for (; iter != vec.end(); iter++)
+      li.push_back(local_resourcesList[(*iter)].DataForSort);
     li.sort();
-	
-    unsigned int i = 0;
-	
-    for (list<ResourceDataToSort>::iterator iter2 = li.begin();
-	 iter2 != li.end();
-	 iter2++)
-      vec[i++] = (*iter2)._hostName;
-  }
-    
-  return vec;
 
+    vec.clear();
+    for (list<ResourceDataToSort>::iterator iter2 = li.begin(); iter2 != li.end(); iter2++)
+      vec.push_back((*iter2)._Name);
+  }
+
+  // Step 5
+  SelectOnlyResourcesWithOS(vec, params.OS.c_str());
+    
+  // Step 6
+  std::vector<std::string> vec_save(vec);
+  KeepOnlyResourcesWithComponent(vec, params.componentList);
+  if (vec.size() == 0)
+    vec = vec_save;
+
+  // End
+  // Send an exception if return list is empty...
+  if (vec.size() == 0)
+  {
+    std::string error("[GetFittingResources] ResourcesManager doesn't find any resource that feets to your parameters");
+    throw ResourcesException(error);
+  }
+
+  return vec;
 }
 
 //=============================================================================
@@ -290,14 +264,12 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(Res
 //=============================================================================
 
 int
-ResourcesManager_cpp::
-AddResourceInCatalog(const machineParams& paramsOfNewResources,
-                     const vector<string>& componentsOnNewResources,
-                     const char *alias,
-                     const char *userName,
-                     AccessModeType mode,
-                     AccessProtocolType prot)
-throw(ResourcesException)
+ResourcesManager_cpp::AddResourceInCatalog(const resourceParams& paramsOfNewResources,
+					   const vector<string>& componentsOnNewResources,
+					   const char *userName,
+					   AccessModeType mode,
+					   AccessProtocolType prot,
+					   AccessProtocolType iprot) throw(ResourcesException)
 {
   vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
 					     componentsOnNewResources.end(),
@@ -306,9 +278,10 @@ throw(ResourcesException)
   if (iter != componentsOnNewResources.end())
     {
       ParserResourcesType newElt;
-      newElt.DataForSort._hostName = paramsOfNewResources.hostname;
-      newElt.Alias = alias;
+      newElt.DataForSort._Name = paramsOfNewResources.name;
+      newElt.HostName = paramsOfNewResources.hostname;
       newElt.Protocol = prot;
+      newElt.ClusterInternalProtocol = iprot;
       newElt.Mode = mode;
       newElt.UserName = userName;
       newElt.ComponentsList = componentsOnNewResources;
@@ -318,10 +291,9 @@ throw(ResourcesException)
       newElt.DataForSort._nbOfNodes = paramsOfNewResources.nb_node;
       newElt.DataForSort._nbOfProcPerNode =
         paramsOfNewResources.nb_proc_per_node;
-      _resourcesList[newElt.DataForSort._hostName] = newElt;
+      _resourcesList[newElt.DataForSort._Name] = newElt;
       return 0;
     }
-
   else
     throw ResourcesException("KERNEL is not present in this resource");
 }
@@ -332,9 +304,9 @@ throw(ResourcesException)
  */ 
 //=============================================================================
 
-void ResourcesManager_cpp::DeleteResourceInCatalog(const char *hostname)
+void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
 {
-  _resourcesList.erase(hostname);
+  _resourcesList.erase(name);
 }
 
 //=============================================================================
@@ -345,9 +317,8 @@ void ResourcesManager_cpp::DeleteResourceInCatalog(const char *hostname)
 
 void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
 {
-#if defined(_DEBUG_) || defined(_DEBUG)
-  std::cerr << "WriteInXmlFile : start" << std::endl;
-#endif
+  RES_MESSAGE("WriteInXmlFile : start");
+
   const char* aFilePath = xml_file.c_str();
   FILE* aFile = fopen(aFilePath, "w");
 
@@ -361,7 +332,7 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
   xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
 
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
+    new SALOME_ResourcesCatalog_Handler(_resourcesList);
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
@@ -372,9 +343,7 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
   // Free the document
   xmlFreeDoc(aDoc);
   fclose(aFile);
-#if defined(_DEBUG_) || defined(_DEBUG)
-  std::cerr << "WriteInXmlFile : WRITING DONE!" << std::endl;
-#endif
+  RES_MESSAGE("WriteInXmlFile : WRITING DONE!");
 }
 
 //=============================================================================
@@ -407,14 +376,13 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
   if (to_parse)
   {
     _resourcesList.clear();
-    _resourcesBatchList.clear();
     // On parse tous les fichiers
     for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
     {
       MapOfParserResourcesType _resourcesList_tmp;
       MapOfParserResourcesType _resourcesBatchList_tmp;
       SALOME_ResourcesCatalog_Handler* handler =
-	new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp, _resourcesBatchList_tmp);
+	new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp);
       const char* aFilePath = (*_path_resources_it).c_str();
       FILE* aFile = fopen(aFilePath, "r");
 
@@ -432,18 +400,6 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
 	    if (j == _resourcesList.end())
 	    {
 	      _resourcesList[i->first] = i->second;
-	    }
-	    else
-	    {
-	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
-	    }
-	  }
-	  for (MapOfParserResourcesType_it i = _resourcesBatchList_tmp.begin(); i != _resourcesBatchList_tmp.end(); ++i)
-	  {
-	    MapOfParserResourcesType_it j = _resourcesBatchList.find(i->first);
-	    if (j == _resourcesBatchList.end())
-	    {
-	      _resourcesBatchList[i->first] = i->second;
 	    }
 	    else
 	    {
@@ -477,50 +433,36 @@ const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
   return _resourcesList;
 }
 
-string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfMachines)
+string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfResources)
 {
   if(_resourceManagerMap.count(policy)==0)
-    return _resourceManagerMap[""]->Find(listOfMachines,_resourcesList);
-  return _resourceManagerMap[policy]->Find(listOfMachines,_resourcesList);
+    return _resourceManagerMap[""]->Find(listOfResources, _resourcesList);
+  return _resourceManagerMap[policy]->Find(listOfResources, _resourcesList);
 }
 
 //=============================================================================
 /*!
- *  Gives a sublist of machines with matching OS.
- *  If parameter OS is empty, gives the complete list of machines
+ *  Gives a sublist of resources with matching OS.
+ *  If parameter OS is empty, gives the complete list of resources
  */ 
 //=============================================================================
-
-// Warning need an updated parsed list : _resourcesList
-void ResourcesManager_cpp::SelectOnlyResourcesWithOS( vector<string>& hosts,  const char *OS) const
-throw(ResourcesException)
+void 
+ResourcesManager_cpp::SelectOnlyResourcesWithOS(std::vector<std::string>& resources, std::string OS)
 {
-  string base(OS);
-
-  if(hosts.size()==0)
+  if (OS != "")
+  {
+    // a computer list is given : take only resources with OS on those computers
+    std::vector<std::string> vec_tmp = resources;
+    resources.clear();
+    vector<string>::iterator iter = vec_tmp.begin();
+    for (; iter != vec_tmp.end(); iter++)
     {
-      //No constraint on computer list : take all known resources with OS
-      map<string, ParserResourcesType>::const_iterator iter;
-      for (iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++)
-        {
-          if ( (*iter).second.OS == base || base.size() == 0)
-            hosts.push_back((*iter).first);
-        }
+      MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+      if(it != _resourcesList.end())
+	if ( (*it).second.OS == OS)
+	  resources.push_back(*iter);
     }
-  else
-    {
-      //a computer list is given : take only resources with OS on those computers
-      vector<string> vec=hosts;
-      hosts.clear();
-      vector<string>::iterator iter;
-      for (iter = vec.begin(); iter != vec.end(); iter++)
-        {
-          MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-          if(it != _resourcesList.end())
-            if ( (*it).second.OS == base || base.size() == 0 )
-              hosts.push_back(*iter);
-        }
-    }
+  }
 }
 
 
@@ -529,41 +471,47 @@ throw(ResourcesException)
  *  Gives a sublist of machines on which the component is known.
  */ 
 //=============================================================================
-
-//Warning need an updated parsed list : _resourcesList
-void ResourcesManager_cpp::KeepOnlyResourcesWithComponent( vector<string>& hosts, const vector<string>& componentList) const
-throw(ResourcesException)
+void 
+ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
+						     const vector<string>& componentList)
 {
-  for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
-    {
-      MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const vector<string>& mapOfComponentsOfCurrentHost = (((*it).second).ComponentsList);
+  std::vector<std::string>::iterator iter = resources.begin();
+  for (; iter != resources.end(); iter++)
+  {
+    MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+    const vector<string>& mapOfComponentsOfCurrentHost = (*it).second.ComponentsList;
 
-      bool erasedHost = false;
-      if( mapOfComponentsOfCurrentHost.size() > 0 ){
-	for(unsigned int i=0;i<componentList.size();i++){
-          const char* compoi = componentList[i].c_str();
-	  vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
-					      mapOfComponentsOfCurrentHost.end(),
-					      compoi);
-	  if (itt == mapOfComponentsOfCurrentHost.end()){
-	    erasedHost = true;
-	    break;
-	  }
+    bool erasedHost = false;
+    if( mapOfComponentsOfCurrentHost.size() > 0 )
+    {
+      for(unsigned int i=0; i<componentList.size(); i++)
+      {
+	const char* compoi = componentList[i].c_str();
+	vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
+						  mapOfComponentsOfCurrentHost.end(),
+						  compoi);
+	if (itt == mapOfComponentsOfCurrentHost.end())
+	{
+	  erasedHost = true;
+	  break;
 	}
       }
-      if(erasedHost)
-        hosts.erase(iter);
-      else
-        iter++;
     }
+    if(erasedHost)
+      resources.erase(iter);
+  }
 }
 
 
-ParserResourcesType ResourcesManager_cpp::GetResourcesList(const std::string& machine)
+ParserResourcesType 
+ResourcesManager_cpp::GetResourcesDescr(const std::string & name)
 {
-  if (_resourcesList.find(machine) != _resourcesList.end())
-    return _resourcesList[machine];
+  if (_resourcesList.find(name) != _resourcesList.end())
+    return _resourcesList[name];
   else
-    return _resourcesBatchList[machine];
+  {
+    std::string error("[GetResourcesDescr] Resource does not exist: ");
+    error += name;
+    throw ResourcesException(error);
+  }
 }

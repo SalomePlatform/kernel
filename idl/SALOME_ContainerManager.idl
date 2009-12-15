@@ -31,15 +31,205 @@
 module Engines
 {
 
-//!  Type to transmit list of machines.
-  typedef sequence<string> MachineList;
+//!  Type to transmit list of resources.
+typedef sequence<string> ResourceList;
 //! components list
-  typedef sequence<string> CompoList;
+typedef sequence<string> CompoList;
 //! files list
-  typedef sequence<string> FilesList;
+typedef sequence<string> FilesList;
 //! modules list
-  typedef sequence<string> ModulesList;
+typedef sequence<string> ModulesList;
 
+//! Type to describe required properties of a resource
+struct ResourceParameters
+{
+  //! resource name - manual selection
+  string name;
+  //! host name
+  string hostname;
+  //! if given required operating system 
+  string OS;
+  //! if given list of components that could be loaded on a container
+  //! Optional if no resource are found with this constraint
+  CompoList componentList;
+
+  // Permits to order resources
+  //! required number of proc
+  long nb_proc;
+  //! required memory size
+  long mem_mb;
+  //! required frequency
+  long cpu_clock;
+  //! required number of node
+  long nb_node;
+  //! required number of proc per node
+  long nb_proc_per_node;
+
+  // Permits to configure SALOME resource management
+  //! resource management policy : first, cycl, altcycl or best (can be extended)
+  string policy;
+  //! restricted list of resources to search in
+  ResourceList resList;
+};
+
+//! Type to describe required properties of a container
+struct ContainerParameters
+{
+  //! container name if given else automatic
+  string container_name;
+
+  //! creation mode for GiveContainer if given else automatic 
+  /*!start creates a new container
+   * get  try to find an existing container
+   * getorstart   use an existing container if it exists or creates a new one
+   */
+  string mode;
+
+  //! container working directory if given else automatic
+  string workingdir;
+
+  // Parallel part
+  //! Number of proc of a parallel container
+  long nb_proc;
+  //! if true start a MPI container
+  boolean isMPI;
+  //! PaCO specific informations
+  string parallelLib;
+
+  //! Parameters to choose a resource
+  ResourceParameters resource_params;
+};
+
+//!  Type to describe a resource
+struct ResourceDefinition
+{
+  //! name 
+  string name;
+  //! hostname 
+  string hostname;
+  //! protocol to connect to the resource
+  //! protocol used to start a remote container (ssh or rsh)
+  string protocol;
+  //! login name to use to start a remote container
+  string username;
+  //! salome application to use to start a remote container
+  string applipath;
+  //! list of available components 
+  CompoList componentList;
+
+  //! operating system 
+  string OS;
+  //! memory size per node
+  long mem_mb;
+  //! frequency
+  long cpu_clock;
+  //! number of node
+  long nb_node;
+  //! number of proc per node
+  long nb_proc_per_node;
+  //! batch system
+  string batch;
+  //! MPI implementation
+  string mpiImpl;
+  //! if the resource is a cluster:
+  //! internal protocol to use to start a remote container (ssh or rsh) on the cluster
+  string iprotocol;
+};
+
+//! exception thrown if a computer is not found in the catalog
+exception NotFound {};
+
+struct JobParameters
+{
+  //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
+  string job_type;
+
+  // Common values
+  string job_file;
+  string env_file; 
+  FilesList in_files;
+  FilesList out_files;
+  string work_directory;
+  string local_directory;
+  string result_directory;
+
+  /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
+       this case, default value of the selected resource will be used.
+  */
+  string maximum_duration; 
+
+  // Memory is expressed in megabytes -> mem_mb
+  // Number of Processors -> nb_proc
+  ResourceParameters resource_required;
+
+  /*!
+    Name of the batch queue choosed - optional
+  */
+  string queue;
+};
+
+/*! \brief Interface of the %salomelauncher
+    This interface is used for interaction with the unique instance
+    of SalomeLauncher
+*/
+interface SalomeLauncher
+{
+  // Main methods
+  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+  void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+  void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+
+  // Useful methods
+  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in ResourceParameters params)		 raises (SALOME::SALOME_Exception);
+
+  // SALOME kernel service methods
+  void Shutdown();
+  long getPID();
+};
+  
+/*! \brief Interface of the %containerManager
+    This interface is used for interaction with the unique instance
+    of ContainerManager
+*/
+interface ContainerManager
+{
+  //! GiveContainer - use mode parameter of ContainerParameters to configure
+  //! how this method works
+  //! Currently: get, start, getorstart, findorstart, find
+  Container GiveContainer(in ContainerParameters params);
+
+  //!  Shutdown all containers that have been launched by the container manager
+  void ShutdownContainers();
+} ;
+  
+/*! \brief Interface of the %resourcesManager
+    This interface is used for interaction with the unique instance
+    of ResourcesManager
+*/
+interface ResourcesManager
+{
+  //!  Find first available resource in a resources list
+  string FindFirst(in ResourceList possibleResources);
+
+  //!  Find best available computer according to policy in a computers list
+  string Find(in string policy, in ResourceList possibleResources);
+
+  //!  Get a list of resources that are best suited to launch a container given constraints 
+  /*! 
+       The constraints are resource constraints (params) and components constraints (componentList)
+  */
+  ResourceList GetFittingResources(in ResourceParameters params) raises (SALOME::SALOME_Exception);
+
+  //!  Get definition of a resource
+  ResourceDefinition GetResourceDefinition(in string name);
+};
+
+
+// For compatibility - will be erased on SALOME 6
+typedef sequence<string> MachineList;
 //!  Type to describe required properties of a container.
 struct MachineParameters
 {
@@ -78,136 +268,6 @@ struct MachineParameters
   string parallelLib;
   long nb_component_nodes;
 };
-
-//!  Type to describe properties of a resource.
-struct MachineDefinition
-{
-  //! host name 
-  string hostname;
-  //! alias name 
-  string alias;
-  //! protocol to use to start a remote container (ssh or rsh)
-  string protocol;
-  //! login name to use to start a remote container
-  string username;
-  //! salome application to use to start a remote container
-  string applipath;
-  //! list of available components 
-  CompoList componentList;
-  //! operating system 
-  string OS;
-  //! memory size
-  long mem_mb;
-  //! frequency
-  long cpu_clock;
-  //! number of proc per node
-  long nb_proc_per_node;
-  //! number of node
-  long nb_node;
-  //! MPI implementation
-  string mpiImpl;
-  //! batch system
-  string batch;
-  long nb_component_nodes;
-};
-//! exception thrown if a computer is not found in the catalog
-  exception NotFound {};
-
-//!  Structure used for Salome Batch Job parameters
-struct BatchParameters
-{
-  //! Where batch command will be launched and log files will be created
-  string batch_directory; 
-  //! Time for the batch (has to be like this : hh:mm)
-  string expected_during_time; 
-  //! Minimum of memory needed (has to be like : 32gb or 512mb)
-  string mem; 
-  //! Number of processors requested
-  long nb_proc; 
-};
-
-/*! \brief Interface of the %salomelauncher
-    This interface is used for interaction with the unique instance
-    of SalomeLauncher
-*/
-  interface SalomeLauncher
-  {
-    long submitJob( in string xmlExecuteFile,
-                    in string clusterName ) raises (SALOME::SALOME_Exception);
-    long submitSalomeJob( in string fileToExecute,
-			  in FilesList filesToExport,
-			  in FilesList filesToImport,
-			  in BatchParameters batch_params,
-			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    string queryJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-
-    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
-
-    void Shutdown();
-
-    long getPID();
-
-  } ;
-  
-/*! \brief Interface of the %containerManager
-    This interface is used for interaction with the unique instance
-    of ContainerManager
-*/
-  interface ContainerManager
-  {
-    //!  Find an existing container satisfying the constraints given by input parameters or start a new one.
-    Container FindOrStartContainer( in MachineParameters params);
-
-    //!  This operation launches a PaCO++ container.
-    /*!  
-      \param Description of the container resquested.
-      \param List of computers ressources.
-
-      \return Container's CORBA reference.
-    */
-    Container StartParallelContainer( in MachineParameters params);
-
-    //!  Start a new container satisfying the constraints given by input parameters.
-    Container StartContainer( in MachineParameters params);
-
-    //!  Same as StartContainer except that in batch all containers have already been launched
-    /*! 
-         We are in batch if environment variable SALOME_BATCH is 1.
-         In this case, containers have been launched at the beginning of the Salome session and 
-         the container manager picks one in the pool of existing containers.
-    */
-    Container GiveContainer( in MachineParameters params);
-
-    //!  Shutdown all containers that have been launched by the container manager
-    void ShutdownContainers();
-
-  } ;
-  
-/*! \brief Interface of the %resourcesManager
-    This interface is used for interaction with the unique instance
-    of ResourcesManager
-*/
-  interface ResourcesManager
-  {
-    //!  Find first available computer in a computers list
-    string FindFirst(in MachineList possibleComputers);
-
-    //!  Find best available computer according to policy in a computers list
-    string Find(in string policy, in MachineList possibleComputers);
-
-    //!  Get a list of computers that are best suited to launch a container given constraints 
-    /*! 
-         The constraints are resource constraints (params) and components constraints (componentList)
-    */
-    MachineList GetFittingResources( in MachineParameters params)
-                                    raises (SALOME::SALOME_Exception);
-
-    //!  Get the current machine parameters of a computer
-    MachineDefinition GetMachineParameters( in string hostname );
-
-  } ;
 };
   
 #endif

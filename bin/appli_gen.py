@@ -265,7 +265,8 @@ def install(prefix,config_file,verbose=0):
     f =open(os.path.join(home_dir,'CatalogResources.xml'),'w')
     command="""<!DOCTYPE ResourcesCatalog>
 <resources>
-   <machine hostname="localhost" />
+   <machine name="localhost"
+            hostname="localhost" />
 </resources>
 """
     f.write(command)    

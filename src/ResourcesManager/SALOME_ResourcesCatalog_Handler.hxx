@@ -42,8 +42,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 {
   
   public :
-    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
-				    MapOfParserResourcesType& resources_batch_list);
+    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list);
 
     const MapOfParserResourcesType& GetResourcesAfterParsing() const;
 
@@ -62,13 +61,13 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
-    MapOfParserResourcesType& _resources_batch_list;
 
     const char *test_machine;
     const char *test_cluster;
+    const char *test_name;
     const char *test_hostname;
-    const char *test_alias;
     const char *test_protocol;
+    const char *test_cluster_internal_protocol;
     const char *test_mode;
     const char *test_batch;
     const char *test_mpi;
