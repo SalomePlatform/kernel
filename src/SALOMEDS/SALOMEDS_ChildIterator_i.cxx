@@ -38,7 +38,7 @@ using namespace std;
  */
 //============================================================================
 SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const SALOMEDSImpl_ChildIterator& theImpl,
-						   CORBA::ORB_ptr orb) 
+                                                   CORBA::ORB_ptr orb) 
   : _it(theImpl.GetPersistentCopy())
 {
   SALOMEDS::Locker lock;

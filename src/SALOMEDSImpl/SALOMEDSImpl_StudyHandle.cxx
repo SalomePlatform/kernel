@@ -56,7 +56,7 @@ SALOMEDSImpl_StudyHandle::SALOMEDSImpl_StudyHandle()
 //purpose  : 
 //=======================================================================
 SALOMEDSImpl_StudyHandle* SALOMEDSImpl_StudyHandle::Set(const DF_Label& theLabel, 
-						        SALOMEDSImpl_Study* theStudy)
+                                                        SALOMEDSImpl_Study* theStudy)
 {
   SALOMEDSImpl_StudyHandle* A = NULL;
   if (!(A=(SALOMEDSImpl_StudyHandle*)theLabel.FindAttribute(GetID()))) {

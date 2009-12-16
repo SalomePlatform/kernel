@@ -44,12 +44,12 @@ Param_Double_Port_provides_i::Param_Double_Port_provides_i(CORBA::ORB_ptr orb, c
 {
   _seq_data = NULL;
 
-  seq_data_termine = false;	            
+  seq_data_termine = false;                 
   seq_data_mutex = new pthread_mutex_t();
   pthread_mutex_init(seq_data_mutex, NULL);
   seq_data_condition = new pthread_cond_t();
   pthread_cond_init(seq_data_condition, NULL);
-  seq_data_termine_cp = true;	            
+  seq_data_termine_cp = true;               
   seq_data_mutex_cp = new pthread_mutex_t();
   pthread_mutex_init(seq_data_mutex_cp, NULL);
   seq_data_condition_cp = new pthread_cond_t();
@@ -57,12 +57,12 @@ Param_Double_Port_provides_i::Param_Double_Port_provides_i(CORBA::ORB_ptr orb, c
 
   _seq_results = NULL;
 
-  seq_results_termine = false;	            
+  seq_results_termine = false;              
   seq_results_mutex = new pthread_mutex_t();
   pthread_mutex_init(seq_results_mutex, NULL);
   seq_results_condition = new pthread_cond_t();
   pthread_cond_init(seq_results_condition, NULL);
-  seq_results_termine_cp = true;	            
+  seq_results_termine_cp = true;                    
   seq_results_mutex_cp = new pthread_mutex_t();
   pthread_mutex_init(seq_results_mutex_cp, NULL);
   seq_results_condition_cp = new pthread_cond_t();
@@ -98,8 +98,8 @@ Param_Double_Port_provides_i::~Param_Double_Port_provides_i()
 
 Param_Double_Port_provides_i *
 Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo, 
-					std::string port_name,
-					CORBA::ORB_ptr orb)
+                                        std::string port_name,
+                                        CORBA::ORB_ptr orb)
 {
   int rank = par_compo->getMyRank();
   int totalNode = par_compo->getTotalNode();
@@ -125,7 +125,7 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
     // lorsque le composant sera détruit
     proxy_node = 
       new Ports::Param_Double_Port_proxy_impl(CORBA::ORB::_duplicate(orb),
-					      pfm->get_thread("pdp_thread"));
+                                              pfm->get_thread("pdp_thread"));
     proxy_node->setLibCom("pdp_dummy", proxy_node);
     proxy_node->setLibThread("pdp_thread");
     PaCO::PacoTopology_t serveur_topo;
@@ -137,8 +137,8 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
 
     // Enregistrement du proxy
     par_compo->add_parallel_provides_proxy_port(proxy_node->_this(), 
-						port_name.c_str(),
-						proxy_node_properties->_this());
+                                                port_name.c_str(),
+                                                proxy_node_properties->_this());
     proxy_node->_remove_ref();
     proxy_node_properties->_remove_ref();
   }
@@ -203,8 +203,8 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
 
 void
 Param_Double_Port_provides_i::wait_init_port(Engines_ParallelDSC_i * par_compo, 
-					     std::string port_name,
-					     CORBA::ORB_ptr orb)
+                                             std::string port_name,
+                                             CORBA::ORB_ptr orb)
 {
   int rank = par_compo->getMyRank();
   int totalNode = par_compo->getTotalNode();

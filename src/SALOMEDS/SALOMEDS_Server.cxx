@@ -78,78 +78,78 @@ int main(int argc, char** argv)
       const char * Env = getenv("USE_LOGGER");
       int EnvL =0;
       if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
+        EnvL=1;
       CosNaming::Name name;
       name.length(1);
       name[0].id=CORBA::string_dup("Logger");    
       PortableServer::POAManager_var pman; 
       for (int i = 1; i<=NumberOfTries; i++)
-	{
-	  if (i!=1) 
+        {
+          if (i!=1) 
 #ifndef WIN32
-	    a=nanosleep(&ts_req,&ts_rem);
+            a=nanosleep(&ts_req,&ts_rem);
 #else
-		Sleep(TIMESleep/1000000);
+                Sleep(TIMESleep/1000000);
 #endif
-	  try
-	    { 
-	      obj = orb->resolve_initial_references("RootPOA");
-	      if(!CORBA::is_nil(obj))
-		poa = PortableServer::POA::_narrow(obj);
-	      if(!CORBA::is_nil(poa))
-		pman = poa->the_POAManager();
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService"); 
-	      if (!CORBA::is_nil(theObj)){
-		inc = CosNaming::NamingContext::_narrow(theObj);
-		if(!CORBA::is_nil(inc))
-		  {
-		    MESSAGE( "SalomeDS Server: Naming Service was found" );
-		    if(EnvL==1)
-		      {
-			CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
-			SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
-			NS.init_orb( orb1 ) ;
-			for(int j=1; j<=NumberOfTries; j++)
-			  {
-			    if (j!=1) 
+          try
+            { 
+              obj = orb->resolve_initial_references("RootPOA");
+              if(!CORBA::is_nil(obj))
+                poa = PortableServer::POA::_narrow(obj);
+              if(!CORBA::is_nil(poa))
+                pman = poa->the_POAManager();
+              if(!CORBA::is_nil(orb)) 
+                theObj = orb->resolve_initial_references("NameService"); 
+              if (!CORBA::is_nil(theObj)){
+                inc = CosNaming::NamingContext::_narrow(theObj);
+                if(!CORBA::is_nil(inc))
+                  {
+                    MESSAGE( "SalomeDS Server: Naming Service was found" );
+                    if(EnvL==1)
+                      {
+                        CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
+                        SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
+                        NS.init_orb( orb1 ) ;
+                        for(int j=1; j<=NumberOfTries; j++)
+                          {
+                            if (j!=1) 
 #ifndef WIN32
-			      a=nanosleep(&ts_req, &ts_rem);
+                              a=nanosleep(&ts_req, &ts_rem);
 #else
-			      Sleep(TIMESleep/1000000);
+                              Sleep(TIMESleep/1000000);
 #endif
-			    try
-			      {
-				object = inc->resolve(name);
-			      }
-			    catch(CosNaming::NamingContext::NotFound)
-			      { 
-				MESSAGE( "SalomeDS Server: Logger Server wasn't found" ); }
+                            try
+                              {
+                                object = inc->resolve(name);
+                              }
+                            catch(CosNaming::NamingContext::NotFound)
+                              { 
+                                MESSAGE( "SalomeDS Server: Logger Server wasn't found" ); }
 
-			    catch(...)
-			      {
-				MESSAGE( "SalomeDS Server: Unknown exception" );
-			      }
-			    if (!CORBA::is_nil(object))
-			      {
-				MESSAGE( "SalomeDS Server: Logger Server was found" );
-				SALOMEDS=1;
-				break;
-			      }
-			  }
-		      }
-		  }
-	      }
-	
-	    }
-	  catch( const SALOME_Exception &ex )
-	    {
-	      MESSAGE( "Communication Error : " << ex.what() );
-	      return EXIT_FAILURE ;
-	    }
-	  if ((SALOMEDS==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-	    break;
-	}
+                            catch(...)
+                              {
+                                MESSAGE( "SalomeDS Server: Unknown exception" );
+                              }
+                            if (!CORBA::is_nil(object))
+                              {
+                                MESSAGE( "SalomeDS Server: Logger Server was found" );
+                                SALOMEDS=1;
+                                break;
+                              }
+                          }
+                      }
+                  }
+              }
+        
+            }
+          catch( const SALOME_Exception &ex )
+            {
+              MESSAGE( "Communication Error : " << ex.what() );
+              return EXIT_FAILURE ;
+            }
+          if ((SALOMEDS==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
+            break;
+        }
     
       // We allocate the objects on the heap.  Since these are reference
       // counted objects, they will be deleted by the POA when they are no

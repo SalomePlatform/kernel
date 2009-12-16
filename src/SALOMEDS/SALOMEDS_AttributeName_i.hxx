@@ -35,7 +35,7 @@
 #include "SALOMEDSImpl_AttributeName.hxx"
 
 class SALOMEDS_AttributeName_i: public virtual POA_SALOMEDS::AttributeName,
-				public virtual SALOMEDS_GenericAttribute_i 
+                                public virtual SALOMEDS_GenericAttribute_i 
 {
 public:
   

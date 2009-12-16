@@ -46,7 +46,7 @@ const std::string& SALOMEDSImpl_AttributePixMap::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributePixMap* SALOMEDSImpl_AttributePixMap::Set (const DF_Label& L,
-								 const std::string& S) 
+                                                                 const std::string& S) 
 {
   SALOMEDSImpl_AttributePixMap* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributePixMap*)L.FindAttribute(SALOMEDSImpl_AttributePixMap::GetID()))) {

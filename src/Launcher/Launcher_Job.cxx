@@ -353,9 +353,9 @@ Launcher::Job::getLaunchDate()
   int i = 0 ;
   for (;i < launch_date.size(); i++) 
     if (launch_date[i] == '/' or 
-	launch_date[i] == '-' or 
-	launch_date[i] == ':' or
-	launch_date[i] == ' ') 
+        launch_date[i] == '-' or 
+        launch_date[i] == ':' or
+        launch_date[i] == ' ') 
       launch_date[i] = '_';
   launch_date.erase(--launch_date.end()); // Last caracter is a \n
 
@@ -424,7 +424,7 @@ Launcher::Job::common_job_params()
     int i = 0 ;
     while ( i < lend ) {
       if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-	thedate[i] = '_' ;
+        thedate[i] = '_' ;
       }
       i++ ;
     }

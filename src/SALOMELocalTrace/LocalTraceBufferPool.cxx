@@ -84,72 +84,72 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
       int ret;
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
-	{                                      // the lock after the first test
-	  DEVTRACE("New buffer pool");
-	  LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
+        {                                      // the lock after the first test
+          DEVTRACE("New buffer pool");
+          LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
 
-	  new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
-	  _singleton = myInstance;
+          new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
+          _singleton = myInstance;
 
-	  // --- start a trace Collector
+          // --- start a trace Collector
 
-	  char* traceKind = getenv("SALOME_trace");
+          char* traceKind = getenv("SALOME_trace");
 
-	  if ( !traceKind || strcmp(traceKind,"local")==0 ) // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
-	    {
-	      _myThreadTrace = LocalTraceCollector::instance();
-	    }
-	  else if (strncmp(traceKind,"file",strlen("file"))==0)
-	    {
-	      const char *fileName;
-	      if (strlen(traceKind) > strlen("file"))
-		fileName = &traceKind[strlen("file")+1];
-	      else
-		fileName = "/tmp/tracetest.log";
-	      
-	      _myThreadTrace = FileTraceCollector::instance(fileName);
-	    }
-	  else // --- try a dynamic library
-	    {
+          if ( !traceKind || strcmp(traceKind,"local")==0 ) // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
+            {
+              _myThreadTrace = LocalTraceCollector::instance();
+            }
+          else if (strncmp(traceKind,"file",strlen("file"))==0)
+            {
+              const char *fileName;
+              if (strlen(traceKind) > strlen("file"))
+                fileName = &traceKind[strlen("file")+1];
+              else
+                fileName = "/tmp/tracetest.log";
+              
+              _myThreadTrace = FileTraceCollector::instance(fileName);
+            }
+          else // --- try a dynamic library
+            {
 #ifndef WIN32
-	      void* handle;
-	      string impl_name = string ("lib") + traceKind 
-		+ string("TraceCollector.so");
-	      handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+              void* handle;
+              string impl_name = string ("lib") + traceKind 
+                + string("TraceCollector.so");
+              handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
-	      HINSTANCE handle;
-	      string impl_name = string ("lib") + traceKind + string(".dll");
-	      handle = LoadLibrary( impl_name.c_str() );
+              HINSTANCE handle;
+              string impl_name = string ("lib") + traceKind + string(".dll");
+              handle = LoadLibrary( impl_name.c_str() );
 #endif
-	      if ( handle )
-		{
-		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
+              if ( handle )
+                {
+                  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
 #ifndef WIN32
-		  FACTORY_FUNCTION TraceCollectorFactory =
-		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
+                  FACTORY_FUNCTION TraceCollectorFactory =
+                    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
 #else
-		  FACTORY_FUNCTION TraceCollectorFactory =
-		    (FACTORY_FUNCTION)GetProcAddress(handle, "SingletonInstance");
+                  FACTORY_FUNCTION TraceCollectorFactory =
+                    (FACTORY_FUNCTION)GetProcAddress(handle, "SingletonInstance");
 #endif
-		  if ( !TraceCollectorFactory )
-		  {
-		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
+                  if ( !TraceCollectorFactory )
+                  {
+                      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
 #ifndef WIN32
-		      cerr << "dlerror: " << dlerror() << endl;
+                      cerr << "dlerror: " << dlerror() << endl;
 #endif
-		      exit( 1 );
-		    }
-		  _myThreadTrace = (TraceCollectorFactory) ();
-		}
-	      else
-		{
-		  cerr << "library: " << impl_name << " not found !" << endl;
-		  assert(handle); // to give file and line
-		  exit(1);        // in case assert is deactivated
-		}	      
-	    }
-	  DEVTRACE("New buffer pool: end");
-	}
+                      exit( 1 );
+                    }
+                  _myThreadTrace = (TraceCollectorFactory) ();
+                }
+              else
+                {
+                  cerr << "library: " << impl_name << " not found !" << endl;
+                  assert(handle); // to give file and line
+                  exit(1);        // in case assert is deactivated
+                }             
+            }
+          DEVTRACE("New buffer pool: end");
+        }
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
@@ -188,8 +188,8 @@ int LocalTraceBufferPool::insert(int traceType, const char* msg)
   // fill the buffer with message, thread id and type (normal or abort)
 
   strncpy(_myBuffer[myInsertPos%TRACE_BUFFER_SIZE].trace,
-	  msg,
-	  MAXMESS_LENGTH); // last chars always "...\n\0" if msg too long
+          msg,
+          MAXMESS_LENGTH); // last chars always "...\n\0" if msg too long
   _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].threadId =pthread_self();//thread id
   _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].traceType = traceType;
   _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].position = myMessageNumber;
@@ -233,8 +233,8 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
   // copy the buffer from the pool to the provided buffer
 
   memcpy((void*)&aTrace,
-	 (void*)&_myBuffer[myRetrievePos%TRACE_BUFFER_SIZE],
-	 sizeof(aTrace));
+         (void*)&_myBuffer[myRetrievePos%TRACE_BUFFER_SIZE],
+         sizeof(aTrace));
 
   // increment the free buffer semaphore
   // (if previously 0, awake one of the threads waiting to put a trace, if any)

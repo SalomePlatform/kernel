@@ -34,7 +34,7 @@
 #include "SALOMEDS_BasicAttribute_i.hxx"
 
 class SALOMEDS_AttReal_i: public POA_SALOMEDS::AttReal,
-			  public SALOMEDS_BasicAttribute_i {
+                          public SALOMEDS_BasicAttribute_i {
 protected:
   char * _type;
 

@@ -42,29 +42,29 @@ SALOME::SenderDouble_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommun
     {
     case SALOME::CORBA_:
       {
-	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
-	return retc->_this();
+        SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
+        return retc->_this();
       }
 #ifdef HAVE_MPI2
     case SALOME::MPI_:
       {
-	SALOME_MPISenderDouble_i* retm=new SALOME_MPISenderDouble_i(tab,lgr,ownTab);
-	return retm->_this();
+        SALOME_MPISenderDouble_i* retm=new SALOME_MPISenderDouble_i(tab,lgr,ownTab);
+        return retm->_this();
       }
 #endif
 #ifdef HAVE_SOCKET
     case SALOME::SOCKET_:
       {
-	SALOME_SocketSenderDouble_i* rets=new SALOME_SocketSenderDouble_i(tab,lgr,ownTab);
-	return rets->_this();
+        SALOME_SocketSenderDouble_i* rets=new SALOME_SocketSenderDouble_i(tab,lgr,ownTab);
+        return rets->_this();
       }
 #endif
     default:
       {
-	multiCommunicator.setProtocol(SALOME::CORBA_);
-	MESSAGE("PROTOCOL CHANGED TO CORBA");
-	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
-	return retc->_this();
+        multiCommunicator.setProtocol(SALOME::CORBA_);
+        MESSAGE("PROTOCOL CHANGED TO CORBA");
+        SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr,ownTab);
+        return retc->_this();
       }
 //       throw MultiCommException("Communication protocol not implemented");
     }
@@ -75,28 +75,28 @@ SALOME::SenderInt_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunica
     {
     case SALOME::CORBA_:
       {
-	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
-	return retc->_this();
+        SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
+        return retc->_this();
       }
 #ifdef HAVE_MPI2
     case SALOME::MPI_:
       {
-	SALOME_MPISenderInt_i* retm=new SALOME_MPISenderInt_i(tab,lgr,ownTab);
-	return retm->_this();
+        SALOME_MPISenderInt_i* retm=new SALOME_MPISenderInt_i(tab,lgr,ownTab);
+        return retm->_this();
       }
 #endif
 #ifdef HAVE_SOCKET
     case SALOME::SOCKET_:
       {
-	SALOME_SocketSenderInt_i* rets=new SALOME_SocketSenderInt_i(tab,lgr,ownTab);
-	return rets->_this();
+        SALOME_SocketSenderInt_i* rets=new SALOME_SocketSenderInt_i(tab,lgr,ownTab);
+        return rets->_this();
       }
 #endif
     default:
       {
-	multiCommunicator.setProtocol(SALOME::CORBA_);
-	SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
-	return retc->_this();
+        multiCommunicator.setProtocol(SALOME::CORBA_);
+        SALOME_CorbaLongSender * retc=new SALOME_CorbaLongSender(tab,lgr,ownTab);
+        return retc->_this();
       }
 //       throw MultiCommException("Communication protocol not implemented"); 
     }

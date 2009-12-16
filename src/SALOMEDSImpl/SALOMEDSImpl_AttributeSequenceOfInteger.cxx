@@ -184,7 +184,7 @@ string SALOMEDSImpl_AttributeSequenceOfInteger::Save()
   
   return ret;
 }
-			
+                        
 void SALOMEDSImpl_AttributeSequenceOfInteger::Load(const string& value) 
 {
   char* aCopy = (char*)value.c_str();

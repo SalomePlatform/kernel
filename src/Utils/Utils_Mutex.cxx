@@ -20,8 +20,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  SALOME Utils : general SALOME's definitions and tools
-//  File:	Utils_Mutex.cxx
-//  Author:	Sergey ANIKIN
+//  File:       Utils_Mutex.cxx
+//  Author:     Sergey ANIKIN
 //  Module :    SALOME
 //  $Header$
 //
@@ -73,7 +73,7 @@ void Utils_Mutex::unlock()
 #endif
     if ( myCount && (--myCount) < 1 ) {
       myCount = 0;
-      pthread_mutex_unlock( &myMutex );	  
+      pthread_mutex_unlock( &myMutex );   
     }
   }
   

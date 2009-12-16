@@ -105,9 +105,9 @@ struct DSC_Exception : public SALOME_Exception {
   // soit utilisable.
   // Ne pas mettre lineNumber=0 à cause du calcul log dans la SALOME_Exception si fileName est défini
   DSC_Exception( const std::string & text, 
-		 const char *fileName="", 
-		 const unsigned int lineNumber=0, 
-		 const char *funcName="" ):
+                 const char *fileName="", 
+                 const unsigned int lineNumber=0, 
+                 const char *funcName="" ):
     SALOME_Exception(text.c_str()) ,
     _dscText(text),
     _filefuncName(setFileFuncName(fileName?fileName:"",funcName?funcName:"")),
@@ -166,7 +166,7 @@ protected:
 
 #define DSC_EXCEPTION(Derived) struct Derived : public DSC_Exception { \
   Derived ( const std::string & text, const char *fileName="", const unsigned int lineNumber=0, const char *funcName="" \
-	    ) : DSC_Exception(text,fileName,lineNumber,funcName) {	\
+            ) : DSC_Exception(text,fileName,lineNumber,funcName) {      \
     _exceptionName = #Derived; \
   } \
     virtual ~Derived(void) throw();\

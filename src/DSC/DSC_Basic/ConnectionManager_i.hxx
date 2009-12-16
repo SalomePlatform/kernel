@@ -50,9 +50,9 @@ class ConnectionManager_i :
      * \see Engines::ConnectionManager::connect
      */
     Engines::ConnectionManager::connectionId connect(Engines::DSC_ptr uses_component, 
-						     const char* uses_port_name, 
-						     Engines::DSC_ptr provides_component, 
-						     const char* provides_port_name);
+                                                     const char* uses_port_name, 
+                                                     Engines::DSC_ptr provides_component, 
+                                                     const char* provides_port_name);
 
     /*!
      * CORBA method : releases a connection performed with 
@@ -61,7 +61,7 @@ class ConnectionManager_i :
      * \see Engines::ConnectionManager::disconnect
      */
     void disconnect(Engines::ConnectionManager::connectionId id,
-		    Engines::DSC::Message message);
+                    Engines::DSC::Message message);
 
     /*!
        Shutdown the ConnectionManager process.
@@ -84,9 +84,9 @@ class ConnectionManager_i :
     };
 
     typedef std::map<Engines::ConnectionManager::connectionId, 
-	    connection_infos *> ids_type;
+            connection_infos *> ids_type;
     typedef std::map<Engines::ConnectionManager::connectionId, 
-	    connection_infos *>::iterator ids_it_type;
+            connection_infos *>::iterator ids_it_type;
 
     ids_type ids;
     ids_it_type ids_it;

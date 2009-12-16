@@ -45,19 +45,19 @@ class UTILS_EXPORT ORB_INIT
 {
 
 private :
-	CORBA::ORB_var _orb ;
+        CORBA::ORB_var _orb ;
 
 public :
-	ORB_INIT( void );
-	virtual ~ORB_INIT();
-	CORBA::ORB_var & operator() ( int argc , char **argv ) throw( CommException ) ;
+        ORB_INIT( void );
+        virtual ~ORB_INIT();
+        CORBA::ORB_var & operator() ( int argc , char **argv ) throw( CommException ) ;
 
-	inline CORBA::ORB_var &orb( void );
+        inline CORBA::ORB_var &orb( void );
 } ;
 
 inline CORBA::ORB_var &ORB_INIT::orb( void )
 {
-	return _orb ;
+        return _orb ;
 }
 
 # endif

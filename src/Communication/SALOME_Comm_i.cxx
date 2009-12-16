@@ -378,7 +378,7 @@ std::string SALOME_SocketSender_i::inetAddress()
       host = gethostbyname(s);
       if (host != NULL)
          inet_ntop(AF_INET, (struct in_addr *) *host->h_addr_list, 
-		   t, INET_ADDRSTRLEN);
+                   t, INET_ADDRSTRLEN);
    }
    return std::string(t);
 }
@@ -432,19 +432,19 @@ void* SALOME_SocketSender_i::myThread(void *args)
 
       *errorFlag = false;
       while( n < *lgrTabToSend*sizeof(double) ){
-	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
-	if( m < 0 ){
-	  if( *clientSockfd >= 0 ){
-	    ::close(*clientSockfd);
-	    *clientSockfd = -1;
-	  }
-	  if( *serverSockfd >= 0 ){
-	    ::close(*serverSockfd);
-	    *serverSockfd = -1;
-	  }
-	  *errorFlag = true;
-	}
-	n += m;
+        m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
+        if( m < 0 ){
+          if( *clientSockfd >= 0 ){
+            ::close(*clientSockfd);
+            *clientSockfd = -1;
+          }
+          if( *serverSockfd >= 0 ){
+            ::close(*serverSockfd);
+            *serverSockfd = -1;
+          }
+          *errorFlag = true;
+        }
+        n += m;
       }
       xdr_destroy( &xp );
 
@@ -458,19 +458,19 @@ void* SALOME_SocketSender_i::myThread(void *args)
 
       *errorFlag = false;
       while( n < *lgrTabToSend*sizeof(int) ){
-	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(int)-n);
-	if( m < 0 ){
-	  if( *clientSockfd >= 0 ){
-	    ::close(*clientSockfd);
-	    *clientSockfd = -1;
-	  }
-	  if( *serverSockfd >= 0 ){
-	    ::close(*serverSockfd);
-	    *serverSockfd = -1;
-	  }
-	  *errorFlag = true;
-	}
-	n += m;
+        m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(int)-n);
+        if( m < 0 ){
+          if( *clientSockfd >= 0 ){
+            ::close(*clientSockfd);
+            *clientSockfd = -1;
+          }
+          if( *serverSockfd >= 0 ){
+            ::close(*serverSockfd);
+            *serverSockfd = -1;
+          }
+          *errorFlag = true;
+        }
+        n += m;
       }
       xdr_destroy( &xp );
 
@@ -502,7 +502,7 @@ void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
 
   /* Association of socket with a port */
   if( ::bind(_serverSockfd, (struct sockaddr *) & serv_addr, 
-	   sizeof(struct sockaddr)) < 0 ) {
+           sizeof(struct sockaddr)) < 0 ) {
     closeCom();
     es.type = SALOME::COMM;
     es.text = "error bind Socket exception";

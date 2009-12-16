@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     char *containerName = (char *)"";
     if (argc >1) 
     {
-	containerName = argv[1] ;
+        containerName = argv[1] ;
     }
 
     MESSAGE("[" << numproc << "] MPIContainer: load MPIContainer servant");

@@ -38,10 +38,10 @@ extern char _repository_Calcium_Long_Port_name[];
 
 class calcium_long_port_uses :
   public virtual CalciumGenericUsesPort< seq_u_manipulation<Ports::Calcium_Ports::seq_long_long,
-						     CORBA::LongLong >, 
-				  Ports::Calcium_Ports::Calcium_Long_Port, 
-				  _repository_Calcium_Long_Port_name 
-				  >
+                                                     CORBA::LongLong >, 
+                                  Ports::Calcium_Ports::Calcium_Long_Port, 
+                                  _repository_Calcium_Long_Port_name 
+                                  >
 {
   public :
 

@@ -64,7 +64,7 @@ std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudie
  */
 //============================================================================
 SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
-				   CORBA::ORB_ptr orb)
+                                   CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
@@ -217,12 +217,12 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
  */
 //============================================================================
 SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* anObjectName,
-								    const char* aComponentName )
+                                                                    const char* aComponentName )
 {
   SALOMEDS::Locker lock; 
 
   vector<SALOMEDSImpl_SObject> aSeq = _impl->FindObjectByName(string((char*)anObjectName),
-							       string((char*)aComponentName));
+                                                               string((char*)aComponentName));
   int aLength = aSeq.size();
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject ;
   listSO->length(aLength);
@@ -786,8 +786,8 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, 
-					   const char* theBaseName, 
-					   CORBA::Boolean isPublished)
+                                           const char* theBaseName, 
+                                           CORBA::Boolean isPublished)
 {
   SALOMEDS::Locker lock; 
 
@@ -818,8 +818,8 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetCommonParameters(const cha
  */
 //============================================================================
 SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const char* theID, 
-								       const char* theModuleName, 
-								       CORBA::Long theSavePoint)
+                                                                       const char* theModuleName, 
+                                                                       CORBA::Long theSavePoint)
 {
   SALOMEDS::Locker lock; 
   
@@ -925,8 +925,8 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
 void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
 {
   _impl->SetStringVariable(string(theVarName), 
-			   theValue,
-			   SALOMEDSImpl_GenericVariable::STRING_VAR);
+                           theValue,
+                           SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================
@@ -937,8 +937,8 @@ void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
 void SALOMEDS_Study_i::SetStringAsDouble(const char* theVarName, CORBA::Double theValue)
 {
   _impl->SetStringVariableAsDouble(string(theVarName), 
-				   theValue,
-				   SALOMEDSImpl_GenericVariable::STRING_VAR);
+                                   theValue,
+                                   SALOMEDSImpl_GenericVariable::STRING_VAR);
 }
 
 //============================================================================

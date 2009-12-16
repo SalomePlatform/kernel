@@ -36,10 +36,10 @@ extern char _repository_Calcium_Logical_Port_name[];
 
 class calcium_logical_port_uses :
   public virtual CalciumGenericUsesPort< seq_u_manipulation<Ports::Calcium_Ports::seq_boolean,
-						     CORBA::Boolean >, 
-				  Ports::Calcium_Ports::Calcium_Logical_Port, 
-				  _repository_Calcium_Logical_Port_name 
-				  >
+                                                     CORBA::Boolean >, 
+                                  Ports::Calcium_Ports::Calcium_Logical_Port, 
+                                  _repository_Calcium_Logical_Port_name 
+                                  >
 {
   public :
 

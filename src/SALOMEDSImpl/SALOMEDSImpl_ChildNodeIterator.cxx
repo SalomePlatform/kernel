@@ -19,10 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// File:	SALOMEDSImpl_ChildNodeIterator.cxx
-// Created:	Wed Jan 26 16:43:08 2000
-// Author:	Denis PASCAL
-//		<dp@dingox.paris1.matra-dtv.fr>
+// File:        SALOMEDSImpl_ChildNodeIterator.cxx
+// Created:     Wed Jan 26 16:43:08 2000
+// Author:      Denis PASCAL
+//              <dp@dingox.paris1.matra-dtv.fr>
 //
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 
@@ -30,10 +30,10 @@
 { \
     while (myNode && (myNode->Depth() > myFirstLevel) && myNode->myNext == NULL) \
       myNode = myNode->myFather; \
-	if (myNode && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
-	  myNode = myNode->myNext; \
-	else \
-	  myNode = NULL; \
+        if (myNode && (myNode->Depth() > myFirstLevel) && myNode->myFather != NULL) \
+          myNode = myNode->myNext; \
+        else \
+          myNode = NULL; \
 }
 
 //=======================================================================
@@ -50,7 +50,7 @@ SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator()
 //=======================================================================
 
 SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator (const SALOMEDSImpl_AttributeTreeNode* aNode,
-								const bool allLevels)
+                                                                const bool allLevels)
 : myNode(aNode->myFirst),
   myFirstLevel(allLevels ? aNode->Depth() : -1)
 {}
@@ -61,7 +61,7 @@ SALOMEDSImpl_ChildNodeIterator::SALOMEDSImpl_ChildNodeIterator (const SALOMEDSIm
 //=======================================================================
 
 void SALOMEDSImpl_ChildNodeIterator::Initialize(const SALOMEDSImpl_AttributeTreeNode* aNode,
-						const bool allLevels)
+                                                const bool allLevels)
 {
   myNode = aNode->myFirst;
   myFirstLevel = allLevels ? aNode->Depth() : -1;

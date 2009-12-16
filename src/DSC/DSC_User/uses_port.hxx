@@ -63,7 +63,7 @@ class uses_port : public base_port
      * \param message message associated with this modification.
      */
     virtual void uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				   const Engines::DSC::Message message) = 0;
+                                   const Engines::DSC::Message message) = 0;
 
 };
 

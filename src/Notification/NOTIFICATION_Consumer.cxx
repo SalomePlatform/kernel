@@ -92,7 +92,7 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
         };
 
         if (status) {
-	    //omniORB 4.1.x requiries using only CORBA types instead C types
+            //omniORB 4.1.x requiries using only CORBA types instead C types
             const char* Asender;
             const char* Agraph;
             const char* Atype;
@@ -100,7 +100,7 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
             CORBA::ULong      Astamp;
             const char* Adate;
             const char* Anode;
-            const char* Amessage;	    
+            const char* Amessage;           
             event->filterable_data[0].value >>= Asender;
             event->filterable_data[1].value >>= Agraph;
             event->filterable_data[2].value >>= Atype;

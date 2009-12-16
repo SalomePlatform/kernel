@@ -92,7 +92,7 @@ public:
   virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished); 
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
-						       const std::string& theModuleName, int theSavePoint);
+                                                       const std::string& theModuleName, int theSavePoint);
   virtual void SetStudyLock(const std::string& theLockerID);
   virtual bool IsStudyLocked();
   virtual void UnLockStudy(const std::string& theLockerID);

@@ -36,10 +36,10 @@
 using namespace std;
 
 Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
-						 PortableServer::POA_ptr poa,
-						 PortableServer::ObjectId * contId, 
-						 const char *instanceName, 
-						 const char *interfaceName) :
+                                                 PortableServer::POA_ptr poa,
+                                                 PortableServer::ObjectId * contId, 
+                                                 const char *instanceName, 
+                                                 const char *interfaceName) :
   Engines_Component_i(orb, poa, contId, instanceName, interfaceName)
 {
   MESSAGE("activate object");
@@ -79,19 +79,19 @@ void Engines_TestComponent_i::Setenv()
     {
       std::string cle((*it).first);
       if ((*it).second.type()->kind() == CORBA::tk_string)
-	{
-	  const char* value;
-	  (*it).second >>= value;
-	  //CCRT porting : setenv not defined in stdlib.h
-	  std::string s(cle);
-	  s+='=';
-	  s+=value;
-	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
-	  putenv((char *)s.c_str());
-	  //End of CCRT porting
-	  //int ret = setenv(cle.c_str(), value, overwrite);
-	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
-	}
+        {
+          const char* value;
+          (*it).second >>= value;
+          //CCRT porting : setenv not defined in stdlib.h
+          std::string s(cle);
+          s+='=';
+          s+=value;
+          //char* cast because 1st arg of linux putenv function is not a const char* !!!
+          putenv((char *)s.c_str());
+          //End of CCRT porting
+          //int ret = setenv(cle.c_str(), value, overwrite);
+          MESSAGE("--- setenv: "<<cle<<" = "<< value);
+        }
     }
   MESSAGE("read environment associated with keys in map _fieldsDict");
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
@@ -99,18 +99,18 @@ void Engines_TestComponent_i::Setenv()
       std::string cle((*it).first);
       char* valenv= getenv(cle.c_str());
       if (valenv)
-	MESSAGE("--- getenv: "<<cle<<" = "<< valenv);
+        MESSAGE("--- getenv: "<<cle<<" = "<< valenv);
     }
 }
 
 extern "C"
 {
   PortableServer::ObjectId * SalomeTestComponentEngine_factory(
-				 CORBA::ORB_ptr orb,
-				 PortableServer::POA_ptr poa, 
-				 PortableServer::ObjectId * contId,
-				 const char *instanceName, 
-				 const char *interfaceName)
+                                 CORBA::ORB_ptr orb,
+                                 PortableServer::POA_ptr poa, 
+                                 PortableServer::ObjectId * contId,
+                                 const char *instanceName, 
+                                 const char *interfaceName)
   {
     MESSAGE("PortableServer::ObjectId * TestComponent_factory()");
     SCRUTE(interfaceName);

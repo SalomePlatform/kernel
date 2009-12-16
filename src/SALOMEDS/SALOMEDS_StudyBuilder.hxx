@@ -60,10 +60,10 @@ public:
   virtual void RemoveObject(const _PTR(SObject)& theSO);
   virtual void RemoveObjectWithChildren(const _PTR(SObject)& theSO);
   virtual _PTR(GenericAttribute) FindOrCreateAttribute(const _PTR(SObject)& theSO, 
-						       const std::string& aTypeOfAttribute);
+                                                       const std::string& aTypeOfAttribute);
   virtual bool FindAttribute(const _PTR(SObject)& theSO, 
                              _PTR(GenericAttribute)& theAttribute, 
-			     const std::string& aTypeOfAttribute);
+                             const std::string& aTypeOfAttribute);
   virtual void RemoveAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute);
   virtual void Addreference(const _PTR(SObject)& me, const _PTR(SObject)& thereferencedObject);
   virtual void RemoveReference(const _PTR(SObject)& me);

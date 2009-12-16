@@ -46,9 +46,9 @@ HDFattrGetType(hdf_idt id)
     case H5T_INTEGER :
       size = H5Tget_size(type_id);
       if (size == 4)
-	type = HDF_INT32;
+        type = HDF_INT32;
       else
-	type = HDF_INT64;
+        type = HDF_INT64;
       break;
 
     case H5T_FLOAT :

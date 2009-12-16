@@ -55,17 +55,17 @@ class Superv_Component_i :
 {
 public:
   Superv_Component_i(CORBA::ORB_ptr orb,
-		     PortableServer::POA_ptr poa,
-		     PortableServer::ObjectId * contId,
-		     const char *instanceName,
-		     const char *interfaceName,
-		     bool notif = false);
+                     PortableServer::POA_ptr poa,
+                     PortableServer::ObjectId * contId,
+                     const char *instanceName,
+                     const char *interfaceName,
+                     bool notif = false);
   Superv_Component_i(CORBA::ORB_ptr orb,
-		     PortableServer::POA_ptr poa,
-		     Engines::Container_ptr container, 
-		     const char *instanceName,
-		     const char *interfaceName,
-		     bool notif = false,
+                     PortableServer::POA_ptr poa,
+                     Engines::Container_ptr container, 
+                     const char *instanceName,
+                     const char *interfaceName,
+                     bool notif = false,
          bool regist = true );
   virtual ~Superv_Component_i();
 
@@ -142,8 +142,8 @@ public:
    * \param port_name the name of the port in the component.
    */
   virtual void add_port(const char * port_fab_type,
-			const char * port_type,
-			const char * port_name)
+                        const char * port_type,
+                        const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadProperty);
 
   /*!
@@ -157,8 +157,8 @@ public:
    */
   template < typename SpecificPortType >  
   SpecificPortType * add_port(const char * port_fab_type,
-			      const char * port_type,
-			      const char * port_name)
+                              const char * port_type,
+                              const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty);
 
   /*!
@@ -168,7 +168,7 @@ public:
    * \param provides_port_name the name of the port in the component.
    */
   virtual void add_port(provides_port * port, 
-			const char* provides_port_name)
+                        const char* provides_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
 
   /*!
@@ -178,7 +178,7 @@ public:
    * \param uses_port_name the name of the port in the component.
    */
   virtual void add_port(uses_port * port, 
-			const char* uses_port_name)
+                        const char* uses_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
 
   /*!
@@ -188,7 +188,7 @@ public:
    * \param provides_port_name the name of the port.
    */
   virtual void get_port(provides_port *& port, 
-			const char* provides_port_name)
+                        const char* provides_port_name)
     throw (PortNotDefined, PortNotConnected);
   
   /*!
@@ -198,7 +198,7 @@ public:
    * \param uses_port_name the name of the port.
    */
   virtual void get_port(uses_port *& port, 
-			const char* uses_port_name)
+                        const char* uses_port_name)
     throw (PortNotDefined, PortNotConnected);
 
   /*!
@@ -210,7 +210,7 @@ public:
    * \param servicename service's name.
    */
   virtual void get_uses_port_names(std::vector<std::string> & port_names,
-				   const std::string servicename="") const;
+                                   const std::string servicename="") const;
 
   /*!
    * Gets a port already added in the component.
@@ -226,15 +226,15 @@ public:
    * \see DSC_Callbacks::provides_port_changed
    */
   virtual void provides_port_changed(const char* provides_port_name,
-				     int connection_nbr,
-				     const Engines::DSC::Message message);
+                                     int connection_nbr,
+                                     const Engines::DSC::Message message);
 
   /*!
    * \see DSC_Callbacks::uses_port_changed
    */
   virtual void uses_port_changed(const char* uses_port_name,
-				 Engines::DSC::uses_port * new_uses_port,
-				 const Engines::DSC::Message message);
+                                 Engines::DSC::uses_port * new_uses_port,
+                                 const Engines::DSC::Message message);
 
 
   /*!
@@ -246,7 +246,7 @@ public:
    * \param factory_ptr factory pointer (destroyed by the component)
    */
   static void register_factory(const std::string & factory_name,
-				port_factory * factory_ptr);
+                                port_factory * factory_ptr);
 
   /*!
    * Get a factory from the component. 
@@ -306,8 +306,8 @@ private:
 
 template < typename SpecificPortType >  SpecificPortType * 
 Superv_Component_i::add_port(const char * port_fab_type,
-			     const char * port_type,
-			     const char * port_name)
+                             const char * port_type,
+                             const char * port_name)
   throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty)
 {
   assert(port_fab_type);
@@ -345,7 +345,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
   }
   else
     throw BadType(LOC(OSS()<< "port_type must be either 'provides' either 'uses' not "
-		      << port_type));
+                      << port_type));
   
   return retPort;
 };
@@ -382,10 +382,10 @@ Superv_Component_i::get_port( const char * port_name)
     }
   } catch (const Engines::DSC::PortNotDefined&) {
     throw PortNotDefined( LOC(OSS()<< "port "
-			      << port_name <<" does not exist."));
+                              << port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
     throw PortNotConnected( LOC(OSS()<< "port " << port_name 
-				<< " is not connected."));
+                                << " is not connected."));
   }
   
   retPort = dynamic_cast<SpecificPortType *>(port);

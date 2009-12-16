@@ -27,12 +27,12 @@
 #include "CalciumCouplingPolicy.hxx"
 
 CalciumCouplingPolicy::CalciumCouplingPolicy():_dependencyType(CalciumTypes::UNDEFINED_DEPENDENCY),
-					       _storageLevel(CalciumTypes::UNLIMITED_STORAGE_LEVEL),
-					       _dateCalSchem(CalciumTypes::TI_SCHEM),
-					       _interpolationSchem(CalciumTypes::L1_SCHEM),
-					       _extrapolationSchem(CalciumTypes::UNDEFINED_EXTRA_SCHEM),
-					       _alpha(0.0),_deltaT(CalciumTypes::EPSILON),
-					       _disconnectDirective(CalciumTypes::UNDEFINED_DIRECTIVE){};
+                                               _storageLevel(CalciumTypes::UNLIMITED_STORAGE_LEVEL),
+                                               _dateCalSchem(CalciumTypes::TI_SCHEM),
+                                               _interpolationSchem(CalciumTypes::L1_SCHEM),
+                                               _extrapolationSchem(CalciumTypes::UNDEFINED_EXTRA_SCHEM),
+                                               _alpha(0.0),_deltaT(CalciumTypes::EPSILON),
+                                               _disconnectDirective(CalciumTypes::UNDEFINED_DIRECTIVE){};
 
 void CalciumCouplingPolicy::setDependencyType (CalciumTypes::DependencyType dependencyType) {_dependencyType=dependencyType;}
 CalciumTypes::DependencyType CalciumCouplingPolicy::getDependencyType () const              { return _dependencyType;}
@@ -93,7 +93,7 @@ CalciumTypes::ExtrapolationSchem CalciumCouplingPolicy::getExtrapolationSchem ()
 
 CalciumCouplingPolicy::TimeType 
 CalciumCouplingPolicy::getEffectiveTime(CalciumCouplingPolicy::TimeType ti, 
-					CalciumCouplingPolicy::TimeType tf) {
+                                        CalciumCouplingPolicy::TimeType tf) {
   if ( _dateCalSchem == CalciumTypes::TI_SCHEM )  return ti;
   if ( _dateCalSchem == CalciumTypes::TF_SCHEM )  return tf;
   

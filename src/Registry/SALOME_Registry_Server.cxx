@@ -58,8 +58,8 @@ int main( int argc , char **argv )
     SCRUTE(argc) 
     if( argc<3 )
       {
-	MESSAGE("you must provide the Salome session name when you call SALOME_Registry_Server") ;
-	throw CommException("you must provide the Salome session name when you call SALOME_Registry_Server") ;
+        MESSAGE("you must provide the Salome session name when you call SALOME_Registry_Server") ;
+        throw CommException("you must provide the Salome session name when you call SALOME_Registry_Server") ;
       }
   const char *ptrSessionName=0 ;
 
@@ -67,10 +67,10 @@ int main( int argc , char **argv )
   for ( k=1 ; k<argc ; k++ )
     {
       if( strcmp(argv[k],"--salome_session")==0 )
-	{
-	  ptrSessionName=argv[k+1] ;
-	  break ;
-	}
+        {
+          ptrSessionName=argv[k+1] ;
+          break ;
+        }
     }
   ASSERT(ptrSessionName) ;
   ASSERT(strlen( ptrSessionName )>0) ;
@@ -104,62 +104,62 @@ int main( int argc , char **argv )
     {
       if (i!=1) 
 #ifndef WIN32
-	a=nanosleep(&ts_req,&ts_rem);
+        a=nanosleep(&ts_req,&ts_rem);
 #else
     Sleep(TIMESleep/1000000);
 #endif
       try
-	{ 
-	  obj = orb->resolve_initial_references("RootPOA");
-	  if(!CORBA::is_nil(obj))
-	    poa = PortableServer::POA::_narrow(obj);
-	  if(!CORBA::is_nil(poa))
-	    manager = poa->the_POAManager();
-	  if(!CORBA::is_nil(orb)) 
-	    theObj = orb->resolve_initial_references("NameService");
-	  if (!CORBA::is_nil(theObj))
-	    inc = CosNaming::NamingContext::_narrow(theObj);
-	}
+        { 
+          obj = orb->resolve_initial_references("RootPOA");
+          if(!CORBA::is_nil(obj))
+            poa = PortableServer::POA::_narrow(obj);
+          if(!CORBA::is_nil(poa))
+            manager = poa->the_POAManager();
+          if(!CORBA::is_nil(orb)) 
+            theObj = orb->resolve_initial_references("NameService");
+          if (!CORBA::is_nil(theObj))
+            inc = CosNaming::NamingContext::_narrow(theObj);
+        }
       catch( CORBA::SystemException& )
-	{
-	  MESSAGE( "Registry Server: CORBA::SystemException: Unable to contact the Naming Service" );
-	}
+        {
+          MESSAGE( "Registry Server: CORBA::SystemException: Unable to contact the Naming Service" );
+        }
       if(!CORBA::is_nil(inc))
-	{
-	  MESSAGE( "Registry Server: Naming Service was found" );
-	  if(EnvL==1)
-	    {
-	      for(int j=1; j<=NumberOfTries; j++)
-		{
-		  if (j!=1) 
+        {
+          MESSAGE( "Registry Server: Naming Service was found" );
+          if(EnvL==1)
+            {
+              for(int j=1; j<=NumberOfTries; j++)
+                {
+                  if (j!=1) 
 #ifndef WIN32
-		    a=nanosleep(&ts_req, &ts_rem);
+                    a=nanosleep(&ts_req, &ts_rem);
 #else
-			Sleep(TIMESleep/1000000);
+                        Sleep(TIMESleep/1000000);
 #endif
-		  try
-		    {
-		      object = inc->resolve(name);
-		    }
-		  catch(CosNaming::NamingContext::NotFound)
-		    {
-		      MESSAGE( "Registry Server: Logger Server wasn't found" );
-		    }
-		  catch(...)
-		    {
-		      MESSAGE( "Registry Server: Unknown exception" );
-		    }
-		  if (!CORBA::is_nil(object))
-		    {
-		      MESSAGE( "Module Catalog Server: Logger Server was found" );
-		      REGISTRY=1;
-		      break;
-		    }
-		}
-	    }
-	}
+                  try
+                    {
+                      object = inc->resolve(name);
+                    }
+                  catch(CosNaming::NamingContext::NotFound)
+                    {
+                      MESSAGE( "Registry Server: Logger Server wasn't found" );
+                    }
+                  catch(...)
+                    {
+                      MESSAGE( "Registry Server: Unknown exception" );
+                    }
+                  if (!CORBA::is_nil(object))
+                    {
+                      MESSAGE( "Module Catalog Server: Logger Server was found" );
+                      REGISTRY=1;
+                      break;
+                    }
+                }
+            }
+        }
       if ((REGISTRY==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-	break;
+        break;
     }
 
   try
@@ -171,53 +171,53 @@ int main( int argc , char **argv )
       varComponents = ptrRegistry->_this() ;
       ptrRegistry->_remove_ref(); //let poa manage registryservice deletion
       // The RegistryService must not already exist.
-	    
+            
       try
-	{
-	  CORBA::Object_var pipo = naming.Resolve( registryName ) ;
-	  if (CORBA::is_nil(pipo) )  throw ServiceUnreachable() ;
-	  MESSAGE("RegistryService servant already existing" ) ;
-	  exit( EXIT_FAILURE ) ;
-	}
+        {
+          CORBA::Object_var pipo = naming.Resolve( registryName ) ;
+          if (CORBA::is_nil(pipo) )  throw ServiceUnreachable() ;
+          MESSAGE("RegistryService servant already existing" ) ;
+          exit( EXIT_FAILURE ) ;
+        }
       catch( const ServiceUnreachable &ex )
-	{
-	}
+        {
+        }
       catch( const CORBA::Exception &exx )
-	{
-	}
+        {
+        }
       string absoluteName = string("/") + registryName;
       naming.Register( varComponents , absoluteName.c_str() ) ;
       MESSAGE("Wait client requests") ;
       try
-	{
-	  // Activation du POA
-	  MESSAGE("POA activation") ;
-	  manager->activate() ;
-		
-	  // Lancement de l'ORB
-	  MESSAGE("ORB launching") ;
+        {
+          // Activation du POA
+          MESSAGE("POA activation") ;
+          manager->activate() ;
+                
+          // Lancement de l'ORB
+          MESSAGE("ORB launching") ;
 #ifdef CHECKTIME
-	  Utils_Timer timer;
-	  timer.Start();
-	  timer.Stop();
-	  MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
-	  timer.ShowAbsolute();
+          Utils_Timer timer;
+          timer.Start();
+          timer.Stop();
+          MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
+          timer.ShowAbsolute();
 #endif
-	  orb->run() ;
-	}
+          orb->run() ;
+        }
       catch( const CORBA::Exception &ex )
-	{
-	  MESSAGE("System error") ;
-	  return EXIT_FAILURE ;
-	}
-	    
+        {
+          MESSAGE("System error") ;
+          return EXIT_FAILURE ;
+        }
+            
     }
   catch( const SALOME_Exception &ex )
     {
       MESSAGE( "Communication Error : " << ex.what() )
-	return EXIT_FAILURE ;
+        return EXIT_FAILURE ;
     }
-	
+        
   END_OF( argv[0] ) ;
   //  delete myThreadTrace;
   return 0 ;

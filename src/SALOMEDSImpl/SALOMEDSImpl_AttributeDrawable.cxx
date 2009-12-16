@@ -44,7 +44,7 @@ const std::string& SALOMEDSImpl_AttributeDrawable::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeDrawable* SALOMEDSImpl_AttributeDrawable::Set (const DF_Label& L,
-								     const int value) 
+                                                                     const int value) 
 {
   SALOMEDSImpl_AttributeDrawable* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeDrawable*)L.FindAttribute(SALOMEDSImpl_AttributeDrawable::GetID()))) {

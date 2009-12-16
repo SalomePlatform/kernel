@@ -35,8 +35,8 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 class Standard_EXPORT SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::GenericAttribute,
-				   public virtual PortableServer::ServantBase,
-				   public virtual SALOME::GenericObj_i
+                                   public virtual PortableServer::ServantBase,
+                                   public virtual SALOME::GenericObj_i
 {
 
 protected:

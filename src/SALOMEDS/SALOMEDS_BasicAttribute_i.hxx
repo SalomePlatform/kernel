@@ -34,7 +34,7 @@
 #include <DF_Label.hxx>
 
 class SALOMEDS_BasicAttribute_i: public POA_SALOMEDS::BasicAttribute,
-				 public PortableServer::ServantBase {
+                                 public PortableServer::ServantBase {
 protected:
   DF_Label _Lab;
 

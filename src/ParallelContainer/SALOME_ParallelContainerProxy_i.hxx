@@ -45,10 +45,10 @@ class Container_proxy_impl_final :
 {
   public:
     Container_proxy_impl_final(CORBA::ORB_ptr orb, 
-			       paco_fabrique_thread * fab_thread,
-			       PortableServer::POA_ptr poa,
-			       std::string containerName,
-			       bool is_a_return_proxy = false);
+                               paco_fabrique_thread * fab_thread,
+                               PortableServer::POA_ptr poa,
+                               std::string containerName,
+                               bool is_a_return_proxy = false);
 
     virtual ~Container_proxy_impl_final();
 
@@ -64,7 +64,7 @@ class Container_proxy_impl_final :
     {
       Engines::Component_var     proxy_corba_ref;
       PortableServer::ObjectId * proxy_id;
-      RegistryConnexion *	 proxy_regist;
+      RegistryConnexion *        proxy_regist;
     };
 
     // Cette liste contient les references vers les différentes
@@ -75,12 +75,12 @@ class Container_proxy_impl_final :
     // parallèles ou sequentiels
     typedef void (*PACO_TEST_FUNCTION) ();
     typedef PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr,
-							    paco_fabrique_thread *,
-							    PortableServer::POA_ptr,
-							    PortableServer::ObjectId *,
-							    RegistryConnexion **,
-							    const char *,
-							    int);
+                                                            paco_fabrique_thread *,
+                                                            PortableServer::POA_ptr,
+                                                            PortableServer::ObjectId *,
+                                                            RegistryConnexion **,
+                                                            const char *,
+                                                            int);
     int _numInstance;
     std::string _hostname;
     std::string _containerName;

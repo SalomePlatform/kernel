@@ -40,7 +40,7 @@ std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserDataStreamParameter & P)
+                           const ParserDataStreamParameter & P)
 {
   f << "          name :       " << P.name << std::endl;
   f << "          type :       " << P.type << std::endl;
@@ -49,7 +49,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserService & S)
+                           const ParserService & S)
 {
   int i, n;
   f << "      name :       " << S.name << std::endl;
@@ -84,7 +84,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserInterface & I)
+                           const ParserInterface & I)
 {
   int j, n;
   f << "    name :       " << I.name << std::endl;
@@ -100,7 +100,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const  ParserComponentType & T)
+                           const  ParserComponentType & T)
 {
   std::string s;
   switch (T) {
@@ -118,7 +118,7 @@ std::ostream & operator<< (std::ostream & f,
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponent & C)
+                           const ParserComponent & C)
 {
   int j, n;
   f << std::endl

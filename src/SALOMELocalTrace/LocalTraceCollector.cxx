@@ -51,16 +51,16 @@ BaseTraceCollector* LocalTraceCollector::instance()
       int ret;
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
-	{                                      // the lock after the first test
-	  BaseTraceCollector* myInstance = new LocalTraceCollector();
+        {                                      // the lock after the first test
+          BaseTraceCollector* myInstance = new LocalTraceCollector();
 
-	  sem_init(&_sem,0,0); // to wait until run thread is initialized
-	  pthread_t traceThread;
-	  pthread_create(&traceThread, NULL,
-				   LocalTraceCollector::run, NULL);
-	  sem_wait(&_sem);
-	  _singleton = myInstance; // _singleton known only when init done
-	}
+          sem_init(&_sem,0,0); // to wait until run thread is initialized
+          pthread_t traceThread;
+          pthread_create(&traceThread, NULL,
+                                   LocalTraceCollector::run, NULL);
+          sem_wait(&_sem);
+          _singleton = myInstance; // _singleton known only when init done
+        }
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
@@ -92,36 +92,36 @@ void* LocalTraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	{
-	  DEVTRACE("FileTraceCollector _threadToClose");
-	  //break;
-	}
+        {
+          DEVTRACE("FileTraceCollector _threadToClose");
+          //break;
+        }
 
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
-	{
-	  cout << flush ;
+        {
+          cout << flush ;
 #ifndef WIN32
-	  cerr << "INTERRUPTION from thread " << myTrace.threadId
-	       << " : " <<  myTrace.trace;
+          cerr << "INTERRUPTION from thread " << myTrace.threadId
+               << " : " <<  myTrace.trace;
 #else
-	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	       << " : " <<  myTrace.trace;
+          cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+               << " : " <<  myTrace.trace;
 #endif
-	  cerr << flush ; 
-	  exit(1);     
-	}
+          cerr << flush ; 
+          exit(1);     
+        }
       else
-	{
-	  cout << flush ;
+        {
+          cout << flush ;
 #ifndef WIN32
-	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+          cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-	  cerr << "th. " << (void*)(&myTrace.threadId)
-	       << " " << myTrace.trace;
+          cerr << "th. " << (void*)(&myTrace.threadId)
+               << " " << myTrace.trace;
 #endif
-	  cerr << flush ; 
-	}
+          cerr << flush ; 
+        }
     }
   pthread_exit(NULL);
   return NULL;
@@ -144,14 +144,14 @@ LocalTraceCollector:: ~LocalTraceCollector()
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
       if (_threadId)
-	{
-	  int ret = pthread_join(*_threadId, NULL);
-	  if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
-	  else DEVTRACE("LocalTraceCollector destruction OK");
+        {
+          int ret = pthread_join(*_threadId, NULL);
+          if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
+          else DEVTRACE("LocalTraceCollector destruction OK");
           delete _threadId;
-	  _threadId = 0;
-	  _threadToClose = 0;
-	}
+          _threadId = 0;
+          _threadToClose = 0;
+        }
       _singleton = 0;
     }
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock

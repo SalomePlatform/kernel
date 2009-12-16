@@ -23,10 +23,10 @@
 #include "SenderFactory.hxx"
 
 SALOME_Matrix_i::SALOME_Matrix_i(const SALOMEMultiComm& multiCommunicator,const double *tabToSend,int nbOfRow,int nbOfColumn,bool ownTabToSend):_tabToSend(tabToSend),
-																		_nbOfRow(nbOfRow),
-																		_nbOfColumn(nbOfColumn),
-																		_ownTabToSend(ownTabToSend),
-																		_type(multiCommunicator)
+                                                                                                                                                _nbOfRow(nbOfRow),
+                                                                                                                                                _nbOfColumn(nbOfColumn),
+                                                                                                                                                _ownTabToSend(ownTabToSend),
+                                                                                                                                                _type(multiCommunicator)
 {
 }
 

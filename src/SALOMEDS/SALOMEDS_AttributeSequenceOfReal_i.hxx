@@ -34,7 +34,7 @@
 #include "SALOMEDSImpl_AttributeSequenceOfReal.hxx"
 
 class SALOMEDS_AttributeSequenceOfReal_i: public virtual POA_SALOMEDS::AttributeSequenceOfReal,
-					  public virtual SALOMEDS_GenericAttribute_i {
+                                          public virtual SALOMEDS_GenericAttribute_i {
 public:
   
   SALOMEDS_AttributeSequenceOfReal_i(SALOMEDSImpl_AttributeSequenceOfReal* theAttr, CORBA::ORB_ptr orb) 

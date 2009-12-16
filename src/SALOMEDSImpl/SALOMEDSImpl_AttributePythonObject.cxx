@@ -50,7 +50,7 @@ SALOMEDSImpl_AttributePythonObject::SALOMEDSImpl_AttributePythonObject()
 }
 
 void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
-					           const bool theScript) 
+                                                   const bool theScript) 
 {
   CheckLocked();
   Backup();
@@ -106,7 +106,7 @@ string SALOMEDSImpl_AttributePythonObject::Save()
   
   return aResult;
 }
-	  
+          
 void SALOMEDSImpl_AttributePythonObject::Load(const string& value) 
 {
   char* aString = (char*)value.c_str();

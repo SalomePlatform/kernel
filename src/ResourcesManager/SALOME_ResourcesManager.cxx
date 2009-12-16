@@ -57,8 +57,8 @@ const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesMana
 
 SALOME_ResourcesManager::
 SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
-			PortableServer::POA_var poa, 
-			SALOME_NamingService *ns,
+                        PortableServer::POA_var poa, 
+                        SALOME_NamingService *ns,
                         const char *xmlFilePath) : _rm(xmlFilePath)
 {
   MESSAGE("SALOME_ResourcesManager constructor");
@@ -84,8 +84,8 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
 //=============================================================================
 
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
-						 PortableServer::POA_var poa, 
-						 SALOME_NamingService *ns) : _rm()
+                                                 PortableServer::POA_var poa, 
+                                                 SALOME_NamingService *ns) : _rm()
 {
   MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
@@ -259,8 +259,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 
 std::string 
 SALOME_ResourcesManager::getMachineFile(std::string hostname, 
-					CORBA::Long nb_procs, 
-					std::string parallelLib)
+                                        CORBA::Long nb_procs, 
+                                        std::string parallelLib)
 {
   std::string machine_file_name("");
 
@@ -275,30 +275,30 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
       {
-	//It is not a cluster so we create a cluster with one machine
-	ParserResourcesClusterMembersType fake_node;
-	fake_node.HostName = resource.HostName;
-	fake_node.Protocol = resource.Protocol;
-	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
-	fake_node.UserName = resource.UserName;
-	fake_node.AppliPath = resource.AppliPath;
-	fake_node.DataForSort = resource.DataForSort;
+        //It is not a cluster so we create a cluster with one machine
+        ParserResourcesClusterMembersType fake_node;
+        fake_node.HostName = resource.HostName;
+        fake_node.Protocol = resource.Protocol;
+        fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
+        fake_node.UserName = resource.UserName;
+        fake_node.AppliPath = resource.AppliPath;
+        fake_node.DataForSort = resource.DataForSort;
 
-	resource.ClusterMembersList.push_front(fake_node);
+        resource.ClusterMembersList.push_front(fake_node);
       }
 
       // Creating list of machines for creating the machine file
       std::list<std::string> list_of_machines;
       std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
-	resource.ClusterMembersList.begin();
+        resource.ClusterMembersList.begin();
       while (cluster_it != resource.ClusterMembersList.end())
       {
-	// For each member of the cluster we add a nbOfNodes * nbOfProcPerNode in the list
-	unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
-				      (*cluster_it).DataForSort._nbOfProcPerNode;
-	for (unsigned int i = 0; i < number_of_proc; i++)
-	  list_of_machines.push_back((*cluster_it).HostName);
-	cluster_it++;
+        // For each member of the cluster we add a nbOfNodes * nbOfProcPerNode in the list
+        unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
+                                      (*cluster_it).DataForSort._nbOfProcPerNode;
+        for (unsigned int i = 0; i < number_of_proc; i++)
+          list_of_machines.push_back((*cluster_it).HostName);
+        cluster_it++;
       }
 
       // Creating machine file
@@ -309,14 +309,14 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
       std::list<std::string>::iterator it = list_of_machines.begin();
       while (machine_number != nb_procs)
       {
-	// Adding a new node to the machine file
-	machine_file << *it << endl;
+        // Adding a new node to the machine file
+        machine_file << *it << endl;
 
-	// counting...
-	it++;
-	if (it == list_of_machines.end())
-	  it = list_of_machines.begin();
-	machine_number++;
+        // counting...
+        it++;
+        if (it == list_of_machines.end())
+          it = list_of_machines.begin();
+        machine_number++;
       }
     }
     else
@@ -333,42 +333,42 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
       {
-	//It is not a cluster so we create a cluster with one machine
-	ParserResourcesClusterMembersType fake_node;
-	fake_node.HostName = resource.HostName;
-	fake_node.Protocol = resource.Protocol;
-	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
-	fake_node.UserName = resource.UserName;
-	fake_node.AppliPath = resource.AppliPath;
-	fake_node.DataForSort = resource.DataForSort;
+        //It is not a cluster so we create a cluster with one machine
+        ParserResourcesClusterMembersType fake_node;
+        fake_node.HostName = resource.HostName;
+        fake_node.Protocol = resource.Protocol;
+        fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
+        fake_node.UserName = resource.UserName;
+        fake_node.AppliPath = resource.AppliPath;
+        fake_node.DataForSort = resource.DataForSort;
 
-	resource.ClusterMembersList.push_front(fake_node);
+        resource.ClusterMembersList.push_front(fake_node);
       }
 
       // Choose mpi implementation -> each MPI implementation has is own machinefile...
       if (resource.mpi == lam)
       {
-	// Creating machine file
-	machine_file_name = tmpnam(NULL);
-	std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+        // Creating machine file
+        machine_file_name = tmpnam(NULL);
+        std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
 
-	// We add all cluster machines to the file
-	std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
-	  resource.ClusterMembersList.begin();
-	while (cluster_it != resource.ClusterMembersList.end())
-	{
-	  unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
-	    (*cluster_it).DataForSort._nbOfProcPerNode;
-	  machine_file << (*cluster_it).HostName << " cpu=" << number_of_proc << endl;
-	  cluster_it++;
-	}
+        // We add all cluster machines to the file
+        std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+          resource.ClusterMembersList.begin();
+        while (cluster_it != resource.ClusterMembersList.end())
+        {
+          unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
+            (*cluster_it).DataForSort._nbOfProcPerNode;
+          machine_file << (*cluster_it).HostName << " cpu=" << number_of_proc << endl;
+          cluster_it++;
+        }
       }
       else if (resource.mpi == nompi)
       {
-	INFOS("[getMachineFile] Error hostname MPI implementation was defined for " << hostname);
+        INFOS("[getMachineFile] Error hostname MPI implementation was defined for " << hostname);
       }
       else
-	INFOS("[getMachineFile] Error hostname MPI implementation not currenly handled for " << hostname);
+        INFOS("[getMachineFile] Error hostname MPI implementation not currenly handled for " << hostname);
     }
     else
       INFOS("[getMachineFile] Error hostname not found in resourcesList -> " << hostname);

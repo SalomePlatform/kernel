@@ -139,7 +139,7 @@ public:
     _objectPtr(&anObject)
   {
     DEVTRACE(" DESTRUCTOR_OF " << typeid(anObject).name() 
-	     << " " << _objectPtr << " " << this );
+             << " " << _objectPtr << " " << this );
     PROTECTED_DELETE::addObj(_objectPtr);
     assert(GENERIC_DESTRUCTOR::Add(*this) >= 0);
   }
@@ -153,9 +153,9 @@ public:
   {
     if (_objectPtr)
       {
-   	DEVTRACE("DESTRUCTOR_OF<>::operator() " << _objectPtr);
-	if (_objectPtr) PROTECTED_DELETE::deleteInstance(_objectPtr);
-	_objectPtr = NULL;
+        DEVTRACE("DESTRUCTOR_OF<>::operator() " << _objectPtr);
+        if (_objectPtr) PROTECTED_DELETE::deleteInstance(_objectPtr);
+        _objectPtr = NULL;
       }
   }
 

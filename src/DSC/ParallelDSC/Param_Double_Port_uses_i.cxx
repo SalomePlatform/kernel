@@ -23,8 +23,8 @@
 #include "Param_Double_Port_uses_i.hxx"
 
 Param_Double_Port_uses_i::Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_compo, 
-						   std::string port_name,
-						   CORBA::ORB_ptr orb)
+                                                   std::string port_name,
+                                                   CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _fake_properties = new PortProperties_i();
@@ -54,8 +54,8 @@ void
 Param_Double_Port_uses_i::add_port_to_component()
 {
     _par_compo->add_uses_port("IDL:Ports/Param_Double_Port:1.0", 
-			      _port_name.c_str(),
-			      _fake_prop_ref);
+                              _port_name.c_str(),
+                              _fake_prop_ref);
 }
 
 void

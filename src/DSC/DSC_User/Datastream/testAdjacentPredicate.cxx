@@ -44,7 +44,7 @@ struct MyRand {
   static const double MAXVALUE = 150.0;
   MyRand() { srand(getpid()); }
   int operator()() const {
-	return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
+        return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
   }
 };
 
@@ -54,7 +54,7 @@ typedef std::pair< TimeType , TagType >     DataId;
 
 template < typename DataType > 
   DataType processTimeInterval (DataId & dataId, 
-  				typename std::map<DataId, DataType>::const_iterator const & it1) {
+                                typename std::map<DataId, DataType>::const_iterator const & it1) {
      return (*it1).second;
 };
 

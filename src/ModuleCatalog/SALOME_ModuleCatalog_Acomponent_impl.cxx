@@ -91,7 +91,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList()
     {
       _list[ind] = CORBA::string_dup(_Component.interfaces[ind].interfacename);
       if(MYDEBUG) MESSAGE("The component " << _Component.name 
-			  << " contains " << _list[ind] << " as interface");
+                          << " contains " << _list[ind] << " as interface");
     }
   
   if(MYDEBUG) END_OF("GetInterfaceList");
@@ -110,7 +110,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
   if(MYDEBUG) SCRUTE(interfacename);
 
   SALOME_ModuleCatalog::DefinitionInterface *_interface =
-	  new SALOME_ModuleCatalog::DefinitionInterface;
+          new SALOME_ModuleCatalog::DefinitionInterface;
 
   bool _find = false ;
   
@@ -118,14 +118,14 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
   for (unsigned int ind = 0; ind < _Component.interfaces.length(); ind++)
     {
       SALOME_ModuleCatalog::DefinitionInterface &I
-	= _Component.interfaces[ind];
+        = _Component.interfaces[ind];
 
       if (strcmp(interfacename, I.interfacename) == 0)
-	{
-	  // wanted interface
-	  _find = true ;
-	  duplicate(*_interface, I);
-	}
+        {
+          // wanted interface
+          _find = true ;
+          duplicate(*_interface, I);
+        }
     }
 
   if(MYDEBUG) SCRUTE(_find);
@@ -172,19 +172,19 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
       SALOME_ModuleCatalog::DefinitionInterface & I = _Component.interfaces[ind];
 
       if (strcmp(interfacename, I.interfacename) == 0)
-	{
-	  _find = true ;
-	  // wanted interface
-	  // Get the list of services name for this interface
-	  unsigned int _length_services = I.interfaceservicelist.length();
-	  _list->length(_length_services);
-	  for (unsigned int ind1 = 0; ind1 < _length_services ; ind1++)
-	    {
-	      _list[ind1] = CORBA::string_dup(I.interfaceservicelist[ind1].ServiceName);
-	      if(MYDEBUG) MESSAGE("The interface " << interfacename << " of the component " 
-				  << _Component.name << " contains " << _list[ind1] << " as a service") 
-	    }
-	}
+        {
+          _find = true ;
+          // wanted interface
+          // Get the list of services name for this interface
+          unsigned int _length_services = I.interfaceservicelist.length();
+          _list->length(_length_services);
+          for (unsigned int ind1 = 0; ind1 < _length_services ; ind1++)
+            {
+              _list[ind1] = CORBA::string_dup(I.interfaceservicelist[ind1].ServiceName);
+              if(MYDEBUG) MESSAGE("The interface " << interfacename << " of the component " 
+                                  << _Component.name << " contains " << _list[ind1] << " as a service") 
+            }
+        }
     }
 
  if (!_find)
@@ -210,7 +210,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog::Service* 
 SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename, 
-						const char* servicename) 
+                                                const char* servicename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
   if(MYDEBUG) BEGIN_OF("GetService");
@@ -232,25 +232,25 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 
       SALOME_ModuleCatalog::DefinitionInterface &I = _Component.interfaces[ind];
       if (strcmp(interfacename, I.interfacename) == 0)
-	{
-	  // wanted interface
-	  // looking for the specified service
-	  for (unsigned int ind1 = 0; ind1 <  I.interfaceservicelist.length() ; ind1++)
-	    {
-	      SALOME_ModuleCatalog::Service &S = I.interfaceservicelist[ind1];
-	      if(MYDEBUG) SCRUTE(ind1);
-	      if(MYDEBUG) SCRUTE(S.ServiceName);
+        {
+          // wanted interface
+          // looking for the specified service
+          for (unsigned int ind1 = 0; ind1 <  I.interfaceservicelist.length() ; ind1++)
+            {
+              SALOME_ModuleCatalog::Service &S = I.interfaceservicelist[ind1];
+              if(MYDEBUG) SCRUTE(ind1);
+              if(MYDEBUG) SCRUTE(S.ServiceName);
 
-	      if (strcmp(servicename, S.ServiceName) == 0)
-	      {
-		// Wanted Service
-		// Affect the service to be returned
-		_find = true ;
-		duplicate(*service, S);
-	      }
-	    }
+              if (strcmp(servicename, S.ServiceName) == 0)
+              {
+                // Wanted Service
+                // Affect the service to be returned
+                _find = true ;
+                duplicate(*service, S);
+              }
+            }
 
-	}
+        }
     }
   
   if(MYDEBUG) SCRUTE(_find);
@@ -293,21 +293,21 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
   for (unsigned int ind = 0; ind < _Component.interfaces.length(); ind++)
     {
       if (strcmp(interfacename, _Component.interfaces[ind].interfacename) == 0)
-	{
-	  // wanted interface
-	  // looking for the defautl service of the wanted interface
-	  for (unsigned int ind1 = 0; ind1 <  _Component.interfaces[ind].interfaceservicelist.length() ; ind1++)
-	    {
-	      if (_Component.interfaces[ind].interfaceservicelist[ind1].Servicebydefault)
-	      {
-		// Default Service
-		// affect the service to be returned
-		_find = true ;
-		duplicate(*_service, _Component.interfaces[ind].interfaceservicelist[ind1]);
-	      }
-	    }
+        {
+          // wanted interface
+          // looking for the defautl service of the wanted interface
+          for (unsigned int ind1 = 0; ind1 <  _Component.interfaces[ind].interfaceservicelist.length() ; ind1++)
+            {
+              if (_Component.interfaces[ind].interfaceservicelist[ind1].Servicebydefault)
+              {
+                // Default Service
+                // affect the service to be returned
+                _find = true ;
+                duplicate(*_service, _Component.interfaces[ind].interfaceservicelist[ind1]);
+              }
+            }
 
-	}
+        }
     }
 
   if (!_find)
@@ -347,14 +347,14 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
   for (unsigned int ind = 0 ; ind < _Component.paths.length() ; ind++)
     {
       if (strcmp(machinename, _Component.paths[ind].machine) == 0)
- 	    {
- 	      _find = true ;
- 	      // Wanted computer
- 	      // affect the path to be returned
- 	        const char* _temp = _Component.paths[ind].path ;
- 		_path = new char[strlen(_temp)+1];
- 	        strcpy(_path,_temp);
- 	    }
+            {
+              _find = true ;
+              // Wanted computer
+              // affect the path to be returned
+                const char* _temp = _Component.paths[ind].path ;
+                _path = new char[strlen(_temp)+1];
+                strcpy(_path,_temp);
+            }
      }
 
    if(MYDEBUG) SCRUTE(_find);
@@ -496,7 +496,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_out.ServiceinParameter[ind2],
-	      S_in.ServiceinParameter[ind2]);
+              S_in.ServiceinParameter[ind2]);
   
   // duplicate out Parameters
   _length = S_in.ServiceoutParameter.length();
@@ -504,7 +504,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_out.ServiceoutParameter[ind2],
-	      S_in.ServiceoutParameter[ind2]);
+              S_in.ServiceoutParameter[ind2]);
   
   // duplicate in DataStreamParameters
   _length = S_in.ServiceinDataStreamParameter.length();
@@ -512,7 +512,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
 
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_out.ServiceinDataStreamParameter[ind2],
-	      S_in.ServiceinDataStreamParameter[ind2]);
+              S_in.ServiceinDataStreamParameter[ind2]);
   
   // duplicate out DataStreamParameters
   _length = S_in.ServiceoutDataStreamParameter.length();
@@ -521,7 +521,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   
   for (unsigned int ind2 = 0; ind2 < _length ; ind2 ++)
     duplicate(S_out.ServiceoutDataStreamParameter[ind2],
-	      S_in.ServiceoutDataStreamParameter[ind2]);
+              S_in.ServiceoutDataStreamParameter[ind2]);
 }
 
 
@@ -539,7 +539,7 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
   
   for (unsigned int ind1 = 0; ind1 < _length ; ind1 ++)
     duplicate(I_out.interfaceservicelist[ind1],
-	      I_in.interfaceservicelist[ind1]);
+              I_in.interfaceservicelist[ind1]);
 }
 
 

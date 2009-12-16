@@ -61,13 +61,13 @@ ecp_fin_ (void * component, int code) {
   bool provideLastGivenValue = false;
   if (code == CalciumTypes::CP_CONT ) provideLastGivenValue = true;
 
-  try {									
-    CalciumInterface::ecp_fin( *_component,				
-			       provideLastGivenValue); 
+  try {                                                                 
+    CalciumInterface::ecp_fin( *_component,                             
+                               provideLastGivenValue); 
   } catch ( const CalciumException & ex) { //tester l'arrêt par exception
     DEBTRACE( ex.what() );
-    return ex.getInfo();						
-  }									
+    return ex.getInfo();                                                
+  }                                                                     
   return CalciumTypes::CPOK;
 };
 
@@ -84,72 +84,72 @@ ecp_cd_ (void * component, char * instanceName) {
 // Le paramètre supplémentaire strsize n'étant pas utilisé
 // j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);
 // extern "C" CalciumTypes::InfoType ecp_lecture_str (void * component, int dependencyType, 
-// 						   float * ti, float * tf, long * i, 
-// 						   const char * const nomvar, size_t bufferLength, 
-// 						   size_t * nRead, char ** *data, size_t strsize ) { 
+//                                                 float * ti, float * tf, long * i, 
+//                                                 const char * const nomvar, size_t bufferLength, 
+//                                                 size_t * nRead, char ** *data, size_t strsize ) { 
 
 //   Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
-//   double         _ti=*ti;						
-//   double         _tf=*tf;						
-//   size_t         _nRead=0;						
-//   size_t         _bufferLength=bufferLength;				
-//   CalciumTypes::DependencyType dependencyType=			
-//     static_cast<CalciumTypes::DependencyType>(dependencyType);	
+//   double         _ti=*ti;                                            
+//   double         _tf=*tf;                                            
+//   size_t         _nRead=0;                                           
+//   size_t         _bufferLength=bufferLength;                         
+//   CalciumTypes::DependencyType dependencyType=                       
+//     static_cast<CalciumTypes::DependencyType>(dependencyType);       
   
 //   // - GERER POINTEUR NULL : NOTHING TODO 
 //   // - VERIFIER LA TAILLE DES CHAINES RETOURNEES (ELLES DEVRAIENT ETRES CORRECTES SI L'ECRITURE EST BIEN CODEE.)
 
 //   DEBTRACE( "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" ) 
-//     try {								
-//       CalciumInterface::ecp_lecture< char*, char* >( *_component,	
-// 						     dependencyType, 
-// 						     _ti, _tf, *i,	
-// 						     nomvar,		
-// 						     _bufferLength, _nRead, *data); 
-//     } catch ( const CalciumException & ex) {				
+//     try {                                                            
+//       CalciumInterface::ecp_lecture< char*, char* >( *_component,    
+//                                                   dependencyType, 
+//                                                   _ti, _tf, *i,      
+//                                                   nomvar,            
+//                                                   _bufferLength, _nRead, *data); 
+//     } catch ( const CalciumException & ex) {                         
 //       DEBTRACE( ex.what() );
-//       return ex.getInfo();						
-//     }									
+//       return ex.getInfo();                                           
+//     }                                                                        
     
-//     *nRead = _nRead;						
+//     *nRead = _nRead;                                         
     
 //     if (dependencyType == CalciumTypes::CP_SEQUENTIEL ) 
-//       *ti=(float)(_ti);			
+//       *ti=(float)(_ti);                      
     
 //     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data ) ;
 
 //     return CalciumTypes::CPOK;
-//   };									
-  									
+//   };                                                                 
+                                                                        
 
-// extern "C" void ecp_lecture_str_free (char** data) {	
-//   CalciumInterface::ecp_free< char*, char* >(data);			
-// };		                                                        
-									
-									
+// extern "C" void ecp_lecture_str_free (char** data) { 
+//   CalciumInterface::ecp_free< char*, char* >(data);                  
+// };                                                                   
+                                                                        
+                                                                        
 // extern "C" CalciumTypes::InfoType ecp_ecriture_str (void * component, int dependencyType, 
-// 						    float *t, long  i,	
-// 						    const char * const nomvar, size_t bufferLength, 
-// 						    char ** data, int strsize ) { 
+//                                                  float *t, long  i,  
+//                                                  const char * const nomvar, size_t bufferLength, 
+//                                                  char ** data, int strsize ) { 
 
 //     Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
 //     /* Je ne sais pas pourquoi, je n'arrive pas à passer t par valeur : corruption de la pile*/ 
-//     double         _t=*t;						
-//     size_t         _bufferLength=bufferLength;				
+//     double         _t=*t;                                            
+//     size_t         _bufferLength=bufferLength;                               
 
 //     // - VERIFIER LA TAILLE DES CHAINES RETOURNEES (ELLES DEVRAIENT ETRES CORRECTES SI L'ECRITURE EST BIEN CODEE.)
 
 //     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" ) 
-//     try {								
-//       std::string essai(nomvar);					
-//       DEBTRACE( "----------->-" << nomvar )		
-// 	CalciumInterface::ecp_ecriture< char*, char* >( *_component,	
-// 							static_cast<CalciumTypes::DependencyType>(dependencyType), 
-// 							_t,i,nomvar,_bufferLength,*data); 
-//     } catch ( const CalciumException & ex) {				
-//       std::cerr << ex.what() << std::endl;				
-//       return ex.getInfo();						
-//     }									
+//     try {                                                            
+//       std::string essai(nomvar);                                     
+//       DEBTRACE( "----------->-" << nomvar )          
+//      CalciumInterface::ecp_ecriture< char*, char* >( *_component,    
+//                                                      static_cast<CalciumTypes::DependencyType>(dependencyType), 
+//                                                      _t,i,nomvar,_bufferLength,*data); 
+//     } catch ( const CalciumException & ex) {                         
+//       std::cerr << ex.what() << std::endl;                           
+//       return ex.getInfo();                                           
+//     }                                                                        
 //     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data ) 
-//     return CalciumTypes::CPOK;						
-//   };									
+//     return CalciumTypes::CPOK;                                               
+//   };                                                                 

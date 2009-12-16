@@ -221,14 +221,14 @@ public:
   virtual SALOMEDSImpl_SObject GetSObject(const std::string& theEntry);
   virtual SALOMEDSImpl_SObject GetSObject(const DF_Label& theEntryLabel);
   virtual DF_Attribute* GetAttribute(const std::string& theEntry, 
-					             const std::string& theType);
+                                                     const std::string& theType);
 
   virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   virtual bool DumpStudy(const std::string& thePath, 
-					 const std::string& theBaseName, 
-					 bool isPublished,
-					 SALOMEDSImpl_DriverFactory* theFactory);
+                                         const std::string& theBaseName, 
+                                         bool isPublished,
+                                         SALOMEDSImpl_DriverFactory* theFactory);
 
   static std::string GetDumpStudyComment(const char* theComponentName = 0);
   
@@ -243,8 +243,8 @@ public:
   SALOMEDSImpl_AttributeParameter* GetCommonParameters(const char* theID, int theSavePoint);
 
   SALOMEDSImpl_AttributeParameter* GetModuleParameters(const char* theID, 
-									      const char* theModuleName,
-									      int theSavePoint);
+                                                                              const char* theModuleName,
+                                                                              int theSavePoint);
 
   //Locks the study, theLockerID is identificator of the of the one who locked the study for ex. IOR
   void SetStudyLock(const char* theLockerID);
@@ -264,12 +264,12 @@ public:
                    const SALOMEDSImpl_GenericVariable::VariableTypes);
 
   void SetStringVariable(const std::string& theVarName,
-			 const std::string& theValue, 
-			 const SALOMEDSImpl_GenericVariable::VariableTypes);
+                         const std::string& theValue, 
+                         const SALOMEDSImpl_GenericVariable::VariableTypes);
 
   void SetStringVariableAsDouble(const std::string& theVarName,
-				 const double theValue, 
-				 const SALOMEDSImpl_GenericVariable::VariableTypes);
+                                 const double theValue, 
+                                 const SALOMEDSImpl_GenericVariable::VariableTypes);
   
   double GetVariableValue(const std::string& theVarName);
 
@@ -294,14 +294,14 @@ public:
   bool IsVariableUsed(const std::string& theVarName);
 
   bool FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-			     SALOMEDSImpl_SObject theSObject,
-			     const std::string& theName);
+                             SALOMEDSImpl_SObject theSObject,
+                             const std::string& theName);
   bool FindVariableAttribute(const std::string& theName);
 
   void ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-				SALOMEDSImpl_SObject theSObject,
-				const std::string& theSource,
-				const std::string& theDest);
+                                SALOMEDSImpl_SObject theSObject,
+                                const std::string& theSource,
+                                const std::string& theDest);
   void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
 
   std::vector< std::vector<std::string> > ParseVariables(const std::string& theVariables) const;

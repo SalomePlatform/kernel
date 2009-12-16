@@ -51,10 +51,10 @@ public:
       DataIdContainer::iterator dataIdIt = dataIds.begin();
       
       if (!dataIds.empty())
-	for (;dataIdIt != dataIds.end();++dataIdIt) {
-	  std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt;
-	  std::cout << " == " << dataId << " : " << (ret = (*dataIdIt == dataId)) << std::endl;
-	}
+        for (;dataIdIt != dataIds.end();++dataIdIt) {
+          std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt;
+          std::cout << " == " << dataId << " : " << (ret = (*dataIdIt == dataId)) << std::endl;
+        }
     } catch(const CalciumException & ex) {
       ret=1;
       std::cout << ex.what() << std::endl;
@@ -69,7 +69,7 @@ public:
   int ret;
   TEST2() {
 
-    //	Doit filtrer le mode de dépendance temporel car le mode est 
+    //  Doit filtrer le mode de dépendance temporel car le mode est 
     //  défini itératif
     ret=0;
 
@@ -86,8 +86,8 @@ public:
 
     if (!dataIds.empty())
       for (;dataIdIt != dataIds.end();++dataIdIt) {
-	std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt ;
-	std::cout << " == " << DataId(0,tag) << " : " << (ret = (*dataIdIt == DataId(0,tag))) << std::endl;
+        std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt ;
+        std::cout << " == " << DataId(0,tag) << " : " << (ret = (*dataIdIt == DataId(0,tag))) << std::endl;
 
       }
   }
@@ -100,7 +100,7 @@ public:
 
   TEST3() {
 
-    //	Doit filtrer le mode de dépendance temporel car le mode est 
+    //  Doit filtrer le mode de dépendance temporel car le mode est 
     //  défini itératif
     ret=0;
 
@@ -117,8 +117,8 @@ public:
 
     if (!dataIds.empty())
       for (;dataIdIt != dataIds.end();++dataIdIt) {
-	std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt ;
-	std::cout << " == " << DataId(time,0) << " : " << (ret = (*dataIdIt == DataId(time,0))) << std::endl;
+        std::cout << "(*dataIdIt) must be equal to given dataId parameter : " << *dataIdIt ;
+        std::cout << " == " << DataId(time,0) << " : " << (ret = (*dataIdIt == DataId(time,0))) << std::endl;
 
       }
   }

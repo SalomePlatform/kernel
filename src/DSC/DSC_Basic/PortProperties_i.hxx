@@ -46,7 +46,7 @@ class DSC_BASIC_EXPORT PortProperties_i:
      * \see Ports::PortProperties::set_property
      */
     virtual void set_property(const char * name,
-			      const CORBA::Any& value)
+                              const CORBA::Any& value)
       throw (Ports::NotDefined, Ports::BadType);
 
     /*!

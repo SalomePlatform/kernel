@@ -66,7 +66,7 @@ SALOMEDSImpl_AttributeGraphic::~SALOMEDSImpl_AttributeGraphic()
 //purpose  : Set visibility of object in given view
 //=======================================================================
 void SALOMEDSImpl_AttributeGraphic::SetVisibility(const int theViewId,
-						  const bool theValue )
+                                                  const bool theValue )
 {
   if ( myVisibility.find( theViewId ) != myVisibility.end() && myVisibility[theViewId] == theValue )
     return;

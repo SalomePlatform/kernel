@@ -122,8 +122,8 @@ private:
     \param typeMap ParserTypes arguments
   */
   virtual void _parse_xml_file(const char* file, 
-			  ParserComponents & modulelist, 
-			  ParserPathPrefixes & pathlist,
+                          ParserComponents & modulelist, 
+                          ParserPathPrefixes & pathlist,
         ParserTypes& typeMap,
         TypeList& typeList);
 
@@ -140,7 +140,7 @@ private:
     \param C_parser const ParserComponent argument
   */
   void duplicate(SALOME_ModuleCatalog::ComponentDef & C_corba,
-		 const ParserComponent & C_parser);
+                 const ParserComponent & C_parser);
     
   //! method to create a CORBA interface description from parser
   /*!
@@ -148,7 +148,7 @@ private:
     \param I_parser const ParserInterface argument
   */
   void duplicate(SALOME_ModuleCatalog::DefinitionInterface & I_corba,
-		 const ParserInterface & I_parser);
+                 const ParserInterface & I_parser);
   
   //! method to create a CORBA service description from parser
   /*!
@@ -156,7 +156,7 @@ private:
     \param S_parser const ParserService argument
   */
   void duplicate(SALOME_ModuleCatalog::Service & S_corba,
-		 const ParserService & service);
+                 const ParserService & service);
   
   //! method to create a CORBA parameter description from parser
   /*!
@@ -164,7 +164,7 @@ private:
     \param P_parser const ParserParameter argument
   */
   void duplicate(SALOME_ModuleCatalog::ServicesParameter & P_corba,
-		 const ParserParameter & P_parser);
+                 const ParserParameter & P_parser);
   
   //! method to create a CORBA datastream parameter description from parser
   /*!
@@ -172,7 +172,7 @@ private:
     \param P_parser const ParserDataStreamParameter argument
   */
   void duplicate(SALOME_ModuleCatalog::ServicesDataStreamParameter & P_corba,
-		 const ParserDataStreamParameter & P_parser);
+                 const ParserDataStreamParameter & P_parser);
   
   //! method to create the path prefix structures from the catalog parsing
   /*!
@@ -197,7 +197,7 @@ private:
     \return true if parsing is OK
   */
   virtual bool _parseArguments(int argc, char **argv, 
-			       char **_general, char** _personal);
+                               char **_general, char** _personal);
 
 
   // Theses variables will contain the path to the general and personal catalogs

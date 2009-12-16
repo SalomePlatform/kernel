@@ -284,10 +284,10 @@ string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, int s
       vector<string> lst = ip.getValues(v[i]);
       dump += "# fill list "+v[i]+"\n";
       for(int j = 0; j < lst.size(); j++) {
-	if (lst[j].find('\"') == -1)
-	  dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
-	else
-	  dump += "ipar.append(\""+v[i]+"\", \"\"\""+lst[j]+"\"\"\")\n";
+        if (lst[j].find('\"') == -1)
+          dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+        else
+          dump += "ipar.append(\""+v[i]+"\", \"\"\""+lst[j]+"\"\"\")\n";
       }
     }
   }
@@ -296,9 +296,9 @@ string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, int s
 }
 
 string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study, 
-					          const string& moduleName, 
-					          const string& shift, 
-					          const string& theID)
+                                                  const string& moduleName, 
+                                                  const string& shift, 
+                                                  const string& theID)
 {
   string anID;
   if(theID == "") anID = getDefaultVisualComponent();
@@ -334,7 +334,7 @@ string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study,
       vector<string> lst = ip.getValues(v[i]);
       dump += shift +"# fill list "+v[i]+"\n";
       for(int j = 0; j < lst.size(); j++)
-	dump += shift +"ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+        dump += shift +"ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
     }
   }
 
@@ -350,7 +350,7 @@ string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study,
       if(so) so_name = so.GetName();
       dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";
       for(int j = 0; j < names.size() && j < values.size(); j++)
-	dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+        dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
     }
   }
   

@@ -26,13 +26,13 @@
 #include "ParallelDSC_i.hxx"
 
 Engines_ParallelDSC_i::Engines_ParallelDSC_i(CORBA::ORB_ptr orb, 
-					     char * ior,
-					     int rank,
-					     PortableServer::POA_ptr poa,
-					     PortableServer::ObjectId * contId,
-					     const char *instanceName,
-					     const char *interfaceName,
-					     bool notif) :
+                                             char * ior,
+                                             int rank,
+                                             PortableServer::POA_ptr poa,
+                                             PortableServer::ObjectId * contId,
+                                             const char *instanceName,
+                                             const char *interfaceName,
+                                             bool notif) :
   Engines_Parallel_Component_i(orb, ior, rank, poa, contId, instanceName, interfaceName, notif),
   Engines::Parallel_DSC_serv(orb, ior, rank),
   Engines::Parallel_DSC_base_serv(orb, ior, rank),
@@ -57,12 +57,12 @@ Engines_ParallelDSC_i::~Engines_ParallelDSC_i() {}
 
 void
 Engines_ParallelDSC_i::set_paco_proxy(const CORBA::Object_ptr ref, 
-				      const char* provides_port_name,
-				      Ports::PortProperties_ptr port_prop) {
+                                      const char* provides_port_name,
+                                      Ports::PortProperties_ptr port_prop) {
   assert(provides_port_name);
   Engines_DSC_interface::add_provides_port(Ports::Port::_narrow(ref), 
-					   provides_port_name,
-					   port_prop);
+                                           provides_port_name,
+                                           port_prop);
   // Waiting that all the nodes have the proxy
   _my_com->paco_barrier(); 
   cerr << "set_paco_proxy node fin" << endl;
@@ -72,7 +72,7 @@ const char *
 Engines_ParallelDSC_i::get_proxy(const char* provides_port_name) {
   char * rtn_char = NULL;
   Ports::Port_ptr proxy = Engines_DSC_interface::get_provides_port(provides_port_name, 
-								   0);
+                                                                   0);
   if (!CORBA::is_nil(proxy))
     rtn_char = (char *) _orb->object_to_string(proxy);
   return rtn_char;
@@ -80,8 +80,8 @@ Engines_ParallelDSC_i::get_proxy(const char* provides_port_name) {
 
 CORBA::Boolean 
 Engines_ParallelDSC_i::add_parallel_provides_proxy_port(const CORBA::Object_ptr ref, 
-							const char * provides_port_name,
-							Ports::PortProperties_ptr port_prop) 
+                                                        const char * provides_port_name,
+                                                        Ports::PortProperties_ptr port_prop) 
 {
   assert(provides_port_name);
   CORBA::Boolean rtn_bool = false;
@@ -105,7 +105,7 @@ Engines_ParallelDSC_i::add_parallel_provides_proxy_wait(const char * provides_po
     {
       sleep(1);
       try {
-	proxy = (char *) get_proxy(provides_port_name);
+        proxy = (char *) get_proxy(provides_port_name);
       }
       catch(...) {}
     }
@@ -115,7 +115,7 @@ Engines_ParallelDSC_i::add_parallel_provides_proxy_wait(const char * provides_po
 
 CORBA::Boolean
 Engines_ParallelDSC_i::add_parallel_provides_node_port(Ports::Port_PaCO_ptr ref, 
-						       const char* provides_port_name) 
+                                                       const char* provides_port_name) 
 {
   CORBA::Boolean rtn_bool = false;
   PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(ref);

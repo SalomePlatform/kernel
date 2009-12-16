@@ -35,10 +35,10 @@
 class UTILS_EXPORT CommException : public SALOME_Exception
 {
 public :
-	CommException( void );
-	CommException( const char *texte );
-	CommException( const CommException &ex );
-	~CommException() throw ();
+        CommException( void );
+        CommException( const char *texte );
+        CommException( const CommException &ex );
+        ~CommException() throw ();
 } ;
 
-# endif	/* # if ( !defined __Utils_CommException_H__ ) */
+# endif /* # if ( !defined __Utils_CommException_H__ ) */

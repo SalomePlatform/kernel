@@ -53,27 +53,27 @@ class LOGGER_EXPORT Logger :
 public:
         //constructor w/o parameters
         //all messages will be put into terminal via cout
-	Logger();
+        Logger();
         //constructor with parameter, filename is output file
         //all messages will be put into special file passed as parameter
-	Logger(const char *filename);
-	virtual ~Logger();
-	//put message into one special place for all servers
-	void putMessage(const char* message);
+        Logger(const char *filename);
+        virtual ~Logger();
+        //put message into one special place for all servers
+        void putMessage(const char* message);
         void ping();
         void SetOrb( CORBA::ORB_ptr orb ) { _orb = CORBA::ORB::_duplicate(orb); return; }
-	void shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); };  
+        void shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); };  
 private:
-	//if m_putIntoFile is true all messages will be put into special 
-	//otherwise all messages will be put into terminal via cout 
+        //if m_putIntoFile is true all messages will be put into special 
+        //otherwise all messages will be put into terminal via cout 
         bool m_putIntoFile;
-	//ofstream class specialized for disk file output
-	std::ofstream m_outputFile; 
+        //ofstream class specialized for disk file output
+        std::ofstream m_outputFile; 
 
-	//synchronisation object
-	static omni_mutex myLock;
+        //synchronisation object
+        static omni_mutex myLock;
 
-	CORBA::ORB_ptr _orb;
+        CORBA::ORB_ptr _orb;
 };
 
 #endif // !defined(SALOME_Logger_Server_include)

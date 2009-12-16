@@ -36,8 +36,8 @@ class Param_Double_Port_uses_i
 {
   public :
     Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_compo, 
-			     std::string port_name,
-			     CORBA::ORB_ptr orb);
+                             std::string port_name,
+                             CORBA::ORB_ptr orb);
     virtual ~Param_Double_Port_uses_i();
 
     // Port local init methods

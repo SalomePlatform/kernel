@@ -291,7 +291,7 @@ Launcher_cpp::removeJob(int job_id)
 //=============================================================================
 long 
 Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile, 
-				const std::string clusterName)
+                                const std::string clusterName)
 {
   LAUNCHER_MESSAGE("Begin of Launcher_cpp::createJobWithFile");
 
@@ -448,7 +448,7 @@ long
 Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string clusterName)
 {
   throw LauncherException("Method Launcher_cpp::createJobWithFile is not available "
-			  "(libBatch was not present at compilation time)");
+                          "(libBatch was not present at compilation time)");
   return 0;
 }
 

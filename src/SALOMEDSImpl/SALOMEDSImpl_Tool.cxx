@@ -134,8 +134,8 @@ string SALOMEDSImpl_Tool::GetTmpDir()
 // purpose  : Removes files listed in theFileList
 //============================================================================
 void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const string& theDirectory, 
-					     const vector<string>& theFiles,
-					     const bool IsDirDeleted)
+                                             const vector<string>& theFiles,
+                                             const bool IsDirDeleted)
 {
   string aDirName = theDirectory;
 
@@ -233,7 +233,7 @@ vector<string> SALOMEDSImpl_Tool::splitString(const string& theValue, char separ
     vs.push_back(s.substr(0, pos));
     s = s.substr(pos+1, s.size());
   }
-	       
+               
   if(!s.empty() && s[0] != separator) vs.push_back(s);
   return vs;
 }

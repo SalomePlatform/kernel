@@ -62,12 +62,12 @@ class CONTAINER_EXPORT Engines_Parallel_Component_i:
 {
 public:
   Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
-		               PortableServer::POA_ptr poa,
-			       PortableServer::ObjectId * contId, 
-			       const char *instanceName, 
-			       const char *interfaceName,
-			       bool notif = false,
-			       bool regist = true);
+                               PortableServer::POA_ptr poa,
+                               PortableServer::ObjectId * contId, 
+                               const char *instanceName, 
+                               const char *interfaceName,
+                               bool notif = false,
+                               bool regist = true);
 
   virtual ~Engines_Parallel_Component_i();
 
@@ -93,22 +93,22 @@ public:
   CORBA::Long CpuUsed_impl() ;
 
  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
-				      CORBA::Boolean isPublished,
-				      CORBA::Boolean& isValidScript);
+                                      CORBA::Boolean isPublished,
+                                      CORBA::Boolean& isValidScript);
 
  // CORBA operations for Salome_file
  virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
+                                                        const char* Salome_file_name);
  virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
-							 const char* Salome_file_name);
+                                                         const char* Salome_file_name);
 
  virtual void checkInputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
-							const char* Salome_file_name);
+                                                        const char* Salome_file_name);
 
  virtual void checkOutputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
-							 const char* Salome_file_name);
+                                                         const char* Salome_file_name);
 
  void send_parallel_proxy_object(CORBA::Object_ptr proxy_ref);
 
@@ -140,8 +140,8 @@ public:
   char * get_parallel_proxy_object();
 
   virtual void configureSalome_file(std::string service_name,
-				    std::string file_port_name,
-				    Engines::Parallel_Salome_file_proxy_impl * file);
+                                    std::string file_port_name,
+                                    Engines::Parallel_Salome_file_proxy_impl * file);
 
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
@@ -202,7 +202,7 @@ private:
   long      _ThreadCpuUsed ;
   bool      _Executed ;
   bool      _CanceledThread ;
-  bool	    _destroyed;
+  bool      _destroyed;
 };
 
 #endif

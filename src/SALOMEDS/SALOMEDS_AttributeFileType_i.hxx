@@ -34,7 +34,7 @@
 #include "SALOMEDSImpl_AttributeFileType.hxx"
 
 class SALOMEDS_AttributeFileType_i: public virtual POA_SALOMEDS::AttributeFileType,
-				   public virtual SALOMEDS_GenericAttribute_i {
+                                   public virtual SALOMEDS_GenericAttribute_i {
 public:
   
   SALOMEDS_AttributeFileType_i(SALOMEDSImpl_AttributeFileType* theAttr, CORBA::ORB_ptr orb) 

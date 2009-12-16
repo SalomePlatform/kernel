@@ -48,7 +48,7 @@ std::string GetHostname()
     switch (r) 
       {
       case 0:
-	  break;
+          break;
       default:
 #ifdef EINVAL
       case EINVAL:
@@ -57,7 +57,7 @@ std::string GetHostname()
       case ENAMETOOLONG:
 #endif
         delete [] s;
-	continue;
+        continue;
       }
   }
 

@@ -58,22 +58,22 @@ public:
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
-				   const SALOMEDS::ListOfFileNames& theFiles,
-				   const bool IsDirDeleted);
+                                   const SALOMEDS::ListOfFileNames& theFiles,
+                                   const bool IsDirDeleted);
 
   // Converts files listed in <theFiles> which are in <theFromDirectory> into a byte sequence TMPFile
   static SALOMEDS::TMPFile* PutFilesToStream(const std::string& theFromDirectory, 
-					     const SALOMEDS::ListOfFileNames& theFiles,
-					     const int theNamesOnly = 0);
+                                             const SALOMEDS::ListOfFileNames& theFiles,
+                                             const int theNamesOnly = 0);
 
   // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
   static SALOMEDS::TMPFile* PutFilesToStream(const SALOMEDS::ListOfFileNames& theFiles,
-					     const SALOMEDS::ListOfFileNames& theFileNames);
+                                             const SALOMEDS::ListOfFileNames& theFileNames);
 
   // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
   static SALOMEDS::ListOfFileNames_var PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
-							const std::string& theToDirectory,
-							const int theNamesOnly = 0);
+                                                        const std::string& theToDirectory,
+                                                        const int theNamesOnly = 0);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"

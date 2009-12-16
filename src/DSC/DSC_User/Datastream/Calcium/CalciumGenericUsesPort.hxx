@@ -32,7 +32,7 @@
 
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName > 
 class CalciumGenericUsesPort : public GenericUsesPort<DataManipulator,CorbaPortType, repositoryName,
-					       calcium_uses_port >
+                                               calcium_uses_port >
 {
 public :
   virtual ~CalciumGenericUsesPort() {};

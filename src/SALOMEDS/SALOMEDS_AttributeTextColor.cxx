@@ -50,7 +50,7 @@ STextColor SALOMEDS_AttributeTextColor::TextColor()
     vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_local_impl)->TextColor();
     aColor.R = aSeq[0];
     aColor.G = aSeq[1];
-    aColor.B = aSeq[2];	
+    aColor.B = aSeq[2]; 
   }
   else {
     SALOMEDS::Color anImplColor = SALOMEDS::AttributeTextColor::_narrow(_corba_impl)->TextColor();

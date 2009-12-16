@@ -46,7 +46,7 @@ const std::string& SALOMEDSImpl_AttributeSelectable::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeSelectable* SALOMEDSImpl_AttributeSelectable::Set (const DF_Label& L,
-								         const int value) 
+                                                                         const int value) 
 {
   SALOMEDSImpl_AttributeSelectable* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeSelectable*)L.FindAttribute(SALOMEDSImpl_AttributeSelectable::GetID()))) {

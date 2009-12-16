@@ -127,9 +127,9 @@ int main (int argc, char * argv[])
     if(!CORBA::is_nil(cont)){
       std::string basename = Kernel_Utils::GetBaseName(cont->name());
       if(basename.compare(0,4,"cycl")==0)
-	cycle[cont->getHostName()]++;
+        cycle[cont->getHostName()]++;
       if(basename.compare(0,5,"first")==0)
-	first[cont->getHostName()]++;
+        first[cont->getHostName()]++;
     }
   }
   _ContManager->ShutdownContainers();
@@ -147,8 +147,8 @@ int main (int argc, char * argv[])
       if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;
       if(first[(*iter).first]/nbproc<fmin) fmin=first[(*iter).first]/nbproc;
       if(first[(*iter).first]/nbproc>fmax){
-	fmax=first[(*iter).first]/nbproc;
-	nbpmax = nbproc;
+        fmax=first[(*iter).first]/nbproc;
+        nbpmax = nbproc;
       }
     }
   }

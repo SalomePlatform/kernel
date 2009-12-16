@@ -33,7 +33,7 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
 class SALOMEDS_AttributeIOR_i: public virtual POA_SALOMEDS::AttributeIOR,
-			       public virtual SALOMEDS_GenericAttribute_i {
+                               public virtual SALOMEDS_GenericAttribute_i {
 public:
   
   SALOMEDS_AttributeIOR_i(SALOMEDSImpl_AttributeIOR* theAttr, CORBA::ORB_ptr orb) 

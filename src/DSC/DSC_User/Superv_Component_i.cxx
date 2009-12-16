@@ -40,11 +40,11 @@ long Superv_Component_i::dscTimeOut=0;
 
 
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
-				       PortableServer::POA_ptr poa,
-				       PortableServer::ObjectId * contId,
-				       const char *instanceName,
-				       const char *interfaceName,
-				       bool notif) : 
+                                       PortableServer::POA_ptr poa,
+                                       PortableServer::ObjectId * contId,
+                                       const char *instanceName,
+                                       const char *interfaceName,
+                                       bool notif) : 
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
 #ifdef MYDEBUG
@@ -53,11 +53,11 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
   setTimeOut();
 }
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
-				       PortableServer::POA_ptr poa,
-				       Engines::Container_ptr container, 
-				       const char *instanceName,
-				       const char *interfaceName,
-				       bool notif,
+                                       PortableServer::POA_ptr poa,
+                                       Engines::Container_ptr container, 
+                                       const char *instanceName,
+                                       const char *interfaceName,
+                                       bool notif,
                                        bool regist) : 
   Engines_DSC_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
@@ -77,7 +77,7 @@ Superv_Component_i::~Superv_Component_i()
 
 void 
 Superv_Component_i::register_factory(const std::string & factory_name,
-				     port_factory * factory_ptr) 
+                                     port_factory * factory_ptr) 
 {
   factory_map_t::iterator it = _factory_map.find(factory_name);
 
@@ -121,7 +121,7 @@ Superv_Component_i::create_provides_data_port(const std::string& port_fab_type)
 
   if (rtn_port == NULL)
     throw  BadFabType( LOC(OSS()<< "No way to get the port factory "
-			   <<port_fab_type));
+                           <<port_fab_type));
 
   return rtn_port;
 }
@@ -146,15 +146,15 @@ throw (BadFabType)
   
   if (rtn_proxy == NULL)
    throw BadFabType( LOC(OSS()<< "No way to get the port factory "
-			  <<port_fab_type));
+                          <<port_fab_type));
 
   return rtn_proxy;
 }
 
 void
 Superv_Component_i::add_port(const char * port_fab_type,
-			     const char * port_type,
-			     const char * port_name)
+                             const char * port_type,
+                             const char * port_name)
   throw (PortAlreadyDefined, BadFabType, BadType, BadProperty)
 {
   assert(port_fab_type);
@@ -178,13 +178,13 @@ Superv_Component_i::add_port(const char * port_fab_type,
   }
   else
     throw BadType( LOC(OSS()<< "port_type must be either 'provides' either 'uses' not "
-		       << port_type));
+                       << port_type));
 
 }
 
 void 
 Superv_Component_i::add_port(provides_port * port, 
-			     const char* provides_port_name) 
+                             const char* provides_port_name) 
   throw (PortAlreadyDefined, NilPort, BadProperty)
 {
   assert(port);
@@ -195,8 +195,8 @@ Superv_Component_i::add_port(provides_port * port,
     Ports::PortProperties_var portproperties=port->get_port_properties();
     Ports::Port_var portref=port->get_port_ref();
     Engines_DSC_interface::add_provides_port(portref, 
-					     provides_port_name,
-					     portproperties);
+                                             provides_port_name,
+                                             portproperties);
 
     superv_port_t * new_superv_port = new superv_port_t();
     new_superv_port->p_ref = port;
@@ -205,7 +205,7 @@ Superv_Component_i::add_port(provides_port * port,
   } 
   catch (const Engines::DSC::PortAlreadyDefined&) {
     throw PortAlreadyDefined( LOC(OSS()<< "provides port "
-				  << provides_port_name <<" already exist."));
+                                  << provides_port_name <<" already exist."));
   } 
   catch (const Engines::DSC::NilPort&) {
     throw NilPort( LOC(OSS()<< "provides port pointer is nul."));
@@ -217,7 +217,7 @@ Superv_Component_i::add_port(provides_port * port,
 
 void
 Superv_Component_i::add_port(uses_port * port, 
-			     const char* uses_port_name) 
+                             const char* uses_port_name) 
   throw (PortAlreadyDefined, NilPort, BadProperty)
 {
   assert(port);
@@ -226,15 +226,15 @@ Superv_Component_i::add_port(uses_port * port,
   try {
     Ports::PortProperties_var portproperties=port->get_port_properties();
     Engines_DSC_interface::add_uses_port(port->get_repository_id(), 
-					 uses_port_name,
-					 portproperties);
+                                         uses_port_name,
+                                         portproperties);
     superv_port_t * new_superv_port = new superv_port_t();
     new_superv_port->u_ref = port;
     my_superv_ports[uses_port_name] = new_superv_port;
   } 
   catch (const Engines::DSC::PortAlreadyDefined&) {
     throw PortAlreadyDefined( LOC(OSS()<< "uses port " 
-				  << uses_port_name <<" already exists."));
+                                  << uses_port_name <<" already exists."));
   } 
   catch (const Engines::DSC::NilPort&) {
     throw NilPort( LOC(OSS()<< "uses port pointer is nul."));
@@ -246,7 +246,7 @@ Superv_Component_i::add_port(uses_port * port,
 
 void
 Superv_Component_i::get_port(provides_port *& port,
-			     const char * provides_port_name)
+                             const char * provides_port_name)
   throw (PortNotDefined,PortNotConnected)
 {
   assert(provides_port_name);
@@ -256,16 +256,16 @@ Superv_Component_i::get_port(provides_port *& port,
     port = my_superv_ports[provides_port_name]->p_ref;
   } catch (const Engines::DSC::PortNotDefined&) {
     throw PortNotDefined( LOC(OSS()<< "provides  port "
-			      << provides_port_name <<" does not exist."));
+                              << provides_port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
     throw PortNotConnected( LOC(OSS()<< "provides port " << provides_port_name 
-				<< " is not connected."));
+                                << " is not connected."));
   }
 }
 
 void
 Superv_Component_i::get_port(uses_port *& port,
-			     const char * uses_port_name)
+                             const char * uses_port_name)
   throw (PortNotDefined, PortNotConnected)
 {
   assert(uses_port_name);
@@ -276,10 +276,10 @@ Superv_Component_i::get_port(uses_port *& port,
     port = my_superv_ports[uses_port_name]->u_ref;
   } catch (const Engines::DSC::PortNotDefined&) {    
     throw PortNotDefined( LOC(OSS()<< "uses port "
-			      << uses_port_name <<" does not exist."));
+                              << uses_port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
     throw PortNotConnected( LOC(OSS()<< "uses port " << uses_port_name 
-				<< " is not connected."));
+                                << " is not connected."));
   }
 }
 
@@ -287,24 +287,24 @@ Superv_Component_i::get_port(uses_port *& port,
 
 void
 Superv_Component_i::provides_port_changed(const char* provides_port_name,
-					  int connection_nbr,
-					  const Engines::DSC::Message message)
+                                          int connection_nbr,
+                                          const Engines::DSC::Message message)
 {
   my_superv_ports_it = my_superv_ports.find(provides_port_name);
   if (my_superv_ports_it !=  my_superv_ports.end())
     my_superv_ports[provides_port_name]->p_ref->provides_port_changed(connection_nbr,
-								      message);
+                                                                      message);
 }
 
 void
 Superv_Component_i::uses_port_changed(const char* uses_port_name,
-				      Engines::DSC::uses_port * new_uses_port,
-				      const Engines::DSC::Message message)
+                                      Engines::DSC::uses_port * new_uses_port,
+                                      const Engines::DSC::Message message)
 {
   my_superv_ports_it = my_superv_ports.find(uses_port_name);
   if (my_superv_ports_it !=  my_superv_ports.end())
     my_superv_ports[uses_port_name]->u_ref->uses_port_changed(new Engines::DSC::uses_port(*new_uses_port),
-							      message);
+                                                              message);
   //delete the copy made by the caller
   delete new_uses_port;
 }
@@ -313,7 +313,7 @@ Superv_Component_i::uses_port_changed(const char* uses_port_name,
 
 void
 Superv_Component_i::get_uses_port_names(std::vector<std::string> & port_names,
-					const std::string servicename) const {
+                                        const std::string servicename) const {
 
   port_names.reserve(my_superv_ports.size());
 

@@ -38,7 +38,7 @@ using namespace std;
  */
 //============================================================================
 SALOMEDS_UseCaseIterator_i::SALOMEDS_UseCaseIterator_i(const SALOMEDSImpl_UseCaseIterator& theImpl, 
-						       CORBA::ORB_ptr orb)
+                                                       CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl.GetPersistentCopy();

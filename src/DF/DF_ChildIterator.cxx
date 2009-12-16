@@ -75,25 +75,25 @@ void DF_ChildIterator::Next()
     }
     else {
       if(_current->_next) { //Next Brother
-	_current = _current->_next;
+        _current = _current->_next;
       }
       else {
-	if(_current->_father && _current->_father != _root) {
-	  DF_LabelNode *father = _current->_father;
-	  _current = father->_next;
-	  if(!_current) {
-	    while(father && father != _root) {
-	      father = father->_father;
-	      if(father->_next) break;
-	    } 
-	    if(father == _root) father = NULL;
-	    if(father) _current = father->_next;
-	    else _current = NULL;
-	  }
-	}
-	else {
-	  _current = NULL; //We iterate the whole sub tree
-	}
+        if(_current->_father && _current->_father != _root) {
+          DF_LabelNode *father = _current->_father;
+          _current = father->_next;
+          if(!_current) {
+            while(father && father != _root) {
+              father = father->_father;
+              if(father->_next) break;
+            } 
+            if(father == _root) father = NULL;
+            if(father) _current = father->_next;
+            else _current = NULL;
+          }
+        }
+        else {
+          _current = NULL; //We iterate the whole sub tree
+        }
       }
     }
   }

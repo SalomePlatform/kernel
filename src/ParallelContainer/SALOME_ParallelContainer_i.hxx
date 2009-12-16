@@ -61,11 +61,11 @@ class CONTAINER_EXPORT Engines_Parallel_Container_i:
 {
 public:
   Engines_Parallel_Container_i(CORBA::ORB_ptr orb, 
-			       char * ior, 
-			       int rank,
-			       PortableServer::POA_ptr poa,
-			       std::string containerName ,
-			       bool isServantAloneInProcess = true);
+                               char * ior, 
+                               int rank,
+                               PortableServer::POA_ptr poa,
+                               std::string containerName ,
+                               bool isServantAloneInProcess = true);
 
   virtual ~Engines_Parallel_Container_i();
 
@@ -75,20 +75,20 @@ public:
 
   virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
-			     CORBA::Long studyId); // 0 for multiStudy
+                             CORBA::Long studyId); // 0 for multiStudy
 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,
-			   CORBA::Long studyId); // 0 for multiStudy
+                           CORBA::Long studyId); // 0 for multiStudy
 
   Engines::Component_ptr
   load_impl(const char* nameToRegister,
-	    const char* componentName);
+            const char* componentName);
 
   void
   create_paco_component_node_instance(const char* componentName,
-				      const char* proxy_containerName,
-				      CORBA::Long studyId); // 0 for multiStudy
+                                      const char* proxy_containerName,
+                                      CORBA::Long studyId); // 0 for multiStudy
 
   void updateInstanceNumber();
 
@@ -114,12 +114,12 @@ public:
 
   Engines::Component_ptr
   createCPPInstance(std::string genericRegisterName,
-		    void *handle,
-		    int studyId);
+                    void *handle,
+                    int studyId);
 
   Engines::Component_ptr
   createPythonInstance(std::string genericRegisterName,
-		       int studyId);
+                       int studyId);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
@@ -160,10 +160,10 @@ protected:
   std::map<std::string, PortableServer::ObjectId *> _par_obj_inst_map;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,
-							   PortableServer::POA_ptr, 
-							   PortableServer::ObjectId *, 
-							   const char *, 
-							   const char *);
+                                                           PortableServer::POA_ptr, 
+                                                           PortableServer::ObjectId *, 
+                                                           const char *, 
+                                                           const char *);
 };
 
 #endif

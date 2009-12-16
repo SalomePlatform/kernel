@@ -68,28 +68,28 @@ public:
 
   Engines::Component_ptr 
   FindComponent(const Engines::MachineParameters& params,
-		const char *componentName,
-		int studyId=0);
+                const char *componentName,
+                int studyId=0);
 
   Engines::Component_ptr
   LoadComponent(const Engines::MachineParameters& params,
-		const char *componentName,
-		int studyId=0);
+                const char *componentName,
+                int studyId=0);
 
   Engines::Component_ptr 
   FindOrLoad_Component(const Engines::MachineParameters& params,
-		       const char *componentName,
-		       int studyId =0);
+                       const char *componentName,
+                       int studyId =0);
 
   // SALOME 6 - Interface
   Engines::Component_ptr 
   FindOrLoad_Component(const Engines::ContainerParameters& params,
-		       const char *componentName,
-		       int studyId =0);
+                       const char *componentName,
+                       int studyId =0);
 
   Engines::Component_ptr
   FindOrLoad_Component(const char *containerName,
-		       const char *componentName); // for compatibility
+                       const char *componentName); // for compatibility
   
   // Parallel extension
   Engines::Component_ptr 
@@ -120,7 +120,7 @@ public:
   // For SALOME 5.1.x
   // Will be deleted on SALOME 6
   void convert(const Engines::MachineParameters& params_in, 
-	       Engines::ContainerParameters& params_out);
+               Engines::ContainerParameters& params_out);
 protected:
 
   /*! Establish if a component called "componentName" in a container called
@@ -130,14 +130,14 @@ protected:
    */
   Engines::Component_ptr 
   _FindComponent(const Engines::ContainerParameters& params,
-		 const char *componentName,
-		 int studyId,
-		 const Engines::ResourceList& listOfResources);
+                 const char *componentName,
+                 int studyId,
+                 const Engines::ResourceList& listOfResources);
 
   Engines::Component_ptr
   _LoadComponent(const Engines::ContainerParameters& params,
-		 const char *componentName,
-		 int studyId);
+                 const char *componentName,
+                 int studyId);
 
   SALOME_NamingService *_NS;
   SALOME_NamingService *_NSnew;

@@ -105,7 +105,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     else
     {
       if(!getenv("KERNEL_ROOT_DIR"))
-	throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
+        throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
       default_file = getenv("KERNEL_ROOT_DIR");
       default_file += "/share/salome/resources/kernel/CatalogResources.xml";
       _path_resources.push_back(default_file);
@@ -175,7 +175,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
     for (unsigned int i=0; i < sz; i++)
     {
       if (_resourcesList.find(params.resourceList[i]) != _resourcesList.end())
-	local_resourcesList[params.resourceList[i]] = _resourcesList[params.resourceList[i]];
+        local_resourcesList[params.resourceList[i]] = _resourcesList[params.resourceList[i]];
     }
   }
 
@@ -204,7 +204,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
     for (; iter != _resourcesList.end(); iter++)
     {
       if ((*iter).second.HostName == hostname)
-	vec.push_back((*iter).first);
+        vec.push_back((*iter).first);
     }
   }
 
@@ -223,7 +223,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
     ResourceDataToSort::_CPUFreqMHzWanted = params.cpu_clock;
     ResourceDataToSort::_memInMBWanted = params.mem_mb;
     // --- end of set
-	
+        
     // Sort
     std::list<ResourceDataToSort> li;
     std::vector<std::string>::iterator iter = vec.begin();
@@ -265,15 +265,15 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 
 int
 ResourcesManager_cpp::AddResourceInCatalog(const resourceParams& paramsOfNewResources,
-					   const vector<string>& componentsOnNewResources,
-					   const char *userName,
-					   AccessModeType mode,
-					   AccessProtocolType prot,
-					   AccessProtocolType iprot) throw(ResourcesException)
+                                           const vector<string>& componentsOnNewResources,
+                                           const char *userName,
+                                           AccessModeType mode,
+                                           AccessProtocolType prot,
+                                           AccessProtocolType iprot) throw(ResourcesException)
 {
   vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
-					     componentsOnNewResources.end(),
-					     "KERNEL");
+                                             componentsOnNewResources.end(),
+                                             "KERNEL");
 
   if (iter != componentsOnNewResources.end())
     {
@@ -382,39 +382,39 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
       MapOfParserResourcesType _resourcesList_tmp;
       MapOfParserResourcesType _resourcesBatchList_tmp;
       SALOME_ResourcesCatalog_Handler* handler =
-	new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp);
+        new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp);
       const char* aFilePath = (*_path_resources_it).c_str();
       FILE* aFile = fopen(aFilePath, "r");
 
       if (aFile != NULL)
       {
-	xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
-	if (aDoc != NULL)
-	{
-	  handler->ProcessXmlDocument(aDoc);
+        xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+        if (aDoc != NULL)
+        {
+          handler->ProcessXmlDocument(aDoc);
 
-	  // adding new resources to the file
-	  for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
-	  {
-	    MapOfParserResourcesType_it j = _resourcesList.find(i->first);
-	    if (j == _resourcesList.end())
-	    {
-	      _resourcesList[i->first] = i->second;
-	    }
-	    else
-	    {
-	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
-	    }
-	  }
-	}
-	else
-	  std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
-	// Free the document
-	xmlFreeDoc(aDoc);
-	fclose(aFile);
+          // adding new resources to the file
+          for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
+          {
+            MapOfParserResourcesType_it j = _resourcesList.find(i->first);
+            if (j == _resourcesList.end())
+            {
+              _resourcesList[i->first] = i->second;
+            }
+            else
+            {
+              std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+            }
+          }
+        }
+        else
+          std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
+        // Free the document
+        xmlFreeDoc(aDoc);
+        fclose(aFile);
       }
       else
-	std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
+        std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
 
       delete handler;
     }
@@ -459,8 +459,8 @@ ResourcesManager_cpp::SelectOnlyResourcesWithOS(std::vector<std::string>& resour
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
       if(it != _resourcesList.end())
-	if ( (*it).second.OS == OS)
-	  resources.push_back(*iter);
+        if ( (*it).second.OS == OS)
+          resources.push_back(*iter);
     }
   }
 }
@@ -473,7 +473,7 @@ ResourcesManager_cpp::SelectOnlyResourcesWithOS(std::vector<std::string>& resour
 //=============================================================================
 void 
 ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
-						     const vector<string>& componentList)
+                                                     const vector<string>& componentList)
 {
   std::vector<std::string>::iterator iter = resources.begin();
   for (; iter != resources.end(); iter++)
@@ -486,15 +486,15 @@ ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& r
     {
       for(unsigned int i=0; i<componentList.size(); i++)
       {
-	const char* compoi = componentList[i].c_str();
-	vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
-						  mapOfComponentsOfCurrentHost.end(),
-						  compoi);
-	if (itt == mapOfComponentsOfCurrentHost.end())
-	{
-	  erasedHost = true;
-	  break;
-	}
+        const char* compoi = componentList[i].c_str();
+        vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
+                                                  mapOfComponentsOfCurrentHost.end(),
+                                                  compoi);
+        if (itt == mapOfComponentsOfCurrentHost.end())
+        {
+          erasedHost = true;
+          break;
+        }
       }
     }
     if(erasedHost)

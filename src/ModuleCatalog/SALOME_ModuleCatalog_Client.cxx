@@ -33,11 +33,11 @@
 using namespace std;
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-		  const string & InterfaceName,
-		  const string & ServiceName);
+                  const string & InterfaceName,
+                  const string & ServiceName);
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-		    const string & InterfaceName);
+                    const string & InterfaceName);
 
 void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C);
 
@@ -49,7 +49,7 @@ int main(int argc,char **argv)
   CORBA::Object_var objVar, objVarN;
   try {
 
-  	// initialize the ORB
+        // initialize the ORB
 
   orb = CORBA::ORB_init (argc, argv);
 
@@ -167,10 +167,10 @@ void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
 
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-		    const string & InterfaceName)
+                    const string & InterfaceName)
 {
   unsigned int i, n;
-   	
+        
    SALOME_ModuleCatalog::DefinitionInterface_var _interf 
      = C->GetInterface(InterfaceName.c_str());
    MESSAGE ("Interface : " << _interf->interfacename);
@@ -184,8 +184,8 @@ void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
 }
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-		  const string & InterfaceName,
-		  const string & ServiceName)
+                  const string & InterfaceName,
+                  const string & ServiceName)
 {
   int i, n;
 
@@ -201,9 +201,9 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter       " 
-	       << Service->ServiceinParameter[i].Parametername);
+               << Service->ServiceinParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceinParameter[i].Parametertype);
+               << Service->ServiceinParameter[i].Parametertype);
      }
    
    MESSAGE("Out Parameter(s):");
@@ -211,9 +211,9 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter       " 
-	       << Service->ServiceoutParameter[i].Parametername);
+               << Service->ServiceoutParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceoutParameter[i].Parametertype);
+               << Service->ServiceoutParameter[i].Parametertype);
      }
    
    MESSAGE("In DataStreamParameter(s):");
@@ -221,11 +221,11 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter " 
-	       << Service->ServiceinDataStreamParameter[i].Parametername);
+               << Service->ServiceinDataStreamParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+               << Service->ServiceinDataStreamParameter[i].Parametertype);
        MESSAGE("  Dependency    : "
-	       << Service->ServiceinDataStreamParameter[i].Parametertype);
+               << Service->ServiceinDataStreamParameter[i].Parametertype);
      }
    
    MESSAGE("Out DataStreamParameter(s):");
@@ -233,11 +233,11 @@ void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
    for (i = 0; i<n; i++)
      {
        MESSAGE("  Parameter " 
-	       << Service->ServiceoutDataStreamParameter[i].Parametername);
+               << Service->ServiceoutDataStreamParameter[i].Parametername);
        MESSAGE("  Type          : "
-	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+               << Service->ServiceoutDataStreamParameter[i].Parametertype);
        MESSAGE("  Dependency    : "
-	       << Service->ServiceoutDataStreamParameter[i].Parametertype);
+               << Service->ServiceoutDataStreamParameter[i].Parametertype);
      }
    
 

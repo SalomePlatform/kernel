@@ -34,7 +34,7 @@
 #include "SALOMEDSImpl_AttributePixMap.hxx"
 
 class SALOMEDS_AttributePixMap_i: public virtual POA_SALOMEDS::AttributePixMap,
-				  public virtual SALOMEDS_GenericAttribute_i 
+                                  public virtual SALOMEDS_GenericAttribute_i 
 {
 public:
   

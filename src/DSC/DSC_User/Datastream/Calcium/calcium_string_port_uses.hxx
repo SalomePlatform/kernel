@@ -36,10 +36,10 @@ extern char _repository_Calcium_String_Port_name[];
 
 class calcium_string_port_uses :
   public virtual CalciumGenericUsesPort< seq_u_manipulation<Ports::Calcium_Ports::seq_string,
-						     char * >, 
-				  Ports::Calcium_Ports::Calcium_String_Port, 
-				  _repository_Calcium_String_Port_name 
-				  >
+                                                     char * >, 
+                                  Ports::Calcium_Ports::Calcium_String_Port, 
+                                  _repository_Calcium_String_Port_name 
+                                  >
 {
   public :
 

@@ -505,7 +505,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_ints.size()) {
       anArray.resize(_ints.size());
       for(map<string,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++, i++) 
-	anArray[i] =  p->first;
+        anArray[i] =  p->first;
     }
     break;
   }
@@ -513,7 +513,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_reals.size()) {
       anArray.resize(_reals.size());
       for(map<string,double>::const_iterator p = _reals.begin(); p != _reals.end(); p++, i++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }
@@ -521,7 +521,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_bools.size()) {
       anArray.resize(_bools.size());
       for(map<string,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++, i++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }
@@ -529,7 +529,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_strings.size()) {
       anArray.resize(_strings.size());
       for(map<string,string>::const_iterator p = _strings.begin(); p!= _strings.end(); p++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }
@@ -537,7 +537,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_realarrays.size()) {
       anArray.resize(_realarrays.size());
       for(map< string, vector<double> >::const_iterator p = _realarrays.begin(); p!= _realarrays.end(); p++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }
@@ -545,7 +545,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_intarrays.size()) {
       anArray.resize(_intarrays.size());
       for(map< string, vector<int> >::const_iterator p = _intarrays.begin(); p!= _intarrays.end(); p++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }
@@ -553,7 +553,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types the
     if(_strarrays.size()) {
       anArray.resize(_strarrays.size());
       for(map< string, vector<string> >::const_iterator p = _strarrays.begin(); p!= _strarrays.end(); p++) 
-	anArray[i] = p->first;
+        anArray[i] = p->first;
     }
     break;
   }

@@ -122,52 +122,52 @@ int main()
 
       MESSAGE( ">> File Exploration " );
       for (explorer->Init();explorer->More();explorer->Next())
-	{
-	  object = explorer->Value();
-	  MESSAGE( "--> Name of the object : " << object->GetName() );
-	  switch (object->GetObjectType())
-	    {
-	    case HDF_FILE :
-	      MESSAGE( "--> Type of the object : HDF_FILE : " );
-	      break;
+        {
+          object = explorer->Value();
+          MESSAGE( "--> Name of the object : " << object->GetName() );
+          switch (object->GetObjectType())
+            {
+            case HDF_FILE :
+              MESSAGE( "--> Type of the object : HDF_FILE : " );
+              break;
 
-	    case HDF_GROUP :
-	      MESSAGE( "--> Type of the object : HDF_GROUP : " );
-	      break;
+            case HDF_GROUP :
+              MESSAGE( "--> Type of the object : HDF_GROUP : " );
+              break;
 
-	    case HDF_DATASET :
-	      MESSAGE( "--> Type of the object : HDF_DATASET : " );
-	      break;
+            case HDF_DATASET :
+              MESSAGE( "--> Type of the object : HDF_DATASET : " );
+              break;
 
-	    default :
-	      MESSAGE( "--> PANIC !!! : " ); 
-	    }
-	}
+            default :
+              MESSAGE( "--> PANIC !!! : " ); 
+            }
+        }
       
       MESSAGE( ">> Group exploration" );
       explorer->Reset(hdf_group); 
       for (explorer->Init();explorer->More();explorer->Next())
-	{
-	  object = explorer->Value();
-	  MESSAGE( "--> Name of the object : " << object->GetName() );
-	  switch (object->GetObjectType())
-	    {
-	    case HDF_FILE :
-	      MESSAGE( "--> Type of the object : HDF_FILE : " );
-	      break;
+        {
+          object = explorer->Value();
+          MESSAGE( "--> Name of the object : " << object->GetName() );
+          switch (object->GetObjectType())
+            {
+            case HDF_FILE :
+              MESSAGE( "--> Type of the object : HDF_FILE : " );
+              break;
 
-	    case HDF_GROUP :
-	      MESSAGE( "--> Type of the object : HDF_GROUP : " );
-	      break;
+            case HDF_GROUP :
+              MESSAGE( "--> Type of the object : HDF_GROUP : " );
+              break;
 
-	    case HDF_DATASET :
-	      MESSAGE( "--> Type of the object : HDF_DATASET : " );
-	      break;
+            case HDF_DATASET :
+              MESSAGE( "--> Type of the object : HDF_DATASET : " );
+              break;
 
-	    default :
-	      MESSAGE( "--> !!! PANIC !!! : " );
-	    }
-	}      
+            default :
+              MESSAGE( "--> !!! PANIC !!! : " );
+            }
+        }      
       
       // memory clean
       MESSAGE( ">> MEMORY CLEAN " );

@@ -34,7 +34,7 @@
 #include "SALOMEDSImpl_AttributeExternalFileDef.hxx"
 
 class SALOMEDS_AttributeExternalFileDef_i: public virtual POA_SALOMEDS::AttributeExternalFileDef,
-				           public virtual SALOMEDS_GenericAttribute_i 
+                                           public virtual SALOMEDS_GenericAttribute_i 
 {
 public:
   

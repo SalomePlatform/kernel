@@ -60,7 +60,7 @@ static std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
 }
 
 Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
-					   std::string componenttName)
+                                           std::string componenttName)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
   bool isLib =
@@ -73,7 +73,7 @@ Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
   CORBA::Object_var obj =
     //    iGenFact->create_component_instance("SalomeTestComponent",
     iGenFact->create_component_instance(componenttName.c_str(),
-					0);
+                                        0);
   Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
   MESSAGE("create anInstance");
   SCRUTE(anInstance->instanceName());
@@ -105,80 +105,80 @@ int main (int argc, char * argv[])
     
       MESSAGE("------------------------------- create instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  instances[iter] = create_instance(iGenFact,"SalomeTestComponent");
-	}
+        {
+          instances[iter] = create_instance(iGenFact,"SalomeTestComponent");
+        }
 
       MESSAGE("------------------------------ set env instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  Engines::TestComponent_var anInstance = instances[iter];
-	  SCRUTE(anInstance->instanceName());
-	  Engines::FieldsDict_var dico = new Engines::FieldsDict;
-	  dico->length(3);
-	  dico[0].key=CORBA::string_dup("key_0");
-	  dico[0].value <<="value_0";
-	  dico[1].key=CORBA::string_dup("key_1");
-	  dico[1].value <<=(CORBA::UShort)72;
-	  dico[2].key=CORBA::string_dup("key_2");
-	  dico[2].value <<=(CORBA::ULong)iter;
-	  anInstance->setProperties(dico);
-	  MESSAGE("Coucou " << anInstance->Coucou(iter));
-	  anInstance->Setenv();
-	}
+        {
+          Engines::TestComponent_var anInstance = instances[iter];
+          SCRUTE(anInstance->instanceName());
+          Engines::FieldsDict_var dico = new Engines::FieldsDict;
+          dico->length(3);
+          dico[0].key=CORBA::string_dup("key_0");
+          dico[0].value <<="value_0";
+          dico[1].key=CORBA::string_dup("key_1");
+          dico[1].value <<=(CORBA::UShort)72;
+          dico[2].key=CORBA::string_dup("key_2");
+          dico[2].value <<=(CORBA::ULong)iter;
+          anInstance->setProperties(dico);
+          MESSAGE("Coucou " << anInstance->Coucou(iter));
+          anInstance->Setenv();
+        }
 
       MESSAGE("---------------------------------- get instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  Engines::TestComponent_var anInstance = instances[iter];
-	  SCRUTE(anInstance->instanceName());
-	  Engines::FieldsDict_var dico2 =  anInstance->getProperties();
-	  for (CORBA::ULong i=0; i<dico2->length(); i++)
-	    {
-	      MESSAGE("dico2["<<i<<"].key="<<dico2[i].key);
-	      MESSAGE("dico2["<<i<<"].value type ="<<dico2[i].value.type()->kind());
-	      if (dico2[i].value.type()->kind() == CORBA::tk_string)
-		{
-		  const char* value;
-		  dico2[i].value >>= value;
-		  MESSAGE("dico2["<<i<<"].value="<<value);
-		}
-	    }
-	}
+        {
+          Engines::TestComponent_var anInstance = instances[iter];
+          SCRUTE(anInstance->instanceName());
+          Engines::FieldsDict_var dico2 =  anInstance->getProperties();
+          for (CORBA::ULong i=0; i<dico2->length(); i++)
+            {
+              MESSAGE("dico2["<<i<<"].key="<<dico2[i].key);
+              MESSAGE("dico2["<<i<<"].value type ="<<dico2[i].value.type()->kind());
+              if (dico2[i].value.type()->kind() == CORBA::tk_string)
+                {
+                  const char* value;
+                  dico2[i].value >>= value;
+                  MESSAGE("dico2["<<i<<"].value="<<value);
+                }
+            }
+        }
 
       MESSAGE("------------------------------- remove instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  Engines::TestComponent_var anInstance = instances[iter];
-	  SCRUTE(anInstance->instanceName());
-	  iGenFact->remove_impl(anInstance) ;
-	  //iGenFact->finalize_removal() ; // unpredictable results ...
-	} 
+        {
+          Engines::TestComponent_var anInstance = instances[iter];
+          SCRUTE(anInstance->instanceName());
+          iGenFact->remove_impl(anInstance) ;
+          //iGenFact->finalize_removal() ; // unpredictable results ...
+        } 
       MESSAGE("------------------------------- PYTHON ");
       {
-// 	bool isLib =
-// 	  iGenFact->load_component_Library("SALOME_TestComponentPy");
-// 	ASSERT(isLib);
-// 	CORBA::Object_var obj =
-// 	  iGenFact->create_component_instance("SALOME_TestComponentPy",
-// 					      0);
-// 	Engines::TestComponent_var anInstance =
-// 	  Engines::TestComponent::_narrow(obj);
-// 	MESSAGE("create anInstance");
-// 	SCRUTE(anInstance->instanceName());
+//      bool isLib =
+//        iGenFact->load_component_Library("SALOME_TestComponentPy");
+//      ASSERT(isLib);
+//      CORBA::Object_var obj =
+//        iGenFact->create_component_instance("SALOME_TestComponentPy",
+//                                            0);
+//      Engines::TestComponent_var anInstance =
+//        Engines::TestComponent::_narrow(obj);
+//      MESSAGE("create anInstance");
+//      SCRUTE(anInstance->instanceName());
       MESSAGE("------------------------------- create instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  instances[iter] = create_instance(iGenFact,"SALOME_TestComponentPy");
-	}
+        {
+          instances[iter] = create_instance(iGenFact,"SALOME_TestComponentPy");
+        }
 
       MESSAGE("---------------------------------- get instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
-	{
-	  Engines::TestComponent_var anInstance = instances[iter];
-	  SCRUTE(anInstance->instanceName());
-	  MESSAGE("Coucou " << anInstance->Coucou(iter));
-	}
+        {
+          Engines::TestComponent_var anInstance = instances[iter];
+          SCRUTE(anInstance->instanceName());
+          MESSAGE("Coucou " << anInstance->Coucou(iter));
+        }
       }
    
       // Clean-up.

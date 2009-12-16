@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
   CORBA::Object_var poaObj = orb->resolve_initial_references("RootPOA");
   if(!CORBA::is_nil(poaObj)) {
-		PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);
+                PortableServer::POA_var poa = PortableServer::POA::_narrow(poaObj);
 
     SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, poa);
     // Activate the objects.  This tells the POA that the objects are ready to accept requests.

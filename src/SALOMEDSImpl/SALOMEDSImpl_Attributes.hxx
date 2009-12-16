@@ -72,35 +72,35 @@ public :
 
 
 #define __AttributeTypeToGUIDForSObject \
-	if(theType == "AttributeReal") return SALOMEDSImpl_AttributeReal::GetID(); \
-	if(theType == "AttributeInteger") return SALOMEDSImpl_AttributeInteger::GetID(); \
-	if(theType == "AttributeSequenceOfReal") return SALOMEDSImpl_AttributeSequenceOfReal::GetID(); \
-	if(theType == "AttributeSequenceOfInteger") return SALOMEDSImpl_AttributeSequenceOfInteger::GetID(); \
-	if(theType == "AttributeName") return SALOMEDSImpl_AttributeName::GetID(); \
+        if(theType == "AttributeReal") return SALOMEDSImpl_AttributeReal::GetID(); \
+        if(theType == "AttributeInteger") return SALOMEDSImpl_AttributeInteger::GetID(); \
+        if(theType == "AttributeSequenceOfReal") return SALOMEDSImpl_AttributeSequenceOfReal::GetID(); \
+        if(theType == "AttributeSequenceOfInteger") return SALOMEDSImpl_AttributeSequenceOfInteger::GetID(); \
+        if(theType == "AttributeName") return SALOMEDSImpl_AttributeName::GetID(); \
         if(theType == "AttributeComment") return SALOMEDSImpl_AttributeComment::GetID(); \
         if(theType == "AttributeIOR") return SALOMEDSImpl_AttributeIOR::GetID(); \
         if(theType == "AttributePersistentRef") return SALOMEDSImpl_AttributePersistentRef::GetID(); \
         if(theType == "AttributeDrawable") return SALOMEDSImpl_AttributeDrawable::GetID(); \
         if(theType == "AttributeSelectable") return SALOMEDSImpl_AttributeSelectable::GetID(); \
-	if(theType == "AttributeExpandable") return SALOMEDSImpl_AttributeExpandable::GetID(); \
-	if(theType == "AttributeOpened") return SALOMEDSImpl_AttributeOpened::GetID(); \
-	if(theType == "AttributeTextColor") return SALOMEDSImpl_AttributeTextColor::GetID(); \
-	if(theType == "AttributeTextHighlightColor") return SALOMEDSImpl_AttributeTextHighlightColor::GetID(); \
-	if(theType == "AttributePixMap") return SALOMEDSImpl_AttributePixMap::GetID(); \
-	if(theType == "AttributeLocalID") return SALOMEDSImpl_AttributeLocalID::GetID(); \
-	if(theType == "AttributeTarget") return SALOMEDSImpl_AttributeTarget::GetID(); \
-	if(theType == "AttributeTableOfInteger") return SALOMEDSImpl_AttributeTableOfInteger::GetID(); \
-	if(theType == "AttributeTableOfReal") return SALOMEDSImpl_AttributeTableOfReal::GetID();  \
+        if(theType == "AttributeExpandable") return SALOMEDSImpl_AttributeExpandable::GetID(); \
+        if(theType == "AttributeOpened") return SALOMEDSImpl_AttributeOpened::GetID(); \
+        if(theType == "AttributeTextColor") return SALOMEDSImpl_AttributeTextColor::GetID(); \
+        if(theType == "AttributeTextHighlightColor") return SALOMEDSImpl_AttributeTextHighlightColor::GetID(); \
+        if(theType == "AttributePixMap") return SALOMEDSImpl_AttributePixMap::GetID(); \
+        if(theType == "AttributeLocalID") return SALOMEDSImpl_AttributeLocalID::GetID(); \
+        if(theType == "AttributeTarget") return SALOMEDSImpl_AttributeTarget::GetID(); \
+        if(theType == "AttributeTableOfInteger") return SALOMEDSImpl_AttributeTableOfInteger::GetID(); \
+        if(theType == "AttributeTableOfReal") return SALOMEDSImpl_AttributeTableOfReal::GetID();  \
         if(theType == "AttributeTableOfString") return SALOMEDSImpl_AttributeTableOfString::GetID(); \
-	if(theType == "AttributeStudyProperties") return SALOMEDSImpl_AttributeStudyProperties::GetID(); \
-	if(theType == "AttributePythonObject") return SALOMEDSImpl_AttributePythonObject::GetID(); \
-	if(theType == "AttributeUserID") return std::string("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
-	if(theType == "AttributeExternalFileDef") return SALOMEDSImpl_AttributeExternalFileDef::GetID(); \
-	if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
-	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
+        if(theType == "AttributeStudyProperties") return SALOMEDSImpl_AttributeStudyProperties::GetID(); \
+        if(theType == "AttributePythonObject") return SALOMEDSImpl_AttributePythonObject::GetID(); \
+        if(theType == "AttributeUserID") return std::string("FFFFFFFF-D9CD-11d6-945D-1050DA506788"); \
+        if(theType == "AttributeExternalFileDef") return SALOMEDSImpl_AttributeExternalFileDef::GetID(); \
+        if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
+        if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
         if(theType == "AttributeGraphic") return SALOMEDSImpl_AttributeGraphic::GetID(); \
-	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
-	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID(); \
+        if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
+        if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID(); \
         if(theType == "AttributeString") return SALOMEDSImpl_AttributeString::GetID();
 
 

@@ -287,8 +287,8 @@ public:
 
   virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
   virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 
-							       const char* theModuleName, 
-							       CORBA::Long theSavePoint);
+                                                               const char* theModuleName, 
+                                                               CORBA::Long theSavePoint);
 
   virtual void SetStudyLock(const char* theLockerID);
 

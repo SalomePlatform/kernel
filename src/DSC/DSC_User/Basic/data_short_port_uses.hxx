@@ -64,7 +64,7 @@ class data_short_port_uses :
      * \param message message associated to the modification.
      */
     virtual void uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				   const Engines::DSC::Message message);
+                                   const Engines::DSC::Message message);
 
   private :
     Engines::DSC::uses_port * _my_ports;

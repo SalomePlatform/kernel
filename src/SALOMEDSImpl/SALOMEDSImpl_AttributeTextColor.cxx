@@ -138,7 +138,7 @@ string SALOMEDSImpl_AttributeTextColor::Save()
   char *Val = new char[75];
   sprintf(Val, "%f %f %f", (float)myValue[0], 
                            (float)myValue[1], 
-			   (float)myValue[2]);
+                           (float)myValue[2]);
   string ret(Val);
   delete Val;
   return ret;

@@ -50,12 +50,12 @@ static void DumpComponent(SALOMEDS::Study_ptr Study,SALOMEDS::SObject_ptr SO, in
       SALOMEDS::AttributeName_var Name = SALOMEDS::AttributeName::_narrow(anAttr);
       CORBA::String_var Val = Name->Value();
       for (int i = 1; i <= offset ; i++) 
-	MESSAGE("--");
+        MESSAGE("--");
       MESSAGE(">"<<CSO->GetID()<<Val);
     }
     if (CSO->ReferencedObject(RefSO)) {
       for (int i = 1; i <= offset ; i++) 
-	MESSAGE(" ");
+        MESSAGE(" ");
       MESSAGE("*Reference"<<RefSO->GetID());
     }
     DumpComponent(Study,CSO,offset+2);

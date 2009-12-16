@@ -38,7 +38,7 @@ using namespace std;
  */
 //============================================================================
 SALOMEDS_UseCaseBuilder_i::SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theImpl,
-						     CORBA::ORB_ptr orb)
+                                                     CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
@@ -85,7 +85,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::Remove(SALOMEDS::SObject_ptr theObject
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFather, 
-						   SALOMEDS::SObject_ptr theObject)
+                                                   SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFather->_is_nil() || theObject->_is_nil()) return 0;
@@ -98,7 +98,7 @@ CORBA::Boolean SALOMEDS_UseCaseBuilder_i::AppendTo(SALOMEDS::SObject_ptr theFath
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_UseCaseBuilder_i::InsertBefore(SALOMEDS::SObject_ptr theFirst, 
-						       SALOMEDS::SObject_ptr theNext)
+                                                       SALOMEDS::SObject_ptr theNext)
 {
   SALOMEDS::Locker lock;
   if(!_impl || theFirst->_is_nil() || theNext->_is_nil()) return 0;

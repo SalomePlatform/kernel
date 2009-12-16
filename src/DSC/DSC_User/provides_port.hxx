@@ -57,7 +57,7 @@ class provides_port : public base_port
      * \param message message associated with this connection.
      */
     virtual void provides_port_changed(int connection_nbr,
-				       const Engines::DSC::Message message) {}
+                                       const Engines::DSC::Message message) {}
 
 };
 

@@ -64,7 +64,7 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::
   if(!impl.IsNull()) {
      if(impl.IsComponent()) {
          SALOMEDSImpl_SComponent sco = impl;
-	 _impl = sco.GetPersistentCopy();       
+         _impl = sco.GetPersistentCopy();       
      }
      else {
          _impl = impl.GetPersistentCopy();
@@ -148,7 +148,7 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out anAttribute,
-						  const char* aTypeOfAttribute)
+                                                  const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
   DF_Attribute* anAttr = NULL;
@@ -181,7 +181,7 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
       SALOMEDS::GenericAttribute_var anAttribute;
       anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
       if (!CORBA::is_nil(anAttribute)) {
-	SeqOfAttr[i] = anAttribute;
+        SeqOfAttr[i] = anAttribute;
       }
     }
   }

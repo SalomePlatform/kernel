@@ -29,7 +29,7 @@
 #include CORBA_SERVER_HEADER(nstest)
 
 class NSTEST_echo_i : public virtual POA_NSTEST::echo,
-		      public virtual PortableServer::ServantBase
+                      public virtual PortableServer::ServantBase
 {
 public:
   NSTEST_echo_i();
@@ -41,7 +41,7 @@ private:
 };
 
 class NSTEST_aFactory_i : public virtual POA_NSTEST::aFactory,
-			  public virtual PortableServer::ServantBase
+                          public virtual PortableServer::ServantBase
 {
 public:
   NSTEST_aFactory_i();

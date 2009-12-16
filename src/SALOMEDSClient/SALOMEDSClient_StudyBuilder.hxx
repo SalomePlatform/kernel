@@ -50,7 +50,7 @@ public:
   virtual _PTR(GenericAttribute) FindOrCreateAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute) = 0;
   virtual bool FindAttribute(const _PTR(SObject)& theSO, 
                              _PTR(GenericAttribute)& theAttribute, 
-			     const std::string& aTypeOfAttribute) = 0;
+                             const std::string& aTypeOfAttribute) = 0;
   virtual void RemoveAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute) = 0;
   virtual void Addreference(const _PTR(SObject)& me, const _PTR(SObject)& thereferencedObject) = 0;
   virtual void RemoveReference(const _PTR(SObject)& me) = 0;

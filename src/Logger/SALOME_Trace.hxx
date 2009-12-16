@@ -65,16 +65,16 @@
 class SALOME_Trace : public std::ostringstream  
 {
 public:
-	virtual ~SALOME_Trace();
+        virtual ~SALOME_Trace();
         static Standard_EXPORT SALOME_Trace& Instance();
-	// initializes Logger (if USE_LOGGER variable is set) and returns true, in case success
-	int Initialize(CORBA::ORB_ptr theOrb);
-	Standard_EXPORT void putMessage(std::ostream& msg);
+        // initializes Logger (if USE_LOGGER variable is set) and returns true, in case success
+        int Initialize(CORBA::ORB_ptr theOrb);
+        Standard_EXPORT void putMessage(std::ostream& msg);
 protected:
-	//disable creation of instances. It's necessary to use static SALOME_Logger& Instance()
-	SALOME_Trace();
-	SALOME_Logger::Logger_var m_pInterfaceLogger;// object reference on Logger server.
-	int isInitialized;
+        //disable creation of instances. It's necessary to use static SALOME_Logger& Instance()
+        SALOME_Trace();
+        SALOME_Logger::Logger_var m_pInterfaceLogger;// object reference on Logger server.
+        int isInitialized;
 };
 
 #define GLogger SALOME_Trace::Instance()

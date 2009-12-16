@@ -46,7 +46,7 @@ const std::string& SALOMEDSImpl_AttributeOpened::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeOpened* SALOMEDSImpl_AttributeOpened::Set (const DF_Label& L,
-								 const int value) 
+                                                                 const int value) 
 {
   SALOMEDSImpl_AttributeOpened* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeOpened*)L.FindAttribute(SALOMEDSImpl_AttributeOpened::GetID()))) {

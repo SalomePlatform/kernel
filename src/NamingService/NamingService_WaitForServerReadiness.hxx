@@ -32,6 +32,6 @@
 #include <string>
 
 void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
-					  std::string serverName);
+                                          std::string serverName);
 
 #endif

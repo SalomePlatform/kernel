@@ -26,7 +26,7 @@
 //  $Header$
 //
 /*
-	RegistryConnexion should be used by an engine to add or to remove a component.
+        RegistryConnexion should be used by an engine to add or to remove a component.
 
 */
 # if !defined( __RegistryConnexion_HXX__ )
@@ -41,18 +41,18 @@
 class REGISTRY_EXPORT RegistryConnexion
 {
 protected :
-	const char*			_Ior		; // engine ior
-	Registry::Components_var	_VarComponents	; // RegistryService reference
-	std::string			_SessionName	;
-	std::string			_Name		; // code name
-	int   				_Id   		; // code identity returned by RegistryService
-	void add( const char *aName );
-	void remove( void );
-	RegistryConnexion( void );
+        const char*                     _Ior            ; // engine ior
+        Registry::Components_var        _VarComponents  ; // RegistryService reference
+        std::string                     _SessionName    ;
+        std::string                     _Name           ; // code name
+        int                             _Id             ; // code identity returned by RegistryService
+        void add( const char *aName );
+        void remove( void );
+        RegistryConnexion( void );
 
 public :
-	RegistryConnexion( int argc , char **argv , const char *ior , const char *ptrSessionName, const char *componentName );
-	~RegistryConnexion();
+        RegistryConnexion( int argc , char **argv , const char *ior , const char *ptrSessionName, const char *componentName );
+        ~RegistryConnexion();
 } ;
 
-# endif		/* # if !defined( __RegistryConnexion_H__ ) */
+# endif         /* # if !defined( __RegistryConnexion_H__ ) */

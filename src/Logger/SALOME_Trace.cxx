@@ -51,8 +51,8 @@ SALOME_Trace::~SALOME_Trace()
 
 SALOME_Trace& SALOME_Trace::Instance()
 {
-	static SALOME_Trace instance;
-	return instance;
+        static SALOME_Trace instance;
+        return instance;
 }
 
 int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
@@ -76,15 +76,15 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 #ifndef WIN32
     if (i != 1) nanosleep(&ts_req,&ts_rem);
 #else
-	if (i != 1) Sleep(TIMESleep / 1000000);
+        if (i != 1) Sleep(TIMESleep / 1000000);
 #endif
     try{ 
       if(CORBA::is_nil(obj))
-	obj = theOrb->resolve_initial_references("RootPOA");
+        obj = theOrb->resolve_initial_references("RootPOA");
       if(CORBA::is_nil(theObj))
-	theObj = theOrb->resolve_initial_references("NameService"); 
+        theObj = theOrb->resolve_initial_references("NameService"); 
       if (!CORBA::is_nil(theObj))
-	inc = CosNaming::NamingContext::_narrow(theObj);
+        inc = CosNaming::NamingContext::_narrow(theObj);
       if (!CORBA::is_nil(inc)) break;
     } catch( CORBA::SystemException& ) {
     } catch (...) {
@@ -111,18 +111,18 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 #ifndef WIN32
       if (i != 1) nanosleep(&ts_req, &ts_rem);
 #else
-	  if (i != 1) Sleep(TIMESleep / 1000000);
+          if (i != 1) Sleep(TIMESleep / 1000000);
 #endif
       try {
-	obj = inc->resolve(name);
-	if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
+        obj = inc->resolve(name);
+        if (!CORBA::is_nil(obj)) m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
       } catch(CosNaming::NamingContext::NotFound) {
       } catch(...) {
       }
       if (!CORBA::is_nil(m_pInterfaceLogger)) {
-	//cout<<"SALOME_Trace : Logger Server was found"<<endl;
-	m_pInterfaceLogger->ping();
-	break;
+        //cout<<"SALOME_Trace : Logger Server was found"<<endl;
+        m_pInterfaceLogger->ping();
+        break;
       }
     }
     if (CORBA::is_nil(m_pInterfaceLogger)) {

@@ -33,7 +33,7 @@
 #include "SALOMEDSImpl_AttributePersistentRef.hxx"
 
 class SALOMEDS_AttributePersistentRef_i: public virtual POA_SALOMEDS::AttributePersistentRef,
-					 public virtual SALOMEDS_GenericAttribute_i {
+                                         public virtual SALOMEDS_GenericAttribute_i {
 public:
   
   SALOMEDS_AttributePersistentRef_i(SALOMEDSImpl_AttributePersistentRef* theAttr, CORBA::ORB_ptr orb) 

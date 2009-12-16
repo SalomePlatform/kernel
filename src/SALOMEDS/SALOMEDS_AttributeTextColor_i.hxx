@@ -35,7 +35,7 @@
 #include "SALOMEDSImpl_AttributeTextColor.hxx"
 
 class SALOMEDS_AttributeTextColor_i: public virtual POA_SALOMEDS::AttributeTextColor,
-				     public virtual SALOMEDS_GenericAttribute_i 
+                                     public virtual SALOMEDS_GenericAttribute_i 
 {
 public:
   

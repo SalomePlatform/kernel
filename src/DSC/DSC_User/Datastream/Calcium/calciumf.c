@@ -92,7 +92,7 @@ void F_FUNC(cpfin,CPFIN)(long *compo,cal_int *dep,cal_int *err)
 /**************************************/
 
 void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
-			 cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
+                         cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpllg,CPLLG)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
             cal_int *max,cal_int *n, long *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cplen,CPLEN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
@@ -110,7 +110,7 @@ void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
 
 
 void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *iter,STR_PSTR(nom),
-			 cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
+                         cal_int *max,cal_int *n, int *tab,cal_int *err STR_PLEN(nom))
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
 
@@ -120,7 +120,7 @@ void F_FUNC(cplin,CPLIN)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
   *err=cp_lin_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
 #else
   fprintf(stderr,"End of CPLIN: %s : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
-	  cnom);
+          cnom);
 #endif
   free_str1(cnom);
 }
@@ -135,7 +135,7 @@ void F_FUNC(cpllg,CPLLG)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
   *err=cp_llg_fort_((void *)*compo,*dep,ti,tf,iter,cnom,*max,n,tab);
 #else
   fprintf(stderr,"End of CPLLG: %s : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
-	  cnom);
+          cnom);
 #endif
   free_str1(cnom);
 }
@@ -210,7 +210,7 @@ void F_FUNC(cplch,CPLCH)(long *compo,cal_int *dep,float *ti,float *tf,cal_int *i
 /*  INTERFACES D'ECRITURE  */
 /***************************/
 void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, char *tab,cal_int *err 
-			 STR_PLEN(nom) STR_PLEN(tab));
+                         STR_PLEN(nom) STR_PLEN(tab));
 void F_FUNC(cpedb,CPEDB)(long *compo,cal_int *dep,double *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, double *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpere,CPERE)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
 void F_FUNC(cpecp,CPECP)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, float *tab,cal_int *err STR_PLEN(nom));
@@ -220,7 +220,7 @@ void F_FUNC(cpeen,CPEEN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
 void F_FUNC(cpelo,CPELO)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, int *tab,cal_int *err STR_PLEN(nom));
 
 void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PSTR(nom),cal_int *n, char *tab,cal_int *err 
-			 STR_PLEN(nom) STR_PLEN(tab))
+                         STR_PLEN(nom) STR_PLEN(tab))
 {
   char ** tabChaine=NULL;
   cal_int     index=0,index2=0;
@@ -234,8 +234,8 @@ void F_FUNC(cpech,CPECH)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
     tabChaine[index][STR_LEN(tab)]='\0';
     for (index2 = STR_LEN(tab) - 1; index2 >= 0; index2--) {
       if ( tabChaine[index][index2] == ' '  ||
-	   tabChaine[index][index2] == '\0'   )
-	tabChaine[index][index2]='\0';
+           tabChaine[index][index2] == '\0'   )
+        tabChaine[index][index2]='\0';
     }
   }
 
@@ -282,7 +282,7 @@ void F_FUNC(cpein,CPEIN)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   *err=cp_ein_fort_((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
 #else
   fprintf(stderr,"CPEIN: %s %f %d : Can't use fortran INTEGER*4 because int C is not 32bits long on this machine.\n",
-	  cnom, *ti,*iter);
+          cnom, *ti,*iter);
 #endif
   free_str1(cnom);
 }
@@ -297,7 +297,7 @@ void F_FUNC(cpelg,CPELG)(long *compo,cal_int *dep,float *ti,cal_int *iter,STR_PS
   *err=cp_elg_fort_((void *)*compo,*dep,*ti,*iter,cnom,*n,tab);
 #else
   fprintf(stderr,"CPELG: %s %f %d : Can't use fortran INTEGER*8 because long C is not 64bits long on this machine.\n",
-	  cnom, *ti,*iter);
+          cnom, *ti,*iter);
 #endif
   free_str1(cnom);
 }

@@ -76,7 +76,7 @@ void Utils_Timer::Start() {
     SYSTEMTIME st;
     GetSystemTime(&st);
     SystemTimeToFileTime(&st, RefToInitialTMS);
-	  time(RefToCurrentTimeB);
+          time(RefToCurrentTimeB);
 #endif
   }
 }
@@ -96,8 +96,8 @@ void Utils_Timer::Stop() {
     GetSystemTime(&st);
     SystemTimeToFileTime(&st, RefToCurrentTMS);
     Cumul_user += (int)(((ULARGE_INTEGER*)(RefToCurrentTMS))->QuadPart - ((ULARGE_INTEGER*)(RefToInitialTMS))->QuadPart) / 10000000;
-	  Cumul_sys = Cumul_user;
-	  time(RefToCurrentTimeB);
+          Cumul_sys = Cumul_user;
+          time(RefToCurrentTimeB);
 #endif
    Stopped = 1;
   }

@@ -42,27 +42,27 @@ public:
   template<class Y>
     explicit clt_shared_ptr(Y * p)
       {
-	boost::shared_ptr<T>::reset(p);
+        boost::shared_ptr<T>::reset(p);
       }
   
   template<class Y>
     clt_shared_ptr(clt_shared_ptr<Y> const & r):
       boost::shared_ptr<T>(r,boost::detail::dynamic_cast_tag())
-	{}
+        {}
   
   template<class Y>
     clt_shared_ptr & operator=(clt_shared_ptr<Y> const & r)
       {
-	clt_shared_ptr<T>(r).swap(*this);
-	return *this;
+        clt_shared_ptr<T>(r).swap(*this);
+        return *this;
       }
   
   template<class Y> clt_shared_ptr& operator()(Y * p) // Y must be complete
     {
       if(T* pt = dynamic_cast<T*>(p))
-	boost::shared_ptr<T>::reset(pt);
+        boost::shared_ptr<T>::reset(pt);
       else
-	boost::throw_exception(std::bad_cast());
+        boost::throw_exception(std::bad_cast());
       return *this;
     }
     

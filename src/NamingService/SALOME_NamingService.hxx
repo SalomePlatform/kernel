@@ -50,30 +50,30 @@ public:
 
   void init_orb(CORBA::ORB_ptr orb=0);
   void Register(CORBA::Object_ptr ObjRef,
-		const char* Path) 
+                const char* Path) 
     throw(ServiceUnreachable);
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
   CORBA::Object_ptr ResolveFirst(const char* Path)
     throw( ServiceUnreachable); 
   CORBA::Object_ptr ResolveComponent(const char* hostname,
-				     const char* containerName,
-				     const char* componentName,
-				     const int nbproc=0)
+                                     const char* containerName,
+                                     const char* componentName,
+                                     const int nbproc=0)
     throw(ServiceUnreachable);
   std::string ContainerName(const char *ContainerName);
   std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName,
-				      const char *hostname);
+                                      const char *hostname);
   std::string 
   BuildContainerNameForNS(const Engines::ContainerParameters& params,
-			  const char *hostname);
+                          const char *hostname);
 
   // Will Be deleted on SALOME 6
   std::string ContainerName(const Engines::MachineParameters& params);
   std::string 
   BuildContainerNameForNS(const Engines::MachineParameters& params,
-			  const char *hostname);
+                          const char *hostname);
   int Find(const char* name)
     throw(ServiceUnreachable);
   bool Create_Directory(const char* Path)
@@ -106,17 +106,17 @@ protected:
 
   void _initialize_root_context();
   int _createContextNameDir(std::string path,
-			    CosNaming::Name& context_name,
-			    std::vector<std::string>& splitPath,
-			    bool onlyDir);
+                            CosNaming::Name& context_name,
+                            std::vector<std::string>& splitPath,
+                            bool onlyDir);
   void _Find(const char* name, CORBA::Long& occurence_number);
   void _current_directory(std::vector<std::string>& splitPath,
-			  int& lengthResult,
-			  CosNaming::NamingContext_var contextToFind,
-			  bool& notFound);
+                          int& lengthResult,
+                          CosNaming::NamingContext_var contextToFind,
+                          bool& notFound);
   void _list_directory_recurs(std::vector<std::string>& myList,
-			      std::string relativeSubDir,
-			      std::string absCurDirectory);
+                              std::string relativeSubDir,
+                              std::string absCurDirectory);
 
 };
 

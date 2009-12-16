@@ -49,7 +49,7 @@ hdf_err HDFobjectIdentify(hdf_idt fid,const char *path,int i,char *name)
   int idx;
 
   if ((idx = H5Giterate(fid,path,&i,RankInfo,
-			name)) < 0)
+                        name)) < 0)
     return -1;
 
   return 0;

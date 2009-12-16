@@ -60,21 +60,21 @@ BaseTraceCollector* SALOMETraceCollector::instance()
       int ret;
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
-	{                                      // the lock after the first test
-	  BaseTraceCollector* myInstance = new SALOMETraceCollector();
-	  int argc=0;
-	  char *_argv=0;
-	  char ** argv = &_argv;
-	  _orb = CORBA::ORB_init (argc, argv);
+        {                                      // the lock after the first test
+          BaseTraceCollector* myInstance = new SALOMETraceCollector();
+          int argc=0;
+          char *_argv=0;
+          char ** argv = &_argv;
+          _orb = CORBA::ORB_init (argc, argv);
 
-	  sem_init(&_sem,0,0); // to wait until run thread is initialized
-	  pthread_t traceThread;
-	  int bid = 0;
-	  pthread_create(&traceThread, NULL,
-				   SALOMETraceCollector::run, (void *)bid);
-	  sem_wait(&_sem);
-	  _singleton = myInstance; // _singleton known only when init done
-	}
+          sem_init(&_sem,0,0); // to wait until run thread is initialized
+          pthread_t traceThread;
+          int bid = 0;
+          pthread_create(&traceThread, NULL,
+                                   SALOMETraceCollector::run, (void *)bid);
+          sem_wait(&_sem);
+          _singleton = myInstance; // _singleton known only when init done
+        }
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
@@ -115,7 +115,7 @@ void* SALOMETraceCollector::run(void *bid)
   else
     {
       CORBA::String_var LogMsg =
-	CORBA::string_dup("\n---Init logger trace---\n");
+        CORBA::string_dup("\n---Init logger trace---\n");
       m_pInterfaceLogger->putMessage(LogMsg);
       DEVTRACE("Logger server found");
     }
@@ -126,44 +126,44 @@ void* SALOMETraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	{
-	  DEVTRACE("SALOMETraceCollector _threadToClose");
-	  //break;
-	}
+        {
+          DEVTRACE("SALOMETraceCollector _threadToClose");
+          //break;
+        }
 
       myTraceBuffer->retrieve(myTrace);
       if (!CORBA::is_nil(_orb))
-	{
-	  if (myTrace.traceType == ABORT_MESS)
-	    {
-	      stringstream abortMessage("");
+        {
+          if (myTrace.traceType == ABORT_MESS)
+            {
+              stringstream abortMessage("");
 #ifndef WIN32
-	      abortMessage << "INTERRUPTION from thread "
-			   << myTrace.threadId << " : " << myTrace.trace;
+              abortMessage << "INTERRUPTION from thread "
+                           << myTrace.threadId << " : " << myTrace.trace;
 #else
-	      abortMessage << "INTERRUPTION from thread "
-			   << (void*)&myTrace.threadId 
-			   << " : " << myTrace.trace;
+              abortMessage << "INTERRUPTION from thread "
+                           << (void*)&myTrace.threadId 
+                           << " : " << myTrace.trace;
 #endif
-	      CORBA::String_var LogMsg =
-		CORBA::string_dup(abortMessage.str().c_str());
-	      m_pInterfaceLogger->putMessage(LogMsg);
-	      exit(1);
-	    }
-	  else
-	    {
-	      stringstream aMessage("");
+              CORBA::String_var LogMsg =
+                CORBA::string_dup(abortMessage.str().c_str());
+              m_pInterfaceLogger->putMessage(LogMsg);
+              exit(1);
+            }
+          else
+            {
+              stringstream aMessage("");
 #ifndef WIN32
-	      aMessage << "th. " << myTrace.threadId
+              aMessage << "th. " << myTrace.threadId
 #else
-		aMessage << "th. " << (void*)&myTrace.threadId
+                aMessage << "th. " << (void*)&myTrace.threadId
 #endif
-		       << " " << myTrace.trace;
-	      CORBA::String_var LogMsg =
-		CORBA::string_dup(aMessage.str().c_str());
-	      m_pInterfaceLogger->putMessage(LogMsg);
-	    }
-	}
+                       << " " << myTrace.trace;
+              CORBA::String_var LogMsg =
+                CORBA::string_dup(aMessage.str().c_str());
+              m_pInterfaceLogger->putMessage(LogMsg);
+            }
+        }
     }
   pthread_exit(NULL);
   return NULL;
@@ -186,14 +186,14 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
       if (_threadId)
-	{
-	  int ret = pthread_join(*_threadId, NULL);
-	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
-	  else DEVTRACE("SALOMETraceCollector destruction OK");
+        {
+          int ret = pthread_join(*_threadId, NULL);
+          if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
+          else DEVTRACE("SALOMETraceCollector destruction OK");
           delete _threadId;
-	  _threadId = 0;
-	  _threadToClose = 0;
-	}
+          _threadId = 0;
+          _threadToClose = 0;
+        }
       _singleton = 0;
     }
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock

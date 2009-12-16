@@ -39,8 +39,8 @@
 #include <stdio.h>
 
 class SALOMEDS_ChildIterator_i: public virtual POA_SALOMEDS::ChildIterator,
-				public virtual PortableServer::ServantBase,
-				public virtual SALOME::GenericObj_i
+                                public virtual PortableServer::ServantBase,
+                                public virtual SALOME::GenericObj_i
 {
 private:
   CORBA::ORB_var                     _orb;

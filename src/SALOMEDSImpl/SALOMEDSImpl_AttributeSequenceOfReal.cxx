@@ -182,13 +182,13 @@ string SALOMEDSImpl_AttributeSequenceOfReal::Save()
   }
   string ret(aResult);
   delete aResult;
-			  
+                          
   return ret;
 }
-			    
+                            
 void SALOMEDSImpl_AttributeSequenceOfReal::Load(const string& value)
 {
-			      
+                              
   char* aCopy = (char*)value.c_str();
   char* adr = strtok(aCopy, " ");
   char *err = NULL; 

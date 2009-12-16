@@ -52,8 +52,8 @@ public:
   SALOME_FileTransferCORBA();
   SALOME_FileTransferCORBA(Engines::fileRef_ptr aFileRef);
   SALOME_FileTransferCORBA(std::string refMachine,
-			   std::string origFileName,
-			   std::string containerName="");
+                           std::string origFileName,
+                           std::string containerName="");
 
   virtual ~SALOME_FileTransferCORBA();
 

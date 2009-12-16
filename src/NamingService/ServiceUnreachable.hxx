@@ -36,8 +36,8 @@
 class NAMINGSERVICE_EXPORT ServiceUnreachable : public SALOME_Exception
 {
 public :
-	ServiceUnreachable( void );
-	ServiceUnreachable( const ServiceUnreachable &ex  );
+        ServiceUnreachable( void );
+        ServiceUnreachable( const ServiceUnreachable &ex  );
 } ;
 
-#endif	/* #if ( !defined  SERVICEUNREACHABLE_H ) */
+#endif  /* #if ( !defined  SERVICEUNREACHABLE_H ) */

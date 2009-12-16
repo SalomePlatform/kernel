@@ -73,11 +73,11 @@ extern "C" {void SigIntHandler( int ) ; }
 //=============================================================================
 
 Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, 
-							    char * ior, 
-							    int rank,
-							    PortableServer::POA_ptr poa,
-							    std::string containerName,
-							    bool isServantAloneInProcess) :
+                                                            char * ior, 
+                                                            int rank,
+                                                            PortableServer::POA_ptr poa,
+                                                            std::string containerName,
+                                                            bool isServantAloneInProcess) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::PACO_Container_serv(orb,ior,rank),
   Engines::PACO_Container_base_serv(orb,ior,rank),
@@ -347,8 +347,8 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
     PyObject *globals = PyModule_GetDict(mainmod);
     PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
     PyObject *result = PyObject_CallMethod(pyCont,
-					   (char*)"import_component",
-					   (char*)"s",componentName);
+                                           (char*)"import_component",
+                                           (char*)"s",componentName);
     std::string ret_p= PyString_AsString(result);
     Py_XDECREF(result);
     Py_RELEASE_NEW_THREAD;
@@ -384,7 +384,7 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
 
 Engines::Component_ptr
 Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName,
-							CORBA::Long studyId)
+                                                        CORBA::Long studyId)
 {
   MESSAGE("Begin of create_component_instance in node : " << getMyRank());
 
@@ -442,7 +442,7 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
 //=============================================================================
 
 Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( const char* registeredName,
-									      CORBA::Long studyId)
+                                                                              CORBA::Long studyId)
 {
   Engines::Component_var anEngine = Engines::Component::_nil();
   map<string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
@@ -455,7 +455,7 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
       anEngine = (*itm).second;
       if (studyId == anEngine->getStudyId())
       {
-	return anEngine._retn();
+        return anEngine._retn();
       }
     }
     itm++;
@@ -479,7 +479,7 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
 //=============================================================================
 
 Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* genericRegisterName,
-								const char* componentName )
+                                                                const char* componentName )
 {
   Engines::Component_var iobject = Engines::Component::_nil();
   if (load_component_Library(genericRegisterName))
@@ -559,8 +559,8 @@ void Engines_Parallel_Container_i::finalize_removal()
 bool Engines_Parallel_Container_i::Kill_impl()
 {
   MESSAGE("Engines_Parallel_Container_i::Kill() my pid is "<< _pid 
-	  << " my containerName is " << _containerName.c_str() 
-	  << " my machineName is " << _hostname.c_str());
+          << " my containerName is " << _containerName.c_str() 
+          << " my machineName is " << _hostname.c_str());
   INFOS("===============================================================");
   INFOS("= REMOVE calls to Kill_impl in C++ container                  =");
   INFOS("===============================================================");
@@ -693,7 +693,7 @@ Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName
     if (CORBA::is_nil( obj ))
     {
       iobject = create_component_instance(genericRegisterName.c_str(), 
-					  0); // force multiStudy instance here !
+                                          0); // force multiStudy instance here !
     }
     else
     { 
@@ -704,9 +704,9 @@ Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName
       ASSERT (studyId >= 0);
       if (studyId != 0)  // monoStudy instance: NOK
       {
-	iobject = Engines::Component::_nil();
-	INFOS("load_impl & find_component_instance methods "
-	      << "NOT SUITABLE for mono study components");
+        iobject = Engines::Component::_nil();
+        INFOS("load_impl & find_component_instance methods "
+              << "NOT SUITABLE for mono study components");
       }
     }
   }
@@ -755,11 +755,11 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
   PyObject *globals = PyModule_GetDict(mainmod);
   PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
   PyObject *result = PyObject_CallMethod(pyCont,
-					 (char*)"create_component_instance",
-					 (char*)"ssl",
-					 genericRegisterName.c_str(),
-					 instanceName.c_str(),
-					 studyId);
+                                         (char*)"create_component_instance",
+                                         (char*)"ssl",
+                                         genericRegisterName.c_str(),
+                                         instanceName.c_str(),
+                                         studyId);
   std::string iors = PyString_AsString(result);
   Py_DECREF(result);
   Py_RELEASE_NEW_THREAD;
@@ -799,8 +799,8 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
 //=============================================================================
 Engines::Component_ptr
 Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
-						void *handle,
-						int studyId)
+                                                void *handle,
+                                                int studyId)
 {
   MESSAGE("Entering Engines_Parallel_Container_i::createCPPInstance");
 
@@ -847,7 +847,7 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
 
     PortableServer::ObjectId *id; //not owner, do not delete (nore use var)
     id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
-			       aGenRegisterName.c_str() );
+                               aGenRegisterName.c_str() );
     if (id == NULL)
     {
       INFOS("Factory function returns NULL !");
@@ -885,8 +885,8 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
 
 void
 Engines_Parallel_Container_i::create_paco_component_node_instance(const char* componentName,
-								  const char* proxy_containerName,
-								  CORBA::Long studyId)
+                                                                  const char* proxy_containerName,
+                                                                  CORBA::Long studyId)
 {
   // Init de la méthode
   char * proxy_ior;
@@ -998,7 +998,7 @@ void Engines_Parallel_Container_i::decInstanceCnt(string genericRegisterName)
     if (_cntInstances_map[aGenRegisterName] == 0)
     {
       string impl_name =
-	Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
+        Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
       SCRUTE(impl_name);
       void* handle = _library_map[impl_name];
       ASSERT(handle);
@@ -1135,7 +1135,7 @@ void CallCancelThread();
 
 #ifndef WIN32
 void SigIntHandler(int what , siginfo_t * siginfo ,
-		   void * toto ) {
+                   void * toto ) {
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
   //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
@@ -1165,8 +1165,8 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
       //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
-	sleep( 1 ) ;
-	count += 1 ;
+        sleep( 1 ) ;
+        count += 1 ;
       }
       //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
@@ -1191,8 +1191,8 @@ void SigIntHandler( int what ) {
       MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
-	Sleep( 1000 ) ;
-	count += 1 ;
+        Sleep( 1000 ) ;
+        count += 1 ;
       }
       MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }

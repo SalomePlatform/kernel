@@ -48,7 +48,7 @@ private :
 
 public:
   HDFdataset(const char *name, HDFcontainerObject *father,hdf_type type, 
-	     hdf_size dim[],int dimsize, hdf_byte_order order = H5T_ORDER_NONE);
+             hdf_size dim[],int dimsize, hdf_byte_order order = H5T_ORDER_NONE);
 
   HDFdataset(const char *name,HDFcontainerObject *father);
   virtual ~HDFdataset();

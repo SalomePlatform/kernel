@@ -34,7 +34,7 @@
 
 
 class DATE_CAL_SCHEM : public std::map<Ports::Calcium_Ports::DateCalSchem,
-				       CalciumTypes::DateCalSchem> 
+                                       CalciumTypes::DateCalSchem> 
 {
 public :
 
@@ -46,7 +46,7 @@ public :
 extern const DATE_CAL_SCHEM dateCalSchem ;
 
 class DEPENDENCY_TYPE : public std::map<Ports::Calcium_Ports::DependencyType,
-					CalciumTypes::DependencyType>
+                                        CalciumTypes::DependencyType>
 {
 public :
 
@@ -57,7 +57,7 @@ public :
 extern const DEPENDENCY_TYPE dependencyType ;
 
 class INTERPOLATION_SCHEM : public std::map<Ports::Calcium_Ports::InterpolationSchem,
-					    CalciumTypes::InterpolationSchem>
+                                            CalciumTypes::InterpolationSchem>
 {
 public :
 
@@ -68,7 +68,7 @@ public :
 extern const INTERPOLATION_SCHEM interpolationSchem ;
 
 class EXTRAPOLATION_SCHEM : public std::map<Ports::Calcium_Ports::ExtrapolationSchem,
-					    CalciumTypes::ExtrapolationSchem>
+                                            CalciumTypes::ExtrapolationSchem>
 {
 public :
 

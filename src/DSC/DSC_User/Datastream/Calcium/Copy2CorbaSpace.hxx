@@ -57,7 +57,7 @@ struct Copy2CorbaSpace  {
     corbaData = DataManipulator::create(nRead,const_cast<T2 * > (&data),false);
 #ifdef MYDEBUG
     std::cerr << "-------- Copy2CorbaSpace<true> MARK 2 --(dataPtr : " 
-	      << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
+              << DataManipulator::getPointer(corbaData,false)<<")----------------" << std::endl;
 #endif
 
   }

@@ -46,7 +46,7 @@ using namespace std;
 
 
 void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
-					  string serverName)
+                                          string serverName)
 {
   long TIMESleep = 500000000; // 500 ms.
   int NumberOfTries = 40;     // total wait = 20 s.
@@ -63,38 +63,38 @@ void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
   for (int itry=0; itry < NumberOfTries; itry++)
     {
       try
-	{
-	  if (serverName.length() == 0)
-	    {
+        {
+          if (serverName.length() == 0)
+            {
               CORBA::String_var dummyadr = NS->getIORaddr(); // to wait for naming service
-	      found = 1;
-	      break; // naming service found
-	    }
-	  else
-	    {
-	      CORBA::Object_var obj = NS->Resolve(serverName.c_str());
-	      if (! CORBA::is_nil(obj))
-		{
-		  found =1;
-		  break; // server found, no more try to do
-		}
-	      MESSAGE("Server "<< serverName <<" not yet ready, waiting...");
+              found = 1;
+              break; // naming service found
+            }
+          else
+            {
+              CORBA::Object_var obj = NS->Resolve(serverName.c_str());
+              if (! CORBA::is_nil(obj))
+                {
+                  found =1;
+                  break; // server found, no more try to do
+                }
+              MESSAGE("Server "<< serverName <<" not yet ready, waiting...");
 #ifndef WIN32
               nanosleep(&ts_req,&ts_rem); // wait before retry
 #else
               Sleep(TIMESleep/1000000);
 #endif
-	    }
-	}
+            }
+        }
       catch( ServiceUnreachable& )
-	{
-	  MESSAGE("CORBA::COMM_FAILURE: Naming Service not yet ready, waiting...");
+        {
+          MESSAGE("CORBA::COMM_FAILURE: Naming Service not yet ready, waiting...");
 #ifndef WIN32
           nanosleep(&ts_req,&ts_rem); // wait before retry
 #else
           Sleep(TIMESleep/1000000);
 #endif
-	}
+        }
     }
   if (!found)
     {

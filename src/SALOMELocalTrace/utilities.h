@@ -80,17 +80,17 @@
 /* --- To print date and time of compilation of current source --- */
 
 #if defined ( __GNUC__ )
-#define COMPILER		"g++" 
+#define COMPILER                "g++" 
 #elif defined ( __sun )
-#define COMPILER		"CC" 
+#define COMPILER                "CC" 
 #elif defined ( __KCC )
-#define COMPILER		"KCC" 
+#define COMPILER                "KCC" 
 #elif defined ( __PGI )
-#define COMPILER		"pgCC" 
+#define COMPILER                "pgCC" 
 #elif defined ( __alpha )
-#define COMPILER		"cxx" 
+#define COMPILER                "cxx" 
 #else
-#define COMPILER		"undefined" 
+#define COMPILER                "undefined" 
 #endif
 
 #ifdef INFOS_COMPILATION
@@ -102,8 +102,8 @@
 // --- the following MACROS are useful at debug time
 
 #define INFOS_COMPILATION { MESS_BEGIN("COMPILED with ") << COMPILER \
-				       << ", " << __DATE__ \
-				       << " at " << __TIME__ << MESS_END }
+                                       << ", " << __DATE__ \
+                                       << " at " << __TIME__ << MESS_END }
 
 #define MESSAGE(msg) {MESS_BEGIN("- Trace ") << msg << MESS_END}
 #define SCRUTE(var)  {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}

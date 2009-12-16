@@ -52,7 +52,7 @@ class SALOMEDS_AttributeFlags_i: public virtual POA_SALOMEDS::AttributeFlags,
 public:
   
                       SALOMEDS_AttributeFlags_i( SALOMEDSImpl_AttributeFlags* theAttr, CORBA::ORB_ptr orb )
-			:SALOMEDS_GenericAttribute_i(theAttr, orb) {};
+                        :SALOMEDS_GenericAttribute_i(theAttr, orb) {};
 
   virtual             ~SALOMEDS_AttributeFlags_i() {};
 

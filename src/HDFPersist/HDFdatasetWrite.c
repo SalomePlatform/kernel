@@ -60,7 +60,7 @@ hdf_err HDFdatasetWrite(hdf_idt id, void *val)
     
     hdf_size *dim = (hdf_size *) malloc(sizeof(hdf_size)*ndim);
     if ((ret = HDFdatasetGetDim(id, dim)) < 0)  return -1;
-	
+        
     for(i=0; i<ndim; i++) size+=dim[i];    
     free(dim);
     /*SRN : end of the fix */

@@ -70,12 +70,12 @@ bool Engines_Parallel_Component_i::_isMultiInstance = false;
 //=============================================================================
 
 Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank,
-					 PortableServer::POA_ptr poa, 
-					 PortableServer::ObjectId * contId, 
-					 const char *instanceName,
-					 const char *interfaceName,
+                                         PortableServer::POA_ptr poa, 
+                                         PortableServer::ObjectId * contId, 
+                                         const char *instanceName,
+                                         const char *interfaceName,
                                          bool notif,
-					 bool regist) :
+                                         bool regist) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Component_serv(orb,ior,rank),
   Engines::Component_base_serv(orb,ior,rank),
@@ -105,7 +105,7 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
   {
     CORBA::String_var the_ior = _orb->object_to_string(o);
     _myConnexionToRegistry = new RegistryConnexion(0, 0, the_ior,"theSession",
-						   _instanceName.c_str());
+                                                   _instanceName.c_str());
   }
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 
@@ -283,7 +283,7 @@ void Engines_Parallel_Component_i::Names( const char * graphName ,
   _graphName = graphName;
   _nodeName = nodeName;
   MESSAGE("Engines_Parallel_Component_i::Names( '" << _graphName << "' , '" 
-						   << _nodeName << "' )");
+                                                   << _nodeName << "' )");
 }
 
 //=============================================================================
@@ -390,17 +390,17 @@ bool Engines_Parallel_Component_i::Suspend_impl()
 #endif
     {
       if ( _Sleeping )
-	{
-	  return false ;
-	}
+        {
+          return false ;
+        }
     else 
       {
 #ifndef WIN32
-	RetVal = Killer( _ThreadId ,SIGINT ) ;
+        RetVal = Killer( _ThreadId ,SIGINT ) ;
 #else
-	RetVal = Killer( *_ThreadId ,SIGINT ) ;
+        RetVal = Killer( *_ThreadId ,SIGINT ) ;
 #endif
-	//if ( RetVal ) _Sleeping = true;
+        //if ( RetVal ) _Sleeping = true;
 
       }
     }
@@ -437,12 +437,12 @@ bool Engines_Parallel_Component_i::Resume_impl()
     {
     if ( _Sleeping ) 
       {
-	_Sleeping = false ;
-	RetVal = true ;
+        _Sleeping = false ;
+        RetVal = true ;
       }
     else
       {
-	RetVal = false ;
+        RetVal = false ;
       }
     }
   return RetVal ;
@@ -466,35 +466,35 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
 #else
       if ( pthread_self().p != _ThreadId->p )
 #endif
-	{
+        {
         if ( _Sleeping )
-	  {
-	  }
+          {
+          }
         else
-	  {
-	    // Get Cpu in the appropriate thread with that object !...
-	    theEngines_Component = this ;
+          {
+            // Get Cpu in the appropriate thread with that object !...
+            theEngines_Component = this ;
 #ifndef WIN32
-	    Killer( _ThreadId ,SIGUSR1 ) ;
+            Killer( _ThreadId ,SIGUSR1 ) ;
 #else
-	    Killer( *_ThreadId ,SIGUSR11 ) ;
+            Killer( *_ThreadId ,SIGUSR11 ) ;
 #endif
-	  }
+          }
         cpu = _ThreadCpuUsed ;
-	}
+        }
       else
-	{
-	  _ThreadCpuUsed = CpuUsed() ;
-	  cpu = _ThreadCpuUsed ;
-	  // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
-	  //      << _serviceName << " " << cpu << endl ;
+        {
+          _ThreadCpuUsed = CpuUsed() ;
+          cpu = _ThreadCpuUsed ;
+          // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
+          //      << _serviceName << " " << cpu << endl ;
       }
     }
     else 
       {
-	cpu = _ThreadCpuUsed ;
-	// cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
-	//      << _serviceName << " " << cpu<< endl ;
+        cpu = _ThreadCpuUsed ;
+        // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
+        //      << _serviceName << " " << cpu<< endl ;
       }
     }
   else
@@ -565,10 +565,10 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
 {
 #ifndef WIN32
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
-	  << endl << "Parallel Component instance : " << _instanceName << endl << endl);
+          << endl << "Parallel Component instance : " << _instanceName << endl << endl);
 #else
   MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
-	  << endl << "Parallel Component instance : " << _instanceName << endl << endl);
+          << endl << "Parallel Component instance : " << _instanceName << endl << endl);
 #endif
 #ifndef WIN32
   _ThreadId = pthread_self() ;
@@ -604,26 +604,26 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
     {
       std::string cle((*it).first);
       if ((*it).second.type()->kind() == CORBA::tk_string)
-	{
-	  const char* value;
-	  (*it).second >>= value;
-	  // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
+        {
+          const char* value;
+          (*it).second >>= value;
+          // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
 #if defined __GNUC__
-	  //int ret = setenv(cle.c_str(), value, overwrite);
-	  setenv(cle.c_str(), value, overwrite);
+          //int ret = setenv(cle.c_str(), value, overwrite);
+          setenv(cle.c_str(), value, overwrite);
 #else
-	  //CCRT porting : setenv not defined in stdlib.h
-	  std::string s(cle);
-	  s+='=';
-	  s+=value;
-	  // char* cast because 1st arg of linux putenv function
-	  // is not a const char* !
-	  //int ret=putenv((char *)s.c_str());
-	  putenv((char *)s.c_str());
-	  //End of CCRT porting
+          //CCRT porting : setenv not defined in stdlib.h
+          std::string s(cle);
+          s+='=';
+          s+=value;
+          // char* cast because 1st arg of linux putenv function
+          // is not a const char* !
+          //int ret=putenv((char *)s.c_str());
+          putenv((char *)s.c_str());
+          //End of CCRT porting
 #endif
-	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
-	}
+          MESSAGE("--- setenv: "<<cle<<" = "<< value);
+        }
     }
 }
 
@@ -640,11 +640,11 @@ void Engines_Parallel_Component_i::endService(const char *serviceName)
 
 #ifndef WIN32
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
-	  << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
+          << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
 #else
   MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
-	  << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
+          << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
     << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
 #endif
   _ThreadId = 0 ;
@@ -687,41 +687,41 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 #endif
     {
       if ( signum == 0 )
-	{
-	  if ( pthread_cancel( ThreadId ) )
-	    {
-	      perror("Killer pthread_cancel error") ;
-	      return false ;
-	    }
-	  else
-	    {
+        {
+          if ( pthread_cancel( ThreadId ) )
+            {
+              perror("Killer pthread_cancel error") ;
+              return false ;
+            }
+          else
+            {
 #ifndef WIN32
-	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
-		      << " pthread_canceled") ;
+              MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
+                      << " pthread_canceled") ;
 #else
         MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
-		      << " pthread_canceled") ;
+                      << " pthread_canceled") ;
 #endif
-	    }
-	}
+            }
+        }
       else
-	{
-	  if ( pthread_kill( ThreadId , signum ) == -1 )
-	    {
-	      perror("Killer pthread_kill error") ;
-	      return false ;
-	    }
-	  else 
-	    {
+        {
+          if ( pthread_kill( ThreadId , signum ) == -1 )
+            {
+              perror("Killer pthread_kill error") ;
+              return false ;
+            }
+          else 
+            {
 #ifndef WIN32
         MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
-		      << " pthread_killed(" << signum << ")") ;
+                      << " pthread_killed(" << signum << ")") ;
 #else
         MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
-		      << " pthread_killed(" << signum << ")") ;
+                      << " pthread_killed(" << signum << ")") ;
 #endif
-	    }
-	}
+            }
+        }
     }
   return true ;
 }
@@ -765,10 +765,10 @@ long Engines_Parallel_Component_i::CpuUsed()
   if ( _ThreadId || _Executed )
     {
       if ( getrusage( RUSAGE_SELF , &usage ) == -1 )
-	{
-	  perror("Engines_Parallel_Component_i::CpuUsed") ;
-	  return 0 ;
-	}
+        {
+          perror("Engines_Parallel_Component_i::CpuUsed") ;
+          return 0 ;
+        }
       cpu = usage.ru_utime.tv_sec - _StartUsed ;
       // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed " << " "
       //      << _serviceName   << usage.ru_utime.tv_sec << " - " << _StartUsed
@@ -781,7 +781,7 @@ long Engines_Parallel_Component_i::CpuUsed()
       //      << _StartUsed << endl ;
     }
 #else
-	// NOT implementet yet
+        // NOT implementet yet
 #endif
 
 
@@ -812,7 +812,7 @@ void Engines_Parallel_Component_i::CancelThread()
 //=============================================================================
 
 void Engines_Parallel_Component_i::sendMessage(const char *event_type,
-				      const char *message)
+                                      const char *message)
 {
     _notifSupplier->Send(graphName(), nodeName(), event_type, message);
 }
@@ -838,8 +838,8 @@ string Engines_Parallel_Component_i::GetDynLibraryName(const char *componentName
 //=============================================================================
 
 Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr theStudy, 
-							   CORBA::Boolean isPublished, 
-							   CORBA::Boolean& isValidScript)
+                                                           CORBA::Boolean isPublished, 
+                                                           CORBA::Boolean& isValidScript)
 {
   const char* aScript = "def RebuildData(theStudy): pass";
   char* aBuffer = new char[strlen(aScript)+1];
@@ -854,7 +854,7 @@ Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr the
 
 Engines::Salome_file_ptr 
 Engines_Parallel_Component_i::setInputFileToService(const char* service_name, 
-						    const char* Salome_file_name) 
+                                                    const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -887,7 +887,7 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     Engines::Parallel_Salome_file_proxy_impl * proxy = NULL;
     if (getMyRank() == 0) {
       proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
-							   new paco_omni_fabrique());
+                                                           new paco_omni_fabrique());
       proxy->copyGlobalContext(this); 
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
@@ -898,7 +898,7 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
 
       // We send the reference to all the nodes...
       Engines::Parallel_Component_var component_proxy = 
-	Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
+        Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
       // Adding proxy into the map
@@ -915,30 +915,30 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     // into the proxy.
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
-	Parallel_Salome_file_i * servant = 
-	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
-				     proxy_ior.c_str(),
-				     i);
-	servant->copyGlobalContext(this); 
-	
-	// We register the CORBA objet into the POA
-	servant->POA_PaCO::InterfaceParallel::_this();
+        Parallel_Salome_file_i * servant = 
+          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+                                     proxy_ior.c_str(),
+                                     i);
+        servant->copyGlobalContext(this); 
+        
+        // We register the CORBA objet into the POA
+        servant->POA_PaCO::InterfaceParallel::_this();
 
-	// Register the servant
-	servant->deploy();
+        // Register the servant
+        servant->deploy();
 
-	// Adding servant to the map
-	(*_map)[Salome_file_name] = servant;
+        // Adding servant to the map
+        (*_map)[Salome_file_name] = servant;
       }
 
       _my_com->paco_barrier();
       // start parallel object
       if (getMyRank() == 0) {
-	proxy->start();
-	_my_com->paco_barrier();
+        proxy->start();
+        _my_com->paco_barrier();
       }
       else
-	_my_com->paco_barrier();
+        _my_com->paco_barrier();
     }
     // Parallel_Salome_file is created and deployed
     delete _proxy;
@@ -953,7 +953,7 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
 
 Engines::Salome_file_ptr 
 Engines_Parallel_Component_i::setOutputFileToService(const char* service_name, 
-						     const char* Salome_file_name) 
+                                                     const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we add it.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -985,8 +985,8 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // of the Salome_file and transmit his
     // reference to the other nodes.
     if (getMyRank() == 0) {
-	proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
-							     new paco_omni_fabrique());
+        proxy = new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb),
+                                                             new paco_omni_fabrique());
       proxy->copyGlobalContext(this); 
       PaCO::PacoTopology_t serveur_topo;
       serveur_topo.total = getTotalNode();
@@ -997,7 +997,7 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
 
       // We send the reference to all the nodes...
       Engines::Parallel_Component_var component_proxy = 
-	Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
+        Engines::Parallel_Component::_narrow(InterfaceParallel_impl::_proxy);
       component_proxy->send_parallel_proxy_object(proxy_ref);
 
       // Adding proxy into the map
@@ -1014,30 +1014,30 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // into the proxy.
     for (int i = 0; i < getTotalNode(); i++) {
       if (i ==  getMyRank()) {
-	Parallel_Salome_file_i * servant = 
-	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
-				     proxy_ior.c_str(),
-				     i);
-	servant->copyGlobalContext(this); 
-	
-	// We register the CORBA objet into the POA
-	servant->POA_PaCO::InterfaceParallel::_this();
+        Parallel_Salome_file_i * servant = 
+          new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), 
+                                     proxy_ior.c_str(),
+                                     i);
+        servant->copyGlobalContext(this); 
+        
+        // We register the CORBA objet into the POA
+        servant->POA_PaCO::InterfaceParallel::_this();
 
-	// Register the servant
-	servant->deploy();
+        // Register the servant
+        servant->deploy();
 
-	// Adding servant to the map
-	(*_map)[Salome_file_name] = servant;
+        // Adding servant to the map
+        (*_map)[Salome_file_name] = servant;
       }
 
       _my_com->paco_barrier();
       // start parallel object
       if (getMyRank() == 0) {
-	proxy->start();
-	_my_com->paco_barrier();
+        proxy->start();
+        _my_com->paco_barrier();
       }
       else
-	_my_com->paco_barrier();
+        _my_com->paco_barrier();
     }
 
     // Parallel_Salome_file is created and deployed
@@ -1052,7 +1052,7 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
 
 Engines::Salome_file_ptr 
 Engines_Parallel_Component_i::getInputFileToService(const char* service_name, 
-						    const char* Salome_file_name) 
+                                                    const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Input_Service_file_map.find(service_name);
@@ -1080,7 +1080,7 @@ Engines_Parallel_Component_i::getInputFileToService(const char* service_name,
 
 Engines::Salome_file_ptr 
 Engines_Parallel_Component_i::getOutputFileToService(const char* service_name, 
-						     const char* Salome_file_name) 
+                                                     const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
@@ -1193,8 +1193,8 @@ Engines_Parallel_Component_i::get_parallel_proxy_object() {
 //=============================================================================
 void
 Engines_Parallel_Component_i::configureSalome_file(std::string service_name,
-						   std::string file_port_name,
-						   Engines::Parallel_Salome_file_proxy_impl * file) 
+                                                   std::string file_port_name,
+                                                   Engines::Parallel_Salome_file_proxy_impl * file) 
 {
   // By default this method does nothing
 }

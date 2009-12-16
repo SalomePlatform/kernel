@@ -40,7 +40,7 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 
 class Standard_EXPORT SALOMEDS_SComponent_i: public POA_SALOMEDS::SComponent,
-			     public SALOMEDS_SObject_i
+                             public SALOMEDS_SObject_i
 {
 
 public:

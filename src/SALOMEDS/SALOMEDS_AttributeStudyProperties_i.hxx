@@ -54,18 +54,18 @@ public:
   virtual void SetLocked(CORBA::Boolean theLocked);
   virtual CORBA::Boolean IsLocked();
   virtual void SetModification(const char* theName,
-			       CORBA::Long theMinute,
-			       CORBA::Long theHour,
-			       CORBA::Long theDay,
-			       CORBA::Long theMonth,
-			       CORBA::Long theYear);
+                               CORBA::Long theMinute,
+                               CORBA::Long theHour,
+                               CORBA::Long theDay,
+                               CORBA::Long theMonth,
+                               CORBA::Long theYear);
   virtual void GetModificationsList(SALOMEDS::StringSeq_out theNames,
-				    SALOMEDS::LongSeq_out theMinutes,
-				    SALOMEDS::LongSeq_out theHours,
-				    SALOMEDS::LongSeq_out theDays,
-				    SALOMEDS::LongSeq_out theMonths,
-				    SALOMEDS::LongSeq_out theYears,
-				    CORBA::Boolean theWithCreator);
+                                    SALOMEDS::LongSeq_out theMinutes,
+                                    SALOMEDS::LongSeq_out theHours,
+                                    SALOMEDS::LongSeq_out theDays,
+                                    SALOMEDS::LongSeq_out theMonths,
+                                    SALOMEDS::LongSeq_out theYears,
+                                    CORBA::Boolean theWithCreator);
 
 };
 

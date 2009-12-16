@@ -73,8 +73,8 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     void Shutdown();
     ResourcesManager_cpp *GetImpl() { return &_rm; }
     std::string getMachineFile(std::string hostname, 
-			       CORBA::Long nb_procs,
-			       std::string parallelLib);
+                               CORBA::Long nb_procs,
+                               std::string parallelLib);
 
 
     static const char *_ResourcesManagerNameInNS;

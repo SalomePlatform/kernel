@@ -119,17 +119,17 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       bool Ok = ProcessMachine(aCurNode, _resource);
       if (Ok)
       {
-	// Adding a resource
-	if(_resource.HostName == "localhost")
-	{
-	  _resource.HostName = Kernel_Utils::GetHostname();
-	  if (_resource.Name == "localhost")
-	  {
-	    _resource.Name = Kernel_Utils::GetHostname();
-	    _resource.DataForSort._Name = Kernel_Utils::GetHostname();
-	  }
-	}
-	_resources_list[_resource.Name] = _resource;
+        // Adding a resource
+        if(_resource.HostName == "localhost")
+        {
+          _resource.HostName = Kernel_Utils::GetHostname();
+          if (_resource.Name == "localhost")
+          {
+            _resource.Name = Kernel_Utils::GetHostname();
+            _resource.DataForSort._Name = Kernel_Utils::GetHostname();
+          }
+        }
+        _resources_list[_resource.Name] = _resource;
       }
     }
     // Cas de la déclaration d'un cluster
@@ -138,7 +138,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       _resource.Clear();
       if(ProcessCluster(aCurNode, _resource))
       {
-	_resources_list[_resource.Name] = _resource;
+        _resources_list[_resource.Name] = _resource;
       }
     }
     aCurNode = aCurNode->next;
@@ -254,14 +254,14 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
        xmlNodePtr members = aCurSubNode->xmlChildrenNode;
        while (members != NULL)
        {
-	 // Process members
-	 if (!xmlStrcmp(members->name, (const xmlChar*)test_machine))
-	 {
-	   ParserResourcesClusterMembersType new_member;
-	   if (ProcessMember(members, new_member))
-	     resource.ClusterMembersList.push_back(new_member);
-	 }
-	 members = members->next;
+         // Process members
+         if (!xmlStrcmp(members->name, (const xmlChar*)test_machine))
+         {
+           ParserResourcesClusterMembersType new_member;
+           if (ProcessMember(members, new_member))
+             resource.ClusterMembersList.push_back(new_member);
+         }
+         members = members->next;
        }
     }
     aCurSubNode = aCurSubNode->next;
@@ -299,15 +299,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     switch (protocol[0])
     {
       case 'r':
-	resource.Protocol = rsh;
-	break;
+        resource.Protocol = rsh;
+        break;
       case 's':
-	resource.Protocol = ssh;
-	break;
+        resource.Protocol = ssh;
+        break;
       default:
-	std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-	std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
-	return false;
+        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
+        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+        return false;
     }
     xmlFree(protocol);
   }
@@ -324,15 +324,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     switch (iprotocol[0])
     {
       case 'r':
-	resource.ClusterInternalProtocol = rsh;
-	break;
+        resource.ClusterInternalProtocol = rsh;
+        break;
       case 's':
-	resource.ClusterInternalProtocol = ssh;
-	break;
+        resource.ClusterInternalProtocol = ssh;
+        break;
       default:
-	std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
-	std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
-	return false;
+        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" << std::endl;
+        std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+        return false;
     }
     xmlFree(iprotocol);
   }
@@ -451,15 +451,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     switch ( protocol[0])
     {
       case 'r':
-	resource.Protocol = rsh;
-	break;
+        resource.Protocol = rsh;
+        break;
       case 's':
-	resource.Protocol = ssh;
-	break;
+        resource.Protocol = ssh;
+        break;
       default:
-	// If it'not in all theses cases, the protocol is affected to rsh
-	resource.Protocol = rsh;
-	break;
+        // If it'not in all theses cases, the protocol is affected to rsh
+        resource.Protocol = rsh;
+        break;
     }
     xmlFree(protocol);
   }
@@ -472,15 +472,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     switch ( iprotocol[0])
     {
       case 'r':
-	resource.ClusterInternalProtocol = rsh;
-	break;
+        resource.ClusterInternalProtocol = rsh;
+        break;
       case 's':
-	resource.ClusterInternalProtocol = ssh;
-	break;
+        resource.ClusterInternalProtocol = ssh;
+        break;
       default:
-	// If it'not in all theses cases, the protocol is affected to rsh
-	resource.ClusterInternalProtocol = rsh;
-	break;
+        // If it'not in all theses cases, the protocol is affected to rsh
+        resource.ClusterInternalProtocol = rsh;
+        break;
     }
     xmlFree(iprotocol);
   }
@@ -493,15 +493,15 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
     switch ( mode[0] )
     {
       case 'i':
-	resource.Mode = interactive;
-	break;
+        resource.Mode = interactive;
+        break;
       case 'b':
-	resource.Mode = batch;
-	break;
+        resource.Mode = batch;
+        break;
       default:
-	// If it'not in all theses cases, the mode is affected to interactive
-	resource.Mode = interactive;
-	break;
+        // If it'not in all theses cases, the mode is affected to interactive
+        resource.Mode = interactive;
+        break;
     }
     xmlFree(mode);
   }
@@ -606,19 +606,19 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       //except if the module name is given
       if (xmlHasProp(aCurSubNode, (const xmlChar*)test_component_name)) 
       {
-	xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_component_name);
-	std::string aComponentName = (const char*)component_name;
-	_resource.ComponentsList.push_back(aComponentName);
-	if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
-	{
-	  xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
-	  std::string aModuleName = (const char*)module_name;
-	  _resource.ModulesList.push_back(aModuleName);
-	  xmlFree(module_name);
-	}
-	else
-	  _resource.ModulesList.push_back(aComponentName);
-	xmlFree(component_name);
+        xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_component_name);
+        std::string aComponentName = (const char*)component_name;
+        _resource.ComponentsList.push_back(aComponentName);
+        if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
+        {
+          xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
+          std::string aModuleName = (const char*)module_name;
+          _resource.ModulesList.push_back(aModuleName);
+          xmlFree(module_name);
+        }
+        else
+          _resource.ModulesList.push_back(aComponentName);
+        xmlFree(component_name);
       }
     }
     // Process modules
@@ -668,79 +668,79 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
     switch ((*iter).second.Protocol)
     {
       case rsh:
-	xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
-	break;
+        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
+        break;
       case ssh:
-	xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
-	break;
+        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "ssh");
+        break;
       default:
-	xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
+        xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST "rsh");
     }
 
     switch ((*iter).second.ClusterInternalProtocol)
     {
       case rsh:
-	xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
-	break;
+        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
+        break;
       case ssh:
-	xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "ssh");
-	break;
+        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "ssh");
+        break;
       default:
-	xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
+        xmlNewProp(node, BAD_CAST test_cluster_internal_protocol, BAD_CAST "rsh");
     }
 
     switch ((*iter).second.Mode)
     {
       case interactive:
-	xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
-	break;
+        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
+        break;
       case batch:
-	xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "batch");
-	break;
+        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "batch");
+        break;
       default:
-	xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
+        xmlNewProp(node, BAD_CAST test_mode, BAD_CAST "interactive");
     }
 
     switch ((*iter).second.Batch)
     {
       case pbs:
-	xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "pbs");
-	break;
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "pbs");
+        break;
       case lsf:
-	xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
-	break;
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
+        break;
       case sge:
-	xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
-	break;
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
+        break;
       case ssh_batch:
-	xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
-	break;
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
+        break;
       default:
-	xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
     }
 
     switch ((*iter).second.mpi)
     {
       case lam:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "lam");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "lam");
+        break;
       case mpich1:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich1");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich1");
+        break;
       case mpich2:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich2");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "mpich2");
+        break;
       case openmpi:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+        break;
       case slurm:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+        break;
       case prun:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
-	break;
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
+        break;
       default:
-	xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
     }
 
     xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());

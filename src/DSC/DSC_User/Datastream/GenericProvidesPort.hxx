@@ -32,7 +32,7 @@
 
 template <typename DataManipulator, typename CouplingPolicy, typename ProvidesPort=provides_port> 
 class GenericProvidesPort : public ProvidesPort,
-			    public GenericPort< DataManipulator , CouplingPolicy > {
+                            public GenericPort< DataManipulator , CouplingPolicy > {
 public :
   // Type de données manipulés 
   typedef typename DataManipulator::Type         DataType;

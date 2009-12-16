@@ -83,18 +83,18 @@ void SALOMEDS_AttributeStudyProperties::SetCreationDate
     anImpl->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
   } else {
     ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetCreationDate(theMinute,
-									      theHour,
-									      theDay,
-									      theMonth,
-									      theYear);
+                                                                              theHour,
+                                                                              theDay,
+                                                                              theMonth,
+                                                                              theYear);
   }
 }
 
 bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
-							int& theHour,
-							int& theDay,
-							int& theMonth,
-							int& theYear)
+                                                        int& theHour,
+                                                        int& theDay,
+                                                        int& theMonth,
+                                                        int& theYear)
 {
   bool ret;
   if (_isLocal) {
@@ -104,10 +104,10 @@ bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
   } else {
     CORBA::Long aMinute, anHour, aDay, aMonth, anYear;
     ret = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetCreationDate(aMinute,
-										    anHour,
-										    aDay,
-										    aMonth,
-										    anYear);
+                                                                                    anHour,
+                                                                                    aDay,
+                                                                                    aMonth,
+                                                                                    anYear);
     theMinute = (int)aMinute;
     theHour = (int)anHour;
     theDay = (int)aDay;
@@ -203,11 +203,11 @@ bool SALOMEDS_AttributeStudyProperties::IsLocked()
 }
 
 void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theName,
-							int theMinute,
-							int theHour,
-							int theDay,
-							int theMonth,
-							int theYear)
+                                                        int theMinute,
+                                                        int theHour,
+                                                        int theDay,
+                                                        int theMonth,
+                                                        int theYear)
 {
   if (_isLocal) {
     CheckLocked();
@@ -224,12 +224,12 @@ void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theNa
 }
 
 void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::string>& theNames,
-							     std::vector<int>& theMinutes,
-							     std::vector<int>& theHours,
-							     std::vector<int>& theDays,
-							     std::vector<int>& theMonths,
-							     std::vector<int>& theYears,
-							     bool theWithCreator)
+                                                             std::vector<int>& theMinutes,
+                                                             std::vector<int>& theHours,
+                                                             std::vector<int>& theDays,
+                                                             std::vector<int>& theMonths,
+                                                             std::vector<int>& theYears,
+                                                             bool theWithCreator)
 {
   int i, aLength;
 
@@ -253,12 +253,12 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
     SALOMEDS::StringSeq_var aNames;
     SALOMEDS::LongSeq_var aMinutes, aHours, aDays, aMonths, aYears;
     ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetModificationsList(aNames.out(),
-										   aMinutes.out(),
-										   aHours.out(),
-										   aDays.out(),
-										   aMonths.out(),
-										   aYears.out(),
-										   theWithCreator);
+                                                                                   aMinutes.out(),
+                                                                                   aHours.out(),
+                                                                                   aDays.out(),
+                                                                                   aMonths.out(),
+                                                                                   aYears.out(),
+                                                                                   theWithCreator);
     aLength = aNames->length();
     for (i = 0; i<aLength; i++) {
       theNames.push_back(aNames[i].in());

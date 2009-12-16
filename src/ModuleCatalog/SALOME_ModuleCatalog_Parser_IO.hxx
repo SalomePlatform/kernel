@@ -32,21 +32,21 @@
 #include <iostream>
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserParameter & P);
+                           const ParserParameter & P);
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserDataStreamParameter & P);
+                           const ParserDataStreamParameter & P);
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserService & S);
+                           const ParserService & S);
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserInterface & I);
+                           const ParserInterface & I);
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponent & C);
+                           const ParserComponent & C);
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponentType & T);
+                           const ParserComponentType & T);
 
 #endif
 

@@ -154,9 +154,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   CosNaming::Name context_name;
   vector<string> splitPath;
   int dimension_resultat = _createContextNameDir(Path,
-						 context_name,
-						 splitPath,
-						 true);
+                                                 context_name,
+                                                 splitPath,
+                                                 true);
 
   CORBA::Boolean not_exist = false;
 
@@ -185,73 +185,73 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 
     catch (CORBA::SystemException&){
       INFOS("Register() : CORBA::SystemException: "
-	    << "unable to contact the naming service");
+            << "unable to contact the naming service");
       throw ServiceUnreachable();
     }
 
     if (not_exist){
       try{
-	context_name.length(1);
-	for (int i = 0 ; i < dimension_resultat ;i++){
-	  context_name[0].id = CORBA::string_dup(splitPath[i].c_str());
-	  context_name[0].kind = CORBA::string_dup("dir");
-	  // SCRUTE(_context_name[0].id);
-	  // --- check if the path is created
-	  try{
-	    // --- if the context is already created, nothing to do
-	    CORBA::Object_var obj = _current_context->resolve(context_name);
-	    _current_context = CosNaming::NamingContext::_narrow(obj);
-	  }
+        context_name.length(1);
+        for (int i = 0 ; i < dimension_resultat ;i++){
+          context_name[0].id = CORBA::string_dup(splitPath[i].c_str());
+          context_name[0].kind = CORBA::string_dup("dir");
+          // SCRUTE(_context_name[0].id);
+          // --- check if the path is created
+          try{
+            // --- if the context is already created, nothing to do
+            CORBA::Object_var obj = _current_context->resolve(context_name);
+            _current_context = CosNaming::NamingContext::_narrow(obj);
+          }
 
-	  catch (CosNaming::NamingContext::NotFound &){
-	    try{
-	      // --- the context must be created
-	      CosNaming::NamingContext_var temp_context =
-		_current_context->bind_new_context(context_name);
-	      _current_context = temp_context;
-	    }
-	    catch (CosNaming::NamingContext::AlreadyBound&){
-	      CORBA::Object_var obj = _current_context->resolve(context_name);
-	      _current_context = CosNaming::NamingContext::_narrow(obj);
-	    }
-	  }
-	}
+          catch (CosNaming::NamingContext::NotFound &){
+            try{
+              // --- the context must be created
+              CosNaming::NamingContext_var temp_context =
+                _current_context->bind_new_context(context_name);
+              _current_context = temp_context;
+            }
+            catch (CosNaming::NamingContext::AlreadyBound&){
+              CORBA::Object_var obj = _current_context->resolve(context_name);
+              _current_context = CosNaming::NamingContext::_narrow(obj);
+            }
+          }
+        }
       }
 
       catch (CosNaming::NamingContext::AlreadyBound&){
-	INFOS("Register() : CosNaming::NamingContext::AlreadyBound");
+        INFOS("Register() : CosNaming::NamingContext::AlreadyBound");
       }
 
       catch (CosNaming::NamingContext::NotFound& ex){
-	CosNaming::Name n = ex.rest_of_name;
+        CosNaming::Name n = ex.rest_of_name;
 
-	if (ex.why == CosNaming::NamingContext::missing_node)
-	  INFOS("Register() : " << (char *) n[0].id
-		<< " (" << (char *) n[0].kind << ") not found");
+        if (ex.why == CosNaming::NamingContext::missing_node)
+          INFOS("Register() : " << (char *) n[0].id
+                << " (" << (char *) n[0].kind << ") not found");
 
-	if (ex.why == CosNaming::NamingContext::not_context)
-	  INFOS("Register() : " << (char *) n[0].id
-		<< " (" << (char *) n[0].kind
-		<< ") is not a context");
+        if (ex.why == CosNaming::NamingContext::not_context)
+          INFOS("Register() : " << (char *) n[0].id
+                << " (" << (char *) n[0].kind
+                << ") is not a context");
 
-	if (ex.why == CosNaming::NamingContext::not_object)
-	  INFOS("Register() : " << (char *) n[0].id
-		<< " (" << (char *) n[0].kind
-		<< ") is not an object");
+        if (ex.why == CosNaming::NamingContext::not_object)
+          INFOS("Register() : " << (char *) n[0].id
+                << " (" << (char *) n[0].kind
+                << ") is not an object");
       }
 
       catch (CosNaming::NamingContext::CannotProceed&){
-	INFOS("Register(): CosNaming::NamingContext::CannotProceed");
+        INFOS("Register(): CosNaming::NamingContext::CannotProceed");
       }
 
       catch (CosNaming::NamingContext::InvalidName&){
-	INFOS("Register(): CosNaming::NamingContext::InvalidName");
+        INFOS("Register(): CosNaming::NamingContext::InvalidName");
       }
 
       catch (CORBA::SystemException&){
-	INFOS("Register():CORBA::SystemException: "
-	      << "unable to contact the naming service");
-	throw ServiceUnreachable();
+        INFOS("Register():CORBA::SystemException: "
+              << "unable to contact the naming service");
+        throw ServiceUnreachable();
       }
     }
   }
@@ -278,18 +278,18 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
       CosNaming::Name n = ex.rest_of_name;
 
       if (ex.why == CosNaming::NamingContext::missing_node)
-	INFOS("Register() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind << ") not found");
+        INFOS("Register() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind << ") not found");
 
       if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS("Register() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind
-	      << ") is not a context");
+        INFOS("Register() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind
+              << ") is not a context");
 
       if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS("Register() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind
-	      << ") is not an object");
+        INFOS("Register() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind
+              << ") is not an object");
     }
 
     catch (CosNaming::NamingContext::CannotProceed&){
@@ -302,13 +302,13 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 
     catch (CosNaming::NamingContext::AlreadyBound&){
       INFOS("Register(): CosNaming::NamingContext::AlreadyBound, "
-	    << "object will be rebind");
+            << "object will be rebind");
       _current_context->rebind(context_name, ObjRef);
     }
 
     catch (CORBA::SystemException&){
       INFOS("!!!Register(): CORBA::SystemException: "
-	    << "unable to contact the naming service");
+            << "unable to contact the naming service");
       throw ServiceUnreachable();
     }
   }
@@ -352,9 +352,9 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   CosNaming::Name context_name;
   vector<string> splitPath;
   _createContextNameDir(Path,
-						 context_name,
-						 splitPath,
-						 false);
+                                                 context_name,
+                                                 splitPath,
+                                                 false);
 
   ASSERT(!CORBA::is_nil(_current_context));
 
@@ -453,16 +453,16 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
       vector<string>::iterator its = listElem.begin();
       
       while (its != listElem.end())
-	{
-	  MESSAGE(*its);
-	  
-	  if ((*its).find(name) == 0)
-	    {
-	      return Resolve((*its).c_str());
-	    }
-	  
-	  its++;
-	}
+        {
+          MESSAGE(*its);
+          
+          if ((*its).find(name) == 0)
+            {
+              return Resolve((*its).c_str());
+            }
+          
+          its++;
+        }
     }
 
   return obj._retn();
@@ -488,9 +488,9 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
 
 CORBA::Object_ptr
 SALOME_NamingService::ResolveComponent(const char* hostname,
-				       const char* containerName,
-				       const char* componentName,
-				       const int nbproc)
+                                       const char* containerName,
+                                       const char* componentName,
+                                       const int nbproc)
   throw(ServiceUnreachable)
 {
 //   MESSAGE("ResolveComponent");
@@ -510,7 +510,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
           char *newContainerName = new char[strlen(containerName) + 8];
           sprintf(newContainerName, "%s_%d", containerName, nbproc);
           name += newContainerName;
-	  delete [] newContainerName;
+          delete [] newContainerName;
         }
 
       else
@@ -528,33 +528,33 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
       SCRUTE(name);
       string basename = name;
       if (Change_Directory(basename.c_str()))
-	{
-	  vector<string> contList = list_subdirs();
+        {
+          vector<string> contList = list_subdirs();
 
-	  for (unsigned int ind = 0; ind < contList.size(); ind++)
-	    {
-	      name = contList[ind].c_str();
+          for (unsigned int ind = 0; ind < contList.size(); ind++)
+            {
+              name = contList[ind].c_str();
 
-	      if ( nbproc >= 1 )
-		{
-		  char *str_nbproc = new char[8];
-		  sprintf(str_nbproc, "_%d", nbproc);
-		  if( strstr(name.c_str(),str_nbproc) == NULL)
-		    continue; // check only containers with _%d in name
-		  delete [] str_nbproc;
-		}
+              if ( nbproc >= 1 )
+                {
+                  char *str_nbproc = new char[8];
+                  sprintf(str_nbproc, "_%d", nbproc);
+                  if( strstr(name.c_str(),str_nbproc) == NULL)
+                    continue; // check only containers with _%d in name
+                  delete [] str_nbproc;
+                }
 
-	      name += "/";
-	      name += componentName;
-	      SCRUTE(name);
-	      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
+              name += "/";
+              name += componentName;
+              SCRUTE(name);
+              CORBA::Object_ptr obj = ResolveFirst(name.c_str());
 
-	      if ( !CORBA::is_nil(obj) )
-		return obj;
+              if ( !CORBA::is_nil(obj) )
+                return obj;
               else
                 Change_Directory(basename.c_str());
-	    }
-	}
+            }
+        }
 
       return CORBA::Object::_nil();
     }
@@ -669,7 +669,7 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
 // ============================================================================
 
 string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
-						     const char *hostname)
+                                                     const char *hostname)
 {
   string ret = "/Containers/";
   ret += hostname;
@@ -694,7 +694,7 @@ string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
 string
 SALOME_NamingService::
 BuildContainerNameForNS(const Engines::MachineParameters& params,
-			const char *hostname)
+                        const char *hostname)
 {
   string ret = "/Containers/";
   ret += hostname;
@@ -707,7 +707,7 @@ BuildContainerNameForNS(const Engines::MachineParameters& params,
 string
 SALOME_NamingService::
 BuildContainerNameForNS(const Engines::ContainerParameters& params,
-			const char *hostname)
+                        const char *hostname)
 {
   string ret = "/Containers/";
   ret += hostname;
@@ -860,9 +860,9 @@ throw(ServiceUnreachable)
   CosNaming::Name context_name;
   vector<string> splitPath;
   _createContextNameDir(path.c_str(),
-						 context_name,
-						 splitPath,
-						 true);
+                                                 context_name,
+                                                 splitPath,
+                                                 true);
   
   // --- Context creation
   
@@ -880,16 +880,16 @@ throw(ServiceUnreachable)
       CosNaming::Name n = ex.rest_of_name;
       
       if (ex.why == CosNaming::NamingContext::missing_node)
-	MESSAGE( "Change_Directory() : " << (char *) n[0].id
-	       << " (" << (char *) n[0].kind << ") not found");
+        MESSAGE( "Change_Directory() : " << (char *) n[0].id
+               << " (" << (char *) n[0].kind << ") not found");
       if (ex.why == CosNaming::NamingContext::not_context)
-	INFOS("Change_Directory() : " << (char *) n[0].id
-	      << " (" << (char *) n[0].kind
-		  << ") is not a context" );
+        INFOS("Change_Directory() : " << (char *) n[0].id
+              << " (" << (char *) n[0].kind
+                  << ") is not a context" );
       if (ex.why == CosNaming::NamingContext::not_object)
-	INFOS( "Change_Directory() : " << (char *) n[0].id
-	       << " (" << (char *) n[0].kind
-	       << ") is not an object" );
+        INFOS( "Change_Directory() : " << (char *) n[0].id
+               << " (" << (char *) n[0].kind
+               << ") is not an object" );
     }
   
   catch (CosNaming::NamingContext::CannotProceed&)
@@ -905,7 +905,7 @@ throw(ServiceUnreachable)
   catch (CORBA::SystemException&)
     {
       INFOS("Change_Directory():CORBA::SystemException : unable to contact"
-	    << "the naming service");
+            << "the naming service");
       throw ServiceUnreachable();
     }
 
@@ -997,33 +997,33 @@ throw(ServiceUnreachable)
   if (! CORBA::is_nil(binding_iterator))
     {
       while (binding_iterator->next_one(binding))
-	{
-	  CosNaming::Name bindingName = binding->binding_name;
+        {
+          CosNaming::Name bindingName = binding->binding_name;
 
-	  if (binding->binding_type == CosNaming::ncontext)
-	    {
-	      MESSAGE( "Context : " << bindingName[0].id );
+          if (binding->binding_type == CosNaming::ncontext)
+            {
+              MESSAGE( "Context : " << bindingName[0].id );
 
-	      try
-		{
-		  Change_Directory(bindingName[0].id);
-		}
+              try
+                {
+                  Change_Directory(bindingName[0].id);
+                }
 
-	      catch (ServiceUnreachable&)
-		{
-		  INFOS( "list(): ServiceUnreachable" )
-		    throw ServiceUnreachable();
-		}
+              catch (ServiceUnreachable&)
+                {
+                  INFOS( "list(): ServiceUnreachable" )
+                    throw ServiceUnreachable();
+                }
 
-	      list();
-	      _current_context = ref_context ;
-	    }
+              list();
+              _current_context = ref_context ;
+            }
 
-	  else if (binding->binding_type == CosNaming::nobject)
-	    {
-	      MESSAGE( "Object : " << bindingName[0].id );
-	    }
-	}
+          else if (binding->binding_type == CosNaming::nobject)
+            {
+              MESSAGE( "Object : " << bindingName[0].id );
+            }
+        }
 
       binding_iterator->destroy();
     }
@@ -1200,9 +1200,9 @@ throw(ServiceUnreachable)
   CosNaming::Name context_name;
   vector<string> splitPath;
   int dimension_resultat = _createContextNameDir(path.c_str(),
-						 context_name,
-						 splitPath,
-						 true);
+                                                 context_name,
+                                                 splitPath,
+                                                 true);
 
   bool exist = false;
 
@@ -1215,7 +1215,7 @@ throw(ServiceUnreachable)
         {
           CORBA::Object_var obj = _current_context->resolve(context_name);
           _current_context = CosNaming::NamingContext::_narrow(obj);
-	  exist = true;
+          exist = true;
         }
 
       catch (CosNaming::NamingContext::NotFound &ex)
@@ -1228,14 +1228,14 @@ throw(ServiceUnreachable)
           if (ex.why == CosNaming::NamingContext::missing_node)
             INFOS( "Destroy_Name(): " << (char *) n[0].id
                    << " (" << (char *) n[0].kind << ") not found" );
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not a context" );
-	  if (ex.why == CosNaming::NamingContext::not_object)
-	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not an object" );
+          if (ex.why == CosNaming::NamingContext::not_context)
+            INFOS( "Destroy_Name() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not a context" );
+          if (ex.why == CosNaming::NamingContext::not_object)
+            INFOS( "Destroy_Name() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not an object" );
         }
 
       catch (CosNaming::NamingContext::InvalidName &)
@@ -1270,29 +1270,29 @@ throw(ServiceUnreachable)
       context_name.length(1);
 
       try
-	{
-	  // --- the last element is an object and not a directory
+        {
+          // --- the last element is an object and not a directory
 
-	  context_name[0].id =
-	    CORBA::string_dup(splitPath[dimension_resultat].c_str());
-	  context_name[0].kind = CORBA::string_dup("object");
-	  SCRUTE(context_name[0].id);
+          context_name[0].id =
+            CORBA::string_dup(splitPath[dimension_resultat].c_str());
+          context_name[0].kind = CORBA::string_dup("object");
+          SCRUTE(context_name[0].id);
  
-	  _current_context->unbind(context_name);
-	  MESSAGE("The object " << context_name[0].id << " has been deleted");
-	}
+          _current_context->unbind(context_name);
+          MESSAGE("The object " << context_name[0].id << " has been deleted");
+        }
 
       catch (CosNaming::NamingContext::NotFound& ex)
-	{
-	  CosNaming::Name n = ex.rest_of_name;
+        {
+          CosNaming::Name n = ex.rest_of_name;
 
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind << ") not found" );
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS( "Destroy_Name() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not a context" );
+          if (ex.why == CosNaming::NamingContext::missing_node)
+            INFOS( "Destroy_Name() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind << ") not found" );
+          if (ex.why == CosNaming::NamingContext::not_context)
+            INFOS( "Destroy_Name() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not a context" );
           if (ex.why == CosNaming::NamingContext::not_object)
             INFOS( "Destroy_Name() : " << (char *) n[0].id
                    << " (" << (char *) n[0].kind
@@ -1300,21 +1300,21 @@ throw(ServiceUnreachable)
           }
 
       catch (CosNaming::NamingContext::CannotProceed&)
-	{
-	  INFOS( "Destroy_Name(): CosNaming::NamingContext::CannotProceed");
-	}
+        {
+          INFOS( "Destroy_Name(): CosNaming::NamingContext::CannotProceed");
+        }
 
       catch (CosNaming::NamingContext::InvalidName&)
-	{
-	  INFOS( "Destroy_Name(): CosNaming::NamingContext::InvalidName");
-	}
+        {
+          INFOS( "Destroy_Name(): CosNaming::NamingContext::InvalidName");
+        }
 
       catch (CORBA::SystemException&)
-	{
-	  INFOS( "Destroy_Name(): CORBA::SystemException: unable to contact"
-		 << " the naming service");
-	  throw ServiceUnreachable();
-	}
+        {
+          INFOS( "Destroy_Name(): CORBA::SystemException: unable to contact"
+                 << " the naming service");
+          throw ServiceUnreachable();
+        }
     }
 }
 
@@ -1358,9 +1358,9 @@ throw(ServiceUnreachable)
   CosNaming::Name context_name;
   vector<string> splitPath;
   int dimension_resultat = _createContextNameDir(path.c_str(),
-						 context_name,
-						 splitPath,
-						 true);
+                                                 context_name,
+                                                 splitPath,
+                                                 true);
   bool exist = false;
 
   if (dimension_resultat > 0)
@@ -1372,7 +1372,7 @@ throw(ServiceUnreachable)
         {
           CORBA::Object_var obj = _current_context->resolve(context_name);
           _current_context = CosNaming::NamingContext::_narrow(obj);
-	  exist = true;
+          exist = true;
         }
 
       catch (CosNaming::NamingContext::NotFound &ex)
@@ -1385,14 +1385,14 @@ throw(ServiceUnreachable)
           if (ex.why == CosNaming::NamingContext::missing_node)
             INFOS( "Destroy_Directory(): " << (char *) n[0].id
                    << " (" << (char *) n[0].kind << ") not found" );
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not a context" );
-	  if (ex.why == CosNaming::NamingContext::not_object)
-	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not an object" );
+          if (ex.why == CosNaming::NamingContext::not_context)
+            INFOS( "Destroy_Directory() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not a context" );
+          if (ex.why == CosNaming::NamingContext::not_object)
+            INFOS( "Destroy_Directory() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not an object" );
         }
 
       catch (CosNaming::NamingContext::InvalidName &)
@@ -1449,46 +1449,46 @@ throw(ServiceUnreachable)
   if (isContextDestroyed)
     {
       try
-	{
-	  _current_context->unbind(context_name);
-	  MESSAGE( "The bind to the context "
-		   << context_name[0].id
-		   << " has been deleted" );
-	}
+        {
+          _current_context->unbind(context_name);
+          MESSAGE( "The bind to the context "
+                   << context_name[0].id
+                   << " has been deleted" );
+        }
 
       catch (CosNaming::NamingContext::NotFound& ex)
-	{
-	  CosNaming::Name n = ex.rest_of_name;
+        {
+          CosNaming::Name n = ex.rest_of_name;
 
-	  if (ex.why == CosNaming::NamingContext::missing_node)
-	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind << ") not found" );
-	  if (ex.why == CosNaming::NamingContext::not_context)
-	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not a context" );
-	  if (ex.why == CosNaming::NamingContext::not_object)
-	    INFOS( "Destroy_Directory() : " << (char *) n[0].id
-		   << " (" << (char *) n[0].kind
-		   << ") is not an object" );
-	}
+          if (ex.why == CosNaming::NamingContext::missing_node)
+            INFOS( "Destroy_Directory() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind << ") not found" );
+          if (ex.why == CosNaming::NamingContext::not_context)
+            INFOS( "Destroy_Directory() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not a context" );
+          if (ex.why == CosNaming::NamingContext::not_object)
+            INFOS( "Destroy_Directory() : " << (char *) n[0].id
+                   << " (" << (char *) n[0].kind
+                   << ") is not an object" );
+        }
 
       catch (CosNaming::NamingContext::CannotProceed&)
-	{
-	  INFOS("Destroy_Directory: CosNaming::NamingContext::CannotProceed");
-	}
+        {
+          INFOS("Destroy_Directory: CosNaming::NamingContext::CannotProceed");
+        }
 
       catch (CosNaming::NamingContext::InvalidName&)
-	{
-	  INFOS("Destroy_Directory: CosNaming::NamingContext::InvalidName");
-	    }
+        {
+          INFOS("Destroy_Directory: CosNaming::NamingContext::InvalidName");
+            }
 
       catch (CORBA::SystemException&)
-	{
-	  INFOS("Destroy_Directory:CORBA::SystemException : unable to contact"
-		 << " the naming service");
-	  throw ServiceUnreachable();
-	}
+        {
+          INFOS("Destroy_Directory:CORBA::SystemException : unable to contact"
+                 << " the naming service");
+          throw ServiceUnreachable();
+        }
     }
 }
 
@@ -1511,7 +1511,7 @@ throw(ServiceUnreachable)
       vector<string> contList = list_directory();
 
       for (unsigned int ind = 0; ind < contList.size(); ind++)
-	Destroy_Name(contList[ind].c_str());
+        Destroy_Name(contList[ind].c_str());
       
       Destroy_Directory(Path);
     }
@@ -1570,9 +1570,9 @@ void SALOME_NamingService::_initialize_root_context()
 
 int
 SALOME_NamingService::_createContextNameDir(string path,
-					    CosNaming::Name& context_name,
-					    vector<string>& splitPath,
-					    bool onlyDir)
+                                            CosNaming::Name& context_name,
+                                            vector<string>& splitPath,
+                                            bool onlyDir)
 {
   if (path.empty())
     return 0;
@@ -1587,12 +1587,12 @@ SALOME_NamingService::_createContextNameDir(string path,
     {
       endIdx = path.find_first_of(delims, begIdx);
       if (endIdx == path.length()-1)
-	endWithDelim = true;
+        endWithDelim = true;
       if (endIdx == string::npos)
-	endIdx = path.length();
+        endIdx = path.length();
       int lsub = endIdx - begIdx;
       if (lsub >= 1)
-	splitPath.push_back(path.substr(begIdx, lsub));
+        splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
     }
 
@@ -1601,7 +1601,7 @@ SALOME_NamingService::_createContextNameDir(string path,
     {
       dim = splitPath.size()-1; // omit final object
       if (endWithDelim)         // unless the path ends with a delimiter 
-	dim++;
+        dim++;
       endWithDelim = true;
     }
   else
@@ -1613,15 +1613,15 @@ SALOME_NamingService::_createContextNameDir(string path,
 //       SCRUTE(splitPath[i]);
       context_name[i].id = CORBA::string_dup(splitPath[i].c_str());
       if (!endWithDelim && (i == dim-1)) // here, the last string is an object
-	{
-	  context_name[i].kind = CORBA::string_dup("object");
-// 	  MESSAGE("--- " <<splitPath[i] <<".object");
-	}
+        {
+          context_name[i].kind = CORBA::string_dup("object");
+//        MESSAGE("--- " <<splitPath[i] <<".object");
+        }
       else
-	{
-	  context_name[i].kind = CORBA::string_dup("dir");
-// 	  MESSAGE("--- " <<splitPath[i] <<".dir");
-	}
+        {
+          context_name[i].kind = CORBA::string_dup("dir");
+//        MESSAGE("--- " <<splitPath[i] <<".dir");
+        }
     }
   return dim;
 }
@@ -1659,38 +1659,38 @@ void SALOME_NamingService::_Find(const char* name,
   if (! CORBA::is_nil(binding_iterator))
     {
       while (binding_iterator->next_one(binding))
-	{
-	  CosNaming::Name bindingName = binding->binding_name;
-	  
-	  if (binding->binding_type == CosNaming::ncontext)
-	    {
-	      // --- We work on a directory,
-	      //     the search should be done in this directory
-	      
-	      Change_Directory(bindingName[0].id);
-	      _Find(name, occurence_number);
-	      
-	      // --- We'll go back to the initial context
-	      
-	      _current_context = ref_context ;
-	    }
-	  
-	  else if (binding->binding_type == CosNaming::nobject)
-	    {
-	      // --- We work on an object...
-	      
-	      if (!strcmp( bindingName[0].id, name))
-		{
-		  //MESSAGE("One occurence was found");
-		  occurence_number++;
-		  
-		  // --- We keep in memory the directory where
-		  //     one occurence was found
-		  
-		  found_context = _current_context ;
-		}
-	    }
-	}
+        {
+          CosNaming::Name bindingName = binding->binding_name;
+          
+          if (binding->binding_type == CosNaming::ncontext)
+            {
+              // --- We work on a directory,
+              //     the search should be done in this directory
+              
+              Change_Directory(bindingName[0].id);
+              _Find(name, occurence_number);
+              
+              // --- We'll go back to the initial context
+              
+              _current_context = ref_context ;
+            }
+          
+          else if (binding->binding_type == CosNaming::nobject)
+            {
+              // --- We work on an object...
+              
+              if (!strcmp( bindingName[0].id, name))
+                {
+                  //MESSAGE("One occurence was found");
+                  occurence_number++;
+                  
+                  // --- We keep in memory the directory where
+                  //     one occurence was found
+                  
+                  found_context = _current_context ;
+                }
+            }
+        }
       
       binding_iterator->destroy();
     }
@@ -1716,9 +1716,9 @@ void SALOME_NamingService::_Find(const char* name,
 void
 SALOME_NamingService::
 _current_directory(vector<string>& splitPath,
-		   int& lengthResult,
-		   CosNaming::NamingContext_var contextToFind,
-		   bool& notFound)
+                   int& lengthResult,
+                   CosNaming::NamingContext_var contextToFind,
+                   bool& notFound)
 {
   MESSAGE("BEGIN OF _current_Directory");
 
@@ -1745,7 +1745,7 @@ _current_directory(vector<string>& splitPath,
               // --- directory, search in it
 
               const char* bindingNameid=bindingName[0].id;
-	      splitPath.push_back(bindingNameid);
+              splitPath.push_back(bindingNameid);
               lengthResult++;
 
               CORBA::Object_var obj = _current_context->resolve(bindingName);
@@ -1763,9 +1763,9 @@ _current_directory(vector<string>& splitPath,
                   SCRUTE(bindingName[0].id);
                   Change_Directory(bindingName[0].id);
                   _current_directory(splitPath,
-				     lengthResult,
+                                     lengthResult,
                                      contextToFind,
-				     notFound);
+                                     notFound);
 
                   if (notFound)
                     {
@@ -1774,8 +1774,8 @@ _current_directory(vector<string>& splitPath,
                       _current_context = ref_context;
 
                       MESSAGE("Just before the delete of "
-			      << splitPath[lengthResult-1]);
-		      splitPath.pop_back();
+                              << splitPath[lengthResult-1]);
+                      splitPath.pop_back();
                       lengthResult--;
                     }
                 }
@@ -1807,8 +1807,8 @@ _current_directory(vector<string>& splitPath,
 // ============================================================================
 
 void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
-						  string relativeSubDir,
-						  string absCurDirectory)
+                                                  string relativeSubDir,
+                                                  string absCurDirectory)
 {
   CosNaming::BindingList_var binding_list;
   CosNaming::BindingIterator_var binding_iterator;
@@ -1836,23 +1836,23 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
   if (! CORBA::is_nil(binding_iterator))
     {
       while (binding_iterator->next_one(binding))
-	{
-	  CosNaming::Name bindingName = binding->binding_name;
+        {
+          CosNaming::Name bindingName = binding->binding_name;
 
-	  if (binding->binding_type == CosNaming::ncontext)
-	    {
-	      string relativeSdir(bindingName[0].id);
-	      _list_directory_recurs(myList, relativeSdir, absDir);
-	    }
+          if (binding->binding_type == CosNaming::ncontext)
+            {
+              string relativeSdir(bindingName[0].id);
+              _list_directory_recurs(myList, relativeSdir, absDir);
+            }
 
-	  else if (binding->binding_type == CosNaming::nobject)
-	    {
-	      string objName(bindingName[0].id);
-	      string elt = absDir + "/" + objName;
-	      SCRUTE(elt);
-	      myList.push_back(elt);
-	    }
-	}
+          else if (binding->binding_type == CosNaming::nobject)
+            {
+              string objName(bindingName[0].id);
+              string elt = absDir + "/" + objName;
+              SCRUTE(elt);
+              myList.push_back(elt);
+            }
+        }
 
       binding_iterator->destroy();
     }

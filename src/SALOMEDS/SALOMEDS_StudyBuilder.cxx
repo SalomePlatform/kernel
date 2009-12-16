@@ -95,7 +95,7 @@ _PTR(SComponent) SALOMEDS_StudyBuilder::NewComponent(const std::string& Componen
 }
 
 void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& theSCO, 
-						     const std::string& ComponentIOR)
+                                                     const std::string& ComponentIOR)
 {
   if(!theSCO) return;
 
@@ -248,7 +248,7 @@ void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(const _PTR(SObject)& theSO)
 }
 
 _PTR(GenericAttribute) SALOMEDS_StudyBuilder::FindOrCreateAttribute(const _PTR(SObject)& theSO, 
-								    const std::string& aTypeOfAttribute)
+                                                                    const std::string& aTypeOfAttribute)
 {  
   SALOMEDSClient_GenericAttribute* anAttr = NULL;
   if(!theSO) return _PTR(GenericAttribute)(anAttr);
@@ -276,8 +276,8 @@ _PTR(GenericAttribute) SALOMEDS_StudyBuilder::FindOrCreateAttribute(const _PTR(S
 }
 
 bool SALOMEDS_StudyBuilder::FindAttribute(const _PTR(SObject)& theSO, 
-					  _PTR(GenericAttribute)& anAttribute, 
-					  const std::string& aTypeOfAttribute)
+                                          _PTR(GenericAttribute)& anAttribute, 
+                                          const std::string& aTypeOfAttribute)
 {
   bool ret;
 

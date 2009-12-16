@@ -27,12 +27,12 @@
 
 data_short_port_provides::data_short_port_provides() {
   _val = 0;
-  short_termine = false;	            
+  short_termine = false;                    
   short_mutex = new pthread_mutex_t();
   pthread_mutex_init(short_mutex, NULL);
   short_condition = new pthread_cond_t();
   pthread_cond_init(short_condition, NULL);
-  short_termine_cp = true;	            
+  short_termine_cp = true;                  
   short_mutex_cp = new pthread_mutex_t();
   pthread_mutex_init(short_mutex_cp, NULL);
   short_condition_cp = new pthread_cond_t();

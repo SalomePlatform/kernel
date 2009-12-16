@@ -43,24 +43,24 @@
  */
 class DSC_BASIC_EXPORT Engines_DSC_i: 
   public Engines_Component_i, // keyword virtual is not use to be able to
-			      // call the right Engines_Component_i constructor.
-			      // If virtual is used, a derived class of Engines_DSC_i
-			      // will have to call the right Engines_Component_i constructor.
+                              // call the right Engines_Component_i constructor.
+                              // If virtual is used, a derived class of Engines_DSC_i
+                              // will have to call the right Engines_Component_i constructor.
   public virtual POA_Engines::DSC,
   public Engines_DSC_interface
 {
 public:
   Engines_DSC_i(CORBA::ORB_ptr orb,
-			  PortableServer::POA_ptr poa,
-			  PortableServer::ObjectId * contId,
-			  const char *instanceName,
-			  const char *interfaceName,
-			  bool notif = false);
+                          PortableServer::POA_ptr poa,
+                          PortableServer::ObjectId * contId,
+                          const char *instanceName,
+                          const char *interfaceName,
+                          bool notif = false);
   Engines_DSC_i(CORBA::ORB_ptr orb,
-			  PortableServer::POA_ptr poa,
-			  Engines::Container_ptr container, 
-			  const char *instanceName,
-			  const char *interfaceName,
+                          PortableServer::POA_ptr poa,
+                          Engines::Container_ptr container, 
+                          const char *instanceName,
+                          const char *interfaceName,
         bool notif = false,
         bool regist = true );
 
@@ -70,38 +70,38 @@ public:
    * \see Engines::DSC::add_provides_port
    */
   virtual void add_provides_port(Ports::Port_ptr ref, 
-				 const char* provides_port_name,
-				 Ports::PortProperties_ptr port_prop) 
+                                 const char* provides_port_name,
+                                 Ports::PortProperties_ptr port_prop) 
     throw (Engines::DSC::PortAlreadyDefined,
-	   Engines::DSC::NilPort,
-	   Engines::DSC::BadProperty) {
+           Engines::DSC::NilPort,
+           Engines::DSC::BadProperty) {
       Engines_DSC_interface::add_provides_port(ref, 
-					       provides_port_name,
-					       port_prop);
+                                               provides_port_name,
+                                               port_prop);
     }
 
   /*!
    * \see Engines::DSC::add_uses_port
    */
   virtual void add_uses_port(const char* repository_id, 
-			     const char* uses_port_name,
-			     Ports::PortProperties_ptr port_prop)
+                             const char* uses_port_name,
+                             Ports::PortProperties_ptr port_prop)
     throw (Engines::DSC::PortAlreadyDefined,
-	   Engines::DSC::BadProperty) {
+           Engines::DSC::BadProperty) {
       Engines_DSC_interface::add_uses_port(repository_id, 
-					   uses_port_name,
-					   port_prop);
+                                           uses_port_name,
+                                           port_prop);
     }
 
   /*!
    * \see Engines::DSC::get_provides_port
    */
   virtual Ports::Port_ptr get_provides_port(const char* provides_port_name,
-					    const CORBA::Boolean connection_error) 
+                                            const CORBA::Boolean connection_error) 
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected) {
+           Engines::DSC::PortNotConnected) {
       return Engines_DSC_interface::get_provides_port(provides_port_name,
-						      connection_error);
+                                                      connection_error);
     }
 
   /*!
@@ -109,7 +109,7 @@ public:
    */
   virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected) {
+           Engines::DSC::PortNotConnected) {
       return Engines_DSC_interface::get_uses_port(uses_port_name);
     }
 
@@ -125,12 +125,12 @@ public:
    * \see Engines::DSC::connect_uses_port
    */
   virtual void connect_uses_port(const char* uses_port_name,
-				 Ports::Port_ptr provides_port_ref) 
+                                 Ports::Port_ptr provides_port_ref) 
   throw (Engines::DSC::PortNotDefined,
-	 Engines::DSC::BadPortType,
-	 Engines::DSC::NilPort) {
+         Engines::DSC::BadPortType,
+         Engines::DSC::NilPort) {
     Engines_DSC_interface::connect_uses_port(uses_port_name,
-					     provides_port_ref);
+                                             provides_port_ref);
   }
 
   /*!
@@ -145,25 +145,25 @@ public:
    * \see Engines::DSC::disconnect_provides_port
    */
   virtual void disconnect_provides_port(const char* provides_port_name,
-					const Engines::DSC::Message message)
+                                        const Engines::DSC::Message message)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected) {
+           Engines::DSC::PortNotConnected) {
       Engines_DSC_interface::disconnect_provides_port(provides_port_name,
-						      message);
+                                                      message);
     }
 
    /*!
    * \see Engines::DSC::disconnect_uses_port
    */
   virtual void disconnect_uses_port(const char* uses_port_name,
-				    Ports::Port_ptr provides_port_ref,
-				    const Engines::DSC::Message message)
+                                    Ports::Port_ptr provides_port_ref,
+                                    const Engines::DSC::Message message)
     throw (Engines::DSC::PortNotDefined,
-	   Engines::DSC::PortNotConnected,
-	   Engines::DSC::BadPortReference) {
+           Engines::DSC::PortNotConnected,
+           Engines::DSC::BadPortReference) {
       Engines_DSC_interface::disconnect_uses_port(uses_port_name,
-						  provides_port_ref,
-						  message);
+                                                  provides_port_ref,
+                                                  message);
     }
 
   /*!

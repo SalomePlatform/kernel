@@ -49,7 +49,7 @@ const std::string& SALOMEDSImpl_AttributeFlags::GetID ()
 //purpose  : Set value of the attribute
 //=======================================================================
 SALOMEDSImpl_AttributeFlags* SALOMEDSImpl_AttributeFlags::Set(const DF_Label& L,
-							      const int value )
+                                                              const int value )
 {
   SALOMEDSImpl_AttributeFlags* A = NULL;
   if ( !(A=(SALOMEDSImpl_AttributeFlags*)L.FindAttribute(SALOMEDSImpl_AttributeFlags::GetID())) )

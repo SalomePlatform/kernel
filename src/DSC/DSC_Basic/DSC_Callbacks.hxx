@@ -53,8 +53,8 @@ class DSC_BASIC_EXPORT DSC_Callbacks
      * \param message contains informations about the modification of the port.
      */
     virtual void provides_port_changed(const char* provides_port_name,
-				       int connection_nbr,
-				       const Engines::DSC::Message message) = 0;
+                                       int connection_nbr,
+                                       const Engines::DSC::Message message) = 0;
 
     /*! \brief  This method is used by the component when the number of connection
      * on a uses port changes. 
@@ -66,8 +66,8 @@ class DSC_BASIC_EXPORT DSC_Callbacks
      * \param message contains informations about the modification of the port.
      */
     virtual void uses_port_changed(const char* uses_port_name,
-				   Engines::DSC::uses_port * new_uses_port,
-				   const Engines::DSC::Message message) = 0;
+                                   Engines::DSC::uses_port * new_uses_port,
+                                   const Engines::DSC::Message message) = 0;
 };
 
 #endif

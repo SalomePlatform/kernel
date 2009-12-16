@@ -50,7 +50,7 @@ template <class WhatEver > struct ProcessTimeIntervalTraits {
 // template < typename Iterator > 
 // typename iterator_t<Iterator>::value_type
 // CalciumCoulpingPolicy::processTimeInterval (DataId & dataId,
-// 					    Iterator  & it1, Iterator  & it2);
+//                                          Iterator  & it1, Iterator  & it2);
 #include "CalciumCouplingPolicy.hxx" 
 template <> struct ProcessTimeIntervalTraits<CalciumCouplingPolicy> {
     

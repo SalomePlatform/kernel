@@ -102,7 +102,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const int theNbColumns)
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const int theRow,
-						      const std::string& theTitle) 
+                                                      const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
@@ -117,7 +117,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const int theRow,
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const int theRow,
-						     const std::string& theUnit) 
+                                                     const std::string& theUnit) 
 {
   CheckLocked();  
   Backup();
@@ -175,7 +175,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::GetRowUnit(const int theRow) co
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowData(const int theRow,
-						     const vector<string>& theData) 
+                                                     const vector<string>& theData) 
 {
   CheckLocked();  
   if(theData.size() > myNbColumns) SetNbColumns(theData.size());
@@ -225,7 +225,7 @@ vector<string> SALOMEDSImpl_AttributeTableOfString::GetRowData(const int theRow)
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const int theColumn,
-						        const vector<string>& theData) 
+                                                        const vector<string>& theData) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -265,7 +265,7 @@ vector<string> SALOMEDSImpl_AttributeTableOfString::GetColumnData(const int theC
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetColumnTitle(const int theColumn,
-						         const std::string& theTitle) 
+                                                         const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
@@ -312,8 +312,8 @@ int SALOMEDSImpl_AttributeTableOfString::GetNbColumns() const
 }
 
 void SALOMEDSImpl_AttributeTableOfString::PutValue(const std::string& theValue,
-					           const int theRow,
-					           const int theColumn) 
+                                                   const int theRow,
+                                                   const int theColumn) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -332,7 +332,7 @@ void SALOMEDSImpl_AttributeTableOfString::PutValue(const std::string& theValue,
 }
 
 bool SALOMEDSImpl_AttributeTableOfString::HasValue(const int theRow,
-						   const int theColumn) 
+                                                   const int theColumn) 
 {
   if(theRow > myNbRows || theRow < 1) return false;
   if(theColumn > myNbColumns || theColumn < 1) return false;
@@ -342,7 +342,7 @@ bool SALOMEDSImpl_AttributeTableOfString::HasValue(const int theRow,
 }
 
 std::string SALOMEDSImpl_AttributeTableOfString::GetValue(const int theRow,
-							  const int theColumn) 
+                                                          const int theColumn) 
 {
   if(theRow > myNbRows || theRow < 1) throw DFexception("Invalid cell index");
   if(theColumn > myNbColumns || theColumn < 1) throw DFexception("Invalid cell index");

@@ -34,7 +34,7 @@
 #include "SALOMEDS_BasicAttribute_i.hxx"
 
 class SALOMEDS_AttLong_i: public POA_SALOMEDS::AttLong,
-			  public SALOMEDS_BasicAttribute_i {
+                          public SALOMEDS_BasicAttribute_i {
 protected:
   char * _type;
 

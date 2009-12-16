@@ -42,10 +42,10 @@ using namespace std;
 
 // L'appel au registry SALOME ne se fait que pour le process 0
 Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
-					       CORBA::ORB_ptr orb, 
-					       PortableServer::POA_ptr poa,
-					       char * containerName,
-					       int argc, char *argv[]) 
+                                               CORBA::ORB_ptr orb, 
+                                               PortableServer::POA_ptr poa,
+                                               char * containerName,
+                                               int argc, char *argv[]) 
   : Engines_Container_i(orb,poa,containerName,argc,argv,false), MPIObject_i(nbproc,numproc)
 {
 
@@ -191,18 +191,18 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-					     (char*)"import_component",
-					     (char*)"s",componentName);
+                                             (char*)"import_component",
+                                             (char*)"s",componentName);
       std::string ret= PyString_AsString(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   
       if (ret=="") // import possible: Python component
-	{
-	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
-	  MESSAGE("[" << _numproc << "] import Python: "<<aCompName<<" OK");
-	  return true;
-	}
+        {
+          _library_map[aCompName] = (void *)pyCont; // any non O value OK
+          MESSAGE("[" << _numproc << "] import Python: "<<aCompName<<" OK");
+          return true;
+        }
     }
   return false;
 }
@@ -210,7 +210,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 // Create an instance of component
 Engines::Component_ptr
 Engines_MPIContainer_i::create_component_instance( const char* componentName,
-						   CORBA::Long studyId)
+                                                   CORBA::Long studyId)
 {
   pthread_t *th;
   if(_numproc == 0){
@@ -269,11 +269,11 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     PyObject *globals = PyModule_GetDict(mainmod);
     PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
     PyObject *result = PyObject_CallMethod(pyCont,
-					   (char*)"create_component_instance",
-					   (char*)"ssl",
-					   aCompName.c_str(),
-					   instanceName.c_str(),
-					   studyId);
+                                           (char*)"create_component_instance",
+                                           (char*)"ssl",
+                                           aCompName.c_str(),
+                                           instanceName.c_str(),
+                                           studyId);
     string iors = PyString_AsString(result);
     SCRUTE(iors);
     Py_RELEASE_NEW_THREAD;
@@ -296,8 +296,8 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     {
       void* handle = _library_map[impl_name];
       iobject = createMPIInstance(genericRegisterName,
-				    handle,
-				    studyId);
+                                    handle,
+                                    studyId);
       return iobject._retn();
     }
 
@@ -306,8 +306,8 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
 
 Engines::Component_ptr
 Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
-					  void *handle,
-					  int studyId)
+                                          void *handle,
+                                          int studyId)
 {
   Engines::Component_var iobject;
   Engines::MPIObject_var pobj;
@@ -351,13 +351,13 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       sprintf( aNumI , "%d" , numInstance ) ;
       string instanceName = aGenRegisterName + "_inst_" + aNumI ;
       string component_registerName =
-	_containerName + "/" + instanceName;
+        _containerName + "/" + instanceName;
 
       // --- Instanciate required CORBA object
 
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (MPIComponent_factory) ( _nbproc,_numproc,_orb, _poa, _id, instanceName.c_str(),
-				 aGenRegisterName.c_str() ) ;
+                                 aGenRegisterName.c_str() ) ;
 
       // --- get reference & servant from id
 
@@ -366,7 +366,7 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       pobj = Engines::MPIObject::_narrow(obj) ;
 
       Engines_Component_i *servant =
-	dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
+        dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant);
       //SCRUTE(servant->pd_refCount);
       servant->_remove_ref(); // compensate previous id_to_reference 
@@ -381,8 +381,8 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       //     containerName(.dir)/instanceName(.object)
 
       if( _numproc == 0 ){
-	_NS->Register( iobject , component_registerName.c_str() ) ;
-	MESSAGE( component_registerName.c_str() << " bound" ) ;
+        _NS->Register( iobject , component_registerName.c_str() ) ;
+        MESSAGE( component_registerName.c_str() << " bound" ) ;
       }
       // Root recupere les ior des composants des autre process
       BCastIOR(_orb,pobj,false);
@@ -401,7 +401,7 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
 
 // Load component
 Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegister,
-						 const char* componentName)
+                                                 const char* componentName)
 {
   pthread_t *th;
   if(_numproc == 0){
@@ -429,8 +429,8 @@ Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegis
 
 // Load component
 Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
-				   const char* nameToRegister,
-				   const char* componentName)
+                                   const char* nameToRegister,
+                                   const char* componentName)
 {
   Engines::Component_var iobject;
   Engines::MPIObject_var pobj;
@@ -464,17 +464,17 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
 
   dlerror();
   PortableServer::ObjectId * (*MPIComponent_factory) (int,int,
-						  CORBA::ORB_ptr,
-						  PortableServer::POA_ptr,
-						  PortableServer::ObjectId *,
-						  const char *,
-						  const char *) =
+                                                  CORBA::ORB_ptr,
+                                                  PortableServer::POA_ptr,
+                                                  PortableServer::ObjectId *,
+                                                  const char *,
+                                                  const char *) =
     (PortableServer::ObjectId * (*) (int,int,
-				     CORBA::ORB_ptr,
-				     PortableServer::POA_ptr, 
-				     PortableServer::ObjectId *, 
-				     const char *, 
-				     const char *)) 
+                                     CORBA::ORB_ptr,
+                                     PortableServer::POA_ptr, 
+                                     PortableServer::ObjectId *, 
+                                     const char *, 
+                                     const char *)) 
     dlsym(handle, factory_name.c_str());
 
   char *error ;

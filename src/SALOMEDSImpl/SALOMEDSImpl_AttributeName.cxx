@@ -38,7 +38,7 @@ const std::string& SALOMEDSImpl_AttributeName::GetID ()
 }   
 
 SALOMEDSImpl_AttributeName* SALOMEDSImpl_AttributeName::Set (const DF_Label& L, 
-							     const std::string& Val) 
+                                                             const std::string& Val) 
 {
   SALOMEDSImpl_AttributeName* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeName*)L.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {

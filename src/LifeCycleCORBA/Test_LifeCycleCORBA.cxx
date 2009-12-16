@@ -66,7 +66,7 @@ int main (int argc, char * argv[])
       MESSAGE("FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" );
 
       Engines::Component_var mycompo =
-	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
+        _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
       ASSERT(!CORBA::is_nil(mycompo));
       Engines::TestComponent_var m1;
       m1 = Engines::TestComponent::_narrow(mycompo);
@@ -80,7 +80,7 @@ int main (int argc, char * argv[])
       string containerName2 = "otherServer";
 
       Engines::Component_var mycompo2 =
-	_LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
+        _LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo2));
       Engines::TestComponent_var m2;
       m2 = Engines::TestComponent::_narrow(mycompo2);
@@ -93,7 +93,7 @@ int main (int argc, char * argv[])
       //     load an engine, and invoque methods on that engine
 
       Engines::Component_var mycompo3 =
-	_LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
+        _LCC.FindOrLoad_Component("totoPy","SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo3));
       Engines::TestComponent_var m3 = Engines::TestComponent::_narrow(mycompo3);
       ASSERT(!CORBA::is_nil(m3));
@@ -105,7 +105,7 @@ int main (int argc, char * argv[])
       string containerName4 = Kernel_Utils::GetHostname();
       containerName4  += "/titiPy";
       Engines::Component_var mycompo4 = 
-	_LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
+        _LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo4));
       Engines::TestComponent_var m4 = Engines::TestComponent::_narrow(mycompo4);
       ASSERT(!CORBA::is_nil(m4));
@@ -115,7 +115,7 @@ int main (int argc, char * argv[])
 
       string origFileName = "/home/prascle/petitfichier";
       SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
-					 origFileName);
+                                         origFileName);
       string local = transfer.getLocalFile();
       SCRUTE(local);
 
@@ -123,7 +123,7 @@ int main (int argc, char * argv[])
 
       origFileName = "/home/prascle/occ60.tgz";
       SALOME_FileTransferCORBA transfer2( "cli76ce",
-					 origFileName);
+                                         origFileName);
       local = transfer2.getLocalFile();
       SCRUTE(local);
       local = transfer2.getLocalFile();

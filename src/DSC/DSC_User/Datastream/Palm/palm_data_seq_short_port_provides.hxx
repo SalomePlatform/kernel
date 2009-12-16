@@ -38,7 +38,7 @@ class palm_data_seq_short_port_provides :
   public virtual POA_Ports::Palm_Ports::Palm_Data_Seq_Short_Port,
   public virtual provides_port,
   public virtual GenericPort< seq_u_manipulation<Ports::Palm_Ports::seq_short, CORBA::Short>,
-  			      PalmCouplingPolicy >
+                              PalmCouplingPolicy >
 {
   typedef Ports::Palm_Ports::seq_short                       CorbaDataType;
   typedef seq_u_manipulation<CorbaDataType, CORBA::Short>    DataManipulator;

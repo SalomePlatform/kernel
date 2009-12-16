@@ -64,75 +64,75 @@ int main(int argc,char **argv)
       const char * Env = getenv("USE_LOGGER");
       int EnvL =0;
       if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
+        EnvL=1;
       CosNaming::Name name;
       name.length(1);
       name[0].id=CORBA::string_dup("Logger");    
       PortableServer::POAManager_var mgr; 
       for (int i = 1; i<=NumberOfTries; i++)
-	{
-	  if (i!=1) 
+        {
+          if (i!=1) 
 #ifndef WIN32
-	    a=nanosleep(&ts_req,&ts_rem);
+            a=nanosleep(&ts_req,&ts_rem);
 #else
-	    Sleep(TIMESleep/1000000);
+            Sleep(TIMESleep/1000000);
 #endif
-	  try
-	    { 
-	      obj = orb->resolve_initial_references("RootPOA");
-	      if(!CORBA::is_nil(obj))
-		poa = PortableServer::POA::_narrow(obj);
-	      if(!CORBA::is_nil(poa))
-		mgr = poa->the_POAManager();
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService"); 
-	    }
-	  catch( CORBA::SystemException& )
-	    {
-	      INFOS( "Module Catalog Server: CORBA::SystemException: Unable to contact the Naming Service" );
-	    }
-	  if (!CORBA::is_nil(theObj))
-	    {
-	      inc = CosNaming::NamingContext::_narrow(theObj);
-	      if(!CORBA::is_nil(inc))
-		{
-		  INFOS( "Module Catalog Server: Naming Service was found" );
-		  if(EnvL==1)
-		    {
-		      CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
-		      SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
-		      NS.init_orb( orb1 ) ;
-		      for(int j=1; j<=NumberOfTries; j++)
-			{
-			  if (j!=1) 
+          try
+            { 
+              obj = orb->resolve_initial_references("RootPOA");
+              if(!CORBA::is_nil(obj))
+                poa = PortableServer::POA::_narrow(obj);
+              if(!CORBA::is_nil(poa))
+                mgr = poa->the_POAManager();
+              if(!CORBA::is_nil(orb)) 
+                theObj = orb->resolve_initial_references("NameService"); 
+            }
+          catch( CORBA::SystemException& )
+            {
+              INFOS( "Module Catalog Server: CORBA::SystemException: Unable to contact the Naming Service" );
+            }
+          if (!CORBA::is_nil(theObj))
+            {
+              inc = CosNaming::NamingContext::_narrow(theObj);
+              if(!CORBA::is_nil(inc))
+                {
+                  INFOS( "Module Catalog Server: Naming Service was found" );
+                  if(EnvL==1)
+                    {
+                      CORBA::ORB_var orb1 = CORBA::ORB_init(argc,argv) ;
+                      SALOME_NamingService &NS = *SINGLETON_<SALOME_NamingService>::Instance() ;
+                      NS.init_orb( orb1 ) ;
+                      for(int j=1; j<=NumberOfTries; j++)
+                        {
+                          if (j!=1) 
 #ifndef WIN32
-			    a=nanosleep(&ts_req, &ts_rem);
+                            a=nanosleep(&ts_req, &ts_rem);
 #else
-			    Sleep(TIMESleep/1000000);
+                            Sleep(TIMESleep/1000000);
 #endif
-			  try{
-			    object = inc->resolve(name);}
-			  catch(CosNaming::NamingContext::NotFound)
-			    {
-			      INFOS( "Logger Server wasn't found" );
-			    }
-			  catch(...)
-			    {
-			      INFOS( "Module Catalog Server: Unknown exception" ) ;
-			    }
-			  if (!CORBA::is_nil(object))
-			    {
-			      INFOS( "Module Catalog Server: Logger Server was found" );
-			      MODULE_CATALOG=1;
-			      break;
-			    }
-			}
-		    }
-		}
-	    }
-	  if ((MODULE_CATALOG==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-	    break;
-	}
+                          try{
+                            object = inc->resolve(name);}
+                          catch(CosNaming::NamingContext::NotFound)
+                            {
+                              INFOS( "Logger Server wasn't found" );
+                            }
+                          catch(...)
+                            {
+                              INFOS( "Module Catalog Server: Unknown exception" ) ;
+                            }
+                          if (!CORBA::is_nil(object))
+                            {
+                              INFOS( "Module Catalog Server: Logger Server was found" );
+                              MODULE_CATALOG=1;
+                              break;
+                            }
+                        }
+                    }
+                }
+            }
+          if ((MODULE_CATALOG==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
+            break;
+        }
   
       // Active catalog
 

@@ -33,12 +33,12 @@
 using namespace std;
 
 TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
-					       CORBA::ORB_ptr orb,
-					       PortableServer::POA_ptr poa,
-					       PortableServer::ObjectId * contId, 
-					       const char *instanceName, 
-					       const char *interfaceName,
-					       bool regist) :
+                                               CORBA::ORB_ptr orb,
+                                               PortableServer::POA_ptr poa,
+                                               PortableServer::ObjectId * contId, 
+                                               const char *instanceName, 
+                                               const char *interfaceName,
+                                               bool regist) :
   Engines_Component_i(orb, poa, contId, instanceName, interfaceName,true,regist), MPIObject_i(nbproc,numproc)
 {
   MESSAGE("activate object")
@@ -73,12 +73,12 @@ void TestMPIComponentEngine::SPCoucou(CORBA::Long L)
 extern "C"
 {
   PortableServer::ObjectId * TestMPIComponentEngine_factory(
-				 int nbproc, int numproc,
-				 CORBA::ORB_ptr orb,
-				 PortableServer::POA_ptr poa, 
-				 PortableServer::ObjectId * contId,
-				 const char *instanceName, 
-				 const char *interfaceName)
+                                 int nbproc, int numproc,
+                                 CORBA::ORB_ptr orb,
+                                 PortableServer::POA_ptr poa, 
+                                 PortableServer::ObjectId * contId,
+                                 const char *instanceName, 
+                                 const char *interfaceName)
   {
     bool regist;
     TestMPIComponentEngine * myTestMPIComponent;

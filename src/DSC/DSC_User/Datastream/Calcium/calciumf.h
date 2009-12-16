@@ -37,11 +37,11 @@
 
 
 #define CALCIUM_ECR_INTERFACE_C_H(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
-  extern _calInt cp_##_name (void * component, _calInt mode,		\
-		       _timeType t, _calInt i,				\
-		       char * nomvar, _calInt nbelem,			\
-		       _type _qual * data				\
-		       lastarg ) ;					\
+  extern _calInt cp_##_name (void * component, _calInt mode,            \
+                       _timeType t, _calInt i,                          \
+                       char * nomvar, _calInt nbelem,                   \
+                       _type _qual * data                               \
+                       lastarg ) ;                                      \
 
 
 CALCIUM_ECR_INTERFACE_C_H(een_fort_,float ,cal_int,cal_int,integer,,);
@@ -56,12 +56,12 @@ CALCIUM_ECR_INTERFACE_C_H(ech_fort_,float ,cal_int,char  ,str,STAR,LCH_LAST_PARA
 
 
 #define CALCIUM_LECT_INTERFACE_C_H(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
-  extern _calInt cp_##_name (void * component, _calInt mode,		\
-			     _timeType * ti, _timeType * tf, _calInt * i, \
-			     char * nomvar, _calInt bufferLength,	\
-			     _calInt * nRead, _type _qual * data	\
-			     lastarg ) ;				\
-  									\
+  extern _calInt cp_##_name (void * component, _calInt mode,            \
+                             _timeType * ti, _timeType * tf, _calInt * i, \
+                             char * nomvar, _calInt bufferLength,       \
+                             _calInt * nRead, _type _qual * data        \
+                             lastarg ) ;                                \
+                                                                        \
  
 
 CALCIUM_LECT_INTERFACE_C_H(len_fort_,float ,cal_int,cal_int ,integer,,);

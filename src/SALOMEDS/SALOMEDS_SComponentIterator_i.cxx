@@ -36,7 +36,7 @@ using namespace std;
 //============================================================================
 
 SALOMEDS_SComponentIterator_i::SALOMEDS_SComponentIterator_i(const SALOMEDSImpl_SComponentIterator& theImpl, 
-							     CORBA::ORB_ptr orb) 
+                                                             CORBA::ORB_ptr orb) 
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl.GetPersistentCopy();

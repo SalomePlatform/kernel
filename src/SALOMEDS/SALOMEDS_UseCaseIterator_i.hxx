@@ -37,8 +37,8 @@
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 
 class SALOMEDS_UseCaseIterator_i: public virtual POA_SALOMEDS::UseCaseIterator,
-				  public virtual PortableServer::ServantBase, 
-				  public virtual SALOME::GenericObj_i
+                                  public virtual PortableServer::ServantBase, 
+                                  public virtual SALOME::GenericObj_i
 {
 private:
   CORBA::ORB_var                        _orb;
@@ -48,7 +48,7 @@ public:
 
   //! standard constructor  
   SALOMEDS_UseCaseIterator_i(const SALOMEDSImpl_UseCaseIterator& theImpl, 
-			     CORBA::ORB_ptr);
+                             CORBA::ORB_ptr);
   
   //! standard destructor
   ~SALOMEDS_UseCaseIterator_i();

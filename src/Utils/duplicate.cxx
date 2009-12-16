@@ -26,9 +26,9 @@
 //  $Header$
 //
 /*!
- *	This function can be changed by strdup() if strdup() is ANSI.
- *	It is strongly (and only) used in the Registry environment
- *	(RegistryService, RegistryConnexion, Identity, ...)
+ *      This function can be changed by strdup() if strdup() is ANSI.
+ *      It is strongly (and only) used in the Registry environment
+ *      (RegistryService, RegistryConnexion, Identity, ...)
  */
 extern "C"
 {
@@ -42,11 +42,11 @@ using namespace std;
 
 const char* duplicate( const char *const str )
 {
-	ASSERT(str!=NULL) ;
-	const size_t length = strlen( str ) ;
-	ASSERT(length>0) ;
-	char *new_str = new char[ 1+length ] ;
-	ASSERT(new_str) ;
-	strcpy( new_str , str ) ;
-	return new_str ;
+        ASSERT(str!=NULL) ;
+        const size_t length = strlen( str ) ;
+        ASSERT(length>0) ;
+        char *new_str = new char[ 1+length ] ;
+        ASSERT(new_str) ;
+        strcpy( new_str , str ) ;
+        return new_str ;
 }

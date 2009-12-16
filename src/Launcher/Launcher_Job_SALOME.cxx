@@ -77,10 +77,10 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'  > $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
+  launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;   
   launch_script_stream << "cat $LIBBATCH_NODEFILE | sort -u | while read host"  << std::endl;
   launch_script_stream << "do"                                                  << std::endl;
-  launch_script_stream << "echo '<resource hostname='\\\"$host\\\"			         >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '<resource hostname='\\\"$host\\\"                               >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
@@ -92,17 +92,17 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // Launch SALOME with an appli
   launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
   launch_script_stream << "current=0\n"
-		       << "stop=20\n" 
-		       << "while ! test -f " << _resource_definition.AppliPath << "/" << launch_date_port_file << "\n"
-		       << "do\n"
-		       << "  sleep 2\n"
-		       << "  let current=current+1\n"
-		       << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		       << "    echo Error Naming Service failed ! >&2\n"
-		       << "    exit\n"
-		       << "  fi\n"
-		       << "done\n"
-		       << "appli_port=`cat " << _resource_definition.AppliPath << "/" << launch_date_port_file << "`\n";
+                       << "stop=20\n" 
+                       << "while ! test -f " << _resource_definition.AppliPath << "/" << launch_date_port_file << "\n"
+                       << "do\n"
+                       << "  sleep 2\n"
+                       << "  let current=current+1\n"
+                       << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
+                       << "    echo Error Naming Service failed ! >&2\n"
+                       << "    exit\n"
+                       << "  fi\n"
+                       << "done\n"
+                       << "appli_port=`cat " << _resource_definition.AppliPath << "/" << launch_date_port_file << "`\n";
 
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);

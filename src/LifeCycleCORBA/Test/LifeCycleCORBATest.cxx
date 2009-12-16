@@ -388,11 +388,11 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownMachine()
   string containerName = "aFarAwayComputer";
   containerName += "/theContainer";
 //   CPPUNIT_ASSERT_THROW(Engines::Component_var mycompo =
-// 		       _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
+//                     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
   try
     {
       Engines::Component_var mycompo =
-	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
+        _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
     }
   catch(const SALOME::SALOME_Exception &ex)
     {
@@ -517,8 +517,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -555,8 +555,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -594,8 +594,8 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
-			 "computers from ResourcesCatalog",
-			 !CORBA::is_nil(mycompo1));
+                         "computers from ResourcesCatalog",
+                         !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -623,7 +623,7 @@ void  LifeCycleCORBATest::testgetLocalFile_localComputer()
   string origFileName = getenv("KERNEL_ROOT_DIR");
   origFileName += "/lib/salome/libSalomeLifeCycleCORBA.so.0.0.0";
   SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
-				     origFileName);
+                                     origFileName);
   string local = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local.empty());
   CPPUNIT_ASSERT_EQUAL(local, origFileName);
@@ -641,7 +641,7 @@ void  LifeCycleCORBATest::testgetLocalFile_remoteComputer()
   string origFileName = getenv("KERNEL_ROOT_DIR");
   origFileName += "/lib/salome/libSalomeContainer.so.0.0.0";
   SALOME_FileTransferCORBA transfer( GetRemoteHost(),
-				     origFileName);
+                                     origFileName);
   string local = transfer.getLocalFile();
   CPPUNIT_ASSERT(!local.empty());
   string local2 = transfer.getLocalFile();
@@ -695,10 +695,10 @@ string LifeCycleCORBATest::GetRemoteHost()
       Engines::ResourceDefinition_var resource_definition = resourcesManager->GetResourceDefinition(aMachine);
       string machine(resource_definition->hostname.in());
       if (machine != localHost)
-	{
-	  remoteHost = machine;
-	  break;
-	}
+        {
+          remoteHost = machine;
+          break;
+        }
     }
   CPPUNIT_ASSERT(remoteHost != "");
   return remoteHost;

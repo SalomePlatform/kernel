@@ -70,7 +70,7 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
   else {
     CORBA::String_var anIOR;
     ret = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentIOR(anIOR.out());
-    theID = std::string(anIOR.in());    		
+    theID = std::string(anIOR.in());                    
   }
 
   return ret;

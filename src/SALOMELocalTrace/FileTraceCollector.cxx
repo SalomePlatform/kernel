@@ -56,21 +56,21 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
       int ret;
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
-	{                                      // the lock after the first test
-	  DEVTRACE("FileTraceCollector:: instance()");
-	  BaseTraceCollector* myInstance = new FileTraceCollector();
-	  _fileName = fileName;
-	  DEVTRACE(" _fileName: " << _fileName);
+        {                                      // the lock after the first test
+          DEVTRACE("FileTraceCollector:: instance()");
+          BaseTraceCollector* myInstance = new FileTraceCollector();
+          _fileName = fileName;
+          DEVTRACE(" _fileName: " << _fileName);
 
-	  sem_init(&_sem,0,0); // to wait until run thread is initialized
-	  pthread_t traceThread;
-	  int bid = 0;
-	  pthread_create(&traceThread, NULL,
-				   FileTraceCollector::run, (void *)bid);
-	  sem_wait(&_sem);
-	  _singleton = myInstance; // _singleton known only when init done
-	  DEVTRACE("FileTraceCollector:: instance()-end");
-	}
+          sem_init(&_sem,0,0); // to wait until run thread is initialized
+          pthread_t traceThread;
+          int bid = 0;
+          pthread_create(&traceThread, NULL,
+                                   FileTraceCollector::run, (void *)bid);
+          sem_wait(&_sem);
+          _singleton = myInstance; // _singleton known only when init done
+          DEVTRACE("FileTraceCollector:: instance()-end");
+        }
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
@@ -116,44 +116,44 @@ void* FileTraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	{
-	  DEVTRACE("FileTraceCollector _threadToClose");
-	  //break;
-	}
+        {
+          DEVTRACE("FileTraceCollector _threadToClose");
+          //break;
+        }
 
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
-	{
+        {
 #ifndef WIN32
-	  traceFile << "INTERRUPTION from thread " << myTrace.threadId
-		    << " : " <<  myTrace.trace;
+          traceFile << "INTERRUPTION from thread " << myTrace.threadId
+                    << " : " <<  myTrace.trace;
 #else
-	  traceFile << "INTERRUPTION from thread "
-		    << (void*)(&myTrace.threadId)
-		    << " : " <<  myTrace.trace;
+          traceFile << "INTERRUPTION from thread "
+                    << (void*)(&myTrace.threadId)
+                    << " : " <<  myTrace.trace;
 #endif
-	  traceFile.close();
-	  cout << flush ;
+          traceFile.close();
+          cout << flush ;
 #ifndef WIN32
-	  cerr << "INTERRUPTION from thread " << myTrace.threadId
-	       << " : " <<  myTrace.trace;
+          cerr << "INTERRUPTION from thread " << myTrace.threadId
+               << " : " <<  myTrace.trace;
 #else
-	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-	       << " : " <<  myTrace.trace;
+          cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+               << " : " <<  myTrace.trace;
 #endif
-	  cerr << flush ; 
-	  exit(1);     
-	}
+          cerr << flush ; 
+          exit(1);     
+        }
       else
-	{
+        {
 #ifndef WIN32
-	  traceFile << "th. " << myTrace.threadId
-		    << " " << myTrace.trace;
+          traceFile << "th. " << myTrace.threadId
+                    << " " << myTrace.trace;
 #else
-	  traceFile << "th. " << (void*)(&myTrace.threadId)
-		    << " " << myTrace.trace;
+          traceFile << "th. " << (void*)(&myTrace.threadId)
+                    << " " << myTrace.trace;
 #endif
-	}
+        }
     }
   DEVTRACE("traceFile.close()");
   traceFile.close();
@@ -178,14 +178,14 @@ FileTraceCollector:: ~FileTraceCollector()
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
       if (_threadId)
-	{
-	  int ret = pthread_join(*_threadId, NULL);
-	  if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
-	  else DEVTRACE("FileTraceCollector destruction OK");
+        {
+          int ret = pthread_join(*_threadId, NULL);
+          if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
+          else DEVTRACE("FileTraceCollector destruction OK");
           delete _threadId;
-	  _threadId = 0;
-	  _threadToClose = 0;
-	}
+          _threadId = 0;
+          _threadToClose = 0;
+        }
       _singleton = 0;
     }
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock

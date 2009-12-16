@@ -41,8 +41,8 @@ class CONTAINER_EXPORT Parallel_Salome_file_i:
 {
   public:
     Parallel_Salome_file_i(CORBA::ORB_ptr orb, 
-			   const char * ior,
-			   int rank);
+                           const char * ior,
+                           int rank);
     virtual ~Parallel_Salome_file_i();
 
     virtual void setFileNode(const char* file_name, CORBA::Long node);
@@ -56,9 +56,9 @@ class CONTAINER_EXPORT Parallel_Salome_file_i:
     virtual void save_all(const char* hdf5_file);
     virtual void connect(Engines::Salome_file_ptr source_Salome_file);
     virtual void connectDistributedFile(const char * file_name,
-					Engines::Salome_file_ptr source_Salome_file);
+                                        Engines::Salome_file_ptr source_Salome_file);
     virtual void setDistributedSourceFile(const char* file_name,
-					  const char * source_file_name);
+                                          const char * source_file_name);
     virtual void recvFiles();
     virtual void recvFiles_node();
     virtual void setContainer(Engines::Container_ptr container);

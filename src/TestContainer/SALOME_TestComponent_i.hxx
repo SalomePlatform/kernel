@@ -44,10 +44,10 @@ class TESTCONTAINER_EXPORT Engines_TestComponent_i:
 public:
   Engines_TestComponent_i();
   Engines_TestComponent_i(CORBA::ORB_ptr orb,
-			  PortableServer::POA_ptr poa,
-			  PortableServer::ObjectId * contId, 
-			  const char *instanceName, 
-			  const char *interfaceName);
+                          PortableServer::POA_ptr poa,
+                          PortableServer::ObjectId * contId, 
+                          const char *instanceName, 
+                          const char *interfaceName);
 
   virtual ~Engines_TestComponent_i();
 

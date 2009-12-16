@@ -42,18 +42,18 @@ class Param_Double_Port_provides_i :
     Ports::Param_Double_Port::seq_double * get_data();
     void set_data(Ports::Param_Double_Port::seq_double * results);
     void configure_set_data(int data_length, 
-			    int totalNbElt, 
-			    int BeginEltPos);
+                            int totalNbElt, 
+                            int BeginEltPos);
 
     // Aide à la création du port
     static Param_Double_Port_provides_i * init_port(Engines_ParallelDSC_i * par_compo, 
-						    std::string port_name,
-						    CORBA::ORB_ptr orb);
+                                                    std::string port_name,
+                                                    CORBA::ORB_ptr orb);
 
     // Méthode temporaire en attendant d'avoir des méthodes parallèles bien synchronisé
     static void wait_init_port(Engines_ParallelDSC_i * par_compo, 
-			       std::string port_name,
-			       CORBA::ORB_ptr orb);
+                               std::string port_name,
+                               CORBA::ORB_ptr orb);
   private:
     // Buffers pour la réception et l'envoi
     Ports::Param_Double_Port::seq_double * _seq_data;

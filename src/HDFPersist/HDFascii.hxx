@@ -36,9 +36,9 @@ class HDFPERSIST_EXPORT HDFascii
 public:
  
   static char* ConvertFromHDFToASCII(const char* thePath, 
-				     bool isReplaced = true, 
-				     const char* theExtension = NULL);
-				     
+                                     bool isReplaced = true, 
+                                     const char* theExtension = NULL);
+                                     
   static char* ConvertFromASCIIToHDF(const char* thePath);
   
   static bool isASCII(const char* thePath);

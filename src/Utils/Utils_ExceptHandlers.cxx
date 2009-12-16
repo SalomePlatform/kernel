@@ -19,10 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// File:	Utils_ExceptHandler.cxx
-// Created:	Mon Mar 15 10:23:41 2004
-// Author:	Oksana TCHEBANOVA
-//		<ota@localhost.localdomain>
+// File:        Utils_ExceptHandler.cxx
+// Created:     Mon Mar 15 10:23:41 2004
+// Author:      Oksana TCHEBANOVA
+//              <ota@localhost.localdomain>
 //
 #include "Utils_ExceptHandlers.hxx"
 #include "Utils_CorbaException.hxx"

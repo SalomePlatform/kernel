@@ -65,45 +65,45 @@ public:
       
   void SetInt(const std::string& theID, const int& theValue);
   int GetInt(const std::string& theID);
-	  
+          
   void SetReal(const std::string& theID, const double& theValue);
   double GetReal(const std::string& theID);
-	      
+              
   void SetString(const std::string& theID, const std::string& theValue);
   std::string GetString(const std::string& theID);
-		  
+                  
   void SetBool(const std::string& theID, const bool& theValue);
   bool GetBool(const std::string& theID);
-		      
+                      
   void SetRealArray(const std::string& theID, const std::vector<double>& theArray);
   std::vector<double> GetRealArray(const std::string& theID);
-			  
+                          
   void SetIntArray(const std::string& theID, const std::vector<int>& theArray);
   std::vector<int> GetIntArray(const std::string& theID);
-			      
+                              
   void SetStrArray(const std::string& theID, const std::vector<std::string>& theArray);
   std::vector<std::string> GetStrArray(const std::string& theID);
-				  
+                                  
   bool IsSet(const std::string& theID, const Parameter_Types theType);
  
   bool RemoveID(const std::string& theID, const Parameter_Types theType);
-		      
+                      
   SALOMEDSImpl_AttributeParameter* GetFather();
   bool HasFather();
   bool IsRoot();
-					    
+                                            
   std::vector<std::string> GetIDs(const Parameter_Types theType);
-					      
+                                              
   void Clear();
-						
+                                                
   virtual std::string Save();
   virtual void Load(const std::string& theValue);
-						    
+                                                    
   const std::string& ID() const;
   void Restore(DF_Attribute* with) ;
   DF_Attribute* NewEmpty() const;
   void Paste(DF_Attribute* into);
-							    
+                                                            
   ~SALOMEDSImpl_AttributeParameter() {}
 };
 

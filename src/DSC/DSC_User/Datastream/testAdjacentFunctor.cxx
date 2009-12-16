@@ -45,7 +45,7 @@ struct MyRand {
   static const double MAXVALUE = 150.0;
   MyRand() { srand(getpid()); }
   int operator()() const {
-	return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
+        return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
   }
 };
 
@@ -93,7 +93,7 @@ int main() {
   
   
 
-	 
+         
  //  if ( it == vect.end() ) {
 //     std::cout << " Je n'ai pas trouvé la valeur " << valueToFind << std::endl;
 //   } else {
@@ -102,7 +102,7 @@ int main() {
 //       Type min,max;
 //       if ( ap.getBounds(min,max) ) {
 //         it2=it;it2--;
-// 	std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
+//      std::cout << "La valeur : " << valueToFind << " est encadrée par  (*it) :" << (*it) << " et valeur de *(it-1) :" << (*it2) << std::endl;
 //       }
 //     }
 //   }
@@ -122,7 +122,7 @@ int main() {
 //   AdjacentFunctor<MapIntDouble::value_type::first_type> apMap(valueToFind);
 //   for (itM1 = myMap.begin(); itM1 != myMap.end(); ++itM1) 
 //      if ( apMap(itM1->first) ) break;
-	 
+         
 //   if ( itM1 == myMap.end() ) {
 //     std::cout << " Je n'est pas trouvé la valeur " << valueToFind << std::endl;
 //   } else {
@@ -131,7 +131,7 @@ int main() {
 //       Type min,max;
 //       if ( apMap.getBounds(min,max) ) {
 //         itM2=itM1;itM2--;
-// 	std::cout << "La valeur " << valueToFind << " est encadrée par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
+//      std::cout << "La valeur " << valueToFind << " est encadrée par  (itM1->first) :" << (itM1->first) << " et valeur de (it-1)->first :" << (itM2->first) << std::endl;
 //       }
 //     }
 //   }
@@ -163,7 +163,7 @@ int main() {
 //       MapIntDouble_Double::key_type min,max;
 //       if ( apMapP.getBounds(min,max) ) {
 //         itMP2=itMP1;itMP2--;
-// 	std::cout << "La valeur " << valuePToFind << " est encadrée par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
+//      std::cout << "La valeur " << valuePToFind << " est encadrée par  (itMP1->first) :" << (itMP1->first) << " et valeur de (it-1)->first :" << (itMP2->first) << std::endl;
 //       }
 //     }
 //   }

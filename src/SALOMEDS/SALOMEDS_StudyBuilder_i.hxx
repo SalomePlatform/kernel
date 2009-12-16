@@ -57,7 +57,7 @@ public:
   //! DefineComponentInstance
   /*!
     \param SComponent_ptr       
-    \param ComponentIOR	
+    \param ComponentIOR 
   */
   virtual void DefineComponentInstance (SALOMEDS::SComponent_ptr, CORBA::Object_ptr ComponentIOR);
   
@@ -65,7 +65,7 @@ public:
   /*!
     <long-description>
 
-    \param aComponent	
+    \param aComponent   
   */
   virtual void RemoveComponent(SALOMEDS::SComponent_ptr aComponent);
 

@@ -52,7 +52,7 @@ STextColor SALOMEDS_AttributeTextHighlightColor::TextHighlightColor()
     vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_local_impl)->TextHighlightColor();
     aColor.R = aSeq[0];
     aColor.G = aSeq[1];
-    aColor.B = aSeq[2];	
+    aColor.B = aSeq[2]; 
   }
   else {
     SALOMEDS::Color anImplColor =

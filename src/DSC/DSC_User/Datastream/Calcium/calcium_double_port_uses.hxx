@@ -36,10 +36,10 @@ extern char _repository_Calcium_Double_Port_name[];
 
 class calcium_double_port_uses :
   public virtual CalciumGenericUsesPort< seq_u_manipulation<Ports::Calcium_Ports::seq_double,
-						     CORBA::Double >, 
-				  Ports::Calcium_Ports::Calcium_Double_Port, 
-				  _repository_Calcium_Double_Port_name 
-				  >
+                                                     CORBA::Double >, 
+                                  Ports::Calcium_Ports::Calcium_Double_Port, 
+                                  _repository_Calcium_Double_Port_name 
+                                  >
 {
   public :
 

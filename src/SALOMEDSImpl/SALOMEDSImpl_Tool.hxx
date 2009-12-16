@@ -47,8 +47,8 @@ public:
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
-				   const std::vector<std::string>& theFiles,
-				   const bool IsDirDeleted);
+                                   const std::vector<std::string>& theFiles,
+                                   const bool IsDirDeleted);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"
@@ -68,8 +68,8 @@ public:
   //The functions returns a list of substring of initial string divided by given separator, 
   //include empty strings
   static std::vector< std::vector<std::string> > splitStringWithEmpty(const std::string& theValue,
-								      char separator1,
-								      char separator2);
+                                                                      char separator1,
+                                                                      char separator2);
   
 
   //Returns a system date  

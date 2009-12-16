@@ -32,6 +32,6 @@
 #include <string>
 
 CORBA::Object_ptr  TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr theOrb,
-							 std::string serverName);
+                                                         std::string serverName);
 
 #endif

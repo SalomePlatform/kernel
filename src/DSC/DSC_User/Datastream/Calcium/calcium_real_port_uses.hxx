@@ -37,10 +37,10 @@ extern char _repository_Calcium_Real_Port_name[];
 
 class calcium_real_port_uses :
   public virtual CalciumGenericUsesPort< seq_u_manipulation<Ports::Calcium_Ports::seq_float,
-						     CORBA::Float >, 
-				  Ports::Calcium_Ports::Calcium_Real_Port, 
-				  _repository_Calcium_Real_Port_name 
-				  >
+                                                     CORBA::Float >, 
+                                  Ports::Calcium_Ports::Calcium_Real_Port, 
+                                  _repository_Calcium_Real_Port_name 
+                                  >
 {
   public :
 

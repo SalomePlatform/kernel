@@ -57,7 +57,7 @@ static void SaveAttributes(const SALOMEDSImpl_SObject& SO, HDFgroup *hdf_group_s
 static void ReadAttributes(SALOMEDSImpl_Study*, const SALOMEDSImpl_SObject&, HDFdataset* );
 static void BuildTree (SALOMEDSImpl_Study*, HDFgroup*);
 static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
-					   SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
+                                           SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
 static void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup);
 
 //============================================================================
@@ -150,10 +150,10 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   }
   catch (HDFexception)
     {
-	char *eStr;
-	eStr = new char[strlen(aUrl.c_str())+17];
+        char *eStr;
+        eStr = new char[strlen(aUrl.c_str())+17];
         sprintf(eStr,"Can't open file %s",aUrl.c_str());
-	 delete [] eStr;
+         delete [] eStr;
         _errorCode = string(eStr);
         return NULL;
     }
@@ -241,8 +241,8 @@ void  SALOMEDSImpl_StudyManager::Close(SALOMEDSImpl_Study* aStudy)
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::Save(SALOMEDSImpl_Study* aStudy,
-				     SALOMEDSImpl_DriverFactory* aFactory,
-				     bool theMultiFile)
+                                     SALOMEDSImpl_DriverFactory* aFactory,
+                                     bool theMultiFile)
 {
   _errorCode = "";
 
@@ -259,8 +259,8 @@ bool SALOMEDSImpl_StudyManager::Save(SALOMEDSImpl_Study* aStudy,
 }
 
 bool SALOMEDSImpl_StudyManager::SaveASCII(SALOMEDSImpl_Study* aStudy,
-					  SALOMEDSImpl_DriverFactory* aFactory,
-					  bool theMultiFile)
+                                          SALOMEDSImpl_DriverFactory* aFactory,
+                                          bool theMultiFile)
 {
   _errorCode = "";
 
@@ -282,18 +282,18 @@ bool SALOMEDSImpl_StudyManager::SaveASCII(SALOMEDSImpl_Study* aStudy,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::SaveAs(const string& aUrl,
-				       SALOMEDSImpl_Study* aStudy,
-				       SALOMEDSImpl_DriverFactory* aFactory,
-				       bool theMultiFile)
+                                       SALOMEDSImpl_Study* aStudy,
+                                       SALOMEDSImpl_DriverFactory* aFactory,
+                                       bool theMultiFile)
 {
   _errorCode = "";
   return Impl_SaveAs(aUrl,aStudy, aFactory, theMultiFile, false);
 }
 
 bool SALOMEDSImpl_StudyManager::SaveAsASCII(const string& aUrl,
-					    SALOMEDSImpl_Study* aStudy,
-					    SALOMEDSImpl_DriverFactory* aFactory,
-					    bool theMultiFile)
+                                            SALOMEDSImpl_Study* aStudy,
+                                            SALOMEDSImpl_DriverFactory* aFactory,
+                                            bool theMultiFile)
 {
   _errorCode = "";
   return Impl_SaveAs(aUrl,aStudy, aFactory, theMultiFile, true);
@@ -426,12 +426,12 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   int a = 2;
   for(anIndex = 0; anIndex<aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
-	    (int)(aMinutes[anIndex]),
-	    (int)(aHours[anIndex]),
-	    (int)(aDays[anIndex]),
-	    (int)(aMonths[anIndex]),
-	    (int)(aYears[anIndex]),
-	    aNames[anIndex].c_str());
+            (int)(aMinutes[anIndex]),
+            (int)(aHours[anIndex]),
+            (int)(aDays[anIndex]),
+            (int)(aMonths[anIndex]),
+            (int)(aYears[anIndex]),
+            aNames[anIndex].c_str());
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
@@ -456,10 +456,10 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
-					    SALOMEDSImpl_Study* aStudy,
-					    SALOMEDSImpl_DriverFactory* aFactory,
-					    bool theMultiFile,
-					    bool theASCII)
+                                            SALOMEDSImpl_Study* aStudy,
+                                            SALOMEDSImpl_DriverFactory* aFactory,
+                                            bool theMultiFile,
+                                            bool theASCII)
 {
   // HDF File will be composed of differents part :
   // * For each ComponentDataType, all data created by the component
@@ -501,31 +501,31 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
       // mpv 15.12.2003: for saving components we have to load all data from all modules
       SALOMEDSImpl_SComponentIterator itcomponent1 = aStudy->NewComponentIterator();
       for (; itcomponent1.More(); itcomponent1.Next())
-	{
-	  SALOMEDSImpl_SComponent sco = itcomponent1.Value();
-	  // if there is an associated Engine call its method for saving
-	  string IOREngine;
-	  try {
-	    if (!sco.ComponentIOR(IOREngine)) {
-	      string aCompType = sco.GetComment();
-	      if (!aCompType.empty()) {
+        {
+          SALOMEDSImpl_SComponent sco = itcomponent1.Value();
+          // if there is an associated Engine call its method for saving
+          string IOREngine;
+          try {
+            if (!sco.ComponentIOR(IOREngine)) {
+              string aCompType = sco.GetComment();
+              if (!aCompType.empty()) {
 
-		SALOMEDSImpl_Driver* aDriver = aFactory->GetDriverByType(aCompType);
-		aMapTypeDriver[aCompType] = aDriver;
+                SALOMEDSImpl_Driver* aDriver = aFactory->GetDriverByType(aCompType);
+                aMapTypeDriver[aCompType] = aDriver;
 
-		if (aDriver != NULL) {
-		  if(!SB->LoadWith(sco, aDriver)) {
-		    _errorCode = SB->GetErrorCode();
-		    return false;
-		  }
-		}
-	      }
-	    }
-	  } catch(...) {
-	    _errorCode = "Can not restore information to resave it";
-	    return false;
-	  }
-	}
+                if (aDriver != NULL) {
+                  if(!SB->LoadWith(sco, aDriver)) {
+                    _errorCode = SB->GetErrorCode();
+                    return false;
+                  }
+                }
+              }
+            }
+          } catch(...) {
+            _errorCode = "Can not restore information to resave it";
+            return false;
+          }
+        }
 
       string anOldName = aStudy->Name();
       aStudy->URL(aStudyUrl);
@@ -544,74 +544,74 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
       SALOMEDSImpl_SComponentIterator itcomponent = aStudy->NewComponentIterator();
 
       for (; itcomponent.More(); itcomponent.Next())
-    	{
-	  SALOMEDSImpl_SComponent sco = itcomponent.Value();
+        {
+          SALOMEDSImpl_SComponent sco = itcomponent.Value();
 
-	  string scoid = sco.GetID();
-	  hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group_datacomponent);
-	  hdf_sco_group->CreateOnDisk();
+          string scoid = sco.GetID();
+          hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group_datacomponent);
+          hdf_sco_group->CreateOnDisk();
 
-	  string componentDataType = sco.ComponentDataType();
-	  string IOREngine;
-	  if (sco.ComponentIOR(IOREngine))
-	    {
-	      SALOMEDSImpl_Driver* Engine = NULL;
-	      if(aMapTypeDriver.find(componentDataType) != aMapTypeDriver.end()) {
-		// we have found the associated engine to write the data
-		Engine = aMapTypeDriver[componentDataType];
-	      }
-	      else {
-		Engine = aFactory->GetDriverByIOR(IOREngine);
-	      }
+          string componentDataType = sco.ComponentDataType();
+          string IOREngine;
+          if (sco.ComponentIOR(IOREngine))
+            {
+              SALOMEDSImpl_Driver* Engine = NULL;
+              if(aMapTypeDriver.find(componentDataType) != aMapTypeDriver.end()) {
+                // we have found the associated engine to write the data
+                Engine = aMapTypeDriver[componentDataType];
+              }
+              else {
+                Engine = aFactory->GetDriverByIOR(IOREngine);
+              }
 
-	      if (Engine != NULL)
-		{
-		  SALOMEDSImpl_TMPFile* aStream = NULL;
-		  long length = 0;
+              if (Engine != NULL)
+                {
+                  SALOMEDSImpl_TMPFile* aStream = NULL;
+                  long length = 0;
 
                   if (theASCII) aStream = Engine->SaveASCII(sco,
-							    SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
-							    length,
-							    theMultiFile);
-		  else aStream = Engine->Save(sco,
-					      SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
-					      length,
-					      theMultiFile);
-		  HDFdataset *hdf_dataset;
-		  hdf_size aHDFSize[1]; 
-		  if(length > 0) {  //The component saved some auxiliary files, then put them into HDF file
+                                                            SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
+                                                            length,
+                                                            theMultiFile);
+                  else aStream = Engine->Save(sco,
+                                              SALOMEDSImpl_Tool::GetDirFromPath(aUrl),
+                                              length,
+                                              theMultiFile);
+                  HDFdataset *hdf_dataset;
+                  hdf_size aHDFSize[1]; 
+                  if(length > 0) {  //The component saved some auxiliary files, then put them into HDF file
 
-		    aHDFSize[0] = length;
+                    aHDFSize[0] = length;
 
-		    HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		    hdf_dataset->CreateOnDisk();
-		    hdf_dataset->WriteOnDisk(aStream->Data());  //Save the stream in the HDF file
-		    hdf_dataset->CloseOnDisk();
-		  }
+                    HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+                    hdf_dataset->CreateOnDisk();
+                    hdf_dataset->WriteOnDisk(aStream->Data());  //Save the stream in the HDF file
+                    hdf_dataset->CloseOnDisk();
+                  }
 
-		  if(aStream) delete aStream;
+                  if(aStream) delete aStream;
 
-		  // store multifile state
-		  aHDFSize[0] = 2;
-		  hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		  hdf_dataset->CreateOnDisk();
-		  hdf_dataset->WriteOnDisk((void*)(theMultiFile?"M":"S")); // save: multi or single
-		  hdf_dataset->CloseOnDisk();
-		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
-		  // store ASCII state
-		  aHDFSize[0] = 2;
-		  hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
-		  hdf_dataset->CreateOnDisk();
-		  hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
-		  hdf_dataset->CloseOnDisk();
-		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
-		  // Creation of the persistance reference  attribute
-		  Translate_IOR_to_persistentID (sco, Engine, theMultiFile, theASCII);
-		}
-	    }
-	  hdf_sco_group->CloseOnDisk();
-	  hdf_sco_group=0; // will be deleted by hdf_group_datacomponent destructor
-	}
+                  // store multifile state
+                  aHDFSize[0] = 2;
+                  hdf_dataset = new HDFdataset("MULTIFILE_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+                  hdf_dataset->CreateOnDisk();
+                  hdf_dataset->WriteOnDisk((void*)(theMultiFile?"M":"S")); // save: multi or single
+                  hdf_dataset->CloseOnDisk();
+                  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
+                  // store ASCII state
+                  aHDFSize[0] = 2;
+                  hdf_dataset = new HDFdataset("ASCII_STATE", hdf_sco_group, HDF_STRING, aHDFSize, 1);
+                  hdf_dataset->CreateOnDisk();
+                  hdf_dataset->WriteOnDisk((void*)(theASCII?"A":"B")); // save: ASCII or BINARY
+                  hdf_dataset->CloseOnDisk();
+                  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
+                  // Creation of the persistance reference  attribute
+                  Translate_IOR_to_persistentID (sco, Engine, theMultiFile, theASCII);
+                }
+            }
+          hdf_sco_group->CloseOnDisk();
+          hdf_sco_group=0; // will be deleted by hdf_group_datacomponent destructor
+        }
       hdf_group_datacomponent->CloseOnDisk();
       hdf_group_datacomponent =0;  // will be deleted by hdf_file destructor
 
@@ -623,36 +623,36 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
       // save component attributes
       SALOMEDSImpl_SComponentIterator itcomp = aStudy->NewComponentIterator();
       for (; itcomp.More(); itcomp.Next())
-	{
-	  SALOMEDSImpl_SComponent SC = itcomp.Value();
-	  string scid = SC.GetID();
-	  hdf_sco_group2 = new HDFgroup((char*)scid.c_str(), hdf_group_study_structure);
-	  hdf_sco_group2->CreateOnDisk();
+        {
+          SALOMEDSImpl_SComponent SC = itcomp.Value();
+          string scid = SC.GetID();
+          hdf_sco_group2 = new HDFgroup((char*)scid.c_str(), hdf_group_study_structure);
+          hdf_sco_group2->CreateOnDisk();
           SaveAttributes(SC, hdf_sco_group2);
-	  // ComponentDataType treatment
-	  component_name = SC.ComponentDataType();
-	  name_len = (hdf_int32)component_name.length();
-	  size[0] = name_len +1 ;
-	  hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
-	  hdf_dataset->CreateOnDisk();
-	  hdf_dataset->WriteOnDisk((char*)component_name.c_str());
-	  hdf_dataset->CloseOnDisk();
-	  hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-	  Impl_SaveObject(SC, hdf_sco_group2);
-	  hdf_sco_group2->CloseOnDisk();
- 	  hdf_sco_group2=0; // will be deleted by hdf_group_study_structure destructor
-	}
+          // ComponentDataType treatment
+          component_name = SC.ComponentDataType();
+          name_len = (hdf_int32)component_name.length();
+          size[0] = name_len +1 ;
+          hdf_dataset = new HDFdataset("COMPONENTDATATYPE",hdf_sco_group2,HDF_STRING,size,1);
+          hdf_dataset->CreateOnDisk();
+          hdf_dataset->WriteOnDisk((char*)component_name.c_str());
+          hdf_dataset->CloseOnDisk();
+          hdf_dataset=0; //will be deleted by hdf_sco_group destructor
+          Impl_SaveObject(SC, hdf_sco_group2);
+          hdf_sco_group2->CloseOnDisk();
+          hdf_sco_group2=0; // will be deleted by hdf_group_study_structure destructor
+        }
       //-----------------------------------------------------------------------
       //4 - Write the Study UseCases Structure
       //-----------------------------------------------------------------------
       SALOMEDSImpl_SObject aSO = aStudy->FindObjectID(USE_CASE_LABEL_ID);
       if (aSO) {
-	HDFgroup *hdf_soo_group = new HDFgroup(USE_CASE_LABEL_ID,hdf_group_study_structure);
-	hdf_soo_group->CreateOnDisk();
-	SaveAttributes(aSO, hdf_soo_group);
-	Impl_SaveObject(aSO, hdf_soo_group);
-	hdf_soo_group->CloseOnDisk();
-	hdf_soo_group=0; // will be deleted by hdf_group_study_structure destructor
+        HDFgroup *hdf_soo_group = new HDFgroup(USE_CASE_LABEL_ID,hdf_group_study_structure);
+        hdf_soo_group->CreateOnDisk();
+        SaveAttributes(aSO, hdf_soo_group);
+        Impl_SaveObject(aSO, hdf_soo_group);
+        hdf_soo_group->CloseOnDisk();
+        hdf_soo_group=0; // will be deleted by hdf_group_study_structure destructor
       }
       //-----------------------------------------------------------------------
       //5 - Write the NoteBook Variables
@@ -806,7 +806,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const SALOMEDSImpl_SObject& SC,
-						HDFgroup *hdf_group_datatype)
+                                                HDFgroup *hdf_group_datatype)
 {
   _errorCode = "";
 
@@ -822,20 +822,20 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const SALOMEDSImpl_SObject& SC,
       // mpv: don't save empty labels
       vector<DF_Attribute*> attr = itchild.Value().GetAttributes();
       if (attr.size() == 0) {  //No attributes on the label
-	DF_ChildIterator subchild(itchild.Value());
-	if (!subchild.More()) {
-	  continue;
-	}
-	subchild.Init(itchild.Value(), true);
-	bool anEmpty = true;
-	for (; subchild.More() && anEmpty; subchild.Next()) {
-	  vector<DF_Attribute*> attr2 = subchild.Value().GetAttributes();
-	  if (attr2.size()) {
-	    anEmpty = false;  //There are attributes on the child label
-	    break;
-	  }
-	}
-	if (anEmpty) continue;
+        DF_ChildIterator subchild(itchild.Value());
+        if (!subchild.More()) {
+          continue;
+        }
+        subchild.Init(itchild.Value(), true);
+        bool anEmpty = true;
+        for (; subchild.More() && anEmpty; subchild.Next()) {
+          vector<DF_Attribute*> attr2 = subchild.Value().GetAttributes();
+          if (attr2.size()) {
+            anEmpty = false;  //There are attributes on the child label
+            break;
+          }
+        }
+        if (anEmpty) continue;
       }
 
       SALOMEDSImpl_SObject SO = SALOMEDSImpl_Study::SObject(itchild.Value());
@@ -884,7 +884,7 @@ DF_Document* SALOMEDSImpl_StudyManager::GetDocumentOfStudy(SALOMEDSImpl_Study* t
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::CanCopy(const SALOMEDSImpl_SObject& theObject,
-					SALOMEDSImpl_Driver* theEngine)
+                                        SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
   SALOMEDSImpl_SComponent aComponent = theObject.GetFatherComponent();
@@ -902,10 +902,10 @@ bool SALOMEDSImpl_StudyManager::CanCopy(const SALOMEDSImpl_SObject& theObject,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::CopyLabel(SALOMEDSImpl_Study* theSourceStudy,
-					  SALOMEDSImpl_Driver* theEngine,
-					  const int theSourceStartDepth,
-					  const DF_Label& theSource,
-					  const DF_Label& theDestinationMain)
+                                          SALOMEDSImpl_Driver* theEngine,
+                                          const int theSourceStartDepth,
+                                          const DF_Label& theSource,
+                                          const DF_Label& theDestinationMain)
 {
   _errorCode = "";
 
@@ -932,8 +932,8 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(SALOMEDSImpl_Study* theSourceStudy,
       // store the value of name attribute of referenced label
       SALOMEDSImpl_AttributeName* aNameAttribute;
       if ((aNameAttribute=(SALOMEDSImpl_AttributeName*)aReferenced.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
-	anEntry += " ";
-	anEntry += aNameAttribute->Value();
+        anEntry += " ";
+        anEntry += aNameAttribute->Value();
       }
       SALOMEDSImpl_AttributeComment::Set(aAuxTargetLabel, anEntry);
       continue;
@@ -947,7 +947,7 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(SALOMEDSImpl_Study* theSourceStudy,
       SALOMEDSImpl_TMPFile* aStream = theEngine->CopyFrom(aSO, anObjID, aLen);
       string aResStr("");
       for(a = 0; a < aLen; a++) {
-	aResStr += (char)(aStream->Get(a));
+        aResStr += (char)(aStream->Get(a));
       }
 
       if(aStream) delete aStream;
@@ -970,7 +970,7 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(SALOMEDSImpl_Study* theSourceStudy,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::Copy(const SALOMEDSImpl_SObject& theObject,
-				     SALOMEDSImpl_Driver* theEngine)
+                                     SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
@@ -996,7 +996,7 @@ bool SALOMEDSImpl_StudyManager::Copy(const SALOMEDSImpl_SObject& theObject,
   // set component data type to the name attribute of root label
   if (!aStructureOnly) {
     SALOMEDSImpl_AttributeComment::Set(_clipboard->Main().Root(),
-				       theEngine->ComponentDataType());
+                                       theEngine->ComponentDataType());
   }
   // set to the Root label integer attribute: study id
   SALOMEDSImpl_AttributeInteger::Set(_clipboard->Main().Root(), aStudy->StudyId());
@@ -1021,7 +1021,7 @@ bool SALOMEDSImpl_StudyManager::Copy(const SALOMEDSImpl_SObject& theObject,
  */
 //============================================================================
 bool SALOMEDSImpl_StudyManager::CanPaste(const SALOMEDSImpl_SObject& theObject,
-					 SALOMEDSImpl_Driver* theEngine)
+                                         SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
@@ -1060,11 +1060,11 @@ bool SALOMEDSImpl_StudyManager::CanPaste(const SALOMEDSImpl_SObject& theObject,
  */
 //============================================================================
 DF_Label SALOMEDSImpl_StudyManager::PasteLabel(SALOMEDSImpl_Study* theDestinationStudy,
-					       SALOMEDSImpl_Driver* theEngine,
-					       const DF_Label& theSource,
-					       const DF_Label& theDestinationStart,
-					       const int theCopiedStudyID,
-					       const bool isFirstElement)
+                                               SALOMEDSImpl_Driver* theEngine,
+                                               const DF_Label& theSource,
+                                               const DF_Label& theDestinationStart,
+                                               const int theCopiedStudyID,
+                                               const bool isFirstElement)
 {
   _errorCode = "";
 
@@ -1094,23 +1094,23 @@ DF_Label SALOMEDSImpl_StudyManager::PasteLabel(SALOMEDSImpl_Study* theDestinatio
       int aLen = aTMPStr.size();
       unsigned char* aStream = NULL;
       if(aLen > 0) {
-	aStream = new unsigned char[aLen+10];
-	for(a = 0; a < aLen; a++) {
-	  aStream[a] = aTMPStr[a];
-	}
+        aStream = new unsigned char[aLen+10];
+        for(a = 0; a < aLen; a++) {
+          aStream[a] = aTMPStr[a];
+        }
       }
 
       string anEntry = aTargetLabel.Entry();
       SALOMEDSImpl_SObject aPastedSO = theDestinationStudy->FindObjectID(anEntry);
 
       if (isFirstElement) {
-	string aDestEntry = theEngine->PasteInto(aStream,
-						 aLen,
-						 anObjID->Value(),
-						 aPastedSO.GetFatherComponent());
-	aTargetLabel = DF_Label::Label(theDestinationStart, aDestEntry);
+        string aDestEntry = theEngine->PasteInto(aStream,
+                                                 aLen,
+                                                 anObjID->Value(),
+                                                 aPastedSO.GetFatherComponent());
+        aTargetLabel = DF_Label::Label(theDestinationStart, aDestEntry);
       } else
-	theEngine->PasteInto(aStream, aLen, anObjID->Value(), aPastedSO);
+        theEngine->PasteInto(aStream, aLen, anObjID->Value(), aPastedSO);
 
       if(aStream != NULL) delete []aStream;
     }
@@ -1159,7 +1159,7 @@ DF_Label SALOMEDSImpl_StudyManager::PasteLabel(SALOMEDSImpl_Study* theDestinatio
  */
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_StudyManager::Paste(const SALOMEDSImpl_SObject& theObject,
-					       SALOMEDSImpl_Driver* theEngine)
+                                               SALOMEDSImpl_Driver* theEngine)
 {
   _errorCode = "";
 
@@ -1246,8 +1246,8 @@ static void SaveAttributes(const SALOMEDSImpl_SObject& aSO, HDFgroup *hdf_group_
 //Function : ReadAttributes
 //===========================================================================
 static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
-			   const SALOMEDSImpl_SObject& aSO,
-			   HDFdataset* hdf_dataset)
+                           const SALOMEDSImpl_SObject& aSO,
+                           HDFdataset* hdf_dataset)
 {
   hdf_dataset->OpenOnDisk();
 
@@ -1317,9 +1317,9 @@ static void BuildTree (SALOMEDSImpl_Study* theStudy, HDFgroup* hdf_current_group
 //Function : Translate_IOR_to_persistentID
 //============================================================================
 static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject& so,
-					   SALOMEDSImpl_Driver*                engine,
-					   bool                                isMultiFile,
-					   bool                                isASCII)
+                                           SALOMEDSImpl_Driver*                engine,
+                                           bool                                isMultiFile,
+                                           bool                                isASCII)
 {
   DF_ChildIterator itchild(so.GetLabel());
   string ior_string,  persistent_string, curid;

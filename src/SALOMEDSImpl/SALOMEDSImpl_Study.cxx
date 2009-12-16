@@ -1602,8 +1602,8 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
  */
 //============================================================================
 void SALOMEDSImpl_Study::SetStringVariable(const string& theVarName,
-					   const string& theValue,
-					   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+                                           const string& theValue,
+                                           const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
   bool modified = false;
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
@@ -1632,8 +1632,8 @@ void SALOMEDSImpl_Study::SetStringVariable(const string& theVarName,
  */
 //============================================================================
 void SALOMEDSImpl_Study::SetStringVariableAsDouble(const string& theVarName,
-						   const double theValue,
-						   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+                                                   const double theValue,
+                                                   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))

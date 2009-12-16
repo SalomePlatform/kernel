@@ -36,14 +36,14 @@
 
 #include "DSC_Exception.hxx"
 
-// #define GENERATE_USES_PORT(dataManip,portType,portName)			\
+// #define GENERATE_USES_PORT(dataManip,portType,portName)                      \
 //   const char * _repository_##portType##_name_ = "IDL:Ports/##portType##:1.0"; \
 //   GenericUsesPort< dataManip, portType, _repository_##portType##_name_ > portName;
 
 //ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);
 
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, 
-	  typename UsesPort=uses_port > 
+          typename UsesPort=uses_port > 
 class GenericUsesPort : public UsesPort
 {
 public :
@@ -59,7 +59,7 @@ public :
   void  put(CorbaInDataType data,  TimeType time, TagType tag); 
 
   virtual void uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				 const Engines::DSC::Message message);
+                                 const Engines::DSC::Message message);
 
 protected :
   Engines::DSC::uses_port * _my_ports;
@@ -88,8 +88,8 @@ template <typename DataManipulator,typename CorbaPortType, char * repositoryName
 template <typename TimeType,typename TagType>
 void
 GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put( CorbaInDataType data, 
-										  TimeType time, 
-										  TagType tag) {
+                                                                                  TimeType time, 
+                                                                                  TagType tag) {
   typedef typename CorbaPortType::_var_type CorbaPortTypeVar;
   if (!_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
@@ -117,7 +117,7 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     } catch(const CORBA::SystemException& ex) {
       //OLD : DataManipulator::delete_data(copyOfData);
       throw DSC_Exception(LOC(OSS() << "Can't invoke put method on port number "
-			      << i << "( i>=  0)"));
+                              << i << "( i>=  0)"));
 
     }
     //if (i) PB1 
@@ -132,8 +132,8 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, typename UsesPort>
 void 
 GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort  
-		 >::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-				      const Engines::DSC::Message message)
+                 >::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
+                                      const Engines::DSC::Message message)
 {
   if (_my_ports) delete _my_ports;
 

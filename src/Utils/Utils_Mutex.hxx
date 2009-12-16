@@ -20,8 +20,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  SALOME Utils : general SALOME's definitions and tools
-//  File:	Utils_Mutex.hxx
-//  Author:	Sergey ANIKIN
+//  File:       Utils_Mutex.hxx
+//  Author:     Sergey ANIKIN
 //  Module :    SALOME
 //  $Header$
 //

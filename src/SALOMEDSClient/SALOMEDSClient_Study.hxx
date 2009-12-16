@@ -84,11 +84,11 @@ public:
   virtual void Close() = 0;
   virtual void EnableUseCaseAutoFilling(bool isEnabled) = 0;
   virtual bool DumpStudy(const std::string& thePath, 
-			 const std::string& theBaseName, 
-			 bool isPublished) = 0;
+                         const std::string& theBaseName, 
+                         bool isPublished) = 0;
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint) = 0;
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
-						       const std::string& theModuleName, int theSavePoint) = 0;
+                                                       const std::string& theModuleName, int theSavePoint) = 0;
   virtual void SetStudyLock(const std::string& theLockerID) = 0;
   virtual bool IsStudyLocked() = 0;
   virtual void UnLockStudy(const std::string& theLockerID) = 0;
@@ -115,7 +115,7 @@ public:
 
   virtual bool RemoveVariable(const std::string& theVarName) = 0;
   virtual bool RenameVariable(const std::string& theVarName,
-			      const std::string& theNewVarName) = 0;
+                              const std::string& theNewVarName) = 0;
   virtual bool IsVariableUsed(const std::string& theVarName) = 0;
 
   virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars) = 0;

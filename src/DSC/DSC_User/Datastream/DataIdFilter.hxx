@@ -299,55 +299,55 @@ T filtre_conversion::applique_filtre_conversion (T valeur_initiale, std::vector<
 
         // Si la longueur du filtre est 1
         if ((*i).filtre.len == 1) {
-	  // Si la valeur initiale correspond à la valeur du filtre
-	  if ((*i).filtre.debut == valeur_initiale)
-	    si_passe_filtre = true;
+          // Si la valeur initiale correspond à la valeur du filtre
+          if ((*i).filtre.debut == valeur_initiale)
+            si_passe_filtre = true;
         } else  {
-	  // Si la valeur initiale est dans la séquence des valeurs du filtre
-	  //   la valeur est comprise dans les bornes [debut,fin]
-	  //   et sa distance du début de la séquence est modulo le pas
-	  if (  ((*i).filtre.fin - valeur_initiale >= 0) == (valeur_initiale - (*i).filtre.debut >= 0)
+          // Si la valeur initiale est dans la séquence des valeurs du filtre
+          //   la valeur est comprise dans les bornes [debut,fin]
+          //   et sa distance du début de la séquence est modulo le pas
+          if (  ((*i).filtre.fin - valeur_initiale >= 0) == (valeur_initiale - (*i).filtre.debut >= 0)
                 &&  (valeur_initiale - (*i).filtre.debut) % (*i).filtre.pas == 0  ) {
-	    si_passe_filtre = true;
-	  }
+            si_passe_filtre = true;
+          }
         }
 
         // Si la valeur initiale passe le filtre
         if (si_passe_filtre) {
-	  //    cout << "config: filtre passe    " << endl;
+          //    cout << "config: filtre passe    " << endl;
             
-	  // Si il y a une conversion à effectuer
-	  if ((*i).p_convers != NULL) {
+          // Si il y a une conversion à effectuer
+          if ((*i).p_convers != NULL) {
 
-	    // Si la longueur du filtre est 1
-	    if ((*i).filtre.len == 1) {
+            // Si la longueur du filtre est 1
+            if ((*i).filtre.len == 1) {
 
-	      // Si la longueur des paramètres de conversion est aussi 1
-	      if ((*i).p_convers->len == 1) {
-		// Ajoute la valeur de conversion à la liste des valeurs après conversion
-		liste_conversions.push_back ((*i).p_convers->debut);
-	      } else {
-		// Ajoute la séquence de conversion à la liste des valeurs après conversion
-		for (int s = (*i).p_convers->debut; s != (*i).p_convers->fin; s += (*i).p_convers->pas) {
-		  liste_conversions.push_back (s);
-		}
-		liste_conversions.push_back ((*i).p_convers->fin);
-	      }
+              // Si la longueur des paramètres de conversion est aussi 1
+              if ((*i).p_convers->len == 1) {
+                // Ajoute la valeur de conversion à la liste des valeurs après conversion
+                liste_conversions.push_back ((*i).p_convers->debut);
+              } else {
+                // Ajoute la séquence de conversion à la liste des valeurs après conversion
+                for (int s = (*i).p_convers->debut; s != (*i).p_convers->fin; s += (*i).p_convers->pas) {
+                  liste_conversions.push_back (s);
+                }
+                liste_conversions.push_back ((*i).p_convers->fin);
+              }
 
-	    } else {
-	      // Le filtre est une séquence qui est convertie en une autre séquence de même longueur
-	      // Choisit la valeur au rang désiré dans la séquence de conversion
-	      int rang = (valeur_initiale - (*i).filtre.debut) / (*i).filtre.pas;
+            } else {
+              // Le filtre est une séquence qui est convertie en une autre séquence de même longueur
+              // Choisit la valeur au rang désiré dans la séquence de conversion
+              int rang = (valeur_initiale - (*i).filtre.debut) / (*i).filtre.pas;
 
-	      int valeur_convertie = (*i).p_convers->debut + rang * (*i).p_convers->pas;
+              int valeur_convertie = (*i).p_convers->debut + rang * (*i).p_convers->pas;
 
-	      // Ajoute cette valeur à la liste des valeurs après conversion
-	      liste_conversions.push_back (valeur_convertie);
-	    }
-	  } else {
-	    // Ajoute la valeur initiale telle-quelle à la liste des valeurs après conversion
-	    liste_conversions.push_back (valeur_initiale);
-	  }
+              // Ajoute cette valeur à la liste des valeurs après conversion
+              liste_conversions.push_back (valeur_convertie);
+            }
+          } else {
+            // Ajoute la valeur initiale telle-quelle à la liste des valeurs après conversion
+            liste_conversions.push_back (valeur_initiale);
+          }
         }
     }
 

@@ -48,7 +48,7 @@ using namespace std;
 // ============================================================================
 
 CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
-							string serverName)
+                                                        string serverName)
 {
   long TIMESleep = 500000000;
   int NumberOfTries = 40;
@@ -75,52 +75,52 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
       CORBA::Object_var theObj=CORBA::Object::_nil();
 
       for (int itry=0; itry < NumberOfTries; itry++)
-	{
-	  try
-	    { 
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService");
-	      if (!CORBA::is_nil(theObj))
-		inc = CosNaming::NamingContext::_narrow(theObj);
-	    }  
-	  catch( CORBA::SystemException& )
-	    {
-	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "CORBA::SystemException: "
-		   << "Unable to contact the Naming Service" << endl;
-	    }
+        {
+          try
+            { 
+              if(!CORBA::is_nil(orb)) 
+                theObj = orb->resolve_initial_references("NameService");
+              if (!CORBA::is_nil(theObj))
+                inc = CosNaming::NamingContext::_narrow(theObj);
+            }  
+          catch( CORBA::SystemException& )
+            {
+              cout << "TraceCollector_WaitForServerReadiness: "
+                   << "CORBA::SystemException: "
+                   << "Unable to contact the Naming Service" << endl;
+            }
           catch(...)
-	    {
-	      cout << "TraceCollector_WaitForServerReadiness: "
-		   << "Unknown exception dealing with Naming Service" << endl;
-	    }
-	  
-	  obj=CORBA::Object::_nil();
-	  if(!CORBA::is_nil(inc))
-	    {
-	      try
-		{
-		  obj = inc->resolve(name);
-		  if (!CORBA::is_nil(obj))
-		    {
-		      //cout << "TraceCollector_WaitForServerReadiness: "
-		      //	   << serverName << " found in CORBA Name Service" << endl;
-		      break;
-		    }
-		}
-	      catch (const CosNaming::NamingContext::NotFound&)
-		{
-		  cout << "Caught exception: Naming Service can't found Logger";
-		}
-	    }
+            {
+              cout << "TraceCollector_WaitForServerReadiness: "
+                   << "Unknown exception dealing with Naming Service" << endl;
+            }
+          
+          obj=CORBA::Object::_nil();
+          if(!CORBA::is_nil(inc))
+            {
+              try
+                {
+                  obj = inc->resolve(name);
+                  if (!CORBA::is_nil(obj))
+                    {
+                      //cout << "TraceCollector_WaitForServerReadiness: "
+                      //           << serverName << " found in CORBA Name Service" << endl;
+                      break;
+                    }
+                }
+              catch (const CosNaming::NamingContext::NotFound&)
+                {
+                  cout << "Caught exception: Naming Service can't found Logger";
+                }
+            }
 #ifndef WIN32
-	  nanosleep(&ts_req,&ts_rem);
+          nanosleep(&ts_req,&ts_rem);
 #else
-	  Sleep(TIMESleep / 1000000);
+          Sleep(TIMESleep / 1000000);
 #endif
-	  cout << "TraceCollector_WaitForServerReadiness: retry look for"
-	       << serverName << endl;
-	}	   
+          cout << "TraceCollector_WaitForServerReadiness: retry look for"
+               << serverName << endl;
+        }          
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {

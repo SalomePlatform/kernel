@@ -68,7 +68,7 @@ void Logger::putMessage(const char* message)
   myLock.lock();
   if (m_putIntoFile)
 
-	m_outputFile << message << std::flush;
+        m_outputFile << message << std::flush;
   else
     std::cout << message;
   myLock.unlock();

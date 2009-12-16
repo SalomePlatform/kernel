@@ -69,14 +69,14 @@ BatchTest::test()
 {
   bool rtn = false;
   INFOS(std::endl 
-	<< "--- Testing batch Machine :" << std::endl
-	<< "--- Name       : " << _batch_descr.hostname << std::endl
-	<< "--- hostname      : " << _batch_descr.hostname << std::endl
-	<< "--- Protocol   : " << _batch_descr.protocol << std::endl
-	<< "--- User Name  : " << _batch_descr.username << std::endl
-	<< "--- Batch Type : " << _batch_descr.batch << std::endl
-	<< "--- MPI Impl   : " << _batch_descr.mpiImpl << std::endl
-	<< "--- Appli Path : " << _batch_descr.applipath << std::endl
+        << "--- Testing batch Machine :" << std::endl
+        << "--- Name       : " << _batch_descr.hostname << std::endl
+        << "--- hostname      : " << _batch_descr.hostname << std::endl
+        << "--- Protocol   : " << _batch_descr.protocol << std::endl
+        << "--- User Name  : " << _batch_descr.username << std::endl
+        << "--- Batch Type : " << _batch_descr.batch << std::endl
+        << "--- MPI Impl   : " << _batch_descr.mpiImpl << std::endl
+        << "--- Appli Path : " << _batch_descr.applipath << std::endl
        );
 
   std::string result_connection("Not Tested");
@@ -94,13 +94,13 @@ BatchTest::test()
   result_appli = test_appli();
 
   INFOS(std::endl
-	<< "--- Test results" << std::endl
-	<< "--- Connection          : " << result_connection << std::endl
-	<< "--- File copy           : " << result_filecopy << std::endl
-	<< "--- Get results         : " << result_getresult << std::endl
-	<< "--- Submit simple job   : " << result_jobsubmit_simple << std::endl
-	<< "--- Submit mpi job      : " << result_jobsubmit_mpi << std::endl
-	<< "--- Application         : " << result_appli << std::endl
+        << "--- Test results" << std::endl
+        << "--- Connection          : " << result_connection << std::endl
+        << "--- File copy           : " << result_filecopy << std::endl
+        << "--- Get results         : " << result_getresult << std::endl
+        << "--- Submit simple job   : " << result_jobsubmit_simple << std::endl
+        << "--- Submit mpi job      : " << result_jobsubmit_mpi << std::endl
+        << "--- Application         : " << result_appli << std::endl
        );
   
   if (result_connection == "OK"       && 
@@ -144,8 +144,8 @@ BatchTest::test_connection()
 
   // Build command
   command += protocol
-	  + " "
-	  + username + "@" + hostname;
+          + " "
+          + username + "@" + hostname;
 
   // Test
   status = system(command.c_str());
@@ -196,7 +196,7 @@ BatchTest::test_filecopy()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_filename + " "
-	  + username + "@" + hostname + ":" + home;
+          + username + "@" + hostname + ":" + home;
 
   // Test
   status = system(command.c_str());
@@ -236,7 +236,7 @@ BatchTest::test_getresult()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + username + "@" + hostname + ":" + home 
-	  + "/" + _base_filename + " " + _test_filename + "_copy";
+          + "/" + _base_filename + " " + _test_filename + "_copy";
 
   // Test
   status = system(command.c_str());
@@ -336,7 +336,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_simple + " "
-	  + username + "@" + hostname + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -396,7 +396,7 @@ BatchTest::test_jobsubmit_simple()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + hostname + ":" + home + "/" + _date + "_simple* /tmp";
+          + username + "@" + hostname + ":" + home + "/" + _date + "_simple* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -500,7 +500,7 @@ BatchTest::test_jobsubmit_mpi()
   std::ofstream file_script;
   file_script.open(_test_file_script.c_str(), std::ofstream::out);
   file_script << "#!/bin/bash\n"
-	      << "echo HELLO MPI\n";
+              << "echo HELLO MPI\n";
   file_script.flush();
   file_script.close();
 #ifdef WIN32
@@ -514,13 +514,13 @@ BatchTest::test_jobsubmit_mpi()
   std::ofstream file_mpi;
   file_mpi.open(_test_file_mpi.c_str(), std::ofstream::out);
   file_mpi << "#!/bin/bash\n"
-	   << "#PBS -l nodes=1\n"
-	   << "#PBS -l walltime=00:01:00\n"
-	   << "#PBS -o " << home << "/" << _date << "_mpi_output.log\n"
-	   << "#PBS -e " << home << "/" << _date << "_mpi_error.log\n"
-	   << mpiImpl->boot("${PBS_NODEFILE}", 1)
-	   << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
-	   << mpiImpl->halt();
+           << "#PBS -l nodes=1\n"
+           << "#PBS -l walltime=00:01:00\n"
+           << "#PBS -o " << home << "/" << _date << "_mpi_output.log\n"
+           << "#PBS -e " << home << "/" << _date << "_mpi_error.log\n"
+           << mpiImpl->boot("${PBS_NODEFILE}", 1)
+           << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
+           << mpiImpl->halt();
   file_mpi.flush();
   file_mpi.close();
 
@@ -530,7 +530,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_script + " "
-	  + username + "@" + hostname + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -543,7 +543,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_mpi + " "
-	  + username + "@" + hostname + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -603,7 +603,7 @@ BatchTest::test_jobsubmit_mpi()
   if(protocol == "rsh")
     command = "rcp";
   command += " " 
-	  + username + "@" + hostname + ":" + home + "/" + _date + "_mpi* /tmp";
+          + username + "@" + hostname + ":" + home + "/" + _date + "_mpi* /tmp";
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -665,12 +665,12 @@ BatchTest::test_appli()
   std::ofstream file_appli;
   file_appli.open(_test_file_appli.c_str(), std::ofstream::out);
   file_appli << "#!/bin/bash\n"
-	     << "if [ -f " << applipath << "/runAppli ]\n"
-	     << "then\n"
-	     << "  echo OK\n"
-	     << "else\n"
-	     << "  echo NOK\n"
-	     << "fi\n";
+             << "if [ -f " << applipath << "/runAppli ]\n"
+             << "then\n"
+             << "  echo OK\n"
+             << "else\n"
+             << "  echo NOK\n"
+             << "fi\n";
   file_appli.flush();
   file_appli.close();
 
@@ -679,7 +679,7 @@ BatchTest::test_appli()
   if(protocol == "rsh")
     command = "rcp";
   command += " " + _test_file_appli + " "
-	  + username + "@" + hostname + ":" + home;
+          + username + "@" + hostname + ":" + home;
   status = system(command.c_str());
   if(status) {
     std::ostringstream oss;
@@ -691,8 +691,8 @@ BatchTest::test_appli()
 
   // Launch test
   command = protocol + " " + username + "@" + hostname 
-	  + " sh " + home + "/" + _base_filename + "_appli_test > " 
-	  + _test_filename + "_appli_test_result";
+          + " sh " + home + "/" + _base_filename + "_appli_test > " 
+          + _test_filename + "_appli_test_result";
 
   status = system(command.c_str());
   if(status) {

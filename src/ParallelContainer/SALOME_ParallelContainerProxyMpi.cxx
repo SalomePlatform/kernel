@@ -161,9 +161,9 @@ int main(int argc, char* argv[])
     pfm->register_thread("omnithread", new paco_omni_fabrique());
 
     Container_proxy_impl_final * proxy =   new Container_proxy_impl_final(orb,
-									  pfm->get_thread("omnithread"),
-									  root_poa,
-									  containerName);
+                                                                          pfm->get_thread("omnithread"),
+                                                                          root_poa,
+                                                                          containerName);
 
     // PaCO++ code
     proxy->setLibCom("dummy", proxy);
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
     string hostname = Kernel_Utils::GetHostname();
     Engines::Container_var pCont = Engines::Container::_narrow(obj);
     string _containerName = ns->BuildContainerNameForNS(containerName.c_str(),
-							hostname.c_str());
+                                                        hostname.c_str());
     cerr << "---------" << _containerName << "----------" << endl;
     ns->Register(pCont, _containerName.c_str());
     pman->activate();

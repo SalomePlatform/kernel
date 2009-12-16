@@ -244,7 +244,7 @@ SALOME_Launcher::removeJob(CORBA::Long job_id)
 //=============================================================================
 CORBA::Long 
 SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
-				   const char * clusterName)
+                                   const char * clusterName)
 {
   CORBA::Long jobId;
   try{

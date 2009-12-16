@@ -28,7 +28,7 @@ CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_long_port_provides)
 
 CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_intc_port_provides)
 
-CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_real_port_provides)	
+CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_real_port_provides)   
 
 CALCIUM_GENERIC_PROVIDES_PORT_CXX(calcium_double_port_provides)
 

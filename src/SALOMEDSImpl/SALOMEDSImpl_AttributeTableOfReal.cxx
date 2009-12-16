@@ -115,7 +115,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::GetTitle() const
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowData(const int theRow,
-						   const vector<double>& theData) 
+                                                   const vector<double>& theData) 
 {
   CheckLocked();  
   if(theData.size() > myNbColumns) SetNbColumns(theData.size());
@@ -152,7 +152,7 @@ vector<double> SALOMEDSImpl_AttributeTableOfReal::GetRowData(const int theRow)
 
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowTitle(const int theRow,
-						    const std::string& theTitle) 
+                                                    const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
@@ -167,7 +167,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowTitle(const int theRow,
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowUnit(const int theRow,
-						   const std::string& theUnit) 
+                                                   const std::string& theUnit) 
 {
   CheckLocked();  
   Backup();
@@ -227,7 +227,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::GetRowUnit(const int theRow) cons
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const int theColumn,
-						      const vector<double>& theData) 
+                                                      const vector<double>& theData) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -267,7 +267,7 @@ vector<double> SALOMEDSImpl_AttributeTableOfReal::GetColumnData(const int theCol
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitle(const int theColumn,
-						       const std::string& theTitle) 
+                                                       const std::string& theTitle) 
 {
   CheckLocked();  
   Backup();
@@ -312,8 +312,8 @@ int SALOMEDSImpl_AttributeTableOfReal::GetNbColumns() const
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::PutValue(const double& theValue,
-					         const int theRow,
-					         const int theColumn) 
+                                                 const int theRow,
+                                                 const int theColumn) 
 {
   CheckLocked();      
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -332,7 +332,7 @@ void SALOMEDSImpl_AttributeTableOfReal::PutValue(const double& theValue,
 }
 
 bool SALOMEDSImpl_AttributeTableOfReal::HasValue(const int theRow,
-						 const int theColumn) 
+                                                 const int theColumn) 
 {
   if(theRow > myNbRows || theRow < 1) return false;
   if(theColumn > myNbColumns || theColumn < 1) return false;
@@ -341,7 +341,7 @@ bool SALOMEDSImpl_AttributeTableOfReal::HasValue(const int theRow,
 }
 
 double SALOMEDSImpl_AttributeTableOfReal::GetValue(const int theRow,
-						   const int theColumn) 
+                                                   const int theColumn) 
 {
   if(theRow > myNbRows || theRow < 1) throw DFexception("Invalid cell index");
   if(theColumn > myNbColumns || theColumn < 1) throw DFexception("Invalid cell index");

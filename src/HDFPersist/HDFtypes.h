@@ -59,6 +59,6 @@ typedef enum {HDF_NONE,HDF_STRING, HDF_INT32, HDF_INT64, HDF_FLOAT64} hdf_type;
 
 /* HDF object types */
 typedef enum {HDF_OBJECT,HDF_FILE,HDF_GROUP,HDF_DATASET,
-	      HDF_ATTRIBUTE} hdf_object_type;
+              HDF_ATTRIBUTE} hdf_object_type;
 
 #endif /* HDFTYPES_H */

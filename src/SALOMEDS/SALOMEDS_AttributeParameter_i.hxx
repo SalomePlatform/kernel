@@ -40,7 +40,7 @@
 */
 
 class SALOMEDS_AttributeParameter_i: public virtual POA_SALOMEDS::AttributeParameter,
-				     public virtual SALOMEDS_GenericAttribute_i 
+                                     public virtual SALOMEDS_GenericAttribute_i 
 {
 public:
   

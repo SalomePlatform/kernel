@@ -38,7 +38,7 @@ const std::string& SALOMEDSImpl_AttributeReference::GetID ()
 } 
 
 SALOMEDSImpl_AttributeReference* SALOMEDSImpl_AttributeReference::Set(const DF_Label& theLabel, 
-								      const DF_Label& theRefLabel)
+                                                                      const DF_Label& theRefLabel)
 {
   SALOMEDSImpl_AttributeReference* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeReference*)theLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {

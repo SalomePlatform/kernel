@@ -41,8 +41,8 @@
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
-				 public virtual PortableServer::ServantBase,
-				 public virtual SALOME::GenericObj_i
+                                 public virtual PortableServer::ServantBase,
+                                 public virtual SALOME::GenericObj_i
 {
 private:
 
@@ -53,7 +53,7 @@ public:
 
   //! standard constructor  
   SALOMEDS_UseCaseBuilder_i(SALOMEDSImpl_UseCaseBuilder* theDocument,
-			    CORBA::ORB_ptr);
+                            CORBA::ORB_ptr);
   
   //! standard destructor
   ~SALOMEDS_UseCaseBuilder_i();

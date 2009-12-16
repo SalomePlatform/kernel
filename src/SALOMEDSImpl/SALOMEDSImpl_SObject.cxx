@@ -135,7 +135,7 @@ SALOMEDSImpl_Study* SALOMEDSImpl_SObject::GetStudy() const
  */
 //============================================================================
 bool SALOMEDSImpl_SObject::FindAttribute(DF_Attribute*& theAttribute, 
-					 const string& theTypeOfAttribute) const
+                                         const string& theTypeOfAttribute) const
 {
   if(_lab.IsNull()) return false;
   std::string aGUID = GetGUID(theTypeOfAttribute);
@@ -156,7 +156,7 @@ vector<DF_Attribute*> SALOMEDSImpl_SObject::GetAllAttributes() const
   for(int i = 0, len = va.size(); i<len; i++) {
     SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(va[i]); 
     if(ga && ga->Type() != string("AttributeReference"))
-	va1.push_back(va[i]);
+        va1.push_back(va[i]);
   }
 
   return va1;

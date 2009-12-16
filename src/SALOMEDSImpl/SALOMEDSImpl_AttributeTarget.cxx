@@ -122,7 +122,7 @@ void SALOMEDSImpl_AttributeTarget::Remove(const SALOMEDSImpl_SObject& theSO)
   for(int i = 0, len = myVariables.size(); i<len; i++) {
     DF_Label L = myVariables[i]->Label();
     if(myVariables[i]->Label() == aRefLabel) continue;
-    va.push_back(myVariables[i]);	
+    va.push_back(myVariables[i]);       
   }
 
   myVariables.clear();

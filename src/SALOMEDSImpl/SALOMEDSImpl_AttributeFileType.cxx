@@ -46,7 +46,7 @@ const std::string& SALOMEDSImpl_AttributeFileType::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributeFileType* SALOMEDSImpl_AttributeFileType::Set (const DF_Label& L,
-								     const std::string& S) 
+                                                                     const std::string& S) 
 {
 
   SALOMEDSImpl_AttributeFileType* A = NULL;

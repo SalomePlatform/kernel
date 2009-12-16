@@ -66,8 +66,8 @@ const std::string& SALOMEDSImpl_AttributeTextHighlightColor::ID () const { retur
 //purpose  :
 //=======================================================================
 void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const double& R, 
-							             const double& G, 
-							             const double& B)
+                                                                     const double& G, 
+                                                                     const double& B)
 {
    CheckLocked();
    Backup(); 
@@ -78,7 +78,7 @@ void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const doubl
    
    SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
-	    
+            
 //=======================================================================
 //function : TextHighlightColor
 //purpose  :
@@ -138,7 +138,7 @@ string SALOMEDSImpl_AttributeTextHighlightColor::Save()
   char *Val = new char[75];
   sprintf(Val, "%f %f %f", (float)myValue[0], 
                            (float)myValue[1], 
-			   (float)myValue[2]);
+                           (float)myValue[2]);
   string ret(Val);
   delete Val;
   return ret;

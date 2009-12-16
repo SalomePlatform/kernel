@@ -47,8 +47,8 @@ template < typename T > struct AdjacentFunctor {
   bool      _minFound,_maxFound,_equal;
   
   AdjacentFunctor(const T& value):_minValue(value),_maxValue(value),
-				  _minFound(false),_maxFound(false),
-				  _equal(false) {}
+                                  _minFound(false),_maxFound(false),
+                                  _equal(false) {}
 
   // Suppose que les valeurs passées en paramètres sont triées par ordre croissant
   bool operator()(const T &v1) {

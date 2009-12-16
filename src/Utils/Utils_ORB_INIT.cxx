@@ -59,18 +59,18 @@ CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv ) throw( CommExcep
   try {
     if ( CORBA::is_nil( _orb ) )
       {
-	try
-	  {
+        try
+          {
 #if OMNIORB_VERSION >= 4
-	    _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
+            _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
 #else
-	    _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
+            _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
 #endif
-	  }
-	catch( const CORBA::Exception &ex )
-	  {
-	    throw CommException( "Unable to create an ORB connexion" ) ;
-	  }
+          }
+        catch( const CORBA::Exception &ex )
+          {
+            throw CommException( "Unable to create an ORB connexion" ) ;
+          }
       }
     return _orb ;
   } catch ( CommException& e) {throw e;}

@@ -151,7 +151,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
  */
 //============================================================================
 bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather, 
-					   const SALOMEDSImpl_SObject& theObject)
+                                           const SALOMEDSImpl_SObject& theObject)
 {
   if(!_root || !theFather || !theObject) return false;
 
@@ -179,7 +179,7 @@ bool SALOMEDSImpl_UseCaseBuilder::AppendTo(const SALOMEDSImpl_SObject& theFather
  */
 //============================================================================
 bool SALOMEDSImpl_UseCaseBuilder::InsertBefore(const SALOMEDSImpl_SObject& theFirst, 
-					       const SALOMEDSImpl_SObject& theNext)
+                                               const SALOMEDSImpl_SObject& theNext)
 {
   if(!_root || !theFirst || !theNext) return false;
 

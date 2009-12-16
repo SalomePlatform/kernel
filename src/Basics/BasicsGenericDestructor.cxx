@@ -60,17 +60,17 @@ void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
       return;
     else
       {
-	int ret;
-	ret = pthread_mutex_lock(&_listMutex); // acquire lock, an check again
-	if (std::find(_objList.begin(), _objList.end(), anObject)
-	    != _objList.end())
-	  {
-	    DEVTRACE("PROTECTED_DELETE::deleteInstance1 " << anObject);
-	    delete anObject;
-	    DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
-	    _objList.remove(anObject);
-	  }
-	ret = pthread_mutex_unlock(&_listMutex); // release lock
+        int ret;
+        ret = pthread_mutex_lock(&_listMutex); // acquire lock, an check again
+        if (std::find(_objList.begin(), _objList.end(), anObject)
+            != _objList.end())
+          {
+            DEVTRACE("PROTECTED_DELETE::deleteInstance1 " << anObject);
+            delete anObject;
+            DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
+            _objList.remove(anObject);
+          }
+        ret = pthread_mutex_unlock(&_listMutex); // release lock
       }
   }
 
@@ -116,12 +116,12 @@ public:
   {
     if (Make_ATEXIT && !atExitSingletonDone)
       {
-	DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
-	assert(GENERIC_DESTRUCTOR::Destructors == 0);
-	GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
-	int cr = atexit(HouseKeeping);
-	assert(cr == 0);
-	atExitSingletonDone = true;
+        DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
+        assert(GENERIC_DESTRUCTOR::Destructors == 0);
+        GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
+        int cr = atexit(HouseKeeping);
+        assert(cr == 0);
+        atExitSingletonDone = true;
       }
   }
 
@@ -150,16 +150,16 @@ void HouseKeeping( void )
   if(GENERIC_DESTRUCTOR::Destructors->size())
     {
       std::list<GENERIC_DESTRUCTOR*>::iterator it =
-	GENERIC_DESTRUCTOR::Destructors->end();
+        GENERIC_DESTRUCTOR::Destructors->end();
 
       do
-	{
-	  it-- ;
-	  GENERIC_DESTRUCTOR* ptr = *it ;
-	  DEVTRACE("HouseKeeping() " << typeid(ptr).name());
-	  (*ptr)();
-	  delete ptr ;
-	}
+        {
+          it-- ;
+          GENERIC_DESTRUCTOR* ptr = *it ;
+          DEVTRACE("HouseKeeping() " << typeid(ptr).name());
+          (*ptr)();
+          delete ptr ;
+        }
       while (it !=  GENERIC_DESTRUCTOR::Destructors->begin()) ;
 
       DEVTRACE("HouseKeeping() end list ");
@@ -186,7 +186,7 @@ void HouseKeeping( void )
 const int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
 {
   DEVTRACE("GENERIC_DESTRUCTOR::Add("<<typeid(anObject).name()<<") "
-	   << &anObject);
+           << &anObject);
   if (!atExitSingletonDone)
     {
       HouseKeeper = atExitSingleton(true);

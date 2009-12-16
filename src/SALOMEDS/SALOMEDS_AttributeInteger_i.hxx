@@ -36,7 +36,7 @@
 #include "SALOMEDSImpl_AttributeInteger.hxx"
 
 class SALOMEDS_AttributeInteger_i: public virtual POA_SALOMEDS::AttributeInteger,
-				   public virtual SALOMEDS_GenericAttribute_i {
+                                   public virtual SALOMEDS_GenericAttribute_i {
 public:
   
   SALOMEDS_AttributeInteger_i(SALOMEDSImpl_AttributeInteger* theAttr, CORBA::ORB_ptr orb) 

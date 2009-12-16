@@ -47,9 +47,9 @@ ConnectionManager_i::~ConnectionManager_i() {}
 
 Engines::ConnectionManager::connectionId
 ConnectionManager_i::connect(Engines::DSC_ptr uses_component, 
-			     const char* uses_port_name, 
-			     Engines::DSC_ptr provides_component, 
-			     const char* provides_port_name) 
+                             const char* uses_port_name, 
+                             Engines::DSC_ptr provides_component, 
+                             const char* provides_port_name) 
 {
 
   Ports::Port_var p_port = provides_component->get_provides_port(provides_port_name, false);
@@ -79,7 +79,7 @@ ConnectionManager_i::connect(Engines::DSC_ptr uses_component,
 
 void
 ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
-				Engines::DSC::Message message)
+                                Engines::DSC::Message message)
 {
   int err=0;
   // Connection id exist ?
@@ -93,7 +93,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   try
     {
       infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
-						      message);
+                                                      message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -103,8 +103,8 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   try
     {
       infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
-					      infos->provides_port,
-					      message);
+                                              infos->provides_port,
+                                              message);
     }
   catch(CORBA::SystemException& ex)
     {

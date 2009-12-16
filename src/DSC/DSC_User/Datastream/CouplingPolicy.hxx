@@ -74,9 +74,9 @@ public:
   //     wDataIt1->first < wdataId < (wDataIt1+1)->first
   template < typename Container >
   bool isDataIdConveniant(Container & storedDatas, 
-			  const typename Container::key_type & expectedDataId,
-			  bool & isEqual ,  bool & isBounded, 
-			  typename Container::iterator & wDataIt1 ) const {
+                          const typename Container::key_type & expectedDataId,
+                          bool & isEqual ,  bool & isBounded, 
+                          typename Container::iterator & wDataIt1 ) const {
     typedef typename Container::key_type   key_type;
     typedef typename Container::value_type value_type;
     typedef typename Container::iterator iterator;
@@ -98,8 +98,8 @@ public:
     BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
     template < typename Iterator, typename DataId > 
     void inline apply(typename iterator_t<Iterator>::value_type & data,
-		      const DataId & dataId,
-		      const Iterator  & it1) const {
+                      const DataId & dataId,
+                      const Iterator  & it1) const {
       typedef typename iterator_t<Iterator>::value_type value_type;
       std::cout << "-------- Generic BoundedDataIdProcessor.apply() called " << std::endl;
 
@@ -118,7 +118,7 @@ public:
 
     template < typename Container >
     void apply(Container & storedDatas, 
-	       typename Container::iterator & wDataIt1 ) const {
+               typename Container::iterator & wDataIt1 ) const {
       typedef typename Container::key_type   key_type;
       typedef typename Container::value_type value_type;
       typedef typename Container::iterator iterator;
@@ -139,8 +139,8 @@ public:
 
     template < typename Container, typename DataId >
     bool apply(Container & storedDatas,
-	       const DataId & expectedDataId,
-	       typename Container::iterator & wDataIt1 ) const {
+               const DataId & expectedDataId,
+               typename Container::iterator & wDataIt1 ) const {
       typedef typename Container::key_type   key_type;
       typedef typename Container::value_type value_type;
       typedef typename Container::iterator   iterator;

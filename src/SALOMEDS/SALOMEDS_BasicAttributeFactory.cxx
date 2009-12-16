@@ -40,13 +40,13 @@ SALOMEDS_BasicAttribute_i* BasicAttributeFactory::Create(const char* type)
   try {
     if (!strcmp(type,"AttReal"))
       {  
-	SALOMEDS_AttReal_i *A = new SALOMEDS_AttReal_i();
-	return A;
+        SALOMEDS_AttReal_i *A = new SALOMEDS_AttReal_i();
+        return A;
       }
     else if(!strcmp(type,"AttLong"))
       {
-	SALOMEDS_AttLong_i *A = new SALOMEDS_AttLong_i();
-	return A;
+        SALOMEDS_AttLong_i *A = new SALOMEDS_AttLong_i();
+        return A;
       }
     else throw(SALOME_Exception(LOCALIZED("bad attribute type name")));
   } catch (...) {throw(SALOME_Exception(LOCALIZED("Unexpected exception was caught")));}

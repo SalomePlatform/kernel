@@ -46,50 +46,50 @@ class UTILS_EXPORT Identity
 {
 
 protected :
-	const char* const	_name ;
-	const char* const	_adip; // Internet address
+        const char* const       _name ;
+        const char* const       _adip; // Internet address
 
 #ifndef WIN32
         const struct utsname    _hostid;        
-	const pid_t		_pid ;
-	const uid_t		_uid ;
+        const pid_t             _pid ;
+        const uid_t             _uid ;
 #else
-	const char* const       _hostid;
-	const DWORD		_pid ;
-	const PSID		_uid ;
-#endif	
-        const char* const	_pwname ;
-	const char* const	_dir ;
-	const time_t		_start;
-	const char* const	_cstart ;
+        const char* const       _hostid;
+        const DWORD             _pid ;
+        const PSID              _uid ;
+#endif  
+        const char* const       _pwname ;
+        const char* const       _dir ;
+        const time_t            _start;
+        const char* const       _cstart ;
 
 private :
-	Identity( void );
-	Identity( const Identity &monid );
+        Identity( void );
+        Identity( const Identity &monid );
 
 public :
-	Identity(const char *name);
-	~Identity();
-	friend std::ostream & operator<< ( std::ostream& os , const Identity& monid );
+        Identity(const char *name);
+        ~Identity();
+        friend std::ostream & operator<< ( std::ostream& os , const Identity& monid );
 
 #ifndef WIN32
-	const pid_t&	        pid(void) const;
-        const struct utsname&	hostid(void) const;
-	const uid_t&		uid(void) const;
+        const pid_t&            pid(void) const;
+        const struct utsname&   hostid(void) const;
+        const uid_t&            uid(void) const;
 #else
-	const DWORD&	        pid(void) const;
+        const DWORD&            pid(void) const;
         const char* const       hostid(void) const;
-	const PSID&	    	uid(void) const;
+        const PSID&             uid(void) const;
 #endif
 
-	const char* const	name( void ) const;
-	const char* const	adip(void) const;
-	const char* const	pwname(void) const;
-	const time_t&		start(void) const;
-	const char* const 	rep (void) const;
+        const char* const       name( void ) const;
+        const char* const       adip(void) const;
+        const char* const       pwname(void) const;
+        const time_t&           start(void) const;
+        const char* const       rep (void) const;
 
-	const char*		host_char(void ) const;
-	const char*		start_char(void) const;
+        const char*             host_char(void ) const;
+        const char*             start_char(void) const;
 
 } ;
-# endif		/* # if !defined(  __IDENTITE_H__ ) */
+# endif         /* # if !defined(  __IDENTITE_H__ ) */

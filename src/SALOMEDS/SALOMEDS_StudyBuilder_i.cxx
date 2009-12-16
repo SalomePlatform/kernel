@@ -54,7 +54,7 @@ UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection);
  */
 //============================================================================
 SALOMEDS_StudyBuilder_i::SALOMEDS_StudyBuilder_i(SALOMEDSImpl_StudyBuilder* theImpl, 
-						 CORBA::ORB_ptr orb) 
+                                                 CORBA::ORB_ptr orb) 
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
@@ -92,7 +92,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_StudyBuilder_i::NewComponent(const char* DataT
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr aComponent,
-						      CORBA::Object_ptr IOR)
+                                                      CORBA::Object_ptr IOR)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
@@ -144,7 +144,7 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr t
  */
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_ptr theFatherObject,
-							      CORBA::Long atag)
+                                                              CORBA::Long atag)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
@@ -190,7 +190,7 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO, 
-				       SALOMEDS::Driver_ptr aDriver) throw(SALOME::SALOME_Exception)
+                                       SALOMEDS::Driver_ptr aDriver) throw(SALOME::SALOME_Exception)
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBSalomeException);
@@ -224,7 +224,7 @@ void SALOMEDS_StudyBuilder_i::Load(SALOMEDS::SObject_ptr sco)
  */
 //============================================================================
 SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SALOMEDS::SObject_ptr anObject, 
-									      const char* aTypeOfAttribute)
+                                                                              const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
   CORBA::String_var anID = anObject->GetID();
@@ -252,8 +252,8 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
 //============================================================================
 
 CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anObject, 
-						      SALOMEDS::GenericAttribute_out anAttribute, 
-						      const char* aTypeOfAttribute)
+                                                      SALOMEDS::GenericAttribute_out anAttribute, 
+                                                      const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
   ASSERT(!CORBA::is_nil(anObject));
@@ -274,7 +274,7 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anOb
 //============================================================================
 
 void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr anObject, 
-					      const char* aTypeOfAttribute)
+                                              const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
@@ -290,7 +290,7 @@ void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr anObject,
  */
 //============================================================================
 void SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me, 
-					   SALOMEDS::SObject_ptr theReferencedObject)
+                                           SALOMEDS::SObject_ptr theReferencedObject)
 {
   SALOMEDS::Locker lock;
   CheckLocked();

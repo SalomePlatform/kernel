@@ -36,17 +36,17 @@
 struct CalciumException  : public DSC_Exception {
 
   CalciumException( const CalciumTypes::InfoType info,
-		    const std::string &     text, 
-		    const char        *fileName, 
-		    const unsigned int lineNumber,
-		    const char        *funcName):
+                    const std::string &     text, 
+                    const char        *fileName, 
+                    const unsigned int lineNumber,
+                    const char        *funcName):
     DSC_Exception(text,fileName,lineNumber,funcName),
     _info(info),_exceptionName("CalciumException")
   {};
 
 
   CalciumException( const CalciumTypes::InfoType info,
-		       const std::string & text ):
+                       const std::string & text ):
     DSC_Exception(text),_info(info),_exceptionName("CalciumException")
   {};
 

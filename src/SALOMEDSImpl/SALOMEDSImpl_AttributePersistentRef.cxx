@@ -46,7 +46,7 @@ const std::string& SALOMEDSImpl_AttributePersistentRef::GetID ()
 //=======================================================================
 
 SALOMEDSImpl_AttributePersistentRef* SALOMEDSImpl_AttributePersistentRef::Set (const DF_Label& L,
-									       const std::string& S)
+                                                                               const std::string& S)
 {
   SALOMEDSImpl_AttributePersistentRef* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributePersistentRef*)L.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID()))) {

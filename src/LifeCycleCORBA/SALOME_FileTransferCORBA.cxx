@@ -56,7 +56,7 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA()
 //=============================================================================
 
 SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(Engines::fileRef_ptr
-						   aFileRef)
+                                                   aFileRef)
 {
   MESSAGE("SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(aFileRef)");
   _theFileRef = aFileRef;
@@ -73,11 +73,11 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(Engines::fileRef_ptr
 //=============================================================================
 
 SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(string refMachine,
-						   string origFileName,
-						   string containerName)
+                                                   string origFileName,
+                                                   string containerName)
 {
   MESSAGE("SALOME_FileTransferCORBA::SALOME_FileTransferCORBA"
-	  << refMachine << " " << origFileName  << " " << containerName);
+          << refMachine << " " << origFileName  << " " << containerName);
   _refMachine = refMachine;
   _origFileName = origFileName;
   _containerName = containerName;
@@ -117,10 +117,10 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
   if (CORBA::is_nil(_theFileRef))
     {
       if (_refMachine.empty() || _origFileName.empty())
-	{
-	  INFOS("not enough parameters: machine and file name must be given");
-	  return "";
-	}
+        {
+          INFOS("not enough parameters: machine and file name must be given");
+          return "";
+        }
 
       SALOME_LifeCycleCORBA LCC;
       Engines::ContainerManager_var contManager = LCC.getContainerManager();
@@ -136,17 +136,17 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
       new_params.mode = CORBA::string_dup("findorstart");
       container = contManager->GiveContainer(new_params);
       if (CORBA::is_nil(container))
-	{
-	  INFOS("machine " << _refMachine << " unreachable");
-	  return "";
-	}
+        {
+          INFOS("machine " << _refMachine << " unreachable");
+          return "";
+        }
 
       _theFileRef = container->createFileRef(_origFileName.c_str());
       if (CORBA::is_nil(_theFileRef))
-	{
-	  INFOS("impossible to create fileRef on " << _refMachine);
-	  return "";
-	}
+        {
+          INFOS("impossible to create fileRef on " << _refMachine);
+          return "";
+        }
     }
 
   container = _theFileRef->getContainer();
@@ -158,56 +158,56 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
   if (localCopy.empty()) // no existing copy available
     {
       if (localFile.empty()) // no name provided for local copy
-	{
-	  char bufName[256];
-	  localCopy = tmpnam(bufName);
-	  localFile = bufName;
-	  SCRUTE(localFile);
-	}
+        {
+          char bufName[256];
+          localCopy = tmpnam(bufName);
+          localFile = bufName;
+          SCRUTE(localFile);
+        }
 
       FILE* fp;
       if ((fp = fopen(localFile.c_str(),"wb")) == NULL)
-	{
-	  INFOS("file " << localFile << " cannot be open for writing");
-	  return "";
-	}
+        {
+          INFOS("file " << localFile << " cannot be open for writing");
+          return "";
+        }
 
       Engines::fileTransfer_var fileTransfer = container->getFileTransfer();
       ASSERT(! CORBA::is_nil(fileTransfer));
 
       CORBA::Long fileId = fileTransfer->open(_origFileName.c_str());
       if (fileId > 0)
-	{
-	  Engines::fileBlock* aBlock;
-	  int toFollow = 1;
-	  int ctr=0;
-	  while (toFollow)
-	    {
-	      ctr++;
-	      SCRUTE(ctr);
-	      aBlock = fileTransfer->getBlock(fileId);
-	      toFollow = aBlock->length();
-	      SCRUTE(toFollow);
-	      CORBA::Octet *buf = aBlock->get_buffer();
+        {
+          Engines::fileBlock* aBlock;
+          int toFollow = 1;
+          int ctr=0;
+          while (toFollow)
+            {
+              ctr++;
+              SCRUTE(ctr);
+              aBlock = fileTransfer->getBlock(fileId);
+              toFollow = aBlock->length();
+              SCRUTE(toFollow);
+              CORBA::Octet *buf = aBlock->get_buffer();
 #if defined(_DEBUG_) || defined(_DEBUG)
-	      int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
-	      ASSERT(nbWri == toFollow);
+              int nbWri = fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+              ASSERT(nbWri == toFollow);
 #else
-	      fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
+              fwrite(buf, sizeof(CORBA::Octet), toFollow, fp);
 #endif
               delete aBlock;
-	    }
-	  fclose(fp);
-	  MESSAGE("end of transfer");
-	  fileTransfer->close(fileId);
-	  _theFileRef->addRef(myMachine.c_str(), localFile.c_str());
-	  localCopy = localFile;
-	}
+            }
+          fclose(fp);
+          MESSAGE("end of transfer");
+          fileTransfer->close(fileId);
+          _theFileRef->addRef(myMachine.c_str(), localFile.c_str());
+          localCopy = localFile;
+        }
       else
-	{
-	  INFOS("open reference file for copy impossible");
-	  return "";
-	}
+        {
+          INFOS("open reference file for copy impossible");
+          return "";
+        }
       
     }
   SCRUTE(localCopy);

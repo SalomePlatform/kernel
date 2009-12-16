@@ -254,12 +254,12 @@ string SALOMEDSImpl_AttributeStudyProperties::Save()
   int a = 2;
   for (anIndex = 0; anIndex  < aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
-	    (int)(aMinutes[anIndex]),
-	    (int)(aHours[anIndex]),
-	    (int)(aDays[anIndex]),
-	    (int)(aMonths[anIndex]),
-	    (int)(aYears[anIndex]),
-	    (char*)(aNames[anIndex].c_str()));
+            (int)(aMinutes[anIndex]),
+            (int)(aHours[anIndex]),
+            (int)(aDays[anIndex]),
+            (int)(aMonths[anIndex]),
+            (int)(aYears[anIndex]),
+            (char*)(aNames[anIndex].c_str()));
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }

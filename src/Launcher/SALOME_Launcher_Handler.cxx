@@ -102,26 +102,26 @@ void SALOME_Launcher_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_machine_list) ){
       xmlNodePtr aCurNode2 = aCurNode->xmlChildrenNode;
       while(aCurNode2 != NULL){
-	if ( !xmlStrcmp(aCurNode2->name,(const xmlChar*)test_machine) ){
-	  _machp.Clear();
-	  xmlChar* name = xmlNodeGetContent(aCurNode2);
-	  string clusterName = (const char*)name;
-	  xmlFree(name);
-	
-	  if (xmlHasProp(aCurNode2, (const xmlChar*)test_env_file)){
-	    xmlChar* envfile = xmlGetProp(aCurNode2, (const xmlChar*)test_env_file);
-	    _machp.EnvFile = (const char*)envfile;
-	    xmlFree(envfile);
-	  }
+        if ( !xmlStrcmp(aCurNode2->name,(const xmlChar*)test_machine) ){
+          _machp.Clear();
+          xmlChar* name = xmlNodeGetContent(aCurNode2);
+          string clusterName = (const char*)name;
+          xmlFree(name);
+        
+          if (xmlHasProp(aCurNode2, (const xmlChar*)test_env_file)){
+            xmlChar* envfile = xmlGetProp(aCurNode2, (const xmlChar*)test_env_file);
+            _machp.EnvFile = (const char*)envfile;
+            xmlFree(envfile);
+          }
 
-	  if (xmlHasProp(aCurNode2, (const xmlChar*)test_work_directory)){
-	    xmlChar* workdirectory = xmlGetProp(aCurNode2, (const xmlChar*)test_work_directory);
-	    _machp.WorkDirectory = (const char*)workdirectory;
-	    xmlFree(workdirectory);
-	  }
-	  _launch.MachinesList[clusterName]=_machp ;
-	}
-	aCurNode2 = aCurNode2->next;
+          if (xmlHasProp(aCurNode2, (const xmlChar*)test_work_directory)){
+            xmlChar* workdirectory = xmlGetProp(aCurNode2, (const xmlChar*)test_work_directory);
+            _machp.WorkDirectory = (const char*)workdirectory;
+            xmlFree(workdirectory);
+          }
+          _launch.MachinesList[clusterName]=_machp ;
+        }
+        aCurNode2 = aCurNode2->next;
       }
     }
 
@@ -130,31 +130,31 @@ void SALOME_Launcher_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       _launch.RefDirectory = (const char*)refdirectory;
       xmlFree(refdirectory);
     }
-	  
+          
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_nb_processes) ){
       xmlChar* nbofprocesses = xmlNodeGetContent(aCurNode);
       _launch.NbOfProcesses = atoi((const char*)nbofprocesses);
       xmlFree(nbofprocesses);
     }
-	  
+          
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_input_file) ){
       xmlChar* inputfile = xmlNodeGetContent(aCurNode);
       _launch.InputFile.push_back((const char*)inputfile);
       xmlFree(inputfile);
     }
-	  
+          
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_output_file) ){
       xmlChar* outputfile = xmlNodeGetContent(aCurNode);
       _launch.OutputFile.push_back((const char*)outputfile);
       xmlFree(outputfile);
     }
-	  
+          
     if ( !xmlStrcmp(aCurNode->name,(const xmlChar*)test_command) ){
       xmlChar* command = xmlNodeGetContent(aCurNode);
       _launch.Command = (const char*)command;
       xmlFree(command);
     }
-	  
+          
     aCurNode = aCurNode->next;
   }
 

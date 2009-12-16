@@ -82,20 +82,20 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
     for(ip=1;ip<_nbproc;ip++){
       err = MPI_Recv(&n,1,MPI_INT,ip,ip,MPI_COMM_WORLD,&status);
       if(err){
-	MESSAGE("[" << _numproc << "] MPI_RECV error");
-	exit(1);
+        MESSAGE("[" << _numproc << "] MPI_RECV error");
+        exit(1);
       }
       // Allocation de la chaine de longueur n
       ior = new char[n];
       err = MPI_Recv(ior,n,MPI_CHAR,ip,2*ip,MPI_COMM_WORLD,&status);
       if(err){
-	MESSAGE("[" << _numproc << "] MPI_RECV error");
-	exit(1);
+        MESSAGE("[" << _numproc << "] MPI_RECV error");
+        exit(1);
       }
       iort[ip] = orb->string_to_object(ior);
       delete [] ior;
       if(CORBA::is_nil(iort[ip]))
-	throw POException(ip,"MPI Component not loaded");
+        throw POException(ip,"MPI Component not loaded");
     }
     // On donne le tableau des ior a l'objet Corba du process 0
     if( amiCont )
@@ -169,8 +169,8 @@ void MPIObject_i::remoteMPI2Connect(string service)
     while ( i != TIMEOUT  ) {
       sleep(1);
       if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS ){
-	MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
-	break;
+        MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
+        break;
       }
       i++;
     }

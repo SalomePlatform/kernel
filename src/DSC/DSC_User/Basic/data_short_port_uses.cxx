@@ -56,7 +56,7 @@ data_short_port_uses::put(CORBA::Short data) {
 
 void 
 data_short_port_uses::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
-		       const Engines::DSC::Message message)
+                       const Engines::DSC::Message message)
 {
   if (_my_ports)
     delete _my_ports;

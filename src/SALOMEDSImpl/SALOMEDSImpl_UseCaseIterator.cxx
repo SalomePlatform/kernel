@@ -46,8 +46,8 @@ SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator()
  */
 //============================================================================
 SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
-						           const string& theGUID,
-						           const bool allLevels)
+                                                           const string& theGUID,
+                                                           const bool allLevels)
 :_guid(theGUID), _levels(allLevels)
 {
   if((_node = (SALOMEDSImpl_AttributeTreeNode*)theLabel.FindAttribute(_guid))) {

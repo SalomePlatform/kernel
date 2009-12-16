@@ -47,17 +47,17 @@ typedef struct {
 } thread_st;
 
 class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
-			       public Engines_Container_i,
-			       public MPIObject_i
+                               public Engines_Container_i,
+                               public MPIObject_i
 {
 
  public:
   // Constructor
   Engines_MPIContainer_i( int nbproc, int numproc,
-			  CORBA::ORB_ptr orb,
-			  PortableServer::POA_ptr poa,
-			  char * containerName,
-			  int argc, char *argv[]);
+                          CORBA::ORB_ptr orb,
+                          PortableServer::POA_ptr poa,
+                          char * containerName,
+                          int argc, char *argv[]);
   Engines_MPIContainer_i(int nbproc, int numproc);
   // Destructor
   ~Engines_MPIContainer_i();
@@ -73,12 +73,12 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   // synchronous version for process 0
   Engines::Component_ptr
   create_component_instance( const char* componentName,
-			     CORBA::Long studyId); // 0 for multiStudy
+                             CORBA::Long studyId); // 0 for multiStudy
 
   // Load a component in current MPI container
   // synchronous version for process 0
   Engines::Component_ptr load_impl(const char* nameToRegister,
-				   const char* componentName);
+                                   const char* componentName);
 
   // Unload a component from current MPI container
   // synchronous version for process 0
@@ -91,14 +91,14 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   bool Lload_component_Library(const char* componentName);
   Engines::Component_ptr
   Lcreate_component_instance( const char* componentName,
-			      CORBA::Long studyId); // 0 for multiStudy
+                              CORBA::Long studyId); // 0 for multiStudy
   Engines::Component_ptr Lload_impl(const char* nameToRegister,
-				    const char* componentName);
+                                    const char* componentName);
 
   Engines::Component_ptr
   createMPIInstance(std::string genericRegisterName,
-		    void *handle,
-		    int studyId);
+                    void *handle,
+                    int studyId);
 
 };
 #endif

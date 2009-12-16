@@ -44,7 +44,7 @@ const std::string& SALOMEDSImpl_AttributeExpandable::GetID ()
 //purpose  : 
 //=======================================================================
 SALOMEDSImpl_AttributeExpandable* SALOMEDSImpl_AttributeExpandable::Set (const DF_Label& L,
-									const int value) 
+                                                                        const int value) 
 {
   SALOMEDSImpl_AttributeExpandable* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeExpandable*)L.FindAttribute(SALOMEDSImpl_AttributeExpandable::GetID()))) {

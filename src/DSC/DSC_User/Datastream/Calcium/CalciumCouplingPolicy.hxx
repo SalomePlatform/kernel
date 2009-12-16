@@ -109,7 +109,7 @@ public:
   inline TagType  getTag (const DataId &dataId) const { return dataId.second;}
 
   template <typename DataManipulator, 
- 	    class EnableIf = void >    struct BoundedDataIdProcessor;
+            class EnableIf = void >    struct BoundedDataIdProcessor;
   //template <typename DataManipulator>  struct BoundedDataIdProcessor;
   template <typename DataManipulator>  struct EraseDataIdProcessor;
   template <typename DataManipulator>  struct DisconnectProcessor;
@@ -122,9 +122,9 @@ public:
   // Le container doit être associatif
   template < typename AssocContainer >
   bool isDataIdConveniant( AssocContainer & storedDatas, 
-			   const typename AssocContainer::key_type & expectedDataId,
-			   bool & isEqual, bool & isBounded, 
-			   typename AssocContainer::iterator & wDataIt1) const;
+                           const typename AssocContainer::key_type & expectedDataId,
+                           bool & isEqual, bool & isBounded, 
+                           typename AssocContainer::iterator & wDataIt1) const;
 
   TimeType getEffectiveTime(TimeType ti, TimeType tf);
 
@@ -145,8 +145,8 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
   typedef std::vector < DataId >        DataIdVect;
     
   InternalDataIdContainer(const DataId & dataId, 
-			  const CalciumCouplingPolicy & policy
-			  ):std::vector< std::pair< T_TIME,T_TAG> >() {
+                          const CalciumCouplingPolicy & policy
+                          ):std::vector< std::pair< T_TIME,T_TAG> >() {
     // Ignore les paramètres qui ne sont pas en rapport avec le type de dépendance
     switch (policy._dependencyType) {
     case CalciumTypes::TIME_DEPENDENCY:
@@ -168,8 +168,8 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor{
   BoundedDataIdProcessor(const CouplingPolicy & couplingPolicy) {};
   template < typename Iterator, typename DataId > 
   void inline apply(typename iterator_t<Iterator>::value_type & data,
-		    const DataId & dataId,
-		    const Iterator  & it1) const {
+                    const DataId & dataId,
+                    const Iterator  & it1) const {
     typedef typename iterator_t<Iterator>::value_type value_type;
 #ifdef MYDEBUG
     std::cout << "-------- Calcium Generic BoundedDataIdProcessor.apply() called " << std::endl;
@@ -192,7 +192,7 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
   // Méthode implémentant l'interpolation temporelle
   template < typename MapIterator > 
   void inline apply (typename iterator_t<MapIterator>::value_type & data,
-		     const DataId & dataId, const MapIterator & it1) const {
+                     const DataId & dataId, const MapIterator & it1) const {
       
     typedef typename iterator_t<MapIterator>::value_type value_type;
     typedef typename DataManipulator::InnerType InnerType;
@@ -263,9 +263,9 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
       // OLD: REM : Pour des buffers de type int
       // OLD: le compilo indiquera warning: converting to `long int' from `Double'
       std::transform(InIt1,InIt1+dataSize,InIt2,OutIt,
-       		     ( _1 - _2 ) * coeff + _2 );
+                     ( _1 - _2 ) * coeff + _2 );
 //       for(size_t i =0;  i < dataSize3; ++i) {
-// 	OutIt[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
+//      OutIt[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
 //       }
 
     }
@@ -287,7 +287,7 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor<
 // Le container doit être associatif
 template < typename AssocContainer >
 bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, const typename AssocContainer::key_type & expectedDataId,
-						bool & isEqual, bool & isBounded, typename AssocContainer::iterator & wDataIt1) const {
+                                                bool & isEqual, bool & isBounded, typename AssocContainer::iterator & wDataIt1) const {
  
   // Rem : le type key_type == DataId
   typedef typename AssocContainer::key_type key_type;
@@ -314,7 +314,7 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   //
   // L'algo find_if ne peut être utilisé car il recopie l'AdjacentFunctor
   // qui ne peut alors pas mémoriser ses états précédents
-  //	
+  //    
  
   // Un codage en reverse serait plus efficace
   typename AssocContainer::iterator prev    = storedDatas.begin();
@@ -364,7 +364,7 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
 
   template < typename Container >
   void apply(Container & storedDatas, 
-	     typename Container::iterator & wDataIt1 ) const {
+             typename Container::iterator & wDataIt1 ) const {
 
     typedef typename Container::key_type   key_type;
     typedef typename Container::value_type value_type;
@@ -381,15 +381,15 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
     if (s > 0 ) {
       size_t dist=distance(storedDatas.begin(),wDataIt1);
       for (int i=0; i<s; ++i) {
-	      //no bug if removed : DataManipulator::delete_data((*storedDatas.begin()).second);
-	      DataManipulator::delete_data((*storedDatas.begin()).second);
-	      storedDatas.erase(storedDatas.begin());
+              //no bug if removed : DataManipulator::delete_data((*storedDatas.begin()).second);
+              DataManipulator::delete_data((*storedDatas.begin()).second);
+              storedDatas.erase(storedDatas.begin());
       }
       // Si l'itérateur pointait sur une valeur que l'on vient de supprimer
       if (dist < s ) {
         throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "StorageLevel management " 
-					    << _couplingPolicy._storageLevel << 
-					    " has just removed the data to send")));
+                                            << _couplingPolicy._storageLevel << 
+                                            " has just removed the data to send")));
       }
     }
 #ifdef MYDEBUG
@@ -418,8 +418,8 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
 
   template < typename Container, typename DataId >
   bool apply(Container & storedDatas,
-	     const DataId & expectedDataId,
-	     typename Container::iterator & wDataIt1 ) const {
+             const DataId & expectedDataId,
+             typename Container::iterator & wDataIt1 ) const {
 
     typedef typename Container::key_type   key_type;
     typedef typename Container::value_type value_type;
@@ -438,7 +438,7 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // TODO : Ds GenericPort::next il faut convertir en CPSTOPSEQ
     if ( _couplingPolicy._disconnectDirective == CalciumTypes::CP_ARRET )
       throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "CP_ARRET directive" 
-					   << " interrupts all further data reading")));
+                                           << " interrupts all further data reading")));
 #ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK3 --------" << std::endl;
 #endif
@@ -448,7 +448,7 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // TODO : Dans la gestion des niveaux il faut peut être interdire un niveau ==  0
     if ( storedDatas.empty() ) 
       throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
-					  << " is active but no data is available.")));
+                                          << " is active but no data is available.")));
     
     // expectedDataId n'a ni été trouvé dans storedDataIds ni encadré mais il se peut
     // qu'en mode itératif il ne soit pas plus grand que le plus grand DataId stocké auquel
@@ -470,7 +470,7 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // TODO : Il faut en fait renvoyer le plus proche cf IT ou DT
     if (it1 == storedDatas.end())
       throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "CP_CONT directive" 
-					  << " is active but the requested dataId is less or equal to the last one received.")));
+                                          << " is active but the requested dataId is less or equal to the last one received.")));
   
 #ifdef MYDEBUG
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK6 " << std::endl;

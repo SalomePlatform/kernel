@@ -91,19 +91,19 @@ int main (int argc, char * argv[])
       MESSAGE(cmd);
       status = system(cmd.c_str());
       if (status == -1) {
-	INFOS("TestMPIContainer launch MPI Container failed (system command status -1)") ;
+        INFOS("TestMPIContainer launch MPI Container failed (system command status -1)") ;
       }
       else if (status == 217) {
-	INFOS("TestMPIContainer launch MPI Container failed (system command status 217)") ;
+        INFOS("TestMPIContainer launch MPI Container failed (system command status 217)") ;
       }
     
       // Try to resolve MPI Container
       int it = 0;
       do{
-	sleep(1);
-	obj = NS.Resolve(containerName.c_str()) ;
-	iGenFact = Engines::MPIContainer::_narrow(obj);
-	MESSAGE("Waiting for MPI Container " << containerName << " : it = " << it );
+        sleep(1);
+        obj = NS.Resolve(containerName.c_str()) ;
+        iGenFact = Engines::MPIContainer::_narrow(obj);
+        MESSAGE("Waiting for MPI Container " << containerName << " : it = " << it );
       }while( CORBA::is_nil(iGenFact) && (it++<15) );
 
     }
@@ -127,7 +127,7 @@ int main (int argc, char * argv[])
     }
     else{ 
       m1->Coucou(1L);
-// // 	sleep(5);
+// //   sleep(5);
       INFOS("Unload MPI Component");
       iGenFact->remove_impl(m1) ;
     }

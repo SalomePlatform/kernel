@@ -300,10 +300,10 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
   else
     {
       for (unsigned int ind=0; ind < aLength; ind++)
-	{
-	  _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
-	  SCRUTE(_list_open_studies[ind]) ;
-	}
+        {
+          _list_open_studies[ind] = CORBA::string_dup(anOpened[ind]->Name().c_str());
+          SCRUTE(_list_open_studies[ind]) ;
+        }
     }
   return _list_open_studies._retn();
 }

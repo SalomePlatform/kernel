@@ -34,7 +34,7 @@
 #include "SALOMEDSImpl_AttributeComment.hxx"
 
 class SALOMEDS_AttributeComment_i: public virtual POA_SALOMEDS::AttributeComment,
-				   public virtual SALOMEDS_GenericAttribute_i 
+                                   public virtual SALOMEDS_GenericAttribute_i 
 {
 public:  
   SALOMEDS_AttributeComment_i(SALOMEDSImpl_AttributeComment* theAttr, CORBA::ORB_ptr orb) 

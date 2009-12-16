@@ -44,27 +44,27 @@ public:
   template<class Y>
     explicit df_shared_ptr(Y * p)
       {
-	boost::shared_ptr<T>::reset(p);
+        boost::shared_ptr<T>::reset(p);
       }
   
   template<class Y>
     df_shared_ptr(df_shared_ptr<Y> const & r):
       boost::shared_ptr<T>(r,boost::detail::dynamic_cast_tag())
-	{}
+        {}
   
   template<class Y>
     df_shared_ptr & operator=(df_shared_ptr<Y> const & r)
       {
-	df_shared_ptr<T>(r).swap(*this);
-	return *this;
+        df_shared_ptr<T>(r).swap(*this);
+        return *this;
       }
   
   template<class Y> df_shared_ptr& operator()(Y * p) // Y must be complete
     {
       if(T* pt = dynamic_cast<T*>(p))
-	boost::shared_ptr<T>::reset(pt);
+        boost::shared_ptr<T>::reset(pt);
       else
-	boost::throw_exception(std::bad_cast());
+        boost::throw_exception(std::bad_cast());
       return *this;
     }
     

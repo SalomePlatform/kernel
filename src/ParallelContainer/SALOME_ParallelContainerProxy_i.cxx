@@ -26,10 +26,10 @@
 #include "SALOME_ParallelContainerProxy_i.hxx"
 
 Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb, 
-						       paco_fabrique_thread * fab_thread, 
-						       PortableServer::POA_ptr poa,
-						       std::string containerName,
-						       bool is_a_return_proxy) :
+                                                       paco_fabrique_thread * fab_thread, 
+                                                       PortableServer::POA_ptr poa,
+                                                       std::string containerName,
+                                                       bool is_a_return_proxy) :
   Engines::PACO_Container_proxy_impl(orb, fab_thread, is_a_return_proxy),
   Engines::Container_proxy_impl(orb, fab_thread, is_a_return_proxy),
   InterfaceManager_impl(orb, fab_thread, is_a_return_proxy)
@@ -111,12 +111,12 @@ Container_proxy_impl_final::Shutdown()
     {
       try 
       {
-	node->Shutdown();
-	MESSAGE("Shutdown done node : " << i);
+        node->Shutdown();
+        MESSAGE("Shutdown done node : " << i);
       }
       catch (...)
       {
-	INFOS("Exception catch during Shutdown of node : " << i);
+        INFOS("Exception catch during Shutdown of node : " << i);
       }
     }
     else
@@ -182,15 +182,15 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
 #endif
       if (paco_test_fct)
       {
-	// PaCO Component found
-	MESSAGE("PACO LIB FOUND");
-	_libtype_map[aCompName] = "par";
+        // PaCO Component found
+        MESSAGE("PACO LIB FOUND");
+        _libtype_map[aCompName] = "par";
       }
       else
       {
-	MESSAGE("SEQ LIB FOUND");
+        MESSAGE("SEQ LIB FOUND");
 #ifndef WIN32
-	MESSAGE("dlerror() result is : " << dlerror());
+        MESSAGE("dlerror() result is : " << dlerror());
 #endif
       }
     }
@@ -207,20 +207,20 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-					     (char*)"import_component",
-					     (char*)"s",componentName);
+                                             (char*)"import_component",
+                                             (char*)"s",componentName);
       std::string ret_p= PyString_AsString(result);
       Py_XDECREF(result);
       Py_RELEASE_NEW_THREAD;
 
       if (ret_p=="") // import possible: Python component
       {
-	MESSAGE("import Python: " << aCompName <<" OK");
+        MESSAGE("import Python: " << aCompName <<" OK");
       }
       else
       {
-	MESSAGE("Error in importing Python component : " << aCompName);
-	ret = false;
+        MESSAGE("Error in importing Python component : " << aCompName);
+        ret = false;
       }
     }
     _numInstanceMutex.unlock();
@@ -236,21 +236,21 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
       Engines::Container_var node = Engines::Container::_narrow(object);
       if (!CORBA::is_nil(node))
       {
-	try 
-	{
-	  node->load_component_Library(componentName);
-	  MESSAGE("Call load_component_Library done node : " << i);
-	}
-	catch (...)
-	{
-	  INFOS("Exception catch during load_component_Library of node : " << i);
-	  ret = false;
-	}
+        try 
+        {
+          node->load_component_Library(componentName);
+          MESSAGE("Call load_component_Library done node : " << i);
+        }
+        catch (...)
+        {
+          INFOS("Exception catch during load_component_Library of node : " << i);
+          ret = false;
+        }
       }
       else
       {
-	INFOS("Cannot call load_component_Library node " << i << " ref is nil !");
-	ret = false;
+        INFOS("Cannot call load_component_Library node " << i << " ref is nil !");
+        ret = false;
       }
     }
   }
@@ -327,12 +327,12 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
     Container_proxy_impl_final::proxy_object * proxy = new Container_proxy_impl_final::proxy_object();
     
     proxy->proxy_id = (component_proxy_factory) (_orb, 
-						 _fab_thread,
-						 _poa, 
-						 _id,
-						 &(proxy->proxy_regist),
-						 instanceName.c_str(), 
-						 _parallel_object_topology.total);
+                                                 _fab_thread,
+                                                 _poa, 
+                                                 _id,
+                                                 &(proxy->proxy_regist),
+                                                 instanceName.c_str(), 
+                                                 _parallel_object_topology.total);
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*(proxy->proxy_id));
@@ -373,18 +373,18 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
     {
       try 
       {
-	node->create_paco_component_node_instance(componentName, _containerName.c_str(), studyId);
-	MESSAGE("Call create_paco_component_node_instance done on node : " << i);
+        node->create_paco_component_node_instance(componentName, _containerName.c_str(), studyId);
+        MESSAGE("Call create_paco_component_node_instance done on node : " << i);
       }
       catch (SALOME::SALOME_Exception & ex)
       {
-	INFOS("SALOME_EXCEPTION : " << ex.details.text);
-	return Engines::Component::_nil();
+        INFOS("SALOME_EXCEPTION : " << ex.details.text);
+        return Engines::Component::_nil();
       }
       catch (...)
       {
-	INFOS("Unknown Exception catch during create_paco_component_node_instance on node : " << i);
-	return Engines::Component::_nil();
+        INFOS("Unknown Exception catch during create_paco_component_node_instance on node : " << i);
+        return Engines::Component::_nil();
       }
     }
     else

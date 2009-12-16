@@ -28,8 +28,8 @@
 #include "utilities.h"
 
 Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb, 
-					       const char * ior,
-					       int rank) :
+                                               const char * ior,
+                                               int rank) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Salome_file_serv(orb,ior,rank),
   Engines::Salome_file_base_serv(orb,ior,rank),
@@ -85,7 +85,7 @@ Parallel_Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) {
     std::string file_name = begin->first;
     if (_fileManaged[file_name].node > 0 && getMyRank() == 0) {
       if (parallel_file == NULL)
-	parallel_file = Engines::PaCO_Parallel_Salome_file::PaCO_narrow(proxy, _orb);
+        parallel_file = Engines::PaCO_Parallel_Salome_file::PaCO_narrow(proxy, _orb);
       parallel_file->connect(source_Salome_file, _fileManaged[file_name].node);
     }
   }
@@ -93,7 +93,7 @@ Parallel_Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) {
 
 void 
 Parallel_Salome_file_i::connectDistributedFile(const char * file_name,
-					       Engines::Salome_file_ptr source_Salome_file) {
+                                               Engines::Salome_file_ptr source_Salome_file) {
   Salome_file_i::connectDistributedFile(file_name, source_Salome_file);
 
   // Test if the file is managed in an another node
@@ -108,7 +108,7 @@ Parallel_Salome_file_i::connectDistributedFile(const char * file_name,
 
 void 
 Parallel_Salome_file_i::setDistributedSourceFile(const char* file_name,
-						 const char * source_file_name) {
+                                                 const char * source_file_name) {
   Salome_file_i::setDistributedSourceFile(file_name, source_file_name);
   // Test if the file is managed in an another node
   // If yes, node is updated
@@ -165,29 +165,29 @@ Parallel_Salome_file_i::recvFiles_node() {
       // Test if the file is local or distributed
       if (std::string(file_infos.type.in()) == "local")
       {
-	if (std::string(file_infos.status.in()) == "not_ok")
-	  result = checkLocalFile(file_infos.file_name.in());
+        if (std::string(file_infos.status.in()) == "not_ok")
+          result = checkLocalFile(file_infos.file_name.in());
       }
       else
       {
-	if (std::string(file_infos.status.in()) == "not_ok") {
-	  // 2 cases :
-	  // Source file is a Salome_file
-	  // Source file is a Parallel_Salome_file
-	  PaCO::InterfaceManager_var interface_manager = 
-	    PaCO::InterfaceManager::_narrow(_fileDistributedSource[file_infos.file_name.in()]);
-	  if (CORBA::is_nil(interface_manager))
-	    result = getDistributedFile(file_infos.file_name.in());
-	  else
-	    result = getParallelDistributedFile(file_infos.file_name.in());
-	}
+        if (std::string(file_infos.status.in()) == "not_ok") {
+          // 2 cases :
+          // Source file is a Salome_file
+          // Source file is a Parallel_Salome_file
+          PaCO::InterfaceManager_var interface_manager = 
+            PaCO::InterfaceManager::_narrow(_fileDistributedSource[file_infos.file_name.in()]);
+          if (CORBA::is_nil(interface_manager))
+            result = getDistributedFile(file_infos.file_name.in());
+          else
+            result = getParallelDistributedFile(file_infos.file_name.in());
+        }
       }
       // if the result is false
       // we add this file to files_not_ok
       if (!result) 
       {
-	files_not_ok.append(" ");
-	files_not_ok.append(file_infos.file_name.in());
+        files_not_ok.append(" ");
+        files_not_ok.append(file_infos.file_name.in());
       }
     }
   }
@@ -307,8 +307,8 @@ Parallel_Salome_file_i::setFileNode(const char* file_name, CORBA::Long node) {
 
     Engines::Container_ptr cont = parallel_file->updateFile(_fileManaged[fname], node);
     parallel_file->connectDistributedFile(fname.c_str(),
-					  _fileDistributedSource[fname],
-					  node);
+                                          _fileDistributedSource[fname],
+                                          node);
 
     // Update file infos with the new reference of the container
     _fileManaged[fname].container = Engines::Container::_duplicate(cont);

@@ -34,7 +34,7 @@
 
 
 class CORBA_DATE_CAL_SCHEM : public std::map<CalciumTypes::DateCalSchem,
-					     Ports::Calcium_Ports::DateCalSchem > 
+                                             Ports::Calcium_Ports::DateCalSchem > 
 {
 public :
 
@@ -46,7 +46,7 @@ public :
 extern const CORBA_DATE_CAL_SCHEM corbaDateCalSchem ;
 
 class CORBA_DEPENDENCY_TYPE : public std::map<CalciumTypes::DependencyType,
-					      Ports::Calcium_Ports::DependencyType>
+                                              Ports::Calcium_Ports::DependencyType>
 {
 public :
 
@@ -57,7 +57,7 @@ public :
 extern const CORBA_DEPENDENCY_TYPE corbaDependencyType ;
 
 class CORBA_INTERPOLATION_SCHEM : public std::map<CalciumTypes::InterpolationSchem,
-						  Ports::Calcium_Ports::InterpolationSchem>
+                                                  Ports::Calcium_Ports::InterpolationSchem>
 {
 public :
 
@@ -68,7 +68,7 @@ public :
 extern const CORBA_INTERPOLATION_SCHEM corbaInterpolationSchem ;
 
 class CORBA_EXTRAPOLATION_SCHEM : public std::map<CalciumTypes::ExtrapolationSchem,
-						  Ports::Calcium_Ports::ExtrapolationSchem>
+                                                  Ports::Calcium_Ports::ExtrapolationSchem>
 {
 public :
 

@@ -79,14 +79,14 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     GetFittingResources(const resourceParams& params) throw(ResourcesException);
 
     std::string Find(const std::string& policy, 
-		     const std::vector<std::string>& listOfResources);
+                     const std::vector<std::string>& listOfResources);
 
     int AddResourceInCatalog (const resourceParams& paramsOfNewResources,
-			      const std::vector<std::string>& componentsOnNewResources,
-			      const char *userName,
-			      AccessModeType mode,
-			      AccessProtocolType prot,
-			      AccessProtocolType iprot) throw(ResourcesException);
+                              const std::vector<std::string>& componentsOnNewResources,
+                              const char *userName,
+                              AccessModeType mode,
+                              AccessProtocolType prot,
+                              AccessProtocolType iprot) throw(ResourcesException);
 
     void DeleteResourceInCatalog(const char * name);
 
@@ -103,7 +103,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     void SelectOnlyResourcesWithOS(std::vector<std::string>& resources, std::string OS);
 
     void KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
-					const std::vector<std::string>& componentList);
+                                        const std::vector<std::string>& componentList);
 
     //! will contain the path to the ressources catalog
     std::list<std::string> _path_resources;

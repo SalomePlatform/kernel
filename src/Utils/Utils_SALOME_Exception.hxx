@@ -66,18 +66,18 @@ class UTILS_EXPORT SALOME_Exception : public std::exception
 {
 
 private :
-	SALOME_Exception( void );
+        SALOME_Exception( void );
 
 protected :
-	const char* _text ;	// non constant pointer but read only char variable
+        const char* _text ;     // non constant pointer but read only char variable
 
 public :
-	SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
-	SALOME_Exception( const SALOME_Exception &ex );
-	virtual ~SALOME_Exception() throw ();
-	friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
-	virtual const char *what( void ) const throw () ;
+        SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
+        SALOME_Exception( const SALOME_Exception &ex );
+        virtual ~SALOME_Exception() throw ();
+        friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
+        virtual const char *what( void ) const throw () ;
 } ;
 
 
-#endif		/* #if !defined( __Utils_SALOME_Exception_hxx__ ) */
+#endif          /* #if !defined( __Utils_SALOME_Exception_hxx__ ) */

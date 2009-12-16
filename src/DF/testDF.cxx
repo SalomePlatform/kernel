@@ -179,7 +179,7 @@ vector<string> splitString(const string& theValue, char separator)
     vs.push_back(s.substr(0, pos));
     s = s.substr(pos+1, s.size());
   }
-	       
+               
   if(!s.empty() && s[0] != separator) vs.push_back(s);
   return vs;
 }

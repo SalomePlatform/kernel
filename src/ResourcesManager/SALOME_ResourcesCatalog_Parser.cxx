@@ -62,7 +62,7 @@ unsigned int ResourceDataToSort::GetNumberOfPoints() const
 
     if (_nbOfProcWanted != NULL_VALUE)
       {
-	unsigned int nb_proc = _nbOfNodes * _nbOfProcPerNode;
+        unsigned int nb_proc = _nbOfNodes * _nbOfProcPerNode;
         if (nb_proc == _nbOfProcWanted)
           ret += 30000;
         else if (nb_proc > _nbOfProcWanted)

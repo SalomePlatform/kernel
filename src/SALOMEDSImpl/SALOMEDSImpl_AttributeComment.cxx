@@ -38,7 +38,7 @@ const string& SALOMEDSImpl_AttributeComment::GetID ()
 }   
 
 SALOMEDSImpl_AttributeComment* SALOMEDSImpl_AttributeComment::Set (const DF_Label& L, 
-							           const string& Val) 
+                                                                   const string& Val) 
 {
   SALOMEDSImpl_AttributeComment* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeComment*)L.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {

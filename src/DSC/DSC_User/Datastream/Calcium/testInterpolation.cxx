@@ -39,7 +39,7 @@ struct MyRand {
   static const double MAXVALUE = 150.0;
   MyRand() { srand(getpid()); }
   int operator()() const {
- 	return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
+        return 1+(int) ( MAXVALUE *rand()/(RAND_MAX +1.0));
   }
 };
 
@@ -89,17 +89,17 @@ int main() {
   //Calcul sans Lambda
   // ERREUR : il faut produire une binary pas avec compose2
   //   std::transform(InIt1,InIt1+dataSize3,InIt2,OutIt2, 
-  // 		 //std::minus<Type>(),
-  // 		 __gnu_cxx::compose2(std::minus<Type>(),
-  // 				     //	__gnu_cxx::identity<Type>(),
-  // 				     std::bind2nd( std::multiplies<Type>(), 1. ),
-  // 				     std::bind2nd( std::multiplies<Type>(), 1.1 ) ) 
-  // 		 );
+  //             //std::minus<Type>(),
+  //             __gnu_cxx::compose2(std::minus<Type>(),
+  //                                 // __gnu_cxx::identity<Type>(),
+  //                                 std::bind2nd( std::multiplies<Type>(), 1. ),
+  //                                 std::bind2nd( std::multiplies<Type>(), 1.1 ) ) 
+  //             );
   //   InIt2 =vect2.begin();
   //   OutIt2=vect4.begin();
   
   //   std::transform(InIt2,InIt2+dataSize3,OutIt2,OutIt2,
-  // 		 std::plus<Type>() );
+  //             std::plus<Type>() );
   
   // Calcul direct
   InIt1=vect1.begin(); InIt2=vect2.begin();OutIt2=vect4.begin();

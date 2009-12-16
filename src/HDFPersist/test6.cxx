@@ -60,10 +60,10 @@ int main()
       MESSAGE( "--> There are " << m << " objects in the group" );
       
       for (i=0;i<m;i++) 
-	{
-	  geom->InternalObjectIndentify(i,name);
-	  MESSAGE( "--> First Level Internal Object Name : " << name );
-	}        
+        {
+          geom->InternalObjectIndentify(i,name);
+          MESSAGE( "--> First Level Internal Object Name : " << name );
+        }        
 
       geom1 = new HDFgroup("GEOM_1",geom);
       MESSAGE( ">> The HDF group object is created for 'GEOM_1' with 'GEOM' as father" );
@@ -116,7 +116,7 @@ int main()
       MESSAGE( ">> The same operations have been done for the file 'mesh.hdf'" )
       MESSAGE( "   and the groups MESH_1 and MESH_2" )
       MESSAGE( "--> This file has been mounted on the group 'MESH' of the file 'study.hdf' ")
-	      
+              
       study->CloseOnDisk();
       MESSAGE( ">> The study.hdf file is closed" );
 

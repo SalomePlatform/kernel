@@ -39,54 +39,54 @@ class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, pub
 {
 
 public :
-	enum Status { UNDEF=-1 , TERMINATED=0 , RUNNING=1 } ;
+        enum Status { UNDEF=-1 , TERMINATED=0 , RUNNING=1 } ;
 
-	class client_infos
-	{
-	protected :
-		const char* const	_ior;
-		const char* const	_name;
-		const long		_pid ;
-		const char* const	_machine;
-		const char* const	_adip;
-		const long		_uid;
-		const char* const	_pwname;
-		const long		_ts_start ;
-		const long		_difftime;
-		const char* const	_cdir ;
-		      long 		_ts_hello ;
-		      long 		_ts_end ;
-		      Status            _status;
-	public :
-		friend class RegistryService ;
+        class client_infos
+        {
+        protected :
+                const char* const       _ior;
+                const char* const       _name;
+                const long              _pid ;
+                const char* const       _machine;
+                const char* const       _adip;
+                const long              _uid;
+                const char* const       _pwname;
+                const long              _ts_start ;
+                const long              _difftime;
+                const char* const       _cdir ;
+                      long              _ts_hello ;
+                      long              _ts_end ;
+                      Status            _status;
+        public :
+                friend class RegistryService ;
 
-		client_infos( const Registry::Infos &infos );
-		~client_infos();
-	}; 
+                client_infos( const Registry::Infos &infos );
+                ~client_infos();
+        }; 
 
 
 
 public :
-	RegistryService(void);
-	virtual ~RegistryService(void);
+        RegistryService(void);
+        virtual ~RegistryService(void);
 
         void ping();
         CORBA::Long getPID();
-	virtual CORBA::ULong add (const Registry::Infos & infos);
-	virtual CORBA::ULong size ( void );
+        virtual CORBA::ULong add (const Registry::Infos & infos);
+        virtual CORBA::ULong size ( void );
 #ifndef WIN32
-	virtual void remove( const CORBA::ULong id );
-	virtual void hello( const CORBA::ULong id );
+        virtual void remove( const CORBA::ULong id );
+        virtual void hello( const CORBA::ULong id );
 #else
-	virtual void remove( CORBA::ULong id );
-	virtual void hello( CORBA::ULong id );
+        virtual void remove( CORBA::ULong id );
+        virtual void hello( CORBA::ULong id );
 #endif
-	virtual void end(void);
+        virtual void end(void);
 
-	virtual Registry::AllInfos *getall(void);
-	virtual Registry::AllInfos *history(void);
+        virtual Registry::AllInfos *getall(void);
+        virtual Registry::AllInfos *history(void);
 
-	void SessionName( const char *sessionName ) ;
+        void SessionName( const char *sessionName ) ;
 
         void SetOrb( CORBA::ORB_ptr orb ) { _orb = CORBA::ORB::_duplicate(orb); return; }
 
@@ -95,12 +95,12 @@ public :
 protected :
 
         CORBA::ORB_var _orb;
-	const char		*_SessionName ;
-	int			 _Compteur ;
-	std::map<int,client_infos *>	 _reg ;
-	std::map<int,client_infos *>	 _fin ;
+        const char              *_SessionName ;
+        int                      _Compteur ;
+        std::map<int,client_infos *>     _reg ;
+        std::map<int,client_infos *>     _fin ;
 
-	Registry::AllInfos* makeseq(std::map<int,client_infos *> &mymap );
+        Registry::AllInfos* makeseq(std::map<int,client_infos *> &mymap );
 
 } ;
 

@@ -48,8 +48,8 @@ Engines_DSC_interface::~Engines_DSC_interface()
 
 void
 Engines_DSC_interface::add_provides_port(Ports::Port_ptr ref, 
-				 const char* provides_port_name,
-				 Ports::PortProperties_ptr port_prop) 
+                                 const char* provides_port_name,
+                                 Ports::PortProperties_ptr port_prop) 
 throw (Engines::DSC::PortAlreadyDefined,
        Engines::DSC::NilPort,
        Engines::DSC::BadProperty) 
@@ -79,8 +79,8 @@ throw (Engines::DSC::PortAlreadyDefined,
 
 void
 Engines_DSC_interface::add_uses_port(const char* repository_id, 
-			     const char* uses_port_name,
-			     Ports::PortProperties_ptr port_prop) 
+                             const char* uses_port_name,
+                             Ports::PortProperties_ptr port_prop) 
 throw (Engines::DSC::PortAlreadyDefined,
        Engines::DSC::BadProperty) 
 {
@@ -111,10 +111,10 @@ throw (Engines::DSC::PortAlreadyDefined,
 
 Ports::Port_ptr
 Engines_DSC_interface::get_provides_port(const char* provides_port_name,
-				 const CORBA::Boolean connection_error) 
+                                 const CORBA::Boolean connection_error) 
   throw (Engines::DSC::PortNotDefined,
-	 Engines::DSC::PortNotConnected, 
-	 Engines::DSC::BadPortType) 
+         Engines::DSC::PortNotConnected, 
+         Engines::DSC::BadPortType) 
 {
   // Method arg test
   assert(provides_port_name);
@@ -148,8 +148,8 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 Engines::DSC::uses_port * 
 Engines_DSC_interface::get_uses_port(const char* uses_port_name) 
   throw (Engines::DSC::PortNotDefined,
-	 Engines::DSC::PortNotConnected,
-	 Engines::DSC::BadPortType) 
+         Engines::DSC::PortNotConnected,
+         Engines::DSC::BadPortType) 
 {
   // Method arg test
   assert(uses_port_name);
@@ -204,17 +204,17 @@ Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
   my_ports[provides_port_name]->connection_nbr += 1;
   // User code is informed
   provides_port_changed(provides_port_name, 
-			my_ports[provides_port_name]->connection_nbr,
-			Engines::DSC::AddingConnection
-		       );
+                        my_ports[provides_port_name]->connection_nbr,
+                        Engines::DSC::AddingConnection
+                       );
 }
 
 void
 Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
-					 Ports::Port_ptr provides_port_ref) 
+                                         Ports::Port_ptr provides_port_ref) 
   throw (Engines::DSC::PortNotDefined,
-	 Engines::DSC::BadPortType,
-	 Engines::DSC::NilPort)
+         Engines::DSC::BadPortType,
+         Engines::DSC::NilPort)
 {
   // Method arg test
   assert(uses_port_name);
@@ -248,14 +248,14 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
     my_ports[uses_port_name]->connection_nbr += 1;
     // User code is informed
     uses_port_changed(uses_port_name,
-		      new Engines::DSC::uses_port(my_ports[uses_port_name]->uses_port_refs),
-		      Engines::DSC::AddingConnection);
+                      new Engines::DSC::uses_port(my_ports[uses_port_name]->uses_port_refs),
+                      Engines::DSC::AddingConnection);
   }
   else {
     Engines::DSC::BadPortType BPT;
     BPT.expected = CORBA::string_dup("Expected ...");
     BPT.received = CORBA::string_dup((std::string("Received an incorrect repository id type ")+
-				      repository_id).c_str());
+                                      repository_id).c_str());
     throw BPT;
   }
 
@@ -283,7 +283,7 @@ Engines_DSC_interface::is_connected(const char* port_name)
 
 void
 Engines_DSC_interface::disconnect_provides_port(const char* provides_port_name,
-					const Engines::DSC::Message message)
+                                        const Engines::DSC::Message message)
 throw (Engines::DSC::PortNotDefined,
        Engines::DSC::PortNotConnected)
 {
@@ -301,8 +301,8 @@ throw (Engines::DSC::PortNotDefined,
   {
     my_ports[provides_port_name]->connection_nbr -= 1;
     provides_port_changed(provides_port_name,
-			  my_ports[provides_port_name]->connection_nbr,
-			  message);
+                          my_ports[provides_port_name]->connection_nbr,
+                          message);
   }
   else
     throw Engines::DSC::PortNotConnected();
@@ -310,8 +310,8 @@ throw (Engines::DSC::PortNotDefined,
 
 void
 Engines_DSC_interface::disconnect_uses_port(const char* uses_port_name,
-				    Ports::Port_ptr provides_port_ref,
-				    const Engines::DSC::Message message)
+                                    Ports::Port_ptr provides_port_ref,
+                                    const Engines::DSC::Message message)
 throw (Engines::DSC::PortNotDefined,
        Engines::DSC::PortNotConnected,
        Engines::DSC::BadPortReference) 
@@ -336,8 +336,8 @@ throw (Engines::DSC::PortNotDefined,
     {
       if (my_ports[uses_port_name]->uses_port_refs[i]->_is_equivalent(provides_port_ref))
       {
-	port_index = i;
-	break;
+        port_index = i;
+        break;
       }
     }
     if (port_index == -1)
@@ -353,15 +353,15 @@ throw (Engines::DSC::PortNotDefined,
     for(;index_ancien < seq_length;) {
       if (index_ancien == port_index) 
       {
-	// Rien a faire !
-	// On ne change pas le index du nouveau tableau
-	index_ancien += 1;
+        // Rien a faire !
+        // On ne change pas le index du nouveau tableau
+        index_ancien += 1;
       }
       else 
       {
-	(*new_uses_port)[index_nouveau] = my_ports[uses_port_name]->uses_port_refs[index_ancien];
-	index_ancien += 1;
-	index_nouveau += 1;
+        (*new_uses_port)[index_nouveau] = my_ports[uses_port_name]->uses_port_refs[index_ancien];
+        index_ancien += 1;
+        index_nouveau += 1;
       }
     }
 
@@ -370,8 +370,8 @@ throw (Engines::DSC::PortNotDefined,
 
     // The user code is informed
     uses_port_changed(uses_port_name,
-		      new_uses_port,
-		      message);
+                      new_uses_port,
+                      message);
   }
   else
     throw Engines::DSC::PortNotConnected();

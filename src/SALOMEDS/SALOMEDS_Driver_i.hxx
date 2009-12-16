@@ -55,26 +55,26 @@ public:
     }
 
   virtual SALOMEDSImpl_TMPFile* Save(const SALOMEDSImpl_SComponent& theComponent,
-		                     const std::string& theURL,
-		                     long& theStreamLength,
-			             bool isMultiFile);
+                                     const std::string& theURL,
+                                     long& theStreamLength,
+                                     bool isMultiFile);
 
   virtual SALOMEDSImpl_TMPFile* SaveASCII(const SALOMEDSImpl_SComponent& theComponent,
-				          const std::string& theURL,
-				          long& theStreamLength,
-				          bool isMultiFile);
+                                          const std::string& theURL,
+                                          long& theStreamLength,
+                                          bool isMultiFile);
   
   virtual bool Load(const SALOMEDSImpl_SComponent& theComponent,
-		    const unsigned char* theStream,
-		    const long theStreamLength,
-		    const std::string& theURL,
-		    bool isMultiFile);
+                    const unsigned char* theStream,
+                    const long theStreamLength,
+                    const std::string& theURL,
+                    bool isMultiFile);
 
   virtual bool LoadASCII(const SALOMEDSImpl_SComponent& theComponent,
-			 const unsigned char* theStream,
-			 const long theStreamLength,
-			 const std::string& theURL,
-			 bool isMultiFile);
+                         const unsigned char* theStream,
+                         const long theStreamLength,
+                         const std::string& theURL,
+                         bool isMultiFile);
 
   virtual void Close(const SALOMEDSImpl_SComponent& theComponent);
  
@@ -86,32 +86,32 @@ public:
 
 
   virtual std::string IORToLocalPersistentID(const SALOMEDSImpl_SObject& theSObject,
-					     const std::string& IORString,
-					     bool isMultiFile,
-					     bool isASCII);
+                                             const std::string& IORString,
+                                             bool isMultiFile,
+                                             bool isASCII);
 
   virtual std::string LocalPersistentIDToIOR(const SALOMEDSImpl_SObject& theSObject,
-					     const std::string& aLocalPersistentID,
-					     bool isMultiFile,
-					     bool isASCII);
+                                             const std::string& aLocalPersistentID,
+                                             bool isMultiFile,
+                                             bool isASCII);
 
   virtual bool CanCopy(const SALOMEDSImpl_SObject& theObject);
 
   virtual SALOMEDSImpl_TMPFile* CopyFrom(const SALOMEDSImpl_SObject& theObject, 
-				         int& theObjectID,
-				         long& theStreamLength);
+                                         int& theObjectID,
+                                         long& theStreamLength);
   
   virtual bool CanPaste(const std::string& theComponentName, int theObjectID);
 
   virtual std::string PasteInto(const unsigned char* theStream,
-				const long theStreamLength,
-				int theObjectID,
-				const SALOMEDSImpl_SObject& theObject);
+                                const long theStreamLength,
+                                int theObjectID,
+                                const SALOMEDSImpl_SObject& theObject);
 
   virtual SALOMEDSImpl_TMPFile* DumpPython(SALOMEDSImpl_Study* theStudy, 
-				           bool isPublished, 
-				           bool& isValidScript,
-				           long& theStreamLength);
+                                           bool isPublished, 
+                                           bool& isValidScript,
+                                           long& theStreamLength);
 };
 
 #include "SALOME_NamingService.hxx"

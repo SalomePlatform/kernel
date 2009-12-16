@@ -131,8 +131,8 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 //=============================================================================
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
-				     const char *componentName,
-				     int studyId)
+                                     const char *componentName,
+                                     int studyId)
 {
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
@@ -144,9 +144,9 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
 
   Engines::Component_var compo = _FindComponent(new_params,
-						componentName,
-						studyId,
-						listOfResources);
+                                                componentName,
+                                                studyId,
+                                                listOfResources);
 
   return compo._retn();
 }
@@ -163,8 +163,8 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
-				     const char *componentName,
-				     int studyId)
+                                     const char *componentName,
+                                     int studyId)
 {
   // --- Check if Component Name is known in ModuleCatalog
 
@@ -180,8 +180,8 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   new_params.resource_params.resList = listOfResources;
 
   Engines::Component_var compo = _LoadComponent(new_params,
-						componentName,
-						studyId);
+                                                componentName,
+                                                studyId);
 
   return compo._retn();
 }
@@ -200,8 +200,8 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
 FindOrLoad_Component(const Engines::MachineParameters& params,
-		     const char *componentName,
-		     int studyId)
+                     const char *componentName,
+                     int studyId)
 {
   // --- Check if Component Name is known in ModuleCatalog
 
@@ -223,16 +223,16 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
 
   Engines::Component_var compo = _FindComponent(new_params,
-						componentName,
-						studyId,
-						listOfResources);
+                                                componentName,
+                                                studyId,
+                                                listOfResources);
 
   if(CORBA::is_nil(compo))
   {
     new_params.resource_params.resList = listOfResources;
     compo = _LoadComponent(new_params,
-			   componentName,
-			   studyId);
+                           componentName,
+                           studyId);
   }
 
   return compo._retn();
@@ -241,8 +241,8 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
 FindOrLoad_Component(const Engines::ContainerParameters& params,
-		     const char *componentName,
-		     int studyId)
+                     const char *componentName,
+                     int studyId)
 {
   // --- Check if Component Name is known in ModuleCatalog
 
@@ -256,16 +256,16 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
 
   Engines::Component_var compo = _FindComponent(new_params,
-						componentName,
-						studyId,
-						listOfResources);
+                                                componentName,
+                                                studyId,
+                                                listOfResources);
 
   if(CORBA::is_nil(compo))
   {
     new_params.resource_params.resList = listOfResources;
     compo = _LoadComponent(new_params,
-			   componentName,
-			   studyId);
+                           componentName,
+                           studyId);
   }
 
   return compo._retn();
@@ -285,7 +285,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
 
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
-					    const char *componentName)
+                                            const char *componentName)
 {
   MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component INTERACTIF " << containerName << " " << componentName ) ;
 
@@ -339,7 +339,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
     if (CORBA::is_nil (compoInfo)) 
     {
       INFOS("Catalog Error: Component not found in the catalog" );
-      INFOS( componentName );	  
+      INFOS( componentName );     
       return false;
     }
     else return true;
@@ -431,7 +431,7 @@ void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)
 
 void 
 SALOME_LifeCycleCORBA::convert(const Engines::MachineParameters& params_in, 
-			       Engines::ContainerParameters& params_out)
+                               Engines::ContainerParameters& params_out)
 {
   SALOME_LifeCycleCORBA::preSet(params_out);
 
@@ -590,7 +590,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
       objLog = inc->resolve(name);
       SALOME_Logger::Logger_var logger = SALOME_Logger::Logger::_narrow(objLog);
       if ( !CORBA::is_nil(logger) )
-	logger->shutdown();
+        logger->shutdown();
     }
     catch(...)
     {
@@ -651,9 +651,9 @@ void SALOME_LifeCycleCORBA::killOmniNames()
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
 _FindComponent(const Engines::ContainerParameters& params,
-	       const char *componentName,
-	       int studyId,
-	       const Engines::ResourceList& listOfResources)
+               const char *componentName,
+               int studyId,
+               const Engines::ResourceList& listOfResources)
 {
   // --- build the list of machines on which the component is already running
   const char *containerName = params.container_name;
@@ -668,9 +668,9 @@ _FindComponent(const Engines::ContainerParameters& params,
   {
     const char * currentResource = listOfResources[i];
     CORBA::Object_var obj = _NS->ResolveComponent(currentResource,
-						  containerName,
-						  componentName,
-						  nbproc);
+                                                  containerName,
+                                                  componentName,
+                                                  nbproc);
     if (!CORBA::is_nil(obj))
       resourcesOK[lghtOfresourcesOK++] = CORBA::string_dup(currentResource);
   }
@@ -681,9 +681,9 @@ _FindComponent(const Engines::ContainerParameters& params,
     resourcesOK->length(lghtOfresourcesOK);
     CORBA::String_var bestResource = _ResManager->FindFirst(resourcesOK);
     CORBA::Object_var obj = _NS->ResolveComponent(bestResource,
-						  containerName,
-						  componentName,
-						  nbproc);
+                                                  containerName,
+                                                  componentName,
+                                                  nbproc);
     return Engines::Component::_narrow(obj);
   }
   else
@@ -707,11 +707,11 @@ _FindComponent(const Engines::ContainerParameters& params,
 Engines::Component_ptr 
 SALOME_LifeCycleCORBA::
 _LoadComponent(const Engines::ContainerParameters& params, 
-	      const char *componentName,
-	      int studyId)
+              const char *componentName,
+              int studyId)
 {
   MESSAGE("_LoadComponent, required " << params.container_name <<
-	  " " << componentName << " " << NbProc(params));
+          " " << componentName << " " << NbProc(params));
 
   Engines::ContainerParameters local_params(params);
   local_params.mode = CORBA::string_dup("findorstart");

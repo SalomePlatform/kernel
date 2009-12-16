@@ -62,18 +62,18 @@ public:
   virtual void SetLocked(bool theLocked);
   virtual bool IsLocked();
   virtual void SetModification(const std::string& theName,
-			       int theMinute,
-			       int theHour,
-			       int theDay,
-			       int theMonth,
-			       int theYear);
+                               int theMinute,
+                               int theHour,
+                               int theDay,
+                               int theMonth,
+                               int theYear);
   virtual void GetModificationsList(std::vector<std::string>& theNames,
-				    std::vector<int>& theMinutes,
-				    std::vector<int>& theHours,
-				    std::vector<int>& theDays,
-				    std::vector<int>& theMonths,
-				    std::vector<int>& theYears,
-				    bool theWithCreator);
+                                    std::vector<int>& theMinutes,
+                                    std::vector<int>& theHours,
+                                    std::vector<int>& theDays,
+                                    std::vector<int>& theMonths,
+                                    std::vector<int>& theYears,
+                                    bool theWithCreator);
 
 };
 

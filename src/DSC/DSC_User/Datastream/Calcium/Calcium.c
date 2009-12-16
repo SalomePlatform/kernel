@@ -49,34 +49,34 @@ typedef char bool;
 /* Attention si les niveaux sont actifs le buffer peut être supprimé automatiquement par calcium. */
 
 #define CALCIUM_EXT_LECT_INTERFACE_C_(_name,_timeType,_type,_typeName,_qual) \
-  InfoType ecp_##_name (void * component, int mode,			\
-			_timeType * ti, _timeType * tf, int * i,	\
-		        char * nomvar, int bufferLength,		\
-			int * nRead, _type _qual ** data ) {		\
-    size_t _nRead;							\
-    long   _i=*i;							\
-    fflush(stdout);							\
-    fflush(stderr);							\
-    									\
+  InfoType ecp_##_name (void * component, int mode,                     \
+                        _timeType * ti, _timeType * tf, int * i,        \
+                        char * nomvar, int bufferLength,                \
+                        int * nRead, _type _qual ** data ) {            \
+    size_t _nRead;                                                      \
+    long   _i=*i;                                                       \
+    fflush(stdout);                                                     \
+    fflush(stderr);                                                     \
+                                                                        \
     InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i, \
-					      nomvar, bufferLength, &_nRead, \
-					      data );			\
+                                              nomvar, bufferLength, &_nRead, \
+                                              data );                   \
     /*    std::cout << "-------- CalciumInterface(C Part), Valeur de data : " << std::endl; */ \
-    /*    std::cout << "Ptr :" << *data << std::endl;				*/ \
-    /*    for (int j=0; j<_nRead;++j)						*/ \
-    /*      printf("--- Valeur de data[%d] : %d \n",j,(*data)[j]);		*/ \
-    /*    std::cout << "Ptr :" << *data << std::endl;				*/ \
-    /*									*/ \
+    /*    std::cout << "Ptr :" << *data << std::endl;                           */ \
+    /*    for (int j=0; j<_nRead;++j)                                           */ \
+    /*      printf("--- Valeur de data[%d] : %d \n",j,(*data)[j]);              */ \
+    /*    std::cout << "Ptr :" << *data << std::endl;                           */ \
+    /*                                                                  */ \
     /*    std::cerr << "-------- CalciumInterface(C Part) MARK 2 ------------------" << std::endl; */ \
     if(mode == CP_SEQUENTIEL)   \
-      *i = _i;								\
-    *nRead=_nRead;							\
+      *i = _i;                                                          \
+    *nRead=_nRead;                                                      \
     /*    std::cerr << "-------- CalciumInterface(C Part) MARK 3 ------------------" << std::endl; */ \
-									\
-    return info;							\
-  };									\
-  void ecp_##_name##_free ( _type _qual * data) {			\
-    ecp_lecture_##_typeName##_free(data);				\
+                                                                        \
+    return info;                                                        \
+  };                                                                    \
+  void ecp_##_name##_free ( _type _qual * data) {                       \
+    ecp_lecture_##_typeName##_free(data);                               \
   };
 
 
@@ -85,29 +85,29 @@ typedef char bool;
    Le paramètre supplémentaire strSize indique la taille fixe et identique
    des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
 */
-InfoType ecp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
-		char  *	nomvar, int bufferLength, int * nRead,
-		char *** data, int strSize) {
+InfoType ecp_lch(void * component, int mode, float * ti,        float * tf, int * i,
+                char  * nomvar, int bufferLength, int * nRead,
+                char *** data, int strSize) {
 
-  size_t _nRead;							
-  long   _i=*i;							
-  fflush(stdout);fflush(stderr);							
+  size_t _nRead;                                                        
+  long   _i=*i;                                                 
+  fflush(stdout);fflush(stderr);                                                        
  
   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
-				    nomvar, bufferLength, &_nRead, 
-				    data);/*, strSize ); 
-					     strSize est  inutile pour les ports CALCIUM
-					     qui gèrent des tailles quelconques de chaines. */
-  if(mode == CP_SEQUENTIEL)						
-    *i = _i;								
-  *nRead=_nRead;							
-  fflush(stdout);fflush(stderr);							
-									
-  return info;							
-};									
+                                    nomvar, bufferLength, &_nRead, 
+                                    data);/*, strSize ); 
+                                             strSize est  inutile pour les ports CALCIUM
+                                             qui gèrent des tailles quelconques de chaines. */
+  if(mode == CP_SEQUENTIEL)                                             
+    *i = _i;                                                            
+  *nRead=_nRead;                                                        
+  fflush(stdout);fflush(stderr);                                                        
+                                                                        
+  return info;                                                  
+};                                                                      
 
-void ecp_lch_free (char* * data) {				\
-  ecp_lecture_str_free(data);					\
+void ecp_lch_free (char* * data) {                              \
+  ecp_lecture_str_free(data);                                   \
 };
 
 
@@ -126,34 +126,34 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 /**************************************/
 
 #define CALCIUM_LECT_INTERFACE_C_(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
-  _calInt cp_##_name (void * component, _calInt mode,			\
-		       _timeType * ti, _timeType * tf, _calInt * i,	\
-		       char * nomvar, _calInt bufferLength,		\
-		       _calInt * nRead, _type _qual * data		\
-		       lastarg ) {					\
-									\
-    int    _mode         = (int) mode;					\
-    size_t _bufferLength = bufferLength;				\
-    size_t _nRead;							\
-    long   _i            =*i;						\
-    fflush(stdout);							\
-    fflush(stderr);							\
-    									\
-    if ( (data == NULL) || (_bufferLength < 1) ) return CPNTNULL;	\
-    									\
+  _calInt cp_##_name (void * component, _calInt mode,                   \
+                       _timeType * ti, _timeType * tf, _calInt * i,     \
+                       char * nomvar, _calInt bufferLength,             \
+                       _calInt * nRead, _type _qual * data              \
+                       lastarg ) {                                      \
+                                                                        \
+    int    _mode         = (int) mode;                                  \
+    size_t _bufferLength = bufferLength;                                \
+    size_t _nRead;                                                      \
+    long   _i            =*i;                                           \
+    fflush(stdout);                                                     \
+    fflush(stderr);                                                     \
+                                                                        \
+    if ( (data == NULL) || (_bufferLength < 1) ) return CPNTNULL;       \
+                                                                        \
     _calInt info =  ecp_lecture_##_typeName (component, _mode, ti, tf, &_i, \
-					      nomvar, _bufferLength, &_nRead, \
-					      &data );			\
-    if(mode == CP_SEQUENTIEL)						\
-      *i = _i;								\
-    *nRead=_nRead;							\
-    fflush(stdout);							\
-    fflush(stderr);							\
-									\
-    return info;							\
-  };									\
-  void cp_##_name##_free ( _type _qual * data) {			\
-    ecp_lecture_##_typeName##_free(data);				\
+                                              nomvar, _bufferLength, &_nRead, \
+                                              &data );                  \
+    if(mode == CP_SEQUENTIEL)                                           \
+      *i = _i;                                                          \
+    *nRead=_nRead;                                                      \
+    fflush(stdout);                                                     \
+    fflush(stderr);                                                     \
+                                                                        \
+    return info;                                                        \
+  };                                                                    \
+  void cp_##_name##_free ( _type _qual * data) {                        \
+    ecp_lecture_##_typeName##_free(data);                               \
   };
 
 
@@ -163,31 +163,31 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
    des chaînes stockées dans data (les ports CALCIUM n'en n'ont pas besoin)
 */
 
-/* InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i, */
-/* 		char  *	nomvar, int bufferLength, int * nRead, */
-/* 		char ** data, int strSize) { */
+/* InfoType cp_lch(void * component, int mode, float * ti,      float * tf, int * i, */
+/*              char  * nomvar, int bufferLength, int * nRead, */
+/*              char ** data, int strSize) { */
 
-/*   size_t _nRead;							 */
-/*   long   _i=*i;							 */
-/*   fflush(stdout);fflush(stderr);							 */
-/*   fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	 */
-    									
-/*   if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	 */
+/*   size_t _nRead;                                                      */
+/*   long   _i=*i;                                                       */
+/*   fflush(stdout);fflush(stderr);                                                      */
+/*   fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);    */
+                                                                        
+/*   if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;        */
   
 /*   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i,  */
-/* 				    nomvar, bufferLength, &_nRead,  */
-/* 				    &data);*/
+/*                                  nomvar, bufferLength, &_nRead,  */
+/*                                  &data);*/
 /*, strSize );  */
-/* 					     strSize est  inutile pour les ports CALCIUM */
-/* 					     qui gèrent des tailles quelconques de chaines.  */
-/*   if(mode == CP_SEQUENTIEL)						 */
-/*     *i = _i;								 */
-/*   *nRead=_nRead;							 */
-/*   fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			 */
-/*   fflush(stdout);fflush(stderr);							 */
-									
-/*   return info;							 */
-/* };									 */
+/*                                           strSize est  inutile pour les ports CALCIUM */
+/*                                           qui gèrent des tailles quelconques de chaines.  */
+/*   if(mode == CP_SEQUENTIEL)                                           */
+/*     *i = _i;                                                          */
+/*   *nRead=_nRead;                                                      */
+/*   fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);                        */
+/*   fflush(stdout);fflush(stderr);                                                      */
+                                                                        
+/*   return info;                                                        */
+/* };                                                                    */
 
 
 /* Definition des méthodes calcium standard  */
@@ -247,51 +247,51 @@ InfoType cp_fin (void * component, int code) {
 /***************************/
 
 #define CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
-  _calInt cp_##_name (void * component, _calInt mode,			\
-		       _timeType t, _calInt i,				\
-		       char * nomvar, _calInt nbelem,			\
-		       _type _qual * data				\
-		       lastarg ) {					\
-									\
-    int     _mode         =  mode;					\
-    long    _i            =  i;						\
-    size_t  _nbelem       =  nbelem;					\
-    _timeType _t          =  t;						\
-    fflush(stdout);							\
-    fflush(stderr);							\
-    if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
-    									\
+  _calInt cp_##_name (void * component, _calInt mode,                   \
+                       _timeType t, _calInt i,                          \
+                       char * nomvar, _calInt nbelem,                   \
+                       _type _qual * data                               \
+                       lastarg ) {                                      \
+                                                                        \
+    int     _mode         =  mode;                                      \
+    long    _i            =  i;                                         \
+    size_t  _nbelem       =  nbelem;                                    \
+    _timeType _t          =  t;                                         \
+    fflush(stdout);                                                     \
+    fflush(stderr);                                                     \
+    if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;              \
+                                                                        \
     _calInt info =  ecp_ecriture_##_typeName (component, _mode, &_t, _i, \
-					       nomvar, _nbelem,		\
-					       data );			\
-    fflush(stdout);							\
-    fflush(stderr);							\
-									\
-    return info;							\
-  };									\
+                                               nomvar, _nbelem,         \
+                                               data );                  \
+    fflush(stdout);                                                     \
+    fflush(stderr);                                                     \
+                                                                        \
+    return info;                                                        \
+  };                                                                    \
 
 
 
 
 /* InfoType cp_ech(void * component, int mode, float t, int i, */
-/* 		char  *	nomvar,  int nbelem, */
-/* 		char ** data, int strSize) { */
-									
-/*long   _i=i;*/							 
-/*   fflush(stdout);fflush(stderr);							 */
-/*   fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);	 */
-/*   if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		 */
+/*              char  * nomvar,  int nbelem, */
+/*              char ** data, int strSize) { */
+                                                                        
+/*long   _i=i;*/                                                         
+/*   fflush(stdout);fflush(stderr);                                                      */
+/*   fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);       */
+/*   if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;              */
     
-/*   InfoType info =  ecp_ecriture_str (component, mode, &t, i,	 */
-/* 				     nomvar, nbelem,		 */
-/* 				     data); */
+/*   InfoType info =  ecp_ecriture_str (component, mode, &t, i,  */
+/*                                   nomvar, nbelem,             */
+/*                                   data); */
 /*, strSize );*/
-/*   fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);			 */
-/*   fflush(stdout);							 */
-/*   fflush(stderr);							 */
-									
-/*   return info;							 */
-/* };									 */
+/*   fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);                         */
+/*   fflush(stdout);                                                     */
+/*   fflush(stderr);                                                     */
+                                                                        
+/*   return info;                                                        */
+/* };                                                                    */
 
 /*  Definition des méthodes calcium standard  */
 /*  CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,type,_typeName,_qual) */

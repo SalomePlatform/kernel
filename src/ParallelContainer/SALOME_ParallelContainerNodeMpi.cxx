@@ -143,18 +143,18 @@ int main(int argc, char* argv[])
   KERNEL_PYTHON::init_python(argc,argv);
 
   // Code pour choisir le reseau infiniband .....
-  /*	string hostname_temp = GetHostname();
-	hostent * t = gethostbyname(hostname_temp.c_str());
-	cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << t->h_addr << " " << hostname_temp << endl;
-	cerr << t->h_addr << endl;
-	in_addr * address=(in_addr * ) t->h_addr;
-	cerr << inet_ntoa(* address) << endl;
-	string ip = inet_ntoa(* address);
-	cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << endl;
-	string com = "giop:tcp:" + ip + ":";
-	const char* options[][2] = { { "endPoint", com.c_str() }, { 0, 0 } };
-	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB4", options);
-	*/
+  /*    string hostname_temp = GetHostname();
+        hostent * t = gethostbyname(hostname_temp.c_str());
+        cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << t->h_addr << " " << hostname_temp << endl;
+        cerr << t->h_addr << endl;
+        in_addr * address=(in_addr * ) t->h_addr;
+        cerr << inet_ntoa(* address) << endl;
+        string ip = inet_ntoa(* address);
+        cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << endl;
+        string com = "giop:tcp:" + ip + ":";
+        const char* options[][2] = { { "endPoint", com.c_str() }, { 0, 0 } };
+        CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB4", options);
+        */
   std::string containerName("");
   containerName = argv[1];
 
@@ -178,17 +178,17 @@ int main(int argc, char* argv[])
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
     // On récupère le proxy 
     string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
-						       proxy_hostname.c_str());
+                                                       proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
     // Node creation
     string node_name = containerName + "Node";
     Engines_Parallel_Container_i * servant =  new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
-									       proxy_ior,
-									       myid,
-									       root_poa,
-									       node_name);
+                                                                               proxy_ior,
+                                                                               myid,
+                                                                               root_poa,
+                                                                               node_name);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
@@ -211,9 +211,9 @@ int main(int argc, char* argv[])
     // We register nodes in two different parts
     // In the real machine name and in the proxy machine
     string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
-							hostname.c_str());
+                                                        hostname.c_str());
     string _proxymachine_containerName = ns->BuildContainerNameForNS(node_name.c_str(),
-								     proxy_hostname.c_str());
+                                                                     proxy_hostname.c_str());
     cerr << "Register container node : " << _containerName << endl;
     cerr << "Register container node : " << _proxymachine_containerName << endl;
     ns->Register(obj, _containerName.c_str());

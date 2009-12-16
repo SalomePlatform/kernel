@@ -78,7 +78,7 @@ public:
  */
   virtual SALOME_ModuleCatalog::Service* 
              GetService(const char* interfacename, 
-			const char* servicename) 
+                        const char* servicename) 
              throw(SALOME_ModuleCatalog::NotFound);
 
   //! method to get the default service of an interface of a component
@@ -156,7 +156,7 @@ private :
     \return the interface
   */
   void duplicate(SALOME_ModuleCatalog::DefinitionInterface &I_out,
-		 const SALOME_ModuleCatalog::DefinitionInterface &I_in);
+                 const SALOME_ModuleCatalog::DefinitionInterface &I_in);
 
  //! method to duplicate a service
   /*!
@@ -164,7 +164,7 @@ private :
     \return the service
   */
   void duplicate(SALOME_ModuleCatalog::Service & S_out,
-		 const SALOME_ModuleCatalog::Service &S_in);
+                 const SALOME_ModuleCatalog::Service &S_in);
 
  //! method to duplicate a parameter
   /*!
@@ -172,7 +172,7 @@ private :
     \return the parameter
   */
   void duplicate(SALOME_ModuleCatalog::ServicesParameter & P_out,
-		 const SALOME_ModuleCatalog::ServicesParameter & P_in);
+                 const SALOME_ModuleCatalog::ServicesParameter & P_in);
 
  //! method to duplicate a parameter
   /*!
@@ -180,7 +180,7 @@ private :
     \return the parameter
   */
   void duplicate(SALOME_ModuleCatalog::ServicesDataStreamParameter & P_out,
-		 const SALOME_ModuleCatalog::ServicesDataStreamParameter &P_in);
+                 const SALOME_ModuleCatalog::ServicesDataStreamParameter &P_in);
 
 };
 

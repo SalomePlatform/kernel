@@ -168,7 +168,7 @@ public:
 
   // Operation de création
 //   static inline Type create(size_t size=1,InnerType * data=NULL,
-// 			    bool giveOwnerShip=false) {
+//                          bool giveOwnerShip=false) {
 //     Type dummy;
 //     if (dataPtr)
 //       return *data;
@@ -306,7 +306,7 @@ public:
   // (généralement pas de recopie qlq soit l'ownership )
   // data doit avoir été alloué par allocPointer si giveOwnerShip = true  
   static inline Type create(size_t size, InnerType * const data = NULL,
-			    bool giveOwnerShip = false ) { 
+                            bool giveOwnerShip = false ) { 
     Type tmp;
     if (!data) {
       tmp = new seq_T();
@@ -464,7 +464,7 @@ public:
   // (généralement pas de recopie qlq soit l'ownership )
   // data doit avoir été alloué par allocPointer si giveOwnerShip = true  
   static inline Type create(size_t size, InnerType * const data = NULL,
-			    bool giveOwnerShip = false ) { 
+                            bool giveOwnerShip = false ) { 
     Type tmp;
     if (!data) {
       tmp = new seq_T();

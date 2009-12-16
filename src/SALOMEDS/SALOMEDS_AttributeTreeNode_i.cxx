@@ -30,7 +30,7 @@
 using namespace std;
 
 static SALOMEDSImpl_AttributeTreeNode* GetNode(SALOMEDS::AttributeTreeNode_ptr value,
-					       SALOMEDSImpl_AttributeTreeNode* aNode) 
+                                               SALOMEDSImpl_AttributeTreeNode* aNode) 
 {
   SALOMEDSImpl_AttributeTreeNode* aResult = NULL;
   DF_Label aLabel = DF_Label::Label(aNode->Label(), value->Label());
