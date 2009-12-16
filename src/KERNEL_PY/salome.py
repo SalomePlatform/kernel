@@ -85,6 +85,8 @@ variables:
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
+import dl, sys
+sys.setdlopenflags(dl.RTLD_NOW | dl.RTLD_GLOBAL)
 
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
