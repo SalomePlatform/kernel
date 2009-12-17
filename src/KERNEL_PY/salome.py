@@ -85,8 +85,43 @@ variables:
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
-import dl, sys
-sys.setdlopenflags(dl.RTLD_NOW | dl.RTLD_GLOBAL)
+
+
+#
+# The next block is workaround for the problem of shared symbols loading for the extension modules (e.g. SWIG-generated)
+# that causes RTTI unavailable in some cases. To solve this problem, sys.setdlopenflags() function is used.
+# Depending on the Python version and platform, the dlopen flags can be defined in the dl, DLFUN or ctypes module.
+# 
+import sys
+flags = None
+if not flags:
+    try:
+        # dl module can be unavailable
+        import dl
+        flags = dl.RTLD_NOW | dl.RTLD_GLOBAL
+    except:
+        pass
+    pass
+if not flags:
+    try:
+        # DLFCN module can be unavailable
+        import DLFCN
+        flags = DLFCN.RTLD_NOW | DLFCN.RTLD_GLOBAL
+    except:
+        pass
+    pass
+if not flags:
+    try:
+        # ctypes module can be unavailable
+        import ctypes
+        flags = ctypes.RTLD_GLOBAL
+    except:
+        pass
+    pass
+    
+if flags:
+    sys.setdlopenflags(flags)
+    pass
 
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
