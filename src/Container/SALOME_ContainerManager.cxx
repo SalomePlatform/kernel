@@ -44,6 +44,9 @@ using namespace std;
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
 
+omni_mutex SALOME_ContainerManager::_numInstanceMutex;
+
+
 //=============================================================================
 /*! 
  *  Constructor
@@ -53,8 +56,7 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, 
-                                                 SALOME_ResourcesManager *rm, SALOME_NamingService *ns)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns):_nbprocUsed(0)
 {
   MESSAGE("constructor");
   _NS = ns;
@@ -220,12 +222,12 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     {
       if (mode == "find")
       {
-        MESSAGE("[GiveContainer] no container found");
-        return ret;
+	MESSAGE("[GiveContainer] no container found");
+	return ret;
       }
       else
       {
-        mode = "start";
+	mode = "start";
       }
     }
   }
@@ -243,8 +245,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       Engines::Container_ptr cont = FindContainer(params, possibleResources[i].in());
       try
       {
-        if(!cont->_non_existent())
-          local_resources.push_back(string(possibleResources[i]));
+	if(!cont->_non_existent())
+	  local_resources.push_back(string(possibleResources[i]));
       }
       catch(CORBA::Exception&) {}
     }
@@ -273,13 +275,27 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
 
+  _numInstanceMutex.lock();
+
   // Step 5: get container in the naming service
   Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
   std::string hostname(resource_definition->name.in());
   std::string containerNameInNS;
-  if(params.isMPI)
+  if(params.isMPI){
+    int nbproc;
+    if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+      nbproc = 1;
+    else if ( params.resource_params.nb_node == 0 )
+      nbproc = params.resource_params.nb_proc_per_node;
+    else if ( params.resource_params.nb_proc_per_node == 0 )
+      nbproc = params.resource_params.nb_node;
+    else
+      nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+    if( getenv("LIBBATCH_NODEFILE") != NULL )
+      machinesFile(nbproc);
     // A mpi parallel container register on zero node in NS
     containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname).c_str());
+  }
   else
     containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
   MESSAGE("[GiveContainer] Container name in the naming service: " << containerNameInNS);
@@ -295,13 +311,15 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       Engines::Container_var cont=Engines::Container::_narrow(obj);
       if(!cont->_non_existent())
       {
-        if(std::string(params.mode.in())=="getorstart" or std::string(params.mode.in())=="get")
-          return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
-        else
-        {
-          INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
-          cont->Shutdown(); // shutdown the registered container if it exists
-        }
+	if(std::string(params.mode.in())=="getorstart" or std::string(params.mode.in())=="get"){
+	  _numInstanceMutex.unlock();
+	  return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
+	}
+	else
+	{
+	  INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+	  cont->Shutdown(); // shutdown the registered container if it exists
+	}
       }
     }
     catch(CORBA::Exception&)
@@ -318,6 +336,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   if (std::string(local_params.parallelLib.in()) != "")
   {
     INFOS("[GiveContainer] PaCO++ container are not currently available");
+    _numInstanceMutex.unlock();
     return ret;
   }
   // Classic or Exe ?
@@ -331,6 +350,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     if (CORBA::is_nil (Catalog))
     {
       INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
+      _numInstanceMutex.unlock();
       return ret;
     }
     // Loop through component list
@@ -340,39 +360,47 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
       if (CORBA::is_nil (compoInfo))
       {
-        continue;
+	continue;
       }
       SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
       container_exe_tmp=compoInfo->implementation_name();
       if(impl==SALOME_ModuleCatalog::CEXE)
       {
-        if(found)
-        {
-          INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
-          return Engines::Container::_nil();
-        }
-        MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
-        container_exe = container_exe_tmp.in();
-        found=1;
+	if(found)
+	{
+	  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+	  _numInstanceMutex.unlock();
+	  return Engines::Container::_nil();
+	}
+	MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
+	container_exe = container_exe_tmp.in();
+	found=1;
       }
     }
   }
   catch (ServiceUnreachable&)
   {
     INFOS("Caught exception: Naming Service Unreachable");
+    _numInstanceMutex.unlock();
     return ret;
   }
   catch (...)
   {
     INFOS("Caught unknown exception.");
+    _numInstanceMutex.unlock();
     return ret;
   }
 
   // Step 8: start a new container
   MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
   std::string command;
-  if(hostname == Kernel_Utils::GetHostname())
+  // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
+  if( getenv("LIBBATCH_NODEFILE") != NULL && params.isMPI )
+    command = BuildCommandToLaunchLocalContainer(params,container_exe);
+  // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
+  else if(hostname == Kernel_Utils::GetHostname())
     command = BuildCommandToLaunchLocalContainer(params, container_exe);
+  // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
   else
     command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
 
@@ -403,6 +431,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 
   // launch container with a system call
   int status=system(command.c_str());
+
+  _numInstanceMutex.unlock();
 
   if (status == -1){
     MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status -1)");
@@ -555,13 +585,13 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
     if (params.isMPI)
     {
       if ((params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0))
-        nbproc = 1;
+	nbproc = 1;
       else if (params.resource_params.nb_node == 0)
-        nbproc = params.resource_params.nb_proc_per_node;
+	nbproc = params.resource_params.nb_proc_per_node;
       else if (params.resource_params.nb_proc_per_node == 0)
-        nbproc = params.resource_params.nb_node;
+	nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+	nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
     }
 
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
@@ -606,7 +636,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command += " WORKINGDIR ";
       command += " '";
       if(wdir == "$TEMPDIR")
-        wdir="\\$TEMPDIR";
+	wdir="\\$TEMPDIR";
       command += wdir; // requested working directory
       command += "'"; 
     }
@@ -621,10 +651,10 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
       if( getenv("OMPI_URI_FILE") == NULL )
-        command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
-        command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-        command += getenv("OMPI_URI_FILE");
+	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+	command += getenv("OMPI_URI_FILE");
       }
 #endif        
       command += " SALOME_MPIContainer ";
@@ -671,6 +701,9 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
         nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
 
       o << nbproc << " ";
+
+      if( getenv("LIBBATCH_NODEFILE") != NULL )
+	o << "-machinefile " << _machinesFile << " ";
 
 #ifdef WITHLAM
       o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
@@ -835,26 +868,6 @@ string SALOME_ContainerManager::BuildTemporaryFileName() const
   aFileName += ".bat";
 #endif
   return aFileName;
-}
-
-string SALOME_ContainerManager::GetMPIZeroNode(string machine)
-{
-  int status;
-  string zeronode;
-  string cmd;
-  string tmpFile = BuildTemporaryFileName();
-
-  cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
-
-  status = system(cmd.c_str());
-  if( status == 0 ){
-    ifstream fp(tmpFile.c_str(),ios::in);
-    fp >> zeronode;
-  }
-
-  RmTmpFile(tmpFile);
-
-  return zeronode;
 }
 
 //=============================================================================
@@ -1688,3 +1701,48 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
 }
 #endif
 
+string SALOME_ContainerManager::GetMPIZeroNode(string machine)
+{
+  int status;
+  string zeronode;
+  string cmd;
+  string tmpFile = BuildTemporaryFileName();
+
+  if( getenv("LIBBATCH_NODEFILE") == NULL )
+    cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
+  else
+    cmd = "mpirun -np 1 -machinefile " + _machinesFile + " hostname > " + tmpFile;
+
+  status = system(cmd.c_str());
+  if( status == 0 ){
+    ifstream fp(tmpFile.c_str(),ios::in);
+    fp >> zeronode;
+  }
+
+  RmTmpFile(tmpFile);
+
+  return zeronode;
+}
+
+void SALOME_ContainerManager::machinesFile(const int nbproc)
+{
+  string tmp;
+  string nodesFile = getenv("LIBBATCH_NODEFILE");
+  _machinesFile = Kernel_Utils::GetTmpFileName();
+  ifstream fpi(nodesFile.c_str(),ios::in);
+  ofstream fpo(_machinesFile.c_str(),ios::out);
+
+  for(int i=0;i<_nbprocUsed;i++)
+    fpi >> tmp;
+
+  for(int i=0;i<nbproc;i++)
+    if( fpi >> tmp )
+      fpo << tmp << endl;
+    else
+      throw SALOME_Exception("You ask more processes than batch session have allocated!");
+
+  _nbprocUsed += nbproc;
+  fpi.close();
+  fpo.close();
+
+}

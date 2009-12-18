@@ -88,6 +88,8 @@ protected:
 
   std::string GetMPIZeroNode(std::string machine);
 
+  void machinesFile(const int nbproc);
+
   // For PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
   std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
@@ -114,6 +116,14 @@ protected:
 
   //! different behaviour if $APPLI exists (SALOME Application) 
   bool _isAppliSalomeDefined;
+
+  //! attribute that contains the number of processes used in batch mode by MPI containers
+  int _nbprocUsed;
+
+  //! attributes that contains the machinefile for MPI containers
+  std::string _machinesFile;
+
+  static omni_mutex _numInstanceMutex ; // lib and instance protection
 
 };
 #endif
