@@ -633,6 +633,7 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(SALOME_KERNEL ON)
                 SET(HAS_GUI ON)
+                SET(WITH_QT4 ON)
                 """)
                 pass
             # --
