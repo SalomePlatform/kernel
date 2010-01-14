@@ -520,7 +520,7 @@ try:
            med_obj = visu_gui.visu.getMedObjectFromStudy()
            print "med_obj - ", med_obj
 
-           myField1 = visu_gui.visu.getFieldObjectFromStudy(2,1)
+           myField1 = visu_gui.visu.getFieldObjectFromStudy(3,1)
            aMeshName = "maa1"
            anEntity = VISU.NODE
 	   aTimeStampId = -1
