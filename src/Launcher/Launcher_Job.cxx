@@ -74,12 +74,12 @@ Launcher::Job::~Job()
 void 
 Launcher::Job::setState(const std::string & state)
 {
-  // State of a Job: CREATED, QUEUED, RUNNING, FINISHED, ERROR
+  // State of a Job: CREATED, QUEUED, RUNNING, FINISHED, FAILED
   if (state != "CREATED" and
       state != "QUEUED" and
       state != "RUNNING" and
       state != "FINISHED" and
-      state != "ERROR")
+      state != "FAILED")
   {
     throw LauncherException("Bad state, this state does not exist: " + state);
   }
@@ -374,9 +374,10 @@ Launcher::Job::updateJobState()
 
     LAUNCHER_MESSAGE("State received is: " << par[STATE].str());
 
+    // TODO: Remove this if all tests pass with the new libBatch, otherwise fix the codes in libBatch
     // Patch until new LIBBATCH version
     // eSSH Client and ePBS Client and eSGE
-    if (par[STATE].str() == "Running" or par[STATE].str() == "E" or par[STATE].str() == "R" or par[STATE].str() == "r" or par[STATE].str() == "RUN")
+/*    if (par[STATE].str() == "Running" or par[STATE].str() == "E" or par[STATE].str() == "R" or par[STATE].str() == "r" or par[STATE].str() == "RUN")
       _state = "RUNNING";
     else if (par[STATE].str() == "Stopped")
       _state = "PAUSED";
@@ -385,7 +386,8 @@ Launcher::Job::updateJobState()
     else if (par[STATE].str() == "Dead" or par[STATE].str() == "Eqw")
       _state = "ERROR";
     else if (par[STATE].str() == "Q" or par[STATE].str() == "qw" or par[STATE].str() == "PEN")
-      _state = "QUEUED";
+      _state = "QUEUED";*/
+    _state = par[STATE].str();
   }
 #endif
   return _state;
