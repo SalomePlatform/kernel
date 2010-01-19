@@ -91,8 +91,6 @@ protected:
 
   std::string machinesFile(const int nbproc);
 
-  void machinesFile(const int nbproc);
-
   // For PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
   std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
