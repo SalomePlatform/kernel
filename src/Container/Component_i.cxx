@@ -263,7 +263,7 @@ void Engines_Component_i::destroy()
   //SCRUTE(_refcount_value());
   _poa->deactivate_object(*_id);
   //SCRUTE(_refcount_value());
-  //_remove_ref(); // VSR: commented, since raises SIGSEGV because of double deactivate_object()
+  _remove_ref();
   //SCRUTE(_refcount_value());
   MESSAGE("Engines_Component_i::destroyed") ;
 }
