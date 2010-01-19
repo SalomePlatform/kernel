@@ -187,10 +187,19 @@ Engines_Component_i::~Engines_Component_i()
   Engines_Container_i::decInstanceCnt(_interfaceName);
   if(_myConnexionToRegistry)delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
-  if(_notifSupplier)delete _notifSupplier;
-  _notifSupplier = 0;
+
   if(_id) delete _id;
   _id=0;
+
+  if(_notifSupplier)
+    {
+      SCRUTE(_notifSupplier->_refcount_value());
+      PortableServer::POA_var poa=_notifSupplier->_default_POA();
+      PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_notifSupplier);
+      poa->deactivate_object(anObjectId.in());
+      SCRUTE(_notifSupplier->_refcount_value());
+      _notifSupplier->_remove_ref();
+    }
 }
 
 //=============================================================================
