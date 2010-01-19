@@ -119,17 +119,20 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       bool Ok = ProcessMachine(aCurNode, _resource);
       if (Ok)
       {
-        // Adding a resource
-        if(_resource.HostName == "localhost")
-        {
-          _resource.HostName = Kernel_Utils::GetHostname();
-          if (_resource.Name == "localhost")
-          {
-            _resource.Name = Kernel_Utils::GetHostname();
-            _resource.DataForSort._Name = Kernel_Utils::GetHostname();
-          }
-        }
-        _resources_list[_resource.Name] = _resource;
+	// Adding a resource
+	if(_resource.HostName == "localhost")
+	{
+	  _resource.HostName = Kernel_Utils::GetHostname();
+	  if (_resource.Name == "localhost")
+	  {
+	    _resource.Name = Kernel_Utils::GetHostname();
+	    _resource.DataForSort._Name = Kernel_Utils::GetHostname();
+	  }
+	}
+	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	if (iter != _resources_list.end())
+	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
+	_resources_list[_resource.Name] = _resource;
       }
     }
     // Cas de la déclaration d'un cluster
@@ -138,7 +141,10 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       _resource.Clear();
       if(ProcessCluster(aCurNode, _resource))
       {
-        _resources_list[_resource.Name] = _resource;
+	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	if (iter != _resources_list.end())
+	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
+	_resources_list[_resource.Name] = _resource;
       }
     }
     aCurNode = aCurNode->next;

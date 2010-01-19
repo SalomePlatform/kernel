@@ -29,6 +29,8 @@
 #include <Batch/Batch_FactBatchManager_eSSH.hxx>
 #endif
 
+#include "Basics_Utils.hxx"
+#include "Basics_DirUtils.hxx"
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include "Launcher_Job_Command.hxx"
@@ -127,7 +129,11 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   {
     try 
     {
-      _batchmap[resource_name] = FactoryBatchManager(resource_definition);
+      // Warning cannot write on one line like this, because map object is constructed before
+      // the method is called...
+      //_batchmap.[resource_name] = FactoryBatchManager(resource_definition);
+      Batch::BatchManager_eClient * batch_client = FactoryBatchManager(resource_definition);
+      _batchmap[resource_name] = batch_client;
     }
     catch(const LauncherException &ex)
     {
@@ -300,7 +306,20 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 
   // Creating a new job
   Launcher::Job_Command * new_job = new Launcher::Job_Command();
-  new_job->setJobFile(job_params.Command);
+
+  string cmdFile = Kernel_Utils::GetTmpFileName();  
+#ifndef WIN32
+  cmdFile += ".sh";
+#else
+  cmdFile += ".bat";
+#endif
+  ofstream os;
+  os.open(cmdFile.c_str(), ofstream::out );
+  os << "#! /bin/sh" << endl;
+  os << job_params.Command;
+  os.close();
+
+  new_job->setJobFile(cmdFile);
   new_job->setLocalDirectory(job_params.RefDirectory);
   new_job->setWorkDirectory(job_params.MachinesList[clusterName].WorkDirectory);
   new_job->setEnvFile(job_params.MachinesList[clusterName].EnvFile);
@@ -312,7 +331,13 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 
   resourceParams p;
   p.hostname = clusterName;
+  p.name = "";
+  p.OS = "";
   p.nb_proc = job_params.NbOfProcesses;
+  p.nb_node = 0;
+  p.nb_proc_per_node = 0;
+  p.cpu_clock = 0;
+  p.mem_mb = 0;
   new_job->setResourceRequiredParams(p);
 
   createJob(new_job);

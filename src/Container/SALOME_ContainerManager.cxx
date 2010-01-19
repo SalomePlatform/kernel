@@ -203,6 +203,7 @@ void SALOME_ContainerManager::ShutdownContainers()
 Engines::Container_ptr
 SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& params)
 {
+  string machFile;
   Engines::Container_ptr ret = Engines::Container::_nil();
 
   // Step 0: Default mode is start
@@ -292,9 +293,9 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     else
       nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
     if( getenv("LIBBATCH_NODEFILE") != NULL )
-      machinesFile(nbproc);
+      machFile = machinesFile(nbproc);
     // A mpi parallel container register on zero node in NS
-    containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname).c_str());
+    containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname,machFile).c_str());
   }
   else
     containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
@@ -312,7 +313,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       if(!cont->_non_existent())
       {
 	if(std::string(params.mode.in())=="getorstart" or std::string(params.mode.in())=="get"){
-	  _numInstanceMutex.unlock();
 	  return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
 	}
 	else
@@ -396,10 +396,10 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   std::string command;
   // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
   if( getenv("LIBBATCH_NODEFILE") != NULL && params.isMPI )
-    command = BuildCommandToLaunchLocalContainer(params,container_exe);
+    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
   // if a container is launched on localhost, command is "SALOME_Container" or "mpirun -np nbproc SALOME_MPIContainer"
   else if(hostname == Kernel_Utils::GetHostname())
-    command = BuildCommandToLaunchLocalContainer(params, container_exe);
+    command = BuildCommandToLaunchLocalContainer(params, machFile, container_exe);
   // if a container is launched in remote mode, command is "ssh resource_selected SALOME_Container" or "ssh resource_selected mpirun -np nbproc SALOME_MPIContainer"
   else
     command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
@@ -679,7 +679,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 //=============================================================================
 string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const Engines::ContainerParameters& params, const std::string& container_exe)
+(const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe)
 {
   _TmpFileName = BuildTemporaryFileName();
   string command;
@@ -703,7 +703,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
       o << nbproc << " ";
 
       if( getenv("LIBBATCH_NODEFILE") != NULL )
-	o << "-machinefile " << _machinesFile << " ";
+	o << "-machinefile " << machinesFile << " ";
 
 #ifdef WITHLAM
       o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
@@ -1701,7 +1701,7 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
 }
 #endif
 
-string SALOME_ContainerManager::GetMPIZeroNode(string machine)
+string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const string machinesFile)
 {
   int status;
   string zeronode;
@@ -1711,7 +1711,7 @@ string SALOME_ContainerManager::GetMPIZeroNode(string machine)
   if( getenv("LIBBATCH_NODEFILE") == NULL )
     cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
   else
-    cmd = "mpirun -np 1 -machinefile " + _machinesFile + " hostname > " + tmpFile;
+    cmd = "mpirun -np 1 -machinefile " + machinesFile + " hostname > " + tmpFile;
 
   status = system(cmd.c_str());
   if( status == 0 ){
@@ -1724,13 +1724,15 @@ string SALOME_ContainerManager::GetMPIZeroNode(string machine)
   return zeronode;
 }
 
-void SALOME_ContainerManager::machinesFile(const int nbproc)
+string SALOME_ContainerManager::machinesFile(const int nbproc)
 {
   string tmp;
   string nodesFile = getenv("LIBBATCH_NODEFILE");
-  _machinesFile = Kernel_Utils::GetTmpFileName();
+  string machinesFile = Kernel_Utils::GetTmpFileName();
   ifstream fpi(nodesFile.c_str(),ios::in);
-  ofstream fpo(_machinesFile.c_str(),ios::out);
+  ofstream fpo(machinesFile.c_str(),ios::out);
+
+  _numInstanceMutex.lock();
 
   for(int i=0;i<_nbprocUsed;i++)
     fpi >> tmp;
@@ -1744,5 +1746,9 @@ void SALOME_ContainerManager::machinesFile(const int nbproc)
   _nbprocUsed += nbproc;
   fpi.close();
   fpo.close();
+
+  _numInstanceMutex.unlock();
+
+  return machinesFile;
 
 }

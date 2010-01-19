@@ -40,6 +40,15 @@ typedef sequence<string> FilesList;
 //! modules list
 typedef sequence<string> ModulesList;
 
+//! A generic parameter
+struct Parameter
+{
+  string name;
+  string value;
+};
+//! Generic parameter list
+typedef sequence<Engines::Parameter> ParameterList;
+
 //! Type to describe required properties of a resource
 struct ResourceParameters
 {
@@ -166,6 +175,11 @@ struct JobParameters
     Name of the batch queue choosed - optional
   */
   string queue;
+
+  /*!
+    Specific parameters for each type of job - optional
+  */
+  Engines::ParameterList specific_parameters;
 };
 
 /*! \brief Interface of the %salomelauncher

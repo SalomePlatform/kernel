@@ -71,6 +71,7 @@ protected:
                                                   const std::string& container_exe="SALOME_Container");
 
   std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params, 
+						 const std::string& machinesFile,
                                                  const std::string& container_exe="SALOME_Container");
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& resource_name,
@@ -86,7 +87,9 @@ protected:
 
   std::string BuildTemporaryFileName() const;
 
-  std::string GetMPIZeroNode(std::string machine);
+  std::string GetMPIZeroNode(const std::string machine, const std::string machinesFile);
+
+  std::string machinesFile(const int nbproc);
 
   void machinesFile(const int nbproc);
 
@@ -119,9 +122,6 @@ protected:
 
   //! attribute that contains the number of processes used in batch mode by MPI containers
   int _nbprocUsed;
-
-  //! attributes that contains the machinefile for MPI containers
-  std::string _machinesFile;
 
   static omni_mutex _numInstanceMutex ; // lib and instance protection
 

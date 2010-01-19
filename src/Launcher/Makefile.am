@@ -127,6 +127,7 @@ libLauncher_la_SOURCES=\
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
+	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../ResourcesManager \
 	@LIBBATCH_INCLUDES@ \
 	@MPI_INCLUDES@ \

@@ -253,6 +253,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->batch = "lsf";
   else if( resource.Batch == sge )
     p_ptr->batch = "sge";
+  else if( resource.Batch == ssh_batch )
+    p_ptr->batch = "ssh";
 
   return p_ptr;
 }
