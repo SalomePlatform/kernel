@@ -61,6 +61,8 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // Begin of script
   launch_script_stream << "#! /bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
+  launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
+  launch_script_stream << "export PATH=" << work_directory << ":$PATH" << std::endl;
   if (_env_file != "")
   {
     std::string::size_type last = _env_file.find_last_of("/");
