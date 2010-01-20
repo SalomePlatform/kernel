@@ -28,6 +28,7 @@
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "Basics_Utils.hxx"
 #include <iostream>
+#include <sstream>
 #include <map>
 
 using namespace std;
@@ -657,7 +658,6 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 {
   // Node pointers
   xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;
-  char string_buf[80];
 
   root_node = xmlNewNode(NULL, BAD_CAST "resources");
   xmlDocSetRootElement(theDoc, root_node);
@@ -666,8 +666,10 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
   for (; iter != _resources_list.end(); iter++)
   {
     node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
+    RES_MESSAGE("Add resource name = " << (*iter).second.Name.c_str());
     xmlNewProp(node, BAD_CAST test_name, BAD_CAST (*iter).second.Name.c_str());
     xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
+    xmlNewProp(node, BAD_CAST test_appli_path, BAD_CAST (*iter).second.AppliPath.c_str());
     xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
     xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
 
@@ -759,9 +761,17 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
     }
 
     xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());
-    xmlNewProp(node, BAD_CAST test_mem_in_mb, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._memInMB));
-    xmlNewProp(node, BAD_CAST test_cpu_freq_mhz, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._CPUFreqMHz));
-    xmlNewProp(node, BAD_CAST test_nb_of_nodes, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfNodes));
-    xmlNewProp(node, BAD_CAST test_nb_of_proc_per_node, BAD_CAST sprintf(string_buf, "%u", (*iter).second.DataForSort._nbOfProcPerNode));
+    std::ostringstream mem_stream;
+    mem_stream << (*iter).second.DataForSort._memInMB;
+    xmlNewProp(node, BAD_CAST test_mem_in_mb, BAD_CAST mem_stream.str().c_str());
+    std::ostringstream cpu_stream;
+    cpu_stream << (*iter).second.DataForSort._CPUFreqMHz;
+    xmlNewProp(node, BAD_CAST test_cpu_freq_mhz, BAD_CAST cpu_stream.str().c_str());
+    std::ostringstream nb_nodes_stream;
+    nb_nodes_stream << (*iter).second.DataForSort._nbOfNodes;
+    xmlNewProp(node, BAD_CAST test_nb_of_nodes, BAD_CAST nb_nodes_stream.str().c_str());
+    std::ostringstream nb_proc_per_nodes_stream;
+    nb_proc_per_nodes_stream << (*iter).second.DataForSort._nbOfProcPerNode;
+    xmlNewProp(node, BAD_CAST test_nb_of_proc_per_node, BAD_CAST nb_proc_per_nodes_stream.str().c_str());
   }
 }

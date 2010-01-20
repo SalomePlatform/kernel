@@ -68,6 +68,9 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     char* FindFirst(const Engines::ResourceList& listOfResources);
     char* Find(const char *policy, const Engines::ResourceList& listOfResources);
     Engines::ResourceDefinition * GetResourceDefinition(const char * name);
+    void AddResourceDefinition(const Engines::ResourceDefinition& new_resource,
+			       CORBA::Boolean write,
+			       const char * xml_file);
 
     // Cpp Methods
     void Shutdown();

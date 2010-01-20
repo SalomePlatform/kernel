@@ -81,16 +81,11 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     std::string Find(const std::string& policy, 
                      const std::vector<std::string>& listOfResources);
 
-    int AddResourceInCatalog (const resourceParams& paramsOfNewResources,
-                              const std::vector<std::string>& componentsOnNewResources,
-                              const char *userName,
-                              AccessModeType mode,
-                              AccessProtocolType prot,
-                              AccessProtocolType iprot) throw(ResourcesException);
+    void AddResourceInCatalog (const ParserResourcesType & new_resource) throw(ResourcesException);
 
     void DeleteResourceInCatalog(const char * name);
 
-    void WriteInXmlFile(std::string & xml_file);
+    void WriteInXmlFile(std::string xml_file);
 
     const MapOfParserResourcesType& ParseXmlFiles();
 

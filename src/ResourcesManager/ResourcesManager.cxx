@@ -258,44 +258,15 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
 
 //=============================================================================
 /*!
- *  add an entry in the ressources catalog  xml file.
- *  Return 0 if OK (KERNEL found in new resources components) else throw exception
+ *  add an entry in the ressources catalog xml file.
  */ 
 //=============================================================================
 
-int
-ResourcesManager_cpp::AddResourceInCatalog(const resourceParams& paramsOfNewResources,
-                                           const vector<string>& componentsOnNewResources,
-                                           const char *userName,
-                                           AccessModeType mode,
-                                           AccessProtocolType prot,
-                                           AccessProtocolType iprot) throw(ResourcesException)
+void
+ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resource) throw(ResourcesException)
 {
-  vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
-                                             componentsOnNewResources.end(),
-                                             "KERNEL");
-
-  if (iter != componentsOnNewResources.end())
-    {
-      ParserResourcesType newElt;
-      newElt.DataForSort._Name = paramsOfNewResources.name;
-      newElt.HostName = paramsOfNewResources.hostname;
-      newElt.Protocol = prot;
-      newElt.ClusterInternalProtocol = iprot;
-      newElt.Mode = mode;
-      newElt.UserName = userName;
-      newElt.ComponentsList = componentsOnNewResources;
-      newElt.OS = paramsOfNewResources.OS;
-      newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
-      newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
-      newElt.DataForSort._nbOfNodes = paramsOfNewResources.nb_node;
-      newElt.DataForSort._nbOfProcPerNode =
-        paramsOfNewResources.nb_proc_per_node;
-      _resourcesList[newElt.DataForSort._Name] = newElt;
-      return 0;
-    }
-  else
-    throw ResourcesException("KERNEL is not present in this resource");
+  // TODO - Add minimal check
+  _resourcesList[new_resource.Name] = new_resource;
 }
 
 //=============================================================================
@@ -315,9 +286,15 @@ void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
  */ 
 //=============================================================================
 
-void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
+void ResourcesManager_cpp::WriteInXmlFile(std::string xml_file)
 {
   RES_MESSAGE("WriteInXmlFile : start");
+
+  if (xml_file == "")
+  {
+    _path_resources_it = _path_resources.begin();
+    xml_file = *_path_resources_it;
+  }
 
   const char* aFilePath = xml_file.c_str();
   FILE* aFile = fopen(aFilePath, "w");
@@ -336,7 +313,7 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
-  int isOk = xmlSaveFile(aFilePath, aDoc);
+  int isOk = xmlSaveFormatFile(aFilePath, aDoc, 1);
   if (!isOk) 
      std::cerr << "Error while XML file saving : " << xml_file << std::endl;
   

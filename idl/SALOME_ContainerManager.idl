@@ -125,6 +125,8 @@ struct ResourceDefinition
   string applipath;
   //! list of available components 
   CompoList componentList;
+  //! Type of resource: interactive or batch
+  string mode;
 
   //! operating system 
   string OS;
@@ -239,6 +241,15 @@ interface ResourcesManager
 
   //!  Get definition of a resource
   ResourceDefinition GetResourceDefinition(in string name);
+
+  //! Add a new resource to the resource_manager
+  /*!
+      write -> true, resource manager will add it into a xml_file
+      xml_file -> could be empty, in this case if write is true, resource manager will write
+      the resource in its first ResourceCatalog file
+    */
+  void AddResourceDefinition(in ResourceDefinition new_resource, in boolean write, in string xml_file) 
+    raises (SALOME::SALOME_Exception);
 };
 
 

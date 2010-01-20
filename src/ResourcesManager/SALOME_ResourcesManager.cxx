@@ -259,6 +259,115 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
   return p_ptr;
 }
 
+void 
+SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition& new_resource,
+					       CORBA::Boolean write,
+					       const char * xml_file)
+{
+  ParserResourcesType resource;
+  resource.Name = new_resource.name.in();
+  resource.HostName = new_resource.hostname.in();
+  resource.OS = new_resource.OS.in();
+  resource.DataForSort._memInMB = new_resource.mem_mb;
+  resource.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
+  resource.DataForSort._nbOfNodes = new_resource.nb_node;
+  resource.DataForSort._nbOfProcPerNode = new_resource.nb_proc_per_node;
+  resource.UserName = new_resource.username.in();
+
+  std::string aBatch = new_resource.batch.in();
+  if (aBatch == "pbs")
+    resource.Batch = pbs;
+  else if  (aBatch == "lsf")
+    resource.Batch = lsf;
+  else if  (aBatch == "sge")
+    resource.Batch = sge;
+  else if  (aBatch == "ssh_batch")
+    resource.Batch = ssh_batch;
+  else if (aBatch == "")
+    resource.Batch = none;
+  else {
+    INFOS("Bad Batch definition in AddResourceDefinition: " << aBatch);
+    std::string message("Bad Batch definition in AddResourceDefinition: ");
+    message += aBatch;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
+  }
+
+  std::string anMpi = new_resource.mpiImpl.in();
+  if (anMpi == "lam")
+    resource.mpi = lam;
+  else if (anMpi == "mpich1")
+    resource.mpi = mpich1;
+  else if (anMpi == "mpich2")
+    resource.mpi = mpich2;
+  else if (anMpi == "openmpi")
+    resource.mpi = openmpi;
+  else if  (anMpi == "slurm")
+    resource.mpi = slurm;
+  else if  (anMpi == "prun")
+    resource.mpi = prun;
+  else if (anMpi == "")
+    resource.mpi = nompi;
+  else {
+    INFOS("Bad MPI definition in AddResourceDefinition: " << anMpi);
+    std::string message("Bad MPI definition in AddResourceDefinition: ");
+    message += anMpi;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
+  }
+
+  std::string mode_str = new_resource.mode.in();
+  if (mode_str == "interactive")
+    resource.Mode = interactive;
+  else if (mode_str == "batch")
+    resource.Mode = batch;
+  else if (mode_str == "")
+    resource.Mode = interactive;
+  else {
+    INFOS("Bad mode definition in AddResourceDefinition: " << mode_str);
+    std::string message("Bad mode definition in AddResourceDefinition: ");
+    message += mode_str;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
+  }
+  
+  std::string protocol = new_resource.protocol.in();
+  if (protocol == "rsh")
+    resource.Protocol = rsh;
+  else if (protocol == "ssh")
+    resource.Protocol = ssh;
+  else if (protocol == "")
+    resource.Protocol = rsh;
+  else {
+    INFOS("Bad protocol definition in AddResourceDefinition: " << protocol);
+    std::string message("Bad protocol definition in AddResourceDefinition: ");
+    message += protocol;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
+  }
+
+  std::string iprotocol = new_resource.iprotocol.in();
+  if (iprotocol == "rsh")
+    resource.ClusterInternalProtocol = rsh;
+  else if (iprotocol == "ssh")
+    resource.ClusterInternalProtocol = ssh;
+  else if (iprotocol == "")
+    resource.ClusterInternalProtocol = rsh;
+  else {
+    INFOS("Bad iprotocol definition in AddResourceDefinition: " << iprotocol);
+    std::string message("Bad iprotocol definition in AddResourceDefinition: ");
+    message += iprotocol;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
+  }
+
+  for (CORBA::ULong i = 0; i < new_resource.componentList.length(); i++)
+    resource.ComponentsList.push_back(new_resource.componentList[i].in());
+
+  _rm.AddResourceInCatalog(resource);
+
+  if (write)
+  {
+    _rm.WriteInXmlFile(std::string(xml_file));
+    _rm.ParseXmlFiles();
+  }
+}
+
 std::string 
 SALOME_ResourcesManager::getMachineFile(std::string hostname, 
                                         CORBA::Long nb_procs, 
