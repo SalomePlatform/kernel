@@ -250,6 +250,15 @@ interface ResourcesManager
     */
   void AddResource(in ResourceDefinition new_resource, in boolean write, in string xml_file) 
     raises (SALOME::SALOME_Exception);
+
+  //! Remove a new resource to the resource_manager
+  /*!
+      write -> true, resource manager will write a new xml_file
+      xml_file -> could be empty, in this case if write is true, resource manager will write
+      the resource in its first ResourceCatalog file
+    */
+  void RemoveResource(in string resource_name, in boolean write, in string xml_file) 
+    raises (SALOME::SALOME_Exception);
 };
 
 

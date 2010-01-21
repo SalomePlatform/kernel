@@ -72,6 +72,10 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 		     CORBA::Boolean write,
 		     const char * xml_file);
 
+    void RemoveResource(const char * resource_name,
+			CORBA::Boolean write,
+			const char * xml_file);
+
     // Cpp Methods
     void Shutdown();
     ResourcesManager_cpp *GetImpl() { return &_rm; }

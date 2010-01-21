@@ -277,7 +277,11 @@ ResourcesManager_cpp::AddResourceInCatalog(const ParserResourcesType & new_resou
 
 void ResourcesManager_cpp::DeleteResourceInCatalog(const char * name)
 {
-  _resourcesList.erase(name);
+  MapOfParserResourcesType_it it = _resourcesList.find(name);
+  if (it != _resourcesList.end())
+    _resourcesList.erase(name);
+  else
+    RES_INFOS("You try to delete a resource that does not exist... : " << name);
 }
 
 //=============================================================================

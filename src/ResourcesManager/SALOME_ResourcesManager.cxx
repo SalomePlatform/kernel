@@ -369,6 +369,19 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   }
 }
 
+void 
+SALOME_ResourcesManager::RemoveResource(const char * resource_name,
+					CORBA::Boolean write,
+					const char * xml_file)
+{
+  _rm.DeleteResourceInCatalog(resource_name);
+  if (write)
+  {
+    _rm.WriteInXmlFile(std::string(xml_file));
+    _rm.ParseXmlFiles();
+  }
+}
+
 std::string 
 SALOME_ResourcesManager::getMachineFile(std::string hostname, 
                                         CORBA::Long nb_procs, 
