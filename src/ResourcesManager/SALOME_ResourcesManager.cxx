@@ -268,6 +268,7 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   resource.Name = new_resource.name.in();
   resource.HostName = new_resource.hostname.in();
   resource.OS = new_resource.OS.in();
+  resource.AppliPath = new_resource.applipath.in();
   resource.DataForSort._memInMB = new_resource.mem_mb;
   resource.DataForSort._CPUFreqMHz = new_resource.cpu_clock;
   resource.DataForSort._nbOfNodes = new_resource.nb_node;
