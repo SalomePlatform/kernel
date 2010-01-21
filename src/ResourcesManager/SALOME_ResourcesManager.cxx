@@ -260,9 +260,9 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 }
 
 void 
-SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition& new_resource,
-					       CORBA::Boolean write,
-					       const char * xml_file)
+SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_resource,
+				     CORBA::Boolean write,
+				     const char * xml_file)
 {
   ParserResourcesType resource;
   resource.Name = new_resource.name.in();
@@ -286,8 +286,8 @@ SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition
   else if (aBatch == "")
     resource.Batch = none;
   else {
-    INFOS("Bad Batch definition in AddResourceDefinition: " << aBatch);
-    std::string message("Bad Batch definition in AddResourceDefinition: ");
+    INFOS("Bad Batch definition in AddResource: " << aBatch);
+    std::string message("Bad Batch definition in AddResource: ");
     message += aBatch;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
   }
@@ -308,8 +308,8 @@ SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition
   else if (anMpi == "")
     resource.mpi = nompi;
   else {
-    INFOS("Bad MPI definition in AddResourceDefinition: " << anMpi);
-    std::string message("Bad MPI definition in AddResourceDefinition: ");
+    INFOS("Bad MPI definition in AddResource: " << anMpi);
+    std::string message("Bad MPI definition in AddResource: ");
     message += anMpi;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
   }
@@ -322,8 +322,8 @@ SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition
   else if (mode_str == "")
     resource.Mode = interactive;
   else {
-    INFOS("Bad mode definition in AddResourceDefinition: " << mode_str);
-    std::string message("Bad mode definition in AddResourceDefinition: ");
+    INFOS("Bad mode definition in AddResource: " << mode_str);
+    std::string message("Bad mode definition in AddResource: ");
     message += mode_str;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
   }
@@ -336,8 +336,8 @@ SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition
   else if (protocol == "")
     resource.Protocol = rsh;
   else {
-    INFOS("Bad protocol definition in AddResourceDefinition: " << protocol);
-    std::string message("Bad protocol definition in AddResourceDefinition: ");
+    INFOS("Bad protocol definition in AddResource: " << protocol);
+    std::string message("Bad protocol definition in AddResource: ");
     message += protocol;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
   }
@@ -350,8 +350,8 @@ SALOME_ResourcesManager::AddResourceDefinition(const Engines::ResourceDefinition
   else if (iprotocol == "")
     resource.ClusterInternalProtocol = rsh;
   else {
-    INFOS("Bad iprotocol definition in AddResourceDefinition: " << iprotocol);
-    std::string message("Bad iprotocol definition in AddResourceDefinition: ");
+    INFOS("Bad iprotocol definition in AddResource: " << iprotocol);
+    std::string message("Bad iprotocol definition in AddResource: ");
     message += iprotocol;
     THROW_SALOME_CORBA_EXCEPTION(message.c_str(),SALOME::BAD_PARAM);
   }
