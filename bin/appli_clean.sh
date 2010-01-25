@@ -25,10 +25,11 @@
 DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc"
 DOIT="false"
 
-if [ $# > 0 ]
+if [ $# -gt 0 ]
 then
   if [ "x$1" == "x-f" ]
-  then DOIT="true"
+  then 
+     DOIT="true"
   fi
 fi
 
