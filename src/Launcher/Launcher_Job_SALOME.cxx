@@ -41,7 +41,7 @@ Launcher::Job_SALOME::update_job()
 {
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
-  params[EXECUTABLE] = buildSalomeScript(params);
+  params[Batch::EXECUTABLE] = buildSalomeScript(params);
   _batch_job->setParametre(params);
 #endif
 }
@@ -51,7 +51,7 @@ std::string
 Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 {
   // parameters
-  std::string work_directory = params[WORKDIR].str();
+  std::string work_directory = params[Batch::WORKDIR].str();
 
   std::string launch_date_port_file = _launch_date;
   std::string launch_script = "/tmp/runSalome_" + _job_file_name + "_" + _launch_date + ".sh";

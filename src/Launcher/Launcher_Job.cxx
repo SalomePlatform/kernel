@@ -374,7 +374,7 @@ Launcher::Job::updateJobState()
     Batch::JobInfo job_info = _batch_job_id.queryJob();
     Batch::Parametre par = job_info.getParametre();
 
-    LAUNCHER_MESSAGE("State received is: " << par[STATE].str());
+    LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
 
     // TODO: Remove this if all tests pass with the new libBatch, otherwise fix the codes in libBatch
     // Patch until new LIBBATCH version
@@ -389,7 +389,7 @@ Launcher::Job::updateJobState()
       _state = "ERROR";
     else if (par[STATE].str() == "Q" or par[STATE].str() == "qw" or par[STATE].str() == "PEN")
       _state = "QUEUED";*/
-    _state = par[STATE].str();
+    _state = par[Batch::STATE].str();
   }
 #endif
   return _state;
@@ -408,14 +408,14 @@ Launcher::Job::common_job_params()
 {
   Batch::Parametre params;
 
-  params[USER] = _resource_definition.UserName;
-  params[NBPROC] = _resource_required_params.nb_proc;
+  params[Batch::USER] = _resource_definition.UserName;
+  params[Batch::NBPROC] = _resource_required_params.nb_proc;
 
   // Memory
   if (_resource_required_params.mem_mb > 0)
   {
     // Memory is in kilobytes
-    params[MAXRAMSIZE] = _resource_required_params.mem_mb * 1024;
+    params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb * 1024;
   }
 
   // We define a default directory based on user time
@@ -435,8 +435,8 @@ Launcher::Job::common_job_params()
     _work_directory = std::string("$HOME/Batch/");
     _work_directory += thedate;
   }
-  params[WORKDIR] = _work_directory;
-  params[TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
+  params[Batch::WORKDIR] = _work_directory;
+  params[Batch::TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
@@ -458,7 +458,7 @@ Launcher::Job::common_job_params()
     size_t found = file.find_last_of("/");
     std::string remote_file = _work_directory + "/" + file.substr(found+1);
 
-    params[INFILE] += Batch::Couple(local_file, remote_file);
+    params[Batch::INFILE] += Batch::Couple(local_file, remote_file);
   }
    
   // _out_files
@@ -477,16 +477,16 @@ Launcher::Job::common_job_params()
     else
       remote_file = _work_directory + "/" + file;
 
-    params[OUTFILE] += Batch::Couple(local_file, remote_file);
+    params[Batch::OUTFILE] += Batch::Couple(local_file, remote_file);
   }
 
   // Time
   if (_maximum_duration_in_second != -1)
-    params[MAXWALLTIME] = _maximum_duration_in_second;
+    params[Batch::MAXWALLTIME] = _maximum_duration_in_second;
 
   // Queue
   if (_queue != "")
-    params[QUEUE] = _queue;
+    params[Batch::QUEUE] = _queue;
 
   return params;
 }

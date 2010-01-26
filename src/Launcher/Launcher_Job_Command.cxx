@@ -29,7 +29,7 @@ Launcher::Job_Command::update_job()
 {
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
-  params[EXECUTABLE] = buildCommandScript(params, _launch_date);
+  params[Batch::EXECUTABLE] = buildCommandScript(params, _launch_date);
   _batch_job->setParametre(params);
 #endif
 }
@@ -39,7 +39,7 @@ std::string
 Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string launch_date)
 {
   // parameters
-  std::string work_directory = params[WORKDIR].str();
+  std::string work_directory = params[Batch::WORKDIR].str();
 
   // File name
   std::string launch_date_port_file = launch_date;
