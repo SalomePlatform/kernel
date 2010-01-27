@@ -280,7 +280,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 
   // Step 5: get container in the naming service
   Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
-  std::string hostname(resource_definition->name.in());
+  std::string hostname(resource_definition->hostname.in());
   std::string containerNameInNS;
   if(params.isMPI){
     int nbproc;
@@ -510,7 +510,9 @@ Engines::Container_ptr
 SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params,
                                        const std::string& resource)
 {
-  std::string containerNameInNS(_NS->BuildContainerNameForNS(params, resource.c_str()));
+  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource.c_str());
+  std::string hostname(resource_definition->hostname.in());
+  std::string containerNameInNS(_NS->BuildContainerNameForNS(params, hostname.c_str()));
   MESSAGE("[FindContainer] Try to find a container  " << containerNameInNS << " on resource " << resource);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   try
@@ -579,7 +581,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
   {
     int nbproc;
     Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_name.c_str());
-    std::string hostname(resource_definition->name.in());
+    std::string hostname(resource_definition->hostname.in());
     const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
 
     if (params.isMPI)
