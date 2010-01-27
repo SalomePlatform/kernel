@@ -24,8 +24,14 @@
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeUserID.hxx"
+#include "Basics_Utils.hxx"
 
 using namespace std;
+
+std::string SALOMEDSImpl_AttributeUserID::DefaultID()
+{
+  return Kernel_Utils::GetGUID(Kernel_Utils::DefUserID);
+}   
 
 SALOMEDSImpl_AttributeUserID* SALOMEDSImpl_AttributeUserID::Set (const DF_Label& L, const std::string& ID) 
 {

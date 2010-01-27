@@ -92,4 +92,19 @@ namespace Kernel_Utils
   {
     setlocale(LC_NUMERIC, myCurLocale.c_str());
   }
+
+  std::string GetGUID( GUIDtype type )
+  {
+    std::string guid;
+
+    switch ( type ) {
+    case DefUserID:
+      guid = "FFFFFFFF-D9CD-11d6-945D-1050DA506788"; break;
+    case ObjectdID:
+      guid = "C08F3C95-F112-4023-8776-78F1427D0B6D"; break;
+    }
+
+    return guid;
+  }
+
 }

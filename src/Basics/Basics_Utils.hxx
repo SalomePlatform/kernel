@@ -43,6 +43,15 @@ namespace Kernel_Utils
   private:
     std::string myCurLocale;
   };
+  
+  //! GUID type
+  enum GUIDtype {
+    DefUserID = 1,  //!< Default user attribute ID
+    ObjectdID       //!< Global usage object identifier ID
+  };
+
+  //! Get predefined GUID
+  BASICS_EXPORT std::string GetGUID( GUIDtype );
 }
 
 #endif //_Basics_UTILS_HXX_

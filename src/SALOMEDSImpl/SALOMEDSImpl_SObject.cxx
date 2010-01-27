@@ -247,6 +247,9 @@ std::string SALOMEDSImpl_SObject::GetGUID(const string& theType)
   if (strncmp(theType.c_str(), "AttributeTreeNodeGUID",21) == 0) {
     return theType.substr(21, theType.size()); 
   }
+  if (strncmp(theType.c_str(), "AttributeUserID",15) == 0) {
+    return theType.substr(15, theType.size()); 
+  }
   return "";
 }
 

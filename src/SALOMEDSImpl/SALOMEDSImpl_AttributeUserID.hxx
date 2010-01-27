@@ -42,11 +42,7 @@ private:
 public:
   SALOMEDSImpl_AttributeUserID():SALOMEDSImpl_GenericAttribute("AttributeUserID") {}
   static SALOMEDSImpl_AttributeUserID* Set (const DF_Label& L, const std::string& ID);
-  static const std::string& DefaultID() 
-  {
-    static std::string SALOMEDSImpl_DefaultUserAttributeID ("FFFFFFFF-D9CD-11d6-945D-1050DA506788");
-    return SALOMEDSImpl_DefaultUserAttributeID;
-  }   
+  static std::string DefaultID();
 
   const std::string& Value() const { return ID(); }
   void SetValue(const std::string& value);
