@@ -1082,6 +1082,19 @@ Engines_Parallel_Container_i::copyFile(Engines::Container_ptr container, const c
     }
 }
 
+/*! \brief create a PyNode object to execute remote python code
+ * \param nodeName the name of the node
+ * \param code the python code to load
+ * \return the PyNode
+ */
+Engines::PyNode_ptr 
+Engines_Parallel_Container_i::createPyNode(const char* nodeName, const char* code)
+{
+  INFOS("Python component not yet implemented");
+  Engines::PyNode_var node= Engines::PyNode::_nil();
+  return node._retn();
+}
+
 //=============================================================================
 /*! 
  *  

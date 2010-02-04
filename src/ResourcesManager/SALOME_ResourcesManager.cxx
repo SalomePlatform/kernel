@@ -383,7 +383,7 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
 }
 
 std::string 
-SALOME_ResourcesManager::getMachineFile(std::string hostname, 
+SALOME_ResourcesManager::getMachineFile(std::string resource_name, 
                                         CORBA::Long nb_procs, 
                                         std::string parallelLib)
 {
@@ -393,9 +393,9 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
   {
     MESSAGE("[getMachineFile] parallelLib is Dummy");
     MapOfParserResourcesType resourcesList = _rm.GetList();
-    if (resourcesList.find(hostname) != resourcesList.end())
+    if (resourcesList.find(resource_name) != resourcesList.end())
     {
-      ParserResourcesType resource = resourcesList[hostname];
+      ParserResourcesType resource = resourcesList[resource_name];
 
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
@@ -445,16 +445,16 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
       }
     }
     else
-      INFOS("[getMachineFile] Error hostname not found in resourcesList -> " << hostname);
+      INFOS("[getMachineFile] Error resource_name not found in resourcesList -> " << resource_name);
   }
   else if (parallelLib == "Mpi")
   {
     MESSAGE("[getMachineFile] parallelLib is Mpi");
 
     MapOfParserResourcesType resourcesList = _rm.GetList();
-    if (resourcesList.find(hostname) != resourcesList.end())
+    if (resourcesList.find(resource_name) != resourcesList.end())
     {
-      ParserResourcesType resource = resourcesList[hostname];
+      ParserResourcesType resource = resourcesList[resource_name];
       // Check if resource is cluster or not
       if (resource.ClusterMembersList.empty())
       {
@@ -488,15 +488,32 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname,
           cluster_it++;
         }
       }
+      else if (resource.mpi == openmpi)
+      {
+	// Creating machine file
+	machine_file_name = tmpnam(NULL);
+	std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+
+	// We add all cluster machines to the file
+	std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+	  resource.ClusterMembersList.begin();
+	while (cluster_it != resource.ClusterMembersList.end())
+	{
+	  unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
+	    (*cluster_it).DataForSort._nbOfProcPerNode;
+	  machine_file << (*cluster_it).HostName << " slots=" << number_of_proc << endl;
+	  cluster_it++;
+	}
+      }
       else if (resource.mpi == nompi)
       {
-        INFOS("[getMachineFile] Error hostname MPI implementation was defined for " << hostname);
+        INFOS("[getMachineFile] Error resource_name MPI implementation was defined for " << resource_name);
       }
       else
-        INFOS("[getMachineFile] Error hostname MPI implementation not currenly handled for " << hostname);
+        INFOS("[getMachineFile] Error resource_name MPI implementation not currenly handled for " << resource_name);
     }
     else
-      INFOS("[getMachineFile] Error hostname not found in resourcesList -> " << hostname);
+      INFOS("[getMachineFile] Error resource_name not found in resourcesList -> " << resource_name);
   }
   else
     INFOS("[getMachineFile] Error parallelLib is not handled -> " << parallelLib);

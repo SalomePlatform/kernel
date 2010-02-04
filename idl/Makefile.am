@@ -138,7 +138,7 @@ PAR = SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx \
       SALOME_PACOExtensionPaCO.hxx SALOME_PACOExtensionPaCO.cxx \
       SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx
 
-PAR_INCLUDES = SALOME_Exception.hxx SALOME_GenericObj.hxx SALOMEDS.hxx
+PAR_INCLUDES = SALOME_Exception.hxx SALOME_GenericObj.hxx SALOMEDS.hxx SALOME_PyNode.hxx
 
 PAR_LIB = libSalomeParallelIDLKernel.la
 

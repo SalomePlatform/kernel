@@ -276,8 +276,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
 
-  _numInstanceMutex.lock();
-
   // Step 5: get container in the naming service
   Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
   std::string hostname(resource_definition->hostname.in());
@@ -331,14 +329,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   // Step 7: type of container: PaCO, Exe, Mpi or Classic
   // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
   // TODO -> separates Mpi from Classic/Exe
-  // PaCO++
-  std::string parallelLib(params.parallelLib);
-  if (std::string(local_params.parallelLib.in()) != "")
-  {
-    INFOS("[GiveContainer] PaCO++ container are not currently available");
-    _numInstanceMutex.unlock();
-    return ret;
-  }
   // Classic or Exe ?
   std::string container_exe = "SALOME_Container"; // Classic container
   int found=0;
@@ -350,7 +340,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     if (CORBA::is_nil (Catalog))
     {
       INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
-      _numInstanceMutex.unlock();
       return ret;
     }
     // Loop through component list
@@ -369,7 +358,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 	if(found)
 	{
 	  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
-	  _numInstanceMutex.unlock();
 	  return Engines::Container::_nil();
 	}
 	MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
@@ -381,17 +369,23 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   catch (ServiceUnreachable&)
   {
     INFOS("Caught exception: Naming Service Unreachable");
-    _numInstanceMutex.unlock();
     return ret;
   }
   catch (...)
   {
     INFOS("Caught unknown exception.");
-    _numInstanceMutex.unlock();
     return ret;
   }
 
   // Step 8: start a new container
+  // Check if a PaCO container
+  // PaCO++
+  if (std::string(local_params.parallelLib.in()) != "")
+  {
+    ret = StartPaCOPPContainer(params, resource_selected);
+    return ret;
+  }
+  // Other type of containers...
   MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
   std::string command;
   // if a parallel container is launched in batch job, command is: "mpirun -np nbproc -machinefile nodesfile SALOME_MPIContainer"
@@ -431,8 +425,6 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 
   // launch container with a system call
   int status=system(command.c_str());
-
-  _numInstanceMutex.unlock();
 
   if (status == -1){
     MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status -1)");
@@ -1002,707 +994,6 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
-#ifdef WITH_PACO_PARALLEL
-//=============================================================================
-/*! CORBA Method:
- *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
- *  \param params            Machine Parameters required for the container
- *  \return CORBA container reference.
- */
-//=============================================================================
-Engines::Container_ptr
-SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params_const)
-{
-  CORBA::Object_var obj;
-  PaCO::InterfaceManager_var container_proxy;
-  Engines::Container_ptr ret = Engines::Container::_nil();
-  Engines::MachineParameters params(params_const);
-
-  // Step 1 : Try to find a suitable container
-  // Currently not as good as could be since
-  // we have to verified the number of nodes of the container
-  // if a user tell that.
-  ret = FindContainer(params, params.computerList);
-  if(CORBA::is_nil(ret)) {
-    // Step 2 : Starting a new parallel container !
-    INFOS("[StartParallelContainer] Starting a PaCO++ parallel container");
-
-    // Step 3 : Choose a computer
-    std::string theMachine = _ResManager->FindFirst(params.computerList);
-    //If the machine name is localhost use the real name
-    if(theMachine == "localhost")
-      theMachine=Kernel_Utils::GetHostname();
-
-    if(theMachine == "") {
-      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
-      INFOS("[StartParallelContainer] No possible computer found");
-      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
-      return ret;
-    }
-    INFOS("[StartParallelContainer] on machine : " << theMachine);
-    params.hostname = CORBA::string_dup(theMachine.c_str());
-
-    // Step 4 : starting parallel container proxy
-    Engines::MachineParameters params_proxy(params);
-    std::string command_proxy;
-    SALOME_ContainerManager::actual_launch_machine_t proxy_machine;
-    try 
-    {
-      command_proxy = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerProxy", params_proxy, proxy_machine);
-    }
-    catch(const SALOME_Exception & ex)
-    {
-      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
-      INFOS(ex.what());
-      return ret;
-    }
-    params_proxy.nb_proc = 0; // LaunchParallelContainer uses this value to know if it launches the proxy or the nodes
-    obj = LaunchParallelContainer(command_proxy, params_proxy, _NS->ContainerName(params_proxy), proxy_machine);
-    if (CORBA::is_nil(obj))
-    {
-      INFOS("[StartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
-      return ret;
-    }
-    try 
-    {
-      container_proxy = PaCO::InterfaceManager::_narrow(obj);
-    }
-    catch(CORBA::SystemException& e)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("CORBA::SystemException : " << e);
-      return ret;
-    }
-    catch(CORBA::Exception& e)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("CORBA::Exception" << e);
-      return ret;
-    }
-    catch(...)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("Unknown exception !");
-      return ret;
-    }
-    if (CORBA::is_nil(container_proxy))
-    {
-      INFOS("[StartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
-      return ret;
-    }
-
-    // Step 5 : starting parallel container nodes
-    std::string command_nodes;
-    Engines::MachineParameters params_nodes(params);
-    SALOME_ContainerManager::actual_launch_machine_t nodes_machines;
-    try 
-    {
-      command_nodes = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerNode", params_nodes, nodes_machines, proxy_machine[0]);
-    }
-    catch(const SALOME_Exception & ex)
-    {
-      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
-      INFOS(ex.what());
-      return ret;
-    }
-    std::string container_generic_node_name = _NS->ContainerName(params) + "Node";
-    obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name, nodes_machines);
-    if (CORBA::is_nil(obj))
-    {
-      INFOS("[StartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
-      // Il faut tuer le proxy
-      try 
-      {
-        Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
-        proxy->Shutdown();
-      }
-      catch (...)
-      {
-        INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
-      }
-      return ret;
-    }
-
-    // Step 6 : connecting nodes and the proxy to actually create a parallel container
-    for (int i = 0; i < params.nb_proc; i++) 
-    {
-      std::ostringstream tmp;
-      tmp << i;
-      std::string proc_number = tmp.str();
-      std::string container_node_name = container_generic_node_name + proc_number;
-
-      std::string theNodeMachine(nodes_machines[i]);
-      std::string containerNameInNS = _NS->BuildContainerNameForNS(container_node_name.c_str(), theNodeMachine.c_str());
-      obj = _NS->Resolve(containerNameInNS.c_str());
-      if (CORBA::is_nil(obj)) 
-      {
-        INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
-        INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
-        return ret;
-      }
-      try
-      {
-        MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
-        PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
-        node->deploy();
-        MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
-      }
-      catch(CORBA::SystemException& e)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("CORBA::SystemException : " << e);
-        return ret;
-      }
-      catch(CORBA::Exception& e)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("CORBA::Exception" << e);
-        return ret;
-      }
-      catch(...)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("Unknown exception !");
-        return ret;
-      }
-    }
-
-    // Step 7 : starting parallel container
-    try 
-    {
-      MESSAGE ("[StartParallelContainer] Starting parallel object");
-      container_proxy->start();
-      MESSAGE ("[StartParallelContainer] Parallel object is started");
-      ret = Engines::Container::_narrow(container_proxy);
-    }
-    catch(CORBA::SystemException& e)
-    {
-      INFOS("Caught CORBA::SystemException. : " << e);
-    }
-    catch(PortableServer::POA::ServantAlreadyActive&)
-    {
-      INFOS("Caught CORBA::ServantAlreadyActiveException");
-    }
-    catch(CORBA::Exception&)
-    {
-      INFOS("Caught CORBA::Exception.");
-    }
-    catch(std::exception& exc)
-    {
-      INFOS("Caught std::exception - "<<exc.what()); 
-    }
-    catch(...)
-    {
-      INFOS("Caught unknown exception.");
-    }
-  }
-  return ret;
-}
-#else
-//=============================================================================
-/*! CORBA Method:
- *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
- *  \param params            Machine Parameters required for the container
- *  \return CORBA container reference.
- */
-//=============================================================================
-Engines::Container_ptr
-SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params)
-{
-  Engines::Container_ptr ret = Engines::Container::_nil();
-  INFOS("[StartParallelContainer] is disabled !");
-  INFOS("[StartParallelContainer] recompile SALOME Kernel to enable parallel extension");
-  return ret;
-}
-#endif
-
-#ifndef WITH_PACO_PARALLEL
-CORBA::Object_ptr 
-SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
-                                                 const Engines::ContainerParameters& params,
-                                                 const std::string& name,
-                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
-{
-  CORBA::Object_ptr obj = CORBA::Object::_nil();
-  return obj;
-}
-#else
-//=============================================================================
-/*! This method launches the parallel container.
- *  It will may be placed on the ressources manager.
- *
- * \param command to launch
- * \param container's parameters
- * \param name of the container
- *
- * \return CORBA container reference
- */
-//=============================================================================
-CORBA::Object_ptr 
-SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
-                                                 const Engines::ContainerParameters& params,
-                                                 const std::string& name,
-                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
-{
-  CORBA::Object_ptr obj = CORBA::Object::_nil();
-  std::string containerNameInNS;
-  int count = TIME_OUT_TO_LAUNCH_CONT;
-
-  INFOS("[LaunchParallelContainer] Begin");
-  int status = system(command.c_str());
-  if (status == -1) {
-    INFOS("[LaunchParallelContainer] failed : system command status -1");
-    return obj;
-  }
-  else if (status == 217) {
-    INFOS("[LaunchParallelContainer] failed : system command status 217");
-    return obj;
-  }
-
-  if (params.nb_proc == 0) 
-  {
-    std::string theMachine(vect_machine[0]);
-    // Proxy We have launch a proxy
-    containerNameInNS = _NS->BuildContainerNameForNS((char*) name.c_str(), theMachine.c_str());
-    INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy " << containerNameInNS << " on " << theMachine);
-    while (CORBA::is_nil(obj) && count) 
-    {
-#ifndef WIN32
-      sleep(1) ;
-#else
-      Sleep(1000);
-#endif
-      count-- ;
-      obj = _NS->Resolve(containerNameInNS.c_str());
-    }
-  }
-  else 
-  {
-    INFOS("[LaunchParallelContainer] launching the nodes of the parallel container");
-    // We are waiting all the nodes
-    for (int i = 0; i < params.nb_proc; i++) 
-    {
-      obj = CORBA::Object::_nil();
-      std::string theMachine(vect_machine[i]);
-      // Name of the node
-      std::ostringstream tmp;
-      tmp << i;
-      std::string proc_number = tmp.str();
-      std::string container_node_name = name + proc_number;
-      containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
-      INFOS("[LaunchParallelContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
-      while (CORBA::is_nil(obj) && count) {
-#ifndef WIN32
-        sleep(1) ;
-#else
-        Sleep(1000);
-#endif
-        count-- ;
-        obj = _NS->Resolve(containerNameInNS.c_str());
-      }
-      if (CORBA::is_nil(obj))
-      {
-        INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
-        return obj;
-      }
-    }
-  }
-  if (CORBA::is_nil(obj)) 
-    INFOS("[LaunchParallelContainer] failed");
-  
-  return obj;
-}
-#endif
-
-#ifndef WITH_PACO_PARALLEL
-string 
-SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string& exe_name,
-                                                               const Engines::ContainerParameters& params,
-                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
-                                                               const std::string proxy_hostname)
-{
-  return "";
-}
-#else
-//=============================================================================
-/*! Creates a command line that the container manager uses to launch
- * a parallel container.
- */ 
-//=============================================================================
-string 
-SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string& exe_name,
-                                                               const Engines::ContainerParameters& params,
-                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
-                                                               const std::string proxy_hostname)
-{
-  // This method knows the differences between the proxy and the nodes.
-  // nb_proc is not used in the same way if it is a proxy or 
-  // a node.
-  
-  //command = "gdb --args ";
-  //command = "valgrind --tool=memcheck --log-file=val_log ";
-  //command += real_exe_name;
-
-  // Step 0 : init some variables...
-  std::string parallelLib(CORBA::string_dup(params.parallelLib));
-  std::string real_exe_name  = exe_name + parallelLib;
-  std::string machine_file_name("");
-  bool remote = false;
-  bool is_a_proxy = false; 
-  std::string hostname(CORBA::string_dup(params.hostname));
-
-  std::ostringstream tmp_string;
-  CORBA::Long nb_nodes = params.nb_proc;
-  tmp_string << nb_nodes;
-  std::string nbproc = tmp_string.str();
-
-  Engines::MachineParameters_var rtn = new Engines::MachineParameters();
-  rtn->container_name = params.container_name;
-  rtn->hostname = params.hostname;
-  rtn->OS = params.OS;
-  rtn->mem_mb = params.mem_mb;
-  rtn->cpu_clock = params.cpu_clock;
-  rtn->nb_proc_per_node = params.nb_proc_per_node;
-  rtn->nb_node = params.nb_node;
-  rtn->nb_proc = params.nb_proc;
-  rtn->isMPI = params.isMPI;
-
-  // Step 1 : local or remote launch ?
-  if (hostname != std::string(Kernel_Utils::GetHostname()) )
-  {
-    MESSAGE("[BuildCommandToLaunchParallelContainer] remote machine case detected !");
-    remote = true;
-  }
-
-  // Step 2 : proxy or nodes launch ?
-  std::string::size_type loc_proxy = exe_name.find("Proxy");
-  if( loc_proxy != string::npos ) {
-    is_a_proxy = true;
-  } 
-
-  // Step 3 : Depending of the parallelLib, getting the machine file
-  // ParallelLib Dummy has is own machine for this method
-  if (remote)
-  {
-    if (is_a_proxy)
-    {
-      machine_file_name = _ResManager->getMachineFile(hostname,
-                                                      1,
-                                                      parallelLib);
-    }
-    else
-    {
-      machine_file_name = _ResManager->getMachineFile(hostname, 
-                                                      params.nb_proc,
-                                                      parallelLib);
-    }
-    if (machine_file_name == "")
-    {
-      INFOS("[BuildCommandToLaunchParallelContainer] Error machine_file was not generated for machine " << hostname);
-      throw SALOME_Exception("Error machine_file was not generated");
-    }
-    MESSAGE("[BuildCommandToLaunchParallelContainer] machine_file_name is : " << machine_file_name);
-  }
-
-  // Step 4 : Log type choosen by the user
-  std::string log_env("");
-  char * get_val = getenv("PARALLEL_LOG");
-  if (get_val)
-    log_env = get_val;
-  std::string command_begin("");
-  std::string command_end("");
-  if(log_env == "xterm")
-  {
-    command_begin = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
-    command_end   = "\"&";
-  }
-  else if(log_env == "xterm_debug")
-  {
-    command_begin = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
-    command_end   = "; cat \" &";
-  }
-  else
-  {
-    // default into a file...
-    std::string logFilename = "/tmp/" + _NS->ContainerName(params) + "_" + hostname;
-    if (is_a_proxy)
-      logFilename += "_Proxy_";
-    else
-      logFilename += "_Node_";
-    logFilename += std::string(getenv("USER")) + ".log";
-    command_end = " > " + logFilename + " 2>&1 & ";
-  }
-
-  // Step 5 : Building the command
-  std::string command("");
-  if (parallelLib == "Dummy")
-  {
-    if (is_a_proxy)
-    {
-      std::string command_remote("");
-      if (remote)
-      {
-        std::string machine_name;
-        std::ifstream machine_file(machine_file_name.c_str());
-        std::getline(machine_file, machine_name);
-        MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
-
-        // We want to launch a command like : 
-        // ssh -l user machine distantPath/runRemote.sh hostNS portNS
-        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
-        if (resInfo.Protocol == rsh)
-          command_remote = "rsh ";
-        else 
-          command_remote = "ssh ";
-        command_remote += "-l ";
-        command_remote += resInfo.UserName;
-        command_remote += " ";
-        command_remote += machine_name;
-        command_remote += " ";
-        command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-        command_remote += "/runRemote.sh ";
-        ASSERT(getenv("NSHOST")); 
-        command_remote += getenv("NSHOST"); // hostname of CORBA name server
-        command_remote += " ";
-        ASSERT(getenv("NSPORT"));
-        command_remote += getenv("NSPORT"); // port of CORBA name server
-        command_remote += " ";
-
-        hostname = machine_name;
-      }
-
-      command =  real_exe_name;
-      command += " " + _NS->ContainerName(rtn);
-      command += " " + parallelLib;
-      command += " " + hostname;
-      command += " " + nbproc;
-      command += " -";
-      AddOmninamesParams(command);
-
-      command = command_begin + command_remote + command + command_end;
-      vect_machine.push_back(hostname);
-    }
-    else
-    {
-      std::ifstream * machine_file = NULL;
-      if (remote)
-        machine_file = new std::ifstream(machine_file_name.c_str());
-      for (int i= 0; i < nb_nodes; i++)
-      {
-        std::string command_remote("");
-        if (remote)
-        {
-          std::string machine_name;
-          std::getline(*machine_file, machine_name);
-          MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
-
-            // We want to launch a command like : 
-            // ssh -l user machine distantPath/runRemote.sh hostNS portNS
-            const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
-          if (resInfo.Protocol == rsh)
-            command_remote = "rsh ";
-          else 
-            command_remote = "ssh ";
-          command_remote += "-l ";
-          command_remote += resInfo.UserName;
-          command_remote += " ";
-          command_remote += machine_name;
-          command_remote += " ";
-          command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-          command_remote += "/runRemote.sh ";
-          ASSERT(getenv("NSHOST")); 
-          command_remote += getenv("NSHOST"); // hostname of CORBA name server
-          command_remote += " ";
-          ASSERT(getenv("NSPORT"));
-          command_remote += getenv("NSPORT"); // port of CORBA name server
-          command_remote += " ";
-
-          hostname = machine_name;
-        }
-
-        std::ostringstream tmp;
-        tmp << i;
-        std::string proc_number = tmp.str();
-
-        std::string command_tmp("");
-        command_tmp += real_exe_name;
-        command_tmp += " " + _NS->ContainerName(rtn);
-        command_tmp += " " + parallelLib;
-        command_tmp += " " + proxy_hostname;
-        command_tmp += " " + proc_number;
-        command_tmp += " -";
-        AddOmninamesParams(command_tmp);
-
-        // On change _Node_ par _Nodex_ pour avoir chaque noeud
-        // sur un fichier
-        std::string command_end_tmp = command_end;
-        std::string::size_type loc_node = command_end_tmp.find("_Node_");
-        if (loc_node != std::string::npos)
-          command_end_tmp.insert(loc_node+5, proc_number);
-        command += command_begin + command_remote + command_tmp + command_end_tmp;
-        vect_machine.push_back(hostname);
-      }
-      if (machine_file)
-        delete machine_file;
-    }
-  }
-  else if (parallelLib == "Mpi")
-  {
-    // Step 0: if remote we have to copy the file
-    // to the first machine of the file
-    std::string remote_machine("");
-    if (remote)
-    {
-      std::ifstream * machine_file = NULL;
-      machine_file = new std::ifstream(machine_file_name.c_str());
-      // Get first word of the line
-      // For MPI implementation the first word is the 
-      // machine name
-      std::getline(*machine_file, remote_machine, ' ');
-      machine_file->close();
-      MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << remote_machine)
-
-      // We want to launch a command like : 
-      // scp mpi_machine_file user@machine:Path
-      std::string command_remote("");
-      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
-      if (resInfo.Protocol == rsh)
-        command_remote = "rcp ";
-      else 
-        command_remote = "scp ";
-
-      command_remote += machine_file_name;
-      command_remote += " ";
-      command_remote += resInfo.UserName;
-      command_remote += "@";
-      command_remote += remote_machine;
-      command_remote += ":";
-      command_remote += machine_file_name;
-
-      int status = system(command_remote.c_str());
-      if (status == -1)
-      {
-        INFOS("copy of the mpi machine file failed !");
-        return "";
-      }
-    }
-
-    if (is_a_proxy)
-    {
-      std::string command_remote("");
-      if (remote)
-      {
-        // We want to launch a command like : 
-        // ssh -l user machine distantPath/runRemote.sh hostNS portNS
-        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
-        if (resInfo.Protocol == rsh)
-          command_remote = "rsh ";
-        else 
-          command_remote = "ssh ";
-        command_remote += "-l ";
-        command_remote += resInfo.UserName;
-        command_remote += " ";
-        command_remote += remote_machine;
-        command_remote += " ";
-        command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
-        command_remote += "/runRemote.sh ";
-        ASSERT(getenv("NSHOST")); 
-        command_remote += getenv("NSHOST"); // hostname of CORBA name server
-        command_remote += " ";
-        ASSERT(getenv("NSPORT"));
-        command_remote += getenv("NSPORT"); // port of CORBA name server
-        command_remote += " ";
-
-        hostname = remote_machine;
-      }
-
-      // We use Dummy proxy for MPI parallel containers
-      real_exe_name  = exe_name + "Dummy";
-      command =  real_exe_name;
-      command += " " + _NS->ContainerName(rtn);
-      command += " Dummy";
-      command += " " + hostname;
-      command += " " + nbproc;
-      command += " -";
-      AddOmninamesParams(command);
-
-      command = command_begin + command_remote + command + command_end;
-      vect_machine.push_back(hostname);
-    }
-    else                                          
-    {
-      std::string command_remote("");
-      if (remote)
-      {
-        const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
-        if (resInfo.Protocol == rsh)
-          command_remote = "rsh ";
-        else 
-          command_remote = "ssh ";
-        command_remote += "-l ";
-        command_remote += resInfo.UserName;
-        command_remote += " ";
-        command_remote += remote_machine;
-        command_remote += " ";
-
-        std::string new_real_exe_name("");
-        new_real_exe_name += resInfo.AppliPath; // path relative to user@machine $HOME
-        new_real_exe_name += "/runRemote.sh ";
-        ASSERT(getenv("NSHOST")); 
-        new_real_exe_name += getenv("NSHOST"); // hostname of CORBA name server
-        new_real_exe_name += " ";
-        ASSERT(getenv("NSPORT"));
-        new_real_exe_name += getenv("NSPORT"); // port of CORBA name server
-        new_real_exe_name += " ";
-
-        real_exe_name = new_real_exe_name + real_exe_name;
-        hostname = remote_machine;
-      }
-
-      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(hostname);
-      if (resInfo.mpi == lam)
-      {
-        command = "mpiexec -ssi boot ";
-        if (resInfo.Protocol == rsh)
-          command += "rsh ";
-        else 
-          command += "ssh ";
-        command += "-machinefile " + machine_file_name + " "; 
-        command += "-n " + nbproc + " ";
-        command += real_exe_name;
-        command += " " + _NS->ContainerName(rtn);
-        command += " " + parallelLib;
-        command += " " + proxy_hostname;
-        command += " -";
-        AddOmninamesParams(command);
-      }
-      else
-      {
-        command = "mpirun -np " + nbproc + " ";
-        command += real_exe_name;
-        command += " " + _NS->ContainerName(rtn);
-        command += " " + parallelLib;
-        command += " " + proxy_hostname;
-        command += " -";
-        AddOmninamesParams(command);
-      }
-
-      command = command_begin + command_remote + command + command_end;
-      for (int i= 0; i < nb_nodes; i++)
-        vect_machine.push_back(proxy_hostname);
-    }
-  }
-  else
-  {
-    std::string message("Unknown parallelLib : " + parallelLib);
-    throw SALOME_Exception(message.c_str());
-  }
-
-  MESSAGE("Parallel launch is: " << command);
-  return command;
-}
-#endif
-
 string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const string machinesFile)
 {
   int status;
@@ -1754,3 +1045,681 @@ string SALOME_ContainerManager::machinesFile(const int nbproc)
   return machinesFile;
 
 }
+
+bool 
+SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & params, std::string resource_selected)
+{
+  bool result = true;
+ 
+  // Step 1 : check ContainerParameters
+  // Check container_name, has to be defined
+  if (std::string(params.container_name.in()) == "")
+  {
+    INFOS("[checkPaCOParameters] You must define a container_name to launch a PaCO++ container");
+    result = false;
+  }
+  // Check parallelLib
+  std::string parallelLib = params.parallelLib.in();
+  if (parallelLib != "Mpi" and parallelLib != "Dummy")
+  {
+    INFOS("[checkPaCOParameters] parallelLib is not correctly defined");
+    INFOS("[checkPaCOParameters] you can chosse between: Mpi and Dummy");
+    INFOS("[checkPaCOParameters] you entered: " << parallelLib);
+    result = false;
+  }
+  // Check nb_proc
+  if (params.nb_proc <= 0)
+  {
+    INFOS("[checkPaCOParameters] You must define a nb_proc > 0");
+    result = false;
+  }
+
+  // Step 2 : check resource_selected
+  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
+  std::string protocol = resource_definition->protocol.in();
+  std::string username = resource_definition->username.in();
+  std::string applipath = resource_definition->applipath.in();
+
+  if (protocol == "" or username == "" or applipath == "")
+  {
+    INFOS("[checkPaCOParameters] resource selected is not well defined");
+    INFOS("[checkPaCOParameters] resource name: " << resource_definition->name.in());
+    INFOS("[checkPaCOParameters] resource hostname: " << resource_definition->hostname.in());
+    INFOS("[checkPaCOParameters] resource protocol: " << protocol);
+    INFOS("[checkPaCOParameters] resource username: " << username);
+    INFOS("[checkPaCOParameters] resource applipath: " << applipath);
+    result = false;
+  }
+
+  return result;
+}
+#ifdef WITH_PACO_PARALLEL
+
+//=============================================================================
+/*! CORBA Method:
+ *  Start a suitable PaCO++ Parallel Container in a list of machines.
+ *  \param params           Container Parameters required for the container
+ *  \return CORBA container reference.
+ */
+//=============================================================================
+Engines::Container_ptr
+SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params_const,
+					      std::string resource_selected)
+{
+  CORBA::Object_var obj;
+  PaCO::InterfaceManager_var container_proxy;
+  Engines::Container_ptr ret = Engines::Container::_nil();
+  Engines::ContainerParameters params(params_const);
+  params.resource_params.name = CORBA::string_dup(resource_selected.c_str());
+
+  // Step 0 : Check parameters
+  if (!checkPaCOParameters(params, resource_selected))
+  {
+    INFOS("[StartPaCOPPContainer] check parameters failed ! see logs...");
+    return ret;
+  }
+
+  // Step 1 : Starting a new parallel container !
+  INFOS("[StartPaCOPPContainer] Starting a PaCO++ parallel container");
+  INFOS("[StartPaCOPPContainer] on resource : " << resource_selected);
+
+  // Step 2 : Get a MachineFile for the parallel container
+  std::string machine_file_name = _ResManager->getMachineFile(resource_selected, 
+							      params.nb_proc,
+							      params.parallelLib.in());
+
+  if (machine_file_name == "")
+  {
+    INFOS("[StartPaCOPPContainer] Machine file generation failed");
+    return ret;
+  }
+
+  // Step 3 : starting parallel container proxy
+  std::string command_proxy("");
+  std::string proxy_machine;
+  try 
+  {
+    command_proxy = BuildCommandToLaunchPaCOProxyContainer(params, machine_file_name, proxy_machine);
+  }
+  catch(const SALOME_Exception & ex)
+  {
+    INFOS("[StartPaCOPPContainer] Exception in BuildCommandToLaunchPaCOContainer");
+    INFOS(ex.what());
+    return ret;
+  }
+  obj = LaunchPaCOProxyContainer(command_proxy, params, proxy_machine);
+  if (CORBA::is_nil(obj))
+  {
+    INFOS("[StartPaCOPPContainer] LaunchPaCOContainer for proxy returns NIL !");
+    return ret;
+  }
+  container_proxy = PaCO::InterfaceManager::_narrow(obj);
+  MESSAGE("[StartPaCOPPContainer] PaCO container proxy is launched");
+
+  // Step 4 : starting parallel container nodes
+  std::string command_nodes("");
+  SALOME_ContainerManager::actual_launch_machine_t nodes_machines;
+  try 
+  {
+    command_nodes = BuildCommandToLaunchPaCONodeContainer(params, machine_file_name, nodes_machines, proxy_machine);
+  }
+  catch(const SALOME_Exception & ex)
+  {
+    INFOS("[StarPaCOPPContainer] Exception in BuildCommandToLaunchPaCONodeContainer");
+    INFOS(ex.what());
+    return ret;
+  }
+
+  std::string container_generic_node_name = std::string(params.container_name.in()) + std::string("Node");
+  bool result = LaunchPaCONodeContainer(command_nodes, params, container_generic_node_name, nodes_machines);
+  if (!result)
+  {
+    INFOS("[StarPaCOPPContainer] LaunchPaCONodeContainer failed !");
+    // Il faut tuer le proxy
+    try 
+    {
+      Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
+      proxy->Shutdown();
+    }
+    catch (...)
+    {
+      INFOS("[StarPaCOPPContainer] Exception catched from proxy Shutdown...");
+    }
+    return ret;
+  }
+
+  // Step 4 : connecting nodes and the proxy to actually create a parallel container
+  for (int i = 0; i < params.nb_proc; i++) 
+  {
+    std::ostringstream tmp;
+    tmp << i;
+    std::string proc_number = tmp.str();
+    std::string container_node_name = container_generic_node_name + proc_number;
+
+    std::string theNodeMachine(nodes_machines[i]);
+    std::string containerNameInNS = _NS->BuildContainerNameForNS(container_node_name.c_str(), theNodeMachine.c_str());
+    obj = _NS->Resolve(containerNameInNS.c_str());
+    if (CORBA::is_nil(obj)) 
+    {
+      INFOS("[StarPaCOPPContainer] CONNECTION FAILED From Naming Service !");
+      INFOS("[StarPaCOPPContainer] Container name is " << containerNameInNS);
+      return ret;
+    }
+    try
+    {
+      MESSAGE("[StarPaCOPPContainer] Deploying node : " << container_node_name);
+      PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
+      node->deploy();
+      MESSAGE("[StarPaCOPPContainer] node " << container_node_name << " is deployed");
+    }
+    catch(CORBA::SystemException& e)
+    {
+      INFOS("[StarPaCOPPContainer] Exception in deploying node : " << containerNameInNS);
+      INFOS("CORBA::SystemException : " << e);
+      return ret;
+    }
+    catch(CORBA::Exception& e)
+    {
+      INFOS("[StarPaCOPPContainer] Exception in deploying node : " << containerNameInNS);
+      INFOS("CORBA::Exception" << e);
+      return ret;
+    }
+    catch(...)
+    {
+      INFOS("[StarPaCOPPContainer] Exception in deploying node : " << containerNameInNS);
+      INFOS("Unknown exception !");
+      return ret;
+    }
+  }
+
+  // Step 5 : starting parallel container
+  try 
+  {
+    MESSAGE ("[StarPaCOPPContainer] Starting parallel object");
+    container_proxy->start();
+    MESSAGE ("[StarPaCOPPContainer] Parallel object is started");
+    ret = Engines::Container::_narrow(container_proxy);
+  }
+  catch(CORBA::SystemException& e)
+  {
+    INFOS("Caught CORBA::SystemException. : " << e);
+  }
+  catch(PortableServer::POA::ServantAlreadyActive&)
+  {
+    INFOS("Caught CORBA::ServantAlreadyActiveException");
+  }
+  catch(CORBA::Exception&)
+  {
+    INFOS("Caught CORBA::Exception.");
+  }
+  catch(std::exception& exc)
+  {
+    INFOS("Caught std::exception - "<<exc.what()); 
+  }
+  catch(...)
+  {
+    INFOS("Caught unknown exception.");
+  }
+  return ret;
+}
+
+std::string 
+SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
+								std::string machine_file_name,
+								std::string & proxy_hostname)
+{
+  // In the proxy case, we always launch a Dummy Proxy
+  std::string exe_name = "SALOME_ParallelContainerProxyDummy";
+  std::string container_name = params.container_name.in();
+
+  // Convert nb_proc in string
+  std::ostringstream tmp_string;
+  tmp_string << params.nb_proc;
+  std::string nb_proc_str = tmp_string.str();
+
+  // Get resource definition
+  Engines::ResourceDefinition_var resource_definition = 
+    _ResManager->GetResourceDefinition(params.resource_params.name);
+
+  // Choose hostname
+  std::string hostname;
+  std::ifstream machine_file(machine_file_name.c_str());
+  std::getline(machine_file, hostname, ' ');
+  size_t found = hostname.find('\n');
+  if (found!=string::npos)
+    hostname.erase(found, 1); // Remove \n
+  proxy_hostname = hostname;
+  MESSAGE("[BuildCommandToLaunchPaCOProxyContainer] machine file name extracted is " << hostname);
+
+  // Remote execution
+  bool remote_execution = false;
+  if (hostname != std::string(Kernel_Utils::GetHostname()))
+  {
+    MESSAGE("[BuildCommandToLaunchPaCOProxyContainer] remote machine case detected !");
+    remote_execution = true;
+  }
+  
+  // Log environnement
+  std::string log_type("");
+  char * get_val = getenv("PARALLEL_LOG");
+  if (get_val)
+    log_type = get_val;
+
+  // Generating the command
+  std::string command_begin("");
+  std::string command_end("");
+  std::ostringstream command;
+
+  LogConfiguration(log_type, "proxy", container_name, hostname, command_begin, command_end);
+  command << command_begin;
+
+  // Adding connection command
+  // We can only have a remote execution with
+  // a SALOME application
+  if (remote_execution)
+  {
+    ASSERT(getenv("NSHOST")); 
+    ASSERT(getenv("NSPORT"));
+
+    command << resource_definition->protocol.in();
+    command << " -l ";
+    command << resource_definition->username.in();
+    command << " " << hostname;
+    command << " " << resource_definition->applipath.in();
+    command << "/runRemote.sh ";
+    command << getenv("NSHOST") << " "; // hostname of CORBA name server
+    command << getenv("NSPORT") << " "; // port of CORBA name server
+  }
+
+  command << exe_name;
+  command << " " << container_name;
+  command << " Dummy";
+  command << " " << hostname;
+  command << " " << nb_proc_str;
+  command << " -";
+  AddOmninamesParams(command);
+
+  // Final command
+  command << command_end;
+  MESSAGE("[BuildCommandToLaunchPaCOProxyContainer] Command is: " << command.str());
+
+  return command.str();
+}
+
+std::string 
+SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
+							       const std::string & machine_file_name,
+							       SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
+							       const std::string & proxy_hostname)
+{
+  // Name of exe
+  std::string exe_name = "SALOME_ParallelContainerNode";
+  exe_name += params.parallelLib.in();
+  std::string container_name = params.container_name.in();
+
+  // Convert nb_proc in string
+  std::ostringstream nb_proc_stream;
+  nb_proc_stream << params.nb_proc;
+
+  // Get resource definition
+  Engines::ResourceDefinition_var resource_definition = 
+    _ResManager->GetResourceDefinition(params.resource_params.name);
+  
+  // Log environnement
+  std::string log_type("");
+  char * get_val = getenv("PARALLEL_LOG");
+  if (get_val)
+    log_type = get_val;
+
+  // Now the command is different according to paralleLib
+  std::ostringstream command_nodes;
+  std::ifstream machine_file(machine_file_name.c_str());
+  if (std::string(params.parallelLib.in()) == "Dummy")
+  {
+    for (int i= 0; i < params.nb_proc; i++)
+    {
+      // Choose hostname
+      std::string hostname;
+      std::getline(machine_file, hostname);
+      MESSAGE("[BuildCommandToLaunchPaCONodeContainer] machine file name extracted is " << hostname);
+
+      // Remote execution
+      bool remote_execution = false;
+      if (hostname != std::string(Kernel_Utils::GetHostname()))
+      {
+	MESSAGE("[BuildCommandToLaunchPaCONodeContainer] remote machine case detected !");
+	remote_execution = true;
+      }
+
+      // For each node we have a new command
+      // Generating the command
+      std::ostringstream command_node_stream;
+      std::string command_node_begin("");
+      std::string command_node_end("");
+      std::ostringstream node_number;
+      node_number << i;
+      std::string container_node_name = container_name + node_number.str();
+      LogConfiguration(log_type, "node", container_node_name, hostname, command_node_begin, command_node_end);
+
+      // Adding connection command
+      // We can only have a remote execution with
+      // a SALOME application
+      if (remote_execution)
+      {
+	ASSERT(getenv("NSHOST")); 
+	ASSERT(getenv("NSPORT"));
+
+	command_node_stream << resource_definition->protocol.in();
+	command_node_stream << " -l ";
+	command_node_stream << resource_definition->username.in();
+	command_node_stream << " " << hostname;
+	command_node_stream << " " << resource_definition->applipath.in();
+	command_node_stream << "/runRemote.sh ";
+	command_node_stream << getenv("NSHOST") << " "; // hostname of CORBA name server
+	command_node_stream << getenv("NSPORT") << " "; // port of CORBA name server
+      }
+
+      command_node_stream << exe_name;
+      command_node_stream << " " << container_name;
+      command_node_stream << " " << params.parallelLib.in();
+      command_node_stream << " " << proxy_hostname;
+      command_node_stream << " " << node_number.str();
+      command_node_stream << " -";
+      AddOmninamesParams(command_node_stream);
+
+      command_nodes << command_node_begin << command_node_stream.str() << command_node_end;
+      vect_machine.push_back(hostname);
+    }
+  }
+
+  else if (std::string(params.parallelLib.in()) == "Mpi")
+  {
+    // Choose hostname
+    std::string hostname;
+    std::getline(machine_file, hostname, ' ');
+    MESSAGE("[BuildCommandToLaunchPaCONodeContainer] machine file name extracted is " << hostname);
+
+    // Remote execution
+    bool remote_execution = false;
+    if (hostname != std::string(Kernel_Utils::GetHostname()))
+    {
+      MESSAGE("[BuildCommandToLaunchPaCONodeContainer] remote machine case detected !");
+      remote_execution = true;
+    }
+
+    // In case of Mpi and Remote, we copy machine_file in the applipath
+    // scp mpi_machine_file user@machine:Path
+    std::ostringstream command_remote_stream;
+    std::string::size_type last = machine_file_name.find_last_of("/");
+    if (last == std::string::npos)
+      last = -1;
+
+    std::string protocol = resource_definition->protocol.in();
+    if (protocol == "rsh")
+      command_remote_stream << "rcp ";
+    else 
+      command_remote_stream << "scp ";
+    command_remote_stream << machine_file_name << " ";
+    command_remote_stream << resource_definition->username.in() << "@";
+    command_remote_stream << hostname << ":" << resource_definition->applipath.in();
+    command_remote_stream <<  "/" << machine_file_name.substr(last+1);
+
+    int status = system(command_remote_stream.str().c_str());
+    if (status == -1)
+    {
+      INFOS("copy of the MPI machine file failed ! - sorry !");
+      return "";
+    }
+
+    // Generating the command
+    std::string command_begin("");
+    std::string command_end("");
+
+    LogConfiguration(log_type, "nodes", container_name, hostname, command_begin, command_end);
+    command_nodes << command_begin;
+
+    // Adding connection command
+    // We can only have a remote execution with
+    // a SALOME application
+    if (remote_execution)
+    {
+      ASSERT(getenv("NSHOST")); 
+      ASSERT(getenv("NSPORT"));
+
+      command_nodes << resource_definition->protocol.in();
+      command_nodes << " -l ";
+      command_nodes << resource_definition->username.in();
+      command_nodes << " " << hostname;
+      command_nodes << " " << resource_definition->applipath.in();
+      command_nodes << "/runRemote.sh ";
+      command_nodes << getenv("NSHOST") << " "; // hostname of CORBA name server
+      command_nodes << getenv("NSPORT") << " "; // port of CORBA name server
+    }
+
+    if (std::string(resource_definition->mpiImpl.in()) == "lam")
+    {
+      command_nodes << "mpiexec -ssi boot ";
+      command_nodes << "-machinefile "  << machine_file_name << " "; 
+      command_nodes <<  "-n " << params.nb_proc;
+    }
+    else
+    {
+      command_nodes << "mpirun -np " << params.nb_proc;
+    }
+    command_nodes << " " << exe_name;
+    command_nodes << " " << container_name;
+    command_nodes << " " << params.parallelLib.in();
+    command_nodes << " " << proxy_hostname;
+    command_nodes << " -";
+    AddOmninamesParams(command_nodes);
+
+    // We don't put hostname, because nodes are registered in the resource of the proxy
+    for (int i= 0; i < params.nb_proc; i++)
+      vect_machine.push_back(proxy_hostname); 
+
+    command_nodes << command_end;
+  }
+  return command_nodes.str();
+}
+
+void
+SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
+					  const std::string & exe_type,
+					  const std::string & container_name,
+					  const std::string & hostname,
+					  std::string & begin, 
+					  std::string & end)
+{
+  if(log_type == "xterm")
+  {
+    begin = "xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
+    end   = "\"&";
+  }
+  else if(log_type == "xterm_debug")
+  {
+    begin = "xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
+    end   = "; cat \" &";
+  }
+  else
+  {
+    // default into a file...
+    std::string logFilename = "/tmp/" + container_name + "_" + hostname + "_" + exe_type + "_";
+    logFilename += std::string(getenv("USER")) + ".log";
+    end = " > " + logFilename + " 2>&1 & ";
+  }
+}
+
+CORBA::Object_ptr 
+SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command, 
+						  const Engines::ContainerParameters& params,
+						  const std::string & hostname)
+{
+  PaCO::InterfaceManager_ptr container_proxy = PaCO::InterfaceManager::_nil();
+
+  MESSAGE("[LaunchPaCOProxyContainer] Launch command");
+  int status = system(command.c_str());
+  if (status == -1) {
+    INFOS("[LaunchPaCOProxyContainer] failed : system command status -1");
+    return container_proxy;
+  }
+  else if (status == 217) {
+    INFOS("[LaunchPaCOProxyContainer] failed : system command status 217");
+    return container_proxy;
+  }
+
+  int count = TIME_OUT_TO_LAUNCH_CONT;
+  CORBA::Object_var obj = CORBA::Object::_nil();
+  std::string containerNameInNS = _NS->BuildContainerNameForNS(params.container_name.in(), 
+							       hostname.c_str());
+  MESSAGE("[LaunchParallelContainer]  Waiting for Parallel Container proxy : " << containerNameInNS);
+
+  while (CORBA::is_nil(obj) && count) 
+  {
+    sleep(1);
+    count--;
+    obj = _NS->Resolve(containerNameInNS.c_str());
+  }
+
+  try 
+  {
+    container_proxy = PaCO::InterfaceManager::_narrow(obj);
+  }
+  catch(CORBA::SystemException& e)
+  {
+    INFOS("[StarPaCOPPContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+    INFOS("CORBA::SystemException : " << e);
+    return container_proxy;
+  }
+  catch(CORBA::Exception& e)
+  {
+    INFOS("[StarPaCOPPContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+    INFOS("CORBA::Exception" << e);
+    return container_proxy;
+  }
+  catch(...)
+  {
+    INFOS("[StarPaCOPPContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+    INFOS("Unknown exception !");
+    return container_proxy;
+  }
+  if (CORBA::is_nil(container_proxy))
+  {
+    INFOS("[StarPaCOPPContainer] PaCO::InterfaceManager::_narrow returns NIL !");
+    return container_proxy;
+  }
+  return obj._retn();
+}
+
+//=============================================================================
+/*! This method launches the parallel container.
+ *  It will may be placed on the ressources manager.
+ *
+ * \param command to launch
+ * \param container's parameters
+ * \param name of the container
+ *
+ * \return CORBA container reference
+ */
+//=============================================================================
+bool
+SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command, 
+                                                 const Engines::ContainerParameters& params,
+                                                 const std::string& name,
+                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+{
+  INFOS("[LaunchPaCONodeContainer] Launch command");
+  int status = system(command.c_str());
+  if (status == -1) {
+    INFOS("[LaunchPaCONodeContainer] failed : system command status -1");
+    return false;
+  }
+  else if (status == 217) {
+    INFOS("[LaunchPaCONodeContainer] failed : system command status 217");
+    return false;
+  }
+
+  INFOS("[LaunchPaCONodeContainer] Waiting for the nodes of the parallel container");
+  // We are waiting all the nodes
+  for (int i = 0; i < params.nb_proc; i++) 
+  {
+    CORBA::Object_var obj = CORBA::Object::_nil();
+    std::string theMachine(vect_machine[i]);
+    // Name of the node
+    std::ostringstream tmp;
+    tmp << i;
+    std::string proc_number = tmp.str();
+    std::string container_node_name = name + proc_number;
+    std::string containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
+    INFOS("[LaunchPaCONodeContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
+    int count = TIME_OUT_TO_LAUNCH_CONT;
+    while (CORBA::is_nil(obj) && count) {
+      sleep(1) ;
+      count-- ;
+      obj = _NS->Resolve(containerNameInNS.c_str());
+    }
+    if (CORBA::is_nil(obj))
+    {
+      INFOS("[LaunchPaCONodeContainer] Launch of node failed (or not found) !");
+      return false;
+    }
+  }
+  return true;
+}
+
+#else
+
+Engines::Container_ptr
+SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params,
+					      std::string resource_selected)
+{
+  Engines::Container_ptr ret = Engines::Container::_nil();
+  INFOS("[StarPaCOPPContainer] is disabled !");
+  INFOS("[StarPaCOPPContainer] recompile SALOME Kernel to enable PaCO++ parallel extension");
+  return ret;
+}
+
+std::string 
+SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
+								std::string machine_file_name,
+								std::string & proxy_hostname)
+{
+  return "";
+}
+
+std::string 
+SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
+							       const std::string & machine_file_name,
+							       SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+							       const std::string & proxy_hostname) 
+{
+  return "";
+}
+void 
+SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
+					  const std::string & exe_type,
+					  const std::string & container_name,
+					  const std::string & hostname,
+					  std::string & begin, 
+					  std::string & end)
+{
+}
+
+CORBA::Object_ptr 
+SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command, 
+						  const Engines::ContainerParameters& params,
+						  const std::string& hostname)
+{
+  CORBA::Object_ptr ret = CORBA::Object::_nil();
+  return ret;
+}
+
+bool 
+SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command, 
+			const Engines::ContainerParameters& params,
+			const std::string& name,
+			SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+{
+  return false;
+}
+#endif
+
