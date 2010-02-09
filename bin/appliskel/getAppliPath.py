@@ -50,7 +50,7 @@ def set_var(VAR, strpath):
         return "export %s=%s" % (VAR, value)
 	
 
-applipath=relpath(os.path.abspath(os.path.dirname(__file__)),os.path.abspath(os.getenv('HOME')))
+applipath=relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
 
 #print set_var('APPLI', applipath)
 print applipath
