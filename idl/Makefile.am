@@ -217,7 +217,7 @@ idldir = $(prefix)/idl/salome
 nodist_idl_DATA = ${XML} ${IDL_PACO} Calcium_Ports.idl
 nodist_salomeinclude_HEADERS = ${INCLUDES_PACO} 
 
-BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES)
+BUILT_SOURCES = $(IDL_SOURCES) $(PAR_INCLUDES) $(PAR)
 
 SALOME_ComponentPaCO.idl SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
 SALOME_PortsPaCO.idl SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
