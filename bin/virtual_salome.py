@@ -55,6 +55,9 @@ def mkdir(path):
 def symlink(src, dest):
     """Create a link if it does not exist"""
     if not os.path.exists(dest):
+        if os.path.lexists(dest):
+            print "Do not create symlink %s. It already exists but it's broken" % dest
+            return
         if verbose:
             print 'Creating symlink %s' % dest
             pass
@@ -132,7 +135,7 @@ def link_module(options):
     module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
     module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
                                           'site-packages','salome','shared_modules')
-    module_share_dir=os.path.join(module_dir,'share','salome','resources')
+    module_share_dir=os.path.join(module_dir,'share','salome')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
     module_doc_tui_dir=os.path.join(module_dir,'doc','salome','tui')
     module_doc_dir=os.path.join(module_dir,'doc','salome')
@@ -146,7 +149,7 @@ def link_module(options):
     lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
     lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
                                    'site-packages','salome','shared_modules')
-    share_dir=os.path.join(home_dir,'share','salome','resources')
+    share_dir=os.path.join(home_dir,'share','salome')
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
     doc_tui_dir=os.path.join(home_dir,'doc','salome','tui')
     doc_dir=os.path.join(home_dir,'doc','salome')
@@ -242,15 +245,20 @@ def link_module(options):
             pass
         pass
 
-    #directory share/salome/resources : create it and link content
+    #directory share/salome : create it and link content
     if os.path.exists(module_share_dir):
         mkdir(share_dir)
         for fn in os.listdir(module_share_dir):
+          if fn=="resources":
+            #resources : create it and link content
+            mkdir(os.path.join(share_dir,"resources"))
+            for ffn in os.listdir(os.path.join(module_share_dir,"resources")):
+              symlink(os.path.join(module_share_dir, "resources", ffn), os.path.join(share_dir,"resources", ffn))
+          else:
+            #other directories (not resources)
             symlink(os.path.join(module_share_dir, fn), os.path.join(share_dir, fn))
-            pass
-        pass
     else:
-        print "resources directory %s does not exist" % module_share_dir
+        print "share/salome directory %s does not exist" % module_share_dir
         pass
 
     #html files in doc/salome directory
