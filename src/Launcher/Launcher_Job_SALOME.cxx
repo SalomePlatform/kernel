@@ -59,7 +59,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    
   // Begin of script
-  launch_script_stream << "#! /bin/sh -f" << std::endl;
+  launch_script_stream << "#! /bin/bash -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   launch_script_stream << "export PYTHONPATH=" << work_directory << ":$PYTHONPATH" << std::endl;
   launch_script_stream << "export PATH=" << work_directory << ":$PATH" << std::endl;
