@@ -23,11 +23,22 @@ AC_DEFUN([CHECK_LIBXML],[
 
 AC_CHECKING(for libxml library)
 
+AC_LANG_SAVE
+AC_LANG_C
+
 AC_SUBST(LIBXML_INCLUDES)
 AC_SUBST(LIBXML_LIBS)
 
 LIBXML_INCLUDES=""
 LIBXML_LIBS=""
+
+AC_CHECKING(for libxml location)
+AC_ARG_WITH(libxml,
+            [  --with-libxml=DIR      root directory path to LIBXML library installation ],
+            [LIBXML_DIR="$withval"
+             AC_MSG_RESULT("select $withval as path to LIBXML library")])
+
+AC_MSG_RESULT(\$LIBXML_DIR = ${LIBXML_DIR})
 
 libxml_ok=no
 
@@ -76,6 +87,8 @@ then
 fi
 
 AC_MSG_RESULT(for libxml: $libxml_ok)
+
+AC_LANG_RESTORE
 
 ])dnl
 dnl
