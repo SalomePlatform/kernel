@@ -95,8 +95,9 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
-    -I$(srcdir)/../GenericObj \
-    -I$(top_builddir)/idl \
+	-I$(srcdir)/../GenericObj \
+	-I$(top_builddir)/idl \
+	-I$(top_builddir) \
 	@HDF5_INCLUDES@ \
 	@BOOST_CPPFLAGS@ @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -105,7 +106,7 @@ COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
 	../DF/libDF.la \
-    ../GenericObj/libSalomeGenericObj.la \
+	../GenericObj/libSalomeGenericObj.la \
 	@HDF5_LIBS@ 
 
 
