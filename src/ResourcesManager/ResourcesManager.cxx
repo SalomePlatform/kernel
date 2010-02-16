@@ -384,7 +384,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
             }
             else
             {
-              std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+              std::cerr << "ParseXmlFiles Warning, two resources with the same name were found, taking the first declaration : " << i->first << std::endl;
             }
           }
         }
