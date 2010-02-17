@@ -142,5 +142,3 @@ test_DataIdContainer_CXXFLAGS = $(COMMON_CPPFLAGS)
 test_DataIdContainer_LDADD   = libSalomeCalcium.la $(top_builddir)/src/Utils/libOpUtil.la
 
 test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
-
-CLEANFILES = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h
