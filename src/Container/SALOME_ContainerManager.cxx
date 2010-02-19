@@ -998,15 +998,58 @@ string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const strin
 {
   int status;
   string zeronode;
-  string cmd;
+  string command;
   string tmpFile = BuildTemporaryFileName();
 
   if( getenv("LIBBATCH_NODEFILE") == NULL )
-    cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
-  else
-    cmd = "mpirun -np 1 -machinefile " + machinesFile + " hostname > " + tmpFile;
+    {
+      if (_isAppliSalomeDefined)
+        {
+          const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(machine);
 
-  status = system(cmd.c_str());
+          if (resInfo.Protocol == rsh)
+            command = "rsh ";
+          else if (resInfo.Protocol == ssh)
+            command = "ssh ";
+          else
+            throw SALOME_Exception("Unknown protocol");
+
+          if (resInfo.UserName != "")
+            {
+              command += "-l ";
+              command += resInfo.UserName;
+              command += " ";
+            }
+
+          command += resInfo.HostName;
+          command += " ";
+
+          if (resInfo.AppliPath != "")
+            command += resInfo.AppliPath; // path relative to user@machine $HOME
+          else
+            {
+              ASSERT(getenv("APPLI"));
+              command += getenv("APPLI"); // path relative to user@machine $HOME
+            }
+
+          command += "/runRemote.sh ";
+
+          ASSERT(getenv("NSHOST")); 
+          command += getenv("NSHOST"); // hostname of CORBA name server
+
+          command += " ";
+          ASSERT(getenv("NSPORT"));
+          command += getenv("NSPORT"); // port of CORBA name server
+
+          command += " mpirun -np 1 hostname > " + tmpFile;
+        }
+      else
+        command = "mpirun -np 1 hostname > " + tmpFile;
+    }
+  else
+    command = "mpirun -np 1 -machinefile " + machinesFile + " hostname > " + tmpFile;
+
+  status = system(command.c_str());
   if( status == 0 ){
     ifstream fp(tmpFile.c_str(),ios::in);
     fp >> zeronode;
