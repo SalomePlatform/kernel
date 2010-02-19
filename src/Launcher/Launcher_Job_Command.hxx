@@ -30,7 +30,7 @@
 
 namespace Launcher
 {
-  class Job_Command : virtual public Launcher::Job
+  class LAUNCHER_EXPORT Job_Command : virtual public Launcher::Job
   {
     public:
       Job_Command();

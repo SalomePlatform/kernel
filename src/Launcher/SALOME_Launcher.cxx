@@ -86,7 +86,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   std::string job_type = job_parameters.job_type.in();
   
-  if (job_type != "command" and job_type != "yacs_file" and job_type != "python_salome")
+  if (job_type != "command" && job_type != "yacs_file" && job_type != "python_salome")
   {
     std::string message("SALOME_Launcher::createJob: bad job type: ");
     message += job_type;

@@ -22,6 +22,7 @@
 #define _LAUNCHER_JOB_HXX_
 
 #include <SALOMEconfig.h>
+#include "Launcher_Utils.hxx"
 #include "ResourcesManager.hxx"
 
 #include <stdlib.h>
@@ -44,7 +45,7 @@
 
 namespace Launcher
 {
-  class Job
+  class LAUNCHER_EXPORT Job
   {
     public:
       Job();

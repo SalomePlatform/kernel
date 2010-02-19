@@ -214,7 +214,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   MESSAGE("[GiveContainer] starting with mode: " << mode);
 
   // Step 1: Find Container for find and findorstart mode
-  if (mode == "find" or mode == "findorstart")
+  if (mode == "find" || mode == "findorstart")
   {
     ret = FindContainer(params, params.resource_params.resList);
     if(!CORBA::is_nil(ret))
@@ -310,7 +310,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       Engines::Container_var cont=Engines::Container::_narrow(obj);
       if(!cont->_non_existent())
       {
-	if(std::string(params.mode.in())=="getorstart" or std::string(params.mode.in())=="get"){
+	if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
 	  return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
 	}
 	else
@@ -1103,7 +1103,7 @@ SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & para
   }
   // Check parallelLib
   std::string parallelLib = params.parallelLib.in();
-  if (parallelLib != "Mpi" and parallelLib != "Dummy")
+  if (parallelLib != "Mpi" && parallelLib != "Dummy")
   {
     INFOS("[checkPaCOParameters] parallelLib is not correctly defined");
     INFOS("[checkPaCOParameters] you can chosse between: Mpi and Dummy");
@@ -1123,7 +1123,7 @@ SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & para
   std::string username = resource_definition->username.in();
   std::string applipath = resource_definition->applipath.in();
 
-  if (protocol == "" or username == "" or applipath == "")
+  if (protocol == "" || username == "" || applipath == "")
   {
     INFOS("[checkPaCOParameters] resource selected is not well defined");
     INFOS("[checkPaCOParameters] resource name: " << resource_definition->name.in());

@@ -25,7 +25,7 @@
 
 namespace Launcher
 {
-  class Job_PythonSALOME : virtual public Launcher::Job_SALOME
+  class LAUNCHER_EXPORT Job_PythonSALOME : virtual public Launcher::Job_SALOME
   {
     public:
       Job_PythonSALOME();

@@ -75,10 +75,10 @@ void
 Launcher::Job::setState(const std::string & state)
 {
   // State of a Job: CREATED, QUEUED, RUNNING, FINISHED, FAILED
-  if (state != "CREATED" and
-      state != "QUEUED" and
-      state != "RUNNING" and
-      state != "FINISHED" and
+  if (state != "CREATED" &&
+      state != "QUEUED" &&
+      state != "RUNNING" &&
+      state != "FINISHED" &&
       state != "FAILED")
   {
     throw LauncherException("Bad state, this state does not exist: " + state);
@@ -354,9 +354,9 @@ Launcher::Job::getLaunchDate()
   std::string launch_date = ctime(&rawtime);
   int i = 0 ;
   for (;i < launch_date.size(); i++) 
-    if (launch_date[i] == '/' or 
-        launch_date[i] == '-' or 
-        launch_date[i] == ':' or
+    if (launch_date[i] == '/' ||
+        launch_date[i] == '-' ||
+        launch_date[i] == ':' ||
         launch_date[i] == ' ') 
       launch_date[i] = '_';
   launch_date.erase(--launch_date.end()); // Last caracter is a \n
