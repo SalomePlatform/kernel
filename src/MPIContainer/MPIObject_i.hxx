@@ -31,14 +31,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_MPIObject)
 
-class POException
-{
-public:
-  const std::string msg;
-  const int numproc;
-  POException(const int ip,const std::string m) : numproc(ip),msg(m) {}
-};
-
 class MPIObject_i: public POA_Engines::MPIObject
 {
  public:

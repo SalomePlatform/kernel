@@ -25,6 +25,7 @@
 //
 #include "MPIObject_i.hxx"
 #include "utilities.h"
+#include "Utils_SALOME_Exception.hxx"
 using namespace std;
 #define TIMEOUT 5
 
@@ -69,58 +70,69 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
   int err, ip, n;
   char *ior;
   MPI_Status status; /* status de reception de message MPI */
+  ostringstream msg;
 
-  if( _numproc == 0 ){
+  if( _numproc == 0 )
+    {
 
-    //Allocation du tableau des IOR
-    Engines::IORTab_var iort = new Engines::IORTab;
-    iort->length(_nbproc);
+      //Allocation du tableau des IOR
+      Engines::IORTab_var iort = new Engines::IORTab;
+      iort->length(_nbproc);
+      
+      iort[0] = pobj;
 
-    iort[0] = pobj;
-
-    // Process 0 recupere les ior de l'object sur les autres process
-    for(ip=1;ip<_nbproc;ip++){
-      err = MPI_Recv(&n,1,MPI_INT,ip,ip,MPI_COMM_WORLD,&status);
-      if(err){
-        MESSAGE("[" << _numproc << "] MPI_RECV error");
-        exit(1);
-      }
-      // Allocation de la chaine de longueur n
-      ior = new char[n];
-      err = MPI_Recv(ior,n,MPI_CHAR,ip,2*ip,MPI_COMM_WORLD,&status);
-      if(err){
-        MESSAGE("[" << _numproc << "] MPI_RECV error");
-        exit(1);
-      }
-      iort[ip] = orb->string_to_object(ior);
-      delete [] ior;
-      if(CORBA::is_nil(iort[ip]))
-        throw POException(ip,"MPI Component not loaded");
+      // Process 0 recupere les ior de l'object sur les autres process
+      for(ip=1;ip<_nbproc;ip++)
+        {
+          err = MPI_Recv(&n,1,MPI_INT,ip,ip,MPI_COMM_WORLD,&status);
+          if(err)
+            {
+              msg << "[" << _numproc << "] MPI_RECV error";
+              throw SALOME_Exception(msg.str().c_str());
+            }
+          // Allocation de la chaine de longueur n
+          ior = new char[n];
+          err = MPI_Recv(ior,n,MPI_CHAR,ip,2*ip,MPI_COMM_WORLD,&status);
+          if(err)
+            {
+              msg << "[" << _numproc << "] MPI_RECV error";
+              throw SALOME_Exception(msg.str().c_str());
+            }
+          iort[ip] = orb->string_to_object(ior);
+          delete [] ior;
+          if(CORBA::is_nil(iort[ip]))
+            {
+              msg << "[" << ip << "] MPI Component not loaded";
+              throw SALOME_Exception(msg.str().c_str());
+            }
+        }
+      // On donne le tableau des ior a l'objet Corba du process 0
+      if( amiCont )
+        tior(*(iort._retn()));
+      else
+        pobj->tior(*(iort._retn()));
     }
-    // On donne le tableau des ior a l'objet Corba du process 0
-    if( amiCont )
-      tior(*(iort._retn()));
-    else
-      pobj->tior(*(iort._retn()));
-  }
-  else{
-    // Conversion IOR vers string
-    ior = orb->object_to_string(pobj);
-    n = strlen(ior) + 1;
-    // On envoie l'IOR au process 0
-    err = MPI_Send(&n,1,MPI_INT,0,_numproc,MPI_COMM_WORLD);
-    if(err){
-      MESSAGE("[" << _numproc << "] MPI_SEND error");
-      exit(1);
+  else
+    {
+      // Conversion IOR vers string
+      ior = orb->object_to_string(pobj);
+      n = strlen(ior) + 1;
+      // On envoie l'IOR au process 0
+      err = MPI_Send(&n,1,MPI_INT,0,_numproc,MPI_COMM_WORLD);
+      if(err)
+        {
+          msg << "[" << _numproc << "] MPI_SEND error";
+          throw SALOME_Exception(msg.str().c_str());
+        }
+      err = MPI_Send(ior,n,MPI_CHAR,0,2*_numproc,MPI_COMM_WORLD);
+      if(err)
+        {
+          msg << "[" << _numproc << "] MPI_SEND error";
+          throw SALOME_Exception(msg.str().c_str());
+        }
+      CORBA::string_free(ior);
     }
-    err = MPI_Send(ior,n,MPI_CHAR,0,2*_numproc,MPI_COMM_WORLD);
-    if(err){
-      MESSAGE("[" << _numproc << "] MPI_SEND error");
-      exit(1);
-    }
-    CORBA::string_free(ior);
-  }
-
+ 
 }
 
 #ifdef HAVE_MPI2
@@ -129,57 +141,66 @@ void MPIObject_i::remoteMPI2Connect(string service)
   int i;
   char port_name[MPI_MAX_PORT_NAME];
   char port_name_clt[MPI_MAX_PORT_NAME];
+  ostringstream msg;
 
-  if( service.size() == 0 ){
-    MESSAGE("[" << _numproc << "] You have to give a service name !");
-    throw POException(_numproc,"You have to give a service name !");
-  }
+  if( service.size() == 0 )
+    {
+      msg << "[" << _numproc << "] You have to give a service name !";
+      throw SALOME_Exception(msg.str().c_str());
+    }
 
-  if( _srv.find(service) != _srv.end() ){
-    MESSAGE("[" << _numproc << "] service " << service << " already exist !");
-    throw POException(_numproc,"service " + service + " already exist !");
-  }
+  if( _srv.find(service) != _srv.end() )
+    {
+      msg << "[" << _numproc << "] service " << service << " already exist !";
+      throw SALOME_Exception(msg.str().c_str());
+    }
 
   _srv[service] = false;
 
   MPI_Barrier(MPI_COMM_WORLD);
 
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-  if( _numproc == 0 ){ 
-    /* rank 0 try to be a server. If service is already published, try to be a cient */
-    MPI_Open_port(MPI_INFO_NULL, port_name); 
-    if ( MPI_Publish_name((char*)service.c_str(), MPI_INFO_NULL, port_name) == MPI_SUCCESS )  {
-      _srv[service] = true;
-      _port_name[service] = port_name;
-      MESSAGE("[" << _numproc << "] service " << service << " available at " << port_name << endl);
-    }      
-    else if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS ){
-      MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
-      MPI_Close_port( port_name );
+  if( _numproc == 0 )
+    { 
+      /* rank 0 try to be a server. If service is already published, try to be a cient */
+      MPI_Open_port(MPI_INFO_NULL, port_name); 
+      if ( MPI_Publish_name((char*)service.c_str(), MPI_INFO_NULL, port_name) == MPI_SUCCESS )
+        {
+          _srv[service] = true;
+          _port_name[service] = port_name;
+          MESSAGE("[" << _numproc << "] service " << service << " available at " << port_name << endl);
+        }      
+      else if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
+        {
+          MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
+          MPI_Close_port( port_name );
+        }
+      else
+        {
+          msg << "[" << _numproc << "] Error on connection with " << service << " at " << port_name_clt;
+          throw SALOME_Exception(msg.str().c_str());
+        }
     }
-    else{
-      /* Throw exception */
-      MESSAGE("[" << _numproc << "] Error on connection with " << service << " at " << port_name_clt << endl);
-      throw POException(_numproc,"Error on connection with " + service + " at " + port_name_clt);
+  else
+    {
+      i=0;
+      /* Waiting rank 0 publish name and try to be a client */
+      while ( i != TIMEOUT  ) 
+        {
+          sleep(1);
+          if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
+            {
+              MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
+              break;
+            }
+          i++;
+        }
+      if(i==TIMEOUT)
+        {
+          msg << "[" << _numproc << "] Error on connection with " << service << " at " << port_name_clt;
+          throw SALOME_Exception(msg.str().c_str());
+        }
     }
-  }
-  else{
-    i=0;
-    /* Waiting rank 0 publish name and try to be a client */
-    while ( i != TIMEOUT  ) {
-      sleep(1);
-      if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS ){
-        MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
-        break;
-      }
-      i++;
-    }
-    if(i==TIMEOUT){
-      /* Throw exception */
-      MESSAGE("[" << _numproc << "] Error on connection with " << service << " at " << port_name_clt << endl);
-      throw POException(_numproc,"Error on connection with " + service + " at " + port_name_clt);
-    }
-  }
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
   
   /* If rank 0 is server, all processes call MPI_Comm_accept */
@@ -202,29 +223,33 @@ void MPIObject_i::remoteMPI2Connect(string service)
 
 void MPIObject_i::remoteMPI2Disconnect(std::string service)
 {
+  ostringstream msg;
 
-  if( service.size() == 0 ){
-    MESSAGE("[" << _numproc << "] You have to give a service name !");
-    throw POException(_numproc,"You have to give a service name !");
-  }
+  if( service.size() == 0 )
+    {
+      msg << "[" << _numproc << "] You have to give a service name !";
+      throw SALOME_Exception(msg.str().c_str());
+    }
 
-  if( _srv.find(service) == _srv.end() ){
-    MESSAGE("[" << _numproc << "] service " << service << " don't exist !");
-    throw POException(_numproc,"service " + service + " don't exist !");
-  }
-
+  if( _srv.find(service) == _srv.end() )
+    {
+      msg << "[" << _numproc << "] service " << service << " don't exist !";
+      throw SALOME_Exception(msg.str().c_str());
+    }
+  
   MPI_Comm_disconnect( &(_gcom[service]) ); 
-  if ( _srv[service] ) {
+  if ( _srv[service] )
+    {
 
-    char port_name[MPI_MAX_PORT_NAME];
-    strcpy(port_name,_port_name[service].c_str());
+      char port_name[MPI_MAX_PORT_NAME];
+      strcpy(port_name,_port_name[service].c_str());
 
-    MPI_Unpublish_name((char*)service.c_str(), MPI_INFO_NULL, port_name); 
-    MESSAGE("[" << _numproc << "] " << service << ": close port " << _port_name[service] << endl);
-    MPI_Close_port( port_name ); 
-    _port_name.erase(service);
-  }
-
+      MPI_Unpublish_name((char*)service.c_str(), MPI_INFO_NULL, port_name); 
+      MESSAGE("[" << _numproc << "] " << service << ": close port " << _port_name[service] << endl);
+      MPI_Close_port( port_name ); 
+      _port_name.erase(service);
+    }
+  
   _gcom.erase(service);
   _icom.erase(service);
   _srv.erase(service);

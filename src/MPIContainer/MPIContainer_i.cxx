@@ -388,12 +388,8 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       BCastIOR(_orb,pobj,false);
 
     }
-  catch(const POException &ex){
-    INFOS( ex.msg << " on process number " << ex.numproc ) ;
-    return Engines::Component::_nil();
-  }
-  catch (...){
-    INFOS( "Container_i::createInstance exception catched" ) ;
+  catch(const std::exception &ex){
+    INFOS( ex.what() ) ;
     return Engines::Component::_nil();
   }
   return iobject._retn();
