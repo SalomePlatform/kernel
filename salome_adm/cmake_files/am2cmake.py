@@ -54,7 +54,7 @@ p_if = re.compile(r"""
 if         # an if
 \s+        # 1 or more space
 (?P<val>   # open the group val
-[^\s]+     # the group contain 1 or more non space characters
+.+         # the group contain 1 or more non space characters
 )          # close the group
 """, re.VERBOSE)
 
