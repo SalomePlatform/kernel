@@ -24,6 +24,16 @@
 #  Author : Vadim SANDLER
 #  Module : SALOME
 #
+
+__ALL__ = [
+    "getVersion",
+    "getVersionMajor",
+    "getVersionMinor",
+    "getVersionRelease",
+    "getVersions",
+    "getXVersion",
+    ]
+
 _salome_versions = {}
 
 def getVersion( mod = "KERNEL" ):
@@ -108,3 +118,10 @@ def getVersions( mod = "KERNEL" ):
         pass
     return [ major, minor, rel ]
     
+def getXVersion( mod = "KERNEL" ):
+    """
+    Get SALOME module version as list of [major, minor, release] numbers
+    Returns: version numbers list
+    """
+    major, minor, rel = getVersions( mod )
+    return hex( (major<<16) + (minor<<8) + rel )
