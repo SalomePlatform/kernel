@@ -325,6 +325,7 @@ class CMakeFile(object):
             "SalomeIDLMED",
             ]
         smesh_list = [
+            "GeomSelectionTools",
             "MEFISTO2D",
             "MeshDriverDAT",
             "MeshDriverMED",
