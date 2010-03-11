@@ -1412,6 +1412,15 @@ class CMakeFile(object):
         SET(type SHARED)
         ENDIF(ISIDL)
         ''')
+        if key == "noinst_LTLIBRARIES":
+            newlines.append(r'''
+            IF(WINDOWS)
+            SET(type STATIC)
+            ELSE(WINDOWS)
+            SET(type STATIC)
+            ENDIF(WINDOWS)
+            ''')
+            pass
         # --
         # Set sources for the library
         # --
@@ -1485,7 +1494,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if 1: # key != "noinst_LTLIBRARIES":
+        if key != "noinst_LTLIBRARIES":
             if self.module == "medfile":
                 newlines.append(r'''
                 SET(DEST lib)
