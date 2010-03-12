@@ -476,10 +476,12 @@ struct stringArray
   }
 }
 %typemap(freearg) type* IN_ARRAY3 {
+%#ifdef WITH_NUMPY
   if (is_new_object$argnum && array$argnum) 
     {
       Py_DECREF(array$argnum);
     }
+%#endif
 }
 %enddef
 
@@ -511,10 +513,12 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
   }
 }
 %typemap(freearg) float* ecpval {
+%#ifdef WITH_NUMPY
   if (is_new_object$argnum && array$argnum) 
     {
       Py_DECREF(array$argnum);
     }
+%#endif
 }
 /* End of  Specific typemap for complex */
 
@@ -548,6 +552,7 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 }
 
 %typemap(freearg) (char** eval,int strSize) {
+%#ifdef WITH_NUMPY
   if (array$argnum)
     {
       for(int i=0;i<array_size(array$argnum,0);i++)
@@ -558,6 +563,7 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
     {
       Py_DECREF(array$argnum);
     }
+%#endif
 }
 /* End of array of strings on input */
 
@@ -639,7 +645,9 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
   }
 }
 %typemap(freearg) (char** lval,int strSize) {
+%#ifdef WITH_NUMPY
   if (temp$argnum) free($1);
+%#endif
 }
 /* End of typemap for array of strings on input/output */
 
