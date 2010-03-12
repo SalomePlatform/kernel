@@ -102,6 +102,50 @@ extern int      cp_len(
 #endif
 );
 
+extern int      cp_llg(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance ou de lecture         */
+                /*     CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL    */,
+        float * /* E/S Borne inf de l'intervalle de lecture     */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        float * /* E   Borne Sup de l'intervalle de lecture     */,
+        int   * /* E/S Pas d'iteration a lire                   */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        char  * /* E   Nom de la variable a lire                */,
+        int     /* E   Nombre max de valeurs a lire             */,
+        int   * /* S   Nombre de valeurs rellement lues         */,
+        long  * /* S   Tableau d'entiers pour stocker les       */
+                /*     valeurs lues                             */
+#endif
+);
+
+extern int      cp_lln(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance ou de lecture         */
+                /*     CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL    */,
+        float * /* E/S Borne inf de l'intervalle de lecture     */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        float * /* E   Borne Sup de l'intervalle de lecture     */,
+        int   * /* E/S Pas d'iteration a lire                   */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        char  * /* E   Nom de la variable a lire                */,
+        int     /* E   Nombre max de valeurs a lire             */,
+        int   * /* S   Nombre de valeurs rellement lues         */,
+        long  * /* S   Tableau d'entiers pour stocker les       */
+                /*     valeurs lues                             */
+#endif
+);
+
 extern int      cp_lre(
 /*              ------                                          */
 #if CPNeedPrototype
@@ -381,6 +425,21 @@ extern int      cp_een(
 );
 
 extern int      cp_elg(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance                       */
+                /*     CP_TEMPS, CP_ITERATION                   */,
+        float   /* E   Pas de temps a ecrire                    */,
+        int     /* E   Pas d'iteration a ecrire                 */,
+        char  * /* E   Nom de la variable a ecrire              */,
+        int     /* E   Nombre de valeurs a ecrire               */,
+        long  * /* E   Tableau d'entiers a ecrire               */
+#endif
+);
+
+extern int      cp_eln(
 /*              ------                                          */
 #if CPNeedPrototype
         void * component /* Pointeur de type Superv_Component_i* sur le */

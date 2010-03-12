@@ -31,7 +31,7 @@
 #include <string.h>
 #include <stddef.h>
 
-// Interface C de SalomeCalcium 
+// Interface C de SalomeCalcium
 
 typedef int InfoType;
 typedef char bool;
@@ -89,22 +89,21 @@ InfoType ecp_lch(void * component, int mode, float * ti,        float * tf, int 
                 char  * nomvar, int bufferLength, int * nRead,
                 char *** data, int strSize) {
 
-  size_t _nRead;                                                        
-  long   _i=*i;                                                 
-  fflush(stdout);fflush(stderr);                                                        
- 
-  InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i, 
-                                    nomvar, bufferLength, &_nRead, 
-                                    data);/*, strSize ); 
+  size_t _nRead;
+  long   _i=*i;
+  fflush(stdout);fflush(stderr);
+
+  InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i,
+                                    nomvar, bufferLength, &_nRead,
+                                    data);/*, strSize );
                                              strSize est  inutile pour les ports CALCIUM
                                              qui gèrent des tailles quelconques de chaines. */
-  if(mode == CP_SEQUENTIEL)                                             
-    *i = _i;                                                            
-  *nRead=_nRead;                                                        
-  fflush(stdout);fflush(stderr);                                                        
-                                                                        
-  return info;                                                  
-};                                                                      
+  if(mode == CP_SEQUENTIEL)
+    *i = _i;
+  *nRead=_nRead;
+  fflush(stdout);fflush(stderr);
+  return info;
+};
 
 void ecp_lch_free (char* * data) {                              \
   ecp_lecture_str_free(data);                                   \
@@ -171,9 +170,7 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 /*   long   _i=*i;                                                       */
 /*   fflush(stdout);fflush(stderr);                                                      */
 /*   fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);    */
-                                                                        
 /*   if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;        */
-  
 /*   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i,  */
 /*                                  nomvar, bufferLength, &_nRead,  */
 /*                                  &data);*/
@@ -185,7 +182,6 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 /*   *nRead=_nRead;                                                      */
 /*   fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);                        */
 /*   fflush(stdout);fflush(stderr);                                                      */
-                                                                        
 /*   return info;                                                        */
 /* };                                                                    */
 
@@ -195,13 +191,15 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
                               <type de données>, <nom de l'interface C2CPP à utiliser>, <qualificateur de type optionnel des données>,<paramètres supplémentaire ignoré>)*/
 
 CALCIUM_LECT_INTERFACE_C_(len,float ,int,int    ,int2integer,,);
-/*llg ne sera pas disponible si sizeof(long) == 64 bits && cal_int==int
-  sinon problème de conversion de 64bits vers 32bits */  
+/*llg ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
+  sinon problème de conversion de 64bits vers 32bits */
 CALCIUM_LECT_INTERFACE_C_(llg,float ,int,long   ,long2integer,,);
+
+CALCIUM_LECT_INTERFACE_C_(lln,float ,int,long   ,long,,);
 
 CALCIUM_LECT_INTERFACE_C_(lre,float ,int,float  ,float,,);
 CALCIUM_LECT_INTERFACE_C_(ldb,double,int,double ,double,,);
-CALCIUM_LECT_INTERFACE_C_(llo,float ,int,int    ,bool,,); 
+CALCIUM_LECT_INTERFACE_C_(llo,float ,int,int    ,bool,,);
 CALCIUM_LECT_INTERFACE_C_(lcp,float ,int,float  ,cplx,,);
 #define STAR *
 #define LCH_LAST_PARAM ,int strsize
@@ -213,8 +211,8 @@ CALCIUM_LECT_INTERFACE_C_(lch,float ,int,char   ,str,STAR, LCH_LAST_PARAM );
 
 CALCIUM_LECT_INTERFACE_C_(len_fort_,float ,cal_int,cal_int ,integer,,);
 CALCIUM_LECT_INTERFACE_C_(lin_fort_,float ,cal_int,int     ,int2integer,,);
-/*llg ne sera pas disponible si sizeof(long) == 64 bits && cal_int==int
-  sinon problème de conversion de 64bits vers 32bits */  
+/*llg_fort_ ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
+  sinon problème de conversion de 64bits vers 32bits */
 CALCIUM_LECT_INTERFACE_C_(llg_fort_,float ,cal_int,long    ,long2integer,,);
 
 CALCIUM_LECT_INTERFACE_C_(lre_fort_,float ,cal_int,float   ,float,,);
@@ -223,6 +221,7 @@ CALCIUM_LECT_INTERFACE_C_(llo_fort_,float ,cal_int,int     ,bool,,);   /*int pou
 CALCIUM_LECT_INTERFACE_C_(lcp_fort_,float ,cal_int,float   ,cplx,,);
 CALCIUM_LECT_INTERFACE_C_(lch_fort_,float ,cal_int,char    ,str,STAR, LCH_LAST_PARAM );
 
+CALCIUM_LECT_INTERFACE_C_(lln_fort_,float ,cal_int,long    ,long,,);
 
 /**********************************************/
 /*  INTERFACES DE DÉBUT ET DE FIN DE COUPLAGE */
@@ -235,9 +234,9 @@ InfoType cp_cd (void * component, char * instanceName) {
 
 InfoType cp_fin (void * component, int code) {
   /* TODO : gérer avec les callbacks des ports DSC */
-  
+
   InfoType info =  ecp_fin_(component,code);
-  
+
   return info;
 }
 
@@ -276,12 +275,12 @@ InfoType cp_fin (void * component, int code) {
 /* InfoType cp_ech(void * component, int mode, float t, int i, */
 /*              char  * nomvar,  int nbelem, */
 /*              char ** data, int strSize) { */
-                                                                        
-/*long   _i=i;*/                                                         
+
+/*long   _i=i;*/
 /*   fflush(stdout);fflush(stderr);                                                      */
 /*   fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);       */
 /*   if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;              */
-    
+
 /*   InfoType info =  ecp_ecriture_str (component, mode, &t, i,  */
 /*                                   nomvar, nbelem,             */
 /*                                   data); */
@@ -289,13 +288,15 @@ InfoType cp_fin (void * component, int code) {
 /*   fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);                         */
 /*   fflush(stdout);                                                     */
 /*   fflush(stderr);                                                     */
-                                                                        
+
 /*   return info;                                                        */
 /* };                                                                    */
 
 /*  Definition des méthodes calcium standard  */
 /*  CALCIUM_ECR_INTERFACE_C_(_name,_timeType,_calInt,type,_typeName,_qual) */
 CALCIUM_ECR_INTERFACE_C_(een,float ,int,int   ,int2integer,,);
+/*elg ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
+  sinon problème de conversion de 64bits vers 32bits */
 CALCIUM_ECR_INTERFACE_C_(elg,float ,int,long  ,long2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ere,float ,int,float ,float,,);
 CALCIUM_ECR_INTERFACE_C_(edb,double,int,double,double,,);
@@ -303,10 +304,14 @@ CALCIUM_ECR_INTERFACE_C_(elo,float ,int,int   ,bool,,);
 CALCIUM_ECR_INTERFACE_C_(ecp,float ,int,float ,cplx,,);
 CALCIUM_ECR_INTERFACE_C_(ech,float ,int,char  ,str,STAR,LCH_LAST_PARAM );
 
+CALCIUM_ECR_INTERFACE_C_(eln,float ,int,long  ,long,,);
+
 /* Definition des méthodes calcium destinées à l'interfaçage fortran
    avec une taille des INTEGER fortran paramétrés à la configuration du KERNEL  */
 
 CALCIUM_ECR_INTERFACE_C_(een_fort_,float ,cal_int,cal_int,integer,,);
+/*elg_fort_ ne fonctionnera pas toujours correctement (port calcium_integer) si sizeof(long) == 64 bits && cal_int==int (32 bits)
+  sinon problème de conversion de 64bits vers 32bits */
 CALCIUM_ECR_INTERFACE_C_(elg_fort_,float ,cal_int,long   ,long2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ein_fort_,float ,cal_int,int    ,int2integer,,);
 CALCIUM_ECR_INTERFACE_C_(ere_fort_,float ,cal_int,float ,float,,);
@@ -314,3 +319,6 @@ CALCIUM_ECR_INTERFACE_C_(edb_fort_,double,cal_int,double,double,,);
 CALCIUM_ECR_INTERFACE_C_(elo_fort_,float ,cal_int,int   ,bool,,);
 CALCIUM_ECR_INTERFACE_C_(ecp_fort_,float ,cal_int,float ,cplx,,);
 CALCIUM_ECR_INTERFACE_C_(ech_fort_,float ,cal_int,char  ,str,STAR,LCH_LAST_PARAM );
+
+CALCIUM_ECR_INTERFACE_C_(eln_fort_,float ,cal_int,long   ,long,,);
+

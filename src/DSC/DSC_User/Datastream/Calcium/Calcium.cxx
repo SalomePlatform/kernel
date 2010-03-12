@@ -42,7 +42,7 @@ PySupervCompo::~PySupervCompo()
 }
 
 
-extern "C" 
+extern "C"
 {
   void cp_exit(int);
   void setDependency(provides_port*, char*, CalciumTypes::DependencyType);
@@ -65,6 +65,10 @@ extern "C"
     else if(std::string(type)=="CALCIUM_integer")
       {
         dynamic_cast<calcium_integer_port_provides *>(port)->setDependencyType(depend);
+      }
+    else if(std::string(type)=="CALCIUM_long")
+      {
+        dynamic_cast<calcium_long_port_provides *>(port)->setDependencyType(depend);
       }
     else if(std::string(type)=="CALCIUM_string")
       {
