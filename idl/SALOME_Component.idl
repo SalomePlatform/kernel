@@ -96,6 +96,19 @@ module Engines
     Engines::Component create_component_instance(in string componentName,
                                                  in long studyId);
 
+    //! Create a new servant instance of a component with environment variables specified.
+    /*!
+      Component library must be loaded.
+      \param componentName Name of the component which will be registered
+                           in Registry and Name Service,
+                         (instance number suffix added to the registered name)
+      \param studyId        0 if instance is not associated to a study, 
+                            >0 otherwise (== study id)
+      \param env         a dict of env variables
+      \return a loaded component
+    */
+    Engines::Component create_component_instance_env(in string componentName,
+                                                 in long studyId, in FieldsDict env);
     //! Find a servant instance of a component
     /*!
       \param registeredName  Name of the component in Registry or Name Service,

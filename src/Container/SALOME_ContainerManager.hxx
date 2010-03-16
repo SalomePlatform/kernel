@@ -68,7 +68,7 @@ protected:
                                                   const std::string& container_exe="SALOME_Container");
 
   std::string BuildCommandToLaunchLocalContainer(const Engines::ContainerParameters& params, 
-						 const std::string& machinesFile,
+                                                 const std::string& machinesFile,
                                                  const std::string& container_exe="SALOME_Container");
 
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& resource_name,
@@ -120,31 +120,31 @@ protected:
 
 
   std::string BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
-						     std::string machine_file_name,
-						     std::string & proxy_hostname);
+                                                     std::string machine_file_name,
+                                                     std::string & proxy_hostname);
 
   std::string BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
-						    const std::string & machine_file_name,
-						    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
-						    const std::string & proxy_hostname); 
+                                                    const std::string & machine_file_name,
+                                                    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+                                                    const std::string & proxy_hostname); 
 
   void LogConfiguration(const std::string & log_type,
-			const std::string & exe_type,
-			const std::string & container_name,
-			const std::string & hostname,
-			std::string & begin, 
-			std::string & end);
+                        const std::string & exe_type,
+                        const std::string & container_name,
+                        const std::string & hostname,
+                        std::string & begin, 
+                        std::string & end);
 
   CORBA::Object_ptr 
   LaunchPaCOProxyContainer(const std::string& command, 
-			   const Engines::ContainerParameters& params,
-			   const std::string& hostname);
+                           const Engines::ContainerParameters& params,
+                           const std::string& hostname);
 
   bool 
   LaunchPaCONodeContainer(const std::string& command, 
-			  const Engines::ContainerParameters& params,
-			  const std::string& name,
-			  SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
+                          const Engines::ContainerParameters& params,
+                          const std::string& name,
+                          SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   // End of PaCO++ Parallel extension
 };
 #endif

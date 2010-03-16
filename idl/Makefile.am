@@ -126,6 +126,10 @@ if MPI_IS_OK
   STATIDL_SOURCES += $(MPIIDL_SOURCES)
 endif
 
+if MPI_IS_OK
+  DYNIDL_SRCS += SALOME_MPIObjectDynSK.cc SALOME_MPIContainerDynSK.cc SALOME_TestMPIComponentDynSK.cc
+endif
+
 $(DYNIDL_SRCS) : $(IDL_SOURCES)
 
 # also install all generated headers to use result library from another modules

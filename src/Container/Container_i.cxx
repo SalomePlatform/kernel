@@ -29,10 +29,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
 #ifndef WIN32
 #include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #else
 #include <signal.h>
 #include <process.h>
@@ -604,6 +606,28 @@ Engines::Component_ptr
 Engines_Container_i::create_component_instance(const char*genericRegisterName,
                                                CORBA::Long studyId)
 {
+  Engines::FieldsDict_var env = new Engines::FieldsDict;
+  return create_component_instance_env(genericRegisterName,studyId,env);
+}
+
+//=============================================================================
+//! Create a new component instance with environment variables specified
+/*! 
+*  CORBA method: Creates a new servant instance of a component.
+*  The servant registers itself to naming service and Registry.
+*  \param genericRegisterName  Name of the component instance to register
+*                         in Registry & Name Service (without _inst_n suffix)
+*  \param studyId         0 for multiStudy instance, 
+*                         study Id (>0) otherwise
+*  \param env          dict of env variables
+*  \return a loaded component
+*/
+//=============================================================================
+
+Engines::Component_ptr
+Engines_Container_i::create_component_instance_env(const char*genericRegisterName,
+                                               CORBA::Long studyId,const Engines::FieldsDict& env)
+{
   if (studyId < 0)
   {
     INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
@@ -716,8 +740,45 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   command+=instanceName; //instance name
   command+=" &";
   MESSAGE("SALOME_Container::create_component_instance command=" << command);
+
+#ifndef WIN32
+  // use fork/execl instead of system to get finer control on env variables
+  int status;
+  pid_t pid = fork();
+  if(pid == 0) // child
+    {
+      for (CORBA::ULong i=0; i < env.length(); i++)
+        {
+          if (env[i].value.type()->kind() == CORBA::tk_string)
+            {
+              const char* value;
+              env[i].value >>= value;
+              std::string s(env[i].key);
+              s+='=';
+              s+=value;
+              putenv((char *)s.c_str());
+            }
+        }
+
+      execl("/bin/sh", "sh", "-c", command.c_str() , (char *)0);
+      status=-1;
+    }
+  else if(pid < 0)       // failed to fork
+    {
+      status=-1;
+    }
+  else            //parent
+    {
+      pid_t tpid;
+      do
+        {
+          tpid = wait(&status);
+        } while (tpid != pid);
+    }
+#else
   // launch component with a system call
   int status=system(command.c_str());
+#endif
 
   if (status == -1)
   {

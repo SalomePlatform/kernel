@@ -56,6 +56,9 @@ class Container_proxy_impl_final :
 
     virtual ::CORBA::Boolean load_component_Library(const char* componentName);
     virtual Engines::Component_ptr create_component_instance(const char* componentName, ::CORBA::Long studyId);
+    virtual Engines::Component_ptr create_component_instance_env( const char* componentName,
+                                                                  CORBA::Long studyId,          // 0 for multiStudy
+                                                                  const Engines::FieldsDict& env);
 
   private:
     std::map<std::string, std::string> _libtype_map; // libname -> libtype (seq ou par)

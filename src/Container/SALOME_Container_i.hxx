@@ -69,6 +69,10 @@ public:
   create_component_instance( const char* componentName,
                              CORBA::Long studyId); // 0 for multiStudy
 
+  virtual Engines::Component_ptr
+  create_component_instance_env( const char* componentName,
+                             CORBA::Long studyId,          // 0 for multiStudy
+                             const Engines::FieldsDict& env); 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy

@@ -381,10 +381,32 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName)
  *  \return a loaded component
  */
 //=============================================================================
-
 Engines::Component_ptr
 Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName,
                                                         CORBA::Long studyId)
+{
+  Engines::FieldsDict_var env = new Engines::FieldsDict;
+  return create_component_instance_env(genericRegisterName,studyId,env);
+}
+
+//=============================================================================
+//! Create a new component instance
+/*! 
+ *  CORBA method: Creates a new servant instance of a component.
+ *  The servant registers itself to naming service and Registry.
+ *  \param genericRegisterName  Name of the component instance to register
+ *                         in Registry & Name Service (without _inst_n suffix)
+ *  \param studyId         0 for multiStudy instance, 
+ *                         study Id (>0) otherwise
+ *  \param env             dict of environment variables
+ *  \return a loaded component
+ */
+//=============================================================================
+
+Engines::Component_ptr
+Engines_Parallel_Container_i::create_component_instance_env(const char*genericRegisterName,
+                                                            CORBA::Long studyId,
+                                                            const Engines::FieldsDict& env)
 {
   MESSAGE("Begin of create_component_instance in node : " << getMyRank());
 

@@ -209,8 +209,9 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 
 // Create an instance of component
 Engines::Component_ptr
-Engines_MPIContainer_i::create_component_instance( const char* componentName,
-                                                   CORBA::Long studyId)
+Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
+                                                       CORBA::Long studyId,
+                                                       const Engines::FieldsDict& env)
 {
   pthread_t *th;
   if(_numproc == 0){

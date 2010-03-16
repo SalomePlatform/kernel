@@ -264,12 +264,19 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
   return ret;
 }
 
+Engines::Component_ptr 
+Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+{
+  Engines::FieldsDict_var env = new Engines::FieldsDict;
+  return create_component_instance_env(componentName, studyId, env);
+}
+
 // Il y a deux cas :
 // Composant sequentiel -> on le créer sur le noeud 0 (on pourrait faire une répartition de charge)
 // Composant parallèle -> création du proxy ici puis appel de la création de chaque objet participant
 // au composant parallèle
 Engines::Component_ptr 
-Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+Container_proxy_impl_final::create_component_instance_env(const char* componentName, ::CORBA::Long studyId, const Engines::FieldsDict& env)
 {
   std::string aCompName = componentName;
   if (_libtype_map.count(aCompName) == 0)
