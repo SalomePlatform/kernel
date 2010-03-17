@@ -756,7 +756,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
               std::string s(env[i].key);
               s+='=';
               s+=value;
-              putenv((char *)s.c_str());
+              putenv(strdup(s.c_str()));
             }
         }
 
