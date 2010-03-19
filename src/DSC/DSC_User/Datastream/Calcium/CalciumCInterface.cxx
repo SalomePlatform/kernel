@@ -82,12 +82,12 @@ ecp_cd_ (void * component, char * instanceName) {
 
 // Interface for cleaning
 extern "C" CalciumTypes::InfoType 
-ecp_effi_ (void * component, char* nomvar, int i)
+ecp_fini_ (void * component, char* nomvar, int i)
 {
   Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
   try
     {
-      CalciumInterface::ecp_effi( *_component,nomvar,i);
+      CalciumInterface::ecp_fini( *_component,nomvar,i);
     }
   catch ( const CalciumException & ex)
     {
@@ -99,12 +99,12 @@ ecp_effi_ (void * component, char* nomvar, int i)
 }
 
 extern "C" CalciumTypes::InfoType 
-ecp_efft_ (void * component, char* nomvar, float t)
+ecp_fint_ (void * component, char* nomvar, float t)
 {
   Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
   try
     {
-      CalciumInterface::ecp_efft( *_component,nomvar,t);
+      CalciumInterface::ecp_fint( *_component,nomvar,t);
     }
   catch ( const CalciumException & ex)
     {

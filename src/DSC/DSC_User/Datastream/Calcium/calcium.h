@@ -561,6 +561,7 @@ extern int      cp_fini(
 #if CPNeedPrototype
         void * component /* Pointeur de type Superv_Component_i* sur le */
                          /* composant SALOME Supervisable  */,
+        char  * /* E   Nom de la variable (not in original CALCIUM API)     */,
         int     /* E    Tous les pas <= a cette valeur  */
                 /*      seront oublies par le coupleur  */
 #endif
@@ -571,6 +572,7 @@ extern int      cp_fint(
 #if CPNeedPrototype
         void * component /* Pointeur de type Superv_Component_i* sur le */
                          /* composant SALOME Supervisable  */,
+        char  * /* E   Nom de la variable (not in original CALCIUM API)     */,
         float   /* E    Tous les pas <= a cette valeur  */
                 /*      seront oublies par le coupleur  */
 #endif

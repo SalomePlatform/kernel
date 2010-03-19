@@ -906,8 +906,8 @@ int cp_lch(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *nite
 int cp_llg(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,long   *lval);
 int cp_lln(Superv_Component_i *component,int dep,float  *ti,float  *tf,int *niter,char *nom,int nmax,int *nval,long   *lval);
 
-int cp_effi(Superv_Component_i *component,char *nom, int n);
-int cp_efft(Superv_Component_i *component,char *nom, float t);
+int cp_fini(Superv_Component_i *component,char *nom, int n);
+int cp_fint(Superv_Component_i *component,char *nom, float t);
 
 int cp_fin(Superv_Component_i *component,int cp_end);
 
