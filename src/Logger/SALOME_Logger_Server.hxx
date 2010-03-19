@@ -46,6 +46,9 @@
 # define LOGGER_EXPORT
 #endif
 
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#endif
 
 class LOGGER_EXPORT Logger :
   public POA_SALOME_Logger::Logger

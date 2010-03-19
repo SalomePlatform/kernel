@@ -211,7 +211,7 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
   SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
   type_list->length(_typeList.size());
 
-  for (int ind = 0 ; ind < _typeList.size() ; ind++)
+  for (unsigned int ind = 0 ; ind < _typeList.size() ; ind++)
     {
       //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
       type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());

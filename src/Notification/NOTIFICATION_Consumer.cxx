@@ -50,9 +50,9 @@ NOTIFICATION_Consumer::NOTIFICATION_Consumer():
                     proxy_supplier->connect_structured_pull_consumer(_this());
                     _ok = true;
                     MESSAGE("NOTIFICATION Info : successfully connection for pull consumer notification");
-                } catch (CORBA::BAD_PARAM& ex) {
+                } catch (CORBA::BAD_PARAM&) {
                     MESSAGE("NOTIFICATION Error : pull consumer BAD_PARAM exception while connecting");
-                } catch (CosEventChannelAdmin::AlreadyConnected& ex) {
+                } catch (CosEventChannelAdmin::AlreadyConnected&) {
                     MESSAGE("NOTIFICATION Error : pull consumer already connected");
                 } catch (...) {
                     MESSAGE("NOTIFICATION Error : pull consumer failed to connect");

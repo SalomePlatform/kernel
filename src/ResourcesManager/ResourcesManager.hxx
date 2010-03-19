@@ -38,6 +38,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef WNT
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
+
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
 // in a critical section to be sure to be clean.

@@ -38,6 +38,7 @@ extern "C"
 #include <unistd.h>
 #else
 #include <process.h>
+#define getpid _getpid
 #endif
 using namespace std;
 

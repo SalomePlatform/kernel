@@ -35,6 +35,10 @@
 #include <string>
 #include <cstdio>
 
+#ifdef WNT
+#define strdup _strdup
+#endif
+
 using namespace std;
 
 /*! \class SALOME_NamingService

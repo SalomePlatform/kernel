@@ -55,9 +55,9 @@ NOTIFICATION_Supplier::NOTIFICATION_Supplier(const char* instanceName, bool noti
                         proxy_consumer->connect_structured_push_supplier(_this());
                         _ok = true;
                         MESSAGE("NOTIFICATION Info : successfully connection for push supplier notification");
-                    } catch (CORBA::BAD_PARAM& ex) {
+                    } catch (CORBA::BAD_PARAM&) {
                         MESSAGE("NOTIFICATION Error : push supplier BAD_PARAM Exception while connecting");
-                    } catch (CosEventChannelAdmin::AlreadyConnected& ex) {
+                    } catch (CosEventChannelAdmin::AlreadyConnected&) {
                         MESSAGE("NOTIFICATION Error : push supplier already connected");
                     } catch (...) {
                         MESSAGE("NOTIFICATION Error : push supplier failed to connect");

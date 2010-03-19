@@ -121,7 +121,7 @@ void Utils_Timer::ShowAbsolute(){
 #ifndef WIN32
     unsigned long Absolute_user = (unsigned long) ((timeval*)RefToCurrentTimeB)->tv_sec ;
 #else
-    unsigned long Absolute_user = *RefToCurrentTimeB;
+    unsigned long Absolute_user = (unsigned long) *RefToCurrentTimeB;
 #endif
     MESSAGE("Absolute time: "   << Absolute_user  << " seconds ");
 #endif

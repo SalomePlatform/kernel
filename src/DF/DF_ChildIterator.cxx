@@ -59,7 +59,7 @@ DF_Label DF_ChildIterator::Value()
 //Returns true if there is a current Label
 bool DF_ChildIterator::More()
 {
-  return bool(_current);
+  return _current!=0;
 }
 
 //Moves to the next Label

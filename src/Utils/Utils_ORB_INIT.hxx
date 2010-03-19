@@ -36,6 +36,11 @@
 
 #include "Utils_CommException.hxx"
 
+#ifdef WNT
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
+
 /*!
  * Ce composant prend en charge la connexion et la deconnexion a l'orb
  * Il est souhaitable de l'utiliser dans un SINGLETON.

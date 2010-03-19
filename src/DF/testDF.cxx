@@ -43,8 +43,8 @@
 #include <pwd.h>
 #else
 #include <time.h>
-#include <lmcons.h>
 #include <windows.h>
+#include <lmcons.h>
 #endif
 
 using namespace std;

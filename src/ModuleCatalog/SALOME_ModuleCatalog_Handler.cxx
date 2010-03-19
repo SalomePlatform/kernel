@@ -479,7 +479,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
           // Tag test_component_multistudy
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_multistudy) )
-            _aModule.multistudy = atoi( aContent.c_str() );
+            _aModule.multistudy = atoi( aContent.c_str() ) != 0;
 
           // Tag test_component_impltype
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_impltype) )
@@ -542,11 +542,11 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
                         // Tag test_defaultservice
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
-                          _aService.byDefault = (bool)(atoi((const char*)aCompServiceData));
+                          _aService.byDefault = atoi((const char*)aCompServiceData) !=0 ;
 
                         // Tag test_typeofnode
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
-                          _aService.typeOfNode = (bool)(atoi((const char*)aCompServiceData));;
+                          _aService.typeOfNode = atoi((const char*)aCompServiceData) !=0 ;
 
                         xmlFree(aCompServiceData);
                       }

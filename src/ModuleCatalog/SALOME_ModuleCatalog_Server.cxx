@@ -48,7 +48,9 @@ int main(int argc,char **argv)
       //
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
+#ifndef WIN32
       int a;
+#endif
       timespec ts_req;
       ts_req.tv_nsec=TIMESleep;
       ts_req.tv_sec=0;

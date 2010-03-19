@@ -77,7 +77,9 @@ int main( int argc , char **argv )
   const char *registryName = "Registry" ;
   long TIMESleep = 250000000;
   int NumberOfTries = 40;
+#ifndef WIN32
   int a;
+#endif
   timespec ts_req;
   ts_req.tv_nsec=TIMESleep;
   ts_req.tv_sec=0;
@@ -179,10 +181,10 @@ int main( int argc , char **argv )
           MESSAGE("RegistryService servant already existing" ) ;
           exit( EXIT_FAILURE ) ;
         }
-      catch( const ServiceUnreachable &ex )
+      catch( const ServiceUnreachable & )
         {
         }
-      catch( const CORBA::Exception &exx )
+      catch( const CORBA::Exception & )
         {
         }
       string absoluteName = string("/") + registryName;
@@ -205,7 +207,7 @@ int main( int argc , char **argv )
 #endif
           orb->run() ;
         }
-      catch( const CORBA::Exception &ex )
+      catch( const CORBA::Exception & )
         {
           MESSAGE("System error") ;
           return EXIT_FAILURE ;

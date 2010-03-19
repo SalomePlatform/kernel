@@ -154,7 +154,7 @@ void ParserResourcesType::Print()
     "Modules : " << endl <<
     "Components : " << endl;
 
-  for(int i=0;i<ComponentsList.size();i++)
+  for(unsigned int i=0;i<ComponentsList.size();i++)
     oss << "Component " << i+1 << " called : " << ComponentsList[i] << endl;
 
   

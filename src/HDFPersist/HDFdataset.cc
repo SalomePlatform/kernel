@@ -166,7 +166,7 @@ void HDFdataset::GetDim(hdf_size dim[])
     dim[i] = _dim[i];
 }
 
-int HDFdataset::GetSize()
+hdf_size HDFdataset::GetSize()
 {
   int size_type;
 

@@ -45,6 +45,10 @@
 # define SALOMERESOURCESMANAGER_EXPORT
 #endif
 
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#endif
+
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
 // in a critical section to be sure to be clean.

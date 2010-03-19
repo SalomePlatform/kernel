@@ -37,6 +37,9 @@
 #include <io.h>
 #include <time.h>
 #include <windows.h>
+#define open _open
+#define read _read
+#define close _close
 #define dir_separator '\\'
 #else
 #define dir_separator '/'
@@ -125,7 +128,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
   fprintf(fp, "%s\n", ASCIIHDF_ID);
   fprintf(fp, "%i\n", nbsons+nbAttr);
 
-  for(unsigned j=0; j<nbAttr; j++) {
+  for(int j=0; j<nbAttr; j++) {
     char* attr_name = hdf_file->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(attr_name, hdf_file);
     delete attr_name;
@@ -189,7 +192,7 @@ void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident)
   fprintf(fp, "%s %i\n", name, nbsons+nbAttr);
   delete [] name;
 
-  for(unsigned j=0; j<nbAttr; j++) {
+  for(int j=0; j<nbAttr; j++) {
     name = hdf_group->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_group);
     delete [] name;
@@ -230,7 +233,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 {
   hdf_dataset->OpenOnDisk();
 
-  long size =  hdf_dataset->GetSize();
+  long size =  (long) hdf_dataset->GetSize();
   long ndim = hdf_dataset->nDim(); //Get number of dimesions
   hdf_size *dim = new hdf_size[ndim];
   hdf_type type = hdf_dataset->GetType();
@@ -301,7 +304,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   
   fprintf(fp, "\n");
 
-  for ( unsigned j=0; j<nbAttr; j++ )
+  for ( int j=0; j<nbAttr; j++ )
   {
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);

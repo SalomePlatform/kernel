@@ -67,7 +67,7 @@ CORBA::ORB_var &ORB_INIT::operator() ( int argc , char **argv ) throw( CommExcep
             _orb = CORBA::ORB_init( argc, argv, "omniORB3" ) ;
 #endif
           }
-        catch( const CORBA::Exception &ex )
+        catch( const CORBA::Exception & )
           {
             throw CommException( "Unable to create an ORB connexion" ) ;
           }

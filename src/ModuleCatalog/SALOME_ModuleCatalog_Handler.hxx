@@ -38,6 +38,10 @@
 
 #include <libxml/parser.h>
 
+#ifdef WNT
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#endif
+
 class MODULECATALOG_EXPORT SALOME_ModuleCatalog_Handler
 {
 public:

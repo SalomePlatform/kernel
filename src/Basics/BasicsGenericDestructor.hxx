@@ -48,6 +48,10 @@
 #define DEVTRACE(msg)
 #endif
 
+#ifdef WNT
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#endif
+
 // ============================================================================
 /*!
  * The PROTECTED_DELETE base class provides a protected destructor. 

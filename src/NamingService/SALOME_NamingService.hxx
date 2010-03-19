@@ -40,6 +40,10 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
+#ifdef WNT
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
+
 class NAMINGSERVICE_EXPORT SALOME_NamingService
 {
 public:

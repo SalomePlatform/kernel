@@ -29,6 +29,8 @@ using namespace std;
 #ifdef WIN32
 #include <io.h>
 #include <windows.h>
+#define open _open
+#define close _close
 #endif
 
 int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)

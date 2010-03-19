@@ -114,7 +114,7 @@ int main(int argc, char **argv)
       orb->run() ;
       orb->destroy() ;
     }  
-  catch(CORBA::COMM_FAILURE& ex)
+  catch(CORBA::COMM_FAILURE&)
         {
       std::cerr << "Caught system exception COMM_FAILURE -- unable to contact the "
            << "object." << std::endl;

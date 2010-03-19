@@ -54,7 +54,7 @@ string LoadRateManagerCycl::Find(const vector<string>& hosts,
     else{
       iproc = 1;
       imachine++;
-      if(imachine >= hosts.size())
+      if(imachine >= (int)hosts.size())
         imachine = 0;
       return string(hosts[imachine]);
     }

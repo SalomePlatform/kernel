@@ -136,7 +136,7 @@ int DF_Label::Tag() const
 bool DF_Label::IsAttached()
 {
   if(!_node) return false;
-  return (bool)(_node->_document);
+  return _node->_document != 0;
 }
 
 //Searches an Attribute with given ID located on this Label.
@@ -261,7 +261,7 @@ bool DF_Label::HasChild() const
 {
   if(!_node) return false;
 
-  return (bool)(_node->_firstChild);
+  return _node->_firstChild != 0;
 }
 
 //Returns a number of child Labels.

@@ -50,7 +50,7 @@ namespace Kernel_Utils
   {
     int pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
-      return pos < file_path.size()-1 ? file_path.substr( pos+1 ) : "";
+      return pos < (int)file_path.size()-1 ? file_path.substr( pos+1 ) : "";
     return file_path;
   }
 
@@ -181,14 +181,14 @@ namespace Kernel_Utils
     string::size_type length = path.length();
 
     //detect all separators in Unix format
-    for ( int i = 0; i < length; i++ )
+    for ( unsigned int i = 0; i < length; i++ )
     {
       if( path[i] == '/' )
         path[i] = '|';
     }
 
     //detect all separators in Windows format
-    for ( int i = 0; i < length; i++ )
+    for ( unsigned int i = 0; i < length; i++ )
     {
       if( path[i] == '\\' )
         path[i] = '|';
@@ -214,7 +214,7 @@ namespace Kernel_Utils
     }
 
     length = path.length();
-    for ( int i = 0; i < length; i++ )
+    for ( unsigned int i = 0; i < length; i++ )
     {
       if( path[i] == '|' )
         path[i] = _separator_;

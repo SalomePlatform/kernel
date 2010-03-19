@@ -35,6 +35,11 @@
 
 # include <map>
 
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#endif
+
 class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {
 

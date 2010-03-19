@@ -50,6 +50,7 @@
 #  define UTILS_EXPORT __declspec( dllexport )
 # else
 #  define UTILS_EXPORT __declspec( dllimport )
+#  undef LOCALIZED
 #  define LOCALIZED(message) #message
 # endif
 #else
@@ -75,7 +76,7 @@ public :
         SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
         SALOME_Exception( const SALOME_Exception &ex );
         virtual ~SALOME_Exception() throw ();
-        friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
+        UTILS_EXPORT friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
         virtual const char *what( void ) const throw () ;
 } ;
 

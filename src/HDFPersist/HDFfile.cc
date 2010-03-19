@@ -31,6 +31,7 @@ extern "C"
 #else
 #include <io.h>
 #define F_OK 0
+#define access _access
 #endif
 #include <string.h>
 }

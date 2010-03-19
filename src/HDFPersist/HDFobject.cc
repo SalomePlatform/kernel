@@ -33,6 +33,10 @@ extern "C"
 #include <stdlib.h>
 using namespace std;
 
+#ifdef WNT
+#define strdup _strdup
+#endif
+
 HDFobject::HDFobject(const char *name)
 {
   HDFerrorModeLock();

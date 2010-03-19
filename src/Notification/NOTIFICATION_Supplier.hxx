@@ -29,6 +29,10 @@
 
 #include "SALOME_NOTIFICATION.hxx"
 
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#endif
+
 class NOTIFICATION_EXPORT NOTIFICATION_Supplier: public POA_CosNotifyComm::StructuredPushSupplier {
   public:
     NOTIFICATION_Supplier(const char* instanceName, bool notif);
