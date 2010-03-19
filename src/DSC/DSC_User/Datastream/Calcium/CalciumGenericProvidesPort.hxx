@@ -147,15 +147,20 @@
     virtual void provides_port_changed(int connection_nbr,              \
                                        const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)                   \
-        {                                                 \
-          _disconnect_mutex.lock();                \
-          _mustnotdisconnect++;                           \
-          _disconnect_mutex.unlock();              \
-        }                                                 \
+        {                                                               \
+          _disconnect_mutex.lock();                              \
+          _mustnotdisconnect++;                                         \
+          _disconnect_mutex.unlock();                            \
+        }                                                               \
       else if ( message == Engines::DSC::RemovingConnection )           \
-        {                                                 \
-          disconnect(false);                              \
-        }                                                 \
+        {                                                               \
+          disconnect(false);                                            \
+        }                                                               \
+    }                                                                   \
+                                                                        \
+    inline void calcium_erase(float t,long i)                           \
+    {                                                                   \
+      erase(t,i);                                                       \
     }                                                                   \
   };                                                                    \
 

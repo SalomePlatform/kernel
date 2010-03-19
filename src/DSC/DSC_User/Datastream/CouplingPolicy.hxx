@@ -150,6 +150,20 @@ public:
     }
   };
 
+  // Remove all DataId from a container before a given time or tag
+  template <typename DataManipulator>
+  struct EraseDataIdBeforeTagProcessor {
+
+    EraseDataIdBeforeTagProcessor(CouplingPolicy couplingPolicy) {};
+
+    template < typename Container , typename TimeType , typename TagType >
+    void apply(Container & storedDatas, TimeType time, TagType tag ) const {
+      typedef typename Container::key_type   key_type;
+      typedef typename Container::value_type value_type;
+      typedef typename Container::iterator iterator;
+    }
+  };
+
   // Permet de réveiller les méthodes d'un GenericPort en attente
   // depuis une CouplingPolicy
   virtual void wakeupWaiting(){};

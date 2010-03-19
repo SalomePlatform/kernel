@@ -51,6 +51,7 @@ public:
   template <typename DataManipulator, 
     class EnableIf >                  friend class BoundedDataIdProcessor;
   template <typename DataManipulator >        friend class EraseDataIdProcessor;
+  template <typename DataManipulator >        friend class EraseDataIdBeforeTagProcessor;
   template <typename DataManipulator >        friend class DisconnectProcessor;
 
   typedef CalciumTypes::DependencyType       DependencyType;
@@ -112,6 +113,7 @@ public:
             class EnableIf = void >    struct BoundedDataIdProcessor;
   //template <typename DataManipulator>  struct BoundedDataIdProcessor;
   template <typename DataManipulator>  struct EraseDataIdProcessor;
+  template <typename DataManipulator>  struct EraseDataIdBeforeTagProcessor;
   template <typename DataManipulator>  struct DisconnectProcessor;
 
   // Renvoie isEqual si le dataId attendu est trouvé dans storedDataIds :
@@ -346,6 +348,43 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
 
   return isEqual || isBounded;
 }
+
+//Remove DataId before a given time or tag
+template < typename DataManipulator > 
+struct CalciumCouplingPolicy::EraseDataIdBeforeTagProcessor
+{
+  CalciumCouplingPolicy &_couplingPolicy;
+    
+  EraseDataIdBeforeTagProcessor(CalciumCouplingPolicy &couplingPolicy):
+    _couplingPolicy(couplingPolicy) {};
+
+  template < typename Container,typename TimeType,typename TagType >
+  void apply(Container & storedDatas, TimeType time, TagType tag) const 
+    {
+      typedef typename Container::iterator   iterator;
+
+      if(_couplingPolicy._dependencyType == CalciumTypes::TIME_DEPENDENCY)
+        {
+          iterator it=storedDatas.begin();
+          while(it != storedDatas.end() && it->first.first <= time)
+            {
+              DataManipulator::delete_data(it->second);
+              storedDatas.erase(it);
+              it=storedDatas.begin();
+            }
+        }
+      else
+        {
+          iterator it=storedDatas.begin();
+          while(it != storedDatas.end() && it->first.second <= tag)
+            {
+              DataManipulator::delete_data(it->second);
+              storedDatas.erase(it);
+              it=storedDatas.begin();
+            }
+        }
+    }
+};
 
 // TODO :PAS ENCORE TESTE AVEC UN NIVEAU POSITIONNE
 // Supprime les DataId et les données associées

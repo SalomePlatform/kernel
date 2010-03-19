@@ -62,6 +62,7 @@ public :
   virtual  InterpolationSchem getInterpolationSchem () const  =0;
   virtual  ExtrapolationSchem getExtrapolationSchem () const  =0;
 
+  virtual void calcium_erase (float t,long i) {};
 };
 
 #endif
