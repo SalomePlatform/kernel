@@ -542,11 +542,11 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
                         // Tag test_defaultservice
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
-                          _aService.byDefault = (const char*)aCompServiceData;
+                          _aService.byDefault = (bool)(atoi((const char*)aCompServiceData));
 
                         // Tag test_typeofnode
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
-                          _aService.typeOfNode = (const char*)aCompServiceData;
+                          _aService.typeOfNode = (bool)(atoi((const char*)aCompServiceData));;
 
                         xmlFree(aCompServiceData);
                       }
