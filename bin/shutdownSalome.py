@@ -24,12 +24,12 @@
 ## \file shutdownSalome.py
 #  shutdown all %SALOME servers and naming service
 #
-#  
+#
 
 import time
-import salome
-salome.salome_init()
-salome.lcc.shutdownServers()
+import salome_kernel
+orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+lcc.shutdownServers()
 #give some time to shutdown to complete
 time.sleep(1)
-salome.LifeCycleCORBA.killOmniNames()
+salome_kernel.LifeCycleCORBA.killOmniNames()

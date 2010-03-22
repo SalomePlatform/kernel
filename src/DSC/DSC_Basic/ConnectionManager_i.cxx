@@ -92,8 +92,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   connection_infos * infos = ids[id];
   try
     {
-      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
-                                                      message);
+      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(), message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -103,8 +102,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   try
     {
       infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
-                                              infos->provides_port,
-                                              message);
+                                                  infos->provides_port, message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -121,10 +119,16 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 void
 ConnectionManager_i::ShutdownWithExit()
 {
+  ids_it = ids.begin();
+  while(ids_it != ids.end())
+    {
+      disconnect(ids_it->first, Engines::DSC::RemovingConnection);
+      ids_it = ids.begin();
+    }
+
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 
-  //exit( EXIT_SUCCESS );
 }
 
 CORBA::Long

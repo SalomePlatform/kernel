@@ -33,6 +33,7 @@
 #include <time.h>
 #ifndef WIN32
   #include <sys/time.h>
+  #include <unistd.h>
 #endif
 
 #include "Basics_Utils.hxx"
@@ -530,36 +531,95 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 
   string hostname = Kernel_Utils::GetHostname();
   
-  // 1) SalomeLauncher
-  CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
-  Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
-  if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
-    launcher->Shutdown();
-  
-  // 2) ConnectionManager
-  CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
-  Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
-  if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
-    connMan->ShutdownWithExit();
-  
-  // 3) SALOMEDS
-  CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
-  SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
-  if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
-    studyManager->Shutdown();
-  
-  // 4) ModuleCatalog
-  CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
-  SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
-  if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
-    catalog->shutdown();
-  
-  // 5) Registry
-  CORBA::Object_var objR = _NS->Resolve("/Registry");
-  Registry::Components_var registry = Registry::Components::_narrow(objR);
-  if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
-      registry->Shutdown();
+  // 1) ConnectionManager
+  try
+    {
+      CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
+      Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
+      if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
+        connMan->ShutdownWithExit();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
 
+  timespec ts_req;
+  ts_req.tv_nsec=100000000;
+  ts_req.tv_sec=0;
+
+//Wait some time so that ConnectionManager be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 2) SALOMEDS
+  try
+    {
+      CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
+      SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
+      if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
+        studyManager->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+//Wait some time so that study be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 3) ModuleCatalog
+  try
+    {
+      CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
+      SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
+      if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
+        catalog->shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+//Wait some time so that ModulCatalog be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 4) Registry
+  try
+    {
+      CORBA::Object_var objR = _NS->Resolve("/Registry");
+      Registry::Components_var registry = Registry::Components::_narrow(objR);
+      if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
+          registry->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+//Wait some time so that registry be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 5) SalomeLauncher
+  try
+    {
+      CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+      Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+      if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+        launcher->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+  
   // 6) Logger
   int argc = 0;
   char *xargv = (char*)"";

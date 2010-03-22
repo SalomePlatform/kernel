@@ -175,6 +175,7 @@ int main(int argc, char** argv)
       timer.ShowAbsolute();
 #endif
       orb->run();
+      MESSAGE( "end of SALOME_DS server" );
       orb->destroy();
     }
   catch(CORBA::SystemException&)
