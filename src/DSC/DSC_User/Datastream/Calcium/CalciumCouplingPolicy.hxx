@@ -51,7 +51,7 @@ public:
   template <typename DataManipulator, 
     class EnableIf >                  friend class BoundedDataIdProcessor;
   template <typename DataManipulator >        friend class EraseDataIdProcessor;
-  template <typename DataManipulator >        friend class EraseDataIdBeforeTagProcessor;
+  template <typename DataManipulator >        friend class EraseDataIdBeforeOrAfterTagProcessor;
   template <typename DataManipulator >        friend class DisconnectProcessor;
 
   typedef CalciumTypes::DependencyType       DependencyType;
@@ -113,7 +113,7 @@ public:
             class EnableIf = void >    struct BoundedDataIdProcessor;
   //template <typename DataManipulator>  struct BoundedDataIdProcessor;
   template <typename DataManipulator>  struct EraseDataIdProcessor;
-  template <typename DataManipulator>  struct EraseDataIdBeforeTagProcessor;
+  template <typename DataManipulator>  struct EraseDataIdBeforeOrAfterTagProcessor;
   template <typename DataManipulator>  struct DisconnectProcessor;
 
   // Renvoie isEqual si le dataId attendu est trouvé dans storedDataIds :
@@ -349,38 +349,65 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   return isEqual || isBounded;
 }
 
-//Remove DataId before a given time or tag
+//Remove DataId before or after a given time or tag
 template < typename DataManipulator > 
-struct CalciumCouplingPolicy::EraseDataIdBeforeTagProcessor
+struct CalciumCouplingPolicy::EraseDataIdBeforeOrAfterTagProcessor
 {
   CalciumCouplingPolicy &_couplingPolicy;
     
-  EraseDataIdBeforeTagProcessor(CalciumCouplingPolicy &couplingPolicy):
+  EraseDataIdBeforeOrAfterTagProcessor(CalciumCouplingPolicy &couplingPolicy):
     _couplingPolicy(couplingPolicy) {};
 
   template < typename Container,typename TimeType,typename TagType >
-  void apply(Container & storedDatas, TimeType time, TagType tag) const 
+  void apply(Container & storedDatas, TimeType time, TagType tag, bool before) const 
     {
       typedef typename Container::iterator   iterator;
+      typedef typename Container::reverse_iterator   riterator;
 
       if(_couplingPolicy._dependencyType == CalciumTypes::TIME_DEPENDENCY)
         {
-          iterator it=storedDatas.begin();
-          while(it != storedDatas.end() && it->first.first <= time)
+          if(before)
             {
-              DataManipulator::delete_data(it->second);
-              storedDatas.erase(it);
-              it=storedDatas.begin();
+              iterator it=storedDatas.begin();
+              while(it != storedDatas.end() && it->first.first <= time)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it);
+                  it=storedDatas.begin();
+                }
+            }
+          else
+            {
+              riterator it=storedDatas.rbegin();
+              while(it != storedDatas.rend() && it->first.first >= time)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it->first);
+                  it=storedDatas.rbegin();
+                }
             }
         }
       else
         {
-          iterator it=storedDatas.begin();
-          while(it != storedDatas.end() && it->first.second <= tag)
+          if(before)
             {
-              DataManipulator::delete_data(it->second);
-              storedDatas.erase(it);
-              it=storedDatas.begin();
+              iterator it=storedDatas.begin();
+              while(it != storedDatas.end() && it->first.second <= tag)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it);
+                  it=storedDatas.begin();
+                }
+            }
+          else
+            {
+              riterator it=storedDatas.rbegin();
+              while(it != storedDatas.rend() && it->first.second >= tag)
+                {
+                  DataManipulator::delete_data(it->second);
+                  storedDatas.erase(it->first);
+                  it=storedDatas.rbegin();
+                }
             }
         }
     }

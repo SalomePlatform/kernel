@@ -114,6 +114,39 @@ ecp_fint_ (void * component, char* nomvar, float t)
   return CalciumTypes::CPOK;
 }
 
+extern "C" CalciumTypes::InfoType 
+ecp_effi_ (void * component, char* nomvar, int i)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_effi( *_component,nomvar,i);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
+  return CalciumTypes::CPOK;
+
+}
+
+extern "C" CalciumTypes::InfoType 
+ecp_efft_ (void * component, char* nomvar, float t)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_efft( *_component,nomvar,t);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
+  return CalciumTypes::CPOK;
+}
+
 // INTERFACE C/CPP pour les chaines de caractères
 // Le paramètre supplémentaire strsize n'étant pas utilisé
 // j'utilise la génération par la macro CALCIUM_C2CPP_INTERFACE_(str,char*,);

@@ -148,9 +148,9 @@
                                        const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)                   \
         {                                                               \
-          _disconnect_mutex.lock();                              \
+          _disconnect_mutex.lock();                                     \
           _mustnotdisconnect++;                                         \
-          _disconnect_mutex.unlock();                            \
+          _disconnect_mutex.unlock();                                   \
         }                                                               \
       else if ( message == Engines::DSC::RemovingConnection )           \
         {                                                               \
@@ -158,9 +158,9 @@
         }                                                               \
     }                                                                   \
                                                                         \
-    inline void calcium_erase(float t,long i)                           \
+    inline void calcium_erase(float t,long i, bool before)              \
     {                                                                   \
-      erase(t,i);                                                       \
+      erase(t,i,before);                                                \
     }                                                                   \
   };                                                                    \
 

@@ -669,7 +669,7 @@ namespace CalciumInterface {
                                 << portDependencyType << " must be iteration mode."));
       }
 
-    port->calcium_erase(0., i);
+    port->calcium_erase(0., i,true);
 
     std::stringstream msg;
     msg << "i<=" << i ;
@@ -728,13 +728,132 @@ namespace CalciumInterface {
                                 << portDependencyType << " must be time mode."));
       }
 
-    port->calcium_erase(t, 0);
+    port->calcium_erase(t, 0,true);
 
     std::stringstream msg;
     msg << "t<=" << t ;
     Engines_DSC_interface::writeEvent("CP_FINT",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
 
   };
+
+  static void
+  ecp_effi(Superv_Component_i & component,const std::string  & nomVar,long const  & i)
+  {
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
+
+    if (nomVar.empty())
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPNMVR],"");
+        throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
+      }
+
+    calcium_provides_port* port;
+
+    try
+      {
+        port = component.Superv_Component_i::get_port< calcium_provides_port >(nomVar.c_str());
+      }
+    catch ( const Superv_Component_i::PortNotDefined & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPNMVR],ex.what());
+        throw (CalciumException(CalciumTypes::CPNMVR,ex));
+      }
+    catch ( const Superv_Component_i::PortNotConnected & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPLIEN],ex.what());
+        throw (CalciumException(CalciumTypes::CPLIEN,ex));
+      }
+    catch ( const Superv_Component_i::BadCast & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPTPVR],ex.what());
+        throw (CalciumException(CalciumTypes::CPTPVR,ex));
+      }
+
+    // get dependency mode
+    CalciumTypes::DependencyType portDependencyType = port->getDependencyType();
+
+    if ( portDependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],"Dependency mode is undefined");
+        throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
+      }
+
+    if ( portDependencyType != CalciumTypes::ITERATION_DEPENDENCY )
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],
+                   "Dependency mode must be iteration mode");
+        throw CalciumException(CalciumTypes::CPITVR, LOC(OSS()<<"Dependency mode of variable " << nomVar << ": "
+                                << portDependencyType << " must be iteration mode."));
+      }
+
+    port->calcium_erase(0., i,false);
+
+    std::stringstream msg;
+    msg << "i>=" << i ;
+    Engines_DSC_interface::writeEvent("CP_EFFI",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
+
+  };
+
+  static void
+  ecp_efft(Superv_Component_i & component,const std::string  & nomVar,double const  & t)
+  {
+    CORBA::String_var componentName=component.instanceName();
+    std::string containerName=component.getContainerName();
+
+    if (nomVar.empty())
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,"",CPMESSAGE[CalciumTypes::CPNMVR],"");
+        throw CalciumException(CalciumTypes::CPNMVR, LOC("Empty variable name"));
+      }
+
+    calcium_provides_port* port;
+
+    try
+      {
+        port = component.Superv_Component_i::get_port< calcium_provides_port >(nomVar.c_str());
+      }
+    catch ( const Superv_Component_i::PortNotDefined & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPNMVR],ex.what());
+        throw (CalciumException(CalciumTypes::CPNMVR,ex));
+      }
+    catch ( const Superv_Component_i::PortNotConnected & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPLIEN],ex.what());
+        throw (CalciumException(CalciumTypes::CPLIEN,ex));
+      }
+    catch ( const Superv_Component_i::BadCast & ex)
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPTPVR],ex.what());
+        throw (CalciumException(CalciumTypes::CPTPVR,ex));
+      }
+
+    // get dependency mode
+    CalciumTypes::DependencyType portDependencyType = port->getDependencyType();
+
+    if ( portDependencyType == CalciumTypes::UNDEFINED_DEPENDENCY )
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],"Dependency mode is undefined");
+        throw CalciumException(CalciumTypes::CPIT, LOC(OSS()<<"Dependency mode of variable " << nomVar << " is undefined."));
+      }
+
+    if ( portDependencyType != CalciumTypes::TIME_DEPENDENCY )
+      {
+        Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),CPMESSAGE[CalciumTypes::CPIT],
+                   "Dependency mode must be time mode");
+        throw CalciumException(CalciumTypes::CPITVR, LOC(OSS()<<"Dependency mode of variable " << nomVar << ": "
+                                << portDependencyType << " must be time mode."));
+      }
+
+    port->calcium_erase(t, 0,false);
+
+    std::stringstream msg;
+    msg << "t>=" << t ;
+    Engines_DSC_interface::writeEvent("CP_EFFT",containerName,componentName,nomVar.c_str(),"",msg.str().c_str());
+
+  };
+
 };
 
 #endif

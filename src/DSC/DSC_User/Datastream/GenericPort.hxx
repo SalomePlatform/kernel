@@ -73,7 +73,7 @@ public:
   template <typename TimeType,typename TagType> DataType next(TimeType &t, TagType  &tag );
   void      close (PortableServer::POA_var poa, PortableServer::ObjectId_var id);
   void wakeupWaiting();
-  template <typename TimeType,typename TagType> void erase(TimeType time, TagType tag );
+  template <typename TimeType,typename TagType> void erase(TimeType time, TagType tag, bool before );
 
 private:
 
@@ -343,10 +343,10 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
 template < typename DataManipulator, typename COUPLING_POLICY >
 template <typename TimeType,typename TagType>
 void
-GenericPort<DataManipulator, COUPLING_POLICY>::erase(TimeType time, TagType  tag)
+GenericPort<DataManipulator, COUPLING_POLICY>::erase(TimeType time, TagType  tag, bool before)
 {
-  typename COUPLING_POLICY::template EraseDataIdBeforeTagProcessor<DataManipulator> processEraseDataId(*this);
-  processEraseDataId.apply(storedDatas,time,tag);
+  typename COUPLING_POLICY::template EraseDataIdBeforeOrAfterTagProcessor<DataManipulator> processEraseDataId(*this);
+  processEraseDataId.apply(storedDatas,time,tag,before);
 }
 
 // Version du Get en 0 copy

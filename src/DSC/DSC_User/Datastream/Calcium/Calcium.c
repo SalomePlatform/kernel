@@ -39,6 +39,8 @@ typedef char bool;
 //TODO: ajouter les prototypes pour eviter les pbs de passage par valeur
 InfoType ecp_fint_ (void * component, char* nomVar, float t);
 InfoType ecp_fini_ (void * component, char* nomVar, int i);
+InfoType ecp_efft_ (void * component, char* nomVar, float t);
+InfoType ecp_effi_ (void * component, char* nomVar, int i);
 
 /************************************/
 /* INTERFACES DE LECTURE EN 0 COPIE */
@@ -338,5 +340,17 @@ InfoType cp_fini (void * component, char * nomvar, int i)
 InfoType cp_fint (void * component, char * nomvar, float t)
 {
   InfoType info =  ecp_fint_(component,nomvar,t);
+  return info;
+}
+
+InfoType cp_effi (void * component, char * nomvar, int i)
+{
+  InfoType info =  ecp_effi_(component,nomvar,i);
+  return info;
+}
+
+InfoType cp_efft (void * component, char * nomvar, float t)
+{
+  InfoType info =  ecp_efft_(component,nomvar,t);
   return info;
 }

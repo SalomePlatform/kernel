@@ -85,8 +85,13 @@ void F_FUNC(cpfin,CPFIN)(long *compo,cal_int *dep,cal_int *err)
   *err=cp_fin((void *)*compo,(int)*dep);
 }
 
+/**************************************/
+/* ERASE INTERFACE                    */
+/**************************************/
 void F_FUNC(cpfini,CPFINI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom));
 void F_FUNC(cpfint,CPFINT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom));
+void F_FUNC(cpeffi,CPEFFI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom));
+void F_FUNC(cpefft,CPEFFT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom));
 
 void F_FUNC(cpfini,CPFINI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom))
 {
@@ -99,6 +104,20 @@ void F_FUNC(cpfint,CPFINT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_
 {
   char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
   *err=cp_fint((void *)*compo,cnom,*t);
+  free_str1(cnom);
+}
+
+void F_FUNC(cpeffi,CPEFFI)(long *compo,STR_PSTR(nom),cal_int *i, cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_effi((void *)*compo,cnom,*i);
+  free_str1(cnom);
+}
+
+void F_FUNC(cpefft,CPEFFT)(long *compo,STR_PSTR(nom),float *t, cal_int *err STR_PLEN(nom))
+{
+  char* cnom=fstr1(STR_PTR(nom),STR_LEN(nom));
+  *err=cp_efft((void *)*compo,cnom,*t);
   free_str1(cnom);
 }
 

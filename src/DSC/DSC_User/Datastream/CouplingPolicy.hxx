@@ -152,12 +152,12 @@ public:
 
   // Remove all DataId from a container before a given time or tag
   template <typename DataManipulator>
-  struct EraseDataIdBeforeTagProcessor {
+  struct EraseDataIdBeforeOrAfterTagProcessor {
 
-    EraseDataIdBeforeTagProcessor(CouplingPolicy couplingPolicy) {};
+    EraseDataIdBeforeOrAfterTagProcessor(CouplingPolicy couplingPolicy) {};
 
     template < typename Container , typename TimeType , typename TagType >
-    void apply(Container & storedDatas, TimeType time, TagType tag ) const {
+    void apply(Container & storedDatas, TimeType time, TagType tag, bool before ) const {
       typedef typename Container::key_type   key_type;
       typedef typename Container::value_type value_type;
       typedef typename Container::iterator iterator;

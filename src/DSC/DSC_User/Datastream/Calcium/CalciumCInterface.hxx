@@ -91,5 +91,7 @@ extern "C" CalciumTypes::InfoType ecp_fin_ (void * component, int code);
 extern "C" CalciumTypes::InfoType ecp_cd_ (void * component, char* instanceName);
 extern "C" CalciumTypes::InfoType ecp_fini_ (void * component, char* nomVar, int i);
 extern "C" CalciumTypes::InfoType ecp_fint_ (void * component, char* nomVar, float t);
+extern "C" CalciumTypes::InfoType ecp_effi_ (void * component, char* nomVar, int i);
+extern "C" CalciumTypes::InfoType ecp_efft_ (void * component, char* nomVar, float t);
 
 #endif
