@@ -1,5 +1,6 @@
 <application>
 <prerequisites path="/data/tmplgls/secher/SALOME_V4.1.1_MD08/env_products.sh"/>
+<resources path="myCata.xml"/>
 <modules>
    <!-- variable name <MODULE>_ROOT_DIR is built with <MODULE> == name attribute value -->
    <!-- <MODULE>_ROOT_DIR values is set with path attribute value -->
