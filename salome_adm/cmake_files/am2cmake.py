@@ -631,6 +631,11 @@ class CMakeFile(object):
                 SET(GHS3DPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
+            elif self.module == "hexoticplugin":
+                newlines.append("""
+                SET(HEXOTICPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
             elif self.module == "ghs3dprlplugin":
                 newlines.append("""
                 SET(GHS3DPRLPLUGIN_ENABLE_GUI ON)
