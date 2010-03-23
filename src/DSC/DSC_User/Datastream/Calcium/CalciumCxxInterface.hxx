@@ -73,7 +73,7 @@ namespace CalciumInterface {
     Engines_DSC_interface::writeEvent("CP_CD",containerName,componentName,"","","");
   }
 
-  static void
+  static inline void
   ecp_fin (Superv_Component_i & component, bool provideLastGivenValue)
   { 
     CORBA::String_var componentName=component.instanceName();
@@ -618,7 +618,7 @@ namespace CalciumInterface {
     ecp_ecriture<T1,T1> (component,dependencyType,t,i,nomVar,bufferLength,data); 
   };
 
-  static void
+  static inline void
   ecp_fini(Superv_Component_i & component,const std::string  & nomVar,long const  & i)
   {
     CORBA::String_var componentName=component.instanceName();
@@ -677,7 +677,7 @@ namespace CalciumInterface {
 
   };
 
-  static void
+  static inline void
   ecp_fint(Superv_Component_i & component,const std::string  & nomVar,double const  & t)
   {
     CORBA::String_var componentName=component.instanceName();
@@ -736,7 +736,7 @@ namespace CalciumInterface {
 
   };
 
-  static void
+  static inline void
   ecp_effi(Superv_Component_i & component,const std::string  & nomVar,long const  & i)
   {
     CORBA::String_var componentName=component.instanceName();
@@ -795,7 +795,7 @@ namespace CalciumInterface {
 
   };
 
-  static void
+  static inline void
   ecp_efft(Superv_Component_i & component,const std::string  & nomVar,double const  & t)
   {
     CORBA::String_var componentName=component.instanceName();
