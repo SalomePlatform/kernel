@@ -54,10 +54,12 @@ if test "$WITHOPENMPI" = yes; then
   AC_MSG_CHECKING(for openmpi)
   if test "$WITHOPENMPI" = "yes";then
      mpi_ok=yes
+     WITHMPI=yes
      CPPFLAGS="-DOMPI_IGNORE_CXX_SEEK -DWITHOPENMPI $CPPFLAGS"
      AC_MSG_RESULT(yes)
   else
      mpi_ok=no
+     WITHMPI=no
      AC_MSG_RESULT(no)
   fi
 fi
