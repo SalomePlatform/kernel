@@ -372,19 +372,27 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
 //            Returns a name of directory where a created HDF file is placed
 //            The created file is named "hdf_from_ascii.hdf"
 //============================================================================
-char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
+char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
+				      bool isReplace)
 {
-  // Get a temporary directory to store a file
-  string aTmpDir = GetTmpDir(), aFileName("hdf_from_ascii.hdf");
-  // Build a full file name of temporary file
-  string aFullName = aTmpDir + aFileName;
+  string aTmpDir, aFullName;
+  if(!isReplace) {
+    // Get a temporary directory to store a file
+    aTmpDir = GetTmpDir();
+    // Build a full file name of temporary file
+    aFullName = aTmpDir + "hdf_from_ascii.hdf";
+  }
+  else {
+    aTmpDir = thePath;
+    aFullName = string(thePath)+".ascii_tmp";
+  }
+
+  FILE *fp = fopen(thePath, "r");
+  if(!fp) return NULL;
 
   HDFfile *hdf_file = new HDFfile((char*)aFullName.c_str()); 
   hdf_file->CreateOnDisk();
   
-  FILE *fp = fopen(thePath, "r");
-  if(!fp) return NULL;
-
   char type[9];
   int nbsons, i;
   fscanf(fp, "%s", type);
@@ -427,6 +435,13 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
 
   hdf_file->CloseOnDisk();
   delete hdf_file;
+
+  if(isReplace) {
+    if(Exists(aFullName))
+      Move(aFullName, thePath);
+    else 
+      return NULL;
+  }
 
   int length = strlen(aTmpDir.c_str());
   char *new_str = new char[ 1+length ];

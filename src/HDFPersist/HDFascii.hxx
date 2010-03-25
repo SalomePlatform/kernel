@@ -39,7 +39,8 @@ public:
                                      bool isReplaced = true, 
                                      const char* theExtension = NULL);
                                      
-  static char* ConvertFromASCIIToHDF(const char* thePath);
+  static char* ConvertFromASCIIToHDF(const char* thePath, 
+                                     bool isReplaced = false);
   
   static bool isASCII(const char* thePath);
 };
