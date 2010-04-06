@@ -28,6 +28,9 @@
 
 using namespace std;
 
+void print_infos(Engines::file*);
+void print_state(Engines::SfState*);
+
 void print_infos(Engines::file * infos) 
 {
   cerr << "-------------------------------------------------------------------" << endl;

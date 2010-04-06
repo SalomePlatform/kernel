@@ -70,7 +70,14 @@ extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 # include <sys/wait.h>
 #endif
 
+void AttachDebugger();
+void Handler(int);
+void terminateHandler();
+void unexpectedHandler();
+
 #ifndef WIN32
+void (* setsig(int, void (*)(int)))(int);
+
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
 {

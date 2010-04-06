@@ -765,6 +765,9 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
   return true ;
 }
 
+void SetCpuUsed();
+void CallCancelThread();
+
 //=============================================================================
 /*! 
  *  C++ method:
