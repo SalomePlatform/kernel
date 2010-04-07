@@ -26,6 +26,11 @@
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+EXTRA_DIST = images input static/footer.html static/doxygen.css
+
+tuidocdir = $(docdir)/tui/KERNEL
+tuidoc_DATA = images/head.png
+
 dev_docs:
 	$(DOXYGEN) -u doxyfile; \
 	$(DOXYGEN) doxyfile
@@ -41,5 +46,3 @@ install-data-local:
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/tui/KERNEL
-
-EXTRA_DIST = static
