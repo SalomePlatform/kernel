@@ -86,8 +86,14 @@ div.header {
   margin-bottom: 10px;
 }
 
-div.tabs {
-  display: none;
+div.tabs { 
+  text-align: justify; 
+  margin-left    : 2px;	 
+  margin-right   : 2px;  
+  margin-top     : 2px; 
+  margin-bottom  : 2px
+  font-weight: bold;
+  color: #FFFFFF;
 }
 
 div.footer {
@@ -242,7 +248,7 @@ pre.fragment {
 /* Top Navigation style */
 
 div.navigation {
-  margin-bottom:20px;
+  margin-bottom: 70px;
 }
 
 /* Left navigation panel style */
