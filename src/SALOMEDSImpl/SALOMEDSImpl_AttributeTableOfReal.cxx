@@ -27,27 +27,22 @@
 #include <stdio.h>
 #include <sstream>
 
-using namespace std;
-
 #define SEPARATOR '\1'
 
-typedef map<int, double>::const_iterator MI;
+typedef std::map<int, double>::const_iterator MI;
 
-static std::string getUnit(std::string theString)
+static std::string getUnit(const std::string& theString)
 {
   std::string aString(theString);
   int aPos = aString.find(SEPARATOR);
-  if(aPos <= 0 || aPos == aString.size() ) return std::string();
-  return aString.substr(aPos+1, aString.size());
+  return aPos < 0 || aPos == aString.size()-1 ? std::string() : aString.substr(aPos+1, aString.size());
 }
 
-static std::string getTitle(std::string theString)
+static std::string getTitle(const std::string& theString)
 {
   std::string aString(theString);
   int aPos = aString.find(SEPARATOR);
-  if(aPos < 0) return aString;
-  if(aPos == 0) return std::string();
-  return aString.substr(0, aPos);
+  return aPos < 0 ? aString :aString.substr(0, aPos);
 }
 
 const std::string& SALOMEDSImpl_AttributeTableOfReal::GetID() 
@@ -78,7 +73,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SetNbColumns(const int theNbColumns)
   CheckLocked();  
   Backup();
   
-  map<int, double> aMap;
+  std::map<int, double> aMap;
   aMap = myTable;
   myTable.clear();
 
@@ -94,7 +89,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SetNbColumns(const int theNbColumns)
   myNbColumns = theNbColumns;
 
   while (myCols.size() < myNbColumns) { // append empty columns titles
-    myCols.push_back(string(""));
+    myCols.push_back(std::string(""));
   }
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -115,7 +110,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::GetTitle() const
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowData(const int theRow,
-                                                   const vector<double>& theData) 
+                                                   const std::vector<double>& theData) 
 {
   CheckLocked();  
   if(theData.size() > myNbColumns) SetNbColumns(theData.size());
@@ -136,9 +131,9 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowData(const int theRow,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<double> SALOMEDSImpl_AttributeTableOfReal::GetRowData(const int theRow)
+std::vector<double> SALOMEDSImpl_AttributeTableOfReal::GetRowData(const int theRow)
 {
-  vector<double> aSeq;
+  std::vector<double> aSeq;
   int i, aShift = (theRow-1)*myNbColumns;
   for(i = 1; i <= myNbColumns; i++) {
      if(myTable.find(aShift+i) != myTable.end()) 
@@ -180,7 +175,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowUnit(const int theRow,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const vector<string>& theUnits)
+void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& theUnits)
 {
   if (theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
   int aLength = theUnits.size(), i;
@@ -189,15 +184,15 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const vector<string>& theUni
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfReal::GetRowUnits()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfReal::GetRowUnits()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getUnit(myRows[i]));
   return aSeq;
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SetRowTitles(const vector<string>& theTitles)
+void SALOMEDSImpl_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>& theTitles)
 {
   if (theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
   int aLength = theTitles.size(), i;
@@ -206,9 +201,9 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowTitles(const vector<string>& theTi
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfReal::GetRowTitles()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfReal::GetRowTitles()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getTitle(myRows[i]));
   return aSeq;
@@ -227,7 +222,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::GetRowUnit(const int theRow) cons
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const int theColumn,
-                                                      const vector<double>& theData) 
+                                                      const std::vector<double>& theData) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -242,7 +237,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const int theColumn,
   if(aLength > myNbRows) {
     myNbRows = aLength;
     while (myRows.size() < myNbRows) { // append empty row titles
-      myRows.push_back(string(""));
+      myRows.push_back(std::string(""));
     }
   }
   
@@ -250,9 +245,9 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const int theColumn,
 }
 
 
-vector<double> SALOMEDSImpl_AttributeTableOfReal::GetColumnData(const int theColumn)
+std::vector<double> SALOMEDSImpl_AttributeTableOfReal::GetColumnData(const int theColumn)
 {
-  vector<double> aSeq;
+  std::vector<double> aSeq;
   
   int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
@@ -284,7 +279,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::GetColumnTitle(const int theColum
   return myCols[theColumn-1];
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitles(const vector<string>& theTitles)
+void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
   if (theTitles.size() != myNbColumns) throw DFexception("Invalid number of columns");
   int aLength = theTitles.size(), i;
@@ -293,9 +288,9 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitles(const vector<string>& th
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfReal::GetColumnTitles()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfReal::GetColumnTitles()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myCols.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(myCols[i]);
   return aSeq;
@@ -407,9 +402,9 @@ void SALOMEDSImpl_AttributeTableOfReal::Paste(DF_Attribute* into)
 }
 
 
-vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetRowIndices(const int theRow)
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetRowIndices(const int theRow)
 {
-  vector<int> aSeq;
+  std::vector<int> aSeq;
 
   int i, aShift = myNbColumns*(theRow-1);
   for(i = 1; i <= myNbColumns; i++) {
@@ -419,9 +414,9 @@ vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetRowIndices(const int theRow
   return aSeq;
 }
 
-vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetColumnIndices(const int theColumn)
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetColumnIndices(const int theColumn)
 {
-  vector<int> aSeq;
+  std::vector<int> aSeq;
 
   int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
@@ -432,9 +427,9 @@ vector<int> SALOMEDSImpl_AttributeTableOfReal::GetSetColumnIndices(const int the
   return aSeq;
 }
 
-string SALOMEDSImpl_AttributeTableOfReal::Save() 
+std::string SALOMEDSImpl_AttributeTableOfReal::Save() 
 {
-  string aString;
+  std::string aString;
   char* buffer = new char[1024];
   int i, j, l;
 
@@ -490,9 +485,9 @@ string SALOMEDSImpl_AttributeTableOfReal::Save()
   return aString;
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::Load(const string& value) 
+void SALOMEDSImpl_AttributeTableOfReal::Load(const std::string& value) 
 {
-  vector<string> v;
+  std::vector<std::string> v;
   int i,  j, l, pos, aSize = (int)value.size(); 
   for(i = 0, pos = 0; i<aSize; i++) {
     if(value[i] == '\n') {
