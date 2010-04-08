@@ -72,6 +72,24 @@ void SALOMEDS_AttributeTableOfReal::SetRowTitle(int theIndex, const std::string&
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitle(theIndex, theTitle.c_str());
 }
 
+std::string SALOMEDS_AttributeTableOfReal::GetRowTitle(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetRowTitle(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowTitle(theIndex);
+  }
+  return aTitle;
+}
+
 void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>& theTitles)
 {
   CheckLocked();
@@ -115,6 +133,24 @@ void SALOMEDS_AttributeTableOfReal::SetColumnTitle(int theIndex, const std::stri
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitle(theIndex, theTitle.c_str());
 }
 
+std::string SALOMEDS_AttributeTableOfReal::GetColumnTitle(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetColumnTitle(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetColumnTitle(theIndex);
+  }
+  return aTitle;
+}
+
 void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
   int aLength = theTitles.size(), i;
@@ -155,6 +191,24 @@ void SALOMEDS_AttributeTableOfReal::SetRowUnit(int theIndex, const std::string& 
     dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SetRowUnit(theIndex, theUnit);
   }
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnit(theIndex, theUnit.c_str());
+}
+
+std::string SALOMEDS_AttributeTableOfReal::GetRowUnit(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetRowUnit(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowUnit(theIndex);
+  }
+  return aTitle;
 }
 
 void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& theUnits)
@@ -222,7 +276,7 @@ void SALOMEDS_AttributeTableOfReal::AddRow(const std::vector<double>& theData)
       aTable->SetRowData(aTable->GetNbRows() + 1, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -244,7 +298,7 @@ void SALOMEDS_AttributeTableOfReal::SetRow(int theRow, const std::vector<double>
       aTable->SetRowData(theRow, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -283,7 +337,7 @@ void SALOMEDS_AttributeTableOfReal::AddColumn(const std::vector<double>& theData
       aTable->SetColumnData(aTable->GetNbColumns() + 1, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -305,7 +359,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumn(int theColumn, const std::vector<d
       aTable->SetColumnData(theColumn, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -341,7 +395,7 @@ void SALOMEDS_AttributeTableOfReal::PutValue(double theValue, int theRow, int th
       dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->PutValue(theValue, theRow, theColumn);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectIndex();
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
@@ -369,7 +423,7 @@ double SALOMEDS_AttributeTableOfReal::GetValue(int theRow, int theColumn)
       aValue = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetValue(theRow, theColumn);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectIndex();
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {

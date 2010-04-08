@@ -47,13 +47,16 @@ public:
   virtual void SetTitle(const std::string& theTitle);
   virtual std::string GetTitle();
   virtual void SetRowTitle(int theIndex, const std::string& theTitle);
+  virtual std::string GetRowTitle(int theIndex);
   virtual void SetRowTitles(const std::vector<std::string>& theTitles);
   virtual std::vector<std::string> GetRowTitles();
   virtual void SetColumnTitle(int theIndex, const std::string& theTitle);
+  virtual std::string GetColumnTitle(int theIndex);
   virtual void SetColumnTitles(const std::vector<std::string>& theTitles);
   virtual std::vector<std::string> GetColumnTitles();
 
   virtual void SetRowUnit(int theIndex, const std::string& theUnit);
+  virtual std::string GetRowUnit(int theIndex);
   virtual void SetRowUnits(const std::vector<std::string>& theUnits);
   virtual std::vector<std::string> GetRowUnits();
 

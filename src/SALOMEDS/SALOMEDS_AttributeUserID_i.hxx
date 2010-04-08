@@ -45,7 +45,7 @@ public:
   char* Value();
   void SetValue(const char* value);
 
-  static const std::string& DefaultID() {
+  static std::string DefaultID() {
     return SALOMEDSImpl_AttributeUserID::DefaultID();
   }
 
