@@ -36,8 +36,9 @@ import os
 import sys
 import string
 import traceback
+import imp
 from omniORB import CORBA, PortableServer
-import SALOMEDS 
+import SALOMEDS
 import Engines, Engines__POA
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
@@ -77,9 +78,23 @@ class SALOME_Container_i:
             if verbose(): print "try import ",componentName
             __import__(componentName)
             if verbose(): print "import ",componentName," successful"
+        except ImportError,e:
+            #can't import python module componentName
+            #try to find it in python path
+            try:
+              fp, pathname, description = imp.find_module(componentName)
+              if fp:fp.close()
+              #module file found in path
+              ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
+              ret=ret+traceback.format_exc(10)
+            except ImportError,ee:
+              ret="ImplementationNotFound"
+            except:
+              if verbose():print "error when calling find_module"
+              ret="ImplementationNotFound"
         except:
-            import traceback
-            ret=traceback.format_exc(10)
+            ret="Component "+componentName+": Python implementation found but it can't be loaded\n"
+            ret=ret+traceback.format_exc(10)
             if verbose():
               traceback.print_exc()
               print "import ",componentName," not possible"
@@ -90,6 +105,7 @@ class SALOME_Container_i:
     def create_component_instance(self, componentName, instanceName, studyId):
         MESSAGE( "SALOME_Container_i::create_component_instance" )
         comp_iors=""
+        ret=""
         try:
             component=__import__(componentName)
             factory=getattr(component,componentName)
@@ -104,10 +120,10 @@ class SALOME_Container_i:
             comp_o = comp_i._this()
             comp_iors = self._orb.object_to_string(comp_o)
         except:
-            import traceback
+            ret=traceback.format_exc(10)
             traceback.print_exc()
             MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
-        return comp_iors 
+        return comp_iors, ret
         
 
     def create_pynode(self,nodeName,code):

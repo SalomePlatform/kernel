@@ -289,8 +289,10 @@ void Engines_Parallel_Container_i::Shutdown()
 //=============================================================================
 
 bool
-Engines_Parallel_Container_i::load_component_Library(const char* componentName)
+Engines_Parallel_Container_i::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   MESSAGE("Begin of load_component_Library : " << componentName)
   bool ret = false;
   std::string aCompName = componentName;
@@ -386,7 +388,10 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
                                                         CORBA::Long studyId)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
-  return create_component_instance_env(genericRegisterName,studyId,env);
+  char* reason;
+  Engines::Component_ptr compo = create_component_instance_env(genericRegisterName,studyId,env, reason);
+  CORBA::string_free(reason);
+  return compo;
 }
 
 //=============================================================================
@@ -406,9 +411,11 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
 Engines::Component_ptr
 Engines_Parallel_Container_i::create_component_instance_env(const char*genericRegisterName,
                                                             CORBA::Long studyId,
-                                                            const Engines::FieldsDict& env)
+                                                            const Engines::FieldsDict& env,
+                                                            CORBA::String_out reason)
 {
   MESSAGE("Begin of create_component_instance in node : " << getMyRank());
+  reason=CORBA::string_dup("");
 
   if (studyId < 0)
   {
@@ -504,8 +511,10 @@ Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* gene
                                                                 const char* componentName )
 {
   Engines::Component_var iobject = Engines::Component::_nil();
-  if (load_component_Library(genericRegisterName))
+  char* reason;
+  if (load_component_Library(genericRegisterName,reason))
     iobject = find_or_create_instance(genericRegisterName);
+  CORBA::string_free(reason);
   return iobject._retn();
 }
 
@@ -782,7 +791,10 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
                                          genericRegisterName.c_str(),
                                          instanceName.c_str(),
                                          studyId);
-  std::string iors = PyString_AsString(result);
+  const char *ior;
+  const char *error;
+  PyArg_ParseTuple(result,"ss", &ior, &error);
+  string iors = ior;
   Py_DECREF(result);
   Py_RELEASE_NEW_THREAD;
 

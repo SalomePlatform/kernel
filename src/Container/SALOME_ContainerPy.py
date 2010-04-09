@@ -186,9 +186,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        return self.import_component(componentName)
+        return self.import_component(componentName), ""
     
     #-------------------------------------------------------------------------
+
+    def create_component_instance_env(self, componentName, studyId, env):
+      return self.create_component_instance(componentName, studyId), ""
 
     def create_component_instance(self, componentName, studyId):
         MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) + ' ' + str(studyId) )

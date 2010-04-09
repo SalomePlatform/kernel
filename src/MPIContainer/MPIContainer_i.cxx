@@ -114,8 +114,10 @@ void Engines_MPIContainer_i::Shutdown()
 }
 
 // Load a component library
-bool Engines_MPIContainer_i::load_component_Library(const char* componentName)
+bool Engines_MPIContainer_i::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   pthread_t *th;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
@@ -211,8 +213,11 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 Engines::Component_ptr
 Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
                                                        CORBA::Long studyId,
-                                                       const Engines::FieldsDict& env)
+                                                       const Engines::FieldsDict& env,
+                                                       CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   pthread_t *th;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
@@ -275,7 +280,10 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
                                            aCompName.c_str(),
                                            instanceName.c_str(),
                                            studyId);
-    string iors = PyString_AsString(result);
+    const char *ior;
+    const char *error;
+    PyArg_ParseTuple(result,"ss", &ior, &error);
+    string iors = ior;
     SCRUTE(iors);
     Py_RELEASE_NEW_THREAD;
   
@@ -588,7 +596,9 @@ void Engines_MPIContainer_i::finalize_removal()
 void *th_loadcomponentlibrary(void *s)
 {
   thread_st *st = (thread_st*)s;
-  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_component_Library(st->compoName.c_str());
+  char* reason;
+  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_component_Library(st->compoName.c_str(),reason);
+  CORBA::string_free(reason);
   return NULL;
 }
 

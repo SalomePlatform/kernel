@@ -110,7 +110,7 @@ void Handler(int theSigId)
   std::cerr << "SIGSEGV: "  << std::endl;
   AttachDebugger();
   //to exit or not to exit
-  exit(1);
+  _exit(1);
 }
 
 void terminateHandler(void)
@@ -155,20 +155,8 @@ int main(int argc, char* argv[])
 
   ASSERT(argc > 1);
   SCRUTE(argv[1]);
-  bool isSupervContainer = false;
-  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
 
-  if (!isSupervContainer)
-    {
-      // int _argc = 1;
-      // char* _argv[] = {""};
-      KERNEL_PYTHON::init_python(argc,argv);
-    }
-  else
-    {
-      Py_Initialize() ;
-      PySys_SetArgv( argc , argv ) ;
-    }
+  KERNEL_PYTHON::init_python(argc,argv);
     
   char *containerName = (char *)"";
   if(argc > 1)
@@ -204,19 +192,15 @@ int main(int argc, char* argv[])
 
       HandleServerSideSignals(orb);
 
-      if (!isSupervContainer)
-      {
+//#define MEMORYLEAKS
+#ifdef MEMORYLEAKS
         PyGILState_Ensure();
         //Destroy orb from python (for chasing memory leaks)
-        //PyRun_SimpleString("from omniORB import CORBA");
-        //PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
-        //PyRun_SimpleString("orb.destroy()");
+        PyRun_SimpleString("from omniORB import CORBA");
+        PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
+        PyRun_SimpleString("orb.destroy()");
         Py_Finalize();
-      }
-      else
-      {
-        orb->destroy();
-      }
+#endif
     }
   catch(CORBA::SystemException&)
     {

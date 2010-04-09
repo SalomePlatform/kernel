@@ -63,7 +63,7 @@ public:
 
   // --- CORBA methods
 
-  virtual bool load_component_Library(const char* componentName);
+  virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
@@ -71,8 +71,9 @@ public:
 
   virtual Engines::Component_ptr
   create_component_instance_env( const char* componentName,
-                             CORBA::Long studyId,          // 0 for multiStudy
-                             const Engines::FieldsDict& env); 
+                                 CORBA::Long studyId,          // 0 for multiStudy
+                                 const Engines::FieldsDict& env,
+                                 CORBA::String_out reason); 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy
@@ -109,10 +110,13 @@ public:
   find_or_create_instance( std::string genericRegisterName,
                            std::string componentLibraryName);
 
-  Engines::Component_ptr
-  createInstance(std::string genericRegisterName,
-                 void *handle,
-                 int studyId);
+  bool load_component_CppImplementation(const char* componentName,std::string& reason);
+  bool load_component_PythonImplementation(const char* componentName,std::string& reason);
+  bool load_component_ExecutableImplementation(const char* componentName,std::string& reason);
+
+  Engines::Component_ptr createPythonInstance(std::string CompName, int studyId, std::string& error);
+  Engines::Component_ptr createExecutableInstance(std::string CompName, int studyId, const Engines::FieldsDict& env, std::string& error);
+  Engines::Component_ptr createInstance(std::string genericRegisterName, void *handle, int studyId, std::string& error);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);

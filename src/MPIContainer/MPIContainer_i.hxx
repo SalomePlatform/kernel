@@ -67,14 +67,15 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 
   // Load a component library
   // synchronous version for process 0
-  bool load_component_Library(const char* componentName);
+  bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   // Create an instance of component
   // synchronous version for process 0
   virtual Engines::Component_ptr
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
-                                 const Engines::FieldsDict& env);
+                                 const Engines::FieldsDict& env,
+                                 CORBA::String_out reason);
 
   // Load a component in current MPI container
   // synchronous version for process 0

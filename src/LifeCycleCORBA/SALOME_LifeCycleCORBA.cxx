@@ -589,25 +589,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
   nanosleep(&ts_req,0);
 #endif
 
-  // 4) Registry
-  try
-    {
-      CORBA::Object_var objR = _NS->Resolve("/Registry");
-      Registry::Components_var registry = Registry::Components::_narrow(objR);
-      if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
-          registry->Shutdown();
-    }
-  catch(const CORBA::Exception& e)
-    {
-       // ignore and continue
-    }
-
-//Wait some time so that registry be completely shutdown
-#ifndef WIN32
-  nanosleep(&ts_req,0);
-#endif
-
-  // 5) SalomeLauncher
+  // 4) SalomeLauncher
   try
     {
       CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
@@ -620,6 +602,24 @@ void SALOME_LifeCycleCORBA::shutdownServers()
        // ignore and continue
     }
   
+//Wait some time so that launcher be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 5) Registry
+  try
+    {
+      CORBA::Object_var objR = _NS->Resolve("/Registry");
+      Registry::Components_var registry = Registry::Components::_narrow(objR);
+      if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
+          registry->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
   // 6) Logger
   int argc = 0;
   char *xargv = (char*)"";
@@ -778,8 +778,15 @@ _LoadComponent(const Engines::ContainerParameters& params,
   Engines::Container_var cont = _ContManager->GiveContainer(local_params);
   if (CORBA::is_nil(cont)) return Engines::Component::_nil();
 
-  bool isLoadable = cont->load_component_Library(componentName);
-  if (!isLoadable) return Engines::Component::_nil();
+  char* reason;
+  bool isLoadable = cont->load_component_Library(componentName,reason);
+  if (!isLoadable) 
+    {
+      //std::cerr << reason << std::endl;
+      CORBA::string_free(reason);
+      return Engines::Component::_nil();
+    }
+  CORBA::string_free(reason);
 
   Engines::Component_var myInstance =
     cont->create_component_instance(componentName, studyId);
@@ -820,11 +827,15 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   }
 
   MESSAGE("Loading component library");
-  bool isLoadable = cont->load_component_Library(componentName);
+  char* reason;
+  bool isLoadable = cont->load_component_Library(componentName,reason);
   if (!isLoadable) {
     INFOS(componentName <<" library is not loadable !");
+    //std::cerr << reason << std::endl;
+    CORBA::string_free(reason);
     return Engines::Component::_nil();
   }
+  CORBA::string_free(reason);
 
   MESSAGE("Creating component instance");
   // @PARALLEL@ permits to identify that the component requested

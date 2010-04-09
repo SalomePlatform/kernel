@@ -71,7 +71,7 @@ public:
 
   // --- CORBA methods
 
-  virtual bool load_component_Library(const char* componentName);
+  virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
@@ -79,8 +79,9 @@ public:
 
   virtual Engines::Component_ptr
   create_component_instance_env( const char* componentName,
-                             CORBA::Long studyId,          // 0 for multiStudy
-                             const Engines::FieldsDict& env);
+                                 CORBA::Long studyId,          // 0 for multiStudy
+                                 const Engines::FieldsDict& env,
+                                 CORBA::String_out reason);
 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,
