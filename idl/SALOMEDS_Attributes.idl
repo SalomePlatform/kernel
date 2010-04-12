@@ -895,6 +895,21 @@ module SALOMEDS
     //! This exception is raised when sequence of incorrect length is passed as parameter.
     exception IncorrectArgumentLength {};
 
+    //! Sort order
+    enum SortOrder { 
+      AscendingOrder,  //!< The items are sorted ascending
+      DescendingOrder  //!< The items are sorted descending
+    };
+
+    //! Sort policy (specifies how empty cells are taken into account when sorting)
+    enum SortPolicy {
+      EmptyLowest,     //!< Empty cells are considered as lowest values
+      EmptyHighest,    //!< Empty cells are considered as highest values
+      EmptyFirst,      //!< Empty cells are always first
+      EmptyLast,       //!< Empty cells are always last
+      EmptyIgnore      //!< Empty cells are ignored (stay at initial positions)
+    };
+
     /*!
       \brief Sets the main title of the table.
       \param title title being set to the table
@@ -1036,11 +1051,21 @@ module SALOMEDS
     */
     boolean HasValue(in long row, in long column);
     /*!
+      \brief Clear value in the specified table cell.
+      
+      Raises an exception if \a row or \a column is out of range.
+
+      \param row    row index
+      \param column column index
+      \sa HasValue()
+    */
+    void RemoveValue(in long row, in long column) raises(IncorrectIndex);
+    /*!
       \brief Sets the maximum number of colums in the table.
 
       If new number of columns is less than the current one, the table is truncated
       (extra columns are removed).
-      
+
       \note It is recommended to set number of columns before assigning data to the table.
 
       \param columns total number of columns being set for the table
@@ -1057,6 +1082,93 @@ module SALOMEDS
       \return list of column indices
     */
     LongSeq GetRowSetIndices(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table row.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+
+      Raises an exception if \a row is out of range.
+
+      \note Other table rows are not affected.
+      
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+    */
+    void SortRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table column.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+
+      Raises an exception if \a column is out of range.
+
+      \note Other table columns are not affected.
+      
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+    */
+    void SortColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table columns by the specified row.
+      
+      All the table columns are sorted according to the values in the specified
+      row. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+    */
+    void SortByRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table rows by the specified column.
+      
+      All the table rows are sorted according to the values in the specified
+      column. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+    */
+    void SortByColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Swap values in two table cells.
+
+      Raises an exception if any specified index is out of range.
+
+      \param row1    first cell's row index
+      \param column1 first cell's column index
+      \param row2    second cell's row index
+      \param column2 second cell's column index
+    */
+    void SwapCells(in long row1, in long column1, in long row2, in long column2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table rows.
+
+      Raises an exception if any \a row1 or \a row2 is out of range.
+
+      \param row1 first row's index
+      \param row2 second row's index
+    */
+    void SwapRows(in long row1, in long row2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table columns.
+
+      Raises an exception if any \a column1 or \a column2 is out of range.
+
+      \param column1 first column's index
+      \param column2 second column's index
+    */
+    void SwapColumns(in long column1, in long column2) raises(IncorrectIndex);
     /*!
       \brief Reads a table from a byte stream.
       \param fileStream byte stream

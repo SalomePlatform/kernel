@@ -56,6 +56,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributePixMap.hxx \
 	SALOMEDSImpl_AttributeLocalID.hxx \
 	SALOMEDSImpl_AttributeTarget.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \
@@ -189,6 +190,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeSequenceOfReal.hxx \
 	SALOMEDSImpl_Attributes.hxx \
 	SALOMEDSImpl_AttributeStudyProperties.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \

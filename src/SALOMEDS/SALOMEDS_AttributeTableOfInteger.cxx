@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeTableOfInteger.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 SALOMEDS_AttributeTableOfInteger::SALOMEDS_AttributeTableOfInteger
                   (SALOMEDSImpl_AttributeTableOfInteger* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
@@ -97,7 +95,7 @@ void SALOMEDS_AttributeTableOfInteger::SetRowTitles(const std::vector<std::strin
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    vector<string> aSeq;
+    std::vector<std::string> aSeq;
     for (i = 0; i < aLength; i++) aSeq.push_back(theTitles[i]);
     dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetRowTitles(aSeq);
   }
@@ -160,7 +158,7 @@ void SALOMEDS_AttributeTableOfInteger::SetColumnTitles(const std::vector<std::st
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    vector<string> aSeq;
+    std::vector<std::string> aSeq;
     for (i = 0; i < aLength; i++) aSeq.push_back(theTitles[i]);
     dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetColumnTitles(aSeq);
   }
@@ -438,6 +436,22 @@ int SALOMEDS_AttributeTableOfInteger::GetValue(int theRow, int theColumn)
   return aValue;
 }
 
+void SALOMEDS_AttributeTableOfInteger::RemoveValue(int theRow, int theColumn)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->RemoveValue(theRow, theColumn);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->RemoveValue(theRow, theColumn);
+  }
+}
+
 std::vector<int> SALOMEDS_AttributeTableOfInteger::GetRowSetIndices(int theRow)
 {
   std::vector<int> aVector;
@@ -462,4 +476,132 @@ void SALOMEDS_AttributeTableOfInteger::SetNbColumns(int theNbColumns)
     dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SetNbColumns(theNbColumns);
   }
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetNbColumns(theNbColumns);
+}
+
+void SALOMEDS_AttributeTableOfInteger::SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortRow(theRow, 
+										(SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+										(SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortRow(theRow, 
+								     (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+								     (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortColumn(theColumn, 
+										   (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+										   (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortColumn(theColumn, 
+									(SALOMEDS::AttributeTable::SortOrder)theOrder, 
+									(SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByRow(theRow, 
+										  (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+										  (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByRow(theRow, 
+								       (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+								       (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByColumn(theColumn, 
+										     (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+										     (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByColumn(theColumn, 
+									  (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+									  (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SwapCells(int theRow1, int theColumn1, int theRow2, int theColumn2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SwapCells(theRow1, theColumn1, theRow2, theColumn2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SwapCells(theRow1, theColumn1, theRow2, theColumn2);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SwapRows(int theRow1, int theRow2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SwapRows(theRow1, theRow2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SwapRows(theRow1, theRow2);
+  }
+}
+
+void SALOMEDS_AttributeTableOfInteger::SwapColumns(int theColumn1, int theColumn2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SwapColumns(theColumn1, theColumn2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SwapColumns(theColumn1, theColumn2);
+  }
 }

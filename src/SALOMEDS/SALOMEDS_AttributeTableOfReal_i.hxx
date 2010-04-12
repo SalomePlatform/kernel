@@ -33,17 +33,16 @@
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDSImpl_AttributeTableOfReal.hxx"
 
-class SALOMEDS_AttributeTableOfReal_i: public virtual POA_SALOMEDS::AttributeTableOfReal,
-  public virtual SALOMEDS_GenericAttribute_i {
-    
+class SALOMEDS_AttributeTableOfReal_i : public virtual POA_SALOMEDS::AttributeTableOfReal,
+					public virtual SALOMEDS_GenericAttribute_i
+{
 public:
-  
   SALOMEDS_AttributeTableOfReal_i(SALOMEDSImpl_AttributeTableOfReal* theAttr, CORBA::ORB_ptr orb) 
-    :SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
-
+    : SALOMEDS_GenericAttribute_i(theAttr, orb) {}; 
+  
   ~SALOMEDS_AttributeTableOfReal_i() {};
-
- virtual void SetTitle(const char* theTitle);
+  
+  virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
@@ -87,9 +86,32 @@ public:
   virtual CORBA::Boolean HasValue(CORBA::Long theRow, CORBA::Long theColumn);
   virtual CORBA::Double GetValue(CORBA::Long theRow, CORBA::Long theColumn)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void RemoveValue(CORBA::Long theRow, CORBA::Long theColumn)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
 
   virtual SALOMEDS::LongSeq* GetRowSetIndices(CORBA::Long theRow);
   virtual void SetNbColumns(CORBA::Long theNbColumns);
+
+  virtual void SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+		       SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+			  SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+			 SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+			    SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+
+  virtual void SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,
+			 CORBA::Long theRow2, CORBA::Long theColumn2)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void SwapRows(CORBA::Long theRow1, CORBA::Long theRow2)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+  virtual void SwapColumns(CORBA::Long theColumn1, CORBA::Long theColumn2)
+    throw (SALOMEDS::AttributeTable::IncorrectIndex);
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();

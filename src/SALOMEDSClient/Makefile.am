@@ -48,6 +48,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_AttributeSequenceOfInteger.hxx \
                 SALOMEDSClient_AttributeSequenceOfReal.hxx \
                 SALOMEDSClient_AttributeStudyProperties.hxx \
+                SALOMEDSClient_AttributeTable.hxx \
                 SALOMEDSClient_AttributeTableOfInteger.hxx \
                 SALOMEDSClient_AttributeTableOfReal.hxx \
                 SALOMEDSClient_AttributeTableOfString.hxx \
