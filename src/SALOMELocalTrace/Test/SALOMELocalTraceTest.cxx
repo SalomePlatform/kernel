@@ -28,8 +28,6 @@
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
 
-using namespace std;
-
 
 // ============================================================================
 /*!
@@ -67,12 +65,12 @@ SALOMELocalTraceTest::testSingletonBufferPool()
   // --- trace on file
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::app);
+  std::ofstream traceFile;
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -98,7 +96,7 @@ void *PrintHello(void *threadid);
 void 
 SALOMELocalTraceTest::testLoadBufferPoolLocal()
 {
-  string s = "local";
+  std::string s = "local";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   // --- numThread thread creation for trace generation.
@@ -137,13 +135,13 @@ SALOMELocalTraceTest::testLoadBufferPoolFile()
 {
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   //s = "local";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::trunc);
+  std::ofstream traceFile;
+  traceFile.open(theFileName, std::ios::out | std::ios::trunc);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 

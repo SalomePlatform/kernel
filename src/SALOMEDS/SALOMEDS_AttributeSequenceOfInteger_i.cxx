@@ -28,14 +28,11 @@
 #include <vector>
 
 
-using namespace std;
-
-
 void SALOMEDS_AttributeSequenceOfInteger_i::Assign(const SALOMEDS::LongSeq& other) 
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  vector<int> aSeq;
+  std::vector<int> aSeq;
   for(int i = 0, len = other.length(); i<len; i++) aSeq.push_back(other[i]);
   dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Assign(aSeq);
 }
@@ -44,7 +41,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeSequenceOfInteger_i::CorbaSequence()
 {
   SALOMEDS::Locker lock;
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
-  const vector<int>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Array();
+  const std::vector<int>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(_impl)->Array();
   int len = CasCadeSeq.size();
   CorbaSeq->length(len);
   for (int i = 0; i < len; i++) {

@@ -59,8 +59,6 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
 #include <stdexcept>
@@ -137,8 +135,8 @@ int main(int argc, char* argv[])
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
+      std::set_terminate(&terminateHandler);
+      std::set_unexpected(&unexpectedHandler);
     }
 #endif
 
@@ -174,8 +172,8 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WIN32
-      stringstream aCommand ;
-      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
+      std::stringstream aCommand ;
+      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << std::ends ;
       system(aCommand.str().c_str());
 #endif
       

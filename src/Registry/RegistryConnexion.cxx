@@ -38,8 +38,6 @@ extern "C"
 {
 # include <stdio.h>
 }
-using namespace std;
-
 
 Registry::Components_var Connexion( int argc , char **argv , const char *ptrSessionName ) throw( CommException )
 {

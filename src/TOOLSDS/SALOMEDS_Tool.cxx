@@ -48,9 +48,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
-using namespace std;
-
-bool Exists(const string thePath) 
+bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -136,11 +134,11 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
                                          const SALOMEDS::ListOfFileNames& theFiles,
                                          const bool IsDirDeleted)
 {
-  string aDirName = theDirectory;
+  std::string aDirName = theDirectory;
 
   int i, aLength = theFiles.length();
   for(i=1; i<=aLength; i++) {
-    string aFile(aDirName);
+    std::string aFile(aDirName);
     aFile += theFiles[i-1];
     if(!Exists(aFile)) continue;
 
@@ -180,7 +178,7 @@ namespace
       return (new SALOMEDS::TMPFile);
     
     //Get a temporary directory for saved a file
-    string aTmpDir = theFromDirectory;
+    std::string aTmpDir = theFromDirectory;
     
     long aBufferSize = 0;
     long aCurrentPos;
@@ -196,14 +194,14 @@ namespace
       //Check if the file exists
       
       if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
-        string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());   
+        std::string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());   
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
-        ifstream aFile(aFullPath.c_str(), ios::binary);
+        std::ifstream aFile(aFullPath.c_str(), std::ios::binary);
 #else
-        ifstream aFile(aFullPath.c_str());
+        std::ifstream aFile(aFullPath.c_str());
 #endif
-        aFile.seekg(0, ios::end);
+        aFile.seekg(0, std::ios::end);
         aFileSize[i] = aFile.tellg();
         aBufferSize += aFileSize[i];              //Add a space to store the file
       }
@@ -228,14 +226,14 @@ namespace
     aCurrentPos = 4;
     
     for(i=0; i<aLength; i++) {
-      ifstream *aFile;
+      std::ifstream *aFile;
       if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
-        string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());
+        std::string aFullPath = aTmpDir + const_cast<char*>(theFiles[i].in());
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
-        aFile = new ifstream(aFullPath.c_str(), ios::binary);
+        aFile = new std::ifstream(aFullPath.c_str(), std::ios::binary);
 #else
-        aFile = new ifstream(aFullPath.c_str());
+        aFile = new std::ifstream(aFullPath.c_str());
 #endif  
       }
       //Initialize 4 bytes of the buffer by 0
@@ -255,7 +253,7 @@ namespace
         memcpy((aBuffer + aCurrentPos), (aFileSize + i), ((sizeof(long) > 8) ? 8 : sizeof(long)));
         aCurrentPos += 8;
         
-        aFile->seekg(0, ios::beg);
+        aFile->seekg(0, std::ios::beg);
         aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
         aFile->close();
         delete(aFile);
@@ -307,7 +305,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     return aFiles;
 
   //Get a temporary directory for saving a file
-  string aTmpDir = theToDirectory;
+  std::string aTmpDir = theToDirectory;
 
   unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
 
@@ -338,11 +336,11 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       memcpy(&aFileSize, (aBuffer + aCurrentPos), ((sizeof(long) > 8) ? 8 : sizeof(long)));
       aCurrentPos += 8;    
       
-      string aFullPath = aTmpDir + aFileName;
+      std::string aFullPath = aTmpDir + aFileName;
 #ifdef WIN32
-      ofstream aFile(aFullPath.c_str(), ios::binary);
+      std::ofstream aFile(aFullPath.c_str(), std::ios::binary);
 #else
-      ofstream aFile(aFullPath.c_str());
+      std::ofstream aFile(aFullPath.c_str());
 #endif
       aFile.write((char *)(aBuffer+aCurrentPos), aFileSize); 
       aFile.close();  
@@ -361,7 +359,7 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
 //============================================================================
 std::string SALOMEDS_Tool::GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
-  string aPath = thePath;
+  std::string aPath = thePath;
   bool isFound = false;
   int pos = aPath.rfind('/');
   if(pos > 0) {
@@ -394,7 +392,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
 
   int pos = thePath.rfind('/');
-  string path;
+  std::string path;
   if(pos > 0) {
     path = thePath.substr(0, pos+1);
   }

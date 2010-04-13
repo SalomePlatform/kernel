@@ -27,13 +27,11 @@
 #include "SALOMEDS.hxx"
 #include <vector>
 
-using namespace std;
-
 SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor() 
 {
   SALOMEDS::Locker lock;
   SALOMEDS::Color TextHighlightColor;
-  vector<double> anArray = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_impl)->TextHighlightColor();
+  std::vector<double> anArray = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_impl)->TextHighlightColor();
   if (anArray.size()!=3) { 
     TextHighlightColor.R = 0;
     TextHighlightColor.G = 0;
@@ -51,7 +49,7 @@ void SALOMEDS_AttributeTextHighlightColor_i::SetTextHighlightColor(const SALOMED
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  vector<double> anArray;
+  std::vector<double> anArray;
   anArray.push_back(value.R);
   anArray.push_back(value.G);
   anArray.push_back(value.B);

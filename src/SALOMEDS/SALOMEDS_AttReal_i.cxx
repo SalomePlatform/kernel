@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <SALOMEDSImpl_AttributeReal.hxx>
-using namespace std;
+
 
 //============================================================================
 /*! Function : Set

@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-using namespace std;
-
 //============================================================================
 /*! Function : constructor
  * 

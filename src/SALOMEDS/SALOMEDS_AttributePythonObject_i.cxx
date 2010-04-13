@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) 
 {
   SALOMEDS::Locker lock;
@@ -39,7 +37,7 @@ void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA:
 char* SALOMEDS_AttributePythonObject_i::GetObject() 
 {
   SALOMEDS::Locker lock;
-  string aSeq(dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->GetObject());
+  std::string aSeq(dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->GetObject());
   CORBA::String_var aStr = CORBA::string_dup(aSeq.c_str());
   return aStr._retn();
 }

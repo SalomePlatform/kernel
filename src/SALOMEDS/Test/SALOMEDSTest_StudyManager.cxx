@@ -57,7 +57,7 @@ void SALOMEDSTest::testStudyManager()
   CPPUNIT_ASSERT(study4->Name() == study2->Name());
 
   //Check method GetOpenStudies
-  vector<string> v = sm->GetOpenStudies();
+  std::vector<std::string> v = sm->GetOpenStudies();
   CPPUNIT_ASSERT(v.size() == 2);
 
   //Check method Close
@@ -92,7 +92,7 @@ void SALOMEDSTest::testStudyManager()
 
   //Check method SaveAs
   sm->SaveAs("srn_UnitTest_Save.hdf", study1, false);
-  string url = study1->URL();
+  std::string url = study1->URL();
   sm->Close(study1);
 
   //Check method Open
@@ -108,7 +108,7 @@ void SALOMEDSTest::testStudyManager()
   CPPUNIT_ASSERT(sco3);
   //   Add a new SObject with AttributeName that contains "Saved study" string
   _PTR(SObject) so3 = sb3->NewObject(sco3);
-  string soID = so3->GetID();
+  std::string soID = so3->GetID();
   _PTR(AttributeName) na3 = sb3->FindOrCreateAttribute(so3, "AttributeName");
   CPPUNIT_ASSERT(na3);
  

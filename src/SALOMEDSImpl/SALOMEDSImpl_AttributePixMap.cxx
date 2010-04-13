@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributePixMap.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

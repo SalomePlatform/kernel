@@ -31,8 +31,6 @@
 
 #include <vector>
 
-using namespace std;
-
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) 
 {
   SALOMEDS::Locker lock; 
@@ -43,7 +41,7 @@ void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject)
 SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() 
 {
   SALOMEDS::Locker lock; 
-  vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_impl)->Get();
+  std::vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_impl)->Get();
   SALOMEDS::Study::ListOfSObject_var aSList = new SALOMEDS::Study::ListOfSObject;
   int aLength = aSeq.size(), i;
   if (aLength == 0) return aSList._retn();

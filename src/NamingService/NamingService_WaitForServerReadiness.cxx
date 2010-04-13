@@ -29,8 +29,6 @@
 #include <iostream>
 #include <ctime>
 
-using namespace std;
-
 // ============================================================================
 /*!
  * Wait until a server is registered in naming service.
@@ -46,7 +44,7 @@ using namespace std;
 
 
 void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
-                                          string serverName)
+                                          std::string serverName)
 {
   long TIMESleep = 500000000; // 500 ms.
   int NumberOfTries = 40;     // total wait = 20 s.

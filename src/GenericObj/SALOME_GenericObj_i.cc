@@ -34,7 +34,6 @@ static int MYDEBUG = 0;
 #endif
 
 using namespace SALOME;
-using namespace std;
 
 GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1){
   if(MYDEBUG) 

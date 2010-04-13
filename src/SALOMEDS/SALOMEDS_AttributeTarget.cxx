@@ -29,8 +29,6 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDS_SObject.hxx"
 
-using namespace std;
-
 SALOMEDS_AttributeTarget::SALOMEDS_AttributeTarget(SALOMEDSImpl_AttributeTarget* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
@@ -61,7 +59,7 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
+    std::vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
     aLength = aSeq.size();
     for (i = 0; i < aLength; i++) {
       aSO = new SALOMEDS_SObject(aSeq[i]);

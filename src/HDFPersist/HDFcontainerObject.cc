@@ -29,7 +29,6 @@ extern "C"
 }
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
-using namespace std;
 
 HDFcontainerObject::HDFcontainerObject(const char *name)
   : HDFinternalObject(name)

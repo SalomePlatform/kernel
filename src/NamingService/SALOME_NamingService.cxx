@@ -39,8 +39,6 @@
 #define strdup _strdup
 #endif
 
-using namespace std;
-
 /*! \class SALOME_NamingService
     \brief A class to manage the SALOME naming service
 
@@ -156,7 +154,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   //      to place the current_context to the correct node
 
   CosNaming::Name context_name;
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   int dimension_resultat = _createContextNameDir(Path,
                                                  context_name,
                                                  splitPath,
@@ -354,7 +352,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   //     to place the current_context to the correct node
 
   CosNaming::Name context_name;
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   _createContextNameDir(Path,
                                                  context_name,
                                                  splitPath,
@@ -429,13 +427,13 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
   Utils_Locker lock (&_myMutex);
 //   SCRUTE(Path);
 
-  string thePath = Path;
-  string basePath = "";
-  string name = thePath;
+  std::string thePath = Path;
+  std::string basePath = "";
+  std::string name = thePath;
 
-  string::size_type idx = thePath.rfind('/');
+  std::string::size_type idx = thePath.rfind('/');
 
-  if (idx != string::npos) // at least one '/' found
+  if (idx != std::string::npos) // at least one '/' found
     {
       basePath = thePath.substr(0, idx);
       name = thePath.substr(idx + 1);
@@ -453,8 +451,8 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
   
   if (isOk)
     {
-      vector<string> listElem = list_directory();
-      vector<string>::iterator its = listElem.begin();
+      std::vector<std::string> listElem = list_directory();
+      std::vector<std::string>::iterator its = listElem.begin();
       
       while (its != listElem.end())
         {
@@ -501,7 +499,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 
   Utils_Locker lock (&_myMutex);
 
-  string name = "/Containers/";
+  std::string name = "/Containers/";
 
   name += hostname;
 
@@ -530,10 +528,10 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
   else
     {
       SCRUTE(name);
-      string basename = name;
+      std::string basename = name;
       if (Change_Directory(basename.c_str()))
         {
-          vector<string> contList = list_subdirs();
+          std::vector<std::string> contList = list_subdirs();
 
           for (unsigned int ind = 0; ind < contList.size(); ind++)
             {
@@ -575,9 +573,9 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
  */
 // ============================================================================
 
-string SALOME_NamingService::ContainerName(const char *containerName)
+std::string SALOME_NamingService::ContainerName(const char *containerName)
 {
-  string ret;
+  std::string ret;
 
   if (strlen(containerName) == 0)
     ret = "FactoryServer";
@@ -602,7 +600,7 @@ string SALOME_NamingService::ContainerName(const char *containerName)
  */
 // ============================================================================
 
-string 
+std::string 
 SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
 {
   int nbproc;
@@ -618,7 +616,7 @@ SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
   else
     nbproc = params.nb_node * params.nb_proc_per_node;
 
-  string ret = ContainerName(params.container_name);
+  std::string ret = ContainerName(params.container_name);
 
   if ( nbproc >= 1 )
     {
@@ -630,7 +628,7 @@ SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
   return ret;
 }
 
-string 
+std::string 
 SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
 {
   int nbproc;
@@ -646,7 +644,7 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
   else
     nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
 
-  string ret = ContainerName(params.container_name);
+  std::string ret = ContainerName(params.container_name);
 
   if ( nbproc >= 1 )
     {
@@ -672,10 +670,10 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
  */
 // ============================================================================
 
-string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
+std::string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
                                                      const char *hostname)
 {
-  string ret = "/Containers/";
+  std::string ret = "/Containers/";
   ret += hostname;
   ret += "/";
   ret += ContainerName(containerName);
@@ -695,12 +693,12 @@ string SALOME_NamingService::BuildContainerNameForNS(const char *containerName,
  */
 // ============================================================================
 
-string
+std::string
 SALOME_NamingService::
 BuildContainerNameForNS(const Engines::MachineParameters& params,
                         const char *hostname)
 {
-  string ret = "/Containers/";
+  std::string ret = "/Containers/";
   ret += hostname;
   ret += "/";
   ret += ContainerName(params);
@@ -708,12 +706,12 @@ BuildContainerNameForNS(const Engines::MachineParameters& params,
   return ret;
 }
 
-string
+std::string
 SALOME_NamingService::
 BuildContainerNameForNS(const Engines::ContainerParameters& params,
                         const char *hostname)
 {
-  string ret = "/Containers/";
+  std::string ret = "/Containers/";
   ret += hostname;
   ret += "/";
   ret += ContainerName(params);
@@ -787,7 +785,7 @@ throw(ServiceUnreachable)
 
   Utils_Locker lock (&_myMutex);
 
-  string path(Path);
+  std::string path(Path);
 
   // --- if path empty, nothing to create, no context change
 
@@ -831,7 +829,7 @@ throw(ServiceUnreachable)
 //   MESSAGE("BEGIN OF Change_Directory " << Path);
   Utils_Locker lock (&_myMutex);
 
-  string path(Path);
+  std::string path(Path);
 
   // --- if path empty, nothing to do
 
@@ -862,7 +860,7 @@ throw(ServiceUnreachable)
   if (path[path.length()-1] != '/') path += '/';
 //   SCRUTE(path);
   CosNaming::Name context_name;
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   _createContextNameDir(path.c_str(),
                                                  context_name,
                                                  splitPath,
@@ -935,7 +933,7 @@ throw(ServiceUnreachable)
 
   CosNaming::NamingContext_var ref_context = _current_context;
 
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   splitPath.resize(0);
   int lengthPath = 0;
   bool notFound = true ;
@@ -956,7 +954,7 @@ throw(ServiceUnreachable)
       throw ServiceUnreachable();
     }
 
-  string path;
+  std::string path;
   lengthPath = splitPath.size();
   for (int k = 0 ; k < lengthPath ;k++)
     {
@@ -1044,11 +1042,11 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-vector<string> SALOME_NamingService::list_directory()
+std::vector<std::string> SALOME_NamingService::list_directory()
 throw(ServiceUnreachable)
 {
 //   MESSAGE("list_directory");
-  vector<string> dirList ;
+  std::vector<std::string> dirList ;
   dirList.resize(0);
 
   CosNaming::BindingList_var binding_list;
@@ -1073,7 +1071,7 @@ throw(ServiceUnreachable)
         {
           // remove memory leak
           // dirList.push_back(CORBA::string_dup(bindingName[0].id));
-          dirList.push_back(string(bindingName[0].id));
+          dirList.push_back(std::string(bindingName[0].id));
         }
     }
 
@@ -1098,11 +1096,11 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-vector<string> SALOME_NamingService::list_subdirs()
+std::vector<std::string> SALOME_NamingService::list_subdirs()
 throw(ServiceUnreachable)
 {
   MESSAGE("list_subdirs");
-  vector<string> dirList ;
+  std::vector<std::string> dirList ;
   dirList.resize(0);
 
   CosNaming::BindingList_var binding_list;
@@ -1148,14 +1146,14 @@ throw(ServiceUnreachable)
  */ 
 // ============================================================================
 
-vector<string> SALOME_NamingService::list_directory_recurs()
+std::vector<std::string> SALOME_NamingService::list_directory_recurs()
 throw(ServiceUnreachable)
 {
   MESSAGE("list_directory_recurs");
 
   Utils_Locker lock (&_myMutex);
 
-  vector<string> dirList ;
+  std::vector<std::string> dirList ;
 
   char* currentDir = Current_Directory();
 
@@ -1182,7 +1180,7 @@ throw(ServiceUnreachable)
 
   Utils_Locker lock (&_myMutex);
 
-  string path(Path);
+  std::string path(Path);
 
   // --- if path empty, nothing to do
 
@@ -1202,7 +1200,7 @@ throw(ServiceUnreachable)
   // --- context of the directory containing the object
 
   CosNaming::Name context_name;
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   int dimension_resultat = _createContextNameDir(path.c_str(),
                                                  context_name,
                                                  splitPath,
@@ -1338,7 +1336,7 @@ throw(ServiceUnreachable)
 
   Utils_Locker lock (&_myMutex);
 
-  string path(Path);
+  std::string path(Path);
 
   // --- if path empty, nothing to do
 
@@ -1360,7 +1358,7 @@ throw(ServiceUnreachable)
   // --- context of the directory
 
   CosNaming::Name context_name;
-  vector<string> splitPath;
+  std::vector<std::string> splitPath;
   int dimension_resultat = _createContextNameDir(path.c_str(),
                                                  context_name,
                                                  splitPath,
@@ -1512,7 +1510,7 @@ throw(ServiceUnreachable)
   MESSAGE("begin of Destroy_FullDirectory " << Path);
   if( Change_Directory(Path) )
     {
-      vector<string> contList = list_directory();
+      std::vector<std::string> contList = list_directory();
 
       for (unsigned int ind = 0; ind < contList.size(); ind++)
         Destroy_Name(contList[ind].c_str());
@@ -1573,26 +1571,26 @@ void SALOME_NamingService::_initialize_root_context()
 // ============================================================================
 
 int
-SALOME_NamingService::_createContextNameDir(string path,
+SALOME_NamingService::_createContextNameDir(std::string path,
                                             CosNaming::Name& context_name,
-                                            vector<string>& splitPath,
+                                            std::vector<std::string>& splitPath,
                                             bool onlyDir)
 {
   if (path.empty())
     return 0;
 
-  string::size_type begIdx, endIdx;
-  const string delims("/");
+  std::string::size_type begIdx, endIdx;
+  const std::string delims("/");
   splitPath.resize(0);
   bool endWithDelim = false;
 
   begIdx = path.find_first_not_of(delims);
-  while (begIdx != string::npos)
+  while (begIdx != std::string::npos)
     {
       endIdx = path.find_first_of(delims, begIdx);
       if (endIdx == path.length()-1)
         endWithDelim = true;
-      if (endIdx == string::npos)
+      if (endIdx == std::string::npos)
         endIdx = path.length();
       int lsub = endIdx - begIdx;
       if (lsub >= 1)
@@ -1719,7 +1717,7 @@ void SALOME_NamingService::_Find(const char* name,
 
 void
 SALOME_NamingService::
-_current_directory(vector<string>& splitPath,
+_current_directory(std::vector<std::string>& splitPath,
                    int& lengthResult,
                    CosNaming::NamingContext_var contextToFind,
                    bool& notFound)
@@ -1810,9 +1808,9 @@ _current_directory(vector<string>& splitPath,
  */ 
 // ============================================================================
 
-void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
-                                                  string relativeSubDir,
-                                                  string absCurDirectory)
+void SALOME_NamingService::_list_directory_recurs(std::vector<std::string>& myList,
+                                                  std::string relativeSubDir,
+                                                  std::string absCurDirectory)
 {
   CosNaming::BindingList_var binding_list;
   CosNaming::BindingIterator_var binding_iterator;
@@ -1821,7 +1819,7 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
   unsigned long nb = 0 ; // --- only for thethe use of BindingIterator
                          //     to access the bindings
 
-  string absDir;
+  std::string absDir;
 
   CosNaming::NamingContext_var ref_context = _current_context;
 
@@ -1845,14 +1843,14 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList,
 
           if (binding->binding_type == CosNaming::ncontext)
             {
-              string relativeSdir(bindingName[0].id);
+              std::string relativeSdir(bindingName[0].id);
               _list_directory_recurs(myList, relativeSdir, absDir);
             }
 
           else if (binding->binding_type == CosNaming::nobject)
             {
-              string objName(bindingName[0].id);
-              string elt = absDir + "/" + objName;
+              std::string objName(bindingName[0].id);
+              std::string elt = absDir + "/" + objName;
               SCRUTE(elt);
               myList.push_back(elt);
             }

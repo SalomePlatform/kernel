@@ -27,7 +27,7 @@
 //
 #include "SALOMEDS_BasicAttributeFactory.hxx"
 #include "utilities.h"
-using namespace std;
+
 
 //============================================================================
 /*! Function : Create

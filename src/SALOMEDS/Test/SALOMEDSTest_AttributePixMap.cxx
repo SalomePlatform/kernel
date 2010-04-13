@@ -55,7 +55,7 @@ void SALOMEDSTest::testAttributePixMap()
   CPPUNIT_ASSERT(!_attr->HasPixMap());
 
   //Check method SetPixMap
-  string pixmap = "something";
+  std::string pixmap = "something";
   _attr->SetPixMap(pixmap);
 
   CPPUNIT_ASSERT(_attr->HasPixMap());

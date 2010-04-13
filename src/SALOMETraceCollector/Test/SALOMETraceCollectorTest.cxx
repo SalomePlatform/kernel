@@ -28,7 +28,6 @@
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -65,7 +64,7 @@ void *PrintHello(void *threadid);
 void 
 SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 {
-  string s = "with_logger";
+  std::string s = "with_logger";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   // --- NUM_THREADS thread creation for trace generation.

@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <map>
-using namespace std;
 
 Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
                                                  PortableServer::POA_ptr poa,
@@ -73,7 +72,7 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
 void Engines_TestComponent_i::Setenv()
 {
   // bool overwrite = true;
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   MESSAGE("set environment associated with keys in map _fieldsDict");
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {

@@ -25,7 +25,6 @@
 //
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
 #include "SALOMEDS.hxx"
-using namespace std;
 
 #define CREATION_MODE_NOTDEFINED 0
 #define CREATION_MODE_SCRATCH 1
@@ -41,7 +40,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetUserName(const char* theName)
 char* SALOMEDS_AttributeStudyProperties_i::GetUserName()
 {
   SALOMEDS::Locker lock;
-  string S = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreatorName();
+  std::string S = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetCreatorName();
   CORBA::String_var c_s = CORBA::string_dup(S.c_str());
   return c_s._retn();
 }
@@ -57,7 +56,7 @@ void SALOMEDS_AttributeStudyProperties_i::SetCreationDate(CORBA::Long theMinute,
   SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   int aTmp;
   if (aProp->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-  string S;
+  std::string S;
   aProp->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
 }
 
@@ -159,8 +158,8 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
                                                                CORBA::Boolean theWithCreator)
 {
   SALOMEDS::Locker lock;
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
   int aLength = aNames.size();

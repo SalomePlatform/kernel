@@ -24,7 +24,6 @@
 //  Module : SALOME
 //
 #include "HDFconvert.hxx"
-using namespace std;
 
 #ifdef WIN32
 #include <io.h>
@@ -33,7 +32,7 @@ using namespace std;
 #define close _close
 #endif
 
-int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)
+int HDFConvert::FromAscii(const std::string& file, const HDFcontainerObject & hdf_container, const std::string& nomdataset)
 {
   
   HDFdataset   * hdf_dataset;

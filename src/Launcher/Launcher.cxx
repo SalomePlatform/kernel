@@ -39,8 +39,6 @@
 #include <sys/stat.h>
 #include <time.h>
 
-using namespace std;
-
 //=============================================================================
 /*! 
  *  Constructor
@@ -66,7 +64,7 @@ Launcher_cpp::~Launcher_cpp()
 {
   LAUNCHER_MESSAGE("Launcher_cpp destructor");
 #ifdef WITH_LIBBATCH
-  std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
+  std::map < std::string, Batch::BatchManager_eClient * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
   std::map<int, Launcher::Job *>::const_iterator it_job;
@@ -307,7 +305,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   // Creating a new job
   Launcher::Job_Command * new_job = new Launcher::Job_Command();
 
-  string cmdFile = Kernel_Utils::GetTmpFileName();  
+  std::string cmdFile = Kernel_Utils::GetTmpFileName();  
 #ifndef WIN32
   cmdFile += ".sh";
 #else
@@ -480,7 +478,7 @@ Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string c
 #endif
 
 ParserLauncherType 
-Launcher_cpp::ParseXmlFile(string xmlExecuteFile)
+Launcher_cpp::ParseXmlFile(std::string xmlExecuteFile)
 {
   ParserLauncherType job_params;
   SALOME_Launcher_Handler * handler = new SALOME_Launcher_Handler(job_params);

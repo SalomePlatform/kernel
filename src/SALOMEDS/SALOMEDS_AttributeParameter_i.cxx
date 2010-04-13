@@ -28,8 +28,6 @@
 
 #include <vector>
 
-using namespace std;
-
 #include "Utils_ExceptHandlers.hxx"
 UNEXPECT_CATCH(AP_InvalidIdentifier, SALOMEDS::AttributeParameter::InvalidIdentifier);
 
@@ -154,7 +152,7 @@ void SALOMEDS_AttributeParameter_i::SetRealArray(const char* theID, const SALOME
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  vector<double> v;
+  std::vector<double> v;
   int length = theArray.length();
   if(length) {
     v.resize(length);
@@ -175,7 +173,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(const char* the
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::DoubleSeq_var aSeq = new SALOMEDS::DoubleSeq;
-  vector<double> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetRealArray(theID);
+  std::vector<double> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetRealArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -194,7 +192,7 @@ void SALOMEDS_AttributeParameter_i::SetIntArray(const char* theID, const SALOMED
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  vector<int> v;
+  std::vector<int> v;
   int length = theArray.length();
   if(length) {
     v.resize(length);
@@ -215,7 +213,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(const char* theID)
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq;
-  vector<int> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIntArray(theID);
+  std::vector<int> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIntArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -234,11 +232,11 @@ void SALOMEDS_AttributeParameter_i::SetStrArray(const char* theID, const SALOMED
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  vector<string> v;
+  std::vector<std::string> v;
   int length = theArray.length();
   if(length) {
     v.resize(length);
-    for(int i = 0; i<length; i++) v[i] = string(theArray[i].in());
+    for(int i = 0; i<length; i++) v[i] = std::string(theArray[i].in());
   }
   dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->SetStrArray(theID, v);
 }
@@ -255,7 +253,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theI
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq;
-  vector<string> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetStrArray(theID);
+  std::vector<std::string> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetStrArray(theID);
   int length = v.size();
   if(length) {
     aSeq->length(length);
@@ -352,7 +350,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetIDs(CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
-  vector<string> A = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIDs((Parameter_Types)theType);
+  std::vector<std::string> A = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIDs((Parameter_Types)theType);
 
   if(A.size()) {
     int length = A.size();

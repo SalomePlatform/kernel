@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_AttributeSequenceOfInteger.hxx"
 #include <string.h>
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 
@@ -106,7 +104,7 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Paste (DF_Attribute* into)
   dynamic_cast<SALOMEDSImpl_AttributeSequenceOfInteger*>(into)->Assign(myValue);
 }
 
-void SALOMEDSImpl_AttributeSequenceOfInteger::Assign(const vector<int>& other) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Assign(const std::vector<int>& other) 
 {
   CheckLocked();
   Backup();
@@ -144,7 +142,7 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const int Index)
 
   if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
 
-  typedef vector<int>::iterator VI;
+  typedef std::vector<int>::iterator VI;
   int i = 1;    
   for(VI p = myValue.begin(); p!=myValue.end(); p++, i++) {
     if(i == Index) {
@@ -169,7 +167,7 @@ int SALOMEDSImpl_AttributeSequenceOfInteger::Value(const int Index)
 
 
 
-string SALOMEDSImpl_AttributeSequenceOfInteger::Save() 
+std::string SALOMEDSImpl_AttributeSequenceOfInteger::Save() 
 {
   int aLength = Length();
   char* aResult = new char[aLength * 25];
@@ -179,13 +177,13 @@ string SALOMEDSImpl_AttributeSequenceOfInteger::Save()
     sprintf(aResult + aPosition , "%d ", Value(i));
     aPosition += strlen(aResult + aPosition);
   }
-  string ret(aResult);
+  std::string ret(aResult);
   delete aResult;
   
   return ret;
 }
                         
-void SALOMEDSImpl_AttributeSequenceOfInteger::Load(const string& value) 
+void SALOMEDSImpl_AttributeSequenceOfInteger::Load(const std::string& value) 
 {
   char* aCopy = (char*)value.c_str();
   char* adr = strtok(aCopy, " ");

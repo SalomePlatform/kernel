@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeLocalID.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 
@@ -127,18 +125,18 @@ void SALOMEDSImpl_AttributeLocalID::Paste (DF_Attribute* into)
 //function : Save
 //purpose  :
 //=======================================================================
-string SALOMEDSImpl_AttributeLocalID::Save() 
+std::string SALOMEDSImpl_AttributeLocalID::Save() 
 { 
   char buffer[128]; 
   sprintf(buffer, "%d", myValue);
-  return string(buffer); 
+  return std::string(buffer); 
 }
 
 //=======================================================================
 //function : Load
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeLocalID::Load(const string& theValue)
+void SALOMEDSImpl_AttributeLocalID::Load(const std::string& theValue)
 {
   myValue = atoi(theValue.c_str());  
 }

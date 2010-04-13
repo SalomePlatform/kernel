@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributeName_i::Value() 
 {
   SALOMEDS::Locker lock; 
@@ -40,5 +38,5 @@ void SALOMEDS_AttributeName_i::SetValue(const char* value)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  dynamic_cast<SALOMEDSImpl_AttributeName*>(_impl)->SetValue(string(value));
+  dynamic_cast<SALOMEDSImpl_AttributeName*>(_impl)->SetValue(std::string(value));
 }

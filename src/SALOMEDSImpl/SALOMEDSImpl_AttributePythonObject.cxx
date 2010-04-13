@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributePythonObject.hxx"
 
-using namespace std;
-
 const std::string& SALOMEDSImpl_AttributePythonObject::GetID() 
 {
   static std::string SALOMEDSImpl_AttributePythonObjectID ("128371A3-8F52-11d6-A8A3-0001021E8C7F");
@@ -49,7 +47,7 @@ SALOMEDSImpl_AttributePythonObject::SALOMEDSImpl_AttributePythonObject()
     myIsScript = false;
 }
 
-void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
+void SALOMEDSImpl_AttributePythonObject::SetObject(const std::string& theSequence,
                                                    const bool theScript) 
 {
   CheckLocked();
@@ -60,7 +58,7 @@ void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-string SALOMEDSImpl_AttributePythonObject::GetObject() const
+std::string SALOMEDSImpl_AttributePythonObject::GetObject() const
 {
   return mySequence;
 }
@@ -98,16 +96,16 @@ void SALOMEDSImpl_AttributePythonObject::Paste(DF_Attribute* into)
 }
 
 
-string SALOMEDSImpl_AttributePythonObject::Save() 
+std::string SALOMEDSImpl_AttributePythonObject::Save() 
 {
-  string aString = GetObject();
-  string aResult = IsScript()?"s":"n";
+  std::string aString = GetObject();
+  std::string aResult = IsScript()?"s":"n";
   aResult += aString;
   
   return aResult;
 }
           
-void SALOMEDSImpl_AttributePythonObject::Load(const string& value) 
+void SALOMEDSImpl_AttributePythonObject::Load(const std::string& value) 
 {
   char* aString = (char*)value.c_str();
   SetObject(aString + 1, aString[0]=='s');

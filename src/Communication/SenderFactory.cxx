@@ -23,7 +23,6 @@
 #include "SenderFactory.hxx"
 #include "utilities.h"
 #include "SALOMEMultiComm.hxx"
-using namespace std;
 
 #ifdef COMP_CORBA_DOUBLE
 #define SALOME_CorbaDoubleSender SALOME_CorbaDoubleNCSender_i

@@ -34,7 +34,6 @@
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -90,7 +89,7 @@ void SALOMEDSImplTest::testAttributeParameter()
   CPPUNIT_ASSERT(_ap->IsSet("BoolValue", PT_BOOLEAN));
   CPPUNIT_ASSERT(!_ap->GetBool("BoolValue"));
 
-  vector<int> intArray;
+  std::vector<int> intArray;
   intArray.push_back(0);
   intArray.push_back(1);
 
@@ -99,7 +98,7 @@ void SALOMEDSImplTest::testAttributeParameter()
   CPPUNIT_ASSERT(_ap->GetIntArray("IntArray")[0] == 0);
   CPPUNIT_ASSERT(_ap->GetIntArray("IntArray")[1] == 1); 
 
-  vector<double> realArray;
+  std::vector<double> realArray;
   realArray.push_back(0.0);
   realArray.push_back(1.1);
   
@@ -108,7 +107,7 @@ void SALOMEDSImplTest::testAttributeParameter()
   CPPUNIT_ASSERT(_ap->GetRealArray("RealArray")[0] == 0.0);
   CPPUNIT_ASSERT(_ap->GetRealArray("RealArray")[1] == 1.1); 
 
-  vector<string> strArray;
+  std::vector<std::string> strArray;
   strArray.push_back("hello");
   strArray.push_back("world");
   

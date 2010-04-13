@@ -32,8 +32,6 @@
 #include <omnithread/pthread_nt.h>
 #endif
 
-using namespace std;
-
 // ============================================================================
 /*!
  *  Wait until a server is registered in naming service.
@@ -48,7 +46,7 @@ using namespace std;
 // ============================================================================
 
 CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
-                                                        string serverName)
+                                                        std::string serverName)
 {
   long TIMESleep = 500000000;
   int NumberOfTries = 40;
@@ -85,14 +83,14 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
             }  
           catch( CORBA::SystemException& )
             {
-              cout << "TraceCollector_WaitForServerReadiness: "
+              std::cout << "TraceCollector_WaitForServerReadiness: "
                    << "CORBA::SystemException: "
-                   << "Unable to contact the Naming Service" << endl;
+                   << "Unable to contact the Naming Service" << std::endl;
             }
           catch(...)
             {
-              cout << "TraceCollector_WaitForServerReadiness: "
-                   << "Unknown exception dealing with Naming Service" << endl;
+              std::cout << "TraceCollector_WaitForServerReadiness: "
+                   << "Unknown exception dealing with Naming Service" << std::endl;
             }
           
           obj=CORBA::Object::_nil();
@@ -110,7 +108,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
                 }
               catch (const CosNaming::NamingContext::NotFound&)
                 {
-                  cout << "Caught exception: Naming Service can't found Logger";
+                  std::cout << "Caught exception: Naming Service can't found Logger";
                 }
             }
 #ifndef WIN32
@@ -118,29 +116,29 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 #else
           Sleep(TIMESleep / 1000000);
 #endif
-          cout << "TraceCollector_WaitForServerReadiness: retry look for"
-               << serverName << endl;
+		  std::cout << "TraceCollector_WaitForServerReadiness: retry look for"
+               << serverName << std::endl;
         }          
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {
-      cout << "Caught exception: Naming Service can't found Logger";
+      std::cout << "Caught exception: Naming Service can't found Logger";
     }
   catch (CORBA::COMM_FAILURE&)
     {
-      cout << "Caught CORBA::SystemException CommFailure.";
+      std::cout << "Caught CORBA::SystemException CommFailure.";
     }
   catch (CORBA::SystemException&)
     {
-      cout << "Caught CORBA::SystemException.";
+      std::cout << "Caught CORBA::SystemException.";
     }
   catch (CORBA::Exception&)
     {
-      cout << "Caught CORBA::Exception.";
+      std::cout << "Caught CORBA::Exception.";
     }
   catch (...)
     {
-      cout << "Caught unknown exception.";
+      std::cout << "Caught unknown exception.";
     }
   return obj._retn();
 }

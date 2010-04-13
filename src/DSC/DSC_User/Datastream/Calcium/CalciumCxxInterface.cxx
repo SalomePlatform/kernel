@@ -31,8 +31,6 @@
 #define PRG_MAIN
 #include "calciumP.h"
 
-using namespace std; 
-
 namespace CalciumInterface 
 {
 };

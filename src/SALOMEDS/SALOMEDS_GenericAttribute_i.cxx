@@ -40,8 +40,6 @@
 #include <unistd.h>
 #endif
 
-using namespace std;
-
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
 SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb)
@@ -83,7 +81,7 @@ char* SALOMEDS_GenericAttribute_i::Type()
 {
   SALOMEDS::Locker lock;
   if (_impl) {
-    string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl);
+    std::string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(_impl);
     return CORBA::string_dup(type.c_str());
   }    
 
@@ -94,7 +92,7 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
 {
   SALOMEDS::Locker lock;
   if (_impl) {
-    string class_type = SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl);
+    std::string class_type = SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl);
     return CORBA::string_dup(class_type.c_str());
   }
 
@@ -108,7 +106,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
 {
   SALOMEDS::Locker lock;
 
-  string aClassType = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr)->GetClassType();
+  std::string aClassType = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr)->GetClassType();
   char* aTypeOfAttribute = (char*)aClassType.c_str();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;

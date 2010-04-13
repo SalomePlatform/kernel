@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeReal.hxx"
 
-using namespace std;
-
 #include <stdlib.h>
 
 
@@ -108,18 +106,18 @@ void SALOMEDSImpl_AttributeReal::Paste (DF_Attribute* into)
 //function : Save
 //purpose  :
 //=======================================================================
-string SALOMEDSImpl_AttributeReal::Save() 
+std::string SALOMEDSImpl_AttributeReal::Save() 
 { 
   char buffer[255]; 
   sprintf(buffer, "%.64e", myValue);
-  return string(buffer); 
+  return std::string(buffer); 
 }
 
 //=======================================================================
 //function : Load
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::Load(const string& theValue)
+void SALOMEDSImpl_AttributeReal::Load(const std::string& theValue)
 {
   myValue = atof(theValue.c_str());  
 }

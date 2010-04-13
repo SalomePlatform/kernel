@@ -26,7 +26,6 @@
 #include "SALOMEDSImpl_AttributeInteger.hxx"
 
 #include <stdlib.h>
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -111,18 +110,18 @@ void SALOMEDSImpl_AttributeInteger::Paste (DF_Attribute* Into)
 //function : Save
 //purpose  :
 //=======================================================================
-string SALOMEDSImpl_AttributeInteger::Save() 
+std::string SALOMEDSImpl_AttributeInteger::Save() 
 { 
   char buffer[128]; 
   sprintf(buffer, "%d", myValue);
-  return string(buffer); 
+  return std::string(buffer); 
 }
 
 //=======================================================================
 //function : Load
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeInteger::Load(const string& theValue)
+void SALOMEDSImpl_AttributeInteger::Load(const std::string& theValue)
 {
   myValue = atoi(theValue.c_str());  
 }

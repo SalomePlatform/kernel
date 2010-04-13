@@ -30,7 +30,6 @@ extern "C"
 #include "HDFexception.hxx"
 #include "HDFattribute.hxx"
 #include "HDFinternalObject.hxx"
-using namespace std;
 
 HDFattribute::HDFattribute(char *name,HDFinternalObject *father,hdf_type type, size_t size)
   : HDFobject(name)

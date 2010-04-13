@@ -26,9 +26,6 @@
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include <string.h>
 
-using namespace std;
-
-
 const std::string& SALOMEDSImpl_AttributeStudyProperties::GetID()
 {
   static std::string SALOMEDSImpl_AttributeStudyPropertiesID ("128371A2-8F52-11d6-A8A3-0001021E8C7F");
@@ -87,12 +84,12 @@ void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& t
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::GetModifications
-                  (vector<string>& theUserNames,
-                   vector<int>&    theMinutes,
-                   vector<int>&    theHours,
-                   vector<int>&    theDays,
-                   vector<int>&    theMonths,
-                   vector<int>&    theYears) const
+                  (std::vector<std::string>& theUserNames,
+                   std::vector<int>&    theMinutes,
+                   std::vector<int>&    theHours,
+                   std::vector<int>&    theDays,
+                   std::vector<int>&    theMonths,
+                   std::vector<int>&    theYears) const
 {
   theUserNames = myUserName;
   theMinutes = myMinute;
@@ -194,8 +191,8 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
     dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(with);
 
   Init();
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
   for (int i = 0, len = aNames.size(); i < len; i++) {
     myUserName.push_back(aNames[i]);
@@ -234,10 +231,10 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
 }
 
 
-string SALOMEDSImpl_AttributeStudyProperties::Save()
+std::string SALOMEDSImpl_AttributeStudyProperties::Save()
 {
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLength, anIndex;
@@ -264,13 +261,13 @@ string SALOMEDSImpl_AttributeStudyProperties::Save()
     aProperty[a++] = 1;
   }
   aProperty[a] = 0;
-  string prop(aProperty);
+  std::string prop(aProperty);
   delete aProperty;
 
   return prop;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
+void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
 {
   char* aCopy = (char*)value.c_str();
 

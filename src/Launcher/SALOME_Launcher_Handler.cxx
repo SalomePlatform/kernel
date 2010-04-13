@@ -29,8 +29,6 @@
 #include <iostream>
 #include <map>
 
-using namespace std;
-
 //=============================================================================
 /*!
  *  Constructor
@@ -105,7 +103,7 @@ void SALOME_Launcher_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
         if ( !xmlStrcmp(aCurNode2->name,(const xmlChar*)test_machine) ){
           _machp.Clear();
           xmlChar* name = xmlNodeGetContent(aCurNode2);
-          string clusterName = (const char*)name;
+          std::string clusterName = (const char*)name;
           xmlFree(name);
         
           if (xmlHasProp(aCurNode2, (const xmlChar*)test_env_file)){

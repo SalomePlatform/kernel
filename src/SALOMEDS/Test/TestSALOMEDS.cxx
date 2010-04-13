@@ -52,7 +52,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -75,10 +74,10 @@ int main(int argc, char* argv[])
   int size;
   gethostname(hostname, size);
   char* chr_port = getenv("SALOMEDS_UNITTESTS_PORT");
-  string port;
+  std::string port;
   if(chr_port) port = chr_port;
   if(port.empty()) port = "2810";
-  string cfg_file = string(getenv("HOME"))+"/.omniORB_"+string(hostname)+"_"+port+".cfg";
+  std::string cfg_file = std::string(getenv("HOME"))+"/.omniORB_"+std::string(hostname)+"_"+port+".cfg";
   setenv("OMNIORB_CONFIG", cfg_file.c_str(), 1);
 
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
@@ -87,7 +86,7 @@ int main(int argc, char* argv[])
 
   sleep(15);
 
-  string host; // = Kernel_Utils::GetHostname();
+  std::string host; // = Kernel_Utils::GetHostname();
   char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
   if(wait_Superv) host = Kernel_Utils::GetHostname(); 
 
@@ -95,7 +94,7 @@ int main(int argc, char* argv[])
   if(host.empty())
     NamingService_WaitForServerReadiness(&NS, "/myStudyManager");
   else {
-    string serverName = "/Containers/"+host+"/SuperVisionContainer";
+    std::string serverName = "/Containers/"+host+"/SuperVisionContainer";
     NamingService_WaitForServerReadiness(&NS, serverName);
   }
 
@@ -106,7 +105,7 @@ int main(int argc, char* argv[])
   }
 
   //Set up the environement for Embedded case
-  string kernel_root = getenv("KERNEL_ROOT_DIR");
+  std::string kernel_root = getenv("KERNEL_ROOT_DIR");
   CPPUNIT_ASSERT(!kernel_root.empty());
   kernel_root+="/share/salome/resources/kernel";
 

@@ -54,7 +54,7 @@ void SALOMEDSTest::testAttributePythonObject()
   //Check method IsScript
   CPPUNIT_ASSERT(!_attr->IsScript()); 
 
-  string pyobj = "some object!";
+  std::string pyobj = "some object!";
 
   //Check method SetObject
   _attr->SetObject(pyobj, true);

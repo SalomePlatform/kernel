@@ -25,7 +25,6 @@
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
-using namespace std;
 
 int main(int argc, char* argv[])
 {

@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
 #include "DF_Attribute.hxx"
 
-using namespace std;
-
 /*
   Class       : SALOMEDSImpl_AttributeGraphic
   Description : This class is intended for storing information about
@@ -115,7 +113,7 @@ DF_Attribute* SALOMEDSImpl_AttributeGraphic::NewEmpty () const
 //function : SetVisibility
 //purpose  : Set visibility of object in all views
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::SetVisibility( const map<int, int>& theMap )
+void SALOMEDSImpl_AttributeGraphic::SetVisibility( const std::map<int, int>& theMap )
 {
   myVisibility = theMap;
 }
@@ -124,7 +122,7 @@ void SALOMEDSImpl_AttributeGraphic::SetVisibility( const map<int, int>& theMap )
 //function : SetVisibility
 //purpose  : Get visibility of object in all views
 //=======================================================================
-const map<int, int>& SALOMEDSImpl_AttributeGraphic::GetVisibility()
+const std::map<int, int>& SALOMEDSImpl_AttributeGraphic::GetVisibility()
 {
   return myVisibility;
 }

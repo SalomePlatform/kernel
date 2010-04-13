@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeFlags_i.hxx"
 #include "SALOMEDS.hxx"  
 
-using namespace std;
-
 /*
   Class       : SALOMEDS_AttributeFlags_i
   Description : This class is intended for storing different object attributes that

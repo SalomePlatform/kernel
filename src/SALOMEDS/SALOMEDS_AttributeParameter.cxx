@@ -28,8 +28,6 @@
 
 #include <string>
 
-using namespace std;
-
 //=======================================================================
 /*!
  * Function : Constructor
@@ -65,7 +63,7 @@ SALOMEDS_AttributeParameter::~SALOMEDS_AttributeParameter()
  * Purpose  : Associates a integer value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetInt(const string& theID, const int theValue) 
+void SALOMEDS_AttributeParameter::SetInt(const std::string& theID, const int theValue) 
 {
   CheckLocked();
 
@@ -83,7 +81,7 @@ void SALOMEDS_AttributeParameter::SetInt(const string& theID, const int theValue
  * Purpose  : Returns a int value associated with the given ID
  */
 //=======================================================================
-int SALOMEDS_AttributeParameter::GetInt(const string& theID) 
+int SALOMEDS_AttributeParameter::GetInt(const std::string& theID) 
 {
   int aValue;
   if(_isLocal) {
@@ -101,7 +99,7 @@ int SALOMEDS_AttributeParameter::GetInt(const string& theID)
  * Purpose  : Associates a double value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetReal(const string& theID, const double& theValue) 
+void SALOMEDS_AttributeParameter::SetReal(const std::string& theID, const double& theValue) 
 {
   CheckLocked();
 
@@ -119,7 +117,7 @@ void SALOMEDS_AttributeParameter::SetReal(const string& theID, const double& the
  * Purpose  : Returns a double value associated with the given ID
  */
 //=======================================================================
-double SALOMEDS_AttributeParameter::GetReal(const string& theID) 
+double SALOMEDS_AttributeParameter::GetReal(const std::string& theID) 
 {
   double aValue;
   if(_isLocal) {
@@ -137,7 +135,7 @@ double SALOMEDS_AttributeParameter::GetReal(const string& theID)
  * Purpose  : Associates a string with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetString(const string& theID, const string& theValue) 
+void SALOMEDS_AttributeParameter::SetString(const std::string& theID, const std::string& theValue) 
 {
   CheckLocked();
 
@@ -155,9 +153,9 @@ void SALOMEDS_AttributeParameter::SetString(const string& theID, const string& t
  * Purpose  : Returns a string associated with the given ID
  */
 //=======================================================================
-string SALOMEDS_AttributeParameter::GetString(const string& theID) 
+std::string SALOMEDS_AttributeParameter::GetString(const std::string& theID) 
 {
-  string aValue;
+  std::string aValue;
   if(_isLocal) {
     SALOMEDS::Locker lock; 
     aValue = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_local_impl)->GetString(theID);
@@ -173,7 +171,7 @@ string SALOMEDS_AttributeParameter::GetString(const string& theID)
  * Purpose  : Associates a bool value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetBool(const string& theID, const bool& theValue) 
+void SALOMEDS_AttributeParameter::SetBool(const std::string& theID, const bool& theValue) 
 {
   CheckLocked();
 
@@ -191,7 +189,7 @@ void SALOMEDS_AttributeParameter::SetBool(const string& theID, const bool& theVa
  * Purpose  : Returns a bool value associated with the ID
  */
 //=======================================================================
-bool SALOMEDS_AttributeParameter::GetBool(const string& theID) 
+bool SALOMEDS_AttributeParameter::GetBool(const std::string& theID) 
 {
   if(_isLocal) {
     SALOMEDS::Locker lock; 
@@ -207,7 +205,7 @@ bool SALOMEDS_AttributeParameter::GetBool(const string& theID)
  * Purpose  : Associates an array of double values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetRealArray(const string& theID, const vector<double>& theArray) 
+void SALOMEDS_AttributeParameter::SetRealArray(const std::string& theID, const std::vector<double>& theArray) 
 {
   CheckLocked();
 
@@ -232,9 +230,9 @@ void SALOMEDS_AttributeParameter::SetRealArray(const string& theID, const vector
  * Purpose  : Returns an array of double values associated with the ID
  */
 //=======================================================================
-vector<double> SALOMEDS_AttributeParameter::GetRealArray(const string& theID) 
+std::vector<double> SALOMEDS_AttributeParameter::GetRealArray(const std::string& theID) 
 {
-  vector<double> v;
+  std::vector<double> v;
   if(_isLocal) {
     SALOMEDS::Locker lock; 
     return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_local_impl)->GetRealArray(theID);
@@ -256,7 +254,7 @@ vector<double> SALOMEDS_AttributeParameter::GetRealArray(const string& theID)
  * Purpose  : Associates an array of int values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetIntArray(const string& theID, const vector<int>& theArray) 
+void SALOMEDS_AttributeParameter::SetIntArray(const std::string& theID, const std::vector<int>& theArray) 
 {
   CheckLocked();
 
@@ -281,9 +279,9 @@ void SALOMEDS_AttributeParameter::SetIntArray(const string& theID, const vector<
  * Purpose  : Returns an array of int values associated with the ID
  */
 //=======================================================================
-vector<int> SALOMEDS_AttributeParameter::GetIntArray(const string& theID) 
+std::vector<int> SALOMEDS_AttributeParameter::GetIntArray(const std::string& theID) 
 {
-  vector<int> v;
+  std::vector<int> v;
   if(_isLocal) {
     SALOMEDS::Locker lock; 
     return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_local_impl)->GetIntArray(theID);
@@ -305,7 +303,7 @@ vector<int> SALOMEDS_AttributeParameter::GetIntArray(const string& theID)
  * Purpose  : Associates an array of string values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetStrArray(const string& theID, const vector<string>& theArray) 
+void SALOMEDS_AttributeParameter::SetStrArray(const std::string& theID, const std::vector<std::string>& theArray) 
 {
   CheckLocked();
 
@@ -330,9 +328,9 @@ void SALOMEDS_AttributeParameter::SetStrArray(const string& theID, const vector<
  * Purpose  : Returns an array of string values associated with the ID
  */
 //=======================================================================
-vector<string> SALOMEDS_AttributeParameter::GetStrArray(const string& theID) 
+std::vector<std::string> SALOMEDS_AttributeParameter::GetStrArray(const std::string& theID) 
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(_isLocal) {
     SALOMEDS::Locker lock; 
     return dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_local_impl)->GetStrArray(theID);
@@ -342,7 +340,7 @@ vector<string> SALOMEDS_AttributeParameter::GetStrArray(const string& theID)
     int length = aSeq->length();
     if(length) {
       v.resize(length);
-      for(int i = 0; i < length; i++) v[i] = string(aSeq[i].in());
+      for(int i = 0; i < length; i++) v[i] = std::string(aSeq[i].in());
     }
   }
   return v;
@@ -356,7 +354,7 @@ vector<string> SALOMEDS_AttributeParameter::GetStrArray(const string& theID)
  *            a value in the attribute
  */
 //======================================================================= 
-bool SALOMEDS_AttributeParameter::IsSet(const string& theID, const int theType) 
+bool SALOMEDS_AttributeParameter::IsSet(const std::string& theID, const int theType) 
 {
   if(_isLocal) {
     SALOMEDS::Locker lock; 
@@ -372,7 +370,7 @@ bool SALOMEDS_AttributeParameter::IsSet(const string& theID, const int theType)
  * Purpose  : Removes a parameter with given ID
  */
 //======================================================================= 
-bool SALOMEDS_AttributeParameter::RemoveID(const string& theID, const int theType) 
+bool SALOMEDS_AttributeParameter::RemoveID(const std::string& theID, const int theType) 
 {
   CheckLocked();
 
@@ -462,9 +460,9 @@ void SALOMEDS_AttributeParameter::Clear()
  * Purpose  : Returns an array of all ID's of the given type
  */
 //=======================================================================
-vector<string> SALOMEDS_AttributeParameter::GetIDs(const int theType)
+std::vector<std::string> SALOMEDS_AttributeParameter::GetIDs(const int theType)
 {
-  vector<string> v;
+  std::vector<std::string> v;
   if(_isLocal) {
     SALOMEDS::Locker lock; 
     SALOMEDSImpl_AttributeParameter* AP_impl = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_local_impl);
@@ -476,7 +474,7 @@ vector<string> SALOMEDS_AttributeParameter::GetIDs(const int theType)
     int length = CorbaSeq->length();
     if(length) {
       v.resize(length);
-      for(int i = 0; i <length; i++) v[i] = string(CorbaSeq[i].in());
+      for(int i = 0; i <length; i++) v[i] = std::string(CorbaSeq[i].in());
     }
   }
 

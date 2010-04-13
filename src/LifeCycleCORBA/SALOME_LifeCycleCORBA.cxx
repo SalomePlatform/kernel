@@ -54,8 +54,6 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
 
-using namespace std;
-
 IncompatibleComponent::IncompatibleComponent( void ):
   SALOME_Exception( "IncompatibleComponent" )
 {
@@ -296,7 +294,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 
   // --- Check if containerName contains machine name (if yes: rg>0)
   char *stContainer=strdup(containerName);
-  string st2Container(stContainer);
+  std::string st2Container(stContainer);
   int rg=st2Container.find("/");
 
   Engines::MachineParameters_var params=new Engines::MachineParameters;
@@ -529,7 +527,7 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     }
   }
 
-  string hostname = Kernel_Utils::GetHostname();
+  std::string hostname = Kernel_Utils::GetHostname();
   
   // 1) ConnectionManager
   try
@@ -665,15 +663,15 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 
 void SALOME_LifeCycleCORBA::killOmniNames()
 {
-  string portNumber (::getenv ("NSPORT") );
+  std::string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() ) 
   {
 #ifdef WNT
 #else
-    string cmd ;
-    cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
+    std::string cmd ;
+    cmd = std::string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
       + portNumber
-      + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
+      + std::string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
     MESSAGE(cmd);
     try {
       system ( cmd.c_str() );
@@ -686,9 +684,9 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   // NPAL 18309  (Kill Notifd)
   if ( !portNumber.empty() ) 
   {
-    string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
-    cmd += string("killNotifdAndClean(") + portNumber + "); ";
-    cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
+    std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
+    cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
+    cmd  = std::string("python -c \"") + cmd +"\" >& /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );
   }
@@ -840,7 +838,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   MESSAGE("Creating component instance");
   // @PARALLEL@ permits to identify that the component requested
   // is a parallel component.
-  string name = string(componentName);
+  std::string name = std::string(componentName);
   Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");

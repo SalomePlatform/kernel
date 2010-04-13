@@ -66,7 +66,7 @@ void SALOMEDSTest::testAttributeTarget()
   _attr->Add(so2);
 
   //Check method Get
-  vector< _PTR(SObject) > v = _attr->Get();
+  std::vector< _PTR(SObject) > v = _attr->Get();
 
   CPPUNIT_ASSERT(v.size() == 2);
 

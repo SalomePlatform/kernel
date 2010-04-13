@@ -27,7 +27,6 @@
 #include "HDFexception.hxx"
 #include "HDFinternalObject.hxx"
 #include "HDFexplorer.hxx"
-using namespace std;
 
 HDFexplorer::HDFexplorer(HDFcontainerObject *container)
 {

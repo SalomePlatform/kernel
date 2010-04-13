@@ -22,8 +22,6 @@
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
 
-using namespace std;
-
 //Constructor
 DF_Application::DF_Application()
 {
@@ -37,7 +35,7 @@ DF_Application::~DF_Application()
 
 //Creates a new document with given type, returns a smart pointer to
 //newly created document.
-DF_Document* DF_Application::NewDocument(const string& theDocumentType) 
+DF_Document* DF_Application::NewDocument(const std::string& theDocumentType) 
 {
   DF_Document* aDoc = new DF_Document(theDocumentType);
   aDoc->_id = ++_currentID;
@@ -68,10 +66,10 @@ DF_Document* DF_Application::GetDocument(int theDocumentID)
 }
 
 //Returns a list of IDs of all currently opened documents
-vector<int> DF_Application::GetDocumentIDs()
+std::vector<int> DF_Application::GetDocumentIDs()
 {
-  vector<int> ids;
- typedef map<int, DF_Document*>::const_iterator DI;
+  std::vector<int> ids;
+  typedef std::map<int, DF_Document*>::const_iterator DI;
   for(DI p = _documents.begin(); p!=_documents.end(); p++)
     ids.push_back(p->first);
   return ids;
@@ -86,7 +84,7 @@ int DF_Application::NbDocuments()
 
 //Restores a Document from the given file, returns a smart 
 //pointer to opened document.
-DF_Document* DF_Application::Open(const string& theFileName)
+DF_Document* DF_Application::Open(const std::string& theFileName)
 {
   //Not implemented
   return NULL;
@@ -94,7 +92,7 @@ DF_Document* DF_Application::Open(const string& theFileName)
 
 
 //Saves a Document in a given file with name theFileName
-void DF_Application::SaveAs(const DF_Document* theDocument, const string& theFileName)
+void DF_Application::SaveAs(const DF_Document* theDocument, const std::string& theFileName)
 {
   //Not implemented
 }

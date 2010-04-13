@@ -28,8 +28,6 @@
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributeString_i::Value()
 {
   SALOMEDS::Locker lock;
@@ -44,5 +42,5 @@ void SALOMEDS_AttributeString_i::SetValue(const char* value)
   SALOMEDS::Locker lock; 
 
   CheckLocked();
-  dynamic_cast<SALOMEDSImpl_AttributeString*>(_impl)->SetValue(string(value));
+  dynamic_cast<SALOMEDSImpl_AttributeString*>(_impl)->SetValue(std::string(value));
 }

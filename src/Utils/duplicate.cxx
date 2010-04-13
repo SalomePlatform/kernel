@@ -38,8 +38,6 @@ extern "C"
 #include  "utilities.h"
 #include "OpUtil.hxx"
 
-using namespace std;
-
 const char* duplicate( const char *const str )
 {
         ASSERT(str!=NULL) ;

@@ -26,7 +26,7 @@
 #include "MPIObject_i.hxx"
 #include "utilities.h"
 #include "Utils_SALOME_Exception.hxx"
-using namespace std;
+
 #define TIMEOUT 5
 
 MPIObject_i::MPIObject_i()
@@ -70,7 +70,7 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
   int err, ip, n;
   char *ior;
   MPI_Status status; /* status de reception de message MPI */
-  ostringstream msg;
+  std::ostringstream msg;
 
   if( _numproc == 0 )
     {
@@ -141,7 +141,7 @@ void MPIObject_i::remoteMPI2Connect(string service)
   int i;
   char port_name[MPI_MAX_PORT_NAME];
   char port_name_clt[MPI_MAX_PORT_NAME];
-  ostringstream msg;
+  std::ostringstream msg;
 
   if( service.size() == 0 )
     {
@@ -168,11 +168,11 @@ void MPIObject_i::remoteMPI2Connect(string service)
         {
           _srv[service] = true;
           _port_name[service] = port_name;
-          MESSAGE("[" << _numproc << "] service " << service << " available at " << port_name << endl);
+          MESSAGE("[" << _numproc << "] service " << service << " available at " << port_name << std::endl);
         }      
       else if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
         {
-          MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
+          MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << std::endl);
           MPI_Close_port( port_name );
         }
       else
@@ -190,7 +190,7 @@ void MPIObject_i::remoteMPI2Connect(string service)
           sleep(1);
           if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
             {
-              MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << endl);
+              MESSAGE("[" << _numproc << "] I get the connection with " << service << " at " << port_name_clt << std::endl);
               break;
             }
           i++;
@@ -223,7 +223,7 @@ void MPIObject_i::remoteMPI2Connect(string service)
 
 void MPIObject_i::remoteMPI2Disconnect(std::string service)
 {
-  ostringstream msg;
+  std::ostringstream msg;
 
   if( service.size() == 0 )
     {
@@ -245,7 +245,7 @@ void MPIObject_i::remoteMPI2Disconnect(std::string service)
       strcpy(port_name,_port_name[service].c_str());
 
       MPI_Unpublish_name((char*)service.c_str(), MPI_INFO_NULL, port_name); 
-      MESSAGE("[" << _numproc << "] " << service << ": close port " << _port_name[service] << endl);
+      MESSAGE("[" << _numproc << "] " << service << ": close port " << _port_name[service] << std::endl);
       MPI_Close_port( port_name ); 
       _port_name.erase(service);
     }

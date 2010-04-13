@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeSelectable_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 CORBA::Boolean SALOMEDS_AttributeSelectable_i::IsSelectable() 
 {
   SALOMEDS::Locker lock;

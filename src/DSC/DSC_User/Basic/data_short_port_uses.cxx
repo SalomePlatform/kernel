@@ -25,7 +25,6 @@
 //
 #include "data_short_port_uses.hxx"
 #include <iostream>
-using namespace std;
 
 data_short_port_uses::data_short_port_uses() {
   _my_ports = NULL;
@@ -43,7 +42,7 @@ data_short_port_uses::put(CORBA::Short data) {
 //  if (!CORBA::is_nil(_my_port))
 //    _my_port->put(data);
   if (!_my_ports)
-    cerr << "data_short_port_uses::put is NULL" << endl;
+    std::cerr << "data_short_port_uses::put is NULL" << std::endl;
   else
   {
     for(int i = 0; i < _my_ports->length(); i++)
@@ -61,6 +60,6 @@ data_short_port_uses::uses_port_changed(Engines::DSC::uses_port * new_uses_port,
   if (_my_ports)
     delete _my_ports;
 
-  cerr << "data_short_port_uses::uses_port_changed" << endl;
+  std::cerr << "data_short_port_uses::uses_port_changed" << std::endl;
   _my_ports = new Engines::DSC::uses_port(*new_uses_port);
 }

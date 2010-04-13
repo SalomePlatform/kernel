@@ -33,7 +33,7 @@
 #else
 #include <winsock2.h>
 #endif
-using namespace std;
+
 //int gethostname(char *name, size_t len);
 
 std::string GetHostname()
@@ -70,7 +70,7 @@ std::string GetHostname()
   char *aDot = (strchr(s,'.'));
   if (aDot) aDot[0] = '\0';
 
-  string p = s;
+  std::string p = s;
   delete [] s;
   return p;
 }

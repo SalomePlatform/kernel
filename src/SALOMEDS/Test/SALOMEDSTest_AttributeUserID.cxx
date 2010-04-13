@@ -51,7 +51,7 @@ void SALOMEDSTest::testAttributeUserID()
   //Check the attribute creation 
   CPPUNIT_ASSERT(_attr);
 
-  string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
+  std::string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
 
   //Check method SetValue
   _attr->SetValue(value);

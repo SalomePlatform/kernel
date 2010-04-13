@@ -70,7 +70,7 @@ void SALOMEDSTest::testSObject()
   _PTR(AttributeName) _attrName = studyBuilder->FindOrCreateAttribute(so, "AttributeName");
   _PTR(AttributeComment) _attrComment = studyBuilder->FindOrCreateAttribute(so, "AttributeComment"); 
 
-   string ior = _orb->object_to_string(_sm);
+   std::string ior = _orb->object_to_string(_sm);
   _attrIOR->SetValue(ior);
   _attrName->SetValue("SO name");
   _attrComment->SetValue("SO comment");
@@ -99,7 +99,7 @@ void SALOMEDSTest::testSObject()
   CPPUNIT_ASSERT(so->Name() == "test");
 
   //Check method GetAllAttributes
-  vector< _PTR(GenericAttribute) > v = so->GetAllAttributes();
+  std::vector< _PTR(GenericAttribute) > v = so->GetAllAttributes();
    
   CPPUNIT_ASSERT(v.size() == 5); //+AttributeTarget +AttributeTreeNode
 

@@ -43,8 +43,6 @@
 #include <DF_Document.hxx>
 #include <stdlib.h> 
 
-using namespace std;
-
 UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception);
 UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection);
 
@@ -78,7 +76,7 @@ SALOMEDS::SComponent_ptr SALOMEDS_StudyBuilder_i::NewComponent(const char* DataT
   SALOMEDS::Locker lock;
   CheckLocked();
   //char* aDataType = CORBA::string_dup(DataType);
-  SALOMEDSImpl_SComponent aSCO = _impl->NewComponent(string(DataType));
+  SALOMEDSImpl_SComponent aSCO = _impl->NewComponent(std::string(DataType));
   //CORBA::free_string(aDataType);
   if(aSCO.IsNull()) return SALOMEDS::SComponent::_nil();
 
@@ -231,7 +229,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.inout());
   DF_Attribute* anAttr;
   try {
-     anAttr = _impl->FindOrCreateAttribute(aSO, string(aTypeOfAttribute));
+     anAttr = _impl->FindOrCreateAttribute(aSO, std::string(aTypeOfAttribute));
   }
   catch (...) {
     throw SALOMEDS::StudyBuilder::LockProtection();
@@ -261,7 +259,7 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anOb
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());
   DF_Attribute* anAttr;
 
-  if(!_impl->FindAttribute(aSO, anAttr, string(aTypeOfAttribute))) return false;
+  if(!_impl->FindAttribute(aSO, anAttr, std::string(aTypeOfAttribute))) return false;
     
   anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
   return true;  
@@ -281,7 +279,7 @@ void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr anObject,
   ASSERT(!CORBA::is_nil(anObject));
   CORBA::String_var anID = anObject->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());
-  _impl->RemoveAttribute(aSO, string(aTypeOfAttribute));
+  _impl->RemoveAttribute(aSO, std::string(aTypeOfAttribute));
 }
 
 //============================================================================
@@ -331,8 +329,8 @@ void SALOMEDS_StudyBuilder_i::AddDirectory(const char* thePath)
   SALOMEDS::Locker lock;
   CheckLocked();
   if(thePath == NULL || strlen(thePath) == 0) throw SALOMEDS::Study::StudyInvalidDirectory();
-  if(!_impl->AddDirectory(string(thePath))) {
-    string anErrorCode = _impl->GetErrorCode();
+  if(!_impl->AddDirectory(std::string(thePath))) {
+    std::string anErrorCode = _impl->GetErrorCode();
     if(anErrorCode == "StudyNameAlreadyUsed") throw SALOMEDS::Study::StudyNameAlreadyUsed(); 
     if(anErrorCode == "StudyInvalidDirectory") throw SALOMEDS::Study::StudyInvalidDirectory(); 
     if(anErrorCode == "StudyInvalidComponent") throw SALOMEDS::Study::StudyInvalidComponent();  
@@ -352,7 +350,7 @@ void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char
   ASSERT(!CORBA::is_nil(anObject));
   CORBA::String_var anID=anObject->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());
-  _impl->SetGUID(aSO, string(theGUID));
+  _impl->SetGUID(aSO, std::string(theGUID));
 }
 
 //============================================================================
@@ -366,7 +364,7 @@ bool SALOMEDS_StudyBuilder_i::IsGUID(SALOMEDS::SObject_ptr anObject, const char*
   ASSERT(!CORBA::is_nil(anObject));
   CORBA::String_var anID=anObject->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());
-  return _impl->IsGUID(aSO, string(theGUID));
+  return _impl->IsGUID(aSO, std::string(theGUID));
 }
 
 
@@ -533,7 +531,7 @@ void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* t
  
   CORBA::String_var anID=theSO->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());  
-  _impl->SetName(aSO, string(theValue));
+  _impl->SetName(aSO, std::string(theValue));
 }
 
 //============================================================================
@@ -550,7 +548,7 @@ void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char
 
   CORBA::String_var anID=theSO->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());  
-  _impl->SetComment(aSO, string(theValue));
+  _impl->SetComment(aSO, std::string(theValue));
 }
 
 //============================================================================
@@ -567,5 +565,5 @@ void SALOMEDS_StudyBuilder_i::SetIOR(SALOMEDS::SObject_ptr theSO, const char* th
 
   CORBA::String_var anID=theSO->GetID();
   SALOMEDSImpl_SObject aSO = _impl->GetOwner()->GetSObject(anID.in());  
-  _impl->SetIOR(aSO, string(theValue));
+  _impl->SetIOR(aSO, std::string(theValue));
 }

@@ -28,8 +28,6 @@
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributeComment_i::Value()
 {
   SALOMEDS::Locker lock;
@@ -45,6 +43,6 @@ void SALOMEDS_AttributeComment_i::SetValue(const char* value)
 
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  string aValue((char*)Str.in());
+  std::string aValue((char*)Str.in());
   dynamic_cast<SALOMEDSImpl_AttributeComment*>(_impl)->SetValue(aValue);
 }

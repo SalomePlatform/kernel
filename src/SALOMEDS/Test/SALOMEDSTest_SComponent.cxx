@@ -53,10 +53,10 @@ void SALOMEDSTest::testSComponent()
 
   //Check method ComponentIOR
 
-  string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_sm);
 
   _attr->SetValue(ior);
-  string new_ior;
+  std::string new_ior;
   CPPUNIT_ASSERT(sco->ComponentIOR(new_ior));
 
   CPPUNIT_ASSERT(new_ior == ior);

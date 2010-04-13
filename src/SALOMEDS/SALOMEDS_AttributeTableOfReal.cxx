@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeTableOfReal.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 SALOMEDS_AttributeTableOfReal::SALOMEDS_AttributeTableOfReal
                   (SALOMEDSImpl_AttributeTableOfReal* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
@@ -238,7 +236,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfReal::GetRowUnits()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowUnits();
     aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back(string(aSeq[i].in()));
+    for (i = 0; i < aLength; i++) aVector.push_back(std::string(aSeq[i].in()));
   }
   return aVector;
 }

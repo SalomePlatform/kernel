@@ -37,7 +37,6 @@
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 // extern "C"
 // { // for ccmalloc memory debug

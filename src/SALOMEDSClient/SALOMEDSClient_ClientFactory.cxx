@@ -65,8 +65,6 @@ static CONVERT_SOBJECT_FUNCTION aConvertSObject = NULL;
 static CONVERT_STUDY_FUNCTION aConvertStudy = NULL;
 static CONVERT_BUILDER_FUNCTION aConvertBuilder = NULL;
 
-using namespace std;
-
 _PTR(SObject) ClientFactory::SObject(SALOMEDS::SObject_ptr theSObject)
 {
   SALOMEDSClient_SObject* so = NULL;

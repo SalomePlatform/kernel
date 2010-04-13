@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeDrawable.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

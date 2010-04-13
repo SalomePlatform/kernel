@@ -47,9 +47,6 @@ int SIGUSR11 = 1000;
 #include <process.h>
 #endif
 
-
-using namespace std;
-
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
 
@@ -325,7 +322,7 @@ Engines::FieldsDict* Engines_Component_i::getProperties()
 {
   Engines::FieldsDict_var copie = new Engines::FieldsDict;
   copie->length(_fieldsDict.size());
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   CORBA::ULong i = 0;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
     {
@@ -397,14 +394,14 @@ bool Engines_Component_i::Stop_impl()
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #endif
   
 
@@ -437,14 +434,14 @@ bool Engines_Component_i::Suspend_impl()
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #endif
 
   bool RetVal = false ;
@@ -484,14 +481,14 @@ bool Engines_Component_i::Resume_impl()
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #else
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self().p
           << " pid " << _getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
-          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
-          << dec << " _ThreadId " << _ThreadId );
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << std::hex << _id
+          << std::dec << " _ThreadId " << _ThreadId );
 #endif
   bool RetVal = false ;
 #ifndef WIN32
@@ -656,7 +653,7 @@ void Engines_Component_i::beginService(const char *serviceName)
     }
 
   // --- all strings given with setProperties are set in environment
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {
       std::string cle((*it).first);
@@ -688,8 +685,8 @@ void Engines_Component_i::endService(const char *serviceName)
   std::cerr << "endService for " << serviceName << " Component instance : " << _instanceName ;
   std::cerr << " Cpu Used: " << cpus << " (s) " << std::endl;
   MESSAGE("Send EndService notification for " << serviceName
-          << endl << " Component instance : " << _instanceName << " StartUsed "
-          << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+          << std::endl << " Component instance : " << _instanceName << " StartUsed "
+          << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << std::endl <<std::endl);
   _ThreadId = 0 ;
 }
 
@@ -815,17 +812,17 @@ long Engines_Component_i::CpuUsed()
       cpu = usage.ru_utime.tv_sec*1000 +usage.ru_utime.tv_usec/1000;
       cpu = cpu+ usage.ru_stime.tv_sec*1000 +usage.ru_stime.tv_usec/1000;
       cpu=cpu-_StartUsed ;
-      // cout << pthread_self() << " Engines_Component_i::CpuUsed " << " "
+      // std::cout << pthread_self() << " Engines_Component_i::CpuUsed " << " "
       //      << _serviceName   << usage.ru_utime.tv_sec << " - " << _StartUsed
-      //      << " = " << cpu << endl ;
+      //      << " = " << cpu << std::endl ;
     }
   else
     {
-      // cout << pthread_self() << "Engines_Component_i::CpuUsed _ThreadId "
+      // std::cout << pthread_self() << "Engines_Component_i::CpuUsed _ThreadId "
       //      << _ThreadId << " " << _serviceName<< " _StartUsed " 
-      //      << _StartUsed << endl ;
+      //      << _StartUsed << std::endl ;
     }
-#else
+#else 
         // NOT implementet yet
 #endif
 
@@ -868,9 +865,9 @@ void Engines_Component_i::sendMessage(const char *event_type,
  */
 //=============================================================================
 
-string Engines_Component_i::GetDynLibraryName(const char *componentName)
+std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
 {
-  string ret="lib";
+  std::string ret="lib";
   ret+=componentName;
   ret+="Engine.so";
   return ret;
@@ -1078,7 +1075,7 @@ void Engines_Component_i::setContainerName()
   CORBA::String_var containerName=_container->name();
   std::string name(containerName);
   name.erase(0,12);
-  string::size_type slash =name.find_first_of('/');
+  std::string::size_type slash =name.find_first_of('/');
   if(slash != std::string::npos)
     name[slash]='_';
   _containerName=name;

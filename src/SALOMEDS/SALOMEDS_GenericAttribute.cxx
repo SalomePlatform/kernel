@@ -40,8 +40,6 @@
 #include <unistd.h>
 #endif
 
-using namespace std; 
-
 SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDSImpl_GenericAttribute* theGA)
 {
   _isLocal = true;

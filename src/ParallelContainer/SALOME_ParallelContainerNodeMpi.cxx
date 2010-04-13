@@ -53,17 +53,16 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
 
 #ifdef _DEBUG_
 #include <signal.h>
 
 void handler(int t) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "SIGSEGV in :" << getpid() << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   while (1) {}
 }
 #endif
@@ -133,25 +132,25 @@ int main(int argc, char* argv[])
   }
 #endif
 
-  cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
-  cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
-  cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;
-  cerr << "Level MPI_THREAD_MULTIPLE : " << MPI_THREAD_MULTIPLE << endl;
-  cerr << "Level provided : " << provided << endl;
+  std::cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << std::endl;
+  std::cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << std::endl;
+  std::cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << std::endl;
+  std::cerr << "Level MPI_THREAD_MULTIPLE : " << MPI_THREAD_MULTIPLE << std::endl;
+  std::cerr << "Level provided : " << provided << std::endl;
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
   KERNEL_PYTHON::init_python(argc,argv);
 
   // Code pour choisir le reseau infiniband .....
-  /*    string hostname_temp = GetHostname();
+  /*    std::string hostname_temp = GetHostname();
         hostent * t = gethostbyname(hostname_temp.c_str());
-        cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << t->h_addr << " " << hostname_temp << endl;
-        cerr << t->h_addr << endl;
+        std::cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << t->h_addr << " " << hostname_temp << std::endl;
+        std::cerr << t->h_addr << std::endl;
         in_addr * address=(in_addr * ) t->h_addr;
-        cerr << inet_ntoa(* address) << endl;
-        string ip = inet_ntoa(* address);
-        cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << endl;
-        string com = "giop:tcp:" + ip + ":";
+        std::cerr << inet_ntoa(* address) << std::endl;
+        std::string ip = inet_ntoa(* address);
+        std::cerr << " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " << std::endl;
+        std::string com = "giop:tcp:" + ip + ":";
         const char* options[][2] = { { "endPoint", com.c_str() }, { 0, 0 } };
         CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "omniORB4", options);
         */
@@ -177,13 +176,13 @@ int main(int argc, char* argv[])
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
     // On récupère le proxy 
-    string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
+    std::string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
                                                        proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
     // Node creation
-    string node_name = containerName + "Node";
+    std::string node_name = containerName + "Node";
     Engines_Parallel_Container_i * servant =  new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
                                                                                proxy_ior,
                                                                                myid,
@@ -200,7 +199,7 @@ int main(int argc, char* argv[])
     obj = servant->_this();
 
     // In the NamingService
-    string hostname = Kernel_Utils::GetHostname();
+    std::string hostname = Kernel_Utils::GetHostname();
 
     int myid;
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
@@ -210,12 +209,12 @@ int main(int argc, char* argv[])
 
     // We register nodes in two different parts
     // In the real machine name and in the proxy machine
-    string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
+    std::string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
                                                         hostname.c_str());
-    string _proxymachine_containerName = ns->BuildContainerNameForNS(node_name.c_str(),
+    std::string _proxymachine_containerName = ns->BuildContainerNameForNS(node_name.c_str(),
                                                                      proxy_hostname.c_str());
-    cerr << "Register container node : " << _containerName << endl;
-    cerr << "Register container node : " << _proxymachine_containerName << endl;
+    std::cerr << "Register container node : " << _containerName << std::endl;
+    std::cerr << "Register container node : " << _proxymachine_containerName << std::endl;
     ns->Register(obj, _containerName.c_str());
     ns->Register(obj, _proxymachine_containerName.c_str());
     pman->activate();

@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributePixMap_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap()
 {
   SALOMEDS::Locker lock;
@@ -47,5 +45,5 @@ void SALOMEDS_AttributePixMap_i::SetPixMap(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_impl)->SetPixMap(string(Str));
+  dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_impl)->SetPixMap(std::string(Str));
 }

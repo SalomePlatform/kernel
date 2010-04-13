@@ -30,8 +30,6 @@
 #include "Basics_Utils.hxx"
 #include <cstdio>
 
-using namespace std;
-
 /*! \class SALOME_FileTransferCORBA
     \brief A class to manage file transfer in SALOME (CORBA context)
 
@@ -72,9 +70,9 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(Engines::fileRef_ptr
  */
 //=============================================================================
 
-SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(string refMachine,
-                                                   string origFileName,
-                                                   string containerName)
+SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(std::string refMachine,
+                                                   std::string origFileName,
+                                                   std::string containerName)
 {
   MESSAGE("SALOME_FileTransferCORBA::SALOME_FileTransferCORBA"
           << refMachine << " " << origFileName  << " " << containerName);
@@ -108,7 +106,7 @@ SALOME_FileTransferCORBA::~SALOME_FileTransferCORBA()
  */
 //=============================================================================
 
-string SALOME_FileTransferCORBA::getLocalFile(string localFile)
+std::string SALOME_FileTransferCORBA::getLocalFile(std::string localFile)
 {
   MESSAGE("SALOME_FileTransferCORBA::getLocalFile " << localFile);
 
@@ -152,8 +150,8 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
   container = _theFileRef->getContainer();
   ASSERT(! CORBA::is_nil(container));
 
-  string myMachine = Kernel_Utils::GetHostname();
-  string localCopy = _theFileRef->getRef(myMachine.c_str());
+  std::string myMachine = Kernel_Utils::GetHostname();
+  std::string localCopy = _theFileRef->getRef(myMachine.c_str());
 
   if (localCopy.empty()) // no existing copy available
     {

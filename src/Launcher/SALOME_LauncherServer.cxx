@@ -26,8 +26,6 @@
 #include <stdexcept>
 #include <libxml/parser.h>
 
-using namespace std;
-
 void AttachDebugger()
 {
 #ifndef WIN32
@@ -60,8 +58,8 @@ int main(int argc, char* argv[])
   if(getenv ("DEBUGGER"))
     {
 //       setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
+      std::set_terminate(&terminateHandler);
+      std::set_unexpected(&unexpectedHandler);
     }
   /* Init libxml 
    * To avoid memory leak, need to call xmlInitParser in the main thread

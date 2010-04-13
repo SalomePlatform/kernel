@@ -38,8 +38,6 @@
 #include <sys/types.h>
 #include <vector>
 
-using namespace std;
-
 const char *SALOME_Launcher::_LauncherNameInNS = "/SalomeLauncher";
 
 //=============================================================================
@@ -277,7 +275,7 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
       throw SALOME_Exception("No resources have been found with your parameters");
 
     const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
-    string resource_name(p->name);
+	std::string resource_name(p->name);
     INFOS("Choose resource for test: " <<  resource_name);
     
     BatchTest t(*p);

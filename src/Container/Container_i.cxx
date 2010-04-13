@@ -58,8 +58,6 @@ int SIGUSR1 = 1000;
 #include <Python.h>
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 bool _Sleeping = false ;
 
 // // Needed by multi-threaded Python --- Supervision
@@ -89,9 +87,9 @@ extern "C" {void SigIntHandler( int ) ; }
 #define SLASH '/'
 #endif
 
-map<std::string, int> Engines_Container_i::_cntInstances_map;
-map<std::string, void *> Engines_Container_i::_library_map;
-map<std::string, void *> Engines_Container_i::_toRemove_map;
+std::map<std::string, int> Engines_Container_i::_cntInstances_map;
+std::map<std::string, void *> Engines_Container_i::_library_map;
+std::map<std::string, void *> Engines_Container_i::_toRemove_map;
 omni_mutex Engines_Container_i::_numInstanceMutex ;
 
 static PyObject* _pyCont;
@@ -139,7 +137,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   _argc = argc ;
   _argv = argv ;
 
-  string hostname = Kernel_Utils::GetHostname();
+  std::string hostname = Kernel_Utils::GetHostname();
 #ifndef WIN32
   MESSAGE(hostname << " " << getpid() << 
     " Engines_Container_i starting argc " <<
@@ -192,7 +190,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     // pycont = SALOME_Container.SALOME_Container_i(containerIORStr)
 
     CORBA::String_var sior =  _orb->object_to_string(pCont);
-    string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
+    std::string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
     myCommand += _containerName + "','";
     myCommand += sior;
     myCommand += "')\n";
@@ -291,7 +289,7 @@ void Engines_Container_i::logfilename(const char* name)
 
 char* Engines_Container_i::getHostName()
 {
-  string s = Kernel_Utils::GetHostname();
+  std::string s = Kernel_Utils::GetHostname();
   //  MESSAGE("Engines_Container_i::getHostName " << s);
   return CORBA::string_dup(s.c_str()) ;
 }
@@ -394,7 +392,7 @@ Engines_Container_i::load_component_Library(const char* componentName, CORBA::St
   retso="Component ";
   retso+=componentName;
   retso+=": Can't find C++ implementation ";
-  retso+=string(LIB) + componentName + ENGINESO;
+  retso+=std::string(LIB) + componentName + ENGINESO;
 
   //=================================================================
   // --- Python implementation section 
@@ -464,7 +462,7 @@ bool
 Engines_Container_i::load_component_CppImplementation(const char* componentName, std::string& reason)
 {
   std::string aCompName(componentName);
-  string impl_name = string(LIB) + aCompName + ENGINESO;
+  std::string impl_name = std::string(LIB) + aCompName + ENGINESO;
   SCRUTE(impl_name);
 
   _numInstanceMutex.lock(); // lock to be alone
@@ -688,7 +686,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
       return compo;
     }
 
-  string impl_name = string(LIB) + genericRegisterName + ENGINESO;
+  std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
   if (_library_map.count(impl_name) != 0)
     {
       // It's a C++ component
@@ -698,7 +696,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
       return compo;
     }
 
-  impl_name = string(genericRegisterName) + ".exe";
+  impl_name = std::string(genericRegisterName) + ".exe";
   if (_library_map.count(impl_name) != 0)
     {
       //It's an executable component
@@ -743,8 +741,8 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
 
   char aNumI[12];
   sprintf( aNumI , "%d" , numInstance ) ;
-  string instanceName = CompName + "_inst_" + aNumI ;
-  string component_registerName = _containerName + "/" + instanceName;
+  std::string instanceName = CompName + "_inst_" + aNumI ;
+  std::string component_registerName = _containerName + "/" + instanceName;
 
   //check if an entry exist in naming service
   CORBA::Object_var nsobj = _NS->Resolve(component_registerName.c_str());
@@ -888,8 +886,8 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
 
   char aNumI[12];
   sprintf( aNumI , "%d" , numInstance ) ;
-  string instanceName = CompName + "_inst_" + aNumI ;
-  string component_registerName = _containerName + "/" + instanceName;
+  std::string instanceName = CompName + "_inst_" + aNumI ;
+  std::string component_registerName = _containerName + "/" + instanceName;
 
   PyGILState_STATE gstate = PyGILState_Ensure();
   PyObject *result = PyObject_CallMethod(_pyCont,
@@ -901,7 +899,7 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
   const char *ior;
   const char *error;
   PyArg_ParseTuple(result,"ss", &ior, &error);
-  string iors = ior;
+  std::string iors = ior;
   reason=error;
   Py_DECREF(result);
   PyGILState_Release(gstate);
@@ -945,8 +943,8 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 {
   // --- find the factory
 
-  string aGenRegisterName = genericRegisterName;
-  string factory_name = aGenRegisterName + string("Engine_factory");
+  std::string aGenRegisterName = genericRegisterName;
+  std::string factory_name = aGenRegisterName + std::string("Engine_factory");
   SCRUTE(factory_name) ;
 
   typedef PortableServer::ObjectId* (*FACTORY_FUNCTION) (CORBA::ORB_ptr,
@@ -984,8 +982,8 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 
     char aNumI[12];
     sprintf( aNumI , "%d" , numInstance ) ;
-    string instanceName = aGenRegisterName + "_inst_" + aNumI ;
-    string component_registerName =
+    std::string instanceName = aGenRegisterName + "_inst_" + aNumI ;
+    std::string component_registerName =
       _containerName + "/" + instanceName;
 
     // --- Instanciate required CORBA object
@@ -1049,10 +1047,10 @@ Engines_Container_i::find_component_instance( const char* registeredName,
                                               CORBA::Long studyId)
 {
   Engines::Component_var anEngine = Engines::Component::_nil();
-  map<string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
+  std::map<std::string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
   while (itm != _listInstances_map.end())
   {
-    string instance = (*itm).first;
+    std::string instance = (*itm).first;
     SCRUTE(instance);
     if (instance.find(registeredName) == 0)
     {
@@ -1078,7 +1076,7 @@ Engines_Container_i::find_component_instance( const char* registeredName,
 void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
 {
   ASSERT(! CORBA::is_nil(component_i));
-  string instanceName = component_i->instanceName() ;
+  std::string instanceName = component_i->instanceName() ;
   MESSAGE("unload component " << instanceName);
   _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   _listInstances_map.erase(instanceName);
@@ -1098,11 +1096,11 @@ void Engines_Container_i::finalize_removal()
   MESSAGE("finalize unload : dlclose");
   _numInstanceMutex.lock(); // lock to be alone
   // (see decInstanceCnt, load_component_Library)
-  map<string, void *>::iterator ith;
+  std::map<std::string, void *>::iterator ith;
   for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
   {
     void *handle = (*ith).second;
-    string impl_name= (*ith).first;
+    std::string impl_name= (*ith).first;
     if (handle)
     {
       SCRUTE(handle);
@@ -1125,7 +1123,7 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 {
   if(_cntInstances_map.count(genericRegisterName)==0)
     return;
-  string aGenRegisterName =genericRegisterName;
+  std::string aGenRegisterName =genericRegisterName;
   MESSAGE("Engines_Container_i::decInstanceCnt " << aGenRegisterName);
   ASSERT(_cntInstances_map[aGenRegisterName] > 0);
   _numInstanceMutex.lock(); // lock to be alone
@@ -1134,7 +1132,7 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
   SCRUTE(_cntInstances_map[aGenRegisterName]);
   if (_cntInstances_map[aGenRegisterName] == 0)
   {
-    string impl_name =
+    std::string impl_name =
       Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
     SCRUTE(impl_name);
     void* handle = _library_map[impl_name];
@@ -1167,7 +1165,7 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
                                 const char* componentName )
 {
   char* reason;
-  string impl_name = string(LIB) + genericRegisterName + ENGINESO;
+  std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
   Engines::Component_var iobject = Engines::Component::_nil() ;
   if (load_component_Library(genericRegisterName,reason))
     iobject = find_or_create_instance(genericRegisterName, impl_name);
@@ -1202,8 +1200,8 @@ Engines::Component_ptr
 Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
                                              std::string componentLibraryName)
 {
-  string aGenRegisterName = genericRegisterName;
-  string impl_name = componentLibraryName;
+  std::string aGenRegisterName = genericRegisterName;
+  std::string impl_name = componentLibraryName;
   if (_library_map.count(impl_name) == 0)
   {
     INFOS("shared library " << impl_name <<" must be loaded before creating instance");
@@ -1214,7 +1212,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
     // --- find a registered instance in naming service, or create
 
     void* handle = _library_map[impl_name];
-    string component_registerBase =
+    std::string component_registerBase =
       _containerName + "/" + aGenRegisterName;
     Engines::Component_var iobject = Engines::Component::_nil() ;
     std::string reason;
@@ -1360,9 +1358,9 @@ void SigIntHandler(int what ,
   //             A stream operation may be interrupted by a signal and if the Handler use stream we
   //             may have a "Dead-Lock" ===HangUp
   //==MESSAGE is commented
-  //  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
-  //          << "              si_signo " << siginfo->si_signo << endl
-  //          << "              si_code  " << siginfo->si_code << endl
+  //  MESSAGE(pthread_self() << "SigIntHandler what     " << what << std::endl
+  //          << "              si_signo " << siginfo->si_signo << std::endl
+  //          << "              si_code  " << siginfo->si_code << std::endl
   //          << "              si_pid   " << siginfo->si_pid) ;
 
   if ( _Sleeping )
@@ -1401,9 +1399,9 @@ void SigIntHandler(int what ,
 void SigIntHandler( int what )
 {
 #ifndef WIN32
-  MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
+  MESSAGE( pthread_self() << "SigIntHandler what     " << what << std::endl );
 #else
-  MESSAGE( "SigIntHandler what     " << what << endl );
+  MESSAGE( "SigIntHandler what     " << what << std::endl );
 #endif
   if ( _Sleeping )
   {
@@ -1450,7 +1448,7 @@ void SigIntHandler( int what )
 Engines::fileRef_ptr
 Engines_Container_i::createFileRef(const char* origFileName)
 {
-  string origName(origFileName);
+  std::string origName(origFileName);
   Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
 
   if (origName[0] != '/')
@@ -1496,7 +1494,7 @@ Engines_Container_i::getFileTransfer()
 Engines::Salome_file_ptr
 Engines_Container_i::createSalome_file(const char* origFileName)
 {
-  string origName(origFileName);
+  std::string origName(origFileName);
   if (CORBA::is_nil(_Salome_file_map[origName]))
   {
     Salome_file_i* aSalome_file = new Salome_file_i();
@@ -1625,7 +1623,7 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
 * zero if it is not executable, or if it does not exist.
 */
 //=============================================================================
-int checkifexecutable(const string& filename)
+int checkifexecutable(const std::string& filename)
 {
   int result;
   struct stat statinfo;
@@ -1672,7 +1670,7 @@ int findpathof(const std::string& path, std::string& pth, const std::string& fil
       int result=stat(pth.c_str(), &statinfo);
       if(result == 0) found=1;
     }
-    if (pos == string::npos) break;
+    if (pos == std::string::npos) break;
     offset = pos+1;
   }
   return found;

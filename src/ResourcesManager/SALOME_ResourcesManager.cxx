@@ -45,8 +45,6 @@
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
-using namespace std;
-
 const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesManager";
 
 //=============================================================================
@@ -156,14 +154,14 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::ResourceParameters& 
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
   for(unsigned int i=0; i<params.componentList.length(); i++)
-    p.componentList.push_back(string(params.componentList[i]));
+    p.componentList.push_back(std::string(params.componentList[i]));
   for(unsigned int i=0; i<params.resList.length(); i++)
-    p.resourceList.push_back(string(params.resList[i]));
+    p.resourceList.push_back(std::string(params.resList[i]));
   
   try
   {
     // Call C++ ResourceManager
-    vector <std::string> vec = _rm.GetFittingResources(p);
+    std::vector <std::string> vec = _rm.GetFittingResources(p);
 
     // C++ -> CORBA
     ret->length(vec.size());
@@ -189,9 +187,9 @@ char *
 SALOME_ResourcesManager::FindFirst(const Engines::ResourceList& listOfResources)
 {
   // CORBA -> C++
-  vector<string> rl;
+  std::vector<std::string> rl;
   for(unsigned int i=0; i<listOfResources.length(); i++)
-    rl.push_back(string(listOfResources[i]));
+    rl.push_back(std::string(listOfResources[i]));
 
   return CORBA::string_dup(_rm.Find("first", rl).c_str());
 }
@@ -200,9 +198,9 @@ char *
 SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& listOfResources)
 {
   // CORBA -> C++
-  vector<string> rl;
+  std::vector<std::string> rl;
   for(unsigned int i=0; i<listOfResources.length(); i++)
-    rl.push_back(string(listOfResources[i]));
+    rl.push_back(std::string(listOfResources[i]));
 
   return CORBA::string_dup(_rm.Find(policy, rl).c_str());
 }
@@ -428,14 +426,14 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
 
       // Creating machine file
       machine_file_name = tmpnam(NULL);
-      std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+	  std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
       CORBA::Long machine_number = 0;
       std::list<std::string>::iterator it = list_of_machines.begin();
       while (machine_number != nb_procs)
       {
         // Adding a new node to the machine file
-        machine_file << *it << endl;
+        machine_file << *it << std::endl;
 
         // counting...
         it++;
@@ -475,7 +473,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
       {
         // Creating machine file
         machine_file_name = tmpnam(NULL);
-        std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+        std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
         // We add all cluster machines to the file
         std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
@@ -484,7 +482,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
         {
           unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
             (*cluster_it).DataForSort._nbOfProcPerNode;
-          machine_file << (*cluster_it).HostName << " cpu=" << number_of_proc << endl;
+          machine_file << (*cluster_it).HostName << " cpu=" << number_of_proc << std::endl;
           cluster_it++;
         }
       }
@@ -492,7 +490,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
       {
 	// Creating machine file
 	machine_file_name = tmpnam(NULL);
-	std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+	std::ofstream machine_file(machine_file_name.c_str(), std::ios_base::out);
 
 	// We add all cluster machines to the file
 	std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
@@ -501,7 +499,7 @@ SALOME_ResourcesManager::getMachineFile(std::string resource_name,
 	{
 	  unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
 	    (*cluster_it).DataForSort._nbOfProcPerNode;
-	  machine_file << (*cluster_it).HostName << " slots=" << number_of_proc << endl;
+	  machine_file << (*cluster_it).HostName << " slots=" << number_of_proc << std::endl;
 	  cluster_it++;
 	}
       }

@@ -28,7 +28,6 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 
-using namespace std;
 
 #define TRACEFILE "/tmp/traceUnitTest.log"
 
@@ -50,12 +49,12 @@ UtilsTest::setUp()
   // --- trace on file
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::app);
+  std::ofstream traceFile;
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -110,8 +109,8 @@ UtilsTest::testSALOME_ExceptionMessage()
     }
   catch (const SALOME_Exception &ex)
     {
-      string expectedMessage = EXAMPLE_EXCEPTION_MESSAGE;
-      string actualMessage = ex.what();
-      CPPUNIT_ASSERT(actualMessage.find(expectedMessage) != string::npos);
+      std::string expectedMessage = EXAMPLE_EXCEPTION_MESSAGE;
+      std::string actualMessage = ex.what();
+      CPPUNIT_ASSERT(actualMessage.find(expectedMessage) != std::string::npos);
     }
 }

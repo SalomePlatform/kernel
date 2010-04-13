@@ -52,8 +52,6 @@
 #include <unistd.h>
 #endif
 
-using namespace std;
-
 UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
 UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
 
@@ -156,7 +154,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(string(aUrl));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->Open(std::string(aUrl));
 
   if ( !aStudyImpl )
     THROW_SALOME_CORBA_EXCEPTION("Impossible to Open study from file", SALOME::BAD_PARAM)
@@ -262,7 +260,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAs(const char* aUrl, SALOMEDS::Study
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAs(string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAs(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr aStudy, CORBA::Boolean theMultiFile)
@@ -275,7 +273,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::
   }
 
   SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
-  return _impl->SaveAsASCII(string(aUrl), aStudyImpl, _factory, theMultiFile);
+  return _impl->SaveAsASCII(std::string(aUrl), aStudyImpl, _factory, theMultiFile);
 }
 
 //============================================================================
@@ -287,7 +285,7 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
 {
   SALOMEDS::Locker lock;
 
-  vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
+  std::vector<SALOMEDSImpl_Study*> anOpened = _impl->GetOpenStudies();
   int aLength = anOpened.size();
 
   SALOMEDS::ListOfOpenStudies_var _list_open_studies = new SALOMEDS::ListOfOpenStudies;
@@ -317,7 +315,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyNa
 {
   SALOMEDS::Locker lock;
 
-  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(string(aStudyName));
+  SALOMEDSImpl_Study* aStudyImpl = _impl->GetStudyByName(std::string(aStudyName));
 
   if (!aStudyImpl)
   {
@@ -449,7 +447,7 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
 
   SALOMEDSImpl_SComponent aSCO = theObject.GetFatherComponent();
   if(!aSCO.IsNull()) {
-    string IOREngine = aSCO.GetIOR();
+    std::string IOREngine = aSCO.GetIOR();
     if(!IOREngine.empty()) {
       CORBA::Object_var obj = orb->string_to_object(IOREngine.c_str());
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;

@@ -30,7 +30,6 @@
 #include "utilities.h"
 
 #include "SenderFactory.hxx"
-using namespace std;
 
 #ifndef WIN32
 CORBA::ORB_var &getGlobalORB(){

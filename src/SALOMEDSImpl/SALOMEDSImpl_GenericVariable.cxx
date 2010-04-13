@@ -28,8 +28,6 @@
 #include <string>
 
 
-using namespace std;
-
 //============================================================================
 /*! Function : SALOMEDSImpl_GenericVariable
  *  Purpose  : 
@@ -37,7 +35,7 @@ using namespace std;
 //============================================================================
 SALOMEDSImpl_GenericVariable::
 SALOMEDSImpl_GenericVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType,
-                             const string& theName): 
+                             const std::string& theName): 
   _type(theType),
   _name(theName)
 {}
@@ -65,7 +63,7 @@ SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::Type()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::Name() const
+std::string SALOMEDSImpl_GenericVariable::Name() const
 {
   return _name;
 }
@@ -103,7 +101,7 @@ bool SALOMEDSImpl_GenericVariable::setName(const std::string& theName)
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String2VariableType(const string& theStrType)
+SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String2VariableType(const std::string& theStrType)
 {
   return(SALOMEDSImpl_GenericVariable::VariableTypes)atoi((char*)theStrType.c_str());
 }
@@ -113,9 +111,9 @@ SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::Save() const
+std::string SALOMEDSImpl_GenericVariable::Save() const
 {
-  return string();
+  return std::string();
 }
 
 
@@ -124,18 +122,18 @@ string SALOMEDSImpl_GenericVariable::Save() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::SaveToScript() const
+std::string SALOMEDSImpl_GenericVariable::SaveToScript() const
 {
-  return string();
+  return std::string();
 }
 //============================================================================
 /*! Function : SaveType
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::SaveType() const
+std::string SALOMEDSImpl_GenericVariable::SaveType() const
 {
-  return string();
+  return std::string();
 }
 
 //============================================================================
@@ -143,6 +141,6 @@ string SALOMEDSImpl_GenericVariable::SaveType() const
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_GenericVariable::Load(const string& theStrValue)
+void SALOMEDSImpl_GenericVariable::Load(const std::string& theStrValue)
 {
 }

@@ -34,8 +34,6 @@
 
 #include <string>
 
-using namespace std; 
-
 SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDSImpl_UseCaseBuilder* theBuilder)
 {
   _isLocal = true;

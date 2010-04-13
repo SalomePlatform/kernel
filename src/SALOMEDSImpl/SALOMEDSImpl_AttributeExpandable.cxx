@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeExpandable.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

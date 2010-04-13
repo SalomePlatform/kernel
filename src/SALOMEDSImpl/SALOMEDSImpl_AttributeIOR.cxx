@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-using namespace std;
-
 //to disable automatic genericobj management comment the following line
 #define WITHGENERICOBJ
 

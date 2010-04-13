@@ -41,7 +41,6 @@
 #include "SALOMEDS_SObject.hxx"
 
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -73,7 +72,7 @@ void SALOMEDSTest::setUp()
 void SALOMEDSTest::tearDown()
 {
   _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-  vector<string> v = sm->GetOpenStudies();
+  std::vector<std::string> v = sm->GetOpenStudies();
   for(int i = 0; i<v.size(); i++) {
     _PTR(Study) study = sm->GetStudyByName(v[i]);
     if(study)

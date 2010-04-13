@@ -31,7 +31,6 @@ extern "C"
 
 #include <cstring>
 #include <stdlib.h>
-using namespace std;
 
 #ifdef WNT
 #define strdup _strdup

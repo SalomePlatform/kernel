@@ -53,9 +53,6 @@
 #endif
 
 
-
-using namespace std;  
-
 SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
 {
 #ifdef WIN32
@@ -224,15 +221,15 @@ void  SALOMEDS_SObject::Name(const std::string& theName)
   else _corba_impl->Name(theName.c_str());
 }
 
-vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
+std::vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
 {
-  vector<_PTR(GenericAttribute)> aVector;
+  std::vector<_PTR(GenericAttribute)> aVector;
   int aLength = 0;
   SALOMEDSClient_GenericAttribute* anAttr;
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<DF_Attribute*> aSeq = _local_impl->GetAllAttributes();
+    std::vector<DF_Attribute*> aSeq = _local_impl->GetAllAttributes();
     aLength = aSeq.size();
     for (int i = 0; i < aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]));

@@ -29,7 +29,6 @@
 #include "calcium_port_factory.hxx"
 #include "Superv_Component_i.hxx"
 
-using namespace std;
 
 calcium_port_factory::calcium_port_factory() {
   Superv_Component_i::register_factory("CALCIUM",this);
@@ -38,7 +37,7 @@ calcium_port_factory::calcium_port_factory() {
 calcium_port_factory::~calcium_port_factory() {}
 
 provides_port *
-calcium_port_factory::create_data_servant(string type) {
+calcium_port_factory::create_data_servant(std::string type) {
   provides_port * rtn_port = NULL;
 
   if ( type == "integer")
@@ -62,7 +61,7 @@ calcium_port_factory::create_data_servant(string type) {
 }
 
 uses_port * 
-calcium_port_factory::create_data_proxy(string type) {
+calcium_port_factory::create_data_proxy(std::string type) {
   uses_port * rtn_port = NULL;
 
   if ( type == "integer")

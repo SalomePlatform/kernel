@@ -27,8 +27,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-using namespace std;
-
 //============================================================================
 /*! Function : SALOMEDSImpl_ScalarVariable
  *  Purpose  : 
@@ -36,7 +34,7 @@ using namespace std;
 //============================================================================
 SALOMEDSImpl_ScalarVariable::
 SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type,
-                            const string& theName):
+                            const std::string& theName):
   SALOMEDSImpl_GenericVariable(type,theName)
 {}
 
@@ -67,7 +65,7 @@ bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_ScalarVariable::setStringValue(const string& theValue)
+bool SALOMEDSImpl_ScalarVariable::setStringValue(const std::string& theValue)
 {
   
   if(myStrValue == theValue) 
@@ -92,7 +90,7 @@ double SALOMEDSImpl_ScalarVariable::getValue() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::getStringValue() const
+std::string SALOMEDSImpl_ScalarVariable::getStringValue() const
 {
   return myStrValue;
 }
@@ -102,7 +100,7 @@ string SALOMEDSImpl_ScalarVariable::getStringValue() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::Save() const{
+std::string SALOMEDSImpl_ScalarVariable::Save() const{
   char buffer[255];
   switch(Type())
     {
@@ -124,7 +122,7 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
       }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -132,7 +130,7 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveToScript() const
+std::string SALOMEDSImpl_ScalarVariable::SaveToScript() const
 {
   char buffer[255];
   switch(Type())
@@ -162,7 +160,7 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
       }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -170,10 +168,10 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveType() const{
+std::string SALOMEDSImpl_ScalarVariable::SaveType() const{
   char buffer[255];
   sprintf(buffer, "%d", (int)Type());
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -181,7 +179,7 @@ string SALOMEDSImpl_ScalarVariable::SaveType() const{
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_ScalarVariable::Load(const string& theStrValue)
+void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
 {
   double aValue = atof(theStrValue.c_str());
   setValue(aValue);

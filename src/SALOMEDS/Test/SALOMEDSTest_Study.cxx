@@ -101,7 +101,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(!study->FindComponent(""));
 
   //Check method GetComponentNames
-  vector<string> components = study->GetComponentNames(""); //The context doesn't matter
+  std::vector<std::string> components = study->GetComponentNames(""); //The context doesn't matter
   CPPUNIT_ASSERT(components.size() == 1 && components[0] == "sco1");
 
   //Check method FindComponentID
@@ -121,7 +121,7 @@ void SALOMEDSTest::testStudy()
   _PTR(AttributeIOR) ior_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeIOR");
   CPPUNIT_ASSERT(ior_attr_so1);
 
-  string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_sm);
   ior_attr_so1->SetValue(ior);
   
   _PTR(SObject) so2 = studyBuilder->NewObject(so1);
@@ -145,7 +145,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(!study->FindObjectID(""));
 
   //Check method FindObjectByName
-  vector< _PTR(SObject) > v = study->FindObjectByName("so1", sco1->ComponentDataType());
+  std::vector< _PTR(SObject) > v = study->FindObjectByName("so1", sco1->ComponentDataType());
   CPPUNIT_ASSERT(v.size()==1 && v[0]->GetID() == so1->GetID());
 
   //Try to find SObject with empty name and empty component type
@@ -163,7 +163,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(!study->FindObjectIOR(""));
 
   //Check method GetObjectPath
-  string path = study->GetObjectPath(so2);
+  std::string path = study->GetObjectPath(so2);
 
   //Try to get path of NULL SObject
   _PTR(SObject) emptySO;
@@ -186,7 +186,7 @@ void SALOMEDSTest::testStudy()
   study->SetContext("/"); //Root
 
   //Check method GetObjectNames
-  vector<string> vs = study->GetObjectNames("/sco1");  
+  std::vector<std::string> vs = study->GetObjectNames("/sco1");  
   CPPUNIT_ASSERT(vs.size() == 2);
     
   //Check method GetDirectoryNames
@@ -220,7 +220,7 @@ void SALOMEDSTest::testStudy()
   //Check method FindDependances
   studyBuilder->Addreference(so2, so1);
   studyBuilder->Addreference(sco1, so1);
-  vector< _PTR(SObject) > vso = study->FindDependances(so1);
+  std::vector< _PTR(SObject) > vso = study->FindDependances(so1);
   CPPUNIT_ASSERT(vso.size() == 2 && vso[0]->GetID() == so2->GetID() && vso[1]->GetID() == sco1->GetID());
 
   //Check method GetProperties
@@ -251,7 +251,7 @@ void SALOMEDSTest::testStudy()
   //Check method GetLastModificationDate
   sp->SetModification("srn", 1, 2, 3, 4, 5);  
   sp->SetModification("srn", 6, 7, 8, 9, 10);
-  string date = study->GetLastModificationDate();  
+  std::string date = study->GetLastModificationDate();  
 
   CPPUNIT_ASSERT(date == "08/09/0010 07:06");
 
@@ -314,22 +314,22 @@ void SALOMEDSTest::testStudy()
   //Check method EnableUseCaseAutoFilling
   study->EnableUseCaseAutoFilling(false);
   _PTR(SObject) uso1 = study->NewBuilder()->NewObject(sco1);
-  vector< _PTR(GenericAttribute) > va1 = uso1->GetAllAttributes();
+  std::vector< _PTR(GenericAttribute) > va1 = uso1->GetAllAttributes();
   CPPUNIT_ASSERT(va1.size() == 0); 
 
   study->EnableUseCaseAutoFilling(true);
   _PTR(SObject) uso2 = study->NewBuilder()->NewObject(sco1);
-  vector< _PTR(GenericAttribute) > va2 = uso2->GetAllAttributes();
+  std::vector< _PTR(GenericAttribute) > va2 = uso2->GetAllAttributes();
   CPPUNIT_ASSERT(va2.size() == 1); // +AttributeTreeNode
 
   //Check method DumpStudy
   study->DumpStudy(".", "SRN", false);
 
-  fstream f("SRN.py");
+  std::fstream f("SRN.py");
   char buffer[128];
   buffer[81] = (char)0;
   f.getline(buffer, 80);
-  string line(buffer);
+  std::string line(buffer);
  
   f.close();
   system("rm -f SRN.py");

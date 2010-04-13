@@ -28,8 +28,6 @@
 
 #include <string>
 
-using namespace std;
- 
 SALOMEDS_AttributeTableOfString::SALOMEDS_AttributeTableOfString
                   (SALOMEDSImpl_AttributeTableOfString* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)

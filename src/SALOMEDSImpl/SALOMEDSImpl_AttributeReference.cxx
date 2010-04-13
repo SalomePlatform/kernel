@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeReference.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  :
@@ -73,12 +71,12 @@ void SALOMEDSImpl_AttributeReference::Set(const DF_Label& Origin)
 const std::string& SALOMEDSImpl_AttributeReference::ID () const { return GetID(); } 
 
 
-string SALOMEDSImpl_AttributeReference::Save() 
+std::string SALOMEDSImpl_AttributeReference::Save() 
 {
   return myLabel.Entry();
 }
 
-void SALOMEDSImpl_AttributeReference::Load(const string& value) 
+void SALOMEDSImpl_AttributeReference::Load(const std::string& value) 
 {
   myLabel = DF_Label::Label(Label(), value, true);
 }

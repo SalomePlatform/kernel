@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
 #include <string.h>
 
-using namespace std;
-
 const std::string&  SALOMEDSImpl_AttributeTreeNode::GetDefaultTreeID()
 {
   static std::string TreeNodeID ("0E1C36E6-379B-4d90-AC37-17A14310E648");
@@ -438,19 +436,19 @@ DF_Attribute* SALOMEDSImpl_AttributeTreeNode::NewEmpty() const
   return T;
 }
 
-string SALOMEDSImpl_AttributeTreeNode::Type()
+std::string SALOMEDSImpl_AttributeTreeNode::Type()
 {
    char* aNodeName = new char[127];
    sprintf(aNodeName, "AttributeTreeNodeGUID%s", ID().c_str());
-   string ret(aNodeName); 
+   std::string ret(aNodeName); 
    delete [] aNodeName;
    
    return ret;                               
 }
 
-string SALOMEDSImpl_AttributeTreeNode::Save() 
+std::string SALOMEDSImpl_AttributeTreeNode::Save() 
 {
-  string aFather, aPrevious, aNext, aFirst;
+  std::string aFather, aPrevious, aNext, aFirst;
 
   if (HasFather()) aFather = GetFather()->Label().Entry(); else aFather = "!";
   if (HasPrevious()) aPrevious = GetPrevious()->Label().Entry(); else aPrevious = "!";
@@ -461,12 +459,12 @@ string SALOMEDSImpl_AttributeTreeNode::Save()
   aLength += aFather.size() + aPrevious.size() + aNext.size() + aFirst.size();
   char* aResult = new char[aLength];
   sprintf(aResult, "%s %s %s %s", aFather.c_str(), aPrevious.c_str(), aNext.c_str(), aFirst.c_str());
-  string ret(aResult);
+  std::string ret(aResult);
   delete [] aResult;
   return ret;
 }
 
-void SALOMEDSImpl_AttributeTreeNode::Load(const string& value) 
+void SALOMEDSImpl_AttributeTreeNode::Load(const std::string& value) 
 {
   char* aCopy = (char*)value.c_str();
   char* adr = strtok(aCopy, " ");

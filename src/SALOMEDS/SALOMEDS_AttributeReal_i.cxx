@@ -28,8 +28,6 @@
 #include "SALOMEDS.hxx"
 #include <sstream>
 
-using namespace std;
-
 CORBA::Double SALOMEDS_AttributeReal_i::Value() 
 {
   SALOMEDS::Locker lock;

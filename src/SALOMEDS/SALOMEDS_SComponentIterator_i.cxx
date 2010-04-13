@@ -27,8 +27,6 @@
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 
-using namespace std;
-
 //============================================================================
 /*! Function : constructor
  * 

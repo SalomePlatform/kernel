@@ -30,7 +30,6 @@
 #include <mpi.h>
 #include "utilities.h"
 #include "TestMPIComponentEngine.hxx"
-using namespace std;
 
 TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
                                                CORBA::ORB_ptr orb,

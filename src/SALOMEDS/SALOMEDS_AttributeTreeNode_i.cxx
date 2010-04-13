@@ -27,8 +27,6 @@
 #include "utilities.h"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 static SALOMEDSImpl_AttributeTreeNode* GetNode(SALOMEDS::AttributeTreeNode_ptr value,
                                                SALOMEDSImpl_AttributeTreeNode* aNode) 
 {

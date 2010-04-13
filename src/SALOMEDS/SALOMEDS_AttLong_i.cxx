@@ -29,7 +29,7 @@
 #include "utilities.h"
 #include <stdio.h>
 #include <SALOMEDSImpl_AttributeInteger.hxx>
-using namespace std;
+
 
 //============================================================================
 /*! Function : Set

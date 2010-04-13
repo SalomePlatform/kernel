@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeIOR_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributeIOR_i::Value()
 {
  SALOMEDS::Locker lock;
@@ -42,7 +40,7 @@ void SALOMEDS_AttributeIOR_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  string anExtStr((char *)Str.in());
+  std::string anExtStr((char *)Str.in());
   dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->SetValue(anExtStr);
 }
 

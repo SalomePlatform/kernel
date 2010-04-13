@@ -27,9 +27,7 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
-using namespace std;
-
-string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
+std::string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);  
   if (ga)
@@ -38,7 +36,7 @@ string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
   return "";
 }
 
-string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
+std::string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
   if (ga)
@@ -53,7 +51,7 @@ void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(DF_Attribute* theAttr)
   ga->CheckLocked();
 }
 
-string SALOMEDSImpl_GenericAttribute::Type() 
+std::string SALOMEDSImpl_GenericAttribute::Type() 
 { 
     return _type; 
 }

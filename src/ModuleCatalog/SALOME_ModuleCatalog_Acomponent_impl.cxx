@@ -32,8 +32,6 @@ UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
 
 #include "utilities.h"
 
-using namespace std;
-
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
 #else
@@ -132,7 +130,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The interface";
+		std::string message = "The interface";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -190,7 +188,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
  if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The interface";
+      std::string message = "The interface";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -257,7 +255,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The service";
+      std::string message = "The service";
       message += servicename;
       message += " of the interface ";
       message += interfacename;
@@ -313,7 +311,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
   if (!_find)
     {
       // The service was not found, the exception should be thrown
-      string message = "The default service of the interface ";
+      std::string message = "The default service of the interface ";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -361,7 +359,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
    if (!_find)
      {
        // The computer was not found, the exception should be thrown
-       string message = "The computer ";
+       std::string message = "The computer ";
        message += machinename;
        message += " was not found in the catalog associated to the component ";
        message += _Component.name;

@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeUserID_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributeUserID_i::Value() 
 {
   SALOMEDS::Locker lock;
@@ -40,6 +38,6 @@ void SALOMEDS_AttributeUserID_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  dynamic_cast<SALOMEDSImpl_AttributeUserID*>(_impl)->SetValue(string(Str));
+  dynamic_cast<SALOMEDSImpl_AttributeUserID*>(_impl)->SetValue(std::string(Str));
 }
 

@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeGraphic_i.hxx"
 #include "SALOMEDS.hxx" 
 
-using namespace std;
-
 /*
   Class       : SALOMEDS_AttributeGraphic_i
   Description : This class is intended for storing information about

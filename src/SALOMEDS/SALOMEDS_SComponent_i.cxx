@@ -28,8 +28,6 @@
 #include "utilities.h"
 #include <map>
 
-using namespace std;
-
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const SALOMEDSImpl_SComponent& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SComponent_i* sco_servant = new SALOMEDS_SComponent_i(theImpl, theORB);
@@ -62,7 +60,7 @@ SALOMEDS_SComponent_i::~SALOMEDS_SComponent_i()
 char* SALOMEDS_SComponent_i::ComponentDataType()
 {
   SALOMEDS::Locker lock;
-  string aType = dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentDataType();
+  std::string aType = dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentDataType();
   return CORBA::string_dup(aType.c_str());
 }
   
@@ -75,7 +73,7 @@ char* SALOMEDS_SComponent_i::ComponentDataType()
 CORBA::Boolean SALOMEDS_SComponent_i::ComponentIOR(CORBA::String_out IOR)
 {
   SALOMEDS::Locker lock;
-  string ior;
+  std::string ior;
   if(!dynamic_cast<SALOMEDSImpl_SComponent*>(_impl)->ComponentIOR(ior)) {
     IOR = CORBA::string_dup("");
     return false;

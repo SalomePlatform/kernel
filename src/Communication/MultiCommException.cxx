@@ -20,7 +20,6 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MultiCommException.hxx"
-using namespace std;
 
 MultiCommException::MultiCommException(const char *message)
 {

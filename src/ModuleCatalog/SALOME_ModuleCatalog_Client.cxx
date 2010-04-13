@@ -30,14 +30,13 @@
 #include "SALOME_ModuleCatalog.hh"
 #include <string>
 #include "utilities.h"
-using namespace std;
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-                  const string & InterfaceName,
-                  const string & ServiceName);
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName);
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-                    const string & InterfaceName);
+                    const std::string & InterfaceName);
 
 void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C);
 
@@ -120,7 +119,7 @@ int main(int argc,char **argv)
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){
     INFOS("SALOME_ModuleCatalog::NotFound")
-      cerr << ex.what << endl;
+      std::cerr << ex.what << std::endl;
   }
     catch(CORBA::SystemException&) {
       INFOS("Caught CORBA::SystemException.")
@@ -167,7 +166,7 @@ void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
 
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-                    const string & InterfaceName)
+                    const std::string & InterfaceName)
 {
   unsigned int i, n;
         
@@ -184,8 +183,8 @@ void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
 }
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-                  const string & InterfaceName,
-                  const string & ServiceName)
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName)
 {
   int i, n;
 

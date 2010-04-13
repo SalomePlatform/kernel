@@ -48,7 +48,6 @@ int SIGUSR11 = 1000;
 #include <paco_dummy.h>
 #include <paco_omni.h>
 
-using namespace std;
 
 extern bool _Sleeping ;
 static Engines_Parallel_Component_i * theEngines_Component ;
@@ -260,7 +259,7 @@ Engines::FieldsDict* Engines_Parallel_Component_i::getProperties()
 {
   Engines::FieldsDict_var copie = new Engines::FieldsDict;
   copie->length(_fieldsDict.size());
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   CORBA::ULong i = 0;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
     {
@@ -486,21 +485,21 @@ CORBA::Long Engines_Parallel_Component_i::CpuUsed_impl()
         {
           _ThreadCpuUsed = CpuUsed() ;
           cpu = _ThreadCpuUsed ;
-          // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
-          //      << _serviceName << " " << cpu << endl ;
+          // std::cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
+          //      << _serviceName << " " << cpu << std::endl ;
       }
     }
     else 
       {
         cpu = _ThreadCpuUsed ;
-        // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
-        //      << _serviceName << " " << cpu<< endl ;
+        // std::cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed_impl "
+        //      << _serviceName << " " << cpu<< std::endl ;
       }
     }
   else
     {
-      // cout<< pthread_self()<<"Engines_Parallel_Component_i::CpuUsed_impl _ThreadId "
-      //     <<_ThreadId <<" "<<_serviceName<<" _StartUsed "<<_StartUsed<<endl;
+      // std::cout<< pthread_self()<<"Engines_Parallel_Component_i::CpuUsed_impl _ThreadId "
+      //     <<_ThreadId <<" "<<_serviceName<<" _StartUsed "<<_StartUsed<<std::endl;
     }
   return cpu ;
 }
@@ -599,7 +598,7 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
   // --- for supervisor : all strings given with setProperties
   //     are set in environment
   bool overwrite = true;
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {
       std::string cle((*it).first);
@@ -770,15 +769,15 @@ long Engines_Parallel_Component_i::CpuUsed()
           return 0 ;
         }
       cpu = usage.ru_utime.tv_sec - _StartUsed ;
-      // cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed " << " "
+      // std::cout << pthread_self() << " Engines_Parallel_Component_i::CpuUsed " << " "
       //      << _serviceName   << usage.ru_utime.tv_sec << " - " << _StartUsed
-      //      << " = " << cpu << endl ;
+      //      << " = " << cpu << std::endl ;
     }
   else
     {
-      // cout << pthread_self() << "Engines_Parallel_Component_i::CpuUsed _ThreadId "
+      // std::cout << pthread_self() << "Engines_Parallel_Component_i::CpuUsed _ThreadId "
       //      << _ThreadId << " " << _serviceName<< " _StartUsed " 
-      //      << _StartUsed << endl ;
+      //      << _StartUsed << std::endl ;
     }
 #else
         // NOT implementet yet
@@ -823,9 +822,9 @@ void Engines_Parallel_Component_i::sendMessage(const char *event_type,
  */
 //=============================================================================
 
-string Engines_Parallel_Component_i::GetDynLibraryName(const char *componentName)
+std::string Engines_Parallel_Component_i::GetDynLibraryName(const char *componentName)
 {
-  string ret="lib";
+  std::string ret="lib";
   ret+=componentName;
   ret+="Engine.so";
   return ret;

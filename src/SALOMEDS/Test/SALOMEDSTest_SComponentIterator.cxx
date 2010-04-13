@@ -44,7 +44,7 @@ void SALOMEDSTest::testSComponentIterator()
   studyBuilder->NewComponent("Test1");
   studyBuilder->NewComponent("Test2");
 
-  vector<string> v;
+  std::vector<std::string> v;
   v.push_back("Test1");
   v.push_back("Test2");
 

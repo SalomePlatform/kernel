@@ -84,14 +84,14 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   CPPUNIT_ASSERT(_attr->GetValue(1, 1) == 23);
 
   //Check method GetRowSetIndices
-  vector<int> rs = _attr->GetRowSetIndices(1);
+  std::vector<int> rs = _attr->GetRowSetIndices(1);
 
   CPPUNIT_ASSERT(rs.size() == 1 && rs[0] == 1);
 
   _attr->PutValue(32, 2,2);
   CPPUNIT_ASSERT(_attr->HasValue(2, 2));
 
-  vector<string> rowTitles;
+  std::vector<std::string> rowTitles;
   rowTitles.push_back("title1");
   rowTitles.push_back("title2");
 
@@ -102,11 +102,11 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   _attr->SetRowTitle(1, "new_title");
 
   //Check method GetRowTitles
-  vector<string> rt = _attr->GetRowTitles();
+  std::vector<std::string> rt = _attr->GetRowTitles();
 
   CPPUNIT_ASSERT(rt.size() == 2 && rt[0] == "new_title" && rt[1] == "title2");
 
-  vector<string> colTitles;
+  std::vector<std::string> colTitles;
   colTitles.push_back("title1");
   colTitles.push_back("title2");
 
@@ -117,11 +117,11 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   _attr->SetColumnTitle(1, "new_title");
 
   //Check method GetColumnTitles
-  vector<string> ct = _attr->GetColumnTitles();
+  std::vector<std::string> ct = _attr->GetColumnTitles();
 
   CPPUNIT_ASSERT(ct.size() == 2 && ct[0] == "new_title" && ct[1] == "title2");
 
-  vector<string> rowUnits;
+  std::vector<std::string> rowUnits;
   rowUnits.push_back("unit1");
   rowUnits.push_back("unit2");
 
@@ -132,7 +132,7 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   _attr->SetRowUnit(1, "new_unit");
 
   //Check method GetRowUnits
-  vector<string> ru = _attr->GetRowUnits();
+  std::vector<std::string> ru = _attr->GetRowUnits();
 
   CPPUNIT_ASSERT(ru.size() == 2 && ru[0] == "new_unit" && ru[1] == "unit2");
 
@@ -140,7 +140,7 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   CPPUNIT_ASSERT(_attr->GetNbColumns() == 2);
 
   //Check method AddRow
-  vector<int> data;
+  std::vector<int> data;
   data.push_back(11);
   data.push_back(22);
 
@@ -149,7 +149,7 @@ void SALOMEDSTest::testAttributeTableOfInteger()
   CPPUNIT_ASSERT(_attr->GetNbRows() == 3);
 
   //Check method GetRow
-  vector<int> data2 = _attr->GetRow(3);
+  std::vector<int> data2 = _attr->GetRow(3);
 
   CPPUNIT_ASSERT(data2.size() == 2 && data2[0] == 11 && data2[1] == 22);
 

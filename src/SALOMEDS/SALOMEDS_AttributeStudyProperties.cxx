@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeStudyProperties.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 SALOMEDS_AttributeStudyProperties::SALOMEDS_AttributeStudyProperties
                                    (SALOMEDSImpl_AttributeStudyProperties* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
@@ -79,7 +77,7 @@ void SALOMEDS_AttributeStudyProperties::SetCreationDate
       dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     int aTmp;
     if (anImpl->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-    string S;
+    std::string S;
     anImpl->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
   } else {
     ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetCreationDate(theMinute,
@@ -235,8 +233,8 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<string> aNames;
-    vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+    std::vector<std::string> aNames;
+    std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
     SALOMEDSImpl_AttributeStudyProperties* anImpl = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
     aLength = aNames.size();

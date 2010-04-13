@@ -30,8 +30,6 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "utilities.h"
 
-using namespace std;
-
 //============================================================================
 /*! Function : constructor
  *  Purpose  :

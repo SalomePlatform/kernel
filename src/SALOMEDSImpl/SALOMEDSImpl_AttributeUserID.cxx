@@ -26,8 +26,6 @@
 #include "SALOMEDSImpl_AttributeUserID.hxx"
 #include "Basics_Utils.hxx"
 
-using namespace std;
-
 std::string SALOMEDSImpl_AttributeUserID::DefaultID()
 {
   return Kernel_Utils::GetGUID(Kernel_Utils::DefUserID);
@@ -98,13 +96,13 @@ void SALOMEDSImpl_AttributeUserID::Paste (DF_Attribute* into)
   A->SetValue( myID );
 }    
 
-string SALOMEDSImpl_AttributeUserID::Type() 
+std::string SALOMEDSImpl_AttributeUserID::Type() 
 {
 
   char* aUAttrName = new char[127];
   sprintf(aUAttrName, "AttributeUserID_%s",ID().c_str());
 
-  string ret(aUAttrName);
+  std::string ret(aUAttrName);
   delete aUAttrName;
 
   return ret;

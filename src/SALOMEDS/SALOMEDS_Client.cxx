@@ -32,8 +32,6 @@
 #include "utilities.h"
 #include "HDFOI.hxx"
 
-using namespace std;
-
 //============================================================================
 /*! Function :
  *  Purpose  : 

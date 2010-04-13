@@ -32,8 +32,6 @@
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
 
-using namespace std;
-
 // Class attributes initialisation, for class method BaseTraceCollector::run
 
 BaseTraceCollector* BaseTraceCollector::_singleton = 0;

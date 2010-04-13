@@ -33,7 +33,6 @@ extern "C"
 #include "HDFexception.hxx"
 
 #include <iostream>
-using namespace std;
 
 herr_t dataset_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {

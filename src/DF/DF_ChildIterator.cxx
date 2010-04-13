@@ -21,9 +21,6 @@
 //
 #include "DF_ChildIterator.hxx"
 
-using namespace std;
-
-
 //Constructor
 DF_ChildIterator::DF_ChildIterator(const DF_Label& theLabel, bool allLevels)
   :_root(NULL), _current(NULL)

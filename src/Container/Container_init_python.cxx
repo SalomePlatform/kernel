@@ -34,8 +34,6 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 PyThreadState *KERNEL_PYTHON::_gtstate = 0;
 PyObject *KERNEL_PYTHON::salome_shared_modules_module = NULL;
 PyInterpreterState *KERNEL_PYTHON::_interp = NULL;

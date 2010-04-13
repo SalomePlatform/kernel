@@ -31,8 +31,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Exception)
 
-using namespace std;
-
 void SalomeException ()
 {
   throw SALOME_Exception("Salome Exception");

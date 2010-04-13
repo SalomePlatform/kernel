@@ -30,8 +30,6 @@
 #include <iostream>
 #include "utilities.h"
 
-using namespace std;
-
 std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 {
   f << "          name :       " << P.name << std::endl;

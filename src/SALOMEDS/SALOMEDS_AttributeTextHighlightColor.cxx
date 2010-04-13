@@ -28,8 +28,6 @@
 
 #include <vector>
 
-using namespace std;
-
 SALOMEDS_AttributeTextHighlightColor::SALOMEDS_AttributeTextHighlightColor
                   (SALOMEDSImpl_AttributeTextHighlightColor* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
@@ -49,7 +47,7 @@ STextColor SALOMEDS_AttributeTextHighlightColor::TextHighlightColor()
   STextColor aColor;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_local_impl)->TextHighlightColor();
+    std::vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextHighlightColor*>(_local_impl)->TextHighlightColor();
     aColor.R = aSeq[0];
     aColor.G = aSeq[1];
     aColor.B = aSeq[2]; 
@@ -69,7 +67,7 @@ void SALOMEDS_AttributeTextHighlightColor::SetTextHighlightColor(STextColor valu
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    vector<double> aSeq;
+    std::vector<double> aSeq;
     aSeq.push_back(value.R);
     aSeq.push_back(value.G);
     aSeq.push_back(value.B);

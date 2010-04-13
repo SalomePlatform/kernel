@@ -27,8 +27,6 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-using namespace std;
-
 //============================================================================
 /*! Function : empty constructor
  *  Purpose  :
@@ -46,7 +44,7 @@ SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator()
  */
 //============================================================================
 SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
-                                                           const string& theGUID,
+                                                           const std::string& theGUID,
                                                            const bool allLevels)
 :_guid(theGUID), _levels(allLevels)
 {

@@ -25,8 +25,6 @@
 
 #define NULL_VALUE 0
 
-using namespace std;
-
 unsigned int ResourceDataToSort::_nbOfProcWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfNodesWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfProcPerNodeWanted = NULL_VALUE;
@@ -36,7 +34,7 @@ unsigned int ResourceDataToSort::_memInMBWanted = NULL_VALUE;
 ResourceDataToSort::ResourceDataToSort()
 {}
 
-ResourceDataToSort::ResourceDataToSort(const string& name,
+ResourceDataToSort::ResourceDataToSort(const std::string& name,
                                        unsigned int nbOfNodes,
                                        unsigned int nbOfProcPerNode,
                                        unsigned int CPUFreqMHz,
@@ -123,39 +121,39 @@ unsigned int ResourceDataToSort::GetNumberOfPoints() const
 //! Method used for debug
 void ResourceDataToSort::Print() const
   {
-    cout << _nbOfNodes << endl;
-    cout << _nbOfProcPerNode << endl;
-    cout << _CPUFreqMHz << endl;
-    cout << _memInMB << endl;
+    std::cout << _nbOfNodes << std::endl;
+    std::cout << _nbOfProcPerNode << std::endl;
+    std::cout << _CPUFreqMHz << std::endl;
+    std::cout << _memInMB << std::endl;
   }
 
 void ParserResourcesType::Print()
 {
-  ostringstream oss;
-  oss << endl <<
-    "Name : " << Name << endl <<
-    "HostName : " << HostName << endl << 
-    "NbOfNodes : " << DataForSort._nbOfNodes << endl <<
-    "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << endl <<
-    "CPUFreqMHz : " << DataForSort._CPUFreqMHz << endl <<
-    "MemInMB : " << DataForSort._memInMB << endl <<
-    "Protocol : " << Protocol << endl <<
-    "ClusterInternalProtocol : " << ClusterInternalProtocol << endl <<
-    "Mode : " << Mode << endl <<
-    "Batch : " << Batch << endl <<
-    "mpi : " << mpi << endl <<
-    "UserName : " << UserName << endl <<
-    "AppliPath : " << AppliPath << endl <<
-    "OS : " << OS << endl <<
-    "batchQueue : " << batchQueue << endl <<
-    "userCommands : " << userCommands << endl <<
-    "use : " << use << endl <<
-    "NbOfProc : " << nbOfProc << endl <<
-    "Modules : " << endl <<
-    "Components : " << endl;
+  std::ostringstream oss;
+  oss << std::endl <<
+    "Name : " << Name << std::endl <<
+    "HostName : " << HostName << std::endl << 
+    "NbOfNodes : " << DataForSort._nbOfNodes << std::endl <<
+    "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << std::endl <<
+    "CPUFreqMHz : " << DataForSort._CPUFreqMHz << std::endl <<
+    "MemInMB : " << DataForSort._memInMB << std::endl <<
+    "Protocol : " << Protocol << std::endl <<
+    "ClusterInternalProtocol : " << ClusterInternalProtocol << std::endl <<
+    "Mode : " << Mode << std::endl <<
+    "Batch : " << Batch << std::endl <<
+    "mpi : " << mpi << std::endl <<
+    "UserName : " << UserName << std::endl <<
+    "AppliPath : " << AppliPath << std::endl <<
+    "OS : " << OS << std::endl <<
+    "batchQueue : " << batchQueue << std::endl <<
+    "userCommands : " << userCommands << std::endl <<
+    "use : " << use << std::endl <<
+    "NbOfProc : " << nbOfProc << std::endl <<
+    "Modules : " << std::endl <<
+    "Components : " << std::endl;
 
   for(unsigned int i=0;i<ComponentsList.size();i++)
-    oss << "Component " << i+1 << " called : " << ComponentsList[i] << endl;
+    oss << "Component " << i+1 << " called : " << ComponentsList[i] << std::endl;
 
   
   std::list<ParserResourcesClusterMembersType>::iterator it;
@@ -163,9 +161,9 @@ void ParserResourcesType::Print()
       it != ClusterMembersList.end();
       it++)
   {
-    oss << "Cluster member  called : " << (*it).HostName << endl;
+    oss << "Cluster member  called : " << (*it).HostName << std::endl;
   }
-  cout << oss.str() << endl;
+  std::cout << oss.str() << std::endl;
 }
 
 std::string

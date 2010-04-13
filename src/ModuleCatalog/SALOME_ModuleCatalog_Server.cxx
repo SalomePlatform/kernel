@@ -34,7 +34,6 @@
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 int main(int argc,char **argv)
 {

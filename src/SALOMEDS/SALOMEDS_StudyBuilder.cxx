@@ -49,8 +49,6 @@
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
-using namespace std; 
-
 SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDSImpl_StudyBuilder* theBuilder)
 {
   _isLocal = true;

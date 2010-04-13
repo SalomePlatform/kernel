@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributePersistentRef_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 char* SALOMEDS_AttributePersistentRef_i::Value()
 {
   SALOMEDS::Locker lock;
@@ -41,5 +39,5 @@ void SALOMEDS_AttributePersistentRef_i::SetValue(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(_impl)->SetValue(string(Str));
+  dynamic_cast<SALOMEDSImpl_AttributePersistentRef*>(_impl)->SetValue(std::string(Str));
 }

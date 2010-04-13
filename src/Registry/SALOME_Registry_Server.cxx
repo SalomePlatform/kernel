@@ -46,7 +46,6 @@ extern "C"
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 int main( int argc , char **argv )
 {
@@ -187,7 +186,7 @@ int main( int argc , char **argv )
       catch( const CORBA::Exception & )
         {
         }
-      string absoluteName = string("/") + registryName;
+      std::string absoluteName = std::string("/") + registryName;
       naming.Register( varComponents , absoluteName.c_str() ) ;
       MESSAGE("Wait client requests") ;
       try

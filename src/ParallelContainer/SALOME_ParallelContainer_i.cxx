@@ -50,7 +50,6 @@ int SIGUSR1 = 1000;
 #include <Python.h>
 #include "Container_init_python.hxx"
 
-using namespace std;
 
 bool _Sleeping = false ;
 
@@ -297,9 +296,9 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName, 
   bool ret = false;
   std::string aCompName = componentName;
 #ifndef WIN32
-  string impl_name = string ("lib") + aCompName + string("Engine.so");
+  std::string impl_name = string ("lib") + aCompName + string("Engine.so");
 #else
-  string impl_name = aCompName + string("Engine.dll");
+  std::string impl_name = aCompName + string("Engine.dll");
 #endif
 
   _numInstanceMutex.lock(); // lock to be alone 
@@ -425,9 +424,9 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
 
   std::string aCompName = genericRegisterName;
 #ifndef WIN32
-  string impl_name = string ("lib") + aCompName +string("Engine.so");
+  std::string impl_name = string ("lib") + aCompName +string("Engine.so");
 #else
-  string impl_name = aCompName +string("Engine.dll");
+  std::string impl_name = aCompName +string("Engine.dll");
 #endif
 
   _numInstanceMutex.lock();
@@ -474,10 +473,10 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
                                                                               CORBA::Long studyId)
 {
   Engines::Component_var anEngine = Engines::Component::_nil();
-  map<string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
+  std::map<std::string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
   while (itm != _listInstances_map.end())
   {
-    string instance = (*itm).first;
+    std::string instance = (*itm).first;
     SCRUTE(instance);
     if (instance.find(registeredName) == 0)
     {
@@ -530,7 +529,7 @@ Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* gene
 void Engines_Parallel_Container_i::remove_impl(Engines::Component_ptr component_i)
 {
   ASSERT(!CORBA::is_nil(component_i));
-  string instanceName = component_i->instanceName();
+  std::string instanceName = component_i->instanceName();
   _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   // Test if the component is in this container
   std::map<std::string, Engines::Component_var>::iterator itm;
@@ -560,11 +559,11 @@ void Engines_Parallel_Container_i::finalize_removal()
   MESSAGE("WARNING FINALIZE DOES CURRENTLY NOTHING !!!");
 
   // (see decInstanceCnt, load_component_Library)
-  //map<string, void *>::iterator ith;
+  //std::map<std::string, void *>::iterator ith;
   //for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
   //{
   //  void *handle = (*ith).second;
-  //  string impl_name= (*ith).first;
+  //  std::string impl_name= (*ith).first;
   //  if (handle)
   //  {
   //    SCRUTE(handle);
@@ -616,7 +615,7 @@ bool Engines_Parallel_Container_i::Kill_impl()
 Engines::fileRef_ptr
 Engines_Parallel_Container_i::createFileRef(const char* origFileName)
 {
-  string origName(origFileName);
+  std::string origName(origFileName);
   Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
 
   if (origName[0] != '/')
@@ -712,14 +711,14 @@ Engines_Parallel_Container_i::createSalome_file(const char* origFileName)
 //=============================================================================
 
 Engines::Component_ptr
-Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName)
+Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegisterName)
 {
   Engines::Component_var iobject = Engines::Component::_nil();
   try
   {
-    string aGenRegisterName = genericRegisterName;
+    std::string aGenRegisterName = genericRegisterName;
     // --- find a registered instance in naming service, or create
-    string component_registerBase = _containerName + "/" + aGenRegisterName;
+    std::string component_registerBase = _containerName + "/" + aGenRegisterName;
     CORBA::Object_var obj = _NS->ResolveFirst(component_registerBase.c_str());
     if (CORBA::is_nil( obj ))
     {
@@ -770,7 +769,7 @@ Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName
  */
 //=============================================================================
 Engines::Component_ptr
-Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, int studyId)
+Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterName, int studyId)
 {
 
   Engines::Component_var iobject = Engines::Component::_nil();
@@ -778,8 +777,8 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
   int numInstance = _numInstance;
   char aNumI[12];
   sprintf( aNumI , "%d" , numInstance ) ;
-  string instanceName = genericRegisterName + "_inst_" + aNumI ;
-  string component_registerName = _containerName + "/" + instanceName;
+  std::string instanceName = genericRegisterName + "_inst_" + aNumI ;
+  std::string component_registerName = _containerName + "/" + instanceName;
 
   Py_ACQUIRE_NEW_THREAD;
   PyObject *mainmod = PyImport_AddModule("__main__");
@@ -832,7 +831,7 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
  */
 //=============================================================================
 Engines::Component_ptr
-Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
+Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
                                                 void *handle,
                                                 int studyId)
 {
@@ -840,8 +839,8 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
 
   // --- find the factory
 
-  string aGenRegisterName = genericRegisterName;
-  string factory_name = aGenRegisterName + string("Engine_factory");
+  std::string aGenRegisterName = genericRegisterName;
+  std::string factory_name = aGenRegisterName + string("Engine_factory");
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION_2)
     (CORBA::ORB_ptr,
@@ -873,8 +872,8 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
     int numInstance = _numInstance;
     char aNumI[12];
     sprintf( aNumI , "%d" , numInstance );
-    string instanceName = aGenRegisterName + "_inst_" + aNumI;
-    string component_registerName =
+    std::string instanceName = aGenRegisterName + "_inst_" + aNumI;
+    std::string component_registerName =
       _containerName + "/" + instanceName;
 
     // --- Instanciate required CORBA object
@@ -977,8 +976,8 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   {
     char aNumI2[12];
     sprintf(aNumI2 , "%d" , getMyRank()) ;
-    string instanceName = aCompName + "_inst_" + aNumI + "_work_node_" + aNumI2;
-    string component_registerName = _containerName + "/" + instanceName;
+    std::string instanceName = aCompName + "_inst_" + aNumI + "_work_node_" + aNumI2;
+    std::string component_registerName = _containerName + "/" + instanceName;
 
     // --- Instanciate work node
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
@@ -1018,11 +1017,11 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
  */
 //=============================================================================
 
-void Engines_Parallel_Container_i::decInstanceCnt(string genericRegisterName)
+void Engines_Parallel_Container_i::decInstanceCnt(std::string genericRegisterName)
 {
   if(_cntInstances_map.count(genericRegisterName) !=0 )
   {
-    string aGenRegisterName =genericRegisterName;
+    std::string aGenRegisterName =genericRegisterName;
     MESSAGE("Engines_Parallel_Container_i::decInstanceCnt " << aGenRegisterName);
     ASSERT(_cntInstances_map[aGenRegisterName] > 0); 
     _numInstanceMutex.lock(); // lock to be alone
@@ -1031,7 +1030,7 @@ void Engines_Parallel_Container_i::decInstanceCnt(string genericRegisterName)
     SCRUTE(_cntInstances_map[aGenRegisterName]);
     if (_cntInstances_map[aGenRegisterName] == 0)
     {
-      string impl_name =
+      std::string impl_name =
         Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
       SCRUTE(impl_name);
       void* handle = _library_map[impl_name];

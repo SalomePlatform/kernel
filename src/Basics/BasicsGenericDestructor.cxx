@@ -31,8 +31,6 @@
 
 #include "BasicsGenericDestructor.hxx"
 
-using namespace std;
-
 void HouseKeeping();
 
 std::list<PROTECTED_DELETE*> PROTECTED_DELETE::_objList;

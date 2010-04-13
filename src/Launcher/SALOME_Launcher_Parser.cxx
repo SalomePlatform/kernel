@@ -25,8 +25,6 @@
 
 #define NULL_VALUE 0
 
-using namespace std;
-
 void MachineParameters::Clear()
 {
   EnvFile = "";
@@ -35,34 +33,34 @@ void MachineParameters::Clear()
 
 void MachineParameters::Print() const
 {
-  ostringstream oss;
+  std::ostringstream oss;
   oss << " EnvFile: " <<  EnvFile 
-      << " WorkDirectory: " <<  WorkDirectory << endl;
+      << " WorkDirectory: " <<  WorkDirectory << std::endl;
 
-  cout << oss.str();
+  std::cout << oss.str();
 }
 
 void ParserLauncherType::Print() const
 {
-  ostringstream oss;
-  oss << endl <<
-    "RefDirectory: " << RefDirectory << endl << 
-    "NbOfProcesses: " << NbOfProcesses << endl <<
+  std::ostringstream oss;
+  oss << std::endl <<
+    "RefDirectory: " << RefDirectory << std::endl << 
+    "NbOfProcesses: " << NbOfProcesses << std::endl <<
     "InputFile: ";
   for(int i=0; i <InputFile.size();i++)
     oss << InputFile[i] << " ";
-  oss << endl << "OutputFile: ";
+  oss << std::endl << "OutputFile: ";
   for(int i=0; i <OutputFile.size();i++)
     oss << OutputFile[i] << " ";
-  oss << endl <<
-    "Command: " << Command << endl <<
-    "Machines: " << endl;
+  oss << std::endl <<
+    "Command: " << Command << std::endl <<
+    "Machines: " << std::endl;
 
-  cout << oss.str();
+  std::cout << oss.str();
 
-  std::map < string, MachineParameters >::const_iterator it;
+  std::map < std::string, MachineParameters >::const_iterator it;
   for(it=MachinesList.begin();it!=MachinesList.end();it++){
-    cout << "  " << it->first;
+    std::cout << "  " << it->first;
     it->second.Print();
   }
 

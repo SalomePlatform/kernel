@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeSelectable.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

@@ -44,8 +44,6 @@ typedef int Py_ssize_t;
 #define PY_SSIZE_T_MIN INT_MIN
 #endif
 
-using namespace std;
-
 //--- from omniORBpy.h (not present on Debian Sarge packages)
 
 struct omniORBpyAPI {
@@ -92,8 +90,6 @@ omniORBpyAPI* api;
 
 
 // ----------------------------------------------------------------------------
-using namespace std;
-
 
 %typemap(out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr,
               Engines::ContainerManager_ptr, Engines::ResourcesManager_ptr 

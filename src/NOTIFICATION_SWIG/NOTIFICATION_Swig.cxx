@@ -25,7 +25,6 @@
 //  Module : SALOME
 //
 #include "NOTIFICATION_Swig.hxx"
-using namespace std;
 
 // Swig notification supplier
 // --------------------------

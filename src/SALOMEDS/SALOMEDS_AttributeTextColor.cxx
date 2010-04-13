@@ -28,8 +28,6 @@
 
 #include <vector>
 
-using namespace std;
-
 SALOMEDS_AttributeTextColor::SALOMEDS_AttributeTextColor(SALOMEDSImpl_AttributeTextColor* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
@@ -47,7 +45,7 @@ STextColor SALOMEDS_AttributeTextColor::TextColor()
   STextColor aColor;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_local_impl)->TextColor();
+    std::vector<double> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_local_impl)->TextColor();
     aColor.R = aSeq[0];
     aColor.G = aSeq[1];
     aColor.B = aSeq[2]; 
@@ -66,7 +64,7 @@ void SALOMEDS_AttributeTextColor::SetTextColor(STextColor value)
   if (_isLocal) {
     CheckLocked();
     SALOMEDS::Locker lock;
-    vector<double> aSeq;
+    std::vector<double> aSeq;
     aSeq.push_back( value.R );
     aSeq.push_back( value.G );
     aSeq.push_back( value.B );

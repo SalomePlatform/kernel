@@ -26,8 +26,6 @@
 #include "SALOMEDS_AttributeExpandable_i.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std;
-
 CORBA::Boolean SALOMEDS_AttributeExpandable_i::IsExpandable()
 {
   SALOMEDS::Locker lock;

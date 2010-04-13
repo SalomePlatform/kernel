@@ -36,8 +36,6 @@
 # include <time.h>
 #endif
 
-using namespace std;
-
 #ifdef WIN32
 # define _separator_ '\\'
 #else
@@ -46,7 +44,7 @@ using namespace std;
 
 namespace Kernel_Utils
 {
-  string GetBaseName( const std::string& file_path )
+  std::string GetBaseName( const std::string& file_path )
   {
     int pos = file_path.rfind( _separator_ );
     if ( pos >= 0 )
@@ -54,17 +52,17 @@ namespace Kernel_Utils
     return file_path;
   }
 
-  string GetTmpDirByEnv( const std::string& tmp_path_env )
+  std::string GetTmpDirByEnv( const std::string& tmp_path_env )
   {
-    string dir;
+    std::string dir;
     char* val = getenv( tmp_path_env.c_str() );
-    val ? dir = string( val ) : "";
+    val ? dir = std::string( val ) : "";
     return GetTmpDirByPath( dir );
   }
 
-  string GetTmpDirByPath( const std::string& tmp_path )
+  std::string GetTmpDirByPath( const std::string& tmp_path )
   {
-    string aTmpDir = tmp_path;
+    std::string aTmpDir = tmp_path;
     if ( aTmpDir == "" )
       {
 #ifdef WIN32
@@ -73,14 +71,14 @@ namespace Kernel_Utils
           {
             Tmp_dir = getenv("TMP");
             if (Tmp_dir == NULL)
-              aTmpDir = string("C:\\");
+              aTmpDir = std::string("C:\\");
             else 
-              aTmpDir = string(Tmp_dir);
+              aTmpDir = std::string(Tmp_dir);
           }
         else
-          aTmpDir = string(Tmp_dir);
+          aTmpDir = std::string(Tmp_dir);
 #else
-        aTmpDir = string("/tmp/");
+        aTmpDir = std::string("/tmp/");
 #endif
       }
     
@@ -91,12 +89,12 @@ namespace Kernel_Utils
     int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
     char buffer[127];
     sprintf(buffer, "%d", aRND);
-    string aSubDir(buffer);
-    if(aSubDir.size() <= 1) aSubDir = string("123409876");
+    std::string aSubDir(buffer);
+    if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
     
     aTmpDir += aSubDir; //Get RND sub directory
     
-    string aDir = aTmpDir;
+    std::string aDir = aTmpDir;
     
     if(IsExists(aDir)) {
       for(aRND = 0; IsExists(aDir); aRND++) {
@@ -120,7 +118,7 @@ namespace Kernel_Utils
   // function : GetTempDir
   // purpose  : Returns a temp directory to store created files like "/tmp/sub_dir/" 
   //============================================================================ 
-  string GetTmpDir()
+  std::string GetTmpDir()
   {
     return GetTmpDirByPath( "" );
   }
@@ -129,17 +127,17 @@ namespace Kernel_Utils
   // function : GetTempFileName
   // purpose  : Returns the unique temporary file name without any extension /tmp/something/file for Unix or c:\something\file for WIN32
   //============================================================================ 
-  string GetTmpFileName()
+  std::string GetTmpFileName()
   {
-    string tmpDir = GetTmpDir();
-    string aFilePath = "";
+    std::string tmpDir = GetTmpDir();
+    std::string aFilePath = "";
     if(IsExists(tmpDir)) {
       srand((unsigned int)time(NULL));
       int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
       char buffer[127];
       sprintf(buffer, "%d", aRND);
-      string aSubDir(buffer);
-      if(aSubDir.size() <= 1) aSubDir = string("123409876");
+      std::string aSubDir(buffer);
+      if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
       
       aFilePath = tmpDir;
       for(aRND = 0; IsExists(aFilePath); aRND++) {
@@ -154,7 +152,7 @@ namespace Kernel_Utils
   // function : IsExists
   // purpose  : Returns True(False) if the path (not)exists
   //============================================================================ 
-  bool IsExists(const string& thePath) 
+  bool IsExists(const std::string& thePath) 
   {
 #ifdef WIN32 
     if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -173,12 +171,12 @@ namespace Kernel_Utils
   // function : GetDirByPath
   // purpose  : Returns directory by path and converts it to native system format
   //============================================================================ 
-  string GetDirByPath(const string& thePath)
+  std::string GetDirByPath(const std::string& thePath)
   {
     if (thePath.empty())
       return "";
-    string path = thePath;
-    string::size_type length = path.length();
+    std::string path = thePath;
+    std::string::size_type length = path.length();
 
     //detect all separators in Unix format
     for ( unsigned int i = 0; i < length; i++ )
@@ -195,8 +193,8 @@ namespace Kernel_Utils
     }
 
 
-    string::size_type pos = path.rfind('|');
-    if ( pos == string::npos )
+    std::string::size_type pos = path.rfind('|');
+    if ( pos == std::string::npos )
     {
 #ifdef WIN32
       //check for disk letter ( C: )
@@ -227,7 +225,7 @@ namespace Kernel_Utils
   // purpose  : Returns True(False) if the path (not) empty
   //            Also returns False if the path is not valid
   //============================================================================ 
-  bool IsEmptyDir(const string& thePath) 
+  bool IsEmptyDir(const std::string& thePath) 
   {
     if ( thePath.empty() || !IsExists(thePath))
       return false;
@@ -260,7 +258,7 @@ namespace Kernel_Utils
       result = true; //empty if no file found
       while ((dirp = readdir(dp)) != NULL && result )
         {
-          string file_name(dirp->d_name);
+          std::string file_name(dirp->d_name);
           result = file_name.empty() || file_name == "." || file_name == ".."; //if any file - break and return false
         }
         closedir(dp);

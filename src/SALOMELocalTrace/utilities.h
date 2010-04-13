@@ -67,12 +67,12 @@
 
 #ifdef WIN32
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
-                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << std::flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \
                                /*std::*/exit(code);}
 #else
 #define IMMEDIATE_ABORT(code) {std::cout <<std::flush; \
-                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << flush; \
+                               std::cerr << "- ABORT " << __FILE__ << " [" <<__LINE__<< "] : " << std::flush; \
                                std::cerr << "ABORT return code= "<< code << std::endl; \
                                std::exit(code);}
 #endif

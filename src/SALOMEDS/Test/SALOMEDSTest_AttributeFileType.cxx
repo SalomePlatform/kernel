@@ -52,7 +52,7 @@ void SALOMEDSTest::testAttributeFileType()
   CPPUNIT_ASSERT(_attr);
 
   //Check method Value
-  string value = _attr->Value();
+  std::string value = _attr->Value();
 
   CPPUNIT_ASSERT(value.empty());
 

@@ -53,14 +53,13 @@
 
 #ifdef DEBUG_PARALLEL
 #include <signal.h>
-using namespace std;
 
 void handler(int t) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "SIGSEGV in :" << getpid() << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   while (1) {}
 }
 #endif
@@ -122,11 +121,11 @@ int main(int argc, char* argv[])
     obj = proxy->_this();
 
     // In the NamingService
-    string hostname = Kernel_Utils::GetHostname();
+    std::string hostname = Kernel_Utils::GetHostname();
     Engines::Container_var pCont = Engines::Container::_narrow(obj);
     string _containerName = ns->BuildContainerNameForNS(containerName.c_str(),
                                                         hostname.c_str());
-    cerr << "---------" << _containerName << "----------" << endl;
+    std::cerr << "---------" << _containerName << "----------" << std::endl;
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();

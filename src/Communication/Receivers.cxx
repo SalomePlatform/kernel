@@ -21,7 +21,6 @@
 //
 #include "omniORB4/poa.h"
 #include "utilities.h"
-using namespace std;
 
 #define TAILLE_SPLIT 100000
 #define TIMEOUT 20
@@ -301,7 +300,7 @@ T* SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::getDistValue(long &siz
     if( ex.details.type == SALOME::COMM )
       {
         _senderDestruc=false;
-        cout << ex.details.text << endl;
+		std::cout << ex.details.text << std::endl;
         throw MultiCommException("Unknown sender protocol");
       }
     else
@@ -331,7 +330,7 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::initCom()
     if( ex.details.type == SALOME::COMM )
       {
         _senderDestruc=false;
-        cout << ex.details.text << endl;
+		std::cout << ex.details.text << std::endl;
         throw MultiCommException("Unknown sender protocol");
       }
     else
@@ -382,7 +381,7 @@ void SocketReceiver<T,myFunc,CorbaSender,servForT,ptrForT>::connectCom(const cha
     if( ex.details.type == SALOME::COMM )
       {
         _senderDestruc=false;
-        cout << ex.details.text << endl;
+        std::cout << ex.details.text << std::endl;
         throw MultiCommException("Unknown sender protocol");
       }
     else

@@ -78,7 +78,7 @@ void SALOMEDSTest::testAttributeSequenceOfReal()
   CPPUNIT_ASSERT(_attr->Value(3) == 3.3);
 
   //Check method CorbaSequence
-  vector<double> v = _attr->CorbaSequence();
+  std::vector<double> v = _attr->CorbaSequence();
   CPPUNIT_ASSERT(v.size() == 3);
 
   v.push_back(5.5);

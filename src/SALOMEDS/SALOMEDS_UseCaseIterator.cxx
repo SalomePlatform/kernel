@@ -28,8 +28,6 @@
 #include "SALOMEDS.hxx"
 #include "SALOMEDS_SObject.hxx"
 
-using namespace std; 
-
 SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(const SALOMEDSImpl_UseCaseIterator& theIterator)
 {
   _isLocal = true;

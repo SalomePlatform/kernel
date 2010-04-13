@@ -39,8 +39,6 @@
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
-using namespace std;
-
 static LoadRateManagerFirst first;
 static LoadRateManagerCycl cycl;
 static LoadRateManagerAltCycl altcycl;
@@ -55,7 +53,7 @@ ResourcesManager_cpp(const char *xmlFilePath)
 {
   _path_resources.push_back(xmlFilePath);
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "ResourcesManager_cpp constructor" << endl;
+  std::cerr << "ResourcesManager_cpp constructor" << std::endl;
 #endif
   _resourceManagerMap["first"]=&first;
   _resourceManagerMap["cycl"]=&cycl;
@@ -232,7 +230,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
     li.sort();
 
     vec.clear();
-    for (list<ResourceDataToSort>::iterator iter2 = li.begin(); iter2 != li.end(); iter2++)
+    for (std::list<ResourceDataToSort>::iterator iter2 = li.begin(); iter2 != li.end(); iter2++)
       vec.push_back((*iter2)._Name);
   }
 
@@ -414,7 +412,7 @@ const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
   return _resourcesList;
 }
 
-string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfResources)
+std::string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfResources)
 {
   if(_resourceManagerMap.count(policy)==0)
     return _resourceManagerMap[""]->Find(listOfResources, _resourcesList);
@@ -435,7 +433,7 @@ ResourcesManager_cpp::SelectOnlyResourcesWithOS(std::vector<std::string>& resour
     // a computer list is given : take only resources with OS on those computers
     std::vector<std::string> vec_tmp = resources;
     resources.clear();
-    vector<string>::iterator iter = vec_tmp.begin();
+    std::vector<std::string>::iterator iter = vec_tmp.begin();
     for (; iter != vec_tmp.end(); iter++)
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
@@ -454,13 +452,13 @@ ResourcesManager_cpp::SelectOnlyResourcesWithOS(std::vector<std::string>& resour
 //=============================================================================
 void 
 ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
-                                                     const vector<string>& componentList)
+                                                     const std::vector<std::string>& componentList)
 {
   std::vector<std::string>::iterator iter = resources.begin();
   for (; iter != resources.end(); iter++)
   {
     MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-    const vector<string>& mapOfComponentsOfCurrentHost = (*it).second.ComponentsList;
+    const std::vector<std::string>& mapOfComponentsOfCurrentHost = (*it).second.ComponentsList;
 
     bool erasedHost = false;
     if( mapOfComponentsOfCurrentHost.size() > 0 )
@@ -468,7 +466,7 @@ ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& r
       for(unsigned int i=0; i<componentList.size(); i++)
       {
         const char* compoi = componentList[i].c_str();
-        vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
+        std::vector<std::string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
                                                   mapOfComponentsOfCurrentHost.end(),
                                                   compoi);
         if (itt == mapOfComponentsOfCurrentHost.end())

@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributeExternalFileDef.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

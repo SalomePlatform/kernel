@@ -43,8 +43,6 @@ void Nettoyage();
 // static int MYDEBUG = 0;
 #endif
 
-using namespace std;
-
 std::list<DESTRUCTEUR_GENERIQUE_*> *DESTRUCTEUR_GENERIQUE_::Destructeurs=0 ;
 
 /*! \class ATEXIT_

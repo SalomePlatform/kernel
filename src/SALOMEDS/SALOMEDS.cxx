@@ -43,17 +43,15 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include <SALOME_NamingService.hxx>
 
-using namespace SALOMEDS;
-
 // PAL8065: san -- Global recursive mutex for SALOMEDS methods
-Utils_Mutex Locker::MutexDS;
+Utils_Mutex SALOMEDS::Locker::MutexDS;
 
 // PAL8065: san -- Global SALOMEDS locker
-Locker::Locker()
+SALOMEDS::Locker::Locker()
 : Utils_Locker( &MutexDS )
 {}
 
-Locker::~Locker()
+SALOMEDS::Locker::~Locker()
 {}
 
 void SALOMEDS::lock()
@@ -63,7 +61,7 @@ void SALOMEDS::lock()
 
 void SALOMEDS::unlock()
 {
-  Locker::MutexDS.unlock();
+	SALOMEDS::Locker::MutexDS.unlock();
 }
 
 

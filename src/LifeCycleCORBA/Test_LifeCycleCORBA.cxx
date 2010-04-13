@@ -38,8 +38,6 @@
 #include "utilities.h"
 #include <Basics_Utils.hxx>
 
-using namespace std;
-
 int main (int argc, char * argv[])
 {
 
@@ -62,7 +60,7 @@ int main (int argc, char * argv[])
       // --- get a local container,
       //     load an engine, and invoque methods on that engine
 
-      string containerName = "myServer";
+      std::string containerName = "myServer";
       MESSAGE("FindOrLoadComponent " + containerName + "/" + "SalomeTestComponent" );
 
       Engines::Component_var mycompo =
@@ -77,7 +75,7 @@ int main (int argc, char * argv[])
       // --- get another container,
       //     load an engine, and invoque methods on that engine
 
-      string containerName2 = "otherServer";
+      std::string containerName2 = "otherServer";
 
       Engines::Component_var mycompo2 =
         _LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
@@ -86,7 +84,7 @@ int main (int argc, char * argv[])
       m2 = Engines::TestComponent::_narrow(mycompo2);
       ASSERT(!CORBA::is_nil(m2));
       SCRUTE(m2->instanceName());
-      cout << m2->instanceName() << endl;
+      std::cout << m2->instanceName() << std::endl;
       MESSAGE("Coucou " << m2->Coucou(1L));
 
       // --- get a third container,
@@ -97,26 +95,26 @@ int main (int argc, char * argv[])
       ASSERT(!CORBA::is_nil(mycompo3));
       Engines::TestComponent_var m3 = Engines::TestComponent::_narrow(mycompo3);
       ASSERT(!CORBA::is_nil(m3));
-      cout << m3->instanceName() << endl;
+      std::cout << m3->instanceName() << std::endl;
 
       // --- yet another container, with hostname,
       //     load an engine, and invoque methods on that engine
 
-      string containerName4 = Kernel_Utils::GetHostname();
+      std::string containerName4 = Kernel_Utils::GetHostname();
       containerName4  += "/titiPy";
       Engines::Component_var mycompo4 = 
         _LCC.FindOrLoad_Component(containerName4.c_str(),"SALOME_TestComponentPy");
       ASSERT(!CORBA::is_nil(mycompo4));
       Engines::TestComponent_var m4 = Engines::TestComponent::_narrow(mycompo4);
       ASSERT(!CORBA::is_nil(m4));
-      cout << m4->instanceName() << endl;
+      std::cout << m4->instanceName() << std::endl;
 
       // --- try a local file transfer
 
-      string origFileName = "/home/prascle/petitfichier";
+      std::string origFileName = "/home/prascle/petitfichier";
       SALOME_FileTransferCORBA transfer( Kernel_Utils::GetHostname(),
                                          origFileName);
-      string local = transfer.getLocalFile();
+      std::string local = transfer.getLocalFile();
       SCRUTE(local);
 
       // --- try a file transfer from another computer

@@ -32,8 +32,6 @@
 #include "SALOMEDSImpl_AttributeTreeNode.hxx"
 #include "SALOMEDS_AttributeTreeNode.hxx"
 
-using namespace std;
-
 SALOMEDS_AttributeTreeNode::SALOMEDS_AttributeTreeNode(SALOMEDSImpl_AttributeTreeNode* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
 {}
@@ -253,7 +251,7 @@ void SALOMEDS_AttributeTreeNode::SetTreeID(const std::string& value)
 
 std::string SALOMEDS_AttributeTreeNode::GetTreeID()
 {
-  string aGUID;
+  std::string aGUID;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     SALOMEDSImpl_AttributeTreeNode* aNode = dynamic_cast<SALOMEDSImpl_AttributeTreeNode*>(_local_impl);
@@ -430,7 +428,7 @@ bool SALOMEDS_AttributeTreeNode::IsChild(const _PTR(AttributeTreeNode)& value)
 
 std::string SALOMEDS_AttributeTreeNode::Label()
 {
-  string aLabel;
+  std::string aLabel;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     aLabel = _local_impl->Label().Entry();

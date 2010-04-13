@@ -30,8 +30,6 @@
 
 #include <string> 
 
-using namespace std; 
-
 SALOMEDS_SComponent::SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent)
 :SALOMEDS_SObject(theSComponent) 
 {}

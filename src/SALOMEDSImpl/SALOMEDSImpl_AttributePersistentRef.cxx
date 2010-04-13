@@ -25,8 +25,6 @@
 //
 #include "SALOMEDSImpl_AttributePersistentRef.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  : 

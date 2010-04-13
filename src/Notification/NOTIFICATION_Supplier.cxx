@@ -25,7 +25,6 @@
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
-using namespace std;
 
 long NOTIFICATION_Supplier::_stamp = 0;
 

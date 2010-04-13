@@ -27,8 +27,6 @@
 #include "SALOMEDSImpl_AttributeComment.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx" 
 
-using namespace std;
-
 //============================================================================
 /*! Function : Empty constructor
  *  Purpose  : 
@@ -76,9 +74,9 @@ SALOMEDSImpl_SComponent::~SALOMEDSImpl_SComponent()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SComponent::ComponentDataType()
+std::string SALOMEDSImpl_SComponent::ComponentDataType()
 {
-  string res = "";
+  std::string res = "";
   SALOMEDSImpl_AttributeComment* type;
   if ( (type = (SALOMEDSImpl_AttributeComment*)_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID())) ) {
     res = type->Value();
@@ -93,7 +91,7 @@ string SALOMEDSImpl_SComponent::ComponentDataType()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SComponent::ComponentIOR(string& IOR)
+bool SALOMEDSImpl_SComponent::ComponentIOR(std::string& IOR)
 {
   SALOMEDSImpl_AttributeIOR* ior;
   if (!(ior = (SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())) )

@@ -27,8 +27,6 @@
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS.hxx"
 
-using namespace std; 
-
 SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(const SALOMEDSImpl_ChildIterator& theIterator)
 {
   SALOMEDS::Locker lock;
