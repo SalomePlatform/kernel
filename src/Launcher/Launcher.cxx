@@ -311,9 +311,9 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 #else
   cmdFile += ".bat";
 #endif
-  ofstream os;
-  os.open(cmdFile.c_str(), ofstream::out );
-  os << "#! /bin/sh" << endl;
+  std::ofstream os;
+  os.open(cmdFile.c_str(), std::ofstream::out );
+  os << "#! /bin/sh" << std::endl;
   os << job_params.Command;
   os.close();
 
