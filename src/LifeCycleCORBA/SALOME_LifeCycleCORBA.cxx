@@ -140,7 +140,15 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   convert(params, new_params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,
@@ -175,7 +183,15 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
   new_params.resource_params.resList = listOfResources;
 
   Engines::Component_var compo = _LoadComponent(new_params,
@@ -219,7 +235,15 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
     new_params.resource_params.name = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
   }
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,
@@ -252,7 +276,15 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,

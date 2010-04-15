@@ -103,6 +103,13 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   // Empty private elements
   _resources_list.clear();
 
+  //default resources
+  _resource.Clear();
+	_resource.HostName = Kernel_Utils::GetHostname();
+	_resource.Name = Kernel_Utils::GetHostname();
+	_resource.DataForSort._Name = Kernel_Utils::GetHostname();
+	_resources_list[Kernel_Utils::GetHostname()] = _resource;
+
   // Get the document root node
   xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
 

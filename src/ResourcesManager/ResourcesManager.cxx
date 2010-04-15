@@ -247,7 +247,7 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
   // Send an exception if return list is empty...
   if (vec.size() == 0)
   {
-    std::string error("[GetFittingResources] ResourcesManager doesn't find any resource that feets to your parameters");
+    std::string error("[GetFittingResources] ResourcesManager doesn't find any resource that fits to your parameters");
     throw ResourcesException(error);
   }
 
