@@ -1,5 +1,5 @@
 #!/bin/bash
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,6 +20,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # --- run command in SALOME environment from remote call, ssh or rsh
 #     - SALOME configuration is defined by :
 #        - list of MODULE_ROOT_DIR
@@ -40,7 +41,7 @@
 #     $4 : if $3 == WORKINGDIR, the path to the workingdir
 #     $5 (or $3 if no workingdir given) and following : local command to execute, with args
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
-#
+
 APPLI_HOME=`dirname $0`
 export APPLI=`${APPLI_HOME}/getAppliPath.py`
 

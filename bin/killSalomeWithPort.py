@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -21,12 +21,14 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 ## \file killSalomeWithPort.py
 #  Stop all %SALOME servers from given sessions by killing them
 #
-#   The sessions are indicated by their ports on the command line as in :
-#
-#    killSalomeWithPort.py 2811 2815
+#  The sessions are indicated by their ports on the command line as in :
+#  \code
+#  killSalomeWithPort.py 2811 2815
+#  \endcode
 #
 
 import os, sys, pickle, signal, commands,glob

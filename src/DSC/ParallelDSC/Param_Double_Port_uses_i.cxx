@@ -1,4 +1,4 @@
-//  Copyright (C) 2009  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,10 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : param_double_port_uses.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
-
+//
 #include "Param_Double_Port_uses_i.hxx"
 
 Param_Double_Port_uses_i::Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_compo, 

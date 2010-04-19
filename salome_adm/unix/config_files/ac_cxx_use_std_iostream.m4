@@ -1,4 +1,4 @@
-dnl  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+dnl  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 dnl
 dnl  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 dnl  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,12 +19,13 @@ dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
 dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 dnl
+
 dnl @synopsis AC_CXX_USE_STD_IOSTREAM
 dnl
 dnl If the C++ library use std iostream
 dnl
 dnl @author Bernard Secher (CEA) - 05/12/2003
-dnl
+
 AC_DEFUN([AC_CXX_USE_STD_IOSTREAM],
 [
 

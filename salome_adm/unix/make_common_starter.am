@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -24,6 +24,7 @@
 # The following is to avoid PACKAGE_... env variable
 # redefinition compilation warnings
 # ============================================================
+
 if !WITHONLYLAUNCHER
     AM_CXXFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h
     AM_CPPFLAGS = -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h

@@ -1,4 +1,4 @@
-//  Copyright (C) 2009 CEA/DEN, EDF R&D
+//  Copyright (C) 2009-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author: André RIBES - EDF R&D
 
+// Author: André RIBES - EDF R&D
+//
 #ifndef _LAUNCHER_JOB_SALOME_HXX_
 #define _LAUNCHER_JOB_SALOME_HXX_
 
