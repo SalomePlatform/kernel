@@ -31,7 +31,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_MPIObject)
 
-class MPIObject_i: public POA_Engines::MPIObject
+class MPIObject_i: public virtual POA_Engines::MPIObject
 {
  public:
   MPIObject_i();
