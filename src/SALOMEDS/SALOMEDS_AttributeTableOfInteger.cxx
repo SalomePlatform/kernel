@@ -479,84 +479,108 @@ void SALOMEDS_AttributeTableOfInteger::SetNbColumns(int theNbColumns)
   else SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SetNbColumns(theNbColumns);
 }
 
-void SALOMEDS_AttributeTableOfInteger::SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+std::vector<int> SALOMEDS_AttributeTableOfInteger::SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
 {
+  std::vector<int> aVector;
+  int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {
-      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortRow(theRow, 
-										(SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
-										(SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortRow(theRow, 
+                                                                                          (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                          (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
-    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortRow(theRow, 
-								     (SALOMEDS::AttributeTable::SortOrder)theOrder, 
-								     (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortRow(theRow, 
+                                                                       (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                       (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
+  return aVector;
 }
 
-void SALOMEDS_AttributeTableOfInteger::SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+std::vector<int> SALOMEDS_AttributeTableOfInteger::SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
 {
+  std::vector<int> aVector;
+  int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {
-      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortColumn(theColumn, 
-										   (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
-										   (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortColumn(theColumn, 
+                                                                                             (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                             (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
-    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortColumn(theColumn, 
-									(SALOMEDS::AttributeTable::SortOrder)theOrder, 
-									(SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortColumn(theColumn, 
+                                                                          (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                          (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
+  return aVector;
 }
 
-void SALOMEDS_AttributeTableOfInteger::SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+std::vector<int> SALOMEDS_AttributeTableOfInteger::SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
 {
+  std::vector<int> aVector;
+  int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {
-      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByRow(theRow, 
-										  (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
-										  (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByRow(theRow, 
+                                                                                            (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                            (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
-    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByRow(theRow, 
-								       (SALOMEDS::AttributeTable::SortOrder)theOrder, 
-								       (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByRow(theRow, 
+                                                                         (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                         (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
+  return aVector;
 }
 
-void SALOMEDS_AttributeTableOfInteger::SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+std::vector<int> SALOMEDS_AttributeTableOfInteger::SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
 {
+  std::vector<int> aVector;
+  int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     try {
-      dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByColumn(theColumn, 
-										     (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
-										     (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfInteger*>(_local_impl)->SortByColumn(theColumn, 
+                                                                                               (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                               (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
-    SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByColumn(theColumn, 
-									  (SALOMEDS::AttributeTable::SortOrder)theOrder, 
-									  (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfInteger::_narrow(_corba_impl)->SortByColumn(theColumn, 
+                                                                            (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                            (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
   }
+  return aVector;
 }
 
 void SALOMEDS_AttributeTableOfInteger::SwapCells(int theRow1, int theColumn1, int theRow2, int theColumn2)

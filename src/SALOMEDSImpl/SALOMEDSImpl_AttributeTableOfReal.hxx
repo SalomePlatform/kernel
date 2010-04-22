@@ -85,10 +85,10 @@ public:
   std::vector<int>         GetSetRowIndices(const int theRow);
   std::vector<int>         GetSetColumnIndices(const int theColumn);
 
-  void                     SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
 
   void                     SwapCells(const int theRow1, const int theColumn1, const int theRow2, const int theColumn2);
   void                     SwapRows(const int theRow1, const int theRow2);

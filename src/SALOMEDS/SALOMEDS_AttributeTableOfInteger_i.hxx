@@ -93,17 +93,17 @@ public:
   virtual SALOMEDS::LongSeq* GetRowSetIndices(CORBA::Long theRow);
   virtual void SetNbColumns(CORBA::Long theNbColumns);
 
-  virtual void SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-		       SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                     SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			  SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                        SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			 SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                       SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			    SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                          SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
 
   virtual void SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,
