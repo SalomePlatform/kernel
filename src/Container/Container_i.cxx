@@ -513,6 +513,10 @@ Engines_Container_i::load_component_CppImplementation(const char* componentName,
 #else
   HINSTANCE handle;
   handle = LoadLibrary( impl_name.c_str() );
+  if ( !handle )
+    {
+      reason="ImplementationNotFound";
+    }
 #endif
 
   if ( handle )
