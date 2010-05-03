@@ -370,8 +370,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       Catalog->GetComponent(componentName);
     if (CORBA::is_nil (compoInfo)) 
     {
-      INFOS("Catalog Error: Component not found in the catalog" );
-      INFOS( componentName );     
+      MESSAGE("Catalog Error: Component not found in the catalog " << componentName);
       return false;
     }
     else return true;
