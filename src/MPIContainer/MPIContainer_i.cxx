@@ -146,7 +146,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 
   // --- try dlopen C++ component
 
-  std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+  std::string impl_name = std::string ("lib") + aCompName + std::string("Engine.so");
   
   _numInstanceMutex.lock(); // lock to be alone 
   // (see decInstanceCnt, finalize_removal))
@@ -283,7 +283,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     const char *ior;
     const char *error;
     PyArg_ParseTuple(result,"ss", &ior, &error);
-    string iors = ior;
+    std::string iors = ior;
     SCRUTE(iors);
     Py_RELEASE_NEW_THREAD;
   
@@ -314,7 +314,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
 }
 
 Engines::Component_ptr
-Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
+Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
                                           void *handle,
                                           int studyId)
 {
@@ -538,7 +538,7 @@ void Engines_MPIContainer_i::remove_impl(Engines::Component_ptr component_i)
   }
 
   ASSERT(! CORBA::is_nil(component_i));
-  string instanceName = component_i->instanceName() ;
+  std::string instanceName = component_i->instanceName() ;
   MESSAGE("[" << _numproc << "] unload component " << instanceName);
   _numInstanceMutex.lock() ; // lock on the remove on handle_map
   _listInstances_map.erase(instanceName);

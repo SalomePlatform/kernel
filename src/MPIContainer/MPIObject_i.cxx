@@ -137,7 +137,7 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
 }
 
 #ifdef HAVE_MPI2
-void MPIObject_i::remoteMPI2Connect(string service)
+void MPIObject_i::remoteMPI2Connect(std::string service)
 {
   int i;
   char port_name[MPI_MAX_PORT_NAME];
