@@ -80,7 +80,6 @@ lib_LTLIBRARIES = libSalomeParallelContainer.la
 libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 					 SALOME_ParallelContainer_i.cxx \
 					 SALOME_ParallelContainerProxy_i.cxx \
-					 $(top_srcdir)/src/Container/Salome_file_i.cxx \
 					 Parallel_Salome_file_i.cxx \
 					 SALOME_ParallelGlobalProcessVar_i.cxx
 
