@@ -97,7 +97,7 @@ libSalomeMPIContainer_la_LIBADD   = $(COMMON_LIBS)
 #
 bin_PROGRAMS = SALOME_MPIContainer
 SALOME_MPIContainer_SOURCES = SALOME_MPIContainer.cxx
-SALOME_MPIContainer_LDADD   = libSalomeMPIContainer.la @PYTHON_LIBS@ @MPI_LIBS@
+SALOME_MPIContainer_LDADD   = libSalomeMPIContainer.la $(COMMON_LIBS) @PYTHON_LIBS@ @MPI_LIBS@
 SALOME_MPIContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 
