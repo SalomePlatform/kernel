@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,11 +19,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeTableOfReal.cxx
 //  Author : Michael Ponikarov
 //  Module : SALOME
 //
-
 #include "SALOMEDSImpl_AttributeTableOfReal.hxx"
 
 #include <sstream>
@@ -560,9 +560,10 @@ void SALOMEDSImpl_AttributeTableOfReal::Load(const std::string& value)
 
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
 {
   CheckLocked();  
+  std::vector<int> result;
   if ( theRow > 0 && theRow <= myNbRows ) {
     std::vector<int> indices( myNbColumns );
     int cnt = 0;
@@ -583,6 +584,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SortRow(const int theRow, SortOrder sort
 	other[i] = HasValue(theRow, i+1) ? indices[cnt++] : i+1;
       indices = other;
     }
+    result = indices;
 
     for ( int col = 0; col < indices.size(); col++ ) {
       int idx = indices[col];
@@ -595,11 +597,13 @@ void SALOMEDSImpl_AttributeTableOfReal::SortRow(const int theRow, SortOrder sort
     }
     // no need for SetModifyFlag(), since it is done by SwapCells()
   }
+  return result;
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
 {
   CheckLocked();  
+  std::vector<int> result;
   if ( theColumn > 0 && theColumn <= myNbColumns ) {
     std::vector<int> indices( myNbRows );
     int cnt = 0;
@@ -620,6 +624,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SortColumn(const int theColumn, SortOrde
 	other[i] = HasValue(i+1, theColumn) ? indices[cnt++] : i+1;
       indices = other;
     }
+    result = indices;
 
     for ( int row = 0; row < indices.size(); row++ ) {
       int idx = indices[row];
@@ -632,11 +637,13 @@ void SALOMEDSImpl_AttributeTableOfReal::SortColumn(const int theColumn, SortOrde
     }
     // no need for SetModifyFlag(), since it is done by SwapCells()
   }
+  return result;
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
 {
   CheckLocked();  
+  std::vector<int> result;
   if ( theRow > 0 && theRow <= myNbRows ) {
     std::vector<int> indices( myNbColumns );
     int cnt = 0;
@@ -657,6 +664,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SortByRow(const int theRow, SortOrder so
 	other[i] = HasValue(theRow, i+1) ? indices[cnt++] : i+1;
       indices = other;
     }
+    result = indices;
 
     for ( int col = 0; col < indices.size(); col++ ) {
       int idx = indices[col];
@@ -669,11 +677,13 @@ void SALOMEDSImpl_AttributeTableOfReal::SortByRow(const int theRow, SortOrder so
     }
     // no need for SetModifyFlag(), since it is done by SwapColumns()
   }
+  return result;
 }
 
-void SALOMEDSImpl_AttributeTableOfReal::SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
+std::vector<int> SALOMEDSImpl_AttributeTableOfReal::SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
 {
   CheckLocked();  
+  std::vector<int> result;
   if ( theColumn > 0 && theColumn <= myNbColumns ) {
     std::vector<int> indices( myNbRows );
     int cnt = 0;
@@ -694,6 +704,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SortByColumn(const int theColumn, SortOr
 	other[i] = HasValue(i+1, theColumn) ? indices[cnt++] : i+1;
       indices = other;
     }
+    result = indices;
 
     for ( int row = 0; row < indices.size(); row++ ) {
       int idx = indices[row];
@@ -706,6 +717,7 @@ void SALOMEDSImpl_AttributeTableOfReal::SortByColumn(const int theColumn, SortOr
     }
     // no need for SetModifyFlag(), since it is done by SwapRows()
   }
+  return result;
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SwapCells(const int theRow1, const int theColumn1, 
@@ -743,6 +755,10 @@ void SALOMEDSImpl_AttributeTableOfReal::SwapRows(const int theRow1, const int th
   CheckLocked();  
   for (int i = 1; i <= myNbColumns; i++)
     SwapCells(theRow1, i, theRow2, i);
+  // swap row titles
+  std::string tmp = myRows[theRow1-1];
+  myRows[theRow1-1] = myRows[theRow2-1];
+  myRows[theRow2-1] = tmp;
   // no need for SetModifyFlag(), since it is done by SwapCells()
 }
 
@@ -751,6 +767,10 @@ void SALOMEDSImpl_AttributeTableOfReal::SwapColumns(const int theColumn1, const 
   CheckLocked();  
   for (int i = 1; i <= myNbRows; i++)
     SwapCells(i, theColumn1, i, theColumn2);
+  // swap column titles
+  std::string tmp = myCols[theColumn1-1];
+  myCols[theColumn1-1] = myCols[theColumn2-1];
+  myCols[theColumn2-1] = tmp;
   // no need for SetModifyFlag(), since it is done by SwapCells()
 }
 

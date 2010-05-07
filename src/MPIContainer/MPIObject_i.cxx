@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIObject_i.cxx
 //  Module : SALOME
@@ -136,7 +137,7 @@ void MPIObject_i::BCastIOR(CORBA::ORB_ptr orb, Engines::MPIObject_ptr pobj, bool
 }
 
 #ifdef HAVE_MPI2
-void MPIObject_i::remoteMPI2Connect(string service)
+void MPIObject_i::remoteMPI2Connect(std::string service)
 {
   int i;
   char port_name[MPI_MAX_PORT_NAME];

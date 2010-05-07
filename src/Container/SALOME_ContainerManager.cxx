@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
@@ -32,6 +33,11 @@
 #include <vector>
 #include "Utils_CorbaException.hxx"
 #include <sstream>
+
+#ifdef WNT
+#include <process.h>
+#define getpid _getpid
+#endif
 
 #ifdef WITH_PACO_PARALLEL
 #include "PaCOPP.hxx"
@@ -413,7 +419,13 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   logFilename += "/";
 #endif
-  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" )+".log" ;
+  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" ) ;
+#ifdef WNT
+  std::ostringstream tmp;
+  tmp << "_" << getpid();
+  logFilename += tmp.str();
+#endif
+  logFilename += ".log" ;
   command += " > " + logFilename + " 2>&1";
 #ifdef WNT
   command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";

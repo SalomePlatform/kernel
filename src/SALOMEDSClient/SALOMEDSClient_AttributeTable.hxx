@@ -1,7 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSClient_AttributeTable.hxx
 //  Author : Vadim SANDLER, Open CASCADE S.A.S. (vadim.sandler@opencascade.com)
 //
-
 #ifndef SALOMEDSClient_AttributeTable_HeaderFile
 #define SALOMEDSClient_AttributeTable_HeaderFile
 
@@ -70,10 +67,10 @@ public:
   virtual std::vector<int> GetRowSetIndices(int theRow) = 0;
   virtual void SetNbColumns(int theNbColumns) = 0;
 
-  virtual void SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy) = 0;
-  virtual void SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy) = 0;
-  virtual void SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy) = 0;
-  virtual void SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy) = 0;
+  virtual std::vector<int> SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy) = 0;
+  virtual std::vector<int> SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy) = 0;
+  virtual std::vector<int> SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy) = 0;
+  virtual std::vector<int> SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy) = 0;
   virtual void SwapCells(int theRow1, int theColumn1, int theRow2, int theColumn2) = 0;
   virtual void SwapRows(int theRow1, int theRow2) = 0;
   virtual void SwapColumns(int theColumn1, int theColumn2) = 0;

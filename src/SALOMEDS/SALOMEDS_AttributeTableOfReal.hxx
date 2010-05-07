@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTableOfReal.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -76,10 +77,10 @@ public:
   virtual std::vector<int> GetRowSetIndices(int theRow);
   virtual void SetNbColumns(int theNbColumns);    
 
-  virtual void SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy);
-  virtual void SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy);
-  virtual void SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy);
-  virtual void SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy);
+  virtual std::vector<int> SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy);
+  virtual std::vector<int> SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy);
+  virtual std::vector<int> SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy);
+  virtual std::vector<int> SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy);
   virtual void SwapCells(int theRow1, int theColumn1, int theRow2, int theColumn2);
   virtual void SwapRows(int theRow1, int theRow2);
   virtual void SwapColumns(int theColumn1, int theColumn2);

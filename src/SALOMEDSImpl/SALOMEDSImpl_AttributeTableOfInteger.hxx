@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME SALOMEDSImpl : data structure of SALOME and sources of Salome data server 
 //  File   : SALOMEDSImpl_AttributeTableOfInteger.hxx
 //  Author : Michael Ponikarov
@@ -85,10 +86,10 @@ public:
   std::vector<int>         GetSetRowIndices(const int theRow);
   std::vector<int>         GetSetColumnIndices(const int theColumn);
 
-  void                     SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
-  void                     SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy);
+  std::vector<int>         SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy);
 
   void                     SwapCells(const int theRow1, const int theColumn1, const int theRow2, const int theColumn2);
   void                     SwapRows(const int theRow1, const int theRow2);

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTableOfString_i.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -93,17 +94,17 @@ public:
   virtual SALOMEDS::LongSeq* GetRowSetIndices(CORBA::Long theRow);
   virtual void SetNbColumns(CORBA::Long theNbColumns);
 
-  virtual void SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-		       SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                     SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			  SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                        SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			 SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                       SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
-  virtual void SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
-			    SALOMEDS::AttributeTable::SortPolicy sortPolicy)
+  virtual SALOMEDS::LongSeq* SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
+                                          SALOMEDS::AttributeTable::SortPolicy sortPolicy)
     throw (SALOMEDS::AttributeTable::IncorrectIndex);
 
   virtual void SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,

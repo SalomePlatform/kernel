@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME MPIContainer : implemenation of container based on MPI libraries
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
@@ -96,7 +97,7 @@ libSalomeMPIContainer_la_LIBADD   = $(COMMON_LIBS)
 #
 bin_PROGRAMS = SALOME_MPIContainer
 SALOME_MPIContainer_SOURCES = SALOME_MPIContainer.cxx
-SALOME_MPIContainer_LDADD   = libSalomeMPIContainer.la @PYTHON_LIBS@ @MPI_LIBS@
+SALOME_MPIContainer_LDADD   = libSalomeMPIContainer.la $(COMMON_LIBS) @PYTHON_LIBS@ @MPI_LIBS@
 SALOME_MPIContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 
 

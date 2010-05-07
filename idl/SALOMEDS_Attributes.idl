@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_Attributes.idl
 //  Author : Yves FRICAUD
 //  $Header$
@@ -1095,8 +1096,9 @@ module SALOMEDS
       \param row row index
       \param order sort order (ascending/descending)
       \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
     */
-    void SortRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    LongSeq SortRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
     /*!
       \brief Sort values in the specified table column.
       
@@ -1110,8 +1112,9 @@ module SALOMEDS
       \param column column index
       \param order sort order (ascending/descending)
       \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
     */
-    void SortColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    LongSeq SortColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
     /*!
       \brief Sort table columns by the specified row.
       
@@ -1124,8 +1127,9 @@ module SALOMEDS
       \param row row index
       \param order sort order (ascending/descending)
       \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
     */
-    void SortByRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    LongSeq SortByRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
     /*!
       \brief Sort table rows by the specified column.
       
@@ -1138,8 +1142,9 @@ module SALOMEDS
       \param column column index
       \param order sort order (ascending/descending)
       \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
     */
-    void SortByColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    LongSeq SortByColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
     /*!
       \brief Swap values in two table cells.
 
