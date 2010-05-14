@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeUAttribute.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeUserID.hxx"
 #include "Basics_Utils.hxx"
-
-using namespace std;
 
 std::string SALOMEDSImpl_AttributeUserID::DefaultID()
 {
@@ -98,13 +97,13 @@ void SALOMEDSImpl_AttributeUserID::Paste (DF_Attribute* into)
   A->SetValue( myID );
 }    
 
-string SALOMEDSImpl_AttributeUserID::Type() 
+std::string SALOMEDSImpl_AttributeUserID::Type() 
 {
 
   char* aUAttrName = new char[127];
   sprintf(aUAttrName, "AttributeUserID_%s",ID().c_str());
 
-  string ret(aUAttrName);
+  std::string ret(aUAttrName);
   delete aUAttrName;
 
   return ret;

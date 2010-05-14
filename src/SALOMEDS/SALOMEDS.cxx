@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
 //  File   : SALOMEDS.cxx
 //  Author : Sergey ANIKIN
@@ -43,17 +44,15 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include <SALOME_NamingService.hxx>
 
-using namespace SALOMEDS;
-
 // PAL8065: san -- Global recursive mutex for SALOMEDS methods
-Utils_Mutex Locker::MutexDS;
+Utils_Mutex SALOMEDS::Locker::MutexDS;
 
 // PAL8065: san -- Global SALOMEDS locker
-Locker::Locker()
+SALOMEDS::Locker::Locker()
 : Utils_Locker( &MutexDS )
 {}
 
-Locker::~Locker()
+SALOMEDS::Locker::~Locker()
 {}
 
 void SALOMEDS::lock()
@@ -63,7 +62,7 @@ void SALOMEDS::lock()
 
 void SALOMEDS::unlock()
 {
-  Locker::MutexDS.unlock();
+	SALOMEDS::Locker::MutexDS.unlock();
 }
 
 

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Notification : wrapping of Notification service services
 //  File   : NOTIFICATION.cxx
 //  Author : Laurent DADA / Francis KLOSS
@@ -28,7 +29,6 @@
 
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-using namespace std;
 
 CosNA_EventChannel_ptr NOTIFICATION_channel() {
     ORB_INIT&      init = *SINGLETON_<ORB_INIT>::Instance(); ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
@@ -46,10 +46,10 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
             MESSAGE("NOTIFICATION Error : failed to obtain context for NameService");
             return(channel);
         };
-    } catch(CORBA::ORB::InvalidName& ex) {
+    } catch(CORBA::ORB::InvalidName& ) {
         MESSAGE("NOTIFICATION Error : service required is invalid [does not exist]");
         return(channel);
-    } catch (CORBA::SystemException& ex) {
+    } catch (CORBA::SystemException& ) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE");
         return(channel);
     } catch (...) {
@@ -67,9 +67,9 @@ CosNA_EventChannel_ptr NOTIFICATION_channel() {
         if (CORBA::is_nil(channel)) {
             MESSAGE("NOTIFICATION Error : failed to narrow object found in naming service");
         };
-    } catch(CORBA::ORB::InvalidName& ex) {
+    } catch(CORBA::ORB::InvalidName& ) {
         MESSAGE("NOTIFICATION Error : invalid name");
-    } catch (CORBA::SystemException& ex) {
+    } catch (CORBA::SystemException& ) {
         MESSAGE("NOTIFICATION Error : caught system exception COMM_FAILURE while resolving event channel name");
     } catch (...) {
         MESSAGE("NOTIFICATION Error : caught exception while resolving event channel name");

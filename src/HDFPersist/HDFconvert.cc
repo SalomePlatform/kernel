@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,19 +19,21 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 //  File   : HDFconvert.cc
 //  Module : SALOME
 //
 #include "HDFconvert.hxx"
-using namespace std;
 
 #ifdef WIN32
 #include <io.h>
 #include <windows.h>
+#define open _open
+#define close _close
 #endif
 
-int HDFConvert::FromAscii(const string& file, const HDFcontainerObject & hdf_container, const string& nomdataset)
+int HDFConvert::FromAscii(const std::string& file, const HDFcontainerObject & hdf_container, const std::string& nomdataset)
 {
   
   HDFdataset   * hdf_dataset;

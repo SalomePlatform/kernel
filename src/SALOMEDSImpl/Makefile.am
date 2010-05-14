@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : Guillaume Boulant (CSSI)
 #  Module : KERNEL
@@ -56,6 +57,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributePixMap.hxx \
 	SALOMEDSImpl_AttributeLocalID.hxx \
 	SALOMEDSImpl_AttributeTarget.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \
@@ -189,6 +191,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeSequenceOfReal.hxx \
 	SALOMEDSImpl_Attributes.hxx \
 	SALOMEDSImpl_AttributeStudyProperties.hxx \
+	SALOMEDSImpl_AttributeTable.hxx \
 	SALOMEDSImpl_AttributeTableOfInteger.hxx \
 	SALOMEDSImpl_AttributeTableOfReal.hxx \
 	SALOMEDSImpl_AttributeTableOfString.hxx \

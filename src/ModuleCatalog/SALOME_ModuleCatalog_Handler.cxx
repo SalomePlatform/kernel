@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Handler.cxx
 //  Author : Estelle Deville
@@ -32,7 +33,6 @@
 #include "utilities.h"
 
 #include <sstream>
-using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
@@ -479,7 +479,7 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
           // Tag test_component_multistudy
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_multistudy) )
-            _aModule.multistudy = atoi( aContent.c_str() );
+            _aModule.multistudy = atoi( aContent.c_str() ) != 0;
 
           // Tag test_component_impltype
           if ( !xmlStrcmp(aComponentSubNode->name, (const xmlChar*)test_component_impltype) )
@@ -542,11 +542,11 @@ void SALOME_ModuleCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 
                         // Tag test_defaultservice
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_defaultservice) )
-                          _aService.byDefault = (const char*)aCompServiceData;
+                          _aService.byDefault = atoi((const char*)aCompServiceData) !=0 ;
 
                         // Tag test_typeofnode
                         if ( !xmlStrcmp(aCompServiceSubNode->name, (const xmlChar*)test_typeofnode) )
-                          _aService.typeOfNode = (const char*)aCompServiceData;
+                          _aService.typeOfNode = atoi((const char*)aCompServiceData) !=0 ;
 
                         xmlFree(aCompServiceData);
                       }

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTreeNode_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -26,8 +27,6 @@
 #include "SALOMEDS_AttributeTreeNode_i.hxx"
 #include "utilities.h"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 static SALOMEDSImpl_AttributeTreeNode* GetNode(SALOMEDS::AttributeTreeNode_ptr value,
                                                SALOMEDSImpl_AttributeTreeNode* aNode) 

@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,6 +20,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 #  File   : LifeCycleCORBA.py
 #  Author : Paul RASCLE, EDF
@@ -47,3 +48,18 @@ class MachineParameters (Engines.MachineParameters):
                                                     mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir, 
                                                     mode, policy, parallelLib, nb_component_nodes)
 
+class ResourceParameters (Engines.ResourceParameters):
+  def __init__(self, name="", hostname="", OS="", componentList=[],
+                     nb_proc=0, mem_mb=0, cpu_clock=0, nb_node=0, nb_proc_per_node=0,
+                     policy="", resList=[]):
+    Engines.ResourceParameters.__init__(self, name, hostname, OS, componentList,
+                                              nb_proc, mem_mb, cpu_clock, nb_node, nb_proc_per_node,
+                                              policy, resList)
+
+class JobParameters (Engines.JobParameters):
+  def __init__(self, job_type="", job_file="", env_file="", in_files=[], out_files=[],
+                     work_directory="", local_directory="", result_directory="", maximum_duration="",
+                     resource_required=None, queue="", specific_parameters=[]):
+    Engines.JobParameters.__init__(self, job_type, job_file, env_file, in_files, out_files,
+                                         work_directory, local_directory, result_directory, maximum_duration,
+                                         resource_required, queue, specific_parameters)

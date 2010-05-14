@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME TestContainer : test of container creation and its life cycle
 //  File   : TestContainer.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
@@ -62,18 +63,16 @@ static std::ostream& operator<<(std::ostream& os, const CORBA::Exception& e)
 Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
                                            std::string componenttName)
 {
+  char* reason;
 #if defined(_DEBUG_) || defined(_DEBUG)
   bool isLib =
-    iGenFact->load_component_Library(componenttName.c_str());
-  //    iGenFact->load_component_Library("SalomeTestComponent");
+    iGenFact->load_component_Library(componenttName.c_str(),reason);
   ASSERT(isLib);
 #else
-  iGenFact->load_component_Library(componenttName.c_str());
+  iGenFact->load_component_Library(componenttName.c_str(),reason);
 #endif
-  CORBA::Object_var obj =
-    //    iGenFact->create_component_instance("SalomeTestComponent",
-    iGenFact->create_component_instance(componenttName.c_str(),
-                                        0);
+  CORBA::string_free(reason);
+  CORBA::Object_var obj = iGenFact->create_component_instance(componenttName.c_str(), 0);
   Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
   MESSAGE("create anInstance");
   SCRUTE(anInstance->instanceName());

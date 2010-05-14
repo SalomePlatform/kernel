@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Registry : Registry server implementation
 //  File   : RegistryService.hxx
 //  Author : Pascale NOYRET - Antoine YESSAYAN, EDF
@@ -34,6 +35,11 @@
 #include CORBA_SERVER_HEADER(SALOME_Registry)
 
 # include <map>
+
+#ifdef WNT
+#pragma warning(disable:4275) // Disable warning interface non dll
+#pragma warning(disable:4251) // Warning DLL Interface ...
+#endif
 
 class REGISTRY_EXPORT RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {

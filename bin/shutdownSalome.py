@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -21,15 +21,15 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 ## \file shutdownSalome.py
 #  shutdown all %SALOME servers and naming service
 #
-#  
 
 import time
-import salome
-salome.salome_init()
-salome.lcc.shutdownServers()
+import salome_kernel
+orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+lcc.shutdownServers()
 #give some time to shutdown to complete
 time.sleep(1)
-salome.LifeCycleCORBA.killOmniNames()
+salome_kernel.LifeCycleCORBA.killOmniNames()

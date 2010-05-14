@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Logger.cxx
 //  Author : Vasily Rusyaev
@@ -30,7 +31,6 @@
 //#include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-using namespace std;
 
 #ifdef WIN32
 #include <omnithread/pthread_nt.h>
@@ -92,7 +92,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   }
   
   if (CORBA::is_nil(inc)) {
-    cout<<"SALOME_Trace can not find NameService"<<endl;
+    std::cout<<"SALOME_Trace can not find NameService"<<std::endl;
     return 0;
   }
   
@@ -126,7 +126,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
       }
     }
     if (CORBA::is_nil(m_pInterfaceLogger)) {
-      cout<<"SALOME_Trace can not find Logger"<<endl;
+      std::cout<<"SALOME_Trace can not find Logger"<<std::endl;
       return 0;
     }
   }
@@ -134,13 +134,13 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
   return 1;
 }
 
-void SALOME_Trace::putMessage(ostream& msg)
+void SALOME_Trace::putMessage(std::ostream& msg)
 {
-  //if (!isInitialized) cout<<"!!! SALOME_Trace is used without initialising !!!"<<endl;
+  //if (!isInitialized) std::cout<<"!!! SALOME_Trace is used without initialising !!!"<<std::endl;
   //write resulting string into Logger CORBA server
   //concatenate string from passing parameters for transfering into Logger CORBA server
 
-  //cerr << "-+- " << msg << " ";
+  //std::cerr << "-+- " << msg << " ";
 
   //   CORBA::String_var LogMsg = CORBA::string_dup( str() );
   //Allow automatic deletion of ostrstream content 
@@ -151,7 +151,7 @@ void SALOME_Trace::putMessage(ostream& msg)
   seekp(0);
 
   if (CORBA::is_nil(m_pInterfaceLogger))
-    cout << LogMsg;
+    std::cout << LogMsg;
   else
     m_pInterfaceLogger-> putMessage (LogMsg) ;
 }

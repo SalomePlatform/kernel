@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributePythonObject.cxx
 //  Author : Michael Ponikarov
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributePythonObject.hxx"
-
-using namespace std;
 
 const std::string& SALOMEDSImpl_AttributePythonObject::GetID() 
 {
@@ -49,7 +48,7 @@ SALOMEDSImpl_AttributePythonObject::SALOMEDSImpl_AttributePythonObject()
     myIsScript = false;
 }
 
-void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
+void SALOMEDSImpl_AttributePythonObject::SetObject(const std::string& theSequence,
                                                    const bool theScript) 
 {
   CheckLocked();
@@ -60,7 +59,7 @@ void SALOMEDSImpl_AttributePythonObject::SetObject(const string& theSequence,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-string SALOMEDSImpl_AttributePythonObject::GetObject() const
+std::string SALOMEDSImpl_AttributePythonObject::GetObject() const
 {
   return mySequence;
 }
@@ -98,16 +97,16 @@ void SALOMEDSImpl_AttributePythonObject::Paste(DF_Attribute* into)
 }
 
 
-string SALOMEDSImpl_AttributePythonObject::Save() 
+std::string SALOMEDSImpl_AttributePythonObject::Save() 
 {
-  string aString = GetObject();
-  string aResult = IsScript()?"s":"n";
+  std::string aString = GetObject();
+  std::string aResult = IsScript()?"s":"n";
   aResult += aString;
   
   return aResult;
 }
           
-void SALOMEDSImpl_AttributePythonObject::Load(const string& value) 
+void SALOMEDSImpl_AttributePythonObject::Load(const std::string& value) 
 {
   char* aString = (char*)value.c_str();
   SetObject(aString + 1, aString[0]=='s');

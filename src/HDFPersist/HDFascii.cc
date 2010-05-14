@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File      : SALOMEDS_Tool.cxx
 //  Created   : Mon Oct 21 16:24:34 2002
 //  Author    : Sergey RUIN
@@ -37,15 +38,16 @@
 #include <io.h>
 #include <time.h>
 #include <windows.h>
+#define open _open
+#define read _read
+#define close _close
 #define dir_separator '\\'
 #else
 #define dir_separator '/'
 #endif
 
-using namespace std;
-
-void Move(const string& fName, const string& fNameDst);
-bool Exists(const string thePath); 
+void Move(const std::string& fName, const std::string& fNameDst);
+bool Exists(const std::string thePath); 
 bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp);
 bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp);
 bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp);
@@ -54,7 +56,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident);
 void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident);
 void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident);
 
-string GetTmpDir();
+std::string GetTmpDir();
 char* makeName(char* name);
 char* restoreName(char* name);
 void write_float64(FILE* fp, hdf_float64* value);
@@ -106,13 +108,13 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
 				      bool isReplace,
 			              const char* theExtension)
 {
-  string aPath(thePath);
+  std::string aPath(thePath);
   if(!isReplace) { 
     if(theExtension == NULL) aPath += ".asc";    
     else aPath += (char*)theExtension;
   }
 
-  string aFileName(aPath);
+  std::string aFileName(aPath);
   if(isReplace) aFileName=aPath+".ascii_tmp";
  
   HDFfile *hdf_file = new HDFfile((char*)thePath); 
@@ -125,7 +127,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
   fprintf(fp, "%s\n", ASCIIHDF_ID);
   fprintf(fp, "%i\n", nbsons+nbAttr);
 
-  for(unsigned j=0; j<nbAttr; j++) {
+  for(int j=0; j<nbAttr; j++) {
     char* attr_name = hdf_file->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(attr_name, hdf_file);
     delete attr_name;
@@ -189,7 +191,7 @@ void SaveGroupInASCIIfile(HDFgroup *hdf_group, FILE* fp, int ident)
   fprintf(fp, "%s %i\n", name, nbsons+nbAttr);
   delete [] name;
 
-  for(unsigned j=0; j<nbAttr; j++) {
+  for(int j=0; j<nbAttr; j++) {
     name = hdf_group->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_group);
     delete [] name;
@@ -230,7 +232,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 {
   hdf_dataset->OpenOnDisk();
 
-  long size =  hdf_dataset->GetSize();
+  long size =  (long) hdf_dataset->GetSize();
   long ndim = hdf_dataset->nDim(); //Get number of dimesions
   hdf_size *dim = new hdf_size[ndim];
   hdf_type type = hdf_dataset->GetType();
@@ -301,7 +303,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   
   fprintf(fp, "\n");
 
-  for ( unsigned j=0; j<nbAttr; j++ )
+  for ( int j=0; j<nbAttr; j++ )
   {
     name = hdf_dataset->GetAttributeName(j);
     HDFattribute *hdf_attribute = new HDFattribute(name, hdf_dataset);
@@ -369,19 +371,27 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
 //            Returns a name of directory where a created HDF file is placed
 //            The created file is named "hdf_from_ascii.hdf"
 //============================================================================
-char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
+char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
+				      bool isReplace)
 {
-  // Get a temporary directory to store a file
-  string aTmpDir = GetTmpDir(), aFileName("hdf_from_ascii.hdf");
-  // Build a full file name of temporary file
-  string aFullName = aTmpDir + aFileName;
+  std::string aTmpDir, aFullName;
+  if(!isReplace) {
+    // Get a temporary directory to store a file
+    aTmpDir = GetTmpDir();
+    // Build a full file name of temporary file
+    aFullName = aTmpDir + "hdf_from_ascii.hdf";
+  }
+  else {
+    aTmpDir = thePath;
+    aFullName = std::string(thePath)+".ascii_tmp";
+  }
+
+  FILE *fp = fopen(thePath, "r");
+  if(!fp) return NULL;
 
   HDFfile *hdf_file = new HDFfile((char*)aFullName.c_str()); 
   hdf_file->CreateOnDisk();
   
-  FILE *fp = fopen(thePath, "r");
-  if(!fp) return NULL;
-
   char type[9];
   int nbsons, i;
   fscanf(fp, "%s", type);
@@ -395,35 +405,42 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath)
 
     if(strcmp(id_of_begin, GROUP_ID) == 0) {
       if(!CreateGroupFromASCII(hdf_file, fp)) {
-	cout << "ConvertFromASCIIToHDF : Can not create group number " << i << endl;
+	std::cout << "ConvertFromASCIIToHDF : Can not create group number " << i << std::endl;
 	return NULL;
       }
     }
     else if(strcmp(id_of_begin, DATASET_ID) == 0) {
       if(!CreateDatasetFromASCII(hdf_file, fp)) {
-	cout << "ConvertFromASCIIToHDF :Can not create dataset number " << i << endl;
+	std::cout << "ConvertFromASCIIToHDF :Can not create dataset number " << i << std::endl;
 	return NULL;
       }
     }
     else if(strcmp(id_of_begin, ATTRIBUTE_ID) == 0) {
       if(!CreateAttributeFromASCII(hdf_file, fp)) {
-	cout << "ConvertFromASCIIToHDF :Can not create attribute number " << i << endl;
+	std::cout << "ConvertFromASCIIToHDF :Can not create attribute number " << i << std::endl;
 	return NULL;
       }
     }
     else 
-      cout << "ConvertFromASCIIToHDF : Unrecognized type " << id_of_begin << endl; 
+      std::cout << "ConvertFromASCIIToHDF : Unrecognized type " << id_of_begin << std::endl; 
   }
 
   char id_of_end[MAX_ID_SIZE];
   fscanf(fp, "%s", id_of_end);
   if(strcmp(id_of_end, ASCIIHDF_ID_END) != 0) {
-    cout << "ConvertFromASCIIToHDF : Can not find the end ASCII token " << endl;
+    std::cout << "ConvertFromASCIIToHDF : Can not find the end ASCII token " << std::endl;
     return false;  
   }
 
   hdf_file->CloseOnDisk();
   delete hdf_file;
+
+  if(isReplace) {
+    if(Exists(aFullName))
+      Move(aFullName, thePath);
+    else 
+      return NULL;
+  }
 
   int length = strlen(aTmpDir.c_str());
   char *new_str = new char[ 1+length ];
@@ -457,24 +474,24 @@ bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp)
     
     if(strcmp(id_of_begin, GROUP_ID) == 0) {
       if(!CreateGroupFromASCII(hdf_group, fp)) {
-	cout << "Can not create subgroup " << i << " for group " << name << endl;
+	std::cout << "Can not create subgroup " << i << " for group " << name << std::endl;
 	return false;
       }
     }
     else if(strcmp(id_of_begin, DATASET_ID) == 0) {
       if(!CreateDatasetFromASCII(hdf_group, fp)) {
-	cout << "Can not create dataset " << i << " for group " << name << endl;
+	std::cout << "Can not create dataset " << i << " for group " << name << std::endl;
 	return false;
       }
     }
     else if(strcmp(id_of_begin, ATTRIBUTE_ID) == 0) {
       if(!CreateAttributeFromASCII(hdf_group, fp)) {
-	cout << "Can not create attribute " << i << " for group " << name << endl;
+	std::cout << "Can not create attribute " << i << " for group " << name << std::endl;
 	return false;
       }
     }
     else 
-      cout << "CreateGroupFromASCII : Unrecognized type " << id_of_begin << endl; 
+      std::cout << "CreateGroupFromASCII : Unrecognized type " << id_of_begin << std::endl; 
   }
   
   hdf_group->CloseOnDisk();
@@ -483,7 +500,7 @@ bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp)
   char id_of_end[MAX_ID_SIZE];
   fscanf(fp, "%s\n", id_of_end);
   if(strcmp(id_of_end, GROUP_ID_END) != 0) {
-    cout << "CreateGroupFromASCII : Invalid end token : " << id_of_end << endl;
+    std::cout << "CreateGroupFromASCII : Invalid end token : " << id_of_end << std::endl;
     return false;
   }
 
@@ -566,19 +583,19 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     
     if(strcmp(token, ATTRIBUTE_ID) == 0) {
       if(!CreateAttributeFromASCII(hdf_dataset, fp)) {
-	cout << "Can not create attribute " << i << " for dataset " << name << endl;
+	std::cout << "Can not create attribute " << i << " for dataset " << name << std::endl;
 	return false;
       }
     }
     else {
-      cout << "CreateGroupFromASCII : Unrecognized type " << token << endl; 
+      std::cout << "CreateGroupFromASCII : Unrecognized type " << token << std::endl; 
       return false;
     }
   }
   
   fscanf(fp, "%s\n", token);
   if(strcmp(token, DATASET_ID_END) != 0) {
-    cout << "CreateDatasetFromASCII : Invalid end token : " << token << endl;
+    std::cout << "CreateDatasetFromASCII : Invalid end token : " << token << std::endl;
     return false;
   }
 
@@ -636,7 +653,7 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
   char id_of_end[MAX_ID_SIZE];
   fscanf(fp, "%s\n", id_of_end);
   if(strcmp(id_of_end, ATTRIBUTE_ID_END) != 0) {
-    cout << "CreateAttributeFromASCII : Invalid end token : " << id_of_end << endl;
+    std::cout << "CreateAttributeFromASCII : Invalid end token : " << id_of_end << std::endl;
     return false;
   }
 
@@ -648,16 +665,16 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
 // function : GetTempDir
 // purpose  : Return a temp directory to store created files like "/tmp/sub_dir/" 
 //============================================================================ 
-string GetTmpDir()
+std::string GetTmpDir()
 {
 
  //Find a temporary directory to store a file
 
-  string aTmpDir;
+  std::string aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
-    aTmpDir = string(Tmp_dir);
+    aTmpDir = std::string(Tmp_dir);
     if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
 /*#ifdef WIN32
     if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
@@ -667,9 +684,9 @@ string GetTmpDir()
   }
   else {
 #ifdef WIN32
-    aTmpDir = string("C:\\");
+    aTmpDir = std::string("C:\\");
 #else
-    aTmpDir = string("/tmp/");
+    aTmpDir = std::string("/tmp/");
 #endif
   }
 
@@ -677,8 +694,8 @@ string GetTmpDir()
   int aRND = 999 + (int)(100000.0*rand()/(RAND_MAX+1.0)); //Get a random number to present a name of a sub directory
   char buffer[127];
   sprintf(buffer, "%d", aRND);
-  string aSubDir(buffer);
-  if(aSubDir.size() <= 1) aSubDir = string("123409876");
+ std:: string aSubDir(buffer);
+  if(aSubDir.size() <= 1) aSubDir = std::string("123409876");
 
   aTmpDir += aSubDir; //Get RND sub directory
 
@@ -691,7 +708,7 @@ string GetTmpDir()
 #endif
   */
 
-  string aDir = aTmpDir;
+  std::string aDir = aTmpDir;
   
   for(aRND = 0; Exists(aDir); aRND++) {
     sprintf(buffer, "%d", aRND);
@@ -711,7 +728,7 @@ string GetTmpDir()
 
 char* makeName(char* name)
 {
-  string aName(name), aNewName;
+  std::string aName(name), aNewName;
   int i, length = aName.size();
   char replace = (char)19;
 
@@ -728,7 +745,7 @@ char* makeName(char* name)
 
 char* restoreName(char* name)
 {
-  string aName(name), aNewName;
+  std::string aName(name), aNewName;
   int i, length = aName.size();
   char replace = (char)19;
 
@@ -762,7 +779,7 @@ void read_float64(FILE* fp, hdf_float64* value)
   }
 }
 
-bool Exists(const string thePath) 
+bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -777,7 +794,7 @@ bool Exists(const string thePath)
   return true;
 }
 
-void Move(const string& fName, const string& fNameDst)
+void Move(const std::string& fName, const std::string& fNameDst)
 { 
 #ifdef WIN32
   MoveFileEx (fName.c_str(), fNameDst.c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED);

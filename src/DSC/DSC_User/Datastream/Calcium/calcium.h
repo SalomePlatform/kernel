@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,10 +19,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : calcium.h
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
-
+//
 /* Outils d'Aide au Couplage de Code de Calcul : $Id$ */
 
 #ifndef __CALCIUM_H
@@ -98,6 +99,50 @@ extern int      cp_len(
         int     /* E   Nombre max de valeurs a lire             */,
         int   * /* S   Nombre de valeurs rellement lues         */,
         int   * /* S   Tableau d'entiers pour stocker les       */
+                /*     valeurs lues                             */
+#endif
+);
+
+extern int      cp_llg(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance ou de lecture         */
+                /*     CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL    */,
+        float * /* E/S Borne inf de l'intervalle de lecture     */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        float * /* E   Borne Sup de l'intervalle de lecture     */,
+        int   * /* E/S Pas d'iteration a lire                   */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        char  * /* E   Nom de la variable a lire                */,
+        int     /* E   Nombre max de valeurs a lire             */,
+        int   * /* S   Nombre de valeurs rellement lues         */,
+        long  * /* S   Tableau d'entiers pour stocker les       */
+                /*     valeurs lues                             */
+#endif
+);
+
+extern int      cp_lln(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance ou de lecture         */
+                /*     CP_TEMPS, CP_ITERATION, CP_SEQUENTIEL    */,
+        float * /* E/S Borne inf de l'intervalle de lecture     */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        float * /* E   Borne Sup de l'intervalle de lecture     */,
+        int   * /* E/S Pas d'iteration a lire                   */
+                /*     Retourne le pas lu dans le cas de        */
+                /*     lecture sequentielle                     */,
+        char  * /* E   Nom de la variable a lire                */,
+        int     /* E   Nombre max de valeurs a lire             */,
+        int   * /* S   Nombre de valeurs rellement lues         */,
+        long  * /* S   Tableau d'entiers pour stocker les       */
                 /*     valeurs lues                             */
 #endif
 );
@@ -395,6 +440,21 @@ extern int      cp_elg(
 #endif
 );
 
+extern int      cp_eln(
+/*              ------                                          */
+#if CPNeedPrototype
+        void * component /* Pointeur de type Superv_Component_i* sur le */
+                         /* composant SALOME Supervisable  */,
+        int     /* E   Type de dependance                       */
+                /*     CP_TEMPS, CP_ITERATION                   */,
+        float   /* E   Pas de temps a ecrire                    */,
+        int     /* E   Pas d'iteration a ecrire                 */,
+        char  * /* E   Nom de la variable a ecrire              */,
+        int     /* E   Nombre de valeurs a ecrire               */,
+        long  * /* E   Tableau d'entiers a ecrire               */
+#endif
+);
+
 extern int      cp_ere(
 /*              ------                                          */
 #if CPNeedPrototype
@@ -502,6 +562,7 @@ extern int      cp_fini(
 #if CPNeedPrototype
         void * component /* Pointeur de type Superv_Component_i* sur le */
                          /* composant SALOME Supervisable  */,
+        char  * /* E   Nom de la variable (not in original CALCIUM API)     */,
         int     /* E    Tous les pas <= a cette valeur  */
                 /*      seront oublies par le coupleur  */
 #endif
@@ -512,6 +573,7 @@ extern int      cp_fint(
 #if CPNeedPrototype
         void * component /* Pointeur de type Superv_Component_i* sur le */
                          /* composant SALOME Supervisable  */,
+        char  * /* E   Nom de la variable (not in original CALCIUM API)     */,
         float   /* E    Tous les pas <= a cette valeur  */
                 /*      seront oublies par le coupleur  */
 #endif

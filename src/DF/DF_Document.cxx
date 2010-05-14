@@ -1,7 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,17 +16,16 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "DF_definitions.hxx"
 #include "DF_Document.hxx"
 #include "DF_Label.hxx"
 #include "DF_ChildIterator.hxx"
 
-using namespace std;
-
 //Class DF_Document is container for user's data stored as a tree of Labels
 //with assigned Attributes
 
-DF_Document::DF_Document(const string& theDocumentType)
+DF_Document::DF_Document(const std::string& theDocumentType)
 {
   _id = -1;
   _type = theDocumentType;
@@ -82,7 +78,7 @@ int DF_Document::GetDocumentID() const
 }
 
 //Returns a type of the Document
-string DF_Document::GetDocumentType()
+std::string DF_Document::GetDocumentType()
 {
   return _type;
 }
@@ -92,7 +88,7 @@ void DF_Document::Clear()
 {
   if(_root.IsNull()) return;
 
-  vector<DF_LabelNode*> vn;
+  std::vector<DF_LabelNode*> vn;
   DF_ChildIterator CI(_root, true);
   for(; CI.More(); CI.Next()) {
     DF_LabelNode* node =  CI.Value()._node; 
@@ -140,7 +136,7 @@ void DF_Document::Load(const std::string& theData)
 }
 
 //Converts a content of the Document into the std::string
-string DF_Document::Save()
+std::string DF_Document::Save()
 {
    //Not implemented
    return "";

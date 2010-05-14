@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeTarget.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -26,9 +27,6 @@
 #include "SALOMEDSImpl_AttributeTarget.hxx"
 #include "SALOMEDSImpl_AttributeReference.hxx"
 #include "SALOMEDSImpl_Study.hxx"
-
-using namespace std;
-
 
 //=======================================================================
 //function : GetID
@@ -99,9 +97,9 @@ void SALOMEDSImpl_AttributeTarget::Add(const SALOMEDSImpl_SObject& theSO)
 //function : Get
 //purpose  : 
 //=======================================================================
-vector<SALOMEDSImpl_SObject> SALOMEDSImpl_AttributeTarget::Get() 
+std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_AttributeTarget::Get() 
 {
-  vector<SALOMEDSImpl_SObject> aSeq;
+  std::vector<SALOMEDSImpl_SObject> aSeq;
   
   for(int i = 0, len = myVariables.size(); i<len; i++) 
     aSeq.push_back( SALOMEDSImpl_Study::SObject(myVariables[i]->Label()));
@@ -118,7 +116,7 @@ void SALOMEDSImpl_AttributeTarget::Remove(const SALOMEDSImpl_SObject& theSO)
   Backup();
   DF_Label aRefLabel = theSO.GetLabel();
 
-  vector<DF_Attribute*> va;
+  std::vector<DF_Attribute*> va;
   for(int i = 0, len = myVariables.size(); i<len; i++) {
     DF_Label L = myVariables[i]->Label();
     if(myVariables[i]->Label() == aRefLabel) continue;

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME_ParallelContainer : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainer_i.hxx
 //  Author : André RIBES, EDF
@@ -71,11 +72,17 @@ public:
 
   // --- CORBA methods
 
-  virtual bool load_component_Library(const char* componentName);
+  virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   virtual Engines::Component_ptr
   create_component_instance( const char* componentName,
                              CORBA::Long studyId); // 0 for multiStudy
+
+  virtual Engines::Component_ptr
+  create_component_instance_env( const char* componentName,
+                                 CORBA::Long studyId,          // 0 for multiStudy
+                                 const Engines::FieldsDict& env,
+                                 CORBA::String_out reason);
 
   Engines::Component_ptr
   find_component_instance( const char* registeredName,

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 //  File   : SALOME_ResourcesCatalog_Handler.cxx
 //  Author : Estelle Deville
@@ -30,8 +31,6 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-
-using namespace std;
 
 //=============================================================================
 /*!
@@ -105,6 +104,13 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   // Empty private elements
   _resources_list.clear();
 
+  //default resources
+  _resource.Clear();
+	_resource.HostName = Kernel_Utils::GetHostname();
+	_resource.Name = Kernel_Utils::GetHostname();
+	_resource.DataForSort._Name = Kernel_Utils::GetHostname();
+	_resources_list[Kernel_Utils::GetHostname()] = _resource;
+
   // Get the document root node
   xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
 
@@ -130,7 +136,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	    _resource.DataForSort._Name = Kernel_Utils::GetHostname();
 	  }
 	}
-	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
 	if (iter != _resources_list.end())
 	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
 	_resources_list[_resource.Name] = _resource;
@@ -142,7 +148,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       _resource.Clear();
       if(ProcessCluster(aCurNode, _resource))
       {
-	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
 	if (iter != _resources_list.end())
 	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
 	_resources_list[_resource.Name] = _resource;
@@ -152,7 +158,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   }
 
 #ifdef _DEBUG_
-  for (map<string, ParserResourcesType>::const_iterator iter = _resources_list.begin();
+  for (std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.begin();
        iter != _resources_list.end();
        iter++)
   {

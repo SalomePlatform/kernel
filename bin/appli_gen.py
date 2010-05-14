@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -21,12 +21,13 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 ## \file appli_gen.py
 #  Create a %SALOME application (virtual Salome installation)
 #
 usage="""usage: %prog [options]
 Typical use is:
-  python appli_gen.py 
+  python appli_gen.py
 Typical use with options is:
   python appli_gen.py --verbose --prefix=<install directory> --config=<configuration file>
 """
@@ -43,6 +44,7 @@ prereq_tag  = "prerequisites"
 modules_tag = "modules"
 module_tag  = "module"
 samples_tag = "samples"
+resources_tag = "resources"
 
 # --- names of attributes in XML configuration file
 nam_att  = "name"
@@ -80,6 +82,10 @@ class xml_parser:
         # --- if we are analyzing "prerequisites" element then store its "path" attribute
         if self.space == [appli_tag, prereq_tag] and path_att in attrs.getNames():
             self.config["prereq_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "resources" element then store its "path" attribute
+        if self.space == [appli_tag, resources_tag] and path_att in attrs.getNames():
+            self.config["resources_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "samples" element then store its "path" attribute
         if self.space == [appli_tag, samples_tag] and path_att in attrs.getNames():
@@ -153,7 +159,7 @@ def install(prefix,config_file,verbose=0):
         print "Configure parser: parse error in configuration file %s" % filename
         pass
     except xml.sax.SAXException, inst:
-        print inst.args   
+        print inst.args
         print "Configure parser: error in configuration file %s" % filename
         pass
     except:
@@ -194,7 +200,7 @@ def install(prefix,config_file,verbose=0):
         command = "cp -p " + filename + ' ' + os.path.join(home_dir,"config_appli.xml")
         os.system(command)
         pass
-       
+
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
     if os.path.isfile(_config["prereq_path"]):
         command='cp -p ' + _config["prereq_path"] + ' ' + os.path.join(home_dir,'env.d','envProducts.sh')
@@ -214,6 +220,10 @@ def install(prefix,config_file,verbose=0):
         command='export DATA_DIR=' + _config["samples_path"] +'\n'
         f.write(command)
         pass
+    if _config.has_key("resources_path") and os.path.isfile(_config["resources_path"]):
+        command='export USER_CATALOG_RESOURCES_FILE=' + os.path.abspath(_config["resources_path"]) +'\n'
+        f.write(command)
+
     f.close()
 
 
@@ -242,7 +252,7 @@ def install(prefix,config_file,verbose=0):
     <parameter name="killall"    value="no"/>
     <parameter name="noexcepthandler"  value="no"/>
     <parameter name="modules"    value="""
-    f.write(command)    
+    f.write(command)
     f.write('"')
     for module in _config["guimodules"][:-1]:
         f.write(module)
@@ -258,7 +268,7 @@ def install(prefix,config_file,verbose=0):
   </section>
 </document>
 """
-    f.write(command)    
+    f.write(command)
     f.close()
 
     #Add default CatalogResources.xml file
@@ -269,7 +279,7 @@ def install(prefix,config_file,verbose=0):
             hostname="localhost" />
 </resources>
 """
-    f.write(command)    
+    f.write(command)
     f.close()
 
     #Add USERS directory with 777 permission to store users configuration files

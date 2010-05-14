@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_AttributeStudyProperties
  * Use code of SALOMEDS_AttributeStudyProperties.cxx
@@ -67,7 +68,7 @@ void SALOMEDSTest::testAttributeStudyProperties()
   CPPUNIT_ASSERT(_attr->GetUserName() == "srn");
 
   //Check method SetCreationMode
-  string value = "from scratch";
+  std::string value = "from scratch";
   _attr->SetCreationMode(value);
 
   //Check method GetCreationMode
@@ -96,8 +97,8 @@ void SALOMEDSTest::testAttributeStudyProperties()
   _attr->SetModification("srn2", 6, 7, 8, 9, 10);
 
   //Check method GetModificationsList
-  vector<string> vs;
-  vector<int> vi[5];
+  std::vector<std::string> vs;
+  std::vector<int> vi[5];
   _attr->GetModificationsList(vs, vi[0], vi[1], vi[2], vi[3], vi[4], false);
   CPPUNIT_ASSERT(vs[0] == "srn2" && vi[0][0] == 6 && vi[1][0] == 7 && vi[2][0] == 8 && vi[3][0] == 9 && vi[4][0] == 10);
 

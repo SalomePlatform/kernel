@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Client.cxx
 //  Module : SALOME
@@ -30,14 +31,13 @@
 #include "SALOME_ModuleCatalog.hh"
 #include <string>
 #include "utilities.h"
-using namespace std;
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-                  const string & InterfaceName,
-                  const string & ServiceName);
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName);
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-                    const string & InterfaceName);
+                    const std::string & InterfaceName);
 
 void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C);
 
@@ -120,7 +120,7 @@ int main(int argc,char **argv)
     }
   catch(SALOME_ModuleCatalog::NotFound &ex){
     INFOS("SALOME_ModuleCatalog::NotFound")
-      cerr << ex.what << endl;
+      std::cerr << ex.what << std::endl;
   }
     catch(CORBA::SystemException&) {
       INFOS("Caught CORBA::SystemException.")
@@ -141,7 +141,7 @@ int main(int argc,char **argv)
       INFOS("CosNaming::NamingContext::NotEmpty")
   }
 
-  catch(CORBA::Exception &sysEx) {
+  catch(CORBA::Exception &) {
     INFOS("Caught CORBA::Exception.")
   }
 
@@ -167,7 +167,7 @@ void PrintComponent(SALOME_ModuleCatalog::Acomponent_ptr C)
 
 
 void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
-                    const string & InterfaceName)
+                    const std::string & InterfaceName)
 {
   unsigned int i, n;
         
@@ -184,8 +184,8 @@ void PrintInterface(SALOME_ModuleCatalog::Acomponent_ptr C,
 }
 
 void PrintService(SALOME_ModuleCatalog::Acomponent_ptr C,
-                  const string & InterfaceName,
-                  const string & ServiceName)
+                  const std::string & InterfaceName,
+                  const std::string & ServiceName)
 {
   int i, n;
 

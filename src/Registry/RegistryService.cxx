@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Registry : Registry server implementation
 //  File   : RegistryService.cxx
 //  Author : Pascale NOYRET - Antoine YESSAYAN, EDF
@@ -38,8 +39,8 @@ extern "C"
 #include <unistd.h>
 #else
 #include <process.h>
+#define getpid _getpid
 #endif
-using namespace std;
 
 /* ------------------------------*/
 /* Constructors and Destructors  */
@@ -54,7 +55,7 @@ RegistryService::RegistryService( void ) : _SessionName(0), _Compteur(0)
 RegistryService::~RegistryService()
 {
         BEGIN_OF("RegistryService::~RegistryService()") ;
-        map<int,client_infos *>::iterator im;
+        std::map<int,client_infos *>::iterator im;
         for (im=_reg.begin();im!=_reg.end(); im++)
           {
                 MESSAGE("Delete _reg item " << im->second->_name) ; 
@@ -159,7 +160,7 @@ Registry::AllInfos* RegistryService::history( void )
         return RegistryService::makeseq(_fin) ;
 }
 
-Registry::AllInfos* RegistryService::makeseq(map<int,client_infos *> &mymap )
+Registry::AllInfos* RegistryService::makeseq(std::map<int,client_infos *> &mymap )
 {
         int i=0 ;
 
@@ -168,7 +169,7 @@ Registry::AllInfos* RegistryService::makeseq(map<int,client_infos *> &mymap )
         const int RegLength = mymap.size();
         all->length(RegLength);
 
-        map<int,client_infos *>::iterator im;
+        std::map<int,client_infos *>::iterator im;
         for (im=mymap.begin();im!=mymap.end(); im++)
         {
 

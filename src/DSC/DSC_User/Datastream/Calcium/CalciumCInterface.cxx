@@ -1,3 +1,22 @@
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 #include "CalciumCInterface.hxx"
 #include "CalciumCxxInterface.hxx"
 
@@ -77,6 +96,73 @@ ecp_cd_ (void * component, char * instanceName) {
   std::string name;
   CalciumInterface::ecp_cd( *_component,name);
   strcpy(instanceName,name.c_str());
+  return CalciumTypes::CPOK;
+}
+
+// Interface for cleaning
+extern "C" CalciumTypes::InfoType 
+ecp_fini_ (void * component, char* nomvar, int i)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_fini( *_component,nomvar,i);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
+  return CalciumTypes::CPOK;
+
+}
+
+extern "C" CalciumTypes::InfoType 
+ecp_fint_ (void * component, char* nomvar, float t)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_fint( *_component,nomvar,t);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
+  return CalciumTypes::CPOK;
+}
+
+extern "C" CalciumTypes::InfoType 
+ecp_effi_ (void * component, char* nomvar, int i)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_effi( *_component,nomvar,i);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
+  return CalciumTypes::CPOK;
+
+}
+
+extern "C" CalciumTypes::InfoType 
+ecp_efft_ (void * component, char* nomvar, float t)
+{
+  Superv_Component_i * _component = static_cast<Superv_Component_i *>(component); 
+  try
+    {
+      CalciumInterface::ecp_efft( *_component,nomvar,t);
+    }
+  catch ( const CalciumException & ex)
+    {
+      DEBTRACE( ex.what() );
+      return ex.getInfo();
+    }
   return CalciumTypes::CPOK;
 }
 

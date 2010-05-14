@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_Launcher.hxx"
 #include "utilities.h"
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
 #include <libxml/parser.h>
-
-using namespace std;
 
 void AttachDebugger()
 {
@@ -60,8 +59,8 @@ int main(int argc, char* argv[])
   if(getenv ("DEBUGGER"))
     {
 //       setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
+      std::set_terminate(&terminateHandler);
+      std::set_unexpected(&unexpectedHandler);
     }
   /* Init libxml 
    * To avoid memory leak, need to call xmlInitParser in the main thread

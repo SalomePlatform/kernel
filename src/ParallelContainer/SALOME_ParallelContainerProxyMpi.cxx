@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ParallelContainerProxyMpi : Launching the proxy of a MPI PaCO++ object
 //  File   : SALOME_ParallelContainerProxyMpi.cxx
 //  Author : André Ribes, EDF
@@ -54,7 +55,7 @@
 
 #ifdef _DEBUG_
 #include <signal.h>
-using namespace std;
+
 
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
@@ -101,11 +102,11 @@ void unexpectedHandler(void)
 }
 
 void handler(int t) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "SIGSEGV in :" << getpid() << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   while (1) {}
 }
 #endif
@@ -178,11 +179,11 @@ int main(int argc, char* argv[])
     obj = proxy->_this();
 
     // in the NamingService
-    string hostname = Kernel_Utils::GetHostname();
+    std::string hostname = Kernel_Utils::GetHostname();
     Engines::Container_var pCont = Engines::Container::_narrow(obj);
-    string _containerName = ns->BuildContainerNameForNS(containerName.c_str(),
+    std::string _containerName = ns->BuildContainerNameForNS(containerName.c_str(),
                                                         hostname.c_str());
-    cerr << "---------" << _containerName << "----------" << endl;
+    std::cerr << "---------" << _containerName << "----------" << std::endl;
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_SComponentIterator
  * Use code of SALOMEDS_SComponentIterator.cxx
@@ -44,7 +45,7 @@ void SALOMEDSTest::testSComponentIterator()
   studyBuilder->NewComponent("Test1");
   studyBuilder->NewComponent("Test2");
 
-  vector<string> v;
+  std::vector<std::string> v;
   v.push_back("Test1");
   v.push_back("Test2");
 

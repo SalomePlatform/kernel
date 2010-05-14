@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_impl.cxx
 //  Author : Estelle Deville
@@ -36,8 +37,6 @@
 # include <process.h>
 #endif
 
-using namespace std;
-
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
 #else
@@ -48,23 +47,23 @@ static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
 
-list<string> splitStringToList(const string& theString, const string& theSeparator)
+std::list<std::string> splitStringToList(const std::string& theString, const std::string& theSeparator)
 {
-  list<string> aList;
+  std::list<std::string> aList;
 
   int sepLen = theSeparator.length();
   int startPos = 0, sepPos = theString.find(theSeparator, startPos);
 
   while (1)
     {
-      string anItem ;
-      if(sepPos != string::npos)
+      std::string anItem ;
+      if(sepPos != std::string::npos)
         anItem = theString.substr(startPos, sepPos - startPos);
       else
         anItem = theString.substr(startPos);
       if (anItem.length() > 0)
         aList.push_back(anItem);
-      if(sepPos == string::npos)
+      if(sepPos == std::string::npos)
         break;
       startPos = sepPos + sepLen;
       sepPos = theString.find(theSeparator, startPos);
@@ -130,13 +129,13 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
 
-    list<string> dirList;
+    std::list<std::string> dirList;
 
 #ifdef WIN32
     dirList = splitStringToList(_general_path, SEPARATOR);
 #else
     //check for new format
-    bool isNew = (std::string( _general_path ).find(SEPARATOR) != string::npos);
+    bool isNew = (std::string( _general_path ).find(SEPARATOR) != std::string::npos);
     if ( isNew ) {
       //using new format
       dirList = splitStringToList(_general_path, SEPARATOR);
@@ -146,11 +145,11 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     }
 #endif
 
-    for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
+    for (std::list<std::string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
     {
-      string aPath = (*iter);
+      std::string aPath = (*iter);
       //remove inverted commas from filename
-      while (aPath.find('\"') != string::npos)
+      while (aPath.find('\"') != std::string::npos)
         aPath.erase(aPath.find('\"'), 1);
 
       _parse_xml_file(aPath.c_str(), 
@@ -211,7 +210,7 @@ SALOME_ModuleCatalog::ListOfTypeDefinition* SALOME_ModuleCatalogImpl::GetTypes()
   SALOME_ModuleCatalog::ListOfTypeDefinition_var type_list = new SALOME_ModuleCatalog::ListOfTypeDefinition();
   type_list->length(_typeList.size());
 
-  for (int ind = 0 ; ind < _typeList.size() ; ind++)
+  for (unsigned int ind = 0 ; ind < _typeList.size() ; ind++)
     {
       //no real need to call string_dup, omniorb calls it on operator= (const char *) but it is safer
       type_list[ind].name=CORBA::string_dup(_typeList[ind].name.c_str());
@@ -626,7 +625,7 @@ void SALOME_ModuleCatalogImpl::ShutdownWithExit()
 }
 
 ParserComponent *
-SALOME_ModuleCatalogImpl::findComponent(const string & name)
+SALOME_ModuleCatalogImpl::findComponent(const std::string & name)
 {
   ParserComponent * C_parser = NULL;
 
@@ -912,7 +911,7 @@ bool
 SALOME_ModuleCatalogImpl::_verify_path_prefix(ParserPathPrefixes & pathList)
 {
   bool _return_value = true;
-  vector<string> _machine_list;
+  std::vector<std::string> _machine_list;
 
   // Fill a list of all computers indicated in the path list
   for (unsigned int ind = 0; ind < pathList.size(); ind++)

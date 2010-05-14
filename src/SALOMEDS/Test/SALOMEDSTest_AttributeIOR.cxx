@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_AttributeIOR
  * Use code of SALOMEDS_AttributeIOR.cxx
@@ -52,11 +53,11 @@ void SALOMEDSTest::testAttributeIOR()
   CPPUNIT_ASSERT(_attr);
 
   //Check method Value
-  string value = _attr->Value();
+  std::string value = _attr->Value();
 
   CPPUNIT_ASSERT(value.empty());
 
-  string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_sm);
 
   //Check method SetValue
   _attr->SetValue(ior);

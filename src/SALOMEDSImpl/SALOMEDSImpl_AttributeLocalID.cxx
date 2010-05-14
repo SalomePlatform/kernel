@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeLocalID.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeLocalID.hxx"
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -127,18 +126,18 @@ void SALOMEDSImpl_AttributeLocalID::Paste (DF_Attribute* into)
 //function : Save
 //purpose  :
 //=======================================================================
-string SALOMEDSImpl_AttributeLocalID::Save() 
+std::string SALOMEDSImpl_AttributeLocalID::Save() 
 { 
   char buffer[128]; 
   sprintf(buffer, "%d", myValue);
-  return string(buffer); 
+  return std::string(buffer); 
 }
 
 //=======================================================================
 //function : Load
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeLocalID::Load(const string& theValue)
+void SALOMEDSImpl_AttributeLocalID::Load(const std::string& theValue)
 {
   myValue = atoi(theValue.c_str());  
 }

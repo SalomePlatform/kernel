@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeGraphic.cxx
 //  Author : Sergey LITONIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
 #include "DF_Attribute.hxx"
-
-using namespace std;
 
 /*
   Class       : SALOMEDSImpl_AttributeGraphic
@@ -115,7 +114,7 @@ DF_Attribute* SALOMEDSImpl_AttributeGraphic::NewEmpty () const
 //function : SetVisibility
 //purpose  : Set visibility of object in all views
 //=======================================================================
-void SALOMEDSImpl_AttributeGraphic::SetVisibility( const map<int, int>& theMap )
+void SALOMEDSImpl_AttributeGraphic::SetVisibility( const std::map<int, int>& theMap )
 {
   myVisibility = theMap;
 }
@@ -124,7 +123,7 @@ void SALOMEDSImpl_AttributeGraphic::SetVisibility( const map<int, int>& theMap )
 //function : SetVisibility
 //purpose  : Get visibility of object in all views
 //=======================================================================
-const map<int, int>& SALOMEDSImpl_AttributeGraphic::GetVisibility()
+const std::map<int, int>& SALOMEDSImpl_AttributeGraphic::GetVisibility()
 {
   return myVisibility;
 }

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeSequenceOfReal.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeSequenceOfReal.hxx"
 #include <string.h>
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -109,7 +108,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Paste (DF_Attribute* into)
     dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(into)->Assign(myValue);
 }
 
-void SALOMEDSImpl_AttributeSequenceOfReal::Assign(const vector<double>& other) 
+void SALOMEDSImpl_AttributeSequenceOfReal::Assign(const std::vector<double>& other) 
 {
   CheckLocked();  
   Backup();
@@ -146,7 +145,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const int Index)
 
   if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
 
-  typedef vector<double>::iterator VI;
+  typedef std::vector<double>::iterator VI;
   int i = 1;    
   for(VI p = myValue.begin(); p!=myValue.end(); p++, i++) {
     if(i == Index) {
@@ -170,7 +169,7 @@ double SALOMEDSImpl_AttributeSequenceOfReal::Value(const int Index)
 }
 
 
-string SALOMEDSImpl_AttributeSequenceOfReal::Save()
+std::string SALOMEDSImpl_AttributeSequenceOfReal::Save()
 {
   int aLength = Length();
   char* aResult = new char[aLength * 127];
@@ -180,13 +179,13 @@ string SALOMEDSImpl_AttributeSequenceOfReal::Save()
     sprintf(aResult + aPosition , "%.64e ", Value(i));
     aPosition += strlen(aResult + aPosition);
   }
-  string ret(aResult);
+  std::string ret(aResult);
   delete aResult;
                           
   return ret;
 }
                             
-void SALOMEDSImpl_AttributeSequenceOfReal::Load(const string& value)
+void SALOMEDSImpl_AttributeSequenceOfReal::Load(const std::string& value)
 {
                               
   char* aCopy = (char*)value.c_str();

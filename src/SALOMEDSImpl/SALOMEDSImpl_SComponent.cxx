@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_SComponent.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -26,8 +27,6 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_AttributeComment.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx" 
-
-using namespace std;
 
 //============================================================================
 /*! Function : Empty constructor
@@ -76,9 +75,9 @@ SALOMEDSImpl_SComponent::~SALOMEDSImpl_SComponent()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SComponent::ComponentDataType()
+std::string SALOMEDSImpl_SComponent::ComponentDataType()
 {
-  string res = "";
+  std::string res = "";
   SALOMEDSImpl_AttributeComment* type;
   if ( (type = (SALOMEDSImpl_AttributeComment*)_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID())) ) {
     res = type->Value();
@@ -93,7 +92,7 @@ string SALOMEDSImpl_SComponent::ComponentDataType()
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_SComponent::ComponentIOR(string& IOR)
+bool SALOMEDSImpl_SComponent::ComponentIOR(std::string& IOR)
 {
   SALOMEDSImpl_AttributeIOR* ior;
   if (!(ior = (SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID())) )

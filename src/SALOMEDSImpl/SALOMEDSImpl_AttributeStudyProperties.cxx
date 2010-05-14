@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,15 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeStudyProperties.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include <string.h>
-
-using namespace std;
-
 
 const std::string& SALOMEDSImpl_AttributeStudyProperties::GetID()
 {
@@ -87,12 +85,12 @@ void SALOMEDSImpl_AttributeStudyProperties::SetModification(const std::string& t
 }
 
 void SALOMEDSImpl_AttributeStudyProperties::GetModifications
-                  (vector<string>& theUserNames,
-                   vector<int>&    theMinutes,
-                   vector<int>&    theHours,
-                   vector<int>&    theDays,
-                   vector<int>&    theMonths,
-                   vector<int>&    theYears) const
+                  (std::vector<std::string>& theUserNames,
+                   std::vector<int>&    theMinutes,
+                   std::vector<int>&    theHours,
+                   std::vector<int>&    theDays,
+                   std::vector<int>&    theMonths,
+                   std::vector<int>&    theYears) const
 {
   theUserNames = myUserName;
   theMinutes = myMinute;
@@ -194,8 +192,8 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
     dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(with);
 
   Init();
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
   for (int i = 0, len = aNames.size(); i < len; i++) {
     myUserName.push_back(aNames[i]);
@@ -234,10 +232,10 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
 }
 
 
-string SALOMEDSImpl_AttributeStudyProperties::Save()
+std::string SALOMEDSImpl_AttributeStudyProperties::Save()
 {
-  vector<string> aNames;
-  vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+  std::vector<std::string> aNames;
+  std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLength, anIndex;
@@ -264,13 +262,13 @@ string SALOMEDSImpl_AttributeStudyProperties::Save()
     aProperty[a++] = 1;
   }
   aProperty[a] = 0;
-  string prop(aProperty);
+  std::string prop(aProperty);
   delete aProperty;
 
   return prop;
 }
 
-void SALOMEDSImpl_AttributeStudyProperties::Load(const string& value)
+void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
 {
   char* aCopy = (char*)value.c_str();
 

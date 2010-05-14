@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOME_Component.idl
 //  Author : Paul RASCLE, EDF
 //  $Header: 
@@ -79,9 +80,10 @@ module Engines
       \param componentName like COMPONENT, (Python or C++ implementation)
                            try to make a Python import of COMPONENT,
                            then a lib open of libCOMPONENTEngine.so
+      \param reason      in case of error (return false) a string explaining the error
       \return true if load successfull or already done, false otherwise
     */
-    boolean load_component_Library(in string componentName);
+    boolean load_component_Library(in string componentName, out string reason);
 
     //! Create a new servant instance of a component.
     /*!
@@ -96,6 +98,21 @@ module Engines
     Engines::Component create_component_instance(in string componentName,
                                                  in long studyId);
 
+    //! Create a new servant instance of a component with environment variables specified.
+    /*!
+      Component library must be loaded.
+      \param componentName Name of the component which will be registered
+                           in Registry and Name Service,
+                         (instance number suffix added to the registered name)
+      \param studyId        0 if instance is not associated to a study, 
+                            >0 otherwise (== study id)
+      \param env         a dict of env variables
+      \param reason      in case of error (return nil) a string explaining the error
+      \return a loaded component
+    */
+    Engines::Component create_component_instance_env(in string componentName,
+                                                     in long studyId, in FieldsDict env,
+                                                     out string reason);
     //! Find a servant instance of a component
     /*!
       \param registeredName  Name of the component in Registry or Name Service,

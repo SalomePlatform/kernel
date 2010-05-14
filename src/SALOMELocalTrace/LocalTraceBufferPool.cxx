@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
@@ -42,8 +43,6 @@
 #include "LocalTraceCollector.hxx"
 #include "FileTraceCollector.hxx"
 #include "utilities.h"
-
-using namespace std;
 
 // In case of truncated message, end of trace contains "...\n\0"
 
@@ -113,12 +112,12 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
             {
 #ifndef WIN32
               void* handle;
-              string impl_name = string ("lib") + traceKind 
-                + string("TraceCollector.so");
+              std::string impl_name = std::string ("lib") + traceKind 
+                + std::string("TraceCollector.so");
               handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
               HINSTANCE handle;
-              string impl_name = string ("lib") + traceKind + string(".dll");
+              std::string impl_name = std::string ("lib") + traceKind + std::string(".dll");
               handle = LoadLibrary( impl_name.c_str() );
 #endif
               if ( handle )
@@ -133,9 +132,9 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 #endif
                   if ( !TraceCollectorFactory )
                   {
-                      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
+					  std::cerr << "Can't resolve symbol: SingletonInstance" <<std::endl;
 #ifndef WIN32
-                      cerr << "dlerror: " << dlerror() << endl;
+                      std::cerr << "dlerror: " << dlerror() << std::endl;
 #endif
                       exit( 1 );
                     }
@@ -143,7 +142,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
                 }
               else
                 {
-                  cerr << "library: " << impl_name << " not found !" << endl;
+                  std::cerr << "library: " << impl_name << " not found !" << std::endl;
                   assert(handle); // to give file and line
                   exit(1);        // in case assert is deactivated
                 }             

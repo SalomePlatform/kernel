@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeSequenceOfReal_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -27,13 +28,11 @@
 #include "SALOMEDS.hxx" 
 #include <vector>
 
-using namespace std;
-
 void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other) 
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  vector<double> CasCadeSeq;
+  std::vector<double> CasCadeSeq;
   for (int i = 0; i < other.length(); i++) {
     CasCadeSeq.push_back(other[i]);
   }
@@ -44,7 +43,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeSequenceOfReal_i::CorbaSequence()
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::DoubleSeq_var CorbaSeq = new SALOMEDS::DoubleSeq;
-  const vector<double>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Array();
+  const std::vector<double>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Array();
   int len = CasCadeSeq.size();
   CorbaSeq->length(len);
   for (int i = 0; i < len; i++) {

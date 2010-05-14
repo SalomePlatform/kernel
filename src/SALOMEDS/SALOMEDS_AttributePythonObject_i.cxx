@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributePythonObject_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributePythonObject_i.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA::Boolean IsScript) 
 {
@@ -39,7 +38,7 @@ void SALOMEDS_AttributePythonObject_i::SetObject(const char* theSequence, CORBA:
 char* SALOMEDS_AttributePythonObject_i::GetObject() 
 {
   SALOMEDS::Locker lock;
-  string aSeq(dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->GetObject());
+  std::string aSeq(dynamic_cast<SALOMEDSImpl_AttributePythonObject*>(_impl)->GetObject());
   CORBA::String_var aStr = CORBA::string_dup(aSeq.c_str());
   return aStr._retn();
 }

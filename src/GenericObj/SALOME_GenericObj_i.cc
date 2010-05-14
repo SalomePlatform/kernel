@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME_GenericObj_i_CC
 //  File   : SALOME_GenericObj_i.cc
 //  Author : Alexey PETROV
@@ -34,7 +35,6 @@ static int MYDEBUG = 0;
 #endif
 
 using namespace SALOME;
-using namespace std;
 
 GenericObj_i::GenericObj_i(PortableServer::POA_ptr thePOA): myRefCounter(1){
   if(MYDEBUG) 

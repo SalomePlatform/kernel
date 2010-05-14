@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,10 +20,20 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : salome_version.py
 #  Author : Vadim SANDLER
 #  Module : SALOME
 #
+__ALL__ = [
+    "getVersion",
+    "getVersionMajor",
+    "getVersionMinor",
+    "getVersionRelease",
+    "getVersions",
+    "getXVersion",
+    ]
+
 _salome_versions = {}
 
 def getVersion( mod = "KERNEL" ):
@@ -108,3 +118,10 @@ def getVersions( mod = "KERNEL" ):
         pass
     return [ major, minor, rel ]
     
+def getXVersion( mod = "KERNEL" ):
+    """
+    Get SALOME module version as list of [major, minor, release] numbers
+    Returns: version numbers list
+    """
+    major, minor, rel = getVersions( mod )
+    return hex( (major<<16) + (minor<<8) + rel )

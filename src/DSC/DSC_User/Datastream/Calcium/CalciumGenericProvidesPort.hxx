@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : CalciumGenericProvidesPort.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -147,15 +148,20 @@
     virtual void provides_port_changed(int connection_nbr,              \
                                        const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)                   \
-        {                                                 \
-          _disconnect_mutex.lock();                \
-          _mustnotdisconnect++;                           \
-          _disconnect_mutex.unlock();              \
-        }                                                 \
+        {                                                               \
+          _disconnect_mutex.lock();                                     \
+          _mustnotdisconnect++;                                         \
+          _disconnect_mutex.unlock();                                   \
+        }                                                               \
       else if ( message == Engines::DSC::RemovingConnection )           \
-        {                                                 \
-          disconnect(false);                              \
-        }                                                 \
+        {                                                               \
+          disconnect(false);                                            \
+        }                                                               \
+    }                                                                   \
+                                                                        \
+    inline void calcium_erase(float t,long i, bool before)              \
+    {                                                                   \
+      erase(t,i,before);                                                \
     }                                                                   \
   };                                                                    \
 

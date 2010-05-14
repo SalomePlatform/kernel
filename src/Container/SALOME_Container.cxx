@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Container : implementation of container and engine for Kernel
 //  File   : SALOME_Container.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
@@ -59,8 +60,6 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
 #include <stdexcept>
@@ -70,7 +69,14 @@ extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 # include <sys/wait.h>
 #endif
 
+void AttachDebugger();
+void Handler(int);
+void terminateHandler();
+void unexpectedHandler();
+
 #ifndef WIN32
+void (* setsig(int, void (*)(int)))(int);
+
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
 {
@@ -103,7 +109,7 @@ void Handler(int theSigId)
   std::cerr << "SIGSEGV: "  << std::endl;
   AttachDebugger();
   //to exit or not to exit
-  exit(1);
+  _exit(1);
 }
 
 void terminateHandler(void)
@@ -130,8 +136,8 @@ int main(int argc, char* argv[])
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
-      set_terminate(&terminateHandler);
-      set_unexpected(&unexpectedHandler);
+      std::set_terminate(&terminateHandler);
+      std::set_unexpected(&unexpectedHandler);
     }
 #endif
 
@@ -148,20 +154,8 @@ int main(int argc, char* argv[])
 
   ASSERT(argc > 1);
   SCRUTE(argv[1]);
-  bool isSupervContainer = false;
-  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
 
-  if (!isSupervContainer)
-    {
-      // int _argc = 1;
-      // char* _argv[] = {""};
-      KERNEL_PYTHON::init_python(argc,argv);
-    }
-  else
-    {
-      Py_Initialize() ;
-      PySys_SetArgv( argc , argv ) ;
-    }
+  KERNEL_PYTHON::init_python(argc,argv);
     
   char *containerName = (char *)"";
   if(argc > 1)
@@ -179,8 +173,8 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WIN32
-      stringstream aCommand ;
-      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
+      std::stringstream aCommand ;
+      aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << std::ends ;
       system(aCommand.str().c_str());
 #endif
       
@@ -197,19 +191,15 @@ int main(int argc, char* argv[])
 
       HandleServerSideSignals(orb);
 
-      if (!isSupervContainer)
-      {
+//#define MEMORYLEAKS
+#ifdef MEMORYLEAKS
         PyGILState_Ensure();
         //Destroy orb from python (for chasing memory leaks)
-        //PyRun_SimpleString("from omniORB import CORBA");
-        //PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
-        //PyRun_SimpleString("orb.destroy()");
+        PyRun_SimpleString("from omniORB import CORBA");
+        PyRun_SimpleString("orb=CORBA.ORB_init([''], CORBA.ORB_ID)");
+        PyRun_SimpleString("orb.destroy()");
         Py_Finalize();
-      }
-      else
-      {
-        orb->destroy();
-      }
+#endif
     }
   catch(CORBA::SystemException&)
     {

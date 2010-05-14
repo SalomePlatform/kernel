@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_StudyBuilder
  * Use code of SALOMEDS_StudyBuilder.cxx
@@ -47,9 +48,9 @@ void SALOMEDSTest::testStudyBuilder()
   CPPUNIT_ASSERT(sco1 && sco1->ComponentDataType() == "Test");
 
   //Check method DefineComponentInstance
-  string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_sm);
   studyBuilder->DefineComponentInstance(sco1, ior);
-  string newior;
+  std::string newior;
   sco1->ComponentIOR(newior);
   CPPUNIT_ASSERT(newior == ior);
 
@@ -68,12 +69,12 @@ void SALOMEDSTest::testStudyBuilder()
   //Check method NewObject
   _PTR(SObject) so1 = studyBuilder->NewObject(sco3);
   CPPUNIT_ASSERT(so1);
-  string id1 = so1->GetID();
+  std::string id1 = so1->GetID();
 
   //Check method NewObjectToTag
   _PTR(SObject) so2 = studyBuilder->NewObjectToTag(so1, 2);
   CPPUNIT_ASSERT(so2 && so2->Tag() == 2);
-  string id2 = so2->GetID();
+  std::string id2 = so2->GetID();
 
   //Check method FindOrCreateAttribute
   _PTR(SObject) so3 = studyBuilder->NewObject(sco3);
@@ -129,7 +130,7 @@ void SALOMEDSTest::testStudyBuilder()
   CPPUNIT_ASSERT(!so2->ReferencedObject(refSO));
 
   //Check method SetGUID and IsGUID
-  string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
+  std::string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
   studyBuilder->SetGUID(so1, value);
 
   CPPUNIT_ASSERT(studyBuilder->IsGUID(so1, value));

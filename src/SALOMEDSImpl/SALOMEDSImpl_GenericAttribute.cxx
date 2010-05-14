@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_GenericAttribute.hxx
 //  Author : SERGEY_RUIN
 //  Module : SALOME
@@ -27,9 +28,7 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
-using namespace std;
-
-string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
+std::string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);  
   if (ga)
@@ -38,7 +37,7 @@ string SALOMEDSImpl_GenericAttribute::Impl_GetType(DF_Attribute* theAttr)
   return "";
 }
 
-string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
+std::string SALOMEDSImpl_GenericAttribute::Impl_GetClassType(DF_Attribute* theAttr)
 {
   SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(theAttr);
   if (ga)
@@ -53,7 +52,7 @@ void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(DF_Attribute* theAttr)
   ga->CheckLocked();
 }
 
-string SALOMEDSImpl_GenericAttribute::Type() 
+std::string SALOMEDSImpl_GenericAttribute::Type() 
 { 
     return _type; 
 }

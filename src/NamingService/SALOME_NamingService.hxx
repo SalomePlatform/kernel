@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME NamingService : wrapping NamingService services
 //  File   : SALOME_NamingService.hxx
 //  Author : Estelle Deville
@@ -39,6 +40,10 @@
 #include "ServiceUnreachable.hxx"
 
 #include "SALOME_NamingService_defs.hxx"
+
+#ifdef WNT
+#pragma warning(disable:4290) // Warning Exception ...
+#endif
 
 class NAMINGSERVICE_EXPORT SALOME_NamingService
 {

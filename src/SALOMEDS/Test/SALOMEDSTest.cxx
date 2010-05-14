@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOMEDSTest.hxx"
 
 
@@ -41,7 +42,6 @@
 #include "SALOMEDS_SObject.hxx"
 
 
-using namespace std;
 
 // ============================================================================
 /*!
@@ -73,7 +73,7 @@ void SALOMEDSTest::setUp()
 void SALOMEDSTest::tearDown()
 {
   _PTR(StudyManager) sm ( new SALOMEDS_StudyManager(_sm) );
-  vector<string> v = sm->GetOpenStudies();
+  std::vector<std::string> v = sm->GetOpenStudies();
   for(int i = 0; i<v.size(); i++) {
     _PTR(Study) study = sm->GetStudyByName(v[i]);
     if(study)

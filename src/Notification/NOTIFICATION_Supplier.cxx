@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Notification : wrapping of Notification service services
 //  File   : NOTIFICATION_Supplier.cxx
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
-using namespace std;
 
 long NOTIFICATION_Supplier::_stamp = 0;
 
@@ -55,9 +55,9 @@ NOTIFICATION_Supplier::NOTIFICATION_Supplier(const char* instanceName, bool noti
                         proxy_consumer->connect_structured_push_supplier(_this());
                         _ok = true;
                         MESSAGE("NOTIFICATION Info : successfully connection for push supplier notification");
-                    } catch (CORBA::BAD_PARAM& ex) {
+                    } catch (CORBA::BAD_PARAM&) {
                         MESSAGE("NOTIFICATION Error : push supplier BAD_PARAM Exception while connecting");
-                    } catch (CosEventChannelAdmin::AlreadyConnected& ex) {
+                    } catch (CosEventChannelAdmin::AlreadyConnected&) {
                         MESSAGE("NOTIFICATION Error : push supplier already connected");
                     } catch (...) {
                         MESSAGE("NOTIFICATION Error : push supplier failed to connect");

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : NamingService_WaitForServerReadiness.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -28,8 +29,6 @@
 #include "utilities.h"
 #include <iostream>
 #include <ctime>
-
-using namespace std;
 
 // ============================================================================
 /*!
@@ -46,7 +45,7 @@ using namespace std;
 
 
 void NamingService_WaitForServerReadiness(SALOME_NamingService* NS,
-                                          string serverName)
+                                          std::string serverName)
 {
   long TIMESleep = 500000000; // 500 ms.
   int NumberOfTries = 40;     // total wait = 20 s.

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTableOfReal.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributeTableOfReal.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 SALOMEDS_AttributeTableOfReal::SALOMEDS_AttributeTableOfReal
                   (SALOMEDSImpl_AttributeTableOfReal* theAttr)
@@ -72,6 +71,24 @@ void SALOMEDS_AttributeTableOfReal::SetRowTitle(int theIndex, const std::string&
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitle(theIndex, theTitle.c_str());
 }
 
+std::string SALOMEDS_AttributeTableOfReal::GetRowTitle(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetRowTitle(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowTitle(theIndex);
+  }
+  return aTitle;
+}
+
 void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>& theTitles)
 {
   CheckLocked();
@@ -113,6 +130,24 @@ void SALOMEDS_AttributeTableOfReal::SetColumnTitle(int theIndex, const std::stri
     dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SetColumnTitle(theIndex, theTitle);
   }
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitle(theIndex, theTitle.c_str());
+}
+
+std::string SALOMEDS_AttributeTableOfReal::GetColumnTitle(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetColumnTitle(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetColumnTitle(theIndex);
+  }
+  return aTitle;
 }
 
 void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::string>& theTitles)
@@ -157,6 +192,24 @@ void SALOMEDS_AttributeTableOfReal::SetRowUnit(int theIndex, const std::string& 
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnit(theIndex, theUnit.c_str());
 }
 
+std::string SALOMEDS_AttributeTableOfReal::GetRowUnit(int theIndex)
+{
+  std::string aTitle;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aTitle = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetRowUnit(theIndex);
+    }
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    aTitle = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowUnit(theIndex);
+  }
+  return aTitle;
+}
+
 void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& theUnits)
 {
   int aLength = theUnits.size(), i;
@@ -184,7 +237,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfReal::GetRowUnits()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowUnits();
     aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back(string(aSeq[i].in()));
+    for (i = 0; i < aLength; i++) aVector.push_back(std::string(aSeq[i].in()));
   }
   return aVector;
 }
@@ -222,7 +275,7 @@ void SALOMEDS_AttributeTableOfReal::AddRow(const std::vector<double>& theData)
       aTable->SetRowData(aTable->GetNbRows() + 1, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -244,7 +297,7 @@ void SALOMEDS_AttributeTableOfReal::SetRow(int theRow, const std::vector<double>
       aTable->SetRowData(theRow, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -283,7 +336,7 @@ void SALOMEDS_AttributeTableOfReal::AddColumn(const std::vector<double>& theData
       aTable->SetColumnData(aTable->GetNbColumns() + 1, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -305,7 +358,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumn(int theColumn, const std::vector<d
       aTable->SetColumnData(theColumn, theData);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectArgumentLength();
+      throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
     }
   }
   else {
@@ -341,7 +394,7 @@ void SALOMEDS_AttributeTableOfReal::PutValue(double theValue, int theRow, int th
       dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->PutValue(theValue, theRow, theColumn);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectIndex();
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
@@ -369,13 +422,29 @@ double SALOMEDS_AttributeTableOfReal::GetValue(int theRow, int theColumn)
       aValue = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->GetValue(theRow, theColumn);
     }   
     catch(...) {
-      throw SALOMEDS::AttributeTableOfReal::IncorrectIndex();
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
     }
   }
   else {
     aValue = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetValue(theRow, theColumn);
   }
   return aValue;
+}
+
+void SALOMEDS_AttributeTableOfReal::RemoveValue(int theRow, int theColumn)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->RemoveValue(theRow, theColumn);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->RemoveValue(theRow, theColumn);
+  }
 }
 
 std::vector<int> SALOMEDS_AttributeTableOfReal::GetRowSetIndices(int theRow)
@@ -401,4 +470,156 @@ void SALOMEDS_AttributeTableOfReal::SetNbColumns(int theNbColumns)
     dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SetNbColumns(theNbColumns);
   }
   else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetNbColumns(theNbColumns);
+}
+
+std::vector<int> SALOMEDS_AttributeTableOfReal::SortRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+{
+  std::vector<int> aVector;
+  int aLength, i;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SortRow(theRow, 
+                                                                                       (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                       (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SortRow(theRow, 
+                                                                    (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                    (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
+  }
+  return aVector;
+}
+
+std::vector<int> SALOMEDS_AttributeTableOfReal::SortColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+{
+  std::vector<int> aVector;
+  int aLength, i;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SortColumn(theColumn, 
+                                                                                          (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                          (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SortColumn(theColumn, 
+                                                                       (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                       (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
+  }
+  return aVector;
+}
+
+std::vector<int> SALOMEDS_AttributeTableOfReal::SortByRow(int theRow, SortOrder theOrder, SortPolicy thePolicy)
+{
+  std::vector<int> aVector;
+  int aLength, i;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SortByRow(theRow, 
+                                                                                         (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                         (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SortByRow(theRow, 
+                                                                      (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                      (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
+  }
+  return aVector;
+}
+
+std::vector<int> SALOMEDS_AttributeTableOfReal::SortByColumn(int theColumn, SortOrder theOrder, SortPolicy thePolicy)
+{
+  std::vector<int> aVector;
+  int aLength, i;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      aVector = dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SortByColumn(theColumn, 
+                                                                                            (SALOMEDSImpl_AttributeTable::SortOrder)theOrder, 
+                                                                                            (SALOMEDSImpl_AttributeTable::SortPolicy)thePolicy);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::LongSeq_var aSet =
+      SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SortByColumn(theColumn, 
+                                                                         (SALOMEDS::AttributeTable::SortOrder)theOrder, 
+                                                                         (SALOMEDS::AttributeTable::SortPolicy)thePolicy);
+    aLength = aSet->length();  
+    for (i = 0; i < aLength; i++) aVector.push_back(aSet[i]);
+  }
+  return aVector;
+}
+
+void SALOMEDS_AttributeTableOfReal::SwapCells(int theRow1, int theColumn1, int theRow2, int theColumn2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SwapCells(theRow1, theColumn1, theRow2, theColumn2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SwapCells(theRow1, theColumn1, theRow2, theColumn2);
+  }
+}
+
+void SALOMEDS_AttributeTableOfReal::SwapRows(int theRow1, int theRow2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SwapRows(theRow1, theRow2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SwapRows(theRow1, theRow2);
+  }
+}
+
+void SALOMEDS_AttributeTableOfReal::SwapColumns(int theColumn1, int theColumn2)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    try {
+      dynamic_cast<SALOMEDSImpl_AttributeTableOfReal*>(_local_impl)->SwapColumns(theColumn1, theColumn2);
+    }   
+    catch(...) {
+      throw SALOMEDS::AttributeTable::IncorrectIndex();
+    }
+  }
+  else {
+    SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SwapColumns(theColumn1, theColumn2);
+  }
 }

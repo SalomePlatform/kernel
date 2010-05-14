@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
@@ -79,7 +80,6 @@ lib_LTLIBRARIES = libSalomeParallelContainer.la
 libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 					 SALOME_ParallelContainer_i.cxx \
 					 SALOME_ParallelContainerProxy_i.cxx \
-					 $(top_srcdir)/src/Container/Salome_file_i.cxx \
 					 Parallel_Salome_file_i.cxx \
 					 SALOME_ParallelGlobalProcessVar_i.cxx
 

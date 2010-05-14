@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ----------------------------------------------------------------------------
 //
 %module libSALOME_LifeCycleCORBA
@@ -43,8 +44,6 @@ typedef int Py_ssize_t;
 #define PY_SSIZE_T_MAX INT_MAX
 #define PY_SSIZE_T_MIN INT_MIN
 #endif
-
-using namespace std;
 
 //--- from omniORBpy.h (not present on Debian Sarge packages)
 
@@ -92,8 +91,6 @@ omniORBpyAPI* api;
 
 
 // ----------------------------------------------------------------------------
-using namespace std;
-
 
 %typemap(out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr,
               Engines::ContainerManager_ptr, Engines::ResourcesManager_ptr 

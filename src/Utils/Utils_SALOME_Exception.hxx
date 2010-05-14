@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Utils : general SALOME's definitions and tools
 //  File   : Utils_SALOME_Exception.hxx
 //  Author : Antoine YESSAYAN, EDF
@@ -50,6 +51,7 @@
 #  define UTILS_EXPORT __declspec( dllexport )
 # else
 #  define UTILS_EXPORT __declspec( dllimport )
+#  undef LOCALIZED
 #  define LOCALIZED(message) #message
 # endif
 #else
@@ -75,7 +77,7 @@ public :
         SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );
         SALOME_Exception( const SALOME_Exception &ex );
         virtual ~SALOME_Exception() throw ();
-        friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
+        UTILS_EXPORT friend std::ostream & operator<<( std::ostream &os , const SALOME_Exception &ex );
         virtual const char *what( void ) const throw () ;
 } ;
 

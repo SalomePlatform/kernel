@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : TraceCollector_WaitForServerReadiness.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -31,8 +32,6 @@
 #ifdef WIN32
 #include <omnithread/pthread_nt.h>
 #endif
-
-using namespace std;
 
 // ============================================================================
 /*!
@@ -48,7 +47,7 @@ using namespace std;
 // ============================================================================
 
 CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
-                                                        string serverName)
+                                                        std::string serverName)
 {
   long TIMESleep = 500000000;
   int NumberOfTries = 40;
@@ -85,14 +84,14 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
             }  
           catch( CORBA::SystemException& )
             {
-              cout << "TraceCollector_WaitForServerReadiness: "
+              std::cout << "TraceCollector_WaitForServerReadiness: "
                    << "CORBA::SystemException: "
-                   << "Unable to contact the Naming Service" << endl;
+                   << "Unable to contact the Naming Service" << std::endl;
             }
           catch(...)
             {
-              cout << "TraceCollector_WaitForServerReadiness: "
-                   << "Unknown exception dealing with Naming Service" << endl;
+              std::cout << "TraceCollector_WaitForServerReadiness: "
+                   << "Unknown exception dealing with Naming Service" << std::endl;
             }
           
           obj=CORBA::Object::_nil();
@@ -110,7 +109,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
                 }
               catch (const CosNaming::NamingContext::NotFound&)
                 {
-                  cout << "Caught exception: Naming Service can't found Logger";
+                  std::cout << "Caught exception: Naming Service can't found Logger";
                 }
             }
 #ifndef WIN32
@@ -118,29 +117,29 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 #else
           Sleep(TIMESleep / 1000000);
 #endif
-          cout << "TraceCollector_WaitForServerReadiness: retry look for"
-               << serverName << endl;
+		  std::cout << "TraceCollector_WaitForServerReadiness: retry look for"
+               << serverName << std::endl;
         }          
     }
   catch (const CosNaming::NamingContext::NotFound&)
     {
-      cout << "Caught exception: Naming Service can't found Logger";
+      std::cout << "Caught exception: Naming Service can't found Logger";
     }
   catch (CORBA::COMM_FAILURE&)
     {
-      cout << "Caught CORBA::SystemException CommFailure.";
+      std::cout << "Caught CORBA::SystemException CommFailure.";
     }
   catch (CORBA::SystemException&)
     {
-      cout << "Caught CORBA::SystemException.";
+      std::cout << "Caught CORBA::SystemException.";
     }
   catch (CORBA::Exception&)
     {
-      cout << "Caught CORBA::Exception.";
+      std::cout << "Caught CORBA::Exception.";
     }
   catch (...)
     {
-      cout << "Caught unknown exception.";
+      std::cout << "Caught unknown exception.";
     }
   return obj._retn();
 }

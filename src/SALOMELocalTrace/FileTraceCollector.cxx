@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : FileTraceCollector.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -28,8 +29,6 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-
-using namespace std;
 
 //#define _DEVDEBUG_
 #include "FileTraceCollector.hxx"
@@ -100,13 +99,13 @@ void* FileTraceCollector::run(void *bid)
   // --- opens a file with append mode
   //     so, several processes can share the same file
 
-  ofstream traceFile;
+  std::ofstream traceFile;
   const char *theFileName = _fileName.c_str();
   DEVTRACE("try to open trace file "<< theFileName);
-  traceFile.open(theFileName, ios::out | ios::app);
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   if (!traceFile)
     {
-      cerr << "impossible to open trace file "<< theFileName << endl;
+      std::cerr << "impossible to open trace file "<< theFileName << std::endl;
       exit (1);
     }
 
@@ -133,15 +132,15 @@ void* FileTraceCollector::run(void *bid)
                     << " : " <<  myTrace.trace;
 #endif
           traceFile.close();
-          cout << flush ;
+          std::cout << std::flush ;
 #ifndef WIN32
-          cerr << "INTERRUPTION from thread " << myTrace.threadId
+          std::cerr << "INTERRUPTION from thread " << myTrace.threadId
                << " : " <<  myTrace.trace;
 #else
-          cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+          std::cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
                << " : " <<  myTrace.trace;
 #endif
-          cerr << flush ; 
+          std::cerr << std::flush ; 
           exit(1);     
         }
       else
@@ -180,7 +179,7 @@ FileTraceCollector:: ~FileTraceCollector()
       if (_threadId)
         {
           int ret = pthread_join(*_threadId, NULL);
-          if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
+          if (ret) std::cerr << "error close FileTraceCollector : "<< ret << std::endl;
           else DEVTRACE("FileTraceCollector destruction OK");
           delete _threadId;
           _threadId = 0;

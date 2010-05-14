@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : LocalTraceCollector.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -31,8 +32,6 @@
 #include <fstream>
 #include <cstdlib>
 #include <omniORB4/CORBA.h>
-
-using namespace std;
 
 #include "SALOMETraceCollector.hxx"
 #include "TraceCollector_WaitForServerReadiness.hxx"
@@ -108,8 +107,8 @@ void* SALOMETraceCollector::run(void *bid)
     m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
   if (CORBA::is_nil(m_pInterfaceLogger))
     {
-      cerr << "Logger server not found ! Abort" << endl;
-      cerr << flush ; 
+      std::cerr << "Logger server not found ! Abort" << std::endl;
+      std::cerr << std::flush ; 
       exit(1);
     } 
   else
@@ -136,7 +135,7 @@ void* SALOMETraceCollector::run(void *bid)
         {
           if (myTrace.traceType == ABORT_MESS)
             {
-              stringstream abortMessage("");
+              std::stringstream abortMessage("");
 #ifndef WIN32
               abortMessage << "INTERRUPTION from thread "
                            << myTrace.threadId << " : " << myTrace.trace;
@@ -152,7 +151,7 @@ void* SALOMETraceCollector::run(void *bid)
             }
           else
             {
-              stringstream aMessage("");
+              std::stringstream aMessage("");
 #ifndef WIN32
               aMessage << "th. " << myTrace.threadId
 #else
@@ -188,7 +187,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
       if (_threadId)
         {
           int ret = pthread_join(*_threadId, NULL);
-          if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
+          if (ret) std::cerr << "error close SALOMETraceCollector : "<< ret << std::endl;
           else DEVTRACE("SALOMETraceCollector destruction OK");
           delete _threadId;
           _threadId = 0;

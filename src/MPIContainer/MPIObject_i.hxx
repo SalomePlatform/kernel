@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIObject_i.hxx
 //  Module : SALOME
@@ -31,15 +32,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_MPIObject)
 
-class POException
-{
-public:
-  const std::string msg;
-  const int numproc;
-  POException(const int ip,const std::string m) : numproc(ip),msg(m) {}
-};
-
-class MPIObject_i: public POA_Engines::MPIObject
+class MPIObject_i: public virtual POA_Engines::MPIObject
 {
  public:
   MPIObject_i();

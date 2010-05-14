@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIContainer_i.cxx
 //  Module : SALOME
@@ -38,7 +39,6 @@
 #include <pthread.h>  // must be before Python.h !
 #include <Python.h>
 #include "Container_init_python.hxx"
-using namespace std;
 
 // L'appel au registry SALOME ne se fait que pour le process 0
 Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
@@ -59,7 +59,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
     _NS = new SALOME_NamingService();
     _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
 
-    string hostname = Kernel_Utils::GetHostname();
+    std::string hostname = Kernel_Utils::GetHostname();
     _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
@@ -114,8 +114,10 @@ void Engines_MPIContainer_i::Shutdown()
 }
 
 // Load a component library
-bool Engines_MPIContainer_i::load_component_Library(const char* componentName)
+bool Engines_MPIContainer_i::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   pthread_t *th;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
@@ -140,11 +142,11 @@ bool Engines_MPIContainer_i::load_component_Library(const char* componentName)
 
 bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 {
-  string aCompName = componentName;
+  std::string aCompName = componentName;
 
   // --- try dlopen C++ component
 
-  string impl_name = string ("lib") + aCompName + string("Engine.so");
+  std::string impl_name = std::string ("lib") + aCompName + std::string("Engine.so");
   
   _numInstanceMutex.lock(); // lock to be alone 
   // (see decInstanceCnt, finalize_removal))
@@ -209,9 +211,13 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 
 // Create an instance of component
 Engines::Component_ptr
-Engines_MPIContainer_i::create_component_instance( const char* componentName,
-                                                   CORBA::Long studyId)
+Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
+                                                       CORBA::Long studyId,
+                                                       const Engines::FieldsDict& env,
+                                                       CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   pthread_t *th;
   if(_numproc == 0){
     th = new pthread_t[_nbproc];
@@ -247,7 +253,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
   Engines::Component_var iobject = Engines::Component::_nil() ;
   Engines::MPIObject_var pobj;
 
-  string aCompName = genericRegisterName;
+  std::string aCompName = genericRegisterName;
   if (_library_map[aCompName]) { // Python component
     if (_isSupervContainer) {
       INFOS("Supervision Container does not support Python Component Engines");
@@ -260,8 +266,8 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
 
     char aNumI[12];
     sprintf( aNumI , "%d" , numInstance ) ;
-    string instanceName = aCompName + "_inst_" + aNumI ;
-    string component_registerName =
+    std::string instanceName = aCompName + "_inst_" + aNumI ;
+    std::string component_registerName =
       _containerName + "/" + instanceName;
 
     Py_ACQUIRE_NEW_THREAD;
@@ -274,7 +280,10 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
                                            aCompName.c_str(),
                                            instanceName.c_str(),
                                            studyId);
-    string iors = PyString_AsString(result);
+    const char *ior;
+    const char *error;
+    PyArg_ParseTuple(result,"ss", &ior, &error);
+    std::string iors = ior;
     SCRUTE(iors);
     Py_RELEASE_NEW_THREAD;
   
@@ -291,7 +300,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
   
   //--- try C++
 
-  string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
+  std::string impl_name = std::string ("lib") + genericRegisterName +std::string("Engine.so");
   if (_library_map.count(impl_name) != 0) // C++ component
     {
       void* handle = _library_map[impl_name];
@@ -305,7 +314,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
 }
 
 Engines::Component_ptr
-Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
+Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
                                           void *handle,
                                           int studyId)
 {
@@ -313,8 +322,8 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
   Engines::MPIObject_var pobj;
   // --- find the factory
 
-  string aGenRegisterName = genericRegisterName;
-  string factory_name = aGenRegisterName + string("Engine_factory");
+  std::string aGenRegisterName = genericRegisterName;
+  std::string factory_name = aGenRegisterName + std::string("Engine_factory");
 
   typedef  PortableServer::ObjectId * (*MPIFACTORY_FUNCTION)
     (int,int,
@@ -349,8 +358,8 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
 
       char aNumI[12];
       sprintf( aNumI , "%d" , numInstance ) ;
-      string instanceName = aGenRegisterName + "_inst_" + aNumI ;
-      string component_registerName =
+      std::string instanceName = aGenRegisterName + "_inst_" + aNumI ;
+      std::string component_registerName =
         _containerName + "/" + instanceName;
 
       // --- Instanciate required CORBA object
@@ -388,12 +397,8 @@ Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
       BCastIOR(_orb,pobj,false);
 
     }
-  catch(const POException &ex){
-    INFOS( ex.msg << " on process number " << ex.numproc ) ;
-    return Engines::Component::_nil();
-  }
-  catch (...){
-    INFOS( "Container_i::createInstance exception catched" ) ;
+  catch(const std::exception &ex){
+    INFOS( ex.what() ) ;
     return Engines::Component::_nil();
   }
   return iobject._retn();
@@ -445,12 +450,12 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   char _aNumI[12];
   sprintf(_aNumI,"%d",_numInstance) ;
 
-  string _impl_name = componentName;
-  string _nameToRegister = nameToRegister;
-  string instanceName = _nameToRegister + "_inst_" + _aNumI + cproc;
+  std::string _impl_name = componentName;
+  std::string _nameToRegister = nameToRegister;
+  std::string instanceName = _nameToRegister + "_inst_" + _aNumI + cproc;
   MESSAGE("[" << _numproc << "] instanceName=" << instanceName);
 
-  string absolute_impl_name(_impl_name);
+  std::string absolute_impl_name(_impl_name);
   MESSAGE("[" << _numproc << "] absolute_impl_name=" << absolute_impl_name);
   void * handle = dlopen(absolute_impl_name.c_str(), RTLD_LAZY);
   if(!handle){
@@ -459,7 +464,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
     return Engines::Component::_nil() ;
   }
 
-  string factory_name = _nameToRegister + string("Engine_factory");
+  std::string factory_name = _nameToRegister + std::string("Engine_factory");
   MESSAGE("[" << _numproc << "] factory_name=" << factory_name) ;
 
   dlerror();
@@ -499,7 +504,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   if( _numproc == 0 ){
     // utiliser + tard le registry ici :
     // register the engine under the name containerName.dir/nameToRegister.object
-    string component_registerName = _containerName + "/" + _nameToRegister;
+    std::string component_registerName = _containerName + "/" + _nameToRegister;
     _NS->Register(iobject, component_registerName.c_str()) ;
   }
 
@@ -533,7 +538,7 @@ void Engines_MPIContainer_i::remove_impl(Engines::Component_ptr component_i)
   }
 
   ASSERT(! CORBA::is_nil(component_i));
-  string instanceName = component_i->instanceName() ;
+  std::string instanceName = component_i->instanceName() ;
   MESSAGE("[" << _numproc << "] unload component " << instanceName);
   _numInstanceMutex.lock() ; // lock on the remove on handle_map
   _listInstances_map.erase(instanceName);
@@ -565,11 +570,11 @@ void Engines_MPIContainer_i::finalize_removal()
 
   _numInstanceMutex.lock(); // lock to be alone
   // (see decInstanceCnt, load_component_Library)
-  map<string, void *>::iterator ith;
+  std::map<std::string, void *>::iterator ith;
   for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
   {
     void *handle = (*ith).second;
-    string impl_name= (*ith).first;
+    std::string impl_name= (*ith).first;
     if (handle)
     {
       SCRUTE(handle);
@@ -591,7 +596,9 @@ void Engines_MPIContainer_i::finalize_removal()
 void *th_loadcomponentlibrary(void *s)
 {
   thread_st *st = (thread_st*)s;
-  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_component_Library(st->compoName.c_str());
+  char* reason;
+  (Engines::MPIContainer::_narrow((*(st->tior))[st->ip]))->load_component_Library(st->compoName.c_str(),reason);
+  CORBA::string_free(reason);
   return NULL;
 }
 

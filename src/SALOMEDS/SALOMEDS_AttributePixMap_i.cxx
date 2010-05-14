@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributePixMap_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributePixMap_i.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 CORBA::Boolean SALOMEDS_AttributePixMap_i::HasPixMap()
 {
@@ -47,5 +46,5 @@ void SALOMEDS_AttributePixMap_i::SetPixMap(const char* value)
   SALOMEDS::Locker lock;
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
-  dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_impl)->SetPixMap(string(Str));
+  dynamic_cast<SALOMEDSImpl_AttributePixMap*>(_impl)->SetPixMap(std::string(Str));
 }

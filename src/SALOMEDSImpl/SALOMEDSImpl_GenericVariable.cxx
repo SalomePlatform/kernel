@@ -1,34 +1,32 @@
-// Copyright (C) 2008  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 //  File   : SALOMEDSImpl_GenericVariable.cxx
 //  Author : Roman NIKOLAEV, Open CASCADE S.A.S.
 //  Module : SALOME
-
+//
 #include "SALOMEDSImpl_GenericVariable.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
 #include <string>
 
-
-using namespace std;
 
 //============================================================================
 /*! Function : SALOMEDSImpl_GenericVariable
@@ -37,7 +35,7 @@ using namespace std;
 //============================================================================
 SALOMEDSImpl_GenericVariable::
 SALOMEDSImpl_GenericVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType,
-                             const string& theName): 
+                             const std::string& theName): 
   _type(theType),
   _name(theName)
 {}
@@ -65,7 +63,7 @@ SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::Type()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::Name() const
+std::string SALOMEDSImpl_GenericVariable::Name() const
 {
   return _name;
 }
@@ -103,7 +101,7 @@ bool SALOMEDSImpl_GenericVariable::setName(const std::string& theName)
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String2VariableType(const string& theStrType)
+SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String2VariableType(const std::string& theStrType)
 {
   return(SALOMEDSImpl_GenericVariable::VariableTypes)atoi((char*)theStrType.c_str());
 }
@@ -113,9 +111,9 @@ SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::String
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::Save() const
+std::string SALOMEDSImpl_GenericVariable::Save() const
 {
-  return string();
+  return std::string();
 }
 
 
@@ -124,18 +122,18 @@ string SALOMEDSImpl_GenericVariable::Save() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::SaveToScript() const
+std::string SALOMEDSImpl_GenericVariable::SaveToScript() const
 {
-  return string();
+  return std::string();
 }
 //============================================================================
 /*! Function : SaveType
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_GenericVariable::SaveType() const
+std::string SALOMEDSImpl_GenericVariable::SaveType() const
 {
-  return string();
+  return std::string();
 }
 
 //============================================================================
@@ -143,6 +141,6 @@ string SALOMEDSImpl_GenericVariable::SaveType() const
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_GenericVariable::Load(const string& theStrValue)
+void SALOMEDSImpl_GenericVariable::Load(const std::string& theStrValue)
 {
 }

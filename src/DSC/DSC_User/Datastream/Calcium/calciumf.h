@@ -1,7 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,10 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : calcium.h
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
-
+//
 /* Outils d'Aide au Couplage de Code de Calcul : $Id$ */
 
 #ifndef __CALCIUMF_H
@@ -46,6 +44,7 @@
 
 CALCIUM_ECR_INTERFACE_C_H(een_fort_,float ,cal_int,cal_int,integer,,);
 CALCIUM_ECR_INTERFACE_C_H(elg_fort_,float ,cal_int,long   ,long2integer,,);
+CALCIUM_ECR_INTERFACE_C_H(eln_fort_,float ,cal_int,long   ,long,,);
 CALCIUM_ECR_INTERFACE_C_H(ein_fort_,float ,cal_int,int    ,int2integer,,);
 CALCIUM_ECR_INTERFACE_C_H(ere_fort_,float ,cal_int,float ,float,,);
 CALCIUM_ECR_INTERFACE_C_H(edb_fort_,double,cal_int,double,double,,);
@@ -56,16 +55,18 @@ CALCIUM_ECR_INTERFACE_C_H(ech_fort_,float ,cal_int,char  ,str,STAR,LCH_LAST_PARA
 
 
 #define CALCIUM_LECT_INTERFACE_C_H(_name,_timeType,_calInt,_type,_typeName,_qual,lastarg) \
+  extern void cp_##_name##_free ( _type _qual * data);                  \
   extern _calInt cp_##_name (void * component, _calInt mode,            \
                              _timeType * ti, _timeType * tf, _calInt * i, \
                              char * nomvar, _calInt bufferLength,       \
                              _calInt * nRead, _type _qual * data        \
                              lastarg ) ;                                \
                                                                         \
- 
+
 
 CALCIUM_LECT_INTERFACE_C_H(len_fort_,float ,cal_int,cal_int ,integer,,);
 CALCIUM_LECT_INTERFACE_C_H(llg_fort_,float ,cal_int,long    ,long2integer,,);
+CALCIUM_LECT_INTERFACE_C_H(lln_fort_,float ,cal_int,long    ,long,,);
 CALCIUM_LECT_INTERFACE_C_H(lin_fort_,float ,cal_int,int     ,int2integer,,);
 CALCIUM_LECT_INTERFACE_C_H(lre_fort_,float ,cal_int,float   ,float,,);
 CALCIUM_LECT_INTERFACE_C_H(ldb_fort_,double,cal_int,double  ,double,,);

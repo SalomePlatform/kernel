@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_SComponent
  * Use code of SALOMEDS_SComponent.cxx
@@ -53,10 +54,10 @@ void SALOMEDSTest::testSComponent()
 
   //Check method ComponentIOR
 
-  string ior = _orb->object_to_string(_sm);
+  std::string ior = _orb->object_to_string(_sm);
 
   _attr->SetValue(ior);
-  string new_ior;
+  std::string new_ior;
   CPPUNIT_ASSERT(sco->ComponentIOR(new_ior));
 
   CPPUNIT_ASSERT(new_ior == ior);

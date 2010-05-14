@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 //  File   : SALOME_Laucher_Handler.cxx
 //  Author : Bernard Secher
@@ -28,8 +29,6 @@
 #include "SALOME_Launcher_Handler.hxx"
 #include <iostream>
 #include <map>
-
-using namespace std;
 
 //=============================================================================
 /*!
@@ -105,7 +104,7 @@ void SALOME_Launcher_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
         if ( !xmlStrcmp(aCurNode2->name,(const xmlChar*)test_machine) ){
           _machp.Clear();
           xmlChar* name = xmlNodeGetContent(aCurNode2);
-          string clusterName = (const char*)name;
+          std::string clusterName = (const char*)name;
           xmlFree(name);
         
           if (xmlHasProp(aCurNode2, (const xmlChar*)test_env_file)){

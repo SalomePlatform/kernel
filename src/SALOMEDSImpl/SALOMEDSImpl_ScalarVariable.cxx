@@ -1,33 +1,31 @@
-// Copyright (C) 2008  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-// 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 //  File   : SALOMEDSImpl_ScalarVariable.cxx
 //  Author : Roman NIKOLAEV, Open CASCADE S.A.S.
 //  Module : SALOME
-
+//
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 #include "SALOMEDSImpl_GenericVariable.hxx"
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
-
-using namespace std;
 
 //============================================================================
 /*! Function : SALOMEDSImpl_ScalarVariable
@@ -36,7 +34,7 @@ using namespace std;
 //============================================================================
 SALOMEDSImpl_ScalarVariable::
 SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type,
-                            const string& theName):
+                            const std::string& theName):
   SALOMEDSImpl_GenericVariable(type,theName)
 {}
 
@@ -67,7 +65,7 @@ bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_ScalarVariable::setStringValue(const string& theValue)
+bool SALOMEDSImpl_ScalarVariable::setStringValue(const std::string& theValue)
 {
   
   if(myStrValue == theValue) 
@@ -92,7 +90,7 @@ double SALOMEDSImpl_ScalarVariable::getValue() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::getStringValue() const
+std::string SALOMEDSImpl_ScalarVariable::getStringValue() const
 {
   return myStrValue;
 }
@@ -102,7 +100,7 @@ string SALOMEDSImpl_ScalarVariable::getStringValue() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::Save() const{
+std::string SALOMEDSImpl_ScalarVariable::Save() const{
   char buffer[255];
   switch(Type())
     {
@@ -124,7 +122,7 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
       }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -132,7 +130,7 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveToScript() const
+std::string SALOMEDSImpl_ScalarVariable::SaveToScript() const
 {
   char buffer[255];
   switch(Type())
@@ -162,7 +160,7 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
       }
     default:break;
     }
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -170,10 +168,10 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_ScalarVariable::SaveType() const{
+std::string SALOMEDSImpl_ScalarVariable::SaveType() const{
   char buffer[255];
   sprintf(buffer, "%d", (int)Type());
-  return string(buffer);
+  return std::string(buffer);
 }
 
 //============================================================================
@@ -181,7 +179,7 @@ string SALOMEDSImpl_ScalarVariable::SaveType() const{
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_ScalarVariable::Load(const string& theStrValue)
+void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
 {
   double aValue = atof(theStrValue.c_str());
   setValue(aValue);

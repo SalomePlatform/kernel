@@ -46,8 +46,10 @@ First, the user must create a %SALOME application configuration file by modifyin
 copy of ${KERNEL_ROOT_DIR}/bin/salome/config_appli.xml.
 The file describes the list of %SALOME modules used in the application, with
 their respective installation path. The configuration file also defines the
-path of an existing script which sets the %SALOME prerequisites,
-and optionnaly, the path of samples directory (SAMPLES_SRC).
+path of an existing script which sets the %SALOME prerequisites (tag "prerequisites"),
+and optionally, the path of samples directory (SAMPLES_SRC) (tag "samples") 
+and the path of a catalog of resources (tag "resources").
+
 The following command:
 
 \code

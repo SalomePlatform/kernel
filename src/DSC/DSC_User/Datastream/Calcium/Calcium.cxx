@@ -1,7 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "Calcium.hxx"
 #include "CalciumInterface.hxx"
 #include "calcium.h"
@@ -42,7 +40,7 @@ PySupervCompo::~PySupervCompo()
 }
 
 
-extern "C" 
+extern "C"
 {
   void cp_exit(int);
   void setDependency(provides_port*, char*, CalciumTypes::DependencyType);
@@ -65,6 +63,10 @@ extern "C"
     else if(std::string(type)=="CALCIUM_integer")
       {
         dynamic_cast<calcium_integer_port_provides *>(port)->setDependencyType(depend);
+      }
+    else if(std::string(type)=="CALCIUM_long")
+      {
+        dynamic_cast<calcium_long_port_provides *>(port)->setDependencyType(depend);
       }
     else if(std::string(type)=="CALCIUM_string")
       {

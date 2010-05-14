@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,7 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// using namespace std;
+
 //=============================================================================
 // File      : TestMPIContainer.cxx
 // Created   : mer jui 4 13:11:27 CEST 2003
@@ -41,7 +41,6 @@
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-using namespace std;
 
 int main (int argc, char * argv[])
 {
@@ -57,7 +56,7 @@ int main (int argc, char * argv[])
     int status;
 
     if( argc != 3 || strcmp(argv[1],"-np") ){
-      cout << "Usage: TestMPIContainer -np nbproc" << endl;
+      std::cout << "Usage: TestMPIContainer -np nbproc" << std::endl;
       exit(0);
     }
 
@@ -67,11 +66,11 @@ int main (int argc, char * argv[])
 
     // Use Name Service to find container
     SALOME_NamingService NS(orb) ;
-    string containerName = "/Containers/" ;
-    string hostName = Kernel_Utils::GetHostname();
+    std::string containerName = "/Containers/" ;
+    std::string hostName = Kernel_Utils::GetHostname();
     containerName += hostName + "/MPIFactoryServer_" + argv[2];
 
-    string dirn(getenv("KERNEL_ROOT_DIR"));
+    std::string dirn(getenv("KERNEL_ROOT_DIR"));
     dirn += "/lib/salome/libSalomeTestMPIComponentEngine.so";
     
     // Try to resolve MPI Container
@@ -81,7 +80,7 @@ int main (int argc, char * argv[])
     if(CORBA::is_nil(iGenFact)){
 
       // Launch MPI Container
-      string cmd("mpirun -np ");
+      std::string cmd("mpirun -np ");
       cmd += argv[2];
       cmd += " ";
       cmd += getenv("KERNEL_ROOT_DIR");

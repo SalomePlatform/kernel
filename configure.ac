@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,12 +19,13 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ================================================================
 # Process this file with autoconf to produce a configure script
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [5.1.3], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [5.1.4], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -516,8 +517,10 @@ AC_OUTPUT([ \
   doc/salome/Makefile \
   doc/salome/tui/Makefile \
   doc/salome/tui/doxyfile \
+  doc/salome/tui/static/header.html \
   doc/salome/gui/Makefile \
   doc/salome/gui/doxyfile \
+  doc/salome/gui/static/header.html \
   idl/Makefile \
   idl/Calcium_Ports.idl \
   resources/Makefile \

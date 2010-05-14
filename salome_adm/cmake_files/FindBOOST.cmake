@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ------
 
 MESSAGE(STATUS "Check for boost ...")
@@ -114,9 +115,9 @@ IF(BOOST_STATUS)
 	SET(EXTENSION)
       ENDIF(CMAKE_BUILD_TYPE STREQUAL Debug)
       SET(LIB_NAMES)
-      FOREACH(version 1_35 1_38)
+      FOREACH(version 1_35 1_38 1_42)
 	SET(LIB_NAMES ${LIB_NAMES} libboost_${name}-vc90-mt${EXTENSION}-${version})
-      ENDFOREACH(version 1_35 1_38)
+      ENDFOREACH(version 1_35 1_38 1_42)
       FIND_LIBRARY(BOOST_LIB_${name} NAMES ${LIB_NAMES} PATHS ${BOOST_LIB_PATHS} ${BOOST_FIND_PATHS_OPTION})
     ELSE(WINDOWS)
       FIND_LIBRARY(BOOST_LIB_${name} boost_${name} PATHS ${BOOST_LIB_PATHS} ${BOOST_FIND_PATHS_OPTION})

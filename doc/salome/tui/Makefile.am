@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,12 +19,18 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # -* Makefile *- 
 # Author : Paul RASCLE (EDF)
 # Date : 16/02/2006
 # $Header$
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+EXTRA_DIST = images input static/footer.html static/doxygen.css
+
+tuidocdir = $(docdir)/tui/KERNEL
+tuidoc_DATA = images/head.png
 
 dev_docs:
 	$(DOXYGEN) -u doxyfile; \
@@ -41,5 +47,3 @@ install-data-local:
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/tui/KERNEL
-
-EXTRA_DIST = static

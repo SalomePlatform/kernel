@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_SObject_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -43,8 +44,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-using namespace std;
 
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImpl, CORBA::ORB_ptr theORB)
 {
@@ -135,7 +134,7 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
     return SALOMEDS::Study::_nil();
   }
 
-  string IOR = aStudy->GetTransientReference();
+  std::string IOR = aStudy->GetTransientReference();
   CORBA::Object_var obj = _orb->string_to_object(IOR.c_str());
   SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
   ASSERT(!CORBA::is_nil(Study));
@@ -169,7 +168,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
 SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 {
   SALOMEDS::Locker lock;
-  vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
+  std::vector<DF_Attribute*> aSeq = _impl->GetAllAttributes();
   SALOMEDS::ListOfAttributes_var SeqOfAttr = new SALOMEDS::ListOfAttributes;
   int length = aSeq.size();
 
@@ -239,7 +238,7 @@ char* SALOMEDS_SObject_i::Name()
 void  SALOMEDS_SObject_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;
-  string aName((char*)name);
+  std::string aName((char*)name);
   _impl->Name(aName);
 }
 
@@ -275,7 +274,7 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
   SALOMEDS::Locker lock;
   CORBA::Object_ptr obj = CORBA::Object::_nil();
   try {
-    string IOR = _impl->GetIOR();
+    std::string IOR = _impl->GetIOR();
     char* c_ior = CORBA::string_dup(IOR.c_str());
     obj = _orb->string_to_object(c_ior);
     CORBA::string_free(c_ior);

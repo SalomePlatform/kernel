@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_Study.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -61,8 +62,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-
-using namespace std; 
 
 SALOMEDS_Study::SALOMEDS_Study(SALOMEDSImpl_Study* theStudy)
 {
@@ -201,7 +200,7 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindObjectByName(const std::string& a
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindObjectByName(anObjectName, aComponentName);
+    std::vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindObjectByName(anObjectName, aComponentName);
     aLength = aSeq.size();
     for (i = 0; i< aLength; i++) 
       aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
@@ -545,7 +544,7 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& 
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
-    vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindDependances(*(aSO->GetLocalImpl()));
+    std::vector<SALOMEDSImpl_SObject> aSeq = _local_impl->FindDependances(*(aSO->GetLocalImpl()));
     if (aSeq.size()) {
       aLength = aSeq.size();
       for (i = 0; i < aLength; i++) 
@@ -630,7 +629,7 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished)
+bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
   if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
@@ -638,7 +637,7 @@ bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName,
   return ret;
 }     
 
-void SALOMEDS_Study::SetStudyLock(const string& theLockerID)
+void SALOMEDS_Study::SetStudyLock(const std::string& theLockerID)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -658,13 +657,13 @@ bool SALOMEDS_Study::IsStudyLocked()
   return isLocked;
 }
  
-void SALOMEDS_Study::UnLockStudy(const string& theLockerID)
+void SALOMEDS_Study::UnLockStudy(const std::string& theLockerID)
 {
   if(_isLocal) _local_impl->UnLockStudy(theLockerID.c_str());
   else _corba_impl->UnLockStudy((char*)theLockerID.c_str());
 }
 
-vector<string> SALOMEDS_Study::GetLockerID()
+std::vector<std::string> SALOMEDS_Study::GetLockerID()
 {
   std::vector<std::string> aVector;
   int aLength, i;
@@ -681,7 +680,7 @@ vector<string> SALOMEDS_Study::GetLockerID()
 }
 
 
-void SALOMEDS_Study::SetReal(const string& theVarName, const double theValue)
+void SALOMEDS_Study::SetReal(const std::string& theVarName, const double theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -693,7 +692,7 @@ void SALOMEDS_Study::SetReal(const string& theVarName, const double theValue)
     _corba_impl->SetReal((char*)theVarName.c_str(),theValue);
 }
 
-void SALOMEDS_Study::SetInteger(const string& theVarName, const int theValue)
+void SALOMEDS_Study::SetInteger(const std::string& theVarName, const int theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -705,7 +704,7 @@ void SALOMEDS_Study::SetInteger(const string& theVarName, const int theValue)
     _corba_impl->SetInteger((char*)theVarName.c_str(),theValue);
 }
 
-void SALOMEDS_Study::SetBoolean(const string& theVarName, const bool theValue)
+void SALOMEDS_Study::SetBoolean(const std::string& theVarName, const bool theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -717,7 +716,7 @@ void SALOMEDS_Study::SetBoolean(const string& theVarName, const bool theValue)
     _corba_impl->SetBoolean((char*)theVarName.c_str(),theValue);
 }
 
-void SALOMEDS_Study::SetString(const string& theVarName, const string& theValue)
+void SALOMEDS_Study::SetString(const std::string& theVarName, const std::string& theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -729,7 +728,7 @@ void SALOMEDS_Study::SetString(const string& theVarName, const string& theValue)
     _corba_impl->SetString((char*)theVarName.c_str(),(char*)theValue.c_str());
 }
 
-void SALOMEDS_Study::SetStringAsDouble(const string& theVarName, const double theValue)
+void SALOMEDS_Study::SetStringAsDouble(const std::string& theVarName, const double theValue)
 {
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -741,7 +740,7 @@ void SALOMEDS_Study::SetStringAsDouble(const string& theVarName, const double th
     _corba_impl->SetStringAsDouble((char*)theVarName.c_str(),theValue);
 }
 
-double SALOMEDS_Study::GetReal(const string& theVarName)
+double SALOMEDS_Study::GetReal(const std::string& theVarName)
 {
   double aResult;
   if (_isLocal) {
@@ -753,7 +752,7 @@ double SALOMEDS_Study::GetReal(const string& theVarName)
   return aResult;
 }
 
-int SALOMEDS_Study::GetInteger(const string& theVarName)
+int SALOMEDS_Study::GetInteger(const std::string& theVarName)
 {
   int aResult;  
   if (_isLocal) {
@@ -765,7 +764,7 @@ int SALOMEDS_Study::GetInteger(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::GetBoolean(const string& theVarName)
+bool SALOMEDS_Study::GetBoolean(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -777,7 +776,7 @@ bool SALOMEDS_Study::GetBoolean(const string& theVarName)
   return aResult;
 }
 
-std::string SALOMEDS_Study::GetString(const string& theVarName)
+std::string SALOMEDS_Study::GetString(const std::string& theVarName)
 {
   std::string aResult;
   if (_isLocal) {
@@ -789,7 +788,7 @@ std::string SALOMEDS_Study::GetString(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::IsReal(const string& theVarName)
+bool SALOMEDS_Study::IsReal(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -802,7 +801,7 @@ bool SALOMEDS_Study::IsReal(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::IsInteger(const string& theVarName)
+bool SALOMEDS_Study::IsInteger(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -815,7 +814,7 @@ bool SALOMEDS_Study::IsInteger(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::IsBoolean(const string& theVarName)
+bool SALOMEDS_Study::IsBoolean(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -828,7 +827,7 @@ bool SALOMEDS_Study::IsBoolean(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::IsString(const string& theVarName)
+bool SALOMEDS_Study::IsString(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -841,7 +840,7 @@ bool SALOMEDS_Study::IsString(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::IsVariable(const string& theVarName)
+bool SALOMEDS_Study::IsVariable(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -853,9 +852,9 @@ bool SALOMEDS_Study::IsVariable(const string& theVarName)
   return aResult;
 }
 
-vector<string> SALOMEDS_Study::GetVariableNames()
+std::vector<std::string> SALOMEDS_Study::GetVariableNames()
 {
-  vector<string> aVector;
+  std::vector<std::string> aVector;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     aVector = _local_impl->GetVariableNames();
@@ -864,12 +863,12 @@ vector<string> SALOMEDS_Study::GetVariableNames()
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetVariableNames();
     int aLength = aSeq->length();
     for (int i = 0; i < aLength; i++) 
-      aVector.push_back( string(aSeq[i].in()) );
+      aVector.push_back( std::string(aSeq[i].in()) );
   }
   return aVector;
 }
 
-bool SALOMEDS_Study::RemoveVariable(const string& theVarName)
+bool SALOMEDS_Study::RemoveVariable(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -881,7 +880,7 @@ bool SALOMEDS_Study::RemoveVariable(const string& theVarName)
   return aResult;
 }
 
-bool SALOMEDS_Study::RenameVariable(const string& theVarName, const string& theNewVarName)
+bool SALOMEDS_Study::RenameVariable(const std::string& theVarName, const std::string& theNewVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -893,7 +892,7 @@ bool SALOMEDS_Study::RenameVariable(const string& theVarName, const string& theN
   return aResult;
 }
 
-bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
+bool SALOMEDS_Study::IsVariableUsed(const std::string& theVarName)
 {
   bool aResult;
   if (_isLocal) {
@@ -905,9 +904,9 @@ bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
   return aResult;
 }
 
-vector< vector<string> > SALOMEDS_Study::ParseVariables(const string& theVars)
+std::vector< std::vector<std::string> > SALOMEDS_Study::ParseVariables(const std::string& theVars)
 {
-  vector< vector<string> > aResult;
+  std::vector< std::vector<std::string> > aResult;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     aResult = _local_impl->ParseVariables(theVars);
@@ -915,10 +914,10 @@ vector< vector<string> > SALOMEDS_Study::ParseVariables(const string& theVars)
   else {
     SALOMEDS::ListOfListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
     for (int i = 0, n = aSeq->length(); i < n; i++) {
-      vector<string> aVector;
+      std::vector<std::string> aVector;
       SALOMEDS::ListOfStrings aSection = aSeq[i];
       for (int j = 0, m = aSection.length(); j < m; j++) {
-        aVector.push_back( string(aSection[j].in()) );
+        aVector.push_back( std::string(aSection[j].in()) );
       }
       aResult.push_back( aVector );
     }
@@ -970,7 +969,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
 }
 
 
-_PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
+_PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const std::string& theID, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
   if(theSavePoint >= 0) {
@@ -985,8 +984,8 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID
   return _PTR(AttributeParameter)(AP);
 }
 
-_PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const string& theID, 
-                                                             const string& theModuleName, int theSavePoint)
+_PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& theID, 
+                                                             const std::string& theModuleName, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
   if(theSavePoint > 0) {

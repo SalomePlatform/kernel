@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_Launcher.hxx"
 #include "BatchTest.hxx"
 #include "OpUtil.hxx"
@@ -37,8 +38,6 @@
 #endif
 #include <sys/types.h>
 #include <vector>
-
-using namespace std;
 
 const char *SALOME_Launcher::_LauncherNameInNS = "/SalomeLauncher";
 
@@ -277,7 +276,7 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
       throw SALOME_Exception("No resources have been found with your parameters");
 
     const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
-    string resource_name(p->name);
+	std::string resource_name(p->name);
     INFOS("Choose resource for test: " <<  resource_name);
     
     BatchTest t(*p);

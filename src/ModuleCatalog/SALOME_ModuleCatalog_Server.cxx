@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Server.cxx
 //  Module : SALOME
@@ -34,7 +35,6 @@
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 int main(int argc,char **argv)
 {
@@ -48,7 +48,9 @@ int main(int argc,char **argv)
       //
       long TIMESleep = 500000000;
       int NumberOfTries = 40;
+#ifndef WIN32
       int a;
+#endif
       timespec ts_req;
       ts_req.tv_nsec=TIMESleep;
       ts_req.tv_sec=0;

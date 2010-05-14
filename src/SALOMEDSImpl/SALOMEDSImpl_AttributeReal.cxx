@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeReal.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeReal.hxx"
-
-using namespace std;
 
 #include <stdlib.h>
 
@@ -108,18 +107,18 @@ void SALOMEDSImpl_AttributeReal::Paste (DF_Attribute* into)
 //function : Save
 //purpose  :
 //=======================================================================
-string SALOMEDSImpl_AttributeReal::Save() 
+std::string SALOMEDSImpl_AttributeReal::Save() 
 { 
   char buffer[255]; 
   sprintf(buffer, "%.64e", myValue);
-  return string(buffer); 
+  return std::string(buffer); 
 }
 
 //=======================================================================
 //function : Load
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::Load(const string& theValue)
+void SALOMEDSImpl_AttributeReal::Load(const std::string& theValue)
 {
   myValue = atof(theValue.c_str());  
 }

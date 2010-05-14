@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeTextColor.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeTextColor.hxx"
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -73,7 +72,7 @@ void SALOMEDSImpl_AttributeTextColor::SetTextColor(const double& R, const double
 //function : TextColor
 //purpose  :
 //=======================================================================
-vector<double> SALOMEDSImpl_AttributeTextColor::TextColor()
+std::vector<double> SALOMEDSImpl_AttributeTextColor::TextColor()
 {
   return myValue; 
 }
@@ -82,7 +81,7 @@ vector<double> SALOMEDSImpl_AttributeTextColor::TextColor()
 //function : ChangeArray
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTextColor::ChangeArray(const vector<double>& newArray)
+void SALOMEDSImpl_AttributeTextColor::ChangeArray(const std::vector<double>& newArray)
 {
   Backup();
 
@@ -133,18 +132,18 @@ void SALOMEDSImpl_AttributeTextColor::Paste (DF_Attribute* into)
 
 
 
-string SALOMEDSImpl_AttributeTextColor::Save() 
+std::string SALOMEDSImpl_AttributeTextColor::Save() 
 {
   char *Val = new char[75];
   sprintf(Val, "%f %f %f", (float)myValue[0], 
                            (float)myValue[1], 
                            (float)myValue[2]);
-  string ret(Val);
+  std::string ret(Val);
   delete Val;
   return ret;
 }
 
-void SALOMEDSImpl_AttributeTextColor::Load(const string& value) 
+void SALOMEDSImpl_AttributeTextColor::Load(const std::string& value) 
 {
   float r, g, b;
   sscanf(value.c_str(), "%f %f %f", &r, &g, &b);

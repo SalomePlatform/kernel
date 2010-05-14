@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : basic_port_factory.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
@@ -26,7 +27,6 @@
 #include "basic_port_factory.hxx"
 #include "Superv_Component_i.hxx"
 
-using namespace std;
 
 basic_port_factory::basic_port_factory() {
   Superv_Component_i::register_factory("BASIC",this);
@@ -35,7 +35,7 @@ basic_port_factory::basic_port_factory() {
 basic_port_factory::~basic_port_factory() {}
 
 provides_port *
-basic_port_factory::create_data_servant(string type) {
+basic_port_factory::create_data_servant(std::string type) {
   provides_port * rtn_port = NULL;
   if (type == "short") {
     rtn_port = new data_short_port_provides();  
@@ -44,7 +44,7 @@ basic_port_factory::create_data_servant(string type) {
 }
 
 uses_port * 
-basic_port_factory::create_data_proxy(string type) {
+basic_port_factory::create_data_proxy(std::string type) {
   uses_port * rtn_port = NULL;
   if (type == "short")
     rtn_port = new data_short_port_uses();

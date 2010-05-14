@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //  File   : SALOME_ModuleCatalog_Acomponent_impl.cxx
 //  Author : Estelle Deville
@@ -31,8 +32,6 @@
 UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
 
 #include "utilities.h"
-
-using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
@@ -132,7 +131,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The interface";
+		std::string message = "The interface";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -190,7 +189,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
  if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The interface";
+      std::string message = "The interface";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -257,7 +256,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      string message = "The service";
+      std::string message = "The service";
       message += servicename;
       message += " of the interface ";
       message += interfacename;
@@ -313,7 +312,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
   if (!_find)
     {
       // The service was not found, the exception should be thrown
-      string message = "The default service of the interface ";
+      std::string message = "The default service of the interface ";
       message += interfacename;
       message += " of the component ";
       message += _Component.name;
@@ -361,7 +360,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
    if (!_find)
      {
        // The computer was not found, the exception should be thrown
-       string message = "The computer ";
+       std::string message = "The computer ";
        message += machinename;
        message += " was not found in the catalog associated to the component ";
        message += _Component.name;

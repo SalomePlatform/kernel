@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Logger : CORBA server managing trace output
 //  File   : SALOME_Logger_Server.cxx
 //  Author : Vasily Rusyaev
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
       orb->run() ;
       orb->destroy() ;
     }  
-  catch(CORBA::COMM_FAILURE& ex)
+  catch(CORBA::COMM_FAILURE&)
         {
       std::cerr << "Caught system exception COMM_FAILURE -- unable to contact the "
            << "object." << std::endl;

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 //  File   : HDFgroup.cc
 //  Module : SALOME
@@ -30,7 +31,6 @@ extern "C"
 }
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
-using namespace std;
 
 herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
 {

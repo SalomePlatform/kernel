@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // Modified by : $LastChangedBy$
 // Date        : $LastChangedDate: 2007-03-01 13:40:26 +0100 (Thu, 01 Mar 2007) $
 // Id          : $Id$
@@ -27,14 +28,13 @@
 #include "utilities.h"
 #include <iostream>
 
-using namespace std;
 
-CORBA_DATE_CAL_SCHEM::CORBA_DATE_CAL_SCHEM() : map<CalciumTypes::DateCalSchem,
+CORBA_DATE_CAL_SCHEM::CORBA_DATE_CAL_SCHEM() : std::map<CalciumTypes::DateCalSchem,
                                                    Ports::Calcium_Ports::DateCalSchem>()
 {
-  map<CalciumTypes::DateCalSchem, 
+  std::map<CalciumTypes::DateCalSchem, 
     Ports::Calcium_Ports::DateCalSchem > &
-    table  = ( map<CalciumTypes::DateCalSchem, 
+    table  = ( std::map<CalciumTypes::DateCalSchem, 
                Ports::Calcium_Ports::DateCalSchem > & ) *this ;
 
 table[CalciumTypes::TI_SCHEM ] = Ports::Calcium_Ports::TI_SCHEM ;
@@ -45,8 +45,8 @@ table[CalciumTypes::ALPHA_SCHEM ] = Ports::Calcium_Ports::ALPHA_SCHEM ;
 
 Ports::Calcium_Ports::DateCalSchem CORBA_DATE_CAL_SCHEM::operator[]( const CalciumTypes::DateCalSchem &c ) const
 {
-  map<CalciumTypes::DateCalSchem,
-    Ports::Calcium_Ports::DateCalSchem > &table = (map<CalciumTypes::DateCalSchem,
+  std::map<CalciumTypes::DateCalSchem,
+    Ports::Calcium_Ports::DateCalSchem > &table = (std::map<CalciumTypes::DateCalSchem,
                                                    Ports::Calcium_Ports::DateCalSchem >&)*this ;
   assert( table.find( (CalciumTypes::DateCalSchem)c ) != table.end() ) ;
   return table[ (CalciumTypes::DateCalSchem)c ] ;
@@ -56,12 +56,12 @@ const CORBA_DATE_CAL_SCHEM corbaDateCalSchem ;
 
 
 
-CORBA_DEPENDENCY_TYPE::CORBA_DEPENDENCY_TYPE() : map<CalciumTypes::DependencyType,
+CORBA_DEPENDENCY_TYPE::CORBA_DEPENDENCY_TYPE() : std::map<CalciumTypes::DependencyType,
                                                      Ports::Calcium_Ports::DependencyType >()
 {
-  map<CalciumTypes::DependencyType,
+  std::map<CalciumTypes::DependencyType,
     Ports::Calcium_Ports::DependencyType > &
-    table  = ( map<CalciumTypes::DependencyType,
+    table  = ( std::map<CalciumTypes::DependencyType,
                Ports::Calcium_Ports::DependencyType > & ) *this ;
 
   table[CalciumTypes::TIME_DEPENDENCY ]      = Ports::Calcium_Ports::TIME_DEPENDENCY ;
@@ -77,9 +77,9 @@ CORBA_DEPENDENCY_TYPE::CORBA_DEPENDENCY_TYPE() : map<CalciumTypes::DependencyTyp
 
 Ports::Calcium_Ports::DependencyType CORBA_DEPENDENCY_TYPE::operator[]( const CalciumTypes::DependencyType &c ) const
 {
-  map<CalciumTypes::DependencyType,
+  std::map<CalciumTypes::DependencyType,
     Ports::Calcium_Ports::DependencyType > &
-    table = (map<CalciumTypes::DependencyType,
+    table = (std::map<CalciumTypes::DependencyType,
              Ports::Calcium_Ports::DependencyType >& ) *this ;
 
   MESSAGE("CORBA_DEPENDENCY_TYPE() : ::operator["<<c<<"]: " << table[c]);
@@ -93,12 +93,12 @@ const CORBA_DEPENDENCY_TYPE corbaDependencyType ;
 
 
 
-CORBA_INTERPOLATION_SCHEM::CORBA_INTERPOLATION_SCHEM() : map<CalciumTypes::InterpolationSchem,
+CORBA_INTERPOLATION_SCHEM::CORBA_INTERPOLATION_SCHEM() : std::map<CalciumTypes::InterpolationSchem,
                                                              Ports::Calcium_Ports::InterpolationSchem > () 
 {
-  map<CalciumTypes::InterpolationSchem,
+  std::map<CalciumTypes::InterpolationSchem,
     Ports::Calcium_Ports::InterpolationSchem > &
-    table  = ( map<CalciumTypes::InterpolationSchem,
+    table  = ( std::map<CalciumTypes::InterpolationSchem,
                Ports::Calcium_Ports::InterpolationSchem > & ) *this ;
 
   table[CalciumTypes::L0_SCHEM ] = Ports::Calcium_Ports::L0_SCHEM ;
@@ -108,9 +108,9 @@ CORBA_INTERPOLATION_SCHEM::CORBA_INTERPOLATION_SCHEM() : map<CalciumTypes::Inter
 
 Ports::Calcium_Ports::InterpolationSchem CORBA_INTERPOLATION_SCHEM::operator[]( const CalciumTypes::InterpolationSchem &c ) const
 {
-  map<CalciumTypes::InterpolationSchem,
+  std::map<CalciumTypes::InterpolationSchem,
     Ports::Calcium_Ports::InterpolationSchem > &table = 
-    (map<CalciumTypes::InterpolationSchem,
+    (std::map<CalciumTypes::InterpolationSchem,
      Ports::Calcium_Ports::InterpolationSchem >& ) *this ;
 
   assert( table.find( (CalciumTypes::InterpolationSchem)c ) != table.end() ) ;
@@ -121,12 +121,12 @@ const CORBA_INTERPOLATION_SCHEM corbaInterpolationSchem ;
 
 
 
-CORBA_EXTRAPOLATION_SCHEM::CORBA_EXTRAPOLATION_SCHEM() : map<CalciumTypes::ExtrapolationSchem,
+CORBA_EXTRAPOLATION_SCHEM::CORBA_EXTRAPOLATION_SCHEM() : std::map<CalciumTypes::ExtrapolationSchem,
                                                              Ports::Calcium_Ports::ExtrapolationSchem > () 
 {
-  map<CalciumTypes::ExtrapolationSchem,
+  std::map<CalciumTypes::ExtrapolationSchem,
     Ports::Calcium_Ports::ExtrapolationSchem > &
-    table  = ( map<CalciumTypes::ExtrapolationSchem,
+    table  = ( std::map<CalciumTypes::ExtrapolationSchem,
                Ports::Calcium_Ports::ExtrapolationSchem > & ) *this ;
 
   table[CalciumTypes::E0_SCHEM ] = Ports::Calcium_Ports::E0_SCHEM ;
@@ -137,9 +137,9 @@ CORBA_EXTRAPOLATION_SCHEM::CORBA_EXTRAPOLATION_SCHEM() : map<CalciumTypes::Extra
 
 Ports::Calcium_Ports::ExtrapolationSchem CORBA_EXTRAPOLATION_SCHEM::operator[]( const CalciumTypes::ExtrapolationSchem &c ) const
 {
-  map<CalciumTypes::ExtrapolationSchem,
+  std::map<CalciumTypes::ExtrapolationSchem,
     Ports::Calcium_Ports::ExtrapolationSchem > &table = 
-    (map<CalciumTypes::ExtrapolationSchem,
+    (std::map<CalciumTypes::ExtrapolationSchem,
      Ports::Calcium_Ports::ExtrapolationSchem >& ) *this ;
 
   assert( table.find( (CalciumTypes::ExtrapolationSchem)c ) != table.end() ) ;

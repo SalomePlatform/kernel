@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,20 +19,18 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeTableOfString.cxx
 //  Author : Sergey Ruin
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeTableOfString.hxx"
-#include <stdio.h>
-#include <stdlib.h>
-#include <sstream>
 
-using namespace std;
+#include <sstream>
+#include <algorithm>
 
 #define SEPARATOR '\1'
-
-typedef map<int, string>::const_iterator MI;
+typedef std::map<int, std::string>::const_iterator MI;
 
 static std::string getUnit(std::string theString)
 {
@@ -79,7 +77,7 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const int theNbColumns)
   CheckLocked();  
   Backup();
   
-  map<int, string> aMap;
+  std::map<int, std::string> aMap;
   aMap = myTable;
   myTable.clear();
 
@@ -130,22 +128,22 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const int theRow,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-void SALOMEDSImpl_AttributeTableOfString::SetRowUnits(const vector<string>& theUnits)
+void SALOMEDSImpl_AttributeTableOfString::SetRowUnits(const std::vector<std::string>& theUnits)
 {
   if (theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
   int aLength = theUnits.size(), i;
   for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits[i-1]);
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfString::GetRowUnits()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetRowUnits()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getUnit(myRows[i]));
   return aSeq;
 }
 
-void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const vector<string>& theTitles)
+void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const std::vector<std::string>& theTitles)
 {
   if (theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
   int aLength = theTitles.size(), i;
@@ -154,20 +152,18 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const vector<string>& the
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfString::GetRowTitles()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetRowTitles()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myRows.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(getTitle(myRows[i]));
   return aSeq;
 }
 
-
 std::string SALOMEDSImpl_AttributeTableOfString::GetRowTitle(const int theRow) const 
 {
   return getTitle(myRows[theRow-1]);
 }
-
 
 std::string SALOMEDSImpl_AttributeTableOfString::GetRowUnit(const int theRow) const 
 {
@@ -175,7 +171,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::GetRowUnit(const int theRow) co
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowData(const int theRow,
-                                                     const vector<string>& theData) 
+                                                     const std::vector<std::string>& theData) 
 {
   CheckLocked();  
   if(theData.size() > myNbColumns) SetNbColumns(theData.size());
@@ -210,9 +206,9 @@ std::string SALOMEDSImpl_AttributeTableOfString::GetTitle() const
   return myTitle;
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfString::GetRowData(const int theRow)
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetRowData(const int theRow)
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int i, aShift = (theRow-1)*myNbColumns;
   for(i = 1; i <= myNbColumns; i++) {
      if(myTable.find(aShift+i) != myTable.end()) 
@@ -225,7 +221,7 @@ vector<string> SALOMEDSImpl_AttributeTableOfString::GetRowData(const int theRow)
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const int theColumn,
-                                                        const vector<string>& theData) 
+                                                        const std::vector<std::string>& theData) 
 {
   CheckLocked();  
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
@@ -247,10 +243,9 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const int theColumn,
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-
-vector<string> SALOMEDSImpl_AttributeTableOfString::GetColumnData(const int theColumn)
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetColumnData(const int theColumn)
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   
   int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
@@ -282,8 +277,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::GetColumnTitle(const int theCol
   return myCols[theColumn-1];
 }
 
-
-void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const vector<string>& theTitles)
+void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const std::vector<std::string>& theTitles)
 {
   if (theTitles.size() != myNbColumns) throw DFexception("Invalid number of columns");
   int aLength = theTitles.size(), i;
@@ -292,14 +286,13 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const vector<string>& 
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
-vector<string> SALOMEDSImpl_AttributeTableOfString::GetColumnTitles()
+std::vector<std::string> SALOMEDSImpl_AttributeTableOfString::GetColumnTitles()
 {
-  vector<string> aSeq;
+  std::vector<std::string> aSeq;
   int aLength = myCols.size(), i;
   for(i=0; i<aLength; i++) aSeq.push_back(myCols[i]);
   return aSeq;
 }
-
 
 int SALOMEDSImpl_AttributeTableOfString::GetNbRows() const
 {
@@ -316,6 +309,7 @@ void SALOMEDSImpl_AttributeTableOfString::PutValue(const std::string& theValue,
                                                    const int theColumn) 
 {
   CheckLocked();  
+  //Backup();
   if(theColumn > myNbColumns) SetNbColumns(theColumn);
 
   int anIndex = (theRow-1)*myNbColumns + theColumn;
@@ -352,6 +346,20 @@ std::string SALOMEDSImpl_AttributeTableOfString::GetValue(const int theRow,
   
   throw DFexception("Invalid cell index");
   return "";
+}
+
+void SALOMEDSImpl_AttributeTableOfString::RemoveValue(const int theRow, const int theColumn)
+{
+  CheckLocked();  
+  if(theRow > myNbRows || theRow < 1) throw DFexception("Invalid cell index");
+  if(theColumn > myNbColumns || theColumn < 1) throw DFexception("Invalid cell index");
+
+  int anIndex = (theRow-1)*myNbColumns + theColumn;
+  if (myTable.find(anIndex) != myTable.end()) {
+    //Backup();
+    myTable.erase(anIndex);
+    SetModifyFlag(); // table is modified
+  }
 }
 
 const std::string& SALOMEDSImpl_AttributeTableOfString::ID() const
@@ -405,10 +413,9 @@ void SALOMEDSImpl_AttributeTableOfString::Paste(DF_Attribute* into)
     aTable->myCols.push_back(GetColumnTitle(anIndex));
 }
 
-
-vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetRowIndices(const int theRow)
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetRowIndices(const int theRow)
 {
-  vector<int> aSeq;
+  std::vector<int> aSeq;
 
   int i, aShift = myNbColumns*(theRow-1);
   for(i = 1; i <= myNbColumns; i++) {
@@ -418,9 +425,9 @@ vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetRowIndices(const int theR
   return aSeq;
 }
 
-vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetColumnIndices(const int theColumn)
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetColumnIndices(const int theColumn)
 {
-  vector<int> aSeq;
+  std::vector<int> aSeq;
 
   int i, anIndex;
   for(i = 1; i <= myNbRows; i++) {
@@ -431,11 +438,9 @@ vector<int> SALOMEDSImpl_AttributeTableOfString::GetSetColumnIndices(const int t
   return aSeq;
 }
 
-
-
-string SALOMEDSImpl_AttributeTableOfString::Save() 
+std::string SALOMEDSImpl_AttributeTableOfString::Save() 
 {
-  string aString;
+  std::string aString;
   char* buffer = new char[1024];
   int i, j, l;
 
@@ -501,9 +506,9 @@ string SALOMEDSImpl_AttributeTableOfString::Save()
   return aString;
 }
 
-void SALOMEDSImpl_AttributeTableOfString::Load(const string& value) 
+void SALOMEDSImpl_AttributeTableOfString::Load(const std::string& value) 
 {
-  vector<string> v;
+  std::vector<std::string> v;
   int i,  j, l, pos, aSize = (int)value.size(); 
   for(i = 0, pos = 0; i<aSize; i++) {
     if(value[i] == '\n') {
@@ -559,7 +564,7 @@ void SALOMEDSImpl_AttributeTableOfString::Load(const string& value)
   for(i=1; i<=l; i++) {
     aStr = v[pos++]; //Ket as a string 
     int aKey = strtol(aStr.c_str(), NULL, 10);
-    string aValue;
+    std::string aValue;
     if(aStr[0] == '0') //If the first character of the key is 0, then empty value
       aValue = "";
     else {
@@ -568,4 +573,218 @@ void SALOMEDSImpl_AttributeTableOfString::Load(const string& value)
     }
     myTable[aKey] = aValue;
   }
+}
+
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
+{
+  CheckLocked();  
+  std::vector<int> result;
+  if ( theRow > 0 && theRow <= myNbRows ) {
+    std::vector<int> indices( myNbColumns );
+    int cnt = 0;
+    for ( int i = 0; i < myNbColumns; i++ ) {
+      if ( sortPolicy != EmptyIgnore || HasValue(theRow, i+1) ) {
+	indices[cnt++] = i+1;
+      }
+    }
+    indices.resize(cnt);
+    
+    TableSorter<SALOMEDSImpl_AttributeTableOfString> sorter( this, sortOrder, sortPolicy, theRow, true );
+    std::stable_sort( indices.begin(), indices.end(), sorter );
+    
+    if ( sortPolicy == EmptyIgnore ) {
+      std::vector<int> other( myNbColumns );
+      cnt = 0;
+      for( int i = 0; i < myNbColumns; i++ )
+	other[i] = HasValue(theRow, i+1) ? indices[cnt++] : i+1;
+      indices = other;
+    }
+    result = indices;
+
+    for ( int col = 0; col < indices.size(); col++ ) {
+      int idx = indices[col];
+      if ( col+1 == idx ) continue;
+      SwapCells(theRow, col+1, theRow, idx);
+      int idx1 = 0;
+      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+	if ( indices[i] == col+1 ) idx1 = i;
+      indices[idx1] = idx;
+    }
+    // no need for SetModifyFlag(), since it is done by SwapCells()
+  }
+  return result;
+}
+
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
+{
+  CheckLocked();  
+  std::vector<int> result;
+  if ( theColumn > 0 && theColumn <= myNbColumns ) {
+    std::vector<int> indices( myNbRows );
+    int cnt = 0;
+    for ( int i = 0; i < myNbRows; i++ ) {
+      if ( sortPolicy != EmptyIgnore || HasValue(i+1, theColumn) ) {
+	indices[cnt++] = i+1;
+      }
+    }
+    indices.resize(cnt);
+    
+    TableSorter<SALOMEDSImpl_AttributeTableOfString> sorter( this, sortOrder, sortPolicy, theColumn, false );
+    std::stable_sort( indices.begin(), indices.end(), sorter );
+    
+    if ( sortPolicy == EmptyIgnore ) {
+      std::vector<int> other( myNbRows );
+      cnt = 0;
+      for( int i = 0; i < myNbRows; i++ )
+	other[i] = HasValue(i+1, theColumn) ? indices[cnt++] : i+1;
+      indices = other;
+    }
+    result = indices;
+
+    for ( int row = 0; row < indices.size(); row++ ) {
+      int idx = indices[row];
+      if ( row+1 == idx ) continue;
+      SwapCells(row+1, theColumn, idx, theColumn);
+      int idx1 = 0;
+      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+	if ( indices[i] == row+1 ) idx1 = i;
+      indices[idx1] = idx;
+    }
+    // no need for SetModifyFlag(), since it is done by SwapCells()
+  }
+  return result;
+}
+
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByRow(const int theRow, SortOrder sortOrder, SortPolicy sortPolicy )
+{
+  CheckLocked();  
+  std::vector<int> result;
+  if ( theRow > 0 && theRow <= myNbRows ) {
+    std::vector<int> indices( myNbColumns );
+    int cnt = 0;
+    for ( int i = 0; i < myNbColumns; i++ ) {
+      if ( sortPolicy != EmptyIgnore || HasValue(theRow, i+1) ) {
+	indices[cnt++] = i+1;
+      }
+    }
+    indices.resize(cnt);
+    
+    TableSorter<SALOMEDSImpl_AttributeTableOfString> sorter( this, sortOrder, sortPolicy, theRow, true );
+    std::stable_sort( indices.begin(), indices.end(), sorter );
+    
+    if ( sortPolicy == EmptyIgnore ) {
+      std::vector<int> other( myNbColumns );
+      cnt = 0;
+      for( int i = 0; i < myNbColumns; i++ )
+	other[i] = HasValue(theRow, i+1) ? indices[cnt++] : i+1;
+      indices = other;
+    }
+    result = indices;
+
+    for ( int col = 0; col < indices.size(); col++ ) {
+      int idx = indices[col];
+      if ( col+1 == idx ) continue;
+      SwapColumns(col+1, idx);
+      int idx1 = 0;
+      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+	if ( indices[i] == col+1 ) idx1 = i;
+      indices[idx1] = idx;
+    }
+    // no need for SetModifyFlag(), since it is done by SwapColumns()
+  }
+  return result;
+}
+
+std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByColumn(const int theColumn, SortOrder sortOrder, SortPolicy sortPolicy )
+{
+  CheckLocked();  
+  std::vector<int> result;
+  if ( theColumn > 0 && theColumn <= myNbColumns ) {
+    std::vector<int> indices( myNbRows );
+    int cnt = 0;
+    for ( int i = 0; i < myNbRows; i++ ) {
+      if ( sortPolicy != EmptyIgnore || HasValue(i+1, theColumn) ) {
+	indices[cnt++] = i+1;
+      }
+    }
+    indices.resize(cnt);
+    
+    TableSorter<SALOMEDSImpl_AttributeTableOfString> sorter( this, sortOrder, sortPolicy, theColumn, false );
+    std::stable_sort( indices.begin(), indices.end(), sorter );
+    
+    if ( sortPolicy == EmptyIgnore ) {
+      std::vector<int> other( myNbRows );
+      cnt = 0;
+      for( int i = 0; i < myNbRows; i++ )
+	other[i] = HasValue(i+1, theColumn) ? indices[cnt++] : i+1;
+      indices = other;
+    }
+    result = indices;
+
+    for ( int row = 0; row < indices.size(); row++ ) {
+      int idx = indices[row];
+      if ( row+1 == idx ) continue;
+      SwapRows(row+1, idx);
+      int idx1 = 0;
+      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+	if ( indices[i] == row+1 ) idx1 = i;
+      indices[idx1] = idx;
+    }
+    // no need for SetModifyFlag(), since it is done by SwapRows()
+  }
+  return result;
+}
+
+void SALOMEDSImpl_AttributeTableOfString::SwapCells(const int theRow1, const int theColumn1, 
+						    const int theRow2, const int theColumn2)
+{
+  CheckLocked();  
+  if (theRow1    > myNbRows    || theRow1 < 1)    throw DFexception("Invalid cell index");
+  if (theRow2    > myNbRows    || theRow2 < 1)    throw DFexception("Invalid cell index");
+  if (theColumn1 > myNbColumns || theColumn1 < 1) throw DFexception("Invalid cell index");
+  if (theColumn2 > myNbColumns || theColumn2 < 1) throw DFexception("Invalid cell index");
+
+  int anIndex1 = (theRow1-1)*myNbColumns + theColumn1;
+  int anIndex2 = (theRow2-1)*myNbColumns + theColumn2;
+
+  bool hasValue1 = myTable.find(anIndex1) != myTable.end();
+  bool hasValue2 = myTable.find(anIndex2) != myTable.end();
+
+  if (!hasValue1 && !hasValue2) return;                   // nothing changed
+
+  std::string value1 = hasValue1 ? myTable[anIndex1] : 0;
+  std::string value2 = hasValue2 ? myTable[anIndex2] : 0;
+
+  if (hasValue1 && hasValue2 && value1 == value2) return; // nothing changed
+
+  if (hasValue1) myTable[anIndex2] = value1;
+  else           myTable.erase(anIndex2);
+  if (hasValue2) myTable[anIndex1] = value2;
+  else           myTable.erase(anIndex1);
+
+  SetModifyFlag(); // table is modified
+}
+
+void SALOMEDSImpl_AttributeTableOfString::SwapRows(const int theRow1, const int theRow2)
+{
+  CheckLocked();  
+  for (int i = 1; i <= myNbColumns; i++)
+    SwapCells(theRow1, i, theRow2, i);
+  // swap row titles
+  std::string tmp = myRows[theRow1-1];
+  myRows[theRow1-1] = myRows[theRow2-1];
+  myRows[theRow2-1] = tmp;
+  // no need for SetModifyFlag(), since it is done by SwapCells()
+}
+
+void SALOMEDSImpl_AttributeTableOfString::SwapColumns(const int theColumn1, const int theColumn2)
+{
+  CheckLocked();  
+  for (int i = 1; i <= myNbRows; i++)
+    SwapCells(i, theColumn1, i, theColumn2);
+  // swap column titles
+  std::string tmp = myCols[theColumn1-1];
+  myCols[theColumn1-1] = myCols[theColumn2-1];
+  myCols[theColumn2-1] = tmp;
+  // no need for SetModifyFlag(), since it is done by SwapCells()
 }

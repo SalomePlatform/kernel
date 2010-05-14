@@ -1,25 +1,44 @@
-##                                                             -*- makefile -*-
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
 
+##                                                             -*- makefile -*-
 ## We keep a list of dependencies in `.depend' for each of the source
 ## files on which it depends.  When one of the source files is modified
 ## we remove its record from .depend and regenerate its dependencies,
 ## tacking them onto the end of .depend.  By including the .depend file
 ## into the makefile, we're telling make that the makefile depends on
 ## the dependency list in the .depend file.
-##
 ## This is as fast as the `.d' method described in the GNU make manual
 ## for automatic dependencies, but has the added advantage that all
 ## dependencies are stored in one place.  The advantage over the
 ## `makedepend' program is that only those files that are out of date
 ## have dependency information rebuilt, and the Makefile is not
 ## modified.
-##
 ## This is also where tracing information is updated.  The $(TRACE)
 ## program is run on each source file to make sure that the H5TRACE()
 ## macros are up to date.  If they are then the file is not modified,
 ## otherwise the file is changed and a backup is saved by appending a
 ## tilde to the file name.
-##
+#
 $(srcdir)/Dependencies: .depend
 	@if test "$(srcdir)" != "."; then				      \
 	    echo '## This file is machine generated on GNU systems.' >$@;     \

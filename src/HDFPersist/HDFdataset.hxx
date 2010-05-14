@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 //  File   : HDFdataset.hxx
 //  Module : SALOME
@@ -42,7 +43,7 @@ private :
   hdf_type _type;
   hdf_size *_dim;
   hdf_byte_order _byte_order;
-  int _size;
+  hdf_size _size;
   int _ndim;
   char* _attribute;
 
@@ -64,7 +65,7 @@ public:
   hdf_type GetType();
   int nDim();
   void GetDim(hdf_size dim[]);
-  int GetSize();
+  hdf_size GetSize();
   hdf_object_type GetObjectType();
   hdf_byte_order GetOrder();
 

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,10 +19,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME_ParallelContainerProxy : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainerProxy_i.cxx
 //  Author : André RIBES, EDF
-
+//
 #include "SALOME_ParallelContainerProxy_i.hxx"
 
 Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb, 
@@ -136,9 +137,11 @@ Container_proxy_impl_final::Shutdown()
 // déterminer si on doit créer une instance sequentielle
 // ou parallèle d'un composant dans la méthode create_component_instance
 CORBA::Boolean 
-Container_proxy_impl_final::load_component_Library(const char* componentName)
+Container_proxy_impl_final::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
-  MESSAGE("Begin of load_component_Library on proxy : " << componentName)
+  MESSAGE("Begin of load_component_Library on proxy : " << componentName);
+  reason=CORBA::string_dup("");
+
   std::string aCompName = componentName;
 
   CORBA::Boolean ret = true;
@@ -236,14 +239,17 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
       Engines::Container_var node = Engines::Container::_narrow(object);
       if (!CORBA::is_nil(node))
       {
+        char* reason;
         try 
         {
-          node->load_component_Library(componentName);
+          node->load_component_Library(componentName,reason);
           MESSAGE("Call load_component_Library done node : " << i);
+          CORBA::string_free(reason);
         }
         catch (...)
         {
           INFOS("Exception catch during load_component_Library of node : " << i);
+          CORBA::string_free(reason);
           ret = false;
         }
       }
@@ -264,13 +270,26 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
   return ret;
 }
 
+Engines::Component_ptr 
+Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+{
+  Engines::FieldsDict_var env = new Engines::FieldsDict;
+  char* reason;
+  Engines::Component_ptr compo = create_component_instance_env(componentName, studyId, env, reason);
+  CORBA::string_free(reason);
+  return compo;
+}
+
 // Il y a deux cas :
 // Composant sequentiel -> on le créer sur le noeud 0 (on pourrait faire une répartition de charge)
 // Composant parallèle -> création du proxy ici puis appel de la création de chaque objet participant
 // au composant parallèle
 Engines::Component_ptr 
-Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+Container_proxy_impl_final::create_component_instance_env(const char* componentName, ::CORBA::Long studyId,
+                                                          const Engines::FieldsDict& env, CORBA::String_out reason)
 {
+  reason=CORBA::string_dup("");
+
   std::string aCompName = componentName;
   if (_libtype_map.count(aCompName) == 0)
   {

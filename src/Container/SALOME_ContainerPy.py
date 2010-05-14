@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -21,6 +21,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  SALOME Container : implementation of container and engine for Kernel
 #  File   : SALOME_ContainerPy.py
 #  Author : Paul RASCLE, EDF
@@ -186,9 +187,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        return self.import_component(componentName)
+        return self.import_component(componentName), ""
     
     #-------------------------------------------------------------------------
+
+    def create_component_instance_env(self, componentName, studyId, env):
+      return self.create_component_instance(componentName, studyId), ""
 
     def create_component_instance(self, componentName, studyId):
         MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) + ' ' + str(studyId) )

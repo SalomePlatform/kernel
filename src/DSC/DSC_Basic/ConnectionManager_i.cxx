@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : ConnectionManager_i.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
@@ -92,8 +93,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   connection_infos * infos = ids[id];
   try
     {
-      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(),
-                                                      message);
+      infos->provides_component->disconnect_provides_port(infos->provides_port_name.c_str(), message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -103,8 +103,7 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
   try
     {
       infos->uses_component->disconnect_uses_port(infos->uses_port_name.c_str(),
-                                              infos->provides_port,
-                                              message);
+                                                  infos->provides_port, message);
     }
   catch(CORBA::SystemException& ex)
     {
@@ -121,10 +120,16 @@ ConnectionManager_i::disconnect(Engines::ConnectionManager::connectionId id,
 void
 ConnectionManager_i::ShutdownWithExit()
 {
+  ids_it = ids.begin();
+  while(ids_it != ids.end())
+    {
+      disconnect(ids_it->first, Engines::DSC::RemovingConnection);
+      ids_it = ids.begin();
+    }
+
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 
-  //exit( EXIT_SUCCESS );
 }
 
 CORBA::Long

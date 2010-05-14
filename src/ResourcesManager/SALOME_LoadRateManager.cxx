@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,22 +19,21 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_LoadRateManager.hxx"
 #include <iostream>
 #include <map>
 
-using namespace std;
-
-string LoadRateManagerFirst::Find(const vector<string>& hosts,
+std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
                                   MapOfParserResourcesType& resList)
 {
   if (hosts.size() == 0)
-    return string("");
+    return std::string("");
 
-  return string(hosts[0]);
+  return std::string(hosts[0]);
 }
 
-string LoadRateManagerCycl::Find(const vector<string>& hosts,
+std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
                                  MapOfParserResourcesType& resList)
 {
   static int imachine = 0;
@@ -42,30 +41,30 @@ string LoadRateManagerCycl::Find(const vector<string>& hosts,
 
   // if empty list return empty string
   if (hosts.size() == 0)
-    return string("");
+    return std::string("");
   else{
-    ParserResourcesType resource = resList[string(hosts[imachine])];
+    ParserResourcesType resource = resList[std::string(hosts[imachine])];
     int nbproc = resource.DataForSort._nbOfProcPerNode * resource.DataForSort._nbOfNodes;
     if( nbproc <= 0) nbproc = 1;
     if( iproc < nbproc ){
       iproc++;
-      return string(hosts[imachine]);
+      return std::string(hosts[imachine]);
     }
     else{
       iproc = 1;
       imachine++;
-      if(imachine >= hosts.size())
+      if(imachine >= (int)hosts.size())
         imachine = 0;
-      return string(hosts[imachine]);
+      return std::string(hosts[imachine]);
     }
   }
 }
 
-string LoadRateManagerAltCycl::Find(const vector<string>& hosts,
+std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
                                     MapOfParserResourcesType& resList)
 {
   if (hosts.size() == 0)
-    return string("");
+    return std::string("");
 
   std::string selected=hosts[0];
   int uses=0;

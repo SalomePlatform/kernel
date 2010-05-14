@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
@@ -33,13 +34,16 @@
 #include "Utils_CorbaException.hxx"
 #include <sstream>
 
+#ifdef WNT
+#include <process.h>
+#define getpid _getpid
+#endif
+
 #ifdef WITH_PACO_PARALLEL
 #include "PaCOPP.hxx"
 #endif
 
 #define TIME_OUT_TO_LAUNCH_CONT 61
-
-using namespace std;
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
@@ -84,7 +88,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 #ifdef WITHOPENMPI
   if( getenv("OMPI_URI_FILE") != NULL ){
     system("killall ompi-server");
-    string command;
+    std::string command;
     command = "ompi-server -r ";
     command += getenv("OMPI_URI_FILE");
     int status=system(command.c_str());
@@ -141,9 +145,9 @@ void SALOME_ContainerManager::ShutdownContainers()
   bool isOK;
   isOK = _NS->Change_Directory("/Containers");
   if( isOK ){
-    vector<string> vec = _NS->list_directory_recurs();
-    list<string> lstCont;
-    for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++)
+    std::vector<std::string> vec = _NS->list_directory_recurs();
+    std::list<std::string> lstCont;
+    for(std::vector<std::string>::iterator iter = vec.begin();iter!=vec.end();iter++)
       {
         SCRUTE((*iter));
         CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
@@ -159,10 +163,10 @@ void SALOME_ContainerManager::ShutdownContainers()
           }
       }
     MESSAGE("Container list: ");
-    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
+    for(std::list<std::string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
     }
-    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
+    for(std::list<std::string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
     {
       try
       {
@@ -203,7 +207,7 @@ void SALOME_ContainerManager::ShutdownContainers()
 Engines::Container_ptr
 SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& params)
 {
-  string machFile;
+  std::string machFile;
   Engines::Container_ptr ret = Engines::Container::_nil();
 
   // Step 0: Default mode is start
@@ -223,12 +227,12 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     {
       if (mode == "find")
       {
-	MESSAGE("[GiveContainer] no container found");
-	return ret;
+        MESSAGE("[GiveContainer] no container found");
+        return ret;
       }
       else
       {
-	mode = "start";
+        mode = "start";
       }
     }
   }
@@ -246,8 +250,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       Engines::Container_ptr cont = FindContainer(params, possibleResources[i].in());
       try
       {
-	if(!cont->_non_existent())
-	  local_resources.push_back(string(possibleResources[i]));
+        if(!cont->_non_existent())
+          local_resources.push_back(std::string(possibleResources[i]));
       }
       catch(CORBA::Exception&) {}
     }
@@ -261,7 +265,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   else
     for(unsigned int i=0; i < possibleResources->length(); i++)
-      local_resources.push_back(string(possibleResources[i]));
+      local_resources.push_back(std::string(possibleResources[i]));
 
   // Step 4: select the resource where to get/start the container
   std::string resource_selected;
@@ -310,14 +314,14 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       Engines::Container_var cont=Engines::Container::_narrow(obj);
       if(!cont->_non_existent())
       {
-	if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
-	  return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
-	}
-	else
-	{
-	  INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
-	  cont->Shutdown(); // shutdown the registered container if it exists
-	}
+        if(std::string(params.mode.in())=="getorstart" || std::string(params.mode.in())=="get"){
+          return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
+        }
+        else
+        {
+          INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+          cont->Shutdown(); // shutdown the registered container if it exists
+        }
       }
     }
     catch(CORBA::Exception&)
@@ -349,20 +353,20 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
       if (CORBA::is_nil (compoInfo))
       {
-	continue;
+        continue;
       }
       SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
       container_exe_tmp=compoInfo->implementation_name();
       if(impl==SALOME_ModuleCatalog::CEXE)
       {
-	if(found)
-	{
-	  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
-	  return Engines::Container::_nil();
-	}
-	MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
-	container_exe = container_exe_tmp.in();
-	found=1;
+        if(found)
+        {
+          INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+          return Engines::Container::_nil();
+        }
+        MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
+        container_exe = container_exe_tmp.in();
+        found=1;
       }
     }
   }
@@ -400,10 +404,10 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 
   //redirect stdout and stderr in a file
 #ifdef WNT
-  string logFilename=getenv("TEMP");
+  std::string logFilename=getenv("TEMP");
   logFilename += "\\";
 #else
-  string logFilename="/tmp";
+  std::string logFilename="/tmp";
   char* val = getenv("SALOME_TMP_DIR");
   if(val)
   {
@@ -415,7 +419,13 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   logFilename += "/";
 #endif
-  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" )+".log" ;
+  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" ) ;
+#ifdef WNT
+  std::ostringstream tmp;
+  tmp << "_" << getpid();
+  logFilename += tmp.str();
+#endif
+  logFilename += ".log" ;
   command += " > " + logFilename + " 2>&1";
 #ifdef WNT
   command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
@@ -520,6 +530,9 @@ SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& param
   }
 }
 
+
+bool isPythonContainer(const char* ContainerName);
+
 //=============================================================================
 /*!
  *  This is no longer valid (C++ container are also python containers)
@@ -560,13 +573,13 @@ bool isPythonContainer(const char* ContainerName)
  */ 
 //=============================================================================
 
-string
+std::string
 SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
-(const string& resource_name,
+(const std::string& resource_name,
  const Engines::ContainerParameters& params, const std::string& container_exe)
 {
           
-  string command;
+  std::string command;
   if (!_isAppliSalomeDefined)
     command = BuildTempFileToLaunchRemoteContainer(resource_name, params);
   else
@@ -579,13 +592,13 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
     if (params.isMPI)
     {
       if ((params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0))
-	nbproc = 1;
+        nbproc = 1;
       else if (params.resource_params.nb_node == 0)
-	nbproc = params.resource_params.nb_proc_per_node;
+        nbproc = params.resource_params.nb_proc_per_node;
       else if (params.resource_params.nb_proc_per_node == 0)
-	nbproc = params.resource_params.nb_node;
+        nbproc = params.resource_params.nb_node;
       else
-	nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
     }
 
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
@@ -630,7 +643,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command += " WORKINGDIR ";
       command += " '";
       if(wdir == "$TEMPDIR")
-	wdir="\\$TEMPDIR";
+        wdir="\\$TEMPDIR";
       command += wdir; // requested working directory
       command += "'"; 
     }
@@ -645,10 +658,10 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
       command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
       if( getenv("OMPI_URI_FILE") == NULL )
-	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+        command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else{
-	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-	command += getenv("OMPI_URI_FILE");
+        command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+        command += getenv("OMPI_URI_FILE");
       }
 #endif        
       command += " SALOME_MPIContainer ";
@@ -671,15 +684,15 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
  *  builds the command to be launched.
  */ 
 //=============================================================================
-string
+std::string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 (const Engines::ContainerParameters& params, const std::string& machinesFile, const std::string& container_exe)
 {
   _TmpFileName = BuildTemporaryFileName();
-  string command;
+  std::string command;
   int nbproc = 0;
 
-  ostringstream o;
+  std::ostringstream o;
 
   if (params.isMPI)
     {
@@ -697,7 +710,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
       o << nbproc << " ";
 
       if( getenv("LIBBATCH_NODEFILE") != NULL )
-	o << "-machinefile " << machinesFile << " ";
+        o << "-machinefile " << machinesFile << " ";
 
 #ifdef WITHLAM
       o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
@@ -726,9 +739,9 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
           if(wdir == "$TEMPDIR")
             {
               // a new temporary directory is requested
-              string dir = Kernel_Utils::GetTmpDir();
+              std::string dir = Kernel_Utils::GetTmpDir();
 #ifdef WIN32
-              o << "cd /d " << dir << endl;
+              o << "cd /d " << dir << std::endl;
 #else
               o << "cd " << dir << ";";
 #endif
@@ -738,8 +751,8 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
             {
               // a permanent directory is requested use it or create it
 #ifdef WIN32
-              o << "mkdir " + wdir << endl;
-              o << "cd /D " + wdir << endl;
+              o << "mkdir " + wdir << std::endl;
+              o << "cd /D " + wdir << std::endl;
 #else
               o << "mkdir -p " << wdir << " && cd " << wdir + ";";
 #endif
@@ -756,7 +769,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
   o << " -";
   AddOmninamesParams(o);
 
-  ofstream command_file( _TmpFileName.c_str() );
+  std::ofstream command_file( _TmpFileName.c_str() );
   command_file << o.str();
   command_file.close();
 
@@ -783,9 +796,9 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
   if ( lenght  > 0)
     {
 #ifdef WIN32
-      string command = "del /F ";
+      std::string command = "del /F ";
 #else
-      string command = "rm ";      
+      std::string command = "rm ";      
 #endif
       if ( lenght > 4 )
         command += tmpFileName.substr(0, lenght - 3 );
@@ -794,7 +807,7 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
       command += '*';
       system(command.c_str());
       //if dir is empty - remove it
-      string tmp_dir = Kernel_Utils::GetDirByPath( tmpFileName );
+      std::string tmp_dir = Kernel_Utils::GetDirByPath( tmpFileName );
       if ( Kernel_Utils::IsEmptyDir( tmp_dir ) )
         {
 #ifdef WIN32
@@ -813,7 +826,7 @@ void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
  */ 
 //=============================================================================
 
-void SALOME_ContainerManager::AddOmninamesParams(string& command) const
+void SALOME_ContainerManager::AddOmninamesParams(std::string& command) const
 {
   CORBA::String_var iorstr = _NS->getIORaddr();
   command += "ORBInitRef NameService=";
@@ -826,7 +839,7 @@ void SALOME_ContainerManager::AddOmninamesParams(string& command) const
  */ 
 //=============================================================================
 
-void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
+void SALOME_ContainerManager::AddOmninamesParams(std::ofstream& fileStream) const
 {
   CORBA::String_var iorstr = _NS->getIORaddr();
   fileStream << "ORBInitRef NameService=";
@@ -839,7 +852,7 @@ void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
  */ 
 //=============================================================================
 
-void SALOME_ContainerManager::AddOmninamesParams(ostringstream& oss) const
+void SALOME_ContainerManager::AddOmninamesParams(std::ostringstream& oss) const
 {
   CORBA::String_var iorstr = _NS->getIORaddr();
   oss << "ORBInitRef NameService=";
@@ -852,10 +865,10 @@ void SALOME_ContainerManager::AddOmninamesParams(ostringstream& oss) const
  */ 
 //=============================================================================
 
-string SALOME_ContainerManager::BuildTemporaryFileName() const
+std::string SALOME_ContainerManager::BuildTemporaryFileName() const
 {
   //build more complex file name to support multiple salome session
-  string aFileName = Kernel_Utils::GetTmpFileName();
+  std::string aFileName = Kernel_Utils::GetTmpFileName();
 #ifndef WIN32
   aFileName += ".sh";
 #else
@@ -874,22 +887,22 @@ string SALOME_ContainerManager::BuildTemporaryFileName() const
  */ 
 //=============================================================================
 
-string
+std::string
 SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
-(const string& resource_name,
+(const std::string& resource_name,
  const Engines::ContainerParameters& params) throw(SALOME_Exception)
 {
   int status;
 
   _TmpFileName = BuildTemporaryFileName();
-  ofstream tempOutputFile;
-  tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+  std::ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(), std::ofstream::out );
   const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
-  tempOutputFile << "#! /bin/sh" << endl;
+  tempOutputFile << "#! /bin/sh" << std::endl;
 
   // --- set env vars
 
-  tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
+  tempOutputFile << "export SALOME_trace=local" << std::endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
   //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
   // ! env vars
@@ -943,7 +956,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
   tempOutputFile << _NS->ContainerName(params) << " -";
   AddOmninamesParams(tempOutputFile);
-  tempOutputFile << " &" << endl;
+  tempOutputFile << " &" << std::endl;
   tempOutputFile.flush();
   tempOutputFile.close();
 #ifndef WIN32
@@ -952,12 +965,12 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
   // --- Build command
 
-  string command;
+  std::string command;
 
   if (resInfo.Protocol == rsh)
     {
       command = "rsh ";
-      string commandRcp = "rcp ";
+      std::string commandRcp = "rcp ";
       commandRcp += _TmpFileName;
       commandRcp += " ";
       commandRcp += resInfo.HostName;
@@ -969,7 +982,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   else if (resInfo.Protocol == ssh)
     {
       command = "ssh ";
-      string commandRcp = "scp ";
+      std::string commandRcp = "scp ";
       commandRcp += _TmpFileName;
       commandRcp += " ";
       commandRcp += resInfo.HostName;
@@ -994,12 +1007,12 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
-string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const string machinesFile)
+std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, const std::string machinesFile)
 {
   int status;
-  string zeronode;
-  string command;
-  string tmpFile = BuildTemporaryFileName();
+  std::string zeronode;
+  std::string command;
+  std::string tmpFile = BuildTemporaryFileName();
 
   if( getenv("LIBBATCH_NODEFILE") == NULL )
     {
@@ -1051,7 +1064,7 @@ string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const strin
 
   status = system(command.c_str());
   if( status == 0 ){
-    ifstream fp(tmpFile.c_str(),ios::in);
+    std::ifstream fp(tmpFile.c_str(),std::ios::in);
     fp >> zeronode;
   }
 
@@ -1060,13 +1073,13 @@ string SALOME_ContainerManager::GetMPIZeroNode(const string machine, const strin
   return zeronode;
 }
 
-string SALOME_ContainerManager::machinesFile(const int nbproc)
+std::string SALOME_ContainerManager::machinesFile(const int nbproc)
 {
-  string tmp;
-  string nodesFile = getenv("LIBBATCH_NODEFILE");
-  string machinesFile = Kernel_Utils::GetTmpFileName();
-  ifstream fpi(nodesFile.c_str(),ios::in);
-  ofstream fpo(machinesFile.c_str(),ios::out);
+  std::string tmp;
+  std::string nodesFile = getenv("LIBBATCH_NODEFILE");
+  std::string machinesFile = Kernel_Utils::GetTmpFileName();
+  std::ifstream fpi(nodesFile.c_str(),std::ios::in);
+  std::ofstream fpo(machinesFile.c_str(),std::ios::out);
 
   _numInstanceMutex.lock();
 
@@ -1075,7 +1088,7 @@ string SALOME_ContainerManager::machinesFile(const int nbproc)
 
   for(int i=0;i<nbproc;i++)
     if( fpi >> tmp )
-      fpo << tmp << endl;
+      fpo << tmp << std::endl;
     else
       throw SALOME_Exception("You ask more processes than batch session have allocated!");
 
@@ -1147,7 +1160,7 @@ SALOME_ContainerManager::checkPaCOParameters(Engines::ContainerParameters & para
 //=============================================================================
 Engines::Container_ptr
 SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params_const,
-					      std::string resource_selected)
+                                              std::string resource_selected)
 {
   CORBA::Object_var obj;
   PaCO::InterfaceManager_var container_proxy;
@@ -1168,8 +1181,8 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
 
   // Step 2 : Get a MachineFile for the parallel container
   std::string machine_file_name = _ResManager->getMachineFile(resource_selected, 
-							      params.nb_proc,
-							      params.parallelLib.in());
+                                                              params.nb_proc,
+                                                              params.parallelLib.in());
 
   if (machine_file_name == "")
   {
@@ -1308,8 +1321,8 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
 
 std::string 
 SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
-								std::string machine_file_name,
-								std::string & proxy_hostname)
+                                                                std::string machine_file_name,
+                                                                std::string & proxy_hostname)
 {
   // In the proxy case, we always launch a Dummy Proxy
   std::string exe_name = "SALOME_ParallelContainerProxyDummy";
@@ -1329,7 +1342,7 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
   std::ifstream machine_file(machine_file_name.c_str());
   std::getline(machine_file, hostname, ' ');
   size_t found = hostname.find('\n');
-  if (found!=string::npos)
+  if (found!=std::string::npos)
     hostname.erase(found, 1); // Remove \n
   proxy_hostname = hostname;
   MESSAGE("[BuildCommandToLaunchPaCOProxyContainer] machine file name extracted is " << hostname);
@@ -1391,9 +1404,9 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
 
 std::string 
 SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
-							       const std::string & machine_file_name,
-							       SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
-							       const std::string & proxy_hostname)
+                                                               const std::string & machine_file_name,
+                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
+                                                               const std::string & proxy_hostname)
 {
   // Name of exe
   std::string exe_name = "SALOME_ParallelContainerNode";
@@ -1430,8 +1443,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
       bool remote_execution = false;
       if (hostname != std::string(Kernel_Utils::GetHostname()))
       {
-	MESSAGE("[BuildCommandToLaunchPaCONodeContainer] remote machine case detected !");
-	remote_execution = true;
+        MESSAGE("[BuildCommandToLaunchPaCONodeContainer] remote machine case detected !");
+        remote_execution = true;
       }
 
       // For each node we have a new command
@@ -1449,17 +1462,17 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
       // a SALOME application
       if (remote_execution)
       {
-	ASSERT(getenv("NSHOST")); 
-	ASSERT(getenv("NSPORT"));
+        ASSERT(getenv("NSHOST")); 
+        ASSERT(getenv("NSPORT"));
 
-	command_node_stream << resource_definition->protocol.in();
-	command_node_stream << " -l ";
-	command_node_stream << resource_definition->username.in();
-	command_node_stream << " " << hostname;
-	command_node_stream << " " << resource_definition->applipath.in();
-	command_node_stream << "/runRemote.sh ";
-	command_node_stream << getenv("NSHOST") << " "; // hostname of CORBA name server
-	command_node_stream << getenv("NSPORT") << " "; // port of CORBA name server
+        command_node_stream << resource_definition->protocol.in();
+        command_node_stream << " -l ";
+        command_node_stream << resource_definition->username.in();
+        command_node_stream << " " << hostname;
+        command_node_stream << " " << resource_definition->applipath.in();
+        command_node_stream << "/runRemote.sh ";
+        command_node_stream << getenv("NSHOST") << " "; // hostname of CORBA name server
+        command_node_stream << getenv("NSPORT") << " "; // port of CORBA name server
       }
 
       command_node_stream << exe_name;
@@ -1567,11 +1580,11 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
 
 void
 SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
-					  const std::string & exe_type,
-					  const std::string & container_name,
-					  const std::string & hostname,
-					  std::string & begin, 
-					  std::string & end)
+                                          const std::string & exe_type,
+                                          const std::string & container_name,
+                                          const std::string & hostname,
+                                          std::string & begin, 
+                                          std::string & end)
 {
   if(log_type == "xterm")
   {
@@ -1594,8 +1607,8 @@ SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
 
 CORBA::Object_ptr 
 SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command, 
-						  const Engines::ContainerParameters& params,
-						  const std::string & hostname)
+                                                  const Engines::ContainerParameters& params,
+                                                  const std::string & hostname)
 {
   PaCO::InterfaceManager_ptr container_proxy = PaCO::InterfaceManager::_nil();
 
@@ -1613,7 +1626,7 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
   int count = TIME_OUT_TO_LAUNCH_CONT;
   CORBA::Object_var obj = CORBA::Object::_nil();
   std::string containerNameInNS = _NS->BuildContainerNameForNS(params.container_name.in(), 
-							       hostname.c_str());
+                                                               hostname.c_str());
   MESSAGE("[LaunchParallelContainer]  Waiting for Parallel Container proxy : " << containerNameInNS);
 
   while (CORBA::is_nil(obj) && count) 
@@ -1713,7 +1726,7 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
 
 Engines::Container_ptr
 SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params,
-					      std::string resource_selected)
+                                              std::string resource_selected)
 {
   Engines::Container_ptr ret = Engines::Container::_nil();
   INFOS("[StarPaCOPPContainer] is disabled !");
@@ -1723,34 +1736,34 @@ SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters
 
 std::string 
 SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::ContainerParameters& params,
-								std::string machine_file_name,
-								std::string & proxy_hostname)
+                                                                std::string machine_file_name,
+                                                                std::string & proxy_hostname)
 {
   return "";
 }
 
 std::string 
 SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::ContainerParameters& params,
-							       const std::string & machine_file_name,
-							       SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
-							       const std::string & proxy_hostname) 
+                                                               const std::string & machine_file_name,
+                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+                                                               const std::string & proxy_hostname) 
 {
   return "";
 }
 void 
 SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
-					  const std::string & exe_type,
-					  const std::string & container_name,
-					  const std::string & hostname,
-					  std::string & begin, 
-					  std::string & end)
+                                          const std::string & exe_type,
+                                          const std::string & container_name,
+                                          const std::string & hostname,
+                                          std::string & begin, 
+                                          std::string & end)
 {
 }
 
 CORBA::Object_ptr 
 SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command, 
-						  const Engines::ContainerParameters& params,
-						  const std::string& hostname)
+                                                  const Engines::ContainerParameters& params,
+                                                  const std::string& hostname)
 {
   CORBA::Object_ptr ret = CORBA::Object::_nil();
   return ret;
@@ -1758,9 +1771,9 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
 
 bool 
 SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command, 
-			const Engines::ContainerParameters& params,
-			const std::string& name,
-			SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+                        const Engines::ContainerParameters& params,
+                        const std::string& name,
+                        SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
 {
   return false;
 }

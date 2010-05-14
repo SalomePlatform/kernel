@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTarget.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -28,8 +29,6 @@
 
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDS_SObject.hxx"
-
-using namespace std;
 
 SALOMEDS_AttributeTarget::SALOMEDS_AttributeTarget(SALOMEDSImpl_AttributeTarget* theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
@@ -61,7 +60,7 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
+    std::vector<SALOMEDSImpl_SObject> aSeq = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(_local_impl)->Get();
     aLength = aSeq.size();
     for (i = 0; i < aLength; i++) {
       aSO = new SALOMEDS_SObject(aSeq[i]);

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
 //  File   : SALOMEDSImpl_SObject.cxx
 //  Author : Sergey RUIN
@@ -28,8 +29,6 @@
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_Study.hxx"
-
-using namespace std;
 
 #include <map>
 #include <string.h>
@@ -85,7 +84,7 @@ SALOMEDSImpl_SObject::~SALOMEDSImpl_SObject()
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SObject::GetID() const
+std::string SALOMEDSImpl_SObject::GetID() const
 {
   return _lab.Entry();
 }
@@ -135,7 +134,7 @@ SALOMEDSImpl_Study* SALOMEDSImpl_SObject::GetStudy() const
  */
 //============================================================================
 bool SALOMEDSImpl_SObject::FindAttribute(DF_Attribute*& theAttribute, 
-                                         const string& theTypeOfAttribute) const
+                                         const std::string& theTypeOfAttribute) const
 {
   if(_lab.IsNull()) return false;
   std::string aGUID = GetGUID(theTypeOfAttribute);
@@ -150,12 +149,12 @@ bool SALOMEDSImpl_SObject::FindAttribute(DF_Attribute*& theAttribute,
  *  Purpose  : Returns list of all attributes for this sobject
  */
 //============================================================================
-vector<DF_Attribute*> SALOMEDSImpl_SObject::GetAllAttributes() const
+std::vector<DF_Attribute*> SALOMEDSImpl_SObject::GetAllAttributes() const
 {
-  vector<DF_Attribute*> va1, va = _lab.GetAttributes();
+  std::vector<DF_Attribute*> va1, va = _lab.GetAttributes();
   for(int i = 0, len = va.size(); i<len; i++) {
     SALOMEDSImpl_GenericAttribute* ga = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(va[i]); 
-    if(ga && ga->Type() != string("AttributeReference"))
+    if(ga && ga->Type() != std::string("AttributeReference"))
         va1.push_back(va[i]);
   }
 
@@ -199,9 +198,9 @@ bool SALOMEDSImpl_SObject::FindSubObject(int theTag, SALOMEDSImpl_SObject& theOb
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SObject::GetName() const
+std::string SALOMEDSImpl_SObject::GetName() const
 {
-  string aStr = "";
+  std::string aStr = "";
   SALOMEDSImpl_AttributeName* aName;
   if ((aName=(SALOMEDSImpl_AttributeName*)_lab.FindAttribute(SALOMEDSImpl_AttributeName::GetID()))) {
     aStr =aName->Value();
@@ -214,9 +213,9 @@ string SALOMEDSImpl_SObject::GetName() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SObject::GetComment() const
+std::string SALOMEDSImpl_SObject::GetComment() const
 {
-  string aStr = "";
+  std::string aStr = "";
   SALOMEDSImpl_AttributeComment* aComment;
   if ((aComment=(SALOMEDSImpl_AttributeComment*)_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
     aStr = aComment->Value();
@@ -229,9 +228,9 @@ string SALOMEDSImpl_SObject::GetComment() const
  *  Purpose  : 
  */
 //============================================================================
-string SALOMEDSImpl_SObject::GetIOR() const 
+std::string SALOMEDSImpl_SObject::GetIOR() const 
 {
-  string aStr = "";
+  std::string aStr = "";
   SALOMEDSImpl_AttributeIOR* anIOR;
   if ((anIOR=(SALOMEDSImpl_AttributeIOR*)_lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
     aStr = dynamic_cast<SALOMEDSImpl_AttributeIOR*>(anIOR)->Value();
@@ -240,7 +239,7 @@ string SALOMEDSImpl_SObject::GetIOR() const
 }
 
 
-std::string SALOMEDSImpl_SObject::GetGUID(const string& theType) 
+std::string SALOMEDSImpl_SObject::GetGUID(const std::string& theType) 
 {
   __AttributeTypeToGUIDForSObject
 

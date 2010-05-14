@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : LocalTraceCollector.cxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -28,8 +29,6 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-
-using namespace std;
 
 #include "LocalTraceCollector.hxx"
 
@@ -100,27 +99,27 @@ void* LocalTraceCollector::run(void *bid)
       myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)
         {
-          cout << flush ;
+          std::cout << std::flush ;
 #ifndef WIN32
-          cerr << "INTERRUPTION from thread " << myTrace.threadId
+          std::cerr << "INTERRUPTION from thread " << myTrace.threadId
                << " : " <<  myTrace.trace;
 #else
-          cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+          std::cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
                << " : " <<  myTrace.trace;
 #endif
-          cerr << flush ; 
+          std::cerr << std::flush ; 
           exit(1);     
         }
       else
         {
-          cout << flush ;
+          std::cout << std::flush ;
 #ifndef WIN32
-          cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+          std::cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-          cerr << "th. " << (void*)(&myTrace.threadId)
+          std::cerr << "th. " << (void*)(&myTrace.threadId)
                << " " << myTrace.trace;
 #endif
-          cerr << flush ; 
+          std::cerr << std::flush ; 
         }
     }
   pthread_exit(NULL);
@@ -146,7 +145,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
       if (_threadId)
         {
           int ret = pthread_join(*_threadId, NULL);
-          if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
+          if (ret) std::cerr << "error close LocalTraceCollector : "<< ret << std::endl;
           else DEVTRACE("LocalTraceCollector destruction OK");
           delete _threadId;
           _threadId = 0;

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,26 +19,25 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeComment.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeComment.hxx"
 
-using namespace std;
-
 //=======================================================================
 //function : GetID
 //purpose  :
 //=======================================================================
-const string& SALOMEDSImpl_AttributeComment::GetID ()
+const std::string& SALOMEDSImpl_AttributeComment::GetID ()
 {
-  static string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
+  static std::string CommentID ("7AF2F7CC-1CA2-4476-BE95-8ACC996BC7B9");
   return CommentID;
 }   
 
 SALOMEDSImpl_AttributeComment* SALOMEDSImpl_AttributeComment::Set (const DF_Label& L, 
-                                                                   const string& Val) 
+                                                                   const std::string& Val) 
 {
   SALOMEDSImpl_AttributeComment* A = NULL;
   if (!(A=(SALOMEDSImpl_AttributeComment*)L.FindAttribute(SALOMEDSImpl_AttributeComment::GetID()))) {
@@ -55,7 +54,7 @@ SALOMEDSImpl_AttributeComment* SALOMEDSImpl_AttributeComment::Set (const DF_Labe
 //function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeComment::SetValue (const string& S)
+void SALOMEDSImpl_AttributeComment::SetValue (const std::string& S)
 {
   CheckLocked();
 
@@ -73,7 +72,7 @@ void SALOMEDSImpl_AttributeComment::SetValue (const string& S)
 //function : ID
 //purpose  :
 //=======================================================================
-const string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
+const std::string& SALOMEDSImpl_AttributeComment::ID () const { return GetID(); } 
 
 //=======================================================================
 //function : NewEmpty

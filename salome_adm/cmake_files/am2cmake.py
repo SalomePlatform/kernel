@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,6 +20,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 import re
 
 # ----
@@ -54,7 +55,7 @@ p_if = re.compile(r"""
 if         # an if
 \s+        # 1 or more space
 (?P<val>   # open the group val
-[^\s]+     # the group contain 1 or more non space characters
+.+         # the group contain 1 or more non space characters
 )          # close the group
 """, re.VERBOSE)
 
@@ -325,6 +326,7 @@ class CMakeFile(object):
             "SalomeIDLMED",
             ]
         smesh_list = [
+            "GeomSelectionTools",
             "MEFISTO2D",
             "MeshDriverDAT",
             "MeshDriverMED",
@@ -480,6 +482,9 @@ class CMakeFile(object):
                     if self.module == "med":
                         newlines.append("""
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        IF(WINDOWS)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
+                        ENDIF(WINDOWS)
                         """)
                         pass
                     if self.module == "smesh":
@@ -513,7 +518,7 @@ class CMakeFile(object):
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
                         """)
                         pass
-                    if self.module == "hexoticplugin":
+                    if self.module in ["ghs3dplugin", "hexoticplugin"]:
                         newlines.append("""
                         SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
                         SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
@@ -523,12 +528,13 @@ class CMakeFile(object):
                         INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
                         """)
                         pass
-                    if self.module == "ghs3dplugin":
+                    if self.module == "ghs3dprlplugin":
                         newlines.append("""
                         SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
                         SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
                         SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
                         INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
                         INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                         INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
                         """)
@@ -563,8 +569,8 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(WITH_LOCAL 1)
                 SET(WITH_BATCH 1)
-                set(VERSION 5.1.3)
-                set(XVERSION 0x050103)
+                set(VERSION 5.1.4)
+                set(XVERSION 0x050104)
                 SET(CALCIUM_IDL_INT_F77 long)
                 SET(CALCIUM_CORBA_INT_F77 CORBA::Long)
                 SET(LONG_OR_INT int)
@@ -580,8 +586,8 @@ class CMakeFile(object):
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
                 SET(ENABLE_QXGRAPHVIEWER ON)
-                set(VERSION 5.1.3)
-                set(XVERSION 0x050103)
+                set(VERSION 5.1.4)
+                set(XVERSION 0x050104)
                 """)
                 pass
             elif self.module == "geom":
@@ -627,6 +633,16 @@ class CMakeFile(object):
             elif self.module == "ghs3dplugin":
                 newlines.append("""
                 SET(GHS3DPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "hexoticplugin":
+                newlines.append("""
+                SET(HEXOTICPLUGIN_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "ghs3dprlplugin":
+                newlines.append("""
+                SET(GHS3DPRLPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
             elif self.module == "yacs":
@@ -1411,6 +1427,15 @@ class CMakeFile(object):
         SET(type SHARED)
         ENDIF(ISIDL)
         ''')
+        if key == "noinst_LTLIBRARIES":
+            newlines.append(r'''
+            IF(WINDOWS)
+            SET(type STATIC)
+            ELSE(WINDOWS)
+            SET(type STATIC)
+            ENDIF(WINDOWS)
+            ''')
+            pass
         # --
         # Set sources for the library
         # --
@@ -1484,7 +1509,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if 1: # key != "noinst_LTLIBRARIES":
+        if key != "noinst_LTLIBRARIES":
             if self.module == "medfile":
                 newlines.append(r'''
                 SET(DEST lib)
@@ -1573,7 +1598,24 @@ class CMakeFile(object):
     def addBinTarget(self, key, newlines):
         # --
         newlines.append(r'''
-        FOREACH(amname ${bin_PROGRAMS} ${check_PROGRAMS})
+        FOREACH(amname ${%s})
+        '''%(key))
+        # --
+        newlines.append(r'''
+        SET(test ON)
+        ''')
+        if key == "check_PROGRAMS":
+            newlines.append(r'''
+            IF(bin_PROGRAMS)
+            STRING(REGEX MATCH ${amname} is_present ${bin_PROGRAMS})
+            IF(is_present)
+            SET(test OFF)
+            ENDIF(is_present)
+            ENDIF(bin_PROGRAMS)
+            ''')
+            pass
+        newlines.append(r'''
+        IF(test)
         ''')
         # --
         newlines.append(r'''
@@ -1624,8 +1666,11 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
-        ENDFOREACH(amname ${bin_PROGRAMS} ${check_PROGRAMS})
+        ENDIF(test)
         ''')
+        newlines.append(r'''
+        ENDFOREACH(amname ${%s})
+        '''%(key))
         # --
         return
     

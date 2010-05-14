@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,14 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeStudyProperties.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDS_AttributeStudyProperties.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 SALOMEDS_AttributeStudyProperties::SALOMEDS_AttributeStudyProperties
                                    (SALOMEDSImpl_AttributeStudyProperties* theAttr)
@@ -79,7 +78,7 @@ void SALOMEDS_AttributeStudyProperties::SetCreationDate
       dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     int aTmp;
     if (anImpl->GetCreationDate(aTmp, aTmp, aTmp, aTmp, aTmp)) return;
-    string S;
+    std::string S;
     anImpl->SetModification(S, theMinute, theHour, theDay, theMonth, theYear);
   } else {
     ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetCreationDate(theMinute,
@@ -235,8 +234,8 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<string> aNames;
-    vector<int> aMinutes, aHours, aDays, aMonths, aYears;
+    std::vector<std::string> aNames;
+    std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
     SALOMEDSImpl_AttributeStudyProperties* anImpl = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
     anImpl->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
     aLength = aNames.size();

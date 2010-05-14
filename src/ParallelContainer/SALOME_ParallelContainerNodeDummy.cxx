@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME ParallelContainerNodeDummy : launcher of a PaCO++ object
 //  File   : SALOME_ParallelContainerNodeDummy.cxx
 //  Author : André Ribes, EDF
@@ -50,17 +51,15 @@
 
 #include "Container_init_python.hxx"
 
-using namespace std;
-
 #ifdef _DEBUG_
 #include <signal.h>
 
 void handler(int t) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "SIGSEGV in :" << getpid() << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   while (1) {}
 }
 #endif
@@ -150,13 +149,13 @@ int main(int argc, char* argv[])
 
     SALOME_NamingService * ns = new SALOME_NamingService(orb);
     // Get the proxy
-    string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
+    std::string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
                                                        proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
     // Creating a node
-    string node_name = containerName + "Node";
+    std::string node_name = containerName + "Node";
     Engines_Parallel_Container_i * servant = new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
                                                                               proxy_ior,
                                                                               myid,
@@ -179,7 +178,7 @@ int main(int argc, char* argv[])
     node_name = node_name + buffer;
     string _containerName = ns->BuildContainerNameForNS((char*) node_name.c_str(),
                                                         hostname.c_str());
-    cerr << "---------" << _containerName << "----------" << endl;
+    std::cerr << "---------" << _containerName << "----------" << std::endl;
     ns->Register(obj, _containerName.c_str());
     pman->activate();
     orb->run();

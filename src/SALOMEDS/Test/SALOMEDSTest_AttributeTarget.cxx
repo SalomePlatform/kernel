@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_AttributeTarget
  * Use code of SALOMEDS_AttributeTarget.cxx
@@ -66,7 +67,7 @@ void SALOMEDSTest::testAttributeTarget()
   _attr->Add(so2);
 
   //Check method Get
-  vector< _PTR(SObject) > v = _attr->Get();
+  std::vector< _PTR(SObject) > v = _attr->Get();
 
   CPPUNIT_ASSERT(v.size() == 2);
 

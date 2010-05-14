@@ -1,5 +1,5 @@
 #!/bin/bash
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -20,11 +20,10 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#
+
 # Useful shell to run executable progs or shells under Salome env
 # Use it with args to run a program : runSession python -i myprog.py
 # Use it without args to run an interactive shell under Salome env
-#
 
 APPLI_HOME=`dirname $0`
 

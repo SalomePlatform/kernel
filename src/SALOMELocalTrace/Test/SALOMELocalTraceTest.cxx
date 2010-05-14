@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "SALOMELocalTraceTest.hxx"
 
 #include <iostream>
@@ -27,8 +28,6 @@
 #include <cstdlib>
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
-
-using namespace std;
 
 
 // ============================================================================
@@ -67,12 +66,12 @@ SALOMELocalTraceTest::testSingletonBufferPool()
   // --- trace on file
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::app);
+  std::ofstream traceFile;
+  traceFile.open(theFileName, std::ios::out | std::ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 
@@ -98,7 +97,7 @@ void *PrintHello(void *threadid);
 void 
 SALOMELocalTraceTest::testLoadBufferPoolLocal()
 {
-  string s = "local";
+  std::string s = "local";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   // --- numThread thread creation for trace generation.
@@ -137,13 +136,13 @@ SALOMELocalTraceTest::testLoadBufferPoolFile()
 {
   const char *theFileName = TRACEFILE;
 
-  string s = "file:";
+  std::string s = "file:";
   s += theFileName;
   //s = "local";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
-  ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::trunc);
+  std::ofstream traceFile;
+  traceFile.open(theFileName, std::ios::out | std::ios::trunc);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 

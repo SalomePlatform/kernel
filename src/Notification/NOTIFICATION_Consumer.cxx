@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Notification : wrapping of Notification service services
 //  File   : NOTIFICATION_Consumer.cxx
 //  Author : Laurent DADA / Francis KLOSS
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
-using namespace std;
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
     proxy_supplier(0),
@@ -50,9 +50,9 @@ NOTIFICATION_Consumer::NOTIFICATION_Consumer():
                     proxy_supplier->connect_structured_pull_consumer(_this());
                     _ok = true;
                     MESSAGE("NOTIFICATION Info : successfully connection for pull consumer notification");
-                } catch (CORBA::BAD_PARAM& ex) {
+                } catch (CORBA::BAD_PARAM&) {
                     MESSAGE("NOTIFICATION Error : pull consumer BAD_PARAM exception while connecting");
-                } catch (CosEventChannelAdmin::AlreadyConnected& ex) {
+                } catch (CosEventChannelAdmin::AlreadyConnected&) {
                     MESSAGE("NOTIFICATION Error : pull consumer already connected");
                 } catch (...) {
                     MESSAGE("NOTIFICATION Error : pull consumer failed to connect");

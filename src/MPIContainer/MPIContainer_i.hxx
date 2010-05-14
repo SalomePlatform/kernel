@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIContainer_i.hxx
 //  Module : SALOME
@@ -67,13 +68,15 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 
   // Load a component library
   // synchronous version for process 0
-  bool load_component_Library(const char* componentName);
+  bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
   // Create an instance of component
   // synchronous version for process 0
-  Engines::Component_ptr
-  create_component_instance( const char* componentName,
-                             CORBA::Long studyId); // 0 for multiStudy
+  virtual Engines::Component_ptr
+  create_component_instance_env( const char* componentName,
+                                 CORBA::Long studyId,          // 0 for multiStudy
+                                 const Engines::FieldsDict& env,
+                                 CORBA::String_out reason);
 
   // Load a component in current MPI container
   // synchronous version for process 0

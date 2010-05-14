@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeTextColor_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -27,13 +28,11 @@
 #include "SALOMEDS.hxx" 
 #include <vector>
 
-using namespace std;
-
 SALOMEDS::Color SALOMEDS_AttributeTextColor_i::TextColor() 
 {
   SALOMEDS::Locker lock;
   SALOMEDS::Color TextColor;
-  vector<double> anArray = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_impl)->TextColor();
+  std::vector<double> anArray = dynamic_cast<SALOMEDSImpl_AttributeTextColor*>(_impl)->TextColor();
   if (anArray.size()!=3) { 
     TextColor.R = 0;
     TextColor.G = 0;
@@ -51,7 +50,7 @@ void SALOMEDS_AttributeTextColor_i::SetTextColor(const SALOMEDS::Color& value)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  vector<double> anArray;
+  std::vector<double> anArray;
   anArray.push_back(value.R);
   anArray.push_back(value.G);
   anArray.push_back(value.B);

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Container : implementation of container and engine for Kernel
 //  File   : Container_init_python.cxx
 //  Author : Paul RASCLE, EDF
@@ -33,8 +34,6 @@
 #include "utilities.h"
 
 #include "Container_init_python.hxx"
-
-using namespace std;
 
 PyThreadState *KERNEL_PYTHON::_gtstate = 0;
 PyObject *KERNEL_PYTHON::salome_shared_modules_module = NULL;

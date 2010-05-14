@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : GenericPort.hxx
 //  Author : Eric Fayolle (EDF)
 //  Module : KERNEL
@@ -73,6 +74,7 @@ public:
   template <typename TimeType,typename TagType> DataType next(TimeType &t, TagType  &tag );
   void      close (PortableServer::POA_var poa, PortableServer::ObjectId_var id);
   void wakeupWaiting();
+  template <typename TimeType,typename TagType> void erase(TimeType time, TagType tag, bool before );
 
 private:
 
@@ -338,6 +340,15 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
 
 }
 
+// erase data before time or tag
+template < typename DataManipulator, typename COUPLING_POLICY >
+template <typename TimeType,typename TagType>
+void
+GenericPort<DataManipulator, COUPLING_POLICY>::erase(TimeType time, TagType  tag, bool before)
+{
+  typename COUPLING_POLICY::template EraseDataIdBeforeOrAfterTagProcessor<DataManipulator> processEraseDataId(*this);
+  processEraseDataId.apply(storedDatas,time,tag,before);
+}
 
 // Version du Get en 0 copy
 // ( n'effectue pas de recopie de la donnée trouvée dans storedDatas )

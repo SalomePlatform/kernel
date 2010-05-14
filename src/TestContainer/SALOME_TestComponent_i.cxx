@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME TestContainer : test of container creation and its life cycle
 //  File   : SALOME_TestComponent_i.cxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
@@ -33,7 +34,6 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <map>
-using namespace std;
 
 Engines_TestComponent_i::Engines_TestComponent_i(CORBA::ORB_ptr orb,
                                                  PortableServer::POA_ptr poa,
@@ -73,7 +73,7 @@ char* Engines_TestComponent_i::Coucou(CORBA::Long L)
 void Engines_TestComponent_i::Setenv()
 {
   // bool overwrite = true;
-  map<std::string,CORBA::Any>::iterator it;
+  std::map<std::string,CORBA::Any>::iterator it;
   MESSAGE("set environment associated with keys in map _fieldsDict");
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {

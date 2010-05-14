@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 //  File   : SALOME_LifeCycleCORBA.cxx
 //  Author : Paul RASCLE, EDF
@@ -33,6 +34,7 @@
 #include <time.h>
 #ifndef WIN32
   #include <sys/time.h>
+  #include <unistd.h>
 #endif
 
 #include "Basics_Utils.hxx"
@@ -52,8 +54,6 @@
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_FileTransferCORBA.hxx"
-
-using namespace std;
 
 IncompatibleComponent::IncompatibleComponent( void ):
   SALOME_Exception( "IncompatibleComponent" )
@@ -141,7 +141,15 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   convert(params, new_params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,
@@ -176,7 +184,15 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
   new_params.resource_params.resList = listOfResources;
 
   Engines::Component_var compo = _LoadComponent(new_params,
@@ -220,7 +236,15 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
     new_params.resource_params.name = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
   }
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,
@@ -253,7 +277,15 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
 
-  Engines::ResourceList_var listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+  Engines::ResourceList_var listOfResources;
+  try
+    {
+      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+    }
+  catch( const SALOME::SALOME_Exception& ex )
+    {
+      return Engines::Component::_nil();
+    }
 
   Engines::Component_var compo = _FindComponent(new_params,
                                                 componentName,
@@ -295,7 +327,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 
   // --- Check if containerName contains machine name (if yes: rg>0)
   char *stContainer=strdup(containerName);
-  string st2Container(stContainer);
+  std::string st2Container(stContainer);
   int rg=st2Container.find("/");
 
   Engines::MachineParameters_var params=new Engines::MachineParameters;
@@ -338,8 +370,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       Catalog->GetComponent(componentName);
     if (CORBA::is_nil (compoInfo)) 
     {
-      INFOS("Catalog Error: Component not found in the catalog" );
-      INFOS( componentName );     
+      MESSAGE("Catalog Error: Component not found in the catalog " << componentName);
       return false;
     }
     else return true;
@@ -528,37 +559,96 @@ void SALOME_LifeCycleCORBA::shutdownServers()
     }
   }
 
-  string hostname = Kernel_Utils::GetHostname();
+  std::string hostname = Kernel_Utils::GetHostname();
   
-  // 1) SalomeLauncher
-  CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
-  Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
-  if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
-    launcher->Shutdown();
+  // 1) ConnectionManager
+  try
+    {
+      CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
+      Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
+      if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
+        connMan->ShutdownWithExit();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+  timespec ts_req;
+  ts_req.tv_nsec=100000000;
+  ts_req.tv_sec=0;
+
+//Wait some time so that ConnectionManager be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 2) SALOMEDS
+  try
+    {
+      CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
+      SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
+      if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
+        studyManager->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+//Wait some time so that study be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 3) ModuleCatalog
+  try
+    {
+      CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
+      SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
+      if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
+        catalog->shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
+
+//Wait some time so that ModulCatalog be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
+  // 4) SalomeLauncher
+  try
+    {
+      CORBA::Object_var objSL = _NS->Resolve("/SalomeLauncher");
+      Engines::SalomeLauncher_var launcher = Engines::SalomeLauncher::_narrow(objSL);
+      if (!CORBA::is_nil(launcher) && (pid != launcher->getPID()))
+        launcher->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
   
-  // 2) ConnectionManager
-  CORBA::Object_var objCnM=_NS->Resolve("/ConnectionManager");
-  Engines::ConnectionManager_var connMan=Engines::ConnectionManager::_narrow(objCnM);
-  if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
-    connMan->ShutdownWithExit();
-  
-  // 3) SALOMEDS
-  CORBA::Object_var objSDS = _NS->Resolve("/myStudyManager");
-  SALOMEDS::StudyManager_var studyManager = SALOMEDS::StudyManager::_narrow(objSDS) ;
-  if ( !CORBA::is_nil(studyManager) && ( pid != studyManager->getPID() ) )
-    studyManager->Shutdown();
-  
-  // 4) ModuleCatalog
-  CORBA::Object_var objMC=_NS->Resolve("/Kernel/ModulCatalog");
-  SALOME_ModuleCatalog::ModuleCatalog_var catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objMC);
-  if ( !CORBA::is_nil(catalog) && ( pid != catalog->getPID() ) )
-    catalog->shutdown();
-  
+//Wait some time so that launcher be completely shutdown
+#ifndef WIN32
+  nanosleep(&ts_req,0);
+#endif
+
   // 5) Registry
-  CORBA::Object_var objR = _NS->Resolve("/Registry");
-  Registry::Components_var registry = Registry::Components::_narrow(objR);
-  if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
-      registry->Shutdown();
+  try
+    {
+      CORBA::Object_var objR = _NS->Resolve("/Registry");
+      Registry::Components_var registry = Registry::Components::_narrow(objR);
+      if ( !CORBA::is_nil(registry) && ( pid != registry->getPID() ) )
+          registry->Shutdown();
+    }
+  catch(const CORBA::Exception& e)
+    {
+       // ignore and continue
+    }
 
   // 6) Logger
   int argc = 0;
@@ -605,15 +695,15 @@ void SALOME_LifeCycleCORBA::shutdownServers()
 
 void SALOME_LifeCycleCORBA::killOmniNames()
 {
-  string portNumber (::getenv ("NSPORT") );
+  std::string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() ) 
   {
 #ifdef WNT
 #else
-    string cmd ;
-    cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
+    std::string cmd ;
+    cmd = std::string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
       + portNumber
-      + string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
+      + std::string("\" | awk '{cmd=sprintf(\"kill -9 %s\",$1); system(cmd)}'" );
     MESSAGE(cmd);
     try {
       system ( cmd.c_str() );
@@ -626,9 +716,9 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   // NPAL 18309  (Kill Notifd)
   if ( !portNumber.empty() ) 
   {
-    string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
-    cmd += string("killNotifdAndClean(") + portNumber + "); ";
-    cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
+    std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
+    cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
+    cmd  = std::string("python -c \"") + cmd +"\" >& /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );
   }
@@ -718,8 +808,15 @@ _LoadComponent(const Engines::ContainerParameters& params,
   Engines::Container_var cont = _ContManager->GiveContainer(local_params);
   if (CORBA::is_nil(cont)) return Engines::Component::_nil();
 
-  bool isLoadable = cont->load_component_Library(componentName);
-  if (!isLoadable) return Engines::Component::_nil();
+  char* reason;
+  bool isLoadable = cont->load_component_Library(componentName,reason);
+  if (!isLoadable) 
+    {
+      //std::cerr << reason << std::endl;
+      CORBA::string_free(reason);
+      return Engines::Component::_nil();
+    }
+  CORBA::string_free(reason);
 
   Engines::Component_var myInstance =
     cont->create_component_instance(componentName, studyId);
@@ -760,16 +857,20 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   }
 
   MESSAGE("Loading component library");
-  bool isLoadable = cont->load_component_Library(componentName);
+  char* reason;
+  bool isLoadable = cont->load_component_Library(componentName,reason);
   if (!isLoadable) {
     INFOS(componentName <<" library is not loadable !");
+    //std::cerr << reason << std::endl;
+    CORBA::string_free(reason);
     return Engines::Component::_nil();
   }
+  CORBA::string_free(reason);
 
   MESSAGE("Creating component instance");
   // @PARALLEL@ permits to identify that the component requested
   // is a parallel component.
-  string name = string(componentName);
+  std::string name = std::string(componentName);
   Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");

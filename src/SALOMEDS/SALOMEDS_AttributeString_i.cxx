@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_AttributeString_i.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -27,8 +28,6 @@
 
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
-
-using namespace std;
 
 char* SALOMEDS_AttributeString_i::Value()
 {
@@ -44,5 +43,5 @@ void SALOMEDS_AttributeString_i::SetValue(const char* value)
   SALOMEDS::Locker lock; 
 
   CheckLocked();
-  dynamic_cast<SALOMEDSImpl_AttributeString*>(_impl)->SetValue(string(value));
+  dynamic_cast<SALOMEDSImpl_AttributeString*>(_impl)->SetValue(std::string(value));
 }

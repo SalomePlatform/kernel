@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_AttributeReference.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
 #include "SALOMEDSImpl_AttributeReference.hxx"
-
-using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -73,12 +72,12 @@ void SALOMEDSImpl_AttributeReference::Set(const DF_Label& Origin)
 const std::string& SALOMEDSImpl_AttributeReference::ID () const { return GetID(); } 
 
 
-string SALOMEDSImpl_AttributeReference::Save() 
+std::string SALOMEDSImpl_AttributeReference::Save() 
 {
   return myLabel.Entry();
 }
 
-void SALOMEDSImpl_AttributeReference::Load(const string& value) 
+void SALOMEDSImpl_AttributeReference::Load(const std::string& value) 
 {
   myLabel = DF_Label::Label(Label(), value, true);
 }

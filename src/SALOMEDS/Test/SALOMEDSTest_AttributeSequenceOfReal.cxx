@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_AttributeSequenceOfReal
  * Use code of SALOMEDS_AttributeSequenceOfReal.cxx
@@ -78,7 +79,7 @@ void SALOMEDSTest::testAttributeSequenceOfReal()
   CPPUNIT_ASSERT(_attr->Value(3) == 3.3);
 
   //Check method CorbaSequence
-  vector<double> v = _attr->CorbaSequence();
+  std::vector<double> v = _attr->CorbaSequence();
   CPPUNIT_ASSERT(v.size() == 3);
 
   v.push_back(5.5);

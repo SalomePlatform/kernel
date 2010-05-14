@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  SALOME Registry : Registry server implementation
 //  File   : SALOME_Registry_Server.cxx
 //  Author : Pascale NOYRET - Antoine YESSAYAN, EDF
@@ -46,7 +47,6 @@ extern "C"
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
 #endif
-using namespace std;
 
 int main( int argc , char **argv )
 {
@@ -77,7 +77,9 @@ int main( int argc , char **argv )
   const char *registryName = "Registry" ;
   long TIMESleep = 250000000;
   int NumberOfTries = 40;
+#ifndef WIN32
   int a;
+#endif
   timespec ts_req;
   ts_req.tv_nsec=TIMESleep;
   ts_req.tv_sec=0;
@@ -179,13 +181,13 @@ int main( int argc , char **argv )
           MESSAGE("RegistryService servant already existing" ) ;
           exit( EXIT_FAILURE ) ;
         }
-      catch( const ServiceUnreachable &ex )
+      catch( const ServiceUnreachable & )
         {
         }
-      catch( const CORBA::Exception &exx )
+      catch( const CORBA::Exception & )
         {
         }
-      string absoluteName = string("/") + registryName;
+      std::string absoluteName = std::string("/") + registryName;
       naming.Register( varComponents , absoluteName.c_str() ) ;
       MESSAGE("Wait client requests") ;
       try
@@ -205,7 +207,7 @@ int main( int argc , char **argv )
 #endif
           orb->run() ;
         }
-      catch( const CORBA::Exception &ex )
+      catch( const CORBA::Exception & )
         {
           MESSAGE("System error") ;
           return EXIT_FAILURE ;

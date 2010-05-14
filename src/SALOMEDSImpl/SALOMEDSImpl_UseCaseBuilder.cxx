@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDSImpl_UseCaseBuilder.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -30,8 +31,6 @@
 #include "SALOMEDSImpl_Attributes.hxx"
 
 #include "DF_ChildIterator.hxx"
-
-using namespace std;
 
 #define USE_CASE_LABEL_TAG           2
 #define USE_CASE_GUID                "AA43BB12-D9CD-11d6-945D-0050DA506788"
@@ -120,7 +119,7 @@ bool SALOMEDSImpl_UseCaseBuilder::Remove(const SALOMEDSImpl_SObject& theObject)
 
   aNode->Remove();
 
-  vector<DF_Attribute*> aList;
+  std::vector<DF_Attribute*> aList;
   aList.push_back(aNode);
 
   SALOMEDSImpl_AttributeReference* aRef = NULL;
@@ -272,7 +271,7 @@ bool SALOMEDSImpl_UseCaseBuilder::HasChildren(const SALOMEDSImpl_SObject& theObj
  *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_UseCaseBuilder::SetName(const string& theName) {
+bool SALOMEDSImpl_UseCaseBuilder::SetName(const std::string& theName) {
   if(!_root) return false;
 
   SALOMEDSImpl_AttributeName* aNameAttrib = NULL;
@@ -312,9 +311,9 @@ SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
  *  Purpose  :
  */
 //============================================================================
-string SALOMEDSImpl_UseCaseBuilder::GetName() 
+std::string SALOMEDSImpl_UseCaseBuilder::GetName() 
 {
-  string aString;
+  std::string aString;
   if(!_root) return aString;
   
   SALOMEDSImpl_AttributeName* aName = NULL;
@@ -341,9 +340,9 @@ bool SALOMEDSImpl_UseCaseBuilder::IsUseCase(const SALOMEDSImpl_SObject& theObjec
  *  Purpose  :  
  */ 
 //============================================================================ 
-SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::AddUseCase(const string& theName)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::AddUseCase(const std::string& theName)
 {
-  string aBasicGUID(USE_CASE_GUID);
+  std::string aBasicGUID(USE_CASE_GUID);
 
   //Create a use cases structure if it not exists 
 
@@ -397,7 +396,7 @@ SALOMEDSImpl_UseCaseBuilder::GetUseCaseIterator(const SALOMEDSImpl_SObject& theO
 }
 
 
-SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetSObject(const string& theEntry)
+SALOMEDSImpl_SObject SALOMEDSImpl_UseCaseBuilder::GetSObject(const std::string& theEntry)
 {
   DF_Label L = DF_Label::Label(_root->Label(), theEntry);
   return SALOMEDSImpl_Study::SObject(L);    

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 //  File   : SALOMEDS_SObject.hxx
 //  Author : Sergey RUIN
 //  Module : SALOME
@@ -52,9 +53,6 @@
 #include <unistd.h>
 #endif
 
-
-
-using namespace std;  
 
 SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
 {
@@ -224,15 +222,15 @@ void  SALOMEDS_SObject::Name(const std::string& theName)
   else _corba_impl->Name(theName.c_str());
 }
 
-vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
+std::vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
 {
-  vector<_PTR(GenericAttribute)> aVector;
+  std::vector<_PTR(GenericAttribute)> aVector;
   int aLength = 0;
   SALOMEDSClient_GenericAttribute* anAttr;
 
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    vector<DF_Attribute*> aSeq = _local_impl->GetAllAttributes();
+    std::vector<DF_Attribute*> aSeq = _local_impl->GetAllAttributes();
     aLength = aSeq.size();
     for (int i = 0; i < aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]));

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -19,6 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 /*!
  * Check all methods of SALOMEDS_AttributeTreeNode
  * Use code of SALOMEDS_AttributeTreeNode.cxx
@@ -52,7 +53,7 @@ void SALOMEDSTest::testAttributeTreeNode()
   //Check the attribute creation
   CPPUNIT_ASSERT(_attr);
 
-  string TreeNodeID = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
+  std::string TreeNodeID = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
 
   _PTR(SObject) so1 = study->CreateObjectID("0:1:2");
                                                                
@@ -180,12 +181,12 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   CPPUNIT_ASSERT(_attr2->GetTreeID() == TreeNodeID); 
 #else
-  cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
+  std::cout << std::endl << "THE TEST IS NOT COMPLETE !!!" << std::endl;
 #endif
 
 
   //Try to create the attribute with given TreeID
-  string value = "0e1c36e6-1111-4d90-ab3b-18a14310e648";
+  std::string value = "0e1c36e6-1111-4d90-ab3b-18a14310e648";
   _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNodeGUID"+value);
   CPPUNIT_ASSERT(_attr_guid && _attr_guid->GetTreeID() == value);
   
