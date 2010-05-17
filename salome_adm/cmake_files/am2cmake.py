@@ -459,7 +459,6 @@ class CMakeFile(object):
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                     ELSE(KERNEL_ROOT_DIR)
                     INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
                     ENDIF(KERNEL_ROOT_DIR)
                     """)
                 else:
