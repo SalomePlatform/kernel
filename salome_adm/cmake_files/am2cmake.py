@@ -439,6 +439,7 @@ class CMakeFile(object):
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                 """)
                 pass
             else:
@@ -456,9 +457,11 @@ class CMakeFile(object):
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                     ELSE(KERNEL_ROOT_DIR)
                     INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
                     ENDIF(KERNEL_ROOT_DIR)
                     """)
                 else:
@@ -474,6 +477,7 @@ class CMakeFile(object):
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                     """)
                     pass
@@ -505,7 +509,6 @@ class CMakeFile(object):
                         IF(WINDOWS)
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
                         ENDIF(WINDOWS)
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
                         """)
                         pass
                     if self.module == "smesh":
@@ -1872,9 +1875,13 @@ if __name__ == "__main__":
                 pass
             pass
         # --
+        from sys import stdout
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
+                stdout.write("Scanning %s %s ..."%(root, f))
+                stdout.flush()
                 convertAmFile(the_root, root, dirs, files, f, module)
+                stdout.write(" done.\n")
                 pass
             pass
         pass
