@@ -36,7 +36,6 @@ class MPIObject_i: public virtual POA_Engines::MPIObject
 {
  public:
   MPIObject_i();
-  MPIObject_i(int nbproc, int numproc);
   ~MPIObject_i();
     
   Engines::IORTab* tior();

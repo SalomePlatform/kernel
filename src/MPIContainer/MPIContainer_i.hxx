@@ -54,12 +54,11 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 
  public:
   // Constructor
-  Engines_MPIContainer_i( int nbproc, int numproc,
-                          CORBA::ORB_ptr orb,
+  Engines_MPIContainer_i( CORBA::ORB_ptr orb,
                           PortableServer::POA_ptr poa,
                           char * containerName,
                           int argc, char *argv[]);
-  Engines_MPIContainer_i(int nbproc, int numproc);
+  Engines_MPIContainer_i();
   // Destructor
   ~Engines_MPIContainer_i();
 

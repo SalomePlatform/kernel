@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     }
 
     MESSAGE("[" << numproc << "] MPIContainer: load MPIContainer servant");
-    new Engines_MPIContainer_i(nbproc,numproc,orb,root_poa, containerName,argc,argv);
+    new Engines_MPIContainer_i(orb,root_poa, containerName,argc,argv);
 
     pman->activate();
 
