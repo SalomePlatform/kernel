@@ -412,11 +412,10 @@ Launcher::Job::common_job_params()
   params[Batch::USER] = _resource_definition.UserName;
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
 
-  // Memory
+  // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)
   {
-    // Memory is in kilobytes
-    params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb * 1024;
+    params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb;
   }
 
   // We define a default directory based on user time
