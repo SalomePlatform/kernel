@@ -23,9 +23,12 @@
 //
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 #include "SALOMEDSImpl_GenericVariable.hxx"
+#include "Basics_Utils.hxx"
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
+
+#define OLDSTUDY_COMPATIBILITY
 
 //============================================================================
 /*! Function : SALOMEDSImpl_ScalarVariable
@@ -101,6 +104,8 @@ std::string SALOMEDSImpl_ScalarVariable::getStringValue() const
  */
 //============================================================================
 std::string SALOMEDSImpl_ScalarVariable::Save() const{
+  Kernel_Utils::Localizer loc;
+
   char buffer[255];
   switch(Type())
     {
@@ -132,6 +137,8 @@ std::string SALOMEDSImpl_ScalarVariable::Save() const{
 //============================================================================
 std::string SALOMEDSImpl_ScalarVariable::SaveToScript() const
 {
+  Kernel_Utils::Localizer loc;
+
   char buffer[255];
   switch(Type())
     {
@@ -147,10 +154,7 @@ std::string SALOMEDSImpl_ScalarVariable::SaveToScript() const
       }
     case SALOMEDSImpl_GenericVariable::BOOLEAN_VAR:
       {
-        if((bool)myValue)
-          sprintf(buffer, "%s", "True");
-        else
-          sprintf(buffer, "%s", "False");
+	sprintf(buffer, "%s", ((bool)myValue) ? "True" : "False");
         break;
       }
     case SALOMEDSImpl_GenericVariable::STRING_VAR:
@@ -181,6 +185,19 @@ std::string SALOMEDSImpl_ScalarVariable::SaveType() const{
 //============================================================================
 void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
 {
-  double aValue = atof(theStrValue.c_str());
-  setValue(aValue);
+  Kernel_Utils::Localizer loc;
+
+  if ( Type() == SALOMEDSImpl_GenericVariable::STRING_VAR ) {
+    setStringValue( theStrValue );
+  }
+  else {
+    std::string strCopy = theStrValue;
+#ifdef OLDSTUDY_COMPATIBILITY
+    int dotpos = strCopy.find(',');
+    if (dotpos != std::string::npos)
+      strCopy.replace(dotpos, 1, ".");
+#endif // OLDSTUDY_COMPATIBILITY
+    double aValue = atof(strCopy.c_str());
+    setValue(aValue);
+  }
 }
