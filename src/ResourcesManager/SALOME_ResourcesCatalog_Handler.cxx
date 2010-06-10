@@ -534,6 +534,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.Batch = sge;
     else if  (aBatch == "ssh_batch")
       resource.Batch = ssh_batch;
+    else if  (aBatch == "ccc")
+      resource.Batch = ccc;
     else
       resource.Batch = none;
   }
@@ -725,6 +727,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
         break;
       case sge:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
+        break;
+      case ccc:
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ccc");
         break;
       case ssh_batch:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");

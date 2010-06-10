@@ -32,21 +32,20 @@
 #include "utilities.h"
 #include "TestMPIComponentEngine.hxx"
 
-TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
-                                               CORBA::ORB_ptr orb,
+TestMPIComponentEngine::TestMPIComponentEngine(CORBA::ORB_ptr orb,
                                                PortableServer::POA_ptr poa,
                                                PortableServer::ObjectId * contId, 
                                                const char *instanceName, 
                                                const char *interfaceName,
                                                bool regist) :
-  Engines_Component_i(orb, poa, contId, instanceName, interfaceName,true,regist), MPIObject_i(nbproc,numproc)
+  Engines_Component_i(orb, poa, contId, instanceName, interfaceName,true,regist)
 {
   MESSAGE("activate object")
   _thisObj = this ;
   _id = _poa->reference_to_id(_thisObj->_this());
 }
 
-TestMPIComponentEngine::TestMPIComponentEngine(): Engines_Component_i(), MPIObject_i()
+TestMPIComponentEngine::TestMPIComponentEngine()
 {
 }
 
@@ -73,24 +72,26 @@ void TestMPIComponentEngine::SPCoucou(CORBA::Long L)
 extern "C"
 {
   PortableServer::ObjectId * TestMPIComponentEngine_factory(
-                                 int nbproc, int numproc,
                                  CORBA::ORB_ptr orb,
                                  PortableServer::POA_ptr poa, 
                                  PortableServer::ObjectId * contId,
                                  const char *instanceName, 
                                  const char *interfaceName)
   {
+    int numproc;
     bool regist;
     TestMPIComponentEngine * myTestMPIComponent;
+
     MESSAGE("[" << numproc << "] PortableServer::ObjectId * TestMPIComponentEngine_factory()");
     SCRUTE(interfaceName);
+    MPI_Comm_rank( MPI_COMM_WORLD, &numproc );
     if(numproc==0)
       regist = true;
     else
       regist = false;
 
     myTestMPIComponent 
-      = new TestMPIComponentEngine(nbproc,numproc,orb, poa, contId, instanceName, interfaceName,regist);
+      = new TestMPIComponentEngine(orb, poa, contId, instanceName, interfaceName,regist);
     return myTestMPIComponent->getId() ;
   }
 }

@@ -320,6 +320,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
 
     char aMultifileState[2];
     char ASCIIfileState[2];
+    bool hasModuleData = false;
     try {
       std::string scoid = anSCO.GetID();
       hdf_file->OpenOnDisk(HDF_RDONLY);
@@ -327,6 +328,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       hdf_group->OpenOnDisk();
       HDFgroup *hdf_sco_group = new HDFgroup((char*)scoid.c_str(), hdf_group);
       hdf_sco_group->OpenOnDisk();
+      hasModuleData = true;
 
       unsigned char* aStreamFile = NULL;
       int aStreamSize = 0;
@@ -397,6 +399,10 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       }
 
       if (aLocked) _study->GetProperties()->SetLocked(true);
+
+      if (!hasModuleData)
+	return true;
+
       _errorCode = "No persistent file";   
       return false;
     }

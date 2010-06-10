@@ -718,7 +718,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   {
     std::string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
     cmd += std::string("killNotifdAndClean(") + portNumber + "); ";
-    cmd  = std::string("python -c \"") + cmd +"\" >& /dev/null";
+    cmd  = std::string("python -c \"") + cmd +"\" > /dev/null 2> /dev/null";
     MESSAGE(cmd);
     system( cmd.c_str() );
   }

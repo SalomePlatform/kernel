@@ -22,6 +22,7 @@
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_FactBatchManager_eCCC.hxx>
 #include <Batch/Batch_FactBatchManager_eLSF.hxx>
 #include <Batch/Batch_FactBatchManager_ePBS.hxx>
 #include <Batch/Batch_BatchManager_eClient.hxx>
@@ -408,6 +409,10 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case sge:
       message += "eSGE";
       fact = new Batch::FactBatchManager_eSGE;
+      break;
+    case ccc:
+      message += "eCCC";
+      fact = new Batch::FactBatchManager_eCCC;
       break;
     case ssh_batch:
       message += "eSSH";

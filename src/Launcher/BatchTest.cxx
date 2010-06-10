@@ -298,6 +298,12 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "ccc")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type == "sge")
   {
     INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
@@ -478,6 +484,13 @@ BatchTest::test_jobsubmit_mpi()
   if (batch_type == "lsf")
   {
     INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "ccc")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
     result = "OK";
     return result;
   }

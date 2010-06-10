@@ -30,6 +30,7 @@ FindDOXYGEN.cmake \
 FindHDF5.cmake \
 FindKERNEL.cmake \
 FindLIBXML2.cmake \
+FindMPI.cmake \
 FindOMNIORB.cmake \
 FindPLATFORM.cmake \
 FindPTHREADS.cmake \

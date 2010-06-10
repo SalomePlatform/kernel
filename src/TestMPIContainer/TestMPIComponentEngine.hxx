@@ -43,8 +43,7 @@ class TestMPIComponentEngine:
 {
 public:
   TestMPIComponentEngine();
-  TestMPIComponentEngine(int nbproc, int numproc,
-                         CORBA::ORB_ptr orb,
+  TestMPIComponentEngine(CORBA::ORB_ptr orb,
                          PortableServer::POA_ptr poa,
                          PortableServer::ObjectId * contId, 
                          const char *instanceName, 

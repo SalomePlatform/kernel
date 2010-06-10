@@ -37,13 +37,6 @@ MPIObject_i::MPIObject_i()
   _tior=NULL;
 }
 
-MPIObject_i::MPIObject_i(int nbproc, int numproc)
-{
-  _nbproc = nbproc;
-  _numproc = numproc;
-  _tior=NULL;
-}
-
 MPIObject_i::~MPIObject_i()
 {
   if(_tior) delete _tior;

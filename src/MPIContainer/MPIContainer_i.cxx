@@ -41,12 +41,11 @@
 #include "Container_init_python.hxx"
 
 // L'appel au registry SALOME ne se fait que pour le process 0
-Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
-                                               CORBA::ORB_ptr orb, 
+Engines_MPIContainer_i::Engines_MPIContainer_i(CORBA::ORB_ptr orb, 
                                                PortableServer::POA_ptr poa,
                                                char * containerName,
                                                int argc, char *argv[]) 
-  : Engines_Container_i(orb,poa,containerName,argc,argv,false), MPIObject_i(nbproc,numproc)
+  : Engines_Container_i(orb,poa,containerName,argc,argv,false)
 {
 
   _id = _poa->activate_object(this);
@@ -54,7 +53,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
   Engines::Container_var pCont = Engines::Container::_narrow(obj);
   _remove_ref();
 
-  if(numproc==0){
+  if(_numproc==0){
 
     _NS = new SALOME_NamingService();
     _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
@@ -71,8 +70,8 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
   BCastIOR(_orb,pobj,true);
 }
 
-Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc) 
-  : Engines_Container_i(), MPIObject_i(nbproc,numproc)
+Engines_MPIContainer_i::Engines_MPIContainer_i() 
+  : Engines_Container_i()
 {
 }
 
@@ -326,8 +325,7 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
   std::string factory_name = aGenRegisterName + std::string("Engine_factory");
 
   typedef  PortableServer::ObjectId * (*MPIFACTORY_FUNCTION)
-    (int,int,
-     CORBA::ORB_ptr,
+    (CORBA::ORB_ptr,
      PortableServer::POA_ptr, 
      PortableServer::ObjectId *, 
      const char *, 
@@ -365,8 +363,7 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       // --- Instanciate required CORBA object
 
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-      id = (MPIComponent_factory) ( _nbproc,_numproc,_orb, _poa, _id, instanceName.c_str(),
-                                 aGenRegisterName.c_str() ) ;
+      id = (MPIComponent_factory) ( _orb, _poa, _id, instanceName.c_str(), aGenRegisterName.c_str() ) ;
 
       // --- get reference & servant from id
 
@@ -468,14 +465,12 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   MESSAGE("[" << _numproc << "] factory_name=" << factory_name) ;
 
   dlerror();
-  PortableServer::ObjectId * (*MPIComponent_factory) (int,int,
-                                                  CORBA::ORB_ptr,
+  PortableServer::ObjectId * (*MPIComponent_factory) (CORBA::ORB_ptr,
                                                   PortableServer::POA_ptr,
                                                   PortableServer::ObjectId *,
                                                   const char *,
                                                   const char *) =
-    (PortableServer::ObjectId * (*) (int,int,
-                                     CORBA::ORB_ptr,
+    (PortableServer::ObjectId * (*) (CORBA::ORB_ptr,
                                      PortableServer::POA_ptr, 
                                      PortableServer::ObjectId *, 
                                      const char *, 
@@ -494,7 +489,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
     // Instanciation du composant parallele
     MESSAGE("[" << _numproc << "] Try to load a parallel component");
     PortableServer::ObjectId * id = (MPIComponent_factory)
-      (_nbproc,_numproc,_orb, _poa, _id, instanceName.c_str(), _nameToRegister.c_str());
+      (_orb, _poa, _id, instanceName.c_str(), _nameToRegister.c_str());
     // get reference from id
     CORBA::Object_var o = _poa->id_to_reference(*id);
     pobj = Engines::MPIObject::_narrow(o) ;
