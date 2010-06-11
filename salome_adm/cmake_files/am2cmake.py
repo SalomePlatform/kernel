@@ -1386,6 +1386,13 @@ class CMakeFile(object):
         SET(var ${var} ${AM_CPPFLAGS})
         SET(var ${var} ${AM_CXXFLAGS})
         ''')
+        # --
+        newlines.append(r'''
+        IF(type STREQUAL STATIC)
+        SET(var ${var} -fPIC)
+        ENDIF(type STREQUAL STATIC)
+        ''')
+        # --
         if self.module == "yacs":
             newlines.append(r'''
             SET(var ${var} -DYACS_PTHREAD)
@@ -1493,9 +1500,15 @@ class CMakeFile(object):
         STRING(REPLACE ".f" ".c" src ${src})
         SET(src ${CMAKE_CURRENT_BINARY_DIR}/${src})
         SET(output ${src})
+        SET(cmd f2c)
+        IF(NOT WINDOWS)
+        IF(CMAKE_SIZEOF_VOID_P STREQUAL 8)
+        SET(cmd valgrind f2c)  # f2c seems to be buggy on 64 bits ... but with valgrind, it works :)
+        ENDIF()
+        ENDIF(NOT WINDOWS)
         ADD_CUSTOM_COMMAND(
         OUTPUT ${output}
-        COMMAND f2c ${input}
+        COMMAND ${cmd} ${input}
         MAIN_DEPENDENCY ${input}
         )
         ELSE(src STREQUAL trte.f)
