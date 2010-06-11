@@ -22,12 +22,9 @@
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_FactBatchManager_eCCC.hxx>
-#include <Batch/Batch_FactBatchManager_eLSF.hxx>
-#include <Batch/Batch_FactBatchManager_ePBS.hxx>
+#include <Batch/Batch_BatchManagerCatalog.hxx>
+#include <Batch/Batch_FactBatchManager_eClient.hxx>
 #include <Batch/Batch_BatchManager_eClient.hxx>
-#include <Batch/Batch_FactBatchManager_eSGE.hxx>
-#include <Batch/Batch_FactBatchManager_eSSH.hxx>
 #endif
 
 #include "Basics_Utils.hxx"
@@ -395,34 +392,35 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
       mpi = "nompi";
   }
 
-  std::string message = "Instanciation of batch manager of type: ";
+  const char * bmType;
   switch( params.Batch )
   {
     case pbs:
-      message += "ePBS";
-      fact = new Batch::FactBatchManager_ePBS;
+      bmType = "ePBS";
       break;
     case lsf:
-      message += "eLSF";
-      fact = new Batch::FactBatchManager_eLSF;
+      bmType = "eLSF";
       break;
     case sge:
-      message += "eSGE";
-      fact = new Batch::FactBatchManager_eSGE;
+      bmType = "eSGE";
       break;
     case ccc:
-      message += "eCCC";
-      fact = new Batch::FactBatchManager_eCCC;
+      bmType = "eCCC";
       break;
     case ssh_batch:
-      message += "eSSH";
-      fact = new Batch::FactBatchManager_eSSH;
+      bmType = "eSSH";
       break;
     default:
       LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);
       throw LauncherException("No batchmanager for that cluster - Bad batch description of the resource");
   }
-  LAUNCHER_MESSAGE(message);
+  Batch::BatchManagerCatalog & cata = Batch::BatchManagerCatalog::getInstance();
+  fact = dynamic_cast<Batch::FactBatchManager_eClient*>(cata(bmType));
+  if (fact == NULL) {
+    LAUNCHER_MESSAGE("Cannot find batch manager factory for " << bmType << ". Check your version of libBatch.");
+    throw LauncherException("Cannot find batch manager factory");
+  }
+  LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
   return (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
 }
 
