@@ -77,7 +77,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
     resource_protocol = "rsh";
   
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
-  launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << _launch_date << ".xml" << std::endl;
+  launch_script_stream << "CATALOG_FILE=" << "CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'  > $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
