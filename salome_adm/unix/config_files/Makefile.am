@@ -72,6 +72,7 @@ check_mpich.m4 \
 check_omniorb.m4 \
 check_sockets.m4 \
 check_swig.m4 \
+check_vtk.m4 \
 check_withihm.m4 \
 enable_pthreads.m4 \
 production.m4 \
