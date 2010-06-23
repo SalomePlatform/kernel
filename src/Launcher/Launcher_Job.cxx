@@ -482,7 +482,7 @@ Launcher::Job::common_job_params()
 
   // Time
   if (_maximum_duration_in_second != -1)
-    params[Batch::MAXWALLTIME] = _maximum_duration_in_second;
+    params[Batch::MAXWALLTIME] = _maximum_duration_in_second / 60;
 
   // Queue
   if (_queue != "")
