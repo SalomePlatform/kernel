@@ -86,6 +86,11 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
+  std::string urifile = getenv("HOME");
+  std::ostringstream mypid;
+  mypid << getpid();
+  urifile += "/.urifile_" + mypid.str();
+  setenv("OMPI_URI_FILE",urifile.c_str(),0);
   if( getenv("OMPI_URI_FILE") != NULL ){
     system("killall ompi-server");
     std::string command;
