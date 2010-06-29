@@ -306,20 +306,31 @@ class CMakeFile(object):
             "TransformationGUI",
             ]
         med_list = [
-            "InterpGeometric2DAlg",
-            "interpkernelbases",
             "interpkernel",
+            "InterpKernelTest",
             "MEDClientcmodule",
+            "medcouplingclient",
+            "medcouplingcorba",
+            "medcouplingremapper",
             "medcoupling",
             "MEDEngine",
+            "medloader",
+            "MEDMEMCppTest",
             "MEDMEMImpl",
             "medmem",
             "MED",
+            "medsplitter",
+            "MEDSPLITTERTest",
             "med_V2_1",
             "MEDWrapperBase",
             "MEDWrapper",
             "MEDWrapper_V2_1",
             "MEDWrapper_V2_2",
+            "paramedcouplingcorba",
+            "paramedloader",
+            "paramedmemcompo",
+            "paramedmem",
+            "ParaMEDMEMTest",
             "SalomeIDLMED",
             ]
         smesh_list = [
@@ -575,6 +586,13 @@ class CMakeFile(object):
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
                         """)
                         pass
+                    if self.module == "hxx2salome":
+                        newlines.append("""
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -652,6 +670,15 @@ class CMakeFile(object):
                 ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
+            elif self.module == "netgen":
+                newlines.append("""
+                SET(OCCFLAGS ${CAS_CPPFLAGS})
+                SET(OCCLIBS ${CAS_LDPATH})
+                SET(OCCLIBS ${OCCLIBS} ${TKernel} ${TKGeomBase} ${TKMath} ${TKG2d} ${TKG3d} ${TKXSBase} ${TKOffset} ${TKFillet} ${TKShHealing})
+                SET(OCCLIBS ${OCCLIBS} ${TKMesh} ${TKMeshVS} ${TKTopAlgo} ${TKGeomAlgo} ${TKBool} ${TKPrim} ${TKBO} ${TKIGES} ${TKBRep})
+                SET(OCCLIBS ${OCCLIBS} ${TKSTEPBase} ${TKSTEP} ${TKSTL} ${TKSTEPAttr} ${TKSTEP209} ${TKXDESTEP} ${TKXDEIGES} ${TKXCAF} ${TKLCAF} ${FWOSPlugin})
+                """)
+                pass
             elif self.module == "netgenplugin":
                 newlines.append("""
                 IF(GUI_ROOT_DIR)
@@ -705,7 +732,11 @@ class CMakeFile(object):
         SET(AM_CXXFLAGS)
         SET(LDADD)
         """)
-        if self.module == "kernel":
+        if self.module == "netgen":
+            newlines.append(r'''
+            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR})
+            ''')
+        elif self.module == "kernel":
             newlines.append(r'''
             SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
             SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
@@ -1241,6 +1272,14 @@ class CMakeFile(object):
                 "doc_DATA"               :  "${docdir}",
                 }
             pass
+        if self.module == "netgen":
+            d = {
+                "include_HEADERS"        :  "include",
+                "noinst_HEADERS"         :  "share/netgen/include",
+                "dist_pkgdata_DATA"      :  "share/netgen",
+                "dist_doc_DATA"          :  "share/doc/netgen",
+                }
+            pass
         for key, value in d.items():
             if self.__thedict__.has_key(key):
                 self.addInstallTarget(key, value, newlines)
@@ -1566,8 +1605,29 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if key != "noinst_LTLIBRARIES":
-            if self.module == "medfile":
+        if 1: # key != "noinst_LTLIBRARIES":
+            newlines.append(r'''
+            SET(key %s)
+            '''%(key))
+            newlines.append(r'''
+            SET(test ON)
+            IF(${key} STREQUAL noinst_LTLIBRARIES)
+            SET(test OFF)
+            ENDIF(${key} STREQUAL noinst_LTLIBRARIES)
+            ''')
+            if self.module == "netgen" :
+                newlines.append(r'''
+                IF(${key} STREQUAL noinst_LTLIBRARIES)
+                IF(WINDOWS)
+                SET(test ON)
+                ENDIF(WINDOWS)
+                ENDIF(${key} STREQUAL noinst_LTLIBRARIES)
+                ''')
+                pass
+            newlines.append(r'''
+            IF(test)
+            ''')
+            if self.module in ["medfile", "netgen"]:
                 newlines.append(r'''
                 SET(DEST lib)
                 ''')
@@ -1644,6 +1704,9 @@ class CMakeFile(object):
             newlines.append(r'''
             ENDIF(BEGIN_WITH_lib)
             ''')
+            newlines.append(r'''
+            ENDIF(test)
+            ''')
             pass
         # --
         newlines.append(r'''
@@ -1692,7 +1755,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if self.module == "medfile":
+        if self.module in ["medfile", "netgen"]:
             newlines.append(r'''
             SET(DEST bin)
             ''')
