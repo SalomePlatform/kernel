@@ -750,6 +750,23 @@ class CMakeFile(object):
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
+            if self.module == "hxx2salome":
+                key = "_SRC"
+                if self.the_root[-len(key):] != key:
+                    msg = "Source dir must finished with %s !"%(key)
+                    raise Exception(msg)
+                hxxmodule = self.the_root[:-len(key)]
+                from os.path import basename
+                hxxmodule = basename(hxxmodule)
+                hxxmodule = hxxmodule.lower()
+                self.hxxmodule = hxxmodule
+                newlines.append(r'''
+                SET(HXXCPP_ROOT_DIR $ENV{%sCPP_ROOT_DIR})
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -I${HXXCPP_ROOT_DIR}/include)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -I${HXXCPP_ROOT_DIR}/include)
+                SET(LDADD ${LDADD} -L${HXXCPP_ROOT_DIR}/lib)
+                '''%(hxxmodule.upper()))
+                pass
             pass
         # --
         return
@@ -1242,6 +1259,10 @@ class CMakeFile(object):
         # --
         # Treat the install targets
         # --
+        resdir = self.module
+        if resdir == "hxx2salome":
+            resdir = self.hxxmodule
+            pass
         d = {
             "salomeadmux_DATA"            :  "salome_adm/unix",
             "dist_salomeadmux_DATA"       :  "salome_adm/unix",
@@ -1252,9 +1273,9 @@ class CMakeFile(object):
             "dist_admlocal_cmake_DATA"    :  "adm_local/cmake_files",
             "salomeinclude_DATA"          :  "include/salome",
             "salomeinclude_HEADERS"       :  "include/salome",
-            "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(self.module),
-            "nodist_salomeres_DATA"       :  "share/salome/resources/%s"%(self.module),
-            "nodist_salomeres_SCRIPTS"    :  "share/salome/resources/%s"%(self.module),
+            "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(resdir),
+            "nodist_salomeres_DATA"       :  "share/salome/resources/%s"%(resdir),
+            "nodist_salomeres_SCRIPTS"    :  "share/salome/resources/%s"%(resdir),
             "dist_salomescript_SCRIPTS"   :  "bin/salome",
             "dist_salomescript_DATA"      :  "bin/salome",
             "dist_salomescript_PYTHON"    :  "bin/salome",
@@ -1311,18 +1332,13 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
-        SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${LDADD} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
         FOREACH(lib SALOMEBasics SalomeBatch)
         IF(name STREQUAL lib)
         SET(libs ${libs} ${PTHREAD_LIBS})
         ENDIF(name STREQUAL lib)
         ENDFOREACH(lib SALOMEBasics SalomeBatch)
         ''')
-        if key == "bin_PROGRAMS":
-            newlines.append(r'''
-            SET(libs ${libs} ${LDADD})
-            ''')
-            pass
         # --
         newlines.append(r'''
         FOREACH(lib ${libs})
