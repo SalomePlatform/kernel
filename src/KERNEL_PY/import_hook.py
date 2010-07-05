@@ -151,14 +151,14 @@ def ensure_fromlist(m, fromlist, recursive=0):
             l.append((subname,submod))
     return l
 
-def import_hook(name, globals=None, locals=None, fromlist=None, *args):
+def import_hook(name, globals=None, locals=None, fromlist=None, *args, **kwds):
     """ Import replacement for sharing modules among multiple interpreters
         Mostly update sys.modules before doing real import
     """
     #print "import_hook",name,fromlist
     m=get_shared_imported(name,fromlist)
 
-    module= original_import(name, globals, locals, fromlist, *args)
+    module= original_import(name, globals, locals, fromlist, *args, **kwds)
 
     if fromlist:
        #when fromlist is specified, module is the real module
