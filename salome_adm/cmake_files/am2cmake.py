@@ -1949,6 +1949,8 @@ if __name__ == "__main__":
     from os import getcwd
     the_root = getcwd()
     #
+    nok = 0
+    #
     from os import walk
     for root, dirs, files in walk(the_root):
         # --
@@ -1970,12 +1972,20 @@ if __name__ == "__main__":
         from sys import stdout
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
-                stdout.write("Scanning %s %s ..."%(root, f))
-                stdout.flush()
                 convertAmFile(the_root, root, dirs, files, f, module)
-                stdout.write(" done.\n")
+                nok += 1
                 pass
             pass
         pass
     #
+    if nok:
+        if nok == 1:
+            msg = "%s file has been converted to cmake"%(nok)
+        else:
+            msg = "%s files have been converted to cmake"%(nok)
+            pass
+        stdout.write(msg)
+        stdout.write("\n")
+        stdout.flush()
+        pass
     pass
