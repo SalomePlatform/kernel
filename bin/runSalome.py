@@ -323,6 +323,15 @@ class SessionServer(Server):
                 pass
             pass
         
+        if self.args["valgrind_session"]:
+            l = ["valgrind"]
+            val = os.getenv("VALGRIND_OPTIONS")
+            if val:
+                l += val.split()
+                pass
+            self.CMD = l + self.CMD
+            pass
+        
 # ---
 
 class LauncherServer(Server):

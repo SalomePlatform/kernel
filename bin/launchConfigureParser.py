@@ -59,6 +59,7 @@ test_nam       = "test"
 play_nam       = "play"
 gdb_session_nam = "gdb_session"
 ddd_session_nam = "ddd_session"
+valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
@@ -638,6 +639,14 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="ddd_session", default=False,
                             help=help_str)
     
+
+    # valgrind session
+    help_str = "Launch session with valgrind $VALGRIND_OPTIONS"
+    o_valgrind = optparse.Option("--valgrind-session",
+                                 action="store_true",
+                                 dest="valgrind_session", default=False,
+                                 help=help_str)
+
     # shutdown-servers. Default: False.
     help_str  = "1 to shutdown standalone servers when leaving python interpreter, "
     help_str += "0 to keep the standalone servers as daemon [default]. "
@@ -675,6 +684,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_play,  # Reproducing test script with help of TestRecorder
                 o_gdb,
                 o_ddd,
+                o_valgrind,
                 o_shutdown,
                 ]
 
@@ -968,6 +978,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Ddd session in xterm
     if cmd_opts.ddd_session is not None:
         args[ddd_session_nam] = cmd_opts.ddd_session
+
+    # valgrind session
+    if cmd_opts.valgrind_session is not None:
+        args[valgrind_session_nam] = cmd_opts.valgrind_session
 
     # Shutdown servers
     if cmd_opts.shutdown_servers is None:
