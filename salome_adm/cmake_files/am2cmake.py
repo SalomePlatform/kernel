@@ -438,6 +438,10 @@ class CMakeFile(object):
             ENDIF(COMMAND cmake_policy)
             """)
             # --
+            newlines.append("""
+            ENABLE_TESTING()
+            """)
+            # --
             if self.module == "kernel":
                 newlines.append("""
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
@@ -1253,6 +1257,24 @@ class CMakeFile(object):
             MAIN_DEPENDENCY ${input}
             )
             ENDFOREACH(input ${SIP_FILES})
+            ''')
+            pass
+
+        # --
+        # For make check
+        # --
+        key = "UNIT_TEST_PROG"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(input ${UNIT_TEST_PROG})
+            SET(fail_regex "KO")
+            IF(WINDOWS)
+            ADD_TEST(${input} ${CMAKE_CURRENT_BINARY_DIR}/${input}_exe.exe)
+            ELSE()
+            ADD_TEST(${input} ${CMAKE_CURRENT_BINARY_DIR}/${input}_exe)
+            ENDIF()
+            SET_PROPERTY(TEST ${input} PROPERTY FAIL_REGULAR_EXPRESSION "${fail_regex}")
+            ENDFOREACH(input ${UNIT_TEST_PROG})
             ''')
             pass
         
