@@ -153,6 +153,7 @@ exception NotFound {};
 
 struct JobParameters
 {
+  string job_name;
   //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
   string job_type;
 
@@ -185,6 +186,18 @@ struct JobParameters
   Engines::ParameterList specific_parameters;
 };
 
+struct JobDescription
+{
+  long job_id;
+  Engines::JobParameters job_parameters;
+};
+typedef sequence<Engines::JobDescription> JobsList;
+
+interface SalomeLauncherObserver
+{
+  void notifyObserver(in string event_name, in string event_data);
+};
+
 /*! \brief Interface of the %salomelauncher
     This interface is used for interaction with the unique instance
     of SalomeLauncher
@@ -200,11 +213,21 @@ interface SalomeLauncher
 
   // Useful methods
   long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
-  boolean testBatch        (in ResourceParameters params)		 raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
 
   // SALOME kernel service methods
   void Shutdown();
   long getPID();
+
+  // Observer and introspection methods
+  void addObserver(in Engines::SalomeLauncherObserver observer);
+  Engines::JobsList getJobsList();
+  Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
+
+  // Save and load methods
+  void loadJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+  void saveJobs(in string jobs_file) raises (SALOME::SALOME_Exception);
+
 };
   
 /*! \brief Interface of the %containerManager

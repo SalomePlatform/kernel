@@ -44,6 +44,8 @@
 #include <Batch/Batch_EmulationException.hxx>
 #endif
 
+#include <libxml/parser.h>
+
 namespace Launcher
 {
   class LAUNCHER_EXPORT Job
@@ -62,8 +64,9 @@ namespace Launcher
 
       virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
       ParserResourcesType getResourceDefinition();
-      
+
       // Common parameters
+      void setJobName(const std::string & job_name);
       virtual void setJobFile(const std::string & job_file);
       void setWorkDirectory(const std::string & work_directory);
       void setLocalDirectory(const std::string & local_directory);
@@ -75,6 +78,7 @@ namespace Launcher
       void setQueue(const std::string & queue);
       void setEnvFile(const std::string & env_file);
 
+      std::string getJobName();
       std::string getJobFile();
       std::string getWorkDirectory();
       std::string getLocalDirectory();
@@ -85,7 +89,8 @@ namespace Launcher
       resourceParams getResourceRequiredParams();
       std::string getQueue();
       std::string getEnvFile();
-      
+      std::string getJobType();
+
       std::string updateJobState();
 
       // Checks
@@ -96,11 +101,16 @@ namespace Launcher
       long convertMaximumDuration(const std::string & maximum_duration);
       std::string getLaunchDate();
 
+      // Xml method
+      void addToXmlDocument(xmlNodePtr root_node);
+
       // Abstract class
       virtual void update_job() = 0;
 
     protected:
       int _number;
+
+      std::string _job_type;
 
       std::string _state;
       std::string _launch_date;
@@ -108,6 +118,7 @@ namespace Launcher
 
       ParserResourcesType _resource_definition;
 
+      std::string _job_name;
       std::string _job_file;
       std::string _job_file_name;
       std::string _job_file_name_complete;

@@ -22,7 +22,7 @@
 #include "Launcher_Job_PythonSALOME.hxx"
 
 
-Launcher::Job_PythonSALOME::Job_PythonSALOME() {}
+Launcher::Job_PythonSALOME::Job_PythonSALOME() {_job_type = "python_salome";}
 
 Launcher::Job_PythonSALOME::~Job_PythonSALOME() {}
 

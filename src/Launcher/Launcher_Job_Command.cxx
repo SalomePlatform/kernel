@@ -21,7 +21,7 @@
 //
 #include "Launcher_Job_Command.hxx"
 
-Launcher::Job_Command::Job_Command() {}
+Launcher::Job_Command::Job_Command() {_job_type = "command";}
 
 Launcher::Job_Command::~Job_Command() {}
 

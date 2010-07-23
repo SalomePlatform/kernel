@@ -22,7 +22,7 @@
 #include "Launcher_Job_YACSFile.hxx"
 
 
-Launcher::Job_YACSFile::Job_YACSFile() {}
+Launcher::Job_YACSFile::Job_YACSFile() {_job_type = "yacs_file";}
 
 Launcher::Job_YACSFile::~Job_YACSFile() {}
 

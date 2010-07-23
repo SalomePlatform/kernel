@@ -59,6 +59,16 @@ public:
   void Shutdown();
   CORBA::Long getPID();
 
+  // Observer and introspection methods
+  virtual void addObserver(Engines::SalomeLauncherObserver_ptr observer);
+  virtual Engines::JobsList * getJobsList();
+  virtual Engines::JobParameters * getJobParameters(CORBA::Long job_id);
+
+  // Save and load methods
+  virtual void loadJobs(const char* jobs_file);
+  virtual void saveJobs(const char* jobs_file);
+
+
   static const char *_LauncherNameInNS;
 
 protected:

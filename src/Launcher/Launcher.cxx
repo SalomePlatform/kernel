@@ -421,7 +421,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     throw LauncherException("Cannot find batch manager factory");
   }
   LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
-  return (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
+  Batch::BatchManager_eClient * batch_client = (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
+  batch_client->setUsername(params.UserName);
+  return batch_client;
 }
 
 //----------------------------------------------------------
@@ -517,3 +519,87 @@ Launcher_cpp::ParseXmlFile(std::string xmlExecuteFile)
   return job_params;
 }
 
+std::map<int, Launcher::Job *>
+Launcher_cpp::getJobs()
+{
+  return _launcher_job_map;
+}
+
+void 
+Launcher_cpp::checkFactoryForResource(const std::string & resource_name)
+{
+  // Step 1: Check if resource exist in the resource manager
+  ParserResourcesType resource_definition;
+  try
+  {
+    resource_definition = _ResManager->GetResourcesDescr(resource_name);
+  }
+  catch(const ResourcesException &ex)
+  {
+    LAUNCHER_INFOS(ex.msg);
+    throw LauncherException(ex.msg);
+  }
+
+  // Step 2: We can now add a Factory is the resource is correctly define
+  std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(resource_name);
+  if(it == _batchmap.end())
+  {
+    try
+    {
+      // Warning cannot write on one line like this, because map object is constructed before
+      // the method is called...
+      //_batchmap.[resource_name] = FactoryBatchManager(resource_definition);
+      Batch::BatchManager_eClient * batch_client = FactoryBatchManager(resource_definition);
+      _batchmap[resource_name] = batch_client;
+    }
+    catch(const LauncherException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.msg);
+      throw ex;
+    }
+    catch(const Batch::EmulationException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.message);
+      throw LauncherException(ex.message);
+    }
+  }
+}
+
+void 
+Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference)
+{
+  // Step 1: check if resource is already in the map
+  std::string resource_name = new_job->getResourceDefinition().Name;
+  checkFactoryForResource(resource_name);
+  ParserResourcesType resource_definition = _ResManager->GetResourcesDescr(resource_name);
+  new_job->setResourceDefinition(resource_definition);
+
+  // Step 2: add the job to the batch manager
+  try
+  {
+    Batch::JobId batch_manager_job_id = _batchmap[resource_name]->addJob(*(new_job->getBatchJob()), 
+                                                                         job_reference);
+    new_job->setBatchManagerJobId(batch_manager_job_id);
+  }
+  catch(const Batch::EmulationException &ex)
+  {
+    LAUNCHER_INFOS("Job is not launched, exception in submitJob: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+
+  // Step 3: add job to launcher map
+  pthread_mutex_lock(_job_cpt_mutex);
+  new_job->setNumber(_job_cpt);
+  _job_cpt++;
+  pthread_mutex_unlock(_job_cpt_mutex);
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(new_job->getNumber());
+  if (it_job == _launcher_job_map.end())
+    _launcher_job_map[new_job->getNumber()] = new_job;
+  else
+  {
+    LAUNCHER_INFOS("A job as already the same id: " << new_job->getNumber());
+    delete new_job;
+    throw LauncherException("A job as already the same id - job is not created !");
+  }
+  LAUNCHER_MESSAGE("New job added");
+}

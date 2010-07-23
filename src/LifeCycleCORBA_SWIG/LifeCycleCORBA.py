@@ -57,9 +57,9 @@ class ResourceParameters (Engines.ResourceParameters):
                                               policy, resList)
 
 class JobParameters (Engines.JobParameters):
-  def __init__(self, job_type="", job_file="", env_file="", in_files=[], out_files=[],
+  def __init__(self, job_name="", job_type="", job_file="", env_file="", in_files=[], out_files=[],
                      work_directory="", local_directory="", result_directory="", maximum_duration="",
                      resource_required=None, queue="", specific_parameters=[]):
-    Engines.JobParameters.__init__(self, job_type, job_file, env_file, in_files, out_files,
+    Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
                                          resource_required, queue, specific_parameters)

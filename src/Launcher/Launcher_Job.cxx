@@ -29,6 +29,7 @@ Launcher::Job::Job()
   _launch_date = getLaunchDate();
 
   _env_file = "";
+  _job_name = "";
   _job_file = "";
   _job_file_name = "";
   _job_file_name_complete = "";
@@ -46,6 +47,7 @@ Launcher::Job::Job()
   _resource_required_params.cpu_clock = -1;
   _resource_required_params.mem_mb = -1;
   _queue = "";
+  _job_type = "";
 
 #ifdef WITH_LIBBATCH
   _batch_job = new Batch::Job();
@@ -72,15 +74,36 @@ Launcher::Job::~Job()
 #endif
 }
 
+std::string
+Launcher::Job::getJobType()
+{
+  return _job_type;
+}
+
+void
+Launcher::Job::setJobName(const std::string & job_name)
+{
+  _job_name = job_name;
+}
+
+std::string
+Launcher::Job::getJobName()
+{
+  return _job_name;
+}
+
 void 
 Launcher::Job::setState(const std::string & state)
 {
   // State of a Job: CREATED, QUEUED, RUNNING, FINISHED, FAILED
   if (state != "CREATED" &&
+      state != "IN_PROCESS" &&
       state != "QUEUED" &&
       state != "RUNNING" &&
+      state != "PAUSED" &&
       state != "FINISHED" &&
-      state != "FAILED")
+      state != "FAILED" &&
+      state != "ERROR")
   {
     throw LauncherException("Bad state, this state does not exist: " + state);
   }
@@ -368,29 +391,20 @@ Launcher::Job::getLaunchDate()
 std::string
 Launcher::Job::updateJobState()
 {
-#ifdef WITH_LIBBATCH
-  if (_batch_job_id.getReference() != "undefined")
+
+  if (_state != "FINISHED" ||
+      _state != "ERROR"    ||
+      _state != "FAILED")
   {
-    // A batch manager has been affected to the job
-    Batch::JobInfo job_info = _batch_job_id.queryJob();
-    Batch::Parametre par = job_info.getParametre();
-
-    LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
-
-    // TODO: Remove this if all tests pass with the new libBatch, otherwise fix the codes in libBatch
-    // Patch until new LIBBATCH version
-    // eSSH Client and ePBS Client and eSGE
-/*    if (par[STATE].str() == "Running" or par[STATE].str() == "E" or par[STATE].str() == "R" or par[STATE].str() == "r" or par[STATE].str() == "RUN")
-      _state = "RUNNING";
-    else if (par[STATE].str() == "Stopped")
-      _state = "PAUSED";
-    else if (par[STATE].str() == "Done" or par[STATE].str() == "U" or par[STATE].str() == "e" or par[STATE].str() == "DONE" or par[STATE].str() == "EXIT")
-      _state = "FINISHED";
-    else if (par[STATE].str() == "Dead" or par[STATE].str() == "Eqw")
-      _state = "ERROR";
-    else if (par[STATE].str() == "Q" or par[STATE].str() == "qw" or par[STATE].str() == "PEN")
-      _state = "QUEUED";*/
-    _state = par[Batch::STATE].str();
+#ifdef WITH_LIBBATCH
+    if (_batch_job_id.getReference() != "undefined")
+    {
+      // A batch manager has been affected to the job
+      Batch::JobInfo job_info = _batch_job_id.queryJob();
+      Batch::Parametre par = job_info.getParametre();
+      _state = par[Batch::STATE].str();
+      LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
+    }
   }
 #endif
   return _state;
@@ -503,3 +517,66 @@ Launcher::Job::getBatchManagerJobId()
   return _batch_job_id;
 }
 #endif
+
+void
+Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
+{
+  // Begin job
+  xmlNodePtr job_node = xmlNewChild(root_node, NULL, xmlCharStrdup("job"), NULL);
+  xmlNewProp(job_node, xmlCharStrdup("type"), xmlCharStrdup(getJobType().c_str()));
+  xmlNewProp(job_node, xmlCharStrdup("name"), xmlCharStrdup(getJobName().c_str()));
+
+  // Add user part
+  xmlNodePtr node = xmlNewChild(job_node, NULL, xmlCharStrdup("user_part"), NULL);
+
+  xmlNewChild(node, NULL, xmlCharStrdup("job_file"),         xmlCharStrdup(getJobFile().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("env_file"),         xmlCharStrdup(getEnvFile().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("work_directory"),   xmlCharStrdup(getWorkDirectory().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("local_directory"),  xmlCharStrdup(getLocalDirectory().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("result_directory"), xmlCharStrdup(getResultDirectory().c_str()));
+
+  // Files
+  xmlNodePtr files_node = xmlNewChild(node, NULL, xmlCharStrdup("files"), NULL);
+  std::list<std::string> in_files  = get_in_files();
+  std::list<std::string> out_files = get_out_files();
+  for(std::list<std::string>::iterator it = in_files.begin(); it != in_files.end(); it++)
+    xmlNewChild(files_node, NULL, xmlCharStrdup("in_file"), xmlCharStrdup((*it).c_str()));
+  for(std::list<std::string>::iterator it = out_files.begin(); it != out_files.end(); it++)
+    xmlNewChild(files_node, NULL, xmlCharStrdup("out_file"), xmlCharStrdup((*it).c_str()));
+
+  // Resource part
+  resourceParams resource_params = getResourceRequiredParams();
+  xmlNodePtr res_node = xmlNewChild(node, NULL, xmlCharStrdup("resource_params"), NULL);
+  xmlNewChild(res_node, NULL, xmlCharStrdup("name"),   xmlCharStrdup(resource_params.name.c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("hostname"),   xmlCharStrdup(resource_params.hostname.c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("OS"),   xmlCharStrdup(resource_params.OS.c_str()));
+  std::ostringstream nb_proc_stream;
+  std::ostringstream nb_node_stream;
+  std::ostringstream nb_proc_per_node_stream;
+  std::ostringstream cpu_clock_stream;
+  std::ostringstream mem_mb_stream;
+  nb_proc_stream << resource_params.nb_proc;
+  nb_node_stream << resource_params.nb_node;
+  nb_proc_per_node_stream << resource_params.nb_proc_per_node;
+  cpu_clock_stream << resource_params.cpu_clock;
+  mem_mb_stream << resource_params.mem_mb;
+  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc"),            xmlCharStrdup(nb_proc_stream.str().c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_node"),            xmlCharStrdup(nb_node_stream.str().c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("nb_proc_per_node"),   xmlCharStrdup(nb_proc_per_node_stream.str().c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("cpu_clock"),          xmlCharStrdup(cpu_clock_stream.str().c_str()));
+  xmlNewChild(res_node, NULL, xmlCharStrdup("mem_mb"),             xmlCharStrdup(mem_mb_stream.str().c_str()));
+
+  xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
+  xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
+
+  // Run part
+  xmlNodePtr run_node = xmlNewChild(job_node, NULL, xmlCharStrdup("run_part"), NULL);
+  xmlNewChild(run_node, NULL, xmlCharStrdup("job_state"), xmlCharStrdup(getState().c_str()));
+  ParserResourcesType resource_definition = getResourceDefinition();
+  xmlNewChild(run_node, NULL, xmlCharStrdup("resource_choosed_name"), xmlCharStrdup(resource_definition.Name.c_str()));
+
+#ifdef WITH_LIBBATCH
+  Batch::JobId job_id = getBatchManagerJobId();
+  xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job_id.getReference().c_str()));
+#endif
+}

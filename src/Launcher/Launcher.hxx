@@ -66,6 +66,9 @@ public:
 
   // Useful methods
   long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
+  std::map<int, Launcher::Job *> getJobs();
+  void checkFactoryForResource(const std::string & resource_name);
+  void addJobDirectlyToMap(Launcher::Job * new_job, const std::string job_reference);
 
   // Lib methods
   void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
