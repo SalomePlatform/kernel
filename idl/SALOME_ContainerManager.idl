@@ -195,7 +195,7 @@ typedef sequence<Engines::JobDescription> JobsList;
 
 interface SalomeLauncherObserver
 {
-  void notifyObserver(in string event_name, in string event_data);
+  void notify(in string event_name, in string event_data);
 };
 
 /*! \brief Interface of the %salomelauncher

@@ -262,8 +262,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 
 void 
 SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_resource,
-				     CORBA::Boolean write,
-				     const char * xml_file)
+                                     CORBA::Boolean write,
+                                     const char * xml_file)
 {
   ParserResourcesType resource;
   resource.Name = new_resource.name.in();

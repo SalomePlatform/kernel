@@ -75,6 +75,8 @@ public:
 
 protected:
 
+  virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
+
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
   Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);

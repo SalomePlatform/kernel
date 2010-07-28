@@ -62,12 +62,12 @@ Launcher_cpp::~Launcher_cpp()
 {
   LAUNCHER_MESSAGE("Launcher_cpp destructor");
 #ifdef WITH_LIBBATCH
-  std::map < std::string, Batch::BatchManager_eClient * >::const_iterator it1;
-  for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
-    delete it1->second;
   std::map<int, Launcher::Job *>::const_iterator it_job;
   for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
     delete it_job->second;
+  std::map < std::string, Batch::BatchManager_eClient * >::const_iterator it1;
+  for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
+    delete it1->second;
 #endif
 
   pthread_mutex_destroy(_job_cpt_mutex);

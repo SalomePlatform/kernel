@@ -30,6 +30,7 @@
 #include "Launcher.hxx"
 
 #include <string>
+#include <list>
 
 class SALOME_NamingService;
 class SALOME_ContainerManager;
@@ -72,11 +73,17 @@ public:
   static const char *_LauncherNameInNS;
 
 protected:
+  // Internal methods
+  virtual void notifyObservers(const std::string & event_name, const std::string & event_data);
+
+protected:
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   SALOME_ContainerManager *_ContManager;
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+
+  std::list<Engines::SalomeLauncherObserver_var> _observers;
 
   Launcher_cpp _l;
 };

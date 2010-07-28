@@ -104,6 +104,9 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     new_job = new Launcher::Job_YACSFile();
   else if (job_type == "python_salome")
     new_job = new Launcher::Job_PythonSALOME();
+
+  // Name
+  new_job->setJobName(job_parameters.job_name.in());
  
   // Directories
   std::string work_directory = job_parameters.work_directory.in();
@@ -170,6 +173,9 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   try
   {
     _l.createJob(new_job);
+    std::ostringstream job_id;
+    job_id << new_job->getNumber();
+    notifyObservers("NEW_JOB", job_id.str());
   }
   catch(const LauncherException &ex)
   {
@@ -229,6 +235,9 @@ SALOME_Launcher::removeJob(CORBA::Long job_id)
   try
   {
     _l.removeJob(job_id);
+    std::ostringstream job_id_str;
+    job_id_str << job_id;
+    notifyObservers("REMOVE_JOB", job_id_str.str());
   }
   catch(const LauncherException &ex)
   {
@@ -325,16 +334,6 @@ CORBA::Long SALOME_Launcher::getPID()
 #else
     (CORBA::Long)_getpid();
 #endif
-}
-
-//=============================================================================
-/*! CORBA Method:
- *  Add a new observer to the launcher
- */
-//=============================================================================
-void
-SALOME_Launcher::addObserver(Engines::SalomeLauncherObserver_ptr observer)
-{
 }
 
 //=============================================================================
@@ -752,14 +751,17 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlFree(job_state_xml);
         xmlFree(resource_choosed_name_xml);
         xmlFree(job_reference_xml);
-        
-        // TODO: EVENT for observer !
+
         if (job_state == "CREATED")
         {
           // In this case, we ignore run_part informations
           try
           {
             _l.createJob(new_job);
+
+            std::ostringstream job_id;
+            job_id << new_job->getNumber();
+            notifyObservers("NEW_JOB", job_id.str());
           }
           catch(const LauncherException &ex)
           {
@@ -792,6 +794,10 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
               INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
               new_job->setState("ERROR");
             }
+
+            std::ostringstream job_id;
+            job_id << new_job->getNumber();
+            notifyObservers("NEW_JOB", job_id.str());
           }
           catch(const LauncherException &ex)
           {
@@ -816,6 +822,10 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             resource_definition.Name = resource_choosed_name;
             new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
+
+            std::ostringstream job_id;
+            job_id << new_job->getNumber();
+            notifyObservers("NEW_JOB", job_id.str());
           }
           catch(const LauncherException &ex)
           {
@@ -845,6 +855,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
   // Clean
   xmlFreeDoc(doc);
   fclose(xml_file);
+  notifyObservers("LOAD_JOBS", jobs_file);
 }
 
 //=============================================================================
@@ -897,5 +908,54 @@ SALOME_Launcher::saveJobs(const char* jobs_file)
   xmlFreeDoc(doc);
   fclose(xml_file);
   MESSAGE("SALOME_Launcher::saveJobs : WRITING DONE!");
-  //TODO: Generation evenement pour les observeurs
+  notifyObservers("SAVE_JOBS", jobs_file);
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Add a new observer to the launcher
+ */
+//=============================================================================
+void
+SALOME_Launcher::addObserver(Engines::SalomeLauncherObserver_ptr observer)
+{
+  bool new_observer = true;
+  std::list<Engines::SalomeLauncherObserver_var>::iterator iter = _observers.begin();
+  while(iter != _observers.end())
+  {
+    if (std::string(_orb->object_to_string(*iter)) ==
+        std::string(_orb->object_to_string(observer)))
+    {
+      new_observer = false;
+      break;
+    }
+  }
+  if (new_observer)
+    _observers.push_back(Engines::SalomeLauncherObserver::_duplicate(observer));
+}
+
+//=============================================================================
+/*! Internal Method:
+ *  Notify observers on a new event
+ */
+//=============================================================================
+void
+SALOME_Launcher::notifyObservers(const std::string & event_name,
+                                 const std::string & event_data)
+{
+  std::list<Engines::SalomeLauncherObserver_var>::iterator iter = _observers.begin();
+  while(iter != _observers.end())
+  {
+    try
+    {
+      (*iter)->notify(CORBA::string_dup(event_name.c_str()),
+                      CORBA::string_dup(event_data.c_str()));
+    }
+    catch (...) 
+    {
+       MESSAGE("Notify Observer, exception catch");
+    }
+    iter++;
+  }
+
 }
