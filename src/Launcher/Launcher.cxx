@@ -421,7 +421,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     throw LauncherException("Cannot find batch manager factory");
   }
   LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
-  return (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
+  Batch::BatchManager_eClient * batch_client = (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
+  batch_client->setUsername(params.UserName);
+  return batch_client;
 }
 
 //----------------------------------------------------------
