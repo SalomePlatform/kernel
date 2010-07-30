@@ -221,6 +221,7 @@ interface SalomeLauncher
 
   // Observer and introspection methods
   void addObserver(in Engines::SalomeLauncherObserver observer);
+  void removeObserver(in Engines::SalomeLauncherObserver observer);
   Engines::JobsList getJobsList();
   Engines::JobParameters getJobParameters(in long job_id) raises (SALOME::SALOME_Exception);
 

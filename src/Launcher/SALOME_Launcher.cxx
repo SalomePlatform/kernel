@@ -929,9 +929,53 @@ SALOME_Launcher::addObserver(Engines::SalomeLauncherObserver_ptr observer)
       new_observer = false;
       break;
     }
+    iter++;
   }
   if (new_observer)
     _observers.push_back(Engines::SalomeLauncherObserver::_duplicate(observer));
+
+  // We notify the new observer with all jobs that are currently in the Launcher
+  std::map<int, Launcher::Job *> cpp_jobs = _l.getJobs();
+  std::map<int, Launcher::Job *>::const_iterator it_job;
+  for(it_job = cpp_jobs.begin(); it_job != cpp_jobs.end(); it_job++)
+  {
+    int number = it_job->first;
+    std::ostringstream job_id;
+    job_id << number;
+    try
+    {
+      observer->notify("NEW_JOB", job_id.str().c_str());
+    }
+    catch (...) 
+    {
+       MESSAGE("Notify Observer, exception catch");
+    }
+
+  }
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Add a new observer to the launcher
+ */
+//=============================================================================
+void
+SALOME_Launcher::removeObserver(Engines::SalomeLauncherObserver_ptr observer)
+{
+  std::list<Engines::SalomeLauncherObserver_var>::iterator iter = _observers.begin();
+  while(iter != _observers.end())
+  {
+    if (std::string(_orb->object_to_string(*iter)) ==
+        std::string(_orb->object_to_string(observer)))
+    {
+      // Observer found
+      iter =_observers.erase(iter++);
+    }
+    else
+    {
+      iter++;
+    }
+  }
 }
 
 //=============================================================================

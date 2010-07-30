@@ -62,6 +62,7 @@ public:
 
   // Observer and introspection methods
   virtual void addObserver(Engines::SalomeLauncherObserver_ptr observer);
+  virtual void removeObserver(Engines::SalomeLauncherObserver_ptr observer);
   virtual Engines::JobsList * getJobsList();
   virtual Engines::JobParameters * getJobParameters(CORBA::Long job_id);
 
