@@ -73,6 +73,8 @@ public:
   // Lib methods
   void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
 
+  // Used by SALOME_Launcher
+  ResourcesManager_cpp *_ResManager;
 protected:
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}
@@ -84,7 +86,6 @@ protected:
 #endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
-  ResourcesManager_cpp *_ResManager;
   std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
   pthread_mutex_t * _job_cpt_mutex; // mutex for job counter

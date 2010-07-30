@@ -782,8 +782,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             new_job->setState(job_state);
 
             // Step 3: We add the job to the launcher
-            ParserResourcesType resource_definition;
-            resource_definition.Name = resource_choosed_name;
+	    ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
             new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
 
@@ -818,8 +817,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             new_job->setState(job_state);
 
             // Step 3: We add the job to the launcher
-            ParserResourcesType resource_definition;
-            resource_definition.Name = resource_choosed_name;
+	    ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
             new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
 
