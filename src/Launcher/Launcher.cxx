@@ -119,6 +119,7 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   }
 
   // Third step search batch manager for the resource into the map -> instanciate one if does not exist
+#ifdef WITH_LIBBATCH
   std::string resource_name = resource_definition.Name;
   std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(resource_name);
   if(it == _batchmap.end())
@@ -144,7 +145,7 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
       throw LauncherException(ex.message);
     }
   }
-
+#endif
 
   // Final step - add job to the jobs map
   pthread_mutex_lock(_job_cpt_mutex);
@@ -541,6 +542,7 @@ Launcher_cpp::checkFactoryForResource(const std::string & resource_name)
   }
 
   // Step 2: We can now add a Factory is the resource is correctly define
+#ifdef WITH_LIBBATCH
   std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(resource_name);
   if(it == _batchmap.end())
   {
@@ -563,6 +565,7 @@ Launcher_cpp::checkFactoryForResource(const std::string & resource_name)
       throw LauncherException(ex.message);
     }
   }
+#endif
 }
 
 void 
@@ -575,6 +578,7 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
   new_job->setResourceDefinition(resource_definition);
 
   // Step 2: add the job to the batch manager
+#ifdef WITH_LIBBATCH
   try
   {
     Batch::JobId batch_manager_job_id = _batchmap[resource_name]->addJob(*(new_job->getBatchJob()), 
@@ -602,4 +606,5 @@ Launcher_cpp::addJobDirectlyToMap(Launcher::Job * new_job, const std::string job
     throw LauncherException("A job as already the same id - job is not created !");
   }
   LAUNCHER_MESSAGE("New job added");
+#endif
 }

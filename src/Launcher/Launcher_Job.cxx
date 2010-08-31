@@ -405,8 +405,8 @@ Launcher::Job::updateJobState()
       _state = par[Batch::STATE].str();
       LAUNCHER_MESSAGE("State received is: " << par[Batch::STATE].str());
     }
-  }
 #endif
+  }
   return _state;
 }
 
