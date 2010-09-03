@@ -62,6 +62,7 @@ numpydir=`$PYTHON -c "import numpy;print numpy.get_include()" 2>/dev/null`
 if test -d "$numpydir"; then
    numpy_ok=yes
    PYTHON_INCLUDES="$PYTHON_INCLUDES -I$numpydir"
+   SWIG_FLAGS="$SWIG_FLAGS -DWITH_NUMPY=WITH_NUMPY "
    AC_DEFINE([WITH_NUMPY], [], [Python has numpy extension])
 fi
 
