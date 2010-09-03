@@ -288,7 +288,7 @@ SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
       throw SALOME_Exception("No resources have been found with your parameters");
 
     const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
-	std::string resource_name(p->name);
+        std::string resource_name(p->name);
     INFOS("Choose resource for test: " <<  resource_name);
     
     BatchTest t(*p);
@@ -782,18 +782,19 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             new_job->setState(job_state);
 
             // Step 3: We add the job to the launcher
-	    ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
+            ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
             new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
 
             // Step 4: We check that the BatchManager could resume
             // the job
+#ifdef WITH_LIBBATCH
             if (new_job->getBatchManagerJobId().getReference() != job_reference)
             {
               INFOS("BatchManager type cannot resume a job - job state is set to ERROR");
               new_job->setState("ERROR");
             }
-
+#endif
             std::ostringstream job_id;
             job_id << new_job->getNumber();
             notifyObservers("NEW_JOB", job_id.str());
@@ -817,7 +818,7 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
             new_job->setState(job_state);
 
             // Step 3: We add the job to the launcher
-	    ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
+            ParserResourcesType resource_definition = _l._ResManager->GetResourcesDescr(resource_choosed_name);
             new_job->setResourceDefinition(resource_definition);
             _l.addJobDirectlyToMap(new_job, job_reference);
 
