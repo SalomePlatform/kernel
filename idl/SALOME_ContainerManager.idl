@@ -216,7 +216,7 @@ interface ContainerManager
   //! GiveContainer - use mode parameter of ContainerParameters to configure
   //! how this method works
   //! Currently: get, start, getorstart, findorstart, find
-  Container GiveContainer(in ContainerParameters params);
+  Container GiveContainer(in ContainerParameters params) raises (SALOME::SALOME_Exception);
 
   //!  Shutdown all containers that have been launched by the container manager
   void ShutdownContainers();

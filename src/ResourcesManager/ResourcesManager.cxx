@@ -455,21 +455,21 @@ void
 ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
                                                      const std::vector<std::string>& componentList)
 {
+  std::vector<std::string> kept_resources;
+
   std::vector<std::string>::iterator iter = resources.begin();
   for (; iter != resources.end(); iter++)
   {
-    MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-    const std::vector<std::string>& mapOfComponentsOfCurrentHost = (*it).second.ComponentsList;
+    const std::vector<std::string>& mapOfComponentsOfCurrentHost = _resourcesList[*iter].ComponentsList;
 
     bool erasedHost = false;
     if( mapOfComponentsOfCurrentHost.size() > 0 )
     {
       for(unsigned int i=0; i<componentList.size(); i++)
       {
-        const char* compoi = componentList[i].c_str();
         std::vector<std::string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
-                                                  mapOfComponentsOfCurrentHost.end(),
-                                                  compoi);
+                                                            mapOfComponentsOfCurrentHost.end(),
+                                                            componentList[i]);
         if (itt == mapOfComponentsOfCurrentHost.end())
         {
           erasedHost = true;
@@ -477,9 +477,10 @@ ResourcesManager_cpp::KeepOnlyResourcesWithComponent(std::vector<std::string>& r
         }
       }
     }
-    if(erasedHost)
-      resources.erase(iter);
+    if(!erasedHost)
+      kept_resources.push_back(*iter);
   }
+  resources=kept_resources;
 }
 
 
