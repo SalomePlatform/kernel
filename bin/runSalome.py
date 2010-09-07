@@ -33,6 +33,11 @@ from server import *
 from launchConfigureParser import verbose
 from server import process_id
 
+if sys.platform == "win32":
+  SEP = ";"
+else:
+  SEP = ":"
+
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
@@ -104,13 +109,43 @@ class InterpServer(Server):
 
 # ---
 
+def get_cata_path(list_modules,modules_root_dir):
+    """Build a list of catalog paths (cata_path) to initialize the ModuleCatalog server
+    """
+    modules_cata={}
+    cata_path=[]
+
+    for module in list_modules:
+        if modules_root_dir.has_key(module):
+            module_root_dir=modules_root_dir[module]
+            module_cata=module+"Catalog.xml"
+            cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources",module.lower(), module_cata)
+
+            if os.path.exists(cata_file):
+                cata_path.append(cata_file)
+                modules_cata[module]=cata_file
+            else:
+                cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources", module_cata)
+                if os.path.exists(cata_file):
+                    cata_path.append(cata_file)
+                    modules_cata[module]=cata_file
+
+    for path in os.getenv("SALOME_CATALOGS_PATH","").split(SEP):
+        if os.path.exists(path):
+            for cata_file in glob.glob(os.path.join(path,"*Catalog.xml")):
+                module_name= os.path.basename(cata_file)[:-11]
+                if not modules_cata.has_key(module_name):
+                    cata_path.append(cata_file)
+                    modules_cata[module_name]=cata_file
+
+    return cata_path
+
+
+
 class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        #if sys.platform == "win32":
-        #        self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ModuleCatalog_Server' + ".exe",'-common']
-        #else:
         self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
@@ -118,37 +153,16 @@ class CatalogServer(Server):
             self.SCMD2=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')] 
 
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
-        for module in list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                if os.path.exists(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)):
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)))
-                else:
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",
-                                               module_cata)))
-                pass
-            pass
-        #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
-        self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
+        self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
 
 # ---
 
@@ -271,35 +285,18 @@ class SessionServer(Server):
             self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
 
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
-        for module in list_modules:
-            module_root_dir=modules_root_dir[module]
-            module_cata=module+"Catalog.xml"
-            #print "   ", module_cata
-            if os.path.exists(os.path.join(module_root_dir,
-                                           "share",setenv.salome_subdir,
-                                           "resources",module.lower(),
-                                           module_cata)):
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           setenv.salome_subdir,"resources",
-                                           module.lower(),module_cata)))
-            else:
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           setenv.salome_subdir,"resources",
-                                           module_cata)))
-            pass
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
-            #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
-            self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
+            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
         if self.args.has_key('test'):
@@ -352,35 +349,20 @@ class LauncherServer(Server):
                 self.SCMD2+=['--with','SALOMEDS','(',')']
             if 'cppContainer' in self.args['embedded']:
                 self.SCMD2+=['--with','Container','(','FactoryServer',')']
-        
+
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
-            list_modules = ["GUI"] + list_modules
-        for module in ["KERNEL"] + list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                if os.path.exists(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)):
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,"share",
-                                               setenv.salome_subdir,"resources",
-                                               module.lower(),module_cata)))
-                else:
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,"share",
-                                               setenv.salome_subdir,"resources",
-                                               module_cata)))
-                pass
-            pass
+            list_modules = ["KERNEL", "GUI"] + list_modules
+        else :
+            list_modules = ["KERNEL"] + list_modules
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
-            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+            #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
+            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
 
