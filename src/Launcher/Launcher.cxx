@@ -144,6 +144,11 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
       delete new_job;
       throw LauncherException(ex.message);
     }
+    catch(const Batch::InvalidArgumentException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.message);
+      throw LauncherException(ex.message);
+    }
   }
 #endif
 
@@ -560,6 +565,11 @@ Launcher_cpp::checkFactoryForResource(const std::string & resource_name)
       throw ex;
     }
     catch(const Batch::EmulationException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.message);
+      throw LauncherException(ex.message);
+    }
+    catch(const Batch::InvalidArgumentException &ex)
     {
       LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.message);
       throw LauncherException(ex.message);
