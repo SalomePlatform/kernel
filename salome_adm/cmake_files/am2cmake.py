@@ -1263,6 +1263,14 @@ class CMakeFile(object):
         # --
         # For make check
         # --
+        for key in ["TESTS"]:
+            if self.__thedict__.has_key(key):
+                newlines.append('''
+                SET(UNIT_TEST_PROG ${%s})
+                '''%(key))
+                self.__thedict__["UNIT_TEST_PROG"] = self.__thedict__[key]
+                pass
+            pass
         key = "UNIT_TEST_PROG"
         if self.__thedict__.has_key(key):
             newlines.append('''
