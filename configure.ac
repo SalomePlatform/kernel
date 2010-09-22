@@ -583,3 +583,4 @@ AC_OUTPUT([ \
   src/Utils/Test/Makefile \
 ])
 
+AC_HACK_LIBTOOL
