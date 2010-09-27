@@ -26,7 +26,7 @@
 # $Header$
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
-
+#
 if CORBA_GEN
   IDLDIR = idl
 endif
