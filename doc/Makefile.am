@@ -27,7 +27,7 @@
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS = salome
+SUBDIRS = salome docutils
 
 docs: usr_docs
 

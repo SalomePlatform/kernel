@@ -55,6 +55,7 @@
     - \subpage kernel_salome 
     - \subpage dsc_page : DSC documentation page.
     - \subpage salome_file_page : Salome_file documentation page.
+    - \subpage kernelpypkg_page : Documentation of the KERNEL python packages
 
 */
 

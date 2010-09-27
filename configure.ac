@@ -134,6 +134,10 @@ AC_ENABLE_DEBUG(no)
 AC_ENABLE_PRODUCTION(no)
 AC_ENABLE_MPI_SEQ_CONTAINER(no)
 
+# _GBO_SALOME_PYTHON_PACKAGING_
+PYLOGLEVEL=DEBUG
+AC_SUBST(PYLOGLEVEL)
+
 echo
 echo ---------------------------------------------
 echo testing libtool
@@ -170,8 +174,6 @@ AC_CHECK_LIB(rt,nanosleep)
 
 dnl add library libm :
 AC_CHECK_LIB(m,ceil)
-
-# _CS_gbo We should add all dependent libraries
 
 AC_CXX_USE_STD_IOSTREAM
 
@@ -210,8 +212,9 @@ echo testing swig
 echo ---------------------------------------------
 echo
 
-dnl _CS_gbo We should use here a variable given from the CHECK_PYTHON
-AM_PATH_PYTHON(2.3)
+# _GBO_ This definition is required. Without this definition, the pythondir
+# would not be defined. The version doesn't matter.
+AM_PATH_PYTHON(2.4)
 CHECK_SWIG
 
 echo
@@ -385,6 +388,13 @@ CHECK_HTML_GENERATORS
 AM_CONDITIONAL(WINDOWS, [ test ])
 
 echo
+echo ---------------------------------------------
+echo testing sphinx
+echo ---------------------------------------------
+echo
+CHECK_SPHINX
+
+echo
 echo ============================================================
 echo Summary
 echo ============================================================
@@ -464,7 +474,7 @@ if test x$libbatch_ok = xno; then
   echo
 fi
 
-htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
+htmldoc_products="doxygen_ok graphviz_ok rst2html_ok sphinx_ok"
 
 echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
@@ -521,6 +531,7 @@ AC_OUTPUT([ \
   doc/salome/gui/Makefile \
   doc/salome/gui/doxyfile \
   doc/salome/gui/static/header.html \
+  doc/docutils/Makefile \
   idl/Makefile \
   idl/Calcium_Ports.idl \
   resources/Makefile \
@@ -549,6 +560,8 @@ AC_OUTPUT([ \
   src/GenericObj/Makefile \
   src/HDFPersist/Makefile \
   src/KERNEL_PY/Makefile \
+  src/KERNEL_PY/kernel/Makefile \
+  src/KERNEL_PY/kernel/logconfig.py \
   src/Launcher/Makefile \
   src/LifeCycleCORBA/Makefile \
   src/LifeCycleCORBA/Test/Makefile \

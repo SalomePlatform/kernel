@@ -64,6 +64,7 @@ check_f77.m4 \
 check_calcium.m4 \
 check_hdf5.m4 \
 check_htmlgen.m4 \
+check_sphinx.m4 \
 check_lam.m4 \
 check_libbatch.m4 \
 check_mpi.m4 \

@@ -1,0 +1,14 @@
+/*!
+
+\page kernelpypkg_page Programming Interface of the KERNEL python package
+
+Sorry, but the documentation is not available yet in doxygen format.
+
+Fortunately, a documentation exists in restructured format and then
+can be generated here using sphinx, in the expectative of the doxygen
+version.
+
+Please refer to this <a href="../../tui/KERNEL/docutils/index.html">
+documentation of the KERNEL python packages</a>.
+
+*/

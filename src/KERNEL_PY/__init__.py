@@ -21,7 +21,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  File   : salome.py
+#  File   : salome.py renamed as __init__.py for python packaging (gboulant)
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
@@ -83,10 +83,48 @@ variables:
 #  \param salome.myStudy         : the active Study (interface SALOMEDS::Study)
 
 #
+# ==========================================================================
+print "INFO - You just load the python package salome, replacing the python module salome.py"
+#
+# The function extend_path is used here to aggregate in a single
+# virtual python package all the python sub-packages embedded in each
+# SALOME modules (python "namespace" pattern).
+#
+ROOT_PYTHONPACKAGE_NAME="salome"
+#
+# This root package name is expected to be found as a directory in
+# some paths of the sys.path variable, especially the paths
+# <MODULE_ROOT_DIR>/lib/pythonX.Y/site-packages/salome where are
+# installed the python files. These paths are theorically appended by
+# the SALOME main runner and should be in the sys.path at this point
+# of the application. The extend_path is looking then for directories
+# of the type:
+#
+# <MODULE_ROOT_DIR>/lib/pythonX.Y/site-packages/salome/<ROOT_PYTHONPACKAGE_NAME>
+#
+# And append them to the sys.path. These directories are supposed to
+# be the pieces to be aggregated as a single virtual python package.
+#
+import os, sys
+MATCH_ENDING_PATTERN="site-packages/salome"
+def extend_path(pname):
+    for dir in sys.path:
+        if not isinstance(dir, basestring) or not os.path.isdir(dir) or not dir.endswith(MATCH_ENDING_PATTERN):
+            continue
+        subdir = os.path.join(dir, pname)
+        # XXX This may still add duplicate entries to path on
+        # case-insensitive filesystems
+        if os.path.isdir(subdir) and subdir not in __path__:
+            print "INFO - The directory %s is appended to sys.path" % subdir
+            __path__.append(subdir)
+
+extend_path(ROOT_PYTHONPACKAGE_NAME)
+# ==========================================================================
+#
+
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
-
 
 #
 # The next block is workaround for the problem of shared symbols loading for the extension modules (e.g. SWIG-generated)
