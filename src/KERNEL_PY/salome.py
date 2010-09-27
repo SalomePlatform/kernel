@@ -21,6 +21,14 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+# ================================================================================
+# WARNING: this file is deprecated and should not be used any more. It has been
+# replaced by the file __init__.py of the python package named "salome".
+# To prevent any error, a warning is raised in the case where this file is imported
+raise RuntimeError("WRN - the file salome.py is deprecated. It should NOT be used any more.")
+# ================================================================================
+
+
 #  File   : salome.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME

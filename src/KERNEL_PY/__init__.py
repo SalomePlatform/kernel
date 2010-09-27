@@ -84,7 +84,6 @@ variables:
 
 #
 # ==========================================================================
-print "INFO - You just load the python package salome, replacing the python module salome.py"
 #
 # The function extend_path is used here to aggregate in a single
 # virtual python package all the python sub-packages embedded in each
