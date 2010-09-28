@@ -130,11 +130,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	if(_resource.HostName == "localhost")
 	{
 	  _resource.HostName = Kernel_Utils::GetHostname();
-	  if (_resource.Name == "localhost")
-	  {
-	    _resource.Name = Kernel_Utils::GetHostname();
-	    _resource.DataForSort._Name = Kernel_Utils::GetHostname();
-	  }
 	}
 	std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
 	if (iter != _resources_list.end())
