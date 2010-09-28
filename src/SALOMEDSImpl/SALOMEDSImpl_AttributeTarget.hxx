@@ -33,13 +33,14 @@
 #include <string>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
+#include <map>
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AttributeTarget :
   public SALOMEDSImpl_GenericAttribute 
 {
 private:
   std::string myRelation;
-  std::vector<DF_Attribute*>  myVariables;
+  std::map< std::string , DF_Attribute* > myVariables;
 
 public:
   static const std::string& GetID() ;
@@ -50,7 +51,7 @@ public:
   void Remove(const SALOMEDSImpl_SObject& theSO);
   std::string GetRelation() { return myRelation; }
   void SetRelation(const std::string& theRelation); 
-  std::vector<DF_Attribute*>& GetVariables() { return myVariables; }
+  std::map< std::string , DF_Attribute* >& GetVariables() { return myVariables; }
   const std::string& ID() const;
   void Restore(DF_Attribute* with) ;
   DF_Attribute* NewEmpty() const;

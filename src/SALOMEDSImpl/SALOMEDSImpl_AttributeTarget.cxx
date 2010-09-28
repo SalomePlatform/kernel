@@ -86,8 +86,7 @@ void SALOMEDSImpl_AttributeTarget::Add(const SALOMEDSImpl_SObject& theSO)
   DF_Label aRefLabel = theSO.GetLabel();
   SALOMEDSImpl_AttributeReference* aReference;
   if ((aReference=(SALOMEDSImpl_AttributeReference*)aRefLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
-    for(int i = 0, len = myVariables.size(); i<len; i++) if(myVariables[i]->Label() == aRefLabel) return; //BugID: PAL6192    
-    myVariables.push_back(aReference);
+    myVariables[aRefLabel.Entry()]=aReference;
   } 
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
@@ -101,8 +100,8 @@ std::vector<SALOMEDSImpl_SObject> SALOMEDSImpl_AttributeTarget::Get()
 {
   std::vector<SALOMEDSImpl_SObject> aSeq;
   
-  for(int i = 0, len = myVariables.size(); i<len; i++) 
-    aSeq.push_back( SALOMEDSImpl_Study::SObject(myVariables[i]->Label()));
+  for (std::map< std::string , DF_Attribute* >::iterator iter = myVariables.begin(); iter != myVariables.end(); ++iter)
+    aSeq.push_back( SALOMEDSImpl_Study::SObject(iter->second->Label()));
   
   return aSeq;
 }
@@ -116,15 +115,7 @@ void SALOMEDSImpl_AttributeTarget::Remove(const SALOMEDSImpl_SObject& theSO)
   Backup();
   DF_Label aRefLabel = theSO.GetLabel();
 
-  std::vector<DF_Attribute*> va;
-  for(int i = 0, len = myVariables.size(); i<len; i++) {
-    DF_Label L = myVariables[i]->Label();
-    if(myVariables[i]->Label() == aRefLabel) continue;
-    va.push_back(myVariables[i]);       
-  }
-
-  myVariables.clear();
-  myVariables = va;    
+  myVariables.erase(aRefLabel.Entry());
   
   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
@@ -144,8 +135,8 @@ void SALOMEDSImpl_AttributeTarget::Restore(DF_Attribute* With)
   SALOMEDSImpl_AttributeTarget* REL = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(With);
   myRelation = REL->GetRelation();
   myVariables.clear();
-  for (int i = 0, len = REL->myVariables.size(); i<len; i++) {
-    myVariables.push_back(REL->myVariables[i]);
+  for (std::map< std::string , DF_Attribute* >::iterator iter = REL->myVariables.begin(); iter != REL->myVariables.end(); ++iter){
+    myVariables[iter->first]=iter->second;
   }
 }
 
@@ -167,7 +158,7 @@ void SALOMEDSImpl_AttributeTarget::Paste(DF_Attribute* into)
   SALOMEDSImpl_AttributeTarget* REL = dynamic_cast<SALOMEDSImpl_AttributeTarget*>(into);
   REL->SetRelation(myRelation);
   REL->myVariables.clear();
-  for (int i = 0, len = myVariables.size(); i<len; i++) {
-    REL->myVariables.push_back(myVariables[i]);
+  for (std::map< std::string , DF_Attribute* >::iterator iter = myVariables.begin(); iter != myVariables.end(); ++iter){
+    REL->myVariables[iter->first]=iter->second;
   }  
 }   
