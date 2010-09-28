@@ -96,37 +96,24 @@ class StudyEditor:
                             "Study %d doesn't exist" % studyId)
         self.builder = self.study.NewBuilder()
 
-    def findOrCreateComponent(self, componentName, componentLabel=None, icon=None,
-                              loadEngine = True, engineName = None,
-                              containerName = _DEFAULT_CONTAINER):
+    def findOrCreateComponent(self, moduleName, componentName = None,
+                              icon = None, containerName = _DEFAULT_CONTAINER):
         """
-        Find a component corresponding to the specified name `componentName` in the
-        study, or create it if none is found. Then eventually load the
-        corresponding engine and the CORBA objects of this component.
+        Find a component corresponding to the Salome module `moduleName` in
+        the study. If none is found, create a new component and associate it
+        with the corresponding engine (i.e. the engine named `moduleName`).
+
+        :type  moduleName: string
+        :param moduleName: name of the module corresponding to the component
+                           (the module name is the string value in the
+                           attribute "AttributeComment" of the component)
 
         :type  componentName: string
-        :param componentName: name of the new component if created. The name is
-                              a string used to identify the study component.
-                              Generally, it corresponds to the name of the SALOME
-                              module to be associated to this component.
-
-        :type  componentLabel: string
-        :param componentLabel: label of the new component if created. The label
-                               is the string used in the object browser.
-                               (attribute "AttributeName")
+        :param componentName: name of the new component if created. If
+                              :const:`None`, use `moduleName` instead.
 
         :type  icon: string
         :param icon: icon for the new component (attribute "AttributePixMap").
-
-        :type  loadEngine: boolean
-        :param loadEngine: If :const:`True`, find or load the corresponding
-                           engine and associate it with the component. Default
-                           is True.
-
-        :type  engineName: string
-        :param engineName: name of the engine to be associated to the component.
-                           If :const:`None`, use `componentName` instead because
-                           in most of the SALOME modules, the names are identical.
 
         :type  containerName: string
         :param containerName: name of the container in which the engine should be
@@ -135,23 +122,21 @@ class StudyEditor:
         :return: the SComponent found or created.
 
         """
-        sComponent = self.study.FindComponent(componentName)
+        sComponent = self.study.FindComponent(moduleName)
         if sComponent is None:
-            sComponent = self.builder.NewComponent(componentName)
+            sComponent = self.builder.NewComponent(moduleName)
             # Note that the NewComponent method set the "comment" attribute to the
-            # value of its argument (componentName here)
-            self.builder.SetName(sComponent, componentLabel)
+            # value of its argument (moduleName here)
+            if componentName is None:
+                componentName = moduleName
+            self.builder.SetName(sComponent, componentName)
             if icon is not None:
                 # _MEM_ : This will be effective if and only if the componentName
                 # corresponds to the module name (as specified in the SalomeApp.xml)
                 self.setIcon(sComponent, icon)
 
-            if engineName is None:
-                engineName = componentName
-
-            engine = salome.lcc.FindOrLoadComponent(containerName,engineName)
-            self.builder.DefineComponentInstance(sComponent, engine)
-
+            # This part will stay inactive until Salome 6. In Salome 6, the
+            # engine name will be stored separately from the module name.
             # An internal convention (in this class) is to store the name of the
             # associated engine in the parameter attribute of the scomponent (so that
             # it could be retrieved in a future usage of this scomponent, for example,
@@ -159,11 +144,15 @@ class StudyEditor:
             # SHOULD NOT be used for this purpose  because it's used by the SALOME
             # resources manager to identify the SALOME module and then localized
             # the resource files
-            attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
-            attr.SetString( "ENGINE_NAME", engineName )
+            #attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
+            #attr.SetString( "ENGINE_NAME", engineName )
 
-            if loadEngine:
-                self.loadComponentEngine(sComponent, containerName)
+            engine = salome.lcc.FindOrLoadComponent(containerName, moduleName)
+            if engine is None:
+                raise Exception("Cannot load engine %s in container %s. See "
+                                "logs of container %s for more details." %
+                                (moduleName, containerName, containerName))
+            self.builder.DefineComponentInstance(sComponent, engine)
 
         return sComponent
 
@@ -174,10 +163,17 @@ class StudyEditor:
         `containerName`, associate the engine with the component and load the
         CORBA objects of this component in the study.
         """
-        attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
-        engineName = attr.GetString( "ENGINE_NAME" )
+        # This part will stay inactive until Salome 6. In Salome 6, the
+        # engine name will be stored separately from the module name.
+        #attr = self.builder.FindOrCreateAttribute( sComponent, "AttributeParameter" )
+        #engineName = attr.GetString( "ENGINE_NAME" )
         engine = salome.lcc.FindOrLoadComponent(containerName,
-                                                engineName)
+                                                sComponent.GetComment())
+        if engine is None:
+            raise Exception("Cannot load component %s in container %s. See "
+                            "logs of container %s for more details." %
+                            (sComponent.GetComment(), containerName,
+                             containerName))
         self.builder.LoadWith(sComponent, engine)
 
     def getOrLoadObject(self, item):
@@ -350,6 +346,7 @@ class StudyEditor:
             self.setTypeId(item, typeId)
 
     def removeItem(self, item, withChildren = False ):
+        # TODO: Update doc (this doc is not clear. Is the item removed or not?)
         """
         Remove the given item from the study (the item still is in
         the study after the removal)
