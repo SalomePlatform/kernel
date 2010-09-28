@@ -28,7 +28,6 @@ pydocdir = $(docdir)/tui/KERNEL/docutils
 
 if SPHINX_IS_OK
 
-pydoc_DATA=html/index.html
 html/index.html:$(RSTFILES)
 	make htm
 
@@ -42,7 +41,7 @@ SPHINXBUILD     = sphinx-build
 PAPEROPT_a4     = -D latex_paper_size=a4
 ALLSPHINXOPTS   = -d doctrees $(PAPEROPT_a4) $(SPHINXOPTS) $(SOURCEDIR)
 
-SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(KERNEL_ROOT_DIR)/bin/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages
+SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(prefix)/bin/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages
 
 SPHINX_LD_LIBRARY_PATH = $(OMNIORB_ROOT)/lib
 
@@ -50,7 +49,7 @@ htm:
 	mkdir -p html doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) html
+	$(SPHINXBUILD) -W -b html $(ALLSPHINXOPTS) html
 	@echo
 	@echo "Build finished. The HTML pages are in html."
 
@@ -58,7 +57,7 @@ latex:
 	mkdir -p latex doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) latex
+	$(SPHINXBUILD) -W -b latex $(ALLSPHINXOPTS) latex
 	@echo
 	@echo "Build finished; the LaTeX files are in latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
@@ -78,7 +77,7 @@ EXTRA_DIST+= $(RSTFILES)
 EXTRA_DIST+= \
 	conf.py 
 
-install-data-local:
+install-data-local: html/index.html
 	$(INSTALL) -d $(pydocdir)
 	if test -d "html"; then b=; else b="$(srcdir)/"; fi; \
 	cp -rf $$b"html"/* $(pydocdir) ; \
