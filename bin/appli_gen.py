@@ -191,6 +191,7 @@ def install(prefix,config_file,verbose=0):
                'runConsole',
                'runSession',
                'runTests',
+               'update_catalogs.py',
                '.bashrc',
                ):
         virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
@@ -300,6 +301,10 @@ def main():
                       default=0, help="Increase verbosity")
 
     options, args = parser.parse_args()
+    if not os.path.exists(options.config):
+      print "ERROR: config file %s does not exist. It is mandatory." % options.config
+      sys.exit(1)
+
     install(prefix=options.prefix,config_file=options.config,verbose=options.verbose)
     pass
 

@@ -49,9 +49,7 @@ def set_var(VAR, strpath):
         return "setenv %s %s" % (VAR, value)
     else:
         return "export %s=%s" % (VAR, value)
-	
 
-applipath=relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
-
-#print set_var('APPLI', applipath)
-print applipath
+if __name__ == "__main__":
+  applipath=relpath(os.path.realpath(os.path.dirname(__file__)),os.path.realpath(os.getenv('HOME')))
+  print applipath
