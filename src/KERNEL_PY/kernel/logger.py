@@ -33,6 +33,7 @@ This module defines a class which provides logging facility in Salome:
 import sys, os
 import logging
 
+from salome.kernel.deprecation import deprecated
 from salome.kernel import termcolor
 import salome.kernel.logconfig
 
@@ -50,8 +51,8 @@ class Logger(logging.Logger):
     
     When creating a new Logger object, the parameter `keyword` defines the
     name of the logger, `level` defines the logging level (default is
-    :const:`logging.WARNING` if PAL module is configured with --disable-debug
-    option or :const:`logging.DEBUG` otherwise), and `color` defines the color
+    :const:`logging.DEBUG` if KERNEL module is configured with --enable-debug
+    option or :const:`logging.WARNING` otherwise), and `color` defines the color
     of the log messages for this logger (log messages will appear in color
     only when displayed on color-capable ASCII terminals). See module
     :mod:`salome.kernel.termcolor` for the color constants.
@@ -139,6 +140,8 @@ class Logger(logging.Logger):
         """
         self.setLevel(logging.INFO)
 
+    @deprecated("Deprecated since version 5.1.5. Please replace with "
+                "Logger.critical(message)")
     def fatal(self, message):
         """
         Log a message with CRITICAL level. This method only exists for
@@ -170,6 +173,13 @@ class ExtLogger(Logger):
     compatibility, as the same thing can be done by calling
     ``Logger.debug(message, exc_info = True)``.
     """
+    
+    @deprecated("Class ExtLogger is deprecated since version 5.1.5. See "
+                "documentation for replacement.")
+    def __init__(self, keyword = "KEY",
+                 level = salome.kernel.logconfig.loggingLevel,
+                 color = None, sourceFileName=None):
+        Logger.__init__(self, keyword, level, color, sourceFileName)
 
     def debug( self, message ):
         """

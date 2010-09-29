@@ -6,12 +6,10 @@ General presentation of the KERNEL python package
 The KERNEL python package essentially contains:
 
 * Helper functions to manipulate KERNEL objects from python. For
-  example, the ``studyedit.py`` module makes you ease with the
-  manipulation of the SALOME study, its ``SComponent`` and
-  ``SObject``.
-* General purpose functions for logging, threading, and other recurent
-  stuff in python programming. These function has no dependancy with
-  SALOME and could be used from any python interpreter
+  example, the ``studyedit.py`` module facilitates the
+  manipulation of components and items in SALOME study.
+* General purpose functions for logging and other recurrent
+  stuff in python programming.
 
 Note that these functions either encapsulate the python programming
 interface of KERNEL core (the CORBA or SWIG interfaces for example) or
@@ -23,28 +21,23 @@ manipulate some objects can be done with a set of instructions as:
 
 .. code-block:: python
  
- import salome
- salome.salome_init()
- salomeStudyId = salome.myStudyId
+ from salome.kernel.studyedit import getStudyEditor
 
- from salome.kernel import studyedit 
- studyEditor = studyedit.getStudyEditor(salomeStudyId)
+ studyEditor = getStudyEditor()  # Get an editor for the current study
  
  myStudyComponent = studyEditor.findOrCreateComponent(
+        moduleName,
         componentName,
-        componentLabel,
-        componentIcon,
-        engineName)
+        componentIcon)
 
  myStudyItem = studyEditor.createItem(
         myStudyComponent,
         itemName,
-        itemComment,
-        itemType,
-        itemIcon)
+        comment = itemComment,
+        icon = itemIcon)
 
 The specification of the programming interface of this package is
-detailled in the part :doc:`Documentation of the programming interface
+detailed in the part :doc:`Documentation of the programming interface
 (API)</docapi>` of this documentation.
 
 .. note::

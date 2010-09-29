@@ -102,6 +102,10 @@ class StudyEditor:
         Find a component corresponding to the Salome module `moduleName` in
         the study. If none is found, create a new component and associate it
         with the corresponding engine (i.e. the engine named `moduleName`).
+        Note that in Salome 5, the module name and engine name must be
+        identical (every module must provide an engine with the same name).
+        In Salome 6 it will be possible to define a different name for the
+        engine.
 
         :type  moduleName: string
         :param moduleName: name of the module corresponding to the component
@@ -131,8 +135,9 @@ class StudyEditor:
                 componentName = moduleName
             self.builder.SetName(sComponent, componentName)
             if icon is not None:
-                # _MEM_ : This will be effective if and only if the componentName
-                # corresponds to the module name (as specified in the SalomeApp.xml)
+                # _MEM_ : This will be effective if and only if "moduleName"
+                # really corresponds to the module name (as specified in the
+                # SalomeApp.xml)
                 self.setIcon(sComponent, icon)
 
             # This part will stay inactive until Salome 6. In Salome 6, the
@@ -346,12 +351,19 @@ class StudyEditor:
             self.setTypeId(item, typeId)
 
     def removeItem(self, item, withChildren = False ):
-        # TODO: Update doc (this doc is not clear. Is the item removed or not?)
         """
-        Remove the given item from the study (the item still is in
-        the study after the removal)
-        @param   item: the browser object to be removed
-        @param   withChildren: remove children if True
+        Remove the given item from the study. Note that the items are never
+        really deleted. They just don't appear in the study anymore.
+
+        :type  item: SObject
+        :param item: the item to be removed
+
+        :type  withChildren: boolean
+        :param withChildren: if :const:`True`, also remove the children of
+                             `item`
+
+        :return: :const:`True` if the item was removed successfully, or
+                 :const:`False` if an error happened.
         """
         ok = False
         try:
@@ -362,7 +374,6 @@ class StudyEditor:
             ok = True
         except:
             ok = False
-
         return ok
 
     def setItemAtTag(self, fatherItem, tag, name = None, fileType = None,

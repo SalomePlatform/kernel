@@ -20,8 +20,7 @@
 #
 """
 This module provides several functions to indicate the deprecation of a
-module, a method or a function. This is a temporary module to be used only
-during PAL refactoring.
+module, a method or a function.
 """
 
 import sys
@@ -31,7 +30,7 @@ import os
 
 from salome.kernel import termcolor
 
-msg_seedoc = "See PAL refactoring documentation for possible replacements."
+msg_seedoc = "See documentation for possible replacements."
 
 def __deprecated_with_msg(func, msg):
 
