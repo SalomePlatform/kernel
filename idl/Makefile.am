@@ -51,7 +51,8 @@ BASEIDL_FILES = \
   SALOME_PyNode.idl \
   Palm_Ports.idl \
   SALOME_PACOExtension.idl \
-  SALOME_ParamPorts.idl
+  SALOME_ParamPorts.idl \
+  SALOME_Parametric.idl
 
 MPIIDL_FILES = \
   SALOME_MPIObject.idl \
