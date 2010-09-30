@@ -41,6 +41,30 @@
   <objref name="SALOME/SenderDouble"/>
   <objref name="SALOME/SenderInt"/>
   <objref name="SALOME/Matrix"/>
+  
+  <!-- Types for parametric computations -->
+  <struct name="SALOME_TYPES/Parameter">
+    <member type="string" name="name"></member>
+    <member type="string" name="value"></member>
+  </struct>
+  <sequence content="SALOME_TYPES/Parameter" name="SALOME_TYPES/ParameterList"></sequence>
+  <sequence content="double" name="Value1D"></sequence>
+  <sequence content="Value1D" name="SALOME_TYPES/Value"></sequence>
+  <sequence content="string" name="SALOME_TYPES/VarList"></sequence>
+  <sequence content="SALOME_TYPES/Value" name="SALOME_TYPES/ValueList"></sequence>
+  <struct name="SALOME_TYPES/ParametricInput">
+    <member type="SALOME_TYPES/VarList" name="inputVarList"></member>
+    <member type="SALOME_TYPES/VarList" name="outputVarList"></member>
+    <member type="SALOME_TYPES/ValueList" name="inputValues"></member>
+    <member type="SALOME_TYPES/ParameterList" name="specificParameters"></member>
+  </struct>
+  <struct name="SALOME_TYPES/ParametricOutput">
+    <member type="SALOME_TYPES/ValueList" name="outputValues"></member>
+    <member type="SALOME_TYPES/ParameterList" name="specificOutputInfos"></member>
+    <member type="long" name="returnCode"></member>
+    <member type="string" name="errorMessage"></member>
+  </struct>
+
 </type-list>
 
 <!-- Component list -->

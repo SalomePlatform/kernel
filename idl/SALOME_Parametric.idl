@@ -31,7 +31,7 @@
      This module contains type definitions for the communication between
      supervision codes and computation codes in parametric studies.
 */
-module SALOME_Parametric
+module SALOME_TYPES
 {
 /*! \brief Structure describing a parameter that can be used for specific
     information exchange between the codes.
