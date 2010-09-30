@@ -23,11 +23,13 @@
 # -* Makefile *-
 # Author : Paul RASCLE (EDF)
 # Date : 06/02/2006
-# $Header$
 #
+
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS = salome docutils
+
+EXTRA_DIST = configuration_examples
 
 docs: usr_docs
 
@@ -36,7 +38,3 @@ usr_docs:
 
 dev_docs:
 	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
-
-dist-hook:
-	cp -Rp $(srcdir)/configuration_examples $(distdir)
-	rm -rf $(distdir)/configuration_examples/CVS
