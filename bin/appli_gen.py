@@ -190,6 +190,7 @@ def install(prefix,config_file,verbose=0):
                'runAppli',
                'runConsole',
                'runSession',
+               'runSalomeScript',
                'runTests',
                'update_catalogs.py',
                '.bashrc',
