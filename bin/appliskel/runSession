@@ -114,7 +114,7 @@ fi
 # --- invoke shell with or without args
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py $*
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py -exec $*
 else
 
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
