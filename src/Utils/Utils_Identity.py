@@ -59,7 +59,7 @@ class Identity:
         self._adip =  socket.gethostbyname(self._machine) # IP adress        
         if sys.platform == "win32":
           self._uid  = os.getpid() 
-          self._pwname = os.environ["USER"]
+          self._pwname = os.environ["USERNAME"]
         else:
           self._uid = os.getuid()
           list = pwd.getpwuid(self._uid)

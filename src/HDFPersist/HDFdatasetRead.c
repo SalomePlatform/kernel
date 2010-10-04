@@ -46,10 +46,10 @@ hdf_err HDFdatasetRead(hdf_idt id, void *val)
   if ((datatype = H5Dget_type(id)) < 0)
     return -1;
 
-#if defined (PCLINUX) || defined (PCLINUX64)
+//#if defined (PCLINUX) || defined (PCLINUX64)
   if ((H5Tget_class(datatype) == H5T_INTEGER) && (H5Tget_size(datatype) == 4)) 
     datatype = H5T_NATIVE_INT;
-#endif 
+//#endif 
 
   if ((ret = H5Dread(id,datatype,H5S_ALL,H5S_ALL,H5P_DEFAULT, val)) < 0)
     return -1;

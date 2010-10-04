@@ -411,7 +411,9 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 #ifdef WNT
   std::string logFilename=getenv("TEMP");
   logFilename += "\\";
+  std::string user = getenv( "USERNAME" );
 #else
+  std::string user = getenv( "USER" );
   std::string logFilename="/tmp";
   char* val = getenv("SALOME_TMP_DIR");
   if(val)
@@ -424,7 +426,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   logFilename += "/";
 #endif
-  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" ) ;
+  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+user;
   std::ostringstream tmp;
   tmp << "_" << getpid();
   logFilename += tmp.str();
@@ -474,7 +476,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       // Setting log file name
       logFilename=":"+logFilename;
       logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
-      logFilename=getenv( "USER" )+logFilename;
+      logFilename=user+logFilename;
       ret->logfilename(logFilename.c_str());
       RmTmpFile(_TmpFileName); // command file can be removed here
     }

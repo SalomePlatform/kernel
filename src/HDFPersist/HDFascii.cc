@@ -667,20 +667,12 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
 //============================================================================ 
 std::string GetTmpDir()
 {
-
  //Find a temporary directory to store a file
-
   std::string aTmpDir;
-
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
     aTmpDir = std::string(Tmp_dir);
     if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
-/*#ifdef WIN32
-    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
-#else
-    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
-#endif*/
   }
   else {
 #ifdef WIN32
@@ -700,16 +692,9 @@ std::string GetTmpDir()
   aTmpDir += aSubDir; //Get RND sub directory
 
   if(aTmpDir[aTmpDir.size()-1] != dir_separator) aTmpDir+=dir_separator;
-/*
-#ifdef WIN32
-  if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
-#else
-  if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
-#endif
-  */
 
   std::string aDir = aTmpDir;
-  
+
   for(aRND = 0; Exists(aDir); aRND++) {
     sprintf(buffer, "%d", aRND);
     aDir = aTmpDir+buffer;  //Build a unique directory name
@@ -782,10 +767,10 @@ void read_float64(FILE* fp, hdf_float64* value)
 bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
-  if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+ if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+    DWORD errorId = GetLastError ();
+    if ( errorId == ERROR_FILE_NOT_FOUND || errorId == ERROR_PATH_NOT_FOUND )
       return false;
-    }
   }
 #else 
   int status = access ( thePath.c_str() , F_OK ); 
