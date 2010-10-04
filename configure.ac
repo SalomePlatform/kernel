@@ -115,9 +115,6 @@ if test -z "$AR"; then
 fi
 AC_SUBST(AR)
 
-AC_PROG_MKDIR_P
-AC_SUBST(MKDIR_P)
-
 echo
 echo ---------------------------------------------
 echo testing make
