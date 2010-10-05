@@ -104,7 +104,8 @@ BASEIDL_SOURCES =\
   Calcium_PortsSK.cc \
   Palm_PortsSK.cc \
   SALOME_PACOExtensionSK.cc \
-  SALOME_ParamPortsSK.cc
+  SALOME_ParamPortsSK.cc \
+  SALOME_ParametricSK.cc
 
 DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
@@ -112,7 +113,8 @@ DYNIDL_SRCS = \
   SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
   DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc SALOME_TypesDynSK.cc \
   Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
-  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc
+  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc \
+  SALOME_ParametricDynSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \
