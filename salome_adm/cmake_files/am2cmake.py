@@ -615,8 +615,8 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(WITH_LOCAL 1)
                 SET(WITH_BATCH 1)
-                set(VERSION 5.1.4)
-                set(XVERSION 0x050104)
+                set(VERSION 5.1.5)
+                set(XVERSION 0x050105)
                 SET(CALCIUM_IDL_INT_F77 long)
                 SET(CALCIUM_CORBA_INT_F77 CORBA::Long)
                 SET(LONG_OR_INT int)
@@ -632,8 +632,8 @@ class CMakeFile(object):
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
                 SET(ENABLE_QXGRAPHVIEWER ON)
-                set(VERSION 5.1.4)
-                set(XVERSION 0x050104)
+                set(VERSION 5.1.5)
+                set(XVERSION 0x050105)
                 """)
                 pass
             elif self.module == "geom":
