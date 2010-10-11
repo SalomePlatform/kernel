@@ -190,7 +190,7 @@ CPPFLAGS="$CPPFLAGS_old"
 
 if test "x$vtk_ok" = "xyes"
 then
-   VTK_INCLUDES="$LOCAL_INCLUDES"
+   VTK_INCLUDES="$LOCAL_INCLUDES -DVTK_EXCLUDE_STRSTREAM_HEADERS"
 
    dnl vtk libraries
 
