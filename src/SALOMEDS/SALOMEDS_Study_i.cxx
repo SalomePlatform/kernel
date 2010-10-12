@@ -678,7 +678,7 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
 void SALOMEDS_Study_i::Close()
 {
   SALOMEDS::Locker lock; 
-
+  
   RemovePostponed(-1);
 
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
@@ -756,7 +756,10 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
     try {
       CORBA::Object_var obj = _orb->string_to_object(anIORs[i].c_str());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
-      if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+	  //rnv: To avoid double deletion of the Salome Generic Objects:
+	  //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
+	  //rnv: 2. Second decrement of the reference count in the next string : aGeneric->Destroy();
+      //if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
     } catch (...) {}
   }
 
