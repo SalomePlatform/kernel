@@ -1259,6 +1259,9 @@ class CMakeFile(object):
             newlines.append('''
             INSTALL(CODE "SET(IDL_FILE ${input})")
             INSTALL(CODE "SET(DIR lib/python${PYTHON_VERSION}/site-packages/salome)")
+            IF(WINDOWS)
+            INSTALL(CODE "SET(DIR bin/salome)")
+            ENDIF(WINDOWS)
             INSTALL(CODE "SET(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})")
             INSTALL(CODE "SET(OMNIORB_IDL_PYTHON ${OMNIORB_IDL_PYTHON})")
             # --
