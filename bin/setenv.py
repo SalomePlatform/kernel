@@ -194,6 +194,13 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                                   python_version,"site-packages",
                                   salome_subdir),
                      "PYTHONPATH")
+            import platform
+            if platform.machine() == "x86_64":
+                add_path(os.path.join(module_root_dir,"lib64",
+                                      python_version,"site-packages",
+                                      salome_subdir),
+                         "PYTHONPATH")
+                pass
             add_path(os.path.join(module_root_dir,get_lib_dir(),
                                   python_version,"site-packages",
                                   salome_subdir,

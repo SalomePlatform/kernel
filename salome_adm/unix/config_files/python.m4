@@ -65,6 +65,11 @@ AC_DEFUN([CHECK_PYTHON],
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
+    if test "${build_cpu::6}" = "x86_64" ; then
+      PY_MAKEFILE=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/Makefile
+    fi
+  fi
+  if test ! -f "$PY_MAKEFILE"; then
      AC_MSG_WARN([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
 *** missing the development portion of the python installation])
      python_ok=no
@@ -77,6 +82,13 @@ AC_DEFUN([CHECK_PYTHON],
   PYTHON_LIBS="-L${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
   PYTHON_LIB=$PYTHON_LIBS
   PYTHON_LIBA=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+  if test "${build_cpu::6}" = "x86_64" ; then
+    if test "$PY_MAKEFILE" = "${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/Makefile" ; then
+      PYTHON_LIBS="-L${PYTHON_PREFIX}/lib64/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
+      PYTHON_LIB=$PYTHON_LIBS
+      PYTHON_LIBA=${PYTHON_PREFIX}/lib64/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+    fi
+  fi
 
   dnl At times (like when building shared libraries) you may want
   dnl to know which OS Python thinks this is.
