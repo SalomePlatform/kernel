@@ -735,6 +735,9 @@ class CMakeFile(object):
         SET(AM_CPPFLAGS)
         SET(AM_CXXFLAGS)
         SET(LDADD)
+        SET(pythondir lib/python${PYTHON_VERSION}/site-packages)
+        SET(salomepythondir ${pythondir}/salome)
+        SET(salomepypkgdir ${salomepythondir}/salome)
         """)
         if self.module == "netgen":
             newlines.append(r'''
@@ -1258,7 +1261,7 @@ class CMakeFile(object):
                 pass
             newlines.append('''
             INSTALL(CODE "SET(IDL_FILE ${input})")
-            INSTALL(CODE "SET(DIR lib/python${PYTHON_VERSION}/site-packages/salome)")
+            INSTALL(CODE "SET(DIR ${salomepythondir})")
             IF(WINDOWS)
             INSTALL(CODE "SET(DIR bin/salome)")
             ENDIF(WINDOWS)
@@ -1501,12 +1504,12 @@ class CMakeFile(object):
             "dist_salomescript_DATA"           :  "bin/salome",
             "dist_salomescript_PYTHON"         :  "bin/salome",
             "nodist_salomescript_DATA"         :  "bin/salome",
-            "salomepython_PYTHON"              :  "lib/python${PYTHON_VERSION}/site-packages/salome",
-            "nodist_salomepython_PYTHON"       :  "lib/python${PYTHON_VERSION}/site-packages/salome",
-            "dist_salomepython_DATA"           :  "lib/python${PYTHON_VERSION}/site-packages/salome",
-            "sharedpkgpython_PYTHON"           :  "lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules",
-            "salomepypkg_PYTHON"               :  "lib/python${PYTHON_VERSION}/site-packages/salome/salome",
-            "mypkgpython_PYTHON"               :  "lib/python${PYTHON_VERSION}/site-packages/salome/salome/kernel",
+            "salomepython_PYTHON"              :  "${salomepythondir}",
+            "nodist_salomepython_PYTHON"       :  "${salomepythondir}",
+            "dist_salomepython_DATA"           :  "${salomepythondir}",
+            "sharedpkgpython_PYTHON"           :  "${salomepythondir}/shared_modules",
+            "salomepypkg_PYTHON"               :  "${salomepypkgdir}",
+            "mypkgpython_PYTHON"               :  "${mypkgpythondir}",
             }
         if self.module == "medfile":
             d = {
@@ -1943,18 +1946,18 @@ class CMakeFile(object):
             ''')
             newlines.append(r'''
             IF(WINDOWS)
-            INSTALL(TARGETS ${name} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome)
+            INSTALL(TARGETS ${name} DESTINATION ${salomepythondir})
             IF(CMAKE_BUILD_TYPE STREQUAL Release)
-            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/salome/${name}.dll DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.pyd)
+            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${salomepythondir}/${name}.dll DESTINATION ${salomepythondir} RENAME ${name}.pyd)
             ELSE(CMAKE_BUILD_TYPE STREQUAL Release)
-            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/salome/${name}.dll DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}_d.pyd)
+            INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${salomepythondir}/${name}.dll DESTINATION ${salomepythondir} RENAME ${name}_d.pyd)
             ENDIF(CMAKE_BUILD_TYPE STREQUAL Release)
             ELSE(WINDOWS)
             GET_TARGET_PROPERTY(version ${name} VERSION)
             GET_TARGET_PROPERTY(soversion ${name} SOVERSION)
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so.${version})
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so.${soversion})
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION lib/python${PYTHON_VERSION}/site-packages/salome RENAME ${name}.so)
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION ${salomepythondir} RENAME ${name}.so.${version})
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION ${salomepythondir} RENAME ${name}.so.${soversion})
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so.${version} DESTINATION ${salomepythondir} RENAME ${name}.so)
             ENDIF(WINDOWS)
             ''')
             newlines.append(r'''
