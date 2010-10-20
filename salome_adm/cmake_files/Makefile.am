@@ -24,6 +24,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 dist_salome_cmake_DATA = \
 am2cmake.py \
+copytree1.py \
 FindBOOST.cmake \
 FindCPPUNIT.cmake \
 FindDOXYGEN.cmake \

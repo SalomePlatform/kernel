@@ -1077,68 +1077,57 @@ class CMakeFile(object):
 	# --
   
         upmod = self.module.upper()
+        doc_gui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/%s"%(upmod)
+        doc_tui_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/%s"%(upmod)
+        doc_destination = "${CMAKE_INSTALL_PREFIX}/share/doc/salome"
+        head_source = "${CMAKE_CURRENT_SOURCE_DIR}/images/head.png"
+        if mod == 'kernel':
+            copytree_src = "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files"
+        else:
+            copytree_src = "$ENV{KERNEL_ROOT_DIR}/salome_adm/cmake_files"
+        str = "import re \nimport sys \noutfile = open(sys.argv[1], 'wb') \nfor line in open(sys.argv[2], 'rb').readlines():"
+        str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\s+\#', '#', line) \n    line = re.sub(r'^\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
+        str += "\n    outfile.write(line) \noutfile.close()"
+
         if mod in ['kernel', 'gui'] and self.root[-len('gui'):] == 'gui' or mod == 'med' and operator.contains(self.root, 'doxygen'):
-	    newlines.append(r'''
-            STRING(REPLACE "/" "\\" ntfs_docdir ${docdir}/gui/)
-            STRING(REPLACE "/" "\\" head_img_srcdir ${srcdir}/images/head.png)
-            ''')
             if mod == 'med':
-                newlines.append(r'''
-                STRING(REPLACE "/" "\\" ntfs_builddir ${builddir}/doc_ref_user/html) 
-                ''')
-                tmp = """\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
-                COMMAND XCOPY ${ntfs_builddir} ${ntfs_docdir}"""+upmod+""" /I /E /Y
-                COMMAND XCOPY ${head_img_srcdir} ${ntfs_docdir}"""+upmod +""" /I /Y
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""
+                doc_source = "${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html"
+                input = "Doxyfile_med_user"
             else:
-                newlines.append(r'''
-                STRING(REPLACE "/" "\\" ntfs_builddir ${builddir}/${upmod}) 
-                ''')
-                tmp = """\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE}
-                COMMAND XCOPY ${ntfs_builddir}"""+upmod +""" ${ntfs_docdir}"""+upmod+""" /I /E /Y
-                COMMAND XCOPY ${head_img_srcdir} ${ntfs_docdir}"""+upmod +""" /I /Y
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )"""
-	    newlines.append(tmp)
+                doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+                input = ""
+            newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} %s
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')"
+            VERBATIM 
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
+            )"""%(input, copytree_src, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
                 
         if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
-            tmp = "Exclude_Names \n\usr_docs.dir\ \n\CMakeFiles\ \ncmake \ndoxyfile \nINSTALL.vcproj \nusr_docs."
-	    newlines.append(r'''
-            STRING(REPLACE "/" "\\" ntfs_builddir ${builddir}) 
-    	    STRING(REPLACE "/" "\\" ntfs_docdir ${docdir}/gui/)
-            STRING(REPLACE "/" "\\" head_img_srcdir ${srcdir}/images/head.png)
-            FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Exclude_Names "%s")'''%(tmp))
+            ign = r"""'tempfile', '*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', ''Makefile*"""
             if mod in ['geom', 'smesh']:
-                str = "import re \nimport sys \noutfile = open(sys.argv[1], 'wb') \nfor line in open(sys.argv[2], 'rb').readlines():"
-                str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\s+\#', '#', line) \n    line = re.sub(r'^\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
-                str += "\n    outfile.write(line) \noutfile.close()"
                 if mod == 'geom':
                     tmp = 'geompy'
-                    tmp1 = "\n\t\tCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_tui"
+                    input = "COMMAND ${DOXYGEN_EXECUTABLE} doxyfile_tui \n\t\t"
                 else:
                     tmp =  'smesh' 
-                    tmp1=''
-                newlines.append(r'''
-                FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")'''%(str))
+                    input = ''
                 newlines.append(r"""
-                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/"""+upmod+r"""_SWIG/"""+tmp+r""".py ${CMAKE_SOURCE_DIR}/src/"""+upmod+r"""_SWIG/"""+tmp+r"""DC.py """+tmp+tmp1+ r"""
-                COMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
+                FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")
+                ADD_CUSTOM_TARGET(usr_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
+                %sCOMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
                 COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/"""+upmod+r"""_SWIG/"""+tmp+r""".py'''); os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/tempfile''')"
-                COMMAND XCOPY ${ntfs_builddir} ${ntfs_docdir}"""+upmod+r""" /I /E /Y /EXCLUDE:Exclude_Names
-                COMMAND XCOPY ${head_img_srcdir} ${ntfs_docdir}"""+upmod +r""" /I /Y
-                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/Exclude_Names''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
+                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''', r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''', r'''%s''')"
+                VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )""")
+                )"""%(str, upmod, tmp, upmod, tmp, tmp, input, upmod, tmp, copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
             else:
-      	        newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} Doxyfile_idl
-                COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+      	        newlines.append("""\t    ADD_CUSTOM_TARGET(usr_docs ${DOXYGEN_EXECUTABLE} doxyfile_idl
+                COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
+                COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''',True); import copytree1; copytree1.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''%s''', ignore=copytree1.ignore_patterns(%s)); shutil.copy(r'''%s''',r'''%s''')"
+                VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                COMMAND XCOPY ${ntfs_builddir} ${ntfs_docdir}"""+upmod+""" /I /E /Y /EXCLUDE:Exclude_Names
-                COMMAND XCOPY ${head_img_srcdir} ${ntfs_docdir}"""+upmod +""" /I /Y
-                COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/Exclude_Names''')"
-                )""")
+                )"""%(copytree_src, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
 
 	# --
 	# add commands for generating of developer's documentation
@@ -1146,58 +1135,39 @@ class CMakeFile(object):
   
         upmod = self.module.upper()
         if mod in ['kernel', 'gui', 'med', 'smesh', 'visu'] and self.root[-len('tui'):] == 'tui':
-	    newlines.append(r'''
-            STRING(REPLACE "/" "\\" ntfs_docdir ${docdir}/tui)
-            STRING(REPLACE "/" "\\" head_img_srcdir ${srcdir}/images/)
-            STRING(REPLACE "/" "\\" ntfs_builddir ${builddir}/) 
-            ''')
             if mod == 'kernel':
                 tmp = """\tADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE} -u
             COMMAND ${DOXYGEN_EXECUTABLE}
-            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/doxyfile.bak'''); os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/log.txt''')"  """
+            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/doxyfile.bak''')"  """
                 tmp1=""
             else: 
                 tmp = """\tADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE}"""
                 if mod == 'visu':
-                    tmp1= r"""\n            COMMAND XCOPY ${head_img_srcdir}visuscreen.png ${ntfs_docdir}"""+upmod+r""" /I /Y """
+                    tmp1= r"""\n           COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/visuscreen.png''', r'''%s''')" """%(doc_tui_destination)
                 elif mod == 'smesh':
-                    newlines.append(r'''
-            STRING(REPLACE "/" "\\" extra_srcdir ${srcdir}/extra/)
-            STRING(REPLACE "/" "\\" ntfs_docdir1 ${docdir})
-            ''')
-                    tmp1= """\n            COMMAND XCOPY ${head_img_srcdir}smeshscreen.png ${ntfs_docdir}"""+upmod +""" /I /Y
-            COMMAND XCOPY ${extra_srcdir}AddNetgenInSalome2.pdf ${ntfs_docdir1} /I /Y
-            COMMAND XCOPY ${extra_srcdir}AddNetgenInSalome2.ps ${ntfs_docdir1} /I /Y
-            COMMAND XCOPY ${extra_srcdir}AddNetgenInSalome2.sxw ${ntfs_docdir1} /I /Y
-            COMMAND XCOPY ${extra_srcdir}PluginMeshers.html ${ntfs_docdir1} /I /Y"""
+                    extra_srcdir = "${CMAKE_CURRENT_SOURCE_DIR}/extra"
+                    tmp1= """\n            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/smeshscreen.png''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.pdf''', r'''%s'''); copy(r'''%s/PluginMeshers.html''', r'''%s''')" 
+            COMMAND ${PYTHON_EXECUTABLE} -c "from shutil import copy; copy(r'''%s/AddNetgenInSalome2.ps''', r'''%s'''); copy(r'''%s/AddNetgenInSalome2.sxw''', r'''%s''')" """%(doc_tui_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination, extra_srcdir,doc_destination,extra_srcdir,doc_destination)
                 else:
                     tmp1=""
-            tmp += """
-            COMMAND XCOPY ${ntfs_builddir}"""+upmod +""" ${ntfs_docdir}"""+upmod+""" /I /E /Y
-            COMMAND XCOPY ${head_img_srcdir}head.png ${ntfs_docdir}"""+upmod +""" /I /Y""" + tmp1 + """
+            doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+            newlines.append(tmp + """
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s''')" """%(copytree_src, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination) + tmp1 + """
+            VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-            )"""
-	    newlines.append(tmp)
+            )""")
         if mod == 'geom' and self.root[-len('tui'):] == 'tui':
-	    newlines.append(r'''
-            STRING(REPLACE "/" "\\" ntfs_docdir ${docdir}/tui/)
-            STRING(REPLACE "/" "\\" head_img_srcdir ${srcdir}/images/)
-            STRING(REPLACE "/" "\\" ntfs_builddir ${builddir}/) 
-            ''')
-            str = "import re \nimport sys \noutfile = open(sys.argv[1], 'wb') \nfor line in open(sys.argv[2], 'rb').readlines():"
-            str += "\n    if re.match('class '+sys.argv[3]+'DC', line): \n        continue \n    line = re.sub(r'^\s+\#', '#', line) \n    line = re.sub(r'^\s+def', 'def', line) \n    line = re.sub(sys.argv[3]+'DC', sys.argv[3], line)"
-            str += "\n    outfile.write(line) \noutfile.close()"
             tmp = 'geompy'
-            newlines.append(r'''
-            FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")'''%(str))
-            newlines.append(r"""        ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/"""+upmod+r"""_SWIG/"""+tmp+r""".py ${CMAKE_SOURCE_DIR}/src/"""+upmod+r"""_SWIG/"""+tmp+r"""DC.py """+tmp + r"""
+            doc_source = "${CMAKE_CURRENT_BINARY_DIR}/%s"%(upmod)
+            newlines.append(r"""
+            FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tempfile "%s")
+            ADD_CUSTOM_TARGET(dev_docs ${PYTHON_EXECUTABLE} tempfile ${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py ${CMAKE_SOURCE_DIR}/src/%s_SWIG/%sDC.py %s
             COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/GEOM_SWIG/geompy.py'''); os.remove(r'''${CMAKE_CURRENT_BINARY_DIR}/tempfile''')"
-            COMMAND XCOPY ${ntfs_builddir}"""+upmod +""" ${ntfs_docdir}"""+upmod+""" /I /E /Y
-            COMMAND XCOPY ${head_img_srcdir}geomscreen.png ${ntfs_docdir}"""+upmod +""" /I /Y
-            COMMAND XCOPY ${head_img_srcdir}head.png ${ntfs_docdir}"""+upmod +""" /I /Y            
+            COMMAND ${PYTHON_EXECUTABLE} -c "import os; os.remove(r'''${CMAKE_BINARY_DIR}/src/%s_SWIG/%s.py''')"
+            COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; sys.path.append(r'''%s'''); shutil.rmtree(r'''%s''', True); import copytree1; copytree1.copytree(r'''%s''', r'''%s'''); shutil.copy(r'''%s''', r'''%s'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/geomscreen.png''', r'''%s''')"
+            VERBATIM 
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
-                )""")
+            )"""%(str, upmod, tmp, upmod, tmp, tmp, upmod, tmp, copytree_src, doc_tui_destination, doc_source, doc_tui_destination, head_source, doc_tui_destination, doc_tui_destination))
 
         # --
         # convert the SUBDIRS in cmake grammar
@@ -2161,7 +2131,10 @@ class CMakeFile(object):
             ELSE(f STREQUAL SALOME_ContainerPy.py)
             IF(f STREQUAL am2cmake.py)
             ELSE(f STREQUAL am2cmake.py)
+            IF(f STREQUAL copytree1.py)
+            ELSE(f STREQUAL copytree1.py)
             INSTALL(SCRIPT ${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/install_and_compile_python_file.cmake)
+            ENDIF(f STREQUAL copytree1.py)
             ENDIF(f STREQUAL am2cmake.py)
             ENDIF(f STREQUAL SALOME_ContainerPy.py)
             ''')
