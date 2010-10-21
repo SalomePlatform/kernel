@@ -119,6 +119,7 @@ def import_module(partname, fqname, parent):
     """ Try to import module fqname
         It's parent is module parent and has name partname
     """
+    #print "import_module",partname, fqname, parent
     try:
        m = sys.modules[fqname]
     except KeyError:
@@ -129,6 +130,7 @@ def import_module(partname, fqname, parent):
 def ensure_fromlist(m, fromlist, recursive=0):
     """ Return the real modules list to be imported
     """
+    #print "ensure_fromlist",m, fromlist, recursive
     l=[]
     for sub in fromlist:
         if sub == "*":
@@ -139,11 +141,23 @@ def ensure_fromlist(m, fromlist, recursive=0):
                     pass
                 else:
                     l.extend(ensure_fromlist(m, all, 1))
-        elif hasattr(m,sub):
-            submod=getattr(m,sub)
+        else:
+          #try to find if sub is an attribute (eventually dotted) of m
+          components=sub.split('.')
+          has_submod=True
+          submod=m
+          for comp in components:
+            if hasattr(submod,comp):
+              submod=getattr(submod, comp)
+            else:
+              has_submod=False
+              break
+
+          if has_submod:
+            #the attribute has been found
             if type(submod) == type(sys):
                l.append(("%s.%s" % (m.__name__, sub),submod))
-        else:
+          else:
             subname="%s.%s" % (m.__name__, sub)
             submod = import_module(sub, subname, m)
             if not submod:
