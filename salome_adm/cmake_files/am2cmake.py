@@ -1103,7 +1103,7 @@ class CMakeFile(object):
             )"""%(input, copytree_src, doc_gui_destination, doc_source, doc_gui_destination, head_source, doc_gui_destination))
                 
         if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == upmod and operator.contains(self.root, 'doc'):
-            ign = r"""'tempfile', '*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', ''Makefile*"""
+            ign = r"""'tempfile', '*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*'"""
             if mod in ['geom', 'smesh']:
                 if mod == 'geom':
                     tmp = 'geompy'
