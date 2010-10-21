@@ -41,12 +41,17 @@ class LifeCycleCORBA (SALOME_LifeCycleCORBA):
                                                           componentName)
 
 class MachineParameters (Engines.MachineParameters):
-          def __init__(self, container_name='', hostname='', componentList=[], computerList=[], OS='', 
-                             mem_mb=0, cpu_clock=0, nb_proc_per_node=0, nb_node=0, isMPI=False, workingdir='', 
-                             mode='start', policy='altcycl', parallelLib='', nb_component_nodes=0):
-            Engines.MachineParameters.__init__(self,container_name, hostname, componentList, computerList, OS, 
-                                                    mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir, 
-                                                    mode, policy, parallelLib, nb_component_nodes)
+  def __init__(self, container_name='', hostname='', componentList=[], computerList=[], OS='',
+                     mem_mb=0, cpu_clock=0, nb_proc_per_node=0, nb_node=0, isMPI=False, workingdir='',
+                     mode='start', policy='altcycl', parallelLib='', nb_component_nodes=0):
+    Engines.MachineParameters.__init__(self,container_name, hostname, componentList, computerList, OS,
+                                            mem_mb, cpu_clock, nb_proc_per_node, nb_node, isMPI, workingdir,
+                                            mode, policy, parallelLib, nb_component_nodes)
+
+class ContainerParameters (Engines.ContainerParameters):
+  def __init__(self, container_name='', mode='start', workingdir='', nb_proc=0, isMPI=False, parallelLib='',resource_params=None):
+    if resource_params is None:resource_params=ResourceParameters()
+    Engines.ContainerParameters.__init__(self,container_name, mode, workingdir, nb_proc, isMPI, parallelLib,resource_params)
 
 class ResourceParameters (Engines.ResourceParameters):
   def __init__(self, name="", hostname="", OS="", componentList=[],

@@ -21,6 +21,7 @@
 import unittest
 import salome
 import LifeCycleCORBA
+import SALOME
 salome.salome_init()
 cm= salome.lcc.getContainerManager()
 rm= salome.lcc.getResourcesManager()
@@ -49,55 +50,60 @@ Test with CatalogResources.xml:
 
   def test0(self):
     """host required"""
-    params=LifeCycleCORBA.MachineParameters(hostname="m3")
+    params=LifeCycleCORBA.ResourceParameters(hostname="m3")
     machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ["m3"])
 
   def test1(self):
     """OS required"""
-    params=LifeCycleCORBA.MachineParameters(OS="Linux")
-    machineList=rm.GetFittingResources(params)
-    self.assertEqual(machineList, [])
+    params=LifeCycleCORBA.ResourceParameters(OS="Linux")
+    self.assertRaises(SALOME.SALOME_Exception,rm.GetFittingResources,params)
 
   def test2(self):
     """component add required"""
-    params=LifeCycleCORBA.MachineParameters(componentList=["add"])
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add"])
     machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
 
   def test3(self):
     """component tutu required"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["tutu"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["tutu"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['m1', 'm2', 'm3'])
 
   def test4(self):
     """component tata required"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["tata"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["tata"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['m1', 'm2'])
 
   def test5(self):
     """component titi required"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["titi"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["titi"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['m1', 'm2'])
 
   def test6(self):
     """component toto required"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
 
   def test7(self):
     """components add and toto required"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["add","toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(machineList, ['claui2c6', 'm1', 'm2'])
 
   def test8(self):
     """components add and toto required"""
-    machineDef=rm.GetMachineParameters('claui2c6')
+    machineDef=rm.GetResourceDefinition('claui2c6')
     self.assertEqual(machineDef.componentList, ['toto', 'add'])
 
   def test10(self):
     """policy altcycl"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["add","toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('altcycl',machineList), "claui2c6")
     self.assertEqual(rm.Find('altcycl',machineList), "m1")
     self.assertEqual(rm.Find('altcycl',machineList), "m2")
@@ -107,7 +113,8 @@ Test with CatalogResources.xml:
 
   def test11(self):
     """policy cycl"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["add","toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('cycl',machineList), "claui2c6")
     self.assertEqual(rm.Find('cycl',machineList), "m1")
     self.assertEqual(rm.Find('cycl',machineList), "m2")
@@ -117,13 +124,15 @@ Test with CatalogResources.xml:
 
   def test12(self):
     """policy first"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["add","toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('first',machineList), "claui2c6")
     self.assertEqual(rm.Find('first',machineList), "claui2c6")
 
   def test13(self):
     """policy best"""
-    machineList=rm.GetFittingResources(LifeCycleCORBA.MachineParameters(componentList=["add","toto"]))
+    params=LifeCycleCORBA.ResourceParameters(componentList=["add","toto"])
+    machineList=rm.GetFittingResources(params)
     self.assertEqual(rm.Find('best',machineList), "claui2c6")
     self.assertEqual(rm.Find('best',machineList), "m1")
     self.assertEqual(rm.Find('best',machineList), "m2")
@@ -132,5 +141,6 @@ Test with CatalogResources.xml:
     self.assertEqual(rm.Find('best',machineList), "m2")
 
 if __name__ == '__main__':
-  unittest.main()
+  suite = unittest.TestLoader().loadTestsFromTestCase(TestResourceManager)
+  unittest.TextTestRunner().run(suite)
 
