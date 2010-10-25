@@ -236,9 +236,9 @@ class StudyEditor:
                (comment is None or childItem.GetComment() == comment) and \
                (icon is None or \
                 self.getIcon(childItem) == icon) and \
-               (IOR is None or childItem.GetIOR() == IOR and \
+               (IOR is None or childItem.GetIOR() == IOR) and \
                (typeId is None or \
-                self.getTypeId(childItem) == typeId)):
+                self.getTypeId(childItem) == typeId):
                 foundItem = childItem
             childIterator.Next()
         return foundItem
