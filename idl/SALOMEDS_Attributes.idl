@@ -238,8 +238,14 @@ module SALOMEDS
   /*!
     \brief Comment attribute
 
-    The attribute stores a string value containing supplementary information about
-    the SObject. In particular it contains the data type of the %SComponent.
+    The attribute stores arbitrary string value containing supplementary information about
+    the SObject. This is common-usage attribute that can be used for any purpose.
+
+    There is only one explicit limitation: for the SComponent %object representing
+    the root item of the SALOME component tree, the AttributeComment is used to store
+    component data type value. This attribute is automatically set with NewComponent()
+    function of StudyBuilder. Also, the value of this attribute is returned by the 
+    ComponentDataType() function of SComponent interface.
     
     <em>See \ref example6 for an example of this attribute usage in batchmode of %SALOME application.</em>
       
