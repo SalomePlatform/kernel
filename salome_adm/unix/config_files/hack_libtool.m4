@@ -28,7 +28,7 @@ dnl to the native libraries (installed in /usr/lib[64]) instead of those supplie
 dnl with specific -Ldir options.
 
 AC_DEFUN([AC_HACK_LIBTOOL],[
-sed -i "s%^CC=\"\(.*\)\"%function hack_libtool { \n\
+sed -i "s%^CC=\"\(.*\)\"%hack_libtool (){ \n\
   if test \"\$(echo \$[@] | grep -E '\\\-L/usr/lib(/../lib)?(64)? ')\" == \"\" \n\
   then\n\
     cmd=\"\1 \$[@]\"\n\
