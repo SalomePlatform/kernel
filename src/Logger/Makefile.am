@@ -44,7 +44,10 @@ SALOME_Logger_Server_SOURCES = \
 	SALOME_Logger_Server_main.cxx \
 	SALOME_Logger_Server.hxx
 
-SALOME_Logger_Server_LDADD   = libSalomeLoggerServer.la
+SALOME_Logger_Server_LDADD   = libSalomeLoggerServer.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@CORBA_LIBS@
+
 SALOME_Logger_Server_CPPFLAGS =\
 	-I$(top_builddir)/idl \
 	-I$(srcdir)/../SALOMELocalTrace \

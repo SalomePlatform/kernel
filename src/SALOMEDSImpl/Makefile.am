@@ -233,5 +233,5 @@ libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS) $(CORBA_LIBS)
 bin_PROGRAMS = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDS_LDADD    = libSalomeDSImpl.la \
+testDS_LDADD    = libSalomeDSImpl.la ../DF/libDF.la \
 	$(HDF5_LIBS) $(CORBA_LIBS)

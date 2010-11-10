@@ -60,7 +60,11 @@ libRegistry_la_LIBADD   =\
 bin_PROGRAMS = SALOME_Registry_Server
 SALOME_Registry_Server_SOURCES  = SALOME_Registry_Server.cxx
 SALOME_Registry_Server_LDADD    =\
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	libRegistry.la \
+	../NamingService/libSalomeNS.la \
+	../Utils/libOpUtil.la \
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	@CORBA_LIBS@
 SALOME_Registry_Server_CPPFLAGS =\

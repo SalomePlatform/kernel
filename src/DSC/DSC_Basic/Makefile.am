@@ -89,4 +89,5 @@ SALOME_ConnectionManagerServer_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 SALOME_ConnectionManagerServer_LDADD    = $(top_builddir)/idl/libSalomeIDLKernel.la \
 					  $(top_builddir)/src/NamingService/libSalomeNS.la \
-					  $(top_builddir)/src/SALOMELocalTrace/libSALOMELocalTrace.la
+					  $(top_builddir)/src/SALOMELocalTrace/libSALOMELocalTrace.la \
+					  ${COMMON_LIBS}

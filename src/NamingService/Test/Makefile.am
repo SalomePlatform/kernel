@@ -61,7 +61,7 @@ COMMON_CPPFLAGS=\
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	@CPPUNIT_LIBS@ \
-	../libSalomeNS.la
+	../libSalomeNS.la @CORBA_LIBS@
 
 #
 # ===============================================================
@@ -96,4 +96,4 @@ TestNamingService_LDADD    = \
 	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	$(RPATH)/Utils/Test/libUtilsTest.la $(RPATH)/Utils/libOpUtil.la \
 	$(RPATH)/Basics/libSALOMEBasics.la \
-	$(top_builddir)/idl/libSalomeIDLKernel.la
+	$(top_builddir)/idl/libSalomeIDLKernel.la $(COMMON_LIBS)

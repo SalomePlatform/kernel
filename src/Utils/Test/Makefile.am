@@ -83,5 +83,4 @@ libUtilsTest_la_LIBADD    = $(COMMON_LIBS)
 bin_PROGRAMS = TestUtils
 TestUtils_SOURCES  = TestUtils.cxx
 TestUtils_CPPFLAGS = $(COMMON_CPPFLAGS)
-TestUtils_LDADD    = libUtilsTest.la $(CORBA_LIBS)
-
+TestUtils_LDADD    = libUtilsTest.la $(COMMON_LIBS) $(CORBA_LIBS)

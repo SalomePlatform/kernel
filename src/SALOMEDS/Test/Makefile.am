@@ -145,4 +145,4 @@ dist_TestSALOMEDS_SOURCES  = TestSALOMEDS.cxx
 TestSALOMEDS_CPPFLAGS = $(COMMON_CPPFLAGS)
 TestSALOMEDS_LDADD    = libSALOMEDSTest.la \
 			$(RPATH)/Basics/libSALOMEBasics.la \
-                        $(CORBA_LIBS)
+			$(CORBA_LIBS) $(COMMON_LIBS)

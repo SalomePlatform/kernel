@@ -142,7 +142,7 @@ SALOME_Container_CPPFLAGS =\
 
 SALOME_Container_LDADD = \
 	libSalomeContainer.la \
-	../Basics/libSALOMEBasics.la \
+	../Basics/libSALOMEBasics.la ${COMMON_LIBS} \
 	$(HDF5_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
@@ -163,6 +163,7 @@ TestSalome_file_CPPFLAGS =\
 TestSalome_file_LDADD =\
 	libSalomeContainer.la \
 	../Basics/libSALOMEBasics.la \
+	$(COMMON_LIBS) \
 	$(HDF5_LIBS) \
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
