@@ -128,7 +128,7 @@ class SALOME_Container_i:
 
     def create_pynode(self,nodeName,code):
         try:
-          node=SALOME_PyNode.PyNode_i(nodeName,code,self._poa)
+          node=SALOME_PyNode.PyNode_i(nodeName,code,self._poa,self)
           id_o = self._poa.activate_object(node)
           comp_o = self._poa.id_to_reference(id_o)
           comp_iors = self._orb.object_to_string(comp_o)

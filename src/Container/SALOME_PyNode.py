@@ -48,14 +48,16 @@ class Generic(SALOME__POA.GenericObj):
 
 class PyNode_i (Engines__POA.PyNode,Generic):
   """The implementation of the PyNode CORBA IDL"""
-  def __init__(self, nodeName,code,poa):
+  def __init__(self, nodeName,code,poa,my_container):
     """Initialize the node : compilation in the local context"""
     Generic.__init__(self,poa)
     self.nodeName=nodeName
     self.code=code
+    self.my_container=my_container._container
     linecache.cache[nodeName]=0,None,string.split(code,'\n'),nodeName
     ccode=compile(code,nodeName,'exec')
     self.context={}
+    self.context["my_container"] = self.my_container
     exec ccode in self.context
 
   def execute(self,funcName,argsin): 
