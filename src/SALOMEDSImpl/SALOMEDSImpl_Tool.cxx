@@ -31,6 +31,8 @@
 #include <fstream>
 #include <stdlib.h>
 #include <string.h>
+#include <iterator>
+#include <sstream>
 
 #include "SALOMEDSImpl_Tool.hxx"
 
@@ -241,24 +243,66 @@ std::vector<std::string> SALOMEDSImpl_Tool::splitString(const std::string& theVa
 // purpose  : The functions returns a list of substring of initial string 
 //            divided by given separator include empty strings
 //============================================================================
+
+std::vector<std::string> treatRepetation(const std::string& theValue);
+
+std::vector<std::string> treatRepetation(const std::string& theValue)
+{
+  std::vector<std::string> aResult;
+  int pos = theValue.find(";*=");
+  if(pos < 0 )
+    {
+      aResult.push_back(theValue);
+      return aResult;
+    }
+  std::string val(theValue.substr(0, pos));
+  std::string suffix(theValue.substr(pos+3));
+  int nb;
+  std::istringstream tmp(suffix);
+  tmp >> nb;
+  for(int i=0; i<nb; i++)
+    aResult.push_back(val);
+  return aResult;
+}
+
 std::vector<std::string> SALOMEDSImpl_Tool::splitStringWithEmpty(const std::string& theValue, char sep)
 {
   std::vector<std::string> aResult;
   if(theValue[0] == sep ) aResult.push_back(std::string());
   int pos = theValue.find(sep);
   if(pos < 0 ) {
-    aResult.push_back(theValue);
+    if(sep == '|')
+      {
+        std::vector<std::string> tmp = treatRepetation(theValue);
+        std::copy(tmp.begin(), tmp.end(), std::back_insert_iterator< std::vector<std::string> >(aResult));
+      }
+    else
+      aResult.push_back(theValue);
     return aResult;
   }
 
   std::string s = theValue;
   if(s[0] == sep) s = s.substr(1, s.size());
   while((pos = s.find(sep)) >= 0) {
-    aResult.push_back(s.substr(0, pos));
+    if(sep == '|')
+      {
+        std::vector<std::string> tmp = treatRepetation(s.substr(0, pos));
+        std::copy(tmp.begin(), tmp.end(), std::back_insert_iterator< std::vector<std::string> >(aResult));
+      }
+    else
+      aResult.push_back(s.substr(0, pos));
     s = s.substr(pos+1, s.size());
   }
 
-  if(!s.empty() && s[0] != sep) aResult.push_back(s);
+  if(!s.empty() && s[0] != sep) {
+    if(sep == '|')
+      {
+        std::vector<std::string> tmp = treatRepetation(s);
+        std::copy(tmp.begin(), tmp.end(), std::back_insert_iterator< std::vector<std::string> >(aResult));
+      }
+    else
+      aResult.push_back(s);
+  }
   if(theValue[theValue.size()-1] == sep) aResult.push_back(std::string());
 
   return aResult;
