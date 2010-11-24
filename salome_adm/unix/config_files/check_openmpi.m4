@@ -36,7 +36,12 @@ if test "$WITHOPENMPI" = yes; then
     else  
       MPI_INCLUDES=`$OPENMPI_HOME/bin/mpicxx --showme:compile`
     fi
-    MPI_LIBS=`$OPENMPI_HOME/bin/mpicxx --showme:link`
+    dnl Small modification for native debian-based distributions
+    if test "$OPENMPI_HOME" = "/usr/lib/openmpi"; then
+      MPI_LIBS=`mpicxx --showme:link`
+    else
+      MPI_LIBS=`$OPENMPI_HOME/bin/mpicxx --showme:link`
+    fi
   fi
 
   CPPFLAGS_old="$CPPFLAGS"

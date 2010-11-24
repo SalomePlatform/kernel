@@ -50,6 +50,8 @@ if test -z $HDF5HOME
 then
    AC_MSG_WARN(undefined HDF5HOME variable which specify hdf5 installation directory)
    AC_MSG_NOTICE(Trying native Hdf5...)
+   dnl For Parallel HDF5 test
+   HDF5HOME="/usr" 
 else
    LOCAL_INCLUDES="-I$HDF5HOME/include"
    if test "x$HDF5HOME" = "x/usr"
@@ -61,6 +63,28 @@ else
       LOCAL_LIBS="-L$HDF5HOME/lib"
       LOCAL_RLIBS="-R$HDF5HOME/lib"
    fi
+fi
+
+hdf5_parallel=0
+
+if  test "x$hdf5_ok" = "xno"
+then
+  if  test -e "$HDF5HOME/include/hdf5.h" 
+  then
+    AC_MSG_NOTICE(Checking if hdf5 is parallel and thus needs mpi...)
+    hdf5_parallel=`grep "#define H5_HAVE_PARALLEL" $HDF5HOME/include/H5pubconf.h | awk '{i=3 ; print $i}'`
+    if test "x$hdf5_parallel" = "x1"
+    then
+      AC_MSG_RESULT(***** Yes: checking MPI...******)
+      CHECK_MPI
+      AC_MSG_RESULT(***** Checking MPI done...******)
+      LOCAL_INCLUDES="-DOMPI_SKIP_MPICXX $MPI_INCLUDES $LOCAL_INCLUDES"
+    else
+      AC_MSG_RESULT(No,hdf5 seems serial)
+    fi
+  else
+    AC_MSG_WARN(File $HDF5HOME/include/hdf5.h not present)
+  fi
 fi
 
 dnl hdf5 headers
