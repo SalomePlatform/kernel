@@ -636,14 +636,10 @@ SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
 
   if ( !params.isMPI )
     nbproc = 0;
-  else if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+  else if ( params.nb_proc <= 0 )
     nbproc = 1;
-  else if ( params.resource_params.nb_node == 0 )
-    nbproc = params.resource_params.nb_proc_per_node;
-  else if ( params.resource_params.nb_proc_per_node == 0 )
-    nbproc = params.resource_params.nb_node;
   else
-    nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+    nbproc = params.nb_proc;
 
   std::string ret = ContainerName(params.container_name);
 

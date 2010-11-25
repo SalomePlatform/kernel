@@ -80,6 +80,7 @@ IF(MPI_STATUS)
   
   MESSAGE(STATUS "MPI include ${MPI_INCLUDE_TO_FIND} found in ${MPI_INCLUDES}")
 
+  SET(MPI_INCLUDE_DIR ${MPI_INCLUDES})
   SET(MPI_INCLUDES -I${MPI_INCLUDES})
   
   # ------
@@ -91,9 +92,13 @@ IF(MPI_STATUS)
     FOREACH(lib mpi_cxx mpi mpich)
       FIND_LIBRARY(MPI_LIB ${lib} ${MPI_ROOT}/lib)
       IF(MPI_LIB)
+	IF(lib STREQUAL mpi_cxx)
+	  SET(MPI_INCLUDES ${MPI_INCLUDES} -DOMPI_IGNORE_CXX_SEEK)
+	ENDIF(lib STREQUAL mpi_cxx)
 	IF(lib STREQUAL mpich)
 	  SET(MPI_INCLUDES ${MPI_INCLUDES} -DMPICH_IGNORE_CXX_SEEK)
 	ENDIF(lib STREQUAL mpich)
+	BREAK()
       ENDIF(MPI_LIB)
     ENDFOREACH(lib mpi_cxx mpi mpich)
     IF(NOT MPI_LIB)
@@ -108,6 +113,18 @@ IF(MPI_STATUS)
   MESSAGE(STATUS "MPI libs: ${MPI_LIBS}")
 ENDIF(MPI_STATUS)
   
+# ------
+
+IF(MPI_STATUS)
+  include(CheckSymbolExists)
+  SET(CMAKE_REQUIRED_LIBRARIES ${MPI_LIBS})
+  CHECK_SYMBOL_EXISTS(MPI_Publish_name ${MPI_INCLUDE_DIR}/mpi.h MPI2_IS_OK)
+  IF(MPI2_IS_OK)
+    MESSAGE(STATUS "Your mpi implemtentation is compatible with mpi2 ... adding -DHAVE_MPI2")
+    SET(MPI_INCLUDES ${MPI_INCLUDES} -DHAVE_MPI2)
+  ENDIF(MPI2_IS_OK)
+ENDIF(MPI_STATUS)
+
 # ------
 
 IF(MPI_STATUS)

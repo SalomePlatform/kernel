@@ -42,6 +42,7 @@ BASEIDL_FILES = \
   SALOME_Registry.idl \
   Logger.idl \
   SALOME_GenericObj.idl \
+  SALOME_Types.idl \
   SALOME_Session.idl \
   SALOME_TestModuleCatalog.idl \
   nstest.idl \
@@ -50,7 +51,8 @@ BASEIDL_FILES = \
   SALOME_PyNode.idl \
   Palm_Ports.idl \
   SALOME_PACOExtension.idl \
-  SALOME_ParamPorts.idl
+  SALOME_ParamPorts.idl \
+  SALOME_Parametric.idl
 
 MPIIDL_FILES = \
   SALOME_MPIObject.idl \
@@ -92,6 +94,7 @@ BASEIDL_SOURCES =\
   SALOME_RegistrySK.cc \
   LoggerSK.cc \
   SALOME_GenericObjSK.cc \
+  SALOME_TypesSK.cc \
   SALOME_SessionSK.cc \
   SALOME_TestModuleCatalogSK.cc \
   nstestSK.cc \
@@ -101,15 +104,17 @@ BASEIDL_SOURCES =\
   Calcium_PortsSK.cc \
   Palm_PortsSK.cc \
   SALOME_PACOExtensionSK.cc \
-  SALOME_ParamPortsSK.cc
+  SALOME_ParamPortsSK.cc \
+  SALOME_ParametricSK.cc
 
 DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
   SALOME_CommDynSK.cc   SALOME_RegistryDynSK.cc   SALOME_ModuleCatalogDynSK.cc \
   SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
-  DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc \
+  DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc SALOME_TypesDynSK.cc \
   Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
-  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc
+  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc \
+  SALOME_ParametricDynSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \

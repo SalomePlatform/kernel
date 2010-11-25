@@ -1,0 +1,82 @@
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+//  File   : SALOME_Parametric.idl
+//  Author : Renaud BARATE, EDF R&D
+//
+
+#ifndef _SALOME_Parametric_IDL_
+#define _SALOME_Parametric_IDL_
+
+/*! \brief
+     This module contains type definitions for the communication between
+     supervision codes and computation codes in parametric studies.
+*/
+module SALOME_TYPES
+{
+/*! \brief Structure describing a parameter that can be used for specific
+    information exchange between the codes.
+*/
+  struct Parameter {
+    string name;
+    string value;
+  };
+
+/*! \brief List of parameters.
+*/
+  typedef sequence<Parameter> ParameterList;
+
+/*! \brief Type representing the value of a variable exchanged between the
+    codes. As the variables may be matrices, a value is a 2D object
+    represented as a sequence of sequences of real numbers.
+*/
+  typedef sequence<sequence<double> > Value;
+
+/*! \brief List of variable names.
+*/
+  typedef sequence<string> VarList;
+
+/*! \brief List of variable values.
+*/
+  typedef sequence<Value> ValueList;
+
+/*! \brief Structure describing the input of a computation code.
+*/
+  struct ParametricInput {
+    VarList inputVarList;
+    VarList outputVarList;
+    ValueList inputValues;
+    ParameterList specificParameters;
+  };
+
+/*! \brief Structure describing the output of a computation code.
+*/
+  struct ParametricOutput {
+    ValueList outputValues;
+    ParameterList specificOutputInfos;
+    long returnCode;
+    string errorMessage;
+  };
+
+};
+
+#endif

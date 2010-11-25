@@ -44,9 +44,17 @@ salomeincludedir   = $(includedir)/salome
 libdir             = $(prefix)/lib@LIB_LOCATION_SUFFIX@/salome
 bindir             = $(prefix)/bin/salome
 salomescriptdir    = $(bindir)
+# _GBO_SALOME_PYTHON_PACKAGING_
+# Maybe we could try to suppress on stage in this folder path, for
+# example by installing by default the python files in site-packages
+# folder. Then, python packages could be installed in the
+# site-packages/salome folder (main package containing the root
+# __init__.py file). This could be done by replacing salomepythondir
+# and salomepyexecdir by pythondir and pyexecdir respectively (TO BE
+# DONE)
 salomepythondir    = $(pythondir)/salome
 salomepyexecdir    = $(pyexecdir)/salome
-
+salomepypkgdir     = $(salomepythondir)/salome
 
 # Directory for installing idl files
 salomeidldir       = $(prefix)/idl/salome

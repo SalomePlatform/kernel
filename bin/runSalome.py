@@ -33,6 +33,11 @@ from server import *
 from launchConfigureParser import verbose
 from server import process_id
 
+if sys.platform == "win32":
+  SEP = ";"
+else:
+  SEP = ":"
+
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
@@ -87,8 +92,11 @@ def kill_salome(args):
 class InterpServer(Server):
     def __init__(self,args):
         self.args=args
-        env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+        if sys.platform != "win32":
+          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+          self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+        else:
+          self.CMD=['cmd', '/c', 'start cmd.exe', '/K', 'python']
        
     def run(self):
         global process_id
@@ -104,13 +112,43 @@ class InterpServer(Server):
 
 # ---
 
+def get_cata_path(list_modules,modules_root_dir):
+    """Build a list of catalog paths (cata_path) to initialize the ModuleCatalog server
+    """
+    modules_cata={}
+    cata_path=[]
+
+    for module in list_modules:
+        if modules_root_dir.has_key(module):
+            module_root_dir=modules_root_dir[module]
+            module_cata=module+"Catalog.xml"
+            cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources",module.lower(), module_cata)
+
+            if os.path.exists(cata_file):
+                cata_path.append(cata_file)
+                modules_cata[module]=cata_file
+            else:
+                cata_file=os.path.join(module_root_dir, "share",setenv.salome_subdir, "resources", module_cata)
+                if os.path.exists(cata_file):
+                    cata_path.append(cata_file)
+                    modules_cata[module]=cata_file
+
+    for path in os.getenv("SALOME_CATALOGS_PATH","").split(SEP):
+        if os.path.exists(path):
+            for cata_file in glob.glob(os.path.join(path,"*Catalog.xml")):
+                module_name= os.path.basename(cata_file)[:-11]
+                if not modules_cata.has_key(module_name):
+                    cata_path.append(cata_file)
+                    modules_cata[module_name]=cata_file
+
+    return cata_path
+
+
+
 class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        #if sys.platform == "win32":
-        #        self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ModuleCatalog_Server' + ".exe",'-common']
-        #else:
         self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
@@ -118,37 +156,16 @@ class CatalogServer(Server):
             self.SCMD2=['-personal',os.path.join(home_dir,'Salome/resources/CatalogModulePersonnel.xml')] 
 
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
-        for module in list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                if os.path.exists(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)):
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)))
-                else:
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",
-                                               module_cata)))
-                pass
-            pass
-        #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
-        self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
+        self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
 
 # ---
 
@@ -271,35 +288,18 @@ class SessionServer(Server):
             self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
 
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
-        for module in list_modules:
-            module_root_dir=modules_root_dir[module]
-            module_cata=module+"Catalog.xml"
-            #print "   ", module_cata
-            if os.path.exists(os.path.join(module_root_dir,
-                                           "share",setenv.salome_subdir,
-                                           "resources",module.lower(),
-                                           module_cata)):
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           setenv.salome_subdir,"resources",
-                                           module.lower(),module_cata)))
-            else:
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           setenv.salome_subdir,"resources",
-                                           module_cata)))
-            pass
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
-            #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
-            self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
+            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
         if self.args.has_key('test'):
@@ -323,6 +323,15 @@ class SessionServer(Server):
                 pass
             pass
         
+        if self.args["valgrind_session"]:
+            l = ["valgrind"]
+            val = os.getenv("VALGRIND_OPTIONS")
+            if val:
+                l += val.split()
+                pass
+            self.CMD = l + self.CMD
+            pass
+        
 # ---
 
 class LauncherServer(Server):
@@ -343,35 +352,20 @@ class LauncherServer(Server):
                 self.SCMD2+=['--with','SALOMEDS','(',')']
             if 'cppContainer' in self.args['embedded']:
                 self.SCMD2+=['--with','Container','(','FactoryServer',')']
-        
+
     def setpath(self,modules_list,modules_root_dir):
-        cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
         if self.args["gui"] :
-            list_modules = ["GUI"] + list_modules
-        for module in ["KERNEL"] + list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                if os.path.exists(os.path.join(module_root_dir,
-                                               "share",setenv.salome_subdir,
-                                               "resources",module.lower(),
-                                               module_cata)):
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,"share",
-                                               setenv.salome_subdir,"resources",
-                                               module.lower(),module_cata)))
-                else:
-                    cata_path.extend(
-                        glob.glob(os.path.join(module_root_dir,"share",
-                                               setenv.salome_subdir,"resources",
-                                               module_cata)))
-                pass
-            pass
+            list_modules = ["KERNEL", "GUI"] + list_modules
+        else :
+            list_modules = ["KERNEL"] + list_modules
+
+        cata_path=get_cata_path(list_modules,modules_root_dir)
+
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
-            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+            #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
+            self.CMD=self.SCMD1 + ['"' + string.join(cata_path,'"::"') + '"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
 
@@ -598,7 +592,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # set PYTHONINSPECT variable (python interpreter in interactive mode)
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
-        import readline
+        try:
+            import readline
+        except ImportError:
+            pass
         
     return clt
 
@@ -679,26 +676,47 @@ def useSalome(args, modules_list, modules_root_dir):
             if args.has_key('gui') and args.has_key('session_gui'):
                 if not args['gui'] or not args['session_gui']:
                     toimport = args['pyscript']
-        i = 0
-        while i < len( toimport ) :
-            if toimport[ i ] == 'killall':
+
+        for srcname in toimport :
+            if srcname == 'killall':
                 clt.showNS()
                 killAllPorts()
                 sys.exit(0)
             else:
-                scrname = toimport[ i ]
-                if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
-                    print 'executing',scrname
-                    sys.path.insert( 0, os.path.dirname(scrname))
-                    execfile(scrname,globals())
-                    del sys.path[0]
+                if os.path.isabs(srcname):
+                    if os.path.exists(srcname):
+                        execScript(srcname)
+                    elif os.path.exists(srcname+".py"):
+                        execScript(srcname+".py")
+                    else:
+                        print "Can't execute file %s" % srcname
+                    pass
                 else:
-                    print 'importing',scrname
-                    doimport = 'import ' + scrname
-                    exec doimport
-            i = i + 1
-
+                    found = False
+                    for path in [os.getcwd()] + sys.path:
+                        if os.path.exists(os.path.join(path,srcname)):
+                            execScript(os.path.join(path,srcname))
+                            found = True
+                            break
+                        elif os.path.exists(os.path.join(path,srcname+".py")):
+                            execScript(os.path.join(path,srcname+".py"))
+                            found = True
+                            break
+                        pass
+                    if not found:
+                        print "Can't execute file %s" % srcname
+                        pass
+                    pass
+                pass
+            pass
+        pass
     return clt
+    
+def execScript(script_path):
+    print 'executing', script_path
+    sys.path.insert(0, os.path.dirname(script_path))
+    execfile(script_path,globals())
+    del sys.path[0]
 
 # -----------------------------------------------------------------------------
 

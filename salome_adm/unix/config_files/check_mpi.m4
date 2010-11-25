@@ -82,6 +82,12 @@ if test x"$MPIREQUESTED" = xyes; then
     mpi_ok=no
   fi
 
+  if test "$WITHMPI2" = "yes";then
+    mpi2_ok=yes
+  else
+    mpi2_ok=no
+  fi
+
 fi
 
 if test "$WITHMPI" = no; then
@@ -127,5 +133,8 @@ AC_SUBST(WITHMPI)
 AC_SUBST(MPI_INCLUDES)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(mpi_ok)
+AC_SUBST(mpi2_ok)
 AM_CONDITIONAL(MPI_IS_OK, [test x"$mpi_ok" = xyes])
+AM_CONDITIONAL(MPI2_IS_OK, [test x"$mpi2_ok" = xyes])
+
 ])dnl

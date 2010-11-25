@@ -122,7 +122,7 @@ std::string SALOMEDSImpl_ScalarVariable::Save() const{
       }
     case SALOMEDSImpl_GenericVariable::STRING_VAR:
       {
-        sprintf(buffer, "\"%s\"", myStrValue.c_str());
+        sprintf(buffer, "%s", myStrValue.c_str());
         break;
       }
     default:break;
@@ -187,11 +187,15 @@ void SALOMEDSImpl_ScalarVariable::Load(const std::string& theStrValue)
 {
   Kernel_Utils::Localizer loc;
 
+  std::string strCopy = theStrValue;
   if ( Type() == SALOMEDSImpl_GenericVariable::STRING_VAR ) {
-    setStringValue( theStrValue );
+#ifdef OLDSTUDY_COMPATIBILITY
+    if (strCopy.size() > 1 && strCopy[0] == '\"' && strCopy[strCopy.size()-1] == '\"')
+      strCopy = strCopy.substr(1, strCopy.size()-2);
+#endif // OLDSTUDY_COMPATIBILITY
+    setStringValue( strCopy );
   }
   else {
-    std::string strCopy = theStrValue;
 #ifdef OLDSTUDY_COMPATIBILITY
     int dotpos = strCopy.find(',');
     if (dotpos != std::string::npos)

@@ -38,7 +38,10 @@ class Server:
         self.CMD=[]
         self.ARGS=[]
         if self.args.get('xterm'):
+          if sys.platform != "win32":
             self.ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
+          else:
+            self.ARGS=['cmd', '/c', 'start  cmd.exe', '/K']
 
     def __init__(self,args):
         self.args=args
@@ -50,9 +53,10 @@ class Server:
         myargs=self.ARGS
         if self.args.get('xterm'):
             # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
-            env_ld_library_path=['env', 'LD_LIBRARY_PATH='
-                                 + os.getenv("LD_LIBRARY_PATH")]
-            myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+            if sys.platform != "win32":
+              env_ld_library_path=['env', 'LD_LIBRARY_PATH='
+                                   + os.getenv("LD_LIBRARY_PATH")]
+              myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
         #print "command = ", command
         if sys.platform == "win32":

@@ -42,35 +42,33 @@ Test with catalog :
 
   def test0(self):
     """"""
-    p=LifeCycleCORBA.MachineParameters(container_name="MyContainer",mode="start",
-                                       policy="best",componentList=["PYHELLO"])
-    co=cm.StartContainer( p )
-    print "Container:",co,co.getHostName(), co.getPID(),co._get_name()
+    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="start",resource_params=rp)
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
-    co=cm.StartContainer( p )
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
 
   def test1(self):
     """"""
-    p=LifeCycleCORBA.MachineParameters(container_name="MyContainer",mode="get",
-                                       policy="best",componentList=["PYHELLO"])
-    co=cm.StartContainer( p )
-    print "Container:",co,co.getHostName(), co.getPID(),co._get_name()
+    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="get",resource_params=rp)
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
-    co=cm.StartContainer( p )
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
 
   def test2(self):
     """"""
-    p=LifeCycleCORBA.MachineParameters(container_name="MyContainer",mode="getorstart",
-                                       policy="best",componentList=["PYHELLO"])
-    co=cm.StartContainer( p )
-    print "Container:",co,co.getHostName(), co.getPID(),co._get_name()
+    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    p=LifeCycleCORBA.ContainerParameters(container_name="MyContainer",mode="getorstart",resource_params=rp)
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/claui2c6/MyContainer")
-    co=cm.StartContainer( p )
+    co=cm.GiveContainer( p )
     self.assertEqual(co._get_name(), "/Containers/clt10br/MyContainer")
 
 
 if __name__ == '__main__':
-  unittest.main()
+  suite = unittest.TestLoader().loadTestsFromTestCase(TestContainerManager)
+  unittest.TextTestRunner().run(suite)
 

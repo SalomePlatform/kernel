@@ -330,6 +330,13 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     char *aFileName = new char[aFileNameSize];
     //Put a file name to aFileName
     memcpy(aFileName, (aBuffer + aCurrentPos), aFileNameSize); 
+#ifdef WIN32
+    for (int i = 0; i < strlen(aFileName); i++)
+    {
+      if (aFileName[i] == ':')
+	aFileName[i] = '_';
+    }
+#endif
     aCurrentPos += aFileNameSize;
  
     //Put a length of the file to aFileSize

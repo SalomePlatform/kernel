@@ -498,14 +498,10 @@ int SALOME_LifeCycleCORBA::NbProc(const Engines::ContainerParameters& params)
 {
   if( !isMpiContainer(params) )
     return 0;
-  else if( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+  else if( params.nb_proc <= 0 )
     return 1;
-  else if( params.resource_params.nb_node == 0 )
-    return params.resource_params.nb_proc_per_node;
-  else if( params.resource_params.nb_proc_per_node == 0 )
-    return params.resource_params.nb_node;
   else
-    return params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+    return params.nb_proc;
 }
 
 //=============================================================================

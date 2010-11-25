@@ -87,6 +87,7 @@ void Engines_MPIContainer_i::Shutdown()
   MESSAGE("[" << _numproc << "] shutdown of MPI Corba Server");
   if( _numproc == 0 ){
     _NS->Destroy_FullDirectory(_containerName.c_str());
+    _NS->Destroy_Name(_containerName.c_str());
     for(ip= 1;ip<_nbproc;ip++)
       (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
   }

@@ -36,7 +36,6 @@ if CORBA_GEN
   salomepython_PYTHON += \
 		Help.py \
 		PyInterp.py \
-		salome.py \
 		batchmode_salome.py \
 		salome_test.py \
 		salome_kernel.py \
@@ -49,5 +48,12 @@ if CORBA_GEN
 		salome_pynode.py \
     salome_genericobj.py
 endif
+
+# _GBO_SALOME_PYTHON_PACKAGING_
+# Note that the salome.py should not be installed any more
+# Special extention to create a python packaging
+SUBDIRS= kernel
+salomepypkg_PYTHON= \
+	__init__.py
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py

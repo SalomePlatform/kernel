@@ -146,7 +146,12 @@ def killMyPort(port):
         fpid = open(filedict, 'r')
         #
         from salome_utils import generateFileName
-        fpidomniNames = generateFileName(os.path.join('/tmp/logs', os.getenv('USER')),
+	if sys.platform == "win32":
+            username = os.getenv( "USERNAME" )
+	else:
+            username = os.getenv('USER')
+        path = os.path.join('/tmp/logs', username)
+        fpidomniNames = generateFileName(path,
                                          prefix="",
                                          suffix="Pid_omniNames",
                                          extension="log",

@@ -64,6 +64,7 @@ check_f77.m4 \
 check_calcium.m4 \
 check_hdf5.m4 \
 check_htmlgen.m4 \
+check_sphinx.m4 \
 check_lam.m4 \
 check_libbatch.m4 \
 check_mpi.m4 \
@@ -72,6 +73,7 @@ check_mpich.m4 \
 check_omniorb.m4 \
 check_sockets.m4 \
 check_swig.m4 \
+check_vtk.m4 \
 check_withihm.m4 \
 enable_pthreads.m4 \
 production.m4 \
@@ -79,7 +81,8 @@ pyembed.m4 \
 python.m4 \
 check_libxml.m4 \
 check_paco++.m4 \
-local_install.m4
+local_install.m4 \
+hack_libtool.m4
 
 dist_salome4depr_DATA=\
 $(DEPRECATED_FILES)

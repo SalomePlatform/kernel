@@ -86,6 +86,11 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
+  std::string urifile = getenv("HOME");
+  std::ostringstream mypid;
+  mypid << getpid();
+  urifile += "/.urifile_" + mypid.str();
+  setenv("OMPI_URI_FILE",urifile.c_str(),0);
   if( getenv("OMPI_URI_FILE") != NULL ){
     system("killall ompi-server");
     std::string command;
@@ -286,14 +291,10 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   std::string containerNameInNS;
   if(params.isMPI){
     int nbproc;
-    if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+    if ( params.nb_proc <= 0 )
       nbproc = 1;
-    else if ( params.resource_params.nb_node == 0 )
-      nbproc = params.resource_params.nb_proc_per_node;
-    else if ( params.resource_params.nb_proc_per_node == 0 )
-      nbproc = params.resource_params.nb_node;
     else
-      nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+      nbproc = params.nb_proc;
     if( getenv("LIBBATCH_NODEFILE") != NULL )
       machFile = machinesFile(nbproc);
     // A mpi parallel container register on zero node in NS
@@ -406,7 +407,9 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 #ifdef WNT
   std::string logFilename=getenv("TEMP");
   logFilename += "\\";
+  std::string user = getenv( "USERNAME" );
 #else
+  std::string user = getenv( "USER" );
   std::string logFilename="/tmp";
   char* val = getenv("SALOME_TMP_DIR");
   if(val)
@@ -419,7 +422,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   logFilename += "/";
 #endif
-  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" ) ;
+  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+user;
   std::ostringstream tmp;
   tmp << "_" << getpid();
   logFilename += tmp.str();
@@ -469,7 +472,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       // Setting log file name
       logFilename=":"+logFilename;
       logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
-      logFilename=getenv( "USER" )+logFilename;
+      logFilename=user+logFilename;
       ret->logfilename(logFilename.c_str());
       RmTmpFile(_TmpFileName); // command file can be removed here
     }
@@ -589,14 +592,10 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
     if (params.isMPI)
     {
-      if ((params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0))
+      if ( params.nb_proc <= 0 )
         nbproc = 1;
-      else if (params.resource_params.nb_node == 0)
-        nbproc = params.resource_params.nb_proc_per_node;
-      else if (params.resource_params.nb_proc_per_node == 0)
-        nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+        nbproc = params.nb_proc;
     }
 
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
@@ -696,14 +695,10 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
     {
       o << "mpirun -np ";
 
-      if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+      if ( params.nb_proc <= 0 )
         nbproc = 1;
-      else if ( params.resource_params.nb_node == 0 )
-        nbproc = params.resource_params.nb_proc_per_node;
-      else if ( params.resource_params.nb_proc_per_node == 0 )
-        nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+        nbproc = params.nb_proc;
 
       o << nbproc << " ";
 
@@ -910,14 +905,10 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       tempOutputFile << "mpirun -np ";
       int nbproc;
 
-      if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
+      if ( params.nb_proc <= 0 )
         nbproc = 1;
-      else if ( params.resource_params.nb_node == 0 )
-        nbproc = params.resource_params.nb_proc_per_node;
-      else if ( params.resource_params.nb_proc_per_node == 0 )
-        nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
+        nbproc = params.nb_proc;
 
       std::ostringstream o;
 
@@ -1063,7 +1054,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
   status = system(command.c_str());
   if( status == 0 ){
     std::ifstream fp(tmpFile.c_str(),std::ios::in);
-    fp >> zeronode;
+    while(fp >> zeronode);
   }
 
   RmTmpFile(tmpFile);

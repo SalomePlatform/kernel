@@ -137,6 +137,8 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const std::string& aUrl)
   if (HDFascii::isASCII(aUrl.c_str())) {
     isASCII = true;
     char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl.c_str());
+    if ( !aResultPath )
+      return NULL;
     aC_HDFUrl = new char[strlen(aResultPath) + 19];
     sprintf(aC_HDFUrl, "%shdf_from_ascii.hdf", aResultPath);
     delete [] (aResultPath);
@@ -152,15 +154,15 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const std::string& aUrl)
     hdf_file->OpenOnDisk(HDF_RDONLY);// mpv: was RDWR, but opened file can be write-protected too
   }
   catch (HDFexception)
-    {
-        char *eStr;
-        eStr = new char[strlen(aUrl.c_str())+17];
-        sprintf(eStr,"Can't open file %s",aUrl.c_str());
-         delete [] eStr;
-        _errorCode = std::string(eStr);
-        return NULL;
-    }
-
+  {
+    char *eStr;
+    eStr = new char[strlen(aUrl.c_str())+17];
+    sprintf(eStr,"Can't open file %s",aUrl.c_str());
+    delete [] eStr;
+    _errorCode = std::string(eStr);
+    return NULL;
+  }
+  
   // Temporary aStudyUrl in place of study name
   DF_Document* Doc = _appli->NewDocument("SALOME_STUDY");
 
@@ -186,13 +188,13 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const std::string& aUrl)
     BuildTree (Study, hdf_group_study_structure);
   }
   catch (HDFexception)
-    {
-      char *eStr = new char [strlen(aUrl.c_str())+17];
-      sprintf(eStr,"Can't open file %s", aUrl.c_str());
-      _errorCode = std::string(eStr);
-      return NULL;
-    }
-
+  {
+    char *eStr = new char [strlen(aUrl.c_str())+17];
+    sprintf(eStr,"Can't open file %s", aUrl.c_str());
+    _errorCode = std::string(eStr);
+    return NULL;
+  }
+  
   //Read and create notebook variables 
   if(hdf_file->ExistInternalObject("NOTEBOOK_VARIABLES")) {
     hdf_notebook_vars  = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
@@ -770,7 +772,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   system(aCmd.c_str());
 
   //       Iterate and move files in the temporary directory
-  FILE* fp = fopen(aTmpFile.c_str(), "r");
+  FILE* fp = fopen(aTmpFile.c_str(), "rb");
   if(!fp) return false;
   char* buffer = new char[2047];
   while(!feof(fp)) {

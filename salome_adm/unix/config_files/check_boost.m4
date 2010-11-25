@@ -29,8 +29,11 @@ AC_REQUIRE([ENABLE_PTHREADS])dnl
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
+gccver=`$CC -dumpversion | sed 's/^\([[0-9]]\+\)\.\([[0-9]]\+\).*/\1\2/g'`
+SUFFIXES="empty -mt -gcc -gcc-mt -gcc${gccver} -gcc${gccver}-mt"
+
 BOOST_CPPFLAGS=""
-BOOST_LIBSUFFIX="-mt"
+BOOST_LIBSUFFIX=""
 BOOST_LIBS=""
 
 AC_CHECKING(for BOOST location)
@@ -49,9 +52,11 @@ AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
 CPPFLAGS_old="${CPPFLAGS}"
 LIBS_old=$LIBS
 
+LIB_SUFFIX="${LIB_LOCATION_SUFFIX}"
+
 if test "x${BOOSTDIR}" != "x" ; then
   BOOST_CPPFLAGS="-I${BOOSTDIR}/include"
-  BOOST_LIBS="-L${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}"
+  BOOST_LIBS="-L${BOOSTDIR}/lib${LIB_SUFFIX}"
 fi
 
 if test "x${BOOSTDIR}" = "x/usr" ; then
@@ -101,15 +106,18 @@ if test "x${boost_headers_ok}" = "xyes" ; then
   AC_CHECKING(for BOOST binaries)
   boost_lib_dir_ok=yes
   if test "x${BOOSTDIR}" != "x" ; then
-    AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
-                  boost_lib_dir_ok=yes,
-                  boost_lib_dir_ok=no)
-    if test "x${boost_lib_dir_ok}" = "xno" ; then
-      BOOST_LIBSUFFIX=""
-      AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
-                    boost_lib_dir_ok=yes,
-                    boost_lib_dir_ok=no)
-    fi
+    for BOOST_LIBSUFFIX in ${SUFFIXES} ; do
+      test "${BOOST_LIBSUFFIX}" == "empty" && BOOST_LIBSUFFIX=""
+      AC_CHECK_FILE([${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so],
+                    [boost_lib_dir_ok=yes],
+                    [AC_CHECK_FILE([${BOOSTDIR}/lib64/libboost_thread${BOOST_LIBSUFFIX}.so],
+		                   [boost_lib_dir_ok=yes; LIB_SUFFIX=64],
+		                   [boost_lib_dir_ok=no])
+                    ])
+      if test "x${boost_lib_dir_ok}" = "xyes" ; then
+        break
+      fi
+    done
   fi
   if test "x${boost_lib_dir_ok}" = "xyes" ; then
     LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}"
@@ -117,13 +125,8 @@ if test "x${boost_headers_ok}" = "xyes" ; then
                 [struct TBody{ void operator()(){} }; boost::thread(TBody())],
                 boost_binaries_ok=yes,
                 boost_binaries_ok=no)
-    if test "x${boost_binaries_ok}" = "xno" ; then
-      BOOST_LIBSUFFIX=""
-      LIBS="${LIBS_old} ${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}"
-      AC_TRY_LINK([#include <boost/thread/thread.hpp>],
-                  [struct TBody{ void operator()(){} }; boost::thread(TBody())],
-                  boost_binaries_ok=yes,
-                  boost_binaries_ok=no)
+    if test "x${boost_binaries_ok}" = "xyes" ; then
+      break
     fi
   fi
 fi
@@ -134,16 +137,16 @@ if test "x${boost_binaries_ok}" = "xno" ; then
 else
   AC_MSG_RESULT(\$BOOST_LIBSUFFIX = ${BOOST_LIBSUFFIX})
   AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
-  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_thread${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_THREAD="${BOOST_LIBS} -lboost_thread${BOOST_LIBSUFFIX}",
                 BOOST_LIB_THREAD="")
-  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_signals${BOOST_LIBSUFFIX}.so,
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_signals${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_SIGNALS="${BOOST_LIBS} -lboost_signals${BOOST_LIBSUFFIX}",
                 BOOST_LIB_SIGNALS="")
-  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_system${BOOST_LIBSUFFIX}.so,
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_system${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_SYSTEM="${BOOST_LIBS} -lboost_system${BOOST_LIBSUFFIX}",
                 BOOST_LIB_SYSTEM="")
-  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_LOCATION_SUFFIX}/libboost_regex${BOOST_LIBSUFFIX}.so,
+  AC_CHECK_FILE(${BOOSTDIR}/lib${LIB_SUFFIX}/libboost_regex${BOOST_LIBSUFFIX}.so,
                 BOOST_LIB_REGEX="${BOOST_LIBS} -lboost_regex${BOOST_LIBSUFFIX}",
                 BOOST_LIB_REGEX="")
 fi
