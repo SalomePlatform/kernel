@@ -23,7 +23,7 @@
 
 #clean appli
 
-DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml *.pyc *~ .bashrc"
+DELCOM="rm -rf bin lib share doc idl env.d envd USERS getAppliPath.py searchFreePort.sh runAppli runConsole runSession runRemote.sh runTests SalomeApp.xml runSalomeScript update_catalogs.py *.pyc *~ .bashrc"
 DOIT="false"
 
 if [ $# -gt 0 ]
