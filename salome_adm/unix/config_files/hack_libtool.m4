@@ -28,14 +28,21 @@ dnl to the native libraries (installed in /usr/lib[64]) instead of those supplie
 dnl with specific -Ldir options.
 
 AC_DEFUN([AC_HACK_LIBTOOL],[
-sed -i "s%^CC=\"\(.*\)\"%hack_libtool (){ \n\
-  if test \"\$(echo \$[@] | grep -E '\\\-L/usr/lib(/../lib)?(64)? ')\" == \"\" \n\
-  then\n\
-    cmd=\"\1 \$[@]\"\n\
-  else\n\
-    cmd=\"\1 \"\`echo \$[@] | sed -r -e 's|(.*)-L/usr/lib(/../lib)?(64)? (.*)|\\\1\\\4 -L/usr/lib\\\3|g'\`\n\
-  fi\n\
-  \$cmd\n\
-}\n\
-CC=\"hack_libtool\"%g" libtool
+cat > hack_libtool <<EOF
+#! /bin/sh
+
+cmd=""
+cmd_end=""
+
+for param in "\$[@]"
+do
+    case \${param} in
+	-L* ) where=\$(echo \${param} | cut -b3-) ; if test "\${where}" != "" ; then where=\$(cd \${where}; pwd) ; if test "\${where}" = "/usr/lib" || test "\${where}" = "/usr/lib64" ; then cmd_end="\${cmd_end} \${param}" ; else cmd="\${cmd} \${param}" ; fi ; fi ;;
+	*   ) cmd="\${cmd} \${param}" ;;
+    esac
+done
+cmd="\${cmd} \${cmd_end}"
+\$cmd
+EOF
+chmod a+x hack_libtool
 ])
