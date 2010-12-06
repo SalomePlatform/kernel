@@ -37,7 +37,7 @@ cmd_end=""
 for param in "\$[@]"
 do
     case \${param} in
-	-L* ) where=\$(echo \${param} | cut -b3-) ; if test "\${where}" != "" ; then where=\$(cd \${where}; pwd) ; if test "\${where}" = "/usr/lib" || test "\${where}" = "/usr/lib64" ; then cmd_end="\${cmd_end} \${param}" ; else cmd="\${cmd} \${param}" ; fi ; fi ;;
+	-L* ) where=\$(echo \${param} | cut -b3-) ; if test "\${where}" != "" && test -d \${where} ; then where=\$(cd \${where}; pwd) ; if test "\${where}" = "/usr/lib" || test "\${where}" = "/usr/lib64" ; then cmd_end="\${cmd_end} \${param}" ; else cmd="\${cmd} \${param}" ; fi ; fi ;;
 	*   ) cmd="\${cmd} \${param}" ;;
     esac
 done
