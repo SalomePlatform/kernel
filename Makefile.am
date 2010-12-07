@@ -41,7 +41,7 @@ endif
 
 DIST_SUBDIRS= salome_adm idl src doc bin resources
 
-DISTCLEANFILES = a.out local-install.sh
+DISTCLEANFILES = a.out local-install.sh hack_libtool
 
 salomeinclude_DATA = KERNEL_version.h
 
