@@ -539,6 +539,7 @@ AC_OUTPUT([ \
   bin/Makefile \
   bin/VERSION \
   doc/Makefile \
+  doc/docutils/conf.py \
   doc/salome/Makefile \
   doc/salome/tui/Makefile \
   doc/salome/tui/doxyfile \
