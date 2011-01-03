@@ -344,8 +344,9 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectIOR(const std::string& anObje
   SALOMEDSImpl_SObject aResult ;
 
   // searching in the datamap for optimization
-  if (myIORLabels.find(anObjectIOR) != myIORLabels.end()) {
-    aResult = GetSObject(myIORLabels[anObjectIOR]);
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anObjectIOR);
+  if (it != myIORLabels.end()) {
+    aResult = GetSObject(it->second);
     // 11 oct 2002: forbidden attributes must be checked here
     if (!aResult.GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
       myIORLabels.erase(anObjectIOR);
@@ -966,16 +967,18 @@ void SALOMEDSImpl_Study::UpdateIORLabelMap(const std::string& anIOR,const std::s
 {
   _errorCode = "";
   DF_Label aLabel = DF_Label::Label(_doc->Main(), anEntry, true);
-  if (myIORLabels.find(anIOR) != myIORLabels.end()) myIORLabels.erase(anIOR);
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anIOR);
+  if (it != myIORLabels.end()) myIORLabels.erase(it);
   myIORLabels[anIOR] = aLabel;
 }
 
 void SALOMEDSImpl_Study::DeleteIORLabelMapItem(const std::string& anIOR)
 {
-  if (myIORLabels.find(anIOR) != myIORLabels.end())
+  std::map<std::string, DF_Label>::iterator it=myIORLabels.find(anIOR);
+  if (it != myIORLabels.end())
     {
       //remove the ior entry and decref the genericobj (if it's one)
-      myIORLabels.erase(anIOR);
+      myIORLabels.erase(it);
     }
 }
 
@@ -1131,8 +1134,9 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_Study::GetSComponent(const DF_Label& theLab
 SALOMEDSImpl_SObject SALOMEDSImpl_Study::GetSObject(const std::string& theEntry)
 {
   SALOMEDSImpl_SObject aSO;
-  if(_mapOfSO.find(theEntry) != _mapOfSO.end())
-    aSO = _mapOfSO[theEntry];
+  std::map<std::string, SALOMEDSImpl_SObject>::iterator it=_mapOfSO.find(theEntry);
+  if(it != _mapOfSO.end())
+    aSO = it->second;
   else {
     DF_Label aLabel = DF_Label::Label(_doc->Main(), theEntry);
     aSO = SALOMEDSImpl_SObject(aLabel);

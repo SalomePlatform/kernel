@@ -44,7 +44,7 @@ DF_Label DF_Label::Label(const DF_Label& theLabel, const std::string& theEntry, 
 
   char* cc = (char*)theEntry.c_str();
   int n = 0;
-  std::vector<int> tags;
+  int i=0;
 
   while (*cc != '\0') {
     while ( *cc >= '0' && *cc <= '9') {
@@ -52,20 +52,19 @@ DF_Label DF_Label::Label(const DF_Label& theLabel, const std::string& theEntry, 
       ++cc;
     }
     if (*cc == ':' || *cc == '\0') {
-      tags.push_back(n);
+      if(i>0)
+        {
+          if(aLabel.IsNull())break;
+          aLabel = aLabel.FindChild(n, isCreated);
+        }
+      i++;
       n = 0;
       if (*cc != '\0') ++cc;
     }
     else {
-      tags.clear();
-      break;
+      return DF_Label();
     }
   }
-
-  if(!tags.size()) return DF_Label();
-  
-  for(int i = 1, len = tags.size(); !aLabel.IsNull() && i<len; i++)
-    aLabel = aLabel.FindChild(tags[i], isCreated);
 
   return aLabel;
 }
@@ -141,8 +140,10 @@ DF_Attribute* DF_Label::FindAttribute(const std::string& theID) const
 {
   if(!_node) return NULL;
 
-  if(_node->_attributes.find(theID) == _node->_attributes.end()) return NULL;
-  return _node->_attributes[theID];
+  std::map< std::string, DF_Attribute* >::iterator it=_node->_attributes.find(theID);
+  if(it == _node->_attributes.end()) return NULL;
+  return it->second;
+
 }
 
 //Returns true if there is an Attribute with given ID on this Label.
@@ -376,29 +377,31 @@ DF_Label DF_Label::NewChild()
 //Returns a string entry of this Label
 std::string DF_Label::Entry() const
 {
-  std::string entry = "";
-  std::vector<int> vi;
   DF_LabelNode* father = this->_node;
-  while(father) {
-    vi.push_back(father->_tag);
-    father = father->_father;
-  }
+  if(!father->_father)return "0:";
+  int tag;
+  char buff[128];
+  char* wstr= buff;
+  char* str = buff;
 
-  int len = vi.size();
-  if(len == 1) {
-    entry = "0:";
-  }
-  else {
-    char buffer[128];
-    for(int i = len-1; i>=0; i--) {
-      int tag = vi[i];
-      sprintf(buffer, "%d", tag);
-      entry+=std::string(buffer);
-      if(i) entry += ":";
+  while(father)
+    {
+      tag=father->_tag;
+      do{
+         // Conversion. Number is reversed.
+         *wstr++ = '0' + (tag % 10);
+      }while(tag /= 10);
+      father = father->_father;
+      if(father)*wstr++ = ':';
     }
-  }
+  *wstr-- = '\0';
 
-  return entry;
+  //reverse the buffer
+  char aux;
+  while (wstr > str)
+    aux = *wstr, *wstr-- = *str, *str++ = aux;
+
+  return buff;
 }
 
 bool DF_Label::IsEqual(const DF_Label& theLabel)

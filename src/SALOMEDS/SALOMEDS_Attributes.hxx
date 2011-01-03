@@ -92,7 +92,7 @@
 #include "SALOMEDS_AttributeParameter_i.hxx"
 #include "SALOMEDS_AttributeString_i.hxx"
 
-#define __CreateCORBAAttribute(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+#define __CreateCORBAAttribute(CORBA_Name) else if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
     SALOMEDSImpl_##CORBA_Name* A = dynamic_cast<SALOMEDSImpl_##CORBA_Name*>(theAttr); \
     SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(A, theOrb); \
     attr_servant = Attr; \
@@ -101,6 +101,7 @@
 
 
 #define __CreateGenericCORBAAttribute \
+  if(0){} \
 __CreateCORBAAttribute(AttributeReal) \
 __CreateCORBAAttribute(AttributeInteger) \
 __CreateCORBAAttribute(AttributeSequenceOfReal) \
