@@ -70,6 +70,7 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
+  SALOMEDSImpl_AbstractCallback*   _notifier;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -312,6 +313,13 @@ public:
 
   //Returns a list of IOR's stored in the study
   std::vector<std::string> GetIORs();
+
+  // Notification mechanism
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
+
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;

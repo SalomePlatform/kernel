@@ -54,4 +54,11 @@ public:
 
 };
 
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_AbstractCallback
+{
+public:
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject){return false;};
+};
 #endif

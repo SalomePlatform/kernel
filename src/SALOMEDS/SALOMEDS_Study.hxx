@@ -122,6 +122,7 @@ public:
   virtual bool RenameVariable(const std::string& theVarName, const std::string& theNewVarName);
   virtual bool IsVariableUsed(const std::string& theVarName);
   virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars);
+  virtual void attach(SALOMEDS::Observer_ptr theObserver,bool modify);
 
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     

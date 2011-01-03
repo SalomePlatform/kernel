@@ -999,3 +999,9 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& 
   }
   return _PTR(AttributeParameter)(AP);
 }
+
+void SALOMEDS_Study::attach(SALOMEDS::Observer_ptr theObserver,bool modify)
+{
+  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  _corba_impl->attach(theObserver,modify);
+}

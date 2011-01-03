@@ -46,6 +46,8 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
+class Notifier;
+
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
@@ -53,6 +55,7 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
+  Notifier*                      _notifier;
 
 public:
 
@@ -344,5 +347,8 @@ public:
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
+
 };
 #endif

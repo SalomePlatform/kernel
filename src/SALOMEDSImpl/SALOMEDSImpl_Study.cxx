@@ -69,6 +69,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
   _useCaseBuilder = new SALOMEDSImpl_UseCaseBuilder(_doc);
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
+  _notifier=0;
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by DF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
@@ -1982,4 +1983,53 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
     anIORs.push_back(MI->first);
 
   return anIORs;
+}
+
+//============================================================================
+/*! Function : addSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been added
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  if(_notifier)
+    return _notifier->addSO_Notification(theSObject);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : removeSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been removed
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  if(_notifier)
+    return _notifier->removeSO_Notification(theSObject);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : modifySO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been modified
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) 
+{
+  if(_notifier)
+    return _notifier->modifySO_Notification(theSObject);
+  else
+    return false;
+}
+
+//============================================================================
+/*! Function : setNotifier
+ *  Purpose  : register a notifier
+ */
+//============================================================================
+void SALOMEDSImpl_Study::setNotifier(SALOMEDSImpl_AbstractCallback* notifier) 
+{
+  _notifier=notifier;
 }

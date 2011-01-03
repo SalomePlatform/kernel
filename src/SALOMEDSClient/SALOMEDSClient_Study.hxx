@@ -39,6 +39,9 @@
 #include "SALOMEDSClient_UseCaseBuilder.hxx"
 #include "SALOMEDSClient_AttributeStudyProperties.hxx"
 #include "SALOMEDSClient_ChildIterator.hxx"
+#include "SALOMEDSClient_Observer.hxx"
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOMEDS)
 
 class SALOMEDSClient_Study
 {
@@ -120,7 +123,9 @@ public:
   virtual bool IsVariableUsed(const std::string& theVarName) = 0;
 
   virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars) = 0;
-  
+
+  virtual void attach(SALOMEDS::Observer_ptr theObserver,bool modify) = 0;
+
 };
 
 

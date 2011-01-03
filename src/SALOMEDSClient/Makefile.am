@@ -72,6 +72,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_UseCaseIterator.hxx \
 		SALOMEDSClient_ClientFactory.hxx \
 		SALOMEDSClient_IParameters.hxx \
+		SALOMEDSClient_Observer.hxx \
 		SALOMEDSClient.hxx
 
 #

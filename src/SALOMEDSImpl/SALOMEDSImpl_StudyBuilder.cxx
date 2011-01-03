@@ -91,6 +91,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::strin
   SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);
 
@@ -148,6 +149,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SOb
   
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -172,6 +174,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImp
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -210,6 +213,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
   Lab.ForgetAllAttributes();
  
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
     
   return true;
 }
@@ -260,6 +264,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   Lab.ForgetAllAttributes(true);
 
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
   
   return true;
 }
@@ -548,6 +553,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
     
   _doc->SetModified(true);  
+  _study->modifySO_Notification(anObject);
     
   return true;
 }

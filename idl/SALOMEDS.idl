@@ -94,6 +94,12 @@ during each working session.
   interface UseCaseIterator;
   interface UseCaseBuilder;
 
+  interface Observer
+  {
+    void notifyObserverID(in string theID, in long event);
+  };
+
+
 //! List of attributes of %SObjects
   typedef sequence<GenericAttribute> ListOfAttributes;
 
@@ -539,7 +545,13 @@ during each working session.
    \return Variables list.
 */
     ListOfListOfStrings ParseVariables( in string theVars );
-    
+
+/*!
+     Attach an observer to the Study
+
+    \param theObserver
+*/
+     void attach(in SALOMEDS::Observer theObserver, in boolean modify);   
   };
 
   //==========================================================================

@@ -85,6 +85,7 @@ void SALOMEDSImpl_GenericAttribute::SetModifyFlag()
    if(aLabel.IsNull()) return; 
 
   SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  if(aStudy) aStudy->modifySO_Notification(GetSObject());
   if(aStudy) aStudy->Modify();
 }
 
