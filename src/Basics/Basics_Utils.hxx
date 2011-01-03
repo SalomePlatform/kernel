@@ -28,6 +28,8 @@
 #include "SALOME_Basics.hxx"
 
 #include <string>
+#include <iostream>
+#include <sys/time.h>
 
 namespace Kernel_Utils
 {
@@ -51,5 +53,15 @@ namespace Kernel_Utils
   //! Get predefined GUID
   BASICS_EXPORT std::string GetGUID( GUIDtype );
 }
+
+#define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; timeval name##tv; gettimeofday(&name##tv,0); \
+                           name##tt0=name##tv.tv_usec+name##tv.tv_sec*1000000; \
+                           if(name##tcount==0)std::cerr<<__FILE__<<":"<<__LINE__<<":"<<#name<<std::endl;
+
+#define END_TIMING(name,NUMBER) name##tcount=name##tcount+1;gettimeofday(&name##tv,0); \
+                                name##cumul=name##cumul+name##tv.tv_usec+name##tv.tv_sec*1000000 -name##tt0; \
+                                if(name##tcount==NUMBER){ \
+                                  std::cerr <<__FILE__<<":"<<__LINE__<<":"<<#name<<" temps CPU(mus): "<< name##cumul<<std::endl; \
+                                  name##tcount=0;name##cumul=0;}
 
 #endif //_Basics_UTILS_HXX_

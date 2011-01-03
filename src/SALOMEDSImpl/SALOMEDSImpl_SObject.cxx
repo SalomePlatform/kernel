@@ -292,3 +292,10 @@ bool SALOMEDSImpl_SObject::IsComponent() const
     return SALOMEDSImpl_SComponent::IsA(_lab);
 }
 
+void SALOMEDSImpl_SObject::SetAttrString(const std::string& name, const std::string& value)
+{
+  if(name=="AttributeName")SALOMEDSImpl_AttributeName::Set(GetLabel(), value);
+  else if(name=="AttributeIOR")SALOMEDSImpl_AttributeIOR::Set(GetLabel(), value);
+  else if(name=="AttributeString")SALOMEDSImpl_AttributeString::Set(GetLabel(), value);
+  else if(name=="AttributePixMap")SALOMEDSImpl_AttributePixMap::Set(GetLabel(), value);
+}

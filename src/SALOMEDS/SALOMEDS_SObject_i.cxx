@@ -318,6 +318,17 @@ char* SALOMEDS_SObject_i::GetIOR()
   return aStr._retn();
 }
 
+//============================================================================
+/*! Function : SetAttrString
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDS_SObject_i::SetAttrString(const char* name, const char* value)
+{
+  SALOMEDS::Locker lock;
+  _impl->SetAttrString(name,value);
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================

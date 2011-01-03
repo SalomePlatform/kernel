@@ -1092,6 +1092,13 @@ Gets the list of open studies
     string GetIOR();
 
 /*!
+    Set an attribute value (of type string)
+   \param name the name of the attribute
+   \param value the value of the attribute
+*/
+    void SetAttrString(in string name, in string value);
+
+/*!
     Private method, returns an implementation of this SObject.
    \param theHostname is a hostname of the caller
    \param thePID is a process ID of the caller

@@ -71,6 +71,7 @@ public:
   virtual char* GetName();
   virtual char* GetComment();
   virtual char* GetIOR();
+  virtual void SetAttrString(const char*, const char*);
 
   virtual CORBA::Short Tag();
   virtual CORBA::Short Depth();

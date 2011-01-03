@@ -342,3 +342,16 @@ void SALOMEDS_SObject::init_orb()
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   _orb = init(0 , 0 ) ;     
 }
+
+void SALOMEDS_SObject::SetAttrString(const std::string& name, const std::string& value)
+{
+  if(_isLocal)
+    {
+      SALOMEDS::Locker lock;
+      _local_impl->SetAttrString(name,value);
+    }
+  else
+    {
+      _corba_impl->SetAttrString(name.c_str(),value.c_str());
+    }
+}

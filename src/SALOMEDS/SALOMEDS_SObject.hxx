@@ -66,6 +66,7 @@ public:
   virtual std::string GetName();
   virtual std::string GetComment();
   virtual std::string GetIOR();
+  virtual void SetAttrString(const std::string& name, const std::string& value);
   virtual int   Tag();
   virtual int   Depth();
 

@@ -41,6 +41,7 @@ static CORBA::ORB_var getORB()
 
 void IORGenericObjDecref(const std::string& anIOR)
 {
+  if(anIOR=="")return;
   CORBA::Object_var obj;
   SALOME::GenericObj_var gobj;
   try
