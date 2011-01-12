@@ -23,10 +23,12 @@
 //
 #include "Basics_Utils.hxx"
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef WIN32
 #include <unistd.h>
 #include <sys/stat.h>
+#include <execinfo.h>
 #else
 #include <winsock2.h>
 #endif
@@ -102,5 +104,25 @@ namespace Kernel_Utils
 
     return guid;
   }
+
+#ifndef WIN32
+  void print_traceback()
+  {
+    void *array[50];
+    size_t size;
+    char **strings;
+    size_t i;
+
+    size = backtrace (array, 40);
+    strings = backtrace_symbols (array, size);
+
+    for (i = 0; i < size; i++)
+      {
+        std::cerr << strings[i] << std::endl;
+      }
+
+    free (strings);
+  }
+#endif
 
 }

@@ -52,6 +52,9 @@ namespace Kernel_Utils
 
   //! Get predefined GUID
   BASICS_EXPORT std::string GetGUID( GUIDtype );
+#ifndef WIN32
+  BASICS_EXPORT void print_traceback();
+#endif
 }
 
 #define START_TIMING(name) static long name##tcount=0;static long name##cumul;long name##tt0; timeval name##tv; gettimeofday(&name##tv,0); \

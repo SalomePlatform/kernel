@@ -65,8 +65,13 @@ Id          : $Id$
                                                          size_t * nRead, _type _qual ** data )                   \
   {                                                                                                              \
     Superv_Component_i * _component = static_cast<Superv_Component_i *>(component);                              \
-    double         _ti=*ti;                                                                                      \
-    double         _tf=*tf;                                                                                      \
+    double         _ti=0.;                                                                                       \
+    double         _tf=0.;                                                                                       \
+    if(dependencyType == CalciumTypes::CP_TEMPS)                                                                               \
+      {                                                                                                          \
+        _ti=*ti;                                                                                                 \
+        _tf=*tf;                                                                                                 \
+      }                                                                                                          \
     size_t         _nRead=0;                                                                                     \
     size_t         _bufferLength=bufferLength;                                                                   \
                                                                                                                  \
@@ -118,7 +123,9 @@ Id          : $Id$
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 0 ------------------" )                \
     Superv_Component_i * _component = static_cast<Superv_Component_i *>(component);                       \
     /* Je ne sais pas pourquoi, je n'arrive pas à passer t par valeur : corruption de la pile*/           \
-    double         _t=*t;                                                                                 \
+    double         _t=0.;                                                                                 \
+    if(dependencyType == CalciumTypes::CP_TEMPS)                                                                        \
+      _t=*t;                                                                                              \
     size_t         _bufferLength=bufferLength;                                                            \
     if ( IsSameType< _porttype , cplx >::value ) _bufferLength=_bufferLength*2;                           \
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part) MARK 1 ------------------" )                \

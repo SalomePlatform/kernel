@@ -106,7 +106,7 @@ void AttachDebugger()
 
 void Handler(int theSigId)
 {
-  std::cerr << "SIGSEGV: "  << std::endl;
+  std::cerr << "Signal= "<< theSigId  << std::endl;
   AttachDebugger();
   //to exit or not to exit
   _exit(1);
@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
   if(getenv ("DEBUGGER"))
     {
       setsig(SIGSEGV,&Handler);
+      setsig(SIGFPE,&Handler);
       std::set_terminate(&terminateHandler);
       std::set_unexpected(&unexpectedHandler);
     }
