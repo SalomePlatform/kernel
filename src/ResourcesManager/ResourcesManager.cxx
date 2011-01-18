@@ -155,16 +155,30 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
   ParseXmlFiles();
 
   // Steps:
-  // 1: Restrict list with resourceList if defined
-  // 2: If name is defined -> check resource list
+  // 1: If name is defined -> check resource list
+  // 2: Restrict list with resourceList if defined
   // 3: If not 2:, if hostname is defined -> check resource list
   // 4: If not 3:, sort resource with nb_proc, etc...
   // 5: In all cases remove resource that does not correspond with OS
   // 6: And remove resource with componentList - if list is empty ignored it...
-  
- 
-  MapOfParserResourcesType local_resourcesList = _resourcesList;
+
   // Step 1
+  if (params.name != "")
+  {
+    RES_MESSAGE("[GetFittingResources] name parameter found !");
+    if (_resourcesList.find(params.name) != _resourcesList.end())
+    {
+      vec.push_back(params.name);
+      return vec;
+    }
+    else
+      RES_MESSAGE("[GetFittingResources] resource name was not found on resource list ! name requested was " << params.name);
+      std::string error("[GetFittingResources] resource name was not found on resource list ! name requested was " + params.name);
+      throw ResourcesException(error);
+  }
+
+  MapOfParserResourcesType local_resourcesList = _resourcesList;
+  // Step 2
   if (params.resourceList.size() > 0)
   {
     RES_MESSAGE("[GetFittingResources] Restricted resource list found !");
@@ -178,20 +192,8 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
     }
   }
 
-  // Step 2
-  if (params.name != "")
-  {
-    RES_MESSAGE("[GetFittingResources] name parameter found !");
-    if (_resourcesList.find(params.name) != _resourcesList.end())
-    {
-      vec.push_back(params.name);
-    }
-    else
-      RES_MESSAGE("[GetFittingResources] name was not found on resource list ! name was " << params.name);
-  }
-
   // Step 3
-  else if (params.hostname != "")
+  if (params.hostname != "")
   {
     RES_MESSAGE("[GetFittingResources] Entering in hostname case !");
 
@@ -206,7 +208,6 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
         vec.push_back((*iter).first);
     }
   }
-
   // Step 4
   else
   {
