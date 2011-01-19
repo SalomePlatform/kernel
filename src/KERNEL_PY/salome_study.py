@@ -250,7 +250,7 @@ salome_study_ID = -1
 
 def getActiveStudy(theStudyId=0):
     global salome_study_ID
-    
+
     if verbose(): print "getActiveStudy"
     if salome_study_ID == -1:
         if salome_iapp.hasDesktop():
@@ -267,7 +267,42 @@ def getActiveStudy(theStudyId=0):
                 salome_study_ID = createNewStudy()
             if verbose(): print"--- Study Id ", salome_study_ID
     return salome_study_ID
-    
+
+    #--------------------------------------------------------------------------
+
+def setCurrentStudy(theStudy):
+    """
+    Change current study : an existing one given by a study object.
+
+    :param theStudy: the study CORBA object to set as current study
+    """
+    global myStudyId, myStudy, myStudyName
+    global salome_study_ID
+    myStudy=theStudy
+    myStudyId=theStudy._get_StudyId()
+    myStudyName=theStudy._get_Name()
+    return myStudyId, myStudy, myStudyName
+
+    #--------------------------------------------------------------------------
+
+def setCurrentStudyId(theStudyId=0):
+    """
+    Change current study : an existing or new one.
+    optional argument : theStudyId
+        0      : create a new study (default).
+        n (>0) : try connection to study with Id = n, or create a new one
+                 if study not found.
+    """
+    global myStudyId, myStudy, myStudyName
+    global salome_study_ID
+    salome_study_ID = -1
+    myStudyId = getActiveStudy(theStudyId)
+    if verbose(): print "myStudyId",myStudyId
+    myStudy = myStudyManager.GetStudyByID(myStudyId)
+    myStudyName = myStudy._get_Name()
+
+    return myStudyId, myStudy, myStudyName
+
     #--------------------------------------------------------------------------
 
 def createNewStudy():
@@ -303,16 +338,16 @@ def salome_study_init(theStudyId=0):
         n (>0) : try connection to study with Id = n, or create a new one
                  if study not found.
     """
-    
+
     global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
-    
+
     if salome_study_initial:
         salome_study_initial = 0
-        
+
         orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
-        
+
         # get Study Manager reference
         if verbose(): print "looking for studyManager ..."
         obj = naming_service.Resolve('myStudyManager')

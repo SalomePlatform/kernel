@@ -124,6 +124,7 @@ extend_path(ROOT_PYTHONPACKAGE_NAME)
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
+import salome_study
 
 #
 # The next block is workaround for the problem of shared symbols loading for the extension modules (e.g. SWIG-generated)
@@ -163,6 +164,27 @@ if flags:
 
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
+
+def setCurrentStudy(theStudy):
+    """
+    Change current study : an existing one given by a study object.
+
+    :param theStudy: the study CORBA object to set as current study
+    """
+    global myStudyId, myStudy, myStudyName
+    myStudyId, myStudy, myStudyName =salome_study.setCurrentStudy(theStudy)
+
+def setCurrentStudyId(theStudyId=0):
+    """
+    Change current study : an existing or new one given by Id.
+
+    :param theStudyId: the study Id (optional argument)
+           0      : create a new study (default).
+           n (>0) : try connection to study with Id = n, or create a new one
+                      if study not found.
+    """
+    global myStudyId, myStudy, myStudyName
+    myStudyId, myStudy, myStudyName =salome_study.setCurrentStudyId(theStudyId)
 
 salome_initial=1
 def salome_init(theStudyId=0,embedded=0):
