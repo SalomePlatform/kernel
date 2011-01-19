@@ -367,23 +367,18 @@ def makeTmpDir( path, mode=0777 ):
             os.system( "mkdir " + '"' + path + '"' )
         else:
             os.system( "rm -rf " + path + "/*" )
-            pass
-        pass
     else:
-	dirs = path.split("/")
-	shift1 = shift2 = 0
-	if not dirs[0]: shift1 = 1
-	if dirs[-1]: shift2 = 1
-	for i in range(1+shift1,len(dirs)+shift2):
-    	    p = "/".join(dirs[:i])
-	    try:
-		os.mkdir(p, mode)
-		os.chmod(p, mode)
-    	    except:
-		pass
-	    pass
-	pass
-    pass
+        dirs = path.split("/")
+        shift1 = shift2 = 0
+        if not dirs[0]: shift1 = 1
+        if dirs[-1]: shift2 = 1
+        for i in range(1+shift1,len(dirs)+shift2):
+            p = "/".join(dirs[:i])
+            try:
+                os.mkdir(p, mode)
+                os.chmod(p, mode)
+            except:
+                pass
 
 # ---
 

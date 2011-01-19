@@ -204,7 +204,7 @@ def process_containers_params( standalone, embedded ):
 
     # 3. return corrected parameters values
     return standalone, embedded
-    
+
 # -----------------------------------------------------------------------------
 
 ###
@@ -615,7 +615,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                              action="store",
                              dest="test_script_file",
                              help=help_str)
- 
+
     # Reproducing test script with help of TestRecorder. Default: False.
     help_str = "Reproducing test script with help of TestRecorder."
     o_play = optparse.Option("--play",
@@ -631,14 +631,14 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             action="store_true",
                             dest="gdb_session", default=False,
                             help=help_str)
-    
+
     # ddd session
     help_str = "Launch session with ddd"
     o_ddd = optparse.Option("--ddd-session",
                             action="store_true",
                             dest="ddd_session", default=False,
                             help=help_str)
-    
+
 
     # valgrind session
     help_str = "Launch session with valgrind $VALGRIND_OPTIONS"
@@ -659,7 +659,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                                  action="callback", callback=store_boolean, callback_args=('shutdown_servers',),
                                  dest="shutdown_servers",
                                  help=help_str)
-    
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -723,7 +723,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # - The directories which are inspected are checked for files "<appname?salomeappname>.xml"
     #  (SalomeApp.xml) which define SALOME configuration
     # - These directories are analyzed beginning from the last one in the list,
-    #   so the first directory listed in "<appname>Config" environment variable 
+    #   so the first directory listed in "<appname>Config" environment variable
     #   has higher priority: it means that if some configuration options
     #   is found in the next analyzed cofiguration file - it will be replaced
     # - The last configuration file which is parsed is user configuration file
@@ -765,7 +765,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         sys.exit(0)
         pass
 
-    # set resources variable SalomeAppConfig if it is not set yet 
+    # set resources variable SalomeAppConfig if it is not set yet
     dirs = []
     if os.getenv(config_var):
         if sys.platform == 'win32':
@@ -776,12 +776,12 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     gui_available = True
     if os.getenv("GUI_ROOT_DIR") and os.path.isdir( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
         dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
-	pass
+        pass
     else:
-	gui_available = False
-	if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel" ):
-	    dirs += [os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel"]
-	pass
+        gui_available = False
+        if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel" ):
+            dirs += [os.getenv("KERNEL_ROOT_DIR") + "/bin/salome/appliskel"]
+        pass
     os.environ[config_var] = separator.join(dirs)
 
     dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
@@ -790,7 +790,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         dirs.remove('') # to remove empty dirs if the variable terminate by ":" or if there are "::" inside
     except:
         pass
-    
+
     _opts = {} # associative array of options to be filled
 
     # parse SalomeApp.xml files in directories specified by SalomeAppConfig env variable
@@ -880,8 +880,8 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[batch_nam] = True
 
     if not gui_available:
-    	args[gui_nam] = False
-	
+        args[gui_nam] = False
+
     if args[gui_nam]:
         args["session_gui"] = True
         if cmd_opts.desktop is not None:
@@ -910,9 +910,9 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     if cmd_opts.py_scripts is not None:
         listlist = cmd_opts.py_scripts
         for listi in listlist:
-	    if os.sys.platform == 'win32':
+            if os.sys.platform == 'win32':
                 args[script_nam] += re.split( "[;,]", listi)
-	    else:
+            else:
                 args[script_nam] += re.split( "[:;,]", listi)
     for arg in cmd_args:
         if arg[-3:] == ".py":
@@ -973,7 +973,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     # Interactive python console
     if cmd_opts.pinter is not None:
         args[pinter_nam] = cmd_opts.pinter
-	
+
     # Gdb session in xterm
     if cmd_opts.gdb_session is not None:
         args[gdb_session_nam] = cmd_opts.gdb_session
@@ -992,7 +992,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     else:
         args[shutdown_servers_nam] = cmd_opts.shutdown_servers
         pass
-        
+
     ####################################################
     # Add <theAdditionalOptions> values to args
     for add_opt in theAdditionalOptions:
@@ -1027,7 +1027,7 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[test_nam] = []
         filename = cmd_opts.test_script_file
         args[test_nam] += re.split( "[:;,]", filename )
- 
+
     # Play
     if cmd_opts.play_script_file is not None:
         args[play_nam] = []
