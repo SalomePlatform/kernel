@@ -420,10 +420,10 @@ class Component(Tree):
         if name is None:  return
                  
 # ASV : fix for bug PAL8922 (Component name indicated by user in GUI is not taken into account
-	if common_data["COMP_NAME"] != '':
-	    self.addNamedChild('component-name', common_data["COMP_NAME"])
-	else:
-	    self.addNamedChild('component-name', name)
+        if common_data["COMP_NAME"] != '':
+            self.addNamedChild('component-name', common_data["COMP_NAME"])
+        else:
+            self.addNamedChild('component-name', name)
 
 # ASV : if user name is NOT set, then use component-name instead.  Else - default.
         if common_data["COMP_UNAME"] != '':

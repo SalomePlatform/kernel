@@ -70,12 +70,9 @@ class SALOME_Trace :
 
               time.sleep(0.25)
               steps = steps - 1
-	  
-	  
+
     def putMessage ( self, LogMsg ) :
-        
         if (CORBA.is_nil(self.m_pInterfaceLogger)):
             print  LogMsg;
         else:
-            self.m_pInterfaceLogger.putMessage (LogMsg) 
-   
+            self.m_pInterfaceLogger.putMessage (LogMsg)

@@ -73,10 +73,10 @@ class NoteBook:
         self.myStudy = Study
     
     def set(self, variableName, variable):
-	"""
-	Create (or modify) variable with name "variableName" 
-	and value equal "theValue".
-	"""
+        """
+        Create (or modify) variable with name "variableName" 
+        and value equal "theValue".
+        """
         if type(variable) == float:
             self.myStudy.SetReal(variableName, variable)
             
@@ -90,9 +90,9 @@ class NoteBook:
             self.myStudy.SetString(variableName, variable)
             
     def get(self, variableName):
-	"""
-	Return value of the variable with name "variableName".
-	"""
+        """
+        Return value of the variable with name "variableName".
+        """
         aResult = None
         if self.myStudy.IsVariable(variableName):
             
@@ -138,10 +138,10 @@ class NoteBook:
         return aResult
     
     def isVariable(self, variableName): 
-	"""
-	Return true if variable with name "variableName" 
-	exists in the study, otherwise return false.
-	"""
+        """
+        Return true if variable with name "variableName" 
+        exists in the study, otherwise return false.
+        """
         return self.myStudy.IsVariable(variableName)
 
     def setAs(self, variableName, typ):
