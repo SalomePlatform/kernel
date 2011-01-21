@@ -193,6 +193,7 @@ def install(prefix,config_file,verbose=0):
                'runSalomeScript',
                'runTests',
                'update_catalogs.py',
+               'kill_remote_containers.py',
                '.bashrc',
                ):
         virtual_salome.symlink("./bin/salome/appliskel/"+fn,os.path.join(home_dir, fn))
