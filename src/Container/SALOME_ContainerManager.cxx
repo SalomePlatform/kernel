@@ -440,11 +440,13 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   if (status == -1){
     MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status -1)");
     RmTmpFile(_TmpFileName); // command file can be removed here
+    _TmpFileName="";
     return Engines::Container::_nil();
   }
   else if (status == 217){
     MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status 217)");
     RmTmpFile(_TmpFileName); // command file can be removed here
+    _TmpFileName="";
     return Engines::Container::_nil();
   }
   else
@@ -475,6 +477,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
       logFilename=user+logFilename;
       ret->logfilename(logFilename.c_str());
       RmTmpFile(_TmpFileName); // command file can be removed here
+      _TmpFileName="";
     }
   }
   return ret;
