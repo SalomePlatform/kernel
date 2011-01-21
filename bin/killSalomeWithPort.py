@@ -71,7 +71,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
                             suffix="pidict",
                             hidden=hidden,
                             with_username=True,
-                            with_hostname=True,
+                            with_hostname=os.getenv("NSHOST") or True,
                             with_port=port,
                             with_app=appname.upper())
 
@@ -112,6 +112,8 @@ def appliCleanOmniOrbConfig(port):
         if os.access(omniorb_config,os.F_OK):
             os.remove(omniorb_config)
             pass
+
+        if os.path.lexists(last_running_config):return 
 
         #try to relink last.cfg to an existing config file if any
         files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
