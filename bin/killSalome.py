@@ -29,19 +29,24 @@
 import os, sys, re, signal
 
 from killSalomeWithPort import killMyPort, getPiDict
+from salome_utils import getHostName, getShortHostName
 
 def killAllPorts():
     """
     Kill all SALOME sessions belonging to the user.
     """
     user = os.getenv('USER')
+    hostname  = getHostName()
+    shostname = getShortHostName()
     # new-style dot-prefixed pidict file
     #fpidict   = getPiDict('(\d*)',hidden=True)
     #problem with WIN32 path slashes
     fpidict   = getPiDict('#####',hidden=True)
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
-    fpidict = fpidict.replace('#####', '(\d*)')
+    if hostname in fpidict:
+        fpidict = fpidict.replace(hostname, shostname+".*")
+    fpidict   = fpidict.replace('#####', '(\d*)')
     fnamere   = re.compile("^%s$" % fpidict)
     try:
         for f in os.listdir(dirpidict):
@@ -56,9 +61,11 @@ def killAllPorts():
         pass
     # provide compatibility with old-style pidict file (not dot-prefixed)
     #fpidict   = getPiDict('(\d*)',hidden=False)
-    fpidict   = getPiDict('#####',hidden=True)
+    fpidict   = getPiDict('#####',hidden=False)
     dirpidict = os.path.dirname(fpidict)
     fpidict   = os.path.basename(fpidict)
+    if hostname in fpidict:
+        fpidict = fpidict.replace(hostname, shostname+".*")
     fpidict = fpidict.replace('#####', '(\d*)')
     fnamere   = re.compile("^%s$" % fpidict)
     try:

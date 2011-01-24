@@ -36,7 +36,7 @@ from launchConfigureParser import verbose
 import Utils_Identity
 import salome_utils
 
-def getPiDict(port,appname='salome',full=True,hidden=True):
+def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
     Get file with list of SALOME processes.
     This file is located in the user's home directory
@@ -54,7 +54,8 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
     to support compatibility with older versions of SALOME
     """
     from salome_utils import generateFileName, getTmpDir, getHostName
-    hostname = os.getenv("NSHOST") or getHostName()
+    if not hostname:
+        hostname = os.getenv("NSHOST") or getHostName()
     if full:
         # full path to the pidict file is requested
         if hidden:
@@ -139,10 +140,15 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
+    from salome_utils import getShortHostName
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
+    # provide compatibility with old-style pidict file (shost hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
+    # provide compatibility with old-style pidict file (not dot-prefixed, shost hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
     #
     try:
         fpid = open(filedict, 'r')
