@@ -53,8 +53,8 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
     - hidden  : if True, file name is prefixed with . (dot) symbol; this internal parameter is used
     to support compatibility with older versions of SALOME
     """
-    from salome_utils import generateFileName, getTmpDir
-    dir = ""
+    from salome_utils import generateFileName, getTmpDir, getHostName
+    hostname = os.getenv("NSHOST") or getHostName()
     if full:
         # full path to the pidict file is requested
         if hidden:
@@ -71,7 +71,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
                             suffix="pidict",
                             hidden=hidden,
                             with_username=True,
-                            with_hostname=os.getenv("NSHOST") or True,
+                            with_hostname=hostname,
                             with_port=port,
                             with_app=appname.upper())
 
