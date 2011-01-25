@@ -53,9 +53,12 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     - hidden  : if True, file name is prefixed with . (dot) symbol; this internal parameter is used
     to support compatibility with older versions of SALOME
     """
-    from salome_utils import generateFileName, getTmpDir, getHostName
+    from salome_utils import generateFileName, getTmpDir
+    dir = ""
     if not hostname:
-        hostname = os.getenv("NSHOST") or getHostName()
+        hostname = os.getenv("NSHOST")
+        if hostname: hostname = hostname.split(".")[0]
+        pass
     if full:
         # full path to the pidict file is requested
         if hidden:
@@ -72,7 +75,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
                             suffix="pidict",
                             hidden=hidden,
                             with_username=True,
-                            with_hostname=hostname,
+                            with_hostname=hostname or True,
                             with_port=port,
                             with_app=appname.upper())
 
@@ -140,15 +143,19 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
-    from salome_utils import getShortHostName
+    from salome_utils import getShortHostName, getHostName
     # new-style dot-prefixed pidict file
     filedict = getPiDict(port, hidden=True)
     # provide compatibility with old-style pidict file (not dot-prefixed)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False)
-    # provide compatibility with old-style pidict file (shost hostname)
+    # provide compatibility with old-style pidict file (short hostname)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getShortHostName())
-    # provide compatibility with old-style pidict file (not dot-prefixed, shost hostname)
+    # provide compatibility with old-style pidict file (not dot-prefixed, short hostname)
     if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getShortHostName())
+    # provide compatibility with old-style pidict file (long hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=True,  hostname=getHostName())
+    # provide compatibility with old-style pidict file (not dot-prefixed, long hostname)
+    if not os.path.exists(filedict): filedict = getPiDict(port, hidden=False, hostname=getHostName())
     #
     try:
         fpid = open(filedict, 'r')
