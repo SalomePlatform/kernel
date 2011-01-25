@@ -217,6 +217,13 @@ module Engines
       \param code python code as text to load in the node
      */
     PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
+
+    //! Create a PyScriptNode in the container
+    /*!
+      \param nodeName the name of the PyScriptNode
+      \param code python code as text to load in the node
+     */
+    PyScriptNode createPyScriptNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
   };
 
   /*! \brief Interface of the %component.

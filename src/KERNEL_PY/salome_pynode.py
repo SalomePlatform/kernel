@@ -25,7 +25,7 @@
 """
  When imported this module adds to CORBA proxy (from PyNode type) automatic pickle and unpickle
  of arguments and results when calling execute method. It also converts the SALOME exception into a standard python
- exception 
+ exception
 """
 import omniORB
 import cPickle
@@ -53,6 +53,22 @@ class SmartPyNode(Engines._objref_PyNode):
       return self.execute(name,*args,**kws)
     return afunc
 
+class SmartPyScriptNode(Engines._objref_PyScriptNode):
+  def __init__(self):
+    Engines._objref_PyScriptNode.__init__(self)
+
+  def execute(self,outargsname,*args,**kws):
+    #the tuple args are ignored
+    try:
+      args=cPickle.dumps(((),kws),-1)
+      results=Engines._objref_PyScriptNode.execute(self,outargsname,args)
+      x=cPickle.loads(results)
+      return x
+    except SALOME.SALOME_Exception, e:
+      raise ValueError(e.details.text)
+
 #Register the new proxy for PyNode
 omniORB.registerObjref(Engines._objref_PyNode._NP_RepositoryId, SmartPyNode)
+#Register the new proxy for PyScriptNode
+omniORB.registerObjref(Engines._objref_PyScriptNode._NP_RepositoryId, SmartPyScriptNode)
 

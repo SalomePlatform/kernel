@@ -36,6 +36,7 @@ This is a package of interfaces used for executing Python code on remote contain
 module Engines
 {
   typedef sequence<octet> pickledArgs;
+  typedef sequence<string> listofstring;
 
   interface PyNode : SALOME::GenericObj
   {
@@ -43,10 +44,23 @@ module Engines
     /*! \brief execute a python function defined in the node
 
       \param functionName the python function defined in the node to execute
-      \param inargs input argument values provided as a python pickle
-      \return output argument values as a python pickle
+      \param inargs input argument values (tuple,dict) provided as a python pickle
+      \return output argument values (tuple) as a python pickle
     */
     pickledArgs execute(in string functionName,in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+
+  } ;
+
+  interface PyScriptNode : SALOME::GenericObj
+  {
+
+    /*! \brief execute a python script defined in the node
+
+      \param outargsname output argument names 
+      \param inargs input argument values (dict) provided as a python pickle
+      \return output argument values (tuple) as a python pickle
+    */
+    pickledArgs execute(in listofstring outargsname, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
 
   } ;
 

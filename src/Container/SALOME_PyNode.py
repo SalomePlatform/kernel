@@ -60,7 +60,7 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.context["my_container"] = self.my_container
     exec ccode in self.context
 
-  def execute(self,funcName,argsin): 
+  def execute(self,funcName,argsin):
     """Execute the function funcName found in local context with pickled args (argsin)"""
     try:
       argsin,kws=cPickle.loads(argsin)
@@ -73,3 +73,33 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
 
+class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
+  """The implementation of the PyScriptNode CORBA IDL that executes a script"""
+  def __init__(self, nodeName,code,poa,my_container):
+    """Initialize the node : compilation in the local context"""
+    Generic.__init__(self,poa)
+    self.nodeName=nodeName
+    self.code=code
+    self.my_container=my_container._container
+    linecache.cache[nodeName]=0,None,string.split(code,'\n'),nodeName
+    self.ccode=compile(code,nodeName,'exec')
+    self.context={}
+    self.context["my_container"] = self.my_container
+
+  def execute(self,outargsname,argsin):
+    """Execute the script stored in attribute ccode with pickled args (argsin)"""
+    try:
+      argsname,kws=cPickle.loads(argsin)
+      self.context.update(kws)
+      exec self.ccode in self.context
+      argsout=[]
+      for arg in outargsname:
+        if not self.context.has_key(arg):
+          raise KeyError("There is no variable %s in context" % arg)
+        argsout.append(self.context[arg])
+      argsout=cPickle.dumps(tuple(argsout),-1)
+      return argsout
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))

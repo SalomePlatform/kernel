@@ -137,3 +137,15 @@ class SALOME_Container_i:
           exc_typ,exc_val,exc_fr=sys.exc_info()
           l=traceback.format_exception(exc_typ,exc_val,exc_fr)
           return 1,"".join(l)
+
+    def create_pyscriptnode(self,nodeName,code):
+        try:
+          node=SALOME_PyNode.PyScriptNode_i(nodeName,code,self._poa,self)
+          id_o = self._poa.activate_object(node)
+          comp_o = self._poa.id_to_reference(id_o)
+          comp_iors = self._orb.object_to_string(comp_o)
+          return 0,comp_iors
+        except:
+          exc_typ,exc_val,exc_fr=sys.exc_info()
+          l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+          return 1,"".join(l)
