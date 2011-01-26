@@ -217,7 +217,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
                                                     bool& isValidScript,
                                                     long& theStreamLength)
 {
-  SALOMEDS_Study_i *  st_servant = new SALOMEDS_Study_i (theStudy, _orb);
+  SALOMEDS_Study_i *  st_servant = SALOMEDS_Study_i::GetStudyServant(theStudy, _orb);//new SALOMEDS_Study_i (theStudy, _orb);
   SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
   Engines::Component_ptr aComponent = Engines::Component::_narrow(_driver);
 
