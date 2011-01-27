@@ -271,6 +271,43 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
 
 //=============================================================================
 /*!
+ * Get Job dump state - the result directory could be changed
+ */ 
+//=============================================================================
+bool
+Launcher_cpp::getJobDumpState(int job_id, std::string directory)
+{
+  bool rtn;
+  LAUNCHER_MESSAGE("Get Job dump state");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+  std::string resource_name = job->getResourceDefinition().Name;
+  try 
+  {
+    if (directory != "")
+      rtn = _batchmap[resource_name]->importDumpStateFile(*(job->getBatchJob()), directory);
+    else
+      rtn = _batchmap[resource_name]->importDumpStateFile(*(job->getBatchJob()), job->getResultDirectory());
+  }
+  catch(const Batch::EmulationException &ex)
+  {
+    LAUNCHER_INFOS("getJobResult is maybe incomplete, exception: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  LAUNCHER_MESSAGE("getJobResult ended");
+  return rtn;
+}
+
+//=============================================================================
+/*!
  * Remove the job - into the Launcher and its batch manager
  */ 
 //=============================================================================

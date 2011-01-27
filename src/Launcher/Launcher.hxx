@@ -62,6 +62,7 @@ public:
   void         launchJob(int job_id);
   const char * getJobState(int job_id);
   void         getJobResults(int job_id, std::string directory);
+  bool         getJobDumpState(int job_id, std::string directory);
   void         removeJob(int job_id);
 
   // Useful methods
