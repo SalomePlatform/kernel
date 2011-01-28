@@ -507,6 +507,14 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
                           "(libBatch was not present at compilation time)");
 }
 
+bool
+Launcher_cpp::getJobDumpState(int job_id, std::string directory)
+{
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job dump state!!!");
+  throw LauncherException("Method Launcher_cpp::getJobDumpState is not available "
+                          "(libBatch was not present at compilation time)");
+}
+
 void
 Launcher_cpp::removeJob(int job_id)
 {
