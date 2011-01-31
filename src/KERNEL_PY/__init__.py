@@ -157,10 +157,11 @@ if not flags:
     except:
         pass
     pass
-    
-if flags:
-    sys.setdlopenflags(flags)
-    pass
+
+# Disable -> bug with scipy, seems very dangerous to do that
+#if flags:
+#    sys.setdlopenflags(flags)
+#    pass
 
 orb, lcc, naming_service, cm,sg=None,None,None,None,None
 myStudyManager, myStudyId, myStudy, myStudyName=None,None,None,None
