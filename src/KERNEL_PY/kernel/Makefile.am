@@ -8,4 +8,5 @@ mypkgpython_PYTHON = \
 	logger.py \
 	studyedit.py \
 	termcolor.py \
-	logconfig.py
+	logconfig.py \
+	varlist.py
