@@ -479,6 +479,7 @@ class CMakeFile(object):
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                 """)
                 pass
             else:
@@ -497,6 +498,7 @@ class CMakeFile(object):
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                     ELSE(KERNEL_ROOT_DIR)
                     INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
@@ -517,6 +519,7 @@ class CMakeFile(object):
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                     """)
                     pass
@@ -654,6 +657,13 @@ class CMakeFile(object):
                 SET(ENABLE_PYCONSOLE ON)
                 SET(ENABLE_SUPERVGRAPHVIEWER ON)
                 SET(ENABLE_QXGRAPHVIEWER ON)
+                """)
+                pass
+            elif self.module == "jobmanager":
+                newlines.append("""
+                IF(GUI_ROOT_DIR)
+                SET(HAS_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "geom":
@@ -1356,7 +1366,7 @@ class CMakeFile(object):
             newlines.append('''
             FOREACH(output ${MOC_FILES})
             ''')
-            if self.module == "yacs":
+            if self.module in ["jobmanager", "yacs"]:
                 newlines.append('''
                 STRING(REGEX REPLACE _moc.cxx .hxx input ${output})
                 ''')
@@ -1505,6 +1515,9 @@ class CMakeFile(object):
             "salomepypkg_PYTHON"               :  "${salomepypkgdir}",
             "mypkgpython_PYTHON"               :  "${mypkgpythondir}",
             }
+        if self.module == "jobmanager":
+            d["bin_SCRIPTS"] = "bin"
+            pass
         if self.module == "medfile":
             d = {
                 "include_HEADERS"        :  "include",
@@ -2008,7 +2021,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if self.module in ["medfile", "netgen"]:
+        if self.module in ["jobmanager", "medfile", "netgen"]:
             newlines.append(r'''
             SET(DEST bin)
             ''')

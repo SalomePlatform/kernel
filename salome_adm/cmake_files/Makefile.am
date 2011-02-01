@@ -30,6 +30,7 @@ FindCPPUNIT.cmake \
 FindDOXYGEN.cmake \
 FindHDF5.cmake \
 FindKERNEL.cmake \
+FindLIBBATCH.cmake \
 FindLIBXML2.cmake \
 FindMPI.cmake \
 FindOMNIORB.cmake \
