@@ -22,7 +22,6 @@
 
 //  File   : SALOMEDS.idl
 //  Author : Yves FRICAUD
-//  $Header$
 //
 /*!  \file SALOMEDS.idl  \brief This file contains a set of interfaces used for creation, management
   and modification of the %Study
@@ -1005,6 +1004,11 @@ Gets the list of open studies
 /*! Name of the %SObject
 */
     attribute string Name; // equivalent to setName() & getName()
+
+/*! Returns true if the %SObject does not belong to any %Study
+*/
+    boolean IsNull();
+
 /*! Gets an object %ID
 
    \return ID of the %SObject.

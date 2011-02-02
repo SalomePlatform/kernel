@@ -53,6 +53,7 @@ public:
   SALOMEDS_SObject(const SALOMEDSImpl_SObject& theSObject);       
   virtual ~SALOMEDS_SObject();
 
+  virtual bool IsNull() const;
   virtual std::string GetID();
   virtual _PTR(SComponent) GetFatherComponent();
   virtual _PTR(SObject)    GetFather();

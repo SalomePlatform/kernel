@@ -54,6 +54,7 @@ public:
   
   virtual ~SALOMEDS_SObject_i();
   
+  virtual CORBA::Boolean IsNull();
   virtual char* GetID();
   virtual SALOMEDS::SComponent_ptr GetFatherComponent();
   virtual SALOMEDS::SObject_ptr    GetFather() ;

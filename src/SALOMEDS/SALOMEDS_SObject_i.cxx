@@ -60,6 +60,7 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImp
 //============================================================================
 SALOMEDS_SObject_i::SALOMEDS_SObject_i(const SALOMEDSImpl_SObject& impl, CORBA::ORB_ptr orb)
 {
+  _impl = 0;
   if(!impl.IsNull()) {
      if(impl.IsComponent()) {
          SALOMEDSImpl_SComponent sco = impl;
@@ -84,6 +85,17 @@ SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
    if(_impl) delete _impl;    
 }
 
+//================================================================================
+/*!
+ * \brief Returns true if the %SObject does not belong to any %Study
+ */
+//================================================================================
+
+CORBA::Boolean SALOMEDS_SObject_i::IsNull()
+{
+  SALOMEDS::Locker lock;
+  return !_impl || _impl->IsNull();
+}
 
 //============================================================================
 /*! Function :GetID

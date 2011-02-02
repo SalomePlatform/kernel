@@ -42,6 +42,7 @@ class SALOMEDSClient_SObject
 public:
   virtual ~SALOMEDSClient_SObject() {}
 
+  virtual bool IsNull() const = 0;
   virtual std::string GetID()  = 0;
   virtual _PTR(SComponent) GetFatherComponent() = 0;
   virtual _PTR(SObject)    GetFather() = 0;

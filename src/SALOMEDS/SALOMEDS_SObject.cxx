@@ -103,6 +103,11 @@ SALOMEDS_SObject::~SALOMEDS_SObject()
   }
 }
 
+bool SALOMEDS_SObject::IsNull() const
+{
+  return _isLocal ? ( !_local_impl || _local_impl->IsNull() ) : _corba_impl->IsNull();
+}
+
 std::string SALOMEDS_SObject::GetID()
 {
   std::string aValue;
