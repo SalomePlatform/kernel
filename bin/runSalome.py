@@ -236,7 +236,7 @@ class LoggerServer(Server):
 # ---
 
 class SessionServer(Server):
-    def __init__(self,args):
+    def __init__(self,args,modules_list,modules_root_dir):
         self.args = args.copy()
         # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
         #self.args['xterm']=0
@@ -283,7 +283,13 @@ class SessionServer(Server):
         if self.args.has_key('user_config'):
             self.SCMD2+=['--resources=%s'%self.args['user_config']]
         if self.args.has_key('modules'):
-            self.SCMD2+=['--modules (%s)'%":".join(self.args['modules'])]
+            list_modules = []
+            #keep only modules with GUI
+            for m in modules_list:
+              if os.path.exists(os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")):
+                list_modules.insert(0,m)
+            self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
+
         if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
             self.SCMD2+=['--pyscript=%s'%(",".join(self.args['pyscript']))]
 
@@ -444,7 +450,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if args["gui"]:
-        mySessionServ = SessionServer(args)
+        mySessionServ = SessionServer(args,modules_list,modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
 
