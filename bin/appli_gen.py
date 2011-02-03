@@ -213,7 +213,7 @@ def install(prefix,config_file,verbose=0):
         print "WARNING: prerequisite file does not exist"
         pass
 
-
+    #environment file: configSalome.sh
     f =open(os.path.join(home_dir,'env.d','configSalome.sh'),'w')
     for module in _config["modules"]:
         command='export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -230,16 +230,17 @@ def install(prefix,config_file,verbose=0):
     f.close()
 
 
+    #environment file: configGUI.sh
     f =open(os.path.join(home_dir,'env.d','configGUI.sh'),'w')
-    command = 'export SalomeAppConfig=${HOME}/${APPLI}\n'
+    command = """export SalomeAppConfig=${HOME}/${APPLI}
+export SUITRoot=${HOME}/${APPLI}/share/salome
+export DISABLE_FPE=1
+export MMGT_REENTRANT=1
+"""
     f.write(command)
-    command = 'export SUITRoot=${HOME}/${APPLI}/share/salome\n'
-    f.write(command)
-    f.write('export DISABLE_FPE=1\n')
-    f.write('export MMGT_REENTRANT=1\n')
     f.close()
 
-
+    #SalomeApp.xml file
     f =open(os.path.join(home_dir,'SalomeApp.xml'),'w')
     command="""<document>
   <section name="launch">
@@ -254,24 +255,19 @@ def install(prefix,config_file,verbose=0):
     <parameter name="portkill"   value="no"/>
     <parameter name="killall"    value="no"/>
     <parameter name="noexcepthandler"  value="no"/>
-    <parameter name="modules"    value="""
-    f.write(command)
-    f.write('"')
-    for module in _config["guimodules"][:-1]:
-        f.write(module)
-        f.write(',')
-        pass
-    if len(_config["guimodules"]) > 0:
-      f.write(_config["guimodules"][-1])
-    f.write('"/>')
-    command="""
+    <parameter name="modules"    value="%s"/>
     <parameter name="pyModules"  value=""/>
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
     <parameter name="standalone" value="pyContainer"/>
   </section>
 </document>
 """
-    f.write(command)
+    mods=[]
+    #Keep all modules except KERNEL and GUI
+    for m in _config["modules"]:
+      if m in ("KERNEL","GUI"):continue
+      mods.append(m)
+    f.write(command % ",".join(mods))
     f.close()
 
     #Add default CatalogResources.xml file
