@@ -52,7 +52,9 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   // set stdout to line buffering (aka C++ std::cout)
   setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
-  Py_SetProgramName(argv[0]);
+  char* salome_python=getenv("SALOME_PYTHON");
+  if(salome_python != 0)
+    Py_SetProgramName(salome_python);
   Py_Initialize(); // Initialize the interpreter
   PySys_SetArgv(argc, argv);
   KERNEL_PYTHON::_interp = PyThreadState_Get()->interp;
