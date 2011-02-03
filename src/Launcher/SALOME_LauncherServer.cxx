@@ -27,6 +27,10 @@
 #include <stdexcept>
 #include <libxml/parser.h>
 
+void AttachDebugger();
+void terminateHandler(void);
+void unexpectedHandler(void);
+
 void AttachDebugger()
 {
 #ifndef WIN32
