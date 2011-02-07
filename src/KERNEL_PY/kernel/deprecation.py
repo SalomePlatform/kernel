@@ -105,8 +105,8 @@ def is_called_by_sphinx():
 
 
 def __show_colored_warning(message, category, filename,
-                           lineno, file = sys.stderr):
-    str = warnings.formatwarning(message, category, filename, lineno)
+                           lineno, file = sys.stderr, line = None):
+    str = warnings.formatwarning(message, category, filename, lineno, line)
     if category == DeprecationWarning and termcolor.canDisplayColor(file):
         file.write(termcolor.makeColoredMessage(str, termcolor.BLUE))
     else:
