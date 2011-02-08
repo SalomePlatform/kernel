@@ -360,9 +360,12 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
 
       std::string aDir = SALOMEDSImpl_Tool::GetDirFromPath(Res);
 
-      bool aResult = (ASCIIfileState[0]=='A')?
+      bool aResult = true;
+      if(aStreamFile && aStreamSize > 0 ) {
+        aResult = (ASCIIfileState[0]=='A')?
         aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
         aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
+      }
 
       if(aStreamFile != NULL) delete []aStreamFile; 
 

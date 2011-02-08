@@ -213,6 +213,7 @@ namespace
       aNbFiles++;
     } 
     
+    if ( aNbFiles == 0 ) return (new SALOMEDS::TMPFile);
     aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
     unsigned char* aBuffer = new unsigned char[aBufferSize];  
     if(aBuffer == NULL)
