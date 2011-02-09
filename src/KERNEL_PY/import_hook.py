@@ -160,9 +160,9 @@ def ensure_fromlist(m, fromlist, recursive=0):
           else:
             subname="%s.%s" % (m.__name__, sub)
             submod = import_module(sub, subname, m)
-            if not submod:
-               raise ImportError, "No module named " + subname
-            l.append((subname,submod))
+            #if not found ignore it
+            if submod:
+              l.append((subname,submod))
     return l
 
 def import_hook(name, globals=None, locals=None, fromlist=None, *args, **kwds):
