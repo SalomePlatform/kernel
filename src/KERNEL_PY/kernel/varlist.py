@@ -22,18 +22,19 @@ from studyedit import getStudyEditor
 DEFAULT_NAME = "Variables"
 
 def createVarListObj(fatherSobj, inputVarList = [], outputVarList = [],
-                     studyId = None, name = DEFAULT_NAME, icon = None,
-                     typeId = None):
+                     name = DEFAULT_NAME, icon = None, typeId = None):
+    studyId = fatherSobj.GetStudy()._get_StudyId()
     editor = getStudyEditor(studyId)
-    sObj = editor.createItem(fatherSobj,
+    sobj = editor.createItem(fatherSobj,
                              name = name,
                              icon = icon,
                              typeId = typeId)
-    attr = editor.builder.FindOrCreateAttribute(sObj, "AttributeParameter")
+    attr = editor.builder.FindOrCreateAttribute(sobj, "AttributeParameter")
     attr.SetStrArray("inputVarList", inputVarList)
     attr.SetStrArray("outputVarList", outputVarList)
 
-def getVarList(sobj, studyId = None):
+def getVarList(sobj):
+    studyId = sobj.GetStudy()._get_StudyId()
     editor = getStudyEditor(studyId)
     (found, attr) = editor.builder.FindAttribute(sobj, "AttributeParameter")
     if not found:
