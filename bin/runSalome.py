@@ -286,7 +286,9 @@ class SessionServer(Server):
             list_modules = []
             #keep only modules with GUI
             for m in modules_list:
-              if os.path.exists(os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")):
+              fr1 = os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")
+              fr2 = os.path.join(modules_root_dir[m],"share","salome","resources","SalomeApp.xml")
+              if os.path.exists(fr1) or os.path.exists(fr2):
                 list_modules.insert(0,m)
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
 
