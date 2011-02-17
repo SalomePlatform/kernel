@@ -140,6 +140,8 @@ test_DataIdContainer_SOURCES = test_DataIdContainer.cxx
 
 test_DataIdContainer_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-test_DataIdContainer_LDADD   = libSalomeCalcium.la $(top_builddir)/src/Utils/libOpUtil.la
+test_DataIdContainer_LDADD   = libSalomeCalcium.la \
+			       $(top_builddir)/src/Utils/libOpUtil.la \
+			       $(top_builddir)/src/SALOMELocalTrace/libSALOMELocalTrace.la
 
 test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
