@@ -2017,13 +2017,14 @@ bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theS
 
 //============================================================================
 /*! Function : modifySO_Notification
- *  Purpose  : This function tells all the observers that a SO has been modified
+ *  Purpose  : This function tells all the observers that a SO has been modified and
+               pass the mofification reason
  */
 //============================================================================
-bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) 
+bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject, int reason) 
 {
   if(_notifier)
-    return _notifier->modifySO_Notification(theSObject);
+    return _notifier->modifySO_Notification(theSObject, reason);
   else
     return false;
 }

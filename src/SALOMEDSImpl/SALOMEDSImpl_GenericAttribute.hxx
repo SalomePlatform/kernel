@@ -51,7 +51,7 @@ public:
   virtual void CheckLocked();
   std::string GetClassType() { return _type; }
   SALOMEDSImpl_SObject GetSObject();
-  void SetModifyFlag();
+  void SetModifyFlag(int reason = 0);
 
   static std::string Impl_GetType(DF_Attribute* theAttr); 
   static std::string Impl_GetClassType(DF_Attribute* theAttr);

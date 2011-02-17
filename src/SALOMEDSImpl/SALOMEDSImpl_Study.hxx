@@ -317,7 +317,7 @@ public:
   // Notification mechanism
   virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject);
   virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject);
-  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject);
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason);
   virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
 
 

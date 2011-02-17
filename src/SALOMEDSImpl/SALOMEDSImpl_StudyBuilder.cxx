@@ -556,7 +556,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
     
   _doc->SetModified(true);  
-  _study->modifySO_Notification(anObject);
+  _study->modifySO_Notification(anObject,0);
     
   return true;
 }

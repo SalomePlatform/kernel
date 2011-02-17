@@ -104,7 +104,7 @@ Notifier(CORBA::ORB_ptr orb)
  */
 //============================================================================
 
-  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject)
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason)
     {
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
         {
@@ -112,7 +112,7 @@ Notifier(CORBA::ORB_ptr orb)
             {
               std::string anID=theSObject.GetID();
               const char* cID=anID.c_str();
-              it->first->notifyObserverID(cID,0);
+              it->first->notifyObserverID(cID,reason);
             }
         }
       return true; // NGE return always true but can be modified if needed

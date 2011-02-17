@@ -138,6 +138,10 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const std::string& theValue)
 
   //add IOR entry in study
   SALOMEDSImpl_Study::IORUpdated(this);
+  
+  //Reason = 5 means that IOR attribute updated
+  //Used in the gui module to detect that IOR attribure was assigned to the object
+  SetModifyFlag(5);
 }
 
 //=======================================================================

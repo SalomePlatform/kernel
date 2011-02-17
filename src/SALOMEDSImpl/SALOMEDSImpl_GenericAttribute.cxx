@@ -79,13 +79,16 @@ SALOMEDSImpl_SObject SALOMEDSImpl_GenericAttribute::GetSObject()
   return SALOMEDSImpl_Study::SObject(aLabel);
 }
 
-void SALOMEDSImpl_GenericAttribute::SetModifyFlag()
+/*!
+ * Set modification flag of the Attribute.
+ * param reason reason of the modification (by default equal to 0)
+ */
+void SALOMEDSImpl_GenericAttribute::SetModifyFlag(int reason)
 {
    DF_Label aLabel = Label();
    if(aLabel.IsNull()) return; 
 
   SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
-  if(aStudy) aStudy->modifySO_Notification(GetSObject());
+  if(aStudy) aStudy->modifySO_Notification(GetSObject(), reason);
   if(aStudy) aStudy->Modify();
 }
-
