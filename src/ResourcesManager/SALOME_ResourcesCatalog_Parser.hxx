@@ -45,7 +45,7 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
-enum BatchType {none, pbs, lsf, sge, ssh_batch, ccc};
+enum BatchType {none, pbs, lsf, sge, ssh_batch, ccc, ll};
 
 enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm, prun};
 

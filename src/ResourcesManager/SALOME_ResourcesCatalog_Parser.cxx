@@ -207,6 +207,8 @@ ParserResourcesType::PrintBatchType() const
     return "sge";
   else if (Batch == ccc)
     return "ccc";
+  else if (Batch == ll)
+    return "ll";
   else 
     return "ssh";
 }
