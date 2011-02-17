@@ -173,6 +173,16 @@ if test "x$PVHOME" != "x" ; then
     done
   fi	
   if test "x$PVVERSION" = "x" ; then
+    ls -1d $PVHOME/include/paraview-* > /dev/null 2>&1
+    if test $? = 0 ; then
+      nb=$(ls -1d $PVHOME/include/paraview-* | wc -l)
+      if test $nb = 1 ; then
+        d=$(ls -1d $PVHOME/include/paraview-*)
+        PVVERSION=$(echo $d | awk -F "-" '{print $(NF)}')
+      fi
+    fi
+  fi
+  if test "x$PVVERSION" = "x" ; then
     PVVERSION=`basename $PVHOME | sed -e "s,[[^-]]*,,"`
   else
     if test "${PVVERSION:0:1}" != "-" ; then
