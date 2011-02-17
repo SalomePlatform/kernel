@@ -20,25 +20,62 @@
 from studyedit import getStudyEditor
 
 DEFAULT_NAME = "Variables"
+INPUT_VAR_NAMES = "ExchangeVariables.InputVarNames"
+OUTPUT_VAR_NAMES = "ExchangeVariables.OutputVarNames"
+REF_ENTRY = "ExchangeVariables.RefEntry"
 
-def createVarListObj(fatherSobj, inputVarList = [], outputVarList = [],
-                     name = DEFAULT_NAME, icon = None, typeId = None):
+class Variable:
+    
+    def __init__(self, name, dimension = [], minValue = None, maxValue = None, initialValue = None):
+        self.name = name
+        
+        # Reserved for future use
+        self.dimension = dimension
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.initialValue = initialValue
+
+
+class ExchangeVariables:
+    
+    def __init__(self, inputVarList = [], outputVarList = [], refEntry = None):
+        self.inputVarList = inputVarList
+        self.outputVarList = outputVarList
+        self.refEntry = refEntry
+
+
+def createSObjectForExchangeVariables(fatherSobj, exchangeVariables,
+                                      name = DEFAULT_NAME, icon = None, typeId = None):
     studyId = fatherSobj.GetStudy()._get_StudyId()
     editor = getStudyEditor(studyId)
     sobj = editor.createItem(fatherSobj,
                              name = name,
                              icon = icon,
                              typeId = typeId)
-    attr = editor.builder.FindOrCreateAttribute(sobj, "AttributeParameter")
-    attr.SetStrArray("inputVarList", inputVarList)
-    attr.SetStrArray("outputVarList", outputVarList)
+    _setSObjectForExchangeVariables(editor, sobj, exchangeVariables)
 
-def getVarList(sobj):
+def updateSObjectForExchangeVariables(sobj, exchangeVariables,
+                                      name = DEFAULT_NAME, icon = None, typeId = None):
     studyId = sobj.GetStudy()._get_StudyId()
     editor = getStudyEditor(studyId)
-    (found, attr) = editor.builder.FindAttribute(sobj, "AttributeParameter")
+    editor.setItem(sobj, name = name, icon = icon, typeId = typeId)
+    editor.builder.RemoveAttribute(sobj, "AttributeParameter")
+    _setSObjectForExchangeVariables(editor, sobj, exchangeVariables)
+
+def _setSObjectForExchangeVariables(editor, sobj, exchangeVariables):
+    attr = editor.builder.FindOrCreateAttribute(sobj, "AttributeParameter")
+    attr.SetStrArray(INPUT_VAR_NAMES, [x.name for x in exchangeVariables.inputVarList])
+    attr.SetStrArray(OUTPUT_VAR_NAMES, [x.name for x in exchangeVariables.outputVarList])
+    if exchangeVariables.refEntry is not None:
+        attr.SetString(REF_ENTRY, exchangeVariables.refEntry)
+
+def getExchangeVariablesFromSObject(sobj):
+    (found, attr) = sobj.FindAttribute("AttributeParameter")
     if not found:
-        return (None, None)
-    inputVarList = attr.GetStrArray("inputVarList")
-    outputVarList = attr.GetStrArray("outputVarList")
-    return (inputVarList, outputVarList)
+        return None
+    refEntry = None
+    if attr.IsSet(REF_ENTRY, 3):
+        refEntry = attr.GetString(REF_ENTRY)
+    return ExchangeVariables([Variable(name) for name in attr.GetStrArray(INPUT_VAR_NAMES)],
+                             [Variable(name) for name in attr.GetStrArray(OUTPUT_VAR_NAMES)],
+                             refEntry)
