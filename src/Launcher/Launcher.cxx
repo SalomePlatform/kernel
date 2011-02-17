@@ -453,6 +453,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case ssh_batch:
       bmType = "eSSH";
       break;
+    case ll:
+      bmType = "eLL";
+      break;
     default:
       LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);
       throw LauncherException("No batchmanager for that cluster - Bad batch description of the resource");
