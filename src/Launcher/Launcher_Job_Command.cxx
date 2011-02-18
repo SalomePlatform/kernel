@@ -21,6 +21,11 @@
 //
 #include "Launcher_Job_Command.hxx"
 
+#ifdef WNT
+#include <io.h>
+#define _chmod chmod
+#endif
+
 Launcher::Job_Command::Job_Command() {_job_type = "command";}
 
 Launcher::Job_Command::~Job_Command() {}

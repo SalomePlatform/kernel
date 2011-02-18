@@ -21,6 +21,11 @@
 //
 #include "Launcher_Job_SALOME.hxx"
 
+#ifdef WNT
+#include <io.h>
+#define _chmod chmod
+#endif
+
 Launcher::Job_SALOME::Job_SALOME() {}
 
 Launcher::Job_SALOME::~Job_SALOME() {}
