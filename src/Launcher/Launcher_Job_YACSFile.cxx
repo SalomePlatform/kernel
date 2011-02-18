@@ -35,5 +35,5 @@ Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
 void
 Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name_complete << " > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name_complete << " --dump=30 > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
 }
