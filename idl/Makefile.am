@@ -52,10 +52,10 @@ BASEIDL_FILES = \
   Palm_Ports.idl \
   SALOME_PACOExtension.idl \
   SALOME_ParamPorts.idl \
-  SALOME_Parametric.idl
+  SALOME_Parametric.idl \
+  SALOME_MPIObject.idl
 
 MPIIDL_FILES = \
-  SALOME_MPIObject.idl \
   SALOME_MPIContainer.idl \
   SALOME_TestMPIComponent.idl  
 
@@ -105,7 +105,8 @@ BASEIDL_SOURCES =\
   Palm_PortsSK.cc \
   SALOME_PACOExtensionSK.cc \
   SALOME_ParamPortsSK.cc \
-  SALOME_ParametricSK.cc
+  SALOME_ParametricSK.cc \
+  SALOME_MPIObjectSK.cc
 
 DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
@@ -114,10 +115,9 @@ DYNIDL_SRCS = \
   DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc SALOME_TypesDynSK.cc \
   Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
   LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc \
-  SALOME_ParametricDynSK.cc
+  SALOME_ParametricDynSK.cc SALOME_MPIObjectDynSK.cc
 
 MPIIDL_SOURCES = \
-  SALOME_MPIObjectSK.cc \
   SALOME_MPIContainerSK.cc \
   SALOME_TestMPIComponentSK.cc  
 
@@ -133,7 +133,7 @@ if MPI_IS_OK
 endif
 
 if MPI_IS_OK
-  DYNIDL_SRCS += SALOME_MPIObjectDynSK.cc SALOME_MPIContainerDynSK.cc SALOME_TestMPIComponentDynSK.cc
+  DYNIDL_SRCS += SALOME_MPIContainerDynSK.cc SALOME_TestMPIComponentDynSK.cc
 endif
 
 $(DYNIDL_SRCS) : $(IDL_SOURCES)
