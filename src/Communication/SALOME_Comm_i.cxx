@@ -240,7 +240,7 @@ SALOME_MPISender_i::~SALOME_MPISender_i(){
 SALOME::MPISender::param* SALOME_MPISender_i::getParam()
 {
   char stag[12];
-  int myproc,i=0;
+  int i=0;
 
   SALOME::MPISender::param_var p = new SALOME::MPISender::param;
   MPI_Comm_rank(MPI_COMM_WORLD,&_cproc);
@@ -315,7 +315,6 @@ void* SALOME_MPISender_i::myThread(void *args)
 void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
 {
   std::string service(p.service);
-  const char *st=p.service;
   void *r;
   _newThr->join(&r);
   MPI_Comm_free(&_com); 

@@ -173,7 +173,6 @@ T *MPIReceiver<T,CorbaSender,servForT,ptrForT>::getDistValue(long &size){
   MPI_Status status;
   MPI_Comm com; 
   char   port_name_clt [MPI_MAX_PORT_NAME];
-  float telps, tuser, tsys, tcpu;
   T *_v;
   long _n;
 

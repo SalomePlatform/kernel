@@ -118,8 +118,12 @@ public:
         DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
         assert(GENERIC_DESTRUCTOR::Destructors == 0);
         GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
+#ifndef _DEBUG_
+        atexit(HouseKeeping);
+#else
         int cr = atexit(HouseKeeping);
         assert(cr == 0);
+#endif
         atExitSingletonDone = true;
       }
   }

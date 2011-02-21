@@ -381,8 +381,12 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
       //SCRUTE(servant->pd_refCount);
+#ifndef _DEBUG_
+      servant->setStudyId(studyId);
+#else
       bool ret_studyId = servant->setStudyId(studyId);
       ASSERT(ret_studyId);
+#endif
 
       // --- register the engine under the name
       //     containerName(.dir)/instanceName(.object)

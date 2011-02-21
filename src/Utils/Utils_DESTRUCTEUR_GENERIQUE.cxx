@@ -83,8 +83,12 @@ public :
                                                                    // il est utilise puis detruit par la fonction Nettoyage
                 //To be sure the trace singleton will be the last one to be destroyed initialize it here before calling atexit
                 LocalTraceBufferPool::instance();
+#ifndef _DEBUG_
+                atexit( Nettoyage );                      // execute Nettoyage lors de exit, aprs la destruction des donnees statiques !
+#else
                 int cr = atexit( Nettoyage );                      // execute Nettoyage lors de exit, aprs la destruction des donnees statiques !
                 assert(cr==0) ;
+#endif
                 ATEXIT_Done = true ;
           }
         }
