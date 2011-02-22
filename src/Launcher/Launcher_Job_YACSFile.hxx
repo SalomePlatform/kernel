@@ -34,6 +34,9 @@ namespace Launcher
 
       virtual void setJobFile(const std::string & job_file);
       virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);
+      virtual void setDumpState(const int dumpState);
+    protected:
+      int _dumpState;
   };
 }
 

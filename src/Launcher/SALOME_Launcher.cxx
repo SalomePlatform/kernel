@@ -170,6 +170,14 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
 
+  for(int i=0;i<job_parameters.specific_parameters.length();i++){
+    std::string option = CORBA::string_dup(job_parameters.specific_parameters[i].name);
+    if(option.find("EnableDumpYACS") != std::string::npos){
+      int dumpState = atoi(job_parameters.specific_parameters[i].value);
+      (dynamic_cast<Launcher::Job_YACSFile *>(new_job))->setDumpState(dumpState);
+    }
+  }
+
   try
   {
     _l.createJob(new_job);

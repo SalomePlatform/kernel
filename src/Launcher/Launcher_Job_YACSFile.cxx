@@ -22,7 +22,7 @@
 #include "Launcher_Job_YACSFile.hxx"
 
 
-Launcher::Job_YACSFile::Job_YACSFile() {_job_type = "yacs_file";}
+Launcher::Job_YACSFile::Job_YACSFile() {_job_type = "yacs_file"; _dumpState=0;}
 
 Launcher::Job_YACSFile::~Job_YACSFile() {}
 
@@ -35,5 +35,14 @@ Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
 void
 Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name_complete << " --dump=30 > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name_complete;
+  if(_dumpState > 0)
+    launch_script_stream << " --dump=" << _dumpState;
+  launch_script_stream << " > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
+}
+
+void
+Launcher::Job_YACSFile::setDumpState(const int dumpState)
+{
+  _dumpState = dumpState;
 }
