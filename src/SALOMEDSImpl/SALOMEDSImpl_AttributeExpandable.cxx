@@ -77,6 +77,8 @@ void SALOMEDSImpl_AttributeExpandable::SetExpandable(const int theValue)
   Backup();
 
   (theValue!=0)?myValue=1:myValue=0;
+
+  SetModifyFlag(); //VSR: Mark the study as being modified, so it could be saved
 }
 
 //=======================================================================
