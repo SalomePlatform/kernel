@@ -59,7 +59,7 @@ myLocalVisu = myLifeCycleCORBA.FindOrLoadComponent("FactoryServer", "Visu")<br>
 SALOME_NamingService aNamingService(orb);<br>
 CORBA::Object_ptr anObject = aNamingService.Resolve("/Kernel/Session");<br>
 SALOME::Session_var aSession = SALOME::Session::_narrow(anObject);<br>
-Engines::Component_var aComponent = aSession-&gt;GetVisuGen();<br>
+Engines::EngineComponent_var aComponent = aSession-&gt;GetVisuGen();<br>
 myVisuGen = VISU::VISU_Gen::_narrow(aComponent);<br>
 <br>
 </body>

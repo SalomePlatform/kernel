@@ -19,10 +19,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : SALOME_TestModuleCatalog.idl
 //  Author : 
-//
+
 #ifndef _TestModuleCatalog_IDL
 #define _TestModuleCatalog_IDL
 
@@ -38,7 +37,7 @@ module SALOME_TestModuleCatalog {
 
   interface Adder ;
 
-  interface AddComponent : Engines::Component {
+  interface AddComponent : Engines::EngineComponent {
 
 // DataStreamPorts Addition istream(INTEGER, in, T), ostream(STRING, out, I)
 // DataStreamPorts Addition Ostream(FLOAT, out, T)
@@ -48,7 +47,7 @@ module SALOME_TestModuleCatalog {
     double LastResult() ;
   };
 
-  interface Adder : Engines::Component {
+  interface Adder : Engines::EngineComponent {
     double Add( in double x , in double y , out double z ) ;
     double AddAndCompare( in double x , in double y , in Adder anOtherAdder,
                           out double z ) ;

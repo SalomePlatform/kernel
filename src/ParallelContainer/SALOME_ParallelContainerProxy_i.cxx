@@ -270,12 +270,12 @@ Container_proxy_impl_final::load_component_Library(const char* componentName, CO
   return ret;
 }
 
-Engines::Component_ptr 
+Engines::EngineComponent_ptr 
 Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
-  Engines::Component_ptr compo = create_component_instance_env(componentName, studyId, env, reason);
+  Engines::EngineComponent_ptr compo = create_component_instance_env(componentName, studyId, env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -284,7 +284,7 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
 // Composant sequentiel -> on le créer sur le noeud 0 (on pourrait faire une répartition de charge)
 // Composant parallèle -> création du proxy ici puis appel de la création de chaque objet participant
 // au composant parallèle
-Engines::Component_ptr 
+Engines::EngineComponent_ptr 
 Container_proxy_impl_final::create_component_instance_env(const char* componentName, ::CORBA::Long studyId,
                                                           const Engines::FieldsDict& env, CORBA::String_out reason)
 {
@@ -295,7 +295,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
   {
     // Component is not loaded !
     INFOS("Proxy: component is not loaded ! : " << aCompName);
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 
   // If it is a sequential component
@@ -309,7 +309,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
   }
 
   // Parallel Component !
-  Engines::Component_var component_proxy = Engines::Component::_nil();
+  Engines::EngineComponent_var component_proxy = Engines::EngineComponent::_nil();
 
   // On commence par créer le proxy
 #ifndef WIN32
@@ -329,7 +329,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
 #ifndef WIN32
     INFOS("dlerror() result is : " << dlerror());
 #endif
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
   try {
     _numInstanceMutex.lock() ; // lock on the instance number
@@ -355,7 +355,7 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*(proxy->proxy_id));
-    component_proxy = Engines::Component::_narrow(obj);
+    component_proxy = Engines::EngineComponent::_narrow(obj);
     proxy->proxy_corba_ref = component_proxy;
 
     if (!CORBA::is_nil(component_proxy))
@@ -372,14 +372,14 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
     else
     {
       INFOS("The factory returns a nil object !");
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
       
   }
   catch (...)
   {
     INFOS( "Exception catched in Proxy creation" );
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 
   // Create on each node a work node
@@ -398,18 +398,18 @@ Container_proxy_impl_final::create_component_instance_env(const char* componentN
       catch (SALOME::SALOME_Exception & ex)
       {
         INFOS("SALOME_EXCEPTION : " << ex.details.text);
-        return Engines::Component::_nil();
+        return Engines::EngineComponent::_nil();
       }
       catch (...)
       {
         INFOS("Unknown Exception catch during create_paco_component_node_instance on node : " << i);
-        return Engines::Component::_nil();
+        return Engines::EngineComponent::_nil();
       }
     }
     else
     {
       INFOS("Cannot call create_paco_component_node_instance on node " << i << " ref is nil !");
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
   }
 

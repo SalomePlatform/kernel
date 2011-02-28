@@ -38,7 +38,7 @@
 		<li><a href="#3_6">3.6 Resource catalog  </a></li>
 		<li><a href="#3_7">3.7 Engine  </a></li>
 			<ul>
-			<li><a href="#3_7_1">3.7.1 Component class  </a></li>
+			<li><a href="#3_7_1">3.7.1 EngineComponent class  </a></li>
 			<li><a href="#3_7_2">3.7.2 Container class  </a></li>
 			</ul>
 		</ul>
@@ -174,13 +174,13 @@ name. The container dynamically resolves  an extern_C function in the library,
 which constructs the CORBA Engine servant object.</p>
 <p>The SALOME engine in
  the current version of the application is implemented 
-  as <b>Engines</b> package of interfaces. It encapsulates two classes: Component, Container.</p> 
+  as <b>Engines</b> package of interfaces. It encapsulates two classes: EngineComponent, Container.</p> 
 <p>The API refernce for <b>Engines</b> package can be found <a href="namespaceEngines.html">here</a>. 
 </p>
-<a name="3_7_1"></a><h4>3.7.1 Component class</h4> 
+<a name="3_7_1"></a><h4>3.7.1 EngineComponent class</h4> 
 <p>This class is used for interaction between the container and the component and between the components inside the container. 
 </p> 
-<p>The API reference for this class can be found <a href="interfaceEngines_1_1Component.html">here</a>.</p>
+<p>The API reference for this class can be found <a href="interfaceEngines_1_1EngineComponent.html">here</a>.</p>
 
 <a name="3_7_2"></a><h4>3.7.2 Container class</h4> 
 <p>This class provides a set of methods which are necessary for definition of the process of loading and registration of new components in SALOME application.</p> 

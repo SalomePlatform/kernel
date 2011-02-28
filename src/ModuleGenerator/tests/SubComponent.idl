@@ -19,10 +19,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : SubComponent.idl
 //  Author : Jean Rahuel
-//
+
 #ifndef _SUBCOMPONENT_IDL
 #define _SUBCOMPONENT_IDL
 
@@ -30,7 +29,7 @@
 
 module SuperVisionTest {
 
-  interface SubComponent : Engines::Component {
+  interface SubComponent : Engines::EngineComponent {
   void Sub( in double x , in double y , out double z ) ;
   } ;
 };

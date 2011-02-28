@@ -45,7 +45,7 @@ int main (int argc, char * argv[])
   std::map<std::string, int> cycle;
   std::map<std::string, int> first;
   Engines::Container_ptr cont;
-  Engines::Component_ptr compo;
+  Engines::EngineComponent_ptr compo;
   bool error = false;
   bool bestImplemented;
   int status;

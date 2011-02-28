@@ -18,14 +18,12 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 //  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 //  File   : SALOME_LifeCycleCORBA.cxx
 //  Author : Paul RASCLE, EDF
 //  Module : SALOME
-//  $Header$
-//
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -129,13 +127,13 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
  *  \return a CORBA reference of the component instance, or _nil if not found
  */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
                                      const char *componentName,
                                      int studyId)
 {
   if (! isKnownComponentClass(componentName))
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 
   Engines::ContainerParameters new_params;
   convert(params, new_params);
@@ -148,10 +146,10 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
     }
   catch( const SALOME::SALOME_Exception& ex )
     {
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
 
-  Engines::Component_var compo = _FindComponent(new_params,
+  Engines::EngineComponent_var compo = _FindComponent(new_params,
                                                 componentName,
                                                 studyId,
                                                 listOfResources);
@@ -169,7 +167,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
                                      const char *componentName,
                                      int studyId)
@@ -177,7 +175,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   // --- Check if Component Name is known in ModuleCatalog
 
   if (! isKnownComponentClass(componentName))
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 
   Engines::ContainerParameters new_params;
   convert(params, new_params);
@@ -191,11 +189,11 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
     }
   catch( const SALOME::SALOME_Exception& ex )
     {
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
   new_params.resource_params.resList = listOfResources;
 
-  Engines::Component_var compo = _LoadComponent(new_params,
+  Engines::EngineComponent_var compo = _LoadComponent(new_params,
                                                 componentName,
                                                 studyId);
 
@@ -213,7 +211,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 FindOrLoad_Component(const Engines::MachineParameters& params,
                      const char *componentName,
@@ -222,7 +220,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   // --- Check if Component Name is known in ModuleCatalog
 
   if (! isKnownComponentClass(componentName))
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 
   Engines::ContainerParameters new_params;
   convert(params, new_params);
@@ -243,10 +241,10 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
     }
   catch( const SALOME::SALOME_Exception& ex )
     {
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
 
-  Engines::Component_var compo = _FindComponent(new_params,
+  Engines::EngineComponent_var compo = _FindComponent(new_params,
                                                 componentName,
                                                 studyId,
                                                 listOfResources);
@@ -262,7 +260,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   return compo._retn();
 }
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 FindOrLoad_Component(const Engines::ContainerParameters& params,
                      const char *componentName,
@@ -271,7 +269,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   // --- Check if Component Name is known in ModuleCatalog
 
   if (! isKnownComponentClass(componentName))
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
@@ -284,10 +282,10 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
     }
   catch( const SALOME::SALOME_Exception& ex )
     {
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
 
-  Engines::Component_var compo = _FindComponent(new_params,
+  Engines::EngineComponent_var compo = _FindComponent(new_params,
                                                 componentName,
                                                 studyId,
                                                 listOfResources);
@@ -315,7 +313,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
                                             const char *componentName)
 {
@@ -323,7 +321,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 
   // --- Check if Component Name is known in ModuleCatalog
   if (! isKnownComponentClass(componentName))
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 
   // --- Check if containerName contains machine name (if yes: rg>0)
   char *stContainer=strdup(containerName);
@@ -734,7 +732,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::
 _FindComponent(const Engines::ContainerParameters& params,
                const char *componentName,
@@ -770,10 +768,10 @@ _FindComponent(const Engines::ContainerParameters& params,
                                                   containerName,
                                                   componentName,
                                                   nbproc);
-    return Engines::Component::_narrow(obj);
+    return Engines::EngineComponent::_narrow(obj);
   }
   else
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
 }
 
 //=============================================================================
@@ -790,7 +788,7 @@ _FindComponent(const Engines::ContainerParameters& params,
  */
 //=============================================================================
 
-Engines::Component_ptr 
+Engines::EngineComponent_ptr 
 SALOME_LifeCycleCORBA::
 _LoadComponent(const Engines::ContainerParameters& params, 
               const char *componentName,
@@ -802,7 +800,7 @@ _LoadComponent(const Engines::ContainerParameters& params,
   Engines::ContainerParameters local_params(params);
   local_params.mode = CORBA::string_dup("findorstart");
   Engines::Container_var cont = _ContManager->GiveContainer(local_params);
-  if (CORBA::is_nil(cont)) return Engines::Component::_nil();
+  if (CORBA::is_nil(cont)) return Engines::EngineComponent::_nil();
 
   char* reason;
   bool isLoadable = cont->load_component_Library(componentName,reason);
@@ -810,11 +808,11 @@ _LoadComponent(const Engines::ContainerParameters& params,
     {
       //std::cerr << reason << std::endl;
       CORBA::string_free(reason);
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
   CORBA::string_free(reason);
 
-  Engines::Component_var myInstance =
+  Engines::EngineComponent_var myInstance =
     cont->create_component_instance(componentName, studyId);
   return myInstance._retn();
 }
@@ -828,7 +826,7 @@ _LoadComponent(const Engines::ContainerParameters& params,
  *  \return a CORBA reference of the parallel component instance, or _nil if problem
  */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters& params,
                                               const char *componentName,
                                               int studyId)
@@ -849,7 +847,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   Engines::Container_var cont = _ContManager->GiveContainer(parms);
   if (CORBA::is_nil(cont)) {
     INFOS("FindOrStartParallelContainer() returns a NULL container !");
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 
   MESSAGE("Loading component library");
@@ -859,7 +857,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
     INFOS(componentName <<" library is not loadable !");
     //std::cerr << reason << std::endl;
     CORBA::string_free(reason);
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
   CORBA::string_free(reason);
 
@@ -867,7 +865,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::ContainerParameters
   // @PARALLEL@ permits to identify that the component requested
   // is a parallel component.
   std::string name = std::string(componentName);
-  Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
+  Engines::EngineComponent_var myInstance = cont->create_component_instance(name.c_str(), studyId);
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");
   return myInstance._retn();
@@ -921,4 +919,3 @@ CORBA::ORB_ptr SALOME_LifeCycleCORBA::orb()
 {
   return _NS->orb();
 }
-

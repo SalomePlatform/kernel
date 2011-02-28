@@ -334,7 +334,7 @@ void Engines_Container_i::Shutdown()
   /* For each component contained in this container
   * tell it to self-destroy
   */
-  std::map<std::string, Engines::Component_var>::iterator itm;
+  std::map<std::string, Engines::EngineComponent_var>::iterator itm;
   for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
     {
       try
@@ -644,13 +644,14 @@ Engines_Container_i::load_component_ExecutableImplementation(const char* compone
 *  \return a loaded component
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::create_component_instance(const char*genericRegisterName,
                                                CORBA::Long studyId)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
-  Engines::Component_ptr compo = create_component_instance_env(genericRegisterName, studyId, env, reason);
+  Engines::EngineComponent_ptr compo =
+    create_component_instance_env(genericRegisterName, studyId, env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -669,7 +670,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 *  \return a loaded component
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::create_component_instance_env(const char*genericRegisterName,
                                                    CORBA::Long studyId,
                                                    const Engines::FieldsDict& env,
@@ -679,14 +680,14 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
     {
       INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
       reason=CORBA::string_dup("studyId must be > 0 for mono study instance, =0 for multiStudy");
-      return Engines::Component::_nil() ;
+      return Engines::EngineComponent::_nil() ;
     }
 
   std::string error;
   if (_library_map.count(genericRegisterName) != 0)
     {
       // It's a Python component
-      Engines::Component_ptr compo = createPythonInstance(genericRegisterName, studyId, error);
+      Engines::EngineComponent_ptr compo = createPythonInstance(genericRegisterName, studyId, error);
       reason=CORBA::string_dup(error.c_str());
       return compo;
     }
@@ -696,7 +697,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
     {
       // It's a C++ component
       void* handle = _library_map[impl_name];
-      Engines::Component_ptr compo = createInstance(genericRegisterName, handle, studyId, error);
+      Engines::EngineComponent_ptr compo = createInstance(genericRegisterName, handle, studyId, error);
       reason=CORBA::string_dup(error.c_str());
       return compo;
     }
@@ -705,7 +706,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
   if (_library_map.count(impl_name) != 0)
     {
       //It's an executable component
-      Engines::Component_ptr compo = createExecutableInstance(genericRegisterName, studyId, env, error);
+      Engines::EngineComponent_ptr compo = createExecutableInstance(genericRegisterName, studyId, env, error);
       reason=CORBA::string_dup(error.c_str());
       return compo;
     }
@@ -714,7 +715,7 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
   error += genericRegisterName;
   INFOS(error);
   reason=CORBA::string_dup(error.c_str());
-  return Engines::Component::_nil() ;
+  return Engines::EngineComponent::_nil() ;
 }
 
 //=============================================================================
@@ -732,12 +733,12 @@ Engines_Container_i::create_component_instance_env(const char*genericRegisterNam
 *   it's registration.
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
                                               const Engines::FieldsDict& env,
                                               std::string& reason)
 {
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
 
   _numInstanceMutex.lock() ; // lock on the instance number
   _numInstance++ ;
@@ -825,14 +826,14 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
   {
     reason="SALOME_Container::create_component_instance system failed (system command status -1)";
     MESSAGE(reason);
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 #ifndef WIN32
   else if (WEXITSTATUS(status) == 217)
   {
     reason="SALOME_Container::create_component_instance system failed (system command status 217)";
     MESSAGE(reason);
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 #endif
   else
@@ -855,12 +856,12 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
     {
       reason="SALOME_Container::create_component_instance failed";
       MESSAGE(reason);
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
     else
     {
       MESSAGE("SALOME_Container::create_component_instance successful");
-      iobject=Engines::Component::_narrow(obj);
+      iobject = Engines::EngineComponent::_narrow(obj);
       _listInstances_map[instanceName] = iobject;
       return iobject._retn();
     }
@@ -878,11 +879,11 @@ Engines_Container_i::createExecutableInstance(std::string CompName, int studyId,
 *  \return a loaded component
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
                                           std::string& reason)
 {
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
 
   _numInstanceMutex.lock() ; // lock on the instance number
   _numInstance++ ;
@@ -912,7 +913,7 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
   if( iors!="" )
     {
       CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-      iobject = Engines::Component::_narrow( obj ) ;
+      iobject = Engines::EngineComponent::_narrow( obj ) ;
       _listInstances_map[instanceName] = iobject;
     }
   return iobject._retn();
@@ -940,7 +941,7 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
 *    - component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::createInstance(std::string genericRegisterName,
                                     void *handle,
                                     int studyId,
@@ -971,12 +972,12 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     reason=dlerror();
     INFOS(reason);
 #endif
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
 
   // --- create instance
 
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
 
   try
   {
@@ -1006,7 +1007,7 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     // --- get reference & servant from id
 
     CORBA::Object_var obj = _poa->id_to_reference(*id);
-    iobject = Engines::Component::_narrow( obj ) ;
+    iobject = Engines::EngineComponent::_narrow( obj ) ;
 
     Engines_Component_i *servant =
       dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
@@ -1047,12 +1048,12 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
 *  \return the first instance found with same studyId
 */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::find_component_instance( const char* registeredName,
                                               CORBA::Long studyId)
 {
-  Engines::Component_var anEngine = Engines::Component::_nil();
-  std::map<std::string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
+  Engines::EngineComponent_var anEngine = Engines::EngineComponent::_nil();
+  std::map<std::string,Engines::EngineComponent_var>::iterator itm =_listInstances_map.begin();
   while (itm != _listInstances_map.end())
   {
     std::string instance = (*itm).first;
@@ -1078,7 +1079,7 @@ Engines_Container_i::find_component_instance( const char* registeredName,
 */
 //=============================================================================
 
-void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
+void Engines_Container_i::remove_impl(Engines::EngineComponent_ptr component_i)
 {
   ASSERT(! CORBA::is_nil(component_i));
   std::string instanceName = component_i->instanceName() ;
@@ -1165,13 +1166,13 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
                                 const char* componentName )
 {
   char* reason;
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
   if (load_component_Library(genericRegisterName,reason))
     iobject = find_or_create_instance(genericRegisterName, impl_name);
   CORBA::string_free(reason);
@@ -1201,7 +1202,7 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
 */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
                                              std::string componentLibraryName)
 {
@@ -1210,7 +1211,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
   if (_library_map.count(impl_name) == 0)
   {
     INFOS("shared library " << impl_name <<" must be loaded before creating instance");
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
   else
   {
@@ -1219,7 +1220,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
     void* handle = _library_map[impl_name];
     std::string component_registerBase =
       _containerName + "/" + aGenRegisterName;
-    Engines::Component_var iobject = Engines::Component::_nil() ;
+    Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
     std::string reason;
     try
     {
@@ -1234,7 +1235,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
       }
       else
       {
-        iobject = Engines::Component::_narrow( obj ) ;
+        iobject = Engines::EngineComponent::_narrow( obj ) ;
         Engines_Component_i *servant =
           dynamic_cast<Engines_Component_i*>
           (_poa->reference_to_servant(iobject));
@@ -1248,7 +1249,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
         }
         else // monoStudy instance: NOK
         {
-          iobject = Engines::Component::_nil();
+          iobject = Engines::EngineComponent::_nil();
           INFOS("load_impl & find_component_instance methods "
             << "NOT SUITABLE for mono study components");
         }
@@ -1728,4 +1729,3 @@ int findpathof(const std::string& path, std::string& pth, const std::string& fil
   }
   return found;
 }
-

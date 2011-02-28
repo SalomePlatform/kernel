@@ -19,10 +19,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : AddComponent.idl
 //  Author : Jean Rahuel
-//
+
 #ifndef _ADDCOMPONENT_IDL
 #define _ADDCOMPONENT_IDL
 
@@ -32,7 +31,7 @@ module SuperVisionTest {
 
   interface Adder ;
 
-  interface AddComponent : Engines::Component {
+  interface AddComponent : Engines::EngineComponent {
     double Add( in double x , in double y , out double z ) ;
     double AddWithoutSleep( in double x , in double y , out double z ) ;
     void Setx( in double x ) ;
@@ -53,15 +52,15 @@ module SuperVisionTest {
                              out AddComponent RetAdder3 ) ;
   };
 
-  interface Adder : Engines::Component {
+  interface Adder : Engines::EngineComponent {
     double Add( in double x , in double y , out double z ) ;
     double AddWithoutSleep( in double x , in double y , out double z ) ;
     double AddAndCompare( in double x , in double y , in Adder anOtherAdder,
                           out double z ) ;
     void SetLastResult( in double z ) ;
     void LastResult( out double z ) ;
-    Engines::Component LccAddComponent( in string aContainer ,
-                                        in string aComponentName ) ;
+    Engines::EngineComponent LccAddComponent( in string aContainer ,
+                                              in string aComponentName ) ;
   };
 
 } ;

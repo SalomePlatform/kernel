@@ -19,11 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME_ParallelContainerProxy : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainerProxy_i.hxx
 //  Author : André RIBES, EDF
-//
+
 #ifndef _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 
@@ -56,20 +55,21 @@ class Container_proxy_impl_final :
     virtual void Shutdown();
 
     virtual ::CORBA::Boolean load_component_Library(const char* componentName,CORBA::String_out reason);
-    virtual Engines::Component_ptr create_component_instance(const char* componentName, ::CORBA::Long studyId);
-    virtual Engines::Component_ptr create_component_instance_env( const char* componentName,
-                                                                  CORBA::Long studyId,          // 0 for multiStudy
-                                                                  const Engines::FieldsDict& env,
-                                                                  CORBA::String_out reason);
+    virtual Engines::EngineComponent_ptr create_component_instance (const char* componentName,
+                                                                    ::CORBA::Long studyId);
+    virtual Engines::EngineComponent_ptr create_component_instance_env (const char* componentName,
+                                                                        CORBA::Long studyId,    // 0 for multiStudy
+                                                                        const Engines::FieldsDict& env,
+                                                                        CORBA::String_out reason);
 
   private:
     std::map<std::string, std::string> _libtype_map; // libname -> libtype (seq ou par)
 
     struct proxy_object
     {
-      Engines::Component_var     proxy_corba_ref;
-      PortableServer::ObjectId * proxy_id;
-      RegistryConnexion *        proxy_regist;
+      Engines::EngineComponent_var proxy_corba_ref;
+      PortableServer::ObjectId *   proxy_id;
+      RegistryConnexion *          proxy_regist;
     };
 
     // Cette liste contient les references vers les différentes

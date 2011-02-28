@@ -19,11 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIContainer_i.hxx
 //  Module : SALOME
-//
+
 #ifndef _SALOME_PCONTAINER_
 #define _SALOME_PCONTAINER_ 
 
@@ -44,7 +43,7 @@ typedef struct {
   std::string compoName;
   std::string nameToRegister;
   long studyId;
-  Engines::Component_ptr cptr;
+  Engines::EngineComponent_ptr cptr;
 } thread_st;
 
 class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
@@ -71,7 +70,7 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 
   // Create an instance of component
   // synchronous version for process 0
-  virtual Engines::Component_ptr
+  virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
@@ -79,25 +78,25 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 
   // Load a component in current MPI container
   // synchronous version for process 0
-  Engines::Component_ptr load_impl(const char* nameToRegister,
+  Engines::EngineComponent_ptr load_impl(const char* nameToRegister,
                                    const char* componentName);
 
   // Unload a component from current MPI container
   // synchronous version for process 0
-  void remove_impl(Engines::Component_ptr component_i);
+  void remove_impl(Engines::EngineComponent_ptr component_i);
 
   // synchronous version for process 0
   void finalize_removal();
 
  private:
   bool Lload_component_Library(const char* componentName);
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   Lcreate_component_instance( const char* componentName,
                               CORBA::Long studyId); // 0 for multiStudy
-  Engines::Component_ptr Lload_impl(const char* nameToRegister,
+  Engines::EngineComponent_ptr Lload_impl(const char* nameToRegister,
                                     const char* componentName);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   createMPIInstance(std::string genericRegisterName,
                     void *handle,
                     int studyId);

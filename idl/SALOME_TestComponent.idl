@@ -19,26 +19,23 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : SALOME_TestComponent.idl
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
-//  $Header$
-//
+
 #include "SALOME_Component.idl"
 
-/*! \file SALOME_TestComponent.idl \brief an interface for testing Component and Container
+/*! \file SALOME_TestComponent.idl \brief an interface for testing EngineComponent and Container
 */
 
 module Engines
 {
-  
+
 /*! \brief a component with 2 operations (Coucou and Setenv)
 */
-  interface TestComponent : Component
+  interface TestComponent : EngineComponent
   {
     string Coucou(in long L);
     void Setenv();
   };
 
 };
-

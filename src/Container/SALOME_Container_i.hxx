@@ -66,25 +66,25 @@ public:
 
   virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
-  virtual Engines::Component_ptr
+  virtual Engines::EngineComponent_ptr
   create_component_instance( const char* componentName,
                              CORBA::Long studyId); // 0 for multiStudy
 
-  virtual Engines::Component_ptr
+  virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason); 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   load_impl(const char* nameToRegister,
             const char* componentName);
 
 
-  void remove_impl(Engines::Component_ptr component_i);
+  void remove_impl(Engines::EngineComponent_ptr component_i);
   void finalize_removal();
 
   virtual void ping();
@@ -108,7 +108,7 @@ public:
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
   // --- local C++ methods
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   find_or_create_instance( std::string genericRegisterName,
                            std::string componentLibraryName);
 
@@ -116,9 +116,9 @@ public:
   bool load_component_PythonImplementation(const char* componentName,std::string& reason);
   bool load_component_ExecutableImplementation(const char* componentName,std::string& reason);
 
-  Engines::Component_ptr createPythonInstance(std::string CompName, int studyId, std::string& error);
-  Engines::Component_ptr createExecutableInstance(std::string CompName, int studyId, const Engines::FieldsDict& env, std::string& error);
-  Engines::Component_ptr createInstance(std::string genericRegisterName, void *handle, int studyId, std::string& error);
+  Engines::EngineComponent_ptr createPythonInstance(std::string CompName, int studyId, std::string& error);
+  Engines::EngineComponent_ptr createExecutableInstance(std::string CompName, int studyId, const Engines::FieldsDict& env, std::string& error);
+  Engines::EngineComponent_ptr createInstance(std::string genericRegisterName, void *handle, int studyId, std::string& error);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
@@ -146,7 +146,7 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  std::map<std::string,Engines::Component_var> _listInstances_map;
+  std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
   std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
   Engines::fileTransfer_var _fileTransfer;
@@ -158,4 +158,3 @@ protected:
 };
 
 #endif
-

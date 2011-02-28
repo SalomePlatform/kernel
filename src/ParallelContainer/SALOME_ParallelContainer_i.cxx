@@ -19,11 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME_ParallelContainer : implementation of container and engine for ParallelKernel
 //  File   : SALOME_ParallelContainer_i.cxx
 //  Author : André RIBES, EDF
-//
+
 #include "SALOME_ParallelContainer_i.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_FileRef_i.hxx"
@@ -243,7 +242,7 @@ void Engines_Parallel_Container_i::Shutdown()
   /* For each seq component contained in this container
   * tell it to self-destroy
   */
-  std::map<std::string, Engines::Component_var>::iterator itm;
+  std::map<std::string, Engines::EngineComponent_var>::iterator itm;
   for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
   {
     try
@@ -383,13 +382,13 @@ Engines_Parallel_Container_i::load_component_Library(const char* componentName, 
  *  \return a loaded component
  */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName,
                                                         CORBA::Long studyId)
 {
   Engines::FieldsDict_var env = new Engines::FieldsDict;
   char* reason;
-  Engines::Component_ptr compo = create_component_instance_env(genericRegisterName,studyId,env, reason);
+  Engines::EngineComponent_ptr compo = create_component_instance_env(genericRegisterName,studyId,env, reason);
   CORBA::string_free(reason);
   return compo;
 }
@@ -408,7 +407,7 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::create_component_instance_env(const char*genericRegisterName,
                                                             CORBA::Long studyId,
                                                             const Engines::FieldsDict& env,
@@ -420,7 +419,7 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
   if (studyId < 0)
   {
     INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
 
   std::string aCompName = genericRegisterName;
@@ -445,10 +444,10 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
   {
     std::cerr << "Component library is not loaded or imported ! lib was : " << aCompName << std::endl;
     _numInstanceMutex.unlock();
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
 
-  Engines::Component_var iobject = Engines::Component::_nil();
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
   if (type_of_lib == "cpp")
     iobject = createCPPInstance(aCompName, handle, studyId);
   else
@@ -470,11 +469,11 @@ Engines_Parallel_Container_i::create_component_instance_env(const char*genericRe
  */
 //=============================================================================
 
-Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( const char* registeredName,
+Engines::EngineComponent_ptr Engines_Parallel_Container_i::find_component_instance( const char* registeredName,
                                                                               CORBA::Long studyId)
 {
-  Engines::Component_var anEngine = Engines::Component::_nil();
-  std::map<std::string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
+  Engines::EngineComponent_var anEngine = Engines::EngineComponent::_nil();
+  std::map<std::string,Engines::EngineComponent_var>::iterator itm =_listInstances_map.begin();
   while (itm != _listInstances_map.end())
   {
     std::string instance = (*itm).first;
@@ -507,10 +506,10 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
  */
 //=============================================================================
 
-Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* genericRegisterName,
+Engines::EngineComponent_ptr Engines_Parallel_Container_i::load_impl( const char* genericRegisterName,
                                                                 const char* componentName )
 {
-  Engines::Component_var iobject = Engines::Component::_nil();
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
   char* reason;
   if (load_component_Library(genericRegisterName,reason))
     iobject = find_or_create_instance(genericRegisterName);
@@ -527,13 +526,13 @@ Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* gene
  */
 //=============================================================================
 
-void Engines_Parallel_Container_i::remove_impl(Engines::Component_ptr component_i)
+void Engines_Parallel_Container_i::remove_impl(Engines::EngineComponent_ptr component_i)
 {
   ASSERT(!CORBA::is_nil(component_i));
   std::string instanceName = component_i->instanceName();
   _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   // Test if the component is in this container
-  std::map<std::string, Engines::Component_var>::iterator itm;
+  std::map<std::string, Engines::EngineComponent_var>::iterator itm;
   itm = _listInstances_map.find(instanceName);
   if (itm != _listInstances_map.end())
   {
@@ -711,10 +710,10 @@ Engines_Parallel_Container_i::createSalome_file(const char* origFileName)
  */
 //=============================================================================
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegisterName)
 {
-  Engines::Component_var iobject = Engines::Component::_nil();
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
   try
   {
     std::string aGenRegisterName = genericRegisterName;
@@ -728,14 +727,14 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
     }
     else
     { 
-      iobject = Engines::Component::_narrow(obj) ;
+      iobject = Engines::EngineComponent::_narrow(obj) ;
       Engines_Component_i *servant = dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant)
       int studyId = servant->getStudyId();
       ASSERT (studyId >= 0);
       if (studyId != 0)  // monoStudy instance: NOK
       {
-        iobject = Engines::Component::_nil();
+        iobject = Engines::EngineComponent::_nil();
         INFOS("load_impl & find_component_instance methods "
               << "NOT SUITABLE for mono study components");
       }
@@ -769,11 +768,11 @@ Engines_Parallel_Container_i::find_or_create_instance(std::string genericRegiste
  *  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
  */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterName, int studyId)
 {
 
-  Engines::Component_var iobject = Engines::Component::_nil();
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil();
 
   int numInstance = _numInstance;
   char aNumI[12];
@@ -801,7 +800,7 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
   if( iors!="" )
   {
     CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-    iobject = Engines::Component::_narrow(obj);
+    iobject = Engines::EngineComponent::_narrow(obj);
     _listInstances_map[instanceName] = iobject;
   }
   else
@@ -831,7 +830,7 @@ Engines_Parallel_Container_i::createPythonInstance(std::string genericRegisterNa
  *  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
  */
 //=============================================================================
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
                                                 void *handle,
                                                 int studyId)
@@ -863,11 +862,11 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
 #ifndef WIN32
     INFOS("dlerror() result is : " << dlerror());
 #endif
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
 
   // --- create instance
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
   try
   {
     int numInstance = _numInstance;
@@ -890,7 +889,7 @@ Engines_Parallel_Container_i::createCPPInstance(std::string genericRegisterName,
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
-    iobject = Engines::Component::_narrow(obj);
+    iobject = Engines::EngineComponent::_narrow(obj);
 
     Engines_Component_i *servant = 
       dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
@@ -945,7 +944,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   // Step 1 : Get proxy !
   string component_registerName = _proxy_containerName + "/" + instanceName;
   CORBA::Object_var temp = _NS->Resolve(component_registerName.c_str());
-  Engines::Component_var obj_proxy = Engines::Component::_narrow(temp);
+  Engines::EngineComponent_var obj_proxy = Engines::EngineComponent::_narrow(temp);
   if (CORBA::is_nil(obj_proxy))
   {
     INFOS("Proxy reference from NamingService is nil !");
@@ -1247,4 +1246,3 @@ void SigIntHandler( int what ) {
   }
 }
 #endif
-

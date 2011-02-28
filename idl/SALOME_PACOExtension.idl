@@ -16,11 +16,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : SALOME_PACOExtension.idl
 //  Author : André RIBES, EDF
-//  $Header: 
-//
+
 #ifndef _SALOME_PACOExtension_IDL_
 #define _SALOME_PACOExtension_IDL_
 
@@ -33,7 +31,7 @@
 
 module Engines
 {
-  interface Parallel_Component : Engines::Component {
+  interface Parallel_Component : Engines::EngineComponent {
     void send_parallel_proxy_object(in Object proxy_ref);
   };
 

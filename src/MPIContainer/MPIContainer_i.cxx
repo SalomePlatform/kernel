@@ -19,11 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME MPIContainer : implemenation of container based on MPI libraries
 //  File   : MPIContainer_i.cxx
 //  Module : SALOME
-//
+
 #include <iostream>
 #include <dlfcn.h>
 #include <stdio.h>
@@ -92,7 +91,7 @@ void Engines_MPIContainer_i::Shutdown()
       (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
   }
 
-  std::map<std::string, Engines::Component_var>::iterator itm;
+  std::map<std::string, Engines::EngineComponent_var>::iterator itm;
   for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
     {
       try
@@ -210,7 +209,7 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
 }
 
 // Create an instance of component
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_MPIContainer_i::create_component_instance_env( const char* componentName,
                                                        CORBA::Long studyId,
                                                        const Engines::FieldsDict& env,
@@ -231,7 +230,7 @@ Engines_MPIContainer_i::create_component_instance_env( const char* componentName
     }
   }
 
-  Engines::Component_ptr cptr = Lcreate_component_instance(componentName,studyId);
+  Engines::EngineComponent_ptr cptr = Lcreate_component_instance(componentName,studyId);
 
   if(_numproc == 0){
     for(int ip=1;ip<_nbproc;ip++)
@@ -242,22 +241,22 @@ Engines_MPIContainer_i::create_component_instance_env( const char* componentName
   return cptr;
 }
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterName, CORBA::Long studyId)
 {
   if (studyId < 0) {
     INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
 
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;
   Engines::MPIObject_var pobj;
 
   std::string aCompName = genericRegisterName;
   if (_library_map[aCompName]) { // Python component
     if (_isSupervContainer) {
       INFOS("Supervision Container does not support Python Component Engines");
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
     _numInstanceMutex.lock() ; // lock on the instance number
     _numInstance++ ;
@@ -288,7 +287,7 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
     Py_RELEASE_NEW_THREAD;
   
     CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-    iobject = Engines::Component::_narrow( obj ) ;
+    iobject = Engines::EngineComponent::_narrow( obj ) ;
     pobj = Engines::MPIObject::_narrow(obj) ;
     if( _numproc == 0 )
       _NS->Register(iobject, component_registerName.c_str()) ;
@@ -310,15 +309,15 @@ Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterN
       return iobject._retn();
     }
 
-  return Engines::Component::_nil() ;
+  return Engines::EngineComponent::_nil() ;
 }
 
-Engines::Component_ptr
+Engines::EngineComponent_ptr
 Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
                                           void *handle,
                                           int studyId)
 {
-  Engines::Component_var iobject;
+  Engines::EngineComponent_var iobject;
   Engines::MPIObject_var pobj;
   // --- find the factory
 
@@ -341,12 +340,12 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       SCRUTE( dlerror() );
       pobj = Engines::MPIObject::_nil();
       BCastIOR(_orb,pobj,false);
-      return Engines::Component::_nil();
+      return Engines::EngineComponent::_nil();
     }
 
   // --- create instance
 
-  iobject = Engines::Component::_nil() ;
+  iobject = Engines::EngineComponent::_nil() ;
 
   try
     {
@@ -369,10 +368,10 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       // --- get reference & servant from id
 
       CORBA::Object_var obj = _poa->id_to_reference(*id);
-      iobject = Engines::Component::_narrow( obj ) ;
+      iobject = Engines::EngineComponent::_narrow( obj ) ;
       pobj = Engines::MPIObject::_narrow(obj) ;
 
-      Engines_Component_i *servant =
+      Engines_EngineComponent_i *servant =
         dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant);
       //SCRUTE(servant->pd_refCount);
@@ -401,13 +400,13 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
     }
   catch(const std::exception &ex){
     INFOS( ex.what() ) ;
-    return Engines::Component::_nil();
+    return Engines::EngineComponent::_nil();
   }
   return iobject._retn();
 }
 
 // Load component
-Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegister,
+Engines::EngineComponent_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegister,
                                                  const char* componentName)
 {
   pthread_t *th;
@@ -423,7 +422,7 @@ Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegis
     }
   }
 
-  Engines::Component_ptr cptr =  Lload_impl(nameToRegister,componentName);
+  Engines::EngineComponent_ptr cptr =  Lload_impl(nameToRegister,componentName);
 
   if(_numproc == 0){
     for(int ip=1;ip<_nbproc;ip++)
@@ -435,11 +434,11 @@ Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegis
 }
 
 // Load component
-Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
+Engines::EngineComponent_ptr Engines_MPIContainer_i::Lload_impl(
                                    const char* nameToRegister,
                                    const char* componentName)
 {
-  Engines::Component_var iobject;
+  Engines::EngineComponent_var iobject;
   Engines::MPIObject_var pobj;
   char cproc[4];
 
@@ -463,7 +462,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   if(!handle){
     INFOS("[" << _numproc << "] Can't load shared library : " << absolute_impl_name);
     INFOS("[" << _numproc << "] error dlopen: " << dlerror());
-    return Engines::Component::_nil() ;
+    return Engines::EngineComponent::_nil() ;
   }
 
   std::string factory_name = _nameToRegister + std::string("Engine_factory");
@@ -488,7 +487,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
     MESSAGE("[" << _numproc << "] Try to load a sequential component");
     _numInstanceMutex.unlock() ;
     iobject = Engines_Container_i::load_impl(nameToRegister,componentName);
-    if( CORBA::is_nil(iobject) ) return Engines::Component::_duplicate(iobject);
+    if( CORBA::is_nil(iobject) ) return Engines::EngineComponent::_duplicate(iobject);
   }
   else{
     // Instanciation du composant parallele
@@ -498,7 +497,7 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
     // get reference from id
     CORBA::Object_var o = _poa->id_to_reference(*id);
     pobj = Engines::MPIObject::_narrow(o) ;
-    iobject = Engines::Component::_narrow(o) ;
+    iobject = Engines::EngineComponent::_narrow(o) ;
   }
 
   if( _numproc == 0 ){
@@ -514,11 +513,11 @@ Engines::Component_ptr Engines_MPIContainer_i::Lload_impl(
   BCastIOR(_orb,pobj,false);
 
   END_OF("[" <<_numproc << "] MPIContainer_i::Lload_impl");
-  return Engines::Component::_duplicate(iobject);
+  return Engines::EngineComponent::_duplicate(iobject);
 
 }
 
-void Engines_MPIContainer_i::remove_impl(Engines::Component_ptr component_i)
+void Engines_MPIContainer_i::remove_impl(Engines::EngineComponent_ptr component_i)
 {
   Engines::MPIObject_ptr pcptr;
   Engines::MPIObject_ptr spcptr;
@@ -532,7 +531,7 @@ void Engines_MPIContainer_i::remove_impl(Engines::Component_ptr component_i)
       st->ip = ip;
       st->tior = _tior;
       spcptr = Engines::MPIObject::_narrow((*(pcptr->tior()))[ip]);
-      st->cptr = (Engines::Component_ptr)spcptr;
+      st->cptr = (Engines::EngineComponent_ptr)spcptr;
       pthread_create(&(th[ip]),NULL,th_removeimpl,(void*)st);
     }
   }

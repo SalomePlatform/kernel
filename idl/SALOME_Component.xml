@@ -35,7 +35,7 @@
   </Method>
  </Interface>
  <Interface>
-  <Name>Component</Name>
+  <Name>EngineComponent</Name>
   <Method>
    <Name>ping</Name>
    <Type>distributed</Type>

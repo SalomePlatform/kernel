@@ -92,7 +92,7 @@ omniORBpyAPI* api;
 
 // ----------------------------------------------------------------------------
 
-%typemap(out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr,
+%typemap(out) Engines::Container_ptr, Engines::EngineComponent_ptr, Engines::fileRef_ptr,
               Engines::ContainerManager_ptr, Engines::ResourcesManager_ptr 
 {
   MESSAGE("typemap out on CORBA object ptr");
@@ -237,4 +237,3 @@ omniORBpyAPI* api;
 
 %include <SALOME_LifeCycleCORBA.hxx>
 %include <SALOME_FileTransferCORBA.hxx>
-

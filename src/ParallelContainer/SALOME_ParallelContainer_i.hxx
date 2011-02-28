@@ -19,11 +19,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME_ParallelContainer : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainer_i.hxx
 //  Author : André RIBES, EDF
-//
+
 #ifndef _SALOME_PARALLEL_CONTAINER_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_I_HXX_
 
@@ -74,21 +73,21 @@ public:
 
   virtual bool load_component_Library(const char* componentName, CORBA::String_out reason);
 
-  virtual Engines::Component_ptr
+  virtual Engines::EngineComponent_ptr
   create_component_instance( const char* componentName,
                              CORBA::Long studyId); // 0 for multiStudy
 
-  virtual Engines::Component_ptr
+  virtual Engines::EngineComponent_ptr
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   load_impl(const char* nameToRegister,
             const char* componentName);
 
@@ -99,7 +98,7 @@ public:
 
   void updateInstanceNumber();
 
-  void remove_impl(Engines::Component_ptr component_i);
+  void remove_impl(Engines::EngineComponent_ptr component_i);
   void finalize_removal();
 
   virtual void ping();
@@ -116,15 +115,15 @@ public:
   bool Kill_impl() ;
 
   // --- local C++ methods
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   find_or_create_instance(std::string genericRegisterName);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   createCPPInstance(std::string genericRegisterName,
                     void *handle,
                     int studyId);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   createPythonInstance(std::string genericRegisterName,
                        int studyId);
 
@@ -156,7 +155,7 @@ protected:
   bool   _isServantAloneInProcess;
   Engines::fileTransfer_var _fileTransfer;
 
-  typedef std::map<std::string,Engines::Component_var> _listInstances_map_t;
+  typedef std::map<std::string,Engines::EngineComponent_var> _listInstances_map_t;
   typedef std::map<std::string,Engines::fileRef_var> _fileRef_map_t;
   typedef std::map<std::string,Engines::Salome_file_var> _Salome_file_map_t;
   _listInstances_map_t _listInstances_map;
@@ -175,4 +174,3 @@ protected:
 };
 
 #endif
-

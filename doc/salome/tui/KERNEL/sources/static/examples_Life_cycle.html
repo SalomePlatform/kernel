@@ -55,7 +55,7 @@ to the root POA<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SALOME_LifeCycleCORBA _LCC(&amp;_NS) ;<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Engines::Component_var myComponent = _LCC.FindOrLoad_Component("FactoryServerPy","TestComponentPy");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Engines::EngineComponent_var myComponent = _LCC.FindOrLoad_Component("FactoryServerPy","TestComponentPy");<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; if(!CORBA::is_nil(myComponent)){<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Engines::TestComponent_var
 myConcreateComponent = TestComponent::_narrow(myComponent);<br>

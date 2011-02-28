@@ -19,13 +19,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 //  File   : SALOME_LifeCycleCORBA.hxx
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
-//  $Header$
-//
+
 #ifndef _SALOME_LIFECYCLECORBA_HXX_
 #define _SALOME_LIFECYCLECORBA_HXX_
 
@@ -67,33 +65,33 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   FindComponent(const Engines::MachineParameters& params,
                 const char *componentName,
                 int studyId=0);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   LoadComponent(const Engines::MachineParameters& params,
                 const char *componentName,
                 int studyId=0);
 
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   FindOrLoad_Component(const Engines::MachineParameters& params,
                        const char *componentName,
                        int studyId =0);
 
   // SALOME 6 - Interface
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   FindOrLoad_Component(const Engines::ContainerParameters& params,
                        const char *componentName,
                        int studyId =0);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   FindOrLoad_Component(const char *containerName,
                        const char *componentName); // for compatibility
   
   // Parallel extension
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
     Load_ParallelComponent(const Engines::ContainerParameters& params,
                            const char *componentName,
                            int studyId);
@@ -129,13 +127,13 @@ protected:
    *  exists among the list of resources in "listOfMachines".
    *  This method uses Naming Service to find the component.
    */
-  Engines::Component_ptr 
+  Engines::EngineComponent_ptr 
   _FindComponent(const Engines::ContainerParameters& params,
                  const char *componentName,
                  int studyId,
                  const Engines::ResourceList& listOfResources);
 
-  Engines::Component_ptr
+  Engines::EngineComponent_ptr
   _LoadComponent(const Engines::ContainerParameters& params,
                  const char *componentName,
                  int studyId);

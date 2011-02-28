@@ -55,7 +55,7 @@ _Sleeping = 0
 ## define an implementation of the component interface Engines::Component
 #
 #  
-class SALOME_ComponentPy_i (Engines__POA.Component):
+class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     _orb = None
     _poa = None
     _fieldsDict = []

@@ -19,11 +19,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
 //  File   : SALOME_Session.idl
 //  Author : Paul RASCLE, EDF
-//  $Header$
-//
+
 #include "SALOME_Component.idl"
 
 /*! \file SALOME_Session.idl \brief file that contains interface of the session
@@ -32,32 +30,31 @@
 module SALOME
 {
 /*! \brief State of the session
-   
+
    This enumeration contains values defining the state of the session
-  
-*/ 
+
+*/
   enum SessionState {asleep, /*!< Session is inactive */
-		     running /*!< Session is running */
+                     running /*!< Session is running */
   } ;
 
 /*! \brief %Session State and Statistics
 
-
-    This struct contains a field list with general information about the session 
+    This struct contains a field list with general information about the session
 */
-   
+
   struct StatSession
   {
 /*! \brief State of the session
-  
+
    It can be:
         -# asleep  : no running study
         -# running : one or more running studies
 */
-    SessionState state ; 
-//! Number of running studies
+    SessionState state ;
+    //! Number of running studies
     short        runningStudies ;
-//! It is True if GUI is active in the session
+    //! It is True if GUI is active in the session
     boolean      activeGUI ;
   } ;
 
@@ -72,13 +69,13 @@ module SALOME
 //!  This exception is raised when trying to stop the %session with active GUI
     exception GUIActive {} ;
 //!  This exception is raised when trying to stop the %session with a number of running studies.
-    exception RunningStudies {} ;  
+    exception RunningStudies {} ;
 
 //!  Launches GUI in the session
-    void GetInterface(); 
+    void GetInterface();
 
 //!  Returns a standalone component
-    Engines::Component GetComponent(in string theLibraryName);
+    Engines::EngineComponent GetComponent(in string theLibraryName);
 
 //!  Stops the %Session (It must be idle)
     void StopSession() raises(GUIActive, RunningStudies) ;

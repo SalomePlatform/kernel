@@ -37,7 +37,7 @@
 module Engines
 {
   
-  interface TestMPIComponent : Component, MPIObject
+  interface TestMPIComponent : EngineComponent, MPIObject
   {
     // version synchrone (process 0)
     void Coucou(in long L);

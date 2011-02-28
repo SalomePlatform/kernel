@@ -50,7 +50,7 @@ class RegistryConnexion;
 class Engines_Container_i;
 
 class CONTAINER_EXPORT Engines_Component_i: 
-  public virtual POA_Engines::Component,
+  public virtual POA_Engines::EngineComponent,
   public virtual PortableServer::ServantBase
 {
 public:

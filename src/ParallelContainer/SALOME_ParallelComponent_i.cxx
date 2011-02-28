@@ -77,8 +77,8 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
                                          bool notif,
                                          bool regist) :
   InterfaceParallel_impl(orb,ior,rank), 
-  Engines::Component_serv(orb,ior,rank),
-  Engines::Component_base_serv(orb,ior,rank),
+  Engines::EngineComponent_serv(orb,ior,rank),
+  Engines::EngineComponent_base_serv(orb,ior,rank),
   Engines::Parallel_Component_serv(orb,ior,rank),
   Engines::Parallel_Component_base_serv(orb,ior,rank),
   _instanceName(instanceName),
@@ -1198,4 +1198,3 @@ Engines_Parallel_Component_i::configureSalome_file(std::string service_name,
 {
   // By default this method does nothing
 }
-

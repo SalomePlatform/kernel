@@ -128,7 +128,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_LaunchContainer()
   //     load an engine, check that the CORBA object is not null
 
   std::string containerName = "myContainer";
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -157,11 +157,11 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameInstance()
 
   std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -200,7 +200,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonInCppContainer()
 
   std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
@@ -229,11 +229,11 @@ LifeCycleCORBATest::testFindOrLoad_Component_PythonSameInstance()
 
   std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SALOME_TestComponentPy");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -273,7 +273,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownInCatalog()
 
   std::string containerName = "myContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"MyNewComponent");
   CPPUNIT_ASSERT(CORBA::is_nil(mycompo1));
 }
@@ -298,7 +298,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_LaunchContainerHostname()
   std::string containerName = Kernel_Utils::GetHostname();
   containerName += "/theContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -326,14 +326,14 @@ LifeCycleCORBATest::testFindOrLoad_Component_SameContainer()
 
   std::string containerName = "aContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
 
   containerName = Kernel_Utils::GetHostname();
   containerName += "/aContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo2 =
+  Engines::EngineComponent_var mycompo2 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo2));
 
@@ -391,7 +391,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_UnknownMachine()
 //                     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");,SALOME::SALOME_Exception);
   try
     {
-      Engines::Component_var mycompo =
+      Engines::EngineComponent_var mycompo =
         _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
     }
   catch(const SALOME::SALOME_Exception &ex)
@@ -419,7 +419,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsEmpty()
 
   Engines::MachineParameters params;
   _LCC.preSet(params);
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -444,7 +444,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
   _LCC.preSet(params);
   std::string hostname=Kernel_Utils::GetHostname();
   params.hostname=hostname.c_str();
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -478,7 +478,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
   _LCC.preSet(params);
   std::string containerName = "myContainer";
   params.container_name = containerName.c_str();
-  Engines::Component_var mycompo =
+  Engines::EngineComponent_var mycompo =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT(!CORBA::is_nil(mycompo));
 
@@ -514,7 +514,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
   std::string containerName = remoteHost;
   containerName += "/aContainer";
   DEVTRACE("containerName = " << containerName);
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
                          "computers from ResourcesCatalog",
@@ -552,7 +552,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
   _LCC.preSet(params); 
   params.hostname = remoteHost.c_str();
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
                          "computers from ResourcesCatalog",
@@ -591,7 +591,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
   params.hostname = remoteHost.c_str();
   params.container_name = "anotherContainer";
 
-  Engines::Component_var mycompo1 =
+  Engines::EngineComponent_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
   CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
                          "computers from ResourcesCatalog",

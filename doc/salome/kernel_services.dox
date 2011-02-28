@@ -174,7 +174,7 @@ See <a href="Batch.html/index.html"> Batch documentation </a> (in french only).
 
 -# <b>Containers and component life cycle, File transfer service</b>
    - Engines : engines CORBA module.                         
-   - Engines::Component : generic component interface. All %SALOME components inherit this interface.
+   - Engines::EngineComponent : generic component interface. All %SALOME components inherit this interface.
    - Engines::Container : host for C++ and Python components components instances                          
    - Engines::fileTransfer : agent for file transfer created by a container copy a local file to a distent client         
    - Engines::fileRef : reference to a file, used by a container for file transfers                                
@@ -202,7 +202,7 @@ See <a href="Batch.html/index.html"> Batch documentation </a> (in french only).
    .
 -# <b>Other idl for test purposes</b>
    - NSTEST : for naming service test
-   - SALOME_TestComponent.idl : for Component test
+   - SALOME_TestComponent.idl : for EngineComponent test
    - SALOME_TestModuleCatalog : for SALOME_ModuleCatalog test
    - SALOME_TestMPIComponent.idl : \copybrief SALOME_TestMPIComponent.idl
    - TestNotif.idl : \copybrief TestNotif.idl
@@ -321,4 +321,3 @@ AttributePersistentRef interface(creations/saving/restoring)\n
 SALOMEDS methods : FindOrCreateAttribute,  SaveAs, FindComponent FindAttribute Open\n
 Attribute methods : SetValue, Value
 */
-

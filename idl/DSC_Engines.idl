@@ -58,7 +58,7 @@ module Engines {
     - First part permits to add an get ports of a component.
     - Second part permits to connect/disconnect ports.
   */
-  interface DSC : Engines::Component {
+  interface DSC : Engines::EngineComponent {
 
 /*--------------------------------------------------------------------------------------------*/
 /*-------------------------------------- Types Part ------------------------------------------*/

@@ -18,7 +18,6 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
 
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_TMPFile_i.hxx"
@@ -219,7 +218,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 {
   SALOMEDS_Study_i *  st_servant = SALOMEDS_Study_i::GetStudyServant(theStudy, _orb);//new SALOMEDS_Study_i (theStudy, _orb);
   SALOMEDS::Study_var st  = SALOMEDS::Study::_narrow(st_servant->_this());
-  Engines::Component_ptr aComponent = Engines::Component::_narrow(_driver);
+  Engines::EngineComponent_ptr aComponent = Engines::EngineComponent::_narrow(_driver);
 
   SALOMEDS::unlock();
   CORBA::Boolean aValidScript, aPublished = isPublished;
