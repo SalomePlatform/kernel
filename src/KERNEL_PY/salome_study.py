@@ -110,8 +110,8 @@ def IDToSObject(id):
     #--------------------------------------------------------------------------
 
 def generateName(prefix = None):
-    import whrandom;
-    int = whrandom.randint(1,1000);
+    import random;
+    int = random.randint(1,1000);
     if prefix is None:
         return "Study" + str(int)
     else :
