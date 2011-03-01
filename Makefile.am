@@ -41,7 +41,7 @@ endif
 
 DIST_SUBDIRS= salome_adm idl src doc bin resources
 
-DISTCLEANFILES = a.out local-install.sh hack_libtool
+DISTCLEANFILES = a.out local-install.sh hack_libtool aclocal.m4 configure salome_adm/unix/config_files/config.guess salome_adm/unix/config_files/config.sub salome_adm/unix/config_files/depcomp salome_adm/unix/config_files/install-sh salome_adm/unix/config_files/libtool.m4 salome_adm/unix/config_files/ltmain.sh salome_adm/unix/config_files/ltoptions.m4 salome_adm/unix/config_files/ltsugar.m4 salome_adm/unix/config_files/ltversion.m4 salome_adm/unix/config_files/lt~obsolete.m4 salome_adm/unix/config_files/missing salome_adm/unix/config_files/py-compile
 
 salomeinclude_DATA = KERNEL_version.h
 
