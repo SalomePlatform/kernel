@@ -24,10 +24,7 @@
 //  File   : HDFcontainerObject.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
-}
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
 

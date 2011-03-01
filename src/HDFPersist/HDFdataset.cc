@@ -24,11 +24,8 @@
 //  File   : HDFdataset.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
 #include <string.h>
-}
 #include "HDFdataset.hxx"
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"

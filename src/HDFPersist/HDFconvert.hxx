@@ -27,8 +27,6 @@
 #ifndef HDFCONVERT_HXX
 #define HDFCONVERT_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
 #ifndef WIN32
 #include <unistd.h>
@@ -40,7 +38,6 @@ extern "C"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-}
 #include "HDFexport.hxx"
 #include "HDFcontainerObject.hxx"
 #include "HDFdataset.hxx"

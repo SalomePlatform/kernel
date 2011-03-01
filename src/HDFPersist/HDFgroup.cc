@@ -24,11 +24,8 @@
 //  File   : HDFgroup.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
 #include <string.h>
-}
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
 

@@ -27,10 +27,7 @@
 #ifndef HDFDATASET_HXX
 #define HDFDATASET_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
 #include "HDFexport.hxx"

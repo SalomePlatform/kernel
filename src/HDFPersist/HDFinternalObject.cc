@@ -24,10 +24,7 @@
 //  File   : HDFinternalObject.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
-}
 #include "HDFinternalObject.hxx"
 
 HDFinternalObject::HDFinternalObject(const char *name)

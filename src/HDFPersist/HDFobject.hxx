@@ -27,10 +27,7 @@
 #ifndef HDFOBJECT_HXX
 #define HDFOBJECT_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFexport.hxx"
 
 class HDFPERSIST_EXPORT HDFobject {

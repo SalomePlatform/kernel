@@ -27,10 +27,7 @@
 #ifndef HDFGROUP_HXX
 #define HDFGROUP_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFcontainerObject.hxx"
 #include "HDFexport.hxx"
 

@@ -27,10 +27,7 @@
 #ifndef HDFINTERNALOBJECT_HXX
 #define HDFINTERNALOBJECT_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFobject.hxx"
 #include "HDFexport.hxx"
 

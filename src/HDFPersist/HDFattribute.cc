@@ -24,10 +24,7 @@
 //  File   : HDFattribute.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
-}
 #include "HDFexception.hxx"
 #include "HDFattribute.hxx"
 #include "HDFinternalObject.hxx"

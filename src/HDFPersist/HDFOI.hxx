@@ -24,10 +24,7 @@
 //  File   : HDFOI.hxx
 //  Module : SALOME
 //
-extern "C"
-{
 #include "HDFtypes.h"
-}
 
 #include "HDFattribute.hxx"
 #include "HDFfile.hxx"

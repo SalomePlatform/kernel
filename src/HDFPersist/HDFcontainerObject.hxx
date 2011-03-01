@@ -27,10 +27,7 @@
 #ifndef HDFCONTAINEROBJECT_HXX
 #define HDFCONTAINEROBJECT_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFobject.hxx"
 #include "HDFinternalObject.hxx"
 #include "HDFexport.hxx"

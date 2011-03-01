@@ -33,6 +33,9 @@
 
 /* HDF C INTERFACE */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* File Interface */
 extern
 hdf_idt HDFfileCreate(char *name);
@@ -126,5 +129,8 @@ hdf_err HDFobjectIdentify(hdf_idt fid,const char *path,int i,char *name);
 
 extern
 hdf_err HDFobjectType(hdf_idt id, char *name, hdf_object_type *type);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* HDFI_H */

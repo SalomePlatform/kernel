@@ -24,8 +24,6 @@
 //  File   : HDFfile.cc
 //  Module : SALOME
 //
-extern "C"
-{
 #include "hdfi.h"
 #ifndef WIN32
 #include <unistd.h>
@@ -35,7 +33,6 @@ extern "C"
 #define access _access
 #endif
 #include <string.h>
-}
 #include <iostream>
 #include "HDFfile.hxx"
 #include "HDFexception.hxx"

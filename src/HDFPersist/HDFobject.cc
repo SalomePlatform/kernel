@@ -25,10 +25,7 @@
 //  Module : SALOME
 //
 #include "HDFobject.hxx"
-extern "C"
-{
 #include "hdfi.h"
-}
 
 #include <cstring>
 #include <stdlib.h>

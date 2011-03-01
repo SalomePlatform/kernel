@@ -27,10 +27,7 @@
 #ifndef HDFATTRIBUTE_HXX
 #define HDFATTRIBUTE_HXX
 
-extern "C"
-{
 #include "HDFtypes.h"
-}
 #include "HDFinternalObject.hxx"
 #include "HDFcontainerObject.hxx"
 
