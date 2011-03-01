@@ -28,6 +28,10 @@ AC_ARG_WITH(mpi_lib,
    [AC_HELP_STRING([--with-mpi_lib=DIR],[directory path of MPICH lib installation])],
    MPILIBREQUESTED="$withval")
 
+AC_ARG_WITH(mpi_include,
+   [AC_HELP_STRING([--with-mpi_include=DIR],[directory path of MPICH header file installation])],
+   MPIINCLUDEREQUESTED="$withval")
+
 AC_ARG_WITH(mpi,
    [AC_HELP_STRING([--with-mpi=DIR],[root directory path of MPICH installation])],
    MPIREQUESTED="yes",MPIREQUESTED="no")
@@ -57,6 +61,10 @@ if test x"$MPIREQUESTED" = xyes; then
 
   if test x"$MPILIBREQUESTED" != x; then
     MPI_LIBS="-L$MPILIBREQUESTED"
+  fi
+
+  if test x"$MPIINCLUDEREQUESTED" != x; then
+    MPI_INCLUDES="-I$MPIINCLUDEREQUESTED"
   fi
 
   CPPFLAGS_old="$CPPFLAGS"
