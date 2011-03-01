@@ -42,6 +42,9 @@ AC_SUBST(CAS_DATAEXCHANGE)
 AC_SUBST(CAS_LDFLAGS)
 AC_SUBST(CAS_LDPATH)
 AC_SUBST(CAS_STDPLUGIN)
+AC_SUBST(CAS_LIBDIR)
+AC_SUBST(CAS_DATADIR)
+AC_SUBST(CASROOT)
 
 CAS_CPPFLAGS=""
 CAS_CXXFLAGS=""
@@ -88,18 +91,18 @@ if test -z "$CASROOT"; then
   done
 fi
 
-if test -d ${CASROOT}/${casdir}/lib; then
-  CAS_LDPATH="-L$CASROOT/$casdir/lib "
+CAS_LIBDIR="$CASROOT/$casdir/lib"
+if test -d ${CAS_LIBDIR}; then
   AC_MSG_RESULT(yes)
 else
   if test -d ${CASROOT}/lib; then
-    CAS_LDPATH="-L$CASROOT/lib "
+    CAS_LIBDIR="$CASROOT/lib"
     AC_MSG_RESULT(yes)
   else
     AC_MSG_RESULT(no)
   fi
 fi
-
+  CAS_LDPATH="-L$CAS_LIBDIR "
 
 dnl were is OCC ?
 if test -z "$CASROOT"; then
@@ -109,8 +112,12 @@ else
   OCC_VERSION_MAJOR=0
   OCC_VERSION_MINOR=0
   OCC_VERSION_MAINTENANCE=0
-  ff=$CASROOT/inc/Standard_Version.hxx
-  if test -f $ff ; then
+  if test -f $CASROOT/inc/Standard_Version.hxx; then
+    ff=$CASROOT/inc/Standard_Version.hxx
+  else
+    ff=$CASROOT/include/opencascade/Standard_Version.hxx
+  fi
+  if test -f $ff; then
     grep "define OCC_VERSION_MAJOR" $ff > /dev/null
     if test $? = 0 ; then
       OCC_VERSION_MAJOR=`grep "define OCC_VERSION_MAJOR" $ff | awk '{i=3 ; print $i}'`
@@ -122,6 +129,19 @@ else
     grep "define OCC_VERSION_MAINTENANCE" $ff > /dev/null
     if test $? = 0 ; then
       OCC_VERSION_MAINTENANCE=`grep "define OCC_VERSION_MAINTENANCE" $ff | awk '{i=3 ; print $i}'`
+    fi
+    AC_MSG_CHECKING(for OpenCascade data files)
+    if test -f ${CASROOT}/src/UnitsAPI/Lexi_Expr.dat; then
+      CAS_DATADIR=${CASROOT}
+      AC_MSG_RESULT(found in $CAS_DATADIR/src)
+    else
+      if test -f ${CASROOT}/share/opencascade/${OCC_VERSION_MAJOR}.${OCC_VERSION_MINOR}.${OCC_VERSION_MAINTENANCE}/src/UnitsAPI/Lexi_Expr.dat; then
+        CAS_DATADIR=${CASROOT}/share/opencascade/${OCC_VERSION_MAJOR}.${OCC_VERSION_MINOR}.${OCC_VERSION_MAINTENANCE}
+        AC_MSG_RESULT(found in $CAS_DATADIR/src)
+      else
+        occ_ok=no
+	AC_MSG_RESULT(not found, check OpenCascade installation)
+      fi
     fi
   fi
 fi
@@ -152,7 +172,7 @@ case $host_os in
           CAS_CPPFLAGS="$CAS_CPPFLAGS -DOCC_CONVERT_SIGNALS"
           ;;
       esac
-      CAS_CPPFLAGS="$CAS_CPPFLAGS -I$CASROOT/inc"
+      CAS_CPPFLAGS="$CAS_CPPFLAGS -I$CASROOT/inc -I$CASROOT/include/opencascade"
       ;;
    osf*)
       CAS_CPPFLAGS="-DOCC_VERSION_MAJOR=$OCC_VERSION_MAJOR -DOCC_VERSION_MINOR=$OCC_VERSION_MINOR -DOCC_VERSION_MAINTENANCE=$OCC_VERSION_MAINTENANCE -DLIN -DLINTEL -DCSFDB -DNo_exception -DHAVE_CONFIG_H -DHAVE_LIMITS_H -DHAVE_WOK_CONFIG_H -I$CASROOT/inc"
