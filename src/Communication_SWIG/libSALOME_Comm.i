@@ -27,9 +27,6 @@
 %{
   #include "ReceiverFactory.hxx"
   #include "MatrixClient.hxx"
-  #undef SEEK_SET
-  #undef SEEK_CUR
-  #undef SEEK_END
   #include "SALOME_Comm_i.hxx"
   #include "SALOMEMultiComm.hxx"
   #include "SenderFactory.hxx"
