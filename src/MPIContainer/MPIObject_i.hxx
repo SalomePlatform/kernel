@@ -29,6 +29,7 @@
 
 #include <mpi.h>
 #include <string>
+#include <map>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_MPIObject)
 
