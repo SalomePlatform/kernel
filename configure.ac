@@ -229,6 +229,14 @@ echo
 
 CHECK_LIBXML
 
+echo
+echo ---------------------------------------------
+echo checking if MPI is requested by user
+echo ---------------------------------------------
+echo
+
+CHECK_MPI
+
 if test x$with_onlylauncher = xno; then
 echo
 echo ---------------------------------------------
@@ -307,14 +315,6 @@ echo ============================================================
 echo testing parallel products
 echo ============================================================
 echo
-
-echo
-echo ---------------------------------------------
-echo checking if MPI is requested by user
-echo ---------------------------------------------
-echo
-
-CHECK_MPI
 
 echo
 echo ---------------------------------------------
