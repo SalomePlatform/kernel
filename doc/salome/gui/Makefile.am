@@ -33,9 +33,11 @@ usr_docs: doxyfile
 
 docs: usr_docs
 
-install-data-local: usr_docs
-	$(INSTALL) -d $(DESTDIR)$(docdir)/gui
-	cp -rp KERNEL $(DESTDIR)$(docdir)/gui
+install-data-local:
+	if test -d KERNEL; then \
+	$(INSTALL) -d $(DESTDIR)$(docdir)/gui ; \
+	cp -rp KERNEL $(DESTDIR)$(docdir)/gui ; \
+	fi
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/gui/KERNEL
