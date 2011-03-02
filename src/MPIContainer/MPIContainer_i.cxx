@@ -371,7 +371,7 @@ Engines_MPIContainer_i::createMPIInstance(std::string genericRegisterName,
       iobject = Engines::EngineComponent::_narrow( obj ) ;
       pobj = Engines::MPIObject::_narrow(obj) ;
 
-      Engines_EngineComponent_i *servant =
+      Engines_Component_i *servant =
         dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant);
       //SCRUTE(servant->pd_refCount);
