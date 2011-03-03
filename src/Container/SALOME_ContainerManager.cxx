@@ -86,11 +86,9 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
-  std::string urifile = getenv("HOME");
-  std::ostringstream mypid;
-  mypid << getpid();
-  urifile += "/.urifile_" + mypid.str();
-  setenv("OMPI_URI_FILE",urifile.c_str(),0);
+  std::stringstream urifile;
+  urifile << getenv("HOME") << "/.urifile_" << getpid();
+  setenv("OMPI_URI_FILE",urifile.str().c_str(),1);
   if( getenv("OMPI_URI_FILE") != NULL ){
     system("killall -q ompi-server");
     std::string command;
@@ -118,8 +116,12 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
   if( getenv("OMPI_URI_FILE") != NULL ){
-    system("killall -q ompi-server");
-    system("rm -f ${OMPI_URI_FILE}");
+    int status=system("killall -q ompi-server");
+    if(status!=0)
+      throw SALOME_Exception("Error when killing ompi-server");
+    status=system("rm -f ${OMPI_URI_FILE}");
+    if(status!=0)
+      throw SALOME_Exception("Error when removing urifile");
   }
 #endif
 #endif
