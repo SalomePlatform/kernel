@@ -92,7 +92,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   urifile += "/.urifile_" + mypid.str();
   setenv("OMPI_URI_FILE",urifile.c_str(),0);
   if( getenv("OMPI_URI_FILE") != NULL ){
-    system("killall ompi-server");
+    system("killall -q ompi-server");
     std::string command;
     command = "ompi-server -r ";
     command += getenv("OMPI_URI_FILE");
@@ -117,8 +117,10 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
   MESSAGE("destructor");
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
-  if( getenv("OMPI_URI_FILE") != NULL )
-    system("killall ompi-server");
+  if( getenv("OMPI_URI_FILE") != NULL ){
+    system("killall -q ompi-server");
+    system("rm -f ${OMPI_URI_FILE}");
+  }
 #endif
 #endif
 }
