@@ -33,7 +33,7 @@ usr_docs: doxyfile
 
 docs: usr_docs
 
-install-data-local:
+install-data-local: usr_docs
 	if test -d KERNEL; then \
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui ; \
 	cp -rp KERNEL $(DESTDIR)$(docdir)/gui ; \
