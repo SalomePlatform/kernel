@@ -30,14 +30,28 @@
 /*! \file SALOME_GenericObj.idl \brief interface for common behavior of %SALOME transient CORBA objects 
 */
 
-module SALOME{
-/*! \brief interface for common behavior of %SALOME transient CORBA objects 
-*/
-  interface GenericObj{
+module SALOME {
+
+  typedef sequence<string> StringSeq;
+
+  /*!
+    \brief interface for common behavior of %SALOME transient CORBA objects 
+  */
+  interface GenericObj {
     /*! \brief Increase the reference count (mark as used by another object).*/
     void Register();
     /*! \brief Decrease the reference count (release by another object).*/
-    void Destroy();
+    void UnRegister();
+  };
+
+  /*!
+    \brief common usage interface for exporting of arbitrary data in %SALOME environment
+  */
+  interface ExportableObject : GenericObj {
+    /*! \brief Get a list of supported formats */
+    StringSeq GetExportableFormats();
+    /*! \brief Export data in the specified format */
+    boolean   ExportDataAs(in string format, out GenericObj exporter);
   };
 };
 

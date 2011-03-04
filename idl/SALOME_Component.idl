@@ -25,6 +25,7 @@
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
 
+#include "SALOME_GenericObj.idl"
 #include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
 #include "SALOME_PyNode.idl"
@@ -441,6 +442,16 @@ module Engines
     string getObjectInfo(in long studyId, in string entry);
   } ;
 
+  /*!
+    \brief Base interface of the %component that supports exporting data.
+  */
+  interface ImportableComponent
+  {
+    /*! \brief Get a list of supported formats */
+    SALOME::StringSeq GetImportableFormats();
+    boolean           ImportDataAs(in string format, in SALOME::GenericObj exporter);
+  };
+
   //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.
   typedef sequence<octet> fileBlock;
 
@@ -448,7 +459,7 @@ module Engines
      The fileTransfer and fileRef interfaces provide a file transfer service
      between different computers.
   */
-  interface fileTransfer
+  interface fileTransfer : SALOME::GenericObj
   {
     //! Open the file transfer
     /*!
