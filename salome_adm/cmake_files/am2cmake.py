@@ -466,6 +466,10 @@ class CMakeFile(object):
             ENABLE_TESTING()
             """)
             # --
+            newlines.append("""
+            SET(MODULE %s)
+            """%(self.module.upper()))
+            # --
             if self.module == "kernel":
                 newlines.append("""
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
