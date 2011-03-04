@@ -40,7 +40,7 @@ class Generic(SALOME__POA.GenericObj):
   def Register(self):
     self.cnt+=1
 
-  def Destroy(self):
+  def UnRegister(self):
     self.cnt-=1
     if self.cnt <= 0:
       oid=self.poa.servant_to_id(self)

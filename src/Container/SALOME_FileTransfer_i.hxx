@@ -30,6 +30,8 @@
 
 #include "SALOME_Container.hxx"
 
+#include "SALOME_GenericObj_i.hh"
+
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include <map>
@@ -37,7 +39,8 @@
 
 class CONTAINER_EXPORT fileTransfer_i:
   public virtual POA_Engines::fileTransfer,
-  public virtual PortableServer::ServantBase
+  public virtual PortableServer::ServantBase,
+  public virtual SALOME::GenericObj_i
 {
 public:
   fileTransfer_i();

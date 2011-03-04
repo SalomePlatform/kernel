@@ -45,7 +45,7 @@ SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIt
 
 SALOMEDS_ChildIterator::~SALOMEDS_ChildIterator()
 {
-  if(!_isLocal) _corba_impl->Destroy(); 
+  if(!_isLocal) _corba_impl->UnRegister(); 
   else if(_local_impl) delete _local_impl;
 }
 

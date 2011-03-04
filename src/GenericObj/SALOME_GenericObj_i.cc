@@ -63,9 +63,9 @@ void GenericObj_i::Register(){
 }
 
 
-void GenericObj_i::Destroy(){
+void GenericObj_i::UnRegister(){
   if(MYDEBUG)
-    MESSAGE("GenericObj_i::Destroy "<<this<<"; myRefCounter = "<<myRefCounter)
+    MESSAGE("GenericObj_i::UnRegister "<<this<<"; myRefCounter = "<<myRefCounter)
   if(--myRefCounter <= 0){
     PortableServer::ObjectId_var anObjectId = myPOA->servant_to_id(this);
     myPOA->deactivate_object(anObjectId.in());

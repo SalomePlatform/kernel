@@ -31,7 +31,7 @@ import omniORB
 import SALOME
 
 def mydel(self):
-    self.Destroy()
+    self.UnRegister()
     omniORB.CORBA.Object.__del__(self)
 
 def mysetattr(self,attr,value):

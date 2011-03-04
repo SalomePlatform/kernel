@@ -89,6 +89,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/GenericObj \
 		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_builddir)/idl \
 		 -I$(top_builddir)/src/DSC/DSC_User/Datastream/Calcium \

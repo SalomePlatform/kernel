@@ -55,6 +55,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../GenericObj \
 	-I$(srcdir)/../Container \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -70,6 +71,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../GenericObj/libSalomeGenericObj.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #

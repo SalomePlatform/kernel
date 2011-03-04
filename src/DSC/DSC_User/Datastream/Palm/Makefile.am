@@ -48,6 +48,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/GenericObj \
 		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \

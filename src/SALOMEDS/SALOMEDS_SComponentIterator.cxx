@@ -45,7 +45,7 @@ SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(SALOMEDS::SComponentIte
 
 SALOMEDS_SComponentIterator::~SALOMEDS_SComponentIterator()
 {
-  if(!_isLocal) _corba_impl->Destroy(); 
+  if(!_isLocal) _corba_impl->UnRegister(); 
   else if(_local_impl) delete _local_impl;
 }
 

@@ -51,7 +51,7 @@ SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDS::UseCaseBuilder_ptr th
 
 SALOMEDS_UseCaseBuilder::~SALOMEDS_UseCaseBuilder()
 {
-  if(!_isLocal) _corba_impl->Destroy(); 
+  if(!_isLocal) _corba_impl->UnRegister(); 
 }  
 
 bool SALOMEDS_UseCaseBuilder::Append(const _PTR(SObject)& theObject)

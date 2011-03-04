@@ -55,6 +55,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
+	-I$(srcdir)/../GenericObj \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(top_builddir)/idl \
@@ -68,6 +69,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../GenericObj/libSalomeGenericObj.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #

@@ -47,7 +47,7 @@ salomeinclude_HEADERS = \
 # Scripts to be installed
 dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
-  SALOME_PyNode.py \
+	SALOME_PyNode.py \
 	SALOME_Container.py
 
 # These files are executable scripts
@@ -72,6 +72,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../HDFPersist \
+	-I$(srcdir)/../GenericObj \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @LIBXML_INCLUDES@
 
@@ -86,6 +87,7 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../HDFPersist/libSalomeHDFPersist.la \
+	../GenericObj/libSalomeGenericObj.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
 	@CORBA_LIBS@ \
 	$(PYTHON_LIBS)

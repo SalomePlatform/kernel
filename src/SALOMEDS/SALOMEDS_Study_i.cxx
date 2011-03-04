@@ -793,11 +793,11 @@ void SALOMEDS_Study_i::Close()
       catch (CORBA::Exception&) 
         {/*pass*/ }
     }
-    sco->Destroy();
+    sco->UnRegister();
   }
 
   //Does not need any more this iterator
-  itcomponent->Destroy();
+  itcomponent->UnRegister();
 
 
   _impl->Close();
@@ -842,8 +842,8 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
 	  //rnv: To avoid double deletion of the Salome Generic Objects:
 	  //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
-	  //rnv: 2. Second decrement of the reference count in the next string : aGeneric->Destroy();
-      //if (!CORBA::is_nil(aGeneric)) aGeneric->Destroy();
+	  //rnv: 2. Second decrement of the reference count in the next string : aGeneric->UnRegister();
+      //if (!CORBA::is_nil(aGeneric)) aGeneric->UnRegister();
     } catch (...) {}
   }
 

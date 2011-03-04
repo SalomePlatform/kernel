@@ -44,7 +44,7 @@ SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(SALOMEDS::UseCaseIterator_ptr
 
 SALOMEDS_UseCaseIterator::~SALOMEDS_UseCaseIterator()
 {
-  if(!_isLocal) _corba_impl->Destroy();    
+  if(!_isLocal) _corba_impl->UnRegister();    
   else if(_local_impl) delete _local_impl;
 }
 

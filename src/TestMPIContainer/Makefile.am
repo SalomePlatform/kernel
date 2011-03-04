@@ -59,6 +59,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../MPIContainer \
+	-I$(srcdir)/../GenericObj \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -73,6 +74,7 @@ COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la \
 	../Container/libSalomeContainer.la \
 	../MPIContainer/libSalomeMPIContainer.la \
+	../GenericObj/libSalomeGenericObj.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
 

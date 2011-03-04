@@ -96,7 +96,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(const SALOMEDSImpl_SObject& theSObject)
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
   if (!_isLocal) {
-    _corba_impl->Destroy();
+    _corba_impl->UnRegister();
   }
   else {
     if(_local_impl) delete _local_impl;

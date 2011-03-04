@@ -70,7 +70,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
 SALOMEDS_GenericAttribute::~SALOMEDS_GenericAttribute() 
 {
   if (!_isLocal) {
-    _corba_impl->Destroy();
+    _corba_impl->UnRegister();
   }
 }
 

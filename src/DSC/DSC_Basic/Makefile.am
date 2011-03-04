@@ -46,6 +46,7 @@ salomeinclude_HEADERS = ConnectionManager_i.hxx \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/GenericObj \
 		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
