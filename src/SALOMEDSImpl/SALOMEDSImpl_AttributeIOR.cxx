@@ -51,7 +51,7 @@ void IORGenericObjDecref(const std::string& anIOR)
       gobj = SALOME::GenericObj::_narrow(obj);
       if(! CORBA::is_nil(gobj) )
         {
-          gobj->Destroy();
+          gobj->UnRegister();
         }
     }
   catch(const CORBA::Exception& e)
