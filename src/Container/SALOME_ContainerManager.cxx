@@ -27,6 +27,7 @@
 #include "Basics_DirUtils.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <signal.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -86,17 +87,30 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
 
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
+  _pid_ompiServer = -1;
+  // the urifile name depends on pid of the process
   std::stringstream urifile;
   urifile << getenv("HOME") << "/.urifile_" << getpid();
   setenv("OMPI_URI_FILE",urifile.str().c_str(),1);
   if( getenv("OMPI_URI_FILE") != NULL ){
-    system("killall -q ompi-server");
+    // get the pid of all ompi-server
+    std::set<pid_t> thepids1 = getpidofprogram("ompi-server");
+    // launch a new ompi-server
     std::string command;
     command = "ompi-server -r ";
     command += getenv("OMPI_URI_FILE");
     int status=system(command.c_str());
     if(status!=0)
       throw SALOME_Exception("Error when launching ompi-server");
+    // get the pid of all ompi-server
+    std::set<pid_t> thepids2 = getpidofprogram("ompi-server");
+    // my ompi-server is the new one
+    std::set<pid_t>::const_iterator it;
+    for(it=thepids2.begin();it!=thepids2.end();it++)
+      if(thepids1.find(*it) == thepids1.end())
+        _pid_ompiServer = *it;
+    if(_pid_ompiServer < 0)
+      throw SALOME_Exception("Error when getting ompi-server id");
   }
 #endif
 #endif
@@ -116,10 +130,11 @@ SALOME_ContainerManager::~SALOME_ContainerManager()
 #ifdef HAVE_MPI2
 #ifdef WITHOPENMPI
   if( getenv("OMPI_URI_FILE") != NULL ){
-    int status=system("killall -q ompi-server");
-    if(status!=0)
+    // kill my ompi-server
+    if( kill(_pid_ompiServer,SIGTERM) != 0 )
       throw SALOME_Exception("Error when killing ompi-server");
-    status=system("rm -f ${OMPI_URI_FILE}");
+    // delete my urifile
+    int status=system("rm -f ${OMPI_URI_FILE}");
     if(status!=0)
       throw SALOME_Exception("Error when removing urifile");
   }
@@ -1096,6 +1111,21 @@ std::string SALOME_ContainerManager::machinesFile(const int nbproc)
 
   return machinesFile;
 
+}
+
+std::set<pid_t> SALOME_ContainerManager::getpidofprogram(const std::string program)
+{
+  std::set<pid_t> thepids;
+  std::string tmpFile = Kernel_Utils::GetTmpFileName();
+  std::string cmd;
+  std::string thepid;
+  cmd = "pidof " + program + " > " + tmpFile;
+  system(cmd.c_str());
+  std::ifstream fpi(tmpFile.c_str(),std::ios::in);
+  while(fpi >> thepid){
+    thepids.insert(atoi(thepid.c_str()));
+  }
+  return thepids;
 }
 
 bool 

@@ -32,6 +32,7 @@
 #include "SALOME_LoadRateManager.hxx"
 
 #include <string>
+#include <set>
 
 class SALOME_NamingService;
 
@@ -89,6 +90,8 @@ protected:
 
   std::string machinesFile(const int nbproc);
 
+  std::set<pid_t> getpidofprogram(const std::string program);
+
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 
@@ -109,6 +112,8 @@ protected:
   int _nbprocUsed;
 
   static omni_mutex _numInstanceMutex ; // lib and instance protection
+
+  pid_t _pid_ompiServer;
 
   // Begin of PacO++ Parallel extension
   typedef std::vector<std::string> actual_launch_machine_t;
