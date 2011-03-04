@@ -22,6 +22,10 @@
 #include "Launcher_Job.hxx"
 #include "Launcher.hxx"
 
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Constants.hxx>
+#endif
+
 Launcher::Job::Job()
 {
   _number = -1;

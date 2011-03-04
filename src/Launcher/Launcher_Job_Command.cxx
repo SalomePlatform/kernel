@@ -21,6 +21,10 @@
 //
 #include "Launcher_Job_Command.hxx"
 
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Constants.hxx>
+#endif
+
 #ifdef WNT
 #include <io.h>
 #define _chmod chmod
