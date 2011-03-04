@@ -791,6 +791,14 @@ class CMakeFile(object):
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
+            if self.module == "gui":
+                newlines.append(r'''
+                IF(KERNEL_ROOT_DIR)
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER)
+                ENDIF(KERNEL_ROOT_DIR)
+                ''')
+                pass
             if self.module == "hxx2salome":
                 key = "_SRC"
                 if self.the_root[-len(key):] != key:
