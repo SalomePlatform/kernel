@@ -166,10 +166,6 @@ See SALOME_NamingService for the C++ interface. The Python interface
 SALOME_NamingServicePy::SALOME_NamingServicePy_i is not yet derived from the C++ interface and offers
 only the most useful functions.
 
-\subsection subsection5 Batch services
-
-See <a href="Batch.html/index.html"> Batch documentation </a> (in french only).
-
 \section S2_kernel_ser All IDL Interfaces
 
 -# <b>Containers and component life cycle, File transfer service</b>

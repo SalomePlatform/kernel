@@ -159,14 +159,7 @@ the unit tests.
 - TestMPIContainer
 
 </li>
-<li>
-<b>Batch interface library</b>
 
-- Batch
-
-- Batch_SWIG
-
-</li>
 <li>
 <b>Unit tests</b>
 
