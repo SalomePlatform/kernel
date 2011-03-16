@@ -18,7 +18,6 @@
 //
 
 #include "Superv_Component_i.hxx"
-#include "calcium_port_factory.hxx"
 
 class PySupervCompo:public Superv_Component_i
 {

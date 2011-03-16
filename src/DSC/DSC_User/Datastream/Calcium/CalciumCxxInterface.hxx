@@ -27,6 +27,10 @@
 #ifndef _CALCIUM_CXXINTERFACE_HXX_
 #define _CALCIUM_CXXINTERFACE_HXX_
 
+#if defined(__CONST_H) || defined(__CALCIUM_H)
+#error "The header CalciumCxxInterface.hxx must be included before calcium.h"
+#endif
+
 #include <string>
 #include <vector>
 #include <iostream>

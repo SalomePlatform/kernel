@@ -30,6 +30,10 @@
 #ifndef _CALCIUM_INTERFACE_HXX_
 #define _CALCIUM_INTERFACE_HXX_
 
+#if defined(__CONST_H) || defined(__CALCIUM_H)
+#error "The header CalciumInterface.hxx must be included before calcium.h"
+#endif
+
 //Interface CALCIUM des utilisateurs en C++ 
 #include "CalciumCxxInterface.hxx"
 

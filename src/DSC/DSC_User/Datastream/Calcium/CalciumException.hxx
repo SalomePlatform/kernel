@@ -27,6 +27,10 @@
 #ifndef CALCIUM_EXCEPTION_HXX
 #define CALCIUM_EXCEPTION_HXX
 
+#if defined(__CONST_H) || defined(__CALCIUM_H)
+#error "The header CalciumException.hxx must be included before calcium.h"
+#endif
+
 #include "DSC_Exception.hxx"
 #include "CalciumTypes.hxx"
 #include <string>
