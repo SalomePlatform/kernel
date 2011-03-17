@@ -803,6 +803,12 @@ class CMakeFile(object):
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
+            if self.module in ["smesh", "netgenplugin", "blsurfplugin"]:
+                newlines.append(r'''
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
+                ''')
+                pass
             if self.module == "hxx2salome":
                 key = "_SRC"
                 if self.the_root[-len(key):] != key:
