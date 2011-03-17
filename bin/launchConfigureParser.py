@@ -30,6 +30,7 @@ import types
 doc_tag = "document"
 sec_tag = "section"
 par_tag = "parameter"
+import_tag = "import"
 
 # names of attributes in XML configuration file
 nam_att = "name"
@@ -214,8 +215,11 @@ def process_containers_params( standalone, embedded ):
 section_to_skip = ""
 
 class xml_parser:
-    def __init__(self, fileName, _opts ):
+    def __init__(self, fileName, _opts, _importHistory=[] ):
         if verbose(): print "Configure parser: processing %s ..." % fileName
+        self.fileName = os.path.abspath(fileName)
+        self.importHistory = _importHistory
+        self.importHistory.append(self.fileName)
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -261,7 +265,11 @@ class xml_parser:
     def startElement(self, name, attrs):
         self.space.append(name)
         self.current = None
-
+        
+        # if we are importing file
+        if self.space == [doc_tag, import_tag] and nam_att in attrs.getNames():
+            self.importFile( attrs.getValue(nam_att) )
+        
         # if we are analyzing "section" element and its "name" attribute is
         # either "launch" or module name -- set section_name
         if self.space == [doc_tag, sec_tag] and nam_att in attrs.getNames():
@@ -322,6 +330,45 @@ class xml_parser:
     def endDocument(self):
         self.read = None
         pass
+    
+    def importFile(self, fname):
+        # get absolute name
+        if os.path.isabs (fname) :
+            absfname = fname
+        else:
+            absfname = os.path.join(os.path.dirname(self.fileName), fname)
+        
+        # check existing and registry file
+        for ext in ["", ".xml", ".XML"] :
+            if os.path.exists(absfname + ext) :
+                absfname += ext
+                if absfname in self.importHistory :
+                    if verbose(): print "Configure parser: file %s is already imported" % absfname
+                    return # already imported
+                break
+            pass
+        else:
+            if verbose(): print "Configure parser: Error : file %s does NOT exists" % absfname
+            return
+         
+        # importing file
+        try:
+            # copy current options
+            import copy
+            opts = copy.deepcopy(self.opts)
+            # import file
+            imp = xml_parser(absfname, opts, self.importHistory)
+            # merge results
+            for key in imp.opts.keys():
+                if not self.opts.has_key(key):
+                    self.opts[key] = imp.opts[key]
+                    pass
+                pass
+            pass
+        except:
+            if verbose(): print "Configure parser: Error : can not read configuration file %s" % absfname
+        pass
+      
 
 # -----------------------------------------------------------------------------
 
