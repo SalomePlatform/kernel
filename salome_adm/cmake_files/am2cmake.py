@@ -803,7 +803,7 @@ class CMakeFile(object):
                 ENDIF(KERNEL_ROOT_DIR)
                 ''')
                 pass
-            if self.module in ["smesh", "netgenplugin", "blsurfplugin"]:
+            if self.module in ["smesh", "netgenplugin", "blsurfplugin", "ghs3dplugin"]:
                 newlines.append(r'''
                 SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
