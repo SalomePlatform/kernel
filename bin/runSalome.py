@@ -34,9 +34,9 @@ from launchConfigureParser import verbose
 from server import process_id
 
 if sys.platform == "win32":
-  SEP = ";"
+    SEP = ";"
 else:
-  SEP = ":"
+    SEP = ":"
 
 # -----------------------------------------------------------------------------
 
@@ -884,5 +884,6 @@ def main():
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-   import user
-   clt,args = main()
+    import user
+    clt,args = main()
+    pass
