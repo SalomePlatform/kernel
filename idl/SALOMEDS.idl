@@ -95,7 +95,7 @@ during each working session.
 
   interface Observer
   {
-    void notifyObserverID(in string theID, in long event);
+    oneway void notifyObserverID(in string theID, in long event);
   };
 
 
