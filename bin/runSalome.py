@@ -394,7 +394,7 @@ class NotifyServer(Server):
 #
 # -----------------------------------------------------------------------------
 
-def startGUI():
+def startGUI(clt):
     """Salome Session Graphic User Interface activation"""
     import Engines
     import SALOME
