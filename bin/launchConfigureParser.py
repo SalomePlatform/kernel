@@ -892,19 +892,8 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     args[appname_nam] = appname
 
     # get the port number
-    my_port = 2809
-    try:
-      file = open(os.environ["OMNIORB_CONFIG"], "r")
-      s = file.read()
-      while len(s):
-        l = string.split(s, ":")
-        if string.split(l[0], " ")[0] == "ORBInitRef" or string.split(l[0], " ")[0] == "InitRef" :
-          my_port = int(l[len(l)-1])
-          pass
-        s = file.read()
-        pass
-    except:
-      pass
+    from salome_utils import getPortNumber
+    my_port = getPortNumber()
 
     args[port_nam] = my_port
 
