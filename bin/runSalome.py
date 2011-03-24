@@ -413,10 +413,50 @@ def startSalome(args, modules_list, modules_root_dir):
     if verbose(): print "startSalome ", args
     
     #
+    # Wake up session option
+    #
+    if args['wake_up_session']:
+        if "OMNIORB_CONFIG" not in os.environ:
+            from salome_utils import generateFileName
+            home  = os.getenv("HOME")
+            appli = os.getenv("APPLI")
+            kwargs={}
+            if appli is not None: 
+                home = os.path.join(home, appli,"USERS")
+                kwargs["with_username"] = True
+                pass
+            last_running_config = generateFileName(home, prefix="omniORB",
+                                                   suffix="last",
+                                                   extension="cfg",
+                                                   hidden=True,
+                                                   **kwargs)
+            os.environ['OMNIORB_CONFIG'] = last_running_config
+            pass
+        pass
+    
+    #
     # Initialisation ORB and Naming Service
     #
    
     clt=orbmodule.client(args)
+
+    #
+    # Wake up session option
+    #
+    if args['wake_up_session']:
+        import Engines
+        import SALOME
+        import SALOMEDS
+        import SALOME_ModuleCatalog
+        import SALOME_Session_idl
+        session = clt.waitNS("/Kernel/Session",SALOME.Session)
+        status = session.GetStatSession()
+        if status.activeGUI:
+            msg = "Session GUI is already active"
+            raise Exception(msg)
+        session.GetInterface()
+        return clt
+    
     # Save Naming service port name into
     # the file args["ns_port_log_file"]
     if args.has_key('ns_port_log_file'):
@@ -875,7 +915,15 @@ def main():
     save_config = True
     if args.has_key('save_config'):
         save_config = args['save_config']
-    searchFreePort(args, save_config)
+    # --
+    test = True
+    if args['wake_up_session']:
+        test = False
+        pass
+    if test:
+        searchFreePort(args, save_config)
+        pass
+    # --
     #setenv.main()
     setenv.set_env(args, modules_list, modules_root_dir)
     clt = useSalome(args, modules_list, modules_root_dir)

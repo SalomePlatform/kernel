@@ -61,7 +61,13 @@ class client:
           if verbose(): print "Launch Naming Service++",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer(args).run()
+      test = True
+      if args['wake_up_session']:
+         test = False
+         pass
+      if test:
+         NamingServer(args).run()
+         pass
       print "Searching Naming Service ",
       ncount=0
       delta=0.1

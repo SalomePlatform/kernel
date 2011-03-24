@@ -62,6 +62,7 @@ gdb_session_nam = "gdb_session"
 ddd_session_nam = "ddd_session"
 valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
+wake_up_session_nam = "wake_up_session"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -707,6 +708,15 @@ def CreateOptionParser (theAdditionalOptions=[]):
                                  dest="shutdown_servers",
                                  help=help_str)
 
+    # wake up session
+    help_str  = "Wake up a previously closed session. "
+    help_str += "The session object is found in the naming service pointed by the variable OMNIORB_CONFIG. "
+    help_str += "If this variable is not setted, the last configuration is taken. "
+    o_wake_up = optparse.Option("--wake-up-session",
+                                action="store_true",
+                                dest="wake_up_session", default=False,
+                                help=help_str)
+
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -733,6 +743,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_ddd,
                 o_valgrind,
                 o_shutdown,
+                o_wake_up,
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
@@ -1028,6 +1039,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     else:
         args[shutdown_servers_nam] = cmd_opts.shutdown_servers
         pass
+
+    # wake up session
+    if cmd_opts.wake_up_session is not None:
+        args[wake_up_session_nam] = cmd_opts.wake_up_session
 
     ####################################################
     # Add <theAdditionalOptions> values to args
