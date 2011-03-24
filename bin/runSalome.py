@@ -452,8 +452,20 @@ def startSalome(args, modules_list, modules_root_dir):
         session = clt.waitNS("/Kernel/Session",SALOME.Session)
         status = session.GetStatSession()
         if status.activeGUI:
-            msg = "Session GUI is already active"
-            raise Exception(msg)
+            from salome_utils import getPortNumber
+            port = getPortNumber()
+            msg  = "Warning :"
+            msg += "\n"
+            msg += "Session GUI for port number %s is already active."%(port)
+            msg += "\n"
+            msg += "If you which to wake up another session,"
+            msg += "\n"
+            msg += "please use variable OMNIORB_CONFIG"
+            msg += "\n"
+            msg += "to get the correct session object in naming service."
+            sys.stdout.write(msg+"\n")
+            sys.stdout.flush()
+            return clt
         session.GetInterface()
         return clt
     
