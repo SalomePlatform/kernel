@@ -46,6 +46,10 @@ class Generic(SALOME__POA.GenericObj):
       oid=self.poa.servant_to_id(self)
       self.poa.deactivate_object(oid)
 
+  def Destroy(self):
+    print "WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead."
+    self.UnRegister()
+
 class PyNode_i (Engines__POA.PyNode,Generic):
   """The implementation of the PyNode CORBA IDL"""
   def __init__(self, nodeName,code,poa,my_container):
