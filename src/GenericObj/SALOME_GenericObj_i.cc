@@ -72,3 +72,8 @@ void GenericObj_i::UnRegister(){
     _remove_ref();
   }
 }
+
+void GenericObj_i::Destroy(){
+  MESSAGE("WARNING SALOME::GenericObj::Destroy() function is obsolete! Use UnRegister() instead.");
+  UnRegister();
+}

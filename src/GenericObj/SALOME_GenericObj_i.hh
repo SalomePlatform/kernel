@@ -65,6 +65,8 @@ namespace SALOME{
     virtual void Register();
     /*! Decrease the reference count (release by another object).*/
     virtual void UnRegister();
+    /*! \brief Obsolete, left for compatibility reasons only. Use UnRegister() instead.*/
+    virtual void Destroy();
   };
 };
 
