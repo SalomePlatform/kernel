@@ -42,6 +42,8 @@ module SALOME {
     void Register();
     /*! \brief Decrease the reference count (release by another object).*/
     void UnRegister();
+    /*! \brief Obsolete, left for compatibility reasons only. Use UnRegister() instead.*/
+    void Destroy();
   };
 
   /*!
