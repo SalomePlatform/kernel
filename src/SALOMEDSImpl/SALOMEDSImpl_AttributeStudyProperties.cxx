@@ -238,11 +238,17 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int aLength, anIndex;
+  int aLength, anIndex, unitsSize = 0, commentSize = 0;;
   for (aLength = 0, anIndex = aNames.size()-1; anIndex >= 0; anIndex--)
     aLength += aNames[anIndex].size() + 1;
 
-  char* aProperty = new char[3 + aLength + 12 * aNames.size()];
+  std::string units = GetUnits();
+  std::string comment = GetComment();
+  
+  unitsSize = units.size();
+  commentSize = comment.size();
+
+  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize];
 
   char crMode = (char)GetCreationMode();
 
@@ -261,12 +267,52 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
+
+  //Write delimeter of the section to define end of the modifications section
+  aProperty[a++] = 30;
+
+  //Write units if need
+  if(units.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",units.c_str());
+    a = strlen(aProperty);
+  }
+
+  aProperty[a++] = 1; //delimeter of the units and comments
+
+  //Write comments if need
+  if(comment.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",comment.c_str());
+    a = strlen(aProperty);
+    a++;
+  }
+  
   aProperty[a] = 0;
   std::string prop(aProperty);
   delete aProperty;
 
   return prop;
 }
+
+void SALOMEDSImpl_AttributeStudyProperties::SetUnits(const std::string& theUnits) {
+  if(myUnits == theUnits)
+    return;
+  myUnits = theUnits;
+}
+
+std::string SALOMEDSImpl_AttributeStudyProperties::GetUnits() {
+  return myUnits;
+}
+
+void SALOMEDSImpl_AttributeStudyProperties::SetComment(const std::string& theComment) {
+  if(myComment == theComment)
+    return;
+  myComment = theComment;
+}
+
+std::string SALOMEDSImpl_AttributeStudyProperties::GetComment() {
+  return myComment;
+}
+
 
 void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
 {
@@ -307,9 +353,42 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
     SetModification(aName,aMinute,aHour,aDay,aMonth,aYear);
     delete [] (aName);
     anIndex += aNameSize + 1;
+    
+    //Check end of the modifications section
+    if(anIndex < value.size() && aCopy[anIndex] == 30)
+      break;
   }
+  
+  //Case then study contains units and comment properties
+  if( anIndex < value.size() ) {
+    anIndex++; //skip the delimeter of the sections: char(30)
+    int unitsSize;
+    for(unitsSize = 0; aCopy[anIndex+unitsSize] != 1; unitsSize++);
+
+    if(unitsSize > 0) {
+      char *anUnits = new char[unitsSize+1];
+      strncpy(anUnits, &(aCopy[anIndex]), unitsSize);
+      anUnits[unitsSize] = 0;
+      SetUnits(anUnits);
+      delete [] (anUnits);
+    }
+    anIndex += unitsSize + 1;
+
+    int commentSize;
+    for(commentSize = 0; aCopy[anIndex+commentSize] != 0; commentSize++);
+
+    if(commentSize > 0) {
+      char *aComment = new char[commentSize+1];
+      strncpy(aComment, &(aCopy[anIndex]), commentSize);
+      aComment[commentSize] = 0;
+      SetComment(aComment);
+      delete [] (aComment);
+    }
+    anIndex += commentSize;
+  }
+  
   if (aCopy[1] == 'l') {
     SetLocked(true);
   }
-  SetModified(0);
+  SetModified(0);  
 }

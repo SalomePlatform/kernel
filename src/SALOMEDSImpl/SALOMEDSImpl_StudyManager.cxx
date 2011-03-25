@@ -417,12 +417,30 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
 
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int aLength = 0, anIndex, i;
+  std::string units = aProp->GetUnits();
+  std::string comment = aProp->GetComment();
+
+  int aLength = 0, anIndex, i, unitsSize = 0, commentSize = 0;
   for(i=1; i<=aNames.size(); i++)
     aLength += aNames[i-1].size() + 1;
+  
+  unitsSize = units.size();
+  commentSize = comment.size();
 
-  //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, "zero" byte
-  char* aProperty = new char[3 + aLength + 12 * aNames.size()];
+  //string format:
+  //locked flag, modified flag,
+  //minutes, hours, day, months, year, user name, char(1), 
+  //minutes, hours, day, months, year, user name, char(1),
+  //.....................................................,
+  //.....................................................,
+  //.....................................................,
+  //minutes, hours, day, months, year, user name, char(1), char(30) <- !!!! used to define end of section with modifications !!!!
+  //units, char(1), comment, char(0)
+
+  //string length: 1 byte = locked flag, 1 byte = modified flag, (12 + name length + 1) for each name and date, 1 byte (char(30) section delimeter)
+  // unit length + 1, comment length, "zero" byte
+  
+  char* aProperty = new char[3 + aLength + 12 * aNames.size() + 1 + unitsSize + 1 + commentSize ];
 
 
   sprintf(aProperty,"%c%c", (char)aProp->GetCreationMode(),  (aProp->IsLocked())?'l':'u');
@@ -440,8 +458,27 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
     a = strlen(aProperty);
     aProperty[a++] = 1;
   }
-  aProperty[a] = 0;
 
+  //Write delimeter of the section to define end of the modifications section
+  aProperty[a++] = 30;
+
+  //Write units if need
+  if(units.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",units.c_str());
+    a = strlen(aProperty);
+  }
+
+  aProperty[a++] = 1;
+
+  //Write comments if need
+  if(comment.size() > 0) {
+    sprintf(&(aProperty[a]),"%s",comment.c_str());
+    a = strlen(aProperty);
+    a++;
+  }
+
+  aProperty[a] = 0;
+  
   name_len = (hdf_int32) a;
   size[0] = name_len + 1 ;
   hdf_dataset = new HDFdataset("AttributeStudyProperties",hdf_group,HDF_STRING,size,1);
@@ -450,7 +487,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveProperties(SALOMEDSImpl_Study* aStudy,
   hdf_dataset->CloseOnDisk();
   hdf_dataset=0; //will be deleted by hdf_sco_group destructor
   delete [] aProperty;
-
+  
   aProp->SetModified(0);
   return true;
 }

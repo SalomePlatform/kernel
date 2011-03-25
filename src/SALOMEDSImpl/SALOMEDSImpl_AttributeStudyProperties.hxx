@@ -72,6 +72,12 @@ public:
 
   void ChangeCreatorName(const std::string& theUserName);
 
+  void SetUnits(const std::string& theUnits);
+  std::string GetUnits();
+
+  void SetComment(const std::string& theComment);
+  std::string GetComment();
+
   void SetCreationMode(const int theMode);
   int GetCreationMode() const;
 
@@ -95,6 +101,8 @@ private:
   std::vector<int> myDay;
   std::vector<int> myMonth;
   std::vector<int> myYear;
+  std::string      myUnits;
+  std::string      myComment;
   int myMode;
   int myModified;
   bool myLocked;

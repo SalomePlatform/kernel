@@ -68,6 +68,11 @@ public:
                                     SALOMEDS::LongSeq_out theYears,
                                     CORBA::Boolean theWithCreator);
 
+  virtual void SetComment(const char* theComment);
+  virtual char* GetComment();
+
+  virtual void SetUnits(const char* theUnits);
+  virtual char* GetUnits();
 };
 
 

@@ -60,6 +60,13 @@ public:
                                     std::vector<int>& theMonths,
                                     std::vector<int>& theYears,
                                     bool theWithCreator) = 0;
+  
+  virtual void SetUnits(const std::string& theUnits) = 0;
+  virtual std::string GetUnits() = 0;
+
+  virtual void SetComment(const std::string& theComment) = 0;
+  virtual std::string GetComment() = 0;
+
 
 };
 

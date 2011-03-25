@@ -187,3 +187,34 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
     (*theYears)[a] = aYears[ind-1];
   }
 }
+
+void SALOMEDS_AttributeStudyProperties_i::SetComment(const char* theComment)
+{
+  SALOMEDS::Locker lock;
+  CheckLocked();
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetComment(std::string(theComment));
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::GetComment()
+{
+  SALOMEDS::Locker lock;
+  std::string C = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComment();
+  CORBA::String_var c_s = CORBA::string_dup(C.c_str());
+  return c_s._retn();
+}
+
+void SALOMEDS_AttributeStudyProperties_i::SetUnits(const char* theUnits)
+{
+  SALOMEDS::Locker lock;
+  CheckLocked();
+  dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->SetUnits(std::string(theUnits));
+}
+
+char* SALOMEDS_AttributeStudyProperties_i::GetUnits()
+{
+  SALOMEDS::Locker lock;
+  std::string U = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetUnits();
+  CORBA::String_var c_s = CORBA::string_dup(U.c_str());
+  return c_s._retn();
+}
+

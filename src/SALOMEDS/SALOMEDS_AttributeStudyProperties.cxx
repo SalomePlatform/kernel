@@ -269,3 +269,53 @@ void SALOMEDS_AttributeStudyProperties::GetModificationsList(std::vector<std::st
     }
   }
 }
+
+
+void SALOMEDS_AttributeStudyProperties::SetComment(const std::string& theComment)
+{
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    SALOMEDSImpl_AttributeStudyProperties* anImpl =
+      dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
+    anImpl->SetComment(theComment);
+  } else
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetComment(theComment.c_str());
+}
+
+std::string SALOMEDS_AttributeStudyProperties::GetComment()
+{
+  std::string aComment;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aComment = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetComment();
+  }
+  else 
+    aComment = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetComment();
+  return aComment;
+}
+
+
+void SALOMEDS_AttributeStudyProperties::SetUnits(const std::string& theUnits)
+{
+  if (_isLocal) {
+    CheckLocked();
+    SALOMEDS::Locker lock;
+    SALOMEDSImpl_AttributeStudyProperties* anImpl =
+      dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl);
+    anImpl->SetUnits(theUnits);
+  } else
+    ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->SetUnits(theUnits.c_str());
+}
+
+std::string SALOMEDS_AttributeStudyProperties::GetUnits()
+{
+  std::string anUnits;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    anUnits = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_local_impl)->GetUnits();
+  }
+  else 
+    anUnits = ((SALOMEDS::AttributeStudyProperties_var)SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl))->GetUnits();
+  return anUnits;
+}

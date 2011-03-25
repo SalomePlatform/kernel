@@ -1626,6 +1626,30 @@ module SALOMEDS
       \param withCreator \c true if creation record should be also added to the resulting list or \c false otherwise
     */
     void GetModificationsList(out StringSeq authors, out LongSeq minutes, out LongSeq hours, out LongSeq days, out LongSeq months, out LongSeq years, in boolean withCreator);
+
+    /*!
+      \brief Sets the comment of the study.
+      \param comment comment of the study.
+    */
+    void SetComment(in string comment);
+
+    /*!
+      \brief Returns comment of the study.      
+      \return comment
+    */
+    string GetComment();
+
+    /*!
+      \brief Sets the units of the study.
+      \param units units of the study.
+    */
+    void SetUnits(in string units);
+
+    /*!
+      \brief Returns units of the study.      
+      \return units
+    */
+    string GetUnits();
   };
 
   //==========================================================================

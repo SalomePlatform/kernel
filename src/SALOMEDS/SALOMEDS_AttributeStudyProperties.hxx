@@ -76,6 +76,13 @@ public:
                                     std::vector<int>& theYears,
                                     bool theWithCreator);
 
+  virtual void SetUnits(const std::string& theUnits);
+  virtual std::string GetUnits();
+
+  virtual void SetComment(const std::string& theComment);
+  virtual std::string GetComment();
+
+
 };
 
 
