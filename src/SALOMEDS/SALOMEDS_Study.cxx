@@ -629,11 +629,14 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished)
+bool SALOMEDS_Study::DumpStudy(const std::string& thePath,
+                               const std::string& theBaseName,
+                               bool isPublished,
+                               bool isMultiFile)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
   if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
-  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished);
+  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, isMultiFile);
   return ret;
 }     
 

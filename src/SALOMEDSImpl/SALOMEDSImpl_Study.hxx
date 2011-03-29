@@ -228,9 +228,10 @@ public:
   virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   virtual bool DumpStudy(const std::string& thePath, 
-                                         const std::string& theBaseName, 
-                                         bool isPublished,
-                                         SALOMEDSImpl_DriverFactory* theFactory);
+                         const std::string& theBaseName, 
+                         bool isPublished,
+                         bool isMultiFile,
+                         SALOMEDSImpl_DriverFactory* theFactory);
 
   static std::string GetDumpStudyComment(const char* theComponentName = 0);
   

@@ -839,9 +839,10 @@ std::string Engines_Parallel_Component_i::GetDynLibraryName(const char *componen
 
 Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr theStudy, 
                                                            CORBA::Boolean isPublished, 
+                                                           CORBA::Boolean isMultiFile,
                                                            CORBA::Boolean& isValidScript)
 {
-  const char* aScript = "def RebuildData(theStudy): pass";
+  const char* aScript = isMultiFile ? "def RebuildData(theStudy): pass" : "";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;

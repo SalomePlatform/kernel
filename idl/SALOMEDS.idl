@@ -352,7 +352,10 @@ during each working session.
 
     void UndoPostponed(in long theWay);
 
-    boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
+    boolean DumpStudy(in string thePath,
+                      in string theBaseName,
+                      in boolean isPublished,
+                      in boolean isMultiFile);
 
 /*! \brief  Get an AttributeParameter used to store common parameters for given %theSavePoint.
 

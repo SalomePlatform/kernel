@@ -324,7 +324,7 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(va2.size() == 1); // +AttributeTreeNode
 
   //Check method DumpStudy
-  study->DumpStudy(".", "SRN", false);
+  study->DumpStudy(".", "SRN", false, false);
 
   std::fstream f("SRN.py");
   char buffer[128];

@@ -342,7 +342,10 @@ public:
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
-  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);
+  virtual CORBA::Boolean DumpStudy(const char* thePath,
+                                   const char* theBaseName,
+                                   CORBA::Boolean isPublished,
+                                   CORBA::Boolean isMultiFile);
 
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 

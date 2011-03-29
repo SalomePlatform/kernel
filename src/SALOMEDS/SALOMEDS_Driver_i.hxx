@@ -111,6 +111,7 @@ public:
 
   virtual SALOMEDSImpl_TMPFile* DumpPython(SALOMEDSImpl_Study* theStudy, 
                                            bool isPublished, 
+                                           bool isMultiFile,
                                            bool& isValidScript,
                                            long& theStreamLength);
 };

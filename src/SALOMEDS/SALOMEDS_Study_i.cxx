@@ -873,13 +873,14 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, 
                                            const char* theBaseName, 
-                                           CORBA::Boolean isPublished)
+                                           CORBA::Boolean isPublished,
+                                           CORBA::Boolean isMultiFile)
 {
   SALOMEDS::Locker lock; 
 
   std::string aPath((char*)thePath), aBaseName((char*)theBaseName);
   SALOMEDS_DriverFactory_i* factory = new SALOMEDS_DriverFactory_i(_orb);
-  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory);
+  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, isMultiFile, factory);
   delete factory;
   return ret;
 }

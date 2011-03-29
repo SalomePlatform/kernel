@@ -323,7 +323,8 @@ module Engines
       the data model of component
     */    
     TMPFile DumpPython(in Object theStudy,
-                       in boolean isPublished, 
+                       in boolean isPublished,
+                       in boolean isMultiFile,
                        out boolean isValidScript);
 
     

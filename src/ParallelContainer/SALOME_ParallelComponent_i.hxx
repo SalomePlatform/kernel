@@ -95,6 +95,7 @@ public:
 
  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
                                       CORBA::Boolean isPublished,
+                                      CORBA::Boolean isMultiFile,
                                       CORBA::Boolean& isValidScript);
 
  // CORBA operations for Salome_file

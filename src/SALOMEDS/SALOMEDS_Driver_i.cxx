@@ -213,6 +213,7 @@ std::string SALOMEDS_Driver_i::PasteInto(const unsigned char* theStream,
 
 SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy, 
                                                     bool isPublished, 
+                                                    bool isMultiFile,
                                                     bool& isValidScript,
                                                     long& theStreamLength)
 {
@@ -222,7 +223,7 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 
   SALOMEDS::unlock();
   CORBA::Boolean aValidScript, aPublished = isPublished;
-  Engines::TMPFile_var aStream = aComponent->DumpPython(st.in(), aPublished, aValidScript);
+  Engines::TMPFile_var aStream = aComponent->DumpPython(st.in(), aPublished, isMultiFile, aValidScript);
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   isValidScript = aValidScript;
