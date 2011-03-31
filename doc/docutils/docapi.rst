@@ -44,3 +44,10 @@ code documentation included in source python files.
 
 .. automodule:: salome.kernel.studyedit
    :members:
+
+
+:mod:`varlist` -- Handle Exchange Variables
+-------------------------------------------
+
+.. automodule:: salome.kernel.varlist
+   :members:
