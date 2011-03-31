@@ -77,6 +77,8 @@ void SALOMEDSImpl_AttributeDrawable::SetDrawable(const int theValue)
   Backup();
 
   (theValue!=0)?myValue=1:myValue=0;
+  
+  SetModifyFlag();
 }
            
 
