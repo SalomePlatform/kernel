@@ -467,6 +467,7 @@ def startSalome(args, modules_list, modules_root_dir):
             sys.stdout.flush()
             return clt
         session.GetInterface()
+        args["session_object"] = session
         return clt
     
     # Save Naming service port name into
@@ -618,6 +619,7 @@ def startSalome(args, modules_list, modules_root_dir):
           session=clt.waitNS("/Kernel/Session",SALOME.Session)
         else:
           session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
+        args["session_object"] = session
     end_time = os.times()
     if verbose(): print
     print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
@@ -943,7 +945,73 @@ def main():
 
 # -----------------------------------------------------------------------------
 
+def foreGround(clt, args):
+    # --
+    if "session_object" not in args:
+        return
+    session = args["session_object"]
+    # --
+    # Wait until gui is arrived
+    # tmax = nbtot * dt
+    # --
+    gui_detected = False
+    dt = 0.1
+    nbtot = 100
+    nb = 0
+    while 1:
+        try:
+            status = session.GetStatSession()
+            gui_detected = status.activeGUI
+        except:
+            pass
+        if gui_detected:
+            break
+        from time import sleep
+        sleep(dt)
+        nb += 1
+        if nb == nbtot:
+            break
+        pass
+    # --
+    if not gui_detected:
+        return
+    # --
+    from salome_utils import getPortNumber
+    port = getPortNumber()
+    # --
+    server = Server({})
+    server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(os.getpid()), "%s"%(port)]
+    server.run()
+    # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
+    # --
+    dt = 1.0
+    try:
+        while 1:
+            try:
+                status = session.GetStatSession()
+                assert status.activeGUI
+            except:
+                break
+            from time import sleep
+            sleep(dt)
+            pass
+        pass
+    except KeyboardInterrupt:
+        from killSalomeWithPort import killMyPort
+        killMyPort(port)
+        pass
+    return
+
+# -----------------------------------------------------------------------------
+
 if __name__ == "__main__":
     import user
     clt,args = main()
+    # --
+    test = args['gui'] and args['session_gui']
+    test = test or args['wake_up_session']
+    if test:
+        foreGround(clt, args)
+        pass
+    # --
     pass
