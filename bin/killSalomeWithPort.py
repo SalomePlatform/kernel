@@ -261,8 +261,53 @@ def killNotifdAndClean(port):
       pass
 
     appliCleanOmniOrbConfig(port)
-    
+
+def killMyPortSpy(pid, port):
+    dt = 1.0
+    while 1:
+        from os import kill
+        try:
+            kill(int(pid), 0)
+        except OSError, e:
+            if e.errno != 3:
+                return
+            break
+        from time import sleep
+        sleep(dt)
+        pass
+    filedict = getPiDict(port, hidden=True)
+    if not os.path.exists(filedict):
+        return
+    try:
+        import omniORB
+        orb = omniORB.CORBA.ORB_init(sys.argv, omniORB.CORBA.ORB_ID)
+        import SALOME_NamingServicePy
+        ns = SALOME_NamingServicePy.SALOME_NamingServicePy_i(orb)
+        import SALOME
+        session = ns.Resolve("/Kernel/Session")
+        assert session
+    except:
+        return
+    try:
+        status = session.GetStatSession()
+    except:
+        # -- session is in naming service but has crash
+        status = None
+        pass
+    if status:
+        if not status.activeGUI:
+            return
+        pass
+    killMyPort(port)
+    return
+
 if __name__ == "__main__":
+    if sys.argv[1] == "--spy":
+        pid = sys.argv[2]
+        port = sys.argv[3]
+        killMyPortSpy(pid, port)
+        sys.exit(0)
+        pass
     for port in sys.argv[1:]:
         killMyPort(port)
         pass
