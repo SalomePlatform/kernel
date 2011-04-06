@@ -1010,6 +1010,7 @@ if __name__ == "__main__":
     # --
     test = args['gui'] and args['session_gui']
     test = test or args['wake_up_session']
+    test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
     if test:
         foreGround(clt, args)
         pass
