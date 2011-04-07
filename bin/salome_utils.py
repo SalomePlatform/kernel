@@ -428,3 +428,37 @@ def uniteFiles( src_file, dest_file ):
         pass
 
     os.system( command )
+
+# --
+
+_verbose = None
+
+def verbose():
+    """
+    Get verbosity level. Default verbosity level is specified via the environment variable
+    SALOME_VERBOSE, e.g.:
+    [bash %] export SALOME_VERBOSE=1
+    The function setVerbose() can be used to change verbosity level explicitly.
+    """
+    global _verbose
+    # verbose has already been called
+    if _verbose is not None:
+        return _verbose
+    # first time
+    try:
+        from os import getenv
+        _verbose = int(getenv('SALOME_VERBOSE'))
+    except:
+        _verbose = 0
+        pass
+    #
+    return _verbose
+
+def setVerbose(level):
+    """
+    Change verbosity level. The function verbose() can be used to get current verbosity level.
+    """
+    global _verbose
+    _verbose = level
+    return
+

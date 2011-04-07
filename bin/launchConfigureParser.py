@@ -26,6 +26,8 @@ import xml.sax
 import optparse
 import types
 
+from salome_utils import verbose, setVerbose, getPortNumber
+
 # names of tags in XML configuration file
 doc_tag = "document"
 sec_tag = "section"
@@ -165,30 +167,6 @@ def userFile(appname):
             last_version = ver
             last_file = file
     return last_file
-
-# --
-
-_verbose = None
-
-def verbose():
-    global _verbose
-    # verbose has already been called
-    if _verbose is not None:
-        return _verbose
-    # first time
-    try:
-        from os import getenv
-        _verbose = int(getenv('SALOME_VERBOSE'))
-    except:
-        _verbose = 0
-        pass
-    #
-    return _verbose
-
-def setVerbose(level):
-    global _verbose
-    _verbose = level
-    return
 
 # --
 
@@ -903,7 +881,6 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     args[appname_nam] = appname
 
     # get the port number
-    from salome_utils import getPortNumber
     my_port = getPortNumber()
 
     args[port_nam] = my_port
