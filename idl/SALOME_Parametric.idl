@@ -45,33 +45,43 @@ module SALOME_TYPES
 */
   typedef sequence<Parameter> ParameterList;
 
-/*! \brief Type representing the value of a variable exchanged between the
-    codes. As the variables may be matrices, a value is a 2D object
-    represented as a sequence of sequences of real numbers.
+/*! \brief Type representing the value of a single variable exchanged between
+    the codes (e.g. a force "F"). As the variables may be vectors (or even
+    matrices), their value is represented as a sequence of real numbers.
 */
-  typedef sequence<sequence<double> > Value;
+  typedef sequence<double> Variable;
+
+/*! \brief Type representing a state, i.e. a set containing the values of all
+    the variables of interest.
+*/
+  typedef sequence<Variable> VariableSequence;
+
+/*! \brief Type representing a set of states.
+*/
+  typedef sequence<VariableSequence> StateSequence;
+
+/*! \brief Type representing a time sequence, with a set of states for each
+    time step. Hence it is represented as a sequence of StateSequence.
+*/
+  typedef sequence<StateSequence> TimeSequence;
 
 /*! \brief List of variable names.
 */
   typedef sequence<string> VarList;
-
-/*! \brief List of variable values.
-*/
-  typedef sequence<Value> ValueList;
 
 /*! \brief Structure describing the input of a computation code.
 */
   struct ParametricInput {
     VarList inputVarList;
     VarList outputVarList;
-    ValueList inputValues;
+    TimeSequence inputValues;
     ParameterList specificParameters;
   };
 
 /*! \brief Structure describing the output of a computation code.
 */
   struct ParametricOutput {
-    ValueList outputValues;
+    TimeSequence outputValues;
     ParameterList specificOutputInfos;
     long returnCode;
     string errorMessage;
