@@ -1010,7 +1010,22 @@ if __name__ == "__main__":
     # --
     test = args['gui'] and args['session_gui']
     test = test or args['wake_up_session']
+    # --
+    # The next test covers the --pinter option or var PYTHONINSPECT setted
+    # --
+    test = test and not os.environ.get('PYTHONINSPECT')
+    # --
+    # The next test covers the python -i $KERNEL_ROOT_DIR/bin/salome/runSalome.py case
+    # --
+    try:
+        from ctypes import POINTER, c_int, cast, pythonapi
+        iflag_ptr = cast(pythonapi.Py_InteractiveFlag, POINTER(c_int))
+        test = test and not iflag_ptr.contents.value
+    except:
+        pass
+    # --
     test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
+    # --
     if test:
         foreGround(clt, args)
         pass
