@@ -24,7 +24,6 @@
 #  File   : salome.py renamed as __init__.py for python packaging (gboulant)
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
-#  $Header$
 #
 """ 
 Module salome gives access to Salome ressources.
@@ -105,6 +104,7 @@ ROOT_PYTHONPACKAGE_NAME="salome"
 # be the pieces to be aggregated as a single virtual python package.
 #
 import os, sys
+from salome_utils import verbose
 MATCH_ENDING_PATTERN="site-packages/salome"
 def extend_path(pname):
     for dir in sys.path:
@@ -114,7 +114,7 @@ def extend_path(pname):
         # XXX This may still add duplicate entries to path on
         # case-insensitive filesystems
         if os.path.isdir(subdir) and subdir not in __path__:
-            print "INFO - The directory %s is appended to sys.path" % subdir
+            if verbose(): print "INFO - The directory %s is appended to sys.path" % subdir
             __path__.append(subdir)
 
 extend_path(ROOT_PYTHONPACKAGE_NAME)
