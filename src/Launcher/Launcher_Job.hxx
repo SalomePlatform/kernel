@@ -22,7 +22,7 @@
 #ifndef _LAUNCHER_JOB_HXX_
 #define _LAUNCHER_JOB_HXX_
 
-#include <SALOMEconfig.h>
+// #include <SALOMEconfig.h>
 #include "Launcher_Utils.hxx"
 #include "ResourcesManager.hxx"
 
