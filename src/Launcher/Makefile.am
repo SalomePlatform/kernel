@@ -155,6 +155,8 @@ libLauncher_la_LIBADD =\
 #
 if !WITHONLYLAUNCHER
   bin_PROGRAMS = SALOME_LauncherServer TestLauncher
+else
+  bin_PROGRAMS = TestLauncher
 endif
 
 SALOME_LauncherServer_SOURCES =\
@@ -175,6 +177,10 @@ SALOME_LauncherServer_LDADD =\
 
 TestLauncher_SOURCES = TestLauncher.cxx
 
-TestLauncher_CPPFLAGS = @LIBXML_INCLUDES@ -I$(srcdir)/../ResourcesManager
+TestLauncher_CPPFLAGS = @LIBXML_INCLUDES@ -I$(srcdir)/../ResourcesManager @LIBBATCH_INCLUDES@
+
+if WITH_LIBBATCH
+  TestLauncher_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 TestLauncher_LDADD = @LIBXML_LIBS@ ../ResourcesManager/libResourcesManager.la libLauncher.la @LIBBATCH_LIBS@
