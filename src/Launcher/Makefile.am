@@ -154,7 +154,7 @@ libLauncher_la_LIBADD =\
 # ===============================================================
 #
 if !WITHONLYLAUNCHER
-  bin_PROGRAMS = SALOME_LauncherServer
+  bin_PROGRAMS = SALOME_LauncherServer TestLauncher
 endif
 
 SALOME_LauncherServer_SOURCES =\
@@ -173,4 +173,8 @@ SALOME_LauncherServer_LDADD =\
 	$(LIBXML_LIBS) \
 	$(PYTHON_LIBS)
 
+TestLauncher_SOURCES = TestLauncher.cxx
 
+TestLauncher_CPPFLAGS = -I${LIBXML_DIR}/include/libxml2 -I${KERNEL_ROOT_DIR}/include/salome
+
+TestLauncher_LDADD = -L${LIBXML_DIR}/lib -lxml2 -L${KERNEL_ROOT_DIR}/lib/salome -lLauncher -lResourcesManager -L${LIBBATCH_ROOT_DIR}/lib -lBatch
