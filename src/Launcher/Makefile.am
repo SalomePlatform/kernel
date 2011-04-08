@@ -167,11 +167,11 @@ SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
 	../Basics/libSALOMEBasics.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	$(LIBBATCH_LIBS) \
-	$(MPI_LIBS) \
-	$(CORBA_LIBS) \
-	$(LIBXML_LIBS) \
-	$(PYTHON_LIBS)
+	@LIBBATCH_LIBS@ \
+	@MPI_LIBS@ \
+	@CORBA_LIBS@ \
+	@LIBXML_LIBS@ \
+	@PYTHON_LIBS@
 
 TestLauncher_SOURCES = TestLauncher.cxx
 
