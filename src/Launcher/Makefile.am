@@ -175,6 +175,6 @@ SALOME_LauncherServer_LDADD =\
 
 TestLauncher_SOURCES = TestLauncher.cxx
 
-TestLauncher_CPPFLAGS = -I${LIBXML_DIR}/include/libxml2 -I${KERNEL_ROOT_DIR}/include/salome
+TestLauncher_CPPFLAGS = -I${LIBXML_DIR}/include/libxml2 -I$(srcdir)/../ResourcesManager
 
-TestLauncher_LDADD = -L${LIBXML_DIR}/lib -lxml2 -L${KERNEL_ROOT_DIR}/lib/salome -lLauncher -lResourcesManager -L${LIBBATCH_ROOT_DIR}/lib -lBatch
+TestLauncher_LDADD = -L${LIBXML_DIR}/lib -lxml2 ../ResourcesManager/libSalomeResourcesManager.la libLauncher.la -L${LIBBATCH_ROOT_DIR}/lib -lBatch
