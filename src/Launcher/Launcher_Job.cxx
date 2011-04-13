@@ -585,3 +585,22 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
   xmlNewChild(run_node, NULL, xmlCharStrdup("job_reference"), xmlCharStrdup(job_id.getReference().c_str()));
 #endif
 }
+
+void 
+Launcher::Job::addSpecificParameter(const std::string & name,
+                                      const std::string & value)
+{
+  std::cerr << "Adding " << name << " " << value << std::endl;
+  _specific_parameters[name] = value;
+}
+
+const std::map<std::string, std::string> &
+Launcher::Job::getSpecificParameters()
+{
+  return _specific_parameters;
+}
+
+void
+Launcher::Job::checkSpecificParameters()
+{
+}

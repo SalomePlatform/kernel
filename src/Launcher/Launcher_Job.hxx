@@ -31,6 +31,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -92,6 +93,11 @@ namespace Launcher
 
       std::string updateJobState();
 
+      void addSpecificParameter(const std::string & name,
+                                  const std::string & value);
+      const std::map<std::string, std::string> & getSpecificParameters();
+      virtual void checkSpecificParameters();
+
       // Checks
       void checkMaximumDuration(const std::string & maximum_duration);
       void checkResourceRequiredParams(const resourceParams & resource_required_params);
@@ -127,6 +133,7 @@ namespace Launcher
       std::string _result_directory;
       std::list<std::string> _in_files;
       std::list<std::string> _out_files;
+      std::map<std::string, std::string> _specific_parameters;
       std::string _maximum_duration;
       long _maximum_duration_in_second;
       resourceParams _resource_required_params;

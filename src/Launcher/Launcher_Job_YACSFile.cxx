@@ -20,9 +20,14 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_YACSFile.hxx"
+#include <sstream>
 
 
-Launcher::Job_YACSFile::Job_YACSFile() {_job_type = "yacs_file"; _dumpState=0;}
+Launcher::Job_YACSFile::Job_YACSFile() 
+{
+  _job_type = "yacs_file";
+  _dumpState = -1;
+}
 
 Launcher::Job_YACSFile::~Job_YACSFile() {}
 
@@ -36,13 +41,22 @@ void
 Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
   launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name_complete;
-  if(_dumpState > 0)
+  if (_dumpState > 0)
     launch_script_stream << " --dump=" << _dumpState;
   launch_script_stream << " > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
 }
 
 void
-Launcher::Job_YACSFile::setDumpState(const int dumpState)
+Launcher::Job_YACSFile::checkSpecificParameters()
 {
-  _dumpState = dumpState;
+  // Specific parameters
+  std::map<std::string, std::string>::iterator it = _specific_parameters.find("EnableDumpYACS");
+  if (it != _specific_parameters.end())
+  {
+    // Decode info
+    std::string user_value = it->second;
+    std::istringstream iss(user_value);
+    if (!(iss >> _dumpState))
+      throw LauncherException("Specific parameter EnableDumpYACS is not correctly defined: it should be an integer. Value given is " + user_value);
+  }
 }

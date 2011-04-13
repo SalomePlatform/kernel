@@ -88,7 +88,7 @@ CORBA::Long
 SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   std::string job_type = job_parameters.job_type.in();
-  
+
   if (job_type != "command" && job_type != "yacs_file" && job_type != "python_salome")
   {
     std::string message("SALOME_Launcher::createJob: bad job type: ");
@@ -107,7 +107,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 
   // Name
   new_job->setJobName(job_parameters.job_name.in());
- 
+
   // Directories
   std::string work_directory = job_parameters.work_directory.in();
   std::string local_directory = job_parameters.local_directory.in();
@@ -135,7 +135,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     new_job->add_in_file(job_parameters.in_files[i].in());
   for (CORBA::ULong i = 0; i < job_parameters.out_files.length(); i++)
     new_job->add_out_file(job_parameters.out_files[i].in());
-  
+
   // Expected During Time
   try
   {
@@ -170,12 +170,18 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
 
-  for(int i=0;i<job_parameters.specific_parameters.length();i++){
-    std::string option = CORBA::string_dup(job_parameters.specific_parameters[i].name);
-    if(option.find("EnableDumpYACS") != std::string::npos){
-      int dumpState = atoi(job_parameters.specific_parameters[i].value);
-      (dynamic_cast<Launcher::Job_YACSFile *>(new_job))->setDumpState(dumpState);
-    }
+  // Adding specific parameters to the job
+  for (CORBA::ULong i = 0; i < job_parameters.specific_parameters.length(); i++)
+    new_job->addSpecificParameter(job_parameters.specific_parameters[i].name.in(),
+                                  job_parameters.specific_parameters[i].value.in());
+  try
+  {
+    new_job->checkSpecificParameters();
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
 
   try
