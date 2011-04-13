@@ -455,6 +455,22 @@ SALOME_Launcher::getJobParameters(CORBA::Long job_id)
   job_parameters->resource_required.cpu_clock        = resource_params.cpu_clock;
   job_parameters->resource_required.mem_mb           = resource_params.mem_mb;
 
+  std::map<std::string, std::string> specific_parameters = job->getSpecificParameters();
+  if (!specific_parameters.empty())
+  {
+    job_parameters->specific_parameters.length(specific_parameters.size());
+    std::map<std::string, std::string>::const_iterator it_specific;
+    CORBA::ULong i = 0;
+    for (it_specific = specific_parameters.begin() ; it_specific != specific_parameters.end(); it_specific++)
+    {
+      Engines::Parameter_var new_param = new Engines::Parameter;
+      new_param->name  = CORBA::string_dup((it_specific->first).c_str());
+      new_param->value = CORBA::string_dup((it_specific->second).c_str());
+      job_parameters->specific_parameters[i] = new_param;
+      i++;
+    }
+  }
+
   return job_parameters._retn();
 }
 
