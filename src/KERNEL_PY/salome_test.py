@@ -27,6 +27,7 @@ print "components and doing some operation within the components."
 print
 
 import salome
+import SALOME
 import SALOMEDS
 import os
 import sys
@@ -89,21 +90,6 @@ comp = catalog.GetComponent("VISU")
 if not comp:
     raise RuntimeError, "Component VISU is not found in Module Catalog."
 print "OK"
-
-print
-
-print "======================================================================"
-print "           %d. Check, that there is no data of MED component in the Study " % step; step+=1
-print "======================================================================"
-
-MedComp = salome.myStudy.FindComponent("MED")
-if not comp:
-    print ""
-    print "This script cannot work properly, because there is"
-    print "some MED component data already existing in the study."
-    print "Execution aborted."
-    print ""
-    raise RuntimeError, "Please, run this script only in a new empty study."
 
 print
 
@@ -193,6 +179,10 @@ idedge = geompy.addToStudyInFather(face, edge, name)
 print name
 print "OK"
 
+# ---- update object browser
+if salome.hasDesktop():
+    salome.sg.updateObjBrowser(1);
+
 print
 
 print "======================================================================"
@@ -203,8 +193,11 @@ import StdMeshers
 import SMESH
 
 smesh = salome.lcc.FindOrLoadComponent("FactoryServer", "SMESH")
-smeshgui = salome.ImportComponentGUI("SMESH")
-smeshgui.Init(salome.myStudyId);
+if salome.hasDesktop():
+    smeshgui = salome.ImportComponentGUI("SMESH")
+    smeshgui.Init(salome.myStudyId);
+else:
+    smesh.SetCurrentStudy(salome.myStudy)
 
 # ---- create hypotheses 
 
@@ -223,7 +216,8 @@ hypLen1.SetLength(100)
 print hypLen1.GetName()
 print hypLen1.GetId()
 print hypLen1.GetLength()
-smeshgui.SetName(salome.ObjectToID(hypLen1), "Local_Length_100")
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(hypLen1), "Local_Length_100")
 print "OK"
 
 print
@@ -233,7 +227,8 @@ hypNbSeg1.SetNumberOfSegments(7)
 print hypNbSeg1.GetName()
 print hypNbSeg1.GetId()
 print hypNbSeg1.GetNumberOfSegments()
-smeshgui.SetName(salome.ObjectToID(hypNbSeg1), "NumberOfSegments_7")
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(hypNbSeg1), "NumberOfSegments_7")
 print "OK"
 
 print
@@ -243,7 +238,8 @@ hypArea1.SetMaxElementArea(2500)
 print hypArea1.GetName()
 print hypArea1.GetId()
 print hypArea1.GetMaxElementArea()
-smeshgui.SetName(salome.ObjectToID(hypArea1), "MaxElementArea_2500")
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(hypArea1), "MaxElementArea_2500")
 print "OK"
 
 print
@@ -253,7 +249,8 @@ hypArea2.SetMaxElementArea(500)
 print hypArea2.GetName()
 print hypArea2.GetId()
 print hypArea2.GetMaxElementArea()
-smeshgui.SetName(salome.ObjectToID(hypArea2), "MaxElementArea_500")
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(hypArea2), "MaxElementArea_500")
 print "OK"
 
 # ---- create algorithms
@@ -269,7 +266,8 @@ for hyp in listHyp:
     print hyp
 print algoReg.GetName()
 print algoReg.GetId()
-smeshgui.SetName(salome.ObjectToID(algoReg), "Regular_1D" )
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(algoReg), "Regular_1D" )
 print "OK"
 
 print
@@ -280,7 +278,8 @@ for hyp in listHyp:
     print hyp
 print algoMef.GetName()
 print algoMef.GetId()
-smeshgui.SetName(salome.ObjectToID(algoMef), "MEFISTO_2D" )
+if salome.hasDesktop():
+    smeshgui.SetName(salome.ObjectToID(algoMef), "MEFISTO_2D" )
 print "OK"
 
 # ---- create mesh on the box, apply hypotheses / algorithms
@@ -288,7 +287,8 @@ print "OK"
 print
 print "--- Create mesh on the box ..."
 mesh = smesh.CreateMesh(box)
-smeshgui.SetName( salome.ObjectToID(mesh), "MeshBox" );
+if salome.hasDesktop():
+    smeshgui.SetName( salome.ObjectToID(mesh), "MeshBox" );
 ret = mesh.AddHypothesis(box, algoReg)
 ret = mesh.AddHypothesis(box, algoMef)
 ret = mesh.AddHypothesis(box, hypNbSeg1)
@@ -316,90 +316,129 @@ print "OK"
 print
 print "--- Compute mesh ..."
 smesh.Compute(mesh, box)
-salome.sg.updateObjBrowser(1);
 print "OK"
+
+# ---- update object browser
+if salome.hasDesktop():
+    salome.sg.updateObjBrowser(1);
 
 print
 
 print "======================================================================"
-print "           %d. Test Post-Pro and Med " % step; step+=1
+print "           %d. Test Med " % step; step+=1
 print "======================================================================"
 
-import sys
-import SALOMEDS
-import SALOME
 import SALOME_MED
-import VISU
-import visu_gui
-
-med  = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
-visu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
 
 medFileName = "pointe.med"
 medFile = os.path.join(os.getenv('DATA_DIR'), 'MedFiles', medFileName)
 
-print
-print "--- Read med file structure from %s ..." % medFile
-med.readStructFileWithFieldType(medFile, salome.myStudyName)
-print "OK"
+med_comp = salome.myStudy.FindComponent("MED")
+
+if not med_comp:
+    med  = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
+
+    print
+    print "--- Read med file structure from %s ..." % medFile
+    med.readStructFileWithFieldType(medFile, salome.myStudyName)
+    print "OK"
+    pass
+else:
+    print
+    print "This script cannot work properly, because there is"
+    print "some MED component data already existing in the study."
+    print "Execution aborted."
+    print
+    print "Skipping test for MED..."
+    pass
 
 print
-print "--- Get med object from study ..."
-med_obj = visu_gui.visu.getMedObjectFromStudy()
-if not med_obj:
-    raise RuntimeError, "Med object is not found in the study"
-print "OK"
 
-print
-print "--- Get field from study ..."
-field = visu_gui.visu.getFieldObjectFromStudy(3,1)
-if not field:
-    raise RuntimeError, "Field object is not found in the study"
-print "OK"
+print "======================================================================"
+print "           %d. Test Post-Pro " % step; step+=1
+print "======================================================================"
 
-print
-print "--- Import field to the VISU ..."
+import VISU
+
 aMeshName = "maa1"
 anEntity = VISU.NODE
-aTimeStampId = -1
-result1 = visu.ImportMedField(field)
-if not result1:
-    raise RuntimeError, "Can't import field"
-print "OK"
+field_name = "fieldnodedouble"
 
-print
-print "--- Create mesh presentation [1] ..."
-mesh1 = visu.MeshOnEntity(result1, aMeshName, anEntity);
-if not mesh1:
-    raise RuntimeError, "Can't create mesh presentation"
-print "OK"
-           
-print
-print "--- Create scalar map [1] ..."
-scalarMap1 = visu.ScalarMapOnField(result1, aMeshName, anEntity, field.getName(), aTimeStampId)
-if not scalarMap1:
-    raise RuntimeError, "Can't create scalar map"
-print "OK"
-	   
-print
-print "--- Import med file %s to the VISU ..." % medFile
-result2 = visu.ImportFile(medFile);
-if not result2:
-    raise RuntimeError, "Can't import file"
-print "OK"
+if salome.hasDesktop(): # in gui mode
+    
+    import visu_gui
+    visu = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
 
-print
-print "--- Create mesh presentation [2] ..."
-mesh2 = visu.MeshOnEntity(result2, aMeshName, anEntity);
-if not mesh2:
-    raise RuntimeError, "Can't create mesh presentation"
-print "OK"
-           
-print
-print "--- Create scalar map [2] ..."
-scalarMap2 = visu.ScalarMapOnField(result2, aMeshName, anEntity, field.getName(), 3)
-if not scalarMap2:
-    raise RuntimeError, "Can't create scalar map"
-print "OK"
+    if not med_comp:
+        
+        print
+        print "--- Get med object from study ..."
+        med_obj = visu_gui.visu.getMedObjectFromStudy()
+        if not med_obj:
+            raise RuntimeError, "Med object is not found in the study"
+        print "OK"
 
-salome.sg.updateObjBrowser(0)
+        print
+        print "--- Get field from study ..."
+        field = visu_gui.visu.getFieldObjectFromStudy(3,1)
+        if not field:
+            raise RuntimeError, "Field object is not found in the study"
+        print "OK"
+
+        print
+        print "--- Import field to the VISU ..."
+        aTimeStampId = -1
+        result1 = visu.ImportMedField(field)
+        if not result1:
+            raise RuntimeError, "Can't import field"
+        print "OK"
+
+        print
+        print "--- Create mesh presentation ..."
+        mesh1 = visu.MeshOnEntity(result1, aMeshName, anEntity);
+        if not mesh1:
+            raise RuntimeError, "Can't create mesh presentation"
+        print "OK"
+
+        print
+        print "--- Create scalar map ..."
+        scalarMap1 = visu.ScalarMapOnField(result1, aMeshName, anEntity, field_name, aTimeStampId)
+        if not scalarMap1:
+            raise RuntimeError, "Can't create scalar map"
+        print "OK"
+
+        pass # if not med_comp
+
+    print
+    print "--- Import med file %s to the VISU ..." % medFile
+    result2 = visu.ImportFile(medFile);
+    if not result2:
+        raise RuntimeError, "Can't import file"
+    print "OK"
+
+    print
+    print "--- Create mesh presentation ..."
+    mesh2 = visu.MeshOnEntity(result2, aMeshName, anEntity);
+    if not mesh2:
+        raise RuntimeError, "Can't create mesh presentation"
+    print "OK"
+
+    print
+    print "--- Create scalar map ..."
+    scalarMap2 = visu.ScalarMapOnField(result2, aMeshName, anEntity, field_name, 3)
+    if not scalarMap2:
+        raise RuntimeError, "Can't create scalar map"
+    print "OK"
+    pass
+
+else: # not in gui mode, visu can not be tested
+    
+    print
+    print "VISU module requires SALOME to be running in GUI mode."
+    print
+    print "Skipping test for VISU..."
+    pass
+
+# ---- update object browser
+if salome.hasDesktop():
+    salome.sg.updateObjBrowser(1);
