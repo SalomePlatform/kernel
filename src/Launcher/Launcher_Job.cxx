@@ -574,6 +574,16 @@ Launcher::Job::addToXmlDocument(xmlNodePtr root_node)
   xmlNewChild(node, NULL, xmlCharStrdup("maximum_duration"), xmlCharStrdup(getMaximumDuration().c_str()));
   xmlNewChild(node, NULL, xmlCharStrdup("queue"),            xmlCharStrdup(getQueue().c_str()));
 
+  // Specific parameters part
+  xmlNodePtr specific_parameters_node = xmlNewChild(node, NULL, xmlCharStrdup("specific_parameters"), NULL);
+  std::map<std::string, std::string> specific_parameters = getSpecificParameters();
+  for(std::map<std::string, std::string>::iterator it = specific_parameters.begin(); it != specific_parameters.end(); it++)
+  {
+    xmlNodePtr specific_parameter_node = xmlNewChild(specific_parameters_node, NULL, xmlCharStrdup("specific_parameter"), NULL);
+    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("name"), xmlCharStrdup((it->first).c_str()));
+    xmlNewChild(specific_parameter_node, NULL, xmlCharStrdup("value"), xmlCharStrdup((it->second).c_str()));
+  }
+
   // Run part
   xmlNodePtr run_node = xmlNewChild(job_node, NULL, xmlCharStrdup("run_part"), NULL);
   xmlNewChild(run_node, NULL, xmlCharStrdup("job_state"), xmlCharStrdup(getState().c_str()));

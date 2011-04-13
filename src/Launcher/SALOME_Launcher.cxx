@@ -677,6 +677,61 @@ SALOME_Launcher::loadJobs(const char* jobs_file)
         xmlFree(maximum_duration);
         xmlFree(queue);
 
+        xmlNodePtr specific_node = xmlNextElementSibling(queue_node);
+        if (specific_node == NULL)
+        {
+          INFOS("A bad job is found, specific_parameters part is not found");
+          delete new_job;
+          break;
+        }
+        xmlNodePtr parameter_node = xmlFirstElementChild(specific_node);
+        while (parameter_node != NULL)
+        {
+          if (!xmlStrcmp(parameter_node->name, xmlCharStrdup("specific_parameter")))
+          {
+            xmlNodePtr name_node = xmlFirstElementChild(parameter_node);
+            xmlNodePtr value_node = xmlNextElementSibling(name_node);
+            if (name_node == NULL ||
+                value_node == NULL)
+            {
+              INFOS("A bad job is found, specific_parameter parts are not found");
+              delete new_job;
+              break;
+            }
+            if (xmlStrcmp(name_node->name, xmlCharStrdup("name")) ||
+                xmlStrcmp(value_node->name, xmlCharStrdup("value")))
+            {
+              INFOS("A bad job is found, specific_parameter bad parts are found");
+              delete new_job;
+              break;
+            }
+
+            xmlChar* name  = xmlNodeGetContent(name_node);
+            xmlChar* value = xmlNodeGetContent(value_node);
+            try
+            {
+              new_job->addSpecificParameter(std::string((const char*)name), std::string((const char*)value));
+              xmlFree(name);
+              xmlFree(value);
+            }
+            catch(const LauncherException &ex)
+            {
+              INFOS("Exception receice for a specific parameter, cannot add the job" << ex.msg.c_str());
+              delete new_job;
+              xmlFree(name);
+              xmlFree(value);
+              break;
+            }
+          }
+          else
+          {
+            INFOS("A bad job is found, specific_parameters part is bad, a node that is not a specific parameter is found");
+            delete new_job;
+            break;
+          }
+          parameter_node = xmlNextElementSibling(parameter_node);
+        }
+
         xmlNodePtr res_name_node             = xmlFirstElementChild(res_node);
         xmlNodePtr res_hostname_node         = xmlNextElementSibling(res_name_node);
         xmlNodePtr res_os_node               = xmlNextElementSibling(res_hostname_node);
