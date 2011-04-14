@@ -38,10 +38,10 @@
 #include <exception>
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Job.hxx>
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_JobId.hxx>
-#include <Batch/Batch_EmulationException.hxx>
+#include <Batch_Job.hxx>
+#include <Batch_Date.hxx>
+#include <Batch_JobId.hxx>
+#include <Batch_EmulationException.hxx>
 #endif
 
 #include <libxml/parser.h>

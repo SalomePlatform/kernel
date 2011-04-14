@@ -23,7 +23,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <Batch_Constants.hxx>
 #endif
 
 Launcher::Job::Job()
@@ -507,6 +507,10 @@ Launcher::Job::common_job_params()
   if (_queue != "")
     params[Batch::QUEUE] = _queue;
 
+  // Specific parameters
+  std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
+  if (it != _specific_parameters.end())
+    params[Batch::LL_JOBTYPE] = it->second;
   return params;
 }
 
