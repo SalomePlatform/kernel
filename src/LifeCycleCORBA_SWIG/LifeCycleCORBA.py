@@ -68,3 +68,11 @@ class JobParameters (Engines.JobParameters):
     Engines.JobParameters.__init__(self, job_name, job_type, job_file, env_file, in_files, out_files,
                                          work_directory, local_directory, result_directory, maximum_duration,
                                          resource_required, queue, specific_parameters)
+
+class ResourceDefinition(Engines.ResourceDefinition):
+  def __init__(self, name="", hostname="", protocol="rsh", username="", applipath="", componentList=[],
+               mode="interactive", OS="", mem_mb=1, cpu_clock=1, nb_node=1, nb_proc_per_node=1,
+               batch="", mpiImpl="", iprotocol="rsh"):
+    Engines.ResourceDefinition.__init__(self, name, hostname, protocol, username, applipath, componentList,
+                               mode, OS, mem_mb, cpu_clock, nb_node, nb_proc_per_node, batch,
+                               mpiImpl, iprotocol)
