@@ -53,14 +53,14 @@ LOCAL_INCLUDES=""
 LOCAL_LIBS=""
 
 if test "x$LIBBATCH_DIR" != "x" ; then
-  LOCAL_INCLUDES="-I$LIBBATCH_DIR/include/Batch"
+  LOCAL_INCLUDES="-I$LIBBATCH_DIR/include"
   if test "x$LIBBATCH_DIR" = "x/usr" ; then
     LOCAL_LIBS="-lBatch"
   else
     LOCAL_LIBS="-L$LIBBATCH_DIR/lib -lBatch"
   fi
 else
-  LOCAL_INCLUDES="-I/usr/include/Batch"
+  LOCAL_INCLUDES="-I/usr/include"
   LOCAL_LIBS="-lBatch"
 fi
 
