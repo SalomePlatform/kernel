@@ -24,8 +24,8 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch_Date.hxx>
-#include <Batch_MpiImpl.hxx>
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_MpiImpl.hxx>
 #endif
 
 #include "utilities.h"
