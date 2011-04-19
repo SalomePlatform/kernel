@@ -52,9 +52,8 @@ namespace Kernel_Utils
 
   std::string GetTmpDirByEnv( const std::string& tmp_path_env )
   {
-    std::string dir;
     char* val = getenv( tmp_path_env.c_str() );
-    val ? dir = std::string( val ) : "";
+    std::string dir = val ? val : "";
     return GetTmpDirByPath( dir );
   }
 
