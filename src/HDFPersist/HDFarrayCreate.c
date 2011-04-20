@@ -22,50 +22,55 @@
 
 /*----------------------------------------------------------------------------
 SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-  File   : HDFdatasetGetType.c
+  File   : HDFarrayCreate.c
   Module : SALOME
 ----------------------------------------------------------------------------*/
 
 #include "hdfi.h"
-#include <hdf5.h>
 
-hdf_type
-HDFdatasetGetType(hdf_idt id)
+/*
+ * - Name : HDFarrayCreate
+ * - Description : creates a HDF array
+ * - Parameters :
+ *     - dataType    (IN) : type of the data in the array (HDF_INT32, HDF_INT64, HDF_FLOAT64, HDF_CHAR).
+ *     - ndim        (IN) : is the number of dimensions and the size of each dimension is specified in the array dims.
+ *     - dim         (IN) : size of each array dimension.
+ * - Result : 
+ *     - if success : returns array ID
+ *     - if failure : -1
+ */ 
+
+hdf_idt HDFarrayCreate(hdf_type dataType, int ndim, hdf_size *dim)
 {
-  hdf_idt type_id;
-  hdf_type type;
-  hdf_size_type size;
+  hdf_idt type_hdf;
+  switch(dataType)
+      {
+      case HDF_FLOAT64 :
+#if defined (PCLINUX) || defined (PCLINUX64)
+	type_hdf = H5T_IEEE_F64BE;
+#else 
+	type_hdf = H5T_IEEE_F64LE;
+#endif
+	break;
 
-  if ((type_id = H5Dget_type(id)) < 0)
-    return HDF_NONE;
-
-  switch (H5Tget_class(type_id))
-    {
-    case H5T_INTEGER :
-      size = H5Tget_size(type_id);
-      if (size == 4)
-        type = HDF_INT32;
-      else
-        type = HDF_INT64;
-      break;
-
-    case H5T_FLOAT :
-      type = HDF_FLOAT64;
-      break;
-
-    case H5T_STRING :
-      type = HDF_STRING;
-      break;
-      
-    case H5T_ARRAY :
-      type = HDF_ARRAY;
-      break;
-
-    default :
-      type = HDF_NONE;
-    }
-
-  H5Tclose(type_id);
-
-  return type;
+      case HDF_INT32 :
+#if defined (PCLINUX) || defined (PCLINUX64)
+	type_hdf = H5T_STD_I32BE;  
+#else
+	type_hdf = H5T_NATIVE_INT;
+#endif
+	break;
+ 
+      case HDF_INT64 :
+	type_hdf = H5T_NATIVE_LONG;
+	break;
+      case HDF_CHAR :
+	type_hdf = H5T_NATIVE_CHAR;
+	break;
+      default:
+	return -1;
+	break;
+      }
+    
+    return H5Tarray_create2( type_hdf, ndim, dim );
 }

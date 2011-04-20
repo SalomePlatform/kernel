@@ -21,8 +21,8 @@
 //
 
 /*----------------------------------------------------------------------------
-SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-  File   : HDFdatasetGetType.c
+  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+  File   : HDFarrayGetType.c
   Module : SALOME
 ----------------------------------------------------------------------------*/
 
@@ -30,42 +30,42 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 #include <hdf5.h>
 
 hdf_type
-HDFdatasetGetType(hdf_idt id)
+HDFarrayGetType(hdf_idt type_id)
 {
-  hdf_idt type_id;
+  hdf_idt super;
   hdf_type type;
   hdf_size_type size;
-
-  if ((type_id = H5Dget_type(id)) < 0)
+  
+  if(type_id < 0 )
+    return HDF_NONE; 
+  
+  if((super = H5Tget_super(type_id))  < 0 )
     return HDF_NONE;
-
-  switch (H5Tget_class(type_id))
+  
+  switch (H5Tget_class(super))
     {
     case H5T_INTEGER :
-      size = H5Tget_size(type_id);
-      if (size == 4)
+      size = H5Tget_size(super);
+      if(size == 1)
+	type = HDF_CHAR;
+      else if (size == 4)
         type = HDF_INT32;
       else
         type = HDF_INT64;
       break;
-
+      
     case H5T_FLOAT :
       type = HDF_FLOAT64;
       break;
-
+      
     case H5T_STRING :
       type = HDF_STRING;
       break;
       
-    case H5T_ARRAY :
-      type = HDF_ARRAY;
-      break;
-
     default :
       type = HDF_NONE;
     }
-
-  H5Tclose(type_id);
-
+  
+  H5Tclose(super);
   return type;
 }

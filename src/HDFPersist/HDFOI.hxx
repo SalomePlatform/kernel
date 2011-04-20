@@ -40,3 +40,5 @@
 #include "HDFconvert.hxx"
 
 #include "HDFascii.hxx"
+
+#include "HDFarray.hxx"

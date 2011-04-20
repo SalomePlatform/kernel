@@ -43,6 +43,7 @@ private :
   hdf_size _size;
   int _ndim;
   char* _attribute;
+  hdf_idt _arrayId;
 
 public:
   HDFdataset(const char *name, HDFcontainerObject *father,hdf_type type, 
@@ -65,6 +66,8 @@ public:
   hdf_size GetSize();
   hdf_object_type GetObjectType();
   hdf_byte_order GetOrder();
+
+  void SetArrayId(hdf_idt arrayId);
 
   int nAttributes();
   char* GetAttributeName(unsigned idx);

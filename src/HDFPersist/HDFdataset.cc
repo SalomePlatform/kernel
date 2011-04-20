@@ -59,6 +59,7 @@ HDFdataset::HDFdataset(const char *name, HDFcontainerObject *father,hdf_type typ
       _dim[i] = dim[i];
       _size = _size * _dim[i];
     }
+  _arrayId = -1;
 }
 
 
@@ -74,6 +75,7 @@ HDFdataset::HDFdataset(const char *name,HDFcontainerObject *father)
   _byte_order = H5T_ORDER_ERROR;
   _size = -1;
   _attribute = NULL;
+  _arrayId = -1;
 }
 
 HDFdataset::~HDFdataset()
@@ -83,7 +85,7 @@ HDFdataset::~HDFdataset()
 
 void HDFdataset::CreateOnDisk()
 {
-  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim,_byte_order)) < 0)
+  if ((_id = HDFdatasetCreate(_fid,_name,_type,_dim,_ndim,_byte_order,_arrayId)) < 0)
     throw HDFexception("Can't create dataset");
 }
 
@@ -226,3 +228,6 @@ char* HDFdataset::GetAttributeName(unsigned idx)
   return _attribute;
 }
 
+void HDFdataset::SetArrayId(hdf_idt arrayId) {
+  _arrayId = arrayId;
+}

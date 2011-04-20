@@ -70,8 +70,8 @@ extern
 hdf_err HDFdatasetClose(hdf_idt id);
 
 extern
-hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
-                         hdf_size *dimd, int ndim, hdf_byte_order order);
+hdf_idt HDFdatasetCreate(hdf_idt pid,char *name, hdf_type type,
+                         hdf_size *dimd, int ndim, hdf_byte_order order, hdf_idt arrayId);
 
 extern
 hdf_err HDFdatasetWrite(hdf_idt id, void *val);
@@ -81,6 +81,25 @@ hdf_err HDFdatasetRead(hdf_idt id, void *val);
 
 extern
 hdf_type HDFdatasetGetType(hdf_idt id);
+
+extern
+hdf_type HDFarrayGetType(hdf_idt id);
+
+extern 
+hdf_idt HDFarrayGetTypeId(hdf_idt type_id);
+
+extern 
+hdf_err HDFarrayClose(hdf_idt id);
+
+extern 
+int HDFarrayGetnDim(hdf_idt id);
+
+extern 
+hdf_err HDFarrayGetDim(hdf_idt id, hdf_size dim[]);
+
+
+extern 
+hdf_idt HDFarrayCreate(hdf_type dataType,int ndim,hdf_size *dim);
 
 extern 
 int HDFdatasetGetnDim(hdf_idt id);

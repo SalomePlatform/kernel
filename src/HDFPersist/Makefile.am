@@ -38,6 +38,7 @@ salomeinclude_HEADERS      = \
 	HDFgroup.hxx \
 	HDFinternalObject.hxx \
 	HDFobject.hxx \
+	HDFarray.hxx \
 	HDFOI.hxx \
 	HDFtypes.h \
 	HDFconvert.hxx \
@@ -66,6 +67,12 @@ libSalomeHDFPersist_la_SOURCES  =\
 	HDFdatasetGetType.c \
 	HDFdatasetGetnDim.c \
 	HDFdatasetGetOrder.c \
+	HDFarrayGetType.c \
+	HDFarrayGetTypeId.c \
+	HDFarrayCreate.c \
+	HDFarrayClose.c \
+	HDFarrayGetnDim.c \
+	HDFarrayGetDim.c \
 	HDFattrOpen.c \
 	HDFattrClose.c \
 	HDFattrWrite.c \
@@ -78,6 +85,7 @@ libSalomeHDFPersist_la_SOURCES  =\
 	HDFobjectIdentify.c \
 	HDFobjectType.c \
 	HDFobject.cc \
+	HDFarray.cc \
 	HDFinternalObject.cc \
 	HDFattribute.cc \
 	HDFcontainerObject.cc \

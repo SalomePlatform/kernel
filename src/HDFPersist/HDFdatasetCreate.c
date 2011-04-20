@@ -43,7 +43,7 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
  */ 
 
 hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
-                         hdf_size *dimd, int ndim, hdf_byte_order order)
+                         hdf_size *dimd, int ndim, hdf_byte_order order, hdf_idt arrayId)
 {
   hdf_idt dataset, dataspace = 0;
   hdf_err ret;
@@ -76,8 +76,12 @@ hdf_idt HDFdatasetCreate(hdf_idt pid,char *name,hdf_type type,
         return -1;
       if((ret = H5Tset_size(new_type_hdf,1)) < 0)
         return -1;
-      break;
+      break;    
 
+    case HDF_ARRAY :
+      type_hdf = arrayId;
+      break;
+      
     default :
       return -1;
     }

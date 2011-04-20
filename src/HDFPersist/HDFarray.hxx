@@ -20,52 +20,40 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-/*----------------------------------------------------------------------------
-SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-  File   : HDFdatasetGetType.c
-  Module : SALOME
-----------------------------------------------------------------------------*/
+//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+//  File   : HDFarray.hxx
+//  Module : SALOME
+//
+#ifndef HDFARRAY_HXX
+#define HDFARRAY_HXX
 
-#include "hdfi.h"
-#include <hdf5.h>
+#include "HDFobject.hxx"
+#include "HDFexport.hxx"
 
-hdf_type
-HDFdatasetGetType(hdf_idt id)
-{
-  hdf_idt type_id;
-  hdf_type type;
-  hdf_size_type size;
+class HDFPERSIST_EXPORT HDFarray : public HDFobject {
+protected:
+  HDFobject* _father;
+  hdf_type   _datatype;
+  hdf_size*  _dim;
+  int        _ndim;
+  
+public :
+  HDFarray( HDFobject* father, hdf_type dataType, int ndim, hdf_size *dim);
+  
+  HDFarray( HDFobject* father);
+  
+  virtual ~HDFarray();
 
-  if ((type_id = H5Dget_type(id)) < 0)
-    return HDF_NONE;
+  virtual hdf_type GetDataType();
 
-  switch (H5Tget_class(type_id))
-    {
-    case H5T_INTEGER :
-      size = H5Tget_size(type_id);
-      if (size == 4)
-        type = HDF_INT32;
-      else
-        type = HDF_INT64;
-      break;
+  virtual hdf_object_type GetObjectType();
 
-    case H5T_FLOAT :
-      type = HDF_FLOAT64;
-      break;
+  void CreateOnDisk();
+  void CloseOnDisk();
 
-    case H5T_STRING :
-      type = HDF_STRING;
-      break;
-      
-    case H5T_ARRAY :
-      type = HDF_ARRAY;
-      break;
+  int nDim();
+  void GetDim(hdf_size dim[]);
+};
 
-    default :
-      type = HDF_NONE;
-    }
+#endif /* HDFARRAY_HXX */
 
-  H5Tclose(type_id);
-
-  return type;
-}

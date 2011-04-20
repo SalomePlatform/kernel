@@ -21,51 +21,33 @@
 //
 
 /*----------------------------------------------------------------------------
-SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-  File   : HDFdatasetGetType.c
+  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
+  File   : HDFarrayGetDim.c
   Module : SALOME
 ----------------------------------------------------------------------------*/
 
-#include "hdfi.h"
 #include <hdf5.h>
+#include "hdfi.h"
+#include <stdlib.h>
 
-hdf_type
-HDFdatasetGetType(hdf_idt id)
+hdf_err 
+HDFarrayGetDim(hdf_idt id,hdf_size dim[])
 {
-  hdf_idt type_id;
-  hdf_type type;
-  hdf_size_type size;
+  hdf_err ret = 0;
+  hdf_size *tmp;
+  int ndim, i;
 
-  if ((type_id = H5Dget_type(id)) < 0)
-    return HDF_NONE;
+  if ( (ndim = H5Tget_array_ndims(id)) < 0 )
+    return -1;
 
-  switch (H5Tget_class(type_id))
-    {
-    case H5T_INTEGER :
-      size = H5Tget_size(type_id);
-      if (size == 4)
-        type = HDF_INT32;
-      else
-        type = HDF_INT64;
-      break;
+  tmp = (hdf_size *) malloc(sizeof(hdf_size)*ndim);
 
-    case H5T_FLOAT :
-      type = HDF_FLOAT64;
-      break;
-
-    case H5T_STRING :
-      type = HDF_STRING;
-      break;
-      
-    case H5T_ARRAY :
-      type = HDF_ARRAY;
-      break;
-
-    default :
-      type = HDF_NONE;
-    }
-
-  H5Tclose(type_id);
-
-  return type;
+  ret = H5Tget_array_dims2(id, tmp);
+  
+  for( i=0 ; i < ndim ; i++)
+    dim[i] = tmp[i];
+  
+  free (tmp);
+  
+  return ret;
 }

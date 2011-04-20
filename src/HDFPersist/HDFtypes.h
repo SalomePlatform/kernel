@@ -43,6 +43,7 @@ typedef herr_t         hdf_err;
 typedef hbool_t        hdf_bool;
 typedef H5T_order_t    hdf_byte_order;
 
+typedef char           hdf_char;
 typedef int            hdf_int32;
 typedef long           hdf_int64;
 typedef double         hdf_float64;
@@ -51,15 +52,16 @@ typedef double         hdf_float64;
 typedef enum {HDF_RDONLY,HDF_RDWR} hdf_access_mode; 
 
 /* Values types for HDF datasets and attributes */
-typedef enum {HDF_NONE,HDF_STRING, HDF_INT32, HDF_INT64, HDF_FLOAT64} hdf_type;
+typedef enum {HDF_NONE,HDF_STRING, HDF_INT32, HDF_INT64, HDF_FLOAT64, HDF_CHAR, HDF_ARRAY} hdf_type;
 /* - HDF_STRING   : C string 
    - HDF_INT32    : 32 bits integer 
    - HDF_INT64    : 64 bits integer
    - HDF_FLOAT64  : IEEE  64 bits float
+   - HDF_ARRAY    : Array
 */
 
 /* HDF object types */
 typedef enum {HDF_OBJECT,HDF_FILE,HDF_GROUP,HDF_DATASET,
-              HDF_ATTRIBUTE} hdf_object_type;
+              HDF_ATTRIBUTE, HDF_ARRAY_TYPE } hdf_object_type;
 
 #endif /* HDFTYPES_H */
