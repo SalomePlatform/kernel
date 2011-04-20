@@ -24,7 +24,6 @@
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Constants.hxx>
-#include <Batch/Batch_FactBatchManager_eLL.hxx>
 #endif
 
 Launcher::Job::Job()
@@ -511,7 +510,7 @@ Launcher::Job::common_job_params()
   // Specific parameters
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
   if (it != _specific_parameters.end())
-    params[Batch::LL_JOBTYPE] = it->second;
+    params["LL_JOBTYPE"] = it->second;
   return params;
 }
 
