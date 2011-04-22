@@ -25,7 +25,7 @@ computation code. These Exchange Variables can be stored in a SObject in
 Salome study.
 """
 
-from studyedit import getStudyEditor
+from salome.kernel.studyedit import getStudyEditor
 
 DEFAULT_NAME = "Variables"
 INPUT_VAR_NAMES = "ExchangeVariables.InputVarNames"

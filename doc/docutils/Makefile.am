@@ -70,7 +70,9 @@ RSTFILES= \
 	index.rst \
 	overview.rst \
 	docapi.rst \
-	salomepypkg.rst
+	salomepypkg.rst \
+	kernel.rst \
+	parametric.rst
 
 EXTRA_DIST+= $(RSTFILES)
 
