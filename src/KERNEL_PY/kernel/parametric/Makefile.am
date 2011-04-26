@@ -5,4 +5,5 @@ mypkgpythondir =$(salomepypkgdir)/kernel/parametric
 mypkgpython_PYTHON = \
 	__init__.py \
 	study_exchange_vars.py \
-	compo_utils.py
+	compo_utils.py \
+	pyscript_utils.py
