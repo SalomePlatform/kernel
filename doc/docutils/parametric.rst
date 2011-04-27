@@ -13,3 +13,10 @@
 
 .. automodule:: salome.kernel.parametric.compo_utils
    :members:
+
+
+:mod:`pyscript_utils` -- Useful functions for Python scripts used in parametric studies
+---------------------------------------------------------------------------------------
+
+.. automodule:: salome.kernel.parametric.pyscript_utils
+   :members:
