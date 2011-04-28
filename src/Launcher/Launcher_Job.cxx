@@ -604,7 +604,6 @@ void
 Launcher::Job::addSpecificParameter(const std::string & name,
                                       const std::string & value)
 {
-  std::cerr << "Adding " << name << " " << value << std::endl;
   _specific_parameters[name] = value;
 }
 
