@@ -470,163 +470,170 @@ class CMakeFile(object):
             SET(MODULE %s)
             """%(self.module.upper()))
             # --
-            if self.module == "kernel":
+            if self.module == "netgen":
                 newlines.append("""
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
-                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                INCLUDE(${CMAKE_SOURCE_DIR}/cmake/FindPLATFORM.cmake)
+                INCLUDE(${CMAKE_SOURCE_DIR}/cmake/FindCAS.cmake)
                 """)
-                pass
             else:
-                if self.module == "med":
+                if self.module == "kernel":
                     newlines.append("""
-                    SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-                    IF(KERNEL_ROOT_DIR)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
-                    ELSE(KERNEL_ROOT_DIR)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
-                    ENDIF(KERNEL_ROOT_DIR)
-                    """)
-                else:
-                    newlines.append("""
-                    SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
-                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                     """)
                     pass
-                if self.module == "gui":
-                    newlines.append("""
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindCAS.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindQT4.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindVTK.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindQWT.cmake)
-                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
-                    """)
                 else:
-                    newlines.append("""
-                    SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
-                    IF(GUI_ROOT_DIR)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindVTK.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQWT.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
-                    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
-                    ENDIF(GUI_ROOT_DIR)
-                    """)
                     if self.module == "med":
                         newlines.append("""
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-                        IF(WINDOWS)
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
-                        ENDIF(WINDOWS)
+                        SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+                        IF(KERNEL_ROOT_DIR)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                        ELSE(KERNEL_ROOT_DIR)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
+                        ENDIF(KERNEL_ROOT_DIR)
+                        """)
+                    else:
+                        newlines.append("""
+                        SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
+                        INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
                         """)
                         pass
-                    if self.module == "smesh":
+                    if self.module == "gui":
                         newlines.append("""
-                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindCAS.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindQT4.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindVTK.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindQWT.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
                         """)
-                        pass
-                    if self.module == "netgenplugin":
+                    else:
                         newlines.append("""
-                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
-                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
+                        SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
+                        IF(GUI_ROOT_DIR)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindVTK.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQWT.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
+                        INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
+                        ENDIF(GUI_ROOT_DIR)
                         """)
-                        pass
-                    if self.module == "blsurfplugin":
-                        newlines.append("""
-                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
-                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
-                        """)
-                        pass
-                    if self.module in ["ghs3dplugin", "hexoticplugin"]:
-                        newlines.append("""
-                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
-                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                        """)
-                        pass
-                    if self.module == "ghs3dprlplugin":
-                        newlines.append("""
-                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
-                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
-                        """)
-                        pass
-                    if self.module == "visu":
-                        newlines.append("""
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        """)
-                        pass
-                    if self.module == "yacs":
-                        newlines.append("""
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
-                        INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
-                        """)
-                        pass
-                    if self.module == "hxx2salome":
-                        newlines.append("""
-                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
-                        """)
+                        if self.module == "med":
+                            newlines.append("""
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                            IF(WINDOWS)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
+                            ENDIF(WINDOWS)
+                            """)
+                            pass
+                        if self.module == "smesh":
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            """)
+                            pass
+                        if self.module == "netgenplugin":
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
+                            """)
+                            pass
+                        if self.module == "blsurfplugin":
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindBLSURF.cmake)
+                            """)
+                            pass
+                        if self.module in ["ghs3dplugin", "hexoticplugin"]:
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                            """)
+                            pass
+                        if self.module == "ghs3dprlplugin":
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                            """)
+                            pass
+                        if self.module == "visu":
+                            newlines.append("""
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            """)
+                            pass
+                        if self.module == "yacs":
+                            newlines.append("""
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
+                            """)
+                            pass
+                        if self.module == "hxx2salome":
+                            newlines.append("""
+                            SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                            INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                            """)
+                            pass
                         pass
                     pass
                 pass
