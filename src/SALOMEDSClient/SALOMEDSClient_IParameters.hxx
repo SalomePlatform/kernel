@@ -77,6 +77,16 @@ public:
   virtual std::string getParameter(const std::string& entry, const std::string& parameterName) = 0;
 
   /*!
+    Sets an id parameter value for the given entry.
+   */
+  virtual void setIdParameter(const std::string& entry, const std::string& value) = 0;
+
+  /*!
+    Gets an id parameter value for the given entry
+   */
+  virtual std::string getIdParameter(const std::string& entry) = 0;
+
+  /*!
     Returns all parameter names of the given entry
    */
   virtual std::vector<std::string> getAllParameterNames(const std::string& entry) = 0;

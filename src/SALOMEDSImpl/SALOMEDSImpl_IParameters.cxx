@@ -31,6 +31,8 @@
 #define _AP_PROPERTIES_LIST_ "AP_PROPERTIES_LIST"
 #define _AP_DUMP_PYTHON_ "AP_DUMP_PYTHON"
 
+#define _PT_ID_ "_PT_OBJECT_ID_"
+
 /*!
   Constructor
 */
@@ -125,6 +127,33 @@ std::string SALOMEDSImpl_IParameters::getParameter(const std::string& entry, con
   return "";
 }
 
+
+void SALOMEDSImpl_IParameters::setIdParameter(const std::string& entry, const std::string& value)
+{
+  if(!_ap) return;
+  std::vector<std::string> v;
+  if(!_ap->IsSet(entry, PT_STRARRAY)) {
+    append(_AP_ENTRIES_LIST_, entry); //Add the entry to the internal list of entries
+    _ap->SetStrArray(entry, v);
+  }
+  v = _ap->GetStrArray(entry);
+  v.push_back(_PT_ID_);
+  v.push_back(value);
+  _ap->SetStrArray(entry, v);
+}
+
+
+std::string SALOMEDSImpl_IParameters::getIdParameter(const std::string& entry)
+{
+  if(!_ap) return "";
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
+  std::vector<std::string> v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 0; i<length; i+=1) {
+    if(v[i] == _PT_ID_) return v[i+1];
+  }
+  return "";
+}
 
 std::vector<std::string> SALOMEDSImpl_IParameters::getAllParameterNames(const std::string& entry)
 {
@@ -347,9 +376,27 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
       SALOMEDSImpl_SObject so = study->FindObjectID(decodedEntry);
       std::string so_name("");
       if(so) so_name = so.GetName();
-      dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";
-      for(int j = 0; j < names.size() && j < values.size(); j++)
-        dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+      
+      //Try to find id parameter 
+      std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), _PT_ID_ );
+      bool hasId = it !=  names.end();
+      bool onlyId = hasId && names.size() == 1;
+      
+      if(!onlyId) {
+	dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";
+	if(hasId) {
+	  int idIndex = std::distance(names.begin(), it);
+	  dump += shift + "objId = " + values[idIndex] + "\n";
+	}
+	   
+	for(int j = 0; j < names.size() && j < values.size(); j++) {
+	  if(names[j] == _PT_ID_) continue;
+	  if(hasId)
+	    dump += shift + "ipar.setParameter(" + "objId" + ", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+	  else
+	    dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+	}
+      }
     }
   }
   

@@ -1524,12 +1524,24 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if (theSavePoint < 0) return NULL;
+  if (theSavePoint < -1) return NULL;
   SALOMEDSImpl_StudyBuilder* builder = NewBuilder();
   SALOMEDSImpl_SObject so = FindComponent((char*)theID);
   if (!so) so = builder->NewComponent((char*)theID);
   SALOMEDSImpl_AttributeParameter* attParam = NULL;
 
+  if (theSavePoint == -1) {
+    int ctag = 1;
+    DF_Label savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    DF_Label prevPointLabel;
+    while ( !savePointLabel.IsNull() ) {
+      ctag++;
+      prevPointLabel = savePointLabel;
+      savePointLabel = so.GetLabel().FindChild( ctag, /*create=*/0 );
+    }
+    if ( !prevPointLabel.IsNull() )
+      so = GetSObject( prevPointLabel );
+  }
   if (theSavePoint > 0) { // Try to find SObject that contains attribute parameter ...
     DF_Label savePointLabel = so.GetLabel().FindChild( theSavePoint, /*create=*/0 );
     if ( !savePointLabel.IsNull() )
@@ -1558,7 +1570,7 @@ SALOMEDSImpl_AttributeParameter* SALOMEDSImpl_Study::GetModuleParameters(const c
                                                                          const char* theModuleName,
                                                                          int theSavePoint)
 {
-  if(theSavePoint <= 0) return NULL;
+  if(theSavePoint < -1) return NULL;
   SALOMEDSImpl_AttributeParameter* main_ap = GetCommonParameters(theID, theSavePoint);
   SALOMEDSImpl_SObject main_so = main_ap->GetSObject();
   SALOMEDSImpl_AttributeParameter* par = NULL;

@@ -36,6 +36,9 @@
 #define _AP_PROPERTIES_LIST_ "AP_PROPERTIES_LIST"
 #define _AP_DUMP_PYTHON_ "AP_DUMP_PYTHON"
 
+#define _PT_ID_ "_PT_OBJECT_ID_"
+
+
 /*!
   Constructor
 */
@@ -142,6 +145,33 @@ std::vector<std::string> SALOMEDS_IParameters::getAllParameterNames(const std::s
     names.push_back(v[i]);
   }
   return names;
+}
+
+
+std::string SALOMEDS_IParameters::getIdParameter(const std::string& entry)
+{
+  if(!_ap) return "";
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
+  std::vector<std::string> v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 0; i<length; i+=1) {
+    if(v[i] == _PT_ID_) return v[i+1];
+  }
+  return "";
+}
+
+void SALOMEDS_IParameters::setIdParameter(const std::string& entry, const std::string& value)
+{
+  if(!_ap) return;
+  std::vector<std::string> v;
+  if(!_ap->IsSet(entry, PT_STRARRAY)) {
+    append(_AP_ENTRIES_LIST_, entry); //Add the entry to the internal list of entries
+    _ap->SetStrArray(entry, v);
+  }
+  v = _ap->GetStrArray(entry);
+  v.push_back(_PT_ID_);
+  v.push_back(value);
+  _ap->SetStrArray(entry, v);
 }
 
 std::vector<std::string> SALOMEDS_IParameters::getAllParameterValues(const std::string& entry)
