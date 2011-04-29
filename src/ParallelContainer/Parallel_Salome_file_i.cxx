@@ -37,6 +37,8 @@ Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb,
   Engines::fileTransfer_serv(orb,ior,rank),
   Engines::Parallel_Salome_file_serv(orb,ior,rank),
   Engines::fileTransfer_base_serv(orb,ior,rank),
+  SALOME::GenericObj_serv(orb,ior,rank),
+  SALOME::GenericObj_base_serv(orb,ior,rank),
   Engines::Parallel_Salome_file_base_serv(orb,ior,rank)
 {
   CORBA::Object_ptr obj = _orb->string_to_object(ior);

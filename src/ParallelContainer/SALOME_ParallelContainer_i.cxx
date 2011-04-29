@@ -923,7 +923,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
 {
   // Init de la méthode
   char * proxy_ior;
-  Engines::Component_PaCO_var work_node;
+  Engines::EngineComponent_PaCO_var work_node;
   std::string aCompName = componentName;
   std::string _proxy_containerName = proxy_containerName;
 
@@ -986,7 +986,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
-    work_node = Engines::Component_PaCO::_narrow(obj) ;
+    work_node = Engines::EngineComponent_PaCO::_narrow(obj) ;
     if (CORBA::is_nil(work_node))
     {
       INFOS("work_node reference from factory is nil !");
@@ -1125,6 +1125,14 @@ Engines_Parallel_Container_i::createPyNode(const char* nodeName, const char* cod
 {
   INFOS("Python component not yet implemented");
   Engines::PyNode_var node= Engines::PyNode::_nil();
+  return node._retn();
+}
+
+Engines::PyScriptNode_ptr 
+Engines_Parallel_Container_i::createPyScriptNode(const char* nodeName, const char* cod)
+{
+  INFOS("Python script node not yet implemented");
+  Engines::PyScriptNode_var node= Engines::PyScriptNode::_nil();
   return node._retn();
 }
 
