@@ -75,7 +75,7 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
   for(t=0;t<NUM_THREADS;t++)
     {
       MESSAGE("Creating thread " << t);
-      rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t) ;
+      rc = pthread_create(&threads[t], NULL, PrintHello, &t) ;
       CPPUNIT_ASSERT( !rc);
     }
 
