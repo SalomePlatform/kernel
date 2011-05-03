@@ -65,7 +65,7 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
           pthread_t traceThread;
           int bid = 0;
           pthread_create(&traceThread, NULL,
-                                   FileTraceCollector::run, (void *)bid);
+                                   FileTraceCollector::run, &bid);
           sem_wait(&_sem);
           _singleton = myInstance; // _singleton known only when init done
           DEVTRACE("FileTraceCollector:: instance()-end");
