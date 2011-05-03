@@ -1270,7 +1270,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
   sfp << "import " << aBatchModeScript << std::endl << std::endl;
 
   // initialization function
-  sfp << aBatchModeScript << ".salome_init()" << std::endl << std::endl;
+  sfp << aBatchModeScript << ".salome_init()" << std::endl;
+  if ( !isMultiFile )
+    sfp << "theStudy = salome.myStudy" <<std::endl << std::endl;
 
   // notebook initialization
   sfp << _GetNoteBookAccess();
