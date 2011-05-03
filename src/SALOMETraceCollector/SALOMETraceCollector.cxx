@@ -70,7 +70,7 @@ BaseTraceCollector* SALOMETraceCollector::instance()
           pthread_t traceThread;
           int bid = 0;
           pthread_create(&traceThread, NULL,
-                                   SALOMETraceCollector::run, (void *)bid);
+                                   SALOMETraceCollector::run, &bid);
           sem_wait(&_sem);
           _singleton = myInstance; // _singleton known only when init done
         }
