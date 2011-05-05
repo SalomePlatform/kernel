@@ -644,7 +644,7 @@ def startSalome(args, modules_list, modules_root_dir):
         print "-- to get an external python interpreter:runSalome --interp=1"
         print "-------------------------------------------------------------"
         
-    print "additional external python interpreters: ", nbaddi
+    if verbose(): print "additional external python interpreters: ", nbaddi
     if nbaddi:
         for i in range(nbaddi):
             print "i=",i
