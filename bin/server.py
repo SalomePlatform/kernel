@@ -127,5 +127,7 @@ class Server:
         try:
           os.execvp(args[0], args)
         except OSError, e:
-          print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+          if args[0] != "notifd":
+            print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+            pass
           os._exit(127)
