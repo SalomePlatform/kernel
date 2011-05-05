@@ -61,7 +61,7 @@ else
    else
       AC_MSG_NOTICE(Trying Hdf5 from $HDF5HOME ...)
       LOCAL_LIBS="-L$HDF5HOME/lib"
-      LOCAL_RLIBS="-R$HDF5HOME/lib"
+      LOCAL_RLIBS="-Wl,-R$HDF5HOME/lib"
    fi
 fi
 
