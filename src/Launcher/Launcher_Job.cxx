@@ -62,6 +62,16 @@ Launcher::Job::~Job()
 {
   LAUNCHER_MESSAGE("Deleting job number: " << _number);
 #ifdef WITH_LIBBATCH
+  if (_batch_job)
+    delete _batch_job;
+#endif
+}
+
+void
+Launcher::Job::removeJob()
+{
+  LAUNCHER_MESSAGE("Removing job number: " << _number);
+#ifdef WITH_LIBBATCH
   if (_batch_job_id.getReference() != "undefined")
   {
     try 
@@ -70,11 +80,9 @@ Launcher::Job::~Job()
     }
     catch (const Batch::EmulationException &ex)
     {
-      LAUNCHER_INFOS("WARNING: exception when deleting the job: " << ex.message);
+      LAUNCHER_INFOS("WARNING: exception when removing the job: " << ex.message);
     }
   }
-  if (_batch_job)
-    delete _batch_job;
 #endif
 }
 

@@ -109,6 +109,8 @@ namespace Launcher
       // Xml method
       void addToXmlDocument(xmlNodePtr root_node);
 
+      void removeJob();
+
       // Abstract class
       virtual void update_job() = 0;
 

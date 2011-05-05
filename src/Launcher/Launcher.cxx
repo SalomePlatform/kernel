@@ -324,6 +324,7 @@ Launcher_cpp::removeJob(int job_id)
     throw LauncherException("Cannot find the job, is it created ?");
   }
 
+  it_job->second->removeJob();
   delete it_job->second;
   _launcher_job_map.erase(it_job);
 }
