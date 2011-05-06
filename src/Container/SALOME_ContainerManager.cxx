@@ -1065,13 +1065,13 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
           ASSERT(getenv("NSPORT"));
           command += getenv("NSPORT"); // port of CORBA name server
 
-          command += " mpirun -np 1 hostname > " + tmpFile;
+          command += " mpirun -np 1 hostname -s > " + tmpFile;
         }
       else
-        command = "mpirun -np 1 hostname > " + tmpFile;
+        command = "mpirun -np 1 hostname -s > " + tmpFile;
     }
   else
-    command = "mpirun -np 1 -machinefile " + machinesFile + " hostname > " + tmpFile;
+    command = "mpirun -np 1 -machinefile " + machinesFile + " hostname -s > " + tmpFile;
 
   status = system(command.c_str());
   if( status == 0 ){
