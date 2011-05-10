@@ -1,4 +1,4 @@
 <!DOCTYPE ResourcesCatalog>
 <resources>
-  <machine hostname="localhost" />
+  <machine name="localhost" hostname="localhost" />
 </resources>
