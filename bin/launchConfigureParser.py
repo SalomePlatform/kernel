@@ -64,6 +64,7 @@ gdb_session_nam = "gdb_session"
 ddd_session_nam = "ddd_session"
 valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
+foreground_nam = "foreground"
 wake_up_session_nam = "wake_up_session"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
@@ -686,6 +687,17 @@ def CreateOptionParser (theAdditionalOptions=[]):
                                  dest="shutdown_servers",
                                  help=help_str)
 
+    # foreground. Default: True.
+    help_str  = "0 and runSalome exits after have launched the gui, "
+    help_str += "1 to launch runSalome in foreground mode [default]."
+    o_foreground = optparse.Option("--foreground",
+                                   metavar="<1/0>",
+                                   #type="choice", choices=boolean_choices,
+                                   type="string",
+                                   action="callback", callback=store_boolean, callback_args=('foreground',),
+                                   dest="foreground",
+                                   help=help_str)
+
     # wake up session
     help_str  = "Wake up a previously closed session. "
     help_str += "The session object is found in the naming service pointed by the variable OMNIORB_CONFIG. "
@@ -721,6 +733,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_ddd,
                 o_valgrind,
                 o_shutdown,
+                o_foreground,
                 o_wake_up,
                 ]
 
@@ -1015,6 +1028,13 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         args[shutdown_servers_nam] = 0
     else:
         args[shutdown_servers_nam] = cmd_opts.shutdown_servers
+        pass
+
+    # Foreground
+    if cmd_opts.foreground is None:
+        args[foreground_nam] = 1
+    else:
+        args[foreground_nam] = cmd_opts.foreground
         pass
 
     # wake up session

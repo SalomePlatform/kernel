@@ -1025,6 +1025,7 @@ if __name__ == "__main__":
         pass
     # --
     test = test and os.getenv("SALOME_TEST_MODE", "0") != "1"
+    test = test and args['foreground']
     # --
     if test:
         foreGround(clt, args)
