@@ -24,16 +24,15 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 pydocdir = $(docdir)/tui/KERNEL/docutils
 
-.PHONY : latex
+RSTFILES = \
+	index.rst \
+	overview.rst \
+	docapi.rst \
+	salomepypkg.rst \
+	kernel.rst \
+	parametric.rst
 
-if SPHINX_IS_OK
-
-html/index.html:$(RSTFILES)
-	make htm
-
-endif
-
-EXTRA_DIST = archives
+EXTRA_DIST = archives $(RSTFILES)
 
 SPHINXOPTS      =
 SOURCEDIR       = $(srcdir)
@@ -45,13 +44,25 @@ SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$
 
 SPHINX_LD_LIBRARY_PATH = $(OMNIORB_ROOT)/lib
 
-htm:
+
+.PHONY: latex
+
+if SPHINX_IS_OK
+
+html/index.html:$(RSTFILES)
 	mkdir -p html doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH} \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} \
 	$(SPHINXBUILD) -c $(top_builddir)/doc/docutils -W -b html $(ALLSPHINXOPTS) html
 	@echo
 	@echo "Build finished. The HTML pages are in html."
+
+else
+
+html/index.html:
+	@echo "Documentation for Python package not built. Sphinx was not present at configure time."
+
+endif
 
 latex:
 	mkdir -p latex doctrees
@@ -62,19 +73,6 @@ latex:
 	@echo "Build finished; the LaTeX files are in latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
 	      "run these through (pdf)latex."
-
-html:
-	mkdir -p $@
-
-RSTFILES= \
-	index.rst \
-	overview.rst \
-	docapi.rst \
-	salomepypkg.rst \
-	kernel.rst \
-	parametric.rst
-
-EXTRA_DIST+= $(RSTFILES)
 
 install-data-local: html/index.html
 	test -z $(pydocdir) || mkdir -p $(DESTDIR)$(pydocdir)
@@ -89,5 +87,5 @@ clean-local:
 	-rm -rf html latex doctrees
 	if test -d "html"; then rm -rf html ; fi
 
-disthook :
+dist-hook:
 	-test -d html && cp -Rp html $(distdir)
