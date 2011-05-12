@@ -426,8 +426,8 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     case openmpi:
       mpi = "openmpi";
       break;
-    case slurm:
-      mpi = "slurm";
+    case slurmmpi:
+      mpi = "slurmmpi";
       break;
     case prun:
       mpi = "prun";
@@ -450,6 +450,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
       break;
     case ccc:
       bmType = "eCCC";
+      break;
+    case slurm:
+      bmType = "eSLURM";
       break;
     case ssh_batch:
       bmType = "eSSH";

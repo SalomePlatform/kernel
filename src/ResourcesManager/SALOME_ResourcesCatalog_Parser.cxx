@@ -207,6 +207,8 @@ ParserResourcesType::PrintBatchType() const
     return "sge";
   else if (Batch == ccc)
     return "ccc";
+  else if (Batch == slurm)
+    return "slurm";
   else if (Batch == ll)
     return "ll";
   else 
@@ -226,8 +228,8 @@ ParserResourcesType::PrintMpiImplType() const
     return "mpich2";
   else if (mpi == openmpi)
     return "openmpi";
-  else if (mpi == slurm)
-    return "slurm";
+  else if (mpi == slurmmpi)
+    return "slurmmpi";
   else
     return "prun";
 }

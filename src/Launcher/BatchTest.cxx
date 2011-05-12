@@ -304,6 +304,12 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type == "sge")
   {
     INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
@@ -472,7 +478,7 @@ BatchTest::test_jobsubmit_mpi()
     mpiImpl = new MpiImpl_MPICH2();
   else if(mpi_type == "openmpi")
     mpiImpl = new MpiImpl_OPENMPI();
-  else if(mpi_type == "slurm")
+  else if(mpi_type == "slurmmpi")
     mpiImpl = new MpiImpl_SLURM();
   else
   {
@@ -491,6 +497,13 @@ BatchTest::test_jobsubmit_mpi()
   if (batch_type == "ccc")
   {
     INFOS("test_jobsubmit_simple not yet implemented for ccc... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "slurm")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for slurm... return OK");
     result = "OK";
     return result;
   }

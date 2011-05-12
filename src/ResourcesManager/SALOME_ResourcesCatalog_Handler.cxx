@@ -245,8 +245,8 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
-    else if  (anMpi == "slurm")
-      resource.mpi = slurm;
+    else if  (anMpi == "slurmmpi")
+      resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
       resource.mpi = prun;
     else
@@ -531,6 +531,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.Batch = ssh_batch;
     else if  (aBatch == "ccc")
       resource.Batch = ccc;
+    else if  (aBatch == "slurm")
+      resource.Batch = slurm;
     else if  (aBatch == "ll")
       resource.Batch = ll;
     else
@@ -550,8 +552,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.mpi = mpich2;
     else if (anMpi == "openmpi")
       resource.mpi = openmpi;
-    else if  (anMpi == "slurm")
-      resource.mpi = slurm;
+    else if  (anMpi == "slurmmpi")
+      resource.mpi = slurmmpi;
     else if  (anMpi == "prun")
       resource.mpi = prun;
     else
@@ -728,6 +730,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       case ccc:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ccc");
         break;
+      case slurm:
+        xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+        break;
       case ssh_batch:
         xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
         break;
@@ -752,8 +757,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       case openmpi:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
         break;
-      case slurm:
-        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+      case slurmmpi:
+        xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurmmpi");
         break;
       case prun:
         xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");

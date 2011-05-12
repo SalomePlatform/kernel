@@ -241,8 +241,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->mpiImpl = "mpich2";
   else if( resource.mpi == openmpi )
     p_ptr->mpiImpl = "openmpi";
-  else if( resource.mpi == slurm )
-    p_ptr->mpiImpl = "slurm";
+  else if( resource.mpi == slurmmpi )
+    p_ptr->mpiImpl = "slurmmpi";
   else if( resource.mpi == prun )
     p_ptr->mpiImpl = "prun";
 
@@ -254,6 +254,8 @@ SALOME_ResourcesManager::GetResourceDefinition(const char * name)
     p_ptr->batch = "sge";
   else if( resource.Batch == ccc )
     p_ptr->batch = "ccc";
+  else if( resource.Batch == slurm )
+    p_ptr->batch = "slurm";
   else if( resource.Batch == ssh_batch )
     p_ptr->batch = "ssh";
   else if( resource.Batch == ll )
@@ -285,8 +287,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.Batch = lsf;
   else if  (aBatch == "sge")
     resource.Batch = sge;
-  else if  (aBatch == "ccc")
-    resource.Batch = ccc;
+  else if  (aBatch == "slurm")
+    resource.Batch = slurm;
   else if  (aBatch == "ssh_batch")
     resource.Batch = ssh_batch;
   else if  (aBatch == "ll")
@@ -309,8 +311,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.mpi = mpich2;
   else if (anMpi == "openmpi")
     resource.mpi = openmpi;
-  else if  (anMpi == "slurm")
-    resource.mpi = slurm;
+  else if  (anMpi == "slurmmpi")
+    resource.mpi = slurmmpi;
   else if  (anMpi == "prun")
     resource.mpi = prun;
   else if (anMpi == "")
