@@ -286,10 +286,14 @@ class SessionServer(Server):
             list_modules = []
             #keep only modules with GUI
             for m in modules_list:
-              fr1 = os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")
-              fr2 = os.path.join(modules_root_dir[m],"share","salome","resources","SalomeApp.xml")
-              if os.path.exists(fr1) or os.path.exists(fr2):
+              if m not in modules_root_dir:
                 list_modules.insert(0,m)
+              else:
+                fr1 = os.path.join(modules_root_dir[m],"share","salome","resources",m.lower(),"SalomeApp.xml")
+                fr2 = os.path.join(modules_root_dir[m],"share","salome","resources","SalomeApp.xml")
+                if os.path.exists(fr1) or os.path.exists(fr2):
+                  list_modules.insert(0,m)
+            list_modules.reverse()
             self.SCMD2+=['--modules (%s)' % ":".join(list_modules)]
 
         if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
@@ -505,7 +509,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     if args["gui"]:
-        mySessionServ = SessionServer(args,modules_list,modules_root_dir)
+        mySessionServ = SessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
 
