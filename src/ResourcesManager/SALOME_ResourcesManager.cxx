@@ -289,6 +289,8 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
     resource.Batch = sge;
   else if  (aBatch == "slurm")
     resource.Batch = slurm;
+  else if  (aBatch == "ccc")
+    resource.Batch = ccc;
   else if  (aBatch == "ssh_batch")
     resource.Batch = ssh_batch;
   else if  (aBatch == "ll")
