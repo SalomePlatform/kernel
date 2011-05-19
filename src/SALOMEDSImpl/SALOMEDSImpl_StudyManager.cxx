@@ -1125,6 +1125,8 @@ DF_Label SALOMEDSImpl_StudyManager::PasteLabel(SALOMEDSImpl_Study* theDestinatio
       aTargetLabel = aTargetLabel.FindChild(aSourceLabel.Tag());
       aAuxSourceLabel = aAuxSourceLabel.FindChild(aSourceLabel.Tag());
     }
+    SALOMEDSImpl_SObject so = theDestinationStudy->GetSObject(aTargetLabel);
+    theDestinationStudy->addSO_Notification(so);
   }
 
   // check auxiliary label for TMPFile => IOR
